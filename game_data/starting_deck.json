@@ -1,0 +1,49 @@
+{
+    "cards": [
+        {
+            "nice_name": "Basic Attack",
+            "power": 3,
+            "type": "attack",
+            "cost": 0,
+            "health_cost": 0,
+            "description": "Deal {value} damage to target enemy",
+            "target_range": 1,
+            "burn_after_use": false,
+            "area_of_effect": 0
+        },
+        {
+            "nice_name": "Basic Move",
+            "power": 0,
+            "type": "move",
+            "cost": 0,
+            "health_cost": 0,
+            "description": "Move {value} spaces",
+            "target_range": 2,
+            "burn_after_use": false,
+            "area_of_effect": 0,
+            "move_distance": 2
+        },
+        {
+            "nice_name": "Basic Defend",
+            "power": 2,
+            "type": "defend",
+            "cost": 0,
+            "health_cost": 0,
+            "description": "Block {value} damage",
+            "target_range": 0,
+            "burn_after_use": false,
+            "area_of_effect": 0
+        },
+        {
+            "nice_name": "Ranged Attack",
+            "power": 2,
+            "type": "attack",
+            "cost": 0,
+            "health_cost": 0,
+            "description": "Deal {value} damage to target enemy",
+            "target_range": 3,
+            "burn_after_use": false,
+            "area_of_effect": 0
+        }
+    ]
+} 

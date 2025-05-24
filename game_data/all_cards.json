@@ -1,0 +1,24 @@
+[
+  {
+	"nice_name": "Slice",
+	"texture_path": "res://sprites/cards/card_attack.png",
+	"backface_texture_path": "res://sprites/cards/card_back.png",
+	"resource_script_path": "res://card_data.gd",
+	"type": "Attack",
+	"power": 1,
+	"cost": 1,
+	"target_range": 5,
+	"description": "Deal {value} damage"
+  },
+  {
+	"nice_name": "Dice",
+	"texture_path": "res://sprites/cards/card_dice.png",
+	"backface_texture_path": "res://sprites/cards/card_back.png",
+	"resource_script_path": "res://card_data.gd",
+	"type": "Attack",
+	"power": 3,
+	"cost": 2,
+	"target_range": 5,
+	"description": "Deal {value} damage"
+  }
+]

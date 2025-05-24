@@ -1,0 +1,12 @@
+[{
+	"name": "Player",
+	"health": 10,
+	"speed": 5,
+	"type": "player"
+  },
+  {
+	"name": "Bandit Swordsman",
+	"speed": 2,
+	"health": 4,
+	"type": "enemy"
+  }]
