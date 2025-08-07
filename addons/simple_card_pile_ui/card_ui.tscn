@@ -7,12 +7,22 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_v1sf0")
 
-[node name="BackFaceTextureRect" type="TextureRect" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Backface" type="TextureRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+expand_mode = 1
+stretch_mode = 0
 
-[node name="FrontFaceTextureRect" type="TextureRect" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Frontface" type="TextureRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+expand_mode = 1
+stretch_mode = 0
