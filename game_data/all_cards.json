@@ -1,24 +1,59 @@
 [
-  {
-	"nice_name": "Slice",
-	"texture_path": "res://sprites/cards/card_attack.png",
+{
+	"nice_name": "Basic Attack",
+	"texture_path": "res://sprites/cards/slash.png",
 	"backface_texture_path": "res://sprites/cards/card_back.png",
 	"resource_script_path": "res://card_data.gd",
-	"type": "Attack",
-	"power": 1,
-	"cost": 1,
-	"target_range": 5,
-	"description": "Deal {value} damage"
+	"type": "attack",
+	"power": 3,
+	"cost": 0,
+	"health_cost": 0,
+	"target_range": 1,
+	"description": "Deal {value} damage to target enemy",
+	"burn_after_use": false,
+	"area_of_effect": 0
   },
   {
-	"nice_name": "Dice",
+	"nice_name": "Basic Move",
+	"texture_path": "res://sprites/cards/card_move.png",
+	"backface_texture_path": "res://sprites/cards/card_back.png",
+	"resource_script_path": "res://card_data.gd",
+	"type": "move",
+	"power": 0,
+	"cost": 0,
+	"health_cost": 0,
+	"target_range": 2,
+	"description": "Move {value} spaces",
+	"burn_after_use": false,
+	"area_of_effect": 0,
+	"move_distance": 4
+  },
+  {
+	"nice_name": "Basic Defend",
 	"texture_path": "res://sprites/cards/card_dice.png",
 	"backface_texture_path": "res://sprites/cards/card_back.png",
 	"resource_script_path": "res://card_data.gd",
-	"type": "Attack",
-	"power": 3,
-	"cost": 2,
-	"target_range": 5,
-	"description": "Deal {value} damage"
+	"type": "defend",
+	"power": 2,
+	"cost": 0,
+	"health_cost": 0,
+	"target_range": 0,
+	"description": "Block {value} damage",
+	"burn_after_use": false,
+	"area_of_effect": 0
+  },
+  {
+	"nice_name": "Ranged Attack",
+	"texture_path": "res://sprites/cards/old_card_attack.png",
+	"backface_texture_path": "res://sprites/cards/card_back.png",
+	"resource_script_path": "res://card_data.gd",
+	"type": "attack",
+	"power": 2,
+	"cost": 0,
+	"health_cost": 0,
+	"target_range": 3,
+	"description": "Deal {value} damage to target enemy",
+	"burn_after_use": false,
+	"area_of_effect": 0
   }
 ]

@@ -52,8 +52,11 @@ func _ready():
 	if frontface_texture:
 		frontface.texture = load(frontface_texture)
 		backface.texture = load(backface_texture)
-		custom_minimum_size = frontface.texture.get_size()
-		pivot_offset = frontface.texture.get_size() / 2
+		frontface.stretch_mode = TextureRect.STRETCH_SCALE
+		backface.stretch_mode = TextureRect.STRETCH_SCALE
+		frontface.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		backface.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pivot_offset = size / 2
 		mouse_filter = Control.MOUSE_FILTER_PASS
 
 
@@ -136,7 +139,7 @@ func get_dropzones(node: Node, className : String, result : Array) -> void:
 
 func _process(_delta):
 	if is_clicked and drag_when_clicked:
-		target_position = get_global_mouse_position() - custom_minimum_size * 0.5
+		target_position = get_global_mouse_position() - size * 0.5
 	if is_clicked:
 		global_position = target_position
 	elif position != target_position:
