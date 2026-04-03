@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://b5ppo1lh8sn23"]
-
-[ext_resource type="Script" uid="uid://csbjtvru8a05o" path="res://addons/simple_card_pile_ui/simple_card_pile_ui.gd" id="1_yp2ww"]
-
-[node name="SimpleCardPileUI" type="EditorPlugin"]
-script = ExtResource("1_yp2ww")

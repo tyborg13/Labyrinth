@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cmybc6xlfhn6"]
-
-[ext_resource type="Script" uid="uid://dxkklkecqyoaj" path="res://GameMaster.gd" id="1_a5fxl"]
-
-[node name="GameMaster" type="Node2D"]
-script = ExtResource("1_a5fxl")
