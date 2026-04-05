@@ -1,0 +1,363 @@
+{
+  "version": 1,
+  "layer": "shared",
+  "updated_at": "2026-04-05T15:56:38Z",
+  "notes": [
+    {
+      "id": "mnt_20260403T204405Z_bc012f2f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "RunEngine, CombatEngine, RoomGenerator, and ProgressionStore own all gameplay rules in pure RefCounted scripts over dictionaries so the same codepath powers both the playable scenes and headless regression tests.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-03T20:44:05Z",
+      "updated_at": "2026-04-03T20:44:05Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260404T035027Z_b2d7f7a9",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "UI copy should stay terse and action-oriented; prefer visual communication, concise labels, and lightweight overlays over explanatory panel text or multi-sentence instructions.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-04T03:50:27Z",
+      "updated_at": "2026-04-04T03:50:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260404T041739Z_a063bdfc",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "RunScene builds the camp-menu and pile-inspector overlays in code; resume vs. new-run flow is chosen from the root meta key 'labyrinth_resume_saved_run' and backed by ProgressionStore's separate saved-run slot.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-04T04:17:39Z",
+      "updated_at": "2026-04-04T04:17:39Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260404T050500Z_f563a6f6",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "RunScene sizes MiniMapOverlay in _layout_mini_map_overlay() from the current viewport instead of fixed offsets because a larger static corner map was overflowing smaller windows and obscuring the board.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-04T05:05:00Z",
+      "updated_at": "2026-04-04T05:05:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260404T134927Z_a0d78c2b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat hands are only dead when both the printed card previews and the drag fallback previews are invalid; Pass logic and hand dimming need to account for the alternate 2-attack and 2-move plays, not just the printed card text.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-04T13:49:27Z",
+      "updated_at": "2026-04-04T13:49:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260404T134933Z_da475ab2",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "tests/ui_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/ui_probe.gd",
+      "summary": "UI regressions need screenshot probes for combat, pile inspectors, the drag overlay, fallback targeting, and after-play states because those overlays are built in code and scene-instantiation tests miss layout and input breakage.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-04T13:49:33Z",
+      "updated_at": "2026-04-04T13:49:33Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260404T043148Z_dac679d7"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T022337Z_3f216f2e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Multi-action cards treat targeted steps as skippable by default unless an action is marked required; the preview auto-skips dead target steps and the combat choice bar exposes Skip for optional follow-ups that still have valid targets.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-05T02:23:37Z",
+      "updated_at": "2026-04-05T02:23:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T022344Z_c395d28e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Enemy block is preview-time: assigning a revealed intent preloads any block onto the enemy for the current player turn, then enemy phase clears that preview block before actions resolve so it does not carry into the next turn.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-05T02:23:44Z",
+      "updated_at": "2026-04-05T02:23:44Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T022353Z_1fd1b7a6",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "tests/run_tests.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/run_tests.gd",
+      "summary": "Regression tests now lock the updated combat rules: revealed enemy block must mitigate the current player turn immediately, and multi-action cards must stay playable when optional targeted steps can be skipped or auto-skipped.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-05T02:23:53Z",
+      "updated_at": "2026-04-05T02:23:53Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260404T134918Z_f07b12ac"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T023438Z_6e70c74b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Targetless cards must commit on the initial click path itself; previewing their resolved state without immediately awaiting _play_player_card leaves a ghost preview that cancels on the next selection instead of spending the card.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-05T02:34:38Z",
+      "updated_at": "2026-04-05T02:34:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T031112Z_fce5409c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Hand-card damage text should come from CombatEngine final-damage and modifier helpers, using a preview-state copy so Ember Lens stays aligned with live combat on multi-action cards.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-05T03:11:12Z",
+      "updated_at": "2026-04-05T03:11:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T134802Z_2009acb3",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/ui_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/ui_probe.gd",
+      "summary": "UI probes must clear saved runs and load a fresh deterministic run state before capturing; otherwise screenshots can silently reuse stale progress and mask changes like enemy-density or HUD updates.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-05T13:48:02Z",
+      "updated_at": "2026-04-05T13:48:02Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T152757Z_2b220908",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pile widgets need collapsed legacy children and short empty captions",
+      "details": "The dynamic draw/discard/burn widgets still sit on top of the original scene controls, so _build_pile_widget should zero out those legacy children. Empty-pile captions also need to stay short (DECK/DISC/BURN); letting discard render DISCARD can overflow and look like a stretched pile even when the frame is fine.",
+      "status": "active",
+      "created_at": "2026-04-05T15:27:57Z",
+      "updated_at": "2026-04-05T15:27:57Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T154149Z_3ba5b8ae",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Hover-lifted cards need unclipped transparent hand scroll",
+      "details": "The hand ScrollContainer should use an empty panel style and clip_contents=false. Otherwise hovered cards get their tops cut off and the hand row can show a darker panel strip that reads like a mismatched background behind the cards.",
+      "status": "active",
+      "created_at": "2026-04-05T15:41:49Z",
+      "updated_at": "2026-04-05T15:41:49Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T154253Z_341bd4fe",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Stable card drag needs a top-level proxy and hidden source card",
+      "details": "The dragged card proxy should be top_level and the source hand widget should be hidden instead of rebuilding the whole hand at drag start. Rebuilding under the cursor or leaving the source visible causes jittery drag behavior and visual fighting between the proxy and the hand layout.",
+      "status": "active",
+      "created_at": "2026-04-05T15:42:53Z",
+      "updated_at": "2026-04-05T15:42:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260405T155637Z_fe3d0283",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Top-level card proxies must not reuse position-based hover lift",
+      "details": "CardWidget's hover/selection pose adjusts position.y, which is fine inside the hand layout but breaks top_level drag proxies by snapping them toward y=0. For drag proxies, keep absolute position untouched and only apply safe visual properties like scale.",
+      "status": "active",
+      "created_at": "2026-04-05T15:56:37Z",
+      "updated_at": "2026-04-05T15:56:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3e039e0"
+      }
+    }
+  ]
+}

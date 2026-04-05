@@ -1,0 +1,788 @@
+extends SceneTree
+
+const GameData = preload("res://scripts/game_data.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RoomGenerator = preload("res://scripts/room_generator.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
+const PathUtils = preload("res://scripts/path_utils.gd")
+
+var _failures: Array[String] = []
+
+func _initialize() -> void:
+	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
+	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
+	var default_progression: Dictionary = ProgressionStore.default_data()
+	_assert(GameData.cards().size() >= 20, "Card data should load")
+	_assert(GameData.enemies().size() >= 5, "Enemy data should load")
+	_assert(GameData.relics().size() >= 5, "Relic data should load")
+	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	_test_room_generation_is_deterministic()
+	_test_room_generation_keeps_spawn_reachable()
+	_test_room_generation_scales_enemy_density()
+	_test_fatigue_draws_cost_health_and_burn_removes_card()
+	_test_two_card_turn_draw_flow()
+	_test_first_attack_bonus_damage_math()
+	_test_healing_cards_are_burned_and_downweighted()
+	_test_player_block_absorbs_full_enemy_phase()
+	_test_enemy_preview_block_mitigates_current_turn_damage()
+	_test_blast_hits_multiple_targets()
+	_test_enemy_phase_preserves_preview_cycle()
+	_test_run_map_room_types()
+	_test_combat_finish_generates_reward_state()
+	_test_progression_save_and_purchase(default_progression)
+	_test_recovery_marker_flow()
+	_test_recovery_marker_expires_after_next_run()
+	_test_run_state_save_and_load()
+	_test_default_theme_uses_pixel_font()
+	await _test_main_scenes_instantiate()
+	await _test_run_scene_offers_pass_when_hand_dead()
+	await _test_run_scene_optional_followup_attack_stays_playable()
+	await _test_run_scene_block_card_skips_dead_move()
+	await _test_run_scene_targetless_card_click_commits_play()
+	await _test_run_scene_damage_display_matches_bonus()
+	await _test_run_scene_ranged_cards_show_range()
+	await _test_run_scene_empty_discard_uses_short_caption()
+	await _test_run_scene_displays_owned_relic_icons()
+	await _test_main_menu_shows_continue_for_saved_run()
+
+	if _failures.is_empty():
+		print("TEST RESULT: PASS")
+		quit(0)
+		return
+
+	for failure: String in _failures:
+		push_error(failure)
+	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
+	quit(1)
+
+func _test_room_generation_is_deterministic() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room_meta: Dictionary = {
+		"coord": Vector2i(1, 0),
+		"depth": 1,
+		"type": "combat"
+	}
+	var a: Dictionary = generator.generate_room(17, room_meta, Vector2i(1, 0))
+	var b: Dictionary = generator.generate_room(17, room_meta, Vector2i(1, 0))
+	_assert(a.get("grid", []) == b.get("grid", []), "Room generation should be deterministic for identical inputs")
+	_assert(a.get("player_start", Vector2i(-1, -1)) == b.get("player_start", Vector2i.ZERO), "Player spawn should be deterministic")
+	_assert(a.get("enemies", []) == b.get("enemies", []), "Enemy spawn pattern should be deterministic")
+
+func _test_room_generation_keeps_spawn_reachable() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room_meta: Dictionary = {
+		"coord": Vector2i(2, 1),
+		"depth": 3,
+		"type": "combat"
+	}
+	var room: Dictionary = generator.generate_room(99, room_meta, Vector2i(0, -1))
+	var grid: Array = room.get("grid", [])
+	var spawn: Vector2i = room.get("player_start", Vector2i.ZERO)
+	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(grid, spawn, 20, {})
+	_assert(reachable.size() >= 14, "Generated rooms should leave a broad reachable footprint from the entry tile")
+
+func _test_room_generation_scales_enemy_density() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var depth_one_room: Dictionary = generator.generate_room(27, {
+		"coord": Vector2i(1, 0),
+		"depth": 1,
+		"type": "combat"
+	}, Vector2i(1, 0))
+	var depth_three_room: Dictionary = generator.generate_room(27, {
+		"coord": Vector2i(2, 1),
+		"depth": 3,
+		"type": "combat"
+	}, Vector2i(1, 0))
+	var boss_room: Dictionary = generator.generate_room(27, {
+		"coord": Vector2i(4, 0),
+		"depth": 4,
+		"type": "boss"
+	}, Vector2i(1, 0))
+	_assert((depth_one_room.get("enemies", []) as Array).size() >= 3, "Opening combat rooms should pack at least three enemies")
+	_assert((depth_three_room.get("enemies", []) as Array).size() >= 5, "Outer combat rooms should feel denser than the opening ring")
+	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
+
+func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(11, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["shadow_gate", "quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = state.get("deck", {}).duplicate(true)
+	deck["hand"] = ["shadow_gate"]
+	deck["draw"] = []
+	deck["discard"] = ["quick_stab"]
+	state["deck"] = deck
+	var hp_before: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
+	state = combat.finish_player_card(state, 0)
+	_assert((state.get("deck", {}) as Dictionary).get("burned", []).has("shadow_gate"), "Burn cards should move to the burned pile")
+	state = combat.prepare_next_player_turn(state)
+	var hp_after: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
+	_assert(hp_after == hp_before - 2, "Cycling the deck should deal fatigue damage")
+	_assert((state.get("deck", {}) as Dictionary).get("hand", []).has("quick_stab"), "Discard should reshuffle into the draw and refill hand")
+
+func _test_two_card_turn_draw_flow() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(15, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "brace", "quick_stab", "quick_stab", "quick_stab", "bone_dart", "patch_up"],
+		"relics": [],
+		"hand_size": 5,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab", "brace", "quick_stab", "quick_stab", "quick_stab"]
+	deck["draw"] = ["bone_dart", "patch_up"]
+	deck["discard"] = []
+	state["deck"] = deck
+	_assert(int(state.get("cards_per_turn", 0)) == 2, "Combat should allow two cards per turn")
+	_assert(int(state.get("draw_per_turn", 0)) == 2, "Combat should draw two cards each turn")
+	state = combat.finish_player_card(state, 1)
+	_assert(int(state.get("cards_played_this_turn", 0)) == 1, "Playing one card should consume one play")
+	state = combat.finish_player_card(state, 0)
+	_assert(int(state.get("cards_played_this_turn", 0)) == 2, "Playing a second card should spend the full turn")
+	state = combat.prepare_next_player_turn(state)
+	_assert(int(state.get("cards_played_this_turn", 0)) == 0, "A new turn should reset the play counter")
+	_assert(int(state.get("turn", 0)) == 2, "Advancing the player turn should increment the turn counter")
+	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5, "A new turn should draw two replacement cards")
+
+func _test_first_attack_bonus_damage_math() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(16, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["ember_lens"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(3, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 4
+		}
+	]
+	var action: Dictionary = {"type": "melee", "damage": 6, "range": 1}
+	_assert(combat.final_damage_for_player_action(state, action) == 8, "Displayed attack damage should include the first-attack bonus before the card resolves")
+	state = combat.apply_player_action(state, action, Vector2i(3, 4))
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
+	_assert(int(enemy.get("hp", 0)) == 10, "A 6-damage strike with Ember Lens into 4 block should deal 4 health damage")
+	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
+
+func _test_healing_cards_are_burned_and_downweighted() -> void:
+	for card_id: String in ["patch_up", "rallying_breath", "last_light"]:
+		var card: Dictionary = GameData.card_def(card_id)
+		_assert(bool(card.get("burn", false)), "Healing cards should burn so recovery is a shorter-term tactical choice")
+	_assert(int((GameData.card_def("patch_up").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 3, "Patch Up should heal less than the original starter version")
+	_assert(int((GameData.card_def("rallying_breath").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 4, "Rallying Breath should heal less than the original common version")
+	_assert(int((GameData.card_def("last_light").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 6, "Last Light should heal less than the original rare version")
+	_assert(GameData.reward_offer_weight("rallying_breath") < GameData.reward_offer_weight("iron_wheel"), "Healing cards should be rarer reward offers than standard non-heal cards")
+
+func _test_player_block_absorbs_full_enemy_phase() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(18, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "block", "amount": 8})
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(3, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Claw", "actions": [{"type": "melee", "damage": 5, "range": 1}]}
+		},
+		{
+			"id": 2,
+			"type": "harrier",
+			"pos": Vector2i(2, 2),
+			"hp": 10,
+			"max_hp": 10,
+			"block": 0,
+			"intent": {"name": "Pelt", "actions": [{"type": "ranged", "damage": 4, "range": 4}]}
+		}
+	]
+	var hp_before: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
+	state = combat.resolve_enemy_phase(state)
+	var player: Dictionary = state.get("player", {})
+	_assert(int(player.get("hp", 0)) == hp_before - 1, "Player block should absorb damage across the whole enemy phase before health is lost")
+	_assert(int(player.get("block", 0)) == 0, "Enemy attacks should consume player block before health")
+
+func _test_enemy_preview_block_mitigates_current_turn_damage() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(19, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(3, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Coil", "actions": [{"type": "block", "amount": 4}]}
+		}
+	]
+	state = combat._apply_revealed_intent_blocks(state)
+	var blocked_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(int(blocked_enemy.get("block", 0)) == 4, "Enemy block should appear as soon as the intent is revealed")
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 6, "range": 1}, Vector2i(3, 4))
+	blocked_enemy = (state.get("enemies", []) as Array)[0]
+	_assert(int(blocked_enemy.get("hp", 0)) == 12, "Revealed enemy block should mitigate the current player turn immediately")
+	_assert(int(blocked_enemy.get("block", 0)) == 0, "Enemy block should be reduced before health when struck")
+
+func _test_blast_hits_multiple_targets() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(4, _blast_test_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["cyclone_seal"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var action: Dictionary = GameData.card_def("cyclone_seal").get("actions", [])[0]
+	state = combat.apply_player_action(state, action, Vector2i(4, 3))
+	var enemies: Array = state.get("enemies", [])
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) < int((enemies[0] as Dictionary).get("max_hp", 0)), "Blast should damage the first target")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) < int((enemies[1] as Dictionary).get("max_hp", 0)), "Blast should damage the second target in the radius")
+
+func _test_enemy_phase_preserves_preview_cycle() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(21, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var before_intent: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {})
+	var before_rng_state: int = int(state.get("rng_state", 0))
+	state = combat.resolve_enemy_phase(state)
+	var after_intent: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {})
+	_assert(not before_intent.is_empty(), "Enemies should begin combat with a preview intent")
+	_assert(not after_intent.is_empty(), "Enemies should roll another preview intent after acting")
+	_assert(int(state.get("rng_state", 0)) != before_rng_state, "Enemy phase should advance deterministic RNG state")
+
+func _test_run_map_room_types() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(13, progression)
+	_assert(str(run_engine.room_metadata(run_state, Vector2i.ZERO).get("type", "")) == "start", "Origin should be the start room")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(2, 0)).get("type", "")) == "campfire", "Axis depth-2 rooms should be campfire rooms")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Outer ring should be boss territory")
+
+func _test_combat_finish_generates_reward_state() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
+	var combat_destination: Vector2i = Vector2i.ZERO
+	for candidate: Vector2i in run_engine.available_moves(run_state):
+		if str(run_engine.room_metadata(run_state, candidate).get("type", "")) == "combat":
+			combat_destination = candidate
+			break
+	_assert(combat_destination != Vector2i.ZERO, "The opening ring should include at least one combat room")
+	run_state = run_engine.move_to_room(run_state, combat_destination)
+	var combat_state: Dictionary = run_state.get("combat_state", {}).duplicate(true)
+	for enemy_index: int in range((combat_state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[enemy_index]
+		enemy["hp"] = 0
+		(combat_state.get("enemies", []) as Array)[enemy_index] = enemy
+	combat_state["room_embers"] = 12
+	run_state = run_engine.finish_combat(run_state, combat_state)
+	_assert(str(run_state.get("mode", "")) == "reward", "Winning a non-boss combat should transition to the reward state")
+	_assert(int(run_state.get("unbanked_embers", 0)) >= 12, "Combat victory should award embers to the run")
+	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
+
+func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
+	var data: Dictionary = ProgressionStore.add_embers(default_progression, 100)
+	_assert(ProgressionStore.save_data(data), "Progression save should succeed")
+	var loaded: Dictionary = ProgressionStore.load_data()
+	_assert(int(loaded.get("embers", 0)) == 100, "Saved progression embers should reload")
+	loaded = ProgressionStore.purchase_upgrade(loaded, "stitched_vitals")
+	_assert(ProgressionStore.has_upgrade(loaded, "stitched_vitals"), "Purchased upgrades should be tracked")
+	_assert(int(loaded.get("embers", 0)) == 70, "Upgrade purchase should deduct its ember cost")
+
+func _test_recovery_marker_flow() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	progression = ProgressionStore.record_lost_embers(progression, 23, Vector2i(2, 0), int(progression.get("run_counter", 0)))
+	progression = ProgressionStore.prepare_for_new_run(progression)
+	var run_state: Dictionary = run_engine.create_new_run(51, progression)
+	_assert(int(run_state.get("run_index", 0)) == 2, "Run index should advance when a new run begins")
+	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
+	run_state = run_engine.move_to_room(run_state, Vector2i(2, 0))
+	_assert(int(run_state.get("unbanked_embers", 0)) == 23, "Reaching the recovery room on the next run should restore lost embers")
+	_assert(str(run_state.get("notice", "")).contains("Recovered"), "Recovery should leave a short room notice")
+	_assert(ProgressionStore.recovery_marker(run_state.get("progression", {})).is_empty(), "Recovering lost embers should clear the marker")
+
+func _test_recovery_marker_expires_after_next_run() -> void:
+	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	progression = ProgressionStore.record_lost_embers(progression, 14, Vector2i(1, 1), int(progression.get("run_counter", 0)))
+	progression = ProgressionStore.prepare_for_new_run(progression)
+	_assert(not ProgressionStore.recovery_marker(progression).is_empty(), "The recovery marker should stay active for the immediate next run")
+	progression = ProgressionStore.prepare_for_new_run(progression)
+	_assert(ProgressionStore.recovery_marker(progression).is_empty(), "Recovery markers should expire after that next run passes")
+
+func _test_run_state_save_and_load() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(41, progression)
+	_assert(int(run_state.get("hand_size", 0)) == 5, "New runs should start with a five-card hand")
+	_assert(ProgressionStore.save_run_state(run_state), "Run save should succeed")
+	var loaded: Dictionary = ProgressionStore.load_saved_run()
+	_assert(loaded.get("current_room", Vector2i(99, 99)) == Vector2i.ZERO, "Saved runs should preserve the current room")
+	_assert(int(loaded.get("hand_size", 0)) == 5, "Saved runs should preserve the base hand size")
+	ProgressionStore.clear_saved_run()
+	_assert(not ProgressionStore.has_saved_run(), "Clearing the saved run should remove the save slot")
+
+func _test_default_theme_uses_pixel_font() -> void:
+	var theme: Theme = load("res://themes/default_theme.tres")
+	_assert(theme != null, "The project should ship a default UI theme")
+	if theme == null:
+		return
+	var probe := Control.new()
+	probe.theme = theme
+	root.add_child(probe)
+	var font: Font = probe.get_theme_default_font()
+	_assert(font != null, "The default theme should expose a default font")
+	if font != null:
+		_assert(font.resource_path.ends_with("PressStart2P-Regular.tres"), "The default theme should use the bundled pixel font")
+	probe.queue_free()
+
+func _test_main_scenes_instantiate() -> void:
+	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	_assert(main_menu_scene != null, "Main menu scene should load")
+	_assert(run_scene != null, "Run scene should load")
+	if main_menu_scene == null or run_scene == null:
+		return
+	var main_menu_instance: Node = main_menu_scene.instantiate()
+	root.add_child(main_menu_instance)
+	await process_frame
+	main_menu_instance.queue_free()
+	await process_frame
+	var run_scene_instance: Node = run_scene.instantiate()
+	root.add_child(run_scene_instance)
+	await process_frame
+	run_scene_instance.queue_free()
+	await process_frame
+
+func _test_run_scene_offers_pass_when_hand_dead() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for pass-turn UI coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(77, _dead_hand_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab"],
+		"relics": [],
+		"hand_size": 5,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_choice_bar")
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/ChoiceBar")
+	var pass_found: bool = false
+	for child: Node in choice_bar.get_children():
+		if child is Button and (child as Button).text == "Pass":
+			pass_found = true
+			break
+	_assert(pass_found, "Combat UI should offer Pass when the hand has no playable cards")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_optional_followup_attack_stays_playable() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for optional follow-up coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(91, _optional_followup_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["sidestep_slash"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["sidestep_slash"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	_assert(bool(preview.get("playable", false)), "Move-attack cards should stay playable even when the follow-up attack has no valid target")
+	_assert(not (preview.get("target_tiles", []) as Array).is_empty(), "Optional move-attack cards should still offer movement targets")
+	var first_target: Vector2i = (preview.get("target_tiles", []) as Array)[0]
+	var next_state: Dictionary = combat.apply_player_action(combat_state, preview.get("action", {}), first_target)
+	var next_preview: Dictionary = instance.call(
+		"_card_preview_from_state",
+		"sidestep_slash",
+		next_state,
+		GameData.card_def("sidestep_slash").get("actions", []),
+		1
+	)
+	_assert(bool(next_preview.get("complete", false)), "The follow-up attack should auto-skip when it has no valid target")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_block_card_skips_dead_move() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for dead-move skip coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(93, _dead_hand_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["guarded_step"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["guarded_step"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	_assert(bool(preview.get("playable", false)), "Cards with a self effect should remain playable when their move step has no target")
+	_assert(bool(preview.get("complete", false)), "Dead move steps should auto-skip into the card's self effect")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_targetless_card_click_commits_play() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for targetless click coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(95, _simple_room_layout(), {
+		"hp": 12,
+		"max_hp": 20,
+		"deck_cards": ["patch_up"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	player["hp"] = 12
+	combat_state["player"] = player
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["patch_up"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	instance.call("_on_card_pressed", 0)
+	await create_timer(1.5).timeout
+	var committed_state: Dictionary = instance.get("_combat_state")
+	var committed_player: Dictionary = committed_state.get("player", {})
+	_assert(int(committed_player.get("hp", 0)) == 15, "Clicking a targetless self card should immediately commit its heal")
+	_assert(int(committed_player.get("block", 0)) == 2, "Clicking a targetless self card should immediately commit its block")
+	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Resolved targetless cards should leave the hand")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_damage_display_matches_bonus() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for damage display coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(97, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": ["ember_lens"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	instance.set("_combat_state", combat_state)
+	var display: Dictionary = instance.call("_card_widget_display", "quick_stab", combat_state)
+	var summary: String = str(display.get("summary_bbcode", ""))
+	var modifier_lines: Array = display.get("modifier_lines", [])
+	_assert(summary.contains("8"), "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(modifier_lines.size() == 1, "Damage cards should surface active damage modifiers for the tooltip")
+	_assert(str(modifier_lines[0]).contains("Ember Lens"), "The damage tooltip should name the modifier source")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_ranged_cards_show_range() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for ranged-card coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(101, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["bone_dart"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["bone_dart"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	instance.set("_combat_state", combat_state)
+	var display: Dictionary = instance.call("_card_widget_display", "bone_dart", combat_state)
+	var summary: String = str(display.get("summary_bbcode", ""))
+	_assert(summary.contains("R4"), "Ranged cards should show their range in the hand summary")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_empty_discard_uses_short_caption() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for discard pile coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(103, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_pile_visuals")
+	var captions: Dictionary = instance.get("_pile_captions")
+	var discard_caption: Label = captions.get("discard", null)
+	_assert(discard_caption != null and discard_caption.text == "DISC", "An empty discard pile should keep the short DISC caption instead of stretching to DISCARD")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_displays_owned_relic_icons() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for relic HUD coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["relics"] = ["ember_lens", "pilgrim_boots", "mirror_shard"]
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_ui")
+	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
+	_assert(relic_bar.get_child_count() == 3, "The run HUD should render one icon per owned relic")
+	instance.queue_free()
+	await process_frame
+
+func _test_main_menu_shows_continue_for_saved_run() -> void:
+	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
+	if main_menu_scene == null:
+		_failures.append("Main menu scene should load for continue-button coverage")
+		return
+	var run_engine: RunEngine = RunEngine.new()
+	ProgressionStore.save_run_state(run_engine.create_new_run(88, ProgressionStore.default_data()))
+	var instance: Node = main_menu_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var continue_button: Button = instance.get_node("Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/ContinueButton")
+	_assert(continue_button.visible, "Main menu should expose Continue when a saved run exists")
+	instance.queue_free()
+	ProgressionStore.clear_saved_run()
+	await process_frame
+
+func _simple_room_layout() -> Dictionary:
+	return {
+		"name": "Test Room",
+		"coord": Vector2i(1, 0),
+		"type": "combat",
+		"grid": _simple_grid(),
+		"player_start": Vector2i(2, 4),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "crawler",
+				"pos": Vector2i(5, 2),
+				"hp": 14,
+				"max_hp": 14,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
+func _blast_test_room_layout() -> Dictionary:
+	return {
+		"name": "Blast Room",
+		"coord": Vector2i(1, 1),
+		"type": "combat",
+		"grid": _simple_grid(),
+		"player_start": Vector2i(2, 5),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "crawler",
+				"pos": Vector2i(4, 3),
+				"hp": 14,
+				"max_hp": 14,
+				"block": 0
+			},
+			{
+				"id": 2,
+				"type": "harrier",
+				"pos": Vector2i(5, 3),
+				"hp": 10,
+				"max_hp": 10,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
+func _dead_hand_room_layout() -> Dictionary:
+	return {
+		"name": "Dead Hand Room",
+		"coord": Vector2i(2, 2),
+		"type": "combat",
+		"grid": [
+			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
+			["wall", "ash", "ash", "wall", "ash", "ash", "wall"],
+			["wall", "ash", "wall", "wall", "wall", "ash", "wall"],
+			["wall", "wall", "wall", "ash", "wall", "wall", "wall"],
+			["wall", "ash", "wall", "wall", "wall", "ash", "wall"],
+			["wall", "ash", "ash", "wall", "ash", "ash", "wall"],
+			["wall", "wall", "wall", "wall", "wall", "wall", "wall"]
+		],
+		"player_start": Vector2i(3, 3),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "crawler",
+				"pos": Vector2i(1, 1),
+				"hp": 14,
+				"max_hp": 14,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
+func _optional_followup_room_layout() -> Dictionary:
+	return {
+		"name": "Optional Followup",
+		"coord": Vector2i(3, 1),
+		"type": "combat",
+		"grid": _simple_grid(),
+		"player_start": Vector2i(2, 5),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "crawler",
+				"pos": Vector2i(6, 1),
+				"hp": 14,
+				"max_hp": 14,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
+func _simple_grid() -> Array:
+	var grid: Array = []
+	for y: int in range(8):
+		var row: Array[String] = []
+		for x: int in range(8):
+			if x == 0 or y == 0 or x == 7 or y == 7:
+				row.append("wall")
+			else:
+				row.append("ash")
+		grid.append(row)
+	return grid
+
+func _assert(condition: bool, message: String) -> void:
+	if not condition:
+		_failures.append(message)

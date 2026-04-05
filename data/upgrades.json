@@ -1,0 +1,23 @@
+{
+  "stitched_vitals": {
+    "name": "Stitched Vitals",
+    "description": "Start runs with 4 extra max health.",
+    "cost": 30,
+    "effect": "max_hp",
+    "value": 4
+  },
+  "prepared_grip": {
+    "name": "Prepared Grip",
+    "description": "Start each combat with 1 extra card in hand.",
+    "cost": 45,
+    "effect": "hand_size",
+    "value": 1
+  },
+  "salve_kit": {
+    "name": "Salve Kit",
+    "description": "Gain 2 extra healing from vials and recovery rewards.",
+    "cost": 40,
+    "effect": "heal_bonus",
+    "value": 2
+  }
+}

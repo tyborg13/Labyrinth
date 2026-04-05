@@ -1,0 +1,12 @@
+version = 1
+
+[brief]
+max_notes_total = 12
+max_notes_per_scope = 3
+
+[retention]
+temporary_workaround_days = 21
+open_question_days = 14
+
+[compaction]
+keep_latest_ephemeral_per_scope = 2

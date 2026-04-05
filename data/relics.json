@@ -1,0 +1,42 @@
+{
+  "iron_lung": {
+    "name": "Iron Lung",
+    "description": "Gain 6 max health.",
+    "icon_path": "res://assets/placeholders/relics/iron_lung.svg",
+    "effect": "max_hp",
+    "value": 6,
+    "accent": "#8b5d43"
+  },
+  "ember_lens": {
+    "name": "Ember Lens",
+    "description": "Your first attack each turn deals 2 extra damage.",
+    "icon_path": "res://assets/placeholders/relics/ember_lens.svg",
+    "effect": "first_attack_bonus",
+    "value": 2,
+    "accent": "#d07438"
+  },
+  "pilgrim_boots": {
+    "name": "Pilgrim Boots",
+    "description": "Your first move each turn gains +1 range.",
+    "icon_path": "res://assets/placeholders/relics/pilgrim_boots.svg",
+    "effect": "first_move_bonus",
+    "value": 1,
+    "accent": "#6c7a8f"
+  },
+  "mirror_shard": {
+    "name": "Mirror Shard",
+    "description": "Draw 1 extra card at the start of each combat.",
+    "icon_path": "res://assets/placeholders/relics/mirror_shard.svg",
+    "effect": "opening_draw_bonus",
+    "value": 1,
+    "accent": "#907ab0"
+  },
+  "coffin_nails": {
+    "name": "Coffin Nails",
+    "description": "Gain 2 extra embers after each combat.",
+    "icon_path": "res://assets/placeholders/relics/coffin_nails.svg",
+    "effect": "combat_ember_bonus",
+    "value": 2,
+    "accent": "#61705f"
+  }
+}

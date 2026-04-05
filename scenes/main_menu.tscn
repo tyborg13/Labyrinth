@@ -1,0 +1,129 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_main"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+script = ExtResource("1_main")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+color = Color(0.0784314, 0.0588235, 0.0509804, 1)
+
+[node name="Margin" type="MarginContainer" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 52.0
+offset_top = 44.0
+offset_right = -52.0
+offset_bottom = -44.0
+
+[node name="Center" type="CenterContainer" parent="Backdrop/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BodyRow" type="HBoxContainer" parent="Backdrop/Margin/Center"]
+custom_minimum_size = Vector2(1180, 0)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="HeroPanel" type="PanelContainer" parent="Backdrop/Margin/Center/BodyRow"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HeroMargin" type="MarginContainer" parent="Backdrop/Margin/Center/BodyRow/HeroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="HeroVBox" type="VBoxContainer" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
+layout_mode = 2
+text = "Labyrinth of Ash"
+
+[node name="Subtitle" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Play two cards a turn. Health is the clock."
+
+[node name="HeroArt" type="TextureRect" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Embers" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
+layout_mode = 2
+text = "Banked Embers: 0"
+
+[node name="Footer" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Start at the center. Route by doors. Sit at campfires to bank embers."
+
+[node name="ButtonRow" type="HBoxContainer" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ContinueButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
+visible = false
+custom_minimum_size = Vector2(220, 56)
+layout_mode = 2
+text = "Continue"
+
+[node name="StartButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
+custom_minimum_size = Vector2(220, 56)
+layout_mode = 2
+text = "New Run"
+
+[node name="UpgradePanel" type="PanelContainer" parent="Backdrop/Margin/Center/BodyRow"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+
+[node name="UpgradeMargin" type="MarginContainer" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="UpgradeVBox" type="VBoxContainer" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="UpgradeTitle" type="Label" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox"]
+layout_mode = 2
+text = "Campfire Upgrades"
+
+[node name="UpgradeSubtitle" type="Label" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox"]
+layout_mode = 2
+autowrap_mode = 2
+text = "Spend banked embers between runs."
+
+[node name="UpgradeList" type="VBoxContainer" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/StartButton" to="." method="_on_start_button_pressed"]

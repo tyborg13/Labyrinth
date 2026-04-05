@@ -1,0 +1,315 @@
+{
+  "quick_stab": {
+    "name": "Quick Stab",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Strike an adjacent enemy for 6.",
+    "accent": "#b74d3d",
+    "art_path": "res://assets/placeholders/cards/quick_stab.svg",
+    "actions": [
+      { "type": "melee", "damage": 6, "range": 1 }
+    ]
+  },
+  "guarded_step": {
+    "name": "Guarded Step",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Move 2, then gain 4 block.",
+    "accent": "#547f90",
+    "art_path": "res://assets/placeholders/cards/guarded_step.svg",
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "block", "amount": 4 }
+    ]
+  },
+  "shadow_step": {
+    "name": "Shadow Step",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Move 5.",
+    "accent": "#53607e",
+    "art_path": "res://assets/placeholders/cards/shadow_step.svg",
+    "actions": [
+      { "type": "move", "range": 5 }
+    ]
+  },
+  "bone_dart": {
+    "name": "Bone Dart",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Deal 5 at range 4.",
+    "accent": "#8e6843",
+    "art_path": "res://assets/placeholders/cards/bone_dart.svg",
+    "actions": [
+      { "type": "ranged", "damage": 5, "range": 4 }
+    ]
+  },
+  "sidestep_slash": {
+    "name": "Sidestep Slash",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Move 3, then strike for 5.",
+    "accent": "#b9844c",
+    "art_path": "res://assets/placeholders/cards/sidestep_slash.svg",
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "melee", "damage": 5, "range": 1 }
+    ]
+  },
+  "patch_up": {
+    "name": "Patch Up",
+    "rarity": "starter",
+    "burn": true,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Burn. Heal 3 and gain 2 block.",
+    "accent": "#698353",
+    "art_path": "res://assets/placeholders/cards/patch_up.svg",
+    "actions": [
+      { "type": "heal", "amount": 3 },
+      { "type": "block", "amount": 2 }
+    ]
+  },
+  "bloody_lunge": {
+    "name": "Bloody Lunge",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 1,
+    "starter": true,
+    "description": "Lose 1 health. Move 3, then strike for 7.",
+    "accent": "#8e2f2f",
+    "art_path": "res://assets/placeholders/cards/bloody_lunge.svg",
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "melee", "damage": 7, "range": 1 }
+    ]
+  },
+  "brace": {
+    "name": "Brace",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Gain 8 block.",
+    "accent": "#4f6f69",
+    "art_path": "res://assets/placeholders/cards/brace.svg",
+    "actions": [
+      { "type": "block", "amount": 8 }
+    ]
+  },
+  "ember_jab": {
+    "name": "Ember Jab",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Strike for 5, then draw 1.",
+    "accent": "#bb5e34",
+    "art_path": "res://assets/placeholders/cards/ember_jab.svg",
+    "actions": [
+      { "type": "melee", "damage": 5, "range": 1 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "lantern_shot": {
+    "name": "Lantern Shot",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Deal 4 at range 6.",
+    "accent": "#d49b42",
+    "art_path": "res://assets/placeholders/cards/lantern_shot.svg",
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 6 }
+    ]
+  },
+  "iron_wheel": {
+    "name": "Iron Wheel",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 4, then strike for 7.",
+    "accent": "#8c6b4e",
+    "art_path": "res://assets/placeholders/cards/iron_wheel.svg",
+    "actions": [
+      { "type": "move", "range": 4 },
+      { "type": "melee", "damage": 7, "range": 1 }
+    ]
+  },
+  "ricochet_knife": {
+    "name": "Ricochet Knife",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 6 at range 4, then draw 1.",
+    "accent": "#9b7e58",
+    "art_path": "res://assets/placeholders/cards/ricochet_knife.svg",
+    "actions": [
+      { "type": "ranged", "damage": 6, "range": 4 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "warded_advance": {
+    "name": "Warded Advance",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 3, then gain 6 block.",
+    "accent": "#45727d",
+    "art_path": "res://assets/placeholders/cards/warded_advance.svg",
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "block", "amount": 6 }
+    ]
+  },
+  "threaded_path": {
+    "name": "Threaded Path",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 5, then draw 1.",
+    "accent": "#5b7589",
+    "art_path": "res://assets/placeholders/cards/threaded_path.svg",
+    "actions": [
+      { "type": "move", "range": 5 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "rallying_breath": {
+    "name": "Rallying Breath",
+    "rarity": "common",
+    "burn": true,
+    "health_cost": 0,
+    "description": "Burn. Heal 4, then draw 1.",
+    "accent": "#6f8c5e",
+    "art_path": "res://assets/placeholders/cards/rallying_breath.svg",
+    "actions": [
+      { "type": "heal", "amount": 4 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "cinderburst": {
+    "name": "Cinderburst",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 6 in a radius-1 blast at range 3.",
+    "accent": "#cb6a39",
+    "art_path": "res://assets/placeholders/cards/cinderburst.svg",
+    "actions": [
+      { "type": "blast", "damage": 6, "range": 3, "radius": 1 }
+    ]
+  },
+  "reprise": {
+    "name": "Reprise",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 1,
+    "description": "Lose 1 health. Draw 2 and gain 3 block.",
+    "accent": "#8369a1",
+    "art_path": "res://assets/placeholders/cards/reprise.svg",
+    "actions": [
+      { "type": "draw", "amount": 2 },
+      { "type": "block", "amount": 3 }
+    ]
+  },
+  "blood_price": {
+    "name": "Blood Price",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 3,
+    "description": "Lose 3 health. Strike for 12.",
+    "accent": "#8a1e1e",
+    "art_path": "res://assets/placeholders/cards/blood_price.svg",
+    "actions": [
+      { "type": "melee", "damage": 12, "range": 1 }
+    ]
+  },
+  "trapdoor": {
+    "name": "Trapdoor",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Blink 6, then gain 5 block.",
+    "accent": "#505c77",
+    "art_path": "res://assets/placeholders/cards/trapdoor.svg",
+    "actions": [
+      { "type": "blink", "range": 6 },
+      { "type": "block", "amount": 5 }
+    ]
+  },
+  "ember_rain": {
+    "name": "Ember Rain",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 6 at range 6.",
+    "accent": "#db7a3e",
+    "art_path": "res://assets/placeholders/cards/ember_rain.svg",
+    "actions": [
+      { "type": "ranged", "damage": 6, "range": 6 }
+    ]
+  },
+  "shadow_gate": {
+    "name": "Shadow Gate",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 0,
+    "description": "Burn. Blink 5, then strike for 10.",
+    "accent": "#5f4b94",
+    "art_path": "res://assets/placeholders/cards/shadow_gate.svg",
+    "actions": [
+      { "type": "blink", "range": 5 },
+      { "type": "melee", "damage": 10, "range": 1 }
+    ]
+  },
+  "cyclone_seal": {
+    "name": "Cyclone Seal",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 0,
+    "description": "Burn. Deal 8 in a radius-1 blast at range 4.",
+    "accent": "#9d5a39",
+    "art_path": "res://assets/placeholders/cards/cyclone_seal.svg",
+    "actions": [
+      { "type": "blast", "damage": 8, "range": 4, "radius": 1 }
+    ]
+  },
+  "last_light": {
+    "name": "Last Light",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 0,
+    "description": "Burn. Heal 6 and gain 4 block.",
+    "accent": "#d1b361",
+    "art_path": "res://assets/placeholders/cards/last_light.svg",
+    "actions": [
+      { "type": "heal", "amount": 6 },
+      { "type": "block", "amount": 4 }
+    ]
+  },
+  "grave_sprint": {
+    "name": "Grave Sprint",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 1,
+    "description": "Burn. Lose 1 health. Move 6, then draw 2.",
+    "accent": "#60706d",
+    "art_path": "res://assets/placeholders/cards/grave_sprint.svg",
+    "actions": [
+      { "type": "move", "range": 6 },
+      { "type": "draw", "amount": 2 }
+    ]
+  }
+}

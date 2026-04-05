@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96">
+  <defs>
+    <linearGradient id="mossTop" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#7f9072"/>
+      <stop offset="100%" stop-color="#4f6246"/>
+    </linearGradient>
+  </defs>
+  <polygon points="80,6 152,48 80,90 8,48" fill="url(#mossTop)" stroke="#243025" stroke-width="4"/>
+  <path d="M80 18 L134 48 L80 78 L26 48 Z" fill="none" stroke="#c8d6b4" stroke-width="3" opacity="0.65"/>
+  <path d="M45 37 C58 26, 73 32, 79 44 C70 53, 55 53, 45 37 Z" fill="#9eb77c" opacity="0.55"/>
+  <path d="M84 49 C98 40, 111 44, 117 58 C106 65, 90 64, 84 49 Z" fill="#b8ca8e" opacity="0.45"/>
+</svg>

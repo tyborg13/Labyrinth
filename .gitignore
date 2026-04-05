@@ -11,3 +11,6 @@ Thumbs.db
 # IDE settings (optional)
 .vscode/
 .idea/
+
+# Memento local memory
+/.codex/memento/local/

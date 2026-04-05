@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96">
+  <defs>
+    <linearGradient id="emberTop" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#a55b40"/>
+      <stop offset="100%" stop-color="#6c3628"/>
+    </linearGradient>
+  </defs>
+  <polygon points="80,6 152,48 80,90 8,48" fill="url(#emberTop)" stroke="#2f1813" stroke-width="4"/>
+  <path d="M80 18 L134 48 L80 78 L26 48 Z" fill="none" stroke="#f1b77a" stroke-width="3" opacity="0.75"/>
+  <path d="M61 56 C63 45, 71 42, 78 35 C83 46, 86 53, 79 64 C72 65, 64 63, 61 56 Z" fill="#ffb059" opacity="0.55"/>
+  <path d="M92 49 C94 40, 101 36, 107 30 C111 38, 113 46, 108 55 C101 57, 95 56, 92 49 Z" fill="#ffd38a" opacity="0.42"/>
+</svg>
