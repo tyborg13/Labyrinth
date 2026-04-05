@@ -204,8 +204,8 @@ func _draw_units() -> void:
 		var texture: Texture2D = _texture_for_unit(unit)
 		if texture != null:
 			var unit_size: Vector2 = _unit_size()
-			var rect := Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
-			draw_texture_rect(texture, rect, false)
+			var frame_rect := Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
+			draw_texture_rect(texture, _fitted_unit_rect(texture, frame_rect), false)
 		_draw_health_bar(unit, center)
 		if str(unit.get("type", "")) != "player":
 			_draw_enemy_intent(unit, center)
@@ -458,7 +458,7 @@ func _load_assets() -> void:
 		"healing_vial": AssetLoader.load_texture("res://assets/placeholders/tiles/healing_vial.svg"),
 		"ember_cache": AssetLoader.load_texture("res://assets/placeholders/tiles/ember_cache.svg")
 	}
-	_unit_textures["player"] = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.svg")
+	_unit_textures["player"] = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.png")
 	for enemy_type: String in GameData.enemies().keys():
 		var art_path: String = str(GameData.enemy_def(enemy_type).get("art_path", ""))
 		_unit_textures[enemy_type] = AssetLoader.load_texture(art_path)
@@ -472,6 +472,18 @@ func _unit_center(unit: Dictionary) -> Vector2:
 	if overrides.has(unit_key):
 		return overrides[unit_key]
 	return _tile_center(unit.get("pos", Vector2i.ZERO))
+
+func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	var texture_size: Vector2 = texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return frame_rect
+	var scale_factor: float = minf(frame_rect.size.x / texture_size.x, frame_rect.size.y / texture_size.y)
+	var draw_size: Vector2 = texture_size * scale_factor
+	var draw_position := Vector2(
+		frame_rect.position.x + (frame_rect.size.x - draw_size.x) * 0.5,
+		frame_rect.position.y + frame_rect.size.y - draw_size.y
+	)
+	return Rect2(draw_position, draw_size)
 
 func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []

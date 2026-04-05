@@ -50,7 +50,7 @@ func _apply_style() -> void:
 	footer_label.add_theme_color_override("font_color", Color("bba78a"))
 	upgrade_title_label.add_theme_color_override("font_color", Color("3e2e20"))
 	upgrade_subtitle_label.add_theme_color_override("font_color", Color("725b42"))
-	hero_art.texture = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.svg")
+	hero_art.texture = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.png")
 	hero_art.modulate = Color(1.0, 0.97, 0.92, 1.0)
 
 func _reload_progression() -> void:
