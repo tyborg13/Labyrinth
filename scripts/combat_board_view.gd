@@ -2,6 +2,7 @@ extends Control
 class_name CombatBoardView
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 
@@ -23,6 +24,10 @@ const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
 const ENEMY_BAR_FILL: Color = Color("d06752")
+const STATUS_BURN: Color = Color("f28a42")
+const STATUS_FREEZE: Color = Color("7dd4ff")
+const STATUS_SHOCK: Color = Color("f3d762")
+const STATUS_POISON: Color = Color("86bf63")
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -31,12 +36,14 @@ var selected_tile: Vector2i = Vector2i(-1, -1)
 var status_label: String = ""
 var status_detail: String = ""
 var exit_tiles: Dictionary = {}
+var exit_elements: Dictionary = {}
 var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _tile_textures: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
+var _element_textures: Dictionary = {}
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -44,7 +51,7 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(960.0, 680.0)
 	_load_assets()
 
-func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
+func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_elements: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
 	combat_state = next_state.duplicate(true)
 	move_tiles = _vector2i_array(next_move_tiles)
 	attack_tiles = _vector2i_array(next_attack_tiles)
@@ -52,6 +59,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	status_label = next_status_label
 	status_detail = next_status_detail
 	exit_tiles = next_exit_tiles.duplicate(true)
+	exit_elements = next_exit_elements.duplicate(true)
 	presentation = next_presentation.duplicate(true)
 	_update_cursor_shape()
 	queue_redraw()
@@ -143,7 +151,12 @@ func _draw_tile_props(grid: Array, tile: Vector2i) -> void:
 			var tile_width: float = _tile_width()
 			var tile_height: float = _tile_height()
 			var door_rect := Rect2(door_center - Vector2(tile_width * 0.45, tile_height * 0.6), Vector2(tile_width * 0.9, tile_height * 0.8))
-			draw_texture_rect(door_texture, door_rect, false)
+			var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
+			draw_texture_rect(door_texture, door_rect, false, ElementData.door_tint(element_id))
+			var icon_texture: Texture2D = _element_textures.get(element_id, null)
+			if icon_texture != null:
+				var icon_rect := Rect2(door_center + Vector2(-12.0, -tile_height * 0.7), Vector2(24.0, 24.0))
+				draw_texture_rect(icon_texture, icon_rect, false)
 	for loot: Dictionary in combat_state.get("loot", []):
 		if bool(loot.get("claimed", false)):
 			continue
@@ -162,23 +175,34 @@ func _draw_exit_markers() -> void:
 	for tile_var: Variant in exit_tiles.keys():
 		var tile: Vector2i = tile_var
 		var label: String = str(exit_tiles.get(tile_var, ""))
+		var element_id: String = str(exit_elements.get(tile_var, ElementData.NONE))
+		var accent: Color = ElementData.door_tint(element_id)
 		var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.58)
-		var marker_rect := Rect2(center - Vector2(22.0, 12.0), Vector2(44.0, 22.0))
+		var marker_rect := Rect2(center - Vector2(26.0, 16.0), Vector2(52.0, 32.0))
 		draw_rect(marker_rect, Color(0.11, 0.08, 0.06, 0.92), true)
-		draw_rect(marker_rect, Color("f1d18b"), false, 2.0)
-		draw_string(font, marker_rect.position + Vector2(12.0, 15.0), label, HORIZONTAL_ALIGNMENT_LEFT, 20.0, 12, Color("fff0d1"))
+		draw_rect(marker_rect, accent, false, 2.0)
+		draw_string(font, marker_rect.position + Vector2(0.0, 13.0), label, HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 11, Color("fff0d1"))
+		if ElementData.is_elemental(element_id):
+			draw_string(font, marker_rect.position + Vector2(0.0, 25.0), ElementData.short_label(element_id), HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 7, accent)
 
 func _draw_units() -> void:
 	var units_to_draw: Array[Dictionary] = []
 	var player: Dictionary = combat_state.get("player", {})
+	var player_restrictions: Dictionary = combat_state.get("player_turn_restrictions", {})
 	if not player.is_empty() and int(player.get("hp", 0)) > 0:
+		var player_statuses: Dictionary = _player_display_statuses(player, player_restrictions)
 		units_to_draw.append({
 			"key": "player",
 			"type": "player",
 			"pos": player.get("pos", Vector2i.ZERO),
 			"hp": int(player.get("hp", 0)),
 			"max_hp": int(player.get("max_hp", 1)),
-			"block": int(player.get("block", 0))
+			"block": int(player.get("block", 0)),
+			"stoneskin": int(player.get("stoneskin", 0)),
+			"burn": int(player_statuses.get("burn", 0)),
+			"freeze": int(player_statuses.get("freeze", 0)),
+			"shock": int(player_statuses.get("shock", 0)),
+			"poison": player.get("poison", {}).duplicate(true)
 		})
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0:
@@ -190,7 +214,12 @@ func _draw_units() -> void:
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
 			"max_hp": int(enemy.get("max_hp", 1)),
-			"block": int(enemy.get("block", 0))
+			"block": int(enemy.get("block", 0)),
+			"stoneskin": int(enemy.get("stoneskin", 0)),
+			"burn": int(enemy.get("burn", 0)),
+			"freeze": int(enemy.get("freeze", 0)),
+			"shock": int(enemy.get("shock", 0)),
+			"poison": enemy.get("poison", {}).duplicate(true)
 		})
 	units_to_draw.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_pos: Vector2i = a.get("pos", Vector2i.ZERO)
@@ -207,11 +236,12 @@ func _draw_units() -> void:
 			var frame_rect := Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
 			draw_texture_rect(texture, _fitted_unit_rect(texture, frame_rect), false)
 		_draw_health_bar(unit, center)
+		_draw_unit_statuses(unit, center)
 		if str(unit.get("type", "")) != "player":
 			_draw_enemy_intent(unit, center)
 
 func _draw_health_bar(unit: Dictionary, center: Vector2) -> void:
-	var rect := Rect2(center + Vector2(-31.0, -60.0), Vector2(62.0, 8.0))
+	var rect := Rect2(center + Vector2(-34.0, -58.0), Vector2(68.0, 10.0))
 	var font: Font = get_theme_default_font()
 	SegmentedHealthBar.draw_bar(
 		self,
@@ -228,21 +258,33 @@ func _draw_health_bar(unit: Dictionary, center: Vector2) -> void:
 		1.0
 	)
 	if font != null:
-		var label_rect := Rect2(center + Vector2(-31.0, -74.0), Vector2(62.0, 11.0))
-		draw_rect(label_rect, Color(0.09, 0.07, 0.05, 0.92), true)
-		draw_rect(label_rect, Color(0.93, 0.85, 0.70, 0.65), false, 1.0)
+		for offset: Vector2 in [
+			Vector2(-1.0, 0.0),
+			Vector2(1.0, 0.0),
+			Vector2(0.0, -1.0),
+			Vector2(0.0, 1.0)
+		]:
+			draw_string(
+				font,
+				rect.position + Vector2(0.0, 8.5) + offset,
+				"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
+				HORIZONTAL_ALIGNMENT_CENTER,
+				rect.size.x,
+				8,
+				Color("140f0b")
+			)
 		draw_string(
 			font,
-			label_rect.position + Vector2(0.0, 9.0),
+			rect.position + Vector2(0.0, 8.5),
 			"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
 			HORIZONTAL_ALIGNMENT_CENTER,
-			label_rect.size.x,
+			rect.size.x,
 			8,
 			Color("fff4dc")
 		)
 	var block_amount: int = int(unit.get("block", 0))
 	if block_amount > 0 and font != null:
-		var block_rect := Rect2(rect.position + Vector2(66.0, -2.0), Vector2(22.0, 14.0))
+		var block_rect := Rect2(rect.position + Vector2(72.0, -2.0), Vector2(22.0, 14.0))
 		draw_rect(block_rect, Color(0.07, 0.12, 0.16, 0.92), true)
 		draw_rect(block_rect, Color("90d9ff"), false, 1.0)
 		draw_string(
@@ -254,6 +296,32 @@ func _draw_health_bar(unit: Dictionary, center: Vector2) -> void:
 			8,
 			Color("d9f5ff")
 		)
+	var stoneskin_amount: int = int(unit.get("stoneskin", 0))
+	if stoneskin_amount > 0 and font != null:
+		var skin_rect := Rect2(rect.position + Vector2(97.0, -2.0), Vector2(26.0, 14.0))
+		draw_rect(skin_rect, Color(0.10, 0.14, 0.08, 0.92), true)
+		draw_rect(skin_rect, ElementData.accent(ElementData.EARTH), false, 1.0)
+		draw_string(
+			font,
+			skin_rect.position + Vector2(0.0, 10.0),
+			"S%d" % stoneskin_amount,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			skin_rect.size.x,
+			8,
+			Color("eff8d7")
+		)
+
+func _draw_unit_statuses(unit: Dictionary, center: Vector2) -> void:
+	var badges: Array[Dictionary] = _unit_status_badges(unit)
+	if badges.is_empty():
+		return
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var spacing: float = 18.0
+	var start_x: float = center.x - (float(badges.size() - 1) * spacing) * 0.5
+	for index: int in range(badges.size()):
+		_draw_status_badge(font, Vector2(start_x + float(index) * spacing, center.y - 74.0), badges[index])
 
 func _draw_enemy_intent(unit: Dictionary, center: Vector2) -> void:
 	var intent: Dictionary = unit.get("intent", {})
@@ -458,6 +526,9 @@ func _load_assets() -> void:
 		"healing_vial": AssetLoader.load_texture("res://assets/placeholders/tiles/healing_vial.svg"),
 		"ember_cache": AssetLoader.load_texture("res://assets/placeholders/tiles/ember_cache.svg")
 	}
+	_element_textures.clear()
+	for element_id: String in ElementData.all_elements():
+		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
 	_unit_textures["player"] = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.png")
 	for enemy_type: String in GameData.enemies().keys():
 		var art_path: String = str(GameData.enemy_def(enemy_type).get("art_path", ""))
@@ -594,27 +665,142 @@ func _intent_lines(intent: Dictionary) -> PackedStringArray:
 			"move_away":
 				parts.append("BACK %d" % int(action.get("range", 0)))
 			"melee":
-				parts.append("HIT %d" % int(action.get("damage", 0)))
+				parts.append(_intent_action_text("HIT %d" % int(action.get("damage", 0)), action))
 			"ranged":
-				parts.append("SHOT %d" % int(action.get("damage", 0)))
+				parts.append(_intent_action_text("SHOT %d" % int(action.get("damage", 0)), action))
 			"blast":
-				parts.append("BLAST %d" % int(action.get("damage", 0)))
+				parts.append(_intent_action_text("BLAST %d" % int(action.get("damage", 0)), action))
+			"push":
+				parts.append(_intent_action_text("PUSH %d" % int(action.get("amount", 0)), action))
+			"pull":
+				parts.append(_intent_action_text("PULL %d" % int(action.get("amount", 0)), action))
 			"block":
 				parts.append("BLOCK %d" % int(action.get("amount", 0)))
+			"stoneskin":
+				parts.append("SKIN %d" % int(action.get("amount", 0)))
 			"heal_self":
 				parts.append("HEAL %d" % int(action.get("amount", 0)))
 	return parts
 
+func _intent_action_text(base_text: String, action: Dictionary) -> String:
+	var text: String = base_text
+	var range_label: String = _intent_range_label(action)
+	if not range_label.is_empty():
+		text += " %s" % range_label
+	var tags: PackedStringArray = []
+	if int(action.get("burn", 0)) > 0:
+		tags.append("BRN")
+	if int(action.get("freeze", 0)) > 0:
+		tags.append("FRZ")
+	if int(action.get("shock", 0)) > 0:
+		tags.append("SHK")
+	if int(action.get("poison", 0)) > 0:
+		tags.append("PSN")
+	if int(action.get("push", 0)) > 0:
+		tags.append("PUSH")
+	if int(action.get("pull", 0)) > 0:
+		tags.append("PULL")
+	if tags.is_empty():
+		return text
+	return "%s %s" % [text, "/".join(tags)]
+
+func _intent_range_label(action: Dictionary) -> String:
+	var action_type: String = str(action.get("type", ""))
+	var action_range: int = int(action.get("range", 0))
+	match action_type:
+		"ranged":
+			return "R%d" % maxi(1, action_range)
+		"blast":
+			return "R%d" % action_range if action_range > 0 else ""
+		"melee", "push", "pull":
+			return "R%d" % action_range if action_range > 1 else ""
+		_:
+			return ""
+
 func _intent_color(intent: Dictionary) -> Color:
+	var element_id: String = str(intent.get("element", ElementData.NONE))
+	if ElementData.is_elemental(element_id):
+		return ElementData.accent(element_id)
 	for action_var: Variant in intent.get("actions", []):
 		var action_type: String = str((action_var as Dictionary).get("type", ""))
 		if action_type in ["melee", "ranged", "blast"]:
 			return Color("d56a55")
+		if action_type == "stoneskin":
+			return ElementData.accent(ElementData.EARTH)
 		if action_type == "block":
 			return Color("7eb9d5")
 		if action_type == "heal_self":
 			return Color("90c86d")
 	return Color("d8b96f")
+
+func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
+	var badges: Array[Dictionary] = []
+	if int(unit.get("burn", 0)) > 0:
+		badges.append({
+			"glyph": "B",
+			"count": int(unit.get("burn", 0)),
+			"fill": STATUS_BURN,
+			"border": STATUS_BURN.lightened(0.24)
+		})
+	if int(unit.get("freeze", 0)) > 0:
+		badges.append({
+			"glyph": "F",
+			"count": 0,
+			"fill": STATUS_FREEZE,
+			"border": STATUS_FREEZE.lightened(0.20)
+		})
+	if int(unit.get("shock", 0)) > 0:
+		badges.append({
+			"glyph": "Z",
+			"count": 0,
+			"fill": STATUS_SHOCK,
+			"border": STATUS_SHOCK.lightened(0.18)
+		})
+	var poison: Dictionary = unit.get("poison", {})
+	if int(poison.get("damage", 0)) > 0 and int(poison.get("delay", 0)) > 0:
+		badges.append({
+			"glyph": "P",
+			"count": int(poison.get("delay", 0)),
+			"fill": STATUS_POISON,
+			"border": STATUS_POISON.lightened(0.22)
+		})
+	return badges
+
+func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:
+	return {
+		"burn": int(player.get("burn", 0)),
+		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
+		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0)
+	}
+
+func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
+	var radius: float = 8.0
+	draw_circle(center, radius, badge.get("fill", Color("888888")))
+	draw_arc(center, radius, 0.0, TAU, 18, badge.get("border", Color.WHITE), 1.6)
+	draw_string(
+		font,
+		Vector2(center.x - radius, center.y + 3.5),
+		str(badge.get("glyph", "")),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		radius * 2.0,
+		8,
+		Color("1f1812")
+	)
+	var count: int = int(badge.get("count", 0))
+	if count <= 0:
+		return
+	var chip_rect := Rect2(center + Vector2(4.0, 2.0), Vector2(10.0, 10.0))
+	draw_rect(chip_rect, Color(0.09, 0.07, 0.05, 0.96), true)
+	draw_rect(chip_rect, badge.get("border", Color.WHITE), false, 1.0)
+	draw_string(
+		font,
+		chip_rect.position + Vector2(0.0, 8.0),
+		str(count),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		chip_rect.size.x,
+		8,
+		Color("fff4dc")
+	)
 
 func _update_cursor_shape() -> void:
 	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile)

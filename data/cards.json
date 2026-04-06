@@ -311,5 +311,402 @@
       { "type": "move", "range": 6 },
       { "type": "draw", "amount": 2 }
     ]
+  },
+  "firebrand_volley": {
+    "name": "Firebrand Volley",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 1,
+    "description": "Lose 1 health. Deal 7 at range 5. Burn 2.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/placeholders/cards/element_fire.svg",
+    "actions": [
+      { "type": "ranged", "damage": 7, "range": 5, "burn": 2 }
+    ]
+  },
+  "cinder_bloom": {
+    "name": "Cinder Bloom",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Blast for 4 at range 4. Burn 2.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/placeholders/cards/element_fire.svg",
+    "actions": [
+      { "type": "blast", "damage": 4, "range": 4, "radius": 1, "burn": 2 }
+    ]
+  },
+  "hearth_rush": {
+    "name": "Hearth Rush",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 1,
+    "description": "Lose 1 health. Move 2, then strike for 7. Burn 2.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/placeholders/cards/element_fire.svg",
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 7, "range": 1, "burn": 2 }
+    ]
+  },
+  "inferno_ritual": {
+    "name": "Inferno Ritual",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 2,
+    "description": "Lose 2 health. Blast for 6 at range 4. Burn 3.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/placeholders/cards/element_fire.svg",
+    "actions": [
+      { "type": "blast", "damage": 6, "range": 4, "radius": 1, "burn": 3 }
+    ]
+  },
+  "molten_reach": {
+    "name": "Molten Reach",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 2,
+    "description": "Lose 2 health. Deal 9 at range 6. Burn 4.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/placeholders/cards/element_fire.svg",
+    "actions": [
+      { "type": "ranged", "damage": 9, "range": 6, "burn": 4 }
+    ]
+  },
+  "wildfire_halo": {
+    "name": "Wildfire Halo",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 1,
+    "description": "Lose 1 health. Blast for 7 at range 5. Burn 4.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/placeholders/cards/element_fire.svg",
+    "actions": [
+      { "type": "blast", "damage": 7, "range": 5, "radius": 1, "burn": 4 }
+    ]
+  },
+  "frostbolt": {
+    "name": "Frostbolt",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 5 at range 6. Freeze.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/placeholders/cards/element_ice.svg",
+    "actions": [
+      { "type": "ranged", "damage": 5, "range": 6, "freeze": 1 }
+    ]
+  },
+  "rime_shard": {
+    "name": "Rime Shard",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 6 at range 5.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/placeholders/cards/element_ice.svg",
+    "actions": [
+      { "type": "ranged", "damage": 6, "range": 5 }
+    ]
+  },
+  "cold_grasp": {
+    "name": "Cold Grasp",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Strike for 4. Freeze.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/placeholders/cards/element_ice.svg",
+    "actions": [
+      { "type": "melee", "damage": 4, "range": 1, "freeze": 1 }
+    ]
+  },
+  "hush_of_winter": {
+    "name": "Hush of Winter",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 4 at range 7. Freeze. Draw 1.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/placeholders/cards/element_ice.svg",
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 7, "freeze": 1 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "glacier_pin": {
+    "name": "Glacier Pin",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 8 at range 6. Freeze.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/placeholders/cards/element_ice.svg",
+    "actions": [
+      { "type": "ranged", "damage": 8, "range": 6, "freeze": 1 }
+    ]
+  },
+  "white_silence": {
+    "name": "White Silence",
+    "element": "ice",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 9 at range 7. Freeze.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/placeholders/cards/element_ice.svg",
+    "actions": [
+      { "type": "ranged", "damage": 9, "range": 7, "freeze": 1 }
+    ]
+  },
+  "spark_dart": {
+    "name": "Spark Dart",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 4 at range 6. Shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/placeholders/cards/element_lightning.svg",
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 6, "shock": 1 }
+    ]
+  },
+  "chain_bolt": {
+    "name": "Chain Bolt",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 4 at range 5. Chain.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/placeholders/cards/element_lightning.svg",
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 5, "chain": 2 }
+    ]
+  },
+  "static_lash": {
+    "name": "Static Lash",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 5 at range 6. Shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/placeholders/cards/element_lightning.svg",
+    "actions": [
+      { "type": "ranged", "damage": 5, "range": 6, "shock": 1 }
+    ]
+  },
+  "storm_relay": {
+    "name": "Storm Relay",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 5 at range 6. Chain. Shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/placeholders/cards/element_lightning.svg",
+    "actions": [
+      { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "shock": 1 }
+    ]
+  },
+  "volt_surge": {
+    "name": "Volt Surge",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 7 at range 7.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/placeholders/cards/element_lightning.svg",
+    "actions": [
+      { "type": "ranged", "damage": 7, "range": 7 }
+    ]
+  },
+  "thunderline": {
+    "name": "Thunderline",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 7 at range 7. Chain. Shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/placeholders/cards/element_lightning.svg",
+    "actions": [
+      { "type": "ranged", "damage": 7, "range": 7, "chain": 2, "shock": 1 }
+    ]
+  },
+  "gust_step": {
+    "name": "Gust Step",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 2, then pull 2 at range 4.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/placeholders/cards/element_air.svg",
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "pull", "amount": 2, "range": 4, "damage": 0 }
+    ]
+  },
+  "slipstream_cut": {
+    "name": "Slipstream Cut",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 3, then strike for 4 and push 1.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/placeholders/cards/element_air.svg",
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "melee", "damage": 4, "range": 1, "push": 1 }
+    ]
+  },
+  "updraft": {
+    "name": "Updraft",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Push 3 at range 4. Hit 2.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/placeholders/cards/element_air.svg",
+    "actions": [
+      { "type": "push", "amount": 3, "range": 4, "damage": 2 }
+    ]
+  },
+  "vacuum_line": {
+    "name": "Vacuum Line",
+    "element": "air",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Pull 3 at range 5. Hit 3.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/placeholders/cards/element_air.svg",
+    "actions": [
+      { "type": "pull", "amount": 3, "range": 5, "damage": 3 }
+    ]
+  },
+  "squall_shot": {
+    "name": "Squall Shot",
+    "element": "air",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 4 at range 6. Push 2.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/placeholders/cards/element_air.svg",
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 6, "push": 2 }
+    ]
+  },
+  "skybreak_current": {
+    "name": "Skybreak Current",
+    "element": "air",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 4, then deal 5 at range 6 and push 3.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/placeholders/cards/element_air.svg",
+    "actions": [
+      { "type": "move", "range": 4 },
+      { "type": "ranged", "damage": 5, "range": 6, "push": 3 }
+    ]
+  },
+  "venom_claw": {
+    "name": "Venom Claw",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Strike for 5. Poison 3.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/placeholders/cards/element_earth.svg",
+    "actions": [
+      { "type": "melee", "damage": 5, "range": 1, "poison": 3 }
+    ]
+  },
+  "stone_plate": {
+    "name": "Stone Plate",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Gain 6 stoneskin.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/placeholders/cards/element_earth.svg",
+    "actions": [
+      { "type": "stoneskin", "amount": 6 }
+    ]
+  },
+  "quarry_step": {
+    "name": "Quarry Step",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Move 2, then strike for 6. Poison 2.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/placeholders/cards/element_earth.svg",
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 6, "range": 1, "poison": 2 }
+    ]
+  },
+  "basalt_guard": {
+    "name": "Basalt Guard",
+    "element": "earth",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Gain 4 block and 4 stoneskin.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/placeholders/cards/element_earth.svg",
+    "actions": [
+      { "type": "block", "amount": 4 },
+      { "type": "stoneskin", "amount": 4 }
+    ]
+  },
+  "grave_mortar": {
+    "name": "Grave Mortar",
+    "element": "earth",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Blast for 5 at range 2. Poison 4.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/placeholders/cards/element_earth.svg",
+    "actions": [
+      { "type": "blast", "damage": 5, "range": 2, "radius": 1, "poison": 4 }
+    ]
+  },
+  "tectonic_maul": {
+    "name": "Tectonic Maul",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Strike for 9 at range 2. Poison 4.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/placeholders/cards/element_earth.svg",
+    "actions": [
+      { "type": "melee", "damage": 9, "range": 2, "poison": 4 }
+    ]
   }
 }

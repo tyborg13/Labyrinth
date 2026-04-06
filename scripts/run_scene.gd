@@ -1,6 +1,7 @@
 extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -783,6 +784,11 @@ func _refresh_ui() -> void:
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
 		display_room["name"] = str(_combat_state.get("room_name", display_room.get("name", "Chamber")))
 		display_room["type"] = str(_combat_state.get("room_type", display_room.get("type", "combat")))
+		display_room["element"] = str(_combat_state.get("room_element", display_room.get("element", ElementData.NONE)))
+	var room_element: String = str(display_room.get("element", ElementData.NONE))
+	var title_color: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("f0e6d2")
+	room_title.add_theme_color_override("font_color", title_color)
+	room_subtitle.add_theme_color_override("font_color", title_color.lightened(0.28) if ElementData.is_elemental(room_element) else Color("cdbca2"))
 	room_title.text = _room_title_text(display_room)
 	room_subtitle.text = _room_subtitle_text(display_room)
 	stats_label.text = "HP %d/%d  EMBERS %d" % [
@@ -936,7 +942,7 @@ func _refresh_choice_bar() -> void:
 		if _current_action_can_skip():
 			_add_choice_button("Skip", _on_skip_action_pressed)
 		_add_choice_button("Cancel", _on_cancel_requested)
-	elif mode == "combat" and not _animation_lock and _combat_engine.cards_remaining_this_turn(_combat_state) > 0 and not _has_any_playable_combat_card():
+	elif mode == "combat" and not _animation_lock and _drag_card_index < 0:
 		_add_choice_button("Pass", _on_pass_turn_pressed)
 	match mode:
 		"reward":
@@ -1033,6 +1039,13 @@ func _refresh_stage_view() -> void:
 			var preview_presentation: Dictionary = _preview_presentation(preview)
 			for key: Variant in preview_presentation.keys():
 				presentation[key] = preview_presentation[key]
+		elif _hovered_board_tile.x >= 0:
+			var threat_preview: Dictionary = _hovered_enemy_threat(display_state)
+			move_tiles = (threat_preview.get("move", []) as Array).duplicate()
+			attack_tiles = (threat_preview.get("attack", []) as Array).duplicate()
+			if threat_preview.has("enemy_key"):
+				presentation["focus_actor_keys"] = [str(threat_preview.get("enemy_key", ""))]
+				presentation["focus_actor_color"] = Color("f2ddb2")
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
 	board_view.set_combat_state(
@@ -1043,8 +1056,21 @@ func _refresh_stage_view() -> void:
 		_board_status_label(preview),
 		_board_status_detail(preview),
 		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
+		_exit_elements_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
 		presentation
 	)
+
+func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
+	for enemy_index: int in range((display_state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (display_state.get("enemies", []) as Array)[enemy_index]
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if enemy.get("pos", Vector2i(-1, -1)) != _hovered_board_tile:
+			continue
+		var threat: Dictionary = _combat_engine.enemy_threat_tiles(display_state, enemy_index)
+		threat["enemy_key"] = _enemy_key(enemy)
+		return threat
+	return {}
 
 func _board_display_state() -> Dictionary:
 	if str(_run_state.get("mode", "room")) == "combat":
@@ -1159,12 +1185,19 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				for modifier: Dictionary in _combat_engine.damage_modifiers_for_player_action(preview_state, action):
 					modifier_lines.append(_damage_modifier_line(modifier))
 				_consume_preview_damage_modifiers(preview_state, action)
+			"push", "pull":
+				summary_lines.append(_control_summary_line(action, _combat_engine.final_damage_for_player_action(preview_state, action), int(action.get("damage", 0))))
+				for modifier: Dictionary in _combat_engine.damage_modifiers_for_player_action(preview_state, action):
+					modifier_lines.append(_damage_modifier_line(modifier))
+				_consume_preview_damage_modifiers(preview_state, action)
 			"move":
 				summary_lines.append("Move %d" % int(action.get("range", 0)))
 			"blink":
 				summary_lines.append("Blink %d" % int(action.get("range", 0)))
 			"block":
 				summary_lines.append("Block %d" % int(action.get("amount", 0)))
+			"stoneskin":
+				summary_lines.append("Stoneskin %d" % int(action.get("amount", 0)))
 			"heal":
 				summary_lines.append("Heal %d" % int(action.get("amount", 0)))
 			"draw":
@@ -1200,6 +1233,20 @@ func _damage_summary_line(action: Dictionary, final_damage: int, base_damage: in
 	var text: String = "%s %s" % [_damage_verb_for_action(action_type), _colored_damage_bbcode(final_damage, base_damage)]
 	if action_type in ["ranged", "blast"]:
 		text += "  R%d" % int(action.get("range", 0))
+	var suffix: String = _action_keyword_suffix(action)
+	if not suffix.is_empty():
+		text += "  %s" % suffix
+	return text
+
+func _control_summary_line(action: Dictionary, final_damage: int, base_damage: int) -> String:
+	var text: String = "%s %d" % [str(action.get("type", "")).capitalize(), int(action.get("amount", 0))]
+	if int(action.get("damage", 0)) > 0:
+		text += "  Hit %s" % _colored_damage_bbcode(final_damage, base_damage)
+	if int(action.get("range", 0)) > 1:
+		text += "  R%d" % int(action.get("range", 0))
+	var suffix: String = _action_keyword_suffix(action)
+	if not suffix.is_empty():
+		text += "  %s" % suffix
 	return text
 
 func _damage_modifier_line(modifier: Dictionary) -> String:
@@ -1213,13 +1260,33 @@ func _damage_modifier_line(modifier: Dictionary) -> String:
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
 	var action_type: String = str(action.get("type", ""))
-	if action_type not in ["melee", "ranged", "blast"]:
+	if action_type not in ["melee", "ranged", "blast", "push", "pull"]:
+		return
+	if int(action.get("damage", 0)) <= 0:
 		return
 	if _combat_engine.attack_bonus_for_current_turn(state) == 0:
 		return
 	var turn_flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(true)
 	turn_flags["first_attack_bonus_used"] = true
 	state["turn_flags"] = turn_flags
+
+func _action_keyword_suffix(action: Dictionary) -> String:
+	var tags: PackedStringArray = []
+	if int(action.get("burn", 0)) > 0:
+		tags.append("Burn %d" % int(action.get("burn", 0)))
+	if int(action.get("freeze", 0)) > 0:
+		tags.append("Freeze")
+	if int(action.get("shock", 0)) > 0:
+		tags.append("Shock")
+	if int(action.get("chain", 0)) > 0:
+		tags.append("Chain")
+	if int(action.get("push", 0)) > 0:
+		tags.append("Push %d" % int(action.get("push", 0)))
+	if int(action.get("pull", 0)) > 0:
+		tags.append("Pull %d" % int(action.get("pull", 0)))
+	if int(action.get("poison", 0)) > 0:
+		tags.append("Poison %d" % int(action.get("poison", 0)))
+	return "  ".join(tags)
 
 func _has_playable_combat_card() -> bool:
 	if _combat_state.is_empty():
@@ -1243,20 +1310,24 @@ func _has_any_playable_combat_card() -> bool:
 			return true
 	return false
 
-func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions: Array, action_index: int) -> Dictionary:
+func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions: Array, action_index: int, has_effect: bool = false) -> Dictionary:
 	var working_state: Dictionary = combat_state.duplicate(true)
 	var cursor: int = action_index
+	var effect_seen: bool = has_effect or action_index > 0
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
+		if not _combat_engine.player_action_can_resolve(working_state, action):
+			cursor += 1
+			continue
 		if _combat_engine.player_action_needs_target(action):
 			var skip_allowed: bool = _target_action_can_skip(action, actions)
 			var skip_playable: bool = false
 			if skip_allowed:
-				skip_playable = bool(_card_preview_from_state(card_id, working_state, actions, cursor + 1).get("playable", false))
+				skip_playable = bool(_card_preview_from_state(card_id, working_state, actions, cursor + 1, effect_seen).get("playable", false))
 			var valid_targets: Array[Vector2i] = []
 			for target_tile: Vector2i in _combat_engine.valid_targets_for_player_action(working_state, action):
 				var next_state: Dictionary = _combat_engine.apply_player_action(working_state, action, target_tile)
-				var continuation: Dictionary = _card_preview_from_state(card_id, next_state, actions, cursor + 1)
+				var continuation: Dictionary = _card_preview_from_state(card_id, next_state, actions, cursor + 1, true)
 				if bool(continuation.get("playable", false)):
 					valid_targets.append(target_tile)
 			if valid_targets.is_empty() and skip_playable:
@@ -1274,6 +1345,7 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 				"skip_allowed": skip_playable
 			}
 		working_state = _combat_engine.apply_player_action(working_state, action)
+		effect_seen = true
 		cursor += 1
 	return {
 		"card_id": card_id,
@@ -1282,7 +1354,7 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 		"action_index": cursor,
 		"target_tiles": [],
 		"complete": true,
-		"playable": true,
+		"playable": effect_seen,
 		"action": {},
 		"skip_allowed": false
 	}
@@ -1715,12 +1787,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect_progress": 1.0
 			})
 			await get_tree().create_timer(0.14).timeout
-		"melee", "ranged", "blast":
+		"melee", "ranged", "blast", "push", "pull":
 			var focus_tiles: Array[Vector2i] = [target_tile]
 			if action_type == "blast":
 				focus_tiles = _tiles_in_radius(target_tile, int(action.get("radius", 1)), before_state.get("grid", []))
 			var effect := {
-				"kind": action_type,
+				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"from": player_before_tile,
 				"to": target_tile,
 				"center": target_tile,
@@ -1753,7 +1825,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect": effect,
 				"effect_progress": 1.0,
 				"floating_texts": _player_damage_floating_texts(before_state, after_state)
-			})
+				})
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -1765,6 +1837,19 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"tile": player_after_tile,
 					"text": "+%d" % block_gain,
 					"color": Color("90d9ff"),
+					"offset": -6.0
+				}]
+			})
+		"stoneskin":
+			var skin_gain: int = int(player_after.get("stoneskin", 0)) - int(player_before.get("stoneskin", 0))
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await _animate_floating_text_presentation(after_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"floating_texts": [{
+					"tile": player_after_tile,
+					"text": "+%d S" % skin_gain,
+					"color": ElementData.accent(ElementData.EARTH),
 					"offset": -6.0
 				}]
 			})
@@ -1841,7 +1926,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				await get_tree().create_timer(0.20).timeout
 			"move":
 				await _animate_move_step(animated_state, step)
-			"block", "heal":
+			"block", "heal", "stoneskin", "status", "status_damage":
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 				await _animate_floating_text_presentation(animated_state, {
@@ -1852,7 +1937,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"effect": step,
 					"floating_texts": _floating_texts_for_step(step)
 				})
-			"melee", "ranged", "blast":
+			"melee", "ranged", "blast", "push", "pull":
 				var focus_tiles: Array[Vector2i] = [step.get("to", Vector2i(-1, -1))]
 				if str(step.get("kind", "")) == "blast":
 					focus_tiles = _tiles_in_radius(step.get("center", Vector2i(-1, -1)), int(step.get("radius", 1)), animated_state.get("grid", []))
@@ -1918,6 +2003,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		"",
 		"",
 		{},
+		{},
 		presentation
 	)
 
@@ -1927,10 +2013,16 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			_set_enemy_pos_by_key(animated_state, str(step.get("actor_key", "")), step.get("to", Vector2i.ZERO))
 		"block":
 			_add_enemy_block_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+		"stoneskin":
+			_add_enemy_stoneskin_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"heal":
 			_add_enemy_heal_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
-		"melee", "ranged", "blast":
-			_apply_player_losses(animated_state, int(step.get("hp_loss", 0)), int(step.get("block_loss", 0)))
+		"status_damage":
+			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+		"melee", "ranged", "blast", "push", "pull":
+			_apply_player_losses(animated_state, int(step.get("hp_loss", 0)), int(step.get("block_loss", 0)), int(step.get("stoneskin_loss", 0)))
+			if step.has("player_to"):
+				_set_player_pos(animated_state, step.get("player_to", Vector2i.ZERO))
 
 func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 	match str(step.get("kind", "")):
@@ -1941,6 +2033,13 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"color": Color("90d9ff"),
 				"offset": -6.0
 			}]
+		"stoneskin":
+			return [{
+				"tile": step.get("tile", Vector2i.ZERO),
+				"text": "+%d S" % int(step.get("amount", 0)),
+				"color": ElementData.accent(ElementData.EARTH),
+				"offset": -6.0
+			}]
 		"heal":
 			return [{
 				"tile": step.get("tile", Vector2i.ZERO),
@@ -1948,7 +2047,21 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"color": Color("9ee27e"),
 				"offset": -6.0
 			}]
-		"melee", "ranged", "blast":
+		"status":
+			return [{
+				"tile": step.get("tile", Vector2i.ZERO),
+				"text": str(step.get("text", step.get("label", ""))),
+				"color": Color("f1d18b"),
+				"offset": -6.0
+			}]
+		"status_damage":
+			return [{
+				"tile": step.get("tile", Vector2i.ZERO),
+				"text": "-%d" % int(step.get("amount", 0)),
+				"color": Color("f39779"),
+				"offset": -6.0
+			}]
+		"melee", "ranged", "blast", "push", "pull":
 			var floats: Array[Dictionary] = []
 			if int(step.get("hp_loss", 0)) > 0:
 				floats.append({
@@ -1963,6 +2076,20 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 					"text": "-%d B" % int(step.get("block_loss", 0)),
 					"color": Color("90d9ff"),
 					"offset": 10.0
+				})
+			if int(step.get("stoneskin_loss", 0)) > 0:
+				floats.append({
+					"tile": step.get("to", Vector2i.ZERO),
+					"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
+					"color": ElementData.accent(ElementData.EARTH),
+					"offset": 22.0
+				})
+			if not str(step.get("status_text", "")).is_empty():
+				floats.append({
+					"tile": step.get("to", Vector2i.ZERO),
+					"text": str(step.get("status_text", "")),
+					"color": Color("f1d18b"),
+					"offset": -24.0
 				})
 			return floats
 		_:
@@ -1995,10 +2122,34 @@ func _add_enemy_heal_by_key(state: Dictionary, actor_key: String, amount: int) -
 		(state.get("enemies", []) as Array)[enemy_index] = enemy
 		return
 
-func _apply_player_losses(state: Dictionary, hp_loss: int, block_loss: int) -> void:
+func _add_enemy_stoneskin_by_key(state: Dictionary, actor_key: String, amount: int) -> void:
+	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+		if _enemy_key(enemy) != actor_key:
+			continue
+		enemy["stoneskin"] = int(enemy.get("stoneskin", 0)) + amount
+		(state.get("enemies", []) as Array)[enemy_index] = enemy
+		return
+
+func _apply_enemy_damage_by_key(state: Dictionary, actor_key: String, amount: int) -> void:
+	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+		if _enemy_key(enemy) != actor_key:
+			continue
+		enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - amount)
+		(state.get("enemies", []) as Array)[enemy_index] = enemy
+		return
+
+func _apply_player_losses(state: Dictionary, hp_loss: int, block_loss: int, stoneskin_loss: int = 0) -> void:
 	var player: Dictionary = state.get("player", {})
 	player["block"] = maxi(0, int(player.get("block", 0)) - block_loss)
+	player["stoneskin"] = maxi(0, int(player.get("stoneskin", 0)) - stoneskin_loss)
 	player["hp"] = maxi(0, int(player.get("hp", 0)) - hp_loss)
+	state["player"] = player
+
+func _set_player_pos(state: Dictionary, pos: Vector2i) -> void:
+	var player: Dictionary = state.get("player", {})
+	player["pos"] = pos
 	state["player"] = player
 
 func _clear_enemy_blocks(state: Dictionary) -> void:
@@ -2016,6 +2167,11 @@ func _board_status_label(preview: Dictionary) -> String:
 	if _animation_lock:
 		return ""
 	if mode == "combat":
+		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+		if bool(restrictions.get("frozen", false)):
+			return "Frozen"
+		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
+			return "Shocked"
 		if _drag_card_index >= 0:
 			return "Play Card"
 		if _selected_card_index >= 0:
@@ -2048,6 +2204,11 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if _animation_lock:
 		return ""
 	if mode == "combat":
+		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+		if bool(restrictions.get("frozen", false)):
+			return "Pass to continue"
+		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
+			return "Only move/blink, or pass"
 		if _drag_card_index >= 0:
 			if _drag_hover_zone == "play":
 				return "Play"
@@ -2075,7 +2236,9 @@ func _room_hover_hint() -> String:
 		return ""
 	var destination: Vector2i = _exit_destinations_by_tile[_hovered_board_tile]
 	var room: Dictionary = _run_engine.room_metadata(_run_state, destination)
-	return "%s %d" % [str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]
+	var room_element: String = str(room.get("element", ElementData.NONE))
+	var prefix: String = "%s " % ElementData.name(room_element) if ElementData.is_elemental(room_element) else ""
+	return "%s%s %d" % [prefix, str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]
 
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
@@ -2089,6 +2252,12 @@ func _action_prompt(action: Dictionary) -> String:
 			return "Shoot"
 		"blast":
 			return "Blast"
+		"push":
+			return "Push"
+		"pull":
+			return "Pull"
+		"stoneskin":
+			return "Stoneskin"
 		_:
 			return "Resolve"
 
@@ -2099,19 +2268,46 @@ func _player_action_label(card_id: String, action: Dictionary, state: Dictionary
 		"blink":
 			return "Blink %d" % int(action.get("range", 0))
 		"melee":
-			return "Strike %d" % _final_damage_for_action(action, state)
+			return "Strike %d%s" % [_final_damage_for_action(action, state), _action_label_suffix(action, state)]
 		"ranged":
-			return "Shot %d  R%d" % [_final_damage_for_action(action, state), int(action.get("range", 0))]
+			return "Shot %d  R%d%s" % [
+				_final_damage_for_action(action, state),
+				int(action.get("range", 0)),
+				_action_label_suffix(action)
+			]
 		"blast":
-			return "Blast %d  R%d" % [_final_damage_for_action(action, state), int(action.get("range", 0))]
+			return "Blast %d  R%d%s" % [
+				_final_damage_for_action(action, state),
+				int(action.get("range", 0)),
+				_action_label_suffix(action)
+			]
+		"push":
+			return "Push %d%s" % [int(action.get("amount", 0)), _action_label_suffix(action, state)]
+		"pull":
+			return "Pull %d%s" % [int(action.get("amount", 0)), _action_label_suffix(action, state)]
 		"block":
 			return "Block %d" % int(action.get("amount", 0))
+		"stoneskin":
+			return "Stoneskin %d" % int(action.get("amount", 0))
 		"heal":
 			return "Heal %d" % int(action.get("amount", 0))
 		"draw":
 			return "Draw %d" % int(action.get("amount", 0))
 		_:
 			return str(GameData.card_def(card_id).get("name", card_id))
+
+func _action_label_suffix(action: Dictionary, state: Dictionary = _combat_state) -> String:
+	var parts: PackedStringArray = []
+	if int(action.get("damage", 0)) > 0 and str(action.get("type", "")) in ["push", "pull"]:
+		parts.append("Hit %d" % _final_damage_for_action(action, state))
+	if int(action.get("range", 0)) > 1 and str(action.get("type", "")) in ["push", "pull"]:
+		parts.append("R%d" % int(action.get("range", 0)))
+	var keywords: String = _action_keyword_suffix(action)
+	if not keywords.is_empty():
+		parts.append(keywords)
+	if parts.is_empty():
+		return ""
+	return "  %s" % "  ".join(parts)
 
 func _final_damage_for_action(action: Dictionary, state: Dictionary) -> int:
 	return _combat_engine.final_damage_for_player_action(state, action)
@@ -2130,6 +2326,7 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 		var before_enemy: Dictionary = before_by_id[enemy_id]
 		var hp_loss: int = int(before_enemy.get("hp", 0)) - int(enemy.get("hp", 0))
 		var block_loss: int = int(before_enemy.get("block", 0)) - int(enemy.get("block", 0))
+		var stoneskin_loss: int = int(before_enemy.get("stoneskin", 0)) - int(enemy.get("stoneskin", 0))
 		if hp_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
@@ -2143,6 +2340,13 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 				"text": "-%d B" % block_loss,
 				"color": Color("90d9ff"),
 				"offset": 10.0
+			})
+		if stoneskin_loss > 0:
+			floats.append({
+				"tile": enemy.get("pos", Vector2i.ZERO),
+				"text": "-%d S" % stoneskin_loss,
+				"color": ElementData.accent(ElementData.EARTH),
+				"offset": 22.0
 			})
 	return floats
 
@@ -2315,7 +2519,10 @@ func _room_title_text(room: Dictionary) -> String:
 	return str(room.get("name", "Chamber"))
 
 func _room_subtitle_text(room: Dictionary) -> String:
+	var element_text: String = ElementData.short_label(str(room.get("element", ElementData.NONE)))
 	var depth_text: String = "Depth %d" % int(room.get("depth", 0))
+	if not element_text.is_empty():
+		depth_text = "%s  %s" % [element_text, depth_text]
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
 		return "%s  TURN %d  %d/%d" % [
 			depth_text,
@@ -2396,6 +2603,13 @@ func _exit_labels_for_board() -> Dictionary:
 		var marker: String = "N" if dir == Vector2i(0, -1) else "E" if dir == Vector2i(1, 0) else "S" if dir == Vector2i(0, 1) else "W"
 		labels[option.get("door_tile", Vector2i(-1, -1))] = marker
 	return labels
+
+func _exit_elements_for_board() -> Dictionary:
+	var elements: Dictionary = {}
+	for option: Dictionary in _run_engine.exit_options(_run_state):
+		var room: Dictionary = option.get("room", {})
+		elements[option.get("door_tile", Vector2i(-1, -1))] = str(room.get("element", ElementData.NONE))
+	return elements
 
 func _process_victory_banking() -> void:
 	var amount: int = _run_engine.bankable_embers(_run_state)

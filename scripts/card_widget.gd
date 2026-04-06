@@ -5,6 +5,7 @@ signal activated
 signal drag_started
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -19,6 +20,7 @@ const DAMAGE_PENALTY_COLOR: String = "#a34a42"
 
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var cost_badge: Label = $Margin/VBox/TopRow/CostBadge
+@onready var element_icon: TextureRect = $Margin/VBox/TopRow/ElementIcon
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtFrame
 @onready var art_rect: TextureRect = $Margin/VBox/ArtFrame/Art
 @onready var desc_label: RichTextLabel = $Margin/VBox/Description
@@ -166,17 +168,28 @@ func _apply_configuration() -> void:
 	if not is_node_ready():
 		return
 	var card: Dictionary = GameData.card_def(card_id)
+	var element_id: String = GameData.card_element_from_def(card)
+	var element: Dictionary = ElementData.def(element_id)
 	title_label.text = str(card.get("name", card_id))
 	desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else _card_summary(card)
-	footer_label.text = str(card.get("rarity", "common")).to_upper()
+	var footer_parts: PackedStringArray = []
+	if ElementData.is_elemental(element_id):
+		footer_parts.append(str(element.get("short_label", "")).strip_edges())
+	footer_parts.append(str(card.get("rarity", "common")).to_upper())
+	footer_label.text = "  ".join(footer_parts)
 	art_rect.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
-	var accent: Color = Color(str(card.get("accent", "#8a6b4a")))
-	var background: Color = Color("ddd0bb") if _selected else Color("efe4cf")
+	element_icon.visible = ElementData.is_elemental(element_id)
+	element_icon.texture = AssetLoader.load_texture(str(element.get("icon_path", ""))) if element_icon.visible else null
+	element_icon.modulate = Color(str(element.get("accent", "#8a6b4a")))
+	var accent: Color = ElementData.accent(element_id) if ElementData.is_elemental(element_id) else Color(str(card.get("accent", "#8a6b4a")))
+	var background: Color = ElementData.card_background(element_id, _selected)
+	if not ElementData.is_elemental(element_id):
+		background = Color("ddd0bb") if _selected else Color("efe4cf")
 	if _previewed and not _selected:
 		background = background.lightened(0.03)
 	if _dimmed:
 		background = background.darkened(0.12)
-	_apply_base_style(background, accent, _usable, _previewed, _printed_playable)
+	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id))
 	var badge_text: String = ""
 	if bool(card.get("burn", false)):
 		badge_text = "BURN"
@@ -211,7 +224,7 @@ func _update_layout_metrics() -> void:
 	desc_label.custom_minimum_size = Vector2(0.0, 42.0 if compact else 50.0)
 	pivot_offset = size * 0.5
 
-func _apply_base_style(background: Color, border: Color, usable: bool, previewed: bool, printed_playable: bool) -> void:
+func _apply_base_style(background: Color, border: Color, usable: bool, previewed: bool, printed_playable: bool, art_background: Color) -> void:
 	var edge_color: Color = border
 	if not usable:
 		edge_color = border.darkened(0.46)
@@ -243,7 +256,7 @@ func _apply_base_style(background: Color, border: Color, usable: bool, previewed
 	add_theme_stylebox_override("focus", hover)
 	add_theme_stylebox_override("disabled", disabled_style)
 	var art_style := StyleBoxFlat.new()
-	art_style.bg_color = Color("51463f")
+	art_style.bg_color = art_background
 	art_style.border_color = edge_color.darkened(0.14)
 	art_style.border_width_left = 2
 	art_style.border_width_top = 2
@@ -292,19 +305,35 @@ func _action_summary_line(action: Dictionary) -> String:
 		"blink":
 			return "Blink %d" % int(action.get("range", 0))
 		"melee":
-			return "Strike %s" % _colored_number(int(action.get("damage", 0)), int(action.get("damage", 0)))
+			return _append_action_tags("Strike %s" % _colored_number(int(action.get("damage", 0)), int(action.get("damage", 0))), action)
 		"ranged":
-			return "Shoot %s  R%d" % [
+			return _append_action_tags("Shoot %s  R%d" % [
 				_colored_number(int(action.get("damage", 0)), int(action.get("damage", 0))),
 				int(action.get("range", 0))
-			]
+			], action)
 		"blast":
-			return "Blast %s  R%d" % [
+			return _append_action_tags("Blast %s  R%d" % [
 				_colored_number(int(action.get("damage", 0)), int(action.get("damage", 0))),
 				int(action.get("range", 0))
-			]
+			], action)
+		"push":
+			var text: String = "Push %d" % int(action.get("amount", 0))
+			if int(action.get("damage", 0)) > 0:
+				text += "  Hit %s" % _colored_number(int(action.get("damage", 0)), int(action.get("damage", 0)))
+			if int(action.get("range", 0)) > 1:
+				text += "  R%d" % int(action.get("range", 0))
+			return _append_action_tags(text, action)
+		"pull":
+			var text: String = "Pull %d" % int(action.get("amount", 0))
+			if int(action.get("damage", 0)) > 0:
+				text += "  Hit %s" % _colored_number(int(action.get("damage", 0)), int(action.get("damage", 0)))
+			if int(action.get("range", 0)) > 1:
+				text += "  R%d" % int(action.get("range", 0))
+			return _append_action_tags(text, action)
 		"block":
 			return "Block %d" % int(action.get("amount", 0))
+		"stoneskin":
+			return "Stoneskin %d" % int(action.get("amount", 0))
 		"heal":
 			return "Heal %d" % int(action.get("amount", 0))
 		"draw":
@@ -319,6 +348,26 @@ func _colored_number(value: int, base_value: int) -> String:
 	elif value < base_value:
 		color = DAMAGE_PENALTY_COLOR
 	return "[color=%s]%d[/color]" % [color, value]
+
+func _append_action_tags(base_text: String, action: Dictionary) -> String:
+	var tags: PackedStringArray = []
+	if int(action.get("burn", 0)) > 0:
+		tags.append("Burn %d" % int(action.get("burn", 0)))
+	if int(action.get("freeze", 0)) > 0:
+		tags.append("Freeze")
+	if int(action.get("shock", 0)) > 0:
+		tags.append("Shock")
+	if int(action.get("chain", 0)) > 0:
+		tags.append("Chain")
+	if int(action.get("push", 0)) > 0:
+		tags.append("Push %d" % int(action.get("push", 0)))
+	if int(action.get("pull", 0)) > 0:
+		tags.append("Pull %d" % int(action.get("pull", 0)))
+	if int(action.get("poison", 0)) > 0:
+		tags.append("Poison %d" % int(action.get("poison", 0)))
+	if tags.is_empty():
+		return base_text
+	return "%s  %s" % [base_text, "  ".join(tags)]
 
 func _on_local_mouse_entered() -> void:
 	_local_hovered = true

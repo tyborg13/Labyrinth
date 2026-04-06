@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-05T19:17:31Z",
+  "updated_at": "2026-04-06T19:09:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -357,6 +357,116 @@
       "source": {
         "branch": "master",
         "commit": "3e039e0"
+      }
+    },
+    {
+      "id": "mnt_20260406T020601Z_1b4ec43e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Elemental combat stores burn, freeze, shock, poison, and stoneskin directly on unit dictionaries so cards, room-tuned enemy intents, board badges, and tests all share one status model.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-06T02:06:01Z",
+      "updated_at": "2026-04-06T02:06:01Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "9b14128"
+      }
+    },
+    {
+      "id": "mnt_20260406T024830Z_ccbfb631",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Enemy threat previews follow the hovered enemy's current intent, keep move_toward/move_away directional, and exclude move tiles from attack tiles so blue movement and red threat overlays stay distinct.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-06T02:48:30Z",
+      "updated_at": "2026-04-06T02:48:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "9b14128"
+      }
+    },
+    {
+      "id": "mnt_20260406T030554Z_5977b97a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Player freeze and shock badges need to merge player_turn_restrictions with the stored status counters, because prepare_next_player_turn consumes those counters before the board renders the locked turn.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-06T03:05:54Z",
+      "updated_at": "2026-04-06T03:05:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "9b14128"
+      }
+    },
+    {
+      "id": "mnt_20260406T032620Z_71a4592f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Enemy attack steps now enqueue only when the player state actually changes, and shallow elemental rooms tone down enemy status payloads so freeze/shock pressure ramps up later in the run.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-06T03:26:20Z",
+      "updated_at": "2026-04-06T03:26:20Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "9b14128"
+      }
+    },
+    {
+      "id": "mnt_20260406T190914Z_90aeeacf",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Ice and lightning enemy CC now comes only from rarer intents (weight 2 or less) at depth 3+, and those freeze/shock attacks cap their range at 4 so elemental control pressure ramps more gently.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-06T19:09:14Z",
+      "updated_at": "2026-04-06T19:09:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "9b14128"
       }
     }
   ]

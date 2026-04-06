@@ -1,6 +1,8 @@
 extends RefCounted
 class_name GameData
 
+const ElementData = preload("res://scripts/element_data.gd")
+
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"
 const RELICS_PATH: String = "res://data/relics.json"
@@ -46,7 +48,7 @@ static func starting_deck() -> Array[String]:
 		"lantern_shot"
 	]
 
-static func reward_card_pool_by_rarity() -> Dictionary:
+static func reward_card_pool_by_rarity(element_filter: String = "") -> Dictionary:
 	var result: Dictionary = {
 		"common": [],
 		"uncommon": [],
@@ -57,10 +59,20 @@ static func reward_card_pool_by_rarity() -> Dictionary:
 		var rarity: String = str(card.get("rarity", "common"))
 		if rarity == "starter":
 			continue
+		var card_element: String = card_element_from_def(card)
+		if not element_filter.is_empty() and card_element != element_filter:
+			continue
 		if not result.has(rarity):
 			result[rarity] = []
 		(result[rarity] as Array).append(card_id)
 	return result
+
+static func card_element(card_id: String) -> String:
+	return card_element_from_def(card_def(card_id))
+
+static func card_element_from_def(card: Dictionary) -> String:
+	var element_id: String = str(card.get("element", ElementData.NONE))
+	return element_id if ElementData.ELEMENTS.has(element_id) else ElementData.NONE
 
 static func card_has_action_type(card_id: String, action_type: String) -> bool:
 	var card: Dictionary = card_def(card_id)

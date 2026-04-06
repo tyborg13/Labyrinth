@@ -1,6 +1,7 @@
 extends Control
 class_name LabyrinthMapView
 
+const ElementData = preload("res://scripts/element_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 
 signal room_selected(coord: Vector2i)
@@ -95,6 +96,8 @@ func _draw_room_node(room: Dictionary) -> void:
 		node_size *= 1.08
 	var room_type: String = str(room.get("type", "combat"))
 	var fill: Color = ROOM_COLORS.get(room_type, Color("8c7462"))
+	if room_type == "combat":
+		fill = ElementData.room_tint(str(room.get("element", ElementData.NONE)))
 	if bool(room.get("cleared", false)):
 		fill = fill.lerp(CLEARED_TINT, 0.55)
 	else:

@@ -3,6 +3,7 @@ class_name RunEngine
 
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -259,10 +260,12 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:
 	var depth: int = _room_depth(coord)
 	var room_type: String = _room_type_for_coord(seed, coord)
+	var element_id: String = _room_element_for_coord(seed, coord, room_type)
 	return {
 		"coord": coord,
 		"depth": depth,
 		"type": room_type,
+		"element": element_id,
 		"revealed": depth <= 1,
 		"visited": false,
 		"cleared": room_type == "start"
@@ -285,6 +288,7 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"name": combat_state.get("room_name", "Room"),
 		"coord": combat_state.get("room_coord", Vector2i.ZERO),
 		"type": combat_state.get("room_type", "combat"),
+		"element": combat_state.get("room_element", ElementData.NONE),
 		"grid": combat_state.get("grid", []).duplicate(true),
 		"player_start": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
 		"enemies": [],
@@ -304,16 +308,33 @@ func _room_type_for_coord(seed: int, coord: Vector2i) -> String:
 		return "treasure"
 	return "combat"
 
+func _room_element_for_coord(seed: int, coord: Vector2i, room_type: String) -> String:
+	if room_type != "combat":
+		return ElementData.NONE
+	var roll: int = _coord_hash(seed, coord, 151) % ElementData.all_elements().size()
+	return ElementData.all_elements()[roll]
+
 func _room_depth(coord: Vector2i) -> int:
 	return absi(coord.x) + absi(coord.y)
 
 func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[String]:
-	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity()
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, 991)
 	var choices: Array[String] = []
+	var room: Dictionary = room_metadata(run_state, coord)
+	var room_element: String = str(room.get("element", ElementData.NONE))
+	if ElementData.is_elemental(room_element):
+		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, choices))
+	choices.append_array(_draw_reward_cards_for_element(rng, ElementData.NONE, 1, choices))
+	if choices.size() < 3:
+		choices.append_array(_draw_reward_cards_for_element(rng, "", 3 - choices.size(), choices))
+	return choices
+
+func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String]) -> Array[String]:
+	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity(element_filter)
+	var choices: Array[String] = []
 	var attempts: int = 0
-	while choices.size() < 3 and attempts < 48:
+	while choices.size() < count and attempts < 72:
 		attempts += 1
 		var rarity_roll: int = rng.randi_range(1, 100)
 		var rarity: String = "common"
@@ -323,20 +344,17 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[Str
 			rarity = "uncommon"
 		var pool: Array = (pool_by_rarity.get(rarity, []) as Array).duplicate()
 		if pool.is_empty():
-			break
+			continue
 		var weighted_pool: Array[String] = []
 		for card_id_var: Variant in pool:
 			var card_id: String = str(card_id_var)
-			if choices.has(card_id):
+			if existing_choices.has(card_id) or choices.has(card_id):
 				continue
 			for _weight_index: int in range(GameData.reward_offer_weight(card_id)):
 				weighted_pool.append(card_id)
 		if weighted_pool.is_empty():
-			break
-		var card_id: String = str(weighted_pool[rng.randi_range(0, weighted_pool.size() - 1)])
-		if choices.has(card_id):
 			continue
-		choices.append(card_id)
+		choices.append(str(weighted_pool[rng.randi_range(0, weighted_pool.size() - 1)]))
 	return choices
 
 func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[String]:

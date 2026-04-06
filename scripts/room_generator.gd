@@ -78,6 +78,7 @@ const ROOM_NAME_SUFFIXES: Array[String] = [
 func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
 	var depth: int = int(room.get("depth", 1))
 	var room_type: String = str(room.get("type", "combat"))
+	var room_element: String = str(room.get("element", "none"))
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _room_seed(run_seed, coord, 101)
@@ -95,10 +96,12 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		enemies.append({
 			"id": index + 1,
 			"type": enemy_types[index],
+			"element": room_element,
 			"pos": enemy_positions[index],
 			"hp": int(GameData.enemy_def(enemy_types[index]).get("max_hp", 1)),
 			"max_hp": int(GameData.enemy_def(enemy_types[index]).get("max_hp", 1)),
-			"block": 0
+			"block": 0,
+			"stoneskin": 0
 		})
 
 	var occupied: Dictionary = {player_start: true}
@@ -111,6 +114,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"coord": coord,
 		"depth": depth,
 		"type": room_type,
+		"element": room_element,
 		"grid": grid,
 		"player_start": player_start,
 		"enemies": enemies,
