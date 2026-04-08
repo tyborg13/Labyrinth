@@ -2,9 +2,11 @@ extends Control
 class_name CombatBoardView
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
+const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
@@ -28,6 +30,11 @@ const STATUS_BURN: Color = Color("f28a42")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_POISON: Color = Color("86bf63")
+const HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
+const INTENT_POPUP_WIDTH: float = 136.0
+const UNIT_ART_HUD_CLEARANCE: float = 10.0
+const HUD_STACK_GAP: float = 0.0
+const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -44,6 +51,8 @@ var _prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
+var _keyword_icon_textures: Dictionary = {}
+var _tooltip_regions: Array[Dictionary] = []
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -79,7 +88,21 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		cancel_requested.emit()
 
+func _get_tooltip(at_position: Vector2) -> String:
+	for index: int in range(_tooltip_regions.size() - 1, -1, -1):
+		var region: Dictionary = _tooltip_regions[index]
+		var rect: Rect2 = region.get("rect", Rect2())
+		if rect.has_point(at_position):
+			return str(region.get("tooltip", ""))
+	return ""
+
+func _make_custom_tooltip(for_text: String) -> Object:
+	if for_text.strip_edges().is_empty():
+		return null
+	return UiTooltipPanel.make_text(for_text)
+
 func _draw() -> void:
+	_tooltip_regions.clear()
 	draw_rect(Rect2(Vector2.ZERO, size), Color("18120f"), true)
 	if combat_state.is_empty():
 		_draw_empty_state()
@@ -91,10 +114,9 @@ func _draw() -> void:
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
 	_draw_path_preview()
-	for tile: Vector2i in tiles:
-		_draw_tile_props(grid, tile)
-	_draw_exit_markers()
-	_draw_units()
+	var units_to_draw: Array[Dictionary] = _visible_units()
+	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_unit_huds(units_to_draw)
 	_draw_target_markers()
 	_draw_effect_overlay()
 	_draw_status_text()
@@ -135,22 +157,25 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if tile == _hover_tile:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
 
-func _draw_tile_props(grid: Array, tile: Vector2i) -> void:
+func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
+	for tile: Vector2i in tiles:
+		_draw_tile_props(grid, tile, units_to_draw)
+		_draw_exit_marker_for_tile(tile)
+		_draw_unit_bodies_for_tile(tile, units_to_draw)
+
+func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) -> void:
 	var tile_id: String = str((grid[tile.y] as Array)[tile.x])
 	if tile_id == "wall" or tile_id == "pillar":
 		var texture: Texture2D = _prop_textures.get(tile_id, null)
 		if texture != null:
-			var center: Vector2 = _tile_center(tile)
-			var prop_size: Vector2 = _prop_size()
-			var rect := Rect2(center - Vector2(prop_size.x * 0.5, prop_size.y * 0.84), prop_size)
-			draw_texture_rect(texture, rect, false)
+			var rect: Rect2 = _prop_rect_for_tile(tile)
+			draw_texture_rect(texture, rect, false, _foreground_blocker_tint(tile_id, tile, rect, units_to_draw))
 	elif tile_id == "door":
 		var door_texture: Texture2D = _prop_textures.get("door", null)
 		if door_texture != null:
 			var door_center: Vector2 = _tile_center(tile)
-			var tile_width: float = _tile_width()
 			var tile_height: float = _tile_height()
-			var door_rect := Rect2(door_center - Vector2(tile_width * 0.45, tile_height * 0.6), Vector2(tile_width * 0.9, tile_height * 0.8))
+			var door_rect: Rect2 = _door_rect_for_tile(tile)
 			var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
 			draw_texture_rect(door_texture, door_rect, false, ElementData.door_tint(element_id))
 			var icon_texture: Texture2D = _element_textures.get(element_id, null)
@@ -165,27 +190,58 @@ func _draw_tile_props(grid: Array, tile: Vector2i) -> void:
 		var loot_texture: Texture2D = _loot_textures.get(str(loot.get("kind", "")), null)
 		if loot_texture == null:
 			continue
-		var loot_rect := Rect2(_tile_center(tile) - Vector2(26.0, 58.0), Vector2(52.0, 68.0))
+		var loot_rect: Rect2 = _loot_rect_for_tile(tile)
 		draw_texture_rect(loot_texture, loot_rect, false)
 
-func _draw_exit_markers() -> void:
+func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, units_to_draw: Array) -> Color:
+	if not _is_tall_obstructive_tile(tile_id):
+		return Color.WHITE
+	for unit_var: Variant in units_to_draw:
+		if typeof(unit_var) != TYPE_DICTIONARY:
+			continue
+		var unit: Dictionary = unit_var
+		var unit_tile: Vector2i = unit.get("pos", Vector2i.ZERO)
+		if not _tile_draws_before(unit_tile, tile):
+			continue
+		if prop_rect.intersects(_unit_draw_rect(unit), true):
+			return FOREGROUND_OBSTRUCTION_TINT
+	return Color.WHITE
+
+func _is_tall_obstructive_tile(tile_id: String) -> bool:
+	return tile_id == "pillar" or tile_id == "wall"
+
+func _prop_rect_for_tile(tile: Vector2i) -> Rect2:
+	var center: Vector2 = _tile_center(tile)
+	var prop_size: Vector2 = _prop_size()
+	return Rect2(center - Vector2(prop_size.x * 0.5, prop_size.y * 0.84), prop_size)
+
+func _door_rect_for_tile(tile: Vector2i) -> Rect2:
+	var door_center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	return Rect2(door_center - Vector2(tile_width * 0.45, tile_height * 0.6), Vector2(tile_width * 0.9, tile_height * 0.8))
+
+func _loot_rect_for_tile(tile: Vector2i) -> Rect2:
+	return Rect2(_tile_center(tile) - Vector2(26.0, 58.0), Vector2(52.0, 68.0))
+
+func _draw_exit_marker_for_tile(tile: Vector2i) -> void:
+	if not exit_tiles.has(tile):
+		return
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	for tile_var: Variant in exit_tiles.keys():
-		var tile: Vector2i = tile_var
-		var label: String = str(exit_tiles.get(tile_var, ""))
-		var element_id: String = str(exit_elements.get(tile_var, ElementData.NONE))
-		var accent: Color = ElementData.door_tint(element_id)
-		var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.58)
-		var marker_rect := Rect2(center - Vector2(26.0, 16.0), Vector2(52.0, 32.0))
-		draw_rect(marker_rect, Color(0.11, 0.08, 0.06, 0.92), true)
-		draw_rect(marker_rect, accent, false, 2.0)
-		draw_string(font, marker_rect.position + Vector2(0.0, 13.0), label, HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 11, Color("fff0d1"))
-		if ElementData.is_elemental(element_id):
-			draw_string(font, marker_rect.position + Vector2(0.0, 25.0), ElementData.short_label(element_id), HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 7, accent)
+	var label: String = str(exit_tiles.get(tile, ""))
+	var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
+	var accent: Color = ElementData.door_tint(element_id)
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.58)
+	var marker_rect := Rect2(center - Vector2(26.0, 16.0), Vector2(52.0, 32.0))
+	draw_rect(marker_rect, Color(0.11, 0.08, 0.06, 0.92), true)
+	draw_rect(marker_rect, accent, false, 2.0)
+	draw_string(font, marker_rect.position + Vector2(0.0, 13.0), label, HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 11, Color("fff0d1"))
+	if ElementData.is_elemental(element_id):
+		draw_string(font, marker_rect.position + Vector2(0.0, 25.0), ElementData.short_label(element_id), HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 7, accent)
 
-func _draw_units() -> void:
+func _visible_units() -> Array[Dictionary]:
 	var units_to_draw: Array[Dictionary] = []
 	var player: Dictionary = combat_state.get("player", {})
 	var player_restrictions: Dictionary = combat_state.get("player_turn_restrictions", {})
@@ -224,24 +280,34 @@ func _draw_units() -> void:
 	units_to_draw.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_pos: Vector2i = a.get("pos", Vector2i.ZERO)
 		var b_pos: Vector2i = b.get("pos", Vector2i.ZERO)
-		return (a_pos.x + a_pos.y) < (b_pos.x + b_pos.y)
+		return _tile_draws_before(a_pos, b_pos)
 	)
+	return units_to_draw
+
+func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
+	for unit: Dictionary in units_to_draw:
+		if unit.get("pos", Vector2i.ZERO) != tile:
+			continue
+		_draw_unit_body(unit)
+
+func _draw_unit_body(unit: Dictionary) -> void:
+	var center: Vector2 = _unit_center(unit)
+	_draw_shadow(center + Vector2(0.0, _tile_height() * 0.58))
+	_draw_unit_focus(unit, center)
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture != null:
+		draw_texture_rect(texture, _unit_draw_rect(unit), false)
+
+func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
 		var center: Vector2 = _unit_center(unit)
-		_draw_shadow(center + Vector2(0.0, _tile_height() * 0.58))
-		_draw_unit_focus(unit, center)
-		var texture: Texture2D = _texture_for_unit(unit)
-		if texture != null:
-			var unit_size: Vector2 = _unit_size()
-			var frame_rect := Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
-			draw_texture_rect(texture, _fitted_unit_rect(texture, frame_rect), false)
-		_draw_health_bar(unit, center)
-		_draw_unit_statuses(unit, center)
+		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+		_draw_health_bar(unit, health_rect)
+		_draw_unit_statuses(unit, health_rect)
 		if str(unit.get("type", "")) != "player":
-			_draw_enemy_intent(unit, center)
+			_draw_enemy_intent(unit, center, health_rect)
 
-func _draw_health_bar(unit: Dictionary, center: Vector2) -> void:
-	var rect := Rect2(center + Vector2(-34.0, -58.0), Vector2(68.0, 10.0))
+func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
 	SegmentedHealthBar.draw_bar(
 		self,
@@ -266,88 +332,170 @@ func _draw_health_bar(unit: Dictionary, center: Vector2) -> void:
 		]:
 			draw_string(
 				font,
-				rect.position + Vector2(0.0, 8.5) + offset,
+				rect.position + Vector2(0.0, 10.0) + offset,
 				"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
 				HORIZONTAL_ALIGNMENT_CENTER,
 				rect.size.x,
-				8,
+				9,
 				Color("140f0b")
 			)
 		draw_string(
 			font,
-			rect.position + Vector2(0.0, 8.5),
+			rect.position + Vector2(0.0, 10.0),
 			"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
-			8,
+			9,
 			Color("fff4dc")
 		)
 	var block_amount: int = int(unit.get("block", 0))
-	if block_amount > 0 and font != null:
-		var block_rect := Rect2(rect.position + Vector2(72.0, -2.0), Vector2(22.0, 14.0))
-		draw_rect(block_rect, Color(0.07, 0.12, 0.16, 0.92), true)
-		draw_rect(block_rect, Color("90d9ff"), false, 1.0)
-		draw_string(
-			font,
-			block_rect.position + Vector2(0.0, 10.0),
-			"+%d" % block_amount,
-			HORIZONTAL_ALIGNMENT_CENTER,
-			block_rect.size.x,
-			8,
-			Color("d9f5ff")
-		)
+	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
+	if block_amount > 0:
+		var block_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(36.0, 16.0))
+		_draw_icon_value_badge(block_rect, "block", block_amount, Color(0.07, 0.12, 0.16, 0.92), Color("90d9ff"), Color("d9f5ff"), font)
+		defense_badge_x += block_rect.size.x + 4.0
 	var stoneskin_amount: int = int(unit.get("stoneskin", 0))
-	if stoneskin_amount > 0 and font != null:
-		var skin_rect := Rect2(rect.position + Vector2(97.0, -2.0), Vector2(26.0, 14.0))
-		draw_rect(skin_rect, Color(0.10, 0.14, 0.08, 0.92), true)
-		draw_rect(skin_rect, ElementData.accent(ElementData.EARTH), false, 1.0)
+	if stoneskin_amount > 0:
+		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
+		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+
+func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
+	draw_rect(rect, fill, true)
+	draw_rect(rect, border, false, 1.0)
+	var icon_size: float = maxf(10.0, rect.size.y - 4.0)
+	var icon_rect := Rect2(rect.position + Vector2(2.0, 2.0), Vector2(icon_size, icon_size))
+	_draw_keyword_icon(icon_key, icon_rect, ActionIcons.tooltip(icon_key))
+	if font != null:
+		var text_left: float = icon_size + 4.0
 		draw_string(
 			font,
-			skin_rect.position + Vector2(0.0, 10.0),
-			"S%d" % stoneskin_amount,
+			rect.position + Vector2(text_left, rect.size.y - 4.0),
+			str(amount),
 			HORIZONTAL_ALIGNMENT_CENTER,
-			skin_rect.size.x,
-			8,
-			Color("eff8d7")
+			rect.size.x - text_left,
+			9,
+			text_color
 		)
+	_register_tooltip(rect, ActionIcons.tooltip(icon_key))
 
-func _draw_unit_statuses(unit: Dictionary, center: Vector2) -> void:
+func _unit_frame_rect(center: Vector2) -> Rect2:
+	var unit_size: Vector2 = _unit_size()
+	return Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
+
+func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
+	var frame_rect: Rect2 = _unit_frame_rect(center)
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null:
+		return frame_rect.position.y
+	return _fitted_unit_rect(texture, frame_rect).position.y
+
+func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	var bottom_y: float = _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE
+	return Rect2(
+		Vector2(center.x - HEALTH_BAR_SIZE.x * 0.5, bottom_y - HEALTH_BAR_SIZE.y),
+		HEALTH_BAR_SIZE
+	)
+
+func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
 	var badges: Array[Dictionary] = _unit_status_badges(unit)
 	if badges.is_empty():
 		return
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	var spacing: float = 18.0
-	var start_x: float = center.x - (float(badges.size() - 1) * spacing) * 0.5
+	var spacing: float = 22.0
+	var start_x: float = health_rect.position.x - 12.0 - (float(badges.size() - 1) * spacing)
+	var center_y: float = health_rect.position.y + health_rect.size.y - 2.0
 	for index: int in range(badges.size()):
-		_draw_status_badge(font, Vector2(start_x + float(index) * spacing, center.y - 74.0), badges[index])
+		_draw_status_badge(font, Vector2(start_x + float(index) * spacing, center_y), badges[index])
 
-func _draw_enemy_intent(unit: Dictionary, center: Vector2) -> void:
+func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -> void:
 	var intent: Dictionary = unit.get("intent", {})
 	if intent.is_empty():
 		return
-	var lines: PackedStringArray = _intent_lines(intent)
-	if lines.is_empty():
+	var rows: Array = _intent_rows(intent)
+	if rows.is_empty():
 		return
 	var border: Color = _intent_color(intent)
-	var label_height: float = 14.0 + float(lines.size()) * 12.0
-	var label_rect := Rect2(center + Vector2(-58.0, -126.0 - label_height * 0.25), Vector2(116.0, label_height))
+	var label_rect: Rect2 = _enemy_intent_rect_for_line_count(center, health_rect, rows.size())
 	draw_rect(label_rect, Color(0.08, 0.06, 0.05, 0.88), true)
 	draw_rect(label_rect, border, false, 2.0)
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	for line_index: int in range(lines.size()):
-		draw_string(
-			font,
-			label_rect.position + Vector2(8.0, 14.0 + float(line_index) * 12.0),
-			lines[line_index],
-			HORIZONTAL_ALIGNMENT_LEFT,
-			100.0,
+	for row_index: int in range(rows.size()):
+		_draw_token_row(
+			rows[row_index] as Array,
+			label_rect.position + Vector2(8.0, 8.0 + float(row_index) * 20.0),
+			16.0,
 			11,
-			Color("f7ecd4")
+			Color("f7ecd4"),
+			font
 		)
+
+func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int) -> Rect2:
+	if line_count <= 0:
+		return Rect2()
+	var label_height: float = 14.0 + float(line_count) * 20.0
+	return Rect2(
+		Vector2(center.x - INTENT_POPUP_WIDTH * 0.5, health_rect.position.y - HUD_STACK_GAP - label_height),
+		Vector2(INTENT_POPUP_WIDTH, label_height)
+	)
+
+func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size: int, text_color: Color, font: Font) -> void:
+	var cursor_x: float = origin.x
+	for token_var: Variant in tokens:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		var token: Dictionary = token_var
+		var icon_key: String = str(token.get("icon", ""))
+		var tooltip: String = ActionIcons.token_tooltip(token)
+		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
+		_draw_keyword_icon(icon_key, icon_rect, tooltip)
+		cursor_x += icon_size + 3.0
+		var value_text: String = ActionIcons.token_value_text(token)
+		if not value_text.is_empty() and font != null:
+			var value_width: float = maxf(font.get_string_size(value_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
+			var value_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(value_width, icon_size))
+			draw_string(
+				font,
+				Vector2(cursor_x, origin.y + icon_size - 2.0),
+				value_text,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				value_width,
+				font_size,
+				_token_value_color(token, text_color)
+			)
+			_register_tooltip(value_rect, tooltip)
+			cursor_x += value_width + 6.0
+		else:
+			cursor_x += 5.0
+
+func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE) -> void:
+	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
+	if texture != null:
+		draw_texture_rect(texture, rect, false, tint)
+	else:
+		draw_rect(rect, Color(0.0, 0.0, 0.0, 0.22), true)
+	if not tooltip.is_empty():
+		_register_tooltip(rect, tooltip)
+
+func _register_tooltip(rect: Rect2, tooltip: String) -> void:
+	if tooltip.is_empty() or rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	_tooltip_regions.append({
+		"rect": rect,
+		"tooltip": tooltip
+	})
+
+func _token_value_color(token: Dictionary, default_color: Color) -> Color:
+	match str(token.get("tone", "neutral")):
+		"bonus":
+			return Color("78c46a")
+		"penalty":
+			return Color("d46c62")
+		_:
+			return default_color
 
 func _draw_status_text() -> void:
 	if status_label.is_empty():
@@ -355,9 +503,9 @@ func _draw_status_text() -> void:
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	draw_string(font, Vector2(22.0, 28.0), status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 18, Color("f4ebd7"))
+	draw_string(font, Vector2(22.0, 30.0), status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f4ebd7"))
 	if not status_detail.is_empty():
-		draw_string(font, Vector2(22.0, 48.0), status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 12, Color("d8ccb6"))
+		draw_string(font, Vector2(22.0, 54.0), status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 14, Color("d8ccb6"))
 
 func _draw_effect_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
@@ -529,6 +677,10 @@ func _load_assets() -> void:
 	_element_textures.clear()
 	for element_id: String in ElementData.all_elements():
 		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
+	_keyword_icon_textures.clear()
+	for icon_key_var: Variant in ActionIcons.all_icon_keys():
+		var icon_key: String = str(icon_key_var)
+		_keyword_icon_textures[icon_key] = ActionIcons.icon_texture(icon_key)
 	_unit_textures["player"] = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.png")
 	for enemy_type: String in GameData.enemies().keys():
 		var art_path: String = str(GameData.enemy_def(enemy_type).get("art_path", ""))
@@ -536,6 +688,14 @@ func _load_assets() -> void:
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	return _unit_textures.get(str(unit.get("type", "")), null)
+
+func _unit_draw_rect(unit: Dictionary) -> Rect2:
+	var center: Vector2 = _unit_center(unit)
+	var frame_rect: Rect2 = _unit_frame_rect(center)
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null:
+		return frame_rect
+	return _fitted_unit_rect(texture, frame_rect)
 
 func _unit_center(unit: Dictionary) -> Vector2:
 	var unit_key: String = str(unit.get("key", ""))
@@ -562,13 +722,16 @@ func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
 		for x: int in range((grid[y] as Array).size()):
 			tiles.append(Vector2i(x, y))
 	tiles.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		var a_score: int = a.x + a.y
-		var b_score: int = b.x + b.y
-		if a_score == b_score:
-			return a.x < b.x
-		return a_score < b_score
+		return _tile_draws_before(a, b)
 	)
 	return tiles
+
+func _tile_draws_before(a: Vector2i, b: Vector2i) -> bool:
+	var a_score: int = a.x + a.y
+	var b_score: int = b.x + b.y
+	if a_score == b_score:
+		return a.x < b.x
+	return a_score < b_score
 
 func _tile_center(tile: Vector2i) -> Vector2:
 	var origin: Vector2 = _board_origin()
@@ -640,9 +803,9 @@ func _tile_width() -> float:
 		board_h = grid.size()
 		board_w = (grid[0] as Array).size()
 	var span: float = float(maxi(2, board_w + board_h))
-	var width_based: float = (size.x - 120.0) * 2.0 / span
-	var height_based: float = (size.y - 124.0) * 4.0 / span
-	return clampf(minf(width_based, height_based), 86.0, 138.0)
+	var width_based: float = (size.x - 96.0) * 2.0 / span
+	var height_based: float = (size.y - 96.0) * 4.0 / span
+	return clampf(minf(width_based, height_based), 90.0, 146.0)
 
 func _tile_height() -> float:
 	return _tile_width() * 0.5
@@ -655,67 +818,21 @@ func _prop_size() -> Vector2:
 	var tile_width: float = _tile_width()
 	return Vector2(tile_width * 0.92, tile_width * 1.14)
 
-func _intent_lines(intent: Dictionary) -> PackedStringArray:
-	var parts: PackedStringArray = []
+func _intent_rows(intent: Dictionary) -> Array:
+	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
-		match str(action.get("type", "")):
-			"move_toward":
-				parts.append("MOVE %d" % int(action.get("range", 0)))
-			"move_away":
-				parts.append("BACK %d" % int(action.get("range", 0)))
-			"melee":
-				parts.append(_intent_action_text("HIT %d" % int(action.get("damage", 0)), action))
-			"ranged":
-				parts.append(_intent_action_text("SHOT %d" % int(action.get("damage", 0)), action))
-			"blast":
-				parts.append(_intent_action_text("BLAST %d" % int(action.get("damage", 0)), action))
-			"push":
-				parts.append(_intent_action_text("PUSH %d" % int(action.get("amount", 0)), action))
-			"pull":
-				parts.append(_intent_action_text("PULL %d" % int(action.get("amount", 0)), action))
-			"block":
-				parts.append("BLOCK %d" % int(action.get("amount", 0)))
-			"stoneskin":
-				parts.append("SKIN %d" % int(action.get("amount", 0)))
-			"heal_self":
-				parts.append("HEAL %d" % int(action.get("amount", 0)))
+		var row: Array = ActionIcons.tokens_for_action(action)
+		if not row.is_empty():
+			rows.append(row)
+	return rows
+
+func _intent_lines(intent: Dictionary) -> PackedStringArray:
+	var parts: PackedStringArray = []
+	for row_var: Variant in _intent_rows(intent):
+		if typeof(row_var) == TYPE_ARRAY:
+			parts.append(ActionIcons.plain_text_for_tokens(row_var as Array))
 	return parts
-
-func _intent_action_text(base_text: String, action: Dictionary) -> String:
-	var text: String = base_text
-	var range_label: String = _intent_range_label(action)
-	if not range_label.is_empty():
-		text += " %s" % range_label
-	var tags: PackedStringArray = []
-	if int(action.get("burn", 0)) > 0:
-		tags.append("BRN")
-	if int(action.get("freeze", 0)) > 0:
-		tags.append("FRZ")
-	if int(action.get("shock", 0)) > 0:
-		tags.append("SHK")
-	if int(action.get("poison", 0)) > 0:
-		tags.append("PSN")
-	if int(action.get("push", 0)) > 0:
-		tags.append("PUSH")
-	if int(action.get("pull", 0)) > 0:
-		tags.append("PULL")
-	if tags.is_empty():
-		return text
-	return "%s %s" % [text, "/".join(tags)]
-
-func _intent_range_label(action: Dictionary) -> String:
-	var action_type: String = str(action.get("type", ""))
-	var action_range: int = int(action.get("range", 0))
-	match action_type:
-		"ranged":
-			return "R%d" % maxi(1, action_range)
-		"blast":
-			return "R%d" % action_range if action_range > 0 else ""
-		"melee", "push", "pull":
-			return "R%d" % action_range if action_range > 1 else ""
-		_:
-			return ""
 
 func _intent_color(intent: Dictionary) -> Color:
 	var element_id: String = str(intent.get("element", ElementData.NONE))
@@ -737,21 +854,21 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = []
 	if int(unit.get("burn", 0)) > 0:
 		badges.append({
-			"glyph": "B",
+			"icon": "burn",
 			"count": int(unit.get("burn", 0)),
 			"fill": STATUS_BURN,
 			"border": STATUS_BURN.lightened(0.24)
 		})
 	if int(unit.get("freeze", 0)) > 0:
 		badges.append({
-			"glyph": "F",
+			"icon": "freeze",
 			"count": 0,
 			"fill": STATUS_FREEZE,
 			"border": STATUS_FREEZE.lightened(0.20)
 		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({
-			"glyph": "Z",
+			"icon": "shock",
 			"count": 0,
 			"fill": STATUS_SHOCK,
 			"border": STATUS_SHOCK.lightened(0.18)
@@ -759,7 +876,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var poison: Dictionary = unit.get("poison", {})
 	if int(poison.get("damage", 0)) > 0 and int(poison.get("delay", 0)) > 0:
 		badges.append({
-			"glyph": "P",
+			"icon": "poison",
 			"count": int(poison.get("delay", 0)),
 			"fill": STATUS_POISON,
 			"border": STATUS_POISON.lightened(0.22)
@@ -774,31 +891,26 @@ func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> D
 	}
 
 func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
-	var radius: float = 8.0
+	var radius: float = 10.0
 	draw_circle(center, radius, badge.get("fill", Color("888888")))
 	draw_arc(center, radius, 0.0, TAU, 18, badge.get("border", Color.WHITE), 1.6)
-	draw_string(
-		font,
-		Vector2(center.x - radius, center.y + 3.5),
-		str(badge.get("glyph", "")),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		radius * 2.0,
-		8,
-		Color("1f1812")
-	)
+	var icon_key: String = str(badge.get("icon", ""))
+	var badge_rect := Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0))
+	_draw_keyword_icon(icon_key, Rect2(center - Vector2(6.5, 6.5), Vector2(13.0, 13.0)), ActionIcons.tooltip(icon_key), Color("1f1812"))
+	_register_tooltip(badge_rect, ActionIcons.tooltip(icon_key))
 	var count: int = int(badge.get("count", 0))
 	if count <= 0:
 		return
-	var chip_rect := Rect2(center + Vector2(4.0, 2.0), Vector2(10.0, 10.0))
+	var chip_rect := Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0))
 	draw_rect(chip_rect, Color(0.09, 0.07, 0.05, 0.96), true)
 	draw_rect(chip_rect, badge.get("border", Color.WHITE), false, 1.0)
 	draw_string(
 		font,
-		chip_rect.position + Vector2(0.0, 8.0),
+		chip_rect.position + Vector2(0.0, 9.0),
 		str(count),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		chip_rect.size.x,
-		8,
+		9,
 		Color("fff4dc")
 	)
 

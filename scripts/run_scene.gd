@@ -1,6 +1,7 @@
 extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -520,7 +521,7 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	widget.position = rect.position
 	widget.configure(card_id, false, false, true, false, false, true)
 	var display: Dictionary = _card_widget_display(card_id, _combat_state)
-	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	return widget
 
 func _animate_card_proxy_to_rect(proxy: Control, target_rect: Rect2, duration: float) -> void:
@@ -997,7 +998,7 @@ func _refresh_hand_panel() -> void:
 				not _animation_lock,
 				bool(options.get("printed_playable", false))
 			)
-			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []))
+			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 			if index == _drag_card_index:
 				widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
 			elif index == _animating_hand_card_index:
@@ -1171,7 +1172,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = GameData.card_def(card_id)
-	var summary_lines: PackedStringArray = []
+	var summary_rows: Array = []
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
 	for action_var: Variant in card.get("actions", []):
@@ -1181,73 +1182,27 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			"melee", "ranged", "blast":
 				var base_damage: int = int(action.get("damage", 0))
 				var final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
-				summary_lines.append(_damage_summary_line(action, final_damage, base_damage))
+				summary_rows.append(ActionIcons.tokens_for_action(action, {"final_damage": final_damage}))
 				for modifier: Dictionary in _combat_engine.damage_modifiers_for_player_action(preview_state, action):
 					modifier_lines.append(_damage_modifier_line(modifier))
 				_consume_preview_damage_modifiers(preview_state, action)
 			"push", "pull":
-				summary_lines.append(_control_summary_line(action, _combat_engine.final_damage_for_player_action(preview_state, action), int(action.get("damage", 0))))
+				summary_rows.append(ActionIcons.tokens_for_action(action, {"final_damage": _combat_engine.final_damage_for_player_action(preview_state, action)}))
 				for modifier: Dictionary in _combat_engine.damage_modifiers_for_player_action(preview_state, action):
 					modifier_lines.append(_damage_modifier_line(modifier))
 				_consume_preview_damage_modifiers(preview_state, action)
-			"move":
-				summary_lines.append("Move %d" % int(action.get("range", 0)))
-			"blink":
-				summary_lines.append("Blink %d" % int(action.get("range", 0)))
-			"block":
-				summary_lines.append("Block %d" % int(action.get("amount", 0)))
-			"stoneskin":
-				summary_lines.append("Stoneskin %d" % int(action.get("amount", 0)))
-			"heal":
-				summary_lines.append("Heal %d" % int(action.get("amount", 0)))
-			"draw":
-				summary_lines.append("Draw %d" % int(action.get("amount", 0)))
-	if summary_lines.is_empty():
-		summary_lines.append(str(card.get("description", "")))
+			_:
+				var row: Array = ActionIcons.tokens_for_action(action)
+				if not row.is_empty():
+					summary_rows.append(row)
+	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
+	if summary_text.is_empty():
+		summary_text = str(card.get("description", ""))
 	return {
-		"summary_bbcode": "\n".join(summary_lines),
+		"summary_bbcode": summary_text,
+		"summary_rows": summary_rows,
 		"modifier_lines": modifier_lines
 	}
-
-func _colored_damage_bbcode(final_damage: int, base_damage: int) -> String:
-	var color: String = "#503d2c"
-	if final_damage > base_damage:
-		color = "#4f8a43"
-	elif final_damage < base_damage:
-		color = "#a34a42"
-	return "[color=%s]%d[/color]" % [color, final_damage]
-
-func _damage_verb_for_action(action_type: String) -> String:
-	match action_type:
-		"melee":
-			return "Strike"
-		"ranged":
-			return "Shoot"
-		"blast":
-			return "Blast"
-		_:
-			return "Hit"
-
-func _damage_summary_line(action: Dictionary, final_damage: int, base_damage: int) -> String:
-	var action_type: String = str(action.get("type", ""))
-	var text: String = "%s %s" % [_damage_verb_for_action(action_type), _colored_damage_bbcode(final_damage, base_damage)]
-	if action_type in ["ranged", "blast"]:
-		text += "  R%d" % int(action.get("range", 0))
-	var suffix: String = _action_keyword_suffix(action)
-	if not suffix.is_empty():
-		text += "  %s" % suffix
-	return text
-
-func _control_summary_line(action: Dictionary, final_damage: int, base_damage: int) -> String:
-	var text: String = "%s %d" % [str(action.get("type", "")).capitalize(), int(action.get("amount", 0))]
-	if int(action.get("damage", 0)) > 0:
-		text += "  Hit %s" % _colored_damage_bbcode(final_damage, base_damage)
-	if int(action.get("range", 0)) > 1:
-		text += "  R%d" % int(action.get("range", 0))
-	var suffix: String = _action_keyword_suffix(action)
-	if not suffix.is_empty():
-		text += "  %s" % suffix
-	return text
 
 func _damage_modifier_line(modifier: Dictionary) -> String:
 	var amount: int = int(modifier.get("amount", 0))
@@ -1269,24 +1224,6 @@ func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) ->
 	var turn_flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(true)
 	turn_flags["first_attack_bonus_used"] = true
 	state["turn_flags"] = turn_flags
-
-func _action_keyword_suffix(action: Dictionary) -> String:
-	var tags: PackedStringArray = []
-	if int(action.get("burn", 0)) > 0:
-		tags.append("Burn %d" % int(action.get("burn", 0)))
-	if int(action.get("freeze", 0)) > 0:
-		tags.append("Freeze")
-	if int(action.get("shock", 0)) > 0:
-		tags.append("Shock")
-	if int(action.get("chain", 0)) > 0:
-		tags.append("Chain")
-	if int(action.get("push", 0)) > 0:
-		tags.append("Push %d" % int(action.get("push", 0)))
-	if int(action.get("pull", 0)) > 0:
-		tags.append("Pull %d" % int(action.get("pull", 0)))
-	if int(action.get("poison", 0)) > 0:
-		tags.append("Poison %d" % int(action.get("poison", 0)))
-	return "  ".join(tags)
 
 func _has_playable_combat_card() -> bool:
 	if _combat_state.is_empty():
@@ -2242,75 +2179,15 @@ func _room_hover_hint() -> String:
 
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
-		"move":
-			return "Move"
-		"blink":
-			return "Blink"
-		"melee":
-			return "Strike"
-		"ranged":
-			return "Shoot"
-		"blast":
-			return "Blast"
-		"push":
-			return "Push"
-		"pull":
-			return "Pull"
-		"stoneskin":
-			return "Stoneskin"
+		"move", "blink":
+			return "Choose tile"
+		"melee", "ranged", "blast", "push", "pull":
+			return "Choose target"
 		_:
 			return "Resolve"
 
-func _player_action_label(card_id: String, action: Dictionary, state: Dictionary = _combat_state) -> String:
-	match str(action.get("type", "")):
-		"move":
-			return "Move %d" % int(action.get("range", 0))
-		"blink":
-			return "Blink %d" % int(action.get("range", 0))
-		"melee":
-			return "Strike %d%s" % [_final_damage_for_action(action, state), _action_label_suffix(action, state)]
-		"ranged":
-			return "Shot %d  R%d%s" % [
-				_final_damage_for_action(action, state),
-				int(action.get("range", 0)),
-				_action_label_suffix(action)
-			]
-		"blast":
-			return "Blast %d  R%d%s" % [
-				_final_damage_for_action(action, state),
-				int(action.get("range", 0)),
-				_action_label_suffix(action)
-			]
-		"push":
-			return "Push %d%s" % [int(action.get("amount", 0)), _action_label_suffix(action, state)]
-		"pull":
-			return "Pull %d%s" % [int(action.get("amount", 0)), _action_label_suffix(action, state)]
-		"block":
-			return "Block %d" % int(action.get("amount", 0))
-		"stoneskin":
-			return "Stoneskin %d" % int(action.get("amount", 0))
-		"heal":
-			return "Heal %d" % int(action.get("amount", 0))
-		"draw":
-			return "Draw %d" % int(action.get("amount", 0))
-		_:
-			return str(GameData.card_def(card_id).get("name", card_id))
-
-func _action_label_suffix(action: Dictionary, state: Dictionary = _combat_state) -> String:
-	var parts: PackedStringArray = []
-	if int(action.get("damage", 0)) > 0 and str(action.get("type", "")) in ["push", "pull"]:
-		parts.append("Hit %d" % _final_damage_for_action(action, state))
-	if int(action.get("range", 0)) > 1 and str(action.get("type", "")) in ["push", "pull"]:
-		parts.append("R%d" % int(action.get("range", 0)))
-	var keywords: String = _action_keyword_suffix(action)
-	if not keywords.is_empty():
-		parts.append(keywords)
-	if parts.is_empty():
-		return ""
-	return "  %s" % "  ".join(parts)
-
-func _final_damage_for_action(action: Dictionary, state: Dictionary) -> int:
-	return _combat_engine.final_damage_for_player_action(state, action)
+func _player_action_label(card_id: String, _action: Dictionary, _state: Dictionary = _combat_state) -> String:
+	return str(GameData.card_def(card_id).get("name", card_id))
 
 func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_by_id: Dictionary = {}

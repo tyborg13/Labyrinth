@@ -1,12 +1,14 @@
 extends SceneTree
 
 const GameData = preload("res://scripts/game_data.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
 var _failures: Array[String] = []
 
@@ -39,6 +41,9 @@ func _initialize() -> void:
 	_test_shallow_elemental_enemy_actions_scale_back()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
+	_test_unit_hud_stacks_above_sprite_art()
+	_test_foreground_props_fade_when_covering_behind_units()
+	_test_keyword_icon_library_surfaces_tooltips()
 	_test_run_map_room_types()
 	_test_combat_finish_generates_reward_state()
 	_test_progression_save_and_purchase(default_progression)
@@ -581,7 +586,9 @@ func _test_status_badges_surface_countdowns() -> void:
 		"poison": {"damage": 4, "delay": 2}
 	})
 	_assert(badges.size() == 4, "Status badges should surface each active elemental status independently")
+	_assert(str((badges[0] as Dictionary).get("icon", "")) == "burn", "Burn badges should use the shared burn icon")
 	_assert(int((badges[0] as Dictionary).get("count", 0)) == 5, "Burn badges should show their remaining countdown")
+	_assert(str((badges[3] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
 	_assert(int((badges[3] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
 
 func _test_player_restriction_badges_show_turn_lock() -> void:
@@ -590,6 +597,52 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 	_assert(int(statuses.get("freeze", 0)) == 1, "Frozen turns should still surface a freeze badge even after the restriction consumes the stored counter")
 	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0}, {"frozen": false, "shocked": true})
 	_assert(int(statuses.get("shock", 0)) == 1, "Shocked turns should still surface a shock badge even after the restriction consumes the stored counter")
+
+func _test_unit_hud_stacks_above_sprite_art() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var center := Vector2(320.0, 240.0)
+	var unit: Dictionary = {
+		"type": "harrier",
+		"intent": {
+			"actions": [
+				{"type": "move_toward", "range": 2},
+				{"type": "ranged", "damage": 4, "range": 3}
+			]
+		}
+	}
+	var health_rect: Rect2 = board.call("_unit_health_bar_rect", unit, center)
+	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, 2)
+	var art_top_y: float = float(board.call("_unit_art_top_y", unit, center))
+	_assert(health_rect.position.y + health_rect.size.y <= art_top_y - 5.5, "Unit health bars should sit clear of the sprite art")
+	_assert(is_equal_approx(intent_rect.position.y + intent_rect.size.y, health_rect.position.y), "Enemy intent popups should stack directly above health bars")
+
+func _test_foreground_props_fade_when_covering_behind_units() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.combat_state = {"grid": _simple_grid()}
+	var blocker_tile := Vector2i(3, 3)
+	var prop_rect: Rect2 = board.call("_prop_rect_for_tile", blocker_tile)
+	var behind_unit := {"key": "behind", "type": "player", "pos": Vector2i(3, 2)}
+	var foreground_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [behind_unit])
+	_assert(foreground_tint.a < 1.0, "Foreground pillars should become translucent when they overlap a character on a farther-back tile")
+	var front_unit := {"key": "front", "type": "player", "pos": Vector2i(3, 4)}
+	var clear_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [front_unit])
+	_assert(is_equal_approx(clear_tint.a, 1.0), "Pillars should not fade for units that will draw in front of them")
+	var flat_tint: Color = board.call("_foreground_blocker_tint", "door", blocker_tile, prop_rect, [behind_unit])
+	_assert(is_equal_approx(flat_tint.a, 1.0), "Flat door terrain should not use foreground obstruction fading")
+	board.free()
+
+func _test_keyword_icon_library_surfaces_tooltips() -> void:
+	var row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "poison": 2})
+	_assert(row.size() == 3, "Ranged actions should tokenize into action, range, and status icons")
+	_assert(str((row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged action tokens should use the bow icon")
+	_assert(str((row[1] as Dictionary).get("icon", "")) == "range", "Ranged action tokens should include the shared range icon")
+	_assert(str((row[2] as Dictionary).get("icon", "")) == "poison", "Status keywords should use their shared icon token")
+	_assert(ActionIcons.tooltip("poison").contains("Delayed damage"), "Keyword icon tooltips should include readable descriptions")
+	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
+	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
+	tooltip_panel.free()
 
 func _test_run_map_room_types() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -909,9 +962,13 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
 	var display: Dictionary = instance.call("_card_widget_display", "quick_stab", combat_state)
-	var summary: String = str(display.get("summary_bbcode", ""))
+	var summary_rows: Array = display.get("summary_rows", [])
 	var modifier_lines: Array = display.get("modifier_lines", [])
-	_assert(summary.contains("8"), "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
+	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
+	_assert(str(damage_token.get("icon", "")) == "melee", "Damage cards should render the action keyword as an icon")
+	_assert(int(damage_token.get("value", 0)) == 8, "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.size() == 1, "Damage cards should surface active damage modifiers for the tooltip")
 	_assert(str(modifier_lines[0]).contains("Ember Lens"), "The damage tooltip should name the modifier source")
 	instance.queue_free()
@@ -942,11 +999,14 @@ func _test_run_scene_ranged_cards_show_range() -> void:
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
 	var display: Dictionary = instance.call("_card_widget_display", "bone_dart", combat_state)
-	var summary: String = str(display.get("summary_bbcode", ""))
-	_assert(summary.contains("R4"), "Ranged cards should show their range in the hand summary")
+	var summary_rows: Array = display.get("summary_rows", [])
+	_assert(not summary_rows.is_empty(), "Ranged cards should render icon summary rows")
+	var card_row: Array = summary_rows[0] as Array
+	_assert(str((card_row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged cards should show the ranged keyword as an icon")
+	_assert(str((card_row[1] as Dictionary).get("icon", "")) == "range" and int((card_row[1] as Dictionary).get("value", 0)) == 4, "Ranged cards should show their range with the shared range icon")
 	var board := CombatBoardView.new()
-	var lines: PackedStringArray = board.call("_intent_lines", {"actions": [{"type": "ranged", "damage": 4, "range": 4}]})
-	_assert(lines.size() == 1 and lines[0].contains("R4"), "Enemy shot intents should show their attack range")
+	var intent_rows: Array = board.call("_intent_rows", {"actions": [{"type": "ranged", "damage": 4, "range": 4}]})
+	_assert(intent_rows.size() == 1 and str(((intent_rows[0] as Array)[1] as Dictionary).get("icon", "")) == "range", "Enemy shot intents should show attack range with the shared range icon")
 	instance.queue_free()
 	await process_frame
 
