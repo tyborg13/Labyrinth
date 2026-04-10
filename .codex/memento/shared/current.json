@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-08T04:21:48Z",
+  "updated_at": "2026-04-09T19:31:10Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -555,6 +555,162 @@
       "source": {
         "branch": "master",
         "commit": "79d893f"
+      }
+    },
+    {
+      "id": "mnt_20260409T132734Z_d5203e49",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "The reaver idle sheet is exported column-major (top-to-bottom, then left-to-right), so CombatBoardView must reorder frames instead of using the default row-major atlas order.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T13:27:34Z",
+      "updated_at": "2026-04-09T13:27:34Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
+      }
+    },
+    {
+      "id": "mnt_20260409T140156Z_452ad1a7",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "The reaver idle sheet should be read in standard row-major order (left-to-right, then top-to-bottom); reordering it column-major makes the idle loop visibly less smooth.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T14:01:56Z",
+      "updated_at": "2026-04-09T14:01:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
+      }
+    },
+    {
+      "id": "mnt_20260409T152121Z_c57db227",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Enemy intent popups reserve a title line for the intent name, including name-only intents like Wait, so layout code and tests should size popups from total intent lines instead of raw action-row count.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T15:21:21Z",
+      "updated_at": "2026-04-09T15:21:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
+      }
+    },
+    {
+      "id": "mnt_20260409T154631Z_e02f9b0c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Enemy art_scale is applied after fitting, anchored at the fitted rect bottom-center so smaller sprites stay centered horizontally, keep their feet planted, and keep HUD placement stable.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T15:46:31Z",
+      "updated_at": "2026-04-09T15:46:31Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260409T154259Z_406b1108"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
+      }
+    },
+    {
+      "id": "mnt_20260409T155006Z_770ed190",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Enemy intent popups now auto-expand to fit their title and token rows, preserving a fixed minimum width while preventing long names like Skitter Strike from clipping.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T15:50:06Z",
+      "updated_at": "2026-04-09T15:50:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
+      }
+    },
+    {
+      "id": "mnt_20260409T172205Z_d35e84ae",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "CombatBoardView auto-loads same-stem _idle sheets into 4x2 frame loops and only uses those frames when a unit is not currently being moved or focused by combat presentation.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T17:22:05Z",
+      "updated_at": "2026-04-09T17:22:05Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
+      }
+    },
+    {
+      "id": "mnt_20260409T193110Z_90b2a4e0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Move and attack targeting now rely on tile highlights and path lines only; CombatBoardView no longer draws extra preview glyphs like circles or plus signs over target tiles.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-09T19:31:10Z",
+      "updated_at": "2026-04-09T19:31:10Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "236aad5"
       }
     }
   ]

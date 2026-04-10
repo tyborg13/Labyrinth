@@ -4,7 +4,8 @@
     "max_hp": 14,
     "reward_embers": 8,
     "accent": "#8f5e48",
-    "art_path": "res://assets/placeholders/units/crawler.svg",
+    "art_path": "res://assets/placeholders/units/crawler.png",
+    "art_scale": 0.75,
     "intents": [
       {
         "id": "skitter_strike",

@@ -20,8 +20,6 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
-const MOVE_MARKER_COLOR: Color = Color("95ebff")
-const ATTACK_MARKER_COLOR: Color = Color("ffad7d")
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
@@ -32,9 +30,16 @@ const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_POISON: Color = Color("86bf63")
 const HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const INTENT_POPUP_WIDTH: float = 136.0
+const INTENT_POPUP_PADDING_X: float = 8.0
+const INTENT_POPUP_TITLE_FONT_SIZE: int = 9
+const INTENT_POPUP_ROW_FONT_SIZE: int = 11
+const INTENT_POPUP_ICON_SIZE: float = 16.0
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
+const IDLE_FRAME_SECONDS: float = 0.10
+const IDLE_SHEET_COLUMNS: int = 4
+const IDLE_SHEET_ROWS: int = 2
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -53,12 +58,48 @@ var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _tooltip_regions: Array[Dictionary] = []
+var _idle_frames_by_type: Dictionary = {}
+var _idle_animating: bool = false
+var _idle_elapsed: float = 0.0
+var _idle_frame: int = 0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
 	custom_minimum_size = Vector2(960.0, 680.0)
+	set_process(true)
 	_load_assets()
+
+func _process(delta: float) -> void:
+	var animating: bool = _any_idle_animation_active()
+	if animating != _idle_animating:
+		_idle_animating = animating
+		_idle_elapsed = 0.0
+		_idle_frame = 0
+		queue_redraw()
+	if not animating or _idle_frames_by_type.is_empty():
+		return
+	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, IDLE_FRAME_SECONDS * 1024.0)
+	var next_frame: int = int(floor(_idle_elapsed / IDLE_FRAME_SECONDS))
+	if next_frame != _idle_frame:
+		_idle_frame = next_frame
+		queue_redraw()
+
+func _any_idle_animation_active() -> bool:
+	if not visible or combat_state.is_empty() or _idle_frames_by_type.is_empty():
+		return false
+	var player: Dictionary = combat_state.get("player", {})
+	if not player.is_empty() and int(player.get("hp", 0)) > 0 and _unit_idle_animation_active({"key": "player", "type": "player"}):
+		return true
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if _unit_idle_animation_active({
+			"key": "enemy_%d" % int(enemy.get("id", -1)),
+			"type": str(enemy.get("type", ""))
+		}):
+			return true
+	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_elements: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
 	combat_state = next_state.duplicate(true)
@@ -117,7 +158,6 @@ func _draw() -> void:
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
 	_draw_unit_huds(units_to_draw)
-	_draw_target_markers()
 	_draw_effect_overlay()
 	_draw_status_text()
 	_draw_floating_texts()
@@ -383,11 +423,7 @@ func _unit_frame_rect(center: Vector2) -> Rect2:
 	return Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
 
 func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
-	var frame_rect: Rect2 = _unit_frame_rect(center)
-	var texture: Texture2D = _texture_for_unit(unit)
-	if texture == null:
-		return frame_rect.position.y
-	return _fitted_unit_rect(texture, frame_rect).position.y
+	return _unit_draw_rect_for_center(unit, center).position.y
 
 func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	var bottom_y: float = _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE
@@ -414,32 +450,55 @@ func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -
 	if intent.is_empty():
 		return
 	var rows: Array = _intent_rows(intent)
-	if rows.is_empty():
+	var intent_name: String = _intent_display_name(intent)
+	var line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
+	if line_count <= 0:
 		return
 	var border: Color = _intent_color(intent)
-	var label_rect: Rect2 = _enemy_intent_rect_for_line_count(center, health_rect, rows.size())
-	draw_rect(label_rect, Color(0.08, 0.06, 0.05, 0.88), true)
-	draw_rect(label_rect, border, false, 2.0)
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
+	var popup_width: float = _enemy_intent_popup_width(intent, rows, font)
+	var label_rect: Rect2 = _enemy_intent_rect_for_line_count(center, health_rect, line_count, popup_width)
+	draw_rect(label_rect, Color(0.08, 0.06, 0.05, 0.88), true)
+	draw_rect(label_rect, border, false, 2.0)
+	var rows_origin_y: float = label_rect.position.y + 8.0
+	if not intent_name.is_empty():
+		var title_rect := Rect2(label_rect.position + Vector2(INTENT_POPUP_PADDING_X, 6.0), Vector2(label_rect.size.x - INTENT_POPUP_PADDING_X * 2.0, 16.0))
+		_draw_enemy_intent_title(title_rect, intent_name, border, font)
+		rows_origin_y += 20.0
 	for row_index: int in range(rows.size()):
 		_draw_token_row(
 			rows[row_index] as Array,
-			label_rect.position + Vector2(8.0, 8.0 + float(row_index) * 20.0),
-			16.0,
-			11,
+			Vector2(label_rect.position.x + INTENT_POPUP_PADDING_X, rows_origin_y + float(row_index) * 20.0),
+			INTENT_POPUP_ICON_SIZE,
+			INTENT_POPUP_ROW_FONT_SIZE,
 			Color("f7ecd4"),
 			font
 		)
 
-func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int) -> Rect2:
+func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int, popup_width: float = INTENT_POPUP_WIDTH) -> Rect2:
 	if line_count <= 0:
 		return Rect2()
 	var label_height: float = 14.0 + float(line_count) * 20.0
 	return Rect2(
-		Vector2(center.x - INTENT_POPUP_WIDTH * 0.5, health_rect.position.y - HUD_STACK_GAP - label_height),
-		Vector2(INTENT_POPUP_WIDTH, label_height)
+		Vector2(center.x - popup_width * 0.5, health_rect.position.y - HUD_STACK_GAP - label_height),
+		Vector2(popup_width, label_height)
+	)
+
+func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: Font) -> void:
+	if title.is_empty() or font == null:
+		return
+	var baseline: Vector2 = rect.position + Vector2(0.0, 11.0)
+	draw_string(font, baseline + Vector2(0.0, 1.0), title, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 9, Color("140f0b"))
+	draw_string(font, baseline, title, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 9, Color("fff4dc"))
+	var divider_y: float = rect.position.y + rect.size.y + 1.0
+	draw_line(
+		Vector2(rect.position.x + 2.0, divider_y),
+		Vector2(rect.position.x + rect.size.x - 2.0, divider_y),
+		border.darkened(0.18),
+		1.0,
+		true
 	)
 
 func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size: int, text_color: Color, font: Font) -> void:
@@ -470,6 +529,31 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			cursor_x += value_width + 6.0
 		else:
 			cursor_x += 5.0
+
+func _enemy_intent_popup_width(intent: Dictionary, rows: Array, font: Font) -> float:
+	var popup_width: float = INTENT_POPUP_WIDTH
+	var intent_name: String = _intent_display_name(intent)
+	if not intent_name.is_empty() and font != null:
+		var title_width: float = font.get_string_size(intent_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_POPUP_TITLE_FONT_SIZE).x
+		popup_width = maxf(popup_width, ceilf(title_width) + INTENT_POPUP_PADDING_X * 2.0 + 4.0)
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		popup_width = maxf(popup_width, _token_row_width(row_var as Array, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, font) + INTENT_POPUP_PADDING_X * 2.0)
+	return popup_width
+
+func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Font) -> float:
+	var width: float = 0.0
+	for token_var: Variant in tokens:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		width += icon_size + 3.0
+		var value_text: String = ActionIcons.token_value_text(token_var as Dictionary)
+		if not value_text.is_empty() and font != null:
+			width += maxf(font.get_string_size(value_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0) + 6.0
+		else:
+			width += 5.0
+	return width
 
 func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE) -> void:
 	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
@@ -592,29 +676,6 @@ func _draw_path_preview() -> void:
 		var from_point: Vector2 = _tile_center(path_tiles[index]) + Vector2(0.0, -12.0)
 		var to_point: Vector2 = _tile_center(path_tiles[index + 1]) + Vector2(0.0, -12.0)
 		draw_line(from_point, to_point, MOVE_PATH_COLOR, 4.0, true)
-	for tile: Vector2i in path_tiles:
-		draw_circle(_tile_center(tile) + Vector2(0.0, -12.0), 4.0, MOVE_MARKER_COLOR)
-
-func _draw_target_markers() -> void:
-	for tile: Vector2i in move_tiles:
-		_draw_move_target_marker(tile, tile == _hover_tile)
-	for tile: Vector2i in attack_tiles:
-		_draw_attack_target_marker(tile, tile == _hover_tile)
-
-func _draw_move_target_marker(tile: Vector2i, hovered: bool) -> void:
-	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -10.0)
-	var radius: float = 10.0 if hovered else 8.0
-	var color: Color = MOVE_MARKER_COLOR.lightened(0.18) if hovered else MOVE_MARKER_COLOR
-	draw_arc(center, radius, 0.0, TAU, 24, color, 3.0)
-	draw_circle(center, 2.8, color)
-
-func _draw_attack_target_marker(tile: Vector2i, hovered: bool) -> void:
-	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -16.0)
-	var radius: float = 12.0 if hovered else 10.0
-	var color: Color = ATTACK_MARKER_COLOR.lightened(0.16) if hovered else ATTACK_MARKER_COLOR
-	draw_arc(center, radius, 0.0, TAU, 24, color, 3.0)
-	draw_line(center + Vector2(-radius * 0.7, 0.0), center + Vector2(radius * 0.7, 0.0), color, 2.0, true)
-	draw_line(center + Vector2(0.0, -radius * 0.7), center + Vector2(0.0, radius * 0.7), color, 2.0, true)
 
 func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 	var focus_keys: Array = presentation.get("focus_actor_keys", [])
@@ -681,21 +742,70 @@ func _load_assets() -> void:
 	for icon_key_var: Variant in ActionIcons.all_icon_keys():
 		var icon_key: String = str(icon_key_var)
 		_keyword_icon_textures[icon_key] = ActionIcons.icon_texture(icon_key)
-	_unit_textures["player"] = AssetLoader.load_texture("res://assets/placeholders/units/player_reaver.png")
+	_unit_textures.clear()
+	_idle_frames_by_type.clear()
+	_unit_textures["player"] = _load_unit_texture_with_idle("player", "res://assets/placeholders/units/player_reaver.png")
 	for enemy_type: String in GameData.enemies().keys():
 		var art_path: String = str(GameData.enemy_def(enemy_type).get("art_path", ""))
-		_unit_textures[enemy_type] = AssetLoader.load_texture(art_path)
+		_unit_textures[enemy_type] = _load_unit_texture_with_idle(enemy_type, art_path)
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	if _unit_idle_animation_active(unit) and not idle_frames.is_empty():
+		return idle_frames[_idle_frame % idle_frames.size()]
 	return _unit_textures.get(str(unit.get("type", "")), null)
 
+func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Texture2D:
+	var texture: Texture2D = AssetLoader.load_texture(art_path)
+	var idle_frames: Array[Texture2D] = _load_idle_frames_for_art_path(art_path)
+	if not idle_frames.is_empty():
+		_idle_frames_by_type[unit_type] = idle_frames
+		if texture == null:
+			return idle_frames[0]
+	return texture
+
+func _load_idle_frames_for_art_path(art_path: String) -> Array[Texture2D]:
+	var idle_frames: Array[Texture2D] = []
+	if art_path.is_empty():
+		return idle_frames
+	var idle_sheet: Texture2D = AssetLoader.load_texture_by_stem("%s_idle" % art_path.get_basename(), AssetLoader.PNG_FIRST_TEXTURE_EXTENSIONS)
+	if idle_sheet == null:
+		return idle_frames
+	var frame_size := Vector2i(
+		int(idle_sheet.get_width() / IDLE_SHEET_COLUMNS),
+		int(idle_sheet.get_height() / IDLE_SHEET_ROWS)
+	)
+	return AssetLoader.build_sprite_sheet_frames(idle_sheet, frame_size)
+
+func _unit_idle_frames(unit: Dictionary) -> Array[Texture2D]:
+	var unit_type: String = str(unit.get("type", ""))
+	if not _idle_frames_by_type.has(unit_type):
+		return []
+	return _idle_frames_by_type[unit_type]
+
+func _unit_idle_animation_active(unit: Dictionary) -> bool:
+	if not visible or combat_state.is_empty() or _unit_idle_frames(unit).is_empty():
+		return false
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return false
+	if (presentation.get("unit_world_positions", {}) as Dictionary).has(actor_key):
+		return false
+	var effect: Dictionary = presentation.get("effect", {})
+	if effect.is_empty():
+		return true
+	var focus_actor_keys: Array = presentation.get("focus_actor_keys", [])
+	return not focus_actor_keys.has(actor_key)
+
 func _unit_draw_rect(unit: Dictionary) -> Rect2:
-	var center: Vector2 = _unit_center(unit)
+	return _unit_draw_rect_for_center(unit, _unit_center(unit))
+
+func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 	var frame_rect: Rect2 = _unit_frame_rect(center)
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture == null:
 		return frame_rect
-	return _fitted_unit_rect(texture, frame_rect)
+	return _scaled_unit_rect(_fitted_unit_rect(texture, frame_rect), _unit_art_scale(unit))
 
 func _unit_center(unit: Dictionary) -> Vector2:
 	var unit_key: String = str(unit.get("key", ""))
@@ -715,6 +825,22 @@ func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
 		frame_rect.position.y + frame_rect.size.y - draw_size.y
 	)
 	return Rect2(draw_position, draw_size)
+
+func _scaled_unit_rect(rect: Rect2, scale: float) -> Rect2:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0 or is_equal_approx(scale, 1.0):
+		return rect
+	var scaled_size: Vector2 = rect.size * maxf(scale, 0.1)
+	var scaled_position := Vector2(
+		rect.position.x + (rect.size.x - scaled_size.x) * 0.5,
+		rect.position.y + rect.size.y - scaled_size.y
+	)
+	return Rect2(scaled_position, scaled_size)
+
+func _unit_art_scale(unit: Dictionary) -> float:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return 1.0
+	return float(GameData.enemy_def(unit_type).get("art_scale", 1.0))
 
 func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []
@@ -826,6 +952,15 @@ func _intent_rows(intent: Dictionary) -> Array:
 		if not row.is_empty():
 			rows.append(row)
 	return rows
+
+func _intent_display_name(intent: Dictionary) -> String:
+	return str(intent.get("name", "")).strip_edges()
+
+func _enemy_intent_line_count(intent: Dictionary) -> int:
+	var line_count: int = _intent_rows(intent).size()
+	if not _intent_display_name(intent).is_empty():
+		line_count += 1
+	return line_count
 
 func _intent_lines(intent: Dictionary) -> PackedStringArray:
 	var parts: PackedStringArray = []

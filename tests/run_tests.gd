@@ -41,6 +41,10 @@ func _initialize() -> void:
 	_test_shallow_elemental_enemy_actions_scale_back()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
+	_test_enemy_intent_name_reserves_header_line()
+	_test_enemy_art_scale_preserves_center()
+	_test_enemy_intent_popup_expands_for_long_titles()
+	_test_crawler_idle_sheet_surfaces_for_idle_enemy()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_foreground_props_fade_when_covering_behind_units()
 	_test_keyword_icon_library_surfaces_tooltips()
@@ -605,6 +609,7 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 	var unit: Dictionary = {
 		"type": "harrier",
 		"intent": {
+			"name": "Pelt",
 			"actions": [
 				{"type": "move_toward", "range": 2},
 				{"type": "ranged", "damage": 4, "range": 3}
@@ -612,10 +617,66 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 		}
 	}
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", unit, center)
-	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, 2)
+	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, board.call("_enemy_intent_line_count", unit.get("intent", {})))
 	var art_top_y: float = float(board.call("_unit_art_top_y", unit, center))
 	_assert(health_rect.position.y + health_rect.size.y <= art_top_y - 5.5, "Unit health bars should sit clear of the sprite art")
 	_assert(is_equal_approx(intent_rect.position.y + intent_rect.size.y, health_rect.position.y), "Enemy intent popups should stack directly above health bars")
+
+func _test_enemy_intent_name_reserves_header_line() -> void:
+	var board := CombatBoardView.new()
+	var attack_intent := {
+		"name": "Pelt",
+		"actions": [{"type": "ranged", "damage": 4, "range": 4}]
+	}
+	var wait_intent := {
+		"name": "Wait",
+		"actions": []
+	}
+	_assert(int(board.call("_enemy_intent_line_count", attack_intent)) == 2, "Named enemy intents should reserve a header line above their action icons")
+	_assert(int(board.call("_enemy_intent_line_count", wait_intent)) == 1, "Name-only enemy intents should still render a title line")
+
+func _test_enemy_art_scale_preserves_center() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var center := Vector2(320.0, 240.0)
+	var crawler_unit := {"type": "crawler", "pos": Vector2i(0, 0)}
+	var crawler_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
+	var frame_rect: Rect2 = board.call("_unit_frame_rect", center)
+	var fitted_rect: Rect2 = board.call("_fitted_unit_rect", crawler_texture, frame_rect)
+	var scaled_rect: Rect2 = board.call("_unit_draw_rect_for_center", crawler_unit, center)
+	_assert(is_equal_approx(scaled_rect.size.x, fitted_rect.size.x * 0.75), "Crawler art scale should shrink the fitted sprite width")
+	_assert(is_equal_approx(scaled_rect.size.y, fitted_rect.size.y * 0.75), "Crawler art scale should shrink the fitted sprite height")
+	_assert(is_equal_approx(scaled_rect.get_center().x, fitted_rect.get_center().x), "Crawler art scaling should keep the sprite centered horizontally")
+	_assert(is_equal_approx(scaled_rect.end.y, fitted_rect.end.y), "Crawler art scaling should keep the sprite feet anchored to the same bottom edge")
+
+func _test_enemy_intent_popup_expands_for_long_titles() -> void:
+	var board := CombatBoardView.new()
+	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
+	var width: float = float(board.call("_enemy_intent_popup_width", {
+		"name": "Skitter Strike",
+		"actions": [{"type": "melee", "damage": 4, "range": 1}]
+	}, [[{"icon": "melee"}, {"icon": "damage", "value": 4}]], font))
+	_assert(width > 136.0, "Long enemy intent titles should widen the popup instead of clipping")
+
+func _test_crawler_idle_sheet_surfaces_for_idle_enemy() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.combat_state = {
+		"player": {"hp": 20},
+		"enemies": [{"id": 1, "type": "crawler", "hp": 14}]
+	}
+	board.presentation = {}
+	var crawler_unit := {"key": "enemy_1", "type": "crawler"}
+	var idle_frames: Array = board.call("_unit_idle_frames", crawler_unit)
+	_assert(idle_frames.size() == 8, "Crawler idle sheets should load into 8 animation frames")
+	var idle_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
+	var base_texture: Texture2D = (board.get("_unit_textures") as Dictionary).get("crawler", null)
+	_assert(idle_texture != null and idle_texture != base_texture, "Idle crawlers should render from the idle sheet instead of the base texture")
+	board.presentation = {"focus_actor_keys": ["enemy_1"], "effect": {"type": "attack"}}
+	var focused_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
+	_assert(focused_texture == base_texture, "Focused crawlers should stop using idle frames while acting")
 
 func _test_foreground_props_fade_when_covering_behind_units() -> void:
 	var board := CombatBoardView.new()
