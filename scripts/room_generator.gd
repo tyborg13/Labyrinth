@@ -80,16 +80,17 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var room_type: String = str(room.get("type", "combat"))
 	var room_element: String = str(room.get("element", "none"))
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+	var npc_specs: Array = room.get("npcs", [])
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _room_seed(run_seed, coord, 101)
 
 	var grid: Array = _base_grid(rng)
 	var entrance_tile: Vector2i = ENTRANCE_BY_TRAVEL_DIR.get(travel_dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
-	_apply_available_doors(grid, coord)
+	_apply_available_doors(grid, room)
 	_apply_template(grid, rng)
 
 	var player_start: Vector2i = entrance_tile
-	var enemy_types: Array = _encounter_enemy_types(room_type, depth, rng)
+	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, depth, rng)
 	var enemy_positions: Array[Vector2i] = _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
@@ -107,7 +108,12 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var occupied: Dictionary = {player_start: true}
 	for enemy: Dictionary in enemies:
 		occupied[enemy.get("pos", Vector2i(-1, -1))] = true
-	var loot: Array[Dictionary] = _generate_loot(grid, room_type, depth, rng, occupied)
+	var npcs: Array[Dictionary] = _build_room_npcs(grid, player_start, npc_specs, rng, occupied)
+	for npc: Dictionary in npcs:
+		occupied[npc.get("pos", Vector2i(-1, -1))] = true
+	var loot: Array = []
+	if npcs.is_empty():
+		loot = _generate_loot(grid, room_type, depth, rng, occupied)
 
 	return {
 		"name": _room_name(coord, room_type, rng),
@@ -117,6 +123,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"element": room_element,
 		"grid": grid,
 		"player_start": player_start,
+		"npcs": npcs,
 		"enemies": enemies,
 		"loot": loot,
 		"theme": _theme_id(rng)
@@ -135,13 +142,13 @@ func _base_grid(rng: RandomNumberGenerator) -> Array:
 		grid.append(row)
 	return grid
 
-func _apply_available_doors(grid: Array, coord: Vector2i) -> void:
-	for dir: Vector2i in PathUtils.DIRS_4:
-		var neighbor: Vector2i = coord + dir
-		var depth: int = absi(neighbor.x) + absi(neighbor.y)
-		if depth > 4:
+func _apply_available_doors(grid: Array, room: Dictionary) -> void:
+	for connection_var: Variant in room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue
-		var door_tile: Vector2i = DOOR_BY_DIRECTION.get(dir, Vector2i(-1, -1))
+		var connection: Dictionary = connection_var
+		var door_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
+		var door_tile: Vector2i = DOOR_BY_DIRECTION.get(door_dir, Vector2i(-1, -1))
 		if door_tile.x < 0:
 			continue
 		grid[door_tile.y][door_tile.x] = TILE_DOOR
@@ -263,6 +270,49 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 			if chosen.size() >= count:
 				break
 	return chosen
+
+func _build_room_npcs(grid: Array, player_start: Vector2i, npc_specs: Array, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+	var results: Array[Dictionary] = []
+	var occupied_tiles: Dictionary = occupied.duplicate(true)
+	for index: int in range(npc_specs.size()):
+		if typeof(npc_specs[index]) != TYPE_DICTIONARY:
+			continue
+		var spec: Dictionary = npc_specs[index]
+		var npc_id: String = str(spec.get("id", ""))
+		if npc_id.is_empty():
+			continue
+		var pos: Vector2i = spec.get("pos", Vector2i(-1, -1))
+		if not _can_place_room_actor(grid, pos, occupied_tiles) or pos == player_start:
+			pos = _fallback_npc_position(grid, player_start, occupied_tiles, rng)
+		if not _can_place_room_actor(grid, pos, occupied_tiles):
+			continue
+		occupied_tiles[pos] = true
+		var npc_def: Dictionary = GameData.npc_def(npc_id)
+		results.append({
+			"id": npc_id,
+			"name": str(npc_def.get("name", npc_id)),
+			"pos": pos,
+			"accent": str(npc_def.get("accent", "#d2c2a7"))
+		})
+	return results
+
+func _can_place_room_actor(grid: Array, tile: Vector2i, occupied: Dictionary) -> bool:
+	return tile.x >= 0 and tile.y >= 0 and PathUtils.is_passable(grid, tile) and not occupied.has(tile)
+
+func _fallback_npc_position(grid: Array, player_start: Vector2i, occupied: Dictionary, rng: RandomNumberGenerator) -> Vector2i:
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_score: float = -INF
+	var room_center: Vector2 = Vector2((ROOM_WIDTH - 1) * 0.5, (ROOM_HEIGHT - 1) * 0.5)
+	for tile: Vector2i in _floor_tiles(grid):
+		if occupied.has(tile) or tile == player_start:
+			continue
+		var score: float = -tile.distance_to(room_center)
+		score += float(PathUtils.manhattan(tile, player_start)) * 0.8
+		score += rng.randf() * 0.15
+		if score > best_score:
+			best_score = score
+			best_tile = tile
+	return best_tile
 
 func _generate_loot(grid: Array, room_type: String, depth: int, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
 	var loot: Array[Dictionary] = []

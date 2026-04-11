@@ -40,6 +40,8 @@ const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
+const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
+const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -61,7 +63,7 @@ var _tooltip_regions: Array[Dictionary] = []
 var _idle_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
-var _idle_frame: int = 0
+var _idle_tick: int = 0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -75,29 +77,24 @@ func _process(delta: float) -> void:
 	if animating != _idle_animating:
 		_idle_animating = animating
 		_idle_elapsed = 0.0
-		_idle_frame = 0
+		_idle_tick = 0
 		queue_redraw()
 	if not animating or _idle_frames_by_type.is_empty():
 		return
-	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, IDLE_FRAME_SECONDS * 1024.0)
-	var next_frame: int = int(floor(_idle_elapsed / IDLE_FRAME_SECONDS))
-	if next_frame != _idle_frame:
-		_idle_frame = next_frame
+	var tick_seconds: float = _active_idle_frame_seconds()
+	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, tick_seconds * 1024.0)
+	var next_tick: int = int(floor(_idle_elapsed / tick_seconds))
+	if next_tick != _idle_tick:
+		_idle_tick = next_tick
 		queue_redraw()
 
 func _any_idle_animation_active() -> bool:
 	if not visible or combat_state.is_empty() or _idle_frames_by_type.is_empty():
 		return false
-	var player: Dictionary = combat_state.get("player", {})
-	if not player.is_empty() and int(player.get("hp", 0)) > 0 and _unit_idle_animation_active({"key": "player", "type": "player"}):
-		return true
-	for enemy: Dictionary in combat_state.get("enemies", []):
-		if int(enemy.get("hp", 0)) <= 0:
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
 			continue
-		if _unit_idle_animation_active({
-			"key": "enemy_%d" % int(enemy.get("id", -1)),
-			"type": str(enemy.get("type", ""))
-		}):
+		if _unit_idle_animation_active(unit):
 			return true
 	return false
 
@@ -289,6 +286,7 @@ func _visible_units() -> Array[Dictionary]:
 		var player_statuses: Dictionary = _player_display_statuses(player, player_restrictions)
 		units_to_draw.append({
 			"key": "player",
+			"role": "player",
 			"type": "player",
 			"pos": player.get("pos", Vector2i.ZERO),
 			"hp": int(player.get("hp", 0)),
@@ -305,6 +303,7 @@ func _visible_units() -> Array[Dictionary]:
 			continue
 		units_to_draw.append({
 			"key": "enemy_%d" % int(enemy.get("id", -1)),
+			"role": "enemy",
 			"type": str(enemy.get("type", "")),
 			"intent": enemy.get("intent", {}),
 			"pos": enemy.get("pos", Vector2i.ZERO),
@@ -316,6 +315,20 @@ func _visible_units() -> Array[Dictionary]:
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
 			"poison": enemy.get("poison", {}).duplicate(true)
+		})
+	for npc_index: int in range((combat_state.get("npcs", []) as Array).size()):
+		var npc: Dictionary = (combat_state.get("npcs", []) as Array)[npc_index]
+		var npc_id: String = str(npc.get("id", ""))
+		if npc_id.is_empty():
+			continue
+		var npc_def: Dictionary = GameData.npc_def(npc_id)
+		units_to_draw.append({
+			"key": "npc_%s_%d" % [npc_id, npc_index],
+			"role": "npc",
+			"type": npc_id,
+			"name": str(npc.get("name", npc_def.get("name", npc_id))),
+			"pos": npc.get("pos", Vector2i.ZERO),
+			"accent": Color(str(npc.get("accent", npc_def.get("accent", "#d2c2a7"))))
 		})
 	units_to_draw.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_pos: Vector2i = a.get("pos", Vector2i.ZERO)
@@ -341,11 +354,32 @@ func _draw_unit_body(unit: Dictionary) -> void:
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
 		var center: Vector2 = _unit_center(unit)
+		if str(unit.get("role", "")) == "npc":
+			_draw_npc_nameplate(unit, center)
+			continue
 		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
 		_draw_health_bar(unit, health_rect)
 		_draw_unit_statuses(unit, health_rect)
-		if str(unit.get("type", "")) != "player":
+		if str(unit.get("role", "")) == "enemy":
 			_draw_enemy_intent(unit, center, health_rect)
+
+func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var name: String = str(unit.get("name", ""))
+	if name.is_empty():
+		return
+	var accent: Color = unit.get("accent", Color("d2c2a7"))
+	var text_width: float = maxf(72.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 8).x + 16.0)
+	var plate_rect := Rect2(
+		Vector2(center.x - text_width * 0.5, _unit_art_top_y(unit, center) - 22.0),
+		Vector2(text_width, 16.0)
+	)
+	draw_rect(plate_rect, Color(0.08, 0.06, 0.05, 0.9), true)
+	draw_rect(plate_rect, accent, false, 1.0)
+	draw_string(font, plate_rect.position + Vector2(0.0, 11.0), name, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, 8, Color("fff4dc"))
+	_register_tooltip(plate_rect, name)
 
 func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
@@ -356,7 +390,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		float(maxi(1, int(unit.get("max_hp", 1)))),
 		maxi(1, int(ceili(float(maxi(1, int(unit.get("max_hp", 1)))) / 10.0))),
 		Color("2d1f18"),
-		PLAYER_BAR_FILL if str(unit.get("type", "")) == "player" else ENEMY_BAR_FILL,
+		PLAYER_BAR_FILL if str(unit.get("role", "")) == "player" else ENEMY_BAR_FILL,
 		Color("f5efdf"),
 		Color("eed3a6"),
 		Color(0.0, 0.0, 0.0, 0.35),
@@ -748,40 +782,100 @@ func _load_assets() -> void:
 	for enemy_type: String in GameData.enemies().keys():
 		var art_path: String = str(GameData.enemy_def(enemy_type).get("art_path", ""))
 		_unit_textures[enemy_type] = _load_unit_texture_with_idle(enemy_type, art_path)
+	for npc_id: String in GameData.npcs().keys():
+		var art_path: String = str(GameData.npc_def(npc_id).get("art_path", ""))
+		_unit_textures[npc_id] = _load_unit_texture_with_idle(npc_id, art_path)
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if _unit_idle_animation_active(unit) and not idle_frames.is_empty():
-		return idle_frames[_idle_frame % idle_frames.size()]
+		return idle_frames[_idle_frame_index(unit)]
 	return _unit_textures.get(str(unit.get("type", "")), null)
 
 func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Texture2D:
 	var texture: Texture2D = AssetLoader.load_texture(art_path)
-	var idle_frames: Array[Texture2D] = _load_idle_frames_for_art_path(art_path)
+	var idle_frames: Array[Texture2D] = _load_idle_frames_for_art_path(unit_type, art_path)
 	if not idle_frames.is_empty():
 		_idle_frames_by_type[unit_type] = idle_frames
 		if texture == null:
 			return idle_frames[0]
 	return texture
 
-func _load_idle_frames_for_art_path(art_path: String) -> Array[Texture2D]:
+func _load_idle_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
 	var idle_frames: Array[Texture2D] = []
 	if art_path.is_empty():
 		return idle_frames
 	var idle_sheet: Texture2D = AssetLoader.load_texture_by_stem("%s_idle" % art_path.get_basename(), AssetLoader.PNG_FIRST_TEXTURE_EXTENSIONS)
 	if idle_sheet == null:
 		return idle_frames
+	var idle_layout: Dictionary = _unit_idle_sheet_layout(unit_type)
 	var frame_size := Vector2i(
-		int(idle_sheet.get_width() / IDLE_SHEET_COLUMNS),
-		int(idle_sheet.get_height() / IDLE_SHEET_ROWS)
+		int(idle_sheet.get_width() / int(idle_layout.get("columns", IDLE_SHEET_COLUMNS))),
+		int(idle_sheet.get_height() / int(idle_layout.get("rows", IDLE_SHEET_ROWS)))
 	)
-	return AssetLoader.build_sprite_sheet_frames(idle_sheet, frame_size)
+	return AssetLoader.build_sprite_sheet_frames(idle_sheet, frame_size, _idle_frame_indices(idle_layout))
+
+func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
+	var definition: Dictionary = {}
+	if unit_type != "player" and not unit_type.is_empty():
+		definition = GameData.npc_def(unit_type)
+		if definition.is_empty():
+			definition = GameData.enemy_def(unit_type)
+	return {
+		"columns": maxi(1, int(definition.get("idle_sheet_columns", IDLE_SHEET_COLUMNS))),
+		"rows": maxi(1, int(definition.get("idle_sheet_rows", IDLE_SHEET_ROWS))),
+		"order": str(definition.get("idle_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR))
+	}
+
+func _idle_frame_indices(layout: Dictionary) -> Array:
+	var columns: int = maxi(1, int(layout.get("columns", IDLE_SHEET_COLUMNS)))
+	var rows: int = maxi(1, int(layout.get("rows", IDLE_SHEET_ROWS)))
+	var order: String = str(layout.get("order", IDLE_SHEET_ORDER_ROW_MAJOR))
+	var frame_indices: Array = []
+	if order == IDLE_SHEET_ORDER_COLUMN_MAJOR:
+		for column: int in range(columns):
+			for row: int in range(rows):
+				frame_indices.append(row * columns + column)
+		return frame_indices
+	for row: int in range(rows):
+		for column: int in range(columns):
+			frame_indices.append(row * columns + column)
+	return frame_indices
 
 func _unit_idle_frames(unit: Dictionary) -> Array[Texture2D]:
 	var unit_type: String = str(unit.get("type", ""))
 	if not _idle_frames_by_type.has(unit_type):
 		return []
 	return _idle_frames_by_type[unit_type]
+
+func _idle_frame_index(unit: Dictionary) -> int:
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	if idle_frames.is_empty():
+		return 0
+	return int(floor(_idle_elapsed / _unit_idle_frame_seconds(unit))) % idle_frames.size()
+
+func _unit_idle_frame_seconds(unit: Dictionary) -> float:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return IDLE_FRAME_SECONDS
+	var definition: Dictionary = GameData.npc_def(unit_type)
+	if definition.is_empty():
+		definition = GameData.enemy_def(unit_type)
+	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
+
+func _active_idle_frame_seconds() -> float:
+	var active_seconds: float = IDLE_FRAME_SECONDS
+	var found_active_unit: bool = false
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
+			continue
+		if not _unit_idle_animation_active(unit):
+			continue
+		var unit_seconds: float = _unit_idle_frame_seconds(unit)
+		if not found_active_unit or unit_seconds < active_seconds:
+			active_seconds = unit_seconds
+			found_active_unit = true
+	return active_seconds
 
 func _unit_idle_animation_active(unit: Dictionary) -> bool:
 	if not visible or combat_state.is_empty() or _unit_idle_frames(unit).is_empty():
@@ -805,7 +899,9 @@ func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture == null:
 		return frame_rect
-	return _scaled_unit_rect(_fitted_unit_rect(texture, frame_rect), _unit_art_scale(unit))
+	var draw_rect: Rect2 = _scaled_unit_rect(_fitted_unit_rect(texture, frame_rect), _unit_art_scale(unit))
+	draw_rect.position += _unit_art_offset(unit)
+	return draw_rect
 
 func _unit_center(unit: Dictionary) -> Vector2:
 	var unit_key: String = str(unit.get("key", ""))
@@ -840,7 +936,22 @@ func _unit_art_scale(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return 1.0
+	var npc_def: Dictionary = GameData.npc_def(unit_type)
+	if not npc_def.is_empty():
+		return float(npc_def.get("art_scale", 1.0))
 	return float(GameData.enemy_def(unit_type).get("art_scale", 1.0))
+
+func _unit_art_offset(unit: Dictionary) -> Vector2:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return Vector2.ZERO
+	var definition: Dictionary = GameData.npc_def(unit_type)
+	if definition.is_empty():
+		definition = GameData.enemy_def(unit_type)
+	return Vector2(
+		float(definition.get("art_offset_x", 0.0)),
+		float(definition.get("art_offset_y", 0.0))
+	)
 
 func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []

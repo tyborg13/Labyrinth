@@ -18,11 +18,13 @@ func _initialize() -> void:
 	var default_progression: Dictionary = ProgressionStore.default_data()
 	_assert(GameData.cards().size() >= 20, "Card data should load")
 	_assert(GameData.enemies().size() >= 5, "Enemy data should load")
+	_assert(GameData.npcs().size() >= 1, "NPC data should load")
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
 	_test_room_generation_scales_enemy_density()
+	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
 	_test_hand_draw_caps_at_eight()
@@ -43,12 +45,19 @@ func _initialize() -> void:
 	_test_player_restriction_badges_show_turn_lock()
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_art_scale_preserves_center()
+	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_crawler_idle_sheet_surfaces_for_idle_enemy()
+	_test_acolyte_idle_sheet_honors_row_major_layout()
+	_test_acolyte_idle_speed_matches_default_cadence()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_foreground_props_fade_when_covering_behind_units()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_run_map_room_types()
+	_test_run_map_ring_links_and_outward_quarter()
+	_test_run_map_seals_departed_rooms()
+	_test_run_map_never_moves_back_toward_center()
+	_test_empty_treasure_room_falls_back_to_room_mode()
 	_test_combat_finish_generates_reward_state()
 	_test_progression_save_and_purchase(default_progression)
 	_test_recovery_marker_flow()
@@ -66,6 +75,7 @@ func _initialize() -> void:
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_empty_discard_uses_short_caption()
 	await _test_run_scene_displays_owned_relic_icons()
+	await _test_run_scene_auto_triggers_starting_npc_dialogue()
 	await _test_main_menu_shows_continue_for_saved_run()
 
 	if _failures.is_empty():
@@ -124,6 +134,17 @@ func _test_room_generation_scales_enemy_density() -> void:
 	_assert((depth_one_room.get("enemies", []) as Array).size() >= 3, "Opening combat rooms should pack at least three enemies")
 	_assert((depth_three_room.get("enemies", []) as Array).size() >= 5, "Outer combat rooms should feel denser than the opening ring")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
+
+func _test_start_room_spawns_emaciated_man() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(41, ProgressionStore.default_data())
+	var start_room: Dictionary = run_engine.room_metadata(run_state, Vector2i.ZERO)
+	var start_layout: Dictionary = run_state.get("current_room_layout", {})
+	var room_npcs: Array = start_room.get("npcs", [])
+	var layout_npcs: Array = start_layout.get("npcs", [])
+	_assert(room_npcs.size() == 1 and str((room_npcs[0] as Dictionary).get("id", "")) == "emaciated_man", "The starting room should seed the Emaciated Man NPC")
+	_assert(layout_npcs.size() == 1 and str((layout_npcs[0] as Dictionary).get("name", "")) == "Emaciated Man", "The starting room layout should surface the Emaciated Man for rendering")
+	_assert((start_layout.get("enemies", []) as Array).is_empty(), "Rooms with NPCs should not populate enemies")
 
 func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -650,6 +671,22 @@ func _test_enemy_art_scale_preserves_center() -> void:
 	_assert(is_equal_approx(scaled_rect.get_center().x, fitted_rect.get_center().x), "Crawler art scaling should keep the sprite centered horizontally")
 	_assert(is_equal_approx(scaled_rect.end.y, fitted_rect.end.y), "Crawler art scaling should keep the sprite feet anchored to the same bottom edge")
 
+func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var center := Vector2(320.0, 240.0)
+	var acolyte_unit := {"type": "acolyte", "pos": Vector2i(0, 0)}
+	var acolyte_texture: Texture2D = board.call("_texture_for_unit", acolyte_unit)
+	var frame_rect: Rect2 = board.call("_unit_frame_rect", center)
+	var fitted_rect: Rect2 = board.call("_fitted_unit_rect", acolyte_texture, frame_rect)
+	var scaled_rect: Rect2 = board.call("_scaled_unit_rect", fitted_rect, board.call("_unit_art_scale", acolyte_unit))
+	var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", acolyte_unit, center)
+	var art_offset: Vector2 = board.call("_unit_art_offset", acolyte_unit)
+	_assert(is_equal_approx(draw_rect.position.x, scaled_rect.position.x + art_offset.x), "Enemy art offset should shift the sprite horizontally after fitting")
+	_assert(is_equal_approx(draw_rect.position.y, scaled_rect.position.y + art_offset.y), "Enemy art offset should shift the sprite vertically after fitting")
+	_assert(is_equal_approx(draw_rect.end.y, scaled_rect.end.y + art_offset.y), "Enemy art offset should move the sprite feet by the configured amount")
+
 func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 	var board := CombatBoardView.new()
 	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
@@ -677,6 +714,33 @@ func _test_crawler_idle_sheet_surfaces_for_idle_enemy() -> void:
 	board.presentation = {"focus_actor_keys": ["enemy_1"], "effect": {"type": "attack"}}
 	var focused_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
 	_assert(focused_texture == base_texture, "Focused crawlers should stop using idle frames while acting")
+
+func _test_acolyte_idle_sheet_honors_row_major_layout() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var acolyte_unit := {"type": "acolyte", "pos": Vector2i.ZERO}
+	var idle_frames: Array = board.call("_unit_idle_frames", acolyte_unit)
+	_assert(idle_frames.size() == 8, "Acolyte idle sheets should load into 8 animation frames")
+	var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
+	var second_frame: AtlasTexture = idle_frames[1] as AtlasTexture
+	var fifth_frame: AtlasTexture = idle_frames[4] as AtlasTexture
+	_assert(first_frame != null and second_frame != null and fifth_frame != null, "Acolyte idle frames should be atlas-backed slices of the idle sheet")
+	_assert(first_frame.region.size == Vector2(1024.0, 1020.0), "Acolyte idle frames should respect the custom 2x4 sheet layout")
+	_assert(first_frame.region.position == Vector2.ZERO, "The first acolyte idle frame should start at the top-left of the sheet")
+	_assert(second_frame.region.position == Vector2(1024.0, 0.0), "Row-major acolyte idle sheets should advance to the next column before moving down")
+	_assert(fifth_frame.region.position == Vector2(0.0, 2040.0), "Row-major acolyte idle sheets should wrap to the next row after two frames")
+
+func _test_acolyte_idle_speed_matches_default_cadence() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var acolyte_unit := {"type": "acolyte", "pos": Vector2i.ZERO}
+	var crawler_unit := {"type": "crawler", "pos": Vector2i.ZERO}
+	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", acolyte_unit)), 0.1), "Acolyte idle frames should fall back to the default cadence when no override is set")
+	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", crawler_unit)), 0.1), "Units without an override should keep the default idle cadence")
+	board.set("_idle_elapsed", 0.09)
+	_assert(int(board.call("_idle_frame_index", acolyte_unit)) == 0, "Acolyte idle animation should still be on the first frame just before 0.1 seconds")
+	board.set("_idle_elapsed", 0.11)
+	_assert(int(board.call("_idle_frame_index", acolyte_unit)) == 1, "Acolyte idle animation should advance after the 0.1-second mark")
 
 func _test_foreground_props_fade_when_covering_behind_units() -> void:
 	var board := CombatBoardView.new()
@@ -713,6 +777,112 @@ func _test_run_map_room_types() -> void:
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(2, 0)).get("type", "")) == "campfire", "Axis depth-2 rooms should be campfire rooms")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Outer ring should be boss territory")
 
+func _test_run_map_ring_links_and_outward_quarter() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	for depth: int in range(1, 4):
+		var outward_rooms: int = 0
+		var total_rooms: int = 0
+		for x: int in range(-depth, depth + 1):
+			for y: int in range(-depth, depth + 1):
+				var coord := Vector2i(x, y)
+				if maxi(absi(coord.x), absi(coord.y)) != depth:
+					continue
+				total_rooms += 1
+				var room: Dictionary = run_engine.room_metadata(run_state, coord)
+				var same_depth_links: int = 0
+				var outward_links: int = 0
+				for connection_var: Variant in room.get("connections", []):
+					var connection: Dictionary = connection_var
+					var target: Vector2i = connection.get("coord", Vector2i.ZERO)
+					_assert(PathUtils.manhattan(coord, target) == 1, "All map links should use literal cardinal adjacency")
+					var target_depth: int = maxi(absi(target.x), absi(target.y))
+					if target_depth == depth:
+						same_depth_links += 1
+					elif target_depth == depth + 1:
+						outward_links += 1
+				_assert(total_rooms <= depth * 8, "Square-ring depth %d should never exceed 8*d rooms" % depth)
+				_assert(same_depth_links == 2, "Depth-%d rooms should always link to one room on either side of the ring" % depth)
+				if outward_links > 0:
+					outward_rooms += 1
+		_assert(total_rooms == depth * 8, "Depth-%d should contain exactly %d rooms in the square ring" % [depth, depth * 8])
+		_assert(outward_rooms == int(total_rooms / 4), "Exactly one quarter of depth-%d rooms should open to depth %d" % [depth, depth + 1])
+
+func _test_run_map_seals_departed_rooms() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
+	_assert(bool(run_engine.room_metadata(run_state, Vector2i.ZERO).get("sealed", false)), "Leaving the waypoint should seal it forever")
+	_assert(not run_engine.available_moves(run_state).has(Vector2i.ZERO), "Backtracking into a sealed room should be impossible")
+	var side_destination := Vector2i(999, 999)
+	for coord: Vector2i in run_engine.available_moves(run_state):
+		if int(run_engine.room_metadata(run_state, coord).get("depth", 0)) == 1:
+			side_destination = coord
+			break
+	_assert(side_destination.x < 900, "Depth-1 rooms should still expose a side route around the ring")
+	run_state = run_engine.move_to_room(run_state, side_destination)
+	_assert(bool(run_engine.room_metadata(run_state, Vector2i(1, 0)).get("sealed", false)), "Once you leave a ring room it should stay sealed")
+	_assert(not run_engine.available_moves(run_state).has(Vector2i(1, 0)), "The room you just left should never remain traversable")
+
+func _test_run_map_never_moves_back_toward_center() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
+	run_state = run_engine.move_to_room(run_state, Vector2i(2, 0))
+	var current_depth: int = int(run_engine.room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO)).get("depth", 0))
+	for coord: Vector2i in run_engine.available_moves(run_state):
+		_assert(int(run_engine.room_metadata(run_state, coord).get("depth", 0)) >= current_depth, "Available exits should never move back toward easier central rooms")
+
+func _test_empty_treasure_room_falls_back_to_room_mode() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var base_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	base_state["relics"] = GameData.relic_ids().duplicate()
+	var treasure_coord := Vector2i(999, 999)
+	var source_coord := Vector2i(999, 999)
+	for x: int in range(-3, 4):
+		for y: int in range(-3, 4):
+			var candidate := Vector2i(x, y)
+			if candidate == Vector2i.ZERO:
+				continue
+			if str(run_engine.room_metadata(base_state, candidate).get("type", "")) != "treasure":
+				continue
+			for sx: int in range(-3, 4):
+				for sy: int in range(-3, 4):
+					var source := Vector2i(sx, sy)
+					var source_room: Dictionary = run_engine.room_metadata(base_state, source)
+					for connection_var: Variant in source_room.get("connections", []):
+						var connection: Dictionary = connection_var
+						if connection.get("coord", Vector2i(999, 999)) != candidate:
+							continue
+						if int(source_room.get("depth", 0)) > int(run_engine.room_metadata(base_state, candidate).get("depth", 0)):
+							continue
+						treasure_coord = candidate
+						source_coord = source
+						break
+					if treasure_coord.x < 900:
+						break
+				if treasure_coord.x < 900:
+					break
+			if treasure_coord.x < 900:
+				break
+		if treasure_coord.x < 900:
+			break
+	_assert(treasure_coord.x < 900 and source_coord.x < 900, "A deterministic seed should expose a connected treasure room for regression coverage")
+	var rooms: Dictionary = {}
+	var source_room: Dictionary = run_engine.room_metadata(base_state, source_coord)
+	source_room["revealed"] = true
+	source_room["visited"] = true
+	source_room["sealed"] = false
+	rooms["%d,%d" % [source_coord.x, source_coord.y]] = source_room
+	var treasure_room: Dictionary = run_engine.room_metadata(base_state, treasure_coord)
+	treasure_room["revealed"] = true
+	rooms["%d,%d" % [treasure_coord.x, treasure_coord.y]] = treasure_room
+	base_state["rooms"] = rooms
+	base_state["current_room"] = source_coord
+	base_state = run_engine.move_to_room(base_state, treasure_coord)
+	_assert(str(base_state.get("mode", "")) == "room", "Treasure rooms with no relic choices should fall back to normal room mode")
+	_assert((base_state.get("pending_relics", []) as Array).is_empty(), "Empty treasure rooms should not leave stale relic choices behind")
+
 func _test_combat_finish_generates_reward_state() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
@@ -746,12 +916,30 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 func _test_recovery_marker_flow() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
-	progression = ProgressionStore.record_lost_embers(progression, 23, Vector2i(2, 0), int(progression.get("run_counter", 0)))
+	var planning_state: Dictionary = run_engine.create_new_run(51, ProgressionStore.default_data())
+	var recovery_coord := Vector2i.ZERO
+	for x: int in range(-2, 3):
+		for y: int in range(-2, 3):
+			var candidate := Vector2i(x, y)
+			if candidate == Vector2i.ZERO:
+				continue
+			if int(run_engine.room_metadata(planning_state, candidate).get("depth", 0)) != 2:
+				continue
+			if _find_route_to_coord(run_engine, planning_state, candidate).is_empty():
+				continue
+			recovery_coord = candidate
+			break
+		if recovery_coord != Vector2i.ZERO:
+			break
+	_assert(recovery_coord != Vector2i.ZERO, "The map should expose at least one reachable depth-2 room for recovery coverage")
+	progression = ProgressionStore.record_lost_embers(progression, 23, recovery_coord, int(progression.get("run_counter", 0)))
 	progression = ProgressionStore.prepare_for_new_run(progression)
 	var run_state: Dictionary = run_engine.create_new_run(51, progression)
 	_assert(int(run_state.get("run_index", 0)) == 2, "Run index should advance when a new run begins")
-	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
-	run_state = run_engine.move_to_room(run_state, Vector2i(2, 0))
+	var route: Array = _find_route_to_coord(run_engine, run_state, recovery_coord)
+	_assert(not route.is_empty(), "Recovery markers should still be reachable on the next run")
+	for step: Vector2i in route:
+		run_state = run_engine.move_to_room(run_state, step)
 	_assert(int(run_state.get("unbanked_embers", 0)) == 23, "Reaching the recovery room on the next run should restore lost embers")
 	_assert(str(run_state.get("notice", "")).contains("Recovered"), "Recovery should leave a short room notice")
 	_assert(ProgressionStore.recovery_marker(run_state.get("progression", {})).is_empty(), "Recovering lost embers should clear the marker")
@@ -1173,6 +1361,31 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for NPC dialogue coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var dialogue_active: bool = bool(instance.get("_dialogue_active"))
+	var speaker_label: Label = instance.get("_dialogue_name_label")
+	var text_label: Label = instance.get("_dialogue_text_label")
+	_assert(dialogue_active, "Starting in the waypoint should auto-trigger the friendly NPC dialogue")
+	_assert(speaker_label != null and speaker_label.text == "Emaciated Man", "The start-room dialogue should identify the Emaciated Man as the speaker")
+	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon", "The opening NPC line should match the scripted default dialogue")
+	instance.call("_complete_current_dialogue_line")
+	instance.call("_advance_dialogue")
+	_assert(int(instance.get("_dialogue_line_index")) == 1, "Advancing after the first line should move to the second line")
+	instance.call("_complete_current_dialogue_line")
+	instance.call("_advance_dialogue")
+	instance.call("_complete_current_dialogue_line")
+	instance.call("_advance_dialogue")
+	_assert(not bool(instance.get("_dialogue_active")), "Advancing after the last NPC line should close the dialogue overlay")
+	instance.queue_free()
+	await process_frame
+
 func _test_main_menu_shows_continue_for_saved_run() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
 	if main_menu_scene == null:
@@ -1284,6 +1497,42 @@ func _optional_followup_room_layout() -> Dictionary:
 		],
 		"loot": []
 	}
+
+func _find_route_to_coord(run_engine: RunEngine, start_state: Dictionary, target: Vector2i, max_steps: int = 20) -> Array:
+	var queue: Array = [{"state": start_state.duplicate(true), "path": []}]
+	var visited: Dictionary = {}
+	while not queue.is_empty():
+		var entry: Dictionary = queue.pop_front()
+		var state: Dictionary = entry.get("state", {})
+		var path: Array = (entry.get("path", []) as Array).duplicate()
+		var key: String = _route_search_key(state)
+		if visited.has(key):
+			continue
+		visited[key] = true
+		if state.get("current_room", Vector2i(999, 999)) == target:
+			return path
+		if path.size() >= max_steps:
+			continue
+		for move: Vector2i in run_engine.available_moves(state):
+			var next_path: Array = path.duplicate()
+			next_path.append(move)
+			queue.append({
+				"state": run_engine.move_to_room(state, move),
+				"path": next_path
+			})
+	return []
+
+func _route_search_key(state: Dictionary) -> String:
+	var flags: Array[String] = []
+	var rooms: Dictionary = state.get("rooms", {})
+	for room_key_var: Variant in rooms.keys():
+		var room_key: String = str(room_key_var)
+		var room: Dictionary = rooms[room_key]
+		if bool(room.get("revealed", false)) or bool(room.get("sealed", false)):
+			flags.append("%s:%d:%d" % [room_key, int(room.get("revealed", false)), int(room.get("sealed", false))])
+	flags.sort()
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	return "%d,%d|%s" % [current.x, current.y, ",".join(flags)]
 
 func _simple_grid() -> Array:
 	var grid: Array = []

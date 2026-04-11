@@ -40,7 +40,11 @@
     "max_hp": 12,
     "reward_embers": 10,
     "accent": "#7d5377",
-    "art_path": "res://assets/placeholders/units/acolyte.svg",
+    "art_path": "res://assets/placeholders/units/acolyte.png",
+    "art_offset_y": -16,
+    "idle_sheet_columns": 2,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
     "intents": [
       {
         "id": "ash_bolt",

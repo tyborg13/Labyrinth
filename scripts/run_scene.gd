@@ -2,6 +2,7 @@ extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -24,6 +25,7 @@ const CARD_PILE_SECONDS: float = 0.18
 const CARD_SNAPBACK_SECONDS: float = 0.14
 const FLOAT_TEXT_FRAMES: int = 7
 const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
+const DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 
@@ -52,6 +54,7 @@ const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 @onready var hand_box: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
 
 var _ui_skin: UiSkin = UiSkin.new()
+var _dialogue_engine = DialogueEngineScript.new()
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
 var _progression: Dictionary = {}
@@ -96,15 +99,46 @@ var _drag_card_proxy: Control
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
 var _animating_hand_card_index: int = -1
+var _dialogue_overlay: Control
+var _dialogue_dialog: PanelContainer
+var _dialogue_name_label: Label
+var _dialogue_text_label: Label
+var _dialogue_hint_label: Label
+var _dialogue_choice_bar: HBoxContainer
+var _dialogue_active: bool = false
+var _dialogue_script: Dictionary = {}
+var _dialogue_line_index: int = -1
+var _dialogue_char_progress: float = 0.0
+var _dialogue_text_complete: bool = false
+var _last_auto_dialogue_key: String = ""
 
 func _ready() -> void:
+	set_process(true)
 	_apply_style()
 	_layout_mini_map_overlay()
 	_build_overlay_ui()
 	_setup_pile_widgets()
 	_boot_run()
 
+func _process(delta: float) -> void:
+	if not _dialogue_active or _dialogue_text_complete or _dialogue_text_label == null:
+		return
+	var line: Dictionary = _current_dialogue_line()
+	var text: String = str(line.get("text", ""))
+	if text.is_empty():
+		_complete_current_dialogue_line()
+		return
+	_dialogue_char_progress = minf(_dialogue_char_progress + delta * DIALOGUE_CHARACTERS_PER_SECOND, float(text.length()))
+	_dialogue_text_label.visible_characters = int(floor(_dialogue_char_progress))
+	if _dialogue_char_progress >= float(text.length()):
+		_complete_current_dialogue_line()
+
 func _input(event: InputEvent) -> void:
+	if _dialogue_active:
+		if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
+			_advance_dialogue()
+			get_viewport().set_input_as_handled()
+		return
 	if _drag_card_index >= 0:
 		if event is InputEventMouseMotion:
 			_update_drag_overlay_hover(_drag_zone_at(_current_mouse_position()))
@@ -207,6 +241,7 @@ func _apply_style() -> void:
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
+	_build_dialogue_overlay()
 	_build_menu_overlay()
 	_build_pile_overlay()
 	_build_drag_overlay()
@@ -289,6 +324,104 @@ func _build_menu_overlay() -> void:
 		UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
 		button.pressed.connect(entry.get("callback", Callable()))
 		vbox.add_child(button)
+
+func _build_dialogue_overlay() -> void:
+	_dialogue_overlay = Control.new()
+	_dialogue_overlay.name = "DialogueOverlay"
+	_dialogue_overlay.visible = false
+	_dialogue_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_dialogue_overlay.anchors_preset = Control.PRESET_FULL_RECT
+	_dialogue_overlay.anchor_right = 1.0
+	_dialogue_overlay.anchor_bottom = 1.0
+	_dialogue_overlay.gui_input.connect(_on_dialogue_overlay_gui_input)
+	add_child(_dialogue_overlay)
+
+	var scrim := ColorRect.new()
+	scrim.color = Color(0.01, 0.01, 0.01, 0.18)
+	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	scrim.anchors_preset = Control.PRESET_FULL_RECT
+	scrim.anchor_right = 1.0
+	scrim.anchor_bottom = 1.0
+	_dialogue_overlay.add_child(scrim)
+
+	var anchor := MarginContainer.new()
+	anchor.anchors_preset = Control.PRESET_FULL_RECT
+	anchor.anchor_right = 1.0
+	anchor.anchor_bottom = 1.0
+	anchor.add_theme_constant_override("margin_left", 18)
+	anchor.add_theme_constant_override("margin_top", 18)
+	anchor.add_theme_constant_override("margin_right", 18)
+	anchor.add_theme_constant_override("margin_bottom", 18)
+	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_overlay.add_child(anchor)
+
+	var bottom := VBoxContainer.new()
+	bottom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom.alignment = BoxContainer.ALIGNMENT_END
+	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	anchor.add_child(bottom)
+
+	_dialogue_dialog = PanelContainer.new()
+	_dialogue_dialog.custom_minimum_size = Vector2(0.0, 156.0)
+	_dialogue_dialog.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var dialogue_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.96), Color("b8aa90"), 18.0)
+	dialogue_style.corner_radius_top_left = 14
+	dialogue_style.corner_radius_top_right = 14
+	dialogue_style.corner_radius_bottom_right = 14
+	dialogue_style.corner_radius_bottom_left = 14
+	dialogue_style.shadow_size = 10
+	_dialogue_dialog.add_theme_stylebox_override("panel", dialogue_style)
+	bottom.add_child(_dialogue_dialog)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_dialog.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	_dialogue_name_label = Label.new()
+	UiTypography.set_label_size(_dialogue_name_label, UiTypography.SIZE_SMALL)
+	_dialogue_name_label.add_theme_color_override("font_color", Color("f0c978"))
+	_dialogue_name_label.add_theme_color_override("font_outline_color", Color("2d1f18"))
+	_dialogue_name_label.add_theme_constant_override("outline_size", 1)
+	_dialogue_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_dialogue_name_label)
+
+	_dialogue_text_label = Label.new()
+	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_dialogue_text_label.visible_characters = 0
+	_dialogue_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_dialogue_text_label.custom_minimum_size = Vector2(0.0, 78.0)
+	UiTypography.set_label_size(_dialogue_text_label, UiTypography.SIZE_BODY)
+	_dialogue_text_label.add_theme_color_override("font_color", Color("f5ebd8"))
+	_dialogue_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_dialogue_text_label)
+
+	var footer := HBoxContainer.new()
+	footer.add_theme_constant_override("separation", 12)
+	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(footer)
+
+	_dialogue_hint_label = Label.new()
+	_dialogue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(_dialogue_hint_label, UiTypography.SIZE_SMALL)
+	_dialogue_hint_label.add_theme_color_override("font_color", Color("cab697"))
+	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	footer.add_child(_dialogue_hint_label)
+
+	_dialogue_choice_bar = HBoxContainer.new()
+	_dialogue_choice_bar.alignment = BoxContainer.ALIGNMENT_END
+	_dialogue_choice_bar.add_theme_constant_override("separation", 10)
+	_dialogue_choice_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	footer.add_child(_dialogue_choice_bar)
 
 func _build_pile_overlay() -> void:
 	_pile_scrim = ColorRect.new()
@@ -444,6 +577,149 @@ func _build_drag_zone(text: String, font_size: int, minimum_size: Vector2, accen
 	panel.set_meta("label", label)
 	panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, false, true))
 	return panel
+
+func _on_dialogue_overlay_gui_input(event: InputEvent) -> void:
+	if not _dialogue_active:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if _has_current_dialogue_options() and _dialogue_choice_bar != null and _dialogue_choice_bar.get_global_rect().has_point(get_global_mouse_position()):
+			return
+		accept_event()
+		_advance_dialogue()
+
+func _start_dialogue(dialogue: Dictionary) -> void:
+	if dialogue.is_empty():
+		return
+	_cancel_drag_play()
+	_close_pile_view()
+	_close_menu_overlay()
+	_dialogue_script = dialogue.duplicate(true)
+	_dialogue_active = true
+	_dialogue_overlay.visible = true
+	_show_dialogue_line(0)
+
+func _show_dialogue_line(index: int) -> void:
+	var lines: Array = _dialogue_script.get("lines", [])
+	if index < 0 or index >= lines.size():
+		_close_dialogue()
+		return
+	_dialogue_line_index = index
+	_dialogue_char_progress = 0.0
+	_dialogue_text_complete = false
+	var line: Dictionary = lines[index]
+	var speaker: String = str(line.get("speaker", _dialogue_script.get("speaker", "")))
+	var accent_text: String = str(line.get("accent", _dialogue_script.get("accent", "#b8aa90")))
+	_apply_dialogue_accent(accent_text)
+	_dialogue_name_label.text = speaker
+	_dialogue_text_label.text = str(line.get("text", ""))
+	_dialogue_text_label.visible_characters = 0
+	_update_dialogue_footer()
+	if _dialogue_text_label.text.is_empty():
+		_complete_current_dialogue_line()
+
+func _complete_current_dialogue_line() -> void:
+	if not _dialogue_active:
+		return
+	_dialogue_text_complete = true
+	_dialogue_char_progress = float(_dialogue_text_label.text.length())
+	_dialogue_text_label.visible_characters = -1
+	_update_dialogue_footer()
+
+func _advance_dialogue() -> void:
+	if not _dialogue_active:
+		return
+	if not _dialogue_text_complete:
+		_complete_current_dialogue_line()
+		return
+	if _has_current_dialogue_options():
+		return
+	var lines: Array = _dialogue_script.get("lines", [])
+	var next_index: int = _dialogue_line_index + 1
+	if next_index >= lines.size():
+		_close_dialogue()
+		return
+	_show_dialogue_line(next_index)
+
+func _on_dialogue_option_pressed(option: Dictionary) -> void:
+	if not _dialogue_active or not _dialogue_text_complete:
+		return
+	var next_index: int = int(option.get("next", -1))
+	if next_index >= 0:
+		_show_dialogue_line(next_index)
+		return
+	_close_dialogue()
+
+func _close_dialogue() -> void:
+	_dialogue_active = false
+	_dialogue_script.clear()
+	_dialogue_line_index = -1
+	_dialogue_char_progress = 0.0
+	_dialogue_text_complete = false
+	_clear_dialogue_choices()
+	if _dialogue_hint_label != null:
+		_dialogue_hint_label.text = ""
+	if _dialogue_overlay != null:
+		_dialogue_overlay.visible = false
+
+func _current_dialogue_line() -> Dictionary:
+	if not _dialogue_active or _dialogue_line_index < 0:
+		return {}
+	var lines: Array = _dialogue_script.get("lines", [])
+	if _dialogue_line_index >= lines.size():
+		return {}
+	return lines[_dialogue_line_index]
+
+func _has_current_dialogue_options() -> bool:
+	return (_current_dialogue_line().get("options", []) as Array).size() > 0 and _dialogue_text_complete
+
+func _update_dialogue_footer() -> void:
+	_clear_dialogue_choices()
+	if _dialogue_hint_label == null:
+		return
+	_dialogue_hint_label.text = ""
+	if not _dialogue_active or not _dialogue_text_complete:
+		return
+	var options: Array = _current_dialogue_line().get("options", [])
+	if options.is_empty():
+		_dialogue_hint_label.text = _dialogue_hint_text()
+		return
+	for option_var: Variant in options:
+		if typeof(option_var) != TYPE_DICTIONARY:
+			continue
+		var option: Dictionary = (option_var as Dictionary).duplicate(true)
+		var button := Button.new()
+		button.text = str(option.get("label", "Continue"))
+		button.custom_minimum_size = Vector2(120.0, 36.0)
+		_ui_skin.apply_button_stylebox_overrides(button)
+		_ui_skin.apply_button_text_overrides(button)
+		UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
+		_dialogue_choice_bar.add_child(button)
+
+func _dialogue_hint_text() -> String:
+	var lines: Array = _dialogue_script.get("lines", [])
+	if _dialogue_line_index >= 0 and _dialogue_line_index < lines.size() - 1:
+		return "Click to continue"
+	return "Click to leave"
+
+func _clear_dialogue_choices() -> void:
+	if _dialogue_choice_bar == null:
+		return
+	_clear_children(_dialogue_choice_bar)
+
+func _apply_dialogue_accent(accent_text: String) -> void:
+	var accent: Color = Color(accent_text)
+	if _dialogue_name_label != null:
+		_dialogue_name_label.add_theme_color_override("font_color", accent.lightened(0.08))
+	if _dialogue_dialog == null:
+		return
+	var dialogue_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.96), accent, 18.0)
+	dialogue_style.corner_radius_top_left = 14
+	dialogue_style.corner_radius_top_right = 14
+	dialogue_style.corner_radius_bottom_right = 14
+	dialogue_style.corner_radius_bottom_left = 14
+	dialogue_style.shadow_size = 10
+	_dialogue_dialog.add_theme_stylebox_override("panel", dialogue_style)
 
 func _show_drag_overlay() -> void:
 	if _drag_overlay == null:
@@ -757,6 +1033,8 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_close_dialogue()
+	_last_auto_dialogue_key = ""
 	_run_state = next_run_state.duplicate(true)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
@@ -775,6 +1053,8 @@ func _start_run() -> void:
 	_load_run_state(_run_engine.create_new_run(_new_seed(), _progression))
 
 func _refresh_ui() -> void:
+	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
+		_close_dialogue()
 	if str(_run_state.get("mode", "room")) == "victory" and not _victory_bank_processed:
 		_process_victory_banking()
 	if str(_run_state.get("mode", "room")) == "defeat" and not _defeat_loss_processed:
@@ -807,6 +1087,7 @@ func _refresh_ui() -> void:
 	_refresh_visibility()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
+	_maybe_auto_trigger_room_dialogue()
 
 func _refresh_pile_counts() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
@@ -1091,6 +1372,7 @@ func _board_display_state() -> Dictionary:
 			"max_hp": int(_run_state.get("player_max_hp", 1)),
 			"block": 0
 		},
+		"npcs": layout.get("npcs", []).duplicate(true),
 		"enemies": [],
 		"loot": layout.get("loot", []).duplicate(true),
 		"log": []
@@ -1473,14 +1755,14 @@ func _on_card_hover_ended(index: int) -> void:
 		_refresh_stage_view()
 
 func _on_board_tile_hovered(tile: Vector2i) -> void:
-	if _drag_card_index >= 0:
+	if _dialogue_active or _drag_card_index >= 0:
 		return
 	_hovered_board_tile = tile
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		_refresh_stage_view()
 
 func _on_board_tile_clicked(tile: Vector2i) -> void:
-	if _animation_lock or _drag_card_index >= 0:
+	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "room" and _exit_destinations_by_tile.has(tile):
@@ -1510,6 +1792,9 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	_refresh_ui()
 
 func _on_cancel_requested() -> void:
+	if _dialogue_active:
+		_advance_dialogue()
+		return
 	if _animation_lock:
 		return
 	if _drag_card_index >= 0:
@@ -2288,7 +2573,7 @@ func _on_restart_pressed() -> void:
 	_start_run()
 
 func _on_menu_button_pressed() -> void:
-	if _animation_lock:
+	if _dialogue_active or _animation_lock:
 		return
 	_open_menu_overlay()
 
@@ -2408,6 +2693,23 @@ func _room_subtitle_text(room: Dictionary) -> String:
 			int(_combat_state.get("cards_per_turn", 2))
 		]
 	return depth_text
+
+func _maybe_auto_trigger_room_dialogue() -> void:
+	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
+		return
+	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	var trigger_key: String = _dialogue_trigger_key(current_room)
+	if trigger_key == _last_auto_dialogue_key:
+		return
+	var dialogue: Dictionary = _dialogue_engine.build_room_dialogue(current_room, _run_state, _progression)
+	if dialogue.is_empty():
+		return
+	_last_auto_dialogue_key = trigger_key
+	_start_dialogue(dialogue)
+
+func _dialogue_trigger_key(room: Dictionary) -> String:
+	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+	return "%d,%d|%d" % [coord.x, coord.y, int(_run_state.get("turns_spent", 0))]
 
 func _new_seed() -> int:
 	return int(Time.get_unix_time_from_system()) & 0x7fffffff

@@ -2,7 +2,6 @@ extends Control
 class_name LabyrinthMapView
 
 const ElementData = preload("res://scripts/element_data.gd")
-const PathUtils = preload("res://scripts/path_utils.gd")
 
 signal room_selected(coord: Vector2i)
 
@@ -55,16 +54,23 @@ func _draw() -> void:
 	if run_state.is_empty():
 		return
 	var rooms: Dictionary = run_state.get("rooms", {})
+	var drawn_connections: Dictionary = {}
 	for room_key: String in rooms.keys():
-		var room: Dictionary = rooms[room_key]
+		var room: Dictionary = rooms[room_key] as Dictionary
 		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
-		for dir: Vector2i in PathUtils.DIRS_4:
-			var neighbor: Vector2i = coord + dir
+		for connection_var: Variant in room.get("connections", []):
+			if typeof(connection_var) != TYPE_DICTIONARY:
+				continue
+			var connection: Dictionary = connection_var
+			var neighbor: Vector2i = connection.get("coord", Vector2i(999, 999))
+			var neighbor_key: String = _room_key(neighbor)
+			var pair_key: String = "%s|%s" % [room_key, neighbor_key] if room_key < neighbor_key else "%s|%s" % [neighbor_key, room_key]
 			var neighbor_room: Dictionary = _room_at(neighbor)
+			if drawn_connections.has(pair_key):
+				continue
 			if neighbor_room.is_empty():
 				continue
-			if room_key > _room_key(neighbor):
-				continue
+			drawn_connections[pair_key] = true
 			_draw_connector(coord, neighbor, bool(room.get("revealed", false)) and bool(neighbor_room.get("revealed", false)))
 	for room_key: String in rooms.keys():
 		_draw_room_shell(rooms[room_key])
@@ -174,10 +180,24 @@ func _draw_map_legend() -> void:
 func _available_move_coords() -> Array[Vector2i]:
 	var coords: Array[Vector2i] = []
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
-	for dir: Vector2i in PathUtils.DIRS_4:
-		var candidate: Vector2i = current + dir
-		if absi(candidate.x) + absi(candidate.y) > 4:
+	var current_room: Dictionary = _room_at(current)
+	var current_depth: int = int(current_room.get("depth", 0))
+	var seen: Dictionary = {}
+	for connection_var: Variant in current_room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue
+		var connection: Dictionary = connection_var
+		var candidate: Vector2i = connection.get("coord", Vector2i(999, 999))
+		if seen.has(candidate):
+			continue
+		var room: Dictionary = _room_at(candidate)
+		if room.is_empty() or not bool(room.get("revealed", false)):
+			continue
+		if int(room.get("depth", 0)) < current_depth:
+			continue
+		if bool(room.get("sealed", false)):
+			continue
+		seen[candidate] = true
 		coords.append(candidate)
 	return coords
 
@@ -208,18 +228,7 @@ func _draw_connector(a: Vector2i, b: Vector2i, revealed: bool = true) -> void:
 	var a_pos: Vector2 = _coord_position(a)
 	var b_pos: Vector2 = _coord_position(b)
 	var thickness: float = maxf(2.0, _base_node_size() * 0.34)
-	var connector_rect: Rect2
-	if is_equal_approx(a_pos.x, b_pos.x):
-		connector_rect = Rect2(
-			Vector2(a_pos.x - thickness * 0.5, minf(a_pos.y, b_pos.y)),
-			Vector2(thickness, absf(a_pos.y - b_pos.y))
-		)
-	else:
-		connector_rect = Rect2(
-			Vector2(minf(a_pos.x, b_pos.x), a_pos.y - thickness * 0.5),
-			Vector2(absf(a_pos.x - b_pos.x), thickness)
-		)
-	draw_rect(connector_rect, Color("7b6a5b") if revealed else Color(0.27, 0.23, 0.20, 0.56), true)
+	draw_line(a_pos, b_pos, Color("7b6a5b") if revealed else Color(0.27, 0.23, 0.20, 0.56), thickness, true)
 
 func _room_at(coord: Vector2i) -> Dictionary:
 	var rooms: Dictionary = run_state.get("rooms", {})

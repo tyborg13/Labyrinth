@@ -5,6 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"
+const NPCS_PATH: String = "res://data/npcs.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
 
@@ -15,6 +16,9 @@ static func cards() -> Dictionary:
 
 static func enemies() -> Dictionary:
 	return _load_json_dict(ENEMIES_PATH)
+
+static func npcs() -> Dictionary:
+	return _load_json_dict(NPCS_PATH)
 
 static func relics() -> Dictionary:
 	return _load_json_dict(RELICS_PATH)
@@ -27,6 +31,9 @@ static func card_def(card_id: String) -> Dictionary:
 
 static func enemy_def(enemy_type: String) -> Dictionary:
 	return _duplicate_dict(enemies().get(enemy_type, {}))
+
+static func npc_def(npc_id: String) -> Dictionary:
+	return _duplicate_dict(npcs().get(npc_id, {}))
 
 static func relic_def(relic_id: String) -> Dictionary:
 	return _duplicate_dict(relics().get(relic_id, {}))
