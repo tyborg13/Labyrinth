@@ -8,7 +8,7 @@ const DIRS_4: Array[Vector2i] = [
 	Vector2i(-1, 0)
 ]
 
-const BLOCKING_TILES: Array[String] = ["wall", "pillar"]
+const BLOCKING_TILES: Array[String] = ["wall", "pillar", "door"]
 
 static func is_in_bounds(grid: Array, tile: Vector2i) -> bool:
 	if tile.y < 0 or tile.y >= grid.size():

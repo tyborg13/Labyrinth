@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-11T04:32:34Z",
+  "updated_at": "2026-04-11T22:20:39Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -781,6 +781,28 @@
       "source": {
         "branch": "master",
         "commit": "8bc82c8"
+      }
+    },
+    {
+      "id": "mnt_20260411T222038Z_8acc8101",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/path_utils.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/path_utils.gd",
+      "summary": "Door tiles are blocking terrain for PathUtils, so movement, spawns, threat ranges, and pathfinding all treat room exits like walls.",
+      "details": "This prevents enemies from spawning or walking onto exit doors and is covered by _test_room_generation_blocks_door_tiles in tests/run_tests.gd.",
+      "status": "active",
+      "created_at": "2026-04-11T22:20:38Z",
+      "updated_at": "2026-04-11T22:20:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "e53643b"
       }
     }
   ]

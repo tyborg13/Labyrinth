@@ -23,6 +23,7 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
+	_test_room_generation_blocks_door_tiles()
 	_test_room_generation_scales_enemy_density()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
@@ -113,6 +114,39 @@ func _test_room_generation_keeps_spawn_reachable() -> void:
 	var spawn: Vector2i = room.get("player_start", Vector2i.ZERO)
 	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(grid, spawn, 20, {})
 	_assert(reachable.size() >= 14, "Generated rooms should leave a broad reachable footprint from the entry tile")
+
+func _test_room_generation_blocks_door_tiles() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room_meta: Dictionary = {
+		"coord": Vector2i(1, 2),
+		"depth": 2,
+		"type": "combat",
+		"connections": [
+			{"door_dir": Vector2i(0, -1), "coord": Vector2i(1, 1)},
+			{"door_dir": Vector2i(1, 0), "coord": Vector2i(2, 2)},
+			{"door_dir": Vector2i(0, 1), "coord": Vector2i(1, 3)},
+			{"door_dir": Vector2i(-1, 0), "coord": Vector2i(0, 2)}
+		]
+	}
+	var room: Dictionary = generator.generate_room(123, room_meta, Vector2i.ZERO)
+	var grid: Array = room.get("grid", [])
+	var spawn: Vector2i = room.get("player_start", Vector2i.ZERO)
+	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(grid, spawn, 20, {})
+	var door_tiles: Array[Vector2i] = [
+		RoomGenerator.door_tile_for_direction(Vector2i(0, -1)),
+		RoomGenerator.door_tile_for_direction(Vector2i(1, 0)),
+		RoomGenerator.door_tile_for_direction(Vector2i(0, 1)),
+		RoomGenerator.door_tile_for_direction(Vector2i(-1, 0))
+	]
+	for door_tile: Vector2i in door_tiles:
+		_assert(str(grid[door_tile.y][door_tile.x]) == "door", "Connected rooms should stamp door tiles onto the board edge")
+		_assert(not PathUtils.is_passable(grid, door_tile), "Door tiles should be impassable terrain")
+		_assert(not reachable.has(door_tile), "Door tiles should not appear in reachable movement ranges")
+	for enemy_var: Variant in room.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		_assert(not door_tiles.has(enemy.get("pos", Vector2i(-1, -1))), "Enemy spawns should avoid door tiles")
 
 func _test_room_generation_scales_enemy_density() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
