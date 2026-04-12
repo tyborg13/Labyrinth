@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-11T22:20:39Z",
+  "updated_at": "2026-04-11T22:38:20Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -803,6 +803,28 @@
       "source": {
         "branch": "master",
         "commit": "e53643b"
+      }
+    },
+    {
+      "id": "mnt_20260411T223820Z_f5d8e448",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Enemy HUD collision avoidance moves the full enemy health-plus-intent stack together and draws a tether line when displaced, so overlap fixes still preserve which unit the intent belongs to.",
+      "details": "CombatBoardView scores small sideways/upward nudges against reserved HUD rects, then falls back to a dynamic escape offset based on the stack bounds for dense overlaps; covered by _test_enemy_hud_layout_stays_centered_when_clear and _test_enemy_hud_layout_offsets_away_from_reserved_ui in tests/run_tests.gd.",
+      "status": "active",
+      "created_at": "2026-04-11T22:38:20Z",
+      "updated_at": "2026-04-11T22:38:20Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "473ba66"
       }
     }
   ]

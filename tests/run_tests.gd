@@ -45,6 +45,8 @@ func _initialize() -> void:
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
 	_test_enemy_intent_name_reserves_header_line()
+	_test_enemy_hud_layout_stays_centered_when_clear()
+	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
@@ -689,6 +691,52 @@ func _test_enemy_intent_name_reserves_header_line() -> void:
 	}
 	_assert(int(board.call("_enemy_intent_line_count", attack_intent)) == 2, "Named enemy intents should reserve a header line above their action icons")
 	_assert(int(board.call("_enemy_intent_line_count", wait_intent)) == 1, "Name-only enemy intents should still render a title line")
+
+func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
+	var center := Vector2(320.0, 240.0)
+	var enemy := {
+		"type": "harrier",
+		"role": "enemy",
+		"intent": {
+			"name": "Pelt",
+			"actions": [{"type": "ranged", "damage": 4, "range": 4}]
+		}
+	}
+	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var offset: Vector2 = layout.get("offset", Vector2.ONE)
+	_assert(offset == Vector2.ZERO, "Enemy HUDs should keep their default stack when nothing important is in the way")
+
+func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
+	var center := Vector2(320.0, 240.0)
+	var enemy := {
+		"type": "harrier",
+		"role": "enemy",
+		"intent": {
+			"name": "Pelt",
+			"actions": [
+				{"type": "move_toward", "range": 2},
+				{"type": "ranged", "damage": 4, "range": 3}
+			]
+		}
+	}
+	var health_rect: Rect2 = board.call("_unit_health_bar_rect", enemy, center)
+	var line_count: int = int(board.call("_enemy_intent_line_count", enemy.get("intent", {})))
+	var intent_rect: Rect2 = board.call("_enemy_intent_rect_for_line_count", center, health_rect, line_count)
+	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [health_rect, intent_rect], font)
+	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
+	_assert(offset != Vector2.ZERO, "Enemy HUDs should nudge away when their default stack would cover reserved HUD space")
+	for rect_var: Variant in layout.get("occupied_rects", []):
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		var rect: Rect2 = rect_var
+		_assert(not rect.intersects(health_rect, false), "Shifted enemy HUD pieces should clear the reserved health bar space")
+		_assert(not rect.intersects(intent_rect, false), "Shifted enemy HUD pieces should clear the reserved intent space")
 
 func _test_enemy_art_scale_preserves_center() -> void:
 	var board := CombatBoardView.new()

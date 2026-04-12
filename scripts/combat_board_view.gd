@@ -36,6 +36,9 @@ const INTENT_POPUP_ROW_FONT_SIZE: int = 11
 const INTENT_POPUP_ICON_SIZE: float = 16.0
 const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
+const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
+const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
+const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, -36.0, -54.0, -72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
@@ -352,34 +355,51 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		draw_texture_rect(texture, _unit_draw_rect(unit), false)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
+	var font: Font = get_theme_default_font()
+	var reserved_rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
 	for unit: Dictionary in units_to_draw:
 		var center: Vector2 = _unit_center(unit)
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
 			continue
 		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+		if str(unit.get("role", "")) == "enemy":
+			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
+			health_rect = enemy_layout.get("health_rect", health_rect)
+			_draw_enemy_hud_tether(unit, center, enemy_layout)
+			_draw_health_bar(unit, health_rect)
+			_draw_unit_statuses(unit, health_rect)
+			_draw_enemy_intent_layout(enemy_layout, font)
+			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+			continue
 		_draw_health_bar(unit, health_rect)
 		_draw_unit_statuses(unit, health_rect)
-		if str(unit.get("role", "")) == "enemy":
-			_draw_enemy_intent(unit, center, health_rect)
 
 func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
 	var font: Font = get_theme_default_font()
-	if font == null:
-		return
-	var name: String = str(unit.get("name", ""))
-	if name.is_empty():
+	var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
+	if plate_rect.size.x <= 0.0 or plate_rect.size.y <= 0.0:
 		return
 	var accent: Color = unit.get("accent", Color("d2c2a7"))
-	var text_width: float = maxf(72.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 8).x + 16.0)
-	var plate_rect := Rect2(
-		Vector2(center.x - text_width * 0.5, _unit_art_top_y(unit, center) - 22.0),
-		Vector2(text_width, 16.0)
-	)
+	var name: String = str(unit.get("name", ""))
 	draw_rect(plate_rect, Color(0.08, 0.06, 0.05, 0.9), true)
 	draw_rect(plate_rect, accent, false, 1.0)
 	draw_string(font, plate_rect.position + Vector2(0.0, 11.0), name, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, 8, Color("fff4dc"))
 	_register_tooltip(plate_rect, name)
+
+func _npc_nameplate_rect(unit: Dictionary, center: Vector2, font: Font = null) -> Rect2:
+	if font == null:
+		return Rect2()
+	var name: String = str(unit.get("name", ""))
+	if name.is_empty():
+		return Rect2()
+	var text_width: float = maxf(72.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 8).x + 16.0)
+	return Rect2(
+		Vector2(center.x - text_width * 0.5, _unit_art_top_y(unit, center) - 22.0),
+		Vector2(text_width, 16.0)
+	)
 
 func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
@@ -480,20 +500,31 @@ func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
 		_draw_status_badge(font, Vector2(start_x + float(index) * spacing, center_y), badges[index])
 
 func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -> void:
-	var intent: Dictionary = unit.get("intent", {})
-	if intent.is_empty():
-		return
-	var rows: Array = _intent_rows(intent)
-	var intent_name: String = _intent_display_name(intent)
-	var line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
-	if line_count <= 0:
-		return
-	var border: Color = _intent_color(intent)
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	var popup_width: float = _enemy_intent_popup_width(intent, rows, font)
-	var label_rect: Rect2 = _enemy_intent_rect_for_line_count(center, health_rect, line_count, popup_width)
+	var layout: Dictionary = _enemy_hud_layout(unit, center, [], font)
+	layout["health_rect"] = health_rect
+	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
+	if intent_rect.size.x <= 0.0 or intent_rect.size.y <= 0.0:
+		return
+	var default_health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+	var applied_offset: Vector2 = health_rect.position - default_health_rect.position
+	if applied_offset != Vector2.ZERO:
+		intent_rect.position += applied_offset
+		layout["intent_rect"] = intent_rect
+		layout["offset"] = applied_offset
+	_draw_enemy_intent_layout(layout, font)
+
+func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
+	if font == null:
+		return
+	var label_rect: Rect2 = layout.get("intent_rect", Rect2())
+	if label_rect.size.x <= 0.0 or label_rect.size.y <= 0.0:
+		return
+	var rows: Array = layout.get("rows", [])
+	var intent_name: String = str(layout.get("intent_name", ""))
+	var border: Color = layout.get("border", Color("d8b96f"))
 	draw_rect(label_rect, Color(0.08, 0.06, 0.05, 0.88), true)
 	draw_rect(label_rect, border, false, 2.0)
 	var rows_origin_y: float = label_rect.position.y + 8.0
@@ -588,6 +619,196 @@ func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Fon
 		else:
 			width += 5.0
 	return width
+
+func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for unit: Dictionary in units_to_draw:
+		var center: Vector2 = _unit_center(unit)
+		match str(unit.get("role", "")):
+			"enemy":
+				continue
+			"npc":
+				var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
+				if plate_rect.size.x > 0.0 and plate_rect.size.y > 0.0:
+					rects.append(plate_rect)
+			_:
+				rects.append_array(_health_bar_collision_rects(unit, _unit_health_bar_rect(unit, center)))
+	return rects
+
+func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
+	var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+	var intent: Dictionary = unit.get("intent", {})
+	var rows: Array = []
+	var intent_name: String = ""
+	var intent_rect := Rect2()
+	var border: Color = Color("d8b96f")
+	if not intent.is_empty():
+		rows = _intent_rows(intent)
+		intent_name = _intent_display_name(intent)
+		var line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
+		if font != null and line_count > 0:
+			var popup_width: float = _enemy_intent_popup_width(intent, rows, font)
+			intent_rect = _enemy_intent_rect_for_line_count(center, health_rect, line_count, popup_width)
+			border = _intent_color(intent)
+	var base_rects: Array[Rect2] = _enemy_hud_collision_rects(unit, health_rect, intent_rect)
+	var offset: Vector2 = _best_enemy_hud_offset(base_rects, occupied_rects)
+	health_rect.position += offset
+	intent_rect.position += offset
+	return {
+		"health_rect": health_rect,
+		"intent_rect": intent_rect,
+		"rows": rows,
+		"intent_name": intent_name,
+		"border": border,
+		"offset": offset,
+		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
+	}
+
+func _enemy_hud_collision_rects(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2] = _health_bar_collision_rects(unit, health_rect)
+	if intent_rect.size.x > 0.0 and intent_rect.size.y > 0.0:
+		rects.append(intent_rect)
+	return rects
+
+func _health_bar_collision_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	if health_rect.size.x > 0.0 and health_rect.size.y > 0.0:
+		rects.append(health_rect)
+	rects.append_array(_unit_status_badge_rects(unit, health_rect))
+	rects.append_array(_health_bar_defense_badge_rects(unit, health_rect))
+	return rects
+
+func _unit_status_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var badges: Array[Dictionary] = _unit_status_badges(unit)
+	if badges.is_empty():
+		return rects
+	var spacing: float = 22.0
+	var start_x: float = health_rect.position.x - 12.0 - (float(badges.size() - 1) * spacing)
+	var center_y: float = health_rect.position.y + health_rect.size.y - 2.0
+	for index: int in range(badges.size()):
+		var center := Vector2(start_x + float(index) * spacing, center_y)
+		var badge_rect := Rect2(center - Vector2(10.0, 10.0), Vector2(20.0, 20.0))
+		if int((badges[index] as Dictionary).get("count", 0)) > 0:
+			badge_rect = badge_rect.merge(Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0)))
+		rects.append(badge_rect)
+	return rects
+
+func _health_bar_defense_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var defense_badge_x: float = health_rect.position.x + health_rect.size.x + 4.0
+	if int(unit.get("block", 0)) > 0:
+		var block_rect := Rect2(Vector2(defense_badge_x, health_rect.position.y), Vector2(36.0, 16.0))
+		rects.append(block_rect)
+		defense_badge_x += block_rect.size.x + 4.0
+	if int(unit.get("stoneskin", 0)) > 0:
+		rects.append(Rect2(Vector2(defense_badge_x, health_rect.position.y), Vector2(40.0, 16.0)))
+	return rects
+
+func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2:
+	if base_rects.is_empty():
+		return Vector2.ZERO
+	var viewport_bounds := Rect2(
+		Vector2(ENEMY_HUD_VIEWPORT_MARGIN, ENEMY_HUD_VIEWPORT_MARGIN),
+		Vector2(
+			maxf(1.0, size.x - ENEMY_HUD_VIEWPORT_MARGIN * 2.0),
+			maxf(1.0, size.y - ENEMY_HUD_VIEWPORT_MARGIN * 2.0)
+		)
+	)
+	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	var candidate_x_steps: Array = ENEMY_HUD_OFFSET_X_STEPS.duplicate()
+	var wide_step: float = ceilf(hud_bounds.size.x + 8.0)
+	if wide_step > 72.0:
+		if not candidate_x_steps.has(-wide_step):
+			candidate_x_steps.append(-wide_step)
+		if not candidate_x_steps.has(wide_step):
+			candidate_x_steps.append(wide_step)
+	var candidate_y_steps: Array = ENEMY_HUD_OFFSET_Y_STEPS.duplicate()
+	var tall_step: float = -ceilf(hud_bounds.size.y + 12.0)
+	if absf(tall_step) > 72.0 and not candidate_y_steps.has(tall_step):
+		candidate_y_steps.append(tall_step)
+	var best_offset := Vector2.ZERO
+	var best_score: float = INF
+	for y_step_var: Variant in candidate_y_steps:
+		for x_step_var: Variant in candidate_x_steps:
+			var offset := Vector2(float(x_step_var), float(y_step_var))
+			var candidate_rects: Array[Rect2] = _offset_rects(base_rects, offset)
+			var score: float = _enemy_hud_layout_score(candidate_rects, occupied_rects, viewport_bounds, offset)
+			if score < best_score:
+				best_score = score
+				best_offset = offset
+	return best_offset
+
+func _offset_rects(rects: Array[Rect2], offset: Vector2) -> Array[Rect2]:
+	var shifted: Array[Rect2] = []
+	for rect: Rect2 in rects:
+		shifted.append(Rect2(rect.position + offset, rect.size))
+	return shifted
+
+func _enemy_hud_layout_score(candidate_rects: Array, occupied_rects: Array, viewport_bounds: Rect2, offset: Vector2) -> float:
+	var overlap_area: float = 0.0
+	for candidate_var: Variant in candidate_rects:
+		if typeof(candidate_var) != TYPE_RECT2:
+			continue
+		var candidate: Rect2 = candidate_var
+		for occupied_var: Variant in occupied_rects:
+			if typeof(occupied_var) != TYPE_RECT2:
+				continue
+			overlap_area += _rect_overlap_area(candidate, occupied_var)
+	var overflow_area: float = 0.0
+	for candidate_var: Variant in candidate_rects:
+		if typeof(candidate_var) != TYPE_RECT2:
+			continue
+		overflow_area += _rect_outside_area(candidate_var, viewport_bounds)
+	return overlap_area * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+
+func _rect_overlap_area(a: Rect2, b: Rect2) -> float:
+	var left: float = maxf(a.position.x, b.position.x)
+	var top: float = maxf(a.position.y, b.position.y)
+	var right: float = minf(a.position.x + a.size.x, b.position.x + b.size.x)
+	var bottom: float = minf(a.position.y + a.size.y, b.position.y + b.size.y)
+	if right <= left or bottom <= top:
+		return 0.0
+	return (right - left) * (bottom - top)
+
+func _rect_outside_area(rect: Rect2, bounds: Rect2) -> float:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return 0.0
+	var inside_left: float = maxf(rect.position.x, bounds.position.x)
+	var inside_top: float = maxf(rect.position.y, bounds.position.y)
+	var inside_right: float = minf(rect.position.x + rect.size.x, bounds.position.x + bounds.size.x)
+	var inside_bottom: float = minf(rect.position.y + rect.size.y, bounds.position.y + bounds.size.y)
+	var inside_area: float = 0.0
+	if inside_right > inside_left and inside_bottom > inside_top:
+		inside_area = (inside_right - inside_left) * (inside_bottom - inside_top)
+	return rect.size.x * rect.size.y - inside_area
+
+func _rects_bounds(rects: Array) -> Rect2:
+	var bounds := Rect2()
+	var found_rect: bool = false
+	for rect_var: Variant in rects:
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		var rect: Rect2 = rect_var
+		if not found_rect:
+			bounds = rect
+			found_rect = true
+			continue
+		bounds = bounds.merge(rect)
+	return bounds
+
+func _draw_enemy_hud_tether(unit: Dictionary, center: Vector2, layout: Dictionary) -> void:
+	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
+	if offset.length_squared() < 4.0:
+		return
+	var health_rect: Rect2 = layout.get("health_rect", Rect2())
+	if health_rect.size.x <= 0.0 or health_rect.size.y <= 0.0:
+		return
+	var border: Color = layout.get("border", Color("d8b96f"))
+	var anchor: Vector2 = Vector2(center.x, _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE * 0.4)
+	var target: Vector2 = Vector2(health_rect.position.x + health_rect.size.x * 0.5, health_rect.position.y + health_rect.size.y)
+	draw_line(anchor, target, Color(0.0, 0.0, 0.0, 0.24), 3.0, true)
+	draw_line(anchor, target, Color(border.r, border.g, border.b, 0.58), 1.0, true)
 
 func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE) -> void:
 	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
