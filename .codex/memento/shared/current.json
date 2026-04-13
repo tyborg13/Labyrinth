@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-13T02:38:36Z",
+  "updated_at": "2026-04-13T19:21:24Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -893,6 +893,50 @@
       "source": {
         "branch": "master",
         "commit": "1929aa4"
+      }
+    },
+    {
+      "id": "mnt_20260413T191844Z_730cf96e",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Health bar HP text should use a 1px bottom inset instead of the old fixed +10 baseline, or the outlined Press Start 2P digits clip against the top border.",
+      "details": "The HP readout is drawn inside a 12px bar with a 1px four-direction outline; bottom-anchoring the baseline at rect.size.y - 1 keeps the numerals visually centered and avoids the top-edge clipping that shows up with this pixel font.",
+      "status": "active",
+      "created_at": "2026-04-13T19:18:44Z",
+      "updated_at": "2026-04-13T19:18:44Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "fce14b0"
+      }
+    },
+    {
+      "id": "mnt_20260413T192124Z_7d009747",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Enemy health bars intentionally use a larger 84x14 rect while player bars stay 78x12, because the outlined HP digits still feel cramped in a 12px enemy bar.",
+      "details": "CombatBoardView bottom-anchors both bars to the same HUD clearance, so enlarging the enemy bar grows it upward into free space without pushing it down into sprite art or breaking intent stacking.",
+      "status": "active",
+      "created_at": "2026-04-13T19:21:24Z",
+      "updated_at": "2026-04-13T19:21:24Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "fce14b0"
       }
     }
   ]

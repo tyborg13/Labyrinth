@@ -28,7 +28,8 @@ const STATUS_BURN: Color = Color("f28a42")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_POISON: Color = Color("86bf63")
-const HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
+const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
+const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
 const INTENT_POPUP_WIDTH: float = 136.0
 const INTENT_POPUP_PADDING_X: float = 8.0
 const INTENT_POPUP_TITLE_FONT_SIZE: int = 9
@@ -433,6 +434,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		1.0
 	)
 	if font != null:
+		var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
 		for offset: Vector2 in [
 			Vector2(-1.0, 0.0),
 			Vector2(1.0, 0.0),
@@ -441,7 +443,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		]:
 			draw_string(
 				font,
-				rect.position + Vector2(0.0, 10.0) + offset,
+				text_baseline + offset,
 				"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
 				HORIZONTAL_ALIGNMENT_CENTER,
 				rect.size.x,
@@ -450,7 +452,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 			)
 		draw_string(
 			font,
-			rect.position + Vector2(0.0, 10.0),
+			text_baseline,
 			"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
@@ -495,10 +497,11 @@ func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
 	return _unit_draw_rect_for_center(unit, center).position.y
 
 func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	var bar_size: Vector2 = PLAYER_HEALTH_BAR_SIZE if str(unit.get("role", "")) == "player" else ENEMY_HEALTH_BAR_SIZE
 	var bottom_y: float = _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE
 	return Rect2(
-		Vector2(center.x - HEALTH_BAR_SIZE.x * 0.5, bottom_y - HEALTH_BAR_SIZE.y),
-		HEALTH_BAR_SIZE
+		Vector2(center.x - bar_size.x * 0.5, bottom_y - bar_size.y),
+		bar_size
 	)
 
 func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
