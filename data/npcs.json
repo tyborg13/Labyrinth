@@ -2,7 +2,7 @@
   "emaciated_man": {
     "name": "Emaciated Man",
     "accent": "#b8aa90",
-    "art_path": "res://assets/placeholders/units/acolyte.svg",
+    "art_path": "res://assets/placeholders/units/emaciated_man.svg",
     "art_scale": 0.92
   }
 }

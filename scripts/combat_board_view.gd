@@ -169,7 +169,7 @@ func _draw_empty_state() -> void:
 	draw_string(font, Vector2(34, 52), "No active combat.", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f0e5cf"))
 
 func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
-	var tile_id: String = str((grid[tile.y] as Array)[tile.x])
+	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	var polygon: PackedVector2Array = _tile_polygon(tile)
 	var base_color: Color = _tile_color(tile_id)
 	draw_colored_polygon(polygon, base_color)
@@ -204,7 +204,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
 func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) -> void:
-	var tile_id: String = str((grid[tile.y] as Array)[tile.x])
+	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	if tile_id == "wall" or tile_id == "pillar":
 		var texture: Texture2D = _prop_textures.get(tile_id, null)
 		if texture != null:
@@ -240,7 +240,7 @@ func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2,
 		if typeof(unit_var) != TYPE_DICTIONARY:
 			continue
 		var unit: Dictionary = unit_var
-		var unit_tile: Vector2i = unit.get("pos", Vector2i.ZERO)
+		var unit_tile: Vector2i = _effective_unit_tile(unit)
 		if not _tile_draws_before(unit_tile, tile):
 			continue
 		if prop_rect.intersects(_unit_draw_rect(unit), true):
@@ -260,6 +260,20 @@ func _door_rect_for_tile(tile: Vector2i) -> Rect2:
 	var tile_width: float = _tile_width()
 	var tile_height: float = _tile_height()
 	return Rect2(door_center - Vector2(tile_width * 0.45, tile_height * 0.6), Vector2(tile_width * 0.9, tile_height * 0.8))
+
+func _display_tile_id(tile_id: String, tile: Vector2i) -> String:
+	if tile_id == "door" and not _door_is_visible(tile):
+		return "wall"
+	return tile_id
+
+func _door_is_visible(tile: Vector2i) -> bool:
+	if exit_tiles.has(tile):
+		return true
+	var active_doors: Dictionary = presentation.get("active_door_tiles", {})
+	if bool(active_doors.get(tile, false)):
+		return true
+	var locked_doors: Dictionary = presentation.get("locked_door_tiles", {})
+	return bool(locked_doors.get(tile, false))
 
 func _loot_rect_for_tile(tile: Vector2i) -> Rect2:
 	return Rect2(_tile_center(tile) - Vector2(26.0, 58.0), Vector2(52.0, 68.0))
@@ -334,22 +348,23 @@ func _visible_units() -> Array[Dictionary]:
 			"accent": Color(str(npc.get("accent", npc_def.get("accent", "#d2c2a7"))))
 		})
 	units_to_draw.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var a_pos: Vector2i = a.get("pos", Vector2i.ZERO)
-		var b_pos: Vector2i = b.get("pos", Vector2i.ZERO)
+		var a_pos: Vector2i = _effective_unit_tile(a)
+		var b_pos: Vector2i = _effective_unit_tile(b)
+		if a_pos == b_pos:
+			return _tile_draws_before(a.get("pos", Vector2i.ZERO), b.get("pos", Vector2i.ZERO))
 		return _tile_draws_before(a_pos, b_pos)
 	)
 	return units_to_draw
 
 func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
-		if unit.get("pos", Vector2i.ZERO) != tile:
+		if _effective_unit_tile(unit) != tile:
 			continue
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
 	var center: Vector2 = _unit_center(unit)
 	_draw_shadow(center + Vector2(0.0, _tile_height() * 0.58))
-	_draw_unit_focus(unit, center)
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
 		draw_texture_rect(texture, _unit_draw_rect(unit), false)
@@ -846,6 +861,55 @@ func _draw_status_text() -> void:
 	if not status_detail.is_empty():
 		draw_string(font, Vector2(22.0, 54.0), status_detail, HORIZONTAL_ALIGNMENT_LEFT, size.x - 44.0, 14, Color("d8ccb6"))
 
+func _draw_target_reticle(center: Vector2, color: Color, radius: float = 10.0) -> void:
+	draw_circle(center, radius * 0.28, Color(color.r, color.g, color.b, color.a * 0.30))
+	draw_arc(center, radius, 0.0, TAU, 24, color, 2.2)
+	draw_line(center + Vector2(-radius - 3.0, 0.0), center + Vector2(-radius * 0.35, 0.0), color, 2.0)
+	draw_line(center + Vector2(radius + 3.0, 0.0), center + Vector2(radius * 0.35, 0.0), color, 2.0)
+	draw_line(center + Vector2(0.0, -radius - 3.0), center + Vector2(0.0, -radius * 0.35), color, 2.0)
+	draw_line(center + Vector2(0.0, radius + 3.0), center + Vector2(0.0, radius * 0.35), color, 2.0)
+
+func _draw_projectile_diamond(center: Vector2, direction: Vector2, color: Color, size: float = 5.0) -> void:
+	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_colored_polygon(PackedVector2Array([
+		center + dir * size,
+		center + perp * size * 0.6,
+		center - dir * size,
+		center - perp * size * 0.6
+	]), color)
+
+func _draw_bezier_glow(from_point: Vector2, control: Vector2, to_point: Vector2, color: Color, width: float) -> void:
+	_draw_partial_bezier_glow(from_point, control, to_point, color, width, 1.0)
+
+func _draw_partial_bezier_glow(from_point: Vector2, control: Vector2, to_point: Vector2, color: Color, width: float, progress: float) -> void:
+	var points: Array[Vector2] = _sample_quadratic_points(from_point, control, to_point, 10)
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	if points.size() < 2 or clamped_progress <= 0.0:
+		return
+	var segment_count: int = mini(points.size() - 1, maxi(1, int(ceil(float(points.size() - 1) * clamped_progress))))
+	for idx: int in range(segment_count):
+		var segment_alpha: float = color.a * (0.40 + 0.60 * float(idx + 1) / float(segment_count))
+		draw_line(points[idx], points[idx + 1], Color(0.0, 0.0, 0.0, segment_alpha * 0.18), width + 2.0, true)
+		draw_line(points[idx], points[idx + 1], Color(color.r, color.g, color.b, segment_alpha), width, true)
+
+func _quadratic_bezier(from_point: Vector2, control: Vector2, to_point: Vector2, t: float) -> Vector2:
+	var u: float = 1.0 - t
+	return u * u * from_point + 2.0 * u * t * control + t * t * to_point
+
+func _sample_quadratic_points(from_point: Vector2, control: Vector2, to_point: Vector2, segments: int) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	var safe_segments: int = maxi(1, segments)
+	for idx: int in range(safe_segments + 1):
+		var t: float = float(idx) / float(safe_segments)
+		out.append(_quadratic_bezier(from_point, control, to_point, t))
+	return out
+
+func _arc_control_point(from_point: Vector2, to_point: Vector2) -> Vector2:
+	var midpoint: Vector2 = (from_point + to_point) * 0.5
+	var height: float = 34.0 + absf(to_point.x - from_point.x) * 0.18
+	return midpoint + Vector2(0.0, -height)
+
 func _draw_effect_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	if effect.is_empty():
@@ -860,11 +924,7 @@ func _draw_effect_overlay() -> void:
 	var center_point: Vector2 = _tile_center(center_tile) if center_tile.x >= 0 else Vector2.ZERO
 	match kind:
 		"move":
-			if from_tile.x < 0 or to_tile.x < 0:
-				return
-			var trail_point: Vector2 = from_point.lerp(to_point, progress)
-			draw_line(from_point, trail_point, Color("f1d18b"), 4.0, true)
-			draw_circle(trail_point, 9.0, Color(0.95, 0.82, 0.49, 0.28))
+			return
 		"blink":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -877,9 +937,18 @@ func _draw_effect_overlay() -> void:
 				return
 			var start: Vector2 = from_point + Vector2(0.0, -24.0)
 			var end: Vector2 = to_point + Vector2(0.0, -24.0)
-			var projectile_point: Vector2 = start.lerp(end, progress)
-			draw_line(start, projectile_point, Color("f4b56f"), 5.0, true)
-			draw_circle(projectile_point, 6.0, Color("ffd29c"))
+			var control: Vector2 = _arc_control_point(start, end)
+			var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
+			var pulse_radius: float = lerpf(9.0, 17.0, warmup_progress)
+			draw_circle(end, pulse_radius, Color(1.0, 0.60, 0.34, 0.08 + 0.05 * warmup_progress))
+			_draw_target_reticle(end, Color(1.0, 0.86, 0.66, 0.62 + 0.28 * warmup_progress), pulse_radius)
+			_draw_bezier_glow(start, control, end, Color(1.0, 0.74, 0.37, 0.16 + 0.10 * warmup_progress), 1.6)
+			var travel_progress: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+			if travel_progress > 0.0:
+				_draw_partial_bezier_glow(start, control, end, Color(1.0, 0.74, 0.37, 0.94), 3.0, travel_progress)
+				var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
+				_draw_projectile_diamond(projectile_point, control - start, Color(1.0, 0.92, 0.70, 0.98), 5.2)
+				draw_circle(start, 5.0, Color(1.0, 0.88, 0.68, 0.16))
 			if progress >= 0.98:
 				draw_circle(to_point, 12.0, Color(0.94, 0.47, 0.30, 0.20))
 		"melee":
@@ -924,13 +993,7 @@ func _draw_floating_texts() -> void:
 		draw_string(font, text_pos, str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, 48.0, 16, color)
 
 func _draw_path_preview() -> void:
-	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
-	if path_tiles.size() < 2:
-		return
-	for index: int in range(path_tiles.size() - 1):
-		var from_point: Vector2 = _tile_center(path_tiles[index]) + Vector2(0.0, -12.0)
-		var to_point: Vector2 = _tile_center(path_tiles[index + 1]) + Vector2(0.0, -12.0)
-		draw_line(from_point, to_point, MOVE_PATH_COLOR, 4.0, true)
+	return
 
 func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 	var focus_keys: Array = presentation.get("focus_actor_keys", [])
@@ -944,6 +1007,28 @@ func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 		points.append(focus_center + Vector2(cos(angle) * _tile_width() * 0.24, sin(angle) * _tile_height() * 0.32))
 	draw_colored_polygon(points, Color(color.r, color.g, color.b, 0.14))
 	draw_polyline(points, color, 2.0, true)
+
+func _effective_unit_tile(unit: Dictionary) -> Vector2i:
+	var actor_key: String = str(unit.get("key", ""))
+	if not actor_key.is_empty():
+		var overrides: Dictionary = presentation.get("unit_draw_tiles", {})
+		if overrides.has(actor_key):
+			return overrides[actor_key]
+	return unit.get("pos", Vector2i.ZERO)
+
+func _nearest_tile_for_world_position(world_position: Vector2) -> Vector2i:
+	var grid: Array = combat_state.get("grid", [])
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_distance_sq: float = INF
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile: Vector2i = Vector2i(x, y)
+			var distance_sq: float = _tile_center(tile).distance_squared_to(world_position)
+			if distance_sq >= best_distance_sq:
+				continue
+			best_distance_sq = distance_sq
+			best_tile = tile
+	return best_tile if best_tile.x >= 0 else Vector2i.ZERO
 
 func _tile_color(tile_id: String) -> Color:
 	match tile_id:

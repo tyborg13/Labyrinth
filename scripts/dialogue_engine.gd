@@ -33,15 +33,15 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, _run_state: Dict
 		"lines": [
 			{
 				"speaker": speaker,
-				"text": "Hehehe. You're back...so soon"
+				"text": "Hehehe. You're back...so soon."
 			},
 			{
 				"speaker": speaker,
-				"text": "His creations got the best of you again"
+				"text": "His creations got the best of you again."
 			},
 			{
 				"speaker": speaker,
-				"text": "Maybe this time's the one. Then again...probably not"
+				"text": "Maybe this time's the one. Then again...probably not."
 			}
 		]
 	}

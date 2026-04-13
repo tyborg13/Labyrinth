@@ -15,8 +15,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const STEP_DELAY_SECONDS: float = 0.26
-const MOVE_STEP_FRAMES: int = 10
-const MOVE_FRAME_SECONDS: float = 0.045
+const MOVE_STEP_FRAMES: int = 6
+const MOVE_FRAME_SECONDS: float = 0.03
 const ATTACK_FRAMES: int = 6
 const ATTACK_FRAME_SECONDS: float = 0.04
 const DRAW_FRAME_SECONDS: float = 0.23
@@ -28,6 +28,8 @@ const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
 const DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
+const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
+const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
@@ -1316,6 +1318,8 @@ func _refresh_stage_view() -> void:
 			var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 			if str(action.get("type", "")) in ["move", "blink"]:
 				move_tiles = target_tiles
+				var shortcuts: Dictionary = _preview_shortcuts_for_current_action(preview)
+				attack_tiles = _vector2i_array(shortcuts.get("tiles", []))
 			else:
 				attack_tiles = target_tiles
 			var preview_presentation: Dictionary = _preview_presentation(preview)
@@ -1330,6 +1334,8 @@ func _refresh_stage_view() -> void:
 				presentation["focus_actor_color"] = Color("f2ddb2")
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
+	presentation["active_door_tiles"] = _active_door_tiles_for_board()
+	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -1609,6 +1615,10 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action_type: String = str(action.get("type", ""))
 	if _hovered_board_tile.x < 0:
 		return []
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		var path_tiles: Array[Vector2i] = _vector2i_array(shortcut_plan.get("path_tiles", []))
+		return path_tiles if not path_tiles.is_empty() else _vector2i_array([_hovered_board_tile])
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return []
@@ -1616,13 +1626,16 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		return _path_tiles_for_preview(preview)
 	if action_type == "blast":
 		return _tiles_in_radius(_hovered_board_tile, int(action.get("radius", 1)), (preview.get("state", {}) as Dictionary).get("grid", []))
-	return [_hovered_board_tile]
+	return _vector2i_array([_hovered_board_tile])
 
 func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = preview.get("action", {})
 	var action_type: String = str(action.get("type", ""))
 	if _hovered_board_tile.x < 0:
 		return []
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		return _vector2i_array(shortcut_plan.get("path_tiles", []))
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return []
@@ -1632,30 +1645,128 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		var start: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 		return PathUtils.find_path(grid, start, _hovered_board_tile, _enemy_occupied_tiles(preview_state))
 	if action_type == "blink":
-		return [_hovered_board_tile]
+		return _vector2i_array([_hovered_board_tile])
 	return []
 
 func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var action: Dictionary = preview.get("action", {})
-	var action_type: String = str(action.get("type", ""))
 	if _hovered_board_tile.x < 0:
 		return {}
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		return _preview_effect_for_target(
+			shortcut_plan.get("move_tile", INVALID_TARGET_TILE),
+			_hovered_board_tile,
+			shortcut_plan.get("action", {})
+		)
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return {}
 	var preview_state: Dictionary = preview.get("state", {})
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	return _preview_effect_for_target(player_tile, _hovered_board_tile, action)
+
+func _preview_effect_for_target(from_tile: Vector2i, target_tile: Vector2i, action: Dictionary) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
-			return {"kind": "move", "from": player_tile, "to": _hovered_board_tile}
+			return {"kind": "move", "from": from_tile, "to": target_tile}
 		"blink":
-			return {"kind": "blink", "from": player_tile, "to": _hovered_board_tile}
+			return {"kind": "blink", "from": from_tile, "to": target_tile}
 		"melee", "ranged":
-			return {"kind": action_type, "from": player_tile, "to": _hovered_board_tile}
+			return {"kind": action_type, "from": from_tile, "to": target_tile}
 		"blast":
-			return {"kind": "blast", "from": player_tile, "to": _hovered_board_tile, "center": _hovered_board_tile, "radius": int(action.get("radius", 1))}
+			return {"kind": "blast", "from": from_tile, "to": target_tile, "center": target_tile, "radius": int(action.get("radius", 1))}
 		_:
 			return {}
+
+func _hovered_shortcut_plan_for_preview(preview: Dictionary) -> Dictionary:
+	if _hovered_board_tile.x < 0:
+		return {}
+	var shortcuts: Dictionary = _preview_shortcuts_for_current_action(preview)
+	var plans: Dictionary = shortcuts.get("plans", {})
+	return plans.get(_hovered_board_tile, {}) as Dictionary
+
+func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
+	var action: Dictionary = preview.get("action", {})
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["move", "blink"]:
+		return {}
+	var actions: Array = preview.get("actions", [])
+	var action_index: int = int(preview.get("action_index", -1))
+	var card_id: String = str(preview.get("card_id", ""))
+	if action_index < 0 or action_index >= actions.size() or card_id.is_empty():
+		return {}
+	var preview_state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
+	if preview_state.is_empty():
+		return {}
+	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var plans: Dictionary = {}
+	for move_target: Vector2i in _vector2i_array(preview.get("target_tiles", [])):
+		var after_move_state: Dictionary = _combat_engine.apply_player_action(preview_state, action, move_target)
+		var path_tiles: Array[Vector2i] = [move_target] if action_type == "blink" else PathUtils.find_path(preview_state.get("grid", []), player_tile, move_target, _enemy_occupied_tiles(preview_state))
+		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles)
+	if bool(preview.get("skip_allowed", false)):
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [])
+	var tiles: Array[Vector2i] = []
+	for tile_var: Variant in plans.keys():
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			tiles.append(tile_var)
+	return {
+		"plans": plans,
+		"tiles": tiles
+	}
+
+func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i]) -> void:
+	var followup: Dictionary = _next_shortcut_attack_step(base_state, actions, action_index + 1)
+	if followup.is_empty():
+		return
+	var followup_state: Dictionary = followup.get("state", {})
+	var followup_action: Dictionary = followup.get("action", {})
+	var followup_index: int = int(followup.get("action_index", -1))
+	for enemy_tile: Vector2i in _combat_engine.valid_targets_for_player_action(followup_state, followup_action):
+		var after_attack_state: Dictionary = _combat_engine.apply_player_action(followup_state, followup_action, enemy_tile)
+		var continuation: Dictionary = _card_preview_from_state(card_id, after_attack_state, actions, followup_index + 1, true)
+		if not bool(continuation.get("playable", false)):
+			continue
+		var existing: Dictionary = plans.get(enemy_tile, {})
+		if not existing.is_empty():
+			var existing_distance: int = int(existing.get("move_distance", 99999))
+			var existing_path_length: int = _vector2i_array(existing.get("path_tiles", [])).size()
+			if move_distance > existing_distance:
+				continue
+			if move_distance == existing_distance and path_tiles.size() >= existing_path_length:
+				continue
+		plans[enemy_tile] = {
+			"move_target": move_target,
+			"move_tile": move_tile,
+			"move_distance": move_distance,
+			"path_tiles": path_tiles.duplicate(),
+			"action_index": followup_index,
+			"action": followup_action.duplicate(true)
+		}
+
+func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index: int) -> Dictionary:
+	var working_state: Dictionary = state.duplicate(true)
+	var cursor: int = action_index
+	while cursor < actions.size():
+		var action: Dictionary = actions[cursor]
+		if not _combat_engine.player_action_can_resolve(working_state, action):
+			cursor += 1
+			continue
+		if _combat_engine.player_action_needs_target(action):
+			var action_type: String = str(action.get("type", ""))
+			if action_type not in SHORTCUT_ATTACK_TYPES:
+				return {}
+			return {
+				"state": working_state,
+				"action_index": cursor,
+				"action": action
+			}
+		working_state = _combat_engine.apply_player_action(working_state, action)
+		cursor += 1
+	return {}
 
 func _tiles_in_radius(center: Vector2i, radius: int, grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []
@@ -1731,12 +1842,13 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_pending_action_can_skip = false
 		_pending_target_tiles.clear()
 		_pending_selected_targets.clear()
+		_append_skipped_target_placeholders(0, _pending_action_index)
 		_refresh_ui()
 		await _play_player_card(
 			index,
 			(preview.get("state", {}) as Dictionary).duplicate(true),
 			(preview.get("actions", []) as Array).duplicate(true),
-			[]
+			_vector2i_array(_pending_selected_targets)
 		)
 		return
 	_selected_card_index = index
@@ -1746,6 +1858,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
 	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
 	_pending_selected_targets.clear()
+	_append_skipped_target_placeholders(0, _pending_action_index)
 	_refresh_ui()
 
 func _on_card_hover_started(index: int) -> void:
@@ -1777,26 +1890,23 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		return
 	if mode != "combat" or _selected_card_index < 0:
 		return
-	if not _pending_target_tiles.has(tile):
+	var preview: Dictionary = _active_card_preview()
+	var shortcut_plan: Dictionary = {}
+	if not preview.is_empty():
+		shortcut_plan = (_preview_shortcuts_for_current_action(preview).get("plans", {}) as Dictionary).get(tile, {}) as Dictionary
+	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
+		return
+	if not shortcut_plan.is_empty():
+		await _on_pending_shortcut_clicked(tile, shortcut_plan)
 		return
 	var action: Dictionary = _pending_actions[_pending_action_index]
+	var previous_action_index: int = _pending_action_index
 	_pending_selected_targets.append(tile)
 	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, action, tile)
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
-	if bool(next_preview.get("complete", false)):
-		await _play_player_card(
-			_selected_card_index,
-			(next_preview.get("state", {}) as Dictionary).duplicate(true),
-			_pending_actions.duplicate(true),
-			_vector2i_array(_pending_selected_targets)
-		)
-		return
-	_preview_combat_state = (next_preview.get("state", {}) as Dictionary).duplicate(true)
-	_pending_action_index = int(next_preview.get("action_index", 0))
-	_pending_action_can_skip = bool(next_preview.get("skip_allowed", false))
-	_pending_target_tiles = _vector2i_array(next_preview.get("target_tiles", []))
-	_refresh_ui()
+	_append_skipped_target_placeholders(previous_action_index + 1, int(next_preview.get("action_index", 0)))
+	await _apply_pending_preview_result(next_preview)
 
 func _on_cancel_requested() -> void:
 	if _dialogue_active:
@@ -1830,8 +1940,44 @@ func _current_action_can_skip() -> bool:
 func _on_skip_action_pressed() -> void:
 	if _animation_lock or not _current_action_can_skip():
 		return
+	var previous_action_index: int = _pending_action_index
+	_pending_selected_targets.append(INVALID_TARGET_TILE)
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
+	_append_skipped_target_placeholders(previous_action_index + 1, int(next_preview.get("action_index", 0)))
+	await _apply_pending_preview_result(next_preview)
+
+func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictionary) -> void:
+	var move_target: Vector2i = shortcut_plan.get("move_target", INVALID_TARGET_TILE)
+	var previous_action_index: int = _pending_action_index
+	_pending_selected_targets.append(move_target)
+	if move_target.x >= 0:
+		var move_action: Dictionary = _pending_actions[_pending_action_index]
+		_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, move_action, move_target)
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var attack_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
+	_append_skipped_target_placeholders(previous_action_index + 1, int(attack_preview.get("action_index", 0)))
+	if bool(attack_preview.get("complete", false)):
+		await _apply_pending_preview_result(attack_preview)
+		return
+	_load_pending_preview_state(attack_preview)
+	if not _pending_target_tiles.has(target_tile):
+		_refresh_ui()
+		return
+	var attack_action_index: int = _pending_action_index
+	_pending_selected_targets.append(target_tile)
+	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, _pending_actions[_pending_action_index], target_tile)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
+	_append_skipped_target_placeholders(attack_action_index + 1, int(next_preview.get("action_index", 0)))
+	await _apply_pending_preview_result(next_preview)
+
+func _load_pending_preview_state(preview: Dictionary) -> void:
+	_preview_combat_state = (preview.get("state", {}) as Dictionary).duplicate(true)
+	_pending_action_index = int(preview.get("action_index", 0))
+	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
+	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
+
+func _apply_pending_preview_result(next_preview: Dictionary) -> void:
 	if bool(next_preview.get("complete", false)):
 		await _play_player_card(
 			_selected_card_index,
@@ -1840,11 +1986,15 @@ func _on_skip_action_pressed() -> void:
 			_vector2i_array(_pending_selected_targets)
 		)
 		return
-	_preview_combat_state = (next_preview.get("state", {}) as Dictionary).duplicate(true)
-	_pending_action_index = int(next_preview.get("action_index", 0))
-	_pending_action_can_skip = bool(next_preview.get("skip_allowed", false))
-	_pending_target_tiles = _vector2i_array(next_preview.get("target_tiles", []))
+	_load_pending_preview_state(next_preview)
 	_refresh_ui()
+
+func _append_skipped_target_placeholders(start_action_index: int, end_action_index: int) -> void:
+	var safe_start: int = maxi(0, start_action_index)
+	var safe_end: int = mini(end_action_index, _pending_actions.size())
+	for index: int in range(safe_start, safe_end):
+		if _combat_engine.player_action_needs_target(_pending_actions[index]):
+			_pending_selected_targets.append(INVALID_TARGET_TILE)
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var card_id: String = _card_id_for_hand_index(hand_index)
@@ -1952,11 +2102,10 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	var target_index: int = 0
 	for action_var: Variant in actions:
 		var action: Dictionary = action_var
-		var target_tile: Vector2i = Vector2i(-1, -1)
+		var target_tile: Vector2i = INVALID_TARGET_TILE
 		if _combat_engine.player_action_needs_target(action):
-			if target_index >= selected_targets.size():
-				break
-			target_tile = selected_targets[target_index]
+			if target_index < selected_targets.size():
+				target_tile = selected_targets[target_index]
 			target_index += 1
 		var before_state: Dictionary = animated_state.duplicate(true)
 		var after_state: Dictionary = _combat_engine.apply_player_action(animated_state, action, target_tile)
@@ -1967,6 +2116,8 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i) -> void:
 	var action_type: String = str(action.get("type", ""))
+	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
+		return
 	var player_before: Dictionary = before_state.get("player", {})
 	var player_after: Dictionary = after_state.get("player", {})
 	var player_before_tile: Vector2i = player_before.get("pos", Vector2i.ZERO)
@@ -1984,12 +2135,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			for frame: int in range(1, MOVE_STEP_FRAMES + 1):
 				var t: float = float(frame) / float(MOVE_STEP_FRAMES)
 				var presentation: Dictionary = base_presentation.duplicate(true)
-				presentation["path_tiles"] = move_path
 				presentation["focus_tiles"] = move_path
 				presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
-				presentation["effect"] = {"kind": "move", "from": player_before_tile, "to": player_after_tile}
-				presentation["effect_progress"] = t
 				presentation["unit_world_positions"] = {"player": from_point.lerp(to_point, t)}
+				presentation["unit_draw_tiles"] = {"player": player_after_tile}
 				_render_board_state(before_state, presentation)
 				await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
 			_render_board_state(after_state, base_presentation)
@@ -2044,6 +2193,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					presentation["unit_world_positions"] = {
 						"player": from_point.lerp(to_point, 0.10 + sin(t * PI) * 0.24)
 					}
+					presentation["unit_draw_tiles"] = {"player": target_tile}
 				_render_board_state(before_state, presentation)
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
 			await _animate_floating_text_presentation(after_state, {
@@ -2187,6 +2337,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						presentation["unit_world_positions"] = {
 							step_actor_key: from_point.lerp(to_point, 0.08 + sin(t * PI) * 0.22)
 						}
+						presentation["unit_draw_tiles"] = {
+							step_actor_key: step.get("to", Vector2i.ZERO)
+						}
 					_render_board_state(animated_state, presentation)
 					await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
 				_apply_animation_step(animated_state, step)
@@ -2215,8 +2368,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 			"focus_tiles": [to_tile],
 			"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 			"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
-			"effect": step,
-			"effect_progress": t
+			"unit_draw_tiles": {actor_key: to_tile}
 		})
 		await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
 	_apply_animation_step(animated_state, step)
@@ -2224,6 +2376,9 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	await get_tree().create_timer(0.06).timeout
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
+	var rendered_presentation: Dictionary = presentation.duplicate(true)
+	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
+	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	board_view.set_combat_state(
 		display_state,
 		[],
@@ -2233,7 +2388,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		"",
 		{},
 		{},
-		presentation
+		rendered_presentation
 	)
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
@@ -2796,6 +2951,33 @@ func _exit_elements_for_board() -> Dictionary:
 		var room: Dictionary = option.get("room", {})
 		elements[option.get("door_tile", Vector2i(-1, -1))] = str(room.get("element", ElementData.NONE))
 	return elements
+
+func _active_door_tiles_for_board() -> Dictionary:
+	var active: Dictionary = {}
+	for option: Dictionary in _run_engine.exit_options(_run_state):
+		var door_tile: Vector2i = option.get("door_tile", INVALID_TARGET_TILE)
+		if door_tile.x < 0:
+			continue
+		active[door_tile] = true
+	return active
+
+func _locked_door_tiles_for_board() -> Dictionary:
+	var locked: Dictionary = {}
+	var current_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
+	var current_room: Dictionary = _run_engine.room_metadata(_run_state, current_coord)
+	for connection_var: Variant in current_room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var connection: Dictionary = connection_var
+		var destination: Vector2i = connection.get("coord", Vector2i(999, 999))
+		var destination_room: Dictionary = _run_engine.room_metadata(_run_state, destination)
+		if not bool(destination_room.get("visited", false)) or not bool(destination_room.get("sealed", false)):
+			continue
+		var door_tile: Vector2i = RoomGeneratorScript.door_tile_for_direction(connection.get("door_dir", Vector2i.ZERO))
+		if door_tile.x < 0:
+			continue
+		locked[door_tile] = true
+	return locked
 
 func _process_victory_banking() -> void:
 	var amount: int = _run_engine.bankable_embers(_run_state)

@@ -51,10 +51,13 @@ func _initialize() -> void:
 	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_crawler_idle_sheet_surfaces_for_idle_enemy()
+	_test_emaciated_man_uses_static_placeholder_art()
 	_test_acolyte_idle_sheet_honors_row_major_layout()
 	_test_acolyte_idle_speed_matches_default_cadence()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_foreground_props_fade_when_covering_behind_units()
+	_test_combat_board_hides_inactive_doors_but_preserves_locked_ones()
+	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_run_map_room_types()
 	_test_run_map_ring_links_and_outward_quarter()
@@ -71,6 +74,7 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_optional_followup_attack_stays_playable()
+	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_commits_play()
 	await _test_run_scene_damage_display_matches_bonus()
@@ -798,6 +802,22 @@ func _test_crawler_idle_sheet_surfaces_for_idle_enemy() -> void:
 	var focused_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
 	_assert(focused_texture == base_texture, "Focused crawlers should stop using idle frames while acting")
 
+func _test_emaciated_man_uses_static_placeholder_art() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.combat_state = {
+		"npcs": [{"id": "emaciated_man", "name": "Emaciated Man", "pos": Vector2i(3, 3)}]
+	}
+	board.presentation = {}
+	var npc_unit := {"key": "npc_emaciated_man_0", "role": "npc", "type": "emaciated_man", "pos": Vector2i(3, 3)}
+	var idle_frames: Array = board.call("_unit_idle_frames", npc_unit)
+	var npc_texture: Texture2D = board.call("_texture_for_unit", npc_unit)
+	var acolyte_texture: Texture2D = (board.get("_unit_textures") as Dictionary).get("acolyte", null)
+	_assert(idle_frames.is_empty(), "Emaciated Man placeholder art should not load an idle sheet")
+	_assert(npc_texture != null, "Emaciated Man placeholder art should load for board rendering")
+	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Ash Acolyte texture")
+
 func _test_acolyte_idle_sheet_honors_row_major_layout() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
@@ -839,6 +859,38 @@ func _test_foreground_props_fade_when_covering_behind_units() -> void:
 	_assert(is_equal_approx(clear_tint.a, 1.0), "Pillars should not fade for units that will draw in front of them")
 	var flat_tint: Color = board.call("_foreground_blocker_tint", "door", blocker_tile, prop_rect, [behind_unit])
 	_assert(is_equal_approx(flat_tint.a, 1.0), "Flat door terrain should not use foreground obstruction fading")
+	board.free()
+
+func _test_combat_board_hides_inactive_doors_but_preserves_locked_ones() -> void:
+	var board := CombatBoardView.new()
+	var grid: Array = _simple_grid()
+	grid[0][4] = "door"
+	var door_tile := Vector2i(4, 0)
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	_assert(board.call("_display_tile_id", "door", door_tile) == "wall", "Inactive doors should render as uninterrupted walls")
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"active_door_tiles": {door_tile: true}})
+	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Combat presentation should still show active connected doors")
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {door_tile: "N"}, {}, {})
+	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Usable exits should still render as doors")
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"locked_door_tiles": {door_tile: true}})
+	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Previously sealed traversal doors should stay visible as doors")
+	board.free()
+
+func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
+	var board := CombatBoardView.new()
+	board.combat_state = {"grid": _simple_grid()}
+	var from_tile := Vector2i(2, 2)
+	var to_tile := Vector2i(4, 4)
+	board.presentation = {
+		"unit_world_positions": {
+			"enemy_1": board.world_position_for_tile(to_tile)
+		},
+		"unit_draw_tiles": {
+			"enemy_1": to_tile
+		}
+	}
+	var draw_tile: Vector2i = board.call("_effective_unit_tile", {"key": "enemy_1", "pos": from_tile})
+	_assert(draw_tile == to_tile, "Moving units should use their presentation draw tile for stable layering during motion")
 	board.free()
 
 func _test_keyword_icon_library_surfaces_tooltips() -> void:
@@ -1197,6 +1249,68 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for move-attack shortcut coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(2, 5)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(5, 5),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0
+	}]
+	var combat_state: Dictionary = combat.create_combat(92, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["sidestep_slash"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["sidestep_slash"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	var enemy_tile := Vector2i(5, 5)
+	instance.call("_on_board_tile_hovered", enemy_tile)
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var attack_tiles: Array = board_view.get("attack_tiles")
+	_assert(attack_tiles.has(enemy_tile), "Move-attack previews should let the player click a reachable enemy directly")
+	var focus_tiles: Array = board_view.get("presentation").get("focus_tiles", [])
+	var typed_focus_tiles: bool = not focus_tiles.is_empty()
+	for tile_var: Variant in focus_tiles:
+		if typeof(tile_var) != TYPE_VECTOR2I:
+			typed_focus_tiles = false
+			break
+	_assert(typed_focus_tiles, "Hovering a shortcut target should produce typed focus tiles instead of crashing preview rendering")
+	await instance.call("_on_board_tile_clicked", enemy_tile)
+	var final_state: Dictionary = instance.get("_combat_state")
+	var player_tile: Vector2i = (final_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	_assert(player_tile == Vector2i(4, 5), "Enemy shortcut clicks should move only the minimum distance needed to attack")
+	var enemies: Array = final_state.get("enemies", [])
+	var enemy: Dictionary = enemies[0] if not enemies.is_empty() else {}
+	_assert(int(enemy.get("hp", 0)) == 9, "Enemy shortcut clicks should still resolve the follow-up attack")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_block_card_skips_dead_move() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -1508,12 +1622,14 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	var text_label: Label = instance.get("_dialogue_text_label")
 	_assert(dialogue_active, "Starting in the waypoint should auto-trigger the friendly NPC dialogue")
 	_assert(speaker_label != null and speaker_label.text == "Emaciated Man", "The start-room dialogue should identify the Emaciated Man as the speaker")
-	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon", "The opening NPC line should match the scripted default dialogue")
+	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon.", "The opening NPC line should match the scripted default dialogue")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
 	_assert(int(instance.get("_dialogue_line_index")) == 1, "Advancing after the first line should move to the second line")
+	_assert(text_label != null and text_label.text == "His creations got the best of you again.", "The second NPC line should preserve its trailing period")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
+	_assert(text_label != null and text_label.text == "Maybe this time's the one. Then again...probably not.", "The final NPC line should preserve its trailing period")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
 	_assert(not bool(instance.get("_dialogue_active")), "Advancing after the last NPC line should close the dialogue overlay")
