@@ -75,6 +75,7 @@ func _initialize() -> void:
 	await _test_run_scene_targetless_card_click_commits_play()
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_ranged_cards_show_range()
+	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_empty_discard_uses_short_caption()
 	await _test_run_scene_displays_owned_relic_icons()
@@ -1338,6 +1339,57 @@ func _test_run_scene_ranged_cards_show_range() -> void:
 	var board := CombatBoardView.new()
 	var intent_rows: Array = board.call("_intent_rows", {"actions": [{"type": "ranged", "damage": 4, "range": 4}]})
 	_assert(intent_rows.size() == 1 and str(((intent_rows[0] as Array)[1] as Dictionary).get("icon", "")) == "range", "Enemy shot intents should show attack range with the shared range icon")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for untyped preview-target coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(104, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["guarded_step"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["guarded_step"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	var target_tile := Vector2i(3, 4)
+	instance.set("_hovered_board_tile", target_tile)
+	await instance.call("_begin_card_preview", 0, {
+		"card_id": "guarded_step",
+		"state": combat_state,
+		"actions": [{"type": "move", "range": 1}],
+		"action_index": 0,
+		"target_tiles": [target_tile],
+		"complete": false,
+		"playable": true,
+		"action": {"type": "move", "range": 1},
+		"skip_allowed": false
+	})
+	instance.call("_refresh_stage_view")
+	var active_preview: Dictionary = instance.call("_active_card_preview")
+	var active_targets: Array = active_preview.get("target_tiles", [])
+	_assert(active_targets.size() == 1 and active_targets[0] == target_tile, "Run scene previews should preserve Vector2i target tiles when dictionaries provide plain arrays")
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var move_tiles: Array = board_view.get("move_tiles")
+	_assert(move_tiles.has(target_tile), "Stage refresh should accept untyped preview target arrays and surface them on the combat board")
 	instance.queue_free()
 	await process_frame
 

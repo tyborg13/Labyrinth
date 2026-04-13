@@ -1313,7 +1313,7 @@ func _refresh_stage_view() -> void:
 		preview = _active_card_preview()
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
 			var action: Dictionary = preview.get("action", {})
-			var target_tiles: Array[Vector2i] = preview.get("target_tiles", [])
+			var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 			if str(action.get("type", "")) in ["move", "blink"]:
 				move_tiles = target_tiles
 			else:
@@ -1323,8 +1323,8 @@ func _refresh_stage_view() -> void:
 				presentation[key] = preview_presentation[key]
 		elif _hovered_board_tile.x >= 0:
 			var threat_preview: Dictionary = _hovered_enemy_threat(display_state)
-			move_tiles = (threat_preview.get("move", []) as Array).duplicate()
-			attack_tiles = (threat_preview.get("attack", []) as Array).duplicate()
+			move_tiles = _vector2i_array(threat_preview.get("move", []))
+			attack_tiles = _vector2i_array(threat_preview.get("attack", []))
 			if threat_preview.has("enemy_key"):
 				presentation["focus_actor_keys"] = [str(threat_preview.get("enemy_key", ""))]
 				presentation["focus_actor_color"] = Color("f2ddb2")
@@ -1388,7 +1388,7 @@ func _active_card_preview() -> Dictionary:
 				"state": _preview_combat_state.duplicate(true),
 				"actions": _pending_actions.duplicate(true),
 				"action_index": _pending_action_index,
-				"target_tiles": _pending_target_tiles.duplicate(),
+				"target_tiles": _vector2i_array(_pending_target_tiles),
 				"complete": false,
 				"playable": true,
 				"action": _pending_actions[_pending_action_index],
@@ -1557,7 +1557,7 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 				"state": working_state,
 				"actions": actions.duplicate(true),
 				"action_index": cursor,
-				"target_tiles": valid_targets,
+				"target_tiles": _vector2i_array(valid_targets),
 				"complete": false,
 				"playable": not valid_targets.is_empty(),
 				"action": action,
@@ -1571,7 +1571,7 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 		"state": working_state,
 		"actions": actions.duplicate(true),
 		"action_index": cursor,
-		"target_tiles": [],
+		"target_tiles": _vector2i_array([]),
 		"complete": true,
 		"playable": effect_seen,
 		"action": {},
@@ -1609,7 +1609,7 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action_type: String = str(action.get("type", ""))
 	if _hovered_board_tile.x < 0:
 		return []
-	var valid_targets: Array[Vector2i] = preview.get("target_tiles", [])
+	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return []
 	if action_type in ["move", "blink"]:
@@ -1623,7 +1623,7 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action_type: String = str(action.get("type", ""))
 	if _hovered_board_tile.x < 0:
 		return []
-	var valid_targets: Array[Vector2i] = preview.get("target_tiles", [])
+	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return []
 	if action_type == "move":
@@ -1640,7 +1640,7 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var action_type: String = str(action.get("type", ""))
 	if _hovered_board_tile.x < 0:
 		return {}
-	var valid_targets: Array[Vector2i] = preview.get("target_tiles", [])
+	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return {}
 	var preview_state: Dictionary = preview.get("state", {})
@@ -1670,6 +1670,13 @@ func _tiles_in_radius(center: Vector2i, radius: int, grid: Array) -> Array[Vecto
 				continue
 			tiles.append(tile)
 	return tiles
+
+func _vector2i_array(values: Array) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for value: Variant in values:
+		if typeof(value) == TYPE_VECTOR2I:
+			result.append(value)
+	return result
 
 func _on_card_pressed(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -1737,7 +1744,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_actions = (preview.get("actions", []) as Array).duplicate(true)
 	_pending_action_index = int(preview.get("action_index", 0))
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
-	_pending_target_tiles = (preview.get("target_tiles", []) as Array).duplicate()
+	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
 	_pending_selected_targets.clear()
 	_refresh_ui()
 
@@ -1782,13 +1789,13 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 			_selected_card_index,
 			(next_preview.get("state", {}) as Dictionary).duplicate(true),
 			_pending_actions.duplicate(true),
-			_pending_selected_targets.duplicate()
+			_vector2i_array(_pending_selected_targets)
 		)
 		return
 	_preview_combat_state = (next_preview.get("state", {}) as Dictionary).duplicate(true)
 	_pending_action_index = int(next_preview.get("action_index", 0))
 	_pending_action_can_skip = bool(next_preview.get("skip_allowed", false))
-	_pending_target_tiles = (next_preview.get("target_tiles", []) as Array).duplicate()
+	_pending_target_tiles = _vector2i_array(next_preview.get("target_tiles", []))
 	_refresh_ui()
 
 func _on_cancel_requested() -> void:
@@ -1830,13 +1837,13 @@ func _on_skip_action_pressed() -> void:
 			_selected_card_index,
 			(next_preview.get("state", {}) as Dictionary).duplicate(true),
 			_pending_actions.duplicate(true),
-			_pending_selected_targets.duplicate()
+			_vector2i_array(_pending_selected_targets)
 		)
 		return
 	_preview_combat_state = (next_preview.get("state", {}) as Dictionary).duplicate(true)
 	_pending_action_index = int(next_preview.get("action_index", 0))
 	_pending_action_can_skip = bool(next_preview.get("skip_allowed", false))
-	_pending_target_tiles = (next_preview.get("target_tiles", []) as Array).duplicate()
+	_pending_target_tiles = _vector2i_array(next_preview.get("target_tiles", []))
 	_refresh_ui()
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
@@ -2010,7 +2017,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			})
 			await get_tree().create_timer(0.14).timeout
 		"melee", "ranged", "blast", "push", "pull":
-			var focus_tiles: Array[Vector2i] = [target_tile]
+			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile])
 			if action_type == "blast":
 				focus_tiles = _tiles_in_radius(target_tile, int(action.get("radius", 1)), before_state.get("grid", []))
 			var effect := {
@@ -2160,7 +2167,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"floating_texts": _floating_texts_for_step(step)
 				})
 			"melee", "ranged", "blast", "push", "pull":
-				var focus_tiles: Array[Vector2i] = [step.get("to", Vector2i(-1, -1))]
+				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
 				if str(step.get("kind", "")) == "blast":
 					focus_tiles = _tiles_in_radius(step.get("center", Vector2i(-1, -1)), int(step.get("radius", 1)), animated_state.get("grid", []))
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
