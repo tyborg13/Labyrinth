@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-13T19:21:24Z",
+  "updated_at": "2026-04-14T03:56:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -937,6 +937,50 @@
       "source": {
         "branch": "master",
         "commit": "fce14b0"
+      }
+    },
+    {
+      "id": "mnt_20260414T034403Z_7fe196e5",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Trap movement paths now minimize trap crossings before distance, and trap-applied freeze/shock/stun on players are deferred through pending_player_trap_restriction so they hit the next possible action after the current card resolves.",
+      "details": "Voluntary player move previews and move resolution share path_for_player_action, so the previewed route matches the actual step-by-step trap triggers. Enemies treat trap tiles as blocked for intent previews and voluntary movement, but forced movement can still push or pull units through traps and trigger them immediately.",
+      "status": "active",
+      "created_at": "2026-04-14T03:44:03Z",
+      "updated_at": "2026-04-14T03:44:03Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "4d9a456"
+      }
+    },
+    {
+      "id": "mnt_20260414T035121Z_e4ca6cab",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "move_to_room must refresh its local rooms snapshot after _reveal_neighbors before non-combat room branches mutate room state, or treasure/campfire/NPC transitions can overwrite newly revealed exits and strand the run in a false dead end.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-04-14T03:51:21Z",
+      "updated_at": "2026-04-14T03:51:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "4d9a456"
       }
     }
   ]

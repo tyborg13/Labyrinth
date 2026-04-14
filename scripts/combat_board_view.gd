@@ -27,6 +27,7 @@ const ENEMY_BAR_FILL: Color = Color("d06752")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
+const STATUS_STUN: Color = Color("82d6c7")
 const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
@@ -233,6 +234,13 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 			continue
 		var loot_rect: Rect2 = _loot_rect_for_tile(tile)
 		draw_texture_rect(loot_texture, loot_rect, false)
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if trap.get("pos", Vector2i(-1, -1)) != tile:
+			continue
+		_draw_trap_marker(trap)
 
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, units_to_draw: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
@@ -314,6 +322,7 @@ func _visible_units() -> Array[Dictionary]:
 			"burn": int(player_statuses.get("burn", 0)),
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
+			"stun": int(player_statuses.get("stun", 0)),
 			"poison": player.get("poison", {}).duplicate(true)
 		})
 	for enemy: Dictionary in combat_state.get("enemies", []):
@@ -332,6 +341,7 @@ func _visible_units() -> Array[Dictionary]:
 			"burn": int(enemy.get("burn", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
+			"stun": int(enemy.get("stun", 0)),
 			"poison": enemy.get("poison", {}).duplicate(true)
 		})
 	for npc_index: int in range((combat_state.get("npcs", []) as Array).size()):
@@ -996,7 +1006,22 @@ func _draw_floating_texts() -> void:
 		draw_string(font, text_pos, str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, 48.0, 16, color)
 
 func _draw_path_preview() -> void:
-	return
+	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
+	if path_tiles.is_empty():
+		return
+	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
+	var point_offset := Vector2(0.0, -8.0)
+	if path_tiles.size() == 1:
+		draw_circle(_tile_center(path_tiles[0]) + point_offset, 6.0, Color(color.r, color.g, color.b, 0.82))
+		return
+	for index: int in range(path_tiles.size() - 1):
+		var from_point: Vector2 = _tile_center(path_tiles[index]) + point_offset
+		var to_point: Vector2 = _tile_center(path_tiles[index + 1]) + point_offset
+		draw_line(from_point, to_point, Color(0.0, 0.0, 0.0, 0.18), 6.0, true)
+		draw_line(from_point, to_point, color, 3.0, true)
+	for tile: Vector2i in path_tiles:
+		draw_circle(_tile_center(tile) + point_offset, 4.5, Color(0.08, 0.07, 0.05, 0.9))
+		draw_circle(_tile_center(tile) + point_offset, 3.0, color)
 
 func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 	var focus_keys: Array = presentation.get("focus_actor_keys", [])
@@ -1428,6 +1453,13 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_SHOCK,
 			"border": STATUS_SHOCK.lightened(0.18)
 		})
+	if int(unit.get("stun", 0)) > 0:
+		badges.append({
+			"icon": "stun",
+			"count": 0,
+			"fill": STATUS_STUN,
+			"border": STATUS_STUN.lightened(0.18)
+		})
 	var poison: Dictionary = unit.get("poison", {})
 	if int(poison.get("damage", 0)) > 0 and int(poison.get("delay", 0)) > 0:
 		badges.append({
@@ -1442,7 +1474,8 @@ func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> D
 	return {
 		"burn": int(player.get("burn", 0)),
 		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
-		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0)
+		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0),
+		"stun": maxi(int(player.get("stun", 0)), 1 if bool(restrictions.get("stunned", false)) else 0)
 	}
 
 func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
@@ -1472,3 +1505,36 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 func _update_cursor_shape() -> void:
 	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile)
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if is_hot else Control.CURSOR_ARROW
+
+func _draw_trap_marker(trap: Dictionary) -> void:
+	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	if tile.x < 0:
+		return
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -18.0)
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var accent: Color = ElementData.accent(element_id)
+	draw_circle(center, 13.0, Color(accent.r, accent.g, accent.b, 0.78))
+	draw_arc(center, 13.0, 0.0, TAU, 22, Color("1a130f"), 2.0)
+	draw_line(center + Vector2(-8.0, -8.0), center + Vector2(8.0, 8.0), Color("1a130f"), 2.0, true)
+	draw_line(center + Vector2(8.0, -8.0), center + Vector2(-8.0, 8.0), Color("1a130f"), 2.0, true)
+	var icon_texture: Texture2D = _element_textures.get(element_id, null)
+	var icon_rect := Rect2(center - Vector2(8.0, 18.0), Vector2(16.0, 16.0))
+	if icon_texture != null:
+		draw_texture_rect(icon_texture, icon_rect, false)
+	var tooltip_rect := Rect2(center - Vector2(14.0, 20.0), Vector2(28.0, 34.0))
+	_register_tooltip(tooltip_rect, _trap_tooltip_text(trap))
+
+func _trap_tooltip_text(trap: Dictionary) -> String:
+	var lines: PackedStringArray = ["%s Trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
+	lines.append("%d damage" % int(trap.get("damage", 0)))
+	if int(trap.get("burn", 0)) > 0:
+		lines.append("Burn %d" % int(trap.get("burn", 0)))
+	if int(trap.get("freeze", 0)) > 0:
+		lines.append("Freeze")
+	if int(trap.get("shock", 0)) > 0:
+		lines.append("Shock")
+	if int(trap.get("stun", 0)) > 0:
+		lines.append("Stun")
+	if int(trap.get("poison", 0)) > 0:
+		lines.append("Poison %d" % int(trap.get("poison", 0)))
+	return "\n".join(lines)

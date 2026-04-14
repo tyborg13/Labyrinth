@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RoomGenerator
 
+const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 
@@ -111,6 +112,9 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var npcs: Array[Dictionary] = _build_room_npcs(grid, player_start, npc_specs, rng, occupied)
 	for npc: Dictionary in npcs:
 		occupied[npc.get("pos", Vector2i(-1, -1))] = true
+	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, depth, player_start, rng, occupied)
+	for trap: Dictionary in traps:
+		occupied[trap.get("pos", Vector2i(-1, -1))] = true
 	var loot: Array = []
 	if npcs.is_empty():
 		loot = _generate_loot(grid, room_type, depth, rng, occupied)
@@ -125,6 +129,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"player_start": player_start,
 		"npcs": npcs,
 		"enemies": enemies,
+		"traps": traps,
 		"loot": loot,
 		"theme": _theme_id(rng)
 	}
@@ -342,6 +347,63 @@ func _generate_loot(grid: Array, room_type: String, depth: int, rng: RandomNumbe
 		"pos": loot_tile
 	})
 	return loot
+
+func _generate_traps(grid: Array, room_type: String, room_element: String, depth: int, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+	var traps: Array[Dictionary] = []
+	if room_type not in ["combat", "boss"]:
+		return traps
+	if not ElementData.is_elemental(room_element):
+		return traps
+	var candidates: Array[Vector2i] = []
+	for tile: Vector2i in _floor_tiles(grid):
+		if occupied.has(tile):
+			continue
+		if PathUtils.manhattan(tile, player_start) < 2:
+			continue
+		candidates.append(tile)
+	if candidates.is_empty():
+		return traps
+	var max_traps: int = mini(3, depth) if room_type == "combat" else 3
+	var trap_count: int = rng.randi_range(1, maxi(1, max_traps)) if room_type == "combat" else rng.randi_range(2, 3)
+	var chosen: Array[Vector2i] = []
+	while chosen.size() < trap_count and not candidates.is_empty():
+		var best_index: int = 0
+		var best_score: float = -INF
+		for index: int in range(candidates.size()):
+			var tile: Vector2i = candidates[index]
+			var score: float = float(PathUtils.manhattan(tile, player_start)) * 0.55
+			for existing: Vector2i in chosen:
+				score += float(PathUtils.manhattan(tile, existing)) * 0.75
+			score += -tile.distance_to(Vector2((ROOM_WIDTH - 1) * 0.5, (ROOM_HEIGHT - 1) * 0.5)) * 0.18
+			score += rng.randf() * 0.2
+			if score > best_score:
+				best_score = score
+				best_index = index
+		var trap_tile: Vector2i = candidates[best_index]
+		candidates.remove_at(best_index)
+		chosen.append(trap_tile)
+		traps.append(_trap_for_tile(trap_tile, room_element, depth))
+	return traps
+
+func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Dictionary:
+	var trap: Dictionary = {
+		"id": "trap_%d_%d" % [tile.x, tile.y],
+		"pos": tile,
+		"element": room_element,
+		"damage": clampi(1 + depth, 2, 4)
+	}
+	match room_element:
+		ElementData.FIRE:
+			trap["burn"] = 1 if depth <= 1 else 2 if depth == 2 else 3
+		ElementData.ICE:
+			trap["freeze"] = 1
+		ElementData.LIGHTNING:
+			trap["shock"] = 1
+		ElementData.AIR:
+			trap["stun"] = 1
+		ElementData.EARTH:
+			trap["poison"] = 2 if depth <= 2 else 3
+	return trap
 
 func _floor_tiles(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []

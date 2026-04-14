@@ -36,6 +36,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"grid": room_layout.get("grid", []).duplicate(true),
 		"player": player,
 		"enemies": enemies,
+		"traps": room_layout.get("traps", []).duplicate(true),
 		"loot": room_layout.get("loot", []).duplicate(true),
 		"relics": player_snapshot.get("relics", []).duplicate(),
 		"hand_size": int(player_snapshot.get("hand_size", 5)),
@@ -54,8 +55,10 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"turn": 1,
 		"player_turn_restrictions": {
 			"frozen": false,
-			"shocked": false
+			"shocked": false,
+			"stunned": false
 		},
+		"pending_player_trap_restriction": "",
 		"turn_flags": {
 			"first_attack_bonus_used": false,
 			"first_move_bonus_used": false
@@ -80,9 +83,10 @@ func player_action_needs_target(action: Dictionary) -> bool:
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
-	if bool((state.get("player_turn_restrictions", {}) as Dictionary).get("frozen", false)):
+	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
+	if bool(restrictions.get("frozen", false)) or bool(restrictions.get("stunned", false)):
 		return false
-	if bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)):
+	if bool(restrictions.get("shocked", false)):
 		return action_type in ["move", "blink"]
 	return true
 
@@ -145,6 +149,18 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 				targets.append(enemy_pos)
 	return targets
 
+func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var action_type: String = str(action.get("type", ""))
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	match action_type:
+		"move":
+			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+			return _actual_player_movement_path(state, player_pos, target_tile, move_range)
+		"blink":
+			return [target_tile] if target_tile.x >= 0 else []
+		_:
+			return []
+
 func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if not player_action_can_resolve(next_state, action):
@@ -155,16 +171,16 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 	match action_type:
 		"move":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
-				player["pos"] = target_tile
-				next_state["player"] = player
+				var movement_path: Array[Vector2i] = path_for_player_action(next_state, action, target_tile)
+				next_state = _move_player_along_path(next_state, movement_path)
 				_mark_first_move_used(next_state)
-				_collect_loot_at_player(next_state)
-				_log(next_state, "Moved to %s." % str(target_tile))
+				_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 		"blink":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				player["pos"] = target_tile
 				next_state["player"] = player
 				_collect_loot_at_player(next_state)
+				next_state = _trigger_trap_on_player(next_state)
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			next_state = _attack_enemy_on_tile(next_state, action, target_tile, "melee")
@@ -217,6 +233,10 @@ func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 		next_state = _lose_player_health(next_state, health_cost, true, false)
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + 1
+	next_state = _apply_pending_player_trap_restriction(next_state)
+	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
+	if bool(restrictions.get("frozen", false)) or bool(restrictions.get("stunned", false)):
+		next_state["cards_played_this_turn"] = int(next_state.get("cards_per_turn", BASE_CARDS_PER_TURN))
 	return next_state
 
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
@@ -236,6 +256,8 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
 	occupied[player_pos] = true
+	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
+		occupied[trap_tile_var] = true
 	var frontier: Array[Vector2i] = [enemy.get("pos", Vector2i.ZERO)]
 	var move_lookup: Dictionary = {}
 	var attack_lookup: Dictionary = {}
@@ -328,8 +350,10 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["cards_played_this_turn"] = 0
 	next_state["player_turn_restrictions"] = {
 		"frozen": false,
-		"shocked": false
+		"shocked": false,
+		"stunned": false
 	}
+	next_state["pending_player_trap_restriction"] = ""
 	next_state["turn_flags"] = {
 		"first_attack_bonus_used": false,
 		"first_move_bonus_used": false
@@ -338,7 +362,8 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state = _draw_cards_in_place(next_state, int(next_state.get("draw_per_turn", BASE_DRAW_PER_TURN)))
-	if bool((next_state.get("player_turn_restrictions", {}) as Dictionary).get("frozen", false)):
+	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
+	if bool(restrictions.get("frozen", false)) or bool(restrictions.get("stunned", false)):
 		next_state["cards_played_this_turn"] = int(next_state.get("cards_per_turn", BASE_CARDS_PER_TURN))
 	return next_state
 
@@ -632,6 +657,7 @@ func _normalized_unit(unit_value: Variant) -> Dictionary:
 	unit["burn"] = int(unit.get("burn", 0))
 	unit["freeze"] = int(unit.get("freeze", 0))
 	unit["shock"] = int(unit.get("shock", 0))
+	unit["stun"] = int(unit.get("stun", 0))
 	var poison_value: Variant = unit.get("poison", {})
 	var poison: Dictionary = {}
 	if typeof(poison_value) == TYPE_DICTIONARY:
@@ -647,6 +673,7 @@ func _action_has_keyword_effect(action: Dictionary) -> bool:
 		int(action.get("burn", 0)) > 0
 		or int(action.get("freeze", 0)) > 0
 		or int(action.get("shock", 0)) > 0
+		or int(action.get("stun", 0)) > 0
 		or int(action.get("poison", 0)) > 0
 		or int(action.get("push", 0)) > 0
 		or int(action.get("pull", 0)) > 0
@@ -667,6 +694,8 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), int(action.get("freeze", 0)))
 	if int(action.get("shock", 0)) > 0:
 		enemy["shock"] = maxi(int(enemy.get("shock", 0)), int(action.get("shock", 0)))
+	if int(action.get("stun", 0)) > 0:
+		enemy["stun"] = maxi(int(enemy.get("stun", 0)), int(action.get("stun", 0)))
 	if int(action.get("poison", 0)) > 0:
 		var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
 		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
@@ -689,6 +718,8 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 		player["freeze"] = maxi(int(player.get("freeze", 0)), int(action.get("freeze", 0)))
 	if int(action.get("shock", 0)) > 0:
 		player["shock"] = maxi(int(player.get("shock", 0)), int(action.get("shock", 0)))
+	if int(action.get("stun", 0)) > 0:
+		player["stun"] = maxi(int(player.get("stun", 0)), int(action.get("stun", 0)))
 	if int(action.get("poison", 0)) > 0:
 		var poison: Dictionary = player.get("poison", {}).duplicate(true)
 		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
@@ -820,70 +851,287 @@ func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Ve
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size() or amount <= 0:
 		return next_state
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var destination: Vector2i = enemy.get("pos", Vector2i.ZERO)
-	if pushing:
-		destination = _best_tile_away_from_source(next_state.get("grid", []), destination, source_pos, amount, _occupied_enemy_tiles(next_state, int(enemy.get("id", -1))), (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99)))
-	else:
-		destination = _best_tile_toward_source(next_state.get("grid", []), destination, source_pos, amount, _occupied_enemy_tiles(next_state, int(enemy.get("id", -1))))
-	enemy["pos"] = destination
-	enemies[enemy_index] = enemy
-	next_state["enemies"] = enemies
+	for _step: int in range(amount):
+		enemies = next_state.get("enemies", [])
+		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			break
+		var current: Vector2i = enemy.get("pos", Vector2i.ZERO)
+		var occupied: Dictionary = _occupied_enemy_tiles(next_state, int(enemy.get("id", -1)))
+		var next_tile: Vector2i = (
+			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, occupied, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99)))
+			if pushing
+			else _next_tile_toward_source(next_state.get("grid", []), current, source_pos, occupied)
+		)
+		if next_tile == current:
+			break
+		enemy["pos"] = next_tile
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
+		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+			break
 	return next_state
 
 func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: int, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state
 	if amount <= 0:
 		return next_state
-	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	var enemy_occupied: Dictionary = _occupied_enemy_tiles(next_state)
-	var destination: Vector2i = player.get("pos", Vector2i.ZERO)
-	if pushing:
-		destination = _best_tile_away_from_source(next_state.get("grid", []), destination, source_pos, amount, enemy_occupied, Vector2i(-99, -99))
-	else:
-		destination = _best_tile_toward_source(next_state.get("grid", []), destination, source_pos, amount, enemy_occupied)
-	player["pos"] = destination
-	next_state["player"] = player
-	_collect_loot_at_player(next_state)
+	for _step: int in range(amount):
+		var player: Dictionary = _normalized_player(next_state.get("player", {}))
+		var current: Vector2i = player.get("pos", Vector2i.ZERO)
+		var enemy_occupied: Dictionary = _occupied_enemy_tiles(next_state)
+		var next_tile: Vector2i = (
+			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, enemy_occupied, Vector2i(-99, -99))
+			if pushing
+			else _next_tile_toward_source(next_state.get("grid", []), current, source_pos, enemy_occupied)
+		)
+		if next_tile == current:
+			break
+		player["pos"] = next_tile
+		next_state["player"] = player
+		_collect_loot_at_player(next_state)
+		next_state = _trigger_trap_on_player(next_state)
+		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+			break
 	return next_state
 
-func _best_tile_away_from_source(grid: Array, start: Vector2i, source_pos: Vector2i, amount: int, occupied: Dictionary, blocked_target: Vector2i) -> Vector2i:
-	var current: Vector2i = start
-	for _step: int in range(amount):
-		var best_tile: Vector2i = current
-		var best_score: int = PathUtils.manhattan(current, source_pos)
-		for dir: Vector2i in PathUtils.DIRS_4:
-			var candidate: Vector2i = current + dir
-			if candidate == blocked_target:
-				continue
-			if occupied.has(candidate):
-				continue
-			if not PathUtils.is_passable(grid, candidate):
-				continue
-			var score: int = PathUtils.manhattan(candidate, source_pos)
-			if score > best_score:
-				best_score = score
-				best_tile = candidate
-		if best_tile == current:
+func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictionary:
+	var next_state: Dictionary = state
+	if path.size() <= 1:
+		return next_state
+	for step_index: int in range(1, path.size()):
+		var player: Dictionary = _normalized_player(next_state.get("player", {}))
+		player["pos"] = path[step_index]
+		next_state["player"] = player
+		_collect_loot_at_player(next_state)
+		next_state = _trigger_trap_on_player(next_state)
+		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
-		current = best_tile
-	return current
+	return next_state
 
-func _best_tile_toward_source(grid: Array, start: Vector2i, source_pos: Vector2i, amount: int, occupied: Dictionary) -> Vector2i:
+func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vector2i, max_distance: int) -> Array[Vector2i]:
+	if max_distance <= 0:
+		return []
+	return _lowest_trap_path(
+		state.get("grid", []),
+		start,
+		goal,
+		max_distance,
+		_occupied_enemy_tiles(state),
+		_trap_tiles_lookup(state)
+	)
+
+func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distance: int, occupied: Dictionary, trap_tiles: Dictionary) -> Array[Vector2i]:
+	var empty: Array[Vector2i] = []
+	if start == goal:
+		return [start]
+	if max_distance <= 0:
+		return empty
+	var grid_height: int = grid.size()
+	var grid_width: int = (grid[0] as Array).size() if grid_height > 0 else 0
+	var trap_weight: int = grid_height * maxi(1, grid_width) + 1
+	var frontier: Array[Vector2i] = [start]
+	var came_from: Dictionary = {start: start}
+	var step_costs: Dictionary = {start: 0}
+	var path_costs: Dictionary = {start: 0}
+	while not frontier.is_empty():
+		var best_index: int = 0
+		var best_tile: Vector2i = frontier[0]
+		var best_cost: int = int(path_costs.get(best_tile, 0))
+		for index: int in range(1, frontier.size()):
+			var candidate: Vector2i = frontier[index]
+			var candidate_cost: int = int(path_costs.get(candidate, 0))
+			if candidate_cost < best_cost:
+				best_index = index
+				best_tile = candidate
+				best_cost = candidate_cost
+		var current: Vector2i = best_tile
+		frontier.remove_at(best_index)
+		if current == goal:
+			break
+		var current_steps: int = int(step_costs.get(current, 0))
+		if current_steps >= max_distance:
+			continue
+		for dir: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current + dir
+			if not PathUtils.is_passable(grid, next_tile):
+				continue
+			if occupied.has(next_tile) and next_tile != goal:
+				continue
+			var next_steps: int = current_steps + 1
+			if next_steps > max_distance:
+				continue
+			var trap_cost: int = trap_weight if trap_tiles.has(next_tile) else 0
+			var next_cost: int = best_cost + trap_cost + 1
+			if path_costs.has(next_tile) and next_cost >= int(path_costs.get(next_tile, 0)):
+				continue
+			path_costs[next_tile] = next_cost
+			step_costs[next_tile] = next_steps
+			came_from[next_tile] = current
+			if not frontier.has(next_tile):
+				frontier.append(next_tile)
+	if not came_from.has(goal):
+		return empty
+	var path: Array[Vector2i] = [goal]
+	var cursor: Vector2i = goal
+	while cursor != start:
+		cursor = came_from[cursor]
+		path.push_front(cursor)
+	return path
+
+func _trigger_trap_on_player(state: Dictionary) -> Dictionary:
+	var trap_index: int = _trap_index_at_tile(state, (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1)))
+	if trap_index < 0:
+		return state
+	var next_state: Dictionary = state
+	var traps: Array = next_state.get("traps", []).duplicate(true)
+	var trap: Dictionary = traps[trap_index]
+	traps.remove_at(trap_index)
+	next_state["traps"] = traps
+	var damage: int = int(trap.get("damage", 0))
+	if damage > 0:
+		next_state = _damage_player(next_state, damage, false)
+	next_state = _apply_trap_keywords_to_player(next_state, trap)
+	_log(next_state, _trap_trigger_log(trap))
+	return next_state
+
+func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var trap_index: int = _trap_index_at_tile(state, enemy.get("pos", Vector2i(-1, -1)))
+	if trap_index < 0:
+		return state
+	var next_state: Dictionary = state
+	var traps: Array = next_state.get("traps", []).duplicate(true)
+	var trap: Dictionary = traps[trap_index]
+	traps.remove_at(trap_index)
+	next_state["traps"] = traps
+	var damage: int = int(trap.get("damage", 0))
+	if damage > 0:
+		next_state = _damage_enemy(next_state, enemy_index, damage)
+	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
+		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, enemy.get("pos", Vector2i.ZERO))
+	_log(next_state, _trap_trigger_log(trap))
+	return next_state
+
+func _apply_trap_keywords_to_player(state: Dictionary, trap: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	if int(trap.get("burn", 0)) > 0:
+		player["burn"] = int(player.get("burn", 0)) + int(trap.get("burn", 0))
+	if int(trap.get("poison", 0)) > 0:
+		var poison: Dictionary = player.get("poison", {}).duplicate(true)
+		poison["damage"] = int(poison.get("damage", 0)) + int(trap.get("poison", 0))
+		poison["delay"] = 2
+		player["poison"] = poison
+	var restriction_kind: String = _trap_action_blocker_kind(trap)
+	if restriction_kind.is_empty():
+		next_state["player"] = player
+		return next_state
+	if _player_trap_applies_this_turn(next_state):
+		next_state["player"] = player
+		next_state["pending_player_trap_restriction"] = _stronger_restriction(
+			str(next_state.get("pending_player_trap_restriction", "")),
+			restriction_kind
+		)
+		return next_state
+	player[restriction_kind] = maxi(int(player.get(restriction_kind, 0)), int(trap.get(restriction_kind, 0)))
+	next_state["player"] = player
+	return next_state
+
+func _player_trap_applies_this_turn(state: Dictionary) -> bool:
+	return cards_remaining_this_turn(state) > 1
+
+func _trap_action_blocker_kind(trap: Dictionary) -> String:
+	if int(trap.get("stun", 0)) > 0:
+		return "stun"
+	if int(trap.get("freeze", 0)) > 0:
+		return "freeze"
+	if int(trap.get("shock", 0)) > 0:
+		return "shock"
+	return ""
+
+func _stronger_restriction(current_kind: String, next_kind: String) -> String:
+	if current_kind.is_empty():
+		return next_kind
+	if current_kind in ["freeze", "stun"]:
+		return current_kind
+	return next_kind
+
+func _apply_pending_player_trap_restriction(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var restriction_kind: String = str(next_state.get("pending_player_trap_restriction", ""))
+	if restriction_kind.is_empty():
+		return next_state
+	next_state["pending_player_trap_restriction"] = ""
+	var restrictions: Dictionary = (next_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+	match restriction_kind:
+		"freeze":
+			restrictions["frozen"] = true
+		"shock":
+			restrictions["shocked"] = true
+		"stun":
+			restrictions["stunned"] = true
+	next_state["player_turn_restrictions"] = restrictions
+	return next_state
+
+func _trap_trigger_log(trap: Dictionary) -> String:
+	var parts: PackedStringArray = ["%s trap hits for %d." % [ElementData.name(str(trap.get("element", ElementData.NONE))), int(trap.get("damage", 0))]]
+	if int(trap.get("burn", 0)) > 0:
+		parts.append("Burn %d." % int(trap.get("burn", 0)))
+	if int(trap.get("freeze", 0)) > 0:
+		parts.append("Freeze.")
+	if int(trap.get("shock", 0)) > 0:
+		parts.append("Shock.")
+	if int(trap.get("stun", 0)) > 0:
+		parts.append("Stun.")
+	if int(trap.get("poison", 0)) > 0:
+		parts.append("Poison %d." % int(trap.get("poison", 0)))
+	return " ".join(parts)
+
+func _trap_tiles_lookup(state: Dictionary) -> Dictionary:
+	var lookup: Dictionary = {}
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		lookup[trap.get("pos", Vector2i(-1, -1))] = true
+	return lookup
+
+func _trap_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
+	var traps: Array = state.get("traps", [])
+	for index: int in range(traps.size()):
+		var trap: Dictionary = traps[index]
+		if trap.get("pos", Vector2i(-1, -1)) == tile:
+			return index
+	return -1
+
+func _next_tile_away_from_source(grid: Array, start: Vector2i, source_pos: Vector2i, occupied: Dictionary, blocked_target: Vector2i) -> Vector2i:
+	var best_tile: Vector2i = start
+	var best_score: int = PathUtils.manhattan(start, source_pos)
+	for dir: Vector2i in PathUtils.DIRS_4:
+		var candidate: Vector2i = start + dir
+		if candidate == blocked_target:
+			continue
+		if occupied.has(candidate):
+			continue
+		if not PathUtils.is_passable(grid, candidate):
+			continue
+		var score: int = PathUtils.manhattan(candidate, source_pos)
+		if score > best_score:
+			best_score = score
+			best_tile = candidate
+	return best_tile
+
+func _next_tile_toward_source(grid: Array, start: Vector2i, source_pos: Vector2i, occupied: Dictionary) -> Vector2i:
 	var path: Array[Vector2i] = PathUtils.find_path(grid, start, source_pos, occupied, true)
 	if path.is_empty():
 		return start
-	var current: Vector2i = start
-	var steps_taken: int = 0
-	for index: int in range(1, path.size()):
-		var candidate: Vector2i = path[index]
-		if candidate == source_pos:
-			break
-		current = candidate
-		steps_taken += 1
-		if steps_taken >= amount:
-			break
-	return current
+	var candidate: Vector2i = path[1] if path.size() > 1 else start
+	return start if candidate == source_pos else candidate
 
 func _apply_enemy_self_damage(state: Dictionary, enemy_index: int, amount: int) -> Dictionary:
 	if amount <= 0:
@@ -966,6 +1214,20 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			"label": "Frozen",
 			"text": "Frozen"
 		})
+	elif int(enemy.get("stun", 0)) > 0:
+		enemy["stun"] = maxi(0, int(enemy.get("stun", 0)) - 1)
+		var stunned_enemies: Array = next_state.get("enemies", [])
+		stunned_enemies[enemy_index] = enemy
+		next_state["enemies"] = stunned_enemies
+		skip_all = true
+		steps.append({
+			"kind": "status",
+			"actor_key": _enemy_key(enemy),
+			"actor_name": actor_name,
+			"tile": enemy.get("pos", Vector2i.ZERO),
+			"label": "Stunned",
+			"text": "Stunned"
+		})
 	elif int(enemy.get("shock", 0)) > 0:
 		enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
 		var shocked_enemies: Array = next_state.get("enemies", [])
@@ -1013,12 +1275,17 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 		next_state["player"] = player
 	var restrictions: Dictionary = {
 		"frozen": false,
-		"shocked": false
+		"shocked": false,
+		"stunned": false
 	}
 	if int(player.get("freeze", 0)) > 0:
 		player["freeze"] = maxi(0, int(player.get("freeze", 0)) - 1)
 		restrictions["frozen"] = true
 		_log(next_state, "Frozen this turn.")
+	elif int(player.get("stun", 0)) > 0:
+		player["stun"] = maxi(0, int(player.get("stun", 0)) - 1)
+		restrictions["stunned"] = true
+		_log(next_state, "Stunned this turn.")
 	elif int(player.get("shock", 0)) > 0:
 		player["shock"] = maxi(0, int(player.get("shock", 0)) - 1)
 		restrictions["shocked"] = true
@@ -1117,6 +1384,8 @@ func _player_status_step_text(before_player: Dictionary, after_player: Dictionar
 		tags.append("Freeze")
 	if int(after_player.get("shock", 0)) > int(before_player.get("shock", 0)):
 		tags.append("Shock")
+	if int(after_player.get("stun", 0)) > int(before_player.get("stun", 0)):
+		tags.append("Stun")
 	var before_poison: Dictionary = before_player.get("poison", {})
 	var after_poison: Dictionary = after_player.get("poison", {})
 	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
@@ -1376,6 +1645,8 @@ func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, mo
 	if move_range <= 0:
 		return start
 	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
+	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
+		occupied[trap_tile_var] = true
 	var path: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), start, target, occupied, true)
 	if path.is_empty():
 		return start
@@ -1394,6 +1665,8 @@ func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move
 	if move_range <= 0:
 		return start
 	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
+	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
+		occupied[trap_tile_var] = true
 	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(state.get("grid", []), start, move_range, occupied)
 	var best_tile: Vector2i = start
 	var best_score: int = PathUtils.manhattan(start, target)

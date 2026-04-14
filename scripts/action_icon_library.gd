@@ -76,6 +76,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Disrupts the affected unit's next action.",
 		"path": "%s/shock.svg" % ICON_ROOT
 	},
+	"stun": {
+		"label": "Stun",
+		"description": "Skips the affected unit's next action.",
+		"path": "%s/shock.svg" % ICON_ROOT
+	},
 	"poison": {
 		"label": "Poison",
 		"description": "Delayed damage that lands after its countdown.",
@@ -246,6 +251,8 @@ static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 		tokens.append(token_for("freeze", int(action.get("freeze", 0))))
 	if int(action.get("shock", 0)) > 0:
 		tokens.append(token_for("shock", int(action.get("shock", 0))))
+	if int(action.get("stun", 0)) > 0:
+		tokens.append(token_for("stun", int(action.get("stun", 0))))
 	if int(action.get("chain", 0)) > 0:
 		tokens.append(token_for("chain", int(action.get("chain", 0))))
 	if int(action.get("push", 0)) > 0:

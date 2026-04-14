@@ -24,6 +24,7 @@ func _initialize() -> void:
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
 	_test_room_generation_blocks_door_tiles()
+	_test_room_generation_populates_elemental_traps()
 	_test_room_generation_scales_enemy_density()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
@@ -38,12 +39,17 @@ func _initialize() -> void:
 	_test_elemental_room_rewards_follow_affinity(default_progression)
 	_test_chain_hits_clustered_enemies()
 	_test_freeze_and_shock_control_turn_flow()
+	_test_traps_trigger_and_apply_current_turn_control()
+	_test_traps_roll_control_to_next_turn_when_no_plays_remain()
+	_test_move_paths_only_cross_required_traps()
 	_test_poison_and_stoneskin_behaviors()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_threat_tiles_follow_intent()
+	_test_enemy_pathfinding_avoids_traps()
 	_test_shallow_elemental_enemy_actions_scale_back()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
+	_test_trap_tooltip_surfaces_damage_and_effect()
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
@@ -64,6 +70,7 @@ func _initialize() -> void:
 	_test_run_map_seals_departed_rooms()
 	_test_run_map_never_moves_back_toward_center()
 	_test_empty_treasure_room_falls_back_to_room_mode()
+	_test_loaded_run_repairs_stranded_room_visibility()
 	_test_combat_finish_generates_reward_state()
 	_test_progression_save_and_purchase(default_progression)
 	_test_recovery_marker_flow()
@@ -80,6 +87,7 @@ func _initialize() -> void:
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
+	await _test_run_scene_move_previews_avoid_traps_when_possible()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_empty_discard_uses_short_caption()
 	await _test_run_scene_displays_owned_relic_icons()
@@ -154,6 +162,36 @@ func _test_room_generation_blocks_door_tiles() -> void:
 			continue
 		var enemy: Dictionary = enemy_var
 		_assert(not door_tiles.has(enemy.get("pos", Vector2i(-1, -1))), "Enemy spawns should avoid door tiles")
+
+func _test_room_generation_populates_elemental_traps() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room: Dictionary = generator.generate_room(321, {
+		"coord": Vector2i(2, 1),
+		"depth": 3,
+		"type": "combat",
+		"element": "fire"
+	}, Vector2i(1, 0))
+	var traps: Array = room.get("traps", [])
+	_assert(traps.size() >= 1 and traps.size() <= 3, "Combat rooms should seed a small number of traps")
+	var occupied: Dictionary = {room.get("player_start", Vector2i.ZERO): true}
+	for enemy_var: Variant in room.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		occupied[(enemy_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for loot_var: Variant in room.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		occupied[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for trap_var: Variant in traps:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		var pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		_assert(str(trap.get("element", "")) == "fire", "Generated traps should inherit the room element")
+		_assert(int(trap.get("damage", 0)) > 0, "Generated traps should always deal damage")
+		_assert(PathUtils.is_passable(room.get("grid", []), pos), "Traps should only spawn on passable floor tiles")
+		_assert(not occupied.has(pos), "Traps should avoid player, enemy, and loot placements")
+		occupied[pos] = true
 
 func _test_room_generation_scales_enemy_density() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -494,6 +532,109 @@ func _test_freeze_and_shock_control_turn_flow() -> void:
 	_assert(combat.player_action_can_resolve(player_state, {"type": "move", "range": 2}), "Shock should still allow movement actions")
 	_assert(not combat.player_action_can_resolve(player_state, {"type": "block", "amount": 4}), "Shock should block non-movement player actions for the turn")
 
+func _test_traps_trigger_and_apply_current_turn_control() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["traps"] = [{
+		"id": "trap_3_4",
+		"pos": Vector2i(3, 4),
+		"element": "lightning",
+		"damage": 2,
+		"shock": 1
+	}]
+	var state: Dictionary = combat.create_combat(161, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	state["deck"] = deck
+	state = combat.apply_player_action(state, {"type": "move", "range": 3}, Vector2i(5, 4))
+	_assert((state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Triggered traps should not halt movement mid-path")
+	_assert((state.get("traps", []) as Array).is_empty(), "Triggered traps should be consumed immediately")
+	_assert(str(state.get("pending_player_trap_restriction", "")) == "shock", "Trap control should wait until the current card finishes before applying this turn")
+	state = combat.finish_player_card(state, 0)
+	_assert(bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Trap shock should apply to the current turn when a play remains after the card")
+	_assert(combat.player_action_can_resolve(state, {"type": "move", "range": 2}), "Trap shock should still leave movement lines playable this turn")
+	_assert(not combat.player_action_can_resolve(state, {"type": "block", "amount": 4}), "Trap shock should block non-movement follow-up plays this turn")
+
+func _test_traps_roll_control_to_next_turn_when_no_plays_remain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["traps"] = [{
+		"id": "trap_3_4",
+		"pos": Vector2i(3, 4),
+		"element": "lightning",
+		"damage": 2,
+		"shock": 1
+	}]
+	var state: Dictionary = combat.create_combat(162, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["cards_played_this_turn"] = 1
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	state["deck"] = deck
+	state = combat.apply_player_action(state, {"type": "move", "range": 3}, Vector2i(5, 4))
+	_assert(int((state.get("player", {}) as Dictionary).get("shock", 0)) == 1, "Last-play trap shock should stay on the player for next turn setup")
+	state = combat.finish_player_card(state, 0)
+	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Last-play trap shock should not retroactively lock the finished turn")
+	state = combat.prepare_next_player_turn(state)
+	_assert(bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Last-play trap shock should carry into the next turn")
+
+func _test_move_paths_only_cross_required_traps() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["traps"] = [
+		{
+			"id": "trap_3_4",
+			"pos": Vector2i(3, 4),
+			"element": "fire",
+			"damage": 2,
+			"burn": 1
+		},
+		{
+			"id": "trap_5_4",
+			"pos": Vector2i(5, 4),
+			"element": "fire",
+			"damage": 2,
+			"burn": 1
+		}
+	]
+	var state: Dictionary = combat.create_combat(163, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var move_action: Dictionary = {"type": "move", "range": 5}
+	var goal: Vector2i = Vector2i(5, 4)
+	var path: Array[Vector2i] = combat.path_for_player_action(state, move_action, goal)
+	_assert(path.back() == goal, "Move previews should still reach trap destinations when the chosen square is the trap")
+	_assert(not path.has(Vector2i(3, 4)), "Move paths should avoid extra traps when only the destination trap is required")
+	state = combat.apply_player_action(state, move_action, goal)
+	_assert((state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == goal, "Trap-aware move resolution should still land on the chosen tile")
+	var remaining_traps: Array = state.get("traps", [])
+	_assert(remaining_traps.size() == 1 and ((remaining_traps[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(3, 4)), "Only the required destination trap should be consumed")
+	_assert(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 22, "Avoiding extra traps should only apply the destination trap's damage")
+
 func _test_poison_and_stoneskin_behaviors() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(177, _simple_room_layout(), {
@@ -533,6 +674,39 @@ func _test_poison_and_stoneskin_behaviors() -> void:
 	var second_phase: Dictionary = combat.resolve_enemy_phase(combat.prepare_next_player_turn(first_phase))
 	var second_enemy: Dictionary = (second_phase.get("enemies", []) as Array)[0]
 	_assert(int(second_enemy.get("hp", 0)) == 10, "Poison should land after waiting two turns")
+
+func _test_enemy_pathfinding_avoids_traps() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(163, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(5, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Advance", "actions": [{"type": "move_toward", "range": 2}]}
+		}
+	]
+	state["traps"] = [{
+		"id": "trap_4_4",
+		"pos": Vector2i(4, 4),
+		"element": "fire",
+		"damage": 2,
+		"burn": 2
+	}]
+	var destination: Vector2i = combat.call("_best_move_toward", state, 0, Vector2i(2, 4), 2)
+	_assert(destination != Vector2i(4, 4), "Enemies should path around traps instead of walking onto them willingly")
+	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
+	_assert(not (threat.get("move", []) as Array).has(Vector2i(4, 4)), "Enemy threat previews should omit trap tiles they refuse to path through")
 
 func _test_out_of_range_elemental_enemy_attack_skips_step() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -649,13 +823,15 @@ func _test_status_badges_surface_countdowns() -> void:
 		"burn": 5,
 		"freeze": 1,
 		"shock": 1,
+		"stun": 1,
 		"poison": {"damage": 4, "delay": 2}
 	})
-	_assert(badges.size() == 4, "Status badges should surface each active elemental status independently")
+	_assert(badges.size() == 5, "Status badges should surface each active elemental status independently")
 	_assert(str((badges[0] as Dictionary).get("icon", "")) == "burn", "Burn badges should use the shared burn icon")
 	_assert(int((badges[0] as Dictionary).get("count", 0)) == 5, "Burn badges should show their remaining countdown")
-	_assert(str((badges[3] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
-	_assert(int((badges[3] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
+	_assert(str((badges[3] as Dictionary).get("icon", "")) == "stun", "Stun badges should use the shared stun icon")
+	_assert(str((badges[4] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
+	_assert(int((badges[4] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
 
 func _test_player_restriction_badges_show_turn_lock() -> void:
 	var board := CombatBoardView.new()
@@ -663,6 +839,19 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 	_assert(int(statuses.get("freeze", 0)) == 1, "Frozen turns should still surface a freeze badge even after the restriction consumes the stored counter")
 	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0}, {"frozen": false, "shocked": true})
 	_assert(int(statuses.get("shock", 0)) == 1, "Shocked turns should still surface a shock badge even after the restriction consumes the stored counter")
+	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0, "stun": 0}, {"frozen": false, "shocked": false, "stunned": true})
+	_assert(int(statuses.get("stun", 0)) == 1, "Stunned turns should still surface a stun badge even after the restriction consumes the stored counter")
+
+func _test_trap_tooltip_surfaces_damage_and_effect() -> void:
+	var board := CombatBoardView.new()
+	var tooltip: String = str(board.call("_trap_tooltip_text", {
+		"element": "air",
+		"damage": 3,
+		"stun": 1
+	}))
+	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
+	_assert(tooltip.contains("3 damage"), "Trap tooltips should show trap damage")
+	_assert(tooltip.contains("Stun"), "Trap tooltips should surface the trap's elemental effect")
 
 func _test_unit_hud_stacks_above_sprite_art() -> void:
 	var board := CombatBoardView.new()
@@ -1017,6 +1206,51 @@ func _test_empty_treasure_room_falls_back_to_room_mode() -> void:
 	base_state = run_engine.move_to_room(base_state, treasure_coord)
 	_assert(str(base_state.get("mode", "")) == "room", "Treasure rooms with no relic choices should fall back to normal room mode")
 	_assert((base_state.get("pending_relics", []) as Array).is_empty(), "Empty treasure rooms should not leave stale relic choices behind")
+	_assert(not run_engine.available_moves(base_state).is_empty(), "Entering a treasure room should still reveal at least one onward exit")
+
+func _test_loaded_run_repairs_stranded_room_visibility() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = {
+		"seed": 13,
+		"mode": "room",
+		"current_room": Vector2i(-1, 2),
+		"rooms": {
+			"-1,2": {
+				"coord": Vector2i(-1, 2),
+				"depth": 2,
+				"type": "treasure",
+				"element": "none",
+				"connections": [
+					{"coord": Vector2i(0, 2), "door_dir": Vector2i(1, 0), "kind": "lateral"},
+					{"coord": Vector2i(-2, 2), "door_dir": Vector2i(-1, 0), "kind": "lateral"}
+				],
+				"revealed": true,
+				"visited": true,
+				"cleared": true,
+				"sealed": false,
+				"npcs": []
+			},
+			"-2,2": {
+				"coord": Vector2i(-2, 2),
+				"depth": 2,
+				"type": "combat",
+				"element": "air",
+				"connections": [
+					{"coord": Vector2i(-1, 2), "door_dir": Vector2i(1, 0), "kind": "lateral"},
+					{"coord": Vector2i(-2, 1), "door_dir": Vector2i(0, -1), "kind": "lateral"},
+					{"coord": Vector2i(-3, 2), "door_dir": Vector2i(-1, 0), "kind": "outward"}
+				],
+				"revealed": true,
+				"visited": true,
+				"cleared": true,
+				"sealed": true,
+				"npcs": []
+			}
+		}
+	}
+	_assert(run_engine.available_moves(run_state).is_empty(), "Regression fixture should reproduce the stranded-room save state")
+	run_state = run_engine.repair_loaded_run_state(run_state)
+	_assert(run_engine.available_moves(run_state).has(Vector2i(0, 2)), "Loading a stranded room should restore its missing revealed exit")
 
 func _test_combat_finish_generates_reward_state() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -1504,6 +1738,72 @@ func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
 	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	_assert(move_tiles.has(target_tile), "Stage refresh should accept untyped preview target arrays and surface them on the combat board")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_move_previews_avoid_traps_when_possible() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for trap-aware move preview coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(2, 4)
+	layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(5, 3),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0
+		}
+	]
+	layout["traps"] = [{
+		"id": "trap_3_4",
+		"pos": Vector2i(3, 4),
+		"element": "fire",
+		"damage": 2,
+		"burn": 2
+	}]
+	var combat_state: Dictionary = combat.create_combat(105, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.set("_hovered_board_tile", Vector2i(5, 4))
+	var preview: Dictionary = {
+		"card_id": "test_move_attack",
+		"state": combat_state,
+		"actions": [
+			{"type": "move", "range": 5},
+			{"type": "melee", "damage": 4, "range": 1}
+		],
+		"action_index": 0,
+		"target_tiles": [Vector2i(5, 4)],
+		"complete": false,
+		"playable": true,
+		"action": {"type": "move", "range": 5},
+		"skip_allowed": false
+	}
+	var path_tiles: Array = instance.call("_path_tiles_for_preview", preview)
+	_assert(not path_tiles.has(Vector2i(3, 4)), "Move previews should prefer trap-free paths when the move range can support them")
+	var shortcuts: Dictionary = instance.call("_preview_shortcuts_for_current_action", preview)
+	var plans: Dictionary = shortcuts.get("plans", {})
+	var shortcut_plan: Dictionary = plans.get(Vector2i(5, 3), {})
+	var shortcut_path: Array = shortcut_plan.get("path_tiles", [])
+	_assert(not shortcut_path.has(Vector2i(3, 4)), "Move-attack previews should reuse the same trap-avoiding movement path")
 	instance.queue_free()
 	await process_frame
 

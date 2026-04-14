@@ -1037,7 +1037,7 @@ func _boot_run() -> void:
 func _load_run_state(next_run_state: Dictionary) -> void:
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
-	_run_state = next_run_state.duplicate(true)
+	_run_state = _run_engine.repair_loaded_run_state(next_run_state)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_reset_card_resolution()
@@ -1371,6 +1371,7 @@ func _board_display_state() -> Dictionary:
 		"room_name": layout.get("name", "Room"),
 		"room_coord": layout.get("coord", _run_state.get("current_room", Vector2i.ZERO)),
 		"room_type": layout.get("type", "room"),
+		"room_element": layout.get("element", ElementData.NONE),
 		"grid": layout.get("grid", []).duplicate(true),
 		"player": {
 			"pos": layout.get("player_start", RoomGeneratorScript.entry_tile_for_direction(Vector2i.ZERO)),
@@ -1380,6 +1381,7 @@ func _board_display_state() -> Dictionary:
 		},
 		"npcs": layout.get("npcs", []).duplicate(true),
 		"enemies": [],
+		"traps": layout.get("traps", []).duplicate(true),
 		"loot": layout.get("loot", []).duplicate(true),
 		"log": []
 	}
@@ -1641,9 +1643,7 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		return []
 	if action_type == "move":
 		var preview_state: Dictionary = preview.get("state", {})
-		var grid: Array = preview_state.get("grid", [])
-		var start: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-		return PathUtils.find_path(grid, start, _hovered_board_tile, _enemy_occupied_tiles(preview_state))
+		return _combat_engine.path_for_player_action(preview_state, action, _hovered_board_tile)
 	if action_type == "blink":
 		return _vector2i_array([_hovered_board_tile])
 	return []
@@ -1704,7 +1704,7 @@ func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
 	var plans: Dictionary = {}
 	for move_target: Vector2i in _vector2i_array(preview.get("target_tiles", [])):
 		var after_move_state: Dictionary = _combat_engine.apply_player_action(preview_state, action, move_target)
-		var path_tiles: Array[Vector2i] = [move_target] if action_type == "blink" else PathUtils.find_path(preview_state.get("grid", []), player_tile, move_target, _enemy_occupied_tiles(preview_state))
+		var path_tiles: Array[Vector2i] = [move_target] if action_type == "blink" else _combat_engine.path_for_player_action(preview_state, action, move_target)
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
 		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles)
 	if bool(preview.get("skip_allowed", false)):
@@ -2554,6 +2554,8 @@ func _board_status_label(preview: Dictionary) -> String:
 		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
 		if bool(restrictions.get("frozen", false)):
 			return "Frozen"
+		if bool(restrictions.get("stunned", false)):
+			return "Stunned"
 		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
 			return "Shocked"
 		if _drag_card_index >= 0:
@@ -2590,6 +2592,8 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if mode == "combat":
 		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
 		if bool(restrictions.get("frozen", false)):
+			return "Pass to continue"
+		if bool(restrictions.get("stunned", false)):
 			return "Pass to continue"
 		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
 			return "Only move/blink, or pass"

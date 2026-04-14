@@ -56,6 +56,13 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	_try_recover_lost_embers(run_state)
 	return run_state
 
+func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if next_state.is_empty():
+		return next_state
+	_reveal_neighbors(next_state, next_state.get("current_room", Vector2i.ZERO))
+	return next_state
+
 func available_moves(run_state: Dictionary) -> Array[Vector2i]:
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(run_state, current)
@@ -113,6 +120,8 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	next_state["notice"] = ""
 	next_state["rooms"] = rooms
 	_reveal_neighbors(next_state, destination)
+	rooms = next_state.get("rooms", {}).duplicate(true)
+	room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
 	next_state["current_room_layout"] = _display_layout_for_room(int(next_state.get("seed", 0)), room, travel_dir)
 	_try_recover_lost_embers(next_state)
@@ -331,6 +340,7 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"player_start": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
 		"npcs": [],
 		"enemies": [],
+		"traps": combat_state.get("traps", []).duplicate(true),
 		"loot": combat_state.get("loot", []).duplicate(true)
 	}
 
