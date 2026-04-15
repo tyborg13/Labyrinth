@@ -89,6 +89,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var entrance_tile: Vector2i = ENTRANCE_BY_TRAVEL_DIR.get(travel_dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
 	_apply_available_doors(grid, room)
 	_apply_template(grid, rng)
+	_apply_floor_accents(grid, run_seed, coord)
 
 	var player_start: Vector2i = entrance_tile
 	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, depth, rng)
@@ -131,16 +132,17 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"enemies": enemies,
 		"traps": traps,
 		"loot": loot,
-		"theme": _theme_id(rng)
+		"theme": TILE_ASH
 	}
 
 func _base_grid(rng: RandomNumberGenerator) -> Array:
-	var floor_tile: String = _theme_id(rng)
+	# Preserve the old theme roll so later room RNG stays aligned.
+	rng.randf()
 	var grid: Array = []
 	for y: int in range(ROOM_HEIGHT):
 		var row: Array[String] = []
 		for x: int in range(ROOM_WIDTH):
-			var tile_id: String = floor_tile
+			var tile_id: String = TILE_ASH
 			if x == 0 or y == 0 or x == ROOM_WIDTH - 1 or y == ROOM_HEIGHT - 1:
 				tile_id = TILE_WALL
 			row.append(tile_id)
@@ -184,6 +186,61 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 					if x == 0 or y == 0 or x == ROOM_WIDTH - 1 or y == ROOM_HEIGHT - 1:
 						continue
 					grid[y][x] = TILE_ASH
+
+func _apply_floor_accents(grid: Array, run_seed: int, coord: Vector2i) -> void:
+	var protected_tiles: Dictionary = {}
+	for entry_tile: Vector2i in ENTRANCE_BY_TRAVEL_DIR.values():
+		protected_tiles[entry_tile] = true
+	var candidates: Array[Vector2i] = []
+	for y: int in range(1, ROOM_HEIGHT - 1):
+		for x: int in range(1, ROOM_WIDTH - 1):
+			var tile := Vector2i(x, y)
+			if protected_tiles.has(tile):
+				continue
+			if str(grid[y][x]) != TILE_ASH:
+				continue
+			candidates.append(tile)
+	if candidates.is_empty():
+		return
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return _floor_accent_score(run_seed, coord, a) < _floor_accent_score(run_seed, coord, b)
+	)
+	var target_count: int = clampi(int(round(float(candidates.size()) * 0.16)), 2, 6)
+	target_count = mini(target_count + (_floor_accent_score(run_seed, coord, Vector2i(4, 4), 37) % 2), candidates.size())
+	var chosen: Dictionary = {}
+	for tile: Vector2i in candidates:
+		if chosen.size() >= target_count:
+			break
+		if _selected_floor_neighbor_count(chosen, tile) > 0:
+			continue
+		chosen[tile] = true
+	if chosen.size() < target_count:
+		for tile: Vector2i in candidates:
+			if chosen.has(tile):
+				continue
+			if _selected_floor_neighbor_count(chosen, tile) > 1:
+				continue
+			chosen[tile] = true
+			if chosen.size() >= target_count:
+				break
+	for tile_var: Variant in chosen.keys():
+		var tile: Vector2i = tile_var
+		grid[tile.y][tile.x] = TILE_MOSS
+
+func _floor_accent_score(run_seed: int, coord: Vector2i, tile: Vector2i, salt: int = 0) -> int:
+	var mixed: int = _room_seed(run_seed, coord, 701 + salt)
+	mixed = int((mixed + tile.x * 92821 + tile.y * 68917 + tile.x * tile.y * 137 + (tile.x - tile.y) * 59) & 0x7fffffff)
+	return mixed
+
+func _selected_floor_neighbor_count(chosen: Dictionary, tile: Vector2i) -> int:
+	var neighbors: int = 0
+	for offset_y: int in range(-1, 2):
+		for offset_x: int in range(-1, 2):
+			if offset_x == 0 and offset_y == 0:
+				continue
+			if chosen.has(tile + Vector2i(offset_x, offset_y)):
+				neighbors += 1
+	return neighbors
 
 func _transform_cell(cell: Vector2i, rotation_steps: int, mirrored: bool) -> Vector2i:
 	var centered: Vector2i = cell - Vector2i(4, 4)
@@ -426,14 +483,6 @@ func _room_name(coord: Vector2i, room_type: String, rng: RandomNumberGenerator) 
 		ROOM_NAME_PREFIXES[(absi(coord.x) + rng.randi_range(0, ROOM_NAME_PREFIXES.size() - 1)) % ROOM_NAME_PREFIXES.size()],
 		ROOM_NAME_SUFFIXES[(absi(coord.y) + rng.randi_range(0, ROOM_NAME_SUFFIXES.size() - 1)) % ROOM_NAME_SUFFIXES.size()]
 	]
-
-func _theme_id(rng: RandomNumberGenerator) -> String:
-	var roll: float = rng.randf()
-	if roll < 0.34:
-		return TILE_ASH
-	if roll < 0.67:
-		return TILE_MOSS
-	return TILE_EMBER
 
 func _room_seed(run_seed: int, coord: Vector2i, salt: int) -> int:
 	var value: int = run_seed

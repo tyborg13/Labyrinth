@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-14T03:56:28Z",
+  "updated_at": "2026-04-14T16:08:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -981,6 +981,76 @@
       "source": {
         "branch": "master",
         "commit": "4d9a456"
+      }
+    },
+    {
+      "id": "mnt_20260414T144523Z_7c6c0b4a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "data/enemies.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/enemies.json",
+      "summary": "Crawler intent pacing now leads the roster at 3/2/4 movement with slightly lighter 3/5 melee damage, while acolyte and warden stay at 2 and 1 average movement respectively.",
+      "details": "tests/run_tests.gd checks crawler/acolyte/warden per-intent movement averages and weighted ordering so the crawler stays the fastest pressure enemy without matching the larger enemies' damage ceiling.",
+      "status": "active",
+      "created_at": "2026-04-14T14:45:23Z",
+      "updated_at": "2026-04-14T14:45:23Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260414T142220Z_411b07b5"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "31160f5"
+      }
+    },
+    {
+      "id": "mnt_20260414T152238Z_256394c3",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Ash floor variants are extracted as isolated tile-only PNGs and loaded untrimmed so every stone keeps the same isometric canvas and avoids neighbor-fragment warping.",
+      "details": "The first extraction pass kept surrounding source context inside the diamond, which could make a variant look peeled or skewed in-game. The corrected assets flood-fill the selected tile component from base_floor_tiles.png, keep neighboring tiles transparent, and CombatBoardView now loads the variant textures without trim_texture_to_used_rect.",
+      "status": "active",
+      "created_at": "2026-04-14T15:22:38Z",
+      "updated_at": "2026-04-14T15:22:38Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260414T151352Z_7a22685a"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "31160f5"
+      }
+    },
+    {
+      "id": "mnt_20260414T160800Z_bc1ad221",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/room_generator.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/room_generator.gd",
+      "summary": "Room floors now generate as ash with deterministic moss accents, while _base_grid still consumes one legacy floor-theme roll so template and encounter RNG stay aligned with prior room seeds.",
+      "details": "RoomGenerator applies moss after template stamping using a room-seeded coordinate hash plus light neighbor de-clumping, keeps entry tiles ash for readability, and never emits ember floor tiles from generation.",
+      "status": "active",
+      "created_at": "2026-04-14T16:08:00Z",
+      "updated_at": "2026-04-14T16:08:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "31160f5"
       }
     }
   ]

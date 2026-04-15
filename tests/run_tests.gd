@@ -24,6 +24,7 @@ func _initialize() -> void:
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
 	_test_room_generation_blocks_door_tiles()
+	_test_room_generation_uses_stone_floor_with_moss_accents()
 	_test_room_generation_populates_elemental_traps()
 	_test_room_generation_scales_enemy_density()
 	_test_start_room_spawns_emaciated_man()
@@ -32,6 +33,7 @@ func _initialize() -> void:
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
 	_test_healing_cards_are_burned_and_downweighted()
+	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_preview_block_mitigates_current_turn_damage()
 	_test_blast_hits_multiple_targets()
@@ -63,6 +65,7 @@ func _initialize() -> void:
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_foreground_props_fade_when_covering_behind_units()
 	_test_combat_board_hides_inactive_doors_but_preserves_locked_ones()
+	_test_combat_board_assigns_deterministic_floor_variants()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_run_map_room_types()
@@ -162,6 +165,32 @@ func _test_room_generation_blocks_door_tiles() -> void:
 			continue
 		var enemy: Dictionary = enemy_var
 		_assert(not door_tiles.has(enemy.get("pos", Vector2i(-1, -1))), "Enemy spawns should avoid door tiles")
+
+func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room: Dictionary = generator.generate_room(73, {
+		"coord": Vector2i(2, 1),
+		"depth": 2,
+		"type": "combat"
+	}, Vector2i(0, -1))
+	var grid: Array = room.get("grid", [])
+	var ash_count: int = 0
+	var moss_count: int = 0
+	var ember_count: int = 0
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		for x: int in range(row.size()):
+			match str(row[x]):
+				"ash":
+					ash_count += 1
+				"moss":
+					moss_count += 1
+				"ember":
+					ember_count += 1
+	_assert(str(room.get("theme", "")) == "ash", "Rooms should now advertise the stone floor theme by default")
+	_assert(ember_count == 0, "Generated floors should no longer use ember tiles")
+	_assert(moss_count >= 2, "Generated floors should include a visible smattering of moss accent tiles")
+	_assert(ash_count > moss_count, "Stone floor tiles should still make up the majority of the room floor")
 
 func _test_room_generation_populates_elemental_traps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -330,6 +359,69 @@ func _test_healing_cards_are_burned_and_downweighted() -> void:
 	_assert(int((GameData.card_def("rallying_breath").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 4, "Rallying Breath should heal less than the original common version")
 	_assert(int((GameData.card_def("last_light").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 6, "Last Light should heal less than the original rare version")
 	_assert(GameData.reward_offer_weight("rallying_breath") < GameData.reward_offer_weight("iron_wheel"), "Healing cards should be rarer reward offers than standard non-heal cards")
+
+func _test_low_movement_enemies_advance_without_outpacing_crawlers() -> void:
+	var crawler_weighted_average: float = _weighted_average_enemy_toward_move("crawler")
+	var acolyte_weighted_average: float = _weighted_average_enemy_toward_move("acolyte")
+	var warden_weighted_average: float = _weighted_average_enemy_toward_move("warden")
+	var crawler_average: float = _average_enemy_toward_move("crawler")
+	var acolyte_average: float = _average_enemy_toward_move("acolyte")
+	var warden_average: float = _average_enemy_toward_move("warden")
+	_assert(_enemy_distinct_toward_move_count("crawler") > 1, "Crawlers should vary their movement budget across intents instead of repeating the same step")
+	_assert(_enemy_distinct_toward_move_count("acolyte") > 1, "Acolytes should vary their step sizes instead of always taking the same drift action")
+	_assert(_enemy_distinct_toward_move_count("warden") > 1, "Wardens should mix planted turns with heavier steps")
+	_assert(is_equal_approx(crawler_average, 3.0), "Crawlers should average three tiles of forward movement across their intents")
+	_assert(is_equal_approx(acolyte_average, 2.0), "Acolytes should average two tiles of forward movement across their intents")
+	_assert(is_equal_approx(warden_average, 1.0), "Wardens should average one tile of forward movement across their intents")
+	_assert(crawler_weighted_average > acolyte_weighted_average, "Crawlers should move more aggressively than acolytes in actual intent frequency")
+	_assert(warden_weighted_average < crawler_weighted_average, "Wardens should stay slower than crawlers in actual intent frequency")
+
+func _average_enemy_toward_move(enemy_type: String) -> float:
+	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+	var intent_count: int = 0
+	var total_move: int = 0
+	for intent_var: Variant in enemy_def.get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = intent_var as Dictionary
+		intent_count += 1
+		total_move += _intent_toward_move(intent)
+	if intent_count <= 0:
+		return 0.0
+	return float(total_move) / float(intent_count)
+
+func _weighted_average_enemy_toward_move(enemy_type: String) -> float:
+	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+	var total_weight: int = 0
+	var weighted_move: int = 0
+	for intent_var: Variant in enemy_def.get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = intent_var as Dictionary
+		var weight: int = maxi(1, int(intent.get("weight", 1)))
+		total_weight += weight
+		weighted_move += weight * _intent_toward_move(intent)
+	if total_weight <= 0:
+		return 0.0
+	return float(weighted_move) / float(total_weight)
+
+func _enemy_distinct_toward_move_count(enemy_type: String) -> int:
+	var distinct: Dictionary = {}
+	for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		distinct[_intent_toward_move(intent_var as Dictionary)] = true
+	return distinct.size()
+
+func _intent_toward_move(intent: Dictionary) -> int:
+	var total_move: int = 0
+	for action_var: Variant in intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		if str(action.get("type", "")) == "move_toward":
+			total_move += int(action.get("range", 0))
+	return total_move
 
 func _test_player_block_absorbs_full_enemy_phase() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1063,6 +1155,35 @@ func _test_combat_board_hides_inactive_doors_but_preserves_locked_ones() -> void
 	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Usable exits should still render as doors")
 	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"locked_door_tiles": {door_tile: true}})
 	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Previously sealed traversal doors should stay visible as doors")
+	board.free()
+
+func _test_combat_board_assigns_deterministic_floor_variants() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var floor_variants: Dictionary = board.get("_floor_texture_variants")
+	var ash_variants: Array = floor_variants.get("ash", [])
+	_assert(ash_variants.size() == 7, "Combat board should load all seven extracted stone floor variants")
+	var state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1)}
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	var first_lookup: Dictionary = (board.get("_floor_variant_by_tile") as Dictionary).duplicate(true)
+	var distinct: Dictionary = {}
+	for y: int in range(1, 7):
+		for x: int in range(1, 7):
+			distinct[int(first_lookup.get(Vector2i(x, y), -1))] = true
+	_assert(distinct.size() >= 4, "Interior ash floors should spread across several stone variants instead of collapsing to one look")
+	var center_tile := Vector2i(4, 4)
+	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(3, 4), -1)), "Variant assignment should avoid immediate left-right repeats on ash floors when possible")
+	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(4, 3), -1)), "Variant assignment should avoid immediate front-back repeats on ash floors when possible")
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	var repeated_lookup: Dictionary = board.get("_floor_variant_by_tile")
+	_assert(repeated_lookup.get(center_tile, -1) == first_lookup.get(center_tile, -2), "Floor variants should stay deterministic for the same room coordinate")
+	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(5, 1)}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	var shifted_lookup: Dictionary = board.get("_floor_variant_by_tile")
+	_assert(
+		shifted_lookup.get(center_tile, -1) != first_lookup.get(center_tile, -1)
+		or shifted_lookup.get(Vector2i(5, 4), -1) != first_lookup.get(Vector2i(5, 4), -1),
+		"Different room coordinates should reshuffle the deterministic floor-variant mix"
+	)
 	board.free()
 
 func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:

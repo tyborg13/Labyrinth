@@ -47,6 +47,15 @@ const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
+const ASH_FLOOR_VARIANT_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/base_floor_tile_01.png",
+	"res://assets/placeholders/tiles/base_floor_tile_02.png",
+	"res://assets/placeholders/tiles/base_floor_tile_03.png",
+	"res://assets/placeholders/tiles/base_floor_tile_04.png",
+	"res://assets/placeholders/tiles/base_floor_tile_05.png",
+	"res://assets/placeholders/tiles/base_floor_tile_06.png",
+	"res://assets/placeholders/tiles/base_floor_tile_07.png"
+]
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -59,6 +68,8 @@ var exit_elements: Dictionary = {}
 var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _tile_textures: Dictionary = {}
+var _floor_texture_variants: Dictionary = {}
+var _floor_variant_by_tile: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
@@ -113,6 +124,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles.duplicate(true)
 	exit_elements = next_exit_elements.duplicate(true)
 	presentation = next_presentation.duplicate(true)
+	_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
 	_update_cursor_shape()
 	queue_redraw()
 
@@ -175,7 +187,7 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
 	var base_color: Color = _tile_color(tile_id)
 	draw_colored_polygon(polygon, base_color)
-	var texture: Texture2D = _tile_textures.get(_floor_texture_key(tile_id), null)
+	var texture: Texture2D = _floor_texture_for_tile(tile_id, tile)
 	if texture != null:
 		var tile_width: float = _tile_width()
 		var tile_height: float = _tile_height()
@@ -1088,11 +1100,62 @@ func _floor_texture_key(tile_id: String) -> String:
 		_:
 			return "ash"
 
+func _floor_texture_for_tile(tile_id: String, tile: Vector2i) -> Texture2D:
+	var texture_key: String = _floor_texture_key(tile_id)
+	var variants: Array = _floor_texture_variants.get(texture_key, [])
+	if not variants.is_empty():
+		var variant_index: int = int(_floor_variant_by_tile.get(tile, 0))
+		if variant_index >= 0 and variant_index < variants.size():
+			return variants[variant_index]
+		return variants[0]
+	return _tile_textures.get(texture_key, null)
+
+func _build_floor_variant_lookup(grid: Array) -> Dictionary:
+	var lookup: Dictionary = {}
+	var ash_variants: Array = _floor_texture_variants.get("ash", [])
+	var variant_count: int = ash_variants.size()
+	if variant_count <= 1:
+		return lookup
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		for x: int in range(row.size()):
+			if _floor_texture_key(str(row[x])) != "ash":
+				continue
+			var tile := Vector2i(x, y)
+			var variant_index: int = _hashed_floor_variant_index(tile, room_coord, variant_count)
+			var left_tile := Vector2i(x - 1, y)
+			var up_tile := Vector2i(x, y - 1)
+			if lookup.has(left_tile) and int(lookup.get(left_tile, -1)) == variant_index:
+				variant_index = (variant_index + 1 + posmod(room_coord.x + y, maxi(1, variant_count - 1))) % variant_count
+			if lookup.has(up_tile) and int(lookup.get(up_tile, -1)) == variant_index:
+				variant_index = (variant_index + 2 + posmod(room_coord.y + x, maxi(1, variant_count - 1))) % variant_count
+				if variant_count > 2 and lookup.has(left_tile) and int(lookup.get(left_tile, -1)) == variant_index:
+					variant_index = (variant_index + 1) % variant_count
+			lookup[tile] = variant_index
+	return lookup
+
+func _hashed_floor_variant_index(tile: Vector2i, room_coord: Vector2i, variant_count: int) -> int:
+	if variant_count <= 1:
+		return 0
+	var mixed: int = tile.x * 92821
+	mixed += tile.y * 68917
+	mixed += room_coord.x * 1237
+	mixed += room_coord.y * 1999
+	mixed += tile.x * tile.y * 17
+	mixed += (tile.x - tile.y) * 53
+	mixed += (room_coord.x + room_coord.y) * 31
+	return posmod(mixed, variant_count)
+
 func _load_assets() -> void:
+	var ash_floor_variants: Array[Texture2D] = _load_floor_variants(ASH_FLOOR_VARIANT_PATHS)
 	_tile_textures = {
-		"ash": AssetLoader.load_texture("res://assets/placeholders/tiles/ash.svg"),
+		"ash": ash_floor_variants[0] if not ash_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/placeholders/tiles/ash.svg"),
 		"moss": AssetLoader.load_texture("res://assets/placeholders/tiles/moss.svg"),
 		"ember": AssetLoader.load_texture("res://assets/placeholders/tiles/ember.svg")
+	}
+	_floor_texture_variants = {
+		"ash": ash_floor_variants
 	}
 	_prop_textures = {
 		"pillar": AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.svg"),
@@ -1119,6 +1182,15 @@ func _load_assets() -> void:
 	for npc_id: String in GameData.npcs().keys():
 		var art_path: String = str(GameData.npc_def(npc_id).get("art_path", ""))
 		_unit_textures[npc_id] = _load_unit_texture_with_idle(npc_id, art_path)
+
+func _load_floor_variants(paths: PackedStringArray) -> Array[Texture2D]:
+	var textures: Array[Texture2D] = []
+	for path: String in paths:
+		var texture: Texture2D = AssetLoader.load_texture(path)
+		if texture == null:
+			continue
+		textures.append(texture)
+	return textures
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)

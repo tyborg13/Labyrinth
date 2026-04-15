@@ -12,8 +12,8 @@
         "name": "Skitter Strike",
         "weight": 4,
         "actions": [
-          { "type": "move_toward", "range": 2 },
-          { "type": "melee", "damage": 4, "range": 1 }
+          { "type": "move_toward", "range": 3 },
+          { "type": "melee", "damage": 3, "range": 1 }
         ]
       },
       {
@@ -21,6 +21,7 @@
         "name": "Coil",
         "weight": 2,
         "actions": [
+          { "type": "move_toward", "range": 2 },
           { "type": "block", "amount": 4 }
         ]
       },
@@ -29,8 +30,8 @@
         "name": "Lunge",
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 3 },
-          { "type": "melee", "damage": 6, "range": 1 }
+          { "type": "move_toward", "range": 4 },
+          { "type": "melee", "damage": 5, "range": 1 }
         ]
       }
     ]
@@ -51,6 +52,7 @@
         "name": "Ash Bolt",
         "weight": 4,
         "actions": [
+          { "type": "move_toward", "range": 2 },
           { "type": "ranged", "damage": 4, "range": 5 }
         ]
       },
@@ -59,6 +61,7 @@
         "name": "Ward Chant",
         "weight": 2,
         "actions": [
+          { "type": "move_toward", "range": 1 },
           { "type": "block", "amount": 5 }
         ]
       },
@@ -67,6 +70,7 @@
         "name": "Siphon",
         "weight": 2,
         "actions": [
+          { "type": "move_toward", "range": 3 },
           { "type": "ranged", "damage": 3, "range": 4 },
           { "type": "heal_self", "amount": 3 }
         ]
@@ -120,7 +124,7 @@
         "name": "Marching Blow",
         "weight": 4,
         "actions": [
-          { "type": "move_toward", "range": 2 },
+          { "type": "move_toward", "range": 1 },
           { "type": "melee", "damage": 7, "range": 1 }
         ]
       },
@@ -137,7 +141,7 @@
         "name": "Crushing Step",
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 1 },
+          { "type": "move_toward", "range": 2 },
           { "type": "blast", "damage": 5, "range": 0, "radius": 1 }
         ]
       }
