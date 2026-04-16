@@ -1,6 +1,7 @@
 extends SceneTree
 
 const GameData = preload("res://scripts/game_data.gd")
+const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
@@ -15,6 +16,8 @@ var _failures: Array[String] = []
 func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
+	AnalyticsStore.set_storage_dir("user://labyrinth_analytics_test")
+	AnalyticsStore.clear_storage()
 	var default_progression: Dictionary = ProgressionStore.default_data()
 	_assert(GameData.cards().size() >= 20, "Card data should load")
 	_assert(GameData.enemies().size() >= 5, "Enemy data should load")
@@ -95,6 +98,7 @@ func _initialize() -> void:
 	await _test_run_scene_empty_discard_uses_short_caption()
 	await _test_run_scene_displays_owned_relic_icons()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
+	await _test_run_scene_logs_local_analytics()
 	await _test_main_menu_shows_continue_for_saved_run()
 
 	if _failures.is_empty():
@@ -1768,7 +1772,7 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
 	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
 	_assert(str(damage_token.get("icon", "")) == "melee", "Damage cards should render the action keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 8, "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(int(damage_token.get("value", 0)) == 11, "Damage cards should show final damage, not base damage, when a modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.size() == 1, "Damage cards should surface active damage modifiers for the tooltip")
 	_assert(str(modifier_lines[0]).contains("Ember Lens"), "The damage tooltip should name the modifier source")
@@ -2057,6 +2061,75 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_logs_local_analytics() -> void:
+	AnalyticsStore.clear_storage()
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for analytics coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(118, _simple_room_layout(), {
+		"hp": 12,
+		"max_hp": 20,
+		"deck_cards": ["patch_up"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	player["hp"] = 12
+	combat_state["player"] = player
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["patch_up"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["analytics"] = {"combat_id": "test_run_c001"}
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["deck_cards"] = ["patch_up"]
+	run_state["combat_state"] = combat_state
+	run_state["analytics"] = {"run_id": "test_run", "combat_counter": 1}
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	instance.call("_analytics_log_playable_cards")
+	instance.call("_on_card_pressed", 0)
+	await create_timer(1.5).timeout
+	var reward_run_state: Dictionary = instance.get("_run_state")
+	reward_run_state["mode"] = "reward"
+	reward_run_state["pending_reward"] = {
+		"cards": ["spark_dart", "brace", "frostbolt"],
+		"heal_amount": 6,
+		"ember_amount": 4
+	}
+	instance.set("_run_state", reward_run_state)
+	instance.call("_refresh_ui")
+	instance.call("_on_reward_card_pressed", "spark_dart")
+	await process_frame
+	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
+	var playable_events: Array[Dictionary] = _analytics_events_by_type(events, "card_became_playable")
+	var played_events: Array[Dictionary] = _analytics_events_by_type(events, "card_played")
+	var reward_events: Array[Dictionary] = _analytics_events_by_type(events, "reward_choice")
+	_assert(not playable_events.is_empty(), "Combat analytics should record when a drawn card becomes playable")
+	_assert(not played_events.is_empty(), "Combat analytics should record card play events")
+	_assert(not reward_events.is_empty(), "Reward analytics should record reward choices")
+	var play_event: Dictionary = played_events[played_events.size() - 1]
+	var play_payload: Dictionary = play_event.get("payload", {})
+	_assert(str(play_event.get("card_id", "")) == "patch_up", "Card play analytics should record the played card id")
+	_assert(int(play_payload.get("player_heal_gained", 0)) == 3, "Card play analytics should capture observed healing")
+	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
+	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
+	var reward_payload: Dictionary = reward_event.get("payload", {})
+	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")
+	_assert(str(reward_payload.get("selected_card_id", "")) == "spark_dart", "Reward analytics should record the selected reward card")
+	instance.queue_free()
+	await process_frame
+
 func _test_main_menu_shows_continue_for_saved_run() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
 	if main_menu_scene == null:
@@ -2072,6 +2145,13 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	instance.queue_free()
 	ProgressionStore.clear_saved_run()
 	await process_frame
+
+func _analytics_events_by_type(events: Array[Dictionary], event_type: String) -> Array[Dictionary]:
+	var filtered: Array[Dictionary] = []
+	for event: Dictionary in events:
+		if str(event.get("event_type", "")) == event_type:
+			filtered.append(event)
+	return filtered
 
 func _simple_room_layout() -> Dictionary:
 	return {

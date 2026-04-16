@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-14T16:08:00Z",
+  "updated_at": "2026-04-15T03:49:10Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1051,6 +1051,72 @@
       "source": {
         "branch": "master",
         "commit": "31160f5"
+      }
+    },
+    {
+      "id": "mnt_20260415T024007Z_29b0a243",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Card balance work now uses spec/card_balance_heuristic.md and tools/card_heuristic.py as the default curve-check workflow.",
+      "details": "AGENTS.md tells future sessions to consult the heuristic when creating or modifying cards and to update both the doc and tool whenever combat pacing, status behavior, room spacing, enemy assumptions, fatigue, or action keywords change.",
+      "status": "active",
+      "created_at": "2026-04-15T02:40:07Z",
+      "updated_at": "2026-04-15T02:40:07Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2c5d6e2"
+      }
+    },
+    {
+      "id": "mnt_20260415T031530Z_31650081",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "data/cards.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/cards.json",
+      "summary": "The April 2026 card rebalance preserves standout freeze, shock, poison, and mobility identities by taxing the hottest cards with health costs instead of stripping effects.",
+      "details": "Weak mobility and melee cards were buffed with cleaner identity-aligned changes: Shadow Step became a pure blink, Venom Claw and Tectonic Maul stayed adjacent melee and gained separate setup/payload, and underperforming air manipulation cards picked up real damage or flow so the heuristic bands close without turning melee attacks into pseudo-ranged cards.",
+      "status": "active",
+      "created_at": "2026-04-15T03:15:30Z",
+      "updated_at": "2026-04-15T03:15:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2c5d6e2"
+      }
+    },
+    {
+      "id": "mnt_20260415T034910Z_5091cfa8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Local card analytics now emit append-only JSONL events through scripts/analytics_store.gd.",
+      "details": "RunScene owns the instrumentation because it can observe reward picks and before/after combat state. It assigns run/combat ids plus per-combat card instance ids, then logs run/combat/reward events together with card_drawn, card_became_playable, card_played, and enemy_status_tick for offline balancing analysis. spec/analytics.md documents schema version 1; delayed status ticks are currently combat-level rather than card-source attributed.",
+      "status": "active",
+      "created_at": "2026-04-15T03:49:10Z",
+      "updated_at": "2026-04-15T03:49:10Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2c5d6e2"
       }
     }
   ]

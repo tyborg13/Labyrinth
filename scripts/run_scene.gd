@@ -1,6 +1,7 @@
 extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -63,6 +64,8 @@ var _progression: Dictionary = {}
 var _run_state: Dictionary = {}
 var _combat_state: Dictionary = {}
 var _preview_combat_state: Dictionary = {}
+var _analytics_store: AnalyticsStore = AnalyticsStore.new()
+var _analytics_combat_tracker: Dictionary = {}
 var _selected_card_index: int = -1
 var _hovered_card_index: int = -1
 var _hovered_board_tile: Vector2i = Vector2i(-1, -1)
@@ -1031,15 +1034,17 @@ func _boot_run() -> void:
 		var saved_run: Dictionary = ProgressionStore.load_saved_run()
 		if not saved_run.is_empty():
 			_load_run_state(saved_run)
+			_analytics_log_run_resumed()
 			return
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
-	_run_state = _run_engine.repair_loaded_run_state(next_run_state)
+	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(next_run_state))
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
 	_victory_bank_processed = false
 	_defeat_loss_processed = false
@@ -1052,11 +1057,14 @@ func _start_run() -> void:
 	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
-	_load_run_state(_run_engine.create_new_run(_new_seed(), _progression))
+	var new_run_state: Dictionary = _ensure_run_analytics_metadata(_run_engine.create_new_run(_new_seed(), _progression))
+	_load_run_state(new_run_state)
+	_analytics_log_run_started()
 
 func _refresh_ui() -> void:
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
+	_sync_analytics_combat_tracker()
 	if str(_run_state.get("mode", "room")) == "victory" and not _victory_bank_processed:
 		_process_victory_banking()
 	if str(_run_state.get("mode", "room")) == "defeat" and not _defeat_loss_processed:
@@ -2001,6 +2009,10 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var source_rect: Rect2 = _hand_card_global_rect(hand_index)
 	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(5, false)
 	var pile_kind: String = _card_destination_pile(card_id)
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
+	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
 	_animating_hand_card_index = hand_index
 	_animation_lock = true
 	_refresh_ui()
@@ -2008,12 +2020,18 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_board_presentation.clear()
 	_set_action_banner("")
 	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index)
+	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
+	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
+	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, resolved_state, actions, selected_targets)
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
+	var transition_combat_state: Dictionary = _combat_state.duplicate(true)
 	if outcome == "":
 		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
 	else:
 		_run_state = _run_engine.finish_combat(_run_state, _combat_state)
-		_sync_combat_state_from_run()
+	_sync_combat_state_from_run()
+	_analytics_log_playable_cards()
+	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
 	_animation_lock = false
 	_animating_hand_card_index = -1
 	_reset_card_resolution()
@@ -2265,6 +2283,9 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 func _resolve_enemy_round() -> void:
 	_animation_lock = true
 	_refresh_ui()
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
+	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var phase_result: Dictionary = _combat_engine.resolve_enemy_phase_with_steps(_combat_state)
 	var animated_state: Dictionary = _combat_state.duplicate(true)
 	_clear_enemy_blocks(animated_state)
@@ -2272,17 +2293,23 @@ func _resolve_enemy_round() -> void:
 	_board_presentation.clear()
 	_set_action_banner("")
 	_combat_state = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	_analytics_log_enemy_status_ticks(phase_result)
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
 	if outcome == "":
 		var before_draw_state: Dictionary = _combat_state.duplicate(true)
 		_combat_state = _combat_engine.prepare_next_player_turn(_combat_state)
+		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
+		_analytics_log_card_draws(before_draw_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
+		_analytics_log_playable_cards()
 		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
 		outcome = _combat_engine.combat_outcome(_combat_state)
+	var transition_combat_state: Dictionary = _combat_state.duplicate(true)
 	if outcome == "":
 		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
 	else:
 		_run_state = _run_engine.finish_combat(_run_state, _combat_state)
-		_sync_combat_state_from_run()
+	_sync_combat_state_from_run()
+	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
 	_animation_lock = false
 	_refresh_ui()
 
@@ -2694,21 +2721,29 @@ func _log_text() -> String:
 func _on_map_view_room_selected(coord: Vector2i) -> void:
 	if str(_run_state.get("mode", "room")) != "room":
 		return
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	_run_state = _run_engine.move_to_room(_run_state, coord)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
 	_reset_card_resolution()
 	_refresh_ui()
 
 func _on_reward_card_pressed(card_id: String) -> void:
+	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	var player_hp_before: int = int(_run_state.get("player_hp", 0))
 	_run_state = _run_engine.claim_card_reward(_run_state, card_id)
 	_sync_combat_state_from_run()
+	_analytics_log_reward_choice("card", reward_state, card_id, player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
 	_refresh_ui()
 
 func _on_skip_reward_pressed() -> void:
+	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	var player_hp_before: int = int(_run_state.get("player_hp", 0))
 	_run_state = _run_engine.skip_reward_for_heal(_run_state)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	_analytics_log_reward_choice("heal_skip", reward_state, "", player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
 	_refresh_ui()
 
 func _on_campfire_sit_pressed() -> void:
@@ -2788,6 +2823,7 @@ func _on_exit_to_desktop_pressed() -> void:
 func _on_abandon_run_pressed() -> void:
 	_close_menu_overlay()
 	_reset_card_resolution()
+	_analytics_log_run_ended("abandoned")
 	ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -2910,6 +2946,394 @@ func _reset_card_resolution() -> void:
 func _clear_children(node: Node) -> void:
 	for child: Node in node.get_children():
 		child.queue_free()
+
+func _ensure_run_analytics_metadata(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if next_state.is_empty():
+		return next_state
+	var analytics: Dictionary = (next_state.get("analytics", {}) as Dictionary).duplicate(true)
+	if str(analytics.get("run_id", "")).is_empty():
+		analytics["run_id"] = _analytics_random_id("run")
+	if not analytics.has("combat_counter"):
+		analytics["combat_counter"] = 0
+	next_state["analytics"] = analytics
+	return next_state
+
+func _analytics_random_id(prefix: String) -> String:
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.randomize()
+	return "%s_%d_%08x" % [prefix, Time.get_ticks_usec(), rng.randi()]
+
+func _analytics_context_from_states(run_state: Dictionary, combat_state: Dictionary = {}, card_id: String = "", card_instance_id: String = "") -> Dictionary:
+	var room_meta: Dictionary = {}
+	if not run_state.is_empty():
+		room_meta = _run_engine.room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
+	var player: Dictionary = (combat_state.get("player", {}) as Dictionary) if not combat_state.is_empty() else {}
+	var combat_analytics: Dictionary = (combat_state.get("analytics", {}) as Dictionary).duplicate(true)
+	var run_analytics: Dictionary = (run_state.get("analytics", {}) as Dictionary).duplicate(true)
+	return {
+		"run_id": str(run_analytics.get("run_id", "")),
+		"combat_id": str(combat_analytics.get("combat_id", "")),
+		"turn": int(combat_state.get("turn", 0)),
+		"room_depth": int(combat_state.get("room_depth", room_meta.get("depth", 0))),
+		"room_element": str(combat_state.get("room_element", room_meta.get("element", ""))),
+		"player_hp": int(player.get("hp", run_state.get("player_hp", -1))),
+		"player_max_hp": int(player.get("max_hp", run_state.get("player_max_hp", -1))),
+		"deck_size": int((run_state.get("deck_cards", []) as Array).size()),
+		"card_id": card_id,
+		"card_instance_id": card_instance_id
+	}
+
+func _analytics_log_run_started() -> void:
+	_analytics_store.write_event("run_started", _analytics_context_from_states(_run_state, _combat_state), {
+		"seed": int(_run_state.get("seed", 0)),
+		"run_index": int(_run_state.get("run_index", 0)),
+		"player_start_hp": int(_run_state.get("player_hp", 0)),
+		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
+		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true)
+	})
+
+func _analytics_log_run_resumed() -> void:
+	_analytics_store.write_event("run_resumed", _analytics_context_from_states(_run_state, _combat_state), {
+		"mode": str(_run_state.get("mode", "room")),
+		"turns_spent": int(_run_state.get("turns_spent", 0)),
+		"current_room": _run_state.get("current_room", Vector2i.ZERO)
+	})
+	if str(_run_state.get("mode", "")) == "combat" and not _combat_state.is_empty():
+		_analytics_store.write_event("combat_resumed", _analytics_context_from_states(_run_state, _combat_state), {
+			"room_name": str(_combat_state.get("room_name", "")),
+			"hand": _analytics_zone_cards(_combat_state, "hand")
+		})
+		_analytics_log_playable_cards()
+
+func _analytics_log_run_ended(outcome: String) -> void:
+	if outcome.is_empty() or _run_state.is_empty():
+		return
+	_analytics_store.write_event("run_ended", _analytics_context_from_states(_run_state, _combat_state), {
+		"outcome": outcome,
+		"turns_spent": int(_run_state.get("turns_spent", 0)),
+		"unbanked_embers": int(_run_state.get("unbanked_embers", 0)),
+		"mode": str(_run_state.get("mode", "room"))
+	})
+
+func _analytics_log_reward_choice(choice_kind: String, reward_state: Dictionary, selected_card_id: String, player_hp_before: int, player_hp_after: int) -> void:
+	_analytics_store.write_event("reward_choice", _analytics_context_from_states(_run_state, _combat_state, selected_card_id), {
+		"choice_kind": choice_kind,
+		"selected_card_id": selected_card_id,
+		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
+		"heal_amount": int(reward_state.get("heal_amount", 0)),
+		"ember_amount": int(reward_state.get("ember_amount", 0)),
+		"player_hp_before": player_hp_before,
+		"player_hp_after": player_hp_after
+	})
+
+func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary = {}) -> void:
+	var previous_mode: String = str(previous_run_state.get("mode", "room"))
+	var next_mode: String = str(_run_state.get("mode", "room"))
+	if previous_mode != "combat" and next_mode == "combat" and not transition_combat_state.is_empty():
+		_run_state = _ensure_run_analytics_metadata(_run_state)
+		var analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
+		analytics["combat_counter"] = int(analytics.get("combat_counter", 0)) + 1
+		_run_state["analytics"] = analytics
+		_combat_state = transition_combat_state.duplicate(true)
+		var combat_analytics: Dictionary = (_combat_state.get("analytics", {}) as Dictionary).duplicate(true)
+		combat_analytics["combat_id"] = "%s_c%03d" % [str(analytics.get("run_id", "")), int(analytics.get("combat_counter", 0))]
+		_combat_state["analytics"] = combat_analytics
+		_run_state["combat_state"] = _combat_state.duplicate(true)
+		_analytics_initialize_combat_tracker(_combat_state)
+		_analytics_log_combat_started(reason)
+		return
+	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
+		_analytics_log_combat_ended(transition_combat_state, reason)
+		if next_mode == "reward":
+			_analytics_log_reward_offered(transition_combat_state, reason)
+		elif next_mode in ["victory", "defeat"]:
+			_analytics_log_run_ended(next_mode)
+		_reset_analytics_combat_tracker()
+
+func _analytics_log_combat_started(reason: String) -> void:
+	_analytics_store.write_event("combat_started", _analytics_context_from_states(_run_state, _combat_state), {
+		"reason": reason,
+		"room_name": str(_combat_state.get("room_name", "")),
+		"room_type": str(_combat_state.get("room_type", "")),
+		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
+		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
+	})
+	_analytics_log_card_draws({}, _combat_state, {}, _analytics_snapshot_combat_tracker(), "opening_hand")
+	_analytics_log_playable_cards()
+
+func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> void:
+	_analytics_store.write_event("combat_ended", _analytics_context_from_states(_run_state, combat_state), {
+		"reason": reason,
+		"outcome": _combat_engine.combat_outcome(combat_state),
+		"turn": int(combat_state.get("turn", 0)),
+		"room_embers": int(combat_state.get("room_embers", 0)),
+		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0))
+	})
+
+func _analytics_log_reward_offered(combat_state: Dictionary, reason: String) -> void:
+	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	_analytics_store.write_event("reward_offered", _analytics_context_from_states(_run_state, combat_state), {
+		"reason": reason,
+		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
+		"heal_amount": int(reward_state.get("heal_amount", 0)),
+		"ember_amount": int(reward_state.get("ember_amount", 0))
+	})
+
+func _sync_analytics_combat_tracker() -> void:
+	if str(_run_state.get("mode", "")) != "combat" or _combat_state.is_empty():
+		if not _analytics_combat_tracker.is_empty():
+			_reset_analytics_combat_tracker()
+		return
+	var combat_analytics: Dictionary = (_combat_state.get("analytics", {}) as Dictionary).duplicate(true)
+	if str(combat_analytics.get("combat_id", "")).is_empty():
+		_run_state = _ensure_run_analytics_metadata(_run_state)
+		var analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
+		analytics["combat_counter"] = maxi(1, int(analytics.get("combat_counter", 0)))
+		_run_state["analytics"] = analytics
+		combat_analytics["combat_id"] = "%s_c%03d" % [str(analytics.get("run_id", "")), int(analytics.get("combat_counter", 0))]
+		_combat_state["analytics"] = combat_analytics
+		_run_state["combat_state"] = _combat_state.duplicate(true)
+	if _analytics_combat_tracker.is_empty() or str(_analytics_combat_tracker.get("combat_id", "")) != str(combat_analytics.get("combat_id", "")):
+		_analytics_initialize_combat_tracker(_combat_state)
+
+func _reset_analytics_combat_tracker() -> void:
+	_analytics_combat_tracker = {}
+
+func _analytics_initialize_combat_tracker(combat_state: Dictionary) -> void:
+	var tracker: Dictionary = {
+		"combat_id": str((combat_state.get("analytics", {}) as Dictionary).get("combat_id", "")),
+		"next_instance_seq": 1,
+		"playable_logged": {},
+		"zones": {}
+	}
+	var zones: Dictionary = {}
+	for zone: String in ["draw", "hand", "discard", "burned"]:
+		var zone_cards: Array[String] = _analytics_zone_cards(combat_state, zone)
+		var zone_ids: Array[String] = []
+		for _card_id: String in zone_cards:
+			zone_ids.append(_analytics_next_card_instance_id(tracker))
+		zones[zone] = zone_ids
+	tracker["zones"] = zones
+	_analytics_combat_tracker = tracker
+
+func _analytics_snapshot_combat_tracker() -> Dictionary:
+	return _analytics_combat_tracker.duplicate(true)
+
+func _analytics_zone_cards(state: Dictionary, zone: String) -> Array[String]:
+	var cards: Array[String] = []
+	var zone_values: Array = ((state.get("deck", {}) as Dictionary).get(zone, []) as Array)
+	for card_id_var: Variant in zone_values:
+		cards.append(str(card_id_var))
+	return cards
+
+func _analytics_zone_ids(tracker: Dictionary, zone: String) -> Array:
+	if tracker.is_empty():
+		return []
+	return ((tracker.get("zones", {}) as Dictionary).get(zone, []) as Array).duplicate(true)
+
+func _analytics_reconcile_combat_tracker(before_state: Dictionary, after_state: Dictionary) -> void:
+	if _analytics_combat_tracker.is_empty():
+		_analytics_initialize_combat_tracker(after_state)
+		return
+	var cross_pool: Dictionary = {}
+	var same_zone_ids: Dictionary = {}
+	for zone: String in ["draw", "hand", "discard", "burned"]:
+		var before_cards: Array[String] = _analytics_zone_cards(before_state, zone)
+		var before_ids: Array = _analytics_zone_ids(_analytics_combat_tracker, zone)
+		var after_cards: Array[String] = _analytics_zone_cards(after_state, zone)
+		var same_zone_pool: Dictionary = {}
+		for index: int in range(mini(before_cards.size(), before_ids.size())):
+			var card_id: String = before_cards[index]
+			var instance_id: String = str(before_ids[index])
+			if not same_zone_pool.has(card_id):
+				same_zone_pool[card_id] = []
+			(same_zone_pool[card_id] as Array).append(instance_id)
+		var assigned_ids: Array[String] = []
+		for card_id: String in after_cards:
+			var instance_id: String = _analytics_take_from_pool(same_zone_pool, card_id)
+			assigned_ids.append(instance_id)
+		same_zone_ids[zone] = assigned_ids
+		for pool_card_id_var: Variant in same_zone_pool.keys():
+			var pool_card_id: String = str(pool_card_id_var)
+			for leftover_id_var: Variant in same_zone_pool[pool_card_id]:
+				_analytics_enqueue_instance_id(cross_pool, pool_card_id, str(leftover_id_var))
+	_update_analytics_zone_ids_from_pool(after_state, same_zone_ids, cross_pool)
+
+func _update_analytics_zone_ids_from_pool(after_state: Dictionary, zone_ids: Dictionary, cross_pool: Dictionary) -> void:
+	var next_zones: Dictionary = {}
+	for zone: String in ["draw", "hand", "discard", "burned"]:
+		var after_cards: Array[String] = _analytics_zone_cards(after_state, zone)
+		var resolved_ids: Array = (zone_ids.get(zone, []) as Array).duplicate(true)
+		for index: int in range(resolved_ids.size()):
+			if not str(resolved_ids[index]).is_empty():
+				continue
+			var card_id: String = after_cards[index]
+			var instance_id: String = _analytics_take_from_pool(cross_pool, card_id)
+			if instance_id.is_empty():
+				instance_id = _analytics_next_card_instance_id(_analytics_combat_tracker)
+			resolved_ids[index] = instance_id
+		next_zones[zone] = resolved_ids
+	_analytics_combat_tracker["zones"] = next_zones
+
+func _analytics_enqueue_instance_id(pool: Dictionary, card_id: String, instance_id: String) -> void:
+	if not pool.has(card_id):
+		pool[card_id] = []
+	(pool[card_id] as Array).append(instance_id)
+
+func _analytics_take_from_pool(pool: Dictionary, card_id: String) -> String:
+	if not pool.has(card_id) or (pool[card_id] as Array).is_empty():
+		return ""
+	var queue: Array = pool[card_id]
+	var instance_id: String = str(queue[0])
+	queue.remove_at(0)
+	pool[card_id] = queue
+	return instance_id
+
+func _analytics_next_card_instance_id(tracker: Dictionary) -> String:
+	var next_seq: int = int(tracker.get("next_instance_seq", 1))
+	tracker["next_instance_seq"] = next_seq + 1
+	return "%s_i%03d" % [str(tracker.get("combat_id", "combat")), next_seq]
+
+func _analytics_hand_instance_id(hand_index: int) -> String:
+	var hand_ids: Array = _analytics_zone_ids(_analytics_combat_tracker, "hand")
+	if hand_index < 0 or hand_index >= hand_ids.size():
+		return ""
+	return str(hand_ids[hand_index])
+
+func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary, before_tracker: Dictionary, after_tracker: Dictionary, reason: String) -> void:
+	var before_hand_ids: Dictionary = {}
+	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
+		before_hand_ids[str(instance_id_var)] = true
+	var after_hand_ids: Array = _analytics_zone_ids(after_tracker, "hand")
+	var after_hand_cards: Array[String] = _analytics_zone_cards(after_state, "hand")
+	for index: int in range(mini(after_hand_ids.size(), after_hand_cards.size())):
+		var instance_id: String = str(after_hand_ids[index])
+		if before_hand_ids.has(instance_id):
+			continue
+		var card_id: String = after_hand_cards[index]
+		_analytics_store.write_event("card_drawn", _analytics_context_from_states(_run_state, after_state, card_id, instance_id), {
+			"reason": reason,
+			"hand_index": index,
+			"hand_size": after_hand_cards.size(),
+			"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
+		})
+
+func _analytics_log_playable_cards() -> void:
+	if _combat_state.is_empty() or _analytics_combat_tracker.is_empty():
+		return
+	var playable_logged: Dictionary = (_analytics_combat_tracker.get("playable_logged", {}) as Dictionary).duplicate(true)
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	var hand_ids: Array = _analytics_zone_ids(_analytics_combat_tracker, "hand")
+	for index: int in range(mini(hand.size(), hand_ids.size())):
+		var instance_id: String = str(hand_ids[index])
+		if bool(playable_logged.get(instance_id, false)):
+			continue
+		var options: Dictionary = _card_play_options_for_index(index)
+		if not bool(options.get("any_playable", false)):
+			continue
+		var card_id: String = str(hand[index])
+		playable_logged[instance_id] = true
+		_analytics_store.write_event("card_became_playable", _analytics_context_from_states(_run_state, _combat_state, card_id, instance_id), {
+			"hand_index": index,
+			"printed_playable": bool(options.get("printed_playable", false)),
+			"attack_playable": bool(options.get("attack_playable", false)),
+			"move_playable": bool(options.get("move_playable", false))
+		})
+	_analytics_combat_tracker["playable_logged"] = playable_logged
+
+func _analytics_log_card_played(card_id: String, card_instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
+	if card_id.is_empty():
+		return
+	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets))
+
+func _analytics_card_play_payload(card_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> Dictionary:
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = resolved_state.get("player", {})
+	var before_pos: Vector2i = before_player.get("pos", Vector2i.ZERO)
+	var after_pos: Vector2i = after_player.get("pos", Vector2i.ZERO)
+	var enemy_hp_damage: int = 0
+	var enemy_block_removed: int = 0
+	var enemy_stoneskin_removed: int = 0
+	var kills_secured: int = 0
+	var enemy_burn_applied: int = 0
+	var enemy_freeze_applied: int = 0
+	var enemy_shock_applied: int = 0
+	var enemy_stun_applied: int = 0
+	var enemy_poison_applied: int = 0
+	var before_enemies: Array = before_state.get("enemies", [])
+	var after_enemies: Array = resolved_state.get("enemies", [])
+	for index: int in range(mini(before_enemies.size(), after_enemies.size())):
+		var before_enemy: Dictionary = before_enemies[index]
+		var after_enemy: Dictionary = after_enemies[index]
+		enemy_hp_damage += maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0)))
+		enemy_block_removed += maxi(0, int(before_enemy.get("block", 0)) - int(after_enemy.get("block", 0)))
+		enemy_stoneskin_removed += maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
+		if int(before_enemy.get("hp", 0)) > 0 and int(after_enemy.get("hp", 0)) <= 0:
+			kills_secured += 1
+		enemy_burn_applied += maxi(0, int(after_enemy.get("burn", 0)) - int(before_enemy.get("burn", 0)))
+		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
+		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
+		enemy_stun_applied += maxi(0, int(after_enemy.get("stun", 0)) - int(before_enemy.get("stun", 0)))
+		enemy_poison_applied += maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
+	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
+	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
+	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
+	var player_stun_applied: int = maxi(0, int(after_player.get("stun", 0)) - int(before_player.get("stun", 0)))
+	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
+	var printed_actions: Array = (GameData.card_def(card_id).get("actions", []) as Array).duplicate(true)
+	var play_mode: String = "printed"
+	if JSON.stringify(actions) != JSON.stringify(printed_actions):
+		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("move")) else "custom"
+	return {
+		"play_mode": play_mode,
+		"printed_health_cost": int(GameData.card_def(card_id).get("health_cost", 0)),
+		"enemy_hp_damage": enemy_hp_damage,
+		"enemy_block_removed": enemy_block_removed,
+		"enemy_stoneskin_removed": enemy_stoneskin_removed,
+		"kills_secured": kills_secured,
+		"player_hp_delta": int(after_player.get("hp", 0)) - int(before_player.get("hp", 0)),
+		"player_heal_gained": maxi(0, int(after_player.get("hp", 0)) - int(before_player.get("hp", 0))),
+		"player_block_gained": maxi(0, int(after_player.get("block", 0)) - int(before_player.get("block", 0))),
+		"player_stoneskin_gained": maxi(0, int(after_player.get("stoneskin", 0)) - int(before_player.get("stoneskin", 0))),
+		"move_distance": absi(after_pos.x - before_pos.x) + absi(after_pos.y - before_pos.y),
+		"cards_drawn": _draw_entries_between_states(before_state, resolved_state).size(),
+		"enemy_status_applied": {
+			"burn": enemy_burn_applied,
+			"freeze": enemy_freeze_applied,
+			"shock": enemy_shock_applied,
+			"stun": enemy_stun_applied,
+			"poison": enemy_poison_applied
+		},
+		"player_status_applied": {
+			"burn": player_burn_applied,
+			"freeze": player_freeze_applied,
+			"shock": player_shock_applied,
+			"stun": player_stun_applied,
+			"poison": player_poison_applied
+		},
+		"selected_targets": _vector2i_array(selected_targets),
+		"actions": actions.duplicate(true)
+	}
+
+func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
+	for step_var: Variant in phase_result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		var kind: String = str(step.get("kind", ""))
+		if kind not in ["status_damage", "status"]:
+			continue
+		_analytics_store.write_event("enemy_status_tick", _analytics_context_from_states(_run_state, _combat_state), {
+			"kind": kind,
+			"actor_key": str(step.get("actor_key", "")),
+			"actor_name": str(step.get("actor_name", "")),
+			"label": str(step.get("label", "")),
+			"amount": int(step.get("amount", 0)),
+			"text": str(step.get("text", "")),
+			"tile": step.get("tile", Vector2i(-1, -1))
+		})
 
 func _sync_combat_state_from_run() -> void:
 	_combat_state = (_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
