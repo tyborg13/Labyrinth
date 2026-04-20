@@ -51,7 +51,7 @@ It intentionally excludes, for now:
 
 - Orthogonal movement on a small procedural room grid.
 - Melee attacks use adjacency.
-- Ranged and blast attacks target tiles within range and respect line-of-sight against blocking terrain.
+- Ranged attacks target enemies within range, while ranged AOE attacks target a tile pattern within line-of-sight.
 - Temporary block absorbs damage until the actor’s next major phase.
 - Rooms can spawn loot pickups such as healing vials and ember caches.
 - Enemy behavior is deterministic from seed plus state, and each enemy always displays its next intent.

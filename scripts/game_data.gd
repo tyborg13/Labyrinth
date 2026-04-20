@@ -46,7 +46,7 @@ static func starting_deck() -> Array[String]:
 		"quick_stab",
 		"guarded_step",
 		"shadow_step",
-		"shadow_step",
+		"whirlwind_slash",
 		"bone_dart",
 		"sidestep_slash",
 		"patch_up",

@@ -9,6 +9,15 @@ const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
+const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
+const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
+const DEFAULT_AOE_PATTERN: Array = [
+	[0, 0],
+	[1, 0],
+	[-1, 0],
+	[0, 1],
+	[0, -1]
+]
 
 func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dictionary) -> Dictionary:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -80,7 +89,9 @@ func card_def(card_id: String) -> Dictionary:
 
 func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
-	return action_type in ["move", "blink", "melee", "ranged", "blast", "push", "pull"]
+	if action_type == "aoe":
+		return int(action.get("range", 0)) > 0
+	return action_type in ["move", "blink", "melee", "ranged", "push", "pull"]
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -126,19 +137,22 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
 					continue
 				targets.append(enemy_pos)
-		"blast":
-			var blast_range: int = int(action.get("range", 0))
-			var radius: int = int(action.get("radius", 1))
-			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, blast_range, state.get("grid", [])):
-				if tile == player_pos:
-					continue
-				if not PathUtils.is_passable(state.get("grid", []), tile):
-					continue
-				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
-					continue
-				if _enemies_in_radius(state, tile, radius).is_empty():
-					continue
-				targets.append(tile)
+		"aoe":
+			var aoe_range: int = int(action.get("range", 0))
+			if aoe_range <= 0:
+				if not _enemy_indices_in_tiles(state, _best_aoe_tiles_for_target(state, action, player_pos, false)).is_empty():
+					targets.append(player_pos)
+			else:
+				for tile: Vector2i in PathUtils.diamond_tiles(player_pos, aoe_range, state.get("grid", [])):
+					if tile == player_pos:
+						continue
+					if not PathUtils.is_passable(state.get("grid", []), tile):
+						continue
+					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
+						continue
+					if _enemy_indices_in_tiles(state, _best_aoe_tiles_for_target(state, action, tile, false)).is_empty():
+						continue
+					targets.append(tile)
 		"push", "pull":
 			for enemy: Dictionary in _live_enemies(state):
 				var enemy_pos: Vector2i = enemy.get("pos", Vector2i(-1, -1))
@@ -187,8 +201,8 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			next_state = _attack_enemy_on_tile(next_state, action, target_tile, "melee")
 		"ranged":
 			next_state = _attack_enemy_on_tile(next_state, action, target_tile, "ranged")
-		"blast":
-			next_state = _blast_enemies(next_state, action, target_tile)
+		"aoe":
+			next_state = _aoe_enemies(next_state, action, target_tile)
 		"push":
 			next_state = _push_or_pull_enemy(next_state, action, target_tile, true)
 		"pull":
@@ -279,7 +293,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 						next_frontier.append(move_tile)
 				if not next_frontier.is_empty():
 					frontier = next_frontier
-			"melee", "ranged", "blast", "push", "pull":
+			"melee", "ranged", "aoe", "push", "pull":
 				for start_tile: Vector2i in frontier:
 					for attack_tile: Vector2i in _threat_attack_tiles(grid, start_tile, action):
 						if move_lookup.has(attack_tile):
@@ -380,9 +394,14 @@ func attack_bonus_for_current_turn(state: Dictionary) -> int:
 func move_bonus_for_current_turn(state: Dictionary) -> int:
 	return _move_bonus_for_current_turn(state)
 
+func aoe_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Array[Vector2i]:
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
+	return _best_aoe_tiles_for_target(state, action, center, false)
+
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
 	var action_type: String = str(action.get("type", ""))
-	if action_type not in ["melee", "ranged", "blast", "push", "pull"]:
+	if action_type not in ATTACK_ACTION_TYPES:
 		return int(action.get("damage", 0))
 	var base_damage: int = int(action.get("damage", 0))
 	return maxi(0, base_damage + _attack_bonus_for_current_turn(state))
@@ -390,7 +409,7 @@ func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> in
 func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
 	var modifiers: Array[Dictionary] = []
 	var action_type: String = str(action.get("type", ""))
-	if action_type not in ["melee", "ranged", "blast", "push", "pull"]:
+	if action_type not in ATTACK_ACTION_TYPES:
 		return modifiers
 	var attack_bonus: int = _attack_bonus_for_current_turn(state)
 	if attack_bonus != 0:
@@ -482,7 +501,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"amount": heal_amount,
 				"label": "Heal"
 			}
-		"melee", "ranged", "blast", "push", "pull":
+		"melee", "ranged", "aoe", "push", "pull":
 			var hp_loss: int = int(before_player.get("hp", 0)) - int(after_player.get("hp", 0))
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
 			var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
@@ -490,6 +509,12 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var status_text: String = _player_status_step_text(before_player, after_player, action)
 			if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0 and not moved and status_text.is_empty():
 				return {}
+			var center_tile: Vector2i = before_player.get("pos", Vector2i.ZERO)
+			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
+				center_tile = before_enemy.get("pos", Vector2i.ZERO)
+			var aoe_tiles: Array[Vector2i] = []
+			if action_type == "aoe":
+				aoe_tiles = _best_aoe_tiles_for_target(before_state, action, center_tile, true)
 			return {
 				"kind": action_type,
 				"actor_key": _enemy_key(after_enemy),
@@ -498,14 +523,14 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"to": after_player.get("pos", Vector2i.ZERO),
 				"player_from": before_player.get("pos", Vector2i.ZERO),
 				"player_to": after_player.get("pos", Vector2i.ZERO),
-				"center": after_player.get("pos", Vector2i.ZERO),
-				"radius": int(action.get("radius", 1)),
+				"center": center_tile,
+				"tiles": aoe_tiles,
 				"amount": hp_loss + block_loss + stoneskin_loss,
 				"hp_loss": hp_loss,
 				"block_loss": block_loss,
 				"stoneskin_loss": stoneskin_loss,
 				"status_text": status_text,
-				"label": "Strike" if action_type == "melee" else "Shot" if action_type == "ranged" else "Blast" if action_type == "blast" else "Push" if action_type == "push" else "Pull"
+				"label": "Strike" if action_type == "melee" else "Shot" if action_type == "ranged" else "Area" if action_type == "aoe" else "Push" if action_type == "push" else "Pull"
 			}
 		_:
 			return {}
@@ -555,8 +580,8 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_attack_player(next_state, enemy_index, action, "hits")
 		"ranged":
 			next_state = _enemy_attack_player(next_state, enemy_index, action, "fires")
-		"blast":
-			next_state = _enemy_attack_player(next_state, enemy_index, action, "unleashes a blast")
+		"aoe":
+			next_state = _enemy_attack_player(next_state, enemy_index, action, "sweeps the area")
 		"push":
 			next_state = _enemy_push_or_pull_player(next_state, enemy_index, action, true)
 		"pull":
@@ -578,10 +603,13 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
 	return next_state
 
-func _blast_enemies(state: Dictionary, action: Dictionary, center: Vector2i) -> Dictionary:
+func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
-	var radius: int = int(action.get("radius", 1))
-	var affected: Array[int] = _enemies_in_radius(next_state, center, radius)
+	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
+	if int(action.get("range", 0)) > 0 and not valid_targets_for_player_action(next_state, action).has(center):
+		return next_state
+	var affected: Array[int] = _enemy_indices_in_tiles(next_state, _best_aoe_tiles_for_target(next_state, action, center, false))
 	if affected.is_empty():
 		return next_state
 	var damage: int = final_damage_for_player_action(next_state, action)
@@ -590,7 +618,7 @@ func _blast_enemies(state: Dictionary, action: Dictionary, center: Vector2i) -> 
 	for enemy_index: int in affected:
 		next_state = _damage_enemy(next_state, enemy_index, damage)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-	_log(next_state, "Blast hits %d foe(s) for %d." % [affected.size(), damage])
+	_log(next_state, "Area attack hits %d foe(s) for %d." % [affected.size(), damage])
 	return next_state
 
 func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true) -> Dictionary:
@@ -787,11 +815,15 @@ func _enemy_attack_player(state: Dictionary, enemy_index: int, action: Dictionar
 			PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) <= int(action.get("range", 1))
 			and PathUtils.has_line_of_sight(next_state.get("grid", []), enemy.get("pos", Vector2i.ZERO), player_pos)
 		)
-	elif action_type == "blast":
+	elif action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
-		if int(action.get("range", 0)) > 0 and PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) <= int(action.get("range", 0)):
+		if int(action.get("range", 0)) > 0:
+			if PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) > int(action.get("range", 0)):
+				return next_state
+			if not PathUtils.has_line_of_sight(next_state.get("grid", []), enemy.get("pos", Vector2i.ZERO), player_pos):
+				return next_state
 			center = player_pos
-		connects = PathUtils.manhattan(center, player_pos) <= int(action.get("radius", 1))
+		connects = _best_aoe_tiles_for_target(next_state, action, center, true).has(player_pos)
 	if not connects:
 		return next_state
 	var damage: int = int(action.get("damage", 0))
@@ -1360,21 +1392,20 @@ func _threat_attack_tiles(grid: Array, start_tile: Vector2i, action: Dictionary)
 				if int(action.get("range", 1)) > 1 and not PathUtils.has_line_of_sight(grid, start_tile, tile):
 					continue
 				lookup[tile] = true
-		"blast":
-			var radius: int = int(action.get("radius", 1))
-			for tile: Vector2i in PathUtils.diamond_tiles(start_tile, radius, grid):
-				if tile == start_tile or not PathUtils.is_passable(grid, tile):
-					continue
-				lookup[tile] = true
+		"aoe":
 			var attack_range: int = int(action.get("range", 0))
+			var centers: Array[Vector2i] = [start_tile]
 			if attack_range > 0:
-				for center: Vector2i in PathUtils.diamond_tiles(start_tile, attack_range, grid):
-					if not PathUtils.is_passable(grid, center):
+				centers = PathUtils.diamond_tiles(start_tile, attack_range, grid)
+			for center: Vector2i in centers:
+				if center != start_tile and not PathUtils.has_line_of_sight(grid, start_tile, center):
+					continue
+				if not PathUtils.is_passable(grid, center):
+					continue
+				for tile: Vector2i in _aoe_tiles_for_anchor(grid, action, center):
+					if tile == start_tile:
 						continue
-					for tile: Vector2i in PathUtils.diamond_tiles(center, radius, grid):
-						if tile == start_tile or not PathUtils.is_passable(grid, tile):
-							continue
-						lookup[tile] = true
+					lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
 
 func _player_status_step_text(before_player: Dictionary, after_player: Dictionary, action: Dictionary) -> String:
@@ -1482,16 +1513,115 @@ func _enemy_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 			return index
 	return -1
 
-func _enemies_in_radius(state: Dictionary, center: Vector2i, radius: int) -> Array[int]:
+func _enemy_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[int]:
+	var tile_lookup: Dictionary = {}
+	for tile: Vector2i in tiles:
+		tile_lookup[tile] = true
 	var indices: Array[int] = []
 	var enemies: Array = state.get("enemies", [])
 	for index: int in range(enemies.size()):
 		var enemy: Dictionary = enemies[index]
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if PathUtils.manhattan(center, enemy.get("pos", Vector2i(-1, -1))) <= radius:
+		if tile_lookup.has(enemy.get("pos", Vector2i(-1, -1))):
 			indices.append(index)
 	return indices
+
+func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, score_player: bool) -> Array[Vector2i]:
+	var grid: Array = state.get("grid", [])
+	var variants: Array = _aoe_pattern_variants(action)
+	var best_tiles: Array[Vector2i] = []
+	var best_score: int = -1
+	var best_size: int = 9999
+	for offsets_var: Variant in variants:
+		var offsets: Array = offsets_var
+		var tiles: Array[Vector2i] = _tiles_for_aoe_offsets(grid, target_tile, offsets)
+		var score: int = 0
+		if score_player:
+			var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+			score = 1 if tiles.has(player_pos) else 0
+		else:
+			score = _enemy_indices_in_tiles(state, tiles).size()
+		if score > best_score or (score == best_score and tiles.size() < best_size):
+			best_score = score
+			best_size = tiles.size()
+			best_tiles = tiles
+	return best_tiles
+
+func _aoe_tiles_for_anchor(grid: Array, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var variants: Array = _aoe_pattern_variants(action)
+	if variants.is_empty():
+		return []
+	return _tiles_for_aoe_offsets(grid, target_tile, variants[0])
+
+func _tiles_for_aoe_offsets(grid: Array, anchor: Vector2i, offsets: Array) -> Array[Vector2i]:
+	var lookup: Dictionary = {}
+	for offset: Vector2i in _vector2i_values(offsets):
+		var tile: Vector2i = anchor + offset
+		if not PathUtils.is_passable(grid, tile):
+			continue
+		lookup[tile] = true
+	return _sorted_tiles_from_lookup(lookup)
+
+func _aoe_pattern_variants(action: Dictionary) -> Array:
+	var offsets: Array[Vector2i] = _aoe_pattern_offsets(action)
+	var variants: Array = []
+	var seen: Dictionary = {}
+	var rotation_count: int = 4 if bool(action.get("rotate", true)) else 1
+	for rotation: int in range(rotation_count):
+		var rotated: Array[Vector2i] = []
+		for offset: Vector2i in offsets:
+			rotated.append(_rotated_offset(offset, rotation))
+		var key_parts: PackedStringArray = []
+		for rotated_offset: Vector2i in rotated:
+			key_parts.append("%d,%d" % [rotated_offset.x, rotated_offset.y])
+		key_parts.sort()
+		var key: String = "|".join(key_parts)
+		if seen.has(key):
+			continue
+		seen[key] = true
+		var unique_lookup: Dictionary = {}
+		for rotated_offset: Vector2i in rotated:
+			unique_lookup[rotated_offset] = true
+		var unique_offsets: Array[Vector2i] = _sorted_tiles_from_lookup(unique_lookup)
+		variants.append(unique_offsets)
+	return variants
+
+func _aoe_pattern_offsets(action: Dictionary) -> Array[Vector2i]:
+	var raw_pattern: Array = action.get("pattern", DEFAULT_AOE_PATTERN)
+	var offsets: Array[Vector2i] = []
+	for offset_var: Variant in raw_pattern:
+		match typeof(offset_var):
+			TYPE_VECTOR2I:
+				offsets.append(offset_var)
+			TYPE_ARRAY:
+				var pair: Array = offset_var
+				if pair.size() >= 2:
+					offsets.append(Vector2i(int(pair[0]), int(pair[1])))
+			TYPE_DICTIONARY:
+				var offset_dict: Dictionary = offset_var
+				offsets.append(Vector2i(int(offset_dict.get("x", 0)), int(offset_dict.get("y", 0))))
+	if offsets.is_empty():
+		offsets.append(Vector2i.ZERO)
+	return offsets
+
+func _vector2i_values(values: Array) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for value: Variant in values:
+		if typeof(value) == TYPE_VECTOR2I:
+			result.append(value)
+	return result
+
+func _rotated_offset(offset: Vector2i, rotation: int) -> Vector2i:
+	match posmod(rotation, 4):
+		1:
+			return Vector2i(-offset.y, offset.x)
+		2:
+			return Vector2i(-offset.x, -offset.y)
+		3:
+			return Vector2i(offset.y, -offset.x)
+		_:
+			return offset
 
 func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumberGenerator) -> void:
 	var enemies: Array = state.get("enemies", [])
@@ -1560,36 +1690,40 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 	var shallow_power: bool = not medium_power
 	match room_element:
 		ElementData.FIRE:
-			if action_type in ["melee", "ranged", "blast"]:
-				if action_type in ["ranged", "blast"]:
-					action["type"] = "blast"
-					action["radius"] = maxi(1, int(action.get("radius", 1)))
+			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
+				if action_type in ["ranged", "aoe"]:
+					action["type"] = "aoe"
+					if not action.has("pattern"):
+						action["pattern"] = DEFAULT_AOE_PATTERN.duplicate(true)
+					action["rotate"] = bool(action.get("rotate", true))
 				action["damage"] = int(action.get("damage", 0)) + (2 if medium_power else 1)
 				action["burn"] = maxi(1 if shallow_power else 2, int(action.get("burn", 0)) + (2 if full_power else 1))
 				if full_power and int(action.get("damage", 0)) >= 6:
 					action["self_damage"] = maxi(1, int(action.get("self_damage", 0)))
 		ElementData.ICE:
-			if action_type in ["melee", "ranged", "blast"]:
+			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				var base_range: int = int(action.get("range", 1))
 				var range_floor: int = 4 if action_type == "ranged" else 3
 				action["type"] = "ranged"
 				action["range"] = maxi(range_floor, base_range)
 				if allow_control:
 					action["range"] = mini(int(action.get("range", 0)), 4)
-				action.erase("radius")
+				action.erase("pattern")
+				action.erase("rotate")
 				if allow_control:
 					action["freeze"] = 1
 				else:
 					action.erase("freeze")
 		ElementData.LIGHTNING:
-			if action_type in ["melee", "ranged", "blast"]:
+			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				var base_range: int = int(action.get("range", 1))
 				var range_floor: int = 4 if action_type == "ranged" else 3
 				action["type"] = "ranged"
 				action["range"] = maxi(range_floor, base_range)
 				if allow_control:
 					action["range"] = mini(int(action.get("range", 0)), 4)
-				action.erase("radius")
+				action.erase("pattern")
+				action.erase("rotate")
 				if allow_control:
 					action["shock"] = 1
 				else:
@@ -1597,10 +1731,11 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 		ElementData.AIR:
 			if action_type == "move_toward" or action_type == "move_away":
 				action["range"] = int(action.get("range", 0)) + (1 if medium_power else 0)
-			elif action_type in ["melee", "ranged", "blast"]:
+			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				action["type"] = "ranged"
 				action["range"] = maxi(3 if not medium_power else 4, int(action.get("range", 1)))
-				action.erase("radius")
+				action.erase("pattern")
+				action.erase("rotate")
 				action["damage"] = maxi(1, int(action.get("damage", 0)) - 2)
 				if int(action.get("damage", 0)) % 2 == 0:
 					action["push"] = maxi(1, int(action.get("push", 0)) + (2 if full_power else 1))
@@ -1609,10 +1744,11 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 		ElementData.EARTH:
 			if action_type == "block":
 				action["type"] = "stoneskin"
-			elif action_type in ["melee", "ranged", "blast"]:
+			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				action["type"] = "melee"
 				action["range"] = mini(2, maxi(1, int(action.get("range", 1))))
-				action.erase("radius")
+				action.erase("pattern")
+				action.erase("rotate")
 				action["damage"] = int(action.get("damage", 0)) + (1 if medium_power else 0)
 				var poison_bonus: int = 1
 				if medium_power:

@@ -40,7 +40,8 @@ func _initialize() -> void:
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_preview_block_mitigates_current_turn_damage()
-	_test_blast_hits_multiple_targets()
+	_test_aoe_hits_multiple_targets()
+	_test_close_aoe_hits_adjacent_targets()
 	_test_enemy_phase_preserves_preview_cycle()
 	_test_elemental_room_rewards_follow_affinity(default_progression)
 	_test_chain_hits_clustered_enemies()
@@ -525,9 +526,9 @@ func _test_enemy_preview_block_mitigates_current_turn_damage() -> void:
 	_assert(int(blocked_enemy.get("hp", 0)) == 12, "Revealed enemy block should mitigate the current player turn immediately")
 	_assert(int(blocked_enemy.get("block", 0)) == 0, "Enemy block should be reduced before health when struck")
 
-func _test_blast_hits_multiple_targets() -> void:
+func _test_aoe_hits_multiple_targets() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(4, _blast_test_room_layout(), {
+	var state: Dictionary = combat.create_combat(4, _aoe_test_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
 		"deck_cards": ["cyclone_seal"],
@@ -538,8 +539,31 @@ func _test_blast_hits_multiple_targets() -> void:
 	var action: Dictionary = GameData.card_def("cyclone_seal").get("actions", [])[0]
 	state = combat.apply_player_action(state, action, Vector2i(4, 3))
 	var enemies: Array = state.get("enemies", [])
-	_assert(int((enemies[0] as Dictionary).get("hp", 0)) < int((enemies[0] as Dictionary).get("max_hp", 0)), "Blast should damage the first target")
-	_assert(int((enemies[1] as Dictionary).get("hp", 0)) < int((enemies[1] as Dictionary).get("max_hp", 0)), "Blast should damage the second target in the radius")
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) < int((enemies[0] as Dictionary).get("max_hp", 0)), "AOE should damage the first target")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) < int((enemies[1] as Dictionary).get("max_hp", 0)), "AOE should damage the second target in the pattern")
+
+func _test_close_aoe_hits_adjacent_targets() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(41, _aoe_test_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["whirlwind_slash"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["player"] = {"pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 14, "max_hp": 14, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 10, "max_hp": 10, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(5, 5), "hp": 12, "max_hp": 12, "block": 0}
+	]
+	var action: Dictionary = GameData.card_def("whirlwind_slash").get("actions", [])[0]
+	state = combat.apply_player_action(state, action)
+	var enemies: Array = state.get("enemies", [])
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 8, "Close AOE should hit the northern adjacent tile")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 4, "Close AOE should hit the eastern adjacent tile")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 12, "Close AOE should not hit diagonal tiles")
 
 func _test_enemy_phase_preserves_preview_cycle() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -591,7 +615,7 @@ func _test_elemental_room_rewards_follow_affinity(default_progression: Dictionar
 
 func _test_chain_hits_clustered_enemies() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var layout: Dictionary = _blast_test_room_layout()
+	var layout: Dictionary = _aoe_test_room_layout()
 	layout["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 14, "max_hp": 14, "block": 0},
 		{"id": 2, "type": "harrier", "pos": Vector2i(5, 3), "hp": 10, "max_hp": 10, "block": 0},
@@ -871,7 +895,7 @@ func _test_out_of_range_elemental_enemy_attack_skips_step() -> void:
 	var attack_step_found: bool = false
 	for step_var: Variant in phase.get("steps", []):
 		var step: Dictionary = step_var
-		if str(step.get("kind", "")) in ["melee", "ranged", "blast", "push", "pull"]:
+		if str(step.get("kind", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
 			attack_step_found = true
 			break
 	_assert(not attack_step_found, "Enemy attack animations should only enqueue when the attack actually connects")
@@ -1395,6 +1419,9 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged action tokens should use the bow icon")
 	_assert(str((row[1] as Dictionary).get("icon", "")) == "range", "Ranged action tokens should include the shared range icon")
 	_assert(str((row[2] as Dictionary).get("icon", "")) == "poison", "Status keywords should use their shared icon token")
+	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
+	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
+	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
 	_assert(ActionIcons.tooltip("poison").contains("Delayed damage"), "Keyword icon tooltips should include readable descriptions")
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
 	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
@@ -2355,9 +2382,9 @@ func _simple_room_layout() -> Dictionary:
 		"loot": []
 	}
 
-func _blast_test_room_layout() -> Dictionary:
+func _aoe_test_room_layout() -> Dictionary:
 	return {
-		"name": "Blast Room",
+		"name": "Area Room",
 		"coord": Vector2i(1, 1),
 		"type": "combat",
 		"grid": _simple_grid(),

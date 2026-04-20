@@ -42,10 +42,10 @@ Encounter calibration is also important:
   enemy turn across the non-boss roster.
 - Rooms spawn enemies far from the player. In a small headless probe over
   generated combat rooms:
-  - Plain melee, `range 4`, and `blast 4` attacks were effectively never live
+  - Plain melee, `range 4`, and ranged AOE attacks were effectively never live
     on turn 1.
   - By turn 2, `move 4 + melee` was live in about `80%` of sampled rooms,
-    `range 6` in about `90%`, and `blast 4` in about `75%`.
+    `range 6` in about `90%`, and `range 4` AOE in about `75%`.
   - By turn 3, `move 3 + melee` and `range 4` were live in about `92%` of
     sampled rooms.
 
@@ -78,7 +78,8 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Blink on an attacking card: `0.12` per tile
 - Health cost: `1.0` per HP
 - Burn-card penalty: `0.55`
-- Blast target multiplier: `1.45`
+- AOE base target multiplier: `1.20`
+- AOE extra tile multiplier: `0.10`
 - Chain extra target bonus: `0.45`
 - Freeze: `3.8`
 - Shock: `2.5`
@@ -112,13 +113,16 @@ blink in the same card:
 - Reach `4`: `0.86`
 - Reach `5+`: `0.95`
 
-For ranged, blast, push, and pull attacks, playability is based on printed
+For ranged, ranged AOE, push, and pull attacks, playability is based on printed
 range:
 
 - Range `4` or less: `0.80`
 - Range `5`: `0.88`
 - Range `6`: `0.95`
 - Range `7+`: `0.98`
+
+Close AOE patterns use melee playability based on the player's effective reach
+to adjacent tiles, then apply the AOE target multiplier.
 
 This is the core reason `move + attack` and long-range control score so well.
 
@@ -160,7 +164,7 @@ following change:
 - enemy preview rules
 - room size, enemy spacing, or spawn selection
 - enemy roster or intent pacing
-- blast, chain, push, or pull behavior
+- AOE, chain, push, or pull behavior
 - new card action types or keywords
 
 If you change the rules above and do not update the heuristic, future card work

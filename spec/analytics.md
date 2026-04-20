@@ -48,6 +48,10 @@ The current event stream is enough to derive:
 - immediate status application deltas
 - actual resolved action list and chosen targets
 
+AOE card actions are logged in that action list with their explicit `pattern`
+offsets so offline balance analysis can distinguish close, line, cluster, and
+large-area attacks.
+
 `enemy_status_tick` captures delayed status resolution at the combat level. It is useful for later value-model work, but it is not yet card-source attributed.
 
 ## AWS-Friendly Expectations

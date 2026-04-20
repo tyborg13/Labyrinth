@@ -16,11 +16,6 @@ const KEYWORDS: Dictionary = {
 		"description": "Deals damage from a distance.",
 		"path": "%s/ranged.svg" % ICON_ROOT
 	},
-	"blast": {
-		"label": "Blast",
-		"description": "Deals damage in an area.",
-		"path": "%s/blast.svg" % ICON_ROOT
-	},
 	"move": {
 		"label": "Move",
 		"description": "Moves across board tiles.",
@@ -184,10 +179,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(token_for("range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
-		"blast":
-			_append_damage_token(tokens, "blast", action, options)
+		"aoe":
+			_append_damage_token(tokens, "ranged" if int(action.get("range", 0)) > 0 else "melee", action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(token_for("range", int(action.get("range", 0))))
+			tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
 		"push":
 			tokens.append(token_for("push", int(action.get("amount", 0))))
@@ -217,6 +213,9 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var
+		if str(token.get("kind", "")) == "aoe_pattern":
+			parts.append("Area")
+			continue
 		var value_text: String = token_value_text(token)
 		if value_text.is_empty():
 			parts.append(label(str(token.get("icon", ""))))
@@ -243,6 +242,15 @@ static func _append_optional_hit_token(tokens: Array, action: Dictionary, option
 	var base_damage: int = int(action.get("damage", 0))
 	var final_damage: int = int(options.get("final_damage", base_damage))
 	tokens.append(token_for("melee", final_damage, _damage_tone(final_damage, base_damage)))
+
+static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
+	return {
+		"kind": "aoe_pattern",
+		"icon": "aoe_pattern",
+		"pattern": action.get("pattern", []),
+		"show_origin": int(action.get("range", 0)) <= 0,
+		"tooltip": "Area pattern\nRed tiles are hit%s." % (" relative to you" if int(action.get("range", 0)) <= 0 else "")
+	}
 
 static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 	if int(action.get("burn", 0)) > 0:

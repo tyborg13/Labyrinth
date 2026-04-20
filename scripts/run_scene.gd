@@ -1478,7 +1478,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		var action: Dictionary = action_var
 		var action_type: String = str(action.get("type", ""))
 		match action_type:
-			"melee", "ranged", "blast":
+			"melee", "ranged", "aoe":
 				var base_damage: int = int(action.get("damage", 0))
 				var final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				summary_rows.append(ActionIcons.tokens_for_action(action, {"final_damage": final_damage}))
@@ -1514,7 +1514,7 @@ func _damage_modifier_line(modifier: Dictionary) -> String:
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
 	var action_type: String = str(action.get("type", ""))
-	if action_type not in ["melee", "ranged", "blast", "push", "pull"]:
+	if action_type not in ["melee", "ranged", "aoe", "push", "pull"]:
 		return
 	if int(action.get("damage", 0)) <= 0:
 		return
@@ -1553,6 +1553,14 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
+			cursor += 1
+			continue
+		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
+			if _combat_engine.valid_targets_for_player_action(working_state, action).is_empty():
+				cursor += 1
+				continue
+			working_state = _combat_engine.apply_player_action(working_state, action)
+			effect_seen = true
 			cursor += 1
 			continue
 		if _combat_engine.player_action_needs_target(action):
@@ -1635,8 +1643,8 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		return []
 	if action_type in ["move", "blink"]:
 		return _path_tiles_for_preview(preview)
-	if action_type == "blast":
-		return _tiles_in_radius(_hovered_board_tile, int(action.get("radius", 1)), (preview.get("state", {}) as Dictionary).get("grid", []))
+	if action_type == "aoe":
+		return _aoe_tiles_for_action(preview.get("state", {}), action, _hovered_board_tile)
 	return _vector2i_array([_hovered_board_tile])
 
 func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
@@ -1662,8 +1670,10 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	if _hovered_board_tile.x < 0:
 		return {}
 	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	var preview_state: Dictionary = preview.get("state", {})
 	if not shortcut_plan.is_empty():
 		return _preview_effect_for_target(
+			preview_state,
 			shortcut_plan.get("move_tile", INVALID_TARGET_TILE),
 			_hovered_board_tile,
 			shortcut_plan.get("action", {})
@@ -1671,11 +1681,10 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return {}
-	var preview_state: Dictionary = preview.get("state", {})
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	return _preview_effect_for_target(player_tile, _hovered_board_tile, action)
+	return _preview_effect_for_target(preview_state, player_tile, _hovered_board_tile, action)
 
-func _preview_effect_for_target(from_tile: Vector2i, target_tile: Vector2i, action: Dictionary) -> Dictionary:
+func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_tile: Vector2i, action: Dictionary) -> Dictionary:
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
@@ -1684,8 +1693,14 @@ func _preview_effect_for_target(from_tile: Vector2i, target_tile: Vector2i, acti
 			return {"kind": "blink", "from": from_tile, "to": target_tile}
 		"melee", "ranged":
 			return {"kind": action_type, "from": from_tile, "to": target_tile}
-		"blast":
-			return {"kind": "blast", "from": from_tile, "to": target_tile, "center": target_tile, "radius": int(action.get("radius", 1))}
+		"aoe":
+			return {
+				"kind": "aoe",
+				"from": from_tile,
+				"to": target_tile,
+				"center": target_tile,
+				"tiles": _aoe_tiles_for_action(state, action, target_tile)
+			}
 		_:
 			return {}
 
@@ -1777,19 +1792,10 @@ func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index:
 		cursor += 1
 	return {}
 
-func _tiles_in_radius(center: Vector2i, radius: int, grid: Array) -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
-	for y_offset: int in range(-radius, radius + 1):
-		for x_offset: int in range(-radius, radius + 1):
-			var tile: Vector2i = center + Vector2i(x_offset, y_offset)
-			if PathUtils.manhattan(center, tile) > radius:
-				continue
-			if tile.y < 0 or tile.y >= grid.size():
-				continue
-			if tile.x < 0 or tile.x >= (grid[tile.y] as Array).size():
-				continue
-			tiles.append(tile)
-	return tiles
+func _aoe_tiles_for_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = INVALID_TARGET_TILE) -> Array[Vector2i]:
+	if str(action.get("type", "")) != "aoe":
+		return []
+	return _combat_engine.aoe_tiles_for_player_action(state, action, target_tile)
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -2184,20 +2190,23 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect_progress": 1.0
 			})
 			await get_tree().create_timer(0.14).timeout
-		"melee", "ranged", "blast", "push", "pull":
-			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile])
-			if action_type == "blast":
-				focus_tiles = _tiles_in_radius(target_tile, int(action.get("radius", 1)), before_state.get("grid", []))
+		"melee", "ranged", "aoe", "push", "pull":
+			var effect_target_tile: Vector2i = target_tile
+			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
+				effect_target_tile = player_before_tile
+			var focus_tiles: Array[Vector2i] = _vector2i_array([effect_target_tile])
+			if action_type == "aoe":
+				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"from": player_before_tile,
-				"to": target_tile,
-				"center": target_tile,
-				"radius": int(action.get("radius", 1))
+				"to": effect_target_tile,
+				"center": effect_target_tile,
+				"tiles": focus_tiles
 			}
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
-			var to_point: Vector2 = board_view.world_position_for_tile(target_tile)
+			var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
 			for frame: int in range(1, ATTACK_FRAMES + 1):
 				var t: float = float(frame) / float(ATTACK_FRAMES)
 				var presentation := {
@@ -2212,7 +2221,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					presentation["unit_world_positions"] = {
 						"player": from_point.lerp(to_point, 0.10 + sin(t * PI) * 0.24)
 					}
-					presentation["unit_draw_tiles"] = {"player": target_tile}
+					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
 				_render_board_state(before_state, presentation)
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
 			await _animate_floating_text_presentation(after_state, {
@@ -2344,10 +2353,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"effect": step,
 					"floating_texts": _floating_texts_for_step(step)
 				})
-			"melee", "ranged", "blast", "push", "pull":
+			"melee", "ranged", "aoe", "push", "pull":
 				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
-				if str(step.get("kind", "")) == "blast":
-					focus_tiles = _tiles_in_radius(step.get("center", Vector2i(-1, -1)), int(step.get("radius", 1)), animated_state.get("grid", []))
+				if str(step.get("kind", "")) == "aoe":
+					focus_tiles = _vector2i_array(step.get("tiles", []))
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
@@ -2431,7 +2440,7 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			_add_enemy_heal_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"status_damage":
 			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
-		"melee", "ranged", "blast", "push", "pull":
+		"melee", "ranged", "aoe", "push", "pull":
 			_apply_player_losses(animated_state, int(step.get("hp_loss", 0)), int(step.get("block_loss", 0)), int(step.get("stoneskin_loss", 0)))
 			if step.has("player_to"):
 				_set_player_pos(animated_state, step.get("player_to", Vector2i.ZERO))
@@ -2473,7 +2482,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"color": Color("f39779"),
 				"offset": -6.0
 			}]
-		"melee", "ranged", "blast", "push", "pull":
+		"melee", "ranged", "aoe", "push", "pull":
 			var floats: Array[Dictionary] = []
 			if int(step.get("hp_loss", 0)) > 0:
 				floats.append({
@@ -2660,7 +2669,9 @@ func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
 		"move", "blink":
 			return "Choose tile"
-		"melee", "ranged", "blast", "push", "pull":
+		"aoe":
+			return "Choose area" if int(action.get("range", 0)) > 0 else "Resolve"
+		"melee", "ranged", "push", "pull":
 			return "Choose target"
 		_:
 			return "Resolve"

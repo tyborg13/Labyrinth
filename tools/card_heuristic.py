@@ -34,7 +34,8 @@ class HeuristicWeights:
     health_cost_per_point: float = 1.00
     burn_card_penalty: float = 0.55
     burn_card_draw_offset_per_card: float = 0.18
-    blast_target_multiplier: float = 1.45
+    aoe_base_target_multiplier: float = 1.20
+    aoe_extra_tile_multiplier: float = 0.10
     chain_extra_targets: float = 0.45
     freeze_value: float = 3.8
     shock_value: float = 2.5
@@ -93,19 +94,33 @@ def ranged_playability(base_range: int) -> float:
 
 
 def playability_for_attack(action_type: str, total_reach: int, base_range: int) -> float:
-    if action_type == "melee":
+    if action_type == "melee" or (action_type == "aoe" and base_range <= 0):
         return melee_playability(total_reach)
-    if action_type in {"ranged", "blast", "push", "pull"}:
+    if action_type in {"ranged", "aoe", "push", "pull"}:
         return ranged_playability(base_range)
     return 1.0
+
+
+def aoe_pattern_tile_count(action: dict[str, Any]) -> int:
+    pattern = action.get("pattern", [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]])
+    if not isinstance(pattern, list):
+        return 1
+    unique_offsets: set[tuple[int, int]] = set()
+    for offset in pattern:
+        if isinstance(offset, (list, tuple)) and len(offset) >= 2:
+            unique_offsets.add((int(offset[0]), int(offset[1])))
+        elif isinstance(offset, dict):
+            unique_offsets.add((int(offset.get("x", 0)), int(offset.get("y", 0))))
+    return max(1, len(unique_offsets))
 
 
 def target_multiplier(action: dict[str, Any], weights: HeuristicWeights) -> float:
     multiplier = 1.0
     if int(action.get("chain", 0)) > 0:
         multiplier += weights.chain_extra_targets
-    if str(action.get("type", "")) == "blast":
-        multiplier *= weights.blast_target_multiplier
+    if str(action.get("type", "")) == "aoe":
+        tile_count = aoe_pattern_tile_count(action)
+        multiplier *= weights.aoe_base_target_multiplier + max(0, tile_count - 1) * weights.aoe_extra_tile_multiplier
     return multiplier
 
 
@@ -143,10 +158,11 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             has_move = True
             continue
 
-        if action_type in {"melee", "ranged", "blast", "push", "pull"}:
+        if action_type in {"melee", "ranged", "aoe", "push", "pull"}:
             has_attack = True
             base_range = int(action.get("range", 1))
-            playability = playability_for_attack(action_type, pre_attack_reach + base_range, base_range)
+            effective_reach = pre_attack_reach + (1 if action_type == "aoe" and base_range <= 0 else base_range)
+            playability = playability_for_attack(action_type, effective_reach, base_range)
             targets = target_multiplier(action, weights)
             damage = int(action.get("damage", 0))
 

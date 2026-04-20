@@ -142,7 +142,7 @@
         "weight": 2,
         "actions": [
           { "type": "move_toward", "range": 2 },
-          { "type": "blast", "damage": 5, "range": 0, "radius": 1 }
+          { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
         ]
       }
     ]
@@ -168,7 +168,7 @@
         "name": "Sweeping Gale",
         "weight": 3,
         "actions": [
-          { "type": "blast", "damage": 7, "range": 4, "radius": 1 }
+          { "type": "aoe", "damage": 7, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false }
         ]
       },
       {

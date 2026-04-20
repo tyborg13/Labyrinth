@@ -21,6 +21,110 @@ const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
 const COMPACT_CARD_WIDTH: float = 144.0
 
+class AoePatternView:
+	extends Control
+
+	const TILE_WIDTH: float = 12.0
+	const TILE_HEIGHT: float = 8.0
+	const TILE_PADDING: float = 4.0
+
+	var pattern_offsets: Array[Vector2i] = []
+	var show_origin: bool = false
+
+	func setup(raw_pattern: Variant, next_show_origin: bool, next_tooltip: String) -> void:
+		pattern_offsets = _parse_offsets(raw_pattern)
+		show_origin = next_show_origin
+		tooltip_text = next_tooltip
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		custom_minimum_size = _desired_size()
+		queue_redraw()
+
+	func _draw() -> void:
+		var draw_offsets: Array[Vector2i] = _draw_offsets()
+		if draw_offsets.is_empty():
+			return
+		var bounds: Rect2 = _bounds_for_offsets(draw_offsets)
+		var shift: Vector2 = size * 0.5 - bounds.get_center()
+		var hit_lookup: Dictionary = {}
+		for offset: Vector2i in pattern_offsets:
+			hit_lookup[offset] = true
+		for offset: Vector2i in draw_offsets:
+			var is_origin: bool = show_origin and offset == Vector2i.ZERO and not hit_lookup.has(offset)
+			var fill: Color = Color("e9dcc6") if is_origin else Color("d95f4a")
+			var border: Color = Color("5a493b") if is_origin else Color("7b2f25")
+			_draw_tile(_iso_center(offset) + shift, fill, border)
+
+	func _desired_size() -> Vector2:
+		var draw_offsets: Array[Vector2i] = _draw_offsets()
+		if draw_offsets.is_empty():
+			return Vector2(34.0, 24.0)
+		var bounds: Rect2 = _bounds_for_offsets(draw_offsets)
+		return Vector2(maxf(34.0, bounds.size.x + TILE_PADDING * 2.0), maxf(24.0, bounds.size.y + TILE_PADDING * 2.0))
+
+	func _draw_offsets() -> Array[Vector2i]:
+		var lookup: Dictionary = {}
+		for offset: Vector2i in pattern_offsets:
+			lookup[offset] = true
+		if show_origin:
+			lookup[Vector2i.ZERO] = true
+		var offsets: Array[Vector2i] = []
+		for offset_var: Variant in lookup.keys():
+			if typeof(offset_var) == TYPE_VECTOR2I:
+				offsets.append(offset_var)
+		offsets.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+			if a.y == b.y:
+				return a.x < b.x
+			return a.y < b.y
+		)
+		return offsets
+
+	func _bounds_for_offsets(offsets: Array[Vector2i]) -> Rect2:
+		var first: bool = true
+		var rect := Rect2()
+		for offset: Vector2i in offsets:
+			var center: Vector2 = _iso_center(offset)
+			var tile_rect := Rect2(center - Vector2(TILE_WIDTH * 0.5, TILE_HEIGHT * 0.5), Vector2(TILE_WIDTH, TILE_HEIGHT))
+			if first:
+				rect = tile_rect
+				first = false
+			else:
+				rect = rect.merge(tile_rect)
+		return rect
+
+	func _iso_center(offset: Vector2i) -> Vector2:
+		return Vector2(float(offset.x - offset.y) * TILE_WIDTH * 0.5, float(offset.x + offset.y) * TILE_HEIGHT * 0.5)
+
+	func _draw_tile(center: Vector2, fill: Color, border: Color) -> void:
+		var points := PackedVector2Array([
+			center + Vector2(0.0, -TILE_HEIGHT * 0.5),
+			center + Vector2(TILE_WIDTH * 0.5, 0.0),
+			center + Vector2(0.0, TILE_HEIGHT * 0.5),
+			center + Vector2(-TILE_WIDTH * 0.5, 0.0),
+			center + Vector2(0.0, -TILE_HEIGHT * 0.5)
+		])
+		draw_colored_polygon(points, fill)
+		draw_polyline(points, border, 1.0, true)
+
+	func _parse_offsets(raw_pattern: Variant) -> Array[Vector2i]:
+		var parsed: Array[Vector2i] = []
+		if typeof(raw_pattern) != TYPE_ARRAY:
+			parsed.append(Vector2i.ZERO)
+			return parsed
+		for offset_var: Variant in raw_pattern:
+			match typeof(offset_var):
+				TYPE_VECTOR2I:
+					parsed.append(offset_var)
+				TYPE_ARRAY:
+					var pair: Array = offset_var
+					if pair.size() >= 2:
+						parsed.append(Vector2i(int(pair[0]), int(pair[1])))
+				TYPE_DICTIONARY:
+					var offset_dict: Dictionary = offset_var
+					parsed.append(Vector2i(int(offset_dict.get("x", 0)), int(offset_dict.get("y", 0))))
+		if parsed.is_empty():
+			parsed.append(Vector2i.ZERO)
+		return parsed
+
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var cost_badge: Label = $Margin/VBox/TopRow/CostBadge
@@ -360,6 +464,11 @@ func _render_summary_icon_rows(rows: Array) -> void:
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
+	if str(token.get("kind", "")) == "aoe_pattern":
+		var pattern_view := AoePatternView.new()
+		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip)
+		row.add_child(pattern_view)
+		return
 	var icon := TextureRect.new()
 	icon.custom_minimum_size = Vector2(icon_size, icon_size)
 	icon.texture = ActionIcons.icon_texture(str(token.get("icon", "")))

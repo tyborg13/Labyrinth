@@ -769,6 +769,13 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var
+		if str(token.get("kind", "")) == "aoe_pattern":
+			var pattern_size: Vector2 = _aoe_token_size(token, icon_size)
+			var pattern_rect := Rect2(Vector2(cursor_x, origin.y + (icon_size - pattern_size.y) * 0.5), pattern_size)
+			_draw_aoe_token_pattern(token, pattern_rect, icon_size)
+			_register_tooltip(pattern_rect, ActionIcons.token_tooltip(token))
+			cursor_x += pattern_size.x + 5.0
+			continue
 		var icon_key: String = str(token.get("icon", ""))
 		var tooltip: String = ActionIcons.token_tooltip(token)
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
@@ -809,6 +816,9 @@ func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Fon
 	for token_var: Variant in tokens:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
+		if str((token_var as Dictionary).get("kind", "")) == "aoe_pattern":
+			width += _aoe_token_size(token_var as Dictionary, icon_size).x + 5.0
+			continue
 		width += icon_size + 3.0
 		var value_text: String = ActionIcons.token_value_text(token_var as Dictionary)
 		if not value_text.is_empty() and font != null:
@@ -816,6 +826,81 @@ func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Fon
 		else:
 			width += 5.0
 	return width
+
+func _aoe_token_size(token: Dictionary, icon_size: float) -> Vector2:
+	var offsets: Array[Vector2i] = _aoe_token_offsets(token)
+	if bool(token.get("show_origin", false)) and not offsets.has(Vector2i.ZERO):
+		offsets.append(Vector2i.ZERO)
+	var bounds: Rect2 = _aoe_token_bounds(offsets, icon_size)
+	return Vector2(maxf(icon_size * 1.8, bounds.size.x + 6.0), maxf(icon_size, bounds.size.y + 4.0))
+
+func _draw_aoe_token_pattern(token: Dictionary, rect: Rect2, icon_size: float) -> void:
+	var offsets: Array[Vector2i] = _aoe_token_offsets(token)
+	var show_origin: bool = bool(token.get("show_origin", false))
+	var hit_lookup: Dictionary = {}
+	for offset: Vector2i in offsets:
+		hit_lookup[offset] = true
+	if show_origin and not hit_lookup.has(Vector2i.ZERO):
+		offsets.append(Vector2i.ZERO)
+	var bounds: Rect2 = _aoe_token_bounds(offsets, icon_size)
+	var shift: Vector2 = rect.get_center() - bounds.get_center()
+	for offset: Vector2i in offsets:
+		var is_origin: bool = show_origin and offset == Vector2i.ZERO and not hit_lookup.has(offset)
+		var fill: Color = Color("e9dcc6") if is_origin else Color("d95f4a")
+		var border: Color = Color("5a493b") if is_origin else Color("7b2f25")
+		_draw_aoe_token_tile(_aoe_token_center(offset, icon_size) + shift, icon_size, fill, border)
+
+func _aoe_token_offsets(token: Dictionary) -> Array[Vector2i]:
+	var raw_pattern: Variant = token.get("pattern", [])
+	var offsets: Array[Vector2i] = []
+	if typeof(raw_pattern) == TYPE_ARRAY:
+		for offset_var: Variant in raw_pattern:
+			match typeof(offset_var):
+				TYPE_VECTOR2I:
+					offsets.append(offset_var)
+				TYPE_ARRAY:
+					var pair: Array = offset_var
+					if pair.size() >= 2:
+						offsets.append(Vector2i(int(pair[0]), int(pair[1])))
+				TYPE_DICTIONARY:
+					var offset_dict: Dictionary = offset_var
+					offsets.append(Vector2i(int(offset_dict.get("x", 0)), int(offset_dict.get("y", 0))))
+	if offsets.is_empty():
+		offsets.append(Vector2i.ZERO)
+	return offsets
+
+func _aoe_token_bounds(offsets: Array[Vector2i], icon_size: float) -> Rect2:
+	var first: bool = true
+	var rect := Rect2()
+	var tile_width: float = icon_size * 0.70
+	var tile_height: float = icon_size * 0.46
+	for offset: Vector2i in offsets:
+		var center: Vector2 = _aoe_token_center(offset, icon_size)
+		var tile_rect := Rect2(center - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
+		if first:
+			rect = tile_rect
+			first = false
+		else:
+			rect = rect.merge(tile_rect)
+	return rect
+
+func _aoe_token_center(offset: Vector2i, icon_size: float) -> Vector2:
+	var tile_width: float = icon_size * 0.70
+	var tile_height: float = icon_size * 0.46
+	return Vector2(float(offset.x - offset.y) * tile_width * 0.5, float(offset.x + offset.y) * tile_height * 0.5)
+
+func _draw_aoe_token_tile(center: Vector2, icon_size: float, fill: Color, border: Color) -> void:
+	var tile_width: float = icon_size * 0.70
+	var tile_height: float = icon_size * 0.46
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0),
+		center + Vector2(0.0, -tile_height * 0.5)
+	])
+	draw_colored_polygon(points, fill)
+	draw_polyline(points, border, 1.0, true)
 
 func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
@@ -1140,12 +1225,15 @@ func _draw_effect_overlay() -> void:
 			var melee_size: float = _tile_width() * (0.12 + progress * 0.14)
 			draw_line(slash_center + Vector2(-melee_size, -melee_size), slash_center + Vector2(melee_size, melee_size), Color("f2c996"), 5.0, true)
 			draw_line(slash_center + Vector2(melee_size, -melee_size), slash_center + Vector2(-melee_size, melee_size), Color("f2c996"), 5.0, true)
-		"blast":
-			if center_tile.x < 0:
-				return
-			var radius: int = int(effect.get("radius", 1))
-			var draw_radius: float = _tile_width() * (0.10 + progress * (0.36 + float(radius) * 0.42))
-			draw_arc(center_point, draw_radius, 0.0, TAU, 28, Color("f08c53"), 4.0)
+		"aoe":
+			var effect_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
+			if effect_tiles.is_empty() and center_tile.x >= 0:
+				effect_tiles = [center_tile]
+			var warm_alpha: float = 0.18 + progress * 0.18
+			for tile: Vector2i in effect_tiles:
+				var tile_point: Vector2 = _tile_center(tile)
+				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.10), 0.0, TAU, 18, Color(0.96, 0.50, 0.30, 0.52 + progress * 0.28), 3.0)
+				draw_circle(tile_point, _tile_width() * 0.13, Color(1.0, 0.35, 0.18, warm_alpha))
 		"block":
 			var block_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if block_tile.x < 0:
@@ -1750,7 +1838,7 @@ func _intent_color(intent: Dictionary) -> Color:
 		return ElementData.accent(element_id)
 	for action_var: Variant in intent.get("actions", []):
 		var action_type: String = str((action_var as Dictionary).get("type", ""))
-		if action_type in ["melee", "ranged", "blast"]:
+		if action_type in ["melee", "ranged", "aoe"]:
 			return Color("d56a55")
 		if action_type == "stoneskin":
 			return ElementData.accent(ElementData.EARTH)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-20T03:16:06Z",
+  "updated_at": "2026-04-20T15:32:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1255,6 +1255,28 @@
       "source": {
         "branch": "master",
         "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260420T153235Z_3c46af04",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "AOE card actions use explicit pattern offsets: range 0 resolves from the player without a target, while range > 0 targets a visible center tile; rotate=true patterns auto-select the rotation that hits the most relevant units.",
+      "details": "The card/UI schema stores pattern as JSON offset pairs and optional rotate. CombatEngine validates ranged AOE centers by range/LOS, applies close AOE from the player tile, and exposes aoe_tiles_for_player_action so RunScene previews and animations use the same best-rotation tile set as damage resolution.",
+      "status": "active",
+      "created_at": "2026-04-20T15:32:35Z",
+      "updated_at": "2026-04-20T15:32:35Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "a1fbabb"
       }
     }
   ]

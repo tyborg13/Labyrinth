@@ -66,6 +66,19 @@
       { "type": "melee", "damage": 5, "range": 1 }
     ]
   },
+  "whirlwind_slash": {
+    "name": "Whirlwind Slash",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "starter": true,
+    "description": "Strike all adjacent tiles for 6.",
+    "accent": "#b8694a",
+    "art_path": "res://assets/placeholders/cards/sidestep_slash.svg",
+    "actions": [
+      { "type": "aoe", "damage": 6, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+    ]
+  },
   "patch_up": {
     "name": "Patch Up",
     "rarity": "starter",
@@ -204,11 +217,11 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
-    "description": "Deal 6 in a radius-1 blast at range 3.",
+    "description": "Deal 6 in a cross pattern at range 3.",
     "accent": "#cb6a39",
     "art_path": "res://assets/placeholders/cards/cinderburst.svg",
     "actions": [
-      { "type": "blast", "damage": 6, "range": 3, "radius": 1 }
+      { "type": "aoe", "damage": 6, "range": 3, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false }
     ]
   },
   "reprise": {
@@ -280,11 +293,11 @@
     "rarity": "rare",
     "burn": true,
     "health_cost": 0,
-    "description": "Burn. Deal 8 in a radius-1 blast at range 4.",
+    "description": "Burn. Deal 8 in a cross pattern at range 4.",
     "accent": "#9d5a39",
     "art_path": "res://assets/placeholders/cards/cyclone_seal.svg",
     "actions": [
-      { "type": "blast", "damage": 8, "range": 4, "radius": 1 }
+      { "type": "aoe", "damage": 8, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false }
     ]
   },
   "last_light": {
@@ -333,11 +346,11 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "description": "Blast for 4 at range 4. Burn 2.",
+    "description": "Deal 4 in a cross pattern at range 4. Burn 2.",
     "accent": "#d9623f",
     "art_path": "res://assets/placeholders/cards/element_fire.svg",
     "actions": [
-      { "type": "blast", "damage": 4, "range": 4, "radius": 1, "burn": 2 }
+      { "type": "aoe", "damage": 4, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 2 }
     ]
   },
   "hearth_rush": {
@@ -360,11 +373,11 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 2,
-    "description": "Lose 2 health. Blast for 6 at range 4. Burn 3.",
+    "description": "Lose 2 health. Deal 6 in a cross pattern at range 4. Burn 3.",
     "accent": "#d9623f",
     "art_path": "res://assets/placeholders/cards/element_fire.svg",
     "actions": [
-      { "type": "blast", "damage": 6, "range": 4, "radius": 1, "burn": 3 }
+      { "type": "aoe", "damage": 6, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 3 }
     ]
   },
   "molten_reach": {
@@ -385,12 +398,12 @@
     "element": "fire",
     "rarity": "rare",
     "burn": false,
-    "health_cost": 2,
-    "description": "Lose 2 health. Blast for 7 at range 5. Burn 4.",
+    "health_cost": 5,
+    "description": "Lose 5 health. Deal 6 in a large pattern at range 5. Burn 4.",
     "accent": "#d9623f",
     "art_path": "res://assets/placeholders/cards/element_fire.svg",
     "actions": [
-      { "type": "blast", "damage": 7, "range": 5, "radius": 1, "burn": 4 }
+      { "type": "aoe", "damage": 6, "range": 5, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2], [1, 1], [1, -1], [-1, 1], [-1, -1]], "rotate": false, "burn": 4 }
     ]
   },
   "frostbolt": {
@@ -452,11 +465,11 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 4,
-    "description": "Lose 4 health. Deal 8 at range 6. Freeze.",
+    "description": "Lose 4 health. Deal 5 in a two-tile pattern at range 5. Freeze.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/placeholders/cards/element_ice.svg",
     "actions": [
-      { "type": "ranged", "damage": 8, "range": 6, "freeze": 1 }
+      { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [1, 0]], "rotate": true, "freeze": 1 }
     ]
   },
   "white_silence": {
@@ -543,11 +556,11 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 3,
-    "description": "Lose 3 health. Deal 7 at range 7. Chain. Shock.",
+    "description": "Lose 3 health. Deal 6 in a line at range 6. Shock.",
     "accent": "#cfb347",
     "art_path": "res://assets/placeholders/cards/element_lightning.svg",
     "actions": [
-      { "type": "ranged", "damage": 7, "range": 7, "chain": 2, "shock": 1 }
+      { "type": "aoe", "damage": 6, "range": 6, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true, "shock": 1 }
     ]
   },
   "gust_step": {
@@ -611,11 +624,11 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
-    "description": "Deal 4 at range 6. Push 2.",
+    "description": "Deal 3 to an odd pattern at range 5. Push 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/placeholders/cards/element_air.svg",
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 6, "push": 2 }
+      { "type": "aoe", "damage": 3, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1 }
     ]
   },
   "skybreak_current": {
@@ -692,11 +705,11 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
-    "description": "Blast for 5 at range 2. Poison 4.",
+    "description": "Strike all adjacent tiles for 5. Poison 2.",
     "accent": "#89a15b",
     "art_path": "res://assets/placeholders/cards/element_earth.svg",
     "actions": [
-      { "type": "blast", "damage": 5, "range": 2, "radius": 1, "poison": 4 }
+      { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "poison": 2 }
     ]
   },
   "tectonic_maul": {
