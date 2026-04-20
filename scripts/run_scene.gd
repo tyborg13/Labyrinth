@@ -1381,6 +1381,7 @@ func _board_display_state() -> Dictionary:
 		"room_type": layout.get("type", "room"),
 		"room_element": layout.get("element", ElementData.NONE),
 		"grid": layout.get("grid", []).duplicate(true),
+		"moss": layout.get("moss", {}).duplicate(true),
 		"player": {
 			"pos": layout.get("player_start", RoomGeneratorScript.entry_tile_for_direction(Vector2i.ZERO)),
 			"hp": int(_run_state.get("player_hp", 1)),

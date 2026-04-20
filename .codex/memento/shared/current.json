@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-15T03:49:10Z",
+  "updated_at": "2026-04-20T03:16:06Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1032,28 +1032,6 @@
       }
     },
     {
-      "id": "mnt_20260414T160800Z_bc1ad221",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/room_generator.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/room_generator.gd",
-      "summary": "Room floors now generate as ash with deterministic moss accents, while _base_grid still consumes one legacy floor-theme roll so template and encounter RNG stay aligned with prior room seeds.",
-      "details": "RoomGenerator applies moss after template stamping using a room-seeded coordinate hash plus light neighbor de-clumping, keeps entry tiles ash for readability, and never emits ember floor tiles from generation.",
-      "status": "active",
-      "created_at": "2026-04-14T16:08:00Z",
-      "updated_at": "2026-04-14T16:08:00Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "31160f5"
-      }
-    },
-    {
       "id": "mnt_20260415T024007Z_29b0a243",
       "layer": "shared",
       "kind": "decision",
@@ -1117,6 +1095,166 @@
       "source": {
         "branch": "master",
         "commit": "2c5d6e2"
+      }
+    },
+    {
+      "id": "mnt_20260416T203538Z_ae47f3b4",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Boundary wall and door props render with a narrower draw width than their raw fitted texture so each blocker stays inside a single wall tile span.",
+      "details": "Wall segments still use the tall prop frame and bottom alignment, but _prop_draw_rect now horizontally compresses boundary blockers after fitting: walls use a slightly reduced width and doors use an even narrower inset width so the opening reads as part of one wall segment instead of spilling across neighbors.",
+      "status": "active",
+      "created_at": "2026-04-16T20:35:38Z",
+      "updated_at": "2026-04-16T20:35:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260417T014053Z_422fab2c",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/run_tests.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/run_tests.gd",
+      "summary": "Prop-art regression tests should compare trimmed pillar-vs-wall silhouette rather than assuming the pillar stays perfectly square after texture trimming.",
+      "details": "CombatBoardView trims PNG props to their used rect before fitting. The pillar asset loads with a noticeably squarer silhouette than the wall art, but not a perfect 1:1 ratio, so regression coverage should assert that pillars stay materially broader and squarer than wall segments instead of hard-coding a square threshold.",
+      "status": "active",
+      "created_at": "2026-04-17T01:40:53Z",
+      "updated_at": "2026-04-17T01:40:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260417T040758Z_a91ea728",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Room moss now lives in decorative metadata instead of terrain tile IDs.",
+      "details": "RoomGenerator returns moss.floor/wall/pillar tile lists, CombatEngine/RunEngine carry that metadata through room and combat state, and CombatBoardView renders seeded moss overlay textures on ash floors plus wall/pillar props. This replaces the old moss-terrain approach so passability and floor variants stay purely stone.",
+      "status": "active",
+      "created_at": "2026-04-17T04:07:58Z",
+      "updated_at": "2026-04-17T04:07:58Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260414T160800Z_bc1ad221"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260417T203440Z_5caec987",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "With outer wall rendering disabled, CombatBoardView now hides boundary wall tiles by filtering them out of draw and hit-test order while keeping visible doors rendered and clickable.",
+      "details": "_display_tile_id still resolves hidden boundary doors back to wall semantics, but _tiles_in_draw_order now applies _should_render_tile so only true boundary walls disappear. Active exits and locked presentation doors stay as \"door\" tiles, which removes the old fake ash perimeter without breaking traversal.",
+      "status": "active",
+      "created_at": "2026-04-17T20:34:40Z",
+      "updated_at": "2026-04-17T20:34:40Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260417T202405Z_819e8b83"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260420T030615Z_12af9875",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door presentation uses the supplied isometric door.png directly on ash floor tiles, flipped horizontally for the opposite diagonal.",
+      "details": "After the user replaced door.png with a transparent tile-oriented asset, CombatBoardView stopped loading generated door_row.png/door_col.png skew variants. Visible doors now draw as a single overlay prop on the regular ash floor tile; row-edge doors use door.png as-is for the bottom-left/top-right diagonal, and col-edge doors use AssetLoader.flip_texture_h for the bottom-right/top-left diagonal.",
+      "status": "active",
+      "created_at": "2026-04-20T03:06:15Z",
+      "updated_at": "2026-04-20T03:06:15Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260417T212616Z_1269ec6c"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260420T031138Z_061713e9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door size and placement are hand-tuned through explicit frame scale constants.",
+      "details": "CombatBoardView uses DOOR_FRAME_WIDTH_SCALE, DOOR_FRAME_HEIGHT_SCALE, and DOOR_BASELINE_OFFSET_SCALE near the top of the file to fit door.png on top of regular ash floor tiles. Increasing width/height scales the rendered door; changing baseline moves the planted floor line without touching the source asset or flip logic.",
+      "status": "active",
+      "created_at": "2026-04-20T03:11:38Z",
+      "updated_at": "2026-04-20T03:11:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
+      }
+    },
+    {
+      "id": "mnt_20260420T031606Z_206647ca",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door exits show only floating element icons, with rectangular exit label boxes disabled.",
+      "details": "CombatBoardView no longer calls _draw_exit_marker_for_tile from _draw_scene_objects, so visible door exits keep their icon drawn by _draw_tile_props but no longer render the direction/element label box. The marker function remains in the file if labels need to be restored later.",
+      "status": "active",
+      "created_at": "2026-04-20T03:16:06Z",
+      "updated_at": "2026-04-20T03:16:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "c4e2e49"
       }
     }
   ]

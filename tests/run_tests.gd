@@ -27,6 +27,7 @@ func _initialize() -> void:
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
 	_test_room_generation_blocks_door_tiles()
+	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
 	_test_room_generation_populates_elemental_traps()
 	_test_room_generation_scales_enemy_density()
@@ -67,7 +68,15 @@ func _initialize() -> void:
 	_test_acolyte_idle_speed_matches_default_cadence()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_foreground_props_fade_when_covering_behind_units()
-	_test_combat_board_hides_inactive_doors_but_preserves_locked_ones()
+	_test_pillar_art_fits_bottom_center_without_stretching()
+	_test_wall_and_pillar_assets_stay_distinct()
+	_test_boundary_prop_art_uses_single_tile_footprint()
+	_test_boundary_wall_segments_use_full_spans_on_straight_edges()
+	_test_boundary_wall_corner_tiles_split_into_two_half_segments()
+	_test_door_art_uses_source_and_flipped_variant()
+	_test_standalone_door_art_stays_within_single_tile_footprint()
+	_test_visible_doors_use_dedicated_frame()
+	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
 	_test_combat_board_assigns_deterministic_floor_variants()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
@@ -170,6 +179,23 @@ func _test_room_generation_blocks_door_tiles() -> void:
 		var enemy: Dictionary = enemy_var
 		_assert(not door_tiles.has(enemy.get("pos", Vector2i(-1, -1))), "Enemy spawns should avoid door tiles")
 
+func _test_room_generation_uses_perimeter_walls_only() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	for seed: int in [7, 19, 43, 71, 97, 131]:
+		var room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed % 5, seed % 3),
+			"depth": 2,
+			"type": "combat"
+		}, Vector2i.ZERO)
+		var grid: Array = room.get("grid", [])
+		for y: int in range(1, grid.size() - 1):
+			var row: Array = grid[y]
+			for x: int in range(1, row.size() - 1):
+				var tile: Vector2i = Vector2i(x, y)
+				if PathUtils.is_passable(grid, tile):
+					continue
+				_assert(str(row[x]) == "pillar", "Generated room interiors should use pillars as their only blocking terrain while wall art stays reserved for the perimeter")
+
 func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
 	var room: Dictionary = generator.generate_room(73, {
@@ -178,8 +204,12 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 		"type": "combat"
 	}, Vector2i(0, -1))
 	var grid: Array = room.get("grid", [])
+	var moss: Dictionary = room.get("moss", {})
+	var floor_moss: Array = moss.get("floor", [])
+	var wall_moss: Array = moss.get("wall", [])
+	var pillar_moss: Array = moss.get("pillar", [])
 	var ash_count: int = 0
-	var moss_count: int = 0
+	var legacy_moss_count: int = 0
 	var ember_count: int = 0
 	for y: int in range(grid.size()):
 		var row: Array = grid[y]
@@ -188,13 +218,15 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 				"ash":
 					ash_count += 1
 				"moss":
-					moss_count += 1
+					legacy_moss_count += 1
 				"ember":
 					ember_count += 1
 	_assert(str(room.get("theme", "")) == "ash", "Rooms should now advertise the stone floor theme by default")
 	_assert(ember_count == 0, "Generated floors should no longer use ember tiles")
-	_assert(moss_count >= 2, "Generated floors should include a visible smattering of moss accent tiles")
-	_assert(ash_count > moss_count, "Stone floor tiles should still make up the majority of the room floor")
+	_assert(legacy_moss_count == 0, "Generated floors should keep moss decorative instead of using dedicated moss terrain tiles")
+	_assert(floor_moss.size() >= 5, "Generated floors should now carry a denser layer of decorative moss overlays")
+	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
+	_assert(ash_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
 
 func _test_room_generation_populates_elemental_traps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1146,19 +1178,169 @@ func _test_foreground_props_fade_when_covering_behind_units() -> void:
 	_assert(is_equal_approx(flat_tint.a, 1.0), "Flat door terrain should not use foreground obstruction fading")
 	board.free()
 
-func _test_combat_board_hides_inactive_doors_but_preserves_locked_ones() -> void:
+func _test_pillar_art_fits_bottom_center_without_stretching() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var pillar_texture: Texture2D = (board.get("_prop_textures") as Dictionary).get("pillar", null)
+	var frame_rect: Rect2 = board.call("_prop_rect_for_tile", Vector2i(3, 3))
+	var draw_rect: Rect2 = board.call("_prop_draw_rect", pillar_texture, frame_rect)
+	_assert(is_equal_approx(draw_rect.get_center().x, frame_rect.get_center().x), "Prop art should stay horizontally centered within its tile frame")
+	_assert(is_equal_approx(draw_rect.end.y, frame_rect.end.y), "Prop art should stay bottom-aligned so walls and pillars feel planted on the tile")
+	var source_ratio: float = pillar_texture.get_size().x / pillar_texture.get_size().y
+	var draw_ratio: float = draw_rect.size.x / draw_rect.size.y
+	_assert(is_equal_approx(draw_ratio, source_ratio), "Prop art should preserve its aspect ratio instead of stretching to fill the placeholder frame")
+	board.free()
+
+func _test_wall_and_pillar_assets_stay_distinct() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var pillar_texture: Texture2D = textures.get("pillar", null)
+	var wall_texture: Texture2D = textures.get("wall_row", null)
+	_assert(pillar_texture != null, "Combat board should load dedicated pillar art")
+	_assert(wall_texture != null, "Combat board should load dedicated wall art")
+	if pillar_texture == null or wall_texture == null:
+		board.free()
+		return
+	var pillar_ratio: float = pillar_texture.get_size().x / maxf(1.0, pillar_texture.get_size().y)
+	var wall_ratio: float = wall_texture.get_size().x / maxf(1.0, wall_texture.get_size().y)
+	_assert(pillar_texture.get_size().x >= wall_texture.get_size().x * 1.5, "Pillar art should stay materially broader than wall segments so support columns cannot silently reuse wall art")
+	_assert(pillar_ratio >= wall_ratio + 0.15, "Pillar art should keep a distinctly squarer silhouette than wall segments so a wall/pillar asset swap is caught early")
+	board.free()
+
+func _test_boundary_prop_art_uses_single_tile_footprint() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var frame_rect: Rect2 = board.call("_prop_rect_for_tile", Vector2i(3, 0))
+	var door_frame_rect: Rect2 = board.call("_door_rect_for_tile", Vector2i(3, 0))
+	var tile_width: float = board.call("_tile_width")
+	var wall_draw_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_row", null), frame_rect)
+	var door_draw_rect: Rect2 = board.call("_prop_draw_rect", textures.get("door", null), door_frame_rect)
+	_assert(is_equal_approx(wall_draw_rect.get_center().x, frame_rect.get_center().x), "Boundary walls should stay centered within their tile frame")
+	_assert(is_equal_approx(wall_draw_rect.end.y, frame_rect.end.y), "Boundary walls should stay planted on the same base line after fitting")
+	_assert(wall_draw_rect.size.x <= tile_width * 0.66, "Boundary wall art should fit a single wall tile span instead of reading like a multi-tile module")
+	_assert(door_draw_rect.size.x <= tile_width, "Standalone door art should still fit inside a single tile span instead of spilling across neighbors")
+	_assert(is_equal_approx(door_draw_rect.end.y, door_frame_rect.end.y), "Standalone door art should stay planted on its dedicated floor line after fitting")
+	board.free()
+
+func _test_boundary_wall_segments_use_full_spans_on_straight_edges() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var grid: Array = _simple_grid()
+	var top_wall := Vector2i(3, 0)
+	var left_wall := Vector2i(0, 3)
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var top_segments: Array = board.call("_boundary_prop_segments", "wall", grid, top_wall)
+	var left_segments: Array = board.call("_boundary_prop_segments", "wall", grid, left_wall)
+	_assert(top_segments.size() == 1, "Straight top-edge walls should render as a single full-span segment")
+	_assert(left_segments.size() == 1, "Straight side-edge walls should render as a single full-span segment")
+	var top_segment: Dictionary = _find_boundary_segment(top_segments, "row")
+	var left_segment: Dictionary = _find_boundary_segment(left_segments, "col")
+	_assert(str(top_segment.get("half", "")) == "full", "Straight top-edge walls should use the full row segment")
+	_assert(str(left_segment.get("half", "")) == "full", "Straight side-edge walls should use the full column segment")
+	var top_frame: Rect2 = board.call("_prop_rect_for_tile", top_wall)
+	var left_frame: Rect2 = board.call("_prop_rect_for_tile", left_wall)
+	var full_row_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_row", null), top_frame)
+	var full_col_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_col", null), left_frame)
+	var top_draw_rect: Rect2 = top_segment.get("draw_rect", Rect2())
+	var left_draw_rect: Rect2 = left_segment.get("draw_rect", Rect2())
+	_assert(is_equal_approx(top_draw_rect.position.x, full_row_rect.position.x) and is_equal_approx(top_draw_rect.size.x, full_row_rect.size.x), "Straight top-edge walls should keep the full row-span footprint")
+	_assert(is_equal_approx(left_draw_rect.position.x, full_col_rect.position.x) and is_equal_approx(left_draw_rect.size.x, full_col_rect.size.x), "Straight side-edge walls should keep the full column-span footprint")
+	board.free()
+
+func _test_boundary_wall_corner_tiles_split_into_two_half_segments() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var grid: Array = _simple_grid()
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var expectations: Array[Dictionary] = [
+		{"tile": Vector2i(0, 0), "row_half": "right", "col_half": "left"},
+		{"tile": Vector2i(7, 0), "row_half": "left", "col_half": "left"},
+		{"tile": Vector2i(0, 7), "row_half": "right", "col_half": "right"},
+		{"tile": Vector2i(7, 7), "row_half": "left", "col_half": "right"}
+	]
+	for entry: Dictionary in expectations:
+		var tile: Vector2i = entry.get("tile", Vector2i.ZERO)
+		var segments: Array = board.call("_boundary_prop_segments", "wall", grid, tile)
+		_assert(segments.size() == 2, "Corner wall tiles should split into two half segments so both perimeter runs meet in the tile center")
+		var row_segment: Dictionary = _find_boundary_segment(segments, "row")
+		var col_segment: Dictionary = _find_boundary_segment(segments, "col")
+		_assert(str(row_segment.get("half", "")) == str(entry.get("row_half", "")), "Corner row segments should use the inward-facing half of the wall span")
+		_assert(str(col_segment.get("half", "")) == str(entry.get("col_half", "")), "Corner column segments should use the inward-facing half of the wall span")
+		var frame_rect: Rect2 = board.call("_prop_rect_for_tile", tile)
+		var full_row_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_row", null), frame_rect)
+		var full_col_rect: Rect2 = board.call("_prop_draw_rect", textures.get("wall_col", null), frame_rect)
+		var row_draw_rect: Rect2 = row_segment.get("draw_rect", Rect2())
+		var col_draw_rect: Rect2 = col_segment.get("draw_rect", Rect2())
+		_assert(is_equal_approx(row_draw_rect.size.x, full_row_rect.size.x * 0.5), "Corner row segments should be cut to half-width so they terminate at the tile center")
+		_assert(is_equal_approx(col_draw_rect.size.x, full_col_rect.size.x * 0.5), "Corner column segments should be cut to half-width so they terminate at the tile center")
+	board.free()
+
+func _test_door_art_uses_source_and_flipped_variant() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	_assert(textures.get("door", null) != null, "Combat board should load the standalone door art")
+	_assert(textures.get("door_row", null) == textures.get("door", null), "Bottom-left/top-right doors should use the supplied source orientation directly")
+	_assert(textures.get("door_col", null) != null, "Combat board should build a flipped door texture for the opposite diagonal")
+	_assert(textures.get("door_col", null) != textures.get("door", null), "Bottom-right/top-left doors should use a flipped variant instead of the identical source sprite")
+	_assert(board.call("_floor_texture_key", "door") == "ash", "Door tiles should render on top of the regular ash floor texture")
+	board.free()
+
+func _test_standalone_door_art_stays_within_single_tile_footprint() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var door_texture: Texture2D = textures.get("door", null)
+	var tile := Vector2i(4, 0)
+	var tile_width: float = board.call("_tile_width")
+	var door_rect: Rect2 = board.call("_prop_draw_rect", door_texture, board.call("_door_rect_for_tile", tile))
+	_assert(door_rect.size.x <= tile_width, "Standalone door art should stay inside a single tile span instead of reading like a wall strip")
+	_assert(is_equal_approx(door_rect.get_center().x, board.call("_tile_center", tile).x), "Standalone door art should stay centered on its tile")
+	board.free()
+
+func _test_visible_doors_use_dedicated_frame() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var tile := Vector2i(4, 0)
+	var wall_frame: Rect2 = board.call("_prop_rect_for_tile", tile)
+	var door_frame: Rect2 = board.call("_door_rect_for_tile", tile)
+	_assert(door_frame.size.x > wall_frame.size.x, "Standalone door art should use its own enlarged frame instead of inheriting wall architecture sizing")
+	_assert(door_frame.size.y > wall_frame.size.y, "Standalone door art should use its own enlarged frame instead of inheriting wall architecture sizing")
+	_assert(is_equal_approx(door_frame.get_center().x, wall_frame.get_center().x), "Standalone door art should stay horizontally centered on the opening tile")
+	_assert(door_frame.end.y >= wall_frame.end.y - 10.0, "Standalone door art should stay planted near the same floor line as the surrounding architecture")
+	board.free()
+
+func _test_combat_board_hides_outer_walls_without_hiding_visible_doors() -> void:
 	var board := CombatBoardView.new()
 	var grid: Array = _simple_grid()
+	var wall_tile := Vector2i(0, 3)
 	grid[0][4] = "door"
 	var door_tile := Vector2i(4, 0)
 	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "wall", "Inactive doors should render as uninterrupted walls")
+	_assert(board.call("_display_tile_id", "door", door_tile) == "wall", "Inactive perimeter doors should fall back to wall semantics")
+	var hidden_tiles: Array = board.call("_tiles_in_draw_order", grid)
+	_assert(not hidden_tiles.has(wall_tile), "Boundary wall tiles should drop out of the draw order while outer wall visuals are disabled")
+	_assert(not hidden_tiles.has(door_tile), "Inactive perimeter doors should also disappear once they resolve back to boundary walls")
 	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"active_door_tiles": {door_tile: true}})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Combat presentation should still show active connected doors")
+	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Active connected doors should render as doors again")
+	var active_tiles: Array = board.call("_tiles_in_draw_order", grid)
+	_assert(active_tiles.has(door_tile), "Active connected doors should stay in draw order so they remain clickable")
 	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {door_tile: "N"}, {}, {})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Usable exits should still render as doors")
+	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Usable exits should stay visually present even while the outer wall toggle is off")
+	var exit_tiles: Array = board.call("_tiles_in_draw_order", grid)
+	_assert(exit_tiles.has(door_tile), "Usable exits should remain in draw order so the player can click them")
 	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"locked_door_tiles": {door_tile: true}})
-	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Previously sealed traversal doors should stay visible as doors")
+	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Locked traversal doors should still render as doors for presentation")
+	var locked_tiles: Array = board.call("_tiles_in_draw_order", grid)
+	_assert(locked_tiles.has(door_tile), "Locked traversal doors should stay in draw order while visible")
 	board.free()
 
 func _test_combat_board_assigns_deterministic_floor_variants() -> void:
@@ -2296,6 +2478,15 @@ func _simple_grid() -> Array:
 				row.append("ash")
 		grid.append(row)
 	return grid
+
+func _find_boundary_segment(segments: Array, orientation: String) -> Dictionary:
+	for segment_var: Variant in segments:
+		if typeof(segment_var) != TYPE_DICTIONARY:
+			continue
+		var segment: Dictionary = segment_var
+		if str(segment.get("orientation", "")) == orientation:
+			return segment
+	return {}
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

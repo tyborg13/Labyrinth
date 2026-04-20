@@ -337,6 +337,7 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"type": combat_state.get("room_type", "combat"),
 		"element": combat_state.get("room_element", ElementData.NONE),
 		"grid": combat_state.get("grid", []).duplicate(true),
+		"moss": combat_state.get("moss", {}).duplicate(true),
 		"player_start": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
 		"npcs": [],
 		"enemies": [],

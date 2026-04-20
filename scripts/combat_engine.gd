@@ -34,6 +34,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"room_type": str(room_layout.get("type", "combat")),
 		"room_element": str(room_layout.get("element", ElementData.NONE)),
 		"grid": room_layout.get("grid", []).duplicate(true),
+		"moss": room_layout.get("moss", {}).duplicate(true),
 		"player": player,
 		"enemies": enemies,
 		"traps": room_layout.get("traps", []).duplicate(true),

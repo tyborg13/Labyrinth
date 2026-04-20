@@ -47,6 +47,10 @@ const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
+const OUTER_WALL_RENDERING_ENABLED: bool = false
+const DOOR_FRAME_WIDTH_SCALE: float = 1.4
+const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
+const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
 const ASH_FLOOR_VARIANT_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/base_floor_tile_01.png",
 	"res://assets/placeholders/tiles/base_floor_tile_02.png",
@@ -55,6 +59,16 @@ const ASH_FLOOR_VARIANT_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/base_floor_tile_05.png",
 	"res://assets/placeholders/tiles/base_floor_tile_06.png",
 	"res://assets/placeholders/tiles/base_floor_tile_07.png"
+]
+const MOSS_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/moss_overlays/moss_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/moss_overlays/moss_floor_overlay_02.png"
+]
+const MOSS_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/moss_overlays/moss_wall_overlay_01.png"
+]
+const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
 ]
 
 var combat_state: Dictionary = {}
@@ -70,6 +84,8 @@ var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _tile_textures: Dictionary = {}
 var _floor_texture_variants: Dictionary = {}
 var _floor_variant_by_tile: Dictionary = {}
+var _moss_texture_variants: Dictionary = {}
+var _moss_tiles_by_surface: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
@@ -125,6 +141,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_elements = next_exit_elements.duplicate(true)
 	presentation = next_presentation.duplicate(true)
 	_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
+	_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
 	_update_cursor_shape()
 	queue_redraw()
 
@@ -182,6 +199,18 @@ func _draw_empty_state() -> void:
 		return
 	draw_string(font, Vector2(34, 52), "No active combat.", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f0e5cf"))
 
+func _draw_floor_moss_overlay(tile: Vector2i) -> void:
+	if not _tile_has_moss("floor", tile):
+		return
+	var texture: Texture2D = _moss_texture_for_surface("floor", tile)
+	if texture == null:
+		return
+	var rect := Rect2(
+		_tile_center(tile) - Vector2(_tile_width() * 0.5, _tile_height() * 0.5),
+		Vector2(_tile_width(), _tile_height())
+	)
+	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, 0.94))
+
 func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	var polygon: PackedVector2Array = _tile_polygon(tile)
@@ -193,6 +222,7 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 		var tile_height: float = _tile_height()
 		var rect := Rect2(_tile_center(tile) - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
 		draw_texture_rect(texture, rect, false)
+	_draw_floor_moss_overlay(tile)
 	draw_polyline(polygon, GRID_OUTLINE, 2.0, true)
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
@@ -214,28 +244,73 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
 	for tile: Vector2i in tiles:
 		_draw_tile_props(grid, tile, units_to_draw)
-		_draw_exit_marker_for_tile(tile)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
+
+func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, units_to_draw: Array) -> void:
+	if tile_id == "pillar":
+		if not _tile_has_moss("pillar", tile):
+			return
+		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+		if pillar_texture == null:
+			return
+		var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+		var draw_rect: Rect2 = _prop_draw_rect(pillar_texture, frame_rect)
+		var texture: Texture2D = _moss_texture_for_surface("pillar", tile)
+		if texture == null:
+			return
+		var moss_rect: Rect2 = _pillar_moss_rect(draw_rect)
+		draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, units_to_draw))
+		return
+	if tile_id != "wall" or not _tile_has_moss("wall", tile):
+		return
+	var orientation: String = _wall_orientation_for_tile(grid, tile)
+	if orientation.is_empty():
+		return
+	var wall_texture: Texture2D = _prop_textures.get("wall_%s" % orientation, _prop_textures.get("wall", null))
+	if wall_texture == null:
+		return
+	var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+	var draw_rect: Rect2 = _prop_draw_rect(wall_texture, frame_rect)
+	var texture: Texture2D = _moss_texture_for_surface("wall", tile, orientation == "col")
+	if texture == null:
+		return
+	var moss_rect: Rect2 = _wall_moss_rect(draw_rect)
+	draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, units_to_draw))
 
 func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
-	if tile_id == "wall" or tile_id == "pillar":
-		var texture: Texture2D = _prop_textures.get(tile_id, null)
+	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+		tile_id = "pillar"
+	if tile_id == "pillar":
+		var texture: Texture2D = _prop_textures.get("pillar", null)
 		if texture != null:
-			var rect: Rect2 = _prop_rect_for_tile(tile)
-			draw_texture_rect(texture, rect, false, _foreground_blocker_tint(tile_id, tile, rect, units_to_draw))
+			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
+			draw_texture_rect(texture, draw_rect, false, _foreground_blocker_tint(tile_id, tile, draw_rect, units_to_draw))
+	elif tile_id == "wall":
+		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
+		for segment: Dictionary in segments:
+			var texture: Texture2D = segment.get("texture", null)
+			if texture == null:
+				continue
+			var draw_rect: Rect2 = segment.get("draw_rect", Rect2())
+			var source_rect: Rect2 = segment.get("source_rect", Rect2(Vector2.ZERO, texture.get_size()))
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, units_to_draw)
+			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
+				draw_texture_rect(texture, draw_rect, false, tint)
+			else:
+				draw_texture_rect_region(texture, draw_rect, source_rect, tint)
 	elif tile_id == "door":
-		var door_texture: Texture2D = _prop_textures.get("door", null)
+		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
 		if door_texture != null:
-			var door_center: Vector2 = _tile_center(tile)
-			var tile_height: float = _tile_height()
-			var door_rect: Rect2 = _door_rect_for_tile(tile)
+			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile))
+			draw_texture_rect(door_texture, draw_rect, false)
 			var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
-			draw_texture_rect(door_texture, door_rect, false, ElementData.door_tint(element_id))
 			var icon_texture: Texture2D = _element_textures.get(element_id, null)
 			if icon_texture != null:
-				var icon_rect := Rect2(door_center + Vector2(-12.0, -tile_height * 0.7), Vector2(24.0, 24.0))
+				var icon_rect := Rect2(Vector2(draw_rect.get_center().x - 12.0, draw_rect.position.y - 22.0), Vector2(24.0, 24.0))
 				draw_texture_rect(icon_texture, icon_rect, false)
+	_draw_prop_moss_overlay(tile_id, grid, tile, units_to_draw)
 	for loot: Dictionary in combat_state.get("loot", []):
 		if bool(loot.get("claimed", false)):
 			continue
@@ -277,15 +352,97 @@ func _prop_rect_for_tile(tile: Vector2i) -> Rect2:
 	return Rect2(center - Vector2(prop_size.x * 0.5, prop_size.y * 0.84), prop_size)
 
 func _door_rect_for_tile(tile: Vector2i) -> Rect2:
-	var door_center: Vector2 = _tile_center(tile)
+	var center: Vector2 = _tile_center(tile)
 	var tile_width: float = _tile_width()
-	var tile_height: float = _tile_height()
-	return Rect2(door_center - Vector2(tile_width * 0.45, tile_height * 0.6), Vector2(tile_width * 0.9, tile_height * 0.8))
+	var frame_size := Vector2(tile_width * DOOR_FRAME_WIDTH_SCALE, tile_width * DOOR_FRAME_HEIGHT_SCALE)
+	var bottom_y: float = center.y + tile_width * DOOR_BASELINE_OFFSET_SCALE
+	return Rect2(
+		Vector2(center.x - frame_size.x * 0.5, bottom_y - frame_size.y),
+		frame_size
+	)
+
+func _door_texture_for_tile(grid: Array, tile: Vector2i) -> Texture2D:
+	if grid.is_empty():
+		return _prop_textures.get("door", null)
+	var width: int = (grid[0] as Array).size()
+	var height: int = grid.size()
+	if tile.y == 0 or tile.y == height - 1:
+		return _prop_textures.get("door_row", _prop_textures.get("door", null))
+	if tile.x == 0 or tile.x == width - 1:
+		return _prop_textures.get("door_col", _prop_textures.get("door", null))
+	return _prop_textures.get("door", null)
+
+func _is_outer_boundary_tile(grid: Array, tile: Vector2i) -> bool:
+	if grid.is_empty():
+		return false
+	var width: int = (grid[0] as Array).size()
+	var height: int = grid.size()
+	return tile.x == 0 or tile.y == 0 or tile.x == width - 1 or tile.y == height - 1
+
+func _boundary_prop_segments(tile_id: String, grid: Array, tile: Vector2i) -> Array[Dictionary]:
+	var segments: Array[Dictionary] = []
+	if not _is_outer_boundary_tile(grid, tile):
+		return segments
+	var width: int = (grid[0] as Array).size()
+	var height: int = grid.size()
+	if tile.y == 0 or tile.y == height - 1:
+		var row_half: String = "full"
+		if tile.x == 0:
+			row_half = "right"
+		elif tile.x == width - 1:
+			row_half = "left"
+		var row_segment: Dictionary = _boundary_prop_segment(tile_id, tile, "row", row_half)
+		if not row_segment.is_empty():
+			segments.append(row_segment)
+	if tile.x == 0 or tile.x == width - 1:
+		var col_half: String = "full"
+		if tile.y == 0:
+			col_half = "left"
+		elif tile.y == height - 1:
+			col_half = "right"
+		var col_segment: Dictionary = _boundary_prop_segment(tile_id, tile, "col", col_half)
+		if not col_segment.is_empty():
+			segments.append(col_segment)
+	return segments
+
+func _boundary_prop_segment(tile_id: String, tile: Vector2i, orientation: String, half: String) -> Dictionary:
+	var texture: Texture2D = _prop_textures.get("%s_%s" % [tile_id, orientation], _prop_textures.get(tile_id, null))
+	if texture == null:
+		return {}
+	var frame_rect: Rect2 = _door_rect_for_tile(tile) if tile_id == "door" else _prop_rect_for_tile(tile)
+	var full_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
+	return {
+		"orientation": orientation,
+		"half": half,
+		"texture": texture,
+		"draw_rect": _boundary_segment_draw_rect(full_rect, half),
+		"source_rect": _boundary_segment_source_rect(texture, half)
+	}
+
+func _boundary_segment_draw_rect(full_rect: Rect2, half: String) -> Rect2:
+	if half == "left":
+		return Rect2(full_rect.position, Vector2(full_rect.size.x * 0.5, full_rect.size.y))
+	if half == "right":
+		return Rect2(Vector2(full_rect.position.x + full_rect.size.x * 0.5, full_rect.position.y), Vector2(full_rect.size.x * 0.5, full_rect.size.y))
+	return full_rect
+
+func _boundary_segment_source_rect(texture: Texture2D, half: String) -> Rect2:
+	var texture_size: Vector2 = texture.get_size()
+	if half == "left":
+		return Rect2(Vector2.ZERO, Vector2(texture_size.x * 0.5, texture_size.y))
+	if half == "right":
+		return Rect2(Vector2(texture_size.x * 0.5, 0.0), Vector2(texture_size.x * 0.5, texture_size.y))
+	return Rect2(Vector2.ZERO, texture_size)
 
 func _display_tile_id(tile_id: String, tile: Vector2i) -> String:
 	if tile_id == "door" and not _door_is_visible(tile):
 		return "wall"
 	return tile_id
+
+func _should_render_tile(display_tile_id: String, tile: Vector2i, grid: Array) -> bool:
+	if not OUTER_WALL_RENDERING_ENABLED and display_tile_id == "wall" and _is_outer_boundary_tile(grid, tile):
+		return false
+	return true
 
 func _door_is_visible(tile: Vector2i) -> bool:
 	if exit_tiles.has(tile):
@@ -1072,23 +1229,17 @@ func _nearest_tile_for_world_position(world_position: Vector2) -> Vector2i:
 
 func _tile_color(tile_id: String) -> Color:
 	match tile_id:
-		"moss":
-			return Color("667a5d")
 		"ember":
 			return Color("874d36")
 		"wall":
 			return Color("4a3930")
 		"pillar":
 			return Color("5d4f47")
-		"door":
-			return Color("8c6b42")
 		_:
 			return Color("75695f")
 
 func _floor_texture_key(tile_id: String) -> String:
 	match tile_id:
-		"moss":
-			return "moss"
 		"ember":
 			return "ember"
 		"door":
@@ -1147,20 +1298,114 @@ func _hashed_floor_variant_index(tile: Vector2i, room_coord: Vector2i, variant_c
 	mixed += (room_coord.x + room_coord.y) * 31
 	return posmod(mixed, variant_count)
 
+func _build_moss_tile_lookup(moss: Dictionary) -> Dictionary:
+	var lookup: Dictionary = {
+		"floor": {},
+		"wall": {},
+		"pillar": {}
+	}
+	for surface: String in ["floor", "wall", "pillar"]:
+		var surface_lookup: Dictionary = {}
+		for tile_var: Variant in moss.get(surface, []):
+			if typeof(tile_var) == TYPE_VECTOR2I:
+				surface_lookup[tile_var] = true
+		lookup[surface] = surface_lookup
+	return lookup
+
+func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
+	var surface_lookup: Dictionary = _moss_tiles_by_surface.get(surface, {})
+	return surface_lookup.has(tile)
+
+func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: bool = false) -> Texture2D:
+	var variants: Array = _moss_texture_variants.get(surface, [])
+	if variants.is_empty():
+		return null
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var variant_index: int = _hashed_moss_variant_index(tile, room_coord, surface, variants.size())
+	var texture: Texture2D = variants[variant_index]
+	var should_flip: bool = _should_flip_moss_h(tile, room_coord, surface)
+	if flip_override:
+		should_flip = not should_flip
+	return AssetLoader.flip_texture_h(texture) if should_flip else texture
+
+func _hashed_moss_variant_index(tile: Vector2i, room_coord: Vector2i, surface: String, variant_count: int) -> int:
+	if variant_count <= 1:
+		return 0
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 0), variant_count)
+
+func _should_flip_moss_h(tile: Vector2i, room_coord: Vector2i, surface: String) -> bool:
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 211), 2) == 0
+
+func _hashed_moss_value(tile: Vector2i, room_coord: Vector2i, surface: String, salt: int) -> int:
+	var surface_salt: int = 97
+	match surface:
+		"wall":
+			surface_salt = 173
+		"pillar":
+			surface_salt = 251
+	var mixed: int = tile.x * 92821
+	mixed += tile.y * 68917
+	mixed += room_coord.x * 1237
+	mixed += room_coord.y * 1999
+	mixed += tile.x * tile.y * 29
+	mixed += (tile.x - tile.y) * 61
+	mixed += (room_coord.x + room_coord.y) * 37
+	mixed += surface_salt + salt
+	return mixed
+
+func _wall_orientation_for_tile(grid: Array, tile: Vector2i) -> String:
+	if not _is_outer_boundary_tile(grid, tile):
+		return ""
+	if tile.y == 0 or tile.y == grid.size() - 1:
+		return "row"
+	if tile.x == 0 or tile.x == (grid[0] as Array).size() - 1:
+		return "col"
+	return ""
+
+func _wall_moss_rect(draw_rect: Rect2) -> Rect2:
+	var width: float = draw_rect.size.x
+	var height: float = draw_rect.size.y * 0.54
+	return Rect2(
+		Vector2(draw_rect.get_center().x - width * 0.5, draw_rect.position.y + draw_rect.size.y * 0.02),
+		Vector2(width, height)
+	)
+
+func _pillar_moss_rect(draw_rect: Rect2) -> Rect2:
+	var width: float = draw_rect.size.x * 0.96
+	var height: float = draw_rect.size.y * 0.52
+	return Rect2(
+		Vector2(draw_rect.get_center().x - width * 0.5, draw_rect.position.y + draw_rect.size.y * 0.02),
+		Vector2(width, height)
+	)
+
 func _load_assets() -> void:
 	var ash_floor_variants: Array[Texture2D] = _load_floor_variants(ASH_FLOOR_VARIANT_PATHS)
+	var moss_floor_variants: Array[Texture2D] = _load_floor_variants(MOSS_FLOOR_OVERLAY_PATHS)
+	var moss_wall_variants: Array[Texture2D] = _load_floor_variants(MOSS_WALL_OVERLAY_PATHS)
+	var moss_pillar_variants: Array[Texture2D] = _load_floor_variants(MOSS_PILLAR_OVERLAY_PATHS)
 	_tile_textures = {
 		"ash": ash_floor_variants[0] if not ash_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/placeholders/tiles/ash.svg"),
-		"moss": AssetLoader.load_texture("res://assets/placeholders/tiles/moss.svg"),
 		"ember": AssetLoader.load_texture("res://assets/placeholders/tiles/ember.svg")
 	}
 	_floor_texture_variants = {
 		"ash": ash_floor_variants
 	}
+	_moss_texture_variants = {
+		"floor": moss_floor_variants,
+		"wall": moss_wall_variants,
+		"pillar": moss_pillar_variants
+	}
+	var pillar_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.png"))
+	var wall_row_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/wall.png"))
+	var door_texture: Texture2D = AssetLoader.load_texture("res://assets/placeholders/tiles/door.png")
 	_prop_textures = {
-		"pillar": AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.svg"),
-		"wall": AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.svg"),
-		"door": AssetLoader.load_texture("res://assets/placeholders/tiles/door.svg")
+		"pillar": pillar_texture,
+		"wall": wall_row_texture,
+		"wall_row": wall_row_texture,
+		"wall_col": AssetLoader.flip_texture_h(wall_row_texture),
+		"door": door_texture,
+		"door_row": door_texture,
+		"door_col": AssetLoader.flip_texture_h(door_texture)
 	}
 	_loot_textures = {
 		"healing_vial": AssetLoader.load_texture("res://assets/placeholders/tiles/healing_vial.svg"),
@@ -1317,6 +1562,15 @@ func _unit_center(unit: Dictionary) -> Vector2:
 	return _tile_center(unit.get("pos", Vector2i.ZERO))
 
 func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	return _fitted_draw_rect(texture, frame_rect)
+
+func _fitted_prop_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	return _fitted_draw_rect(texture, frame_rect)
+
+func _prop_draw_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	return _fitted_prop_rect(texture, frame_rect)
+
+func _fitted_draw_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
 	var texture_size: Vector2 = texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
 		return frame_rect
@@ -1363,7 +1617,11 @@ func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []
 	for y: int in range(grid.size()):
 		for x: int in range((grid[y] as Array).size()):
-			tiles.append(Vector2i(x, y))
+			var tile := Vector2i(x, y)
+			var tile_id: String = str((grid[y] as Array)[x])
+			var display_tile_id: String = _display_tile_id(tile_id, tile)
+			if _should_render_tile(display_tile_id, tile, grid):
+				tiles.append(tile)
 	tiles.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return _tile_draws_before(a, b)
 	)

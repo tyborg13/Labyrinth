@@ -9,7 +9,6 @@ const ROOM_WIDTH: int = 9
 const ROOM_HEIGHT: int = 9
 
 const TILE_ASH: String = "ash"
-const TILE_MOSS: String = "moss"
 const TILE_EMBER: String = "ember"
 const TILE_WALL: String = "wall"
 const TILE_PILLAR: String = "pillar"
@@ -89,7 +88,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var entrance_tile: Vector2i = ENTRANCE_BY_TRAVEL_DIR.get(travel_dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
 	_apply_available_doors(grid, room)
 	_apply_template(grid, rng)
-	_apply_floor_accents(grid, run_seed, coord)
+	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord)
 
 	var player_start: Vector2i = entrance_tile
 	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, depth, rng)
@@ -127,6 +126,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"type": room_type,
 		"element": room_element,
 		"grid": grid,
+		"moss": moss,
 		"player_start": player_start,
 		"npcs": npcs,
 		"enemies": enemies,
@@ -170,6 +170,8 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 	var template: Array = TEMPLATE_LIBRARY[template_index]
 	for element: Dictionary in template:
 		var tile_id: String = str(element.get("tile", TILE_PILLAR))
+		if tile_id == TILE_WALL:
+			tile_id = TILE_PILLAR
 		for cell_var: Variant in element.get("cells", []):
 			if typeof(cell_var) != TYPE_VECTOR2I:
 				continue
@@ -187,7 +189,14 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 						continue
 					grid[y][x] = TILE_ASH
 
-func _apply_floor_accents(grid: Array, run_seed: int, coord: Vector2i) -> void:
+func _generate_moss_overlays(grid: Array, run_seed: int, coord: Vector2i) -> Dictionary:
+	return {
+		"floor": _select_floor_moss_tiles(grid, run_seed, coord),
+		"wall": _select_wall_moss_tiles(grid, run_seed, coord),
+		"pillar": _select_pillar_moss_tiles(grid, run_seed, coord)
+	}
+
+func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Array[Vector2i]:
 	var protected_tiles: Dictionary = {}
 	for entry_tile: Vector2i in ENTRANCE_BY_TRAVEL_DIR.values():
 		protected_tiles[entry_tile] = true
@@ -201,38 +210,86 @@ func _apply_floor_accents(grid: Array, run_seed: int, coord: Vector2i) -> void:
 				continue
 			candidates.append(tile)
 	if candidates.is_empty():
-		return
+		return []
 	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return _floor_accent_score(run_seed, coord, a) < _floor_accent_score(run_seed, coord, b)
 	)
-	var target_count: int = clampi(int(round(float(candidates.size()) * 0.16)), 2, 6)
-	target_count = mini(target_count + (_floor_accent_score(run_seed, coord, Vector2i(4, 4), 37) % 2), candidates.size())
+	var target_count: int = clampi(int(round(float(candidates.size()) * 0.24)), 4, 9)
+	target_count = mini(target_count + (_floor_accent_score(run_seed, coord, Vector2i(4, 4), 37) % 3), candidates.size())
 	var chosen: Dictionary = {}
 	for tile: Vector2i in candidates:
 		if chosen.size() >= target_count:
 			break
-		if _selected_floor_neighbor_count(chosen, tile) > 0:
+		if _selected_moss_neighbor_count(chosen, tile) > 0:
 			continue
 		chosen[tile] = true
 	if chosen.size() < target_count:
 		for tile: Vector2i in candidates:
 			if chosen.has(tile):
 				continue
-			if _selected_floor_neighbor_count(chosen, tile) > 1:
+			if _selected_moss_neighbor_count(chosen, tile) > 1:
 				continue
 			chosen[tile] = true
 			if chosen.size() >= target_count:
 				break
-	for tile_var: Variant in chosen.keys():
-		var tile: Vector2i = tile_var
-		grid[tile.y][tile.x] = TILE_MOSS
+	return _vector2i_keys(chosen)
+
+func _select_wall_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	for y: int in range(ROOM_HEIGHT):
+		for x: int in range(ROOM_WIDTH):
+			var tile := Vector2i(x, y)
+			if str(grid[y][x]) != TILE_WALL:
+				continue
+			if _is_corner_boundary_tile(tile):
+				continue
+			if _tile_touches_door(grid, tile):
+				continue
+			candidates.append(tile)
+	if candidates.is_empty():
+		return []
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return _floor_accent_score(run_seed, coord, a, 101) < _floor_accent_score(run_seed, coord, b, 101)
+	)
+	var target_count: int = clampi(int(round(float(candidates.size()) * 0.26)), 1, 3)
+	var chosen: Dictionary = {}
+	for tile: Vector2i in candidates:
+		if chosen.size() >= target_count:
+			break
+		if _selected_moss_neighbor_count(chosen, tile) > 0:
+			continue
+		chosen[tile] = true
+	return _vector2i_keys(chosen)
+
+func _select_pillar_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	for y: int in range(1, ROOM_HEIGHT - 1):
+		for x: int in range(1, ROOM_WIDTH - 1):
+			var tile := Vector2i(x, y)
+			if str(grid[y][x]) != TILE_PILLAR:
+				continue
+			candidates.append(tile)
+	if candidates.is_empty():
+		return []
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return _floor_accent_score(run_seed, coord, a, 211) < _floor_accent_score(run_seed, coord, b, 211)
+	)
+	var target_count: int = clampi(int(round(float(candidates.size()) * 0.5)), 1, 3)
+	var chosen: Dictionary = {}
+	for tile: Vector2i in candidates:
+		if chosen.size() >= target_count:
+			break
+		if _selected_moss_neighbor_count(chosen, tile) > 0:
+			continue
+		chosen[tile] = true
+	return _vector2i_keys(chosen)
 
 func _floor_accent_score(run_seed: int, coord: Vector2i, tile: Vector2i, salt: int = 0) -> int:
 	var mixed: int = _room_seed(run_seed, coord, 701 + salt)
 	mixed = int((mixed + tile.x * 92821 + tile.y * 68917 + tile.x * tile.y * 137 + (tile.x - tile.y) * 59) & 0x7fffffff)
 	return mixed
 
-func _selected_floor_neighbor_count(chosen: Dictionary, tile: Vector2i) -> int:
+func _selected_moss_neighbor_count(chosen: Dictionary, tile: Vector2i) -> int:
 	var neighbors: int = 0
 	for offset_y: int in range(-1, 2):
 		for offset_x: int in range(-1, 2):
@@ -241,6 +298,30 @@ func _selected_floor_neighbor_count(chosen: Dictionary, tile: Vector2i) -> int:
 			if chosen.has(tile + Vector2i(offset_x, offset_y)):
 				neighbors += 1
 	return neighbors
+
+func _vector2i_keys(source: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for tile_var: Variant in source.keys():
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			result.append(tile_var)
+	result.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		if a.y == b.y:
+			return a.x < b.x
+		return a.y < b.y
+	)
+	return result
+
+func _is_corner_boundary_tile(tile: Vector2i) -> bool:
+	return (tile.x == 0 or tile.x == ROOM_WIDTH - 1) and (tile.y == 0 or tile.y == ROOM_HEIGHT - 1)
+
+func _tile_touches_door(grid: Array, tile: Vector2i) -> bool:
+	for dir: Vector2i in PathUtils.DIRS_4:
+		var neighbor: Vector2i = tile + dir
+		if not PathUtils.is_in_bounds(grid, neighbor):
+			continue
+		if str((grid[neighbor.y] as Array)[neighbor.x]) == TILE_DOOR:
+			return true
+	return false
 
 func _transform_cell(cell: Vector2i, rotation_steps: int, mirrored: bool) -> Vector2i:
 	var centered: Vector2i = cell - Vector2i(4, 4)
