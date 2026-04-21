@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-20T18:38:47Z",
+  "updated_at": "2026-04-21T02:58:24Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1299,6 +1299,30 @@
       "source": {
         "branch": "master",
         "commit": "6a3ea13"
+      }
+    },
+    {
+      "id": "mnt_20260421T021029Z_5d54e35e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door props use mirrored back-edge offsets with a smaller top-edge scale.",
+      "details": "CombatBoardView offsets visible door frames toward the outside/back edge, but the top pair are tuned slightly forward with DOOR_TOP_BACK_EDGE_OFFSET_SCALE while the right and bottom perimeter doors keep DOOR_BACK_EDGE_OFFSET_SCALE. Keep top-right/top-left mirrored to each other and bottom-right/bottom-left mirrored to each other when retuning door placement.",
+      "status": "active",
+      "created_at": "2026-04-21T02:10:29Z",
+      "updated_at": "2026-04-21T02:10:29Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260421T020346Z_d2d41c83"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "da0a736"
       }
     }
   ]

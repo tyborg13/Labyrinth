@@ -71,6 +71,7 @@ func _initialize() -> void:
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_foreground_props_fade_when_covering_behind_units()
 	_test_pillar_art_fits_bottom_center_without_stretching()
+	_test_pillar_moss_overlay_is_anchored_to_pillar_cap()
 	_test_wall_and_pillar_assets_stay_distinct()
 	_test_boundary_prop_art_uses_single_tile_footprint()
 	_test_boundary_wall_segments_use_full_spans_on_straight_edges()
@@ -78,6 +79,7 @@ func _initialize() -> void:
 	_test_door_art_uses_source_and_flipped_variant()
 	_test_standalone_door_art_stays_within_single_tile_footprint()
 	_test_visible_doors_use_dedicated_frame()
+	_test_door_frames_slide_toward_each_back_edge()
 	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
 	_test_combat_board_assigns_deterministic_floor_variants()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
@@ -1219,6 +1221,18 @@ func _test_pillar_art_fits_bottom_center_without_stretching() -> void:
 	_assert(is_equal_approx(draw_ratio, source_ratio), "Prop art should preserve its aspect ratio instead of stretching to fill the placeholder frame")
 	board.free()
 
+func _test_pillar_moss_overlay_is_anchored_to_pillar_cap() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var pillar_texture: Texture2D = (board.get("_prop_textures") as Dictionary).get("pillar", null)
+	var frame_rect: Rect2 = board.call("_prop_rect_for_tile", Vector2i(3, 3))
+	var draw_rect: Rect2 = board.call("_prop_draw_rect", pillar_texture, frame_rect)
+	var moss_rect: Rect2 = board.call("_pillar_moss_rect", draw_rect)
+	_assert(moss_rect.position.y >= draw_rect.position.y + draw_rect.size.y * 0.14, "Pillar moss should sit down on the cap instead of floating above it")
+	_assert(moss_rect.get_center().x <= draw_rect.get_center().x - draw_rect.size.x * 0.02, "Pillar moss should be nudged left to stay centered on the cap")
+	board.free()
+
 func _test_wall_and_pillar_assets_stay_distinct() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
@@ -1249,7 +1263,7 @@ func _test_boundary_prop_art_uses_single_tile_footprint() -> void:
 	_assert(is_equal_approx(wall_draw_rect.get_center().x, frame_rect.get_center().x), "Boundary walls should stay centered within their tile frame")
 	_assert(is_equal_approx(wall_draw_rect.end.y, frame_rect.end.y), "Boundary walls should stay planted on the same base line after fitting")
 	_assert(wall_draw_rect.size.x <= tile_width * 0.66, "Boundary wall art should fit a single wall tile span instead of reading like a multi-tile module")
-	_assert(door_draw_rect.size.x <= tile_width, "Standalone door art should still fit inside a single tile span instead of spilling across neighbors")
+	_assert(door_draw_rect.size.x <= door_frame_rect.size.x, "Standalone door art should fit inside its dedicated door frame instead of spilling beyond it")
 	_assert(is_equal_approx(door_draw_rect.end.y, door_frame_rect.end.y), "Standalone door art should stay planted on its dedicated floor line after fitting")
 	board.free()
 
@@ -1324,25 +1338,55 @@ func _test_standalone_door_art_stays_within_single_tile_footprint() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	board.call("_load_assets")
+	var grid: Array = _simple_grid()
 	var textures: Dictionary = board.get("_prop_textures") as Dictionary
 	var door_texture: Texture2D = textures.get("door", null)
 	var tile := Vector2i(4, 0)
-	var tile_width: float = board.call("_tile_width")
-	var door_rect: Rect2 = board.call("_prop_draw_rect", door_texture, board.call("_door_rect_for_tile", tile))
-	_assert(door_rect.size.x <= tile_width, "Standalone door art should stay inside a single tile span instead of reading like a wall strip")
-	_assert(is_equal_approx(door_rect.get_center().x, board.call("_tile_center", tile).x), "Standalone door art should stay centered on its tile")
+	var door_frame: Rect2 = board.call("_door_rect_for_tile", tile, grid)
+	var door_rect: Rect2 = board.call("_prop_draw_rect", door_texture, door_frame)
+	var door_offset: Vector2 = board.call("_door_back_edge_offset_for_tile", tile, grid)
+	_assert(door_rect.size.x <= door_frame.size.x, "Standalone door art should stay inside its dedicated door frame instead of spilling beyond it")
+	_assert(is_equal_approx(door_rect.get_center().x, board.call("_tile_center", tile).x + door_offset.x), "Standalone door art should stay centered on its back-edge door frame")
 	board.free()
 
 func _test_visible_doors_use_dedicated_frame() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
+	var grid: Array = _simple_grid()
 	var tile := Vector2i(4, 0)
 	var wall_frame: Rect2 = board.call("_prop_rect_for_tile", tile)
-	var door_frame: Rect2 = board.call("_door_rect_for_tile", tile)
+	var door_frame: Rect2 = board.call("_door_rect_for_tile", tile, grid)
+	var door_offset: Vector2 = board.call("_door_back_edge_offset_for_tile", tile, grid)
 	_assert(door_frame.size.x > wall_frame.size.x, "Standalone door art should use its own enlarged frame instead of inheriting wall architecture sizing")
 	_assert(door_frame.size.y > wall_frame.size.y, "Standalone door art should use its own enlarged frame instead of inheriting wall architecture sizing")
-	_assert(is_equal_approx(door_frame.get_center().x, wall_frame.get_center().x), "Standalone door art should stay horizontally centered on the opening tile")
+	_assert(is_equal_approx(door_frame.get_center().x, wall_frame.get_center().x + door_offset.x), "Standalone door art should use the opening tile's mirrored back-edge offset")
 	_assert(door_frame.end.y >= wall_frame.end.y - 10.0, "Standalone door art should stay planted near the same floor line as the surrounding architecture")
+	board.free()
+
+func _test_door_frames_slide_toward_each_back_edge() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var grid: Array = _simple_grid()
+	var offsets: Dictionary = {
+		"top_right": board.call("_door_back_edge_offset_for_tile", Vector2i(4, 0), grid),
+		"bottom_right": board.call("_door_back_edge_offset_for_tile", Vector2i(7, 4), grid),
+		"bottom_left": board.call("_door_back_edge_offset_for_tile", Vector2i(4, 7), grid),
+		"top_left": board.call("_door_back_edge_offset_for_tile", Vector2i(0, 4), grid)
+	}
+	var top_right: Vector2 = offsets.get("top_right", Vector2.ZERO)
+	var bottom_right: Vector2 = offsets.get("bottom_right", Vector2.ZERO)
+	var bottom_left: Vector2 = offsets.get("bottom_left", Vector2.ZERO)
+	var top_left: Vector2 = offsets.get("top_left", Vector2.ZERO)
+	_assert(top_right.x > 0.0 and top_right.y < 0.0, "Top-right doors should slide up-right toward their back edge")
+	_assert(bottom_right.x > 0.0 and bottom_right.y > 0.0, "Bottom-right doors should slide down-right toward their back edge")
+	_assert(bottom_left.x < 0.0 and bottom_left.y > 0.0, "Bottom-left doors should slide down-left toward their back edge")
+	_assert(top_left.x < 0.0 and top_left.y < 0.0, "Top-left doors should slide up-left toward their back edge")
+	_assert(is_equal_approx(absf(top_right.x), absf(top_left.x)), "Top door back-edge offsets should share the same horizontal magnitude")
+	_assert(is_equal_approx(absf(top_right.y), absf(top_left.y)), "Top door back-edge offsets should share the same vertical magnitude")
+	_assert(is_equal_approx(absf(bottom_right.x), absf(bottom_left.x)), "Bottom door back-edge offsets should share the same horizontal magnitude")
+	_assert(is_equal_approx(absf(bottom_right.y), absf(bottom_left.y)), "Bottom door back-edge offsets should share the same vertical magnitude")
+	_assert(absf(top_right.x) < absf(bottom_right.x), "Top doors should use a slightly smaller back-edge offset than bottom doors")
+	_assert(absf(top_right.y) < absf(bottom_right.y), "Top doors should use a slightly smaller back-edge offset than bottom doors")
 	board.free()
 
 func _test_combat_board_hides_outer_walls_without_hiding_visible_doors() -> void:

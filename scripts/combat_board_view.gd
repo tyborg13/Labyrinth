@@ -51,6 +51,10 @@ const OUTER_WALL_RENDERING_ENABLED: bool = false
 const DOOR_FRAME_WIDTH_SCALE: float = 1.4
 const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
 const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
+const DOOR_BACK_EDGE_OFFSET_SCALE: float = 0.5
+const DOOR_TOP_BACK_EDGE_OFFSET_SCALE: float = 0.3
+const PILLAR_MOSS_OFFSET_X_SCALE: float = -0.04
+const PILLAR_MOSS_OFFSET_Y_SCALE: float = 0.16
 const ASH_FLOOR_VARIANT_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/base_floor_tile_01.png",
 	"res://assets/placeholders/tiles/base_floor_tile_02.png",
@@ -303,7 +307,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 	elif tile_id == "door":
 		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
 		if door_texture != null:
-			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile))
+			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			draw_texture_rect(door_texture, draw_rect, false)
 			var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
 			var icon_texture: Texture2D = _element_textures.get(element_id, null)
@@ -351,8 +355,8 @@ func _prop_rect_for_tile(tile: Vector2i) -> Rect2:
 	var prop_size: Vector2 = _prop_size()
 	return Rect2(center - Vector2(prop_size.x * 0.5, prop_size.y * 0.84), prop_size)
 
-func _door_rect_for_tile(tile: Vector2i) -> Rect2:
-	var center: Vector2 = _tile_center(tile)
+func _door_rect_for_tile(tile: Vector2i, grid: Array = []) -> Rect2:
+	var center: Vector2 = _tile_center(tile) + _door_back_edge_offset_for_tile(tile, grid)
 	var tile_width: float = _tile_width()
 	var frame_size := Vector2(tile_width * DOOR_FRAME_WIDTH_SCALE, tile_width * DOOR_FRAME_HEIGHT_SCALE)
 	var bottom_y: float = center.y + tile_width * DOOR_BASELINE_OFFSET_SCALE
@@ -360,6 +364,24 @@ func _door_rect_for_tile(tile: Vector2i) -> Rect2:
 		Vector2(center.x - frame_size.x * 0.5, bottom_y - frame_size.y),
 		frame_size
 	)
+
+func _door_back_edge_offset_for_tile(tile: Vector2i, grid: Array = []) -> Vector2:
+	var effective_grid: Array = grid
+	if effective_grid.is_empty():
+		effective_grid = combat_state.get("grid", [])
+	if effective_grid.is_empty():
+		return Vector2.ZERO
+	var height: int = effective_grid.size()
+	var width: int = (effective_grid[0] as Array).size()
+	if tile.y == 0 and tile.x > 0 and tile.x < width - 1:
+		return _tile_step_offset(Vector2i(0, -1)) * DOOR_TOP_BACK_EDGE_OFFSET_SCALE
+	if tile.x == width - 1 and tile.y > 0 and tile.y < height - 1:
+		return _tile_step_offset(Vector2i(1, 0)) * DOOR_BACK_EDGE_OFFSET_SCALE
+	if tile.y == height - 1 and tile.x > 0 and tile.x < width - 1:
+		return _tile_step_offset(Vector2i(0, 1)) * DOOR_BACK_EDGE_OFFSET_SCALE
+	if tile.x == 0 and tile.y > 0 and tile.y < height - 1:
+		return _tile_step_offset(Vector2i(-1, 0)) * DOOR_TOP_BACK_EDGE_OFFSET_SCALE
+	return Vector2.ZERO
 
 func _door_texture_for_tile(grid: Array, tile: Vector2i) -> Texture2D:
 	if grid.is_empty():
@@ -391,7 +413,7 @@ func _boundary_prop_segments(tile_id: String, grid: Array, tile: Vector2i) -> Ar
 			row_half = "right"
 		elif tile.x == width - 1:
 			row_half = "left"
-		var row_segment: Dictionary = _boundary_prop_segment(tile_id, tile, "row", row_half)
+		var row_segment: Dictionary = _boundary_prop_segment(tile_id, tile, grid, "row", row_half)
 		if not row_segment.is_empty():
 			segments.append(row_segment)
 	if tile.x == 0 or tile.x == width - 1:
@@ -400,16 +422,16 @@ func _boundary_prop_segments(tile_id: String, grid: Array, tile: Vector2i) -> Ar
 			col_half = "left"
 		elif tile.y == height - 1:
 			col_half = "right"
-		var col_segment: Dictionary = _boundary_prop_segment(tile_id, tile, "col", col_half)
+		var col_segment: Dictionary = _boundary_prop_segment(tile_id, tile, grid, "col", col_half)
 		if not col_segment.is_empty():
 			segments.append(col_segment)
 	return segments
 
-func _boundary_prop_segment(tile_id: String, tile: Vector2i, orientation: String, half: String) -> Dictionary:
+func _boundary_prop_segment(tile_id: String, tile: Vector2i, grid: Array, orientation: String, half: String) -> Dictionary:
 	var texture: Texture2D = _prop_textures.get("%s_%s" % [tile_id, orientation], _prop_textures.get(tile_id, null))
 	if texture == null:
 		return {}
-	var frame_rect: Rect2 = _door_rect_for_tile(tile) if tile_id == "door" else _prop_rect_for_tile(tile)
+	var frame_rect: Rect2 = _door_rect_for_tile(tile, grid) if tile_id == "door" else _prop_rect_for_tile(tile)
 	var full_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
 	return {
 		"orientation": orientation,
@@ -1462,7 +1484,10 @@ func _pillar_moss_rect(draw_rect: Rect2) -> Rect2:
 	var width: float = draw_rect.size.x * 0.96
 	var height: float = draw_rect.size.y * 0.52
 	return Rect2(
-		Vector2(draw_rect.get_center().x - width * 0.5, draw_rect.position.y + draw_rect.size.y * 0.02),
+		Vector2(
+			draw_rect.get_center().x - width * 0.5 + draw_rect.size.x * PILLAR_MOSS_OFFSET_X_SCALE,
+			draw_rect.position.y + draw_rect.size.y * PILLAR_MOSS_OFFSET_Y_SCALE
+		),
 		Vector2(width, height)
 	)
 
@@ -1729,6 +1754,12 @@ func _tile_center(tile: Vector2i) -> Vector2:
 	return Vector2(
 		origin.x + float(tile.x - tile.y) * half_w,
 		origin.y + float(tile.x + tile.y) * half_h
+	)
+
+func _tile_step_offset(dir: Vector2i) -> Vector2:
+	return Vector2(
+		float(dir.x - dir.y) * _tile_width() * 0.5,
+		float(dir.x + dir.y) * _tile_height() * 0.5
 	)
 
 func world_position_for_tile(tile: Vector2i) -> Vector2:
