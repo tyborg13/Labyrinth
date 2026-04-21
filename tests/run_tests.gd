@@ -8,6 +8,7 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
@@ -89,6 +90,7 @@ func _initialize() -> void:
 	_test_loaded_run_repairs_stranded_room_visibility()
 	_test_combat_finish_generates_reward_state()
 	_test_progression_save_and_purchase(default_progression)
+	_test_emaciated_man_unlocks_card_upgrade_dialogue()
 	_test_recovery_marker_flow()
 	_test_recovery_marker_expires_after_next_run()
 	_test_run_state_save_and_load()
@@ -108,6 +110,7 @@ func _initialize() -> void:
 	await _test_run_scene_empty_discard_uses_short_caption()
 	await _test_run_scene_displays_owned_relic_icons()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
+	await _test_run_scene_card_upgrade_overlay_opens()
 	await _test_run_scene_logs_local_analytics()
 	await _test_main_menu_shows_continue_for_saved_run()
 
@@ -1612,9 +1615,42 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 	_assert(ProgressionStore.save_data(data), "Progression save should succeed")
 	var loaded: Dictionary = ProgressionStore.load_data()
 	_assert(int(loaded.get("embers", 0)) == 100, "Saved progression embers should reload")
-	loaded = ProgressionStore.purchase_upgrade(loaded, "stitched_vitals")
-	_assert(ProgressionStore.has_upgrade(loaded, "stitched_vitals"), "Purchased upgrades should be tracked")
-	_assert(int(loaded.get("embers", 0)) == 70, "Upgrade purchase should deduct its ember cost")
+	var upgrade_id: String = "quick_stab_honed"
+	var cost: int = GameData.upgrade_cost(upgrade_id)
+	loaded = ProgressionStore.purchase_upgrade(loaded, upgrade_id)
+	_assert(ProgressionStore.has_upgrade(loaded, upgrade_id), "Purchased card upgrades should be tracked")
+	_assert(str((loaded.get("card_upgrades", {}) as Dictionary).get("quick_stab", "")) == upgrade_id, "Card upgrades should bind to their base card id")
+	_assert(int(loaded.get("embers", 0)) == 100 - cost, "Upgrade purchase should deduct its computed ember cost")
+	var upgraded_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
+	var upgraded_action: Dictionary = (upgraded_card.get("actions", []) as Array)[0]
+	_assert(int(upgraded_action.get("damage", 0)) == 11, "Purchased card upgrades should alter future card definitions")
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
+		"hp": 12,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"card_upgrades": loaded.get("card_upgrades", {}),
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 11, "Combat should resolve upgraded card definitions from progression")
+
+func _test_emaciated_man_unlocks_card_upgrade_dialogue() -> void:
+	var dialogue_engine: DialogueEngine = DialogueEngine.new()
+	var room: Dictionary = {
+		"coord": Vector2i.ZERO,
+		"npcs": [{"id": "emaciated_man"}]
+	}
+	var progression: Dictionary = ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data())
+	var dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {}, progression)
+	var lines: Array = dialogue.get("lines", [])
+	_assert(lines.size() == 7, "Resting at a fire should unlock the Emaciated Man's card-upgrade dialogue")
+	_assert(str((lines[1] as Dictionary).get("bbcode", "")).contains("[i]intoxicating[/i]"), "The fire-rest dialogue should italicize intoxicating")
+	var options: Array = (lines[lines.size() - 1] as Dictionary).get("options", [])
+	_assert(options.size() == 2, "The awakened dialogue should offer touch and journey choices")
+	_assert(str((options[0] as Dictionary).get("action", "")) == "open_card_upgrades", "Touching the Emaciated Man should open the card upgrade UI")
+	_assert(str((options[1] as Dictionary).get("action", "")) == "close", "Beginning the journey again should close dialogue")
 
 func _test_recovery_marker_flow() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -2253,7 +2289,7 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	await process_frame
 	var dialogue_active: bool = bool(instance.get("_dialogue_active"))
 	var speaker_label: Label = instance.get("_dialogue_name_label")
-	var text_label: Label = instance.get("_dialogue_text_label")
+	var text_label: RichTextLabel = instance.get("_dialogue_text_label")
 	_assert(dialogue_active, "Starting in the waypoint should auto-trigger the friendly NPC dialogue")
 	_assert(speaker_label != null and speaker_label.text == "Emaciated Man", "The start-room dialogue should identify the Emaciated Man as the speaker")
 	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon.", "The opening NPC line should match the scripted default dialogue")
@@ -2267,6 +2303,31 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
 	_assert(not bool(instance.get("_dialogue_active")), "Advancing after the last NPC line should close the dialogue overlay")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_card_upgrade_overlay_opens() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for card upgrade UI coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var progression: Dictionary = ProgressionStore.add_embers(
+		ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data()),
+		100
+	)
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["progression"] = progression
+	instance.set("_run_state", run_state)
+	instance.set("_progression", progression)
+	instance.call("_close_dialogue")
+	instance.call("_open_card_upgrade_overlay")
+	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")
+	var upgrade_list: VBoxContainer = instance.get("_upgrade_list")
+	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Touching the Emaciated Man should show the card upgrade overlay")
+	_assert(upgrade_list != null and upgrade_list.get_child_count() == GameData.card_upgrade_ids().size(), "The card upgrade overlay should list available card magicks")
 	instance.queue_free()
 	await process_frame
 

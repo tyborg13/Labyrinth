@@ -2,7 +2,6 @@ extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
-const GameData = preload("res://scripts/game_data.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -58,58 +57,36 @@ func _reload_progression() -> void:
 	embers_label.text = "Banked Embers: %d" % int(_progression.get("embers", 0))
 	continue_button.visible = ProgressionStore.has_saved_run()
 	footer_label.text = "Continue or start fresh." if continue_button.visible else "Start at the center. Bank embers at campfires."
+	upgrade_title_label.text = "Bound Magicks"
+	upgrade_subtitle_label.text = "Touch the Emaciated Man in the waypoint."
 	_clear_children(upgrade_list)
-	for upgrade_id: String in GameData.upgrade_ids():
-		upgrade_list.add_child(_build_upgrade_row(upgrade_id))
+	upgrade_list.add_child(_build_upgrade_hint())
 
-func _build_upgrade_row(upgrade_id: String) -> Control:
-	var upgrade: Dictionary = GameData.upgrade_def(upgrade_id)
+func _build_upgrade_hint() -> Control:
 	var container := PanelContainer.new()
 	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_theme_stylebox_override("panel", _ui_skin.make_plain_card_style(Color("f3ead8"), Color("a17d56"), 10.0))
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 12)
-	container.add_child(row)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_theme_constant_override("separation", 6)
+	container.add_child(info)
 	var title := Label.new()
-	title.text = "%s (%d)" % [str(upgrade.get("name", upgrade_id)), int(upgrade.get("cost", 0))]
+	title.text = "%d card magick%s bound" % [
+		(_progression.get("card_upgrades", {}) as Dictionary).size(),
+		"" if ((_progression.get("card_upgrades", {}) as Dictionary).size() == 1) else "s"
+	]
 	title.add_theme_color_override("font_color", Color("433122"))
 	title.add_theme_color_override("font_outline_color", Color("fff4dd"))
 	title.add_theme_constant_override("outline_size", 2)
 	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
 	var description := Label.new()
-	description.text = str(upgrade.get("description", ""))
+	description.text = "Rest at a fire, then return to the waypoint to bind cards with banked embers."
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.add_theme_color_override("font_color", Color("6d5841"))
 	UiTypography.set_label_size(description, UiTypography.SIZE_CAPTION)
 	info.add_child(title)
 	info.add_child(description)
-	var button := Button.new()
-	var owned: bool = ProgressionStore.has_upgrade(_progression, upgrade_id)
-	if owned:
-		button.text = "Owned"
-		button.disabled = true
-	elif ProgressionStore.can_purchase(_progression, upgrade_id):
-		button.text = "Buy"
-	else:
-		button.text = "Need %d" % int(upgrade.get("cost", 0))
-		button.disabled = true
-	button.custom_minimum_size = Vector2(112.0, 0.0)
-	_ui_skin.apply_button_stylebox_overrides(button)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
-	if not owned and not button.disabled:
-		button.pressed.connect(_on_upgrade_pressed.bind(upgrade_id))
-	row.add_child(info)
-	row.add_child(button)
 	return container
-
-func _on_upgrade_pressed(upgrade_id: String) -> void:
-	_progression = ProgressionStore.purchase_upgrade(_progression, upgrade_id)
-	ProgressionStore.save_data(_progression)
-	_reload_progression()
 
 func _on_start_button_pressed() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):

@@ -141,6 +141,7 @@ var _usable: bool = true
 var _previewed: bool = false
 var _interactive: bool = true
 var _printed_playable: bool = true
+var _card_override: Dictionary = {}
 var _summary_bbcode: String = ""
 var _summary_rows: Array = []
 var _modifier_tooltip_lines: PackedStringArray = []
@@ -253,7 +254,8 @@ func configure(
 	usable: bool = true,
 	previewed: bool = false,
 	interactive: bool = true,
-	printed_playable: bool = true
+	printed_playable: bool = true,
+	card_override: Dictionary = {}
 ) -> void:
 	card_id = next_card_id
 	_selected = selected
@@ -262,6 +264,7 @@ func configure(
 	_previewed = previewed
 	_interactive = interactive
 	_printed_playable = printed_playable
+	_card_override = card_override.duplicate(true)
 	if is_node_ready():
 		_apply_configuration()
 
@@ -278,7 +281,7 @@ func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = 
 func _apply_configuration() -> void:
 	if not is_node_ready():
 		return
-	var card: Dictionary = GameData.card_def(card_id)
+	var card: Dictionary = _display_card_def()
 	var element_id: String = GameData.card_element_from_def(card)
 	var element: Dictionary = ElementData.def(element_id)
 	title_label.text = str(card.get("name", card_id))
@@ -503,6 +506,9 @@ func _token_value_color(token: Dictionary) -> Color:
 			return Color(DAMAGE_PENALTY_COLOR)
 		_:
 			return Color(DAMAGE_NEUTRAL_COLOR)
+
+func _display_card_def() -> Dictionary:
+	return _card_override.duplicate(true) if not _card_override.is_empty() else GameData.card_def(card_id)
 
 func _configure_cost_badge_icon(icon_key: String, has_text: bool) -> void:
 	if _cost_badge_icon == null:

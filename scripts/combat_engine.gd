@@ -49,6 +49,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"traps": room_layout.get("traps", []).duplicate(true),
 		"loot": room_layout.get("loot", []).duplicate(true),
 		"relics": player_snapshot.get("relics", []).duplicate(),
+		"card_upgrades": (player_snapshot.get("card_upgrades", {}) as Dictionary).duplicate(true),
 		"hand_size": int(player_snapshot.get("hand_size", 5)),
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)),
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)),
@@ -84,8 +85,8 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	_log(state, "Entered %s." % state.get("room_name", "a room"))
 	return state
 
-func card_def(card_id: String) -> Dictionary:
-	return GameData.card_def(card_id)
+func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
+	return GameData.card_def_with_upgrades(card_id, state.get("card_upgrades", {}) as Dictionary)
 
 func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -233,7 +234,7 @@ func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 	hand.remove_at(hand_index)
 	var deck: Dictionary = next_state.get("deck", {}).duplicate(true)
 	deck["hand"] = hand
-	var card: Dictionary = GameData.card_def(card_id)
+	var card: Dictionary = card_def(card_id, next_state)
 	if bool(card.get("burn", false)):
 		var burned: Array = deck.get("burned", []).duplicate()
 		burned.append(card_id)

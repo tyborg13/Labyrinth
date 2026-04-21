@@ -19,6 +19,8 @@ static func default_data() -> Dictionary:
 	return {
 		"embers": 0,
 		"purchased_upgrades": [],
+		"card_upgrades": {},
+		"rested_at_fire": false,
 		"run_counter": 0,
 		"recovery_marker": {}
 	}
@@ -33,14 +35,28 @@ static func load_data() -> Dictionary:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return default_data()
 	var data: Dictionary = (parsed as Dictionary).duplicate(true)
+	return _normalized_data(data)
+
+static func _normalized_data(data: Dictionary) -> Dictionary:
 	if not data.has("embers"):
 		data["embers"] = 0
 	if not data.has("purchased_upgrades"):
 		data["purchased_upgrades"] = []
+	if not data.has("card_upgrades") or typeof(data.get("card_upgrades", {})) != TYPE_DICTIONARY:
+		data["card_upgrades"] = {}
+	if not data.has("rested_at_fire"):
+		data["rested_at_fire"] = false
 	if not data.has("run_counter"):
 		data["run_counter"] = 0
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
+	var card_upgrades: Dictionary = (data.get("card_upgrades", {}) as Dictionary).duplicate(true)
+	for upgrade_id_var: Variant in data.get("purchased_upgrades", []):
+		var upgrade_id: String = str(upgrade_id_var)
+		var card_id: String = GameData.upgrade_card_id(upgrade_id)
+		if not card_id.is_empty() and not card_upgrades.has(card_id):
+			card_upgrades[card_id] = upgrade_id
+	data["card_upgrades"] = card_upgrades
 	return data
 
 static func save_data(data: Dictionary) -> bool:
@@ -77,12 +93,17 @@ static func clear_saved_run() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(_run_storage_path))
 
 static func add_embers(data: Dictionary, amount: int) -> Dictionary:
-	var next_data: Dictionary = data.duplicate(true)
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) + amount)
 	return next_data
 
+static func mark_rested_at_fire(data: Dictionary) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	next_data["rested_at_fire"] = true
+	return next_data
+
 static func prepare_for_new_run(data: Dictionary) -> Dictionary:
-	var next_data: Dictionary = data.duplicate(true)
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	var next_run_counter: int = int(next_data.get("run_counter", 0)) + 1
 	next_data["run_counter"] = next_run_counter
 	var marker: Dictionary = recovery_marker(next_data)
@@ -127,21 +148,30 @@ static func clear_recovery_marker(data: Dictionary) -> Dictionary:
 	return next_data
 
 static func can_purchase(data: Dictionary, upgrade_id: String) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
 	if has_upgrade(data, upgrade_id):
 		return false
 	var upgrade: Dictionary = GameData.upgrade_def(upgrade_id)
 	if upgrade.is_empty():
 		return false
-	return int(data.get("embers", 0)) >= int(upgrade.get("cost", 0))
+	var card_id: String = GameData.upgrade_card_id(upgrade_id)
+	if not card_id.is_empty() and has_card_upgrade(normalized, card_id):
+		return false
+	return int(normalized.get("embers", 0)) >= GameData.upgrade_cost(upgrade_id)
 
 static func purchase_upgrade(data: Dictionary, upgrade_id: String) -> Dictionary:
 	if not can_purchase(data, upgrade_id):
 		return data.duplicate(true)
-	var next_data: Dictionary = data.duplicate(true)
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	var upgrades: Array = next_data.get("purchased_upgrades", []).duplicate()
 	upgrades.append(upgrade_id)
 	next_data["purchased_upgrades"] = upgrades
-	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) - int(GameData.upgrade_def(upgrade_id).get("cost", 0)))
+	var card_id: String = GameData.upgrade_card_id(upgrade_id)
+	if not card_id.is_empty():
+		var card_upgrades: Dictionary = (next_data.get("card_upgrades", {}) as Dictionary).duplicate(true)
+		card_upgrades[card_id] = upgrade_id
+		next_data["card_upgrades"] = card_upgrades
+	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) - GameData.upgrade_cost(upgrade_id))
 	return next_data
 
 static func has_upgrade(data: Dictionary, upgrade_id: String) -> bool:
@@ -149,3 +179,7 @@ static func has_upgrade(data: Dictionary, upgrade_id: String) -> bool:
 		if str(purchased_var) == upgrade_id:
 			return true
 	return false
+
+static func has_card_upgrade(data: Dictionary, card_id: String) -> bool:
+	var card_upgrades: Dictionary = (data.get("card_upgrades", {}) as Dictionary)
+	return not str(card_upgrades.get(card_id, "")).is_empty()

@@ -107,9 +107,13 @@ var _animating_hand_card_index: int = -1
 var _dialogue_overlay: Control
 var _dialogue_dialog: PanelContainer
 var _dialogue_name_label: Label
-var _dialogue_text_label: Label
+var _dialogue_text_label: RichTextLabel
 var _dialogue_hint_label: Label
 var _dialogue_choice_bar: HBoxContainer
+var _upgrade_scrim: ColorRect
+var _upgrade_dialog: PanelContainer
+var _upgrade_embers_label: Label
+var _upgrade_list: VBoxContainer
 var _dialogue_active: bool = false
 var _dialogue_script: Dictionary = {}
 var _dialogue_line_index: int = -1
@@ -129,7 +133,7 @@ func _process(delta: float) -> void:
 	if not _dialogue_active or _dialogue_text_complete or _dialogue_text_label == null:
 		return
 	var line: Dictionary = _current_dialogue_line()
-	var text: String = str(line.get("text", ""))
+	var text: String = _dialogue_visible_text()
 	if text.is_empty():
 		_complete_current_dialogue_line()
 		return
@@ -142,6 +146,11 @@ func _input(event: InputEvent) -> void:
 	if _dialogue_active:
 		if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
 			_advance_dialogue()
+			get_viewport().set_input_as_handled()
+		return
+	if _upgrade_scrim != null and _upgrade_scrim.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_close_card_upgrade_overlay()
 			get_viewport().set_input_as_handled()
 		return
 	if _drag_card_index >= 0:
@@ -249,6 +258,7 @@ func _build_overlay_ui() -> void:
 	_build_dialogue_overlay()
 	_build_menu_overlay()
 	_build_pile_overlay()
+	_build_card_upgrade_overlay()
 	_build_drag_overlay()
 
 func _build_card_fx_layer() -> void:
@@ -400,13 +410,16 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_dialogue_name_label)
 
-	_dialogue_text_label = Label.new()
+	_dialogue_text_label = RichTextLabel.new()
+	_dialogue_text_label.bbcode_enabled = true
 	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_dialogue_text_label.visible_characters = 0
 	_dialogue_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_dialogue_text_label.custom_minimum_size = Vector2(0.0, 78.0)
-	UiTypography.set_label_size(_dialogue_text_label, UiTypography.SIZE_BODY)
-	_dialogue_text_label.add_theme_color_override("font_color", Color("f5ebd8"))
+	_dialogue_text_label.fit_content = true
+	_dialogue_text_label.scroll_active = false
+	UiTypography.set_rich_text_size(_dialogue_text_label, UiTypography.SIZE_BODY)
+	_dialogue_text_label.add_theme_color_override("default_color", Color("f5ebd8"))
 	_dialogue_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_dialogue_text_label)
 
@@ -510,6 +523,87 @@ func _build_pile_overlay() -> void:
 	_pile_dialog_empty.visible = false
 	vbox.add_child(_pile_dialog_empty)
 
+func _build_card_upgrade_overlay() -> void:
+	_upgrade_scrim = ColorRect.new()
+	_upgrade_scrim.name = "CardUpgradeScrim"
+	_upgrade_scrim.visible = false
+	_upgrade_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_upgrade_scrim.color = Color(0.02, 0.02, 0.02, 0.64)
+	_upgrade_scrim.anchors_preset = Control.PRESET_FULL_RECT
+	_upgrade_scrim.anchor_right = 1.0
+	_upgrade_scrim.anchor_bottom = 1.0
+	add_child(_upgrade_scrim)
+
+	var center := CenterContainer.new()
+	center.anchors_preset = Control.PRESET_FULL_RECT
+	center.anchor_right = 1.0
+	center.anchor_bottom = 1.0
+	_upgrade_scrim.add_child(center)
+
+	_upgrade_dialog = PanelContainer.new()
+	_upgrade_dialog.custom_minimum_size = Vector2(1120.0, 620.0)
+	var dialog_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.98), Color("c28a53"), 16.0)
+	dialog_style.corner_radius_top_left = 14
+	dialog_style.corner_radius_top_right = 14
+	dialog_style.corner_radius_bottom_right = 14
+	dialog_style.corner_radius_bottom_left = 14
+	dialog_style.shadow_size = 12
+	_upgrade_dialog.add_theme_stylebox_override("panel", dialog_style)
+	center.add_child(_upgrade_dialog)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	_upgrade_dialog.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 12)
+	margin.add_child(vbox)
+
+	var top_row := HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", 10)
+	vbox.add_child(top_row)
+
+	var title := Label.new()
+	title.text = "Bound Magicks"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
+	title.add_theme_color_override("font_color", Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 2)
+	top_row.add_child(title)
+
+	_upgrade_embers_label = Label.new()
+	UiTypography.set_label_size(_upgrade_embers_label, UiTypography.SIZE_SMALL)
+	_upgrade_embers_label.add_theme_color_override("font_color", Color("f0c978"))
+	_upgrade_embers_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	_upgrade_embers_label.add_theme_constant_override("outline_size", 1)
+	top_row.add_child(_upgrade_embers_label)
+
+	var close_button := Button.new()
+	close_button.text = "X"
+	close_button.custom_minimum_size = Vector2(44.0, 36.0)
+	_ui_skin.apply_button_stylebox_overrides(close_button)
+	_ui_skin.apply_button_text_overrides(close_button)
+	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	close_button.pressed.connect(_close_card_upgrade_overlay)
+	top_row.add_child(close_button)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	_upgrade_list = VBoxContainer.new()
+	_upgrade_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_upgrade_list.add_theme_constant_override("separation", 12)
+	scroll.add_child(_upgrade_list)
+
 func _build_drag_overlay() -> void:
 	_drag_overlay = Control.new()
 	_drag_overlay.name = "DragOverlay"
@@ -598,6 +692,7 @@ func _start_dialogue(dialogue: Dictionary) -> void:
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_menu_overlay()
+	_close_card_upgrade_overlay()
 	_dialogue_script = dialogue.duplicate(true)
 	_dialogue_active = true
 	_dialogue_overlay.visible = true
@@ -616,17 +711,17 @@ func _show_dialogue_line(index: int) -> void:
 	var accent_text: String = str(line.get("accent", _dialogue_script.get("accent", "#b8aa90")))
 	_apply_dialogue_accent(accent_text)
 	_dialogue_name_label.text = speaker
-	_dialogue_text_label.text = str(line.get("text", ""))
+	_dialogue_text_label.text = _dialogue_line_markup(line)
 	_dialogue_text_label.visible_characters = 0
 	_update_dialogue_footer()
-	if _dialogue_text_label.text.is_empty():
+	if _dialogue_visible_text().is_empty():
 		_complete_current_dialogue_line()
 
 func _complete_current_dialogue_line() -> void:
 	if not _dialogue_active:
 		return
 	_dialogue_text_complete = true
-	_dialogue_char_progress = float(_dialogue_text_label.text.length())
+	_dialogue_char_progress = float(_dialogue_visible_text().length())
 	_dialogue_text_label.visible_characters = -1
 	_update_dialogue_footer()
 
@@ -647,6 +742,14 @@ func _advance_dialogue() -> void:
 
 func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	if not _dialogue_active or not _dialogue_text_complete:
+		return
+	var action: String = str(option.get("action", ""))
+	if action == "open_card_upgrades":
+		_close_dialogue()
+		_open_card_upgrade_overlay()
+		return
+	if action == "close":
+		_close_dialogue()
 		return
 	var next_index: int = int(option.get("next", -1))
 	if next_index >= 0:
@@ -673,6 +776,14 @@ func _current_dialogue_line() -> Dictionary:
 	if _dialogue_line_index >= lines.size():
 		return {}
 	return lines[_dialogue_line_index]
+
+func _dialogue_line_markup(line: Dictionary) -> String:
+	return str(line.get("bbcode", line.get("text", "")))
+
+func _dialogue_visible_text() -> String:
+	if _dialogue_text_label == null:
+		return ""
+	return _dialogue_text_label.get_parsed_text()
 
 func _has_current_dialogue_options() -> bool:
 	return (_current_dialogue_line().get("options", []) as Array).size() > 0 and _dialogue_text_complete
@@ -800,7 +911,7 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	widget.custom_minimum_size = rect.size
 	widget.size = rect.size
 	widget.position = rect.position
-	widget.configure(card_id, false, false, true, false, false, true)
+	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id, _combat_state))
 	var display: Dictionary = _card_widget_display(card_id, _combat_state)
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 	return widget
@@ -1196,7 +1307,7 @@ func _refresh_pile_visuals() -> void:
 			if caption != null:
 				caption.text = "DECK" if kind == "draw" else "DISC" if kind == "discard" else "BURN"
 			continue
-		var card: Dictionary = GameData.card_def(top_card_id)
+		var card: Dictionary = _card_def(top_card_id)
 		preview.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
 		preview.modulate = Color.WHITE
 		if caption != null:
@@ -1226,6 +1337,8 @@ func _refresh_visibility() -> void:
 	if mode != "combat":
 		_cancel_drag_play()
 		_close_pile_view()
+	if mode != "room":
+		_close_card_upgrade_overlay()
 
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
@@ -1287,7 +1400,8 @@ func _refresh_hand_panel() -> void:
 				_hovered_card_index == index and _selected_card_index < 0
 				and _drag_card_index < 0,
 				not _animation_lock,
-				bool(options.get("printed_playable", false))
+				bool(options.get("printed_playable", false)),
+				_card_def(str(hand[index]), _combat_state)
 			)
 			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 			if index == _drag_card_index:
@@ -1308,7 +1422,7 @@ func _refresh_hand_panel() -> void:
 		for card_id_var: Variant in reward_cards:
 			var widget = CardWidgetScene.instantiate()
 			widget.custom_minimum_size = reward_card_size
-			widget.configure(str(card_id_var), false, false, true, false)
+			widget.configure(str(card_id_var), false, false, true, false, true, true, _card_def(str(card_id_var)))
 			widget.activated.connect(_on_reward_card_pressed.bind(str(card_id_var)))
 			hand_box.add_child(widget)
 
@@ -1425,7 +1539,7 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	if index < 0 or index >= hand.size():
 		return {}
 	var card_id: String = str(hand[index])
-	return _card_preview_from_state(card_id, _combat_state, GameData.card_def(card_id).get("actions", []), 0)
+	return _card_preview_from_state(card_id, _combat_state, _card_def(card_id, _combat_state).get("actions", []), 0)
 
 func _fallback_preview_for_index(index: int, play_kind: String) -> Dictionary:
 	if _combat_state.is_empty():
@@ -1470,7 +1584,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 	return _card_widget_display(str(hand[index]), _combat_state)
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
-	var card: Dictionary = GameData.card_def(card_id)
+	var card: Dictionary = _card_def(card_id, state)
 	var summary_rows: Array = []
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
@@ -2048,7 +2162,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		await _resolve_enemy_round()
 
 func _card_destination_pile(card_id: String) -> String:
-	return "burn" if bool(GameData.card_def(card_id).get("burn", false)) else "discard"
+	return "burn" if bool(_card_def(card_id, _combat_state).get("burn", false)) else "discard"
 
 func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2) -> void:
 	return
@@ -2600,9 +2714,9 @@ func _board_status_label(preview: Dictionary) -> String:
 		if _selected_card_index >= 0:
 			if not _selected_card_label_override.is_empty():
 				return _selected_card_label_override
-			return str(GameData.card_def(_card_id_for_hand_index(_selected_card_index)).get("name", "Card"))
+			return str(_card_def(_card_id_for_hand_index(_selected_card_index), _combat_state).get("name", "Card"))
 		if _hovered_card_index >= 0 and bool(preview.get("playable", false)):
-			return str(GameData.card_def(str(preview.get("card_id", ""))).get("name", "Card"))
+			return str(_card_def(str(preview.get("card_id", "")), _combat_state).get("name", "Card"))
 		if not _has_any_playable_combat_card():
 			return "Pass"
 		if not _has_playable_combat_card():
@@ -2677,7 +2791,7 @@ func _action_prompt(action: Dictionary) -> String:
 			return "Resolve"
 
 func _player_action_label(card_id: String, _action: Dictionary, _state: Dictionary = _combat_state) -> String:
-	return str(GameData.card_def(card_id).get("name", card_id))
+	return str(_card_def(card_id, _state).get("name", card_id))
 
 func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_by_id: Dictionary = {}
@@ -2763,6 +2877,7 @@ func _on_campfire_sit_pressed() -> void:
 	var bankable: int = _run_engine.bankable_embers(_run_state)
 	if bankable > 0:
 		_progression = ProgressionStore.add_embers(_progression, bankable)
+	_progression = ProgressionStore.mark_rested_at_fire(_progression)
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
@@ -2802,6 +2917,7 @@ func _open_menu_overlay() -> void:
 		return
 	_cancel_drag_play()
 	_close_pile_view()
+	_close_card_upgrade_overlay()
 	_menu_scrim.visible = true
 
 func _close_menu_overlay() -> void:
@@ -2849,6 +2965,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	if _pile_scrim == null:
 		return
 	_cancel_drag_play()
+	_close_card_upgrade_overlay()
 	var cards: Array = _cards_for_pile(pile_kind)
 	_active_pile_kind = pile_kind
 	_pile_dialog_title.text = "%s Pile" % pile_kind.capitalize()
@@ -2856,7 +2973,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	for card_id_var: Variant in cards:
 		var widget = CardWidgetScene.instantiate()
 		widget.custom_minimum_size = Vector2(156.0, 224.0)
-		widget.configure(str(card_id_var), false, false, true, false, false, true)
+		widget.configure(str(card_id_var), false, false, true, false, false, true, _card_def(str(card_id_var)))
 		widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_pile_dialog_cards.add_child(widget)
 	_pile_dialog_empty.visible = cards.is_empty()
@@ -2867,13 +2984,127 @@ func _close_pile_view() -> void:
 		_pile_scrim.visible = false
 	_active_pile_kind = ""
 
+func _open_card_upgrade_overlay() -> void:
+	if _upgrade_scrim == null:
+		return
+	_cancel_drag_play()
+	_close_pile_view()
+	_close_menu_overlay()
+	_refresh_card_upgrade_overlay()
+	_upgrade_scrim.visible = true
+
+func _close_card_upgrade_overlay() -> void:
+	if _upgrade_scrim != null:
+		_upgrade_scrim.visible = false
+
+func _refresh_card_upgrade_overlay() -> void:
+	if _upgrade_list == null:
+		return
+	_sync_progression_from_run()
+	_upgrade_embers_label.text = "EMBERS %d" % int(_progression.get("embers", 0))
+	_clear_children(_upgrade_list)
+	for upgrade_id_var: Variant in GameData.card_upgrade_ids():
+		var upgrade_id: String = str(upgrade_id_var)
+		_upgrade_list.add_child(_build_card_upgrade_row(upgrade_id))
+
+func _build_card_upgrade_row(upgrade_id: String) -> Control:
+	var upgrade: Dictionary = GameData.upgrade_def(upgrade_id)
+	var card_id: String = GameData.upgrade_card_id(upgrade_id)
+	var base_card: Dictionary = GameData.card_def(card_id)
+	var upgraded_card: Dictionary = GameData.upgraded_card_def(upgrade_id)
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 12)
+
+	var base_widget = CardWidgetScene.instantiate()
+	base_widget.custom_minimum_size = Vector2(128.0, 180.0)
+	base_widget.configure(card_id, false, false, true, false, false, true, base_card)
+	base_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(base_widget)
+
+	var arrow := Label.new()
+	arrow.text = ">"
+	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(arrow, UiTypography.SIZE_SECTION)
+	arrow.add_theme_color_override("font_color", Color("d6b16d"))
+	arrow.add_theme_color_override("font_outline_color", Color("231711"))
+	arrow.add_theme_constant_override("outline_size", 2)
+	row.add_child(arrow)
+
+	var upgraded_widget = CardWidgetScene.instantiate()
+	upgraded_widget.custom_minimum_size = Vector2(128.0, 180.0)
+	upgraded_widget.configure(card_id, false, false, true, false, false, true, upgraded_card)
+	upgraded_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(upgraded_widget)
+
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_theme_constant_override("separation", 6)
+	row.add_child(info)
+
+	var title := Label.new()
+	title.text = str(upgrade.get("name", upgraded_card.get("name", upgrade_id)))
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 1)
+	info.add_child(title)
+
+	var description := Label.new()
+	description.text = str(upgrade.get("description", upgraded_card.get("description", "")))
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.set_label_size(description, UiTypography.SIZE_CAPTION)
+	description.add_theme_color_override("font_color", Color("cdbca2"))
+	info.add_child(description)
+
+	var delta := Label.new()
+	delta.text = GameData.upgrade_delta_summary(upgrade_id)
+	UiTypography.set_label_size(delta, UiTypography.SIZE_CAPTION)
+	delta.add_theme_color_override("font_color", Color("bfa27b"))
+	info.add_child(delta)
+
+	var button := Button.new()
+	var cost: int = GameData.upgrade_cost(upgrade_id)
+	var owned: bool = ProgressionStore.has_upgrade(_progression, upgrade_id)
+	var card_bound: bool = ProgressionStore.has_card_upgrade(_progression, card_id)
+	button.custom_minimum_size = Vector2(124.0, 42.0)
+	if owned:
+		button.text = "Bound"
+		button.disabled = true
+	elif card_bound:
+		button.text = "Bound"
+		button.disabled = true
+	elif ProgressionStore.can_purchase(_progression, upgrade_id):
+		button.text = "Bind %d" % cost
+	else:
+		button.text = "Need %d" % cost
+		button.disabled = true
+	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+	if not button.disabled:
+		button.pressed.connect(_on_card_upgrade_pressed.bind(upgrade_id))
+	row.add_child(button)
+	return row
+
+func _on_card_upgrade_pressed(upgrade_id: String) -> void:
+	_progression = ProgressionStore.purchase_upgrade(_progression, upgrade_id)
+	ProgressionStore.save_data(_progression)
+	_run_state["progression"] = _progression.duplicate(true)
+	if not _combat_state.is_empty():
+		_combat_state["card_upgrades"] = (_progression.get("card_upgrades", {}) as Dictionary).duplicate(true)
+		_run_state["combat_state"] = _combat_state.duplicate(true)
+	_refresh_card_upgrade_overlay()
+	_refresh_ui()
+
 func _cards_for_pile(pile_kind: String) -> Array:
 	var piles: Dictionary = _deck_piles()
 	var cards: Array = piles.get(pile_kind, []).duplicate()
 	if pile_kind == "draw":
 		cards.sort_custom(func(a: Variant, b: Variant) -> bool:
-			var a_name: String = str(GameData.card_def(str(a)).get("name", str(a)))
-			var b_name: String = str(GameData.card_def(str(b)).get("name", str(b)))
+			var a_name: String = str(_card_def(str(a)).get("name", str(a)))
+			var b_name: String = str(_card_def(str(b)).get("name", str(b)))
 			if a_name == b_name:
 				return str(a) < str(b)
 			return a_name < b_name
@@ -2942,6 +3173,14 @@ func _card_id_for_hand_index(index: int) -> String:
 	if index < 0 or index >= hand.size():
 		return ""
 	return str(hand[index])
+
+func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
+	var card_upgrades: Dictionary = {}
+	if not state.is_empty() and state.has("card_upgrades"):
+		card_upgrades = (state.get("card_upgrades", {}) as Dictionary).duplicate(true)
+	elif not _progression.is_empty():
+		card_upgrades = (_progression.get("card_upgrades", {}) as Dictionary).duplicate(true)
+	return GameData.card_def_with_upgrades(card_id, card_upgrades)
 
 func _reset_card_resolution() -> void:
 	_selected_card_index = -1
@@ -3294,13 +3533,14 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
 	var player_stun_applied: int = maxi(0, int(after_player.get("stun", 0)) - int(before_player.get("stun", 0)))
 	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
-	var printed_actions: Array = (GameData.card_def(card_id).get("actions", []) as Array).duplicate(true)
+	var printed_card: Dictionary = _card_def(card_id, before_state)
+	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
 	var play_mode: String = "printed"
 	if JSON.stringify(actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("move")) else "custom"
 	return {
 		"play_mode": play_mode,
-		"printed_health_cost": int(GameData.card_def(card_id).get("health_cost", 0)),
+		"printed_health_cost": int(printed_card.get("health_cost", 0)),
 		"enemy_hp_damage": enemy_hp_damage,
 		"enemy_block_removed": enemy_block_removed,
 		"enemy_stoneskin_removed": enemy_stoneskin_removed,
