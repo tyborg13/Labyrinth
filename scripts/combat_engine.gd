@@ -50,6 +50,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"loot": room_layout.get("loot", []).duplicate(true),
 		"relics": player_snapshot.get("relics", []).duplicate(),
 		"card_upgrades": (player_snapshot.get("card_upgrades", {}) as Dictionary).duplicate(true),
+		"card_mods": (player_snapshot.get("card_mods", {}) as Dictionary).duplicate(true),
 		"hand_size": int(player_snapshot.get("hand_size", 5)),
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)),
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)),
@@ -86,7 +87,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	return state
 
 func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
-	return GameData.card_def_with_upgrades(card_id, state.get("card_upgrades", {}) as Dictionary)
+	return GameData.card_def_for_progression(card_id, state)
 
 func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))

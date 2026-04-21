@@ -71,9 +71,10 @@ func _build_upgrade_hint() -> Control:
 	info.add_theme_constant_override("separation", 6)
 	container.add_child(info)
 	var title := Label.new()
+	var bound_count: int = _bound_magick_count()
 	title.text = "%d card magick%s bound" % [
-		(_progression.get("card_upgrades", {}) as Dictionary).size(),
-		"" if ((_progression.get("card_upgrades", {}) as Dictionary).size() == 1) else "s"
+		bound_count,
+		"" if bound_count == 1 else "s"
 	]
 	title.add_theme_color_override("font_color", Color("433122"))
 	title.add_theme_color_override("font_outline_color", Color("fff4dd"))
@@ -87,6 +88,13 @@ func _build_upgrade_hint() -> Control:
 	info.add_child(title)
 	info.add_child(description)
 	return container
+
+func _bound_magick_count() -> int:
+	var total: int = (_progression.get("card_upgrades", {}) as Dictionary).size()
+	for mods_var: Variant in (_progression.get("card_mods", {}) as Dictionary).values():
+		if typeof(mods_var) == TYPE_ARRAY:
+			total += (mods_var as Array).size()
+	return total
 
 func _on_start_button_pressed() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):

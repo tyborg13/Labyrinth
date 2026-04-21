@@ -114,7 +114,12 @@ var _dialogue_choice_bar: HBoxContainer
 var _upgrade_scrim: ColorRect
 var _upgrade_dialog: PanelContainer
 var _upgrade_embers_label: Label
-var _upgrade_list: VBoxContainer
+var _upgrade_card_list: VBoxContainer
+var _upgrade_element_list: VBoxContainer
+var _upgrade_option_list: VBoxContainer
+var _upgrade_preview_box: HBoxContainer
+var _upgrade_selected_card_id: String = ""
+var _upgrade_selected_element_key: String = ""
 var _dialogue_active: bool = false
 var _dialogue_script: Dictionary = {}
 var _dialogue_line_index: int = -1
@@ -594,16 +599,79 @@ func _build_card_upgrade_overlay() -> void:
 	close_button.pressed.connect(_close_card_upgrade_overlay)
 	top_row.add_child(close_button)
 
+	var body := HBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 14)
+	vbox.add_child(body)
+
+	_upgrade_card_list = _build_upgrade_column(body, "Cards", 220.0)
+	_upgrade_element_list = _build_upgrade_column(body, "Parts", 220.0)
+
+	var right_column := VBoxContainer.new()
+	right_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_column.add_theme_constant_override("separation", 10)
+	body.add_child(right_column)
+
+	var preview_title := Label.new()
+	preview_title.text = "Preview"
+	UiTypography.set_label_size(preview_title, UiTypography.SIZE_SMALL)
+	preview_title.add_theme_color_override("font_color", Color("f0e6d2"))
+	preview_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	preview_title.add_theme_constant_override("outline_size", 1)
+	right_column.add_child(preview_title)
+
+	_upgrade_preview_box = HBoxContainer.new()
+	_upgrade_preview_box.custom_minimum_size = Vector2(0.0, 188.0)
+	_upgrade_preview_box.add_theme_constant_override("separation", 12)
+	right_column.add_child(_upgrade_preview_box)
+
+	var option_title := Label.new()
+	option_title.text = "Options"
+	UiTypography.set_label_size(option_title, UiTypography.SIZE_SMALL)
+	option_title.add_theme_color_override("font_color", Color("f0e6d2"))
+	option_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	option_title.add_theme_constant_override("outline_size", 1)
+	right_column.add_child(option_title)
+
+	var option_scroll := ScrollContainer.new()
+	option_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	option_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	option_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right_column.add_child(option_scroll)
+
+	_upgrade_option_list = VBoxContainer.new()
+	_upgrade_option_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_upgrade_option_list.add_theme_constant_override("separation", 10)
+	option_scroll.add_child(_upgrade_option_list)
+
+func _build_upgrade_column(parent: Node, title_text: String, width: float) -> VBoxContainer:
+	var column := VBoxContainer.new()
+	column.custom_minimum_size = Vector2(width, 0.0)
+	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation", 8)
+	parent.add_child(column)
+
+	var title := Label.new()
+	title.text = title_text
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 1)
+	column.add_child(title)
+
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
+	column.add_child(scroll)
 
-	_upgrade_list = VBoxContainer.new()
-	_upgrade_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_upgrade_list.add_theme_constant_override("separation", 12)
-	scroll.add_child(_upgrade_list)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 6)
+	scroll.add_child(list)
+	return list
 
 func _build_drag_overlay() -> void:
 	_drag_overlay = Control.new()
@@ -759,6 +827,7 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	_maybe_mark_fire_rest_dialogue_seen()
 	_dialogue_active = false
 	_dialogue_script.clear()
 	_dialogue_line_index = -1
@@ -769,6 +838,14 @@ func _close_dialogue() -> void:
 		_dialogue_hint_label.text = ""
 	if _dialogue_overlay != null:
 		_dialogue_overlay.visible = false
+
+func _maybe_mark_fire_rest_dialogue_seen() -> void:
+	if _dialogue_script.is_empty() or not bool(_dialogue_script.get("marks_fire_rest_seen", false)):
+		return
+	_progression = ProgressionStore.mark_fire_rest_dialogue_seen(_progression)
+	ProgressionStore.save_data(_progression)
+	if not _run_state.is_empty():
+		_run_state["progression"] = _progression.duplicate(true)
 
 func _current_dialogue_line() -> Dictionary:
 	if not _dialogue_active or _dialogue_line_index < 0:
@@ -2999,44 +3076,87 @@ func _close_card_upgrade_overlay() -> void:
 		_upgrade_scrim.visible = false
 
 func _refresh_card_upgrade_overlay() -> void:
-	if _upgrade_list == null:
+	if _upgrade_card_list == null:
 		return
 	_sync_progression_from_run()
 	_upgrade_embers_label.text = "EMBERS %d" % int(_progression.get("embers", 0))
-	_clear_children(_upgrade_list)
-	for upgrade_id_var: Variant in GameData.card_upgrade_ids():
-		var upgrade_id: String = str(upgrade_id_var)
-		_upgrade_list.add_child(_build_card_upgrade_row(upgrade_id))
+	var card_ids: Array = GameData.upgradeable_card_ids()
+	if _upgrade_selected_card_id.is_empty() or not card_ids.has(_upgrade_selected_card_id):
+		_upgrade_selected_card_id = str(card_ids[0]) if not card_ids.is_empty() else ""
+	_upgrade_refresh_card_list(card_ids)
+	_upgrade_refresh_element_list()
+	_upgrade_refresh_options()
 
-func _build_card_upgrade_row(upgrade_id: String) -> Control:
-	var upgrade: Dictionary = GameData.upgrade_def(upgrade_id)
-	var card_id: String = GameData.upgrade_card_id(upgrade_id)
-	var base_card: Dictionary = GameData.card_def(card_id)
-	var upgraded_card: Dictionary = GameData.upgraded_card_def(upgrade_id)
+func _upgrade_refresh_card_list(card_ids: Array) -> void:
+	_clear_children(_upgrade_card_list)
+	for card_id_var: Variant in card_ids:
+		var card_id: String = str(card_id_var)
+		var card: Dictionary = GameData.card_def(card_id)
+		var count: int = GameData.card_upgrade_count(_progression, card_id)
+		var label: String = str(card.get("name", card_id))
+		if count > 0:
+			label = "%s +%d" % [label, count]
+		var button := _upgrade_list_button(label, card_id == _upgrade_selected_card_id)
+		button.pressed.connect(_on_upgrade_card_selected.bind(card_id))
+		_upgrade_card_list.add_child(button)
+
+func _upgrade_refresh_element_list() -> void:
+	_clear_children(_upgrade_element_list)
+	var elements: Array = GameData.upgradeable_elements_for_card(_upgrade_selected_card_id, _progression)
+	if elements.is_empty():
+		_upgrade_selected_element_key = ""
+		return
+	var has_selected: bool = false
+	for element_var: Variant in elements:
+		var element: Dictionary = element_var
+		if str(element.get("key", "")) == _upgrade_selected_element_key:
+			has_selected = true
+			break
+	if not has_selected:
+		_upgrade_selected_element_key = str((elements[0] as Dictionary).get("key", ""))
+	for element_var: Variant in elements:
+		var element: Dictionary = element_var
+		var selected: bool = str(element.get("key", "")) == _upgrade_selected_element_key
+		var button := _upgrade_list_button(str(element.get("label", "Part")), selected)
+		button.pressed.connect(_on_upgrade_element_selected.bind(element))
+		_upgrade_element_list.add_child(button)
+
+func _upgrade_refresh_options() -> void:
+	_clear_children(_upgrade_option_list)
+	_clear_children(_upgrade_preview_box)
+	if _upgrade_selected_card_id.is_empty():
+		return
+	var current_card: Dictionary = GameData.card_def_for_progression(_upgrade_selected_card_id, _progression)
+	var current_widget = CardWidgetScene.instantiate()
+	current_widget.custom_minimum_size = Vector2(132.0, 184.0)
+	current_widget.configure(_upgrade_selected_card_id, false, false, true, false, false, true, current_card)
+	current_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_upgrade_preview_box.add_child(current_widget)
+	var element: Dictionary = _selected_upgrade_element()
+	if element.is_empty():
+		return
+	var options: Array = GameData.upgrade_options_for_element(_upgrade_selected_card_id, element, _progression)
+	for option_var: Variant in options:
+		var option: Dictionary = option_var
+		_upgrade_option_list.add_child(_build_upgrade_option_row(option))
+
+func _selected_upgrade_element() -> Dictionary:
+	for element_var: Variant in GameData.upgradeable_elements_for_card(_upgrade_selected_card_id, _progression):
+		var element: Dictionary = element_var
+		if str(element.get("key", "")) == _upgrade_selected_element_key:
+			return element
+	return {}
+
+func _build_upgrade_option_row(option: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 12)
-
-	var base_widget = CardWidgetScene.instantiate()
-	base_widget.custom_minimum_size = Vector2(128.0, 180.0)
-	base_widget.configure(card_id, false, false, true, false, false, true, base_card)
-	base_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(base_widget)
-
-	var arrow := Label.new()
-	arrow.text = ">"
-	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(arrow, UiTypography.SIZE_SECTION)
-	arrow.add_theme_color_override("font_color", Color("d6b16d"))
-	arrow.add_theme_color_override("font_outline_color", Color("231711"))
-	arrow.add_theme_constant_override("outline_size", 2)
-	row.add_child(arrow)
-
-	var upgraded_widget = CardWidgetScene.instantiate()
-	upgraded_widget.custom_minimum_size = Vector2(128.0, 180.0)
-	upgraded_widget.configure(card_id, false, false, true, false, false, true, upgraded_card)
-	upgraded_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(upgraded_widget)
+	var preview_card: Dictionary = GameData.preview_card_with_mod(_upgrade_selected_card_id, option, _progression)
+	var preview_widget = CardWidgetScene.instantiate()
+	preview_widget.custom_minimum_size = Vector2(132.0, 184.0)
+	preview_widget.configure(_upgrade_selected_card_id, false, false, true, false, false, true, preview_card)
+	preview_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(preview_widget)
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -3044,7 +3164,7 @@ func _build_card_upgrade_row(upgrade_id: String) -> Control:
 	row.add_child(info)
 
 	var title := Label.new()
-	title.text = str(upgrade.get("name", upgraded_card.get("name", upgrade_id)))
+	title.text = str(option.get("label", "Upgrade"))
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
@@ -3052,49 +3172,55 @@ func _build_card_upgrade_row(upgrade_id: String) -> Control:
 	title.add_theme_constant_override("outline_size", 1)
 	info.add_child(title)
 
-	var description := Label.new()
-	description.text = str(upgrade.get("description", upgraded_card.get("description", "")))
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(description, UiTypography.SIZE_CAPTION)
-	description.add_theme_color_override("font_color", Color("cdbca2"))
-	info.add_child(description)
-
-	var delta := Label.new()
-	delta.text = GameData.upgrade_delta_summary(upgrade_id)
-	UiTypography.set_label_size(delta, UiTypography.SIZE_CAPTION)
-	delta.add_theme_color_override("font_color", Color("bfa27b"))
-	info.add_child(delta)
+	var cost_label := Label.new()
+	cost_label.text = "Cost %d embers" % int(option.get("cost", 0))
+	UiTypography.set_label_size(cost_label, UiTypography.SIZE_CAPTION)
+	cost_label.add_theme_color_override("font_color", Color("cdbca2"))
+	info.add_child(cost_label)
 
 	var button := Button.new()
-	var cost: int = GameData.upgrade_cost(upgrade_id)
-	var owned: bool = ProgressionStore.has_upgrade(_progression, upgrade_id)
-	var card_bound: bool = ProgressionStore.has_card_upgrade(_progression, card_id)
-	button.custom_minimum_size = Vector2(124.0, 42.0)
-	if owned:
-		button.text = "Bound"
-		button.disabled = true
-	elif card_bound:
-		button.text = "Bound"
-		button.disabled = true
-	elif ProgressionStore.can_purchase(_progression, upgrade_id):
-		button.text = "Bind %d" % cost
+	button.custom_minimum_size = Vector2(126.0, 42.0)
+	if ProgressionStore.can_purchase_card_mod(_progression, _upgrade_selected_card_id, option):
+		button.text = "Confirm"
 	else:
-		button.text = "Need %d" % cost
+		button.text = "Need %d" % int(option.get("cost", 0))
 		button.disabled = true
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
 	if not button.disabled:
-		button.pressed.connect(_on_card_upgrade_pressed.bind(upgrade_id))
+		button.pressed.connect(_on_card_mod_upgrade_pressed.bind(option))
 	row.add_child(button)
 	return row
 
-func _on_card_upgrade_pressed(upgrade_id: String) -> void:
-	_progression = ProgressionStore.purchase_upgrade(_progression, upgrade_id)
+func _upgrade_list_button(text: String, selected: bool) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.custom_minimum_size = Vector2(0.0, 36.0)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
+	if selected:
+		button.modulate = Color("ffd99a")
+	return button
+
+func _on_upgrade_card_selected(card_id: String) -> void:
+	_upgrade_selected_card_id = card_id
+	_upgrade_selected_element_key = ""
+	_refresh_card_upgrade_overlay()
+
+func _on_upgrade_element_selected(element: Dictionary) -> void:
+	_upgrade_selected_element_key = str(element.get("key", ""))
+	_refresh_card_upgrade_overlay()
+
+func _on_card_mod_upgrade_pressed(mod: Dictionary) -> void:
+	_progression = ProgressionStore.purchase_card_mod(_progression, _upgrade_selected_card_id, mod)
 	ProgressionStore.save_data(_progression)
 	_run_state["progression"] = _progression.duplicate(true)
 	if not _combat_state.is_empty():
 		_combat_state["card_upgrades"] = (_progression.get("card_upgrades", {}) as Dictionary).duplicate(true)
+		_combat_state["card_mods"] = (_progression.get("card_mods", {}) as Dictionary).duplicate(true)
 		_run_state["combat_state"] = _combat_state.duplicate(true)
 	_refresh_card_upgrade_overlay()
 	_refresh_ui()
@@ -3176,12 +3302,11 @@ func _card_id_for_hand_index(index: int) -> String:
 	return str(hand[index])
 
 func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
-	var card_upgrades: Dictionary = {}
-	if not state.is_empty() and state.has("card_upgrades"):
-		card_upgrades = (state.get("card_upgrades", {}) as Dictionary).duplicate(true)
-	elif not _progression.is_empty():
-		card_upgrades = (_progression.get("card_upgrades", {}) as Dictionary).duplicate(true)
-	return GameData.card_def_with_upgrades(card_id, card_upgrades)
+	if not state.is_empty() and (state.has("card_upgrades") or state.has("card_mods")):
+		return GameData.card_def_for_progression(card_id, state)
+	if not _progression.is_empty():
+		return GameData.card_def_for_progression(card_id, _progression)
+	return GameData.card_def(card_id)
 
 func _reset_card_resolution() -> void:
 	_selected_card_index = -1

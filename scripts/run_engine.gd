@@ -294,6 +294,7 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
 		"card_upgrades": ((run_state.get("progression", {}) as Dictionary).get("card_upgrades", {}) as Dictionary).duplicate(true),
+		"card_mods": ((run_state.get("progression", {}) as Dictionary).get("card_mods", {}) as Dictionary).duplicate(true),
 		"relics": run_state.get("relics", []).duplicate(),
 		"hand_size": int(run_state.get("hand_size", BASE_HAND_SIZE)),
 		"heal_bonus": int(run_state.get("heal_bonus", 0)),

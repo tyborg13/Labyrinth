@@ -1696,30 +1696,55 @@ func _test_combat_finish_generates_reward_state() -> void:
 	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
 
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
-	var data: Dictionary = ProgressionStore.add_embers(default_progression, 100)
+	var data: Dictionary = ProgressionStore.add_embers(default_progression, 1000)
 	_assert(ProgressionStore.save_data(data), "Progression save should succeed")
 	var loaded: Dictionary = ProgressionStore.load_data()
-	_assert(int(loaded.get("embers", 0)) == 100, "Saved progression embers should reload")
-	var upgrade_id: String = "quick_stab_honed"
-	var cost: int = GameData.upgrade_cost(upgrade_id)
-	loaded = ProgressionStore.purchase_upgrade(loaded, upgrade_id)
-	_assert(ProgressionStore.has_upgrade(loaded, upgrade_id), "Purchased card upgrades should be tracked")
-	_assert(str((loaded.get("card_upgrades", {}) as Dictionary).get("quick_stab", "")) == upgrade_id, "Card upgrades should bind to their base card id")
-	_assert(int(loaded.get("embers", 0)) == 100 - cost, "Upgrade purchase should deduct its computed ember cost")
+	_assert(int(loaded.get("embers", 0)) == 1000, "Saved progression embers should reload")
+	var elements: Array = GameData.upgradeable_elements_for_card("quick_stab", loaded)
+	var damage_element: Dictionary = {}
+	var action_element: Dictionary = {}
+	for element_var: Variant in elements:
+		var element: Dictionary = element_var
+		if str(element.get("kind", "")) == "stat" and str(element.get("field", "")) == "damage":
+			damage_element = element
+		if str(element.get("kind", "")) == "action":
+			action_element = element
+	_assert(not damage_element.is_empty(), "Permanent card upgrades should expose card elements the player can customize")
+	_assert(not action_element.is_empty(), "Permanent card upgrades should include card-level action additions")
+	var action_options: Array = GameData.upgrade_options_for_element("quick_stab", action_element, loaded)
+	_assert(action_options.size() >= 3, "Action additions should offer multiple upgrade choices")
+	var action_preview: Dictionary = GameData.preview_card_with_mod("quick_stab", action_options[0], loaded)
+	_assert((action_preview.get("actions", []) as Array).size() == 2, "Action addition previews should show the added action on the card")
+	var options: Array = GameData.upgrade_options_for_element("quick_stab", damage_element, loaded)
+	_assert(options.size() >= 3, "Damage elements should offer multiple upgrade strengths")
+	var damage_mod: Dictionary = options[0]
+	var cost: int = int(damage_mod.get("cost", 0))
+	_assert(cost >= 100, "Starter card upgrade costs should be tuned above short-run ember payouts")
+	loaded = ProgressionStore.purchase_card_mod(loaded, "quick_stab", damage_mod)
+	var card_mods: Dictionary = loaded.get("card_mods", {}) as Dictionary
+	_assert((card_mods.get("quick_stab", []) as Array).size() == 1, "Purchased card mods should stack under their base card id")
+	_assert(int(loaded.get("embers", 0)) == 1000 - cost, "Card mod purchases should deduct their computed ember cost")
 	var upgraded_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
 	var upgraded_action: Dictionary = (upgraded_card.get("actions", []) as Array)[0]
-	_assert(int(upgraded_action.get("damage", 0)) == 11, "Purchased card upgrades should alter future card definitions")
+	_assert(int(upgraded_action.get("damage", 0)) == 10, "Purchased card mods should alter future card definitions")
+	var second_options: Array = GameData.upgrade_options_for_element("quick_stab", damage_element, loaded)
+	var second_mod: Dictionary = second_options[0]
+	var second_cost: int = int(second_mod.get("cost", 0))
+	_assert(second_cost > cost, "Stacking more upgrades onto one card should become increasingly expensive")
+	loaded = ProgressionStore.purchase_card_mod(loaded, "quick_stab", second_mod)
+	_assert(GameData.card_upgrade_count(loaded, "quick_stab") == 2, "A card should be able to carry multiple permanent mods")
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
 		"hp": 12,
 		"max_hp": 20,
 		"deck_cards": ["quick_stab"],
 		"card_upgrades": loaded.get("card_upgrades", {}),
+		"card_mods": loaded.get("card_mods", {}),
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 11, "Combat should resolve upgraded card definitions from progression")
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 11, "Combat should resolve stacked card mods from progression")
 
 func _test_emaciated_man_unlocks_card_upgrade_dialogue() -> void:
 	var dialogue_engine: DialogueEngine = DialogueEngine.new()
@@ -1731,11 +1756,20 @@ func _test_emaciated_man_unlocks_card_upgrade_dialogue() -> void:
 	var dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {}, progression)
 	var lines: Array = dialogue.get("lines", [])
 	_assert(lines.size() == 7, "Resting at a fire should unlock the Emaciated Man's card-upgrade dialogue")
+	_assert(bool(dialogue.get("marks_fire_rest_seen", false)), "The one-time fire-rest dialogue should mark itself consumed after it closes")
 	_assert(str((lines[1] as Dictionary).get("bbcode", "")).contains("[i]intoxicating[/i]"), "The fire-rest dialogue should italicize intoxicating")
 	var options: Array = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(options.size() == 2, "The awakened dialogue should offer touch and journey choices")
 	_assert(str((options[0] as Dictionary).get("action", "")) == "open_card_upgrades", "Touching the Emaciated Man should open the card upgrade UI")
 	_assert(str((options[1] as Dictionary).get("action", "")) == "close", "Beginning the journey again should close dialogue")
+	progression = ProgressionStore.mark_fire_rest_dialogue_seen(progression)
+	dialogue = dialogue_engine.build_room_dialogue(room, {}, progression)
+	lines = dialogue.get("lines", [])
+	_assert(lines.size() == 3, "After the fire-rest line is consumed, future runs should return to the default Emaciated Man dialogue")
+	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Unlocked runs should still use the default start-room dialogue text")
+	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
+	_assert(options.size() == 2, "Unlocked default dialogue should still offer touch and journey choices")
+	_assert(str((options[0] as Dictionary).get("action", "")) == "open_card_upgrades", "Touch should remain available after the one-time fire-rest dialogue")
 
 func _test_recovery_marker_flow() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -2410,9 +2444,13 @@ func _test_run_scene_card_upgrade_overlay_opens() -> void:
 	instance.call("_close_dialogue")
 	instance.call("_open_card_upgrade_overlay")
 	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")
-	var upgrade_list: VBoxContainer = instance.get("_upgrade_list")
+	var card_list: VBoxContainer = instance.get("_upgrade_card_list")
+	var element_list: VBoxContainer = instance.get("_upgrade_element_list")
+	var option_list: VBoxContainer = instance.get("_upgrade_option_list")
 	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Touching the Emaciated Man should show the card upgrade overlay")
-	_assert(upgrade_list != null and upgrade_list.get_child_count() == GameData.card_upgrade_ids().size(), "The card upgrade overlay should list available card magicks")
+	_assert(card_list != null and card_list.get_child_count() == GameData.upgradeable_card_ids().size(), "The card upgrade overlay should list cards first")
+	_assert(element_list != null and element_list.get_child_count() > 0, "Selecting a card should reveal upgradeable card elements")
+	_assert(option_list != null and option_list.get_child_count() > 0, "Selecting a card element should reveal purchasable upgrade options")
 	instance.queue_free()
 	await process_frame
 

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-21T03:33:17Z",
+  "updated_at": "2026-04-21T16:44:25Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1280,28 +1280,6 @@
       }
     },
     {
-      "id": "mnt_20260420T183847Z_7b73f314",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/game_data.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/game_data.gd",
-      "summary": "Permanent card upgrades keep base card ids and resolve through progression.",
-      "details": "Card upgrade purchases are stored in progression.card_upgrades as base_card_id -> upgrade_id. Decks, rewards, analytics card ids, and saved runs keep base card ids; callers resolve display and combat behavior through GameData.card_def_with_upgrades/card_def_for_progression so collectible upgrades do not add those cards to the starting deck.",
-      "status": "active",
-      "created_at": "2026-04-20T18:38:47Z",
-      "updated_at": "2026-04-20T18:38:47Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "6a3ea13"
-      }
-    },
-    {
       "id": "mnt_20260421T021029Z_5d54e35e",
       "layer": "shared",
       "kind": "decision",
@@ -1345,6 +1323,30 @@
       "source": {
         "branch": "master",
         "commit": "38fa003"
+      }
+    },
+    {
+      "id": "mnt_20260421T164425Z_0ff54128",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/game_data.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/game_data.gd",
+      "summary": "Permanent card upgrades stack as generated card mods.",
+      "details": "Permanent card upgrades now live in progression.card_mods as base_card_id -> Array[mod], with legacy progression.card_upgrades kept only for compatibility. Decks, rewards, analytics ids, and saved runs still keep base card ids; callers resolve behavior through GameData.card_def_for_progression so generated stat/status/pattern/action mods can stack without adding collectible cards to the starting deck. The upgrade UI generates card -> element -> option choices from the current card definition, and costs scale by rarity plus per-card upgrade count.",
+      "status": "active",
+      "created_at": "2026-04-21T16:44:25Z",
+      "updated_at": "2026-04-21T16:44:25Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260420T183847Z_7b73f314"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "bdf8baa"
       }
     }
   ]

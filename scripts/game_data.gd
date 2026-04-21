@@ -8,6 +8,8 @@ const ENEMIES_PATH: String = "res://data/enemies.json"
 const NPCS_PATH: String = "res://data/npcs.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
+const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
+const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock"]
 
 static var _cache: Dictionary = {}
 
@@ -30,14 +32,39 @@ static func card_def(card_id: String) -> Dictionary:
 	return _duplicate_dict(cards().get(card_id, {}))
 
 static func card_def_with_upgrades(card_id: String, card_upgrades: Dictionary) -> Dictionary:
-	var upgrade_id: String = str(card_upgrades.get(card_id, ""))
-	if upgrade_id.is_empty():
-		return card_def(card_id)
-	var upgraded: Dictionary = upgraded_card_def(upgrade_id)
-	return upgraded if not upgraded.is_empty() else card_def(card_id)
+	var entry: Variant = card_upgrades.get(card_id, "")
+	if typeof(entry) == TYPE_ARRAY:
+		return card_def_with_card_mods(card_id, {card_id: entry})
+	var upgrade_id: String = str(entry)
+	if not upgrade_id.is_empty():
+		var upgraded: Dictionary = upgraded_card_def(upgrade_id)
+		return upgraded if not upgraded.is_empty() else card_def(card_id)
+	return card_def(card_id)
+
+static func card_def_with_card_mods(card_id: String, card_mods: Dictionary) -> Dictionary:
+	var card: Dictionary = card_def(card_id)
+	if card.is_empty():
+		return {}
+	var mods: Array = (card_mods.get(card_id, []) as Array).duplicate(true)
+	card = _apply_card_mods(card, mods)
+	if not mods.is_empty():
+		card["base_card_id"] = card_id
+		card["upgraded"] = true
+		card["upgrade_count"] = mods.size()
+		card["name"] = "%s+%d" % [str(card.get("name", card_id)), mods.size()]
+	return card
 
 static func card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
-	return card_def_with_upgrades(card_id, progression.get("card_upgrades", {}) as Dictionary)
+	var card: Dictionary = card_def_with_upgrades(card_id, progression.get("card_upgrades", {}) as Dictionary)
+	var mods: Array = ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).duplicate(true)
+	card = _apply_card_mods(card, mods)
+	var total_count: int = card_upgrade_count(progression, card_id)
+	if total_count > 0:
+		card["base_card_id"] = card_id
+		card["upgraded"] = true
+		card["upgrade_count"] = total_count
+		card["name"] = "%s+%d" % [str(card_def(card_id).get("name", card_id)), total_count]
+	return card
 
 static func enemy_def(enemy_type: String) -> Dictionary:
 	return _duplicate_dict(enemies().get(enemy_type, {}))
@@ -168,6 +195,126 @@ static func upgrade_delta_summary(upgrade_id: String) -> String:
 	var upgraded_value: float = _card_value(upgraded_card)
 	return "+%.1f value" % maxf(0.0, upgraded_value - base_value)
 
+static func upgradeable_card_ids() -> Array:
+	var result: Array = cards().keys()
+	result.sort_custom(func(a: Variant, b: Variant) -> bool:
+		var a_card: Dictionary = card_def(str(a))
+		var b_card: Dictionary = card_def(str(b))
+		var a_rarity: int = _rarity_sort_index(str(a_card.get("rarity", "common")))
+		var b_rarity: int = _rarity_sort_index(str(b_card.get("rarity", "common")))
+		if a_rarity == b_rarity:
+			return str(a_card.get("name", a)) < str(b_card.get("name", b))
+		return a_rarity < b_rarity
+	)
+	return result
+
+static func upgradeable_elements_for_card(card_id: String, progression: Dictionary) -> Array:
+	var card: Dictionary = card_def_for_progression(card_id, progression)
+	var elements: Array = []
+	var actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	for index: int in range(actions.size()):
+		if typeof(actions[index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = actions[index]
+		var action_type: String = str(action.get("type", ""))
+		if action.has("damage"):
+			_append_upgrade_element_if_available(elements, card_id, progression, {
+				"key": "stat:%d:damage" % index,
+				"kind": "stat",
+				"action_index": index,
+				"field": "damage",
+				"label": "Damage"
+			})
+		if action.has("range"):
+			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Attack Range"
+			_append_upgrade_element_if_available(elements, card_id, progression, {
+				"key": "stat:%d:range" % index,
+				"kind": "stat",
+				"action_index": index,
+				"field": "range",
+				"label": range_label
+			})
+		if action.has("amount"):
+			_append_upgrade_element_if_available(elements, card_id, progression, {
+				"key": "stat:%d:amount" % index,
+				"kind": "stat",
+				"action_index": index,
+				"field": "amount",
+				"label": _amount_upgrade_label(action_type)
+			})
+		if action_type in ATTACK_ACTION_TYPES:
+			for status_field: String in STATUS_UPGRADE_FIELDS:
+				_append_upgrade_element_if_available(elements, card_id, progression, {
+					"key": "status:%d:%s" % [index, status_field],
+					"kind": "status",
+					"action_index": index,
+					"field": status_field,
+					"label": "%s Effect" % _status_label(status_field)
+				})
+		if action_type == "aoe":
+			_append_upgrade_element_if_available(elements, card_id, progression, {
+				"key": "pattern:%d" % index,
+				"kind": "pattern",
+				"action_index": index,
+				"field": "pattern",
+				"label": "Area Pattern"
+			})
+	_append_upgrade_element_if_available(elements, card_id, progression, {
+		"key": "action:new",
+		"kind": "action",
+		"label": "New Action"
+	})
+	return elements
+
+static func upgrade_options_for_element(card_id: String, element: Dictionary, progression: Dictionary) -> Array:
+	var card: Dictionary = card_def_for_progression(card_id, progression)
+	var actions: Array = card.get("actions", [])
+	var options: Array = []
+	if str(element.get("kind", "")) == "action":
+		options = _action_upgrade_options(card, element)
+		for option: Dictionary in options:
+			option["cost"] = card_mod_cost(card_id, option, progression)
+		return options
+	var action_index: int = int(element.get("action_index", -1))
+	if action_index < 0 or action_index >= actions.size() or typeof(actions[action_index]) != TYPE_DICTIONARY:
+		return []
+	var action: Dictionary = actions[action_index]
+	match str(element.get("kind", "")):
+		"stat":
+			options = _stat_upgrade_options(action, element)
+		"status":
+			options = _status_upgrade_options(action, element)
+		"pattern":
+			options = _pattern_upgrade_options(action, element)
+	for option: Dictionary in options:
+		option["cost"] = card_mod_cost(card_id, option, progression)
+	return options
+
+static func preview_card_with_mod(card_id: String, mod: Dictionary, progression: Dictionary) -> Dictionary:
+	var card: Dictionary = card_def_for_progression(card_id, progression)
+	var preview: Dictionary = _apply_card_mod(card, mod)
+	preview["name"] = "%s+%d" % [str(card_def(card_id).get("name", card_id)), card_upgrade_count(progression, card_id) + 1]
+	preview["upgraded"] = true
+	return preview
+
+static func card_mod_cost(card_id: String, mod: Dictionary, progression: Dictionary) -> int:
+	var current_card: Dictionary = card_def_for_progression(card_id, progression)
+	var preview_card: Dictionary = _apply_card_mod(current_card, mod)
+	var value_delta: float = maxf(0.1, _card_value(preview_card) - _card_value(current_card))
+	var value_cost: int = ceili(value_delta * 120.0 / 10.0) * 10
+	var base_cost: int = maxi(int(mod.get("cost_base", 180)), value_cost)
+	var rarity_multiplier: float = _rarity_cost_multiplier(str(card_def(card_id).get("rarity", "common")))
+	var upgrade_count: int = card_upgrade_count(progression, card_id)
+	var stack_multiplier: float = 1.0 + float(upgrade_count) * 0.65 + float(upgrade_count * upgrade_count) * 0.22
+	return ceili(float(base_cost) * rarity_multiplier * stack_multiplier / 10.0) * 10
+
+static func card_upgrade_count(progression: Dictionary, card_id: String) -> int:
+	var total: int = 0
+	if not str((progression.get("card_upgrades", {}) as Dictionary).get(card_id, "")).is_empty():
+		total += 1
+	total += ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).size()
+	return total
+
 static func stat_bonus_from_upgrades(progression: Dictionary, effect_key: String) -> int:
 	var total: int = 0
 	for upgrade_id_var: Variant in progression.get("purchased_upgrades", []):
@@ -258,6 +405,232 @@ static func _upgrade_floor_for_rarity(rarity: String) -> int:
 			return 45
 		_:
 			return 20
+
+static func _rarity_cost_multiplier(rarity: String) -> float:
+	match rarity:
+		"starter":
+			return 1.0
+		"common":
+			return 1.12
+		"uncommon":
+			return 1.28
+		"rare":
+			return 1.48
+		_:
+			return 1.12
+
+static func _append_upgrade_element_if_available(elements: Array, card_id: String, progression: Dictionary, element: Dictionary) -> void:
+	if not upgrade_options_for_element(card_id, element, progression).is_empty():
+		elements.append(element)
+
+static func _amount_upgrade_label(action_type: String) -> String:
+	match action_type:
+		"block":
+			return "Block"
+		"stoneskin":
+			return "Stoneskin"
+		"heal":
+			return "Healing"
+		"draw":
+			return "Draw"
+		_:
+			return "Amount"
+
+static func _status_label(status_field: String) -> String:
+	match status_field:
+		"burn":
+			return "Burn"
+		"poison":
+			return "Poison"
+		"freeze":
+			return "Freeze"
+		"shock":
+			return "Shock"
+		_:
+			return status_field.capitalize()
+
+static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
+	var action_index: int = int(element.get("action_index", -1))
+	var field: String = str(element.get("field", ""))
+	var action_type: String = str(action.get("type", ""))
+	var options: Array = []
+	match field:
+		"damage":
+			var base_cost: int = 190 if action_type == "aoe" else 130
+			for amount: int in [1, 2, 3]:
+				options.append(_stat_mod(action_index, field, amount, "Damage +%d" % amount, base_cost * amount * amount))
+		"range":
+			if action_type in ["move", "blink"]:
+				var base_cost: int = 150 if action_type == "move" else 190
+				for amount: int in [1, 2]:
+					options.append(_stat_mod(action_index, field, amount, "Range +%d" % amount, base_cost * amount * amount))
+			elif action_type in ATTACK_ACTION_TYPES:
+				var attack_base: int = 210 if action_type == "aoe" else 170
+				options.append(_stat_mod(action_index, field, 1, "Range +1", attack_base))
+				if action_type in ["ranged", "aoe"]:
+					options.append(_stat_mod(action_index, field, 2, "Range +2", attack_base * 4))
+		"amount":
+			match action_type:
+				"block":
+					for amount: int in [2, 4]:
+						options.append(_stat_mod(action_index, field, amount, "Block +%d" % amount, 75 * amount))
+				"stoneskin":
+					for amount: int in [1, 2]:
+						options.append(_stat_mod(action_index, field, amount, "Stoneskin +%d" % amount, 170 * amount * amount))
+				"heal":
+					for amount: int in [1, 2]:
+						options.append(_stat_mod(action_index, field, amount, "Heal +%d" % amount, 210 * amount * amount))
+				"draw":
+					options.append(_stat_mod(action_index, field, 1, "Draw +1", 520))
+	return options
+
+static func _status_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
+	var action_index: int = int(element.get("action_index", -1))
+	var field: String = str(element.get("field", ""))
+	var current: int = int(action.get(field, 0))
+	var options: Array = []
+	match field:
+		"burn":
+			for amount: int in [1, 2]:
+				options.append(_stat_mod(action_index, field, amount, "Burn +%d" % amount, 250 * amount * amount, "status"))
+		"poison":
+			for amount: int in [2, 4]:
+				options.append(_stat_mod(action_index, field, amount, "Poison +%d" % amount, 95 * amount * amount, "status"))
+		"freeze":
+			if current <= 0:
+				options.append(_stat_mod(action_index, field, 1, "Add Freeze", 760, "status"))
+		"shock":
+			if current <= 0:
+				options.append(_stat_mod(action_index, field, 1, "Add Shock", 620, "status"))
+	return options
+
+static func _pattern_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
+	var action_index: int = int(element.get("action_index", -1))
+	var pattern: Array = (action.get("pattern", []) as Array).duplicate(true)
+	var options: Array = []
+	var diagonal_offsets: Array = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
+	if _missing_offsets(pattern, diagonal_offsets).size() > 0:
+		options.append({
+			"kind": "pattern_add",
+			"action_index": action_index,
+			"label": "Add diagonals",
+			"offsets": diagonal_offsets,
+			"cost_base": 920
+		})
+	var extended_cross: Array = [[2, 0], [-2, 0], [0, 2], [0, -2]]
+	if _missing_offsets(pattern, extended_cross).size() > 0:
+		options.append({
+			"kind": "pattern_add",
+			"action_index": action_index,
+			"label": "Extend cross",
+			"offsets": extended_cross,
+			"cost_base": 1080
+		})
+	return options
+
+static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> Array:
+	if (card.get("actions", []) as Array).size() >= 4:
+		return []
+	return [
+		{
+			"kind": "action_add",
+			"label": "Add Move 1",
+			"action": {"type": "move", "range": 1},
+			"cost_base": 360
+		},
+		{
+			"kind": "action_add",
+			"label": "Add Block 3",
+			"action": {"type": "block", "amount": 3},
+			"cost_base": 360
+		},
+		{
+			"kind": "action_add",
+			"label": "Add Draw 1",
+			"action": {"type": "draw", "amount": 1},
+			"cost_base": 680
+		}
+	]
+
+static func _stat_mod(action_index: int, field: String, amount: int, label: String, cost_base: int, kind: String = "stat") -> Dictionary:
+	return {
+		"kind": kind,
+		"action_index": action_index,
+		"field": field,
+		"amount": amount,
+		"label": label,
+		"cost_base": cost_base
+	}
+
+static func _apply_card_mods(card: Dictionary, mods: Array) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	for mod_var: Variant in mods:
+		if typeof(mod_var) != TYPE_DICTIONARY:
+			continue
+		next_card = _apply_card_mod(next_card, mod_var as Dictionary)
+	return next_card
+
+static func _apply_card_mod(card: Dictionary, mod: Dictionary) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
+	var action_index: int = int(mod.get("action_index", -1))
+	if str(mod.get("kind", "")) == "action_add":
+		var added_action: Variant = mod.get("action", {})
+		if typeof(added_action) == TYPE_DICTIONARY:
+			actions.append((added_action as Dictionary).duplicate(true))
+			next_card["actions"] = actions
+		return next_card
+	if action_index < 0 or action_index >= actions.size() or typeof(actions[action_index]) != TYPE_DICTIONARY:
+		return next_card
+	var action: Dictionary = (actions[action_index] as Dictionary).duplicate(true)
+	match str(mod.get("kind", "")):
+		"pattern_add":
+			action["pattern"] = _pattern_with_added_offsets((action.get("pattern", []) as Array), mod.get("offsets", []) as Array)
+		_:
+			var field: String = str(mod.get("field", ""))
+			if not field.is_empty():
+				action[field] = int(action.get(field, 0)) + int(mod.get("amount", 0))
+	actions[action_index] = action
+	next_card["actions"] = actions
+	return next_card
+
+static func _pattern_with_added_offsets(pattern: Array, offsets: Array) -> Array:
+	var result: Array = pattern.duplicate(true)
+	var seen: Dictionary = {}
+	for existing_var: Variant in result:
+		var offset: Vector2i = _offset_to_vector(existing_var)
+		seen[offset] = true
+	for offset_var: Variant in offsets:
+		var offset: Vector2i = _offset_to_vector(offset_var)
+		if seen.has(offset):
+			continue
+		seen[offset] = true
+		result.append([offset.x, offset.y])
+	return result
+
+static func _missing_offsets(pattern: Array, offsets: Array) -> Array:
+	var seen: Dictionary = {}
+	for existing_var: Variant in pattern:
+		seen[_offset_to_vector(existing_var)] = true
+	var missing: Array = []
+	for offset_var: Variant in offsets:
+		var offset: Vector2i = _offset_to_vector(offset_var)
+		if not seen.has(offset):
+			missing.append([offset.x, offset.y])
+	return missing
+
+static func _offset_to_vector(value: Variant) -> Vector2i:
+	match typeof(value):
+		TYPE_VECTOR2I:
+			return value
+		TYPE_ARRAY:
+			var pair: Array = value
+			if pair.size() >= 2:
+				return Vector2i(int(pair[0]), int(pair[1]))
+		TYPE_DICTIONARY:
+			var dict: Dictionary = value
+			return Vector2i(int(dict.get("x", 0)), int(dict.get("y", 0)))
+	return Vector2i.ZERO
 
 static func _card_value(card: Dictionary) -> float:
 	var total: float = 0.0
