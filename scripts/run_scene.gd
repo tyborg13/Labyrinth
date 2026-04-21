@@ -9,6 +9,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -1466,7 +1467,7 @@ func _refresh_stage_view() -> void:
 		_board_status_label(preview),
 		_board_status_detail(preview),
 		_exit_labels_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
-		_exit_elements_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
+		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
 		presentation
 	)
 
@@ -3625,12 +3626,12 @@ func _exit_labels_for_board() -> Dictionary:
 		labels[option.get("door_tile", Vector2i(-1, -1))] = marker
 	return labels
 
-func _exit_elements_for_board() -> Dictionary:
-	var elements: Dictionary = {}
+func _exit_icon_ids_for_board() -> Dictionary:
+	var icon_ids: Dictionary = {}
 	for option: Dictionary in _run_engine.exit_options(_run_state):
 		var room: Dictionary = option.get("room", {})
-		elements[option.get("door_tile", Vector2i(-1, -1))] = str(room.get("element", ElementData.NONE))
-	return elements
+		icon_ids[option.get("door_tile", Vector2i(-1, -1))] = RoomIcons.icon_id_for_room(room)
+	return icon_ids
 
 func _active_door_tiles_for_board() -> Dictionary:
 	var active: Dictionary = {}

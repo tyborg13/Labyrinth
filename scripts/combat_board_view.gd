@@ -5,6 +5,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
@@ -82,7 +83,7 @@ var selected_tile: Vector2i = Vector2i(-1, -1)
 var status_label: String = ""
 var status_detail: String = ""
 var exit_tiles: Dictionary = {}
-var exit_elements: Dictionary = {}
+var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _tile_textures: Dictionary = {}
@@ -94,6 +95,7 @@ var _prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
+var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _tooltip_regions: Array[Dictionary] = []
 var _idle_frames_by_type: Dictionary = {}
@@ -134,7 +136,7 @@ func _any_idle_animation_active() -> bool:
 			return true
 	return false
 
-func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_elements: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
+func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
 	combat_state = next_state.duplicate(true)
 	move_tiles = _vector2i_array(next_move_tiles)
 	attack_tiles = _vector2i_array(next_attack_tiles)
@@ -142,7 +144,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	status_label = next_status_label
 	status_detail = next_status_detail
 	exit_tiles = next_exit_tiles.duplicate(true)
-	exit_elements = next_exit_elements.duplicate(true)
+	exit_icon_ids = next_exit_icon_ids.duplicate(true)
 	presentation = next_presentation.duplicate(true)
 	_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
 	_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
@@ -309,8 +311,8 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		if door_texture != null:
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			draw_texture_rect(door_texture, draw_rect, false)
-			var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
-			var icon_texture: Texture2D = _element_textures.get(element_id, null)
+			var icon_id: String = str(exit_icon_ids.get(tile, ""))
+			var icon_texture: Texture2D = _door_icon_texture(icon_id)
 			if icon_texture != null:
 				var icon_rect := Rect2(Vector2(draw_rect.get_center().x - 12.0, draw_rect.position.y - 22.0), Vector2(24.0, 24.0))
 				draw_texture_rect(icon_texture, icon_rect, false)
@@ -485,15 +487,16 @@ func _draw_exit_marker_for_tile(tile: Vector2i) -> void:
 	if font == null:
 		return
 	var label: String = str(exit_tiles.get(tile, ""))
-	var element_id: String = str(exit_elements.get(tile, ElementData.NONE))
-	var accent: Color = ElementData.door_tint(element_id)
+	var icon_id: String = str(exit_icon_ids.get(tile, ""))
+	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
 	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.58)
 	var marker_rect := Rect2(center - Vector2(26.0, 16.0), Vector2(52.0, 32.0))
 	draw_rect(marker_rect, Color(0.11, 0.08, 0.06, 0.92), true)
 	draw_rect(marker_rect, accent, false, 2.0)
 	draw_string(font, marker_rect.position + Vector2(0.0, 13.0), label, HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 11, Color("fff0d1"))
-	if ElementData.is_elemental(element_id):
-		draw_string(font, marker_rect.position + Vector2(0.0, 25.0), ElementData.short_label(element_id), HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 7, accent)
+	var icon_texture: Texture2D = _door_icon_texture(icon_id)
+	if icon_texture != null:
+		draw_texture_rect(icon_texture, Rect2(marker_rect.position + Vector2(4.0, 4.0), Vector2(14.0, 14.0)), false)
 
 func _visible_units() -> Array[Dictionary]:
 	var units_to_draw: Array[Dictionary] = []
@@ -1491,6 +1494,13 @@ func _pillar_moss_rect(draw_rect: Rect2) -> Rect2:
 		Vector2(width, height)
 	)
 
+func _door_icon_texture(icon_id: String) -> Texture2D:
+	if icon_id.is_empty():
+		return null
+	if not _door_icon_textures.has(icon_id):
+		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
+	return _door_icon_textures.get(icon_id, null)
+
 func _load_assets() -> void:
 	var ash_floor_variants: Array[Texture2D] = _load_floor_variants(ASH_FLOOR_VARIANT_PATHS)
 	var moss_floor_variants: Array[Texture2D] = _load_floor_variants(MOSS_FLOOR_OVERLAY_PATHS)
@@ -1527,6 +1537,9 @@ func _load_assets() -> void:
 	_element_textures.clear()
 	for element_id: String in ElementData.all_elements():
 		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
+	_door_icon_textures.clear()
+	for icon_id: String in RoomIcons.all_icon_ids():
+		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
 	_keyword_icon_textures.clear()
 	for icon_key_var: Variant in ActionIcons.all_icon_keys():
 		var icon_key: String = str(icon_key_var)

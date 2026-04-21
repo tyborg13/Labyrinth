@@ -2,6 +2,7 @@ extends Control
 class_name LabyrinthMapView
 
 const ElementData = preload("res://scripts/element_data.gd")
+const RoomIcons = preload("res://scripts/room_icon_library.gd")
 
 signal room_selected(coord: Vector2i)
 
@@ -12,7 +13,8 @@ const ROOM_COLORS := {
 	"treasure": Color("89a862"),
 	"boss": Color("b75643")
 }
-const CLEARED_TINT: Color = Color("92b17c")
+const CLEARED_TINT: Color = Color("6f6a63")
+const CLEARED_ICON_MODULATE: Color = Color(0.78, 0.74, 0.67, 0.58)
 const UNCLEARED_SHADE: float = 0.10
 
 const LEGEND_ORDER: Array[String] = ["start", "combat", "campfire", "treasure", "boss"]
@@ -28,6 +30,7 @@ var run_state: Dictionary = {}
 @export var interactive: bool = true
 @export var show_legend: bool = true
 var _hover_coord: Vector2i = Vector2i(-999, -999)
+var _room_icon_textures: Dictionary = {}
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
@@ -100,14 +103,7 @@ func _draw_room_node(room: Dictionary) -> void:
 		node_size *= 1.22
 	elif accessible and interactive:
 		node_size *= 1.08
-	var room_type: String = str(room.get("type", "combat"))
-	var fill: Color = ROOM_COLORS.get(room_type, Color("8c7462"))
-	if room_type == "combat":
-		fill = ElementData.room_tint(str(room.get("element", ElementData.NONE)))
-	if bool(room.get("cleared", false)):
-		fill = fill.lerp(CLEARED_TINT, 0.55)
-	else:
-		fill = fill.darkened(UNCLEARED_SHADE)
+	var fill: Color = _room_fill_color(room)
 	if coord == _hover_coord and accessible:
 		fill = fill.lightened(0.22)
 	var rect := Rect2(position - Vector2.ONE * node_size * 0.5, Vector2.ONE * node_size)
@@ -115,41 +111,40 @@ func _draw_room_node(room: Dictionary) -> void:
 	draw_rect(rect, Color("f3e6c5"), false, 2.0 if interactive else 1.3)
 	if coord == current:
 		draw_rect(rect.grow(4.0 if interactive else 2.5), Color("f2c978"), false, 2.0)
-	_draw_room_icon(room_type, position, node_size * 0.5, Color("17120d"))
+	_draw_room_icon(room, position, node_size * 0.54, _room_icon_modulate(room))
 
-func _draw_room_icon(room_type: String, center: Vector2, radius: float, color: Color) -> void:
-	match room_type:
-		"start":
-			var diamond := PackedVector2Array([
-				center + Vector2(0.0, -radius),
-				center + Vector2(radius, 0.0),
-				center + Vector2(0.0, radius),
-				center + Vector2(-radius, 0.0)
-			])
-			draw_colored_polygon(diamond, color)
-		"campfire":
-			var flame := PackedVector2Array([
-				center + Vector2(0.0, -radius),
-				center + Vector2(radius * 0.52, 0.0),
-				center + Vector2(0.0, radius * 0.95),
-				center + Vector2(-radius * 0.52, 0.0)
-			])
-			draw_colored_polygon(flame, color)
-			draw_line(center + Vector2(-radius * 0.7, radius * 0.78), center + Vector2(radius * 0.7, radius * 0.78), color, 2.0, true)
-		"treasure":
-			var chest_rect := Rect2(center + Vector2(-radius, -radius * 0.15), Vector2(radius * 2.0, radius * 1.1))
-			draw_rect(chest_rect, color, false, 2.0)
-			draw_line(center + Vector2(-radius, -radius * 0.15), center + Vector2(0.0, -radius * 0.85), color, 2.0, true)
-			draw_line(center + Vector2(0.0, -radius * 0.85), center + Vector2(radius, -radius * 0.15), color, 2.0, true)
-		"boss":
-			draw_line(center + Vector2(-radius, radius * 0.5), center + Vector2(-radius * 0.55, -radius), color, 2.0, true)
-			draw_line(center + Vector2(-radius * 0.55, -radius), center + Vector2(0.0, radius * 0.05), color, 2.0, true)
-			draw_line(center + Vector2(0.0, radius * 0.05), center + Vector2(radius * 0.55, -radius), color, 2.0, true)
-			draw_line(center + Vector2(radius * 0.55, -radius), center + Vector2(radius, radius * 0.5), color, 2.0, true)
-			draw_line(center + Vector2(-radius, radius * 0.5), center + Vector2(radius, radius * 0.5), color, 2.0, true)
-		_:
-			draw_line(center + Vector2(-radius * 0.8, -radius * 0.8), center + Vector2(radius * 0.8, radius * 0.8), color, 2.0, true)
-			draw_line(center + Vector2(radius * 0.8, -radius * 0.8), center + Vector2(-radius * 0.8, radius * 0.8), color, 2.0, true)
+func _draw_room_icon(room: Dictionary, center: Vector2, radius: float, modulate: Color) -> void:
+	var texture: Texture2D = _room_icon_texture_for_room(room)
+	if texture != null:
+		var icon_size: float = radius * 1.62
+		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
+		draw_texture_rect(texture, rect, false, modulate)
+		return
+	var diamond := PackedVector2Array([
+		center + Vector2(0.0, -radius * 0.72),
+		center + Vector2(radius * 0.72, 0.0),
+		center + Vector2(0.0, radius * 0.72),
+		center + Vector2(-radius * 0.72, 0.0)
+	])
+	draw_colored_polygon(diamond, Color("17120d"))
+
+func _room_fill_color(room: Dictionary) -> Color:
+	var room_type: String = str(room.get("type", "combat"))
+	var fill: Color = ROOM_COLORS.get(room_type, Color("8c7462"))
+	if room_type == "combat":
+		fill = ElementData.room_tint(str(room.get("element", ElementData.NONE)))
+	if bool(room.get("cleared", false)):
+		return fill.lerp(CLEARED_TINT, 0.66).darkened(0.08)
+	return fill.darkened(UNCLEARED_SHADE)
+
+func _room_icon_modulate(room: Dictionary) -> Color:
+	return CLEARED_ICON_MODULATE if bool(room.get("cleared", false)) else Color.WHITE
+
+func _room_icon_texture_for_room(room: Dictionary) -> Texture2D:
+	var icon_id: String = RoomIcons.icon_id_for_room(room)
+	if not _room_icon_textures.has(icon_id):
+		_room_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
+	return _room_icon_textures.get(icon_id, null)
 
 func _draw_map_legend() -> void:
 	var font: Font = get_theme_default_font()
@@ -166,7 +161,7 @@ func _draw_map_legend() -> void:
 		var fill_rect := Rect2(icon_center - Vector2(6.0, 6.0), Vector2(12.0, 12.0))
 		draw_rect(fill_rect, ROOM_COLORS.get(room_type, Color("8c7462")), true)
 		draw_rect(fill_rect, Color("f3e6c5"), false, 1.0)
-		_draw_room_icon(room_type, icon_center, 4.0, Color("17120d"))
+		_draw_room_icon({"type": room_type, "element": ElementData.NONE}, icon_center, 4.6, Color.WHITE)
 		draw_string(
 			font,
 			icon_center + Vector2(10.0, 4.0),

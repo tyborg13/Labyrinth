@@ -7,9 +7,11 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
+const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
 var _failures: Array[String] = []
@@ -84,6 +86,9 @@ func _initialize() -> void:
 	_test_combat_board_assigns_deterministic_floor_variants()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
+	_test_room_icon_library_covers_door_room_types()
+	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
+	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
 	_test_run_map_ring_links_and_outward_quarter()
 	_test_run_map_seals_departed_rooms()
@@ -1473,6 +1478,42 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
 	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
 	tooltip_panel.free()
+
+func _test_room_icon_library_covers_door_room_types() -> void:
+	var room_cases: Array[Dictionary] = [
+		{"room": {"type": "combat", "element": "fire"}, "icon": "fire"},
+		{"room": {"type": "combat", "element": "none"}, "icon": "combat"},
+		{"room": {"type": "campfire", "element": "none"}, "icon": "campfire"},
+		{"room": {"type": "treasure", "element": "none"}, "icon": "treasure"},
+		{"room": {"type": "boss", "element": "none"}, "icon": "boss"}
+	]
+	for room_case: Dictionary in room_cases:
+		var icon_id: String = RoomIcons.icon_id_for_room(room_case.get("room", {}))
+		_assert(icon_id == str(room_case.get("icon", "")), "Door icon ids should distinguish elemental combat and non-combat room destinations")
+		_assert(not RoomIcons.icon_path(icon_id).is_empty(), "Every door icon id should resolve to a texture path")
+		_assert(RoomIcons.icon_texture(icon_id) != null, "Every door icon id should load a texture")
+
+func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
+	var map_view := LabyrinthMapView.new()
+	var combat_icon: Texture2D = map_view.call("_room_icon_texture_for_room", {"type": "combat", "element": "fire"})
+	var campfire_icon: Texture2D = map_view.call("_room_icon_texture_for_room", {"type": "campfire", "element": "none"})
+	_assert(combat_icon != null, "Minimap combat rooms should use the same elemental door icon textures")
+	_assert(campfire_icon != null, "Minimap non-combat rooms should use the same door icon textures")
+	var uncleared: Color = map_view.call("_room_fill_color", {"type": "combat", "element": "fire", "cleared": false})
+	var cleared: Color = map_view.call("_room_fill_color", {"type": "combat", "element": "fire", "cleared": true})
+	var grey := Color("6f6a63")
+	var uncleared_distance: float = absf(uncleared.r - grey.r) + absf(uncleared.g - grey.g) + absf(uncleared.b - grey.b)
+	var cleared_distance: float = absf(cleared.r - grey.r) + absf(cleared.g - grey.g) + absf(cleared.b - grey.b)
+	_assert(cleared_distance < uncleared_distance, "Cleared minimap rooms should read as muted grey instead of using a large X mark")
+	map_view.free()
+
+func _test_combat_board_loads_door_icons_for_room_types() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "boss"]:
+		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
+	board.free()
 
 func _test_run_map_room_types() -> void:
 	var run_engine: RunEngine = RunEngine.new()

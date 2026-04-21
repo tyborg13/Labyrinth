@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-21T02:58:24Z",
+  "updated_at": "2026-04-21T03:33:17Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1323,6 +1323,28 @@
       "source": {
         "branch": "master",
         "commit": "da0a736"
+      }
+    },
+    {
+      "id": "mnt_20260421T033316Z_0939891f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/room_icon_library.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/room_icon_library.gd",
+      "summary": "Room door and minimap icons are centralized in RoomIconLibrary.",
+      "details": "RunScene sends RoomIconLibrary icon ids to CombatBoardView for room-exit door icons, and LabyrinthMapView uses the same helper for minimap room icons. Keep non-combat destination icons and minimap icons in this helper so door selection and the map stay visually consistent; cleared minimap rooms should be shown by muted grey styling rather than overlaying an X.",
+      "status": "active",
+      "created_at": "2026-04-21T03:33:16Z",
+      "updated_at": "2026-04-21T03:33:16Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "38fa003"
       }
     }
   ]
