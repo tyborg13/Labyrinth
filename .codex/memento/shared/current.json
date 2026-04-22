@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-21T16:44:25Z",
+  "updated_at": "2026-04-21T20:23:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1347,6 +1347,30 @@
       "source": {
         "branch": "master",
         "commit": "bdf8baa"
+      }
+    },
+    {
+      "id": "mnt_20260421T202358Z_335b3f74",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door opening animation normalizes each source frame onto a shared anchored canvas.",
+      "details": "door_opening.png is not a reliable equal-cell sheet. CombatBoardView slices the alpha-tight sprite bounds, places each frame on the max 256x383 transparent canvas anchored bottom-right, and scales the shared canvas from frame 0's used height against the static door used rect. Source-oriented doors anchor right/bottom; flipped side doors anchor left/bottom so the door footprint does not resize or drift while opening.",
+      "status": "active",
+      "created_at": "2026-04-21T20:23:58Z",
+      "updated_at": "2026-04-21T20:23:58Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260421T200439Z_96d34d91"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "7ee5f38"
       }
     }
   ]

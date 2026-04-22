@@ -54,6 +54,17 @@ const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
 const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
 const DOOR_BACK_EDGE_OFFSET_SCALE: float = 0.5
 const DOOR_TOP_BACK_EDGE_OFFSET_SCALE: float = 0.3
+const DOOR_OPENING_SHEET_PATH: String = "res://assets/placeholders/tiles/door_opening.png"
+const DOOR_OPENING_FRAME_REGIONS := [
+	Rect2i(111, 34, 236, 381),
+	Rect2i(526, 35, 231, 382),
+	Rect2i(912, 35, 231, 382),
+	Rect2i(1307, 34, 228, 383),
+	Rect2i(109, 461, 231, 382),
+	Rect2i(516, 462, 241, 381),
+	Rect2i(895, 463, 256, 378),
+	Rect2i(1274, 462, 252, 379)
+]
 const PILLAR_MOSS_OFFSET_X_SCALE: float = -0.04
 const PILLAR_MOSS_OFFSET_Y_SCALE: float = 0.16
 const ASH_FLOOR_VARIANT_PATHS: PackedStringArray = [
@@ -97,6 +108,8 @@ var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
+var _door_opening_frames: Array[Texture2D] = []
+var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
 var _idle_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
@@ -310,12 +323,16 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
 		if door_texture != null:
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
-			draw_texture_rect(door_texture, draw_rect, false)
-			var icon_id: String = str(exit_icon_ids.get(tile, ""))
-			var icon_texture: Texture2D = _door_icon_texture(icon_id)
-			if icon_texture != null:
-				var icon_rect := Rect2(Vector2(draw_rect.get_center().x - 12.0, draw_rect.position.y - 22.0), Vector2(24.0, 24.0))
-				draw_texture_rect(icon_texture, icon_rect, false)
+			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
+			if opening_texture != null:
+				draw_texture_rect(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), false)
+			else:
+				draw_texture_rect(door_texture, draw_rect, false)
+				var icon_id: String = str(exit_icon_ids.get(tile, ""))
+				var icon_texture: Texture2D = _door_icon_texture(icon_id)
+				if icon_texture != null:
+					var icon_rect := Rect2(Vector2(draw_rect.get_center().x - 12.0, draw_rect.position.y - 22.0), Vector2(24.0, 24.0))
+					draw_texture_rect(icon_texture, icon_rect, false)
 	_draw_prop_moss_overlay(tile_id, grid, tile, units_to_draw)
 	for loot: Dictionary in combat_state.get("loot", []):
 		if bool(loot.get("claimed", false)):
@@ -395,6 +412,87 @@ func _door_texture_for_tile(grid: Array, tile: Vector2i) -> Texture2D:
 	if tile.x == 0 or tile.x == width - 1:
 		return _prop_textures.get("door_col", _prop_textures.get("door", null))
 	return _prop_textures.get("door", null)
+
+func _door_opening_texture_for_tile(grid: Array, tile: Vector2i) -> Texture2D:
+	var animation: Dictionary = _door_opening_animation_for_tile(tile)
+	if animation.is_empty():
+		return null
+	var frames: Array[Texture2D] = _door_opening_frames_for_tile(grid, tile)
+	if frames.is_empty():
+		return null
+	return frames[_door_opening_frame_index(animation, frames.size())]
+
+func _door_opening_animation_for_tile(tile: Vector2i) -> Dictionary:
+	var animation: Dictionary = presentation.get("door_opening", {})
+	if animation.is_empty():
+		return {}
+	if animation.get("tile", Vector2i(-999, -999)) != tile:
+		return {}
+	return animation
+
+func _door_opening_frames_for_tile(grid: Array, tile: Vector2i) -> Array[Texture2D]:
+	if _door_uses_flipped_orientation(grid, tile):
+		return _door_opening_flipped_frames
+	return _door_opening_frames
+
+func _door_uses_flipped_orientation(grid: Array, tile: Vector2i) -> bool:
+	if grid.is_empty():
+		return false
+	var width: int = (grid[0] as Array).size()
+	return tile.x == 0 or tile.x == width - 1
+
+func _door_opening_frame_index(animation: Dictionary, frame_count: int) -> int:
+	if frame_count <= 1:
+		return 0
+	if animation.has("frame"):
+		return clampi(int(animation.get("frame", 0)), 0, frame_count - 1)
+	var progress: float = clampf(float(animation.get("progress", 0.0)), 0.0, 1.0)
+	return clampi(int(roundf(progress * float(frame_count - 1))), 0, frame_count - 1)
+
+func _door_opening_draw_rect(texture: Texture2D, static_texture: Texture2D, static_draw_rect: Rect2, flipped_orientation: bool = false) -> Rect2:
+	if texture == null or static_texture == null:
+		return static_draw_rect
+	var reference_size: Vector2 = _door_opening_reference_frame_size()
+	if reference_size.y <= 0.0:
+		return static_draw_rect
+	var static_used_rect: Rect2 = _texture_used_draw_rect(static_texture, static_draw_rect)
+	var scale: float = static_used_rect.size.y / reference_size.y
+	var draw_size: Vector2 = texture.get_size() * scale
+	var draw_y: float = static_used_rect.end.y - draw_size.y
+	var draw_x: float = static_used_rect.position.x if flipped_orientation else static_used_rect.end.x - draw_size.x
+	return Rect2(Vector2(draw_x, draw_y), draw_size)
+
+func _door_opening_reference_frame_size() -> Vector2:
+	if _door_opening_frames.is_empty():
+		return Vector2.ZERO
+	var reference: Texture2D = _door_opening_frames[0]
+	if reference == null:
+		return Vector2.ZERO
+	var reference_used_rect: Rect2i = _texture_used_rect(reference)
+	return Vector2(reference_used_rect.size) if reference_used_rect.size.x > 0 and reference_used_rect.size.y > 0 else reference.get_size()
+
+func _texture_used_draw_rect(texture: Texture2D, draw_rect: Rect2) -> Rect2:
+	if texture == null:
+		return draw_rect
+	var used_rect: Rect2i = _texture_used_rect(texture)
+	if used_rect.size.x <= 0 or used_rect.size.y <= 0:
+		return draw_rect
+	var texture_size: Vector2 = texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return draw_rect
+	var scale := Vector2(draw_rect.size.x / texture_size.x, draw_rect.size.y / texture_size.y)
+	return Rect2(
+		draw_rect.position + Vector2(float(used_rect.position.x) * scale.x, float(used_rect.position.y) * scale.y),
+		Vector2(float(used_rect.size.x) * scale.x, float(used_rect.size.y) * scale.y)
+	)
+
+func _texture_used_rect(texture: Texture2D) -> Rect2i:
+	if texture == null:
+		return Rect2i()
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		return Rect2i()
+	return image.get_used_rect()
 
 func _is_outer_boundary_tile(grid: Array, tile: Vector2i) -> bool:
 	if grid.is_empty():
@@ -1530,6 +1628,10 @@ func _load_assets() -> void:
 		"door_row": door_texture,
 		"door_col": AssetLoader.flip_texture_h(door_texture)
 	}
+	_door_opening_frames = _load_door_opening_frames()
+	_door_opening_flipped_frames = []
+	for frame_texture: Texture2D in _door_opening_frames:
+		_door_opening_flipped_frames.append(AssetLoader.flip_texture_h(frame_texture))
 	_loot_textures = {
 		"healing_vial": AssetLoader.load_texture("res://assets/placeholders/tiles/healing_vial.svg"),
 		"ember_cache": AssetLoader.load_texture("res://assets/placeholders/tiles/ember_cache.svg")
@@ -1562,6 +1664,32 @@ func _load_floor_variants(paths: PackedStringArray) -> Array[Texture2D]:
 			continue
 		textures.append(texture)
 	return textures
+
+func _load_door_opening_frames() -> Array[Texture2D]:
+	var sheet: Texture2D = AssetLoader.load_texture(DOOR_OPENING_SHEET_PATH)
+	if sheet == null:
+		return []
+	var sheet_image: Image = sheet.get_image()
+	if sheet_image == null or sheet_image.is_empty():
+		return []
+	var canvas_size: Vector2i = _door_opening_frame_canvas_size()
+	if canvas_size.x <= 0 or canvas_size.y <= 0:
+		return []
+	var frames: Array[Texture2D] = []
+	for region: Rect2i in DOOR_OPENING_FRAME_REGIONS:
+		var frame_image := Image.create_empty(canvas_size.x, canvas_size.y, false, Image.FORMAT_RGBA8)
+		frame_image.fill(Color(0.0, 0.0, 0.0, 0.0))
+		var frame_position := Vector2i(canvas_size.x - region.size.x, canvas_size.y - region.size.y)
+		frame_image.blit_rect(sheet_image, region, frame_position)
+		frames.append(ImageTexture.create_from_image(frame_image))
+	return frames
+
+func _door_opening_frame_canvas_size() -> Vector2i:
+	var canvas_size := Vector2i.ZERO
+	for region: Rect2i in DOOR_OPENING_FRAME_REGIONS:
+		canvas_size.x = maxi(canvas_size.x, region.size.x)
+		canvas_size.y = maxi(canvas_size.y, region.size.y)
+	return canvas_size
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)

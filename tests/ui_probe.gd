@@ -42,7 +42,7 @@ func _capture_run_states() -> void:
 			break
 
 	if combat_coord != Vector2i.ZERO:
-		instance.call("_on_map_view_room_selected", combat_coord)
+		await instance.call("_on_map_view_room_selected", combat_coord)
 		await process_frame
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat.png")

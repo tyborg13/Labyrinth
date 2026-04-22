@@ -25,6 +25,9 @@ const DRAW_FRAME_SECONDS: float = 0.23
 const CARD_PLAY_SECONDS: float = 0.14
 const CARD_PILE_SECONDS: float = 0.18
 const CARD_SNAPBACK_SECONDS: float = 0.14
+const DOOR_OPENING_FRAMES: int = 8
+const DOOR_OPENING_FRAME_SECONDS: float = 0.075
+const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
 const FLOAT_TEXT_FRAMES: int = 7
 const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
 const DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
@@ -2093,7 +2096,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "room" and _exit_destinations_by_tile.has(tile):
-		_on_map_view_room_selected(_exit_destinations_by_tile[tile])
+		await _on_map_view_room_selected(_exit_destinations_by_tile[tile], tile)
 		return
 	if mode != "combat" or _selected_card_index < 0:
 		return
@@ -2922,16 +2925,43 @@ func _log_text() -> String:
 		return notice
 	return ""
 
-func _on_map_view_room_selected(coord: Vector2i) -> void:
-	if str(_run_state.get("mode", "room")) != "room":
+func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE) -> void:
+	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
+		return
+	if not _run_engine.available_moves(_run_state).has(coord):
 		return
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
+	_animation_lock = true
+	_reset_card_resolution()
+	_hovered_board_tile = selected_door_tile
+	_refresh_ui()
+	if selected_door_tile.x >= 0:
+		await _play_door_opening_animation(selected_door_tile)
 	_run_state = _run_engine.move_to_room(_run_state, coord)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
+	_board_presentation.clear()
+	_animation_lock = false
 	_reset_card_resolution()
+	_hovered_board_tile = Vector2i(-1, -1)
 	_refresh_ui()
+
+func _play_door_opening_animation(door_tile: Vector2i) -> void:
+	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)
+	for frame: int in range(frame_count):
+		var progress: float = 1.0 if frame_count <= 1 else float(frame) / float(frame_count - 1)
+		_board_presentation = {
+			"door_opening": {
+				"tile": door_tile,
+				"frame": frame,
+				"progress": progress
+			}
+		}
+		_refresh_stage_view()
+		await get_tree().create_timer(DOOR_OPENING_FRAME_SECONDS).timeout
+	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
 
 func _on_reward_card_pressed(card_id: String) -> void:
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
@@ -3742,6 +3772,12 @@ func _exit_tile_lookup() -> Dictionary:
 	for option: Dictionary in _run_engine.exit_options(_run_state):
 		lookup[option.get("door_tile", Vector2i(-1, -1))] = option.get("coord", Vector2i.ZERO)
 	return lookup
+
+func _door_tile_for_destination(coord: Vector2i) -> Vector2i:
+	for option: Dictionary in _run_engine.exit_options(_run_state):
+		if option.get("coord", Vector2i.ZERO) == coord:
+			return option.get("door_tile", INVALID_TARGET_TILE)
+	return INVALID_TARGET_TILE
 
 func _exit_labels_for_board() -> Dictionary:
 	var labels: Dictionary = {}

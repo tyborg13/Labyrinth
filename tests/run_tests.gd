@@ -82,6 +82,7 @@ func _initialize() -> void:
 	_test_standalone_door_art_stays_within_single_tile_footprint()
 	_test_visible_doors_use_dedicated_frame()
 	_test_door_frames_slide_toward_each_back_edge()
+	_test_door_opening_sheet_loads_as_directional_frames()
 	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
 	_test_combat_board_assigns_deterministic_floor_variants()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
@@ -1392,6 +1393,55 @@ func _test_door_frames_slide_toward_each_back_edge() -> void:
 	_assert(is_equal_approx(absf(bottom_right.y), absf(bottom_left.y)), "Bottom door back-edge offsets should share the same vertical magnitude")
 	_assert(absf(top_right.x) < absf(bottom_right.x), "Top doors should use a slightly smaller back-edge offset than bottom doors")
 	_assert(absf(top_right.y) < absf(bottom_right.y), "Top doors should use a slightly smaller back-edge offset than bottom doors")
+	board.free()
+
+func _test_door_opening_sheet_loads_as_directional_frames() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var frames: Array = board.get("_door_opening_frames") as Array
+	var flipped_frames: Array = board.get("_door_opening_flipped_frames") as Array
+	_assert(frames.size() == 8, "Door opening sheet should load as eight animation frames")
+	_assert(flipped_frames.size() == frames.size(), "Door opening animation should build flipped frames for side-edge doors")
+	var canvas_size: Vector2i = board.call("_door_opening_frame_canvas_size")
+	_assert(canvas_size == Vector2i(256, 383), "Door opening frames should share the max source-frame canvas size")
+	var first_frame: Texture2D = frames[0] if not frames.is_empty() else null
+	var final_frame: Texture2D = frames[frames.size() - 1] if not frames.is_empty() else null
+	_assert(first_frame != null and first_frame.get_size() == Vector2(canvas_size), "Door opening frame textures should all use the shared canvas")
+	_assert(final_frame != null and final_frame.get_size() == Vector2(canvas_size), "Final door opening frame should stay on the shared canvas")
+	var first_used_rect: Rect2i = board.call("_texture_used_rect", first_frame)
+	var final_used_rect: Rect2i = board.call("_texture_used_rect", final_frame)
+	_assert(first_used_rect.position == Vector2i(20, 2) and first_used_rect.size == Vector2i(236, 381), "First door opening sprite should keep its real source bounds inside the shared canvas")
+	_assert(final_used_rect.position == Vector2i(4, 4) and final_used_rect.size == Vector2i(252, 379), "Final door opening sprite should stay bottom-right anchored inside the shared canvas")
+	var grid: Array = _simple_grid()
+	var row_tile := Vector2i(4, 0)
+	var col_tile := Vector2i(7, 4)
+	grid[row_tile.y][row_tile.x] = "door"
+	grid[col_tile.y][col_tile.x] = "door"
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"door_opening": {"tile": row_tile, "progress": 0.0}})
+	var first_source_frame: Texture2D = frames[0] if not frames.is_empty() else null
+	_assert(board.call("_door_opening_texture_for_tile", grid, row_tile) == first_source_frame, "Top/bottom door openings should use the source orientation frame")
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"door_opening": {"tile": col_tile, "progress": 1.0}})
+	var final_flipped_frame: Texture2D = flipped_frames[flipped_frames.size() - 1] if not flipped_frames.is_empty() else null
+	_assert(board.call("_door_opening_texture_for_tile", grid, col_tile) == final_flipped_frame, "Side door openings should use the flipped final frame")
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var row_static_texture: Texture2D = textures.get("door_row", null)
+	var row_static_draw_rect: Rect2 = board.call("_prop_draw_rect", row_static_texture, board.call("_door_rect_for_tile", row_tile, grid))
+	var row_static_used_rect: Rect2 = board.call("_texture_used_draw_rect", row_static_texture, row_static_draw_rect)
+	var row_opening_draw_rect: Rect2 = board.call("_door_opening_draw_rect", first_source_frame, row_static_texture, row_static_draw_rect, false)
+	_assert(is_equal_approx(row_opening_draw_rect.end.x, row_static_used_rect.end.x), "Source door opening frames should keep their stone edge anchored to the static door's right edge")
+	_assert(is_equal_approx(row_opening_draw_rect.end.y, row_static_used_rect.end.y), "Door opening frames should stay planted on the static door baseline")
+	var row_final_opening_draw_rect: Rect2 = board.call("_door_opening_draw_rect", final_frame, row_static_texture, row_static_draw_rect, false)
+	_assert(row_final_opening_draw_rect.is_equal_approx(row_opening_draw_rect), "Source door opening frames should render into one stable draw rect across the animation")
+	var row_opening_used_rect: Rect2 = board.call("_texture_used_draw_rect", first_source_frame, row_opening_draw_rect)
+	_assert(is_equal_approx(row_opening_used_rect.position.y, row_static_used_rect.position.y), "First opening frame should match the static door visible top edge")
+	_assert(is_equal_approx(row_opening_used_rect.end.y, row_static_used_rect.end.y), "First opening frame should match the static door visible bottom edge")
+	var col_static_texture: Texture2D = textures.get("door_col", null)
+	var col_static_draw_rect: Rect2 = board.call("_prop_draw_rect", col_static_texture, board.call("_door_rect_for_tile", col_tile, grid))
+	var col_static_used_rect: Rect2 = board.call("_texture_used_draw_rect", col_static_texture, col_static_draw_rect)
+	var col_opening_draw_rect: Rect2 = board.call("_door_opening_draw_rect", final_flipped_frame, col_static_texture, col_static_draw_rect, true)
+	_assert(is_equal_approx(col_opening_draw_rect.position.x, col_static_used_rect.position.x), "Flipped door opening frames should keep their stone edge anchored to the static door's left edge")
+	_assert(is_equal_approx(col_opening_draw_rect.end.y, col_static_used_rect.end.y), "Flipped door opening frames should stay planted on the static door baseline")
 	board.free()
 
 func _test_combat_board_hides_outer_walls_without_hiding_visible_doors() -> void:
