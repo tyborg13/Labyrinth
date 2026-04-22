@@ -1052,7 +1052,7 @@ func _test_enemy_intent_name_reserves_header_line() -> void:
 func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
 	var center := Vector2(320.0, 240.0)
 	var enemy := {
 		"type": "harrier",
@@ -1069,7 +1069,7 @@ func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
-	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
 	var center := Vector2(320.0, 240.0)
 	var enemy := {
 		"type": "harrier",
@@ -1128,9 +1128,9 @@ func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
 
 func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 	var board := CombatBoardView.new()
-	var font: Font = load("res://fonts/PressStart2P-Regular.tres")
+	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
 	var width: float = float(board.call("_enemy_intent_popup_width", {
-		"name": "Skitter Strike",
+		"name": "Skittering Stonebreaker Strike",
 		"actions": [{"type": "melee", "damage": 4, "range": 1}]
 	}, [[{"icon": "melee"}, {"icon": "damage", "value": 4}]], font))
 	_assert(width > 136.0, "Long enemy intent titles should widen the popup instead of clipping")
@@ -1883,7 +1883,7 @@ func _test_default_theme_uses_pixel_font() -> void:
 	var font: Font = probe.get_theme_default_font()
 	_assert(font != null, "The default theme should expose a default font")
 	if font != null:
-		_assert(font.resource_path.ends_with("PressStart2P-Regular.tres"), "The default theme should use the bundled pixel font")
+		_assert(font.resource_path.ends_with("LabyrinthCrumble-Regular.tres"), "The default theme should use the custom crumbly pixel font")
 	probe.queue_free()
 
 func _test_main_scenes_instantiate() -> void:

@@ -3,7 +3,7 @@ class_name UiTypography
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
-const PIXEL_FONT_PATH: String = "res://fonts/PressStart2P-Regular.ttf"
+const PIXEL_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Regular.ttf"
 
 const SIZE_CAPTION: int = 11
 const SIZE_SMALL: int = 12

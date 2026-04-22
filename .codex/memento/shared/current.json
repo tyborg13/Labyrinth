@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-21T20:23:58Z",
+  "updated_at": "2026-04-22T03:34:51Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1371,6 +1371,30 @@
       "source": {
         "branch": "master",
         "commit": "7ee5f38"
+      }
+    },
+    {
+      "id": "mnt_20260422T033451Z_5da89721",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "fonts",
+        "symbol": null
+      },
+      "scope_key": "folder:fonts",
+      "summary": "Labyrinth Crumble ships generated regular and header font faces; regenerate artifacts with tools/build_labyrinth_font.py.",
+      "details": "The generator emits Regular and Header TTF/TRES files plus the preview PNG. Regular remains the default theme font, while UiTypography routes card names, button text, title/room headers, and enemy intent titles through the Header face for a heavier stone display style. Do not hand-edit generated font binaries.",
+      "status": "active",
+      "created_at": "2026-04-22T03:34:51Z",
+      "updated_at": "2026-04-22T03:34:51Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260422T024058Z_c5e9dbea"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "65b2474"
       }
     }
   ]
