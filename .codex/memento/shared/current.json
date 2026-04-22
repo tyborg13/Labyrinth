@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-22T03:34:51Z",
+  "updated_at": "2026-04-22T04:02:39Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1395,6 +1395,30 @@
       "source": {
         "branch": "master",
         "commit": "65b2474"
+      }
+    },
+    {
+      "id": "mnt_20260422T040239Z_2a348e4c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "CombatBoardView board zoom fits rendered tiles through a cached layout.",
+      "details": "Board zoom still uses _tiles_in_draw_order() extents so hidden outer walls do not shrink the room, but those tiles/extents/tile width/origin must stay cached per state and Control.size. Calling _tiles_in_draw_order() or rebuilding extents from _tile_width()/_tile_center() hot draw paths caused severe animation and input lag.",
+      "status": "active",
+      "created_at": "2026-04-22T04:02:39Z",
+      "updated_at": "2026-04-22T04:02:39Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260422T035120Z_7a17c6e1"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "687df5d"
       }
     }
   ]

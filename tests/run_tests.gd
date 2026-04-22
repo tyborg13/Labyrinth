@@ -63,6 +63,7 @@ func _initialize() -> void:
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
+	_test_enemy_hud_layout_offsets_down_from_top_edge()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
@@ -71,6 +72,7 @@ func _initialize() -> void:
 	_test_acolyte_idle_sheet_honors_row_major_layout()
 	_test_acolyte_idle_speed_matches_default_cadence()
 	_test_unit_hud_stacks_above_sprite_art()
+	_test_combat_board_zooms_to_rendered_room_bounds()
 	_test_foreground_props_fade_when_covering_behind_units()
 	_test_pillar_art_fits_bottom_center_without_stretching()
 	_test_pillar_moss_overlay_is_anchored_to_pillar_cap()
@@ -1036,6 +1038,17 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 	_assert(health_rect.position.y + health_rect.size.y <= art_top_y - 5.5, "Unit health bars should sit clear of the sprite art")
 	_assert(is_equal_approx(intent_rect.position.y + intent_rect.size.y, health_rect.position.y), "Enemy intent popups should stack directly above health bars")
 
+func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(1900.0, 790.0)
+	board.set("combat_state", {"grid": _simple_grid()})
+	var tile_width: float = board.call("_tile_width")
+	var top_inner_tile: Vector2 = board.call("_tile_center", Vector2i(1, 1))
+	var bottom_inner_tile: Vector2 = board.call("_tile_center", Vector2i(6, 6))
+	_assert(tile_width > 160.0, "Combat board should zoom past the old conservative tile cap on large stage space")
+	_assert(top_inner_tile.y < 220.0, "Combat board layout should use hidden-wall-free bounds and sit higher in the stage")
+	_assert(bottom_inner_tile.y + tile_width * 0.30 < board.size.y - 24.0, "Combat board should keep the lower room clear of the hand area")
+
 func _test_enemy_intent_name_reserves_header_line() -> void:
 	var board := CombatBoardView.new()
 	var attack_intent := {
@@ -1053,7 +1066,7 @@ func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
-	var center := Vector2(320.0, 240.0)
+	var center := Vector2(320.0, 320.0)
 	var enemy := {
 		"type": "harrier",
 		"role": "enemy",
@@ -1094,6 +1107,24 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 		var rect: Rect2 = rect_var
 		_assert(not rect.intersects(health_rect, false), "Shifted enemy HUD pieces should clear the reserved health bar space")
 		_assert(not rect.intersects(intent_rect, false), "Shifted enemy HUD pieces should clear the reserved intent space")
+
+func _test_enemy_hud_layout_offsets_down_from_top_edge() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var enemy := {
+		"type": "harrier",
+		"role": "enemy",
+		"intent": {
+			"name": "Pelt",
+			"actions": [{"type": "ranged", "damage": 4, "range": 4}]
+		}
+	}
+	var layout: Dictionary = board.call("_enemy_hud_layout", enemy, Vector2(480.0, 215.0), [], font)
+	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
+	var offset: Vector2 = layout.get("offset", Vector2.ZERO)
+	_assert(offset.y > 0.0, "Enemy HUD layout should move downward when a top-edge intent would clip offscreen")
+	_assert(intent_rect.position.y >= 6.0, "Top-edge enemy intents should remain inside the board viewport")
 
 func _test_enemy_art_scale_preserves_center() -> void:
 	var board := CombatBoardView.new()

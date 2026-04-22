@@ -41,7 +41,7 @@ const UNIT_ART_HUD_CLEARANCE: float = 10.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
-const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, -36.0, -54.0, -72.0]
+const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
@@ -49,6 +49,12 @@ const IDLE_SHEET_ROWS: int = 2
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 const OUTER_WALL_RENDERING_ENABLED: bool = false
+const BOARD_SIDE_MARGIN: float = 36.0
+const BOARD_VERTICAL_MARGIN: float = 8.0
+const BOARD_TOP_CLEARANCE_SCALE: float = 0.74
+const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.30
+const BOARD_VERTICAL_BIAS: float = 0.22
+const BOARD_MAX_TILE_WIDTH: float = 190.0
 const DOOR_FRAME_WIDTH_SCALE: float = 1.4
 const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
 const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
@@ -115,6 +121,12 @@ var _idle_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_tick: int = 0
+var _board_layout_cache_valid: bool = false
+var _board_layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
+var _board_layout_cache_tiles: Array[Vector2i] = []
+var _board_layout_cache_extents: Dictionary = {}
+var _board_layout_cache_tile_width: float = 90.0
+var _board_layout_cache_origin: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -159,6 +171,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles.duplicate(true)
 	exit_icon_ids = next_exit_icon_ids.duplicate(true)
 	presentation = next_presentation.duplicate(true)
+	_invalidate_board_layout_cache()
 	_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
 	_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
 	_update_cursor_shape()
@@ -199,7 +212,7 @@ func _draw() -> void:
 		_draw_empty_state()
 		return
 	var grid: Array = combat_state.get("grid", [])
-	var tiles: Array[Vector2i] = _tiles_in_draw_order(grid)
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	for tile: Vector2i in tiles:
 		_draw_floor_tile(grid, tile)
 	for tile: Vector2i in tiles:
@@ -1132,6 +1145,12 @@ func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2
 	var tall_step: float = -ceilf(hud_bounds.size.y + 12.0)
 	if absf(tall_step) > 72.0 and not candidate_y_steps.has(tall_step):
 		candidate_y_steps.append(tall_step)
+	var top_escape_step: float = ceilf(viewport_bounds.position.y - hud_bounds.position.y)
+	if top_escape_step > 0.0 and not candidate_y_steps.has(top_escape_step):
+		candidate_y_steps.append(top_escape_step)
+	var bottom_escape_step: float = -ceilf(hud_bounds.end.y - viewport_bounds.end.y)
+	if bottom_escape_step < 0.0 and not candidate_y_steps.has(bottom_escape_step):
+		candidate_y_steps.append(bottom_escape_step)
 	var best_offset := Vector2.ZERO
 	var best_score: float = INF
 	for y_step_var: Variant in candidate_y_steps:
@@ -1881,6 +1900,10 @@ func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
 	)
 	return tiles
 
+func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_tiles
+
 func _tile_draws_before(a: Vector2i, b: Vector2i) -> bool:
 	var a_score: int = a.x + a.y
 	var b_score: int = b.x + b.y
@@ -1890,17 +1913,19 @@ func _tile_draws_before(a: Vector2i, b: Vector2i) -> bool:
 
 func _tile_center(tile: Vector2i) -> Vector2:
 	var origin: Vector2 = _board_origin()
-	var half_w: float = _tile_width() * 0.5
-	var half_h: float = _tile_height() * 0.5
+	var tile_width: float = _tile_width()
+	var half_w: float = tile_width * 0.5
+	var half_h: float = tile_width * 0.25
 	return Vector2(
 		origin.x + float(tile.x - tile.y) * half_w,
 		origin.y + float(tile.x + tile.y) * half_h
 	)
 
 func _tile_step_offset(dir: Vector2i) -> Vector2:
+	var tile_width: float = _tile_width()
 	return Vector2(
-		float(dir.x - dir.y) * _tile_width() * 0.5,
-		float(dir.x + dir.y) * _tile_height() * 0.5
+		float(dir.x - dir.y) * tile_width * 0.5,
+		float(dir.x + dir.y) * tile_width * 0.25
 	)
 
 func world_position_for_tile(tile: Vector2i) -> Vector2:
@@ -1919,23 +1944,28 @@ func _tile_polygon(tile: Vector2i) -> PackedVector2Array:
 	])
 
 func _board_origin() -> Vector2:
-	var grid: Array = combat_state.get("grid", [])
-	var board_w: int = 8
-	var board_h: int = 8
-	if not grid.is_empty():
-		board_h = grid.size()
-		board_w = (grid[0] as Array).size()
-	var tile_width: float = _tile_width()
-	var half_height: float = _tile_height() * 0.5
-	var board_span_y: float = float(maxi(0, board_w + board_h - 2)) * half_height
-	var top_pad: float = _unit_size().y * 0.62
-	var bottom_pad: float = tile_width * 0.18
-	var origin_y: float = maxf(top_pad, (size.y - (board_span_y + top_pad + bottom_pad)) * 0.5 + top_pad)
-	return Vector2(size.x * 0.5, origin_y)
+	_ensure_board_layout_cache()
+	return _board_layout_cache_origin
+
+func _board_origin_for_extents(extents: Dictionary, tile_width: float) -> Vector2:
+	var half_height: float = tile_width * 0.25
+	var half_width: float = tile_width * 0.5
+	var min_diag: float = float(extents.get("min_diag", -4.0))
+	var max_diag: float = float(extents.get("max_diag", 4.0))
+	var min_sum: float = float(extents.get("min_sum", 0.0))
+	var content_width: float = _board_layout_width_units(extents) * tile_width
+	var content_height: float = _board_layout_height_units(extents) * tile_width
+	var available_width: float = maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0)
+	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	var content_left: float = BOARD_SIDE_MARGIN + maxf(0.0, (available_width - content_width) * 0.5)
+	var content_top: float = BOARD_VERTICAL_MARGIN + maxf(0.0, (available_height - content_height) * BOARD_VERTICAL_BIAS)
+	var target_center_x: float = content_left + content_width * 0.5
+	var origin_x: float = target_center_x - ((min_diag + max_diag) * 0.5 * half_width)
+	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
+	return Vector2(origin_x, origin_y)
 
 func _tile_at_point(point: Vector2) -> Vector2i:
-	var grid: Array = combat_state.get("grid", [])
-	var tiles: Array[Vector2i] = _tiles_in_draw_order(grid)
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	for index: int in range(tiles.size() - 1, -1, -1):
 		var tile: Vector2i = tiles[index]
 		if Geometry2D.is_point_in_polygon(point, _tile_polygon(tile)):
@@ -1944,9 +1974,11 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 
 func _draw_shadow(center: Vector2) -> void:
 	var points := PackedVector2Array()
+	var tile_width: float = _tile_width()
+	var tile_height: float = tile_width * 0.5
 	for step: int in range(18):
 		var angle: float = TAU * float(step) / 18.0
-		points.append(center + Vector2(cos(angle) * _tile_width() * 0.20, sin(angle) * _tile_height() * 0.17))
+		points.append(center + Vector2(cos(angle) * tile_width * 0.20, sin(angle) * tile_height * 0.17))
 	draw_colored_polygon(points, Color(0.0, 0.0, 0.0, 0.18))
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:
@@ -1957,16 +1989,72 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 	return result
 
 func _tile_width() -> float:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_tile_width
+
+func _tile_width_for_extents(extents: Dictionary) -> float:
+	var width_units: float = _board_layout_width_units(extents)
+	var height_units: float = _board_layout_height_units(extents)
+	var available_width: float = maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0)
+	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	var width_based: float = available_width / maxf(1.0, width_units)
+	var height_based: float = available_height / maxf(1.0, height_units)
+	return clampf(minf(width_based, height_based), 90.0, BOARD_MAX_TILE_WIDTH)
+
+func _board_layout_width_units(extents: Dictionary) -> float:
+	var diag_span: float = maxf(0.0, float(extents.get("max_diag", 4.0)) - float(extents.get("min_diag", -4.0)))
+	return diag_span * 0.5 + 1.0
+
+func _board_layout_height_units(extents: Dictionary) -> float:
+	var sum_span: float = maxf(0.0, float(extents.get("max_sum", 14.0)) - float(extents.get("min_sum", 0.0)))
+	return sum_span * 0.25 + BOARD_TOP_CLEARANCE_SCALE + BOARD_BOTTOM_CLEARANCE_SCALE
+
+func _board_layout_extents() -> Dictionary:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_extents
+
+func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
+	if tiles.is_empty():
+		return {
+			"min_diag": -4.0,
+			"max_diag": 4.0,
+			"min_sum": 0.0,
+			"max_sum": 14.0
+		}
+	var min_diag: int = tiles[0].x - tiles[0].y
+	var max_diag: int = min_diag
+	var min_sum: int = tiles[0].x + tiles[0].y
+	var max_sum: int = min_sum
+	for tile: Vector2i in tiles:
+		var diag: int = tile.x - tile.y
+		var sum: int = tile.x + tile.y
+		min_diag = mini(min_diag, diag)
+		max_diag = maxi(max_diag, diag)
+		min_sum = mini(min_sum, sum)
+		max_sum = maxi(max_sum, sum)
+	return {
+		"min_diag": min_diag,
+		"max_diag": max_diag,
+		"min_sum": min_sum,
+		"max_sum": max_sum
+	}
+
+func _invalidate_board_layout_cache() -> void:
+	_board_layout_cache_valid = false
+
+func _ensure_board_layout_cache() -> void:
+	if _board_layout_cache_valid and _board_layout_cache_size == size:
+		return
 	var grid: Array = combat_state.get("grid", [])
-	var board_w: int = 8
-	var board_h: int = 8
-	if not grid.is_empty():
-		board_h = grid.size()
-		board_w = (grid[0] as Array).size()
-	var span: float = float(maxi(2, board_w + board_h))
-	var width_based: float = (size.x - 96.0) * 2.0 / span
-	var height_based: float = (size.y - 96.0) * 4.0 / span
-	return clampf(minf(width_based, height_based), 90.0, 146.0)
+	var tiles: Array[Vector2i] = _tiles_in_draw_order(grid)
+	var extents: Dictionary = _board_layout_extents_for_tiles(tiles)
+	var tile_width: float = _tile_width_for_extents(extents)
+	_board_layout_cache_size = size
+	_board_layout_cache_tiles = tiles
+	_board_layout_cache_extents = extents
+	_board_layout_cache_tile_width = tile_width
+	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width)
+	_board_layout_cache_valid = true
 
 func _tile_height() -> float:
 	return _tile_width() * 0.5
