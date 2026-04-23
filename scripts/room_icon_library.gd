@@ -11,11 +11,11 @@ const ICON_TREASURE: String = "treasure"
 const ICON_BOSS: String = "boss"
 
 const ROOM_TYPE_ICON_PATHS := {
-	ICON_START: "res://assets/placeholders/icons/move.svg",
-	ICON_COMBAT: "res://assets/placeholders/icons/melee.svg",
-	ICON_CAMPFIRE: "res://assets/placeholders/icons/burn.svg",
-	ICON_TREASURE: "res://assets/placeholders/tiles/ember_cache.svg",
-	ICON_BOSS: "res://assets/placeholders/icons/melee.svg"
+	ICON_START: "res://assets/art/icons/move.png",
+	ICON_COMBAT: "res://assets/art/icons/melee.png",
+	ICON_CAMPFIRE: "res://assets/art/icons/burn.png",
+	ICON_TREASURE: "res://assets/art/tiles/ember_cache.png",
+	ICON_BOSS: "res://assets/art/icons/melee.png"
 }
 
 static func icon_id_for_room(room: Dictionary) -> String:

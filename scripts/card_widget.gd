@@ -19,14 +19,17 @@ const SELECTED_SCALE: float = 1.01
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
-const COMPACT_CARD_WIDTH: float = 144.0
+const CARD_FRAME_PATH: String = "res://assets/art/ui/card_frame.png"
+const CARD_FRAME_MARGIN: float = 34.0
+const COMPACT_CARD_WIDTH: float = 190.0
+const CARD_VERTICAL_CHROME: float = 82.0
 
 class AoePatternView:
 	extends Control
 
-	const TILE_WIDTH: float = 12.0
-	const TILE_HEIGHT: float = 8.0
-	const TILE_PADDING: float = 4.0
+	const TILE_WIDTH: float = 16.0
+	const TILE_HEIGHT: float = 10.0
+	const TILE_PADDING: float = 5.0
 
 	var pattern_offsets: Array[Vector2i] = []
 	var show_origin: bool = false
@@ -131,8 +134,10 @@ class AoePatternView:
 @onready var element_icon: TextureRect = $Margin/VBox/TopRow/ElementIcon
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtFrame
 @onready var art_rect: TextureRect = $Margin/VBox/ArtFrame/Art
-@onready var desc_label: RichTextLabel = $Margin/VBox/Description
-@onready var footer_label: Label = $Margin/VBox/Footer
+@onready var details_panel: PanelContainer = $Margin/VBox/DetailsPanel
+@onready var details_vbox: VBoxContainer = $Margin/VBox/DetailsPanel/DetailsMargin/DetailsVBox
+@onready var desc_label: RichTextLabel = $Margin/VBox/DetailsPanel/DetailsMargin/DetailsVBox/Description
+@onready var footer_label: Label = $Margin/VBox/DetailsPanel/DetailsMargin/DetailsVBox/Footer
 
 var card_id: String = ""
 var _selected: bool = false
@@ -152,6 +157,7 @@ var _local_hovered: bool = false
 var _pose_tween: Tween
 var _summary_icon_box: VBoxContainer
 var _cost_badge_icon: TextureRect
+var _rarity_notch: PanelContainer
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
@@ -162,6 +168,7 @@ func _ready() -> void:
 	title_label.add_theme_color_override("font_color", Color("39271b"))
 	title_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 	title_label.add_theme_constant_override("outline_size", 2)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.add_theme_color_override("default_color", Color("503d2c"))
@@ -179,6 +186,7 @@ func _ready() -> void:
 	cost_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_summary_icon_box()
 	_ensure_cost_badge_icon()
+	_ensure_rarity_notch()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
 	_update_layout_metrics()
@@ -301,6 +309,7 @@ func _apply_configuration() -> void:
 	if _dimmed:
 		background = background.darkened(0.12)
 	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id))
+	_configure_rarity_notch(str(card.get("rarity", "common")))
 	var badge_text: String = ""
 	var badge_icon: String = ""
 	if bool(card.get("burn", false)):
@@ -328,67 +337,59 @@ func _apply_configuration() -> void:
 func _update_layout_metrics() -> void:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	var compact: bool = width <= COMPACT_CARD_WIDTH
-	var title_size: int = 10 if compact else 12
-	var detail_size: int = 10 if compact else 11
+	var title_size: int = 14 if compact else 16
+	var detail_size: int = 13 if compact else 15
+	var badge_size: int = 12 if compact else 14
 	UiTypography.set_label_size(title_label, title_size)
-	UiTypography.set_label_size(cost_badge, detail_size)
+	UiTypography.set_label_size(cost_badge, badge_size)
 	UiTypography.set_rich_text_size(desc_label, detail_size)
 	UiTypography.set_label_size(footer_label, detail_size)
-	var art_height: float = clampf(width * 0.56, 78.0, 102.0)
+	var height: float = size.y if size.y > 0.0 else custom_minimum_size.y
+	var art_height: float = clampf(width * 0.38, 62.0, 96.0)
+	var details_height: float = clampf(width * 0.62, 100.0, 148.0)
+	var available_body_height: float = maxf(146.0, height - CARD_VERTICAL_CHROME)
+	var body_overflow: float = art_height + details_height - available_body_height
+	if body_overflow > 0.0:
+		var art_reduction: float = minf(body_overflow, art_height - 62.0)
+		art_height -= art_reduction
+		body_overflow -= art_reduction
+		if body_overflow > 0.0:
+			details_height = maxf(96.0, details_height - body_overflow)
 	art_frame.custom_minimum_size = Vector2(0.0, art_height)
-	desc_label.custom_minimum_size = Vector2(0.0, 54.0 if compact else 64.0)
+	details_panel.custom_minimum_size = Vector2(0.0, details_height)
+	desc_label.custom_minimum_size = Vector2(0.0, details_height)
 	footer_label.custom_minimum_size = Vector2.ZERO
 	if _summary_icon_box != null:
-		_summary_icon_box.custom_minimum_size = desc_label.custom_minimum_size
+		_summary_icon_box.custom_minimum_size = Vector2(0.0, details_height)
 	pivot_offset = size * 0.5
 
-func _apply_base_style(background: Color, border: Color, usable: bool, previewed: bool, printed_playable: bool, art_background: Color) -> void:
-	var edge_color: Color = border
-	if not usable:
-		edge_color = border.darkened(0.46)
-	elif not printed_playable:
-		edge_color = border.lerp(Color("bfa690"), 0.42)
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = background
-	normal.border_color = edge_color
-	normal.border_width_left = 3
-	normal.border_width_top = 3
-	normal.border_width_right = 3
-	normal.border_width_bottom = 3
-	normal.corner_radius_top_left = 12
-	normal.corner_radius_top_right = 12
-	normal.corner_radius_bottom_right = 12
-	normal.corner_radius_bottom_left = 12
-	normal.shadow_color = Color(0.0, 0.0, 0.0, 0.20)
-	normal.shadow_size = 12 if _local_hovered else 10 if previewed or _selected else 8
-	var hover: StyleBoxFlat = normal.duplicate()
-	hover.border_color = edge_color.lightened(0.18)
-	hover.shadow_size = 12
-	var pressed: StyleBoxFlat = normal.duplicate()
-	pressed.bg_color = background.darkened(0.05)
-	var disabled_style: StyleBoxFlat = normal.duplicate()
-	disabled_style.bg_color = background.darkened(0.08)
+func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color) -> void:
+	var normal: StyleBoxTexture = _card_frame_style(0.0)
+	var hover: StyleBoxTexture = _card_frame_style(2.0)
+	var pressed: StyleBoxTexture = _card_frame_style(0.0)
+	var disabled_style: StyleBoxTexture = _card_frame_style(0.0)
 	add_theme_stylebox_override("normal", normal)
 	add_theme_stylebox_override("hover", hover)
 	add_theme_stylebox_override("pressed", pressed)
 	add_theme_stylebox_override("focus", hover)
 	add_theme_stylebox_override("disabled", disabled_style)
-	var art_style := StyleBoxFlat.new()
-	art_style.bg_color = art_background
-	art_style.border_color = edge_color.darkened(0.14)
-	art_style.border_width_left = 2
-	art_style.border_width_top = 2
-	art_style.border_width_right = 2
-	art_style.border_width_bottom = 2
-	art_style.corner_radius_top_left = 10
-	art_style.corner_radius_top_right = 10
-	art_style.corner_radius_bottom_right = 10
-	art_style.corner_radius_bottom_left = 10
-	art_style.content_margin_left = 4.0
-	art_style.content_margin_top = 4.0
-	art_style.content_margin_right = 4.0
-	art_style.content_margin_bottom = 4.0
-	art_frame.add_theme_stylebox_override("panel", art_style)
+	art_frame.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	details_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+
+func _card_frame_style(expand: float = 0.0) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = AssetLoader.load_texture(CARD_FRAME_PATH)
+	style.texture_margin_left = CARD_FRAME_MARGIN
+	style.texture_margin_top = CARD_FRAME_MARGIN
+	style.texture_margin_right = CARD_FRAME_MARGIN
+	style.texture_margin_bottom = CARD_FRAME_MARGIN
+	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.expand_margin_left = expand
+	style.expand_margin_top = expand
+	style.expand_margin_right = expand
+	style.expand_margin_bottom = expand
+	return style
 
 func _badge_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -414,9 +415,9 @@ func _ensure_summary_icon_box() -> void:
 	_summary_icon_box = VBoxContainer.new()
 	_summary_icon_box.name = "IconSummary"
 	_summary_icon_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_summary_icon_box.add_theme_constant_override("separation", 4)
-	vbox.add_child(_summary_icon_box)
-	vbox.move_child(_summary_icon_box, desc_label.get_index() + 1)
+	_summary_icon_box.add_theme_constant_override("separation", 5)
+	details_vbox.add_child(_summary_icon_box)
+	details_vbox.move_child(_summary_icon_box, desc_label.get_index() + 1)
 
 func _ensure_cost_badge_icon() -> void:
 	if _cost_badge_icon != null:
@@ -427,6 +428,23 @@ func _ensure_cost_badge_icon() -> void:
 	_cost_badge_icon.expand_mode = 1
 	_cost_badge_icon.stretch_mode = 5
 	cost_badge.add_child(_cost_badge_icon)
+
+func _ensure_rarity_notch() -> void:
+	if _rarity_notch != null:
+		return
+	_rarity_notch = PanelContainer.new()
+	_rarity_notch.name = "RarityNotch"
+	_rarity_notch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_rarity_notch.anchor_left = 0.5
+	_rarity_notch.anchor_right = 0.5
+	_rarity_notch.anchor_top = 1.0
+	_rarity_notch.anchor_bottom = 1.0
+	_rarity_notch.offset_left = -17.0
+	_rarity_notch.offset_right = 17.0
+	_rarity_notch.offset_top = -9.0
+	_rarity_notch.offset_bottom = -3.0
+	_rarity_notch.z_index = 4
+	add_child(_rarity_notch)
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)
@@ -449,21 +467,22 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		return
 	_clear_children(_summary_icon_box)
 	var icon_size: float = _summary_icon_size()
-	var label_size: int = 10 if icon_size <= 15.0 else 12
-	var row_gap: int = 3 if icon_size <= 15.0 else 4
+	var label_size: int = 13 if icon_size <= 22.0 else 15
+	var row_gap: int = 5 if icon_size <= 22.0 else 6
 	for row_var: Variant in rows:
 		if typeof(row_var) != TYPE_ARRAY:
 			continue
-		var row := HBoxContainer.new()
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", row_gap)
-		for token_var: Variant in (row_var as Array):
-			if typeof(token_var) != TYPE_DICTIONARY:
-				continue
-			_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size)
-		if row.get_child_count() > 0:
-			_summary_icon_box.add_child(row)
+		for segment: Array in _summary_token_segments(row_var as Array):
+			var row := HBoxContainer.new()
+			row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			row.alignment = BoxContainer.ALIGNMENT_CENTER
+			row.add_theme_constant_override("separation", row_gap)
+			for token_var: Variant in segment:
+				if typeof(token_var) != TYPE_DICTIONARY:
+					continue
+				_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size)
+			if row.get_child_count() > 0:
+				_summary_icon_box.add_child(row)
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
@@ -496,7 +515,65 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 
 func _summary_icon_size() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
-	return 15.0 if width <= COMPACT_CARD_WIDTH else 18.0
+	return 22.0 if width <= COMPACT_CARD_WIDTH else 26.0
+
+func _summary_token_segments(tokens: Array) -> Array:
+	var clean_tokens: Array = []
+	var contains_pattern: bool = false
+	var valued_tokens: int = 0
+	for token_var: Variant in tokens:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		var token: Dictionary = token_var
+		clean_tokens.append(token)
+		if str(token.get("kind", "")) == "aoe_pattern":
+			contains_pattern = true
+		if token.has("value"):
+			valued_tokens += 1
+	if clean_tokens.size() <= 3 and not contains_pattern:
+		if clean_tokens.size() < 3 or valued_tokens < 3:
+			return [clean_tokens]
+	var max_tokens_per_segment: int = 2 if contains_pattern or valued_tokens >= 3 else 3
+	var segments: Array = []
+	var current: Array = []
+	for token_var: Variant in clean_tokens:
+		current.append(token_var)
+		if current.size() >= max_tokens_per_segment:
+			segments.append(current)
+			current = []
+	if not current.is_empty():
+		segments.append(current)
+	return segments
+
+func _configure_rarity_notch(rarity: String) -> void:
+	if _rarity_notch == null:
+		return
+	var style := StyleBoxFlat.new()
+	style.bg_color = _rarity_color(rarity)
+	style.border_color = Color("3e2f22")
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 2
+	style.corner_radius_top_right = 2
+	style.corner_radius_bottom_left = 1
+	style.corner_radius_bottom_right = 1
+	_rarity_notch.add_theme_stylebox_override("panel", style)
+	_rarity_notch.tooltip_text = rarity.capitalize()
+
+func _rarity_color(rarity: String) -> Color:
+	match rarity:
+		"starter":
+			return Color("8f7654")
+		"common":
+			return Color("c7b37c")
+		"uncommon":
+			return Color("6b9c68")
+		"rare":
+			return Color("9f6fc4")
+		_:
+			return Color("a58f68")
 
 func _token_value_color(token: Dictionary) -> Color:
 	match str(token.get("tone", "neutral")):
@@ -526,15 +603,15 @@ func _configure_cost_badge_icon(icon_key: String, has_text: bool) -> void:
 	if has_text:
 		_cost_badge_icon.anchor_right = 0.0
 		_cost_badge_icon.offset_left = 5.0
-		_cost_badge_icon.offset_top = 4.0
-		_cost_badge_icon.offset_right = 19.0
-		_cost_badge_icon.offset_bottom = -4.0
+		_cost_badge_icon.offset_top = 3.0
+		_cost_badge_icon.offset_right = 24.0
+		_cost_badge_icon.offset_bottom = -3.0
 	else:
 		_cost_badge_icon.anchor_right = 1.0
 		_cost_badge_icon.offset_left = 5.0
-		_cost_badge_icon.offset_top = 4.0
+		_cost_badge_icon.offset_top = 3.0
 		_cost_badge_icon.offset_right = -5.0
-		_cost_badge_icon.offset_bottom = -4.0
+		_cost_badge_icon.offset_bottom = -3.0
 
 func _clear_children(node: Node) -> void:
 	for child: Node in node.get_children():

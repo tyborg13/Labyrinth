@@ -347,7 +347,7 @@ static func _polygon_signed_area(points: PackedVector2Array) -> float:
 	return area * 0.5
 
 static func load_combat_marker_texture() -> Texture2D:
-	return load_texture_by_stem("res://assets/placeholders/combat_crossed_swords", PNG_FIRST_TEXTURE_EXTENSIONS)
+	return load_texture_by_stem("res://assets/art/icons/melee", PNG_FIRST_TEXTURE_EXTENSIONS)
 
 static func load_font(path: String) -> FontFile:
 	if ResourceLoader.exists(path):

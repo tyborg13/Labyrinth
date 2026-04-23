@@ -1624,8 +1624,8 @@ func _load_assets() -> void:
 	var moss_wall_variants: Array[Texture2D] = _load_floor_variants(MOSS_WALL_OVERLAY_PATHS)
 	var moss_pillar_variants: Array[Texture2D] = _load_floor_variants(MOSS_PILLAR_OVERLAY_PATHS)
 	_tile_textures = {
-		"ash": ash_floor_variants[0] if not ash_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/placeholders/tiles/ash.svg"),
-		"ember": AssetLoader.load_texture("res://assets/placeholders/tiles/ember.svg")
+		"ash": ash_floor_variants[0] if not ash_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/ash.png"),
+		"ember": AssetLoader.load_texture("res://assets/art/tiles/ember.png")
 	}
 	_floor_texture_variants = {
 		"ash": ash_floor_variants
@@ -1652,8 +1652,8 @@ func _load_assets() -> void:
 	for frame_texture: Texture2D in _door_opening_frames:
 		_door_opening_flipped_frames.append(AssetLoader.flip_texture_h(frame_texture))
 	_loot_textures = {
-		"healing_vial": AssetLoader.load_texture("res://assets/placeholders/tiles/healing_vial.svg"),
-		"ember_cache": AssetLoader.load_texture("res://assets/placeholders/tiles/ember_cache.svg")
+		"healing_vial": AssetLoader.load_texture("res://assets/art/tiles/healing_vial.png"),
+		"ember_cache": AssetLoader.load_texture("res://assets/art/tiles/ember_cache.png")
 	}
 	_element_textures.clear()
 	for element_id: String in ElementData.all_elements():

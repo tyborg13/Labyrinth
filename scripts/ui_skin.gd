@@ -3,40 +3,29 @@ class_name UiSkin
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
-const BUTTON_ATLAS_PATH := "res://assets/ui/Medieval.png"
-const BUTTON_ATLAS_REGION := Rect2i(321, 100, 90, 27)
-
 const TEXTURES := {
 	"panel_main": {
-		"path": "res://assets/ui/pixel_medieval/panel_wood_parchment.svg"
+		"path": "res://assets/art/ui/panel_wood_parchment.png"
 	},
 	"panel_inset": {
-		"path": "res://assets/ui/pixel_medieval/panel_silver_inset.svg"
+		"path": "res://assets/art/ui/panel_silver_inset.png"
 	},
 	"button_normal": {
-		"path": BUTTON_ATLAS_PATH,
-		"region": BUTTON_ATLAS_REGION,
-		"tint": Color(0.98, 1.34, 1.32, 1.0)
+		"path": "res://assets/art/ui/button_wood_gold_normal.png"
 	},
 	"button_hover": {
-		"path": BUTTON_ATLAS_PATH,
-		"region": BUTTON_ATLAS_REGION,
-		"tint": Color(1.12, 1.52, 1.48, 1.0)
+		"path": "res://assets/art/ui/button_wood_gold_hover.png"
 	},
 	"button_focus": {
-		"path": BUTTON_ATLAS_PATH,
-		"region": BUTTON_ATLAS_REGION,
-		"tint": Color(1.28, 1.92, 1.70, 1.0)
+		"path": "res://assets/art/ui/button_wood_gold_hover.png",
+		"tint": Color(1.08, 1.10, 1.06, 1.0)
 	},
 	"button_pressed": {
-		"path": BUTTON_ATLAS_PATH,
-		"region": BUTTON_ATLAS_REGION,
-		"tint": Color(0.92, 1.24, 1.18, 1.0)
+		"path": "res://assets/art/ui/button_wood_gold_pressed.png"
 	},
 	"button_disabled": {
-		"path": BUTTON_ATLAS_PATH,
-		"region": BUTTON_ATLAS_REGION,
-		"tint": Color(0.82, 1.08, 1.06, 1.0)
+		"path": "res://assets/art/ui/button_wood_gold_normal.png",
+		"tint": Color(0.58, 0.58, 0.58, 0.72)
 	}
 }
 

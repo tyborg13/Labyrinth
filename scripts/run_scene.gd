@@ -35,6 +35,10 @@ const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
+const HAND_CARD_OVERLAP: float = -28.0
+const HAND_CARD_GAP: float = 14.0
+const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 314.0)
+const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
 
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
@@ -248,7 +252,7 @@ func _apply_style() -> void:
 	hand_scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	hand_scroll.clip_contents = false
 	piles_bar.custom_minimum_size = Vector2(286.0, 0.0)
-	hand_row.custom_minimum_size = Vector2(0.0, 224.0)
+	hand_row.custom_minimum_size = Vector2(0.0, 352.0)
 	for pile_label: Label in [
 		$Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
 		$Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
@@ -468,7 +472,7 @@ func _build_pile_overlay() -> void:
 	_pile_scrim.add_child(center)
 
 	_pile_dialog = PanelContainer.new()
-	_pile_dialog.custom_minimum_size = Vector2(1080.0, 540.0)
+	_pile_dialog.custom_minimum_size = Vector2(1220.0, 620.0)
 	var dialog_style := _ui_skin.make_plain_card_style(Color(0.11, 0.08, 0.06, 0.98), Color("9d7a50"), 16.0)
 	dialog_style.corner_radius_top_left = 14
 	dialog_style.corner_radius_top_right = 14
@@ -626,7 +630,7 @@ func _build_card_upgrade_overlay() -> void:
 	right_column.add_child(preview_title)
 
 	_upgrade_preview_box = HBoxContainer.new()
-	_upgrade_preview_box.custom_minimum_size = Vector2(0.0, 188.0)
+	_upgrade_preview_box.custom_minimum_size = Vector2(0.0, 286.0)
 	_upgrade_preview_box.add_theme_constant_override("separation", 12)
 	right_column.add_child(_upgrade_preview_box)
 
@@ -1467,6 +1471,7 @@ func _refresh_hand_panel() -> void:
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if hand.size() <= 6 else ScrollContainer.SCROLL_MODE_AUTO
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		hand_box.add_theme_constant_override("separation", int(HAND_CARD_OVERLAP))
 		var card_size: Vector2 = _hand_card_size(hand.size(), false)
 		for index: int in range(hand.size()):
 			var options: Dictionary = _card_play_options_for_index(index)
@@ -1499,6 +1504,7 @@ func _refresh_hand_panel() -> void:
 		var reward_cards: Array = (_run_state.get("pending_reward", {}) as Dictionary).get("cards", [])
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if reward_cards.size() <= 4 else ScrollContainer.SCROLL_MODE_AUTO
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		hand_box.add_theme_constant_override("separation", int(HAND_CARD_GAP))
 		var reward_card_size: Vector2 = _hand_card_size(reward_cards.size(), true)
 		for card_id_var: Variant in reward_cards:
 			var widget = CardWidgetScene.instantiate()
@@ -3080,7 +3086,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	_clear_children(_pile_dialog_cards)
 	for card_id_var: Variant in cards:
 		var widget = CardWidgetScene.instantiate()
-		widget.custom_minimum_size = Vector2(156.0, 224.0)
+		widget.custom_minimum_size = PILE_CARD_SIZE
 		widget.configure(str(card_id_var), false, false, true, false, false, true, _card_def(str(card_id_var)))
 		widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_pile_dialog_cards.add_child(widget)
@@ -3122,10 +3128,7 @@ func _upgrade_refresh_card_list(card_ids: Array) -> void:
 	for card_id_var: Variant in card_ids:
 		var card_id: String = str(card_id_var)
 		var card: Dictionary = GameData.card_def(card_id)
-		var count: int = GameData.card_upgrade_count(_progression, card_id)
 		var label: String = str(card.get("name", card_id))
-		if count > 0:
-			label = "%s +%d" % [label, count]
 		var button := _upgrade_list_button(label, card_id == _upgrade_selected_card_id)
 		button.pressed.connect(_on_upgrade_card_selected.bind(card_id))
 		_upgrade_card_list.add_child(button)
@@ -3158,7 +3161,7 @@ func _upgrade_refresh_options() -> void:
 		return
 	var current_card: Dictionary = GameData.card_def_for_progression(_upgrade_selected_card_id, _progression)
 	var current_widget = CardWidgetScene.instantiate()
-	current_widget.custom_minimum_size = Vector2(132.0, 184.0)
+	current_widget.custom_minimum_size = UPGRADE_CARD_SIZE
 	current_widget.configure(_upgrade_selected_card_id, false, false, true, false, false, true, current_card)
 	current_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_upgrade_preview_box.add_child(current_widget)
@@ -3183,7 +3186,7 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 	row.add_theme_constant_override("separation", 12)
 	var preview_card: Dictionary = GameData.preview_card_with_mod(_upgrade_selected_card_id, option, _progression)
 	var preview_widget = CardWidgetScene.instantiate()
-	preview_widget.custom_minimum_size = Vector2(132.0, 184.0)
+	preview_widget.custom_minimum_size = UPGRADE_CARD_SIZE
 	preview_widget.configure(_upgrade_selected_card_id, false, false, true, false, false, true, preview_card)
 	preview_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(preview_widget)
@@ -3318,12 +3321,13 @@ func _new_seed() -> int:
 
 func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var available_width: float = maxf(620.0, hand_scroll.size.x if hand_scroll.size.x > 0.0 else get_viewport_rect().size.x - 280.0)
-	var gaps: float = float(maxi(0, card_count - 1)) * 12.0
+	var card_gap: float = HAND_CARD_GAP if reward_mode else HAND_CARD_OVERLAP
+	var gaps: float = float(maxi(0, card_count - 1)) * card_gap
 	var target_width: float = (available_width - gaps) / float(maxi(1, card_count))
-	var max_width: float = 168.0 if reward_mode else 160.0
-	var min_width: float = 140.0 if reward_mode else 132.0
+	var max_width: float = 236.0 if reward_mode else 232.0
+	var min_width: float = 188.0 if reward_mode else 184.0
 	var width: float = clampf(target_width, min_width, max_width)
-	return Vector2(width, width * (1.44 if reward_mode else 1.38))
+	return Vector2(width, width * 1.42)
 
 func _card_id_for_hand_index(index: int) -> String:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])

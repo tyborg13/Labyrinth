@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-22T04:02:39Z",
+  "updated_at": "2026-04-22T17:28:06Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -484,28 +484,6 @@
       "status": "active",
       "created_at": "2026-04-07T18:57:01Z",
       "updated_at": "2026-04-07T18:57:01Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "79d893f"
-      }
-    },
-    {
-      "id": "mnt_20260407T203120Z_854f57a4",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/card_widget.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/card_widget.gd",
-      "summary": "Keep CardWidget compact cutoff below normal hand width",
-      "details": "Combat hand cards normally max at 160px wide, so treating 160px as compact makes the icon summary rows render small. The rarity footer is hidden to reserve vertical space for larger icon rows.",
-      "status": "active",
-      "created_at": "2026-04-07T20:31:20Z",
-      "updated_at": "2026-04-07T20:31:20Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
@@ -1419,6 +1397,74 @@
       "source": {
         "branch": "master",
         "commit": "687df5d"
+      }
+    },
+    {
+      "id": "mnt_20260422T153029Z_94f52127",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets",
+        "symbol": null
+      },
+      "scope_key": "folder:assets",
+      "summary": "Generated PNG overhaul intentionally leaves character art references untouched.",
+      "details": "Non-character card, icon, relic, tile loot, and UI chrome assets now live under assets/art as generated PNGs. Remaining SVG references under assets/placeholders/units are intentional because the user explicitly asked not to replace player, enemy, or NPC character art during this overhaul.",
+      "status": "active",
+      "created_at": "2026-04-22T15:30:29Z",
+      "updated_at": "2026-04-22T15:30:29Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "acc2acb"
+      }
+    },
+    {
+      "id": "mnt_20260422T165205Z_be930e27",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "CardWidget art sits on one continuous parchment frame with wrapped icon rows.",
+      "details": "The current card frame uses assets/art/ui/card_frame.png as a texture stylebox while ArtFrame and DetailsPanel stay visually empty, so card art floats in the upper third and ability details share the parchment below. Keep dense icon-summary rows split into short segments; otherwise larger 26px ability icons can overflow narrow card interiors. The rarity indicator is now a visible bottom notch, so do not reserve vertical space by hiding rarity UI.",
+      "status": "active",
+      "created_at": "2026-04-22T16:52:05Z",
+      "updated_at": "2026-04-22T16:52:05Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260407T203120Z_854f57a4"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "acc2acb"
+      }
+    },
+    {
+      "id": "mnt_20260422T172806Z_aeab5b94",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat hand cards intentionally overlap, relying on CardWidget hover z-index.",
+      "details": "RunScene sets HandBox separation negative only in combat and computes hand card width with that overlap included, so cards can be wider without spreading across the full bottom bar. CardWidget's local hover/selected lift sets z_index=20, which keeps the active card visually in front of its overlapping neighbors.",
+      "status": "active",
+      "created_at": "2026-04-22T17:28:06Z",
+      "updated_at": "2026-04-22T17:28:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "acc2acb"
       }
     }
   ]

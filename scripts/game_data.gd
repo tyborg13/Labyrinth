@@ -51,7 +51,6 @@ static func card_def_with_card_mods(card_id: String, card_mods: Dictionary) -> D
 		card["base_card_id"] = card_id
 		card["upgraded"] = true
 		card["upgrade_count"] = mods.size()
-		card["name"] = "%s+%d" % [str(card.get("name", card_id)), mods.size()]
 	return card
 
 static func card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
@@ -63,7 +62,6 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 		card["base_card_id"] = card_id
 		card["upgraded"] = true
 		card["upgrade_count"] = total_count
-		card["name"] = "%s+%d" % [str(card_def(card_id).get("name", card_id)), total_count]
 	return card
 
 static func enemy_def(enemy_type: String) -> Dictionary:
@@ -293,7 +291,6 @@ static func upgrade_options_for_element(card_id: String, element: Dictionary, pr
 static func preview_card_with_mod(card_id: String, mod: Dictionary, progression: Dictionary) -> Dictionary:
 	var card: Dictionary = card_def_for_progression(card_id, progression)
 	var preview: Dictionary = _apply_card_mod(card, mod)
-	preview["name"] = "%s+%d" % [str(card_def(card_id).get("name", card_id)), card_upgrade_count(progression, card_id) + 1]
 	preview["upgraded"] = true
 	return preview
 

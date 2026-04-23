@@ -33,7 +33,7 @@ const ELEMENTS := {
 		"card_art_background": "#5a3a30",
 		"room_tint": "#ba5d41",
 		"door_tint": "#f2a36f",
-		"icon_path": "res://assets/placeholders/cards/element_fire.svg"
+		"icon_path": "res://assets/art/icons/element_fire.png"
 	},
 	ICE: {
 		"name": "Ice",
@@ -45,7 +45,7 @@ const ELEMENTS := {
 		"card_art_background": "#314758",
 		"room_tint": "#6aa7cf",
 		"door_tint": "#b2e1ff",
-		"icon_path": "res://assets/placeholders/cards/element_ice.svg"
+		"icon_path": "res://assets/art/icons/element_ice.png"
 	},
 	LIGHTNING: {
 		"name": "Lightning",
@@ -57,7 +57,7 @@ const ELEMENTS := {
 		"card_art_background": "#584c2f",
 		"room_tint": "#c7a944",
 		"door_tint": "#f5d96c",
-		"icon_path": "res://assets/placeholders/cards/element_lightning.svg"
+		"icon_path": "res://assets/art/icons/element_lightning.png"
 	},
 	AIR: {
 		"name": "Air",
@@ -69,7 +69,7 @@ const ELEMENTS := {
 		"card_art_background": "#315248",
 		"room_tint": "#72b9a3",
 		"door_tint": "#bfe9da",
-		"icon_path": "res://assets/placeholders/cards/element_air.svg"
+		"icon_path": "res://assets/art/icons/element_air.png"
 	},
 	EARTH: {
 		"name": "Earth",
@@ -81,7 +81,7 @@ const ELEMENTS := {
 		"card_art_background": "#445438",
 		"room_tint": "#8ea55e",
 		"door_tint": "#c6dfa0",
-		"icon_path": "res://assets/placeholders/cards/element_earth.svg"
+		"icon_path": "res://assets/art/icons/element_earth.png"
 	}
 }
 

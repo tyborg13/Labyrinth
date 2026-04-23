@@ -3,103 +3,103 @@ class_name ActionIconLibrary
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
-const ICON_ROOT: String = "res://assets/placeholders/icons"
+const ICON_ROOT: String = "res://assets/art/icons"
 
 const KEYWORDS: Dictionary = {
 	"melee": {
 		"label": "Melee",
 		"description": "Deals damage up close.",
-		"path": "%s/melee.svg" % ICON_ROOT
+		"path": "%s/melee.png" % ICON_ROOT
 	},
 	"ranged": {
 		"label": "Ranged",
 		"description": "Deals damage from a distance.",
-		"path": "%s/ranged.svg" % ICON_ROOT
+		"path": "%s/ranged.png" % ICON_ROOT
 	},
 	"move": {
 		"label": "Move",
 		"description": "Moves across board tiles.",
-		"path": "%s/move.svg" % ICON_ROOT
+		"path": "%s/move.png" % ICON_ROOT
 	},
 	"retreat": {
 		"label": "Retreat",
 		"description": "Moves away from the target.",
-		"path": "%s/retreat.svg" % ICON_ROOT
+		"path": "%s/retreat.png" % ICON_ROOT
 	},
 	"blink": {
 		"label": "Blink",
 		"description": "Teleports to another tile.",
-		"path": "%s/blink.svg" % ICON_ROOT
+		"path": "%s/blink.png" % ICON_ROOT
 	},
 	"range": {
 		"label": "Range",
 		"description": "Maximum target distance in tiles.",
-		"path": "%s/range.svg" % ICON_ROOT
+		"path": "%s/range.png" % ICON_ROOT
 	},
 	"block": {
 		"label": "Block",
 		"description": "Absorbs incoming damage before health.",
-		"path": "%s/block.svg" % ICON_ROOT
+		"path": "%s/block.png" % ICON_ROOT
 	},
 	"stoneskin": {
 		"label": "Stoneskin",
 		"description": "Persistent armor that absorbs damage across turns.",
-		"path": "%s/stoneskin.svg" % ICON_ROOT
+		"path": "%s/stoneskin.png" % ICON_ROOT
 	},
 	"heal": {
 		"label": "Heal",
 		"description": "Restores health.",
-		"path": "%s/heal.svg" % ICON_ROOT
+		"path": "%s/heal.png" % ICON_ROOT
 	},
 	"draw": {
 		"label": "Draw",
 		"description": "Adds cards to your hand.",
-		"path": "%s/draw.svg" % ICON_ROOT
+		"path": "%s/draw.png" % ICON_ROOT
 	},
 	"burn": {
 		"label": "Burn",
 		"description": "Fire effect. On cards, removes the card for this combat; on units, deals fire damage when it ticks.",
-		"path": "%s/burn.svg" % ICON_ROOT
+		"path": "%s/burn.png" % ICON_ROOT
 	},
 	"freeze": {
 		"label": "Freeze",
 		"description": "Stops the affected unit from acting on its next turn.",
-		"path": "%s/freeze.svg" % ICON_ROOT
+		"path": "%s/freeze.png" % ICON_ROOT
 	},
 	"shock": {
 		"label": "Shock",
 		"description": "Disrupts the affected unit's next action.",
-		"path": "%s/shock.svg" % ICON_ROOT
+		"path": "%s/shock.png" % ICON_ROOT
 	},
 	"stun": {
 		"label": "Stun",
 		"description": "Skips the affected unit's next action.",
-		"path": "%s/shock.svg" % ICON_ROOT
+		"path": "%s/shock.png" % ICON_ROOT
 	},
 	"poison": {
 		"label": "Poison",
 		"description": "Delayed damage that lands after its countdown.",
-		"path": "%s/poison.svg" % ICON_ROOT
+		"path": "%s/poison.png" % ICON_ROOT
 	},
 	"chain": {
 		"label": "Chain",
 		"description": "Jumps to additional nearby enemies.",
-		"path": "%s/chain.svg" % ICON_ROOT
+		"path": "%s/chain.png" % ICON_ROOT
 	},
 	"push": {
 		"label": "Push",
 		"description": "Forces the target away.",
-		"path": "%s/push.svg" % ICON_ROOT
+		"path": "%s/push.png" % ICON_ROOT
 	},
 	"pull": {
 		"label": "Pull",
 		"description": "Forces the target closer.",
-		"path": "%s/pull.svg" % ICON_ROOT
+		"path": "%s/pull.png" % ICON_ROOT
 	},
 	"health": {
 		"label": "Health",
 		"description": "Health paid or restored.",
-		"path": "%s/health.svg" % ICON_ROOT
+		"path": "%s/health.png" % ICON_ROOT
 	}
 }
 
