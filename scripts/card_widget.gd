@@ -23,6 +23,11 @@ const CARD_FRAME_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_FRAME_MARGIN: float = 34.0
 const COMPACT_CARD_WIDTH: float = 190.0
 const CARD_VERTICAL_CHROME: float = 82.0
+const ART_MIN_HEIGHT: float = 76.0
+const ART_MAX_HEIGHT: float = 118.0
+const DETAILS_MIN_HEIGHT: float = 92.0
+const DETAILS_MAX_HEIGHT: float = 142.0
+const SUMMARY_VERTICAL_PADDING: float = 10.0
 
 class AoePatternView:
 	extends Control
@@ -132,8 +137,8 @@ class AoePatternView:
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var cost_badge: Label = $Margin/VBox/TopRow/CostBadge
 @onready var element_icon: TextureRect = $Margin/VBox/TopRow/ElementIcon
-@onready var art_frame: PanelContainer = $Margin/VBox/ArtFrame
-@onready var art_rect: TextureRect = $Margin/VBox/ArtFrame/Art
+@onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
+@onready var art_rect: TextureRect = $Margin/VBox/ArtBleed/ArtFrame/Art
 @onready var details_panel: PanelContainer = $Margin/VBox/DetailsPanel
 @onready var details_vbox: VBoxContainer = $Margin/VBox/DetailsPanel/DetailsMargin/DetailsVBox
 @onready var desc_label: RichTextLabel = $Margin/VBox/DetailsPanel/DetailsMargin/DetailsVBox/Description
@@ -165,6 +170,8 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
 	text = ""
+	art_frame.clip_contents = true
+	art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	title_label.add_theme_color_override("font_color", Color("39271b"))
 	title_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 	title_label.add_theme_constant_override("outline_size", 2)
@@ -345,16 +352,16 @@ func _update_layout_metrics() -> void:
 	UiTypography.set_rich_text_size(desc_label, detail_size)
 	UiTypography.set_label_size(footer_label, detail_size)
 	var height: float = size.y if size.y > 0.0 else custom_minimum_size.y
-	var art_height: float = clampf(width * 0.38, 62.0, 96.0)
-	var details_height: float = clampf(width * 0.62, 100.0, 148.0)
-	var available_body_height: float = maxf(146.0, height - CARD_VERTICAL_CHROME)
+	var art_height: float = clampf(width * 0.46, ART_MIN_HEIGHT, ART_MAX_HEIGHT)
+	var details_height: float = clampf(width * 0.56, DETAILS_MIN_HEIGHT, DETAILS_MAX_HEIGHT)
+	var available_body_height: float = maxf(148.0, height - CARD_VERTICAL_CHROME)
 	var body_overflow: float = art_height + details_height - available_body_height
 	if body_overflow > 0.0:
-		var art_reduction: float = minf(body_overflow, art_height - 62.0)
+		var art_reduction: float = minf(body_overflow, art_height - ART_MIN_HEIGHT)
 		art_height -= art_reduction
 		body_overflow -= art_reduction
 		if body_overflow > 0.0:
-			details_height = maxf(96.0, details_height - body_overflow)
+			details_height = maxf(DETAILS_MIN_HEIGHT, details_height - body_overflow)
 	art_frame.custom_minimum_size = Vector2(0.0, art_height)
 	details_panel.custom_minimum_size = Vector2(0.0, details_height)
 	desc_label.custom_minimum_size = Vector2(0.0, details_height)
@@ -466,23 +473,30 @@ func _render_summary_icon_rows(rows: Array) -> void:
 	if _summary_icon_box == null:
 		return
 	_clear_children(_summary_icon_box)
-	var icon_size: float = _summary_icon_size()
-	var label_size: int = 13 if icon_size <= 22.0 else 15
-	var row_gap: int = 5 if icon_size <= 22.0 else 6
+	var rendered_rows: Array = []
 	for row_var: Variant in rows:
 		if typeof(row_var) != TYPE_ARRAY:
 			continue
 		for segment: Array in _summary_token_segments(row_var as Array):
-			var row := HBoxContainer.new()
-			row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			row.alignment = BoxContainer.ALIGNMENT_CENTER
-			row.add_theme_constant_override("separation", row_gap)
-			for token_var: Variant in segment:
-				if typeof(token_var) != TYPE_DICTIONARY:
-					continue
-				_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size)
-			if row.get_child_count() > 0:
-				_summary_icon_box.add_child(row)
+			if not segment.is_empty():
+				rendered_rows.append(segment)
+	if rendered_rows.is_empty():
+		return
+	var metrics: Dictionary = _summary_layout_metrics(rendered_rows)
+	var icon_size: float = float(metrics.get("icon_size", _summary_icon_size()))
+	var label_size: int = int(metrics.get("label_size", 15))
+	var row_gap: int = int(metrics.get("row_gap", 6))
+	for segment: Array in rendered_rows:
+		var row := HBoxContainer.new()
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", row_gap)
+		for token_var: Variant in segment:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			_add_token_to_summary_row(row, token_var as Dictionary, icon_size, label_size)
+		if row.get_child_count() > 0:
+			_summary_icon_box.add_child(row)
 
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
@@ -516,6 +530,47 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 func _summary_icon_size() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	return 22.0 if width <= COMPACT_CARD_WIDTH else 26.0
+
+func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var compact: bool = width <= COMPACT_CARD_WIDTH
+	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
+	var available_height: float = maxf(56.0, details_height - SUMMARY_VERTICAL_PADDING)
+	var icon_candidates: Array = [28.0, 26.0, 24.0, 22.0, 20.0] if compact else [30.0, 28.0, 26.0, 24.0, 22.0]
+	var row_count: int = maxi(1, rendered_rows.size())
+	for candidate_var: Variant in icon_candidates:
+		var icon_size: float = float(candidate_var)
+		var label_size: int = maxi(12, int(round(icon_size * 0.58)))
+		var row_gap: int = _summary_row_gap(icon_size, row_count)
+		if _summary_height_estimate(row_count, icon_size, label_size, row_gap) <= available_height:
+			return {
+				"icon_size": icon_size,
+				"label_size": label_size,
+				"row_gap": row_gap
+			}
+	var fallback_icon: float = float(icon_candidates[icon_candidates.size() - 1])
+	return {
+		"icon_size": fallback_icon,
+		"label_size": maxi(12, int(round(fallback_icon * 0.58))),
+		"row_gap": _summary_row_gap(fallback_icon, row_count)
+	}
+
+func _summary_row_gap(icon_size: float, row_count: int) -> int:
+	var gap: int = 4 if icon_size <= 22.0 else 5 if icon_size <= 26.0 else 6
+	if row_count >= 3:
+		gap -= 1
+	if row_count >= 4:
+		gap -= 1
+	return maxi(2, gap)
+
+func _summary_height_estimate(row_count: int, icon_size: float, label_size: int, row_gap: int) -> float:
+	var font: Font = UiTypography.default_font(self)
+	var scaled_label_size: int = UiTypography.scaled_size(self, label_size)
+	var label_height: float = float(scaled_label_size)
+	if font != null:
+		label_height = font.get_height(scaled_label_size)
+	var row_height: float = maxf(icon_size, label_height)
+	return row_height * float(row_count) + float(maxi(0, row_count - 1) * row_gap)
 
 func _summary_token_segments(tokens: Array) -> Array:
 	var clean_tokens: Array = []

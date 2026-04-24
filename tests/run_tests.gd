@@ -10,6 +10,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
+const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
@@ -104,6 +105,7 @@ func _initialize() -> void:
 	_test_recovery_marker_flow()
 	_test_recovery_marker_expires_after_next_run()
 	_test_run_state_save_and_load()
+	_test_hand_fan_layout_lifts_center_cards()
 	_test_default_theme_uses_pixel_font()
 	await _test_main_scenes_instantiate()
 	await _test_run_scene_offers_pass_during_combat()
@@ -192,6 +194,19 @@ func _test_room_generation_blocks_door_tiles() -> void:
 			continue
 		var enemy: Dictionary = enemy_var
 		_assert(not door_tiles.has(enemy.get("pos", Vector2i(-1, -1))), "Enemy spawns should avoid door tiles")
+
+func _test_hand_fan_layout_lifts_center_cards() -> void:
+	var card_size := Vector2(210.0, 300.0)
+	var left_rect: Rect2 = HandFanContainer.card_rect_for_layout(0, 5, card_size, -28.0, true)
+	var center_rect: Rect2 = HandFanContainer.card_rect_for_layout(2, 5, card_size, -28.0, true)
+	var right_rect: Rect2 = HandFanContainer.card_rect_for_layout(4, 5, card_size, -28.0, true)
+	var content_size: Vector2 = HandFanContainer.content_size_for_layout(5, card_size, -28.0, true)
+	_assert(center_rect.position.y < left_rect.position.y, "Hand fan should lift center cards above the edges")
+	_assert(is_equal_approx(left_rect.position.y, right_rect.position.y), "Hand fan should mirror edge lift on both sides")
+	_assert(HandFanContainer.card_rotation_for_layout(0, 5, true) < 0.0, "Hand fan should tilt left-side cards outward")
+	_assert(HandFanContainer.card_rotation_for_layout(4, 5, true) > 0.0, "Hand fan should tilt right-side cards outward")
+	_assert(content_size.y < right_rect.end.y, "Hand fan should reserve a little less than the full arch height so the outer cards can sink slightly offscreen")
+	_assert(HandFanContainer.card_z_index_for_layout(0, 5) < HandFanContainer.card_z_index_for_layout(4, 5), "Hand fan should stack cards left-to-right so the rightmost card stays uncovered")
 
 func _test_room_generation_uses_perimeter_walls_only() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()

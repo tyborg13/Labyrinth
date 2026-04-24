@@ -62,12 +62,21 @@ vertical_alignment = 1
 mouse_filter = 2
 text = "BURN"
 
-[node name="ArtFrame" type="PanelContainer" parent="Margin/VBox"]
-custom_minimum_size = Vector2(0, 96)
+[node name="ArtBleed" type="MarginContainer" parent="Margin/VBox"]
 layout_mode = 2
+theme_override_constants/margin_left = -5
+theme_override_constants/margin_top = -2
+theme_override_constants/margin_right = -5
+theme_override_constants/margin_bottom = -1
 mouse_filter = 2
 
-[node name="Art" type="TextureRect" parent="Margin/VBox/ArtFrame"]
+[node name="ArtFrame" type="PanelContainer" parent="Margin/VBox/ArtBleed"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+clip_contents = true
+mouse_filter = 2
+
+[node name="Art" type="TextureRect" parent="Margin/VBox/ArtBleed/ArtFrame"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,7 +84,7 @@ anchor_bottom = 1.0
 offset_right = 0.0
 offset_bottom = 0.0
 expand_mode = 1
-stretch_mode = 5
+stretch_mode = 6
 mouse_filter = 2
 
 [node name="DetailsPanel" type="PanelContainer" parent="Margin/VBox"]

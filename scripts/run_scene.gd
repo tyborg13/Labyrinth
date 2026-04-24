@@ -12,8 +12,10 @@ const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
+const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const STEP_DELAY_SECONDS: float = 0.26
@@ -62,7 +64,7 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
 @onready var discard_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
 @onready var burn_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
 @onready var hand_scroll: ScrollContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
-@onready var hand_box: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
+@onready var hand_box: HandFanContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
@@ -108,6 +110,8 @@ var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
 var _card_fx_layer: Control
+var _death_overlay: DeathEngulfOverlay
+var _death_sequence_started: bool = false
 var _drag_card_proxy: Control
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
@@ -273,6 +277,7 @@ func _build_overlay_ui() -> void:
 	_build_pile_overlay()
 	_build_card_upgrade_overlay()
 	_build_drag_overlay()
+	_build_death_overlay()
 
 func _build_card_fx_layer() -> void:
 	_card_fx_layer = Control.new()
@@ -282,6 +287,15 @@ func _build_card_fx_layer() -> void:
 	_card_fx_layer.anchor_right = 1.0
 	_card_fx_layer.anchor_bottom = 1.0
 	add_child(_card_fx_layer)
+
+func _build_death_overlay() -> void:
+	_death_overlay = DeathEngulfOverlay.new()
+	_death_overlay.name = "DeathEngulfOverlay"
+	_death_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_death_overlay.anchor_right = 1.0
+	_death_overlay.anchor_bottom = 1.0
+	_death_overlay.continue_pressed.connect(_on_death_continue_pressed)
+	add_child(_death_overlay)
 
 func _build_menu_overlay() -> void:
 	_menu_scrim = ColorRect.new()
@@ -1010,10 +1024,20 @@ func _animate_card_proxy_to_rect(proxy: Control, target_rect: Rect2, duration: f
 	await tween.finished
 
 func _hand_card_global_rect(index: int) -> Rect2:
-	if index < 0 or index >= hand_box.get_child_count():
+	var control: Control = _hand_card_control(index)
+	if control == null:
 		return Rect2()
-	var control: Control = hand_box.get_child(index)
 	return Rect2(control.global_position, control.size)
+
+func _hand_card_control(index: int) -> Control:
+	if index < 0 or index >= hand_box.get_child_count():
+		return null
+	var slot: Control = hand_box.get_child(index) as Control
+	if slot == null:
+		return null
+	if slot.get_child_count() > 0 and slot.get_child(0) is Control:
+		return slot.get_child(0) as Control
+	return slot
 
 func _pile_global_rect(kind: String) -> Rect2:
 	var source: Control = null
@@ -1033,10 +1057,10 @@ func _rect_from_center(center: Vector2, rect_size: Vector2) -> Rect2:
 
 func _hand_receive_rect(index: int, total: int, size_hint: Vector2) -> Rect2:
 	var hand_rect := Rect2(hand_scroll.global_position, hand_scroll.size)
-	var spacing: float = size_hint.x * 0.48
-	var center_offset: float = (float(index) - float(maxi(0, total - 1)) * 0.5) * spacing
-	var center: Vector2 = hand_rect.get_center() + Vector2(center_offset, hand_rect.size.y * 0.08)
-	return _rect_from_center(center, size_hint)
+	var content_size: Vector2 = HandFanContainer.content_size_for_layout(total, size_hint, HAND_CARD_OVERLAP, true)
+	var local_rect: Rect2 = HandFanContainer.card_rect_for_layout(index, total, size_hint, HAND_CARD_OVERLAP, true)
+	var origin: Vector2 = hand_rect.get_center() - content_size * 0.5
+	return Rect2(origin + local_rect.position, local_rect.size)
 
 func _stage_card_rect(size_hint: Vector2) -> Rect2:
 	var board_rect := Rect2(board_view.global_position, board_view.size)
@@ -1245,6 +1269,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_victory_bank_processed = false
 	_defeat_loss_processed = false
 	_victory_bank_amount = 0
+	_death_sequence_started = false
+	if _death_overlay != null:
+		_death_overlay.reset()
 	_board_presentation.clear()
 	action_banner.visible = false
 	_refresh_ui()
@@ -1291,6 +1318,7 @@ func _refresh_ui() -> void:
 	_refresh_stage_view()
 	_refresh_hand_panel()
 	_refresh_visibility()
+	_refresh_death_overlay()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
 	_maybe_auto_trigger_room_dialogue()
@@ -1419,11 +1447,30 @@ func _refresh_visibility() -> void:
 	piles_bar.visible = mode == "combat"
 	hand_scroll.visible = mode in ["combat", "reward"]
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
+	menu_button.visible = mode != "defeat"
 	if mode != "combat":
 		_cancel_drag_play()
 		_close_pile_view()
 	if mode != "room":
 		_close_card_upgrade_overlay()
+
+func _refresh_death_overlay() -> void:
+	if _death_overlay == null:
+		return
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode != "defeat":
+		_death_sequence_started = false
+		if _death_overlay.visible:
+			_death_overlay.reset()
+		return
+	if _death_sequence_started:
+		return
+	_death_sequence_started = true
+	_close_menu_overlay()
+	_close_pile_view()
+	_close_card_upgrade_overlay()
+	_cancel_drag_play()
+	_death_overlay.play(board_view)
 
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
@@ -1448,9 +1495,6 @@ func _refresh_choice_bar() -> void:
 		"victory":
 			_add_choice_button("Menu", _on_back_to_menu_pressed)
 			_add_choice_button("Again", _on_restart_pressed)
-		"defeat":
-			_add_choice_button("Menu", _on_back_to_menu_pressed)
-			_add_choice_button("Again", _on_restart_pressed)
 	choice_bar.visible = choice_bar.get_child_count() > 0
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
@@ -1471,7 +1515,6 @@ func _refresh_hand_panel() -> void:
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if hand.size() <= 6 else ScrollContainer.SCROLL_MODE_AUTO
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		hand_box.add_theme_constant_override("separation", int(HAND_CARD_OVERLAP))
 		var card_size: Vector2 = _hand_card_size(hand.size(), false)
 		for index: int in range(hand.size()):
 			var options: Dictionary = _card_play_options_for_index(index)
@@ -1499,19 +1542,30 @@ func _refresh_hand_panel() -> void:
 				widget.drag_started.connect(_on_card_drag_started.bind(index))
 				widget.mouse_entered.connect(_on_card_hover_started.bind(index))
 				widget.mouse_exited.connect(_on_card_hover_ended.bind(index))
-			hand_box.add_child(widget)
+			hand_box.add_child(_hand_card_slot(widget, card_size))
+		hand_box.configure_layout(HAND_CARD_OVERLAP, true)
 	elif mode == "reward":
 		var reward_cards: Array = (_run_state.get("pending_reward", {}) as Dictionary).get("cards", [])
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if reward_cards.size() <= 4 else ScrollContainer.SCROLL_MODE_AUTO
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		hand_box.add_theme_constant_override("separation", int(HAND_CARD_GAP))
 		var reward_card_size: Vector2 = _hand_card_size(reward_cards.size(), true)
 		for card_id_var: Variant in reward_cards:
 			var widget = CardWidgetScene.instantiate()
 			widget.custom_minimum_size = reward_card_size
 			widget.configure(str(card_id_var), false, false, true, false, true, true, _card_def(str(card_id_var)))
 			widget.activated.connect(_on_reward_card_pressed.bind(str(card_id_var)))
-			hand_box.add_child(widget)
+			hand_box.add_child(_hand_card_slot(widget, reward_card_size))
+		hand_box.configure_layout(HAND_CARD_GAP, false)
+	else:
+		hand_box.configure_layout(HAND_CARD_GAP, false)
+
+func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
+	var slot := Control.new()
+	slot.custom_minimum_size = card_size
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(widget)
+	widget.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return slot
 
 func _refresh_stage_view() -> void:
 	_exit_destinations_by_tile = _exit_tile_lookup()
@@ -3013,6 +3067,11 @@ func _on_back_to_menu_pressed() -> void:
 func _on_restart_pressed() -> void:
 	ProgressionStore.clear_saved_run()
 	_start_run()
+
+func _on_death_continue_pressed() -> void:
+	if str(_run_state.get("mode", "room")) != "defeat":
+		return
+	_on_restart_pressed()
 
 func _on_menu_button_pressed() -> void:
 	if _dialogue_active or _animation_lock:

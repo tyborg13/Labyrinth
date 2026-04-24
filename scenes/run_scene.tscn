@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/run_scene.gd" id="1_run"]
 [ext_resource type="Script" path="res://scripts/labyrinth_map_view.gd" id="2_map"]
 [ext_resource type="Script" path="res://scripts/combat_board_view.gd" id="3_board"]
+[ext_resource type="Script" path="res://scripts/hand_fan_container.gd" id="4_hand"]
 
 [node name="RunScene" type="Control"]
 layout_mode = 3
@@ -275,9 +276,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HandBox" type="HBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter"]
+[node name="HandBox" type="Container" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter"]
 layout_mode = 2
-theme_override_constants/separation = 12
+script = ExtResource("4_hand")
 
 [connection signal="pressed" from="Backdrop/Margin/MainVBox/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]
 [connection signal="tile_clicked" from="Backdrop/Margin/MainVBox/StageRoot/CombatBoard" to="." method="_on_board_tile_clicked"]

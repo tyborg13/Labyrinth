@@ -88,9 +88,12 @@ func _capture_run_states() -> void:
 		await process_frame
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat_damage_bonus.png")
-		var hand_box: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+		var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 		if hand_box.get_child_count() > 0:
-			var widget: Control = hand_box.get_child(0)
+			var slot: Node = hand_box.get_child(0)
+			var widget: Control = slot as Control
+			if slot.get_child_count() > 0 and slot.get_child(0) is Control:
+				widget = slot.get_child(0) as Control
 			var tooltip: Variant = widget.call("_make_custom_tooltip", "modifiers")
 			if tooltip != null and tooltip is Control:
 				var tooltip_control: Control = tooltip

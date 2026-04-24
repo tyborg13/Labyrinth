@@ -82,7 +82,7 @@
     "max_hp": 10,
     "reward_embers": 9,
     "accent": "#9b7348",
-    "art_path": "res://assets/placeholders/units/harrier.svg",
+    "art_path": "res://assets/placeholders/units/harrier.png",
     "intents": [
       {
         "id": "pelt",
@@ -117,7 +117,7 @@
     "max_hp": 20,
     "reward_embers": 14,
     "accent": "#5f6e69",
-    "art_path": "res://assets/placeholders/units/warden.svg",
+    "art_path": "res://assets/placeholders/units/warden.png",
     "intents": [
       {
         "id": "marching_blow",
