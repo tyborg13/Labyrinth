@@ -2410,6 +2410,26 @@ func _test_run_scene_move_previews_avoid_traps_when_possible() -> void:
 	var shortcut_plan: Dictionary = plans.get(Vector2i(5, 3), {})
 	var shortcut_path: Array = shortcut_plan.get("path_tiles", [])
 	_assert(not shortcut_path.has(Vector2i(3, 4)), "Move-attack previews should reuse the same trap-avoiding movement path")
+	var blink_preview: Dictionary = {
+		"card_id": "test_blink_attack",
+		"state": combat_state,
+		"actions": [
+			{"type": "blink", "range": 5},
+			{"type": "melee", "damage": 4, "range": 1}
+		],
+		"action_index": 0,
+		"target_tiles": [Vector2i(5, 4)],
+		"complete": false,
+		"playable": true,
+		"action": {"type": "blink", "range": 5},
+		"skip_allowed": false
+	}
+	var blink_path: Array[Vector2i] = combat.path_for_player_action(combat_state, {"type": "blink", "range": 5}, Vector2i(5, 4))
+	_assert(blink_path == [Vector2i(5, 4)], "Blink paths should be returned as typed Vector2i arrays")
+	var blink_shortcuts: Dictionary = instance.call("_preview_shortcuts_for_current_action", blink_preview)
+	var blink_plan: Dictionary = (blink_shortcuts.get("plans", {}) as Dictionary).get(Vector2i(5, 3), {})
+	var blink_shortcut_path: Array = blink_plan.get("path_tiles", [])
+	_assert(blink_shortcut_path == [Vector2i(5, 4)], "Blink-attack shortcut previews should keep the blink destination as a typed path")
 	instance.queue_free()
 	await process_frame
 

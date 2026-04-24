@@ -334,7 +334,8 @@ func _transform_cell(cell: Vector2i, rotation_steps: int, mirrored: bool) -> Vec
 	return centered + Vector2i(4, 4)
 
 func _reachable_floor_count(grid: Array, start: Vector2i) -> int:
-	var queue: Array[Vector2i] = [start]
+	var queue: Array[Vector2i] = []
+	queue.append(start)
 	var visited: Dictionary = {start: true}
 	while not queue.is_empty():
 		var current: Vector2i = queue.pop_front()

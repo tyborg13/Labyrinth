@@ -34,7 +34,8 @@ static func reachable_tiles(grid: Array, start: Vector2i, max_distance: int, occ
 	var results: Array[Vector2i] = []
 	if max_distance < 0 or not is_passable(grid, start):
 		return results
-	var queue: Array[Vector2i] = [start]
+	var queue: Array[Vector2i] = []
+	queue.append(start)
 	var distance_by_tile: Dictionary = {start: 0}
 	while not queue.is_empty():
 		var current: Vector2i = queue.pop_front()
@@ -58,10 +59,13 @@ static func reachable_tiles(grid: Array, start: Vector2i, max_distance: int, occ
 static func find_path(grid: Array, start: Vector2i, goal: Vector2i, occupied: Dictionary = {}, allow_goal_occupied: bool = false) -> Array[Vector2i]:
 	var empty: Array[Vector2i] = []
 	if start == goal:
-		return [start]
+		var same_tile_path: Array[Vector2i] = []
+		same_tile_path.append(start)
+		return same_tile_path
 	if not is_in_bounds(grid, start) or not is_in_bounds(grid, goal):
 		return empty
-	var frontier: Array[Vector2i] = [start]
+	var frontier: Array[Vector2i] = []
+	frontier.append(start)
 	var came_from: Dictionary = {start: start}
 	while not frontier.is_empty():
 		var current: Vector2i = frontier.pop_front()
@@ -80,7 +84,8 @@ static func find_path(grid: Array, start: Vector2i, goal: Vector2i, occupied: Di
 			frontier.append(next_tile)
 	if not came_from.has(goal):
 		return empty
-	var path: Array[Vector2i] = [goal]
+	var path: Array[Vector2i] = []
+	path.append(goal)
 	var cursor: Vector2i = goal
 	while cursor != start:
 		cursor = came_from[cursor]

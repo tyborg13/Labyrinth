@@ -10,6 +10,11 @@ This repo uses `memento` for code-scoped project memory.
 - Memento state lives under `.codex/memento/`.
 <!-- /memento:managed -->
 
+## GDScript Typed Arrays
+
+- Godot on Windows has caught typed-array assignments that may pass on macOS. When assigning to `Array[T]`, do not rely on bare array literals or conditional-expression branches like `[value] if condition else typed_array`; build the value through a typed helper such as `_vector2i_array(...)` or an explicitly typed temporary first.
+- For fallbacks passed into typed-array helpers, keep using plain `[]` only as input to the helper. The typed local should receive the helper result, not the raw literal.
+
 ## Card Balance Heuristic
 
 - When creating or modifying cards, consult `spec/card_balance_heuristic.md`.

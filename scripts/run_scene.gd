@@ -1983,7 +1983,7 @@ func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
 	var plans: Dictionary = {}
 	for move_target: Vector2i in _vector2i_array(preview.get("target_tiles", [])):
 		var after_move_state: Dictionary = _combat_engine.apply_player_action(preview_state, action, move_target)
-		var path_tiles: Array[Vector2i] = [move_target] if action_type == "blink" else _combat_engine.path_for_player_action(preview_state, action, move_target)
+		var path_tiles: Array[Vector2i] = _vector2i_array([move_target]) if action_type == "blink" else _combat_engine.path_for_player_action(preview_state, action, move_target)
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
 		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles)
 	if bool(preview.get("skip_allowed", false)):

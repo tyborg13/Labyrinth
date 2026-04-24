@@ -174,9 +174,11 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
 			return _actual_player_movement_path(state, player_pos, target_tile, move_range)
 		"blink":
-			return [target_tile] if target_tile.x >= 0 else []
+			if target_tile.x >= 0:
+				return _vector2i_values([target_tile])
+			return _vector2i_values([])
 		_:
-			return []
+			return _vector2i_values([])
 
 func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
@@ -275,7 +277,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	occupied[player_pos] = true
 	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
 		occupied[trap_tile_var] = true
-	var frontier: Array[Vector2i] = [enemy.get("pos", Vector2i.ZERO)]
+	var frontier: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
 	var move_lookup: Dictionary = {}
 	var attack_lookup: Dictionary = {}
 	for action_var: Variant in intent.get("actions", []):
@@ -960,13 +962,13 @@ func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vect
 func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distance: int, occupied: Dictionary, trap_tiles: Dictionary) -> Array[Vector2i]:
 	var empty: Array[Vector2i] = []
 	if start == goal:
-		return [start]
+		return _vector2i_values([start])
 	if max_distance <= 0:
 		return empty
 	var grid_height: int = grid.size()
 	var grid_width: int = (grid[0] as Array).size() if grid_height > 0 else 0
 	var trap_weight: int = grid_height * maxi(1, grid_width) + 1
-	var frontier: Array[Vector2i] = [start]
+	var frontier: Array[Vector2i] = _vector2i_values([start])
 	var came_from: Dictionary = {start: start}
 	var step_costs: Dictionary = {start: 0}
 	var path_costs: Dictionary = {start: 0}
@@ -1008,7 +1010,7 @@ func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distanc
 				frontier.append(next_tile)
 	if not came_from.has(goal):
 		return empty
-	var path: Array[Vector2i] = [goal]
+	var path: Array[Vector2i] = _vector2i_values([goal])
 	var cursor: Vector2i = goal
 	while cursor != start:
 		cursor = came_from[cursor]
@@ -1396,7 +1398,7 @@ func _threat_attack_tiles(grid: Array, start_tile: Vector2i, action: Dictionary)
 				lookup[tile] = true
 		"aoe":
 			var attack_range: int = int(action.get("range", 0))
-			var centers: Array[Vector2i] = [start_tile]
+			var centers: Array[Vector2i] = _vector2i_values([start_tile])
 			if attack_range > 0:
 				centers = PathUtils.diamond_tiles(start_tile, attack_range, grid)
 			for center: Vector2i in centers:
