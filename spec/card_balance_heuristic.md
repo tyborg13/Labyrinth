@@ -40,17 +40,15 @@ Encounter calibration is also important:
   `1`, `2`, and `3`.
 - Standard-room enemies average about `13.78` max HP and `3.03` raw damage per
   enemy turn across the non-boss roster.
-- Rooms spawn enemies far from the player. In a small headless probe over
-  generated combat rooms:
-  - Plain melee, `range 4`, and ranged AOE attacks were effectively never live
-    on turn 1.
-  - By turn 2, `move 4 + melee` was live in about `80%` of sampled rooms,
-    `range 6` in about `90%`, and `range 4` AOE in about `75%`.
-  - By turn 3, `move 3 + melee` and `range 4` were live in about `92%` of
-    sampled rooms.
+- Rooms reserve a small halo around the player's entry tile, then seed enemies
+  with weighted randomness across the room. Placement softly discourages
+  adjacent pileups and same-corner clusters, but no longer pushes enemies to
+  the far side by default. This should make turn-1 reach and early enemy threat
+  more variable than the old far-spawn calibration.
 
-Those reach findings are why the heuristic heavily rewards cards that compress
-setup and payoff into the same play.
+The heuristic still rewards cards that compress setup and payoff into the same
+play, but early reach assumptions should be reprobed before making fine-grained
+mobility or range coefficient changes.
 
 ## Formula
 

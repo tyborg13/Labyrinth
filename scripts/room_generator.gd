@@ -7,6 +7,8 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 
 const ROOM_WIDTH: int = 9
 const ROOM_HEIGHT: int = 9
+const ENEMY_SPAWN_SAFE_RADIUS: int = 2
+const ENEMY_SPAWN_PICK_WINDOW: int = 6
 
 const TILE_ASH: String = "ash"
 const TILE_EMBER: String = "ember"
@@ -379,7 +381,7 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 	for tile: Vector2i in floor_tiles:
 		if tile == player_start:
 			continue
-		if PathUtils.manhattan(tile, player_start) < 3:
+		if PathUtils.manhattan(tile, player_start) <= ENEMY_SPAWN_SAFE_RADIUS:
 			continue
 		candidates.append(tile)
 	for index: int in range(candidates.size() - 1, 0, -1):
@@ -389,19 +391,35 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 		candidates[swap_index] = tmp
 	var chosen: Array[Vector2i] = []
 	while chosen.size() < count and not candidates.is_empty():
-		var best_index: int = 0
-		var best_score: float = -INF
+		var scored: Array[Dictionary] = []
 		for index: int in range(candidates.size()):
 			var tile: Vector2i = candidates[index]
-			var score: float = float(PathUtils.manhattan(tile, player_start)) * 0.9
-			for existing: Vector2i in chosen:
-				score += float(PathUtils.manhattan(existing, tile)) * 0.18
-			score += rng.randf() * 0.25
-			if score > best_score:
-				best_score = score
-				best_index = index
-		var tile: Vector2i = candidates[best_index]
-		candidates.remove_at(best_index)
+			scored.append({
+				"index": index,
+				"score": _enemy_spawn_score(tile, player_start, chosen, rng)
+			})
+		scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			return float(a.get("score", 0.0)) > float(b.get("score", 0.0))
+		)
+		var pick_window: int = mini(ENEMY_SPAWN_PICK_WINDOW, scored.size())
+		var best_score: float = float(scored[0].get("score", 0.0))
+		var worst_score: float = float(scored[pick_window - 1].get("score", 0.0))
+		var total_weight: float = 0.0
+		for rank: int in range(pick_window):
+			total_weight += maxf(0.05, float(scored[rank].get("score", 0.0)) - worst_score + 0.05)
+		var roll: float = rng.randf() * total_weight
+		var picked_rank: int = 0
+		for rank: int in range(pick_window):
+			var weight: float = maxf(0.05, float(scored[rank].get("score", 0.0)) - worst_score + 0.05)
+			roll -= weight
+			if roll <= 0.0:
+				picked_rank = rank
+				break
+		if best_score - worst_score < 0.001:
+			picked_rank = rng.randi_range(0, pick_window - 1)
+		var picked_index: int = int(scored[picked_rank].get("index", 0))
+		var tile: Vector2i = candidates[picked_index]
+		candidates.remove_at(picked_index)
 		chosen.append(tile)
 		if chosen.size() >= count:
 			break
@@ -409,10 +427,73 @@ func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng:
 		for tile: Vector2i in floor_tiles:
 			if tile == player_start or chosen.has(tile):
 				continue
+			if PathUtils.manhattan(tile, player_start) <= ENEMY_SPAWN_SAFE_RADIUS:
+				continue
 			chosen.append(tile)
 			if chosen.size() >= count:
 				break
 	return chosen
+
+func _enemy_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vector2i], rng: RandomNumberGenerator) -> float:
+	var score: float = rng.randf() * 1.4
+	var player_distance: int = PathUtils.manhattan(tile, player_start)
+	score -= absf(float(player_distance - 4)) * 0.08
+	score -= float(_room_edge_count(tile)) * 0.12
+	if chosen.is_empty():
+		return score
+	var nearest_distance: int = 99
+	var same_corner_count: int = 0
+	var same_wall_band_count: int = 0
+	var tile_corner: Vector2i = _room_corner_band(tile)
+	for existing: Vector2i in chosen:
+		var distance: int = PathUtils.manhattan(tile, existing)
+		nearest_distance = mini(nearest_distance, distance)
+		if tile_corner != Vector2i.ZERO and tile_corner == _room_corner_band(existing):
+			same_corner_count += 1
+		if _shares_wall_band(tile, existing):
+			same_wall_band_count += 1
+	if nearest_distance <= 1:
+		score -= 3.0
+	elif nearest_distance == 2:
+		score -= 1.0
+	elif nearest_distance == 3:
+		score += 0.2
+	else:
+		score += 0.35
+	score -= float(same_corner_count) * 0.9
+	score -= float(same_wall_band_count) * 0.22
+	return score
+
+func _room_edge_count(tile: Vector2i) -> int:
+	var edges: int = 0
+	if tile.x == 1 or tile.x == ROOM_WIDTH - 2:
+		edges += 1
+	if tile.y == 1 or tile.y == ROOM_HEIGHT - 2:
+		edges += 1
+	return edges
+
+func _room_corner_band(tile: Vector2i) -> Vector2i:
+	var band_x: int = 0
+	if tile.x <= 2:
+		band_x = -1
+	elif tile.x >= ROOM_WIDTH - 3:
+		band_x = 1
+	var band_y: int = 0
+	if tile.y <= 2:
+		band_y = -1
+	elif tile.y >= ROOM_HEIGHT - 3:
+		band_y = 1
+	if band_x == 0 or band_y == 0:
+		return Vector2i.ZERO
+	return Vector2i(band_x, band_y)
+
+func _shares_wall_band(a: Vector2i, b: Vector2i) -> bool:
+	return (
+		(a.x <= 2 and b.x <= 2)
+		or (a.x >= ROOM_WIDTH - 3 and b.x >= ROOM_WIDTH - 3)
+		or (a.y <= 2 and b.y <= 2)
+		or (a.y >= ROOM_HEIGHT - 3 and b.y >= ROOM_HEIGHT - 3)
+	)
 
 func _build_room_npcs(grid: Array, player_start: Vector2i, npc_specs: Array, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []

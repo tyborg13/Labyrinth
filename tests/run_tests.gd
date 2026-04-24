@@ -30,6 +30,7 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
+	_test_room_generation_enemy_spawns_keep_player_halo()
 	_test_room_generation_blocks_door_tiles()
 	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
@@ -161,6 +162,26 @@ func _test_room_generation_keeps_spawn_reachable() -> void:
 	var spawn: Vector2i = room.get("player_start", Vector2i.ZERO)
 	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(grid, spawn, 20, {})
 	_assert(reachable.size() >= 14, "Generated rooms should leave a broad reachable footprint from the entry tile")
+
+func _test_room_generation_enemy_spawns_keep_player_halo() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var sampled_close_spawn: bool = false
+	for seed: int in range(40, 70):
+		var room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed % 4, seed % 5),
+			"depth": 3,
+			"type": "combat"
+		}, Vector2i(1, 0))
+		var player_start: Vector2i = room.get("player_start", Vector2i.ZERO)
+		for enemy_var: Variant in room.get("enemies", []):
+			if typeof(enemy_var) != TYPE_DICTIONARY:
+				continue
+			var enemy: Dictionary = enemy_var
+			var distance: int = PathUtils.manhattan(enemy.get("pos", Vector2i(-1, -1)), player_start)
+			_assert(distance > RoomGenerator.ENEMY_SPAWN_SAFE_RADIUS, "Enemy spawns should keep the player entry halo clear")
+			if distance <= RoomGenerator.ENEMY_SPAWN_SAFE_RADIUS + 2:
+				sampled_close_spawn = true
+	_assert(sampled_close_spawn, "Enemy spawns should sometimes land near the halo instead of always favoring the far side")
 
 func _test_room_generation_blocks_door_tiles() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
