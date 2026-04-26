@@ -60,6 +60,10 @@ const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
 const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
 const DOOR_BACK_EDGE_OFFSET_SCALE: float = 0.5
 const DOOR_TOP_BACK_EDGE_OFFSET_SCALE: float = 0.3
+const DOOR_ICON_SIZE_SCALE: float = 0.30
+const DOOR_ICON_MIN_SIZE: float = 36.0
+const DOOR_ICON_MAX_SIZE: float = 52.0
+const DOOR_ICON_FLOAT_GAP_SCALE: float = 0.08
 const DOOR_OPENING_SHEET_PATH: String = "res://assets/placeholders/tiles/door_opening.png"
 const DOOR_OPENING_FRAME_REGIONS := [
 	Rect2i(111, 34, 236, 381),
@@ -92,6 +96,9 @@ const MOSS_WALL_OVERLAY_PATHS: PackedStringArray = [
 const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
 ]
+const TRAP_DRAW_WIDTH_SCALE: float = 1.0
+const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
+const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -112,6 +119,7 @@ var _prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
+var _trap_textures: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _door_opening_frames: Array[Texture2D] = []
@@ -344,8 +352,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 				var icon_id: String = str(exit_icon_ids.get(tile, ""))
 				var icon_texture: Texture2D = _door_icon_texture(icon_id)
 				if icon_texture != null:
-					var icon_rect := Rect2(Vector2(draw_rect.get_center().x - 12.0, draw_rect.position.y - 22.0), Vector2(24.0, 24.0))
-					draw_texture_rect(icon_texture, icon_rect, false)
+					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect)
 	_draw_prop_moss_overlay(tile_id, grid, tile, units_to_draw)
 	for loot: Dictionary in combat_state.get("loot", []):
 		if bool(loot.get("claimed", false)):
@@ -506,6 +513,22 @@ func _texture_used_rect(texture: Texture2D) -> Rect2i:
 	if image == null or image.is_empty():
 		return Rect2i()
 	return image.get_used_rect()
+
+func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Texture2D, door_draw_rect: Rect2) -> void:
+	if icon_texture == null:
+		return
+	var door_used_rect: Rect2 = _texture_used_draw_rect(door_texture, door_draw_rect)
+	var icon_size: float = clampf(_tile_width() * DOOR_ICON_SIZE_SCALE, DOOR_ICON_MIN_SIZE, DOOR_ICON_MAX_SIZE)
+	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
+	var center := Vector2(
+		door_used_rect.get_center().x,
+		door_used_rect.position.y - icon_size * 0.5 - _tile_height() * DOOR_ICON_FLOAT_GAP_SCALE
+	)
+	var radius: float = icon_size * 0.56
+	draw_circle(center, radius, Color(0.07, 0.05, 0.04, 0.86))
+	draw_arc(center, radius, 0.0, TAU, 28, Color(accent.r, accent.g, accent.b, 0.88), 2.0, true)
+	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(icon_texture, icon_rect, false)
 
 func _is_outer_boundary_tile(grid: Array, tile: Vector2i) -> bool:
 	if grid.is_empty():
@@ -1658,6 +1681,9 @@ func _load_assets() -> void:
 	_element_textures.clear()
 	for element_id: String in ElementData.all_elements():
 		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
+	_trap_textures.clear()
+	for element_id: String in ElementData.all_elements():
+		_trap_textures[element_id] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element_id)
 	_door_icon_textures.clear()
 	for icon_id: String in RoomIcons.all_icon_ids():
 		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
@@ -2188,8 +2214,14 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
 	if tile.x < 0:
 		return
-	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -18.0)
 	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var trap_texture: Texture2D = _trap_textures.get(element_id, null)
+	if trap_texture != null:
+		var trap_rect: Rect2 = _trap_draw_rect(tile)
+		draw_texture_rect(trap_texture, trap_rect, false)
+		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
+		return
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -18.0)
 	var accent: Color = ElementData.accent(element_id)
 	draw_circle(center, 13.0, Color(accent.r, accent.g, accent.b, 0.78))
 	draw_arc(center, 13.0, 0.0, TAU, 22, Color("1a130f"), 2.0)
@@ -2201,6 +2233,12 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 		draw_texture_rect(icon_texture, icon_rect, false)
 	var tooltip_rect := Rect2(center - Vector2(14.0, 20.0), Vector2(28.0, 34.0))
 	_register_tooltip(tooltip_rect, _trap_tooltip_text(trap))
+
+func _trap_draw_rect(tile: Vector2i) -> Rect2:
+	var tile_width: float = _tile_width()
+	var draw_size := Vector2(tile_width * TRAP_DRAW_WIDTH_SCALE, _tile_height() * TRAP_DRAW_HEIGHT_SCALE)
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * TRAP_DRAW_Y_OFFSET_SCALE)
+	return Rect2(center - draw_size * 0.5, draw_size)
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
 	var lines: PackedStringArray = ["%s Trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]

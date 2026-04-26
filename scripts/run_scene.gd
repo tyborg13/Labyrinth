@@ -40,7 +40,13 @@ const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const HAND_CARD_OVERLAP: float = -28.0
 const HAND_CARD_GAP: float = 14.0
 const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 314.0)
+const PILE_CARD_SCALE: float = 0.80
+const PILE_STACK_OFFSET: Vector2 = Vector2(8.0, 10.0)
+const PILE_STACK_LAYERS: int = 3
 const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
+const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
+const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
+const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
@@ -97,11 +103,13 @@ var _pile_dialog: PanelContainer
 var _pile_dialog_title: Label
 var _pile_dialog_cards: HFlowContainer
 var _pile_dialog_empty: Label
+var _pile_content_hosts: Dictionary = {}
+var _pile_visual_hosts: Dictionary = {}
 var _pile_badges: Dictionary = {}
-var _pile_previews: Dictionary = {}
-var _pile_captions: Dictionary = {}
-var _pile_fronts: Dictionary = {}
 var _active_pile_kind: String = ""
+var _play_meter: PanelContainer
+var _play_meter_count: Label
+var _play_meter_icon: TextureRect
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -144,6 +152,7 @@ func _ready() -> void:
 	_layout_mini_map_overlay()
 	_build_overlay_ui()
 	_setup_pile_widgets()
+	_setup_play_meter()
 	_boot_run()
 
 func _process(delta: float) -> void:
@@ -255,7 +264,10 @@ func _apply_style() -> void:
 	board_view.custom_minimum_size = Vector2.ZERO
 	hand_scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	hand_scroll.clip_contents = false
-	piles_bar.custom_minimum_size = Vector2(286.0, 0.0)
+	piles_bar.custom_minimum_size = Vector2.ZERO
+	piles_bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	piles_bar.size_flags_vertical = Control.SIZE_SHRINK_END
+	piles_bar.add_theme_constant_override("separation", 18)
 	hand_row.custom_minimum_size = Vector2(0.0, 352.0)
 	for pile_label: Label in [
 		$Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
@@ -405,7 +417,7 @@ func _build_dialogue_overlay() -> void:
 	anchor.add_child(bottom)
 
 	_dialogue_dialog = PanelContainer.new()
-	_dialogue_dialog.custom_minimum_size = Vector2(0.0, 156.0)
+	_dialogue_dialog.custom_minimum_size = Vector2(0.0, 214.0)
 	_dialogue_dialog.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var dialogue_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.96), Color("b8aa90"), 18.0)
 	dialogue_style.corner_radius_top_left = 14
@@ -425,12 +437,12 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_dialog.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", 10)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
 	_dialogue_name_label = Label.new()
-	UiTypography.set_label_size(_dialogue_name_label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(_dialogue_name_label, UiTypography.SIZE_BODY)
 	_dialogue_name_label.add_theme_color_override("font_color", Color("f0c978"))
 	_dialogue_name_label.add_theme_color_override("font_outline_color", Color("2d1f18"))
 	_dialogue_name_label.add_theme_constant_override("outline_size", 1)
@@ -442,27 +454,31 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_dialogue_text_label.visible_characters = 0
 	_dialogue_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_dialogue_text_label.custom_minimum_size = Vector2(0.0, 78.0)
-	_dialogue_text_label.fit_content = true
+	_dialogue_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_dialogue_text_label.custom_minimum_size = Vector2(0.0, 104.0)
+	_dialogue_text_label.fit_content = false
 	_dialogue_text_label.scroll_active = false
-	UiTypography.set_rich_text_size(_dialogue_text_label, UiTypography.SIZE_BODY)
+	UiTypography.set_rich_text_size(_dialogue_text_label, UiTypography.SIZE_SECTION)
 	_dialogue_text_label.add_theme_color_override("default_color", Color("f5ebd8"))
 	_dialogue_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_dialogue_text_label)
 
 	var footer := HBoxContainer.new()
+	footer.custom_minimum_size = Vector2(0.0, 44.0)
 	footer.add_theme_constant_override("separation", 12)
 	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(footer)
 
 	_dialogue_hint_label = Label.new()
 	_dialogue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(_dialogue_hint_label, UiTypography.SIZE_SMALL)
+	_dialogue_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(_dialogue_hint_label, UiTypography.SIZE_BODY)
 	_dialogue_hint_label.add_theme_color_override("font_color", Color("cab697"))
 	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	footer.add_child(_dialogue_hint_label)
 
 	_dialogue_choice_bar = HBoxContainer.new()
+	_dialogue_choice_bar.custom_minimum_size = Vector2(0.0, 44.0)
 	_dialogue_choice_bar.alignment = BoxContainer.ALIGNMENT_END
 	_dialogue_choice_bar.add_theme_constant_override("separation", 10)
 	_dialogue_choice_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -473,6 +489,8 @@ func _build_pile_overlay() -> void:
 	_pile_scrim.name = "PileScrim"
 	_pile_scrim.visible = false
 	_pile_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pile_scrim.z_index = 1000
+	_pile_scrim.z_as_relative = false
 	_pile_scrim.color = Color(0.02, 0.02, 0.02, 0.58)
 	_pile_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_pile_scrim.anchor_right = 1.0
@@ -904,10 +922,10 @@ func _update_dialogue_footer() -> void:
 		var option: Dictionary = (option_var as Dictionary).duplicate(true)
 		var button := Button.new()
 		button.text = str(option.get("label", "Continue"))
-		button.custom_minimum_size = Vector2(120.0, 36.0)
+		button.custom_minimum_size = Vector2(132.0, 40.0)
 		_ui_skin.apply_button_stylebox_overrides(button)
 		_ui_skin.apply_button_text_overrides(button)
-		UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+		UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
 
@@ -1115,14 +1133,72 @@ func _drag_option_valid(zone: String) -> bool:
 			return false
 
 func _setup_pile_widgets() -> void:
+	burn_pile.visible = false
+	burn_pile.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	burn_pile.custom_minimum_size = Vector2.ZERO
 	var pile_specs: Array[Dictionary] = [
 		{"kind": "draw", "panel": draw_pile, "title": "Draw", "accent": Color("8a6b49"), "fill": Color("33261d")},
-		{"kind": "discard", "panel": discard_pile, "title": "Discard", "accent": Color("7f8ea4"), "fill": Color("ede2cd")},
-		{"kind": "burn", "panel": burn_pile, "title": "Burn", "accent": Color("ad5848"), "fill": Color("ecd1c9")}
+		{"kind": "discard", "panel": discard_pile, "title": "Discard", "accent": Color("7f8ea4"), "fill": Color("ede2cd")}
 	]
 	for spec_var: Variant in pile_specs:
 		var spec: Dictionary = spec_var
 		_build_pile_widget(spec)
+
+func _setup_play_meter() -> void:
+	_play_meter = PanelContainer.new()
+	_play_meter.name = "CardPlayMeter"
+	_play_meter.custom_minimum_size = Vector2(152.0, 108.0)
+	_play_meter.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_play_meter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_play_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_play_meter.tooltip_text = "Card plays remaining"
+	var meter_style := _pile_card_style(Color(0.10, 0.07, 0.05, 0.94), Color("c28a53"), 6.0)
+	meter_style.corner_radius_top_left = 8
+	meter_style.corner_radius_top_right = 8
+	meter_style.corner_radius_bottom_right = 8
+	meter_style.corner_radius_bottom_left = 8
+	meter_style.shadow_size = 5
+	_play_meter.add_theme_stylebox_override("panel", meter_style)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 11)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 11)
+	_play_meter.add_child(margin)
+
+	var hbox := HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.add_theme_constant_override("separation", 8)
+	margin.add_child(hbox)
+
+	_play_meter_icon = TextureRect.new()
+	_play_meter_icon.custom_minimum_size = Vector2(68.0, 68.0)
+	_play_meter_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_play_meter_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_play_meter_icon.texture = AssetLoader.load_texture(CARD_PLAY_ICON_PATH)
+	_play_meter_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_child(_play_meter_icon)
+
+	_play_meter_count = Label.new()
+	_play_meter_count.custom_minimum_size = Vector2(40.0, 68.0)
+	_play_meter_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_play_meter_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_play_meter_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_play_meter_count, UiTypography.SIZE_SECTION_LARGE)
+	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
+	_play_meter_count.add_theme_color_override("font_outline_color", Color("2b1b12"))
+	_play_meter_count.add_theme_constant_override("outline_size", 2)
+	hbox.add_child(_play_meter_count)
+
+	var insert_index: int = hand_row.get_child_count()
+	for index: int in range(hand_row.get_child_count()):
+		if hand_row.get_child(index) == hand_scroll:
+			insert_index = index
+			break
+	hand_row.add_child(_play_meter)
+	hand_row.move_child(_play_meter, insert_index)
+	_refresh_card_play_meter()
 
 func _build_pile_widget(spec: Dictionary) -> void:
 	var kind: String = str(spec.get("kind", ""))
@@ -1131,9 +1207,12 @@ func _build_pile_widget(spec: Dictionary) -> void:
 		return
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.focus_mode = Control.FOCUS_NONE
-	panel.custom_minimum_size = Vector2(94.0, 124.0)
+	panel.custom_minimum_size = _pile_widget_size(PILE_CARD_SIZE * PILE_CARD_SCALE)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	panel.clip_contents = true
+	panel.size_flags_vertical = Control.SIZE_SHRINK_END
+	panel.clip_contents = false
+	panel.tooltip_text = "%s pile" % str(spec.get("title", kind)).capitalize()
+	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	for child: Node in panel.get_children():
 		child.visible = false
 		if child is Control:
@@ -1142,88 +1221,130 @@ func _build_pile_widget(spec: Dictionary) -> void:
 			child_control.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 			child_control.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 
+	var content := Control.new()
+	content.name = "PileContent_%s" % kind
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.clip_contents = false
+	content.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	panel.add_child(content)
+	_pile_content_hosts[kind] = content
+
 	var visual := Control.new()
 	visual.name = "PileVisual_%s" % kind
 	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	visual.anchors_preset = Control.PRESET_FULL_RECT
-	visual.anchor_right = 1.0
-	visual.anchor_bottom = 1.0
-	panel.add_child(visual)
-
-	for stack_index: int in range(2):
-		var underlay := Panel.new()
-		underlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		underlay.position = Vector2(14.0 + float(stack_index) * 4.0, 12.0 - float(stack_index) * 2.0)
-		underlay.size = Vector2(62.0, 88.0)
-		var underlay_style := _pile_card_style(Color(0.16, 0.12, 0.09, 0.95), Color(0.44, 0.33, 0.24, 0.84))
-		underlay_style.shadow_size = 0
-		underlay.add_theme_stylebox_override("panel", underlay_style)
-		visual.add_child(underlay)
-
-	var front := Panel.new()
-	front.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	front.position = Vector2(10.0, 6.0)
-	front.size = Vector2(74.0, 106.0)
-	front.clip_contents = true
-	front.add_theme_stylebox_override("panel", _pile_card_style(spec.get("fill", Color("e8dcc0")), spec.get("accent", Color("8a6d49"))))
-	visual.add_child(front)
-	_pile_fronts[kind] = front
-
-	var art_frame := Panel.new()
-	art_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_frame.position = Vector2(8.0, 8.0)
-	art_frame.size = Vector2(58.0, 64.0)
-	art_frame.clip_contents = true
-	art_frame.add_theme_stylebox_override("panel", _pile_card_style(Color("3b312a"), Color(0.0, 0.0, 0.0, 0.0), 6.0))
-	front.add_child(art_frame)
-
-	var preview := TextureRect.new()
-	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	preview.anchors_preset = Control.PRESET_FULL_RECT
-	preview.anchor_right = 1.0
-	preview.anchor_bottom = 1.0
-	preview.offset_left = 4.0
-	preview.offset_top = 4.0
-	preview.offset_right = -4.0
-	preview.offset_bottom = -4.0
-	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art_frame.add_child(preview)
-	_pile_previews[kind] = preview
-
-	var caption := Label.new()
-	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	caption.position = Vector2(7.0, 78.0)
-	caption.size = Vector2(60.0, 18.0)
-	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	caption.text = str(spec.get("title", "")).to_upper()
-	UiTypography.set_label_size(caption, UiTypography.SIZE_CAPTION)
-	caption.add_theme_color_override("font_color", Color("f8edd8"))
-	caption.add_theme_color_override("font_outline_color", Color("241912"))
-	caption.add_theme_constant_override("outline_size", 1)
-	front.add_child(caption)
-	_pile_captions[kind] = caption
+	visual.clip_contents = false
+	visual.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	content.add_child(visual)
+	_pile_visual_hosts[kind] = visual
 
 	var badge := Label.new()
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.position = Vector2(46.0, 5.0)
-	badge.size = Vector2(20.0, 18.0)
+	badge.z_index = 50
 	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(badge, UiTypography.SIZE_CAPTION)
+	UiTypography.set_label_size(badge, UiTypography.SIZE_BODY)
 	badge.add_theme_color_override("font_color", Color("fff4dc"))
 	badge.add_theme_color_override("font_outline_color", Color("2f2018"))
-	badge.add_theme_constant_override("outline_size", 1)
+	badge.add_theme_constant_override("outline_size", 2)
 	var badge_style := _pile_card_style(Color(0.16, 0.12, 0.09, 0.94), spec.get("accent", Color("8a6d49")), 4.0)
 	badge_style.corner_radius_top_left = 8
 	badge_style.corner_radius_top_right = 8
 	badge_style.corner_radius_bottom_right = 8
 	badge_style.corner_radius_bottom_left = 8
 	badge.add_theme_stylebox_override("normal", badge_style)
-	front.add_child(badge)
+	content.add_child(badge)
 	_pile_badges[kind] = badge
 
 	panel.gui_input.connect(_on_pile_gui_input.bind(kind))
+
+func _pile_panel_for_kind(kind: String) -> PanelContainer:
+	match kind:
+		"draw":
+			return draw_pile
+		"discard":
+			return discard_pile
+		"burn":
+			return burn_pile
+	return null
+
+func _pile_display_card_size() -> Vector2:
+	var hand_count: int = 1
+	if not _combat_state.is_empty():
+		var deck: Dictionary = _combat_state.get("deck", {})
+		hand_count = maxi(1, (deck.get("hand", []) as Array).size())
+	return _hand_card_size(hand_count, false) * PILE_CARD_SCALE
+
+func _pile_widget_size(card_size: Vector2) -> Vector2:
+	return card_size + _pile_stack_offset() * float(PILE_STACK_LAYERS - 1)
+
+func _pile_stack_offset() -> Vector2:
+	return PILE_STACK_OFFSET * PILE_CARD_SCALE
+
+func _layout_pile_widget(kind: String, card_size: Vector2) -> void:
+	var panel: PanelContainer = _pile_panel_for_kind(kind)
+	var content: Control = _pile_content_hosts.get(kind, null)
+	var host: Control = _pile_visual_hosts.get(kind, null)
+	if panel == null or content == null or host == null:
+		return
+	var widget_size: Vector2 = _pile_widget_size(card_size)
+	panel.custom_minimum_size = widget_size
+	content.custom_minimum_size = widget_size
+	content.position = Vector2.ZERO
+	content.size = widget_size
+	host.custom_minimum_size = widget_size
+	host.position = Vector2.ZERO
+	host.size = widget_size
+	var badge: Label = _pile_badges.get(kind, null)
+	if badge != null:
+		badge.position = Vector2(card_size.x - 46.0, 7.0)
+		badge.size = Vector2(38.0, 30.0)
+
+func _populate_draw_pile(host: Control, cards: Array, card_size: Vector2) -> void:
+	_clear_children_now(host)
+	var visible_layers: int = clampi(cards.size(), 1, PILE_STACK_LAYERS)
+	for stack_index: int in range(visible_layers - 1, -1, -1):
+		var alpha: float = 0.34 if cards.is_empty() else clampf(1.0 - float(stack_index) * 0.12, 0.72, 1.0)
+		_add_card_back_layer(host, card_size, stack_index, alpha)
+
+func _populate_discard_pile(host: Control, cards: Array, card_size: Vector2) -> void:
+	_clear_children_now(host)
+	if cards.is_empty():
+		var empty_frame := TextureRect.new()
+		empty_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		empty_frame.position = Vector2.ZERO
+		empty_frame.size = card_size
+		empty_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		empty_frame.stretch_mode = TextureRect.STRETCH_SCALE
+		empty_frame.texture = AssetLoader.load_texture(CARD_FRAME_TEXTURE_PATH)
+		empty_frame.modulate = Color(1.0, 1.0, 1.0, 0.16)
+		host.add_child(empty_frame)
+		return
+	var visible_layers: int = clampi(cards.size(), 1, PILE_STACK_LAYERS)
+	for stack_index: int in range(visible_layers - 1, 0, -1):
+		_add_card_back_layer(host, card_size, stack_index, 0.58)
+	var top_card_id: String = str(cards[cards.size() - 1])
+	var display: Dictionary = _card_widget_display(top_card_id, _combat_state)
+	var widget = CardWidgetScene.instantiate()
+	widget.custom_minimum_size = card_size
+	widget.position = Vector2.ZERO
+	widget.size = card_size
+	widget.configure(top_card_id, false, false, true, false, false, true, _card_def(top_card_id, _combat_state))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+	host.add_child(widget)
+	widget.position = Vector2.ZERO
+	widget.size = card_size
+	_set_mouse_filter_recursive(widget, Control.MOUSE_FILTER_IGNORE)
+
+func _add_card_back_layer(host: Control, card_size: Vector2, stack_index: int, alpha: float) -> void:
+	var card_back := TextureRect.new()
+	card_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_back.position = _pile_stack_offset() * float(stack_index)
+	card_back.size = card_size
+	card_back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	card_back.stretch_mode = TextureRect.STRETCH_SCALE
+	card_back.texture = AssetLoader.load_texture(CARD_BACK_TEXTURE_PATH)
+	card_back.modulate = Color(1.0, 1.0, 1.0, alpha)
+	host.add_child(card_back)
 
 func _pile_card_style(fill: Color, border: Color, margin: float = 10.0) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -1313,6 +1434,7 @@ func _refresh_ui() -> void:
 	_refresh_relic_bar()
 	mini_map.set_run_state(_run_state)
 	_refresh_pile_counts()
+	_refresh_card_play_meter()
 	_refresh_pile_visuals()
 	_refresh_choice_bar()
 	_refresh_stage_view()
@@ -1393,43 +1515,35 @@ func _refresh_relic_bar() -> void:
 
 func _refresh_pile_visuals() -> void:
 	var piles: Dictionary = _deck_piles()
-	for kind: String in ["draw", "discard", "burn"]:
-		if not _pile_badges.has(kind):
+	var card_size: Vector2 = _pile_display_card_size()
+	for kind: String in ["draw", "discard"]:
+		var host: Control = _pile_visual_hosts.get(kind, null)
+		if host == null:
 			continue
-		var cards: Array = piles.get(kind, []).duplicate()
-		var badge: Label = _pile_badges[kind]
-		badge.text = str(cards.size())
-		badge.visible = true
-		var preview: TextureRect = _pile_previews.get(kind, null)
-		if preview == null:
-			continue
-		var front: Control = _pile_fronts.get(kind, null)
-		var caption: Label = _pile_captions.get(kind, null)
+		var cards: Array = (piles.get(kind, []) as Array).duplicate()
+		_layout_pile_widget(kind, card_size)
+		var badge: Label = _pile_badges.get(kind, null)
+		if badge != null:
+			badge.text = str(cards.size()) if kind == "draw" else ""
+			badge.visible = kind == "draw"
 		if kind == "draw":
-			preview.texture = null
-			preview.modulate = Color(1.0, 1.0, 1.0, 0.0)
-			if caption != null:
-				caption.text = "DECK"
-			if front != null:
-				front.add_theme_stylebox_override("panel", _pile_card_style(Color("3a2b21"), Color("8a6b49")))
+			_populate_draw_pile(host, cards, card_size)
 			continue
-		var top_card_id: String = str(cards[cards.size() - 1]) if not cards.is_empty() else ""
-		if top_card_id.is_empty():
-			preview.texture = null
-			preview.modulate = Color(1.0, 1.0, 1.0, 0.0)
-			if caption != null:
-				caption.text = "DECK" if kind == "draw" else "DISC" if kind == "discard" else "BURN"
-			continue
-		var card: Dictionary = _card_def(top_card_id)
-		preview.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
-		preview.modulate = Color.WHITE
-		if caption != null:
-			caption.text = "DISC" if kind == "discard" else "BURN"
-		if front != null:
-			front.add_theme_stylebox_override("panel", _pile_card_style(
-				Color("ecdcc4") if kind == "discard" else Color("e0c7bd"),
-				Color(str(card.get("accent", "#8a6d49")))
-			))
+		_populate_discard_pile(host, cards, card_size)
+
+func _refresh_card_play_meter() -> void:
+	if _play_meter == null or _play_meter_count == null:
+		return
+	var mode: String = str(_run_state.get("mode", "room"))
+	var active: bool = mode == "combat" and not _combat_state.is_empty()
+	_play_meter.visible = active
+	if not active:
+		_play_meter_count.text = ""
+		return
+	var cards_left: int = _combat_engine.cards_remaining_this_turn(_combat_state)
+	_play_meter_count.text = str(cards_left)
+	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
+	_play_meter.modulate = meter_tint
 
 func _deck_piles() -> Dictionary:
 	if _combat_state.is_empty():
@@ -2901,11 +3015,8 @@ func _board_status_detail(preview: Dictionary) -> String:
 			return _action_prompt(_pending_actions[_pending_action_index])
 		if _hovered_card_index >= 0 and not preview.is_empty() and not bool(preview.get("complete", true)):
 			return _action_prompt(preview.get("action", {}))
-		var cards_left: int = _combat_engine.cards_remaining_this_turn(_combat_state)
-		if cards_left > 0:
-			if not _has_playable_combat_card() and _has_any_playable_combat_card():
-				return "2 atk / 2 move"
-			return "%d play%s left" % [cards_left, "" if cards_left == 1 else "s"]
+		if _combat_engine.cards_remaining_this_turn(_combat_state) > 0 and not _has_playable_combat_card() and _has_any_playable_combat_card():
+			return "2 atk / 2 move"
 		return ""
 	if mode == "room":
 		return _room_hover_hint()
@@ -3416,6 +3527,18 @@ func _reset_card_resolution() -> void:
 func _clear_children(node: Node) -> void:
 	for child: Node in node.get_children():
 		child.queue_free()
+
+func _clear_children_now(node: Node) -> void:
+	for child: Node in node.get_children():
+		node.remove_child(child)
+		child.queue_free()
+
+func _set_mouse_filter_recursive(node: Node, filter: int) -> void:
+	if node is Control:
+		var control: Control = node as Control
+		control.mouse_filter = filter
+	for child: Node in node.get_children():
+		_set_mouse_filter_recursive(child, filter)
 
 func _ensure_run_analytics_metadata(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)

@@ -120,7 +120,7 @@ func _initialize() -> void:
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_move_previews_avoid_traps_when_possible()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
-	await _test_run_scene_empty_discard_uses_short_caption()
+	await _test_run_scene_discard_pile_is_face_up_without_count()
 	await _test_run_scene_displays_owned_relic_icons()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
 	await _test_run_scene_card_upgrade_overlay_opens()
@@ -2482,7 +2482,7 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_empty_discard_uses_short_caption() -> void:
+func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
 		_failures.append("Run scene should load for discard pile coverage")
@@ -2501,7 +2501,7 @@ func _test_run_scene_empty_discard_uses_short_caption() -> void:
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["quick_stab"]
-	deck["draw"] = []
+	deck["draw"] = ["brace", "quick_stab"]
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
@@ -2511,9 +2511,24 @@ func _test_run_scene_empty_discard_uses_short_caption() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_pile_visuals")
-	var captions: Dictionary = instance.get("_pile_captions")
-	var discard_caption: Label = captions.get("discard", null)
-	_assert(discard_caption != null and discard_caption.text == "DISC", "An empty discard pile should keep the short DISC caption instead of stretching to DISCARD")
+	var hosts: Dictionary = instance.get("_pile_visual_hosts")
+	var discard_host: Control = hosts.get("discard", null)
+	_assert(discard_host != null and discard_host.get_child_count() == 1, "The empty discard pile should render as one card-sized empty frame")
+	var badges: Dictionary = instance.get("_pile_badges")
+	var draw_badge: Label = badges.get("draw", null)
+	var pile_card_size: Vector2 = instance.call("_pile_display_card_size")
+	_assert(draw_badge != null and draw_badge.visible and draw_badge.text == "2", "The draw pile should show its remaining card count")
+	_assert(draw_badge != null and draw_badge.get_parent() == (instance.get("_pile_content_hosts") as Dictionary).get("draw", null), "The draw count badge should be positioned inside the pile content layer")
+	_assert(draw_badge != null and draw_badge.size.x < pile_card_size.x * 0.4 and draw_badge.position.x > pile_card_size.x * 0.65, "The draw count badge should stay as a small top-right badge")
+	var discard_badge: Label = badges.get("discard", null)
+	_assert(discard_badge != null and not discard_badge.visible, "The discard pile should not display a card count badge")
+	deck["discard"] = ["quick_stab"]
+	combat_state["deck"] = deck
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_pile_visuals")
+	discard_host = hosts.get("discard", null)
+	var discard_top: Node = discard_host.get_child(discard_host.get_child_count() - 1) if discard_host != null and discard_host.get_child_count() > 0 else null
+	_assert(discard_top is CardWidget and (discard_top as CardWidget).card_id == "quick_stab", "A non-empty discard pile should render the top card with the real card widget")
 	instance.queue_free()
 	await process_frame
 
