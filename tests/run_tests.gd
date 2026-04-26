@@ -280,33 +280,46 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 
 func _test_room_generation_populates_elemental_traps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
-	var room: Dictionary = generator.generate_room(321, {
-		"coord": Vector2i(2, 1),
-		"depth": 3,
-		"type": "combat",
-		"element": "fire"
-	}, Vector2i(1, 0))
-	var traps: Array = room.get("traps", [])
-	_assert(traps.size() >= 1 and traps.size() <= 3, "Combat rooms should seed a small number of traps")
-	var occupied: Dictionary = {room.get("player_start", Vector2i.ZERO): true}
-	for enemy_var: Variant in room.get("enemies", []):
-		if typeof(enemy_var) != TYPE_DICTIONARY:
-			continue
-		occupied[(enemy_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
-	for loot_var: Variant in room.get("loot", []):
-		if typeof(loot_var) != TYPE_DICTIONARY:
-			continue
-		occupied[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
-	for trap_var: Variant in traps:
-		if typeof(trap_var) != TYPE_DICTIONARY:
-			continue
-		var trap: Dictionary = trap_var
-		var pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
-		_assert(str(trap.get("element", "")) == "fire", "Generated traps should inherit the room element")
-		_assert(int(trap.get("damage", 0)) > 0, "Generated traps should always deal damage")
-		_assert(PathUtils.is_passable(room.get("grid", []), pos), "Traps should only spawn on passable floor tiles")
-		_assert(not occupied.has(pos), "Traps should avoid player, enemy, and loot placements")
-		occupied[pos] = true
+	var trap_count_histogram: Dictionary = {}
+	var total_center_distance: float = 0.0
+	var total_traps: int = 0
+	var corner_traps: int = 0
+	for seed: int in range(300, 340):
+		var room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed % 5, seed % 4),
+			"depth": 1 + seed % 3,
+			"type": "combat",
+			"element": "fire"
+		}, Vector2i(1, 0))
+		var traps: Array = room.get("traps", [])
+		trap_count_histogram[traps.size()] = int(trap_count_histogram.get(traps.size(), 0)) + 1
+		_assert(traps.size() >= 2 and traps.size() <= 3, "Combat rooms should seed two to three traps")
+		var occupied: Dictionary = {room.get("player_start", Vector2i.ZERO): true}
+		for enemy_var: Variant in room.get("enemies", []):
+			if typeof(enemy_var) != TYPE_DICTIONARY:
+				continue
+			occupied[(enemy_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+		for loot_var: Variant in room.get("loot", []):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			occupied[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+		for trap_var: Variant in traps:
+			if typeof(trap_var) != TYPE_DICTIONARY:
+				continue
+			var trap: Dictionary = trap_var
+			var pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+			_assert(str(trap.get("element", "")) == "fire", "Generated traps should inherit the room element")
+			_assert(int(trap.get("damage", 0)) > 0, "Generated traps should always deal damage")
+			_assert(PathUtils.is_passable(room.get("grid", []), pos), "Traps should only spawn on passable floor tiles")
+			_assert(not occupied.has(pos), "Traps should avoid player, enemy, and loot placements")
+			total_center_distance += pos.distance_to(Vector2(4.0, 4.0))
+			if pos.x <= 2 and pos.y <= 2 or pos.x <= 2 and pos.y >= 6 or pos.x >= 6 and pos.y <= 2 or pos.x >= 6 and pos.y >= 6:
+				corner_traps += 1
+			total_traps += 1
+			occupied[pos] = true
+	_assert(trap_count_histogram.has(2) and trap_count_histogram.has(3), "Trap counts should vary between two and three across generated rooms")
+	_assert(total_center_distance / float(total_traps) < 2.2, "Trap placement should favor central traversal lanes over room corners")
+	_assert(corner_traps < total_traps / 4, "Trap placement should rarely choose room-corner bands")
 
 func _test_room_generation_scales_enemy_density() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()

@@ -45,6 +45,8 @@ Encounter calibration is also important:
   adjacent pileups and same-corner clusters, but no longer pushes enemies to
   the far side by default. This should make turn-1 reach and early enemy threat
   more variable than the old far-spawn calibration.
+- Elemental combat rooms seed `2-3` traps, biased toward central traversal
+  lanes while still avoiding the player's entry halo and occupied tiles.
 
 The heuristic still rewards cards that compress setup and payoff into the same
 play, but early reach assumptions should be reprobed before making fine-grained
@@ -160,7 +162,7 @@ following change:
 - status behavior
 - damage, block, stoneskin, or healing semantics
 - enemy preview rules
-- room size, enemy spacing, or spawn selection
+- room size, enemy spacing, trap count/placement, or spawn selection
 - enemy roster or intent pacing
 - AOE, chain, push, or pull behavior
 - new card action types or keywords

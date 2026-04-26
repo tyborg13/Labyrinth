@@ -583,19 +583,14 @@ func _generate_traps(grid: Array, room_type: String, room_element: String, depth
 		candidates.append(tile)
 	if candidates.is_empty():
 		return traps
-	var max_traps: int = mini(3, depth) if room_type == "combat" else 3
-	var trap_count: int = rng.randi_range(1, maxi(1, max_traps)) if room_type == "combat" else rng.randi_range(2, 3)
+	var trap_count: int = rng.randi_range(2, 3)
 	var chosen: Array[Vector2i] = []
 	while chosen.size() < trap_count and not candidates.is_empty():
 		var best_index: int = 0
 		var best_score: float = -INF
 		for index: int in range(candidates.size()):
 			var tile: Vector2i = candidates[index]
-			var score: float = float(PathUtils.manhattan(tile, player_start)) * 0.55
-			for existing: Vector2i in chosen:
-				score += float(PathUtils.manhattan(tile, existing)) * 0.75
-			score += -tile.distance_to(Vector2((ROOM_WIDTH - 1) * 0.5, (ROOM_HEIGHT - 1) * 0.5)) * 0.18
-			score += rng.randf() * 0.2
+			var score: float = _trap_spawn_score(tile, player_start, chosen, rng)
 			if score > best_score:
 				best_score = score
 				best_index = index
@@ -604,6 +599,25 @@ func _generate_traps(grid: Array, room_type: String, room_element: String, depth
 		chosen.append(trap_tile)
 		traps.append(_trap_for_tile(trap_tile, room_element, depth))
 	return traps
+
+func _trap_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vector2i], rng: RandomNumberGenerator) -> float:
+	var room_center: Vector2 = Vector2((ROOM_WIDTH - 1) * 0.5, (ROOM_HEIGHT - 1) * 0.5)
+	var player_distance: int = PathUtils.manhattan(tile, player_start)
+	var score: float = -tile.distance_to(room_center) * 1.1
+	score -= absf(float(player_distance - 4)) * 0.18
+	score -= float(_room_edge_count(tile)) * 0.45
+	if _room_corner_band(tile) != Vector2i.ZERO:
+		score -= 0.65
+	if not chosen.is_empty():
+		var nearest_distance: int = 99
+		for existing: Vector2i in chosen:
+			nearest_distance = mini(nearest_distance, PathUtils.manhattan(tile, existing))
+		if nearest_distance <= 1:
+			score -= 4.0
+		else:
+			score -= absf(float(nearest_distance - 3)) * 0.28
+	score += rng.randf() * 0.35
+	return score
 
 func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Dictionary:
 	var trap: Dictionary = {

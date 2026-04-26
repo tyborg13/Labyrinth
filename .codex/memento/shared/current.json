@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-24T22:05:34Z",
+  "updated_at": "2026-04-26T14:04:44Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1555,6 +1555,28 @@
       "source": {
         "branch": "master",
         "commit": "9d7499b"
+      }
+    },
+    {
+      "id": "mnt_20260426T140444Z_842575d2",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/room_generator.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/room_generator.gd",
+      "summary": "Elemental combat rooms now seed 2-3 central-biased traps.",
+      "details": "Trap generation no longer scales max trap count down by depth. Combat and boss elemental rooms roll 2-3 traps, score candidates toward central traversal lanes, penalize edges/corner bands, avoid the player entry halo and occupied tiles, and keep modest spacing between traps.",
+      "status": "active",
+      "created_at": "2026-04-26T14:04:44Z",
+      "updated_at": "2026-04-26T14:04:44Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1471aef"
       }
     }
   ]

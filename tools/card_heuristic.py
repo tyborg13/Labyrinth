@@ -4,6 +4,10 @@
 This tool intentionally lives outside the gameplay runtime. It gives the team a
 stable, reviewable baseline for valuing cards in "health saved equivalent"
 terms without coupling the live game to the balance model.
+
+Current encounter assumptions that shape the coefficients but are not directly
+scored here: elemental combat rooms seed 2-3 central-biased traps, so
+forced-movement trap setups remain a manual review item.
 """
 
 from __future__ import annotations
