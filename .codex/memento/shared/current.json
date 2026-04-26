@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-26T14:04:44Z",
+  "updated_at": "2026-04-26T16:58:05Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1577,6 +1577,50 @@
       "source": {
         "branch": "master",
         "commit": "1471aef"
+      }
+    },
+    {
+      "id": "mnt_20260426T145126Z_25ae5fad",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Campfire room actions now use a StageRoot context overlay instead of the bottom choice bar.",
+      "details": "RunScene builds ContextChoiceOverlay dynamically under StageRoot and routes campfire Sit/Leave there via _add_context_choice_button; other modes still use BottomStack/ChoiceBar.",
+      "status": "active",
+      "created_at": "2026-04-26T14:51:26Z",
+      "updated_at": "2026-04-26T14:51:26Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "babf1bb"
+      }
+    },
+    {
+      "id": "mnt_20260426T145126Z_ad29c560",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Campfire bonfire art is rendered as presentation scene_props.",
+      "details": "RunScene passes scene_props=[{kind='campfire_bonfire', tile=Vector2i(4,4)}] for campfire mode. CombatBoardView loads assets/art/tiles/campfire_bonfire.png and scales it from tile width so the transparent sprite sits over the central 3x3 floor tiles without becoming terrain.",
+      "status": "active",
+      "created_at": "2026-04-26T14:51:26Z",
+      "updated_at": "2026-04-26T14:51:26Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "babf1bb"
       }
     }
   ]

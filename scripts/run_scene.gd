@@ -47,6 +47,7 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
+const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
@@ -110,6 +111,8 @@ var _active_pile_kind: String = ""
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
+var _context_choice_overlay: PanelContainer
+var _context_choice_bar: HBoxContainer
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -151,6 +154,7 @@ func _ready() -> void:
 	_apply_style()
 	_layout_mini_map_overlay()
 	_build_overlay_ui()
+	_build_context_choice_overlay()
 	_setup_pile_widgets()
 	_setup_play_meter()
 	_boot_run()
@@ -201,6 +205,7 @@ func _notification(what: int) -> void:
 		get_tree().quit()
 	elif what == NOTIFICATION_RESIZED:
 		_layout_mini_map_overlay()
+		_layout_context_choice_overlay()
 
 func _apply_style() -> void:
 	$Backdrop.color = Color("18120f")
@@ -290,6 +295,63 @@ func _build_overlay_ui() -> void:
 	_build_card_upgrade_overlay()
 	_build_drag_overlay()
 	_build_death_overlay()
+
+func _build_context_choice_overlay() -> void:
+	var stage_root: Control = board_view.get_parent()
+	if stage_root == null:
+		return
+	_context_choice_overlay = PanelContainer.new()
+	_context_choice_overlay.name = "ContextChoiceOverlay"
+	_context_choice_overlay.visible = false
+	_context_choice_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var overlay_style := StyleBoxFlat.new()
+	overlay_style.bg_color = Color(0.10, 0.065, 0.045, 0.88)
+	overlay_style.border_color = Color(0.88, 0.63, 0.32, 0.72)
+	overlay_style.border_width_left = 2
+	overlay_style.border_width_top = 2
+	overlay_style.border_width_right = 2
+	overlay_style.border_width_bottom = 2
+	overlay_style.corner_radius_top_left = 8
+	overlay_style.corner_radius_top_right = 8
+	overlay_style.corner_radius_bottom_right = 8
+	overlay_style.corner_radius_bottom_left = 8
+	overlay_style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
+	overlay_style.shadow_size = 12
+	overlay_style.content_margin_left = 12
+	overlay_style.content_margin_top = 10
+	overlay_style.content_margin_right = 12
+	overlay_style.content_margin_bottom = 10
+	_context_choice_overlay.add_theme_stylebox_override("panel", overlay_style)
+	stage_root.add_child(_context_choice_overlay)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	_context_choice_overlay.add_child(margin)
+
+	_context_choice_bar = HBoxContainer.new()
+	_context_choice_bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	_context_choice_bar.add_theme_constant_override("separation", 16)
+	margin.add_child(_context_choice_bar)
+	_layout_context_choice_overlay()
+
+func _layout_context_choice_overlay() -> void:
+	if _context_choice_overlay == null:
+		return
+	var stage_root: Control = board_view.get_parent()
+	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
+	var width: float = clampf(stage_size.x * 0.52, 360.0, CAMPFIRE_ACTION_OVERLAY_SIZE.x)
+	var height: float = CAMPFIRE_ACTION_OVERLAY_SIZE.y
+	_context_choice_overlay.anchor_left = 0.5
+	_context_choice_overlay.anchor_top = 1.0
+	_context_choice_overlay.anchor_right = 0.5
+	_context_choice_overlay.anchor_bottom = 1.0
+	_context_choice_overlay.offset_left = -width * 0.5
+	_context_choice_overlay.offset_right = width * 0.5
+	_context_choice_overlay.offset_top = -height - 24.0
+	_context_choice_overlay.offset_bottom = -24.0
 
 func _build_card_fx_layer() -> void:
 	_card_fx_layer = Control.new()
@@ -1561,6 +1623,8 @@ func _refresh_visibility() -> void:
 	piles_bar.visible = mode == "combat"
 	hand_scroll.visible = mode in ["combat", "reward"]
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
+	if _context_choice_overlay != null and mode != "campfire":
+		_context_choice_overlay.visible = false
 	menu_button.visible = mode != "defeat"
 	if mode != "combat":
 		_cancel_drag_play()
@@ -1588,6 +1652,7 @@ func _refresh_death_overlay() -> void:
 
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
+	_clear_context_choice_overlay()
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "combat" and _selected_card_index >= 0:
 		if _current_action_can_skip():
@@ -1599,8 +1664,8 @@ func _refresh_choice_bar() -> void:
 		"reward":
 			_add_choice_button("Skip +%d HP" % int((_run_state.get("pending_reward", {}) as Dictionary).get("heal_amount", 0)), _on_skip_reward_pressed)
 		"campfire":
-			_add_choice_button("Sit", _on_campfire_sit_pressed)
-			_add_choice_button("Leave", _on_campfire_leave_pressed)
+			_add_context_choice_button("Sit", _on_campfire_sit_pressed, "Rest and bank embers")
+			_add_context_choice_button("Leave", _on_campfire_leave_pressed, "Continue onward")
 		"treasure":
 			for relic_id_var: Variant in _run_state.get("pending_relics", []):
 				var relic_id: String = str(relic_id_var)
@@ -1610,6 +1675,8 @@ func _refresh_choice_bar() -> void:
 			_add_choice_button("Menu", _on_back_to_menu_pressed)
 			_add_choice_button("Again", _on_restart_pressed)
 	choice_bar.visible = choice_bar.get_child_count() > 0
+	if _context_choice_overlay != null:
+		_context_choice_overlay.visible = _context_choice_bar != null and _context_choice_bar.get_child_count() > 0
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := Button.new()
@@ -1621,6 +1688,26 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
 	button.pressed.connect(callback)
 	choice_bar.add_child(button)
+
+func _add_context_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
+	if _context_choice_bar == null:
+		return
+	var button := Button.new()
+	button.text = text
+	button.tooltip_text = tooltip
+	button.custom_minimum_size = Vector2(176.0, 58.0)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	button.pressed.connect(callback)
+	_context_choice_bar.add_child(button)
+
+func _clear_context_choice_overlay() -> void:
+	if _context_choice_bar != null:
+		_clear_children(_context_choice_bar)
+	if _context_choice_overlay != null:
+		_context_choice_overlay.visible = false
 
 func _refresh_hand_panel() -> void:
 	_clear_children(hand_box)
@@ -1711,6 +1798,13 @@ func _refresh_stage_view() -> void:
 				presentation["focus_actor_color"] = Color("f2ddb2")
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
+	if str(_run_state.get("mode", "room")) == "campfire":
+		presentation["scene_props"] = [
+			{
+				"kind": "campfire_bonfire",
+				"tile": Vector2i(4, 4)
+			}
+		]
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	board_view.set_combat_state(

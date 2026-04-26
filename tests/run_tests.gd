@@ -35,6 +35,7 @@ func _initialize() -> void:
 	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
 	_test_room_generation_populates_elemental_traps()
+	_test_campfire_room_uses_bonfire_layout()
 	_test_room_generation_scales_enemy_density()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
@@ -111,6 +112,7 @@ func _initialize() -> void:
 	await _test_main_scenes_instantiate()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
+	await _test_run_scene_campfire_choices_use_context_overlay()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_block_card_skips_dead_move()
@@ -277,6 +279,23 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	_assert(floor_moss.size() >= 5, "Generated floors should now carry a denser layer of decorative moss overlays")
 	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
 	_assert(ash_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
+
+func _test_campfire_room_uses_bonfire_layout() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room: Dictionary = generator.generate_room(91, {
+		"coord": Vector2i(2, 0),
+		"depth": 2,
+		"type": "campfire"
+	}, Vector2i(1, 0))
+	var grid: Array = room.get("grid", [])
+	for pillar_tile: Vector2i in [Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 6), Vector2i(6, 6)]:
+		_assert(str((grid[pillar_tile.y] as Array)[pillar_tile.x]) == "pillar", "Campfire rooms should place pillars on the second-to-last ring corners")
+	for y: int in range(3, 6):
+		for x: int in range(3, 6):
+			_assert(str((grid[y] as Array)[x]) == "ash", "The campfire bonfire footprint should remain floor tiles")
+	var floor_moss: Array = (room.get("moss", {}) as Dictionary).get("floor", [])
+	for tile: Vector2i in floor_moss:
+		_assert(tile.x < 3 or tile.x > 5 or tile.y < 3 or tile.y > 5, "Campfire moss should leave the 3x3 bonfire footprint visually clear")
 
 func _test_room_generation_populates_elemental_traps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -2062,6 +2081,33 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_campfire_choices_use_context_overlay() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for campfire overlay coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "campfire"
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_choice_bar")
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/ChoiceBar")
+	var overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
+	var overlay_button_count: int = 0
+	var found_sit: bool = false
+	var found_leave: bool = false
+	for button: Button in _buttons_under(overlay):
+		overlay_button_count += 1
+		found_sit = found_sit or button.text == "Sit"
+		found_leave = found_leave or button.text == "Leave"
+	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
+	_assert(overlay.visible, "Campfire choices should use the floating board context overlay")
+	_assert(overlay_button_count == 2 and found_sit and found_leave, "Campfire context overlay should expose large Sit and Leave buttons")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -2863,6 +2909,14 @@ func _find_boundary_segment(segments: Array, orientation: String) -> Dictionary:
 		if str(segment.get("orientation", "")) == orientation:
 			return segment
 	return {}
+
+func _buttons_under(node: Node) -> Array[Button]:
+	var buttons: Array[Button] = []
+	if node is Button:
+		buttons.append(node)
+	for child: Node in node.get_children():
+		buttons.append_array(_buttons_under(child))
+	return buttons
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

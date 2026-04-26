@@ -89,8 +89,11 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var grid: Array = _base_grid(rng)
 	var entrance_tile: Vector2i = ENTRANCE_BY_TRAVEL_DIR.get(travel_dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
 	_apply_available_doors(grid, room)
-	_apply_template(grid, rng)
-	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord)
+	if room_type == "campfire":
+		_apply_campfire_layout(grid)
+	else:
+		_apply_template(grid, rng)
+	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord, room_type)
 
 	var player_start: Vector2i = entrance_tile
 	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, depth, rng)
@@ -191,17 +194,43 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 						continue
 					grid[y][x] = TILE_ASH
 
-func _generate_moss_overlays(grid: Array, run_seed: int, coord: Vector2i) -> Dictionary:
+func _apply_campfire_layout(grid: Array) -> void:
+	for y: int in range(1, ROOM_HEIGHT - 1):
+		for x: int in range(1, ROOM_WIDTH - 1):
+			grid[y][x] = TILE_ASH
+	for pillar_tile: Vector2i in _campfire_pillar_tiles():
+		grid[pillar_tile.y][pillar_tile.x] = TILE_PILLAR
+
+func _campfire_pillar_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = [
+		Vector2i(2, 2),
+		Vector2i(ROOM_WIDTH - 3, 2),
+		Vector2i(2, ROOM_HEIGHT - 3),
+		Vector2i(ROOM_WIDTH - 3, ROOM_HEIGHT - 3)
+	]
+	return tiles
+
+func _campfire_inner_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for y: int in range(3, 6):
+		for x: int in range(3, 6):
+			tiles.append(Vector2i(x, y))
+	return tiles
+
+func _generate_moss_overlays(grid: Array, run_seed: int, coord: Vector2i, room_type: String = "") -> Dictionary:
 	return {
-		"floor": _select_floor_moss_tiles(grid, run_seed, coord),
+		"floor": _select_floor_moss_tiles(grid, run_seed, coord, room_type),
 		"wall": _select_wall_moss_tiles(grid, run_seed, coord),
 		"pillar": _select_pillar_moss_tiles(grid, run_seed, coord)
 	}
 
-func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i) -> Array[Vector2i]:
+func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i, room_type: String = "") -> Array[Vector2i]:
 	var protected_tiles: Dictionary = {}
 	for entry_tile: Vector2i in ENTRANCE_BY_TRAVEL_DIR.values():
 		protected_tiles[entry_tile] = true
+	if room_type == "campfire":
+		for campfire_tile: Vector2i in _campfire_inner_tiles():
+			protected_tiles[campfire_tile] = true
 	var candidates: Array[Vector2i] = []
 	for y: int in range(1, ROOM_HEIGHT - 1):
 		for x: int in range(1, ROOM_WIDTH - 1):

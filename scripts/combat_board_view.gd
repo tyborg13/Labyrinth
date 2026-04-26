@@ -96,6 +96,9 @@ const MOSS_WALL_OVERLAY_PATHS: PackedStringArray = [
 const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
 ]
+const CAMPFIRE_BONFIRE_PATH: String = "res://assets/art/tiles/campfire_bonfire.png"
+const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
+const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
@@ -116,6 +119,7 @@ var _floor_variant_by_tile: Dictionary = {}
 var _moss_texture_variants: Dictionary = {}
 var _moss_tiles_by_surface: Dictionary = {}
 var _prop_textures: Dictionary = {}
+var _scene_prop_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
@@ -283,8 +287,34 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 
 func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
 	for tile: Vector2i in tiles:
+		_draw_scene_props_for_tile(tile)
 		_draw_tile_props(grid, tile, units_to_draw)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
+
+func _draw_scene_props_for_tile(tile: Vector2i) -> void:
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		if prop.get("tile", Vector2i(-1, -1)) != tile:
+			continue
+		var texture: Texture2D = _scene_prop_textures.get(str(prop.get("kind", "")), null)
+		if texture == null:
+			continue
+		draw_texture_rect(texture, _scene_prop_rect(texture, prop), false)
+
+func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
+	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+	var center: Vector2 = _tile_center(tile)
+	var width_scale: float = float(prop.get("width_scale", CAMPFIRE_BONFIRE_WIDTH_SCALE))
+	var draw_width: float = _tile_width() * width_scale
+	var texture_size: Vector2 = texture.get_size()
+	var draw_height: float = draw_width
+	if texture_size.x > 0.0:
+		draw_height = draw_width * texture_size.y / texture_size.x
+	var baseline_scale: float = float(prop.get("baseline_scale", CAMPFIRE_BONFIRE_BASELINE_SCALE))
+	var bottom_y: float = center.y + _tile_height() * baseline_scale
+	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
 func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, units_to_draw: Array) -> void:
 	if tile_id == "pillar":
@@ -1669,6 +1699,9 @@ func _load_assets() -> void:
 		"door": door_texture,
 		"door_row": door_texture,
 		"door_col": AssetLoader.flip_texture_h(door_texture)
+	}
+	_scene_prop_textures = {
+		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH)
 	}
 	_door_opening_frames = _load_door_opening_frames()
 	_door_opening_flipped_frames = []
