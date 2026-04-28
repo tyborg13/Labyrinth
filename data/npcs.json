@@ -2,7 +2,8 @@
   "emaciated_man": {
     "name": "Emaciated Man",
     "accent": "#b8aa90",
-    "art_path": "res://assets/placeholders/units/emaciated_man.svg",
-    "art_scale": 0.92
+    "art_path": "res://assets/placeholders/units/emaciated_man_anime_trial.png",
+    "art_scale": 0.92,
+    "idle_sheet_ping_pong": true
   }
 }

@@ -19,8 +19,8 @@ const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const STEP_DELAY_SECONDS: float = 0.26
-const MOVE_STEP_FRAMES: int = 6
-const MOVE_FRAME_SECONDS: float = 0.03
+const MOVE_STEP_FRAMES: int = 8
+const MOVE_FRAME_SECONDS: float = 0.045
 const ATTACK_FRAMES: int = 6
 const ATTACK_FRAME_SECONDS: float = 0.04
 const DRAW_FRAME_SECONDS: float = 0.23
@@ -2136,7 +2136,7 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var preview_state: Dictionary = preview.get("state", {})
 	if not shortcut_plan.is_empty():
 		return _preview_effect_for_target(
-			preview_state,
+			(shortcut_plan.get("state", preview_state) as Dictionary),
 			shortcut_plan.get("move_tile", INVALID_TARGET_TILE),
 			_hovered_board_tile,
 			shortcut_plan.get("action", {})
@@ -2151,21 +2151,64 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
-			return {"kind": "move", "from": from_tile, "to": target_tile}
+			return {"kind": "move", "from": from_tile, "to": target_tile, "preview": true}
 		"blink":
-			return {"kind": "blink", "from": from_tile, "to": target_tile}
-		"melee", "ranged":
-			return {"kind": action_type, "from": from_tile, "to": target_tile}
+			return {"kind": "blink", "from": from_tile, "to": target_tile, "preview": true}
+		"melee", "ranged", "push", "pull":
+			return {
+				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
+				"from": from_tile,
+				"to": target_tile,
+				"preview": true,
+				"damage_preview": _preview_damage_for_action(state, action, target_tile)
+			}
 		"aoe":
 			return {
 				"kind": "aoe",
 				"from": from_tile,
 				"to": target_tile,
 				"center": target_tile,
-				"tiles": _aoe_tiles_for_action(state, action, target_tile)
+				"tiles": _aoe_tiles_for_action(state, action, target_tile),
+				"preview": true,
+				"damage_preview": _preview_damage_for_action(state, action, target_tile)
 			}
 		_:
 			return {}
+
+func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["melee", "ranged", "aoe", "push", "pull"]:
+		return {}
+	if action_type != "aoe" and target_tile.x < 0:
+		return {}
+	var before_state: Dictionary = state.duplicate(true)
+	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, target_tile)
+	var after_by_id: Dictionary = {}
+	for after_var: Variant in after_state.get("enemies", []):
+		var after_enemy: Dictionary = after_var
+		after_by_id[int(after_enemy.get("id", -1))] = after_enemy
+	var preview: Dictionary = {}
+	for before_var: Variant in state.get("enemies", []):
+		var before_enemy: Dictionary = before_var
+		var enemy_id: int = int(before_enemy.get("id", -1))
+		if not after_by_id.has(enemy_id):
+			continue
+		var after_enemy: Dictionary = after_by_id[enemy_id]
+		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0)))
+		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - int(after_enemy.get("block", 0)))
+		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
+		if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0:
+			continue
+		preview[_enemy_key(before_enemy)] = {
+			"hp": int(after_enemy.get("hp", 0)),
+			"hp_loss": hp_loss,
+			"block": int(after_enemy.get("block", 0)),
+			"block_loss": block_loss,
+			"stoneskin": int(after_enemy.get("stoneskin", 0)),
+			"stoneskin_loss": stoneskin_loss,
+			"lethal": int(after_enemy.get("hp", 0)) <= 0
+		}
+	return preview
 
 func _hovered_shortcut_plan_for_preview(preview: Dictionary) -> Dictionary:
 	if _hovered_board_tile.x < 0:
@@ -2226,6 +2269,7 @@ func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions:
 			if move_distance == existing_distance and path_tiles.size() >= existing_path_length:
 				continue
 		plans[enemy_tile] = {
+			"state": followup_state.duplicate(true),
 			"move_target": move_target,
 			"move_tile": move_tile,
 			"move_distance": move_distance,
@@ -2576,6 +2620,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 	for frame: int in range(frame_count):
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
+		presentation["impact_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
 			var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
@@ -2694,6 +2739,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_color": Color(0.95, 0.62, 0.37, 0.22),
 				"effect": effect,
 				"effect_progress": 1.0,
+				"impact_actor_keys": _damaged_enemy_keys(before_state, after_state),
 				"floating_texts": _player_damage_floating_texts(before_state, after_state)
 				})
 		"block":
@@ -2850,6 +2896,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 					"effect": step,
 					"effect_progress": 1.0,
+					"impact_actor_keys": ["player"] if int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0 else [],
 					"floating_texts": _floating_texts_for_step(step)
 				})
 
@@ -3035,6 +3082,25 @@ func _set_player_pos(state: Dictionary, pos: Vector2i) -> void:
 	var player: Dictionary = state.get("player", {})
 	player["pos"] = pos
 	state["player"] = player
+
+func _damaged_enemy_keys(before_state: Dictionary, after_state: Dictionary) -> Array[String]:
+	var before_by_id: Dictionary = {}
+	for enemy_var: Variant in before_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		before_by_id[int(enemy.get("id", -1))] = enemy
+	var keys: Array[String] = []
+	for enemy_var: Variant in after_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		var enemy_id: int = int(enemy.get("id", -1))
+		if not before_by_id.has(enemy_id):
+			continue
+		var before_enemy: Dictionary = before_by_id[enemy_id]
+		var hp_loss: int = int(before_enemy.get("hp", 0)) - int(enemy.get("hp", 0))
+		var block_loss: int = int(before_enemy.get("block", 0)) - int(enemy.get("block", 0))
+		var stoneskin_loss: int = int(before_enemy.get("stoneskin", 0)) - int(enemy.get("stoneskin", 0))
+		if hp_loss > 0 or block_loss > 0 or stoneskin_loss > 0:
+			keys.append(_enemy_key(enemy))
+	return keys
 
 func _clear_enemy_blocks(state: Dictionary) -> void:
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):

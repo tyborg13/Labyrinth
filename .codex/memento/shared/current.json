@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-26T16:58:05Z",
+  "updated_at": "2026-04-28T18:27:18Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1621,6 +1621,94 @@
       "source": {
         "branch": "master",
         "commit": "babf1bb"
+      }
+    },
+    {
+      "id": "mnt_20260426T184634Z_dd653a97",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Combat hit polish stays presentation-driven through board effect metadata.",
+      "details": "RunScene now attaches preview damage projections and impact actor keys to the presentation/effect dictionary, while CombatBoardView renders projected HP loss, lethal tinting, reticles, path arrows, and hit flashes without changing CombatEngine rules. Future combat VFX should prefer adding board presentation metadata over mutating combat state just for visuals.",
+      "status": "active",
+      "created_at": "2026-04-26T18:46:34Z",
+      "updated_at": "2026-04-26T18:46:34Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "ed39278"
+      }
+    },
+    {
+      "id": "mnt_20260426T192401Z_4494be05",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets",
+        "symbol": null
+      },
+      "scope_key": "folder:assets",
+      "summary": "Melee combat VFX uses a generated transparent slash sprite.",
+      "details": "assets/art/effects/melee_slash.png is a chroma-key-removed imagegen asset loaded by CombatBoardView as res://assets/art/effects/melee_slash.png. Keep melee effect polish in this raster asset plus draw sizing/rotation rather than returning to procedural crossed lines.",
+      "status": "active",
+      "created_at": "2026-04-26T19:24:01Z",
+      "updated_at": "2026-04-26T19:24:01Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "ed39278"
+      }
+    },
+    {
+      "id": "mnt_20260426T194416Z_2592c805",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets",
+        "symbol": null
+      },
+      "scope_key": "folder:assets",
+      "summary": "Lethal preview marker should stay a 64px dark fantasy pixel icon.",
+      "details": "assets/art/effects/lethal_skull.png replaced the large painterly skull with a 64x64 chroma-keyed pixel-art icon so lethal previews match assets/art/icons pixel density and dark fantasy style. CombatBoardView draws this icon over lethal targets instead of greying sprites or framing health bars.",
+      "status": "active",
+      "created_at": "2026-04-26T19:44:16Z",
+      "updated_at": "2026-04-26T19:44:16Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "ed39278"
+      }
+    },
+    {
+      "id": "mnt_20260426T203308Z_c00c7e3c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/placeholders/units",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/placeholders/units",
+      "summary": "Emaciated Man uses generated static PNG art.",
+      "details": "data/npcs.json now points emaciated_man art_path at res://assets/placeholders/units/emaciated_man.png. The asset is a 255x255 chroma-key-removed imagegen sprite with no idle sheet, so CombatBoardView should continue treating this NPC as static art unless a future emaciated_man_idle.png sheet is added.",
+      "status": "active",
+      "created_at": "2026-04-26T20:33:08Z",
+      "updated_at": "2026-04-26T20:33:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "ed39278"
       }
     }
   ]

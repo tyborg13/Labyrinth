@@ -14,13 +14,15 @@ signal tile_hovered(tile: Vector2i)
 signal cancel_requested
 
 const GRID_OUTLINE: Color = Color("1f1713")
-const MOVE_HIGHLIGHT: Color = Color(0.29, 0.82, 0.91, 0.36)
-const ATTACK_HIGHLIGHT: Color = Color(0.96, 0.47, 0.27, 0.38)
+const MOVE_HIGHLIGHT: Color = Color(0.28, 0.75, 0.86, 0.20)
+const ATTACK_HIGHLIGHT: Color = Color(0.96, 0.40, 0.25, 0.20)
 const HOVER_HIGHLIGHT: Color = Color(1.0, 0.96, 0.82, 0.22)
 const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
+const MOVE_PATH_SHADOW: Color = Color(0.02, 0.03, 0.03, 0.35)
+const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
@@ -99,6 +101,8 @@ const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
 const CAMPFIRE_BONFIRE_PATH: String = "res://assets/art/tiles/campfire_bonfire.png"
 const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
+const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
+const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
@@ -120,6 +124,7 @@ var _moss_texture_variants: Dictionary = {}
 var _moss_tiles_by_surface: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _scene_prop_textures: Dictionary = {}
+var _effect_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
@@ -148,6 +153,8 @@ func _ready() -> void:
 	_load_assets()
 
 func _process(delta: float) -> void:
+	if _presentation_needs_redraw():
+		queue_redraw()
 	var animating: bool = _any_idle_animation_active()
 	if animating != _idle_animating:
 		_idle_animating = animating
@@ -162,6 +169,16 @@ func _process(delta: float) -> void:
 	if next_tick != _idle_tick:
 		_idle_tick = next_tick
 		queue_redraw()
+
+func _presentation_needs_redraw() -> bool:
+	if not visible or presentation.is_empty():
+		return false
+	if not (presentation.get("damage_preview", {}) as Dictionary).is_empty():
+		return true
+	if not (presentation.get("impact_actor_keys", []) as Array).is_empty():
+		return true
+	var effect: Dictionary = presentation.get("effect", {})
+	return bool(effect.get("preview", false))
 
 func _any_idle_animation_active() -> bool:
 	if not visible or combat_state.is_empty() or _idle_frames_by_type.is_empty():
@@ -278,12 +295,27 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 			draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
 	if move_tiles.has(tile):
 		draw_colored_polygon(polygon, MOVE_HIGHLIGHT)
+		_draw_tile_ring(tile, Color(0.60, 0.91, 0.94, 0.58), 2.0, 0.86)
 	if attack_tiles.has(tile):
 		draw_colored_polygon(polygon, ATTACK_HIGHLIGHT)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
+
+func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 0.92) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width() * scale
+	var tile_height: float = _tile_height() * scale
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0),
+		center + Vector2(0.0, -tile_height * 0.5)
+	])
+	draw_polyline(points, Color(0.0, 0.0, 0.0, color.a * 0.28), width + 2.0, true)
+	draw_polyline(points, color, width, true)
 
 func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
 	for tile: Vector2i in tiles:
@@ -736,7 +768,19 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	_draw_shadow(center + Vector2(0.0, _tile_height() * 0.58))
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
-		draw_texture_rect(texture, _unit_draw_rect(unit), false)
+		var draw_rect: Rect2 = _unit_draw_rect(unit)
+		var impact: float = _unit_impact_strength(unit)
+		var impact_offset := Vector2.ZERO
+		if impact > 0.0:
+			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact, 0.0)
+		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
+		draw_texture_rect(texture, shifted_rect, false, Color.WHITE)
+		if impact > 0.0:
+			var flash: Color = IMPACT_FLASH_COLOR
+			flash.a *= impact
+			draw_texture_rect(texture, shifted_rect, false, flash)
+		if _unit_is_preview_lethal(unit):
+			_draw_lethal_preview_icon(shifted_rect)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
@@ -787,6 +831,8 @@ func _npc_nameplate_rect(unit: Dictionary, center: Vector2, font: Font = null) -
 
 func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
+	var preview: Dictionary = _unit_damage_preview(unit)
+	var display_hp: int = int(preview.get("hp", unit.get("hp", 0)))
 	SegmentedHealthBar.draw_bar(
 		self,
 		rect,
@@ -801,8 +847,12 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		1.0,
 		1.0
 	)
+	if not preview.is_empty():
+		_draw_health_damage_preview(unit, rect, preview)
 	if font != null:
 		var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 1.0)
+		var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
+		var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
 		for offset: Vector2 in [
 			Vector2(-1.0, 0.0),
 			Vector2(1.0, 0.0),
@@ -812,7 +862,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 			draw_string(
 				font,
 				text_baseline + offset,
-				"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
+				hp_text,
 				HORIZONTAL_ALIGNMENT_CENTER,
 				rect.size.x,
 				9,
@@ -821,11 +871,11 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		draw_string(
 			font,
 			text_baseline,
-			"%d/%d" % [int(unit.get("hp", 0)), int(unit.get("max_hp", 1))],
+			hp_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
 			9,
-			Color("fff4dc")
+			text_color
 		)
 	var block_amount: int = int(unit.get("block", 0))
 	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
@@ -837,6 +887,56 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	if stoneskin_amount > 0:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+
+func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
+	var current_hp: float = float(unit.get("hp", 0))
+	var next_hp: float = float(preview.get("hp", current_hp))
+	var max_hp: float = maxf(1.0, float(unit.get("max_hp", 1)))
+	var current_ratio: float = clampf(current_hp / max_hp, 0.0, 1.0)
+	var next_ratio: float = clampf(next_hp / max_hp, 0.0, 1.0)
+	if current_ratio > next_ratio:
+		var pulse: float = 0.55 + 0.45 * sin(Time.get_ticks_msec() * 0.010)
+		var damage_rect := Rect2(
+			Vector2(rect.position.x + rect.size.x * next_ratio, rect.position.y),
+			Vector2(rect.size.x * (current_ratio - next_ratio), rect.size.y)
+		)
+		var damage_color: Color = Color(1.0, 0.72, 0.34, 0.52 + pulse * 0.22)
+		if bool(preview.get("lethal", false)):
+			damage_color = Color(0.72, 0.18, 0.14, 0.62 + pulse * 0.26)
+		draw_rect(damage_rect, damage_color, true)
+		draw_rect(damage_rect, Color(1.0, 0.93, 0.62, 0.45), false, 1.0)
+func _unit_damage_preview(unit: Dictionary) -> Dictionary:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return {}
+	var effect: Dictionary = presentation.get("effect", {})
+	var preview_map: Dictionary = effect.get("damage_preview", presentation.get("damage_preview", {}))
+	return preview_map.get(actor_key, {}) as Dictionary
+
+func _unit_is_preview_lethal(unit: Dictionary) -> bool:
+	return bool(_unit_damage_preview(unit).get("lethal", false))
+
+func _draw_lethal_preview_icon(unit_rect: Rect2) -> void:
+	var texture: Texture2D = _effect_textures.get("lethal_skull", null)
+	if texture == null or unit_rect.size.x <= 0.0 or unit_rect.size.y <= 0.0:
+		return
+	var icon_size: float = clampf(minf(unit_rect.size.x, unit_rect.size.y) * 0.42, 30.0, 58.0)
+	var icon_center := Vector2(
+		unit_rect.get_center().x,
+		unit_rect.position.y + unit_rect.size.y * 0.42
+	)
+	var icon_rect := Rect2(icon_center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(texture, icon_rect, false, Color(1.0, 1.0, 1.0, 0.94))
+
+func _unit_impact_strength(unit: Dictionary) -> float:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return 0.0
+	var impact_keys: Array = presentation.get("impact_actor_keys", [])
+	if not impact_keys.has(actor_key):
+		return 0.0
+	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
+	return clampf(1.0 - progress, 0.0, 1.0)
 
 func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
 	draw_rect(rect, fill, true)
@@ -1114,7 +1214,7 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 	var intent_rect := Rect2()
 	var border: Color = Color("d8b96f")
 	if not intent.is_empty():
-		rows = _intent_rows(intent)
+		rows = _enemy_intent_rows_for_display(unit, intent)
 		intent_name = _intent_display_name(intent)
 		var line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
 		if font != null and line_count > 0:
@@ -1134,6 +1234,19 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"offset": offset,
 		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
 	}
+
+func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Array:
+	if _enemy_intent_expanded(unit):
+		return _intent_rows(intent)
+	return []
+
+func _enemy_intent_expanded(unit: Dictionary) -> bool:
+	if _all_enemy_intents_expanded():
+		return true
+	return _hover_tile == _effective_unit_tile(unit)
+
+func _all_enemy_intents_expanded() -> bool:
+	return bool(presentation.get("show_all_enemy_intents", presentation.get("expand_enemy_intents", false)))
 
 func _enemy_hud_collision_rects(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2) -> Array[Rect2]:
 	var rects: Array[Rect2] = _health_bar_collision_rects(unit, health_rect)
@@ -1416,10 +1529,7 @@ func _draw_effect_overlay() -> void:
 		"melee":
 			if to_tile.x < 0:
 				return
-			var slash_center: Vector2 = from_point.lerp(to_point, 0.20 + progress * 0.62)
-			var melee_size: float = _tile_width() * (0.12 + progress * 0.14)
-			draw_line(slash_center + Vector2(-melee_size, -melee_size), slash_center + Vector2(melee_size, melee_size), Color("f2c996"), 5.0, true)
-			draw_line(slash_center + Vector2(melee_size, -melee_size), slash_center + Vector2(-melee_size, melee_size), Color("f2c996"), 5.0, true)
+			_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
 			var effect_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 			if effect_tiles.is_empty() and center_tile.x >= 0:
@@ -1457,23 +1567,62 @@ func _draw_floating_texts() -> void:
 		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
 		draw_string(font, text_pos, str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, 48.0, 16, color)
 
+func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
+	var texture: Texture2D = _effect_textures.get("melee_slash", null)
+	if texture == null:
+		return
+	var from_anchor: Vector2 = from_point + Vector2(0.0, -_tile_width() * 0.52)
+	var to_anchor: Vector2 = to_point + Vector2(0.0, -_tile_width() * 0.38)
+	var direction: Vector2 = to_anchor - from_anchor
+	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
+	var slash_center: Vector2 = from_anchor.lerp(to_anchor, 0.38 + progress * 0.30)
+	var draw_size := Vector2.ONE * _tile_width() * (0.92 + progress * 0.16)
+	var alpha: float = clampf(sin(progress * PI) * 1.12, 0.0, 1.0)
+	if progress >= 0.92:
+		alpha = maxf(alpha, 0.32)
+	var rotation: float = dir.angle() + PI * 0.25
+	draw_set_transform(slash_center, rotation, Vector2.ONE)
+	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
+	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
 func _draw_path_preview() -> void:
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
 	if path_tiles.is_empty():
 		return
 	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
-	var point_offset := Vector2(0.0, -8.0)
+	var point_offset := Vector2(0.0, -10.0)
 	if path_tiles.size() == 1:
-		draw_circle(_tile_center(path_tiles[0]) + point_offset, 6.0, Color(color.r, color.g, color.b, 0.82))
+		var single_center: Vector2 = _tile_center(path_tiles[0]) + point_offset
+		draw_circle(single_center, 9.0, Color(color.r, color.g, color.b, 0.18))
+		draw_arc(single_center, 12.0, 0.0, TAU, 24, Color(color.r, color.g, color.b, 0.74), 2.2, true)
 		return
 	for index: int in range(path_tiles.size() - 1):
 		var from_point: Vector2 = _tile_center(path_tiles[index]) + point_offset
 		var to_point: Vector2 = _tile_center(path_tiles[index + 1]) + point_offset
-		draw_line(from_point, to_point, Color(0.0, 0.0, 0.0, 0.18), 6.0, true)
-		draw_line(from_point, to_point, color, 3.0, true)
+		draw_line(from_point, to_point, MOVE_PATH_SHADOW, 9.0, true)
+		draw_line(from_point, to_point, Color(color.r, color.g, color.b, 0.30), 6.0, true)
+		draw_line(from_point, to_point, color, 2.4, true)
+		_draw_path_arrowhead(from_point, to_point, color)
 	for tile: Vector2i in path_tiles:
-		draw_circle(_tile_center(tile) + point_offset, 4.5, Color(0.08, 0.07, 0.05, 0.9))
-		draw_circle(_tile_center(tile) + point_offset, 3.0, color)
+		var center: Vector2 = _tile_center(tile) + point_offset
+		draw_circle(center, 5.8, Color(0.05, 0.05, 0.04, 0.78))
+		draw_circle(center, 3.3, color)
+
+func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color) -> void:
+	var dir: Vector2 = (to_point - from_point).normalized()
+	if dir.length_squared() <= 0.0:
+		return
+	var perp := Vector2(-dir.y, dir.x)
+	var center: Vector2 = from_point.lerp(to_point, 0.62)
+	var arrow_size: float = 8.0
+	var points := PackedVector2Array([
+		center + dir * arrow_size,
+		center - dir * arrow_size * 0.55 + perp * arrow_size * 0.48,
+		center - dir * arrow_size * 0.55 - perp * arrow_size * 0.48
+	])
+	draw_colored_polygon(points, Color(0.02, 0.03, 0.03, 0.45))
+	draw_colored_polygon(points, Color(color.r, color.g, color.b, 0.86))
 
 func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 	var focus_keys: Array = presentation.get("focus_actor_keys", [])
@@ -1703,6 +1852,10 @@ func _load_assets() -> void:
 	_scene_prop_textures = {
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH)
 	}
+	_effect_textures = {
+		"melee_slash": AssetLoader.load_texture(MELEE_SLASH_EFFECT_PATH),
+		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
+	}
 	_door_opening_frames = _load_door_opening_frames()
 	_door_opening_flipped_frames = []
 	for frame_texture: Texture2D in _door_opening_frames:
@@ -1807,7 +1960,8 @@ func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
 	return {
 		"columns": maxi(1, int(definition.get("idle_sheet_columns", IDLE_SHEET_COLUMNS))),
 		"rows": maxi(1, int(definition.get("idle_sheet_rows", IDLE_SHEET_ROWS))),
-		"order": str(definition.get("idle_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR))
+		"order": str(definition.get("idle_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR)),
+		"ping_pong": bool(definition.get("idle_sheet_ping_pong", false))
 	}
 
 func _idle_frame_indices(layout: Dictionary) -> Array:
@@ -1819,10 +1973,20 @@ func _idle_frame_indices(layout: Dictionary) -> Array:
 		for column: int in range(columns):
 			for row: int in range(rows):
 				frame_indices.append(row * columns + column)
-		return frame_indices
-	for row: int in range(rows):
-		for column: int in range(columns):
-			frame_indices.append(row * columns + column)
+	else:
+		for row: int in range(rows):
+			for column: int in range(columns):
+				frame_indices.append(row * columns + column)
+	if bool(layout.get("ping_pong", false)):
+		if frame_indices.size() > 1:
+			frame_indices.pop_back()
+		var reverse_indices: Array = frame_indices.duplicate()
+		reverse_indices.reverse()
+		if not reverse_indices.is_empty():
+			reverse_indices.pop_front()
+		if not reverse_indices.is_empty():
+			reverse_indices.pop_back()
+		frame_indices.append_array(reverse_indices)
 	return frame_indices
 
 func _unit_idle_frames(unit: Dictionary) -> Array[Texture2D]:

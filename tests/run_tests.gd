@@ -64,16 +64,16 @@ func _initialize() -> void:
 	_test_player_restriction_badges_show_turn_lock()
 	_test_trap_tooltip_surfaces_damage_and_effect()
 	_test_enemy_intent_name_reserves_header_line()
+	_test_enemy_intent_panels_expand_on_hover_or_toggle()
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_down_from_top_edge()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
-	_test_crawler_idle_sheet_surfaces_for_idle_enemy()
-	_test_emaciated_man_uses_static_placeholder_art()
-	_test_acolyte_idle_sheet_honors_row_major_layout()
-	_test_acolyte_idle_speed_matches_default_cadence()
+	_test_player_uses_original_anime_art()
+	_test_trial_enemy_art_uses_matching_idle_sheets()
+	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_combat_board_zooms_to_rendered_room_bounds()
 	_test_foreground_props_fade_when_covering_behind_units()
@@ -1130,6 +1130,36 @@ func _test_enemy_intent_name_reserves_header_line() -> void:
 	_assert(int(board.call("_enemy_intent_line_count", attack_intent)) == 2, "Named enemy intents should reserve a header line above their action icons")
 	_assert(int(board.call("_enemy_intent_line_count", wait_intent)) == 1, "Name-only enemy intents should still render a title line")
 
+func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var center := Vector2(320.0, 320.0)
+	var enemy := {
+		"type": "harrier",
+		"role": "enemy",
+		"pos": Vector2i(3, 3),
+		"intent": {
+			"name": "Pelt",
+			"actions": [{"type": "ranged", "damage": 4, "range": 4}]
+		}
+	}
+	var compact_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var compact_rows: Array = compact_layout.get("rows", [])
+	var compact_rect: Rect2 = compact_layout.get("intent_rect", Rect2())
+	_assert(compact_rows.is_empty(), "Enemy intent panels should only show the action name by default")
+	board.set("_hover_tile", Vector2i(3, 3))
+	var hovered_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var hovered_rows: Array = hovered_layout.get("rows", [])
+	var hovered_rect: Rect2 = hovered_layout.get("intent_rect", Rect2())
+	_assert(hovered_rows.size() == 1, "Hovered enemy intent panels should expand to show action details")
+	_assert(hovered_rect.size.y > compact_rect.size.y, "Hovered enemy intent panels should grow when details become visible")
+	board.set("_hover_tile", Vector2i(-1, -1))
+	board.presentation = {"show_all_enemy_intents": true}
+	var toggled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var toggled_rows: Array = toggled_layout.get("rows", [])
+	_assert(toggled_rows.size() == 1, "The show-all enemy intent flag should expand panels without hover")
+
 func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
@@ -1150,6 +1180,7 @@ func _test_enemy_hud_layout_stays_centered_when_clear() -> void:
 func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
+	board.presentation = {"show_all_enemy_intents": true}
 	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
 	var center := Vector2(320.0, 240.0)
 	var enemy := {
@@ -1204,8 +1235,9 @@ func _test_enemy_art_scale_preserves_center() -> void:
 	var frame_rect: Rect2 = board.call("_unit_frame_rect", center)
 	var fitted_rect: Rect2 = board.call("_fitted_unit_rect", crawler_texture, frame_rect)
 	var scaled_rect: Rect2 = board.call("_unit_draw_rect_for_center", crawler_unit, center)
-	_assert(is_equal_approx(scaled_rect.size.x, fitted_rect.size.x * 0.75), "Crawler art scale should shrink the fitted sprite width")
-	_assert(is_equal_approx(scaled_rect.size.y, fitted_rect.size.y * 0.75), "Crawler art scale should shrink the fitted sprite height")
+	var crawler_scale: float = float(GameData.enemy_def("crawler").get("art_scale", 1.0))
+	_assert(is_equal_approx(scaled_rect.size.x, fitted_rect.size.x * crawler_scale), "Crawler art scale should shrink the fitted sprite width")
+	_assert(is_equal_approx(scaled_rect.size.y, fitted_rect.size.y * crawler_scale), "Crawler art scale should shrink the fitted sprite height")
 	_assert(is_equal_approx(scaled_rect.get_center().x, fitted_rect.get_center().x), "Crawler art scaling should keep the sprite centered horizontally")
 	_assert(is_equal_approx(scaled_rect.end.y, fitted_rect.end.y), "Crawler art scaling should keep the sprite feet anchored to the same bottom edge")
 
@@ -1234,26 +1266,43 @@ func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 	}, [[{"icon": "melee"}, {"icon": "damage", "value": 4}]], font))
 	_assert(width > 136.0, "Long enemy intent titles should widen the popup instead of clipping")
 
-func _test_crawler_idle_sheet_surfaces_for_idle_enemy() -> void:
+func _test_player_uses_original_anime_art() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
 	board.combat_state = {
-		"player": {"hp": 20},
-		"enemies": [{"id": 1, "type": "crawler", "hp": 14}]
+		"player": {"pos": Vector2i(3, 3), "hp": 20, "max_hp": 20}
 	}
 	board.presentation = {}
-	var crawler_unit := {"key": "enemy_1", "type": "crawler"}
-	var idle_frames: Array = board.call("_unit_idle_frames", crawler_unit)
-	_assert(idle_frames.size() == 8, "Crawler idle sheets should load into 8 animation frames")
-	var idle_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
-	var base_texture: Texture2D = (board.get("_unit_textures") as Dictionary).get("crawler", null)
-	_assert(idle_texture != null and idle_texture != base_texture, "Idle crawlers should render from the idle sheet instead of the base texture")
-	board.presentation = {"focus_actor_keys": ["enemy_1"], "effect": {"type": "attack"}}
-	var focused_texture: Texture2D = board.call("_texture_for_unit", crawler_unit)
-	_assert(focused_texture == base_texture, "Focused crawlers should stop using idle frames while acting")
+	var player_unit := {"key": "player", "role": "player", "type": "player", "pos": Vector2i(3, 3), "hp": 20}
+	var idle_frames: Array = board.call("_unit_idle_frames", player_unit)
+	var player_texture: Texture2D = board.call("_texture_for_unit", player_unit)
+	_assert(idle_frames.size() == 8, "Original anime player art should still load its matching idle sheet")
+	_assert(player_texture != null, "Original anime player art should load for board rendering")
 
-func _test_emaciated_man_uses_static_placeholder_art() -> void:
+func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden"]:
+		var enemy_unit := {"key": "enemy_%s" % enemy_type, "type": enemy_type}
+		var idle_frames: Array = board.call("_unit_idle_frames", enemy_unit)
+		var texture: Texture2D = board.call("_texture_for_unit", enemy_unit)
+		var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
+		var seventh_frame: AtlasTexture = idle_frames[6] as AtlasTexture
+		var eighth_frame: AtlasTexture = idle_frames[7] as AtlasTexture
+		var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
+		_assert(idle_frames.size() == 12, "%s anime trial art should skip the final source frame and ping-pong without duplicated endpoints" % enemy_type)
+		_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "%s anime trial idle sheet should use 4x2 frames" % enemy_type)
+		_assert(first_frame != null and seventh_frame != null and eighth_frame != null and last_frame != null, "%s anime trial idle frames should be atlas-backed slices" % enemy_type)
+		_assert(first_frame.region.position == Vector2.ZERO, "%s anime trial idle loop should keep the source frame at the start of the sheet" % enemy_type)
+		_assert(seventh_frame.region != eighth_frame.region, "%s anime trial idle loop should not hold the final frame at the turn-around" % enemy_type)
+		_assert(first_frame.region != last_frame.region, "%s anime trial idle loop should not hold the first frame at the loop boundary" % enemy_type)
+		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", enemy_unit)), 0.1), "%s anime trial idle loop should use the original frame cadence" % enemy_type)
+		_assert(texture != null, "%s anime trial art should load for board rendering" % enemy_type)
+
+func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
@@ -1265,36 +1314,18 @@ func _test_emaciated_man_uses_static_placeholder_art() -> void:
 	var idle_frames: Array = board.call("_unit_idle_frames", npc_unit)
 	var npc_texture: Texture2D = board.call("_texture_for_unit", npc_unit)
 	var acolyte_texture: Texture2D = (board.get("_unit_textures") as Dictionary).get("acolyte", null)
-	_assert(idle_frames.is_empty(), "Emaciated Man placeholder art should not load an idle sheet")
-	_assert(npc_texture != null, "Emaciated Man placeholder art should load for board rendering")
-	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Ash Acolyte texture")
-
-func _test_acolyte_idle_sheet_honors_row_major_layout() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var acolyte_unit := {"type": "acolyte", "pos": Vector2i.ZERO}
-	var idle_frames: Array = board.call("_unit_idle_frames", acolyte_unit)
-	_assert(idle_frames.size() == 8, "Acolyte idle sheets should load into 8 animation frames")
 	var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
-	var second_frame: AtlasTexture = idle_frames[1] as AtlasTexture
-	var fifth_frame: AtlasTexture = idle_frames[4] as AtlasTexture
-	_assert(first_frame != null and second_frame != null and fifth_frame != null, "Acolyte idle frames should be atlas-backed slices of the idle sheet")
-	_assert(first_frame.region.size == Vector2(1024.0, 1020.0), "Acolyte idle frames should respect the custom 2x4 sheet layout")
-	_assert(first_frame.region.position == Vector2.ZERO, "The first acolyte idle frame should start at the top-left of the sheet")
-	_assert(second_frame.region.position == Vector2(1024.0, 0.0), "Row-major acolyte idle sheets should advance to the next column before moving down")
-	_assert(fifth_frame.region.position == Vector2(0.0, 2040.0), "Row-major acolyte idle sheets should wrap to the next row after two frames")
-
-func _test_acolyte_idle_speed_matches_default_cadence() -> void:
-	var board := CombatBoardView.new()
-	board.call("_load_assets")
-	var acolyte_unit := {"type": "acolyte", "pos": Vector2i.ZERO}
-	var crawler_unit := {"type": "crawler", "pos": Vector2i.ZERO}
-	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", acolyte_unit)), 0.1), "Acolyte idle frames should fall back to the default cadence when no override is set")
-	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", crawler_unit)), 0.1), "Units without an override should keep the default idle cadence")
-	board.set("_idle_elapsed", 0.09)
-	_assert(int(board.call("_idle_frame_index", acolyte_unit)) == 0, "Acolyte idle animation should still be on the first frame just before 0.1 seconds")
-	board.set("_idle_elapsed", 0.11)
-	_assert(int(board.call("_idle_frame_index", acolyte_unit)) == 1, "Acolyte idle animation should advance after the 0.1-second mark")
+	var seventh_frame: AtlasTexture = idle_frames[6] as AtlasTexture
+	var eighth_frame: AtlasTexture = idle_frames[7] as AtlasTexture
+	var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
+	_assert(idle_frames.size() == 12, "Emaciated Man anime trial art should skip the final source frame and ping-pong without duplicated endpoints")
+	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Emaciated Man anime trial idle sheet should use 4x2 frames")
+	_assert(first_frame != null and seventh_frame != null and eighth_frame != null and last_frame != null, "Emaciated Man idle frames should be atlas-backed slices")
+	_assert(first_frame.region.position == Vector2.ZERO, "Emaciated Man idle loop should keep the source frame at the start of the sheet")
+	_assert(seventh_frame.region != eighth_frame.region, "Emaciated Man idle loop should not hold the final frame at the turn-around")
+	_assert(first_frame.region != last_frame.region, "Emaciated Man idle loop should not hold the first frame at the loop boundary")
+	_assert(npc_texture != null, "Emaciated Man static art should load for board rendering")
+	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Ash Acolyte texture")
 
 func _test_foreground_props_fade_when_covering_behind_units() -> void:
 	var board := CombatBoardView.new()

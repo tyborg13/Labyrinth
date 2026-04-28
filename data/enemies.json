@@ -4,8 +4,9 @@
     "max_hp": 14,
     "reward_embers": 8,
     "accent": "#8f5e48",
-    "art_path": "res://assets/placeholders/units/crawler.png",
-    "art_scale": 0.75,
+    "art_path": "res://assets/placeholders/units/crawler_anime_trial.png",
+    "art_scale": 0.64,
+    "idle_sheet_ping_pong": true,
     "intents": [
       {
         "id": "skitter_strike",
@@ -41,11 +42,12 @@
     "max_hp": 12,
     "reward_embers": 10,
     "accent": "#7d5377",
-    "art_path": "res://assets/placeholders/units/acolyte.png",
+    "art_path": "res://assets/placeholders/units/acolyte_anime_trial.png",
     "art_offset_y": -16,
-    "idle_sheet_columns": 2,
-    "idle_sheet_rows": 4,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 2,
     "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": true,
     "intents": [
       {
         "id": "ash_bolt",
@@ -82,7 +84,8 @@
     "max_hp": 10,
     "reward_embers": 9,
     "accent": "#9b7348",
-    "art_path": "res://assets/placeholders/units/harrier.png",
+    "art_path": "res://assets/placeholders/units/harrier_anime_trial.png",
+    "idle_sheet_ping_pong": true,
     "intents": [
       {
         "id": "pelt",
@@ -117,7 +120,9 @@
     "max_hp": 20,
     "reward_embers": 14,
     "accent": "#5f6e69",
-    "art_path": "res://assets/placeholders/units/warden.png",
+    "art_path": "res://assets/placeholders/units/warden_anime_trial.png",
+    "art_scale": 1.18,
+    "idle_sheet_ping_pong": true,
     "intents": [
       {
         "id": "marching_blow",
