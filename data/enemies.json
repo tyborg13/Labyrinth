@@ -152,45 +152,97 @@
       }
     ]
   },
-  "heart_warden": {
-    "name": "Heart Warden",
-    "max_hp": 48,
-    "reward_embers": 55,
-    "accent": "#a1362d",
-    "art_path": "res://assets/placeholders/units/heart_warden.svg",
+  "zekarion": {
+    "name": "Zekarion, the Raging Tempest",
+    "max_hp": 72,
+    "reward_embers": 80,
+    "accent": "#f5d96c",
+    "art_path": "res://assets/placeholders/units/zekarion.png",
+    "art_scale": 1.92,
+    "art_offset_y": 18,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 2,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": true,
+    "idle_frame_seconds": 0.1,
+    "footprint": [2, 2],
+    "boss_bar": true,
+    "status_immunities": ["shock"],
     "intents": [
       {
-        "id": "heart_slam",
-        "name": "Heart Slam",
+        "id": "storm_claw",
+        "name": "Storm Claw",
         "weight": 3,
         "actions": [
           { "type": "move_toward", "range": 2 },
-          { "type": "melee", "damage": 10, "range": 1 }
+          { "type": "melee", "damage": 12, "range": 1, "shock": 1 }
         ]
       },
       {
-        "id": "sweeping_gale",
-        "name": "Sweeping Gale",
+        "id": "tempest_breath",
+        "name": "Tempest Breath",
         "weight": 3,
         "actions": [
-          { "type": "aoe", "damage": 7, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false }
+          { "type": "move_toward", "range": 1 },
+          { "type": "ranged", "damage": 8, "range": 6, "shock": 1 }
         ]
       },
       {
-        "id": "ward_of_stone",
-        "name": "Ward of Stone",
+        "id": "skybreak",
+        "name": "Skybreak",
         "weight": 2,
         "actions": [
-          { "type": "block", "amount": 10 }
+          { "type": "lightning_strikes", "damage": 7, "count": 6, "shock": 1 }
         ]
       },
       {
-        "id": "pulse_drain",
-        "name": "Pulse Drain",
+        "id": "call_wisps",
+        "name": "Call Wisps",
+        "weight": 0,
+        "actions": [
+          { "type": "summon_minions", "minion_type": "lightning_wisp", "count": 2 }
+        ]
+      }
+    ]
+  },
+  "lightning_wisp": {
+    "name": "Lightning Wisp",
+    "max_hp": 6,
+    "reward_embers": 0,
+    "accent": "#f5d96c",
+    "art_path": "res://assets/placeholders/units/lightning_wisp.png",
+    "art_scale": 0.68,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
+    "idle_frame_seconds": 0.15,
+    "intents": [
+      {
+        "id": "spark_dart",
+        "name": "Spark Dart",
+        "weight": 4,
+        "actions": [
+          { "type": "move_toward", "range": 4 },
+          { "type": "melee", "damage": 2, "range": 1 }
+        ]
+      },
+      {
+        "id": "static_lash",
+        "name": "Static Lash",
         "weight": 2,
         "actions": [
-          { "type": "ranged", "damage": 6, "range": 5 },
-          { "type": "heal_self", "amount": 4 }
+          { "type": "move_toward", "range": 3 },
+          { "type": "ranged", "damage": 2, "range": 3, "shock": 1 }
+        ]
+      },
+      {
+        "id": "blinding_arc",
+        "name": "Blinding Arc",
+        "weight": 1,
+        "actions": [
+          { "type": "move_away", "range": 2 },
+          { "type": "ranged", "damage": 1, "range": 4, "stun": 1 }
         ]
       }
     ]

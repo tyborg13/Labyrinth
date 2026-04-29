@@ -11,6 +11,8 @@ const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
+const ZEKARION_TYPE: String = "zekarion"
+const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const DEFAULT_AOE_PATTERN: Array = [
 	[0, 0],
 	[1, 0],
@@ -128,12 +130,11 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 				targets.append(tile)
 		"melee":
 			for enemy: Dictionary in _live_enemies(state):
-				var enemy_pos: Vector2i = enemy.get("pos", Vector2i(-1, -1))
-				if PathUtils.manhattan(player_pos, enemy_pos) <= int(action.get("range", 1)):
-					targets.append(enemy_pos)
+				if _enemy_distance_to_tile(enemy, player_pos) <= int(action.get("range", 1)):
+					targets.append(_closest_enemy_tile_to(enemy, player_pos))
 		"ranged":
 			for enemy: Dictionary in _live_enemies(state):
-				var enemy_pos: Vector2i = enemy.get("pos", Vector2i(-1, -1))
+				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 				if PathUtils.manhattan(player_pos, enemy_pos) > int(action.get("range", 1)):
 					continue
 				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
@@ -157,7 +158,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					targets.append(tile)
 		"push", "pull":
 			for enemy: Dictionary in _live_enemies(state):
-				var enemy_pos: Vector2i = enemy.get("pos", Vector2i(-1, -1))
+				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 				var max_range: int = int(action.get("range", 1))
 				if PathUtils.manhattan(player_pos, enemy_pos) > max_range:
 					continue
@@ -347,7 +348,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				if shocked and not _enemy_action_is_movement(action):
 					continue
 				var before_state: Dictionary = next_state.duplicate(true)
-				next_state = _resolve_enemy_action(next_state, enemy_index, action)
+				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng)
 				var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 				if not step.is_empty():
 					steps.append(step)
@@ -427,6 +428,11 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 func combat_outcome(state: Dictionary) -> String:
 	if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 		return "defeat"
+	if str(state.get("room_type", "")) == "boss":
+		for enemy: Dictionary in _live_enemies(state):
+			if str(enemy.get("type", "")) == ZEKARION_TYPE:
+				return ""
+		return "victory"
 	if _live_enemies(state).is_empty():
 		return "victory"
 	return ""
@@ -505,13 +511,13 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"amount": heal_amount,
 				"label": "Heal"
 			}
-		"melee", "ranged", "aoe", "push", "pull":
+		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var hp_loss: int = int(before_player.get("hp", 0)) - int(after_player.get("hp", 0))
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
 			var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
 			var moved: bool = before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO)
 			var status_text: String = _player_status_step_text(before_player, after_player, action)
-			if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0 and not moved and status_text.is_empty():
+			if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0 and not moved and status_text.is_empty() and action_type != "lightning_strikes":
 				return {}
 			var center_tile: Vector2i = before_player.get("pos", Vector2i.ZERO)
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
@@ -519,6 +525,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var aoe_tiles: Array[Vector2i] = []
 			if action_type == "aoe":
 				aoe_tiles = _best_aoe_tiles_for_target(before_state, action, center_tile, true)
+			elif action_type == "lightning_strikes":
+				aoe_tiles = _lightning_strike_tiles(before_state, before_enemy, action)
 			return {
 				"kind": action_type,
 				"actor_key": _enemy_key(after_enemy),
@@ -534,7 +542,20 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"block_loss": block_loss,
 				"stoneskin_loss": stoneskin_loss,
 				"status_text": status_text,
-				"label": "Strike" if action_type == "melee" else "Shot" if action_type == "ranged" else "Area" if action_type == "aoe" else "Push" if action_type == "push" else "Pull"
+				"label": "Strike" if action_type == "melee" else "Shot" if action_type == "ranged" else "Storm" if action_type == "lightning_strikes" else "Area" if action_type == "aoe" else "Push" if action_type == "push" else "Pull"
+			}
+		"summon_minions":
+			var before_count: int = before_enemies.size()
+			var after_count: int = after_enemies.size()
+			if after_count <= before_count:
+				return {}
+			return {
+				"kind": "summon",
+				"actor_key": _enemy_key(after_enemy),
+				"actor_name": actor_name,
+				"tile": after_enemy.get("pos", Vector2i.ZERO),
+				"amount": after_count - before_count,
+				"label": "Summon"
 			}
 		_:
 			return {}
@@ -542,7 +563,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 func _enemy_key(enemy: Dictionary) -> String:
 	return "enemy_%d" % int(enemy.get("id", -1))
 
-func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -586,10 +607,14 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_attack_player(next_state, enemy_index, action, "fires")
 		"aoe":
 			next_state = _enemy_attack_player(next_state, enemy_index, action, "sweeps the area")
+		"lightning_strikes":
+			next_state = _enemy_lightning_strikes(next_state, enemy_index, action)
 		"push":
 			next_state = _enemy_push_or_pull_player(next_state, enemy_index, action, true)
 		"pull":
 			next_state = _enemy_push_or_pull_player(next_state, enemy_index, action, false)
+		"summon_minions":
+			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
 	return next_state
 
 func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
@@ -679,6 +704,14 @@ func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	var enemy: Dictionary = _normalized_unit(enemy_value)
 	if not enemy.has("element"):
 		enemy["element"] = ElementData.NONE
+	if not enemy.has("footprint"):
+		var footprint_value: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("footprint", [])
+		if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
+			enemy["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	enemy["footprint"] = Vector2i(maxi(1, footprint.x), maxi(1, footprint.y))
+	for status_id: String in _enemy_status_immunities(enemy):
+		enemy[status_id] = 0
 	return enemy
 
 func _normalized_unit(unit_value: Variant) -> Dictionary:
@@ -700,6 +733,20 @@ func _normalized_unit(unit_value: Variant) -> Dictionary:
 		"delay": int(poison.get("delay", 0))
 	}
 	return unit
+
+func _enemy_status_immunities(enemy: Dictionary) -> Array[String]:
+	var immunities: Array[String] = []
+	var raw_immunities: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("status_immunities", [])
+	if typeof(raw_immunities) != TYPE_ARRAY:
+		return immunities
+	for immunity_var: Variant in raw_immunities:
+		var status_id: String = str(immunity_var)
+		if not status_id.is_empty() and not immunities.has(status_id):
+			immunities.append(status_id)
+	return immunities
+
+func _enemy_is_immune_to_status(enemy: Dictionary, status_id: String) -> bool:
+	return _enemy_status_immunities(enemy).has(status_id)
 
 func _action_has_keyword_effect(action: Dictionary) -> bool:
 	return (
@@ -725,7 +772,7 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		enemy["burn"] = int(enemy.get("burn", 0)) + int(action.get("burn", 0))
 	if int(action.get("freeze", 0)) > 0:
 		enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), int(action.get("freeze", 0)))
-	if int(action.get("shock", 0)) > 0:
+	if int(action.get("shock", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "shock"):
 		enemy["shock"] = maxi(int(enemy.get("shock", 0)), int(action.get("shock", 0)))
 	if int(action.get("stun", 0)) > 0:
 		enemy["stun"] = maxi(int(enemy.get("stun", 0)), int(action.get("stun", 0)))
@@ -812,12 +859,13 @@ func _enemy_attack_player(state: Dictionary, enemy_index: int, action: Dictionar
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
 	var connects: bool = false
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 	if action_type == "melee":
-		connects = PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) <= int(action.get("range", 1))
+		connects = _enemy_distance_to_tile(enemy, player_pos) <= int(action.get("range", 1))
 	elif action_type == "ranged":
 		connects = (
-			PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) <= int(action.get("range", 1))
-			and PathUtils.has_line_of_sight(next_state.get("grid", []), enemy.get("pos", Vector2i.ZERO), player_pos)
+			PathUtils.manhattan(source_pos, player_pos) <= int(action.get("range", 1))
+			and PathUtils.has_line_of_sight(next_state.get("grid", []), source_pos, player_pos)
 		)
 	elif action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
@@ -838,7 +886,7 @@ func _enemy_attack_player(state: Dictionary, enemy_index: int, action: Dictionar
 		verb,
 		damage
 	])
-	next_state = _apply_action_keywords_to_player(next_state, action, enemy.get("pos", Vector2i.ZERO))
+	next_state = _apply_action_keywords_to_player(next_state, action, source_pos)
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	return next_state
 
@@ -850,20 +898,72 @@ func _enemy_push_or_pull_player(state: Dictionary, enemy_index: int, action: Dic
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var max_range: int = int(action.get("range", 1))
-	if PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) > max_range:
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
+	if PathUtils.manhattan(source_pos, player_pos) > max_range:
 		return next_state
-	if max_range > 1 and not PathUtils.has_line_of_sight(next_state.get("grid", []), enemy.get("pos", Vector2i.ZERO), player_pos):
+	if max_range > 1 and not PathUtils.has_line_of_sight(next_state.get("grid", []), source_pos, player_pos):
 		return next_state
 	var damage: int = int(action.get("damage", 0))
 	if damage > 0:
 		next_state = _damage_player(next_state, damage, false)
-	next_state = _move_player_from_source(next_state, enemy.get("pos", Vector2i.ZERO), int(action.get("amount", 0)), pushing)
-	next_state = _apply_action_keywords_to_player(next_state, action, enemy.get("pos", Vector2i.ZERO))
+	next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
+	next_state = _apply_action_keywords_to_player(next_state, action, source_pos)
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	_log(next_state, "%s %s." % [
 		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
 		"batters the line" if pushing else "drags inward"
 	])
+	return next_state
+
+func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(next_state, enemy, action)
+	if strike_tiles.has(player.get("pos", Vector2i.ZERO)):
+		next_state = _damage_player(next_state, int(action.get("damage", 0)), false)
+		next_state = _apply_action_keywords_to_player(next_state, action, _closest_enemy_tile_to(enemy, player.get("pos", Vector2i.ZERO)))
+	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+	return next_state
+
+func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", []).duplicate(true)
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var minion_type: String = str(action.get("minion_type", LIGHTNING_WISP_TYPE))
+	var count: int = int(action.get("count", 2))
+	var spawn_tiles: Array[Vector2i] = _summon_tiles_for_enemy(next_state, enemy, count)
+	var first_minion_index: int = enemies.size()
+	var next_id: int = _next_enemy_id(next_state)
+	for tile: Vector2i in spawn_tiles:
+		var definition: Dictionary = GameData.enemy_def(minion_type)
+		var minion: Dictionary = {
+			"id": next_id,
+			"type": minion_type,
+			"element": str(next_state.get("room_element", ElementData.NONE)),
+			"pos": tile,
+			"hp": int(definition.get("max_hp", 1)),
+			"max_hp": int(definition.get("max_hp", 1)),
+			"block": 0,
+			"stoneskin": 0
+		}
+		enemies.append(minion)
+		next_id += 1
+	next_state["enemies"] = enemies
+	var intent_rng: RandomNumberGenerator = rng
+	if intent_rng == null:
+		intent_rng = RandomNumberGenerator.new()
+		intent_rng.state = int(next_state.get("rng_state", 1))
+	for minion_index: int in range(first_minion_index, first_minion_index + spawn_tiles.size()):
+		_assign_enemy_intent(next_state, minion_index, intent_rng)
+	if rng == null:
+		next_state["rng_state"] = intent_rng.state
+	_log(next_state, "%s summons lightning wisps." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
 func _push_or_pull_enemy(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
@@ -895,14 +995,16 @@ func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Ve
 			break
 		var current: Vector2i = enemy.get("pos", Vector2i.ZERO)
 		var occupied: Dictionary = _occupied_enemy_tiles(next_state, int(enemy.get("id", -1)))
-		var next_tile: Vector2i = (
+		var candidate: Vector2i = (
 			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, occupied, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99)))
 			if pushing
 			else _next_tile_toward_source(next_state.get("grid", []), current, source_pos, occupied)
 		)
-		if next_tile == current:
+		if candidate == current:
 			break
-		enemy["pos"] = next_tile
+		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))):
+			break
+		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
 		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
@@ -1038,7 +1140,11 @@ func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int) -> Dictionary:
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var trap_index: int = _trap_index_at_tile(state, enemy.get("pos", Vector2i(-1, -1)))
+	var trap_index: int = -1
+	for tile: Vector2i in _enemy_footprint_tiles(enemy):
+		trap_index = _trap_index_at_tile(state, tile)
+		if trap_index >= 0:
+			break
 	if trap_index < 0:
 		return state
 	var next_state: Dictionary = state
@@ -1410,6 +1516,11 @@ func _threat_attack_tiles(grid: Array, start_tile: Vector2i, action: Dictionary)
 					if tile == start_tile:
 						continue
 					lookup[tile] = true
+		"lightning_strikes":
+			for tile: Vector2i in PathUtils.diamond_tiles(start_tile, 99, grid):
+				if tile == start_tile or not PathUtils.is_passable(grid, tile):
+					continue
+				lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
 
 func _player_status_step_text(before_player: Dictionary, after_player: Dictionary, action: Dictionary) -> String:
@@ -1497,7 +1608,8 @@ func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionar
 	for enemy: Dictionary in _live_enemies(state):
 		if int(enemy.get("id", -1)) == exclude_id:
 			continue
-		occupied[enemy.get("pos", Vector2i(-1, -1))] = true
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			occupied[tile] = true
 	return occupied
 
 func _live_enemies(state: Dictionary) -> Array[Dictionary]:
@@ -1510,10 +1622,10 @@ func _live_enemies(state: Dictionary) -> Array[Dictionary]:
 func _enemy_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 	var enemies: Array = state.get("enemies", [])
 	for index: int in range(enemies.size()):
-		var enemy: Dictionary = enemies[index]
+		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if enemy.get("pos", Vector2i(-1, -1)) == tile:
+		if _enemy_footprint_tiles(enemy).has(tile):
 			return index
 	return -1
 
@@ -1524,12 +1636,136 @@ func _enemy_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array
 	var indices: Array[int] = []
 	var enemies: Array = state.get("enemies", [])
 	for index: int in range(enemies.size()):
-		var enemy: Dictionary = enemies[index]
+		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if tile_lookup.has(enemy.get("pos", Vector2i(-1, -1))):
-			indices.append(index)
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			if tile_lookup.has(tile):
+				indices.append(index)
+				break
 	return indices
+
+func _enemy_footprint_tiles(enemy: Dictionary, origin_override: Vector2i = Vector2i(-999, -999)) -> Array[Vector2i]:
+	var origin: Vector2i = origin_override if origin_override.x > -900 else enemy.get("pos", Vector2i(-1, -1))
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
+
+func _enemy_distance_to_tile(enemy: Dictionary, tile: Vector2i) -> int:
+	var best_distance: int = 9999
+	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
+		best_distance = mini(best_distance, PathUtils.manhattan(enemy_tile, tile))
+	return best_distance
+
+func _closest_enemy_tile_to(enemy: Dictionary, tile: Vector2i) -> Vector2i:
+	var best_tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var best_distance: int = 9999
+	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
+		var distance: int = PathUtils.manhattan(enemy_tile, tile)
+		if distance < best_distance:
+			best_distance = distance
+			best_tile = enemy_tile
+	return best_tile
+
+func _enemy_can_occupy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vector2i, occupied: Dictionary, blocked_target: Vector2i = Vector2i(-999, -999)) -> bool:
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		if tile == blocked_target:
+			return false
+		if occupied.has(tile):
+			return false
+		if not PathUtils.is_passable(state.get("grid", []), tile):
+			return false
+	return true
+
+func _lightning_strike_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	var grid: Array = state.get("grid", [])
+	var occupied: Dictionary = _occupied_enemy_tiles(state)
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile: Vector2i = Vector2i(x, y)
+			if occupied.has(tile):
+				continue
+			if not PathUtils.is_passable(grid, tile):
+				continue
+			candidates.append(tile)
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var a_score: int = _lightning_tile_score(state, enemy, action, a)
+		var b_score: int = _lightning_tile_score(state, enemy, action, b)
+		if a_score == b_score:
+			if a.y == b.y:
+				return a.x < b.x
+			return a.y < b.y
+		return a_score < b_score
+	)
+	var results: Array[Vector2i] = []
+	var strike_count: int = mini(int(action.get("count", 4)), candidates.size())
+	for index: int in range(strike_count):
+		results.append(candidates[index])
+	return results
+
+func _lightning_tile_score(state: Dictionary, enemy: Dictionary, action: Dictionary, tile: Vector2i) -> int:
+	var seed: int = int(state.get("rng_state", 0))
+	seed = int((seed + int(state.get("turn", 1)) * 1103515245 + int(enemy.get("id", 0)) * 92821 + int(action.get("count", 0)) * 193) & 0x7fffffff)
+	seed = int((seed + tile.x * 68917 + tile.y * 28307) & 0x7fffffff)
+	return seed
+
+func _summon_tiles_for_enemy(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	var occupied: Dictionary = _occupied_enemy_tiles(state)
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	occupied[player_pos] = true
+	for tile: Vector2i in PathUtils.diamond_tiles(enemy.get("pos", Vector2i.ZERO), 4, state.get("grid", [])):
+		if occupied.has(tile):
+			continue
+		if not PathUtils.is_passable(state.get("grid", []), tile):
+			continue
+		if _enemy_distance_to_tile(enemy, tile) <= 0:
+			continue
+		candidates.append(tile)
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var a_distance: int = _enemy_distance_to_tile(enemy, a)
+		var b_distance: int = _enemy_distance_to_tile(enemy, b)
+		if a_distance == b_distance:
+			if a.y == b.y:
+				return a.x < b.x
+			return a.y < b.y
+		return a_distance < b_distance
+	)
+	var results: Array[Vector2i] = []
+	for tile: Vector2i in candidates:
+		results.append(tile)
+		if results.size() >= count:
+			break
+	return results
+
+func _next_enemy_id(state: Dictionary) -> int:
+	var next_id: int = 1
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		next_id = maxi(next_id, int((enemy_var as Dictionary).get("id", 0)) + 1)
+	return next_id
+
+func _enemy_should_summon_wisps(state: Dictionary, enemy: Dictionary) -> bool:
+	if str(enemy.get("type", "")) != ZEKARION_TYPE:
+		return false
+	for other: Dictionary in _live_enemies(state):
+		if str(other.get("type", "")) == LIGHTNING_WISP_TYPE:
+			return false
+	return true
+
+func _zekarion_summon_intent() -> Dictionary:
+	return {
+		"id": "call_wisps",
+		"name": "Call Wisps",
+		"actions": [
+			{"type": "summon_minions", "minion_type": LIGHTNING_WISP_TYPE, "count": 2}
+		]
+	}
 
 func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, score_player: bool) -> Array[Vector2i]:
 	var grid: Array = state.get("grid", [])
@@ -1634,6 +1870,11 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var enemy_type: String = str(enemy.get("type", ""))
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
+	if _enemy_should_summon_wisps(state, enemy):
+		enemy["intent"] = _zekarion_summon_intent()
+		enemy["block"] = _preview_block_for_intent(enemy["intent"])
+		enemies[enemy_index] = enemy
+		return
 	var intents: Array = _elementalized_enemy_intents(
 		definition.get("intents", []),
 		str(state.get("room_element", ElementData.NONE)),
@@ -1781,13 +2022,25 @@ func _preview_block_for_intent(intent: Dictionary) -> int:
 
 func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, move_range: int) -> Vector2i:
 	var enemies: Array = state.get("enemies", [])
-	var enemy: Dictionary = enemies[enemy_index]
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	if move_range <= 0:
 		return start
 	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
 	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
 		occupied[trap_tile_var] = true
+	if enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
+		var reachable: Array[Vector2i] = _reachable_enemy_anchor_tiles(state, enemy, move_range, occupied, target)
+		var best_tile: Vector2i = start
+		var best_score: int = _enemy_distance_to_tile(enemy, target)
+		for tile: Vector2i in reachable:
+			var candidate_enemy: Dictionary = enemy.duplicate(true)
+			candidate_enemy["pos"] = tile
+			var score: int = _enemy_distance_to_tile(candidate_enemy, target)
+			if score < best_score:
+				best_tile = tile
+				best_score = score
+		return best_tile
 	var path: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), start, target, occupied, true)
 	if path.is_empty():
 		return start
@@ -1801,13 +2054,25 @@ func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, mo
 
 func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move_range: int) -> Vector2i:
 	var enemies: Array = state.get("enemies", [])
-	var enemy: Dictionary = enemies[enemy_index]
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	if move_range <= 0:
 		return start
 	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
 	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
 		occupied[trap_tile_var] = true
+	if enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
+		var reachable: Array[Vector2i] = _reachable_enemy_anchor_tiles(state, enemy, move_range, occupied, target)
+		var best_big_tile: Vector2i = start
+		var best_big_score: int = _enemy_distance_to_tile(enemy, target)
+		for tile: Vector2i in reachable:
+			var candidate_enemy: Dictionary = enemy.duplicate(true)
+			candidate_enemy["pos"] = tile
+			var score: int = _enemy_distance_to_tile(candidate_enemy, target)
+			if score > best_big_score:
+				best_big_tile = tile
+				best_big_score = score
+		return best_big_tile
 	var reachable: Array[Vector2i] = PathUtils.reachable_tiles(state.get("grid", []), start, move_range, occupied)
 	var best_tile: Vector2i = start
 	var best_score: int = PathUtils.manhattan(start, target)
@@ -1817,6 +2082,30 @@ func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move
 			best_tile = tile
 			best_score = score
 	return best_tile
+
+func _reachable_enemy_anchor_tiles(state: Dictionary, enemy: Dictionary, max_distance: int, occupied: Dictionary, blocked_target: Vector2i) -> Array[Vector2i]:
+	var results: Array[Vector2i] = []
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	if max_distance <= 0:
+		return results
+	var queue: Array[Vector2i] = _vector2i_values([start])
+	var distance_by_tile: Dictionary = {start: 0}
+	while not queue.is_empty():
+		var current: Vector2i = queue.pop_front()
+		var current_distance: int = int(distance_by_tile.get(current, 0))
+		if current_distance > 0:
+			results.append(current)
+		if current_distance >= max_distance:
+			continue
+		for dir: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current + dir
+			if distance_by_tile.has(next_tile):
+				continue
+			if not _enemy_can_occupy_anchor(state, enemy, next_tile, occupied, blocked_target):
+				continue
+			distance_by_tile[next_tile] = current_distance + 1
+			queue.append(next_tile)
+	return results
 
 func _attack_bonus_for_current_turn(state: Dictionary) -> int:
 	if bool((state.get("turn_flags", {}) as Dictionary).get("first_attack_bonus_used", false)):

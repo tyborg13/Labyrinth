@@ -88,14 +88,19 @@ theme_override_constants/separation = 12
 
 [node name="ContinueButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
 visible = false
-custom_minimum_size = Vector2(220, 56)
+custom_minimum_size = Vector2(196, 56)
 layout_mode = 2
 text = "Continue"
 
 [node name="StartButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
-custom_minimum_size = Vector2(220, 56)
+custom_minimum_size = Vector2(196, 56)
 layout_mode = 2
 text = "New Run"
+
+[node name="BossButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
+custom_minimum_size = Vector2(196, 56)
+layout_mode = 2
+text = "Fight Boss"
 
 [node name="UpgradePanel" type="PanelContainer" parent="Backdrop/Margin/Center/BodyRow"]
 custom_minimum_size = Vector2(430, 0)
@@ -127,3 +132,4 @@ theme_override_constants/separation = 12
 
 [connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/ContinueButton" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/BossButton" to="." method="_on_boss_button_pressed"]

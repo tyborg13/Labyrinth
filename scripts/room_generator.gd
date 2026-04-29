@@ -91,29 +91,37 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	_apply_available_doors(grid, room)
 	if room_type == "campfire":
 		_apply_campfire_layout(grid)
+	elif room_type == "boss":
+		_apply_boss_layout(grid)
 	else:
 		_apply_template(grid, rng)
 	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord, room_type)
 
 	var player_start: Vector2i = entrance_tile
 	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, depth, rng)
-	var enemy_positions: Array[Vector2i] = _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
+	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
-		enemies.append({
+		var enemy_type: String = str(enemy_types[index])
+		var enemy: Dictionary = {
 			"id": index + 1,
-			"type": enemy_types[index],
+			"type": enemy_type,
 			"element": room_element,
 			"pos": enemy_positions[index],
-			"hp": int(GameData.enemy_def(enemy_types[index]).get("max_hp", 1)),
-			"max_hp": int(GameData.enemy_def(enemy_types[index]).get("max_hp", 1)),
+			"hp": int(GameData.enemy_def(enemy_type).get("max_hp", 1)),
+			"max_hp": int(GameData.enemy_def(enemy_type).get("max_hp", 1)),
 			"block": 0,
 			"stoneskin": 0
-		})
+		}
+		var footprint: Array = GameData.enemy_def(enemy_type).get("footprint", [])
+		if footprint.size() >= 2:
+			enemy["footprint"] = Vector2i(int(footprint[0]), int(footprint[1]))
+		enemies.append(enemy)
 
 	var occupied: Dictionary = {player_start: true}
 	for enemy: Dictionary in enemies:
-		occupied[enemy.get("pos", Vector2i(-1, -1))] = true
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			occupied[tile] = true
 	var npcs: Array[Dictionary] = _build_room_npcs(grid, player_start, npc_specs, rng, occupied)
 	for npc: Dictionary in npcs:
 		occupied[npc.get("pos", Vector2i(-1, -1))] = true
@@ -209,6 +217,18 @@ func _campfire_pillar_tiles() -> Array[Vector2i]:
 		Vector2i(ROOM_WIDTH - 3, ROOM_HEIGHT - 3)
 	]
 	return tiles
+
+func _apply_boss_layout(grid: Array) -> void:
+	for y: int in range(1, ROOM_HEIGHT - 1):
+		for x: int in range(1, ROOM_WIDTH - 1):
+			grid[y][x] = TILE_ASH
+	for pillar_tile: Vector2i in [
+		Vector2i(1, 1),
+		Vector2i(7, 1),
+		Vector2i(1, 7),
+		Vector2i(7, 7)
+	]:
+		grid[pillar_tile.y][pillar_tile.x] = TILE_PILLAR
 
 func _campfire_inner_tiles() -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []
@@ -382,7 +402,7 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 	if room_type == "start" or room_type == "campfire" or room_type == "treasure":
 		return []
 	if room_type == "boss":
-		return ["heart_warden", "warden", "crawler"]
+		return ["zekarion", "lightning_wisp", "lightning_wisp"]
 	var pool: Array = []
 	match depth:
 		1:
@@ -404,6 +424,21 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 				["warden", "acolyte", "harrier", "crawler", "crawler"]
 			]
 	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
+
+func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
+	var positions: Array[Vector2i] = []
+	var wisp_slots: Array[Vector2i] = []
+	wisp_slots.append(Vector2i(2, 3))
+	wisp_slots.append(Vector2i(6, 5))
+	var wisp_index: int = 0
+	for enemy_type_var: Variant in enemy_types:
+		var enemy_type: String = str(enemy_type_var)
+		if enemy_type == "zekarion":
+			positions.append(Vector2i(4, 3))
+		else:
+			positions.append(wisp_slots[wisp_index % wisp_slots.size()])
+			wisp_index += 1
+	return positions
 
 func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng: RandomNumberGenerator) -> Array[Vector2i]:
 	var floor_tiles: Array[Vector2i] = _floor_tiles(grid)
@@ -678,9 +713,18 @@ func _floor_tiles(grid: Array) -> Array[Vector2i]:
 				tiles.append(tile)
 	return tiles
 
+func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
+	var origin: Vector2i = enemy.get("pos", Vector2i(-1, -1))
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
+
 func _room_name(coord: Vector2i, room_type: String, rng: RandomNumberGenerator) -> String:
 	if room_type == "boss":
-		return "The Heart Sanctum"
+		return "Tempest God's Perch"
 	if room_type == "campfire":
 		return "Ashen Campfire"
 	if room_type == "treasure":

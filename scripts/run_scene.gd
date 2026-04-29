@@ -48,7 +48,6 @@ const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
-
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
@@ -1430,6 +1429,12 @@ func _pile_card_style(fill: Color, border: Color, margin: float = 10.0) -> Style
 
 func _boot_run() -> void:
 	_progression = ProgressionStore.load_data()
+	var debug_boss: bool = bool(get_tree().root.get_meta("labyrinth_debug_boss_run", false))
+	if get_tree().root.has_meta("labyrinth_debug_boss_run"):
+		get_tree().root.remove_meta("labyrinth_debug_boss_run")
+	if debug_boss:
+		_start_debug_boss_run()
+		return
 	var should_resume: bool = bool(get_tree().root.get_meta("labyrinth_resume_saved_run", false))
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
 		get_tree().root.remove_meta("labyrinth_resume_saved_run")
@@ -1465,6 +1470,12 @@ func _start_run() -> void:
 	ProgressionStore.clear_saved_run()
 	var new_run_state: Dictionary = _ensure_run_analytics_metadata(_run_engine.create_new_run(_new_seed(), _progression))
 	_load_run_state(new_run_state)
+	_analytics_log_run_started()
+
+func _start_debug_boss_run() -> void:
+	_progression = ProgressionStore.default_data()
+	var run_state: Dictionary = _run_engine.create_debug_boss_run(_progression)
+	_load_run_state(_ensure_run_analytics_metadata(run_state))
 	_analytics_log_run_started()
 
 func _refresh_ui() -> void:
@@ -1824,7 +1835,7 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = (display_state.get("enemies", []) as Array)[enemy_index]
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		if enemy.get("pos", Vector2i(-1, -1)) != _hovered_board_tile:
+		if not _enemy_footprint_tiles(enemy).has(_hovered_board_tile):
 			continue
 		var threat: Dictionary = _combat_engine.enemy_threat_tiles(display_state, enemy_index)
 		threat["enemy_key"] = _enemy_key(enemy)
@@ -2862,9 +2873,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"effect": step,
 					"floating_texts": _floating_texts_for_step(step)
 				})
-			"melee", "ranged", "aoe", "push", "pull":
+			"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
-				if str(step.get("kind", "")) == "aoe":
+				if str(step.get("kind", "")) in ["aoe", "lightning_strikes"]:
 					focus_tiles = _vector2i_array(step.get("tiles", []))
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
@@ -2950,7 +2961,7 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			_add_enemy_heal_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"status_damage":
 			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
-		"melee", "ranged", "aoe", "push", "pull":
+		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			_apply_player_losses(animated_state, int(step.get("hp_loss", 0)), int(step.get("block_loss", 0)), int(step.get("stoneskin_loss", 0)))
 			if step.has("player_to"):
 				_set_player_pos(animated_state, step.get("player_to", Vector2i.ZERO))
@@ -2992,7 +3003,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"color": Color("f39779"),
 				"offset": -6.0
 			}]
-		"melee", "ranged", "aoe", "push", "pull":
+		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var floats: Array[Dictionary] = []
 			if int(step.get("hp_loss", 0)) > 0:
 				floats.append({
@@ -3332,10 +3343,14 @@ func _on_relic_pressed(relic_id: String) -> void:
 	_refresh_ui()
 
 func _on_back_to_menu_pressed() -> void:
-	ProgressionStore.clear_saved_run()
+	if not _is_debug_boss_run():
+		ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_restart_pressed() -> void:
+	if _is_debug_boss_run():
+		_start_debug_boss_run()
+		return
 	ProgressionStore.clear_saved_run()
 	_start_run()
 
@@ -3374,7 +3389,12 @@ func _committed_run_state() -> Dictionary:
 		state = _run_engine.set_combat_state(state, _combat_state)
 	return state
 
+func _is_debug_boss_run() -> bool:
+	return bool(_run_state.get("debug_boss_run", false))
+
 func _save_run_progress() -> void:
+	if _is_debug_boss_run():
+		return
 	ProgressionStore.save_data(_progression)
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode in ["victory", "defeat"] or _run_state.is_empty():
@@ -3396,7 +3416,8 @@ func _on_abandon_run_pressed() -> void:
 	_close_menu_overlay()
 	_reset_card_resolution()
 	_analytics_log_run_ended("abandoned")
-	ProgressionStore.clear_saved_run()
+	if not _is_debug_boss_run():
+		ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_pile_gui_input(event: InputEvent, pile_kind: String) -> void:
@@ -4168,6 +4189,10 @@ func _locked_door_tiles_for_board() -> Dictionary:
 	return locked
 
 func _process_victory_banking() -> void:
+	if _is_debug_boss_run():
+		_victory_bank_amount = _run_engine.bankable_embers(_run_state)
+		_victory_bank_processed = true
+		return
 	var amount: int = _run_engine.bankable_embers(_run_state)
 	_victory_bank_amount = amount
 	if amount > 0:
@@ -4178,6 +4203,9 @@ func _process_victory_banking() -> void:
 	_victory_bank_processed = true
 
 func _process_defeat_loss() -> void:
+	if _is_debug_boss_run():
+		_defeat_loss_processed = true
+		return
 	var lost_amount: int = _run_engine.bankable_embers(_run_state)
 	_progression = ProgressionStore.record_lost_embers(
 		_progression,
@@ -4196,8 +4224,18 @@ func _enemy_occupied_tiles(state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = enemy_var
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		occupied[enemy.get("pos", Vector2i.ZERO)] = true
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			occupied[tile] = true
 	return occupied
+
+func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
+	var origin: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
 
 func _enemy_key(enemy: Dictionary) -> String:
 	return "enemy_%d" % int(enemy.get("id", -1))

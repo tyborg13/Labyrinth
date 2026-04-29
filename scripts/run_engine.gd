@@ -14,6 +14,8 @@ const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const REWARD_HEAL: int = 6
 const BOSS_VICTORY_EMBERS: int = 30
+const DEBUG_BOSS_SEED: int = 90429
+const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -55,6 +57,82 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	_reveal_neighbors(run_state, Vector2i.ZERO)
 	_try_recover_lost_embers(run_state)
 	return run_state
+
+func create_debug_boss_run(progression: Dictionary) -> Dictionary:
+	var max_hp: int = 42
+	var current_hp: int = 34
+	var deck_cards: Array[String] = []
+	for card_id: String in [
+		"quick_stab",
+		"guarded_step",
+		"shadow_step",
+		"bone_dart",
+		"sidestep_slash",
+		"whirlwind_slash",
+		"patch_up",
+		"bloody_lunge",
+		"brace",
+		"lantern_shot",
+		"iron_wheel",
+		"ricochet_knife",
+		"warded_advance",
+		"cinderburst",
+		"chain_bolt",
+		"static_lash",
+		"volt_surge",
+		"frostbolt"
+	]:
+		deck_cards.append(card_id)
+	var relics: Array[String] = []
+	for relic_id: String in ["iron_lung", "ember_lens", "pilgrim_boots"]:
+		relics.append(relic_id)
+	var boss_room: Dictionary = _build_room_metadata(DEBUG_BOSS_SEED, DEBUG_BOSS_COORD)
+	boss_room["revealed"] = true
+	boss_room["visited"] = true
+	boss_room["cleared"] = false
+	boss_room["sealed"] = false
+	var layout: Dictionary = _combat_layout_for_room(boss_room, Vector2i(1, 0), {"seed": DEBUG_BOSS_SEED})
+	var player_snapshot: Dictionary = {
+		"hp": current_hp,
+		"max_hp": max_hp,
+		"deck_cards": deck_cards,
+		"relics": relics,
+		"hand_size": BASE_HAND_SIZE,
+		"cards_per_turn": BASE_CARDS_PER_TURN,
+		"draw_per_turn": BASE_DRAW_PER_TURN,
+		"heal_bonus": 2,
+		"card_upgrades": {},
+		"card_mods": {}
+	}
+	var combat_state: Dictionary = _combat_engine.create_combat(DEBUG_BOSS_SEED, layout, player_snapshot)
+	var rooms: Dictionary = {}
+	rooms[_room_key(DEBUG_BOSS_COORD)] = boss_room
+	return {
+		"seed": DEBUG_BOSS_SEED,
+		"run_index": -1,
+		"mode": "combat",
+		"current_room": DEBUG_BOSS_COORD,
+		"current_room_layout": layout,
+		"rooms": rooms,
+		"deck_cards": deck_cards,
+		"relics": relics,
+		"player_hp": current_hp,
+		"player_max_hp": max_hp,
+		"hand_size": BASE_HAND_SIZE,
+		"cards_per_turn": BASE_CARDS_PER_TURN,
+		"draw_per_turn": BASE_DRAW_PER_TURN,
+		"heal_bonus": 2,
+		"unbanked_embers": 44,
+		"combat_state": combat_state,
+		"pending_reward": {},
+		"pending_relics": [],
+		"game_over": false,
+		"victory": false,
+		"turns_spent": 11,
+		"notice": "Debug boss fixture",
+		"progression": progression.duplicate(true),
+		"debug_boss_run": true
+	}
 
 func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -196,6 +274,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
 	next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + total_embers
 	if str(room.get("type", "")) == "boss":
+		next_state["player_hp"] = int(next_state.get("player_max_hp", next_state.get("player_hp", 1)))
 		next_state["victory"] = true
 		next_state["mode"] = "victory"
 		next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + BOSS_VICTORY_EMBERS
@@ -361,6 +440,8 @@ func _room_type_for_coord(seed: int, coord: Vector2i) -> String:
 	return "combat"
 
 func _room_element_for_coord(seed: int, coord: Vector2i, room_type: String) -> String:
+	if room_type == "boss":
+		return ElementData.LIGHTNING
 	if room_type != "combat":
 		return ElementData.NONE
 	var roll: int = _coord_hash(seed, coord, 151) % ElementData.all_elements().size()

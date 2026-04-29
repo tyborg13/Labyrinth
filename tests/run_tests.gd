@@ -37,6 +37,7 @@ func _initialize() -> void:
 	_test_room_generation_populates_elemental_traps()
 	_test_campfire_room_uses_bonfire_layout()
 	_test_room_generation_scales_enemy_density()
+	_test_boss_room_spawns_zekarion_with_wisps()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
@@ -58,6 +59,9 @@ func _initialize() -> void:
 	_test_poison_and_stoneskin_behaviors()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_threat_tiles_follow_intent()
+	_test_zekarion_summons_wisps_when_alone()
+	_test_summoned_wisps_receive_preview_intents()
+	_test_zekarion_ignores_shock_status()
 	_test_enemy_pathfinding_avoids_traps()
 	_test_shallow_elemental_enemy_actions_scale_back()
 	_test_status_badges_surface_countdowns()
@@ -68,11 +72,15 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_down_from_top_edge()
+	_test_boss_intent_layout_avoids_boss_health_bar()
+	_test_boss_health_bar_overlays_above_board_origin()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_player_uses_original_anime_art()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
+	_test_zekarion_uses_matching_idle_sheet()
+	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_combat_board_zooms_to_rendered_room_bounds()
@@ -102,6 +110,7 @@ func _initialize() -> void:
 	_test_empty_treasure_room_falls_back_to_room_mode()
 	_test_loaded_run_repairs_stranded_room_visibility()
 	_test_combat_finish_generates_reward_state()
+	_test_boss_victory_restores_player_health()
 	_test_progression_save_and_purchase(default_progression)
 	_test_emaciated_man_unlocks_card_upgrade_dialogue()
 	_test_recovery_marker_flow()
@@ -110,6 +119,7 @@ func _initialize() -> void:
 	_test_hand_fan_layout_lifts_center_cards()
 	_test_default_theme_uses_pixel_font()
 	await _test_main_scenes_instantiate()
+	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_campfire_choices_use_context_overlay()
@@ -360,6 +370,27 @@ func _test_room_generation_scales_enemy_density() -> void:
 	_assert((depth_one_room.get("enemies", []) as Array).size() >= 3, "Opening combat rooms should pack at least three enemies")
 	_assert((depth_three_room.get("enemies", []) as Array).size() >= 5, "Outer combat rooms should feel denser than the opening ring")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
+
+func _test_boss_room_spawns_zekarion_with_wisps() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var room: Dictionary = generator.generate_room(100, {
+		"coord": Vector2i(4, 0),
+		"depth": 4,
+		"type": "boss",
+		"element": ElementData.LIGHTNING
+	}, Vector2i(1, 0))
+	var enemies: Array = room.get("enemies", [])
+	_assert(enemies.size() == 3, "Depth-four boss room should spawn Zekarion and two wisps")
+	var zekarion: Dictionary = enemies[0]
+	_assert(str(zekarion.get("type", "")) == "zekarion", "Boss room primary enemy should be Zekarion")
+	_assert(zekarion.get("footprint", Vector2i.ZERO) == Vector2i(2, 2), "Zekarion should occupy a 2x2 footprint")
+	var occupied: Dictionary = {}
+	for tile: Vector2i in _enemy_footprint_tiles_for_test(zekarion):
+		occupied[tile] = true
+		_assert(PathUtils.is_passable(room.get("grid", []), tile), "Zekarion footprint should be on passable terrain")
+	_assert(occupied.size() == 4, "Zekarion footprint should cover four unique squares")
+	_assert(str((enemies[1] as Dictionary).get("type", "")) == "lightning_wisp", "Boss room should include lightning wisps")
+	_assert(str((enemies[2] as Dictionary).get("type", "")) == "lightning_wisp", "Boss room should include a second lightning wisp")
 
 func _test_start_room_spawns_emaciated_man() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -1050,6 +1081,100 @@ func _test_enemy_threat_tiles_follow_intent() -> void:
 	_assert(attack_tiles.has(Vector2i(2, 4)), "Threat previews should include the player's tile when the intent can connect after moving")
 	_assert(not attack_tiles.has(Vector2i(4, 2)), "Attack overlays should stay separate from the movement tiles they build from")
 
+func _test_zekarion_summons_wisps_when_alone() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(44, _zekarion_test_room_layout(), {
+		"hp": 24,
+		"max_hp": 36,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		if str(enemy.get("type", "")) == "zekarion":
+			enemy["intent"] = {"id": "debug_wait", "name": "Wait", "actions": []}
+			enemies[index] = enemy
+		if str(enemy.get("type", "")) == "lightning_wisp":
+			enemy["hp"] = 0
+			enemies[index] = enemy
+	state["enemies"] = enemies
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var next_state: Dictionary = phase.get("state", {})
+	var live_wisps: int = 0
+	for enemy_var: Variant in next_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
+			live_wisps += 1
+	_assert(live_wisps == 0, "Zekarion should finish his current intent before scheduling a wisp summon")
+	var scheduled_summon: bool = false
+	for enemy_var: Variant in next_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) == "zekarion":
+			scheduled_summon = str((enemy.get("intent", {}) as Dictionary).get("id", "")) == "call_wisps"
+	_assert(scheduled_summon, "Zekarion should choose Call Wisps as his next intent when no wisps remain")
+	var summon_phase: Dictionary = combat.resolve_enemy_phase_with_steps(next_state)
+	var summoned_state: Dictionary = summon_phase.get("state", {})
+	live_wisps = 0
+	for enemy_var: Variant in summoned_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
+			live_wisps += 1
+	_assert(live_wisps == 2, "Zekarion should summon two wisps when his scheduled summon turn executes")
+
+func _test_summoned_wisps_receive_preview_intents() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(45, _zekarion_test_room_layout(), {
+		"hp": 24,
+		"max_hp": 36,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		if str(enemy.get("type", "")) == "zekarion":
+			enemy["intent"] = {
+				"id": "call_wisps",
+				"name": "Call Wisps",
+				"actions": [{"type": "summon_minions", "minion_type": "lightning_wisp", "count": 2}]
+			}
+			enemies[index] = enemy
+		elif str(enemy.get("type", "")) == "lightning_wisp":
+			enemy["hp"] = 0
+			enemies[index] = enemy
+	state["enemies"] = enemies
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var next_state: Dictionary = phase.get("state", {})
+	for enemy_var: Variant in next_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
+			_assert(not (enemy.get("intent", {}) as Dictionary).is_empty(), "Summoned wisps should immediately receive a preview intent")
+
+func _test_zekarion_ignores_shock_status() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(46, _zekarion_test_room_layout(), {
+		"hp": 24,
+		"max_hp": 36,
+		"deck_cards": ["static_lash"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		if str(enemy.get("type", "")) != "zekarion":
+			continue
+		state = combat.call("_apply_action_keywords_to_enemy", state, index, {"type": "ranged", "shock": 1}, Vector2i(2, 2))
+		var zekarion: Dictionary = (state.get("enemies", []) as Array)[index]
+		_assert(int(zekarion.get("shock", 0)) == 0, "Zekarion should ignore lightning shock status")
+		break
+
 func _test_status_badges_surface_countdowns() -> void:
 	var board := CombatBoardView.new()
 	var badges: Array = board.call("_unit_status_badges", {
@@ -1225,6 +1350,41 @@ func _test_enemy_hud_layout_offsets_down_from_top_edge() -> void:
 	_assert(offset.y > 0.0, "Enemy HUD layout should move downward when a top-edge intent would clip offscreen")
 	_assert(intent_rect.position.y >= 6.0, "Top-edge enemy intents should remain inside the board viewport")
 
+func _test_boss_intent_layout_avoids_boss_health_bar() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
+	var boss := {
+		"type": "zekarion",
+		"role": "enemy",
+		"pos": Vector2i(4, 4),
+		"footprint": Vector2i(2, 2),
+		"boss_bar": true,
+		"intent": {
+			"name": "Tempest Breath",
+			"actions": [
+				{"type": "move_toward", "range": 1},
+				{"type": "ranged", "damage": 8, "range": 6, "shock": 1}
+			]
+		}
+	}
+	var center := Vector2(480.0, 145.0)
+	var boss_bar: Rect2 = board.call("_boss_health_bar_rect").grow(6.0)
+	var compact_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [boss_bar], font)
+	var compact_rect: Rect2 = compact_layout.get("intent_rect", Rect2())
+	board.presentation = {"show_all_enemy_intents": true}
+	var expanded_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [boss_bar], font)
+	var expanded_rect: Rect2 = expanded_layout.get("intent_rect", Rect2())
+	_assert(not expanded_rect.intersects(boss_bar, false), "Expanded boss intents should avoid the boss health bar")
+	_assert(is_equal_approx(compact_rect.end.y, expanded_rect.end.y), "Compact boss intent placement should be anchored to the expanded layout")
+
+func _test_boss_health_bar_overlays_above_board_origin() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var boss_bar: Rect2 = board.call("_boss_health_bar_rect")
+	_assert(boss_bar.position.y < 0.0, "Boss health bar should overlay upward outside the board layout")
+	_assert(boss_bar.end.y > 0.0, "Boss health bar should still encroach slightly into the board zone")
+
 func _test_enemy_art_scale_preserves_center() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
@@ -1301,6 +1461,37 @@ func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 		_assert(first_frame.region != last_frame.region, "%s anime trial idle loop should not hold the first frame at the loop boundary" % enemy_type)
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", enemy_unit)), 0.1), "%s anime trial idle loop should use the original frame cadence" % enemy_type)
 		_assert(texture != null, "%s anime trial art should load for board rendering" % enemy_type)
+
+func _test_zekarion_uses_matching_idle_sheet() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	var boss_unit := {"key": "enemy_zekarion", "type": "zekarion"}
+	var idle_frames: Array = board.call("_unit_idle_frames", boss_unit)
+	var texture: Texture2D = board.call("_texture_for_unit", boss_unit)
+	_assert(idle_frames.size() == 12, "Zekarion should load a matching 4x2 ping-pong idle sheet")
+	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Zekarion idle frames should use 1020px 4x2 source cells")
+	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", boss_unit)), 0.1), "Zekarion idle loop should use the boss frame cadence")
+	_assert(texture != null, "Zekarion idle art should load for board rendering")
+
+func _test_lightning_wisp_uses_normal_loop_idle_sheet() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	var wisp_unit := {"key": "enemy_wisp", "type": "lightning_wisp"}
+	var idle_frames: Array = board.call("_unit_idle_frames", wisp_unit)
+	var texture: Texture2D = board.call("_texture_for_unit", wisp_unit)
+	var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
+	var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
+	_assert(idle_frames.size() == 16, "Lightning wisp should load all 16 source frames without ping-ponging")
+	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Lightning wisp idle frames should use 1020px 4x4 source cells")
+	_assert(first_frame != null and last_frame != null, "Lightning wisp idle frames should be atlas-backed slices")
+	_assert(first_frame.region.position == Vector2.ZERO, "Lightning wisp normal loop should start at the first source frame")
+	_assert(last_frame.region.position == Vector2(3060.0, 3060.0), "Lightning wisp normal loop should include the final source frame")
+	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", wisp_unit)), 0.15), "Lightning wisp idle loop should match the downloaded GIF cadence")
+	_assert(texture != null, "Lightning wisp idle art should load for board rendering")
 
 func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
@@ -1875,6 +2066,46 @@ func _test_combat_finish_generates_reward_state() -> void:
 	_assert(int(run_state.get("unbanked_embers", 0)) >= 12, "Combat victory should award embers to the run")
 	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
 
+func _test_boss_victory_restores_player_health() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
+	run_state["current_room"] = Vector2i(4, 0)
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	rooms["4,0"] = {
+		"coord": Vector2i(4, 0),
+		"depth": 4,
+		"type": "boss",
+		"element": ElementData.LIGHTNING,
+		"revealed": true,
+		"visited": true,
+		"cleared": false,
+		"connections": []
+	}
+	run_state["rooms"] = rooms
+	run_state["player_hp"] = 9
+	run_state["player_max_hp"] = 36
+	var combat_state: Dictionary = _zekarion_test_room_layout()
+	combat_state["room_name"] = "Tempest God's Perch"
+	combat_state["room_coord"] = Vector2i(4, 0)
+	combat_state["room_depth"] = 4
+	combat_state["room_type"] = "boss"
+	combat_state["room_element"] = ElementData.LIGHTNING
+	combat_state["player"] = {
+		"pos": Vector2i(2, 6),
+		"hp": 9,
+		"max_hp": 36,
+		"block": 0,
+		"stoneskin": 0
+	}
+	for index: int in range((combat_state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[index]
+		if str(enemy.get("type", "")) == "zekarion":
+			enemy["hp"] = 0
+			(combat_state.get("enemies", []) as Array)[index] = enemy
+	run_state = run_engine.finish_combat(run_state, combat_state)
+	_assert(str(run_state.get("mode", "")) == "victory", "Defeating Zekarion should end the run in victory")
+	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating Zekarion should restore the player to full health")
+
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
 	var data: Dictionary = ProgressionStore.add_embers(default_progression, 1000)
 	_assert(ProgressionStore.save_data(data), "Progression save should succeed")
@@ -2032,6 +2263,35 @@ func _test_main_scenes_instantiate() -> void:
 	root.add_child(run_scene_instance)
 	await process_frame
 	run_scene_instance.queue_free()
+	await process_frame
+
+func _test_run_scene_debug_boss_fixture_boots() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for debug boss fixture coverage")
+		return
+	root.set_meta("labyrinth_debug_boss_run", true)
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	var combat_state: Dictionary = instance.get("_combat_state")
+	_assert(bool(run_state.get("debug_boss_run", false)), "Debug boss fixture should mark its run as independent")
+	_assert(str(run_state.get("mode", "")) == "combat", "Debug boss fixture should boot directly into combat")
+	_assert(str(combat_state.get("room_type", "")) == "boss", "Debug boss fixture should load the boss room")
+	_assert(int(run_state.get("player_max_hp", 0)) >= 40, "Debug boss fixture should grant plausible late-run max health")
+	_assert(int(run_state.get("hand_size", 0)) == 5, "Debug boss fixture should keep the normal hand UI footprint")
+	_assert((run_state.get("deck_cards", []) as Array).size() > GameData.starting_deck().size(), "Debug boss fixture should grant a progressed deck")
+	var found_boss: bool = false
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) == "zekarion":
+			found_boss = true
+			break
+	_assert(found_boss, "Debug boss fixture should spawn Zekarion")
+	instance.queue_free()
+	if root.has_meta("labyrinth_debug_boss_run"):
+		root.remove_meta("labyrinth_debug_boss_run")
 	await process_frame
 
 func _test_run_scene_offers_pass_during_combat() -> void:
@@ -2836,6 +3096,48 @@ func _aoe_test_room_layout() -> Dictionary:
 		"loot": []
 	}
 
+func _zekarion_test_room_layout() -> Dictionary:
+	return {
+		"name": "Tempest God's Perch",
+		"coord": Vector2i(4, 0),
+		"depth": 4,
+		"type": "boss",
+		"element": ElementData.LIGHTNING,
+		"grid": _simple_grid(),
+		"player_start": Vector2i(2, 6),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "zekarion",
+				"element": ElementData.LIGHTNING,
+				"pos": Vector2i(4, 3),
+				"footprint": Vector2i(2, 2),
+				"hp": 72,
+				"max_hp": 72,
+				"block": 0
+			},
+			{
+				"id": 2,
+				"type": "lightning_wisp",
+				"element": ElementData.LIGHTNING,
+				"pos": Vector2i(2, 3),
+				"hp": 6,
+				"max_hp": 6,
+				"block": 0
+			},
+			{
+				"id": 3,
+				"type": "lightning_wisp",
+				"element": ElementData.LIGHTNING,
+				"pos": Vector2i(6, 5),
+				"hp": 6,
+				"max_hp": 6,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
 func _dead_hand_room_layout() -> Dictionary:
 	return {
 		"name": "Dead Hand Room",
@@ -2931,6 +3233,15 @@ func _simple_grid() -> Array:
 				row.append("ash")
 		grid.append(row)
 	return grid
+
+func _enemy_footprint_tiles_for_test(enemy: Dictionary) -> Array[Vector2i]:
+	var origin: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
 
 func _find_boundary_segment(segments: Array, orientation: String) -> Dictionary:
 	for segment_var: Variant in segments:

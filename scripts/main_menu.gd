@@ -13,6 +13,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 @onready var footer_label: Label = $Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/Footer
 @onready var continue_button: Button = $Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/ContinueButton
 @onready var start_button: Button = $Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/StartButton
+@onready var boss_button: Button = $Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/BossButton
 @onready var upgrade_panel: PanelContainer = $Backdrop/Margin/Center/BodyRow/UpgradePanel
 @onready var upgrade_title_label: Label = $Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox/UpgradeTitle
 @onready var upgrade_subtitle_label: Label = $Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox/UpgradeSubtitle
@@ -33,7 +34,11 @@ func _apply_style() -> void:
 	_ui_skin.apply_button_text_overrides(continue_button)
 	_ui_skin.apply_button_stylebox_overrides(start_button)
 	_ui_skin.apply_button_text_overrides(start_button)
+	_ui_skin.apply_button_stylebox_overrides(boss_button)
+	_ui_skin.apply_button_text_overrides(boss_button)
 	UiTypography.set_button_size(continue_button, UiTypography.SIZE_SMALL)
+	UiTypography.set_button_size(start_button, UiTypography.SIZE_SMALL)
+	UiTypography.set_button_size(boss_button, UiTypography.SIZE_SMALL)
 	continue_button.disabled = false
 	UiTypography.set_label_size(title_label, UiTypography.SIZE_HERO)
 	UiTypography.set_label_size(subtitle_label, UiTypography.SIZE_BODY_LARGE)
@@ -104,6 +109,12 @@ func _on_start_button_pressed() -> void:
 
 func _on_continue_button_pressed() -> void:
 	get_tree().root.set_meta("labyrinth_resume_saved_run", true)
+	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
+
+func _on_boss_button_pressed() -> void:
+	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
+		get_tree().root.remove_meta("labyrinth_resume_saved_run")
+	get_tree().root.set_meta("labyrinth_debug_boss_run", true)
 	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _clear_children(node: Node) -> void:

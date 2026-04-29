@@ -34,6 +34,10 @@ const STATUS_STUN: Color = Color("82d6c7")
 const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
+const BOSS_HEALTH_BAR_SIZE: Vector2 = Vector2(760.0, 30.0)
+const BOSS_HEALTH_BAR_Y: float = -24.0
+const BOSS_INTENT_ICON_SIZE: float = 20.0
+const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
 const INTENT_POPUP_PADDING_X: float = 8.0
 const INTENT_POPUP_TITLE_FONT_SIZE: int = 9
@@ -53,10 +57,10 @@ const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 const OUTER_WALL_RENDERING_ENABLED: bool = false
 const BOARD_SIDE_MARGIN: float = 36.0
 const BOARD_VERTICAL_MARGIN: float = 8.0
-const BOARD_TOP_CLEARANCE_SCALE: float = 0.74
-const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.30
-const BOARD_VERTICAL_BIAS: float = 0.22
-const BOARD_MAX_TILE_WIDTH: float = 190.0
+const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
+const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
+const BOARD_VERTICAL_BIAS: float = 0.28
+const BOARD_MAX_TILE_WIDTH: float = 184.0
 const DOOR_FRAME_WIDTH_SCALE: float = 1.4
 const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
 const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
@@ -147,7 +151,7 @@ var _board_layout_cache_origin: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	clip_contents = true
+	clip_contents = false
 	custom_minimum_size = Vector2(960.0, 680.0)
 	set_process(true)
 	_load_assets()
@@ -722,6 +726,9 @@ func _visible_units() -> Array[Dictionary]:
 			"key": "enemy_%d" % int(enemy.get("id", -1)),
 			"role": "enemy",
 			"type": str(enemy.get("type", "")),
+			"name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+			"boss_bar": bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)),
+			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"intent": enemy.get("intent", {}),
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
@@ -790,6 +797,13 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
 			continue
+		if bool(unit.get("boss_bar", false)):
+			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
+			_draw_enemy_intent_layout(boss_layout, font)
+			for rect_var: Variant in boss_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+			continue
 		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
 		if str(unit.get("role", "")) == "enemy":
 			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
@@ -804,6 +818,7 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			continue
 		_draw_health_bar(unit, health_rect)
 		_draw_unit_statuses(unit, health_rect)
+	_draw_boss_health_bar(units_to_draw)
 
 func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
 	var font: Font = get_theme_default_font()
@@ -887,6 +902,47 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	if stoneskin_amount > 0:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
+
+func _draw_boss_health_bar(units_to_draw: Array[Dictionary]) -> void:
+	var boss_unit: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("boss_bar", false)) and int(unit.get("hp", 0)) > 0:
+			boss_unit = unit
+			break
+	if boss_unit.is_empty():
+		return
+	var font: Font = get_theme_default_font()
+	var bar_rect: Rect2 = _boss_health_bar_rect()
+	var name: String = str(boss_unit.get("name", "Boss"))
+	if font != null:
+		var name_rect := Rect2(Vector2(bar_rect.position.x, bar_rect.position.y - 30.0), Vector2(bar_rect.size.x, 24.0))
+		var name_baseline: Vector2 = name_rect.position + Vector2(0.0, 21.0)
+		for outline_offset: Vector2 in [Vector2(-2.0, 0.0), Vector2(2.0, 0.0), Vector2(0.0, -2.0), Vector2(0.0, 2.0), Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2(1.0, 1.0)]:
+			draw_string(font, name_baseline + outline_offset, name, HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, 21, Color("050403"))
+		draw_string(font, name_baseline, name, HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, 21, Color("ffe66d"))
+	SegmentedHealthBar.draw_bar(
+		self,
+		bar_rect,
+		float(boss_unit.get("hp", 0)),
+		float(maxi(1, int(boss_unit.get("max_hp", 1)))),
+		maxi(1, int(ceili(float(maxi(1, int(boss_unit.get("max_hp", 1)))) / 12.0))),
+		Color("1a1110"),
+		Color("b83d3a"),
+		Color("f5efdf"),
+		Color("f5d96c"),
+		Color(0.0, 0.0, 0.0, 0.45),
+		1.0,
+		2.0
+	)
+	draw_rect(bar_rect.grow(3.0), Color("0d0908"), false, 2.0)
+	_draw_health_damage_preview(boss_unit, bar_rect, _unit_damage_preview(boss_unit))
+	if font != null:
+		var hp_text: String = "%d/%d" % [int(boss_unit.get("hp", 0)), int(boss_unit.get("max_hp", 1))]
+		draw_string(font, bar_rect.position + Vector2(0.0, bar_rect.size.y - 7.0), hp_text, HORIZONTAL_ALIGNMENT_CENTER, bar_rect.size.x, 14, Color("fff4dc"))
+
+func _boss_health_bar_rect() -> Rect2:
+	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
+	return Rect2(Vector2((size.x - bar_width) * 0.5, BOSS_HEALTH_BAR_Y), Vector2(bar_width, BOSS_HEALTH_BAR_SIZE.y))
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
 	var current_hp: float = float(unit.get("hp", 0))
@@ -1197,6 +1253,8 @@ func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) ->
 		var center: Vector2 = _unit_center(unit)
 		match str(unit.get("role", "")):
 			"enemy":
+				if bool(unit.get("boss_bar", false)):
+					rects.append(_boss_health_bar_rect().grow(6.0))
 				continue
 			"npc":
 				var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
@@ -1235,6 +1293,48 @@ func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array,
 		"occupied_rects": _enemy_hud_collision_rects(unit, health_rect, intent_rect)
 	}
 
+func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
+	var intent: Dictionary = unit.get("intent", {})
+	var rows: Array = []
+	var intent_name: String = ""
+	var intent_rect := Rect2()
+	var expanded_rect := Rect2()
+	var border: Color = Color("d8b96f")
+	if not intent.is_empty():
+		rows = _enemy_intent_rows_for_display(unit, intent)
+		intent_name = _intent_display_name(intent)
+		var expanded_rows: Array = _intent_rows(intent)
+		var expanded_line_count: int = expanded_rows.size() + (1 if not intent_name.is_empty() else 0)
+		var visible_line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
+		if font != null and expanded_line_count > 0 and visible_line_count > 0:
+			var popup_width: float = _enemy_intent_popup_width(intent, expanded_rows, font)
+			var anchor_rect := Rect2(
+				Vector2(center.x - 1.0, _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE),
+				Vector2(2.0, 1.0)
+			)
+			expanded_rect = _enemy_intent_rect_for_line_count(center, anchor_rect, expanded_line_count, popup_width)
+			intent_rect = _enemy_intent_rect_for_line_count(center, anchor_rect, visible_line_count, popup_width)
+			intent_rect.position = expanded_rect.end - intent_rect.size
+			border = _intent_color(intent)
+	var rects: Array[Rect2] = []
+	if expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0:
+		rects.append(expanded_rect)
+	var offset: Vector2 = _best_enemy_hud_offset(rects, occupied_rects)
+	intent_rect.position += offset
+	expanded_rect.position += offset
+	var occupied: Array[Rect2] = []
+	if expanded_rect.size.x > 0.0 and expanded_rect.size.y > 0.0:
+		occupied.append(expanded_rect)
+	return {
+		"health_rect": Rect2(),
+		"intent_rect": intent_rect,
+		"rows": rows,
+		"intent_name": intent_name,
+		"border": border,
+		"offset": offset,
+		"occupied_rects": occupied
+	}
+
 func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Array:
 	if _enemy_intent_expanded(unit):
 		return _intent_rows(intent)
@@ -1243,7 +1343,7 @@ func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Arr
 func _enemy_intent_expanded(unit: Dictionary) -> bool:
 	if _all_enemy_intents_expanded():
 		return true
-	return _hover_tile == _effective_unit_tile(unit)
+	return _unit_footprint_tiles(unit).has(_hover_tile)
 
 func _all_enemy_intents_expanded() -> bool:
 	return bool(presentation.get("show_all_enemy_intents", presentation.get("expand_enemy_intents", false)))
@@ -1261,6 +1361,15 @@ func _health_bar_collision_rects(unit: Dictionary, health_rect: Rect2) -> Array[
 	rects.append_array(_unit_status_badge_rects(unit, health_rect))
 	rects.append_array(_health_bar_defense_badge_rects(unit, health_rect))
 	return rects
+
+func _unit_footprint_tiles(unit: Dictionary) -> Array[Vector2i]:
+	var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
 
 func _unit_status_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
@@ -1539,6 +1648,16 @@ func _draw_effect_overlay() -> void:
 				var tile_point: Vector2 = _tile_center(tile)
 				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.10), 0.0, TAU, 18, Color(0.96, 0.50, 0.30, 0.52 + progress * 0.28), 3.0)
 				draw_circle(tile_point, _tile_width() * 0.13, Color(1.0, 0.35, 0.18, warm_alpha))
+		"lightning_strikes":
+			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
+			var bolt_alpha: float = 0.24 + progress * 0.34
+			for tile: Vector2i in strike_tiles:
+				var tile_point: Vector2 = _tile_center(tile)
+				var top_point: Vector2 = tile_point + Vector2(-10.0 + sin(float(tile.x + tile.y)) * 8.0, -_tile_height() * 1.45)
+				draw_line(top_point, tile_point, Color(1.0, 0.94, 0.42, bolt_alpha), 3.0, true)
+				draw_line(top_point + Vector2(7.0, 22.0), tile_point + Vector2(-5.0, -6.0), Color(0.58, 0.78, 1.0, bolt_alpha * 0.76), 2.0, true)
+				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.08), 0.0, TAU, 18, Color(1.0, 0.86, 0.28, 0.48 + progress * 0.24), 3.0)
+				draw_circle(tile_point, _tile_width() * 0.10, Color(1.0, 0.95, 0.50, 0.16 + progress * 0.18))
 		"block":
 			var block_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if block_tile.x < 0:
@@ -1643,6 +1762,9 @@ func _effective_unit_tile(unit: Dictionary) -> Vector2i:
 		var overrides: Dictionary = presentation.get("unit_draw_tiles", {})
 		if overrides.has(actor_key):
 			return overrides[actor_key]
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	if footprint != Vector2i.ONE:
+		return unit.get("pos", Vector2i.ZERO) + Vector2i(maxi(1, footprint.x) - 1, maxi(1, footprint.y) - 1)
 	return unit.get("pos", Vector2i.ZERO)
 
 func _nearest_tile_for_world_position(world_position: Vector2) -> Vector2i:
@@ -2055,6 +2177,17 @@ func _unit_center(unit: Dictionary) -> Vector2:
 	var overrides: Dictionary = presentation.get("unit_world_positions", {})
 	if overrides.has(unit_key):
 		return overrides[unit_key]
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	if footprint != Vector2i.ONE:
+		var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+		var total := Vector2.ZERO
+		var count: int = 0
+		for y: int in range(maxi(1, footprint.y)):
+			for x: int in range(maxi(1, footprint.x)):
+				total += _tile_center(origin + Vector2i(x, y))
+				count += 1
+		if count > 0:
+			return total / float(count)
 	return _tile_center(unit.get("pos", Vector2i.ZERO))
 
 func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:

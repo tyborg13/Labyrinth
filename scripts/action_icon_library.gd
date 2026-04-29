@@ -205,6 +205,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(token_for("heal", int(action.get("amount", 0))))
 		"draw":
 			tokens.append(token_for("draw", int(action.get("amount", 0))))
+		"lightning_strikes":
+			_append_damage_token(tokens, "ranged", action, options)
+			tokens.append(token_for("shock", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
+			_append_keyword_tokens(tokens, action)
+		"summon_minions":
+			tokens.append(token_for("shock", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
 	return tokens
 
 static func plain_text_for_tokens(tokens: Array) -> String:
