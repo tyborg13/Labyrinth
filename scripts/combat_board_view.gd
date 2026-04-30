@@ -110,6 +110,21 @@ const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
+const SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.22)
+const SHADOW_LIGHT_VECTOR: Vector2 = Vector2(1.0, 0.55)
+const SHADOW_POINT_COUNT: int = 24
+const UNIT_SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.24)
+const UNIT_SHADOW_SOFT_COLOR: Color = Color(0.0, 0.0, 0.0, 0.10)
+const UNIT_SHADOW_ALPHA_THRESHOLD: float = 0.08
+const UNIT_SHADOW_SIMPLIFY_EPSILON: float = 3.0
+const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = 8.0
+const UNIT_SHADOW_SHAPE_SCALE: float = 1.72
+const UNIT_SHADOW_WIDTH_SCALE: float = 0.82
+const UNIT_SHADOW_WIDTH_SLOPE_Y: float = 0.0
+const UNIT_SHADOW_HEIGHT_CAST_X: float = -0.02
+const UNIT_SHADOW_HEIGHT_CAST_Y: float = 0.20
+const UNIT_SHADOW_FOOT_OFFSET_Y_RATIO: float = 0.0
+const UNIT_SHADOW_SOFT_SCALE: float = 1.12
 
 var combat_state: Dictionary = {}
 var move_tiles: Array[Vector2i] = []
@@ -135,6 +150,8 @@ var _element_textures: Dictionary = {}
 var _trap_textures: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
+var _unit_shadow_polygon_cache: Dictionary = {}
+var _unit_shadow_bottom_ratio_cache: Dictionary = {}
 var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
@@ -337,7 +354,9 @@ func _draw_scene_props_for_tile(tile: Vector2i) -> void:
 		var texture: Texture2D = _scene_prop_textures.get(str(prop.get("kind", "")), null)
 		if texture == null:
 			continue
-		draw_texture_rect(texture, _scene_prop_rect(texture, prop), false)
+		var draw_rect: Rect2 = _scene_prop_rect(texture, prop)
+		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
+		draw_texture_rect(texture, draw_rect, false)
 
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
@@ -392,6 +411,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		if texture != null:
 			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
 			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
+			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
 			draw_texture_rect(texture, draw_rect, false, _foreground_blocker_tint(tile_id, tile, draw_rect, units_to_draw))
 	elif tile_id == "wall":
 		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
@@ -402,6 +422,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 			var draw_rect: Rect2 = segment.get("draw_rect", Rect2())
 			var source_rect: Rect2 = segment.get("source_rect", Rect2(Vector2.ZERO, texture.get_size()))
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, units_to_draw)
+			_draw_wall_segment_shadow(tile, str(segment.get("orientation", "")), draw_rect)
 			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
 				draw_texture_rect(texture, draw_rect, false, tint)
 			else:
@@ -411,6 +432,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		if door_texture != null:
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
+			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
 				draw_texture_rect(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), false)
 			else:
@@ -771,8 +793,7 @@ func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
-	var center: Vector2 = _unit_center(unit)
-	_draw_shadow(center + Vector2(0.0, _tile_height() * 0.58))
+	_draw_unit_shadow(unit)
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
 		var draw_rect: Rect2 = _unit_draw_rect(unit)
@@ -2001,6 +2022,8 @@ func _load_assets() -> void:
 		_keyword_icon_textures[icon_key] = ActionIcons.icon_texture(icon_key)
 	_unit_textures.clear()
 	_idle_frames_by_type.clear()
+	_unit_shadow_polygon_cache.clear()
+	_unit_shadow_bottom_ratio_cache.clear()
 	_unit_textures["player"] = _load_unit_texture_with_idle("player", "res://assets/placeholders/units/player_reaver.png")
 	for enemy_type: String in GameData.enemies().keys():
 		var art_path: String = str(GameData.enemy_def(enemy_type).get("art_path", ""))
@@ -2328,14 +2351,201 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 			return tile
 	return Vector2i(-1, -1)
 
-func _draw_shadow(center: Vector2) -> void:
+func _draw_unit_shadow(unit: Dictionary) -> void:
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null:
+		_draw_unit_shadow_fallback(unit)
+		return
+	var draw_rect: Rect2 = _unit_draw_rect(unit)
+	var shadow_polygons: Array[PackedVector2Array] = _unit_shadow_polygons_for_texture(texture)
+	if shadow_polygons.is_empty():
+		_draw_unit_shadow_fallback(unit)
+		return
+	var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	var shadow_size: Vector2 = _unit_shadow_draw_size(texture, draw_rect.size, bounds)
+	var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, str(unit.get("type", "")))
+	var shadow_origin: Vector2 = foot_point + Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
+	var drew_shadow: bool = false
+	for local_polygon: PackedVector2Array in shadow_polygons:
+		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, shadow_origin)
+		if not _polygon_can_draw(shadow_polygon):
+			continue
+		var soft_polygon: PackedVector2Array = _scaled_polygon(shadow_polygon, UNIT_SHADOW_SOFT_SCALE)
+		if _polygon_can_draw(soft_polygon):
+			draw_colored_polygon(soft_polygon, UNIT_SHADOW_SOFT_COLOR)
+		draw_colored_polygon(shadow_polygon, UNIT_SHADOW_COLOR)
+		drew_shadow = true
+	if not drew_shadow:
+		_draw_unit_shadow_fallback(unit)
+
+func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
+	var draw_rect: Rect2 = _unit_draw_rect(unit)
+	var center := Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y - _tile_height() * 0.03)
+	var width: float = clampf(draw_rect.size.x * 0.54, _tile_width() * 0.26, _tile_width() * 0.68)
+	var height: float = clampf(_tile_height() * 0.34, _tile_height() * 0.20, _tile_height() * 0.44)
+	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20)
+
+func _unit_shadow_polygons_for_texture(texture: Texture2D) -> Array[PackedVector2Array]:
+	return _unit_shadow_data_for_texture(texture).get("polygons", []) as Array[PackedVector2Array]
+
+func _unit_shadow_bounds_for_texture(texture: Texture2D) -> Rect2:
+	return _unit_shadow_data_for_texture(texture).get("bounds", Rect2()) as Rect2
+
+func _unit_shadow_data_for_texture(texture: Texture2D) -> Dictionary:
+	var local_polygons: Array[PackedVector2Array] = []
+	if texture == null:
+		return {"polygons": local_polygons, "bounds": Rect2()}
+	var cache_key: int = texture.get_instance_id()
+	if _unit_shadow_polygon_cache.has(cache_key):
+		return _unit_shadow_polygon_cache.get(cache_key, {})
+	var texture_width: float = maxf(1.0, float(texture.get_width()))
+	var texture_height: float = maxf(1.0, float(texture.get_height()))
+	var opaque_polygons: Array[PackedVector2Array] = AssetLoader.build_alpha_polygons(
+		texture,
+		UNIT_SHADOW_ALPHA_THRESHOLD,
+		UNIT_SHADOW_SIMPLIFY_EPSILON,
+		UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA
+	)
+	var bounds: Rect2 = _polygon_bounds(opaque_polygons)
+	if bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		var empty_data: Dictionary = {"polygons": local_polygons, "bounds": Rect2()}
+		_unit_shadow_polygon_cache[cache_key] = empty_data
+		return empty_data
+	var bounds_center_x: float = bounds.position.x + bounds.size.x * 0.5
+	var bounds_bottom_y: float = bounds.position.y + bounds.size.y
+	for polygon: PackedVector2Array in opaque_polygons:
+		var local_polygon := PackedVector2Array()
+		for point: Vector2 in polygon:
+			local_polygon.append(Vector2(
+				(point.x - bounds_center_x) / bounds.size.x,
+				(point.y - bounds_bottom_y) / bounds.size.y
+			))
+		if _polygon_can_draw(local_polygon):
+			local_polygons.append(local_polygon)
+	var data: Dictionary = {"polygons": local_polygons, "bounds": bounds}
+	_unit_shadow_polygon_cache[cache_key] = data
+	return data
+
+func _unit_shadow_draw_size(texture: Texture2D, draw_size: Vector2, bounds: Rect2) -> Vector2:
+	if texture == null or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		return draw_size
+	return Vector2(
+		draw_size.x * bounds.size.x / maxf(1.0, float(texture.get_width())),
+		draw_size.y * bounds.size.y / maxf(1.0, float(texture.get_height()))
+	)
+
+func _unit_shadow_foot_point(texture: Texture2D, draw_rect: Rect2, bounds: Rect2, unit_type: String = "") -> Vector2:
+	if texture == null or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		return Vector2(draw_rect.get_center().x, draw_rect.end.y)
+	var texture_size := Vector2(maxf(1.0, float(texture.get_width())), maxf(1.0, float(texture.get_height())))
+	var bottom_ratio: float = _unit_shadow_stable_bottom_ratio(unit_type, texture, bounds)
+	return Vector2(
+		draw_rect.position.x + (bounds.position.x + bounds.size.x * 0.5) / texture_size.x * draw_rect.size.x,
+		draw_rect.position.y + bottom_ratio * draw_rect.size.y
+	)
+
+func _unit_shadow_stable_bottom_ratio(unit_type: String, fallback_texture: Texture2D, fallback_bounds: Rect2) -> float:
+	if unit_type.is_empty():
+		return _unit_shadow_bottom_ratio(fallback_texture, fallback_bounds)
+	if _unit_shadow_bottom_ratio_cache.has(unit_type):
+		return float(_unit_shadow_bottom_ratio_cache.get(unit_type, _unit_shadow_bottom_ratio(fallback_texture, fallback_bounds)))
+	var ratios: Array[float] = []
+	for frame_texture: Texture2D in _unit_idle_frames({"type": unit_type}):
+		var frame_bounds: Rect2 = _unit_shadow_bounds_for_texture(frame_texture)
+		if frame_bounds.size.y > 0.0:
+			ratios.append(_unit_shadow_bottom_ratio(frame_texture, frame_bounds))
+	if ratios.is_empty() and _unit_textures.has(unit_type):
+		var base_texture: Texture2D = _unit_textures.get(unit_type, null)
+		var base_bounds: Rect2 = _unit_shadow_bounds_for_texture(base_texture)
+		if base_bounds.size.y > 0.0:
+			ratios.append(_unit_shadow_bottom_ratio(base_texture, base_bounds))
+	if ratios.is_empty():
+		ratios.append(_unit_shadow_bottom_ratio(fallback_texture, fallback_bounds))
+	ratios.sort()
+	var ratio: float = ratios[int(floor(float(ratios.size() - 1) * 0.5))]
+	_unit_shadow_bottom_ratio_cache[unit_type] = ratio
+	return ratio
+
+func _unit_shadow_bottom_ratio(texture: Texture2D, bounds: Rect2) -> float:
+	if texture == null:
+		return 1.0
+	return clampf((bounds.position.y + bounds.size.y) / maxf(1.0, float(texture.get_height())), 0.0, 1.0)
+
+func _polygon_bounds(polygons: Array[PackedVector2Array]) -> Rect2:
+	var found_point: bool = false
+	var min_point := Vector2.ZERO
+	var max_point := Vector2.ZERO
+	for polygon: PackedVector2Array in polygons:
+		for point: Vector2 in polygon:
+			if not found_point:
+				min_point = point
+				max_point = point
+				found_point = true
+				continue
+			min_point.x = minf(min_point.x, point.x)
+			min_point.y = minf(min_point.y, point.y)
+			max_point.x = maxf(max_point.x, point.x)
+			max_point.y = maxf(max_point.y, point.y)
+	if not found_point:
+		return Rect2()
+	return Rect2(min_point, max_point - min_point)
+
+func _project_unit_shadow_polygon(local_polygon: PackedVector2Array, sprite_size: Vector2, shadow_origin: Vector2) -> PackedVector2Array:
+	var projected := PackedVector2Array()
+	for point: Vector2 in local_polygon:
+		var horizontal_px: float = point.x * sprite_size.x * UNIT_SHADOW_SHAPE_SCALE
+		var height_px: float = -point.y * sprite_size.y * UNIT_SHADOW_SHAPE_SCALE
+		projected.append(shadow_origin + Vector2(
+			horizontal_px * UNIT_SHADOW_WIDTH_SCALE + height_px * UNIT_SHADOW_HEIGHT_CAST_X,
+			horizontal_px * UNIT_SHADOW_WIDTH_SLOPE_Y + height_px * UNIT_SHADOW_HEIGHT_CAST_Y
+		))
+	return projected
+
+func _polygon_can_draw(points: PackedVector2Array) -> bool:
+	if points.size() < 3:
+		return false
+	return Geometry2D.triangulate_polygon(points).size() >= 3
+
+func _scaled_polygon(points: PackedVector2Array, scale_factor: float, offset: Vector2 = Vector2.ZERO) -> PackedVector2Array:
+	var center := Vector2.ZERO
+	for point: Vector2 in points:
+		center += point
+	if points.size() > 0:
+		center /= float(points.size())
+	center += offset
+	var scaled := PackedVector2Array()
+	for point: Vector2 in points:
+		scaled.append(center + (point - center) * scale_factor)
+	return scaled
+
+func _draw_rect_ground_shadow(tile: Vector2i, draw_rect: Rect2, width_scale: float, height_scale: float, cast_scale: float) -> void:
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return
+	var base_center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.34)
+	var width: float = maxf(_tile_width() * 0.24, draw_rect.size.x * width_scale)
+	var height: float = maxf(_tile_height() * 0.13, _tile_height() * height_scale)
+	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale
+	_draw_iso_ground_shadow(base_center + cast_offset, width * 0.96, height * 0.86, width * 0.28, float(SHADOW_COLOR.a) * 0.38)
+	_draw_iso_ground_shadow(base_center, width * 0.48, height * 0.54, width * 0.08, float(SHADOW_COLOR.a) * 0.56)
+
+func _draw_wall_segment_shadow(tile: Vector2i, orientation: String, draw_rect: Rect2) -> void:
+	var base_center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.32)
+	var width: float = maxf(_tile_width() * 0.38, draw_rect.size.x * 0.82)
+	var height: float = _tile_height() * 0.16
+	var skew: float = width * (0.16 if orientation == "row" else -0.16)
+	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * 0.12
+	_draw_iso_ground_shadow(base_center + cast_offset, width, height, skew, float(SHADOW_COLOR.a) * 0.32)
+	_draw_iso_ground_shadow(base_center, width * 0.56, height * 0.58, skew * 0.45, float(SHADOW_COLOR.a) * 0.46)
+
+func _draw_iso_ground_shadow(center: Vector2, width: float, height: float, skew: float, alpha: float) -> void:
+	if width <= 0.0 or height <= 0.0 or alpha <= 0.0:
+		return
 	var points := PackedVector2Array()
-	var tile_width: float = _tile_width()
-	var tile_height: float = tile_width * 0.5
-	for step: int in range(18):
-		var angle: float = TAU * float(step) / 18.0
-		points.append(center + Vector2(cos(angle) * tile_width * 0.20, sin(angle) * tile_height * 0.17))
-	draw_colored_polygon(points, Color(0.0, 0.0, 0.0, 0.18))
+	for step: int in range(SHADOW_POINT_COUNT):
+		var angle: float = TAU * float(step) / float(SHADOW_POINT_COUNT)
+		var unit_y: float = sin(angle)
+		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
+	draw_colored_polygon(points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha))
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []

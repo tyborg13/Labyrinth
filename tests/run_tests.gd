@@ -77,6 +77,7 @@ func _initialize() -> void:
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
 	_test_enemy_intent_popup_expands_for_long_titles()
+	_test_unit_shadow_uses_alpha_silhouette()
 	_test_player_uses_original_anime_art()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
 	_test_zekarion_uses_matching_idle_sheet()
@@ -1425,6 +1426,47 @@ func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 		"actions": [{"type": "melee", "damage": 4, "range": 1}]
 	}, [[{"icon": "melee"}, {"icon": "damage", "value": 4}]], font))
 	_assert(width > 136.0, "Long enemy intent titles should widen the popup instead of clipping")
+
+func _test_unit_shadow_uses_alpha_silhouette() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var unit := {"type": "crawler", "pos": Vector2i(0, 0)}
+	var texture: Texture2D = board.call("_texture_for_unit", unit)
+	var local_polygons: Array = board.call("_unit_shadow_polygons_for_texture", texture)
+	_assert(not local_polygons.is_empty(), "Unit shadows should extract alpha silhouette polygons instead of falling back to a generic ellipse")
+	if local_polygons.is_empty():
+		board.free()
+		return
+	var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", unit, Vector2(320.0, 240.0))
+	var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture)
+	var shadow_size: Vector2 = board.call("_unit_shadow_draw_size", texture, draw_rect.size, bounds)
+	var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, "crawler")
+	_assert(foot_point.y < draw_rect.end.y, "Unit shadow anchor should use opaque feet instead of transparent texture padding")
+	var stable_ratio: float = float(board.call("_unit_shadow_stable_bottom_ratio", "crawler", texture, bounds))
+	var max_idle_ratio: float = 0.0
+	for frame_texture: Texture2D in board.call("_unit_idle_frames", unit):
+		var frame_bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", frame_texture)
+		max_idle_ratio = maxf(max_idle_ratio, float(board.call("_unit_shadow_bottom_ratio", frame_texture, frame_bounds)))
+	_assert(stable_ratio < max_idle_ratio, "Unit shadow anchor should ignore occasional low-contact idle pixels instead of following every claw/limb frame")
+	var projected: PackedVector2Array = board.call(
+		"_project_unit_shadow_polygon",
+		local_polygons[0],
+		shadow_size,
+		foot_point
+	)
+	var min_point: Vector2 = projected[0]
+	var max_point: Vector2 = projected[0]
+	for point: Vector2 in projected:
+		min_point.x = minf(min_point.x, point.x)
+		min_point.y = minf(min_point.y, point.y)
+		max_point.x = maxf(max_point.x, point.x)
+		max_point.y = maxf(max_point.y, point.y)
+	var projected_size: Vector2 = max_point - min_point
+	_assert(projected_size.x > draw_rect.size.x * 0.24, "Projected unit shadow should preserve meaningful sprite silhouette width")
+	_assert(projected_size.y > draw_rect.size.y * 0.10, "Projected unit shadow should preserve meaningful sprite silhouette depth")
+	_assert(min_point.y <= foot_point.y + 1.0, "Projected unit shadow should begin at the opaque feet without a visible vertical gap")
+	board.free()
 
 func _test_player_uses_original_anime_art() -> void:
 	var board := CombatBoardView.new()

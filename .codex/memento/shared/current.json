@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-29T20:14:55Z",
+  "updated_at": "2026-04-29T21:11:02Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1819,6 +1819,30 @@
       "source": {
         "branch": "master",
         "commit": "3c4520c"
+      }
+    },
+    {
+      "id": "mnt_20260429T211102Z_5c09056a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "CombatBoardView unit shadows are broad silhouettes with stable idle anchors.",
+      "details": "Unit shadow projection is intentionally wider/deeper with minimal sideways shear so shadows read on top of tiles. Shadow foot anchoring uses the median opaque-bottom ratio across a unit type's idle frames, falling back to base/current texture bounds, so transient low-contact pixels such as crawler claw frames can animate the silhouette without moving the whole shadow.",
+      "status": "active",
+      "created_at": "2026-04-29T21:11:02Z",
+      "updated_at": "2026-04-29T21:11:02Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260429T210234Z_c213a2c1"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "52b5e4e"
       }
     }
   ]
