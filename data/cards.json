@@ -74,7 +74,7 @@
     "starter": true,
     "description": "Strike all adjacent tiles for 6.",
     "accent": "#b8694a",
-    "art_path": "res://assets/art/cards/sidestep_slash.png",
+    "art_path": "res://assets/art/cards/whirlwind_slash.png",
     "actions": [
       { "type": "aoe", "damage": 6, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
     ]
@@ -335,7 +335,7 @@
     "health_cost": 1,
     "description": "Lose 1 health. Deal 7 at range 5. Burn 2.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/element_fire.png",
+    "art_path": "res://assets/art/cards/firebrand_volley.png",
     "actions": [
       { "type": "ranged", "damage": 7, "range": 5, "burn": 2 }
     ]
@@ -348,7 +348,7 @@
     "health_cost": 0,
     "description": "Deal 4 in a cross pattern at range 4. Burn 2.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/element_fire.png",
+    "art_path": "res://assets/art/cards/cinder_bloom.png",
     "actions": [
       { "type": "aoe", "damage": 4, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 2 }
     ]
@@ -361,7 +361,7 @@
     "health_cost": 1,
     "description": "Lose 1 health. Move 2, then strike for 7. Burn 2.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/element_fire.png",
+    "art_path": "res://assets/art/cards/hearth_rush.png",
     "actions": [
       { "type": "move", "range": 2 },
       { "type": "melee", "damage": 7, "range": 1, "burn": 2 }
@@ -375,7 +375,7 @@
     "health_cost": 2,
     "description": "Lose 2 health. Deal 6 in a cross pattern at range 4. Burn 3.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/element_fire.png",
+    "art_path": "res://assets/art/cards/inferno_ritual.png",
     "actions": [
       { "type": "aoe", "damage": 6, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 3 }
     ]
@@ -388,7 +388,7 @@
     "health_cost": 2,
     "description": "Lose 2 health. Deal 9 at range 6. Burn 4.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/element_fire.png",
+    "art_path": "res://assets/art/cards/molten_reach.png",
     "actions": [
       { "type": "ranged", "damage": 9, "range": 6, "burn": 4 }
     ]
@@ -401,7 +401,7 @@
     "health_cost": 5,
     "description": "Lose 5 health. Deal 6 in a large pattern at range 5. Burn 4.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/element_fire.png",
+    "art_path": "res://assets/art/cards/wildfire_halo.png",
     "actions": [
       { "type": "aoe", "damage": 6, "range": 5, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2], [1, 1], [1, -1], [-1, 1], [-1, -1]], "rotate": false, "burn": 4 }
     ]
@@ -414,7 +414,7 @@
     "health_cost": 3,
     "description": "Lose 3 health. Deal 5 at range 6. Freeze.",
     "accent": "#5fa7d8",
-    "art_path": "res://assets/art/cards/element_ice.png",
+    "art_path": "res://assets/art/cards/frostbolt.png",
     "actions": [
       { "type": "ranged", "damage": 5, "range": 6, "freeze": 1 }
     ]
@@ -427,7 +427,7 @@
     "health_cost": 0,
     "description": "Deal 6 at range 5.",
     "accent": "#5fa7d8",
-    "art_path": "res://assets/art/cards/element_ice.png",
+    "art_path": "res://assets/art/cards/rime_shard.png",
     "actions": [
       { "type": "ranged", "damage": 6, "range": 5 }
     ]
@@ -440,7 +440,7 @@
     "health_cost": 0,
     "description": "Strike for 5. Freeze.",
     "accent": "#5fa7d8",
-    "art_path": "res://assets/art/cards/element_ice.png",
+    "art_path": "res://assets/art/cards/cold_grasp.png",
     "actions": [
       { "type": "melee", "damage": 5, "range": 1, "freeze": 1 }
     ]
@@ -453,7 +453,7 @@
     "health_cost": 3,
     "description": "Lose 3 health. Deal 4 at range 7. Freeze. Draw 1.",
     "accent": "#5fa7d8",
-    "art_path": "res://assets/art/cards/element_ice.png",
+    "art_path": "res://assets/art/cards/hush_of_winter.png",
     "actions": [
       { "type": "ranged", "damage": 4, "range": 7, "freeze": 1 },
       { "type": "draw", "amount": 1 }
@@ -467,7 +467,7 @@
     "health_cost": 4,
     "description": "Lose 4 health. Deal 5 in a two-tile pattern at range 5. Freeze.",
     "accent": "#5fa7d8",
-    "art_path": "res://assets/art/cards/element_ice.png",
+    "art_path": "res://assets/art/cards/glacier_pin.png",
     "actions": [
       { "type": "aoe", "damage": 5, "range": 5, "pattern": [[0, 0], [1, 0]], "rotate": true, "freeze": 1 }
     ]
@@ -480,7 +480,7 @@
     "health_cost": 3,
     "description": "Lose 3 health. Deal 9 at range 7. Freeze.",
     "accent": "#5fa7d8",
-    "art_path": "res://assets/art/cards/element_ice.png",
+    "art_path": "res://assets/art/cards/white_silence.png",
     "actions": [
       { "type": "ranged", "damage": 9, "range": 7, "freeze": 1 }
     ]
@@ -493,7 +493,7 @@
     "health_cost": 1,
     "description": "Lose 1 health. Deal 4 at range 6. Shock.",
     "accent": "#cfb347",
-    "art_path": "res://assets/art/cards/element_lightning.png",
+    "art_path": "res://assets/art/cards/spark_dart.png",
     "actions": [
       { "type": "ranged", "damage": 4, "range": 6, "shock": 1 }
     ]
@@ -506,7 +506,7 @@
     "health_cost": 0,
     "description": "Deal 4 at range 5. Chain.",
     "accent": "#cfb347",
-    "art_path": "res://assets/art/cards/element_lightning.png",
+    "art_path": "res://assets/art/cards/chain_bolt.png",
     "actions": [
       { "type": "ranged", "damage": 4, "range": 5, "chain": 2 }
     ]
@@ -519,7 +519,7 @@
     "health_cost": 2,
     "description": "Lose 2 health. Deal 5 at range 6. Shock.",
     "accent": "#cfb347",
-    "art_path": "res://assets/art/cards/element_lightning.png",
+    "art_path": "res://assets/art/cards/static_lash.png",
     "actions": [
       { "type": "ranged", "damage": 5, "range": 6, "shock": 1 }
     ]
@@ -532,7 +532,7 @@
     "health_cost": 3,
     "description": "Lose 3 health. Deal 5 at range 6. Chain. Shock.",
     "accent": "#cfb347",
-    "art_path": "res://assets/art/cards/element_lightning.png",
+    "art_path": "res://assets/art/cards/storm_relay.png",
     "actions": [
       { "type": "ranged", "damage": 5, "range": 6, "chain": 2, "shock": 1 }
     ]
@@ -545,7 +545,7 @@
     "health_cost": 0,
     "description": "Deal 7 at range 7.",
     "accent": "#cfb347",
-    "art_path": "res://assets/art/cards/element_lightning.png",
+    "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
       { "type": "ranged", "damage": 7, "range": 7 }
     ]
@@ -558,7 +558,7 @@
     "health_cost": 3,
     "description": "Lose 3 health. Deal 6 in a line at range 6. Shock.",
     "accent": "#cfb347",
-    "art_path": "res://assets/art/cards/element_lightning.png",
+    "art_path": "res://assets/art/cards/thunderline.png",
     "actions": [
       { "type": "aoe", "damage": 6, "range": 6, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true, "shock": 1 }
     ]
@@ -571,7 +571,7 @@
     "health_cost": 0,
     "description": "Move 2, then pull 2 at range 4. Hit 5.",
     "accent": "#72bea5",
-    "art_path": "res://assets/art/cards/element_air.png",
+    "art_path": "res://assets/art/cards/gust_step.png",
     "actions": [
       { "type": "move", "range": 2 },
       { "type": "pull", "amount": 2, "range": 4, "damage": 5 }
@@ -585,7 +585,7 @@
     "health_cost": 0,
     "description": "Move 3, then strike for 4 and push 1.",
     "accent": "#72bea5",
-    "art_path": "res://assets/art/cards/element_air.png",
+    "art_path": "res://assets/art/cards/slipstream_cut.png",
     "actions": [
       { "type": "move", "range": 3 },
       { "type": "melee", "damage": 4, "range": 1, "push": 1 }
@@ -599,7 +599,7 @@
     "health_cost": 0,
     "description": "Push 3 at range 4. Hit 6.",
     "accent": "#72bea5",
-    "art_path": "res://assets/art/cards/element_air.png",
+    "art_path": "res://assets/art/cards/updraft.png",
     "actions": [
       { "type": "push", "amount": 3, "range": 4, "damage": 6 }
     ]
@@ -612,7 +612,7 @@
     "health_cost": 0,
     "description": "Pull 3 at range 5. Hit 6. Draw 1.",
     "accent": "#72bea5",
-    "art_path": "res://assets/art/cards/element_air.png",
+    "art_path": "res://assets/art/cards/vacuum_line.png",
     "actions": [
       { "type": "pull", "amount": 3, "range": 5, "damage": 6 },
       { "type": "draw", "amount": 1 }
@@ -626,7 +626,7 @@
     "health_cost": 0,
     "description": "Deal 3 to an odd pattern at range 5. Push 1.",
     "accent": "#72bea5",
-    "art_path": "res://assets/art/cards/element_air.png",
+    "art_path": "res://assets/art/cards/squall_shot.png",
     "actions": [
       { "type": "aoe", "damage": 3, "range": 5, "pattern": [[0, 0], [2, 0], [0, 2]], "rotate": true, "push": 1 }
     ]
@@ -639,7 +639,7 @@
     "health_cost": 0,
     "description": "Move 4, then deal 5 at range 6 and push 3.",
     "accent": "#72bea5",
-    "art_path": "res://assets/art/cards/element_air.png",
+    "art_path": "res://assets/art/cards/skybreak_current.png",
     "actions": [
       { "type": "move", "range": 4 },
       { "type": "ranged", "damage": 5, "range": 6, "push": 3 }
@@ -653,7 +653,7 @@
     "health_cost": 0,
     "description": "Strike for 9. Poison 5.",
     "accent": "#89a15b",
-    "art_path": "res://assets/art/cards/element_earth.png",
+    "art_path": "res://assets/art/cards/venom_claw.png",
     "actions": [
       { "type": "melee", "damage": 9, "range": 1, "poison": 5 }
     ]
@@ -666,7 +666,7 @@
     "health_cost": 0,
     "description": "Gain 6 stoneskin.",
     "accent": "#89a15b",
-    "art_path": "res://assets/art/cards/element_earth.png",
+    "art_path": "res://assets/art/cards/stone_plate.png",
     "actions": [
       { "type": "stoneskin", "amount": 6 }
     ]
@@ -679,7 +679,7 @@
     "health_cost": 0,
     "description": "Move 2, then strike for 6. Poison 2.",
     "accent": "#89a15b",
-    "art_path": "res://assets/art/cards/element_earth.png",
+    "art_path": "res://assets/art/cards/quarry_step.png",
     "actions": [
       { "type": "move", "range": 2 },
       { "type": "melee", "damage": 6, "range": 1, "poison": 2 }
@@ -693,7 +693,7 @@
     "health_cost": 0,
     "description": "Gain 4 block and 4 stoneskin.",
     "accent": "#89a15b",
-    "art_path": "res://assets/art/cards/element_earth.png",
+    "art_path": "res://assets/art/cards/basalt_guard.png",
     "actions": [
       { "type": "block", "amount": 4 },
       { "type": "stoneskin", "amount": 4 }
@@ -707,7 +707,7 @@
     "health_cost": 0,
     "description": "Strike all adjacent tiles for 5. Poison 2.",
     "accent": "#89a15b",
-    "art_path": "res://assets/art/cards/element_earth.png",
+    "art_path": "res://assets/art/cards/grave_mortar.png",
     "actions": [
       { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "poison": 2 }
     ]
@@ -720,7 +720,7 @@
     "health_cost": 0,
     "description": "Move 1, then strike for 13. Poison 6.",
     "accent": "#89a15b",
-    "art_path": "res://assets/art/cards/element_earth.png",
+    "art_path": "res://assets/art/cards/tectonic_maul.png",
     "actions": [
       { "type": "move", "range": 1 },
       { "type": "melee", "damage": 13, "range": 1, "poison": 6 }
