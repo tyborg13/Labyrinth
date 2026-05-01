@@ -107,6 +107,8 @@ const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
+const TARGETING_ARROW_HEAD_PATH: String = "res://assets/art/effects/targeting_arrow_head.png"
+const TARGETING_ARROW_CAP_PATH: String = "res://assets/art/effects/targeting_arrow_cap.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
@@ -198,6 +200,8 @@ func _presentation_needs_redraw() -> bool:
 		return true
 	if not (presentation.get("impact_actor_keys", []) as Array).is_empty():
 		return true
+	if not (presentation.get("targeting_arrow", {}) as Dictionary).is_empty():
+		return true
 	var effect: Dictionary = presentation.get("effect", {})
 	return bool(effect.get("preview", false))
 
@@ -270,6 +274,7 @@ func _draw() -> void:
 	_draw_path_preview()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_targeting_arrow_preview()
 	_draw_unit_huds(units_to_draw)
 	_draw_effect_overlay()
 	_draw_status_text()
@@ -1726,6 +1731,137 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
+func _draw_targeting_arrow_preview() -> void:
+	var arrow: Dictionary = presentation.get("targeting_arrow", {})
+	if arrow.is_empty():
+		return
+	var head_texture: Texture2D = _effect_textures.get("targeting_arrow_head", null)
+	var cap_texture: Texture2D = _effect_textures.get("targeting_arrow_cap", null)
+	if head_texture == null:
+		return
+	var start: Vector2 = arrow.get("from_point", Vector2.INF)
+	var to_tile: Vector2i = arrow.get("to_tile", Vector2i(-1, -1))
+	if start == Vector2.INF or to_tile.x < 0:
+		return
+	var end: Vector2 = _targeting_arrow_end_point(to_tile)
+	var distance: float = start.distance_to(end)
+	if distance <= 8.0:
+		return
+	var root_angle: float = -PI * 0.5
+	var bend: float = _targeting_arrow_bend_amount(start, end)
+	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.006)
+	var points: Array = _targeting_arrow_curve_points(start, end, bend, 32)
+	_draw_targeting_arrow_ribbon(points, pulse)
+	if cap_texture != null:
+		_draw_targeting_arrow_sprite_at_angle(cap_texture, Rect2(Vector2.ZERO, cap_texture.get_size()), start, root_angle, Vector2(_tile_width() * 0.64, _tile_width() * 0.58), Color(1.0, 1.0, 1.0, 0.90))
+	_draw_targeting_arrow_sprite_at_angle(head_texture, Rect2(Vector2.ZERO, head_texture.get_size()), end, root_angle, Vector2(_tile_width() * 0.54, _tile_width() * 0.36), Color(1.0, 1.0, 1.0, 0.98))
+	_draw_target_reticle(end, Color(1.0, 0.72, 0.42, 0.52 + pulse * 0.18), _tile_width() * 0.12)
+
+func _targeting_arrow_end_point(tile: Vector2i) -> Vector2:
+	return _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.34)
+
+func _targeting_arrow_bend_amount(start: Vector2, end: Vector2) -> float:
+	var distance: float = start.distance_to(end)
+	var vertical_gap: float = maxf(start.y - end.y, 0.0)
+	var distance_closeness: float = 1.0 - clampf((distance - _tile_width() * 2.15) / maxf(_tile_width() * 5.4, 1.0), 0.0, 1.0)
+	var vertical_closeness: float = 1.0 - clampf((vertical_gap - _tile_width() * 1.4) / maxf(_tile_width() * 4.4, 1.0), 0.0, 1.0)
+	var horizontal_bonus: float = clampf(absf(end.x - start.x) / maxf(_tile_width() * 5.0, 1.0), 0.0, 1.0) * _tile_width() * 0.22
+	var closeness: float = maxf(distance_closeness, vertical_closeness * 0.86)
+	return lerpf(_tile_width() * 0.34, _tile_width() * 1.24, closeness) + horizontal_bonus
+
+func _targeting_arrow_curve_point(start: Vector2, end: Vector2, bend: float, t: float) -> Vector2:
+	var clamped_t: float = clampf(t, 0.0, 1.0)
+	var side_t: float = clamped_t * clamped_t * (3.0 - 2.0 * clamped_t)
+	var side_delta: float = end.x - start.x
+	var side_sign: float = signf(side_delta)
+	if absf(side_delta) < _tile_width() * 0.45:
+		side_sign = -1.0 if start.x >= size.x * 0.5 else 1.0
+	var side_arc: float = sin(clamped_t * PI)
+	var side_bow: float = side_arc * side_arc * bend * 0.38 * clampf(1.0 - absf(side_delta) / maxf(_tile_width() * 4.0, 1.0), 0.0, 1.0) * side_sign
+	var base := Vector2(lerpf(start.x, end.x, side_t) + side_bow, lerpf(start.y, end.y, clamped_t))
+	return base + Vector2(0.0, -sin(clamped_t * PI) * bend)
+
+func _targeting_arrow_curve_points(start: Vector2, end: Vector2, bend: float, segments: int) -> Array:
+	var out: Array = []
+	var safe_segments: int = maxi(1, segments)
+	for idx: int in range(safe_segments + 1):
+		out.append(_targeting_arrow_curve_point(start, end, bend, float(idx) / float(safe_segments)))
+	return out
+
+func _draw_targeting_arrow_ribbon(points: Array, pulse: float) -> void:
+	if points.size() < 2:
+		return
+	_draw_targeting_arrow_ribbon_layer(points, 1.18, Vector2(0.0, 5.0), Color(0.03, 0.01, 0.0, 0.34))
+	_draw_targeting_arrow_ribbon_layer(points, 1.10, Vector2.ZERO, Color(0.96, 0.55, 0.20, 0.74))
+	_draw_targeting_arrow_ribbon_layer(points, 0.96, Vector2.ZERO, Color(0.56, 0.07, 0.04, 0.91))
+	_draw_targeting_arrow_ribbon_layer(points, 0.56, Vector2.ZERO, Color(0.84, 0.16, 0.06, 0.40 + pulse * 0.07))
+	var centerline := PackedVector2Array()
+	for point_var: Variant in points:
+		centerline.append(point_var as Vector2)
+	draw_polyline(centerline, Color(1.0, 0.66, 0.22, 0.50 + pulse * 0.12), maxf(1.0, _tile_width() * 0.018), true)
+	_draw_targeting_arrow_ribbon_bands(points)
+
+func _draw_targeting_arrow_ribbon_layer(points: Array, width_scale: float, offset: Vector2, color: Color) -> void:
+	for index: int in range(points.size() - 1):
+		var t0: float = float(index) / maxf(1.0, float(points.size() - 1))
+		var t1: float = float(index + 1) / maxf(1.0, float(points.size() - 1))
+		var point0: Vector2 = (points[index] as Vector2) + offset
+		var point1: Vector2 = (points[index + 1] as Vector2) + offset
+		var normal0: Vector2 = _targeting_arrow_point_normal(points, index)
+		var normal1: Vector2 = _targeting_arrow_point_normal(points, index + 1)
+		var half_width0: float = _targeting_arrow_half_width(t0) * width_scale
+		var half_width1: float = _targeting_arrow_half_width(t1) * width_scale
+		var polygon := PackedVector2Array([
+			point0 - normal0 * half_width0,
+			point1 - normal1 * half_width1,
+			point1 + normal1 * half_width1,
+			point0 + normal0 * half_width0
+		])
+		if _polygon_can_draw(polygon):
+			draw_colored_polygon(polygon, color)
+
+func _targeting_arrow_half_width(t: float) -> float:
+	return _tile_width() * lerpf(0.31, 0.10, clampf(t, 0.0, 1.0))
+
+func _targeting_arrow_point_normal(points: Array, index: int) -> Vector2:
+	var before_index: int = maxi(0, index - 1)
+	var after_index: int = mini(points.size() - 1, index + 1)
+	var before: Vector2 = points[before_index] as Vector2
+	var after: Vector2 = points[after_index] as Vector2
+	var tangent: Vector2 = after - before
+	if tangent.length() <= 0.01:
+		tangent = Vector2(0.0, -1.0)
+	else:
+		tangent = tangent.normalized()
+	return Vector2(-tangent.y, tangent.x)
+
+func _draw_targeting_arrow_ribbon_bands(points: Array) -> void:
+	var band_count: int = clampi(int(round(_targeting_arrow_curve_length(points) / maxf(_tile_width() * 0.66, 1.0))), 4, 9)
+	for band_index: int in range(1, band_count):
+		var ratio: float = float(band_index) / float(band_count)
+		var point_index: int = clampi(int(round(ratio * float(points.size() - 1))), 1, points.size() - 2)
+		var t: float = float(point_index) / maxf(1.0, float(points.size() - 1))
+		if t > 0.88:
+			continue
+		var point: Vector2 = points[point_index] as Vector2
+		var normal: Vector2 = _targeting_arrow_point_normal(points, point_index)
+		var half_width: float = _targeting_arrow_half_width(t)
+		var from_point: Vector2 = point - normal * half_width * 0.92
+		var to_point: Vector2 = point + normal * half_width * 0.92
+		draw_line(from_point + Vector2(0.0, 2.0), to_point + Vector2(0.0, 2.0), Color(0.07, 0.02, 0.01, 0.58), maxf(2.0, _tile_width() * 0.036), true)
+		draw_line(from_point, to_point, Color(1.0, 0.55, 0.20, 0.72), maxf(1.4, _tile_width() * 0.022), true)
+
+func _targeting_arrow_curve_length(points: Array) -> float:
+	var total: float = 0.0
+	for index: int in range(points.size() - 1):
+		total += (points[index] as Vector2).distance_to(points[index + 1] as Vector2)
+	return total
+
+func _draw_targeting_arrow_sprite_at_angle(texture: Texture2D, source_rect: Rect2, center: Vector2, angle: float, draw_size: Vector2, modulate: Color) -> void:
+	draw_set_transform(center, angle, Vector2.ONE)
+	draw_texture_rect_region(texture, Rect2(-draw_size * 0.5, draw_size), source_rect, modulate)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
 func _draw_path_preview() -> void:
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
 	if path_tiles.is_empty():
@@ -1997,7 +2133,9 @@ func _load_assets() -> void:
 	}
 	_effect_textures = {
 		"melee_slash": AssetLoader.load_texture(MELEE_SLASH_EFFECT_PATH),
-		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
+		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH),
+		"targeting_arrow_head": AssetLoader.load_texture(TARGETING_ARROW_HEAD_PATH),
+		"targeting_arrow_cap": AssetLoader.load_texture(TARGETING_ARROW_CAP_PATH)
 	}
 	_door_opening_frames = _load_door_opening_frames()
 	_door_opening_flipped_frames = []

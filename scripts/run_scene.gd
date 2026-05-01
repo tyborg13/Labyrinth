@@ -2111,7 +2111,26 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	var effect: Dictionary = _preview_effect_for_action(preview)
 	if not effect.is_empty():
 		result["effect"] = effect
+		var targeting_arrow: Dictionary = _targeting_arrow_for_preview(preview, effect)
+		if not targeting_arrow.is_empty():
+			result["targeting_arrow"] = targeting_arrow
 	return result
+
+func _targeting_arrow_for_preview(preview: Dictionary, effect: Dictionary) -> Dictionary:
+	if _selected_card_index < 0 or _hovered_board_tile.x < 0 or effect.is_empty():
+		return {}
+	var source_rect: Rect2 = _hand_card_global_rect(_selected_card_index)
+	if source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		return {}
+	var action: Dictionary = preview.get("action", {})
+	var action_type: String = str(action.get("type", ""))
+	var start_global: Vector2 = Vector2(source_rect.get_center().x, source_rect.position.y + source_rect.size.y * 0.06)
+	var start_local: Vector2 = board_view.get_global_transform().affine_inverse() * start_global
+	return {
+		"from_point": start_local,
+		"to_tile": effect.get("to", _hovered_board_tile),
+		"action_type": action_type
+	}
 
 func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = preview.get("action", {})

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-29T21:11:02Z",
+  "updated_at": "2026-05-01T02:41:18Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1843,6 +1843,30 @@
       "source": {
         "branch": "master",
         "commit": "52b5e4e"
+      }
+    },
+    {
+      "id": "mnt_20260501T024118Z_41d15015",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Card targeting arrows use a procedural depth ribbon with fixed endpoint sprites.",
+      "details": "CombatBoardView intentionally draws targeting arrow bodies as a tapered procedural ribbon sampled from a single screen-space arc, with only targeting_arrow_cap/head PNGs for the fixed card root and board head. Avoid returning to tangent-rotated body sprites or cropped strip segments; those made links stretch, kink, and rotate sideways when hovering different targets.",
+      "status": "active",
+      "created_at": "2026-05-01T02:41:18Z",
+      "updated_at": "2026-05-01T02:41:18Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260501T021156Z_3f8ec880"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "ffd4396"
       }
     }
   ]

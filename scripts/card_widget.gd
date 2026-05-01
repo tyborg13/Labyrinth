@@ -13,9 +13,9 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const DRAG_THRESHOLD: float = 10.0
 const HOVER_LIFT: float = -12.0
-const SELECTED_LIFT: float = -5.0
+const SELECTED_LIFT: float = -30.0
 const HOVER_SCALE: float = 1.04
-const SELECTED_SCALE: float = 1.01
+const SELECTED_SCALE: float = 1.045
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -686,10 +686,13 @@ func _update_pose(immediate: bool = false) -> void:
 		return
 	var lift: float = 0.0
 	var target_scale: Vector2 = Vector2.ONE
-	if _local_hovered and _interactive and not _dimmed:
+	if _selected:
+		lift = SELECTED_LIFT
+		target_scale = Vector2.ONE * SELECTED_SCALE
+	elif _local_hovered and _interactive and not _dimmed:
 		lift = HOVER_LIFT
 		target_scale = Vector2.ONE * HOVER_SCALE
-	elif _selected or _previewed:
+	elif _previewed:
 		lift = SELECTED_LIFT
 		target_scale = Vector2.ONE * SELECTED_SCALE
 	z_index = 20 if lift < 0.0 else 0
