@@ -41,6 +41,8 @@ func _initialize() -> void:
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
+	_test_enemy_death_grants_card_play_and_embers()
+	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
 	_test_healing_cards_are_burned_and_downweighted()
@@ -452,6 +454,73 @@ func _test_two_card_turn_draw_flow() -> void:
 	_assert(int(state.get("cards_played_this_turn", 0)) == 0, "A new turn should reset the play counter")
 	_assert(int(state.get("turn", 0)) == 2, "Advancing the player turn should increment the turn counter")
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5, "A new turn should draw two replacement cards")
+
+func _test_enemy_death_grants_card_play_and_embers() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(16, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "quick_stab"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
+	player["pos"] = Vector2i(2, 4)
+	state["player"] = player
+	var enemies: Array = state.get("enemies", [])
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["pos"] = Vector2i(3, 4)
+	enemy["hp"] = 9
+	enemy["block"] = 0
+	enemies[0] = enemy
+	enemies.append({
+		"id": 2,
+		"type": "harrier",
+		"pos": Vector2i(5, 5),
+		"hp": 10,
+		"max_hp": 10,
+		"block": 0
+	})
+	state["enemies"] = enemies
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 9, "range": 1}, Vector2i(3, 4))
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 1, "Killing a non-summoned enemy should add one bonus card play this turn")
+	_assert(combat.cards_remaining_this_turn(state) == 3, "The new play should increase this turn's play capacity before the killing card is finished")
+	_assert(int(state.get("room_embers", 0)) == 8, "Enemy death should still add its ember reward immediately")
+	var rewards: Array = state.get("death_rewards", [])
+	_assert(rewards.size() == 1 and int((rewards[0] as Dictionary).get("embers", 0)) == 8, "Death rewards should record ember amount for UI collection animation")
+	state = combat.finish_player_card(state, 0)
+	_assert(combat.cards_remaining_this_turn(state) == 2, "Finishing the killing card should spend one play but keep the death bonus")
+	state = combat.prepare_next_player_turn(state)
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 0, "A new player turn should clear death bonus plays")
+
+func _test_summoned_enemy_death_does_not_grant_card_play() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(17, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
+	player["pos"] = Vector2i(2, 4)
+	state["player"] = player
+	state["enemies"] = [{
+		"id": 8,
+		"type": "lightning_wisp",
+		"summoned": true,
+		"pos": Vector2i(3, 4),
+		"hp": 6,
+		"max_hp": 6,
+		"block": 0
+	}]
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 9, "range": 1}, Vector2i(3, 4))
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 0, "Killing a summoned enemy should not add a bonus card play")
+	_assert(combat.cards_remaining_this_turn(state) == 2, "Summoned deaths should leave base plays unchanged before the killing card is finished")
+	var rewards: Array = state.get("death_rewards", [])
+	_assert(rewards.size() == 1 and bool((rewards[0] as Dictionary).get("summoned", false)), "Summoned death rewards should still be marked for animation filtering")
 
 func _test_hand_draw_caps_at_eight() -> void:
 	var combat: CombatEngine = CombatEngine.new()

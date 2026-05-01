@@ -57,6 +57,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)),
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)),
 		"cards_played_this_turn": 0,
+		"death_bonus_card_plays_this_turn": 0,
 		"heal_bonus": int(player_snapshot.get("heal_bonus", 0)),
 		"deck": {
 			"draw": draw_pile,
@@ -77,6 +78,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"first_attack_bonus_used": false,
 			"first_move_bonus_used": false
 		},
+		"death_rewards": [],
 		"room_embers": 0,
 		"rng_state": rng.state,
 		"log": []
@@ -256,7 +258,7 @@ func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 	next_state = _apply_pending_player_trap_restriction(next_state)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)) or bool(restrictions.get("stunned", false)):
-		next_state["cards_played_this_turn"] = int(next_state.get("cards_per_turn", BASE_CARDS_PER_TURN))
+		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
 	return next_state
 
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
@@ -368,6 +370,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["player"] = player
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["cards_played_this_turn"] = 0
+	next_state["death_bonus_card_plays_this_turn"] = 0
 	next_state["player_turn_restrictions"] = {
 		"frozen": false,
 		"shocked": false,
@@ -384,14 +387,17 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state = _draw_cards_in_place(next_state, int(next_state.get("draw_per_turn", BASE_DRAW_PER_TURN)))
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)) or bool(restrictions.get("stunned", false)):
-		next_state["cards_played_this_turn"] = int(next_state.get("cards_per_turn", BASE_CARDS_PER_TURN))
+		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
 	return next_state
 
 func cards_remaining_this_turn(state: Dictionary) -> int:
 	return maxi(
 		0,
-		int(state.get("cards_per_turn", BASE_CARDS_PER_TURN)) - int(state.get("cards_played_this_turn", 0))
+		_card_play_capacity(state) - int(state.get("cards_played_this_turn", 0))
 	)
+
+func _card_play_capacity(state: Dictionary) -> int:
+	return int(state.get("cards_per_turn", BASE_CARDS_PER_TURN)) + int(state.get("death_bonus_card_plays_this_turn", 0))
 
 func attack_bonus_for_current_turn(state: Dictionary) -> int:
 	return _attack_bonus_for_current_turn(state)
@@ -654,6 +660,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var was_alive: bool = int(enemy.get("hp", 0)) > 0
 	var total_damage: int = damage
 	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
 		total_damage *= 2
@@ -669,11 +676,27 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	enemy["stoneskin"] = stoneskin_amount
 	enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - remaining)
 	enemies[enemy_index] = enemy
-	if int(enemy.get("hp", 0)) <= 0:
+	if was_alive and int(enemy.get("hp", 0)) <= 0:
 		var reward_embers: int = int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
+		var bonus_card_plays: int = 0 if bool(enemy.get("summoned", false)) else 1
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
+		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
+		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
 		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
+
+func _record_death_reward(state: Dictionary, enemy: Dictionary, embers: int, card_plays: int) -> void:
+	var rewards: Array = state.get("death_rewards", []).duplicate(true)
+	rewards.append({
+		"enemy_id": int(enemy.get("id", -1)),
+		"actor_key": _enemy_key(enemy),
+		"type": str(enemy.get("type", "")),
+		"tile": enemy.get("pos", Vector2i.ZERO),
+		"embers": maxi(0, embers),
+		"card_plays": maxi(0, card_plays),
+		"summoned": bool(enemy.get("summoned", false))
+	})
+	state["death_rewards"] = rewards
 
 func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_freeze_multiplier: bool = true) -> Dictionary:
 	var next_state: Dictionary = state
@@ -945,6 +968,7 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 		var minion: Dictionary = {
 			"id": next_id,
 			"type": minion_type,
+			"summoned": true,
 			"element": str(next_state.get("room_element", ElementData.NONE)),
 			"pos": tile,
 			"hp": int(definition.get("max_hp", 1)),

@@ -47,6 +47,8 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
+const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
+const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
@@ -110,6 +112,7 @@ var _active_pile_kind: String = ""
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
+var _ember_count_override: int = -1
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _selected_card_label_override: String = ""
@@ -236,7 +239,7 @@ func _apply_style() -> void:
 		pile_panel.clip_contents = true
 	UiTypography.set_label_size(room_title, UiTypography.SIZE_SECTION_LARGE)
 	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SMALL)
-	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
 	room_title.add_theme_color_override("font_color", Color("f0e6d2"))
 	room_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
@@ -244,7 +247,7 @@ func _apply_style() -> void:
 	room_subtitle.add_theme_color_override("font_color", Color("cdbca2"))
 	stats_label.add_theme_color_override("font_color", Color("f0c978"))
 	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	stats_label.add_theme_constant_override("outline_size", 1)
+	stats_label.add_theme_constant_override("outline_size", 2)
 	relic_bar.visible = false
 	relic_bar.add_theme_constant_override("h_separation", 6)
 	relic_bar.add_theme_constant_override("v_separation", 6)
@@ -1499,11 +1502,7 @@ func _refresh_ui() -> void:
 	room_subtitle.add_theme_color_override("font_color", title_color.lightened(0.28) if ElementData.is_elemental(room_element) else Color("cdbca2"))
 	room_title.text = _room_title_text(display_room)
 	room_subtitle.text = _room_subtitle_text(display_room)
-	stats_label.text = "HP %d/%d  EMBERS %d" % [
-		int(_run_state.get("player_hp", 0)),
-		int(_run_state.get("player_max_hp", 1)),
-		int(_run_state.get("unbanked_embers", 0))
-	]
+	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
 	mini_map.set_run_state(_run_state)
 	_refresh_pile_counts()
@@ -1617,6 +1616,17 @@ func _refresh_card_play_meter() -> void:
 	_play_meter_count.text = str(cards_left)
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
+
+func _displayed_ember_count() -> int:
+	if _ember_count_override >= 0:
+		return _ember_count_override
+	var total: int = int(_run_state.get("unbanked_embers", 0))
+	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
+		total += int(_combat_state.get("room_embers", 0))
+	return total
+
+func _set_stats_label_text(ember_count: int) -> void:
+	stats_label.text = "EMBERS %d" % ember_count
 
 func _deck_piles() -> Dictionary:
 	if _combat_state.is_empty():
@@ -2621,6 +2631,113 @@ func _draw_entries_between_states(before_state: Dictionary, after_state: Diction
 		})
 	return drawn
 
+func _death_rewards_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var before_count: int = (before_state.get("death_rewards", []) as Array).size()
+	var after_rewards: Array = after_state.get("death_rewards", [])
+	var result: Array[Dictionary] = []
+	for index: int in range(before_count, after_rewards.size()):
+		if after_rewards[index] is Dictionary:
+			result.append((after_rewards[index] as Dictionary).duplicate(true))
+	return result
+
+func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -> void:
+	var rewards: Array[Dictionary] = _death_rewards_between_states(before_state, after_state)
+	if rewards.is_empty():
+		return
+	var displayed_embers: int = int(_run_state.get("unbanked_embers", 0)) + int(before_state.get("room_embers", 0))
+	var displayed_card_plays: int = _combat_engine.cards_remaining_this_turn(before_state)
+	_ember_count_override = displayed_embers
+	_set_stats_label_text(displayed_embers)
+	for reward: Dictionary in rewards:
+		if int(reward.get("card_plays", 0)) > 0:
+			displayed_card_plays += int(reward.get("card_plays", 0))
+			await _animate_card_play_reward(displayed_card_plays)
+		var ember_amount: int = int(reward.get("embers", 0))
+		if ember_amount > 0:
+			var next_displayed_embers: int = displayed_embers + ember_amount
+			await _animate_ember_reward(reward.get("tile", Vector2i.ZERO), ember_amount, displayed_embers, next_displayed_embers)
+			displayed_embers = next_displayed_embers
+	_ember_count_override = -1
+
+func _animate_card_play_reward(displayed_card_plays: int) -> void:
+	if _play_meter == null or _play_meter_count == null:
+		return
+	_play_meter_count.text = str(displayed_card_plays)
+	_play_meter.pivot_offset = _play_meter.size * 0.5
+	_play_meter_count.add_theme_color_override("font_color", Color("ffe27a"))
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(_play_meter, "scale", Vector2(1.14, 1.14), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_play_meter, "modulate", Color(1.0, 0.84, 0.46, 1.0), 0.11)
+	await tween.finished
+	var settle := create_tween()
+	settle.set_parallel(true)
+	settle.tween_property(_play_meter, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	settle.tween_property(_play_meter, "modulate", Color.WHITE, 0.18)
+	await settle.finished
+	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
+
+func _animate_ember_reward(source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
+	if _card_fx_layer == null:
+		return
+	var icon_texture: Texture2D = AssetLoader.load_texture(EMBER_ICON_PATH)
+	var start: Vector2 = _board_global_position_for_tile(source_tile)
+	var target: Vector2 = _ember_counter_target_global_position()
+	var mote_count: int = clampi(amount, 1, MAX_EMBER_REWARD_MOTES)
+	for mote_index: int in range(mote_count):
+		await _animate_ember_mote(icon_texture, start, target, mote_index, mote_count)
+		var count_progress: float = float(mote_index + 1) / float(mote_count)
+		_ember_count_override = int(round(lerpf(float(from_count), float(to_count), count_progress)))
+		_set_stats_label_text(_ember_count_override)
+	await _pulse_ember_counter()
+
+func _animate_ember_mote(icon_texture: Texture2D, start: Vector2, target: Vector2, mote_index: int, mote_count: int) -> void:
+	var icon := Sprite2D.new()
+	var mote_size: float = 40.0 + float(mote_index % 4) * 3.0
+	var texture_size: Vector2 = icon_texture.get_size() if icon_texture != null else Vector2.ONE
+	icon.texture = icon_texture
+	icon.centered = true
+	var source_size: float = maxf(1.0, maxf(texture_size.x, texture_size.y))
+	icon.scale = Vector2.ONE * (mote_size / source_size)
+	var spread_angle: float = -0.95 + 1.9 * (float(mote_index % 7) / 6.0)
+	var spread_radius: float = 8.0 + float((mote_index * 5) % 13)
+	var local_start: Vector2 = start - _card_fx_layer.global_position + Vector2(cos(spread_angle), sin(spread_angle)) * spread_radius
+	var local_target: Vector2 = target - _card_fx_layer.global_position + Vector2(float((mote_index % 5) - 2) * 3.0, float((mote_index % 3) - 1) * 2.0)
+	icon.position = local_start
+	_card_fx_layer.add_child(icon)
+	var frames: int = 5
+	var arc_height: float = 36.0 + float((mote_index * 11) % 22)
+	for frame: int in range(frames + 1):
+		var t: float = float(frame) / float(frames)
+		var eased: float = 1.0 - pow(1.0 - t, 3.0)
+		var arc: Vector2 = Vector2(0.0, -arc_height * sin(t * PI))
+		var center: Vector2 = local_start.lerp(local_target, eased) + arc
+		icon.position = center
+		icon.modulate = Color(1.0, 1.0, 1.0, 1.0 - maxf(0.0, t - 0.86) / 0.14)
+		await get_tree().create_timer(0.010).timeout
+	icon.queue_free()
+	if mote_index < mote_count - 1:
+		await get_tree().create_timer(0.006).timeout
+
+func _pulse_ember_counter() -> void:
+	stats_label.pivot_offset = stats_label.size * 0.5
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(stats_label, "scale", Vector2(1.06, 1.06), 0.08)
+	tween.tween_property(stats_label, "modulate", Color(1.0, 0.86, 0.50, 1.0), 0.08)
+	await tween.finished
+	var settle := create_tween()
+	settle.set_parallel(true)
+	settle.tween_property(stats_label, "scale", Vector2.ONE, 0.16)
+	settle.tween_property(stats_label, "modulate", Color.WHITE, 0.16)
+	await settle.finished
+
+func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
+	return board_view.global_position + board_view.world_position_for_tile(tile)
+
+func _ember_counter_target_global_position() -> Vector2:
+	return stats_label.global_position + stats_label.size * 0.5
+
 func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
 	if base_texts.is_empty():
@@ -2809,6 +2926,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			})
 			await _animate_draw_cards_fx(_draw_entries_between_states(before_state, after_state))
 			await get_tree().create_timer(0.12).timeout
+	await _animate_death_rewards(before_state, after_state)
 
 func _resolve_enemy_round() -> void:
 	_animation_lock = true
