@@ -491,6 +491,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"actor_name": actor_name,
 				"tile": after_enemy.get("pos", Vector2i.ZERO),
 				"amount": block_gain,
+				"sfx_id": str(action.get("sfx_id", action.get("block_sfx_id", ""))),
+				"sfx_category": str(action.get("sfx_category", action.get("block_sfx_category", ""))),
 				"label": "Guard"
 			}
 		"stoneskin":
@@ -548,6 +550,9 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"block_loss": block_loss,
 				"stoneskin_loss": stoneskin_loss,
 				"status_text": status_text,
+				"range": int(action.get("range", 0)),
+				"sfx_id": str(action.get("sfx_id", action.get("attack_sfx_id", ""))),
+				"sfx_category": str(action.get("sfx_category", action.get("attack_sfx_category", ""))),
 				"label": "Strike" if action_type == "melee" else "Shot" if action_type == "ranged" else "Storm" if action_type == "lightning_strikes" else "Area" if action_type == "aoe" else "Push" if action_type == "push" else "Pull"
 			}
 		"summon_minions":

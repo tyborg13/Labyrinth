@@ -3,6 +3,7 @@ extends Control
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -2843,6 +2844,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"tiles": focus_tiles
 			}
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			_play_attack_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
 			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
 			var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
 			for frame: int in range(1, ATTACK_FRAMES + 1):
@@ -2875,6 +2877,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			_play_attack_sfx(AttackSfxLibrary.entry_for_block_action(_card_def(card_id, before_state), action))
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -2985,6 +2988,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			"block", "heal", "stoneskin", "status", "status_damage":
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
+				if str(step.get("kind", "")) == "block":
+					_play_attack_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				await _animate_floating_text_presentation(animated_state, {
 					"focus_actor_keys": [step_actor_key],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -2998,6 +3003,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if str(step.get("kind", "")) in ["aoe", "lightning_strikes"]:
 					focus_tiles = _vector2i_array(step.get("tiles", []))
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
+				_play_attack_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
 				for frame: int in range(1, ATTACK_FRAMES + 1):
@@ -3052,6 +3058,30 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	_apply_animation_step(animated_state, step)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
+
+func _play_attack_sfx(entry: Dictionary) -> void:
+	var path: String = str(entry.get("path", ""))
+	if path.is_empty():
+		return
+	var resource: Resource = load(path)
+	if not (resource is AudioStream):
+		return
+	var player := AudioStreamPlayer.new()
+	player.stream = resource as AudioStream
+	player.volume_db = float(entry.get("volume_db", 0.0))
+	add_child(player)
+	player.play()
+	var duration: float = float(entry.get("duration", 0.0))
+	if duration > 0.0:
+		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player))
+	else:
+		player.finished.connect(player.queue_free)
+
+func _stop_attack_sfx_player(player: AudioStreamPlayer) -> void:
+	if not is_instance_valid(player):
+		return
+	player.stop()
+	player.queue_free()
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(true)

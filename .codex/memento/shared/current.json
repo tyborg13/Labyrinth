@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-02T02:05:25Z",
+  "updated_at": "2026-05-02T23:26:53Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1865,6 +1865,28 @@
       "source": {
         "branch": "master",
         "commit": "4f75eb2"
+      }
+    },
+    {
+      "id": "mnt_20260502T230732Z_01ee01b7",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "assets",
+        "symbol": null
+      },
+      "scope_key": "folder:assets",
+      "summary": "Attack SFX assets should use WAV rather than MP3 in this project.",
+      "details": "Godot 4.6 headless tests reported no resource loader for the downloaded MP3 attack clips, while the same clips converted to WAV imported and loaded cleanly. Keep attack SFX under assets/audio/sfx as WAV unless the audio import pipeline is changed.",
+      "status": "active",
+      "created_at": "2026-05-02T23:07:32Z",
+      "updated_at": "2026-05-02T23:07:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "8d46d95"
       }
     }
   ]
