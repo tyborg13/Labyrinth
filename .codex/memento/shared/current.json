@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-04-29T21:11:02Z",
+  "updated_at": "2026-05-02T01:39:24Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1400,30 +1400,6 @@
       }
     },
     {
-      "id": "mnt_20260422T165205Z_be930e27",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/card_widget.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/card_widget.gd",
-      "summary": "CardWidget art sits on one continuous parchment frame with wrapped icon rows.",
-      "details": "The current card frame uses assets/art/ui/card_frame.png as a texture stylebox while ArtFrame and DetailsPanel stay visually empty, so card art floats in the upper third and ability details share the parchment below. Keep dense icon-summary rows split into short segments; otherwise larger 26px ability icons can overflow narrow card interiors. The rarity indicator is now a visible bottom notch, so do not reserve vertical space by hiding rarity UI.",
-      "status": "active",
-      "created_at": "2026-04-22T16:52:05Z",
-      "updated_at": "2026-04-22T16:52:05Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260407T203120Z_854f57a4"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "acc2acb"
-      }
-    },
-    {
       "id": "mnt_20260422T172806Z_aeab5b94",
       "layer": "shared",
       "kind": "decision",
@@ -1843,6 +1819,30 @@
       "source": {
         "branch": "master",
         "commit": "52b5e4e"
+      }
+    },
+    {
+      "id": "mnt_20260502T013924Z_6b1c6d6e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Card rarity socket color lives in frame texture variants, not overlay controls.",
+      "details": "CardWidget selects assets/art/ui/card_frame_rarity_{starter,common,uncommon,rare}.png by rarity. Those PNGs are generated from card_frame.png by recoloring only the connected dark socket pixels, preserving the original metal/gold trim and exact slot geometry. Avoid returning to procedural PanelContainer/Control overlays for this marker; they leave gaps and cover the frame at card fan scales.",
+      "status": "active",
+      "created_at": "2026-05-02T01:39:24Z",
+      "updated_at": "2026-05-02T01:39:24Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260422T165205Z_be930e27"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "19daab8"
       }
     }
   ]

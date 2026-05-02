@@ -20,6 +20,10 @@ const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
 const CARD_FRAME_PATH: String = "res://assets/art/ui/card_frame.png"
+const CARD_FRAME_STARTER_PATH: String = "res://assets/art/ui/card_frame_rarity_starter.png"
+const CARD_FRAME_COMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_common.png"
+const CARD_FRAME_UNCOMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_uncommon.png"
+const CARD_FRAME_RARE_PATH: String = "res://assets/art/ui/card_frame_rarity_rare.png"
 const CARD_FRAME_MARGIN: float = 34.0
 const COMPACT_CARD_WIDTH: float = 190.0
 const CARD_VERTICAL_CHROME: float = 82.0
@@ -162,7 +166,6 @@ var _local_hovered: bool = false
 var _pose_tween: Tween
 var _summary_icon_box: VBoxContainer
 var _cost_badge_icon: TextureRect
-var _rarity_notch: PanelContainer
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
@@ -193,7 +196,6 @@ func _ready() -> void:
 	cost_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_summary_icon_box()
 	_ensure_cost_badge_icon()
-	_ensure_rarity_notch()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
 	_update_layout_metrics()
@@ -315,8 +317,7 @@ func _apply_configuration() -> void:
 		background = background.lightened(0.03)
 	if _dimmed:
 		background = background.darkened(0.12)
-	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id))
-	_configure_rarity_notch(str(card.get("rarity", "common")))
+	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id), str(card.get("rarity", "common")))
 	var badge_text: String = ""
 	var badge_icon: String = ""
 	if bool(card.get("burn", false)):
@@ -370,11 +371,11 @@ func _update_layout_metrics() -> void:
 		_summary_icon_box.custom_minimum_size = Vector2(0.0, details_height)
 	pivot_offset = size * 0.5
 
-func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color) -> void:
-	var normal: StyleBoxTexture = _card_frame_style(0.0)
-	var hover: StyleBoxTexture = _card_frame_style(2.0)
-	var pressed: StyleBoxTexture = _card_frame_style(0.0)
-	var disabled_style: StyleBoxTexture = _card_frame_style(0.0)
+func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color, rarity: String) -> void:
+	var normal: StyleBoxTexture = _card_frame_style(0.0, rarity)
+	var hover: StyleBoxTexture = _card_frame_style(2.0, rarity)
+	var pressed: StyleBoxTexture = _card_frame_style(0.0, rarity)
+	var disabled_style: StyleBoxTexture = _card_frame_style(0.0, rarity)
 	add_theme_stylebox_override("normal", normal)
 	add_theme_stylebox_override("hover", hover)
 	add_theme_stylebox_override("pressed", pressed)
@@ -383,9 +384,9 @@ func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previ
 	art_frame.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	details_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
-func _card_frame_style(expand: float = 0.0) -> StyleBoxTexture:
+func _card_frame_style(expand: float = 0.0, rarity: String = "") -> StyleBoxTexture:
 	var style := StyleBoxTexture.new()
-	style.texture = AssetLoader.load_texture(CARD_FRAME_PATH)
+	style.texture = AssetLoader.load_texture(_card_frame_path(rarity))
 	style.texture_margin_left = CARD_FRAME_MARGIN
 	style.texture_margin_top = CARD_FRAME_MARGIN
 	style.texture_margin_right = CARD_FRAME_MARGIN
@@ -397,6 +398,19 @@ func _card_frame_style(expand: float = 0.0) -> StyleBoxTexture:
 	style.expand_margin_right = expand
 	style.expand_margin_bottom = expand
 	return style
+
+func _card_frame_path(rarity: String) -> String:
+	match rarity:
+		"starter":
+			return CARD_FRAME_STARTER_PATH
+		"common":
+			return CARD_FRAME_COMMON_PATH
+		"uncommon":
+			return CARD_FRAME_UNCOMMON_PATH
+		"rare":
+			return CARD_FRAME_RARE_PATH
+		_:
+			return CARD_FRAME_PATH
 
 func _badge_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -435,23 +449,6 @@ func _ensure_cost_badge_icon() -> void:
 	_cost_badge_icon.expand_mode = 1
 	_cost_badge_icon.stretch_mode = 5
 	cost_badge.add_child(_cost_badge_icon)
-
-func _ensure_rarity_notch() -> void:
-	if _rarity_notch != null:
-		return
-	_rarity_notch = PanelContainer.new()
-	_rarity_notch.name = "RarityNotch"
-	_rarity_notch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_rarity_notch.anchor_left = 0.5
-	_rarity_notch.anchor_right = 0.5
-	_rarity_notch.anchor_top = 1.0
-	_rarity_notch.anchor_bottom = 1.0
-	_rarity_notch.offset_left = -17.0
-	_rarity_notch.offset_right = 17.0
-	_rarity_notch.offset_top = -9.0
-	_rarity_notch.offset_bottom = -3.0
-	_rarity_notch.z_index = 4
-	add_child(_rarity_notch)
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)
@@ -599,36 +596,6 @@ func _summary_token_segments(tokens: Array) -> Array:
 	if not current.is_empty():
 		segments.append(current)
 	return segments
-
-func _configure_rarity_notch(rarity: String) -> void:
-	if _rarity_notch == null:
-		return
-	var style := StyleBoxFlat.new()
-	style.bg_color = _rarity_color(rarity)
-	style.border_color = Color("3e2f22")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 2
-	style.corner_radius_top_right = 2
-	style.corner_radius_bottom_left = 1
-	style.corner_radius_bottom_right = 1
-	_rarity_notch.add_theme_stylebox_override("panel", style)
-	_rarity_notch.tooltip_text = rarity.capitalize()
-
-func _rarity_color(rarity: String) -> Color:
-	match rarity:
-		"starter":
-			return Color("8f7654")
-		"common":
-			return Color("c7b37c")
-		"uncommon":
-			return Color("6b9c68")
-		"rare":
-			return Color("9f6fc4")
-		_:
-			return Color("a58f68")
 
 func _token_value_color(token: Dictionary) -> Color:
 	match str(token.get("tone", "neutral")):
