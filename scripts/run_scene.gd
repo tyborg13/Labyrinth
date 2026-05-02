@@ -1819,11 +1819,13 @@ func _refresh_stage_view() -> void:
 				presentation["focus_actor_color"] = Color("f2ddb2")
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
-	if str(_run_state.get("mode", "room")) == "campfire":
+	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	if str(current_room.get("type", "")) == "campfire":
 		presentation["scene_props"] = [
 			{
 				"kind": "campfire_bonfire",
-				"tile": Vector2i(4, 4)
+				"tile": Vector2i(4, 4),
+				"idle_frame_seconds": 0.10
 			}
 		]
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()

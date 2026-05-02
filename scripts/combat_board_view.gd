@@ -103,6 +103,10 @@ const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
 ]
 const CAMPFIRE_BONFIRE_PATH: String = "res://assets/art/tiles/campfire_bonfire.png"
+const CAMPFIRE_BONFIRE_IDLE_PATH: String = "res://assets/art/tiles/campfire_bonfire_idle.png"
+const CAMPFIRE_BONFIRE_IDLE_COLUMNS: int = 4
+const CAMPFIRE_BONFIRE_IDLE_ROWS: int = 4
+const CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS: float = 0.10
 const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
@@ -143,6 +147,7 @@ var _moss_texture_variants: Dictionary = {}
 var _moss_tiles_by_surface: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _scene_prop_textures: Dictionary = {}
+var _scene_prop_idle_frames: Dictionary = {}
 var _effect_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
@@ -182,7 +187,7 @@ func _process(delta: float) -> void:
 		_idle_elapsed = 0.0
 		_idle_tick = 0
 		queue_redraw()
-	if not animating or _idle_frames_by_type.is_empty():
+	if not animating:
 		return
 	var tick_seconds: float = _active_idle_frame_seconds()
 	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, tick_seconds * 1024.0)
@@ -202,13 +207,18 @@ func _presentation_needs_redraw() -> bool:
 	return bool(effect.get("preview", false))
 
 func _any_idle_animation_active() -> bool:
-	if not visible or combat_state.is_empty() or _idle_frames_by_type.is_empty():
+	if not visible or combat_state.is_empty():
 		return false
-	for unit: Dictionary in _visible_units():
-		if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
-			continue
-		if _unit_idle_animation_active(unit):
-			return true
+	if not _idle_frames_by_type.is_empty():
+		for unit: Dictionary in _visible_units():
+			if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
+				continue
+			if _unit_idle_animation_active(unit):
+				return true
+	if not _scene_prop_idle_frames.is_empty():
+		for prop_var: Variant in presentation.get("scene_props", []):
+			if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
+				return true
 	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
@@ -351,7 +361,7 @@ func _draw_scene_props_for_tile(tile: Vector2i) -> void:
 		var prop: Dictionary = prop_var
 		if prop.get("tile", Vector2i(-1, -1)) != tile:
 			continue
-		var texture: Texture2D = _scene_prop_textures.get(str(prop.get("kind", "")), null)
+		var texture: Texture2D = _texture_for_scene_prop(prop)
 		if texture == null:
 			continue
 		var draw_rect: Rect2 = _scene_prop_rect(texture, prop)
@@ -1995,6 +2005,13 @@ func _load_assets() -> void:
 	_scene_prop_textures = {
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH)
 	}
+	_scene_prop_idle_frames = {
+		"campfire_bonfire": _load_sprite_sheet_frames(
+			CAMPFIRE_BONFIRE_IDLE_PATH,
+			CAMPFIRE_BONFIRE_IDLE_COLUMNS,
+			CAMPFIRE_BONFIRE_IDLE_ROWS
+		)
+	}
 	_effect_textures = {
 		"melee_slash": AssetLoader.load_texture(MELEE_SLASH_EFFECT_PATH),
 		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
@@ -2058,6 +2075,35 @@ func _load_door_opening_frames() -> Array[Texture2D]:
 		var frame_position := Vector2i(canvas_size.x - region.size.x, canvas_size.y - region.size.y)
 		frame_image.blit_rect(sheet_image, region, frame_position)
 		frames.append(ImageTexture.create_from_image(frame_image))
+	return frames
+
+func _load_sprite_sheet_frames(path: String, columns: int, rows: int) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	var sheet: Texture2D = AssetLoader.load_texture(path)
+	if sheet == null:
+		return frames
+	var frame_size := Vector2i(
+		int(sheet.get_width() / maxi(1, columns)),
+		int(sheet.get_height() / maxi(1, rows))
+	)
+	return AssetLoader.build_sprite_sheet_frames(sheet, frame_size, _idle_frame_indices({
+		"columns": columns,
+		"rows": rows,
+		"order": IDLE_SHEET_ORDER_ROW_MAJOR,
+		"ping_pong": false
+	}))
+
+func _texture_for_scene_prop(prop: Dictionary) -> Texture2D:
+	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
+	if _scene_prop_idle_animation_active(prop) and not idle_frames.is_empty():
+		return idle_frames[_scene_prop_idle_frame_index(prop)]
+	return _scene_prop_textures.get(str(prop.get("kind", "")), null)
+
+func _scene_prop_idle_frames_for_kind(kind: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_var: Variant in _scene_prop_idle_frames.get(kind, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
 	return frames
 
 func _door_opening_frame_canvas_size() -> Vector2i:
@@ -2155,6 +2201,15 @@ func _unit_idle_frame_seconds(unit: Dictionary) -> float:
 		definition = GameData.enemy_def(unit_type)
 	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
 
+func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
+	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
+	if idle_frames.is_empty():
+		return 0
+	return int(floor(_idle_elapsed / _scene_prop_idle_frame_seconds(prop))) % idle_frames.size()
+
+func _scene_prop_idle_frame_seconds(prop: Dictionary) -> float:
+	return maxf(0.01, float(prop.get("idle_frame_seconds", CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS)))
+
 func _active_idle_frame_seconds() -> float:
 	var active_seconds: float = IDLE_FRAME_SECONDS
 	var found_active_unit: bool = false
@@ -2166,6 +2221,16 @@ func _active_idle_frame_seconds() -> float:
 		var unit_seconds: float = _unit_idle_frame_seconds(unit)
 		if not found_active_unit or unit_seconds < active_seconds:
 			active_seconds = unit_seconds
+			found_active_unit = true
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		if not _scene_prop_idle_animation_active(prop):
+			continue
+		var prop_seconds: float = _scene_prop_idle_frame_seconds(prop)
+		if not found_active_unit or prop_seconds < active_seconds:
+			active_seconds = prop_seconds
 			found_active_unit = true
 	return active_seconds
 
@@ -2182,6 +2247,11 @@ func _unit_idle_animation_active(unit: Dictionary) -> bool:
 		return true
 	var focus_actor_keys: Array = presentation.get("focus_actor_keys", [])
 	return not focus_actor_keys.has(actor_key)
+
+func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
+	if not visible or combat_state.is_empty():
+		return false
+	return not _scene_prop_idle_frames_for_kind(str(prop.get("kind", ""))).is_empty()
 
 func _unit_draw_rect(unit: Dictionary) -> Rect2:
 	return _unit_draw_rect_for_center(unit, _unit_center(unit))

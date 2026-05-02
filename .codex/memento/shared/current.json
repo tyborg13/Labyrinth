@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-02T01:39:24Z",
+  "updated_at": "2026-05-02T02:05:25Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1843,6 +1843,28 @@
       "source": {
         "branch": "master",
         "commit": "19daab8"
+      }
+    },
+    {
+      "id": "mnt_20260502T020525Z_a8c33a7b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Campfire bonfire scene prop follows room type, not mode",
+      "details": "RunScene adds the campfire_bonfire scene_prop whenever the current room metadata type is campfire, even after leave_campfire changes mode back to room, so the bonfire remains visible until the player leaves the room. CombatBoardView loads assets/art/tiles/campfire_bonfire_idle.png as a 4x4 idle sheet for that scene prop.",
+      "status": "active",
+      "created_at": "2026-05-02T02:05:25Z",
+      "updated_at": "2026-05-02T02:05:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "4f75eb2"
       }
     }
   ]

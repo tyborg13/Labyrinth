@@ -126,6 +126,7 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_campfire_choices_use_context_overlay()
+	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_block_card_skips_dead_move()
@@ -2507,6 +2508,44 @@ func _test_run_scene_campfire_choices_use_context_overlay() -> void:
 	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
 	_assert(overlay.visible, "Campfire choices should use the floating board context overlay")
 	_assert(overlay_button_count == 2 and found_sit and found_leave, "Campfire context overlay should expose large Sit and Leave buttons")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_campfire_bonfire_persists_after_leave() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for campfire prop coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_engine: RunEngine = instance.get("_run_engine")
+	var run_state: Dictionary = run_engine.create_new_run(123, ProgressionStore.default_data())
+	var campfire_coord := Vector2i(0, 2)
+	var campfire_room: Dictionary = run_engine.room_metadata(run_state, campfire_coord)
+	_assert(str(campfire_room.get("type", "")) == "campfire", "Depth-2 axis fixture should be a campfire room")
+	run_state["current_room"] = campfire_coord
+	run_state["mode"] = "room"
+	run_state["current_room_layout"] = run_engine.call("_display_layout_for_room", int(run_state.get("seed", 0)), campfire_room, Vector2i.ZERO)
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_stage_view")
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var scene_props: Array = board_view.get("presentation").get("scene_props", [])
+	var found_bonfire: bool = false
+	for prop_var: Variant in scene_props:
+		if typeof(prop_var) == TYPE_DICTIONARY and str((prop_var as Dictionary).get("kind", "")) == "campfire_bonfire":
+			found_bonfire = true
+			break
+	_assert(found_bonfire, "Campfire bonfire should stay on the board after leaving the campfire choice mode")
+	var idle_frames: Array = board_view.call("_scene_prop_idle_frames_for_kind", "campfire_bonfire")
+	_assert(idle_frames.size() == 16, "Campfire bonfire should load the full 4x4 idle animation sheet")
+	var first_frame: AtlasTexture = null
+	var second_frame: AtlasTexture = null
+	if idle_frames.size() > 0:
+		first_frame = idle_frames[0] as AtlasTexture
+	if idle_frames.size() > 1:
+		second_frame = idle_frames[1] as AtlasTexture
+	_assert(first_frame != null and second_frame != null and first_frame.region != second_frame.region, "Campfire bonfire idle frames should be atlas-backed sprite sheet slices")
 	instance.queue_free()
 	await process_frame
 
