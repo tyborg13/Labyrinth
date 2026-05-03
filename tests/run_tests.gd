@@ -33,6 +33,7 @@ func _initialize() -> void:
 	_test_room_generation_enemy_spawns_keep_player_halo()
 	_test_room_generation_blocks_door_tiles()
 	_test_room_generation_uses_perimeter_walls_only()
+	_test_room_generation_avoids_adjacent_columns()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
 	_test_room_generation_populates_elemental_traps()
 	_test_special_rooms_use_corner_pillar_layout()
@@ -89,6 +90,8 @@ func _initialize() -> void:
 	_test_combat_board_zooms_to_rendered_room_bounds()
 	_test_foreground_props_fade_when_covering_behind_units()
 	_test_pillar_art_fits_bottom_center_without_stretching()
+	_test_pillar_torch_fixtures_mount_on_both_visible_faces()
+	_test_column_torch_idle_sheets_load_and_are_clean()
 	_test_pillar_moss_overlay_is_anchored_to_pillar_cap()
 	_test_wall_and_pillar_assets_stay_distinct()
 	_test_boundary_prop_art_uses_single_tile_footprint()
@@ -261,6 +264,26 @@ func _test_room_generation_uses_perimeter_walls_only() -> void:
 				if PathUtils.is_passable(grid, tile):
 					continue
 				_assert(str(row[x]) == "pillar", "Generated room interiors should use pillars as their only blocking terrain while wall art stays reserved for the perimeter")
+
+func _test_room_generation_avoids_adjacent_columns() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	for seed: int in range(1, 80):
+		for room_type: String in ["combat", "boss", "campfire", "treasure"]:
+			var room: Dictionary = generator.generate_room(seed, {
+				"coord": Vector2i(seed % 6, seed % 5),
+				"depth": 2,
+				"type": room_type
+			}, Vector2i.ZERO)
+			var grid: Array = room.get("grid", [])
+			for y: int in range(1, grid.size() - 1):
+				var row: Array = grid[y]
+				for x: int in range(1, row.size() - 1):
+					if str(row[x]) != "pillar":
+						continue
+					if x + 1 < row.size() - 1:
+						_assert(str(row[x + 1]) != "pillar", "Generated columns should not be horizontally adjacent")
+					if y + 1 < grid.size() - 1:
+						_assert(str((grid[y + 1] as Array)[x]) != "pillar", "Generated columns should not be vertically adjacent")
 
 func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1676,6 +1699,75 @@ func _test_pillar_art_fits_bottom_center_without_stretching() -> void:
 	var draw_ratio: float = draw_rect.size.x / draw_rect.size.y
 	_assert(is_equal_approx(draw_ratio, source_ratio), "Prop art should preserve its aspect ratio instead of stretching to fill the placeholder frame")
 	board.free()
+
+func _test_pillar_torch_fixtures_mount_on_both_visible_faces() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_prop_textures") as Dictionary
+	var left_texture: Texture2D = textures.get("column_torch_left", null)
+	var right_texture: Texture2D = textures.get("column_torch_right", null)
+	_assert(left_texture != null, "Combat board should load the left-facing column torch fixture")
+	_assert(right_texture != null, "Combat board should load the right-facing column torch fixture")
+	var pillar_texture: Texture2D = textures.get("pillar", null)
+	var pillar_rect: Rect2 = board.call("_prop_draw_rect", pillar_texture, board.call("_prop_rect_for_tile", Vector2i(3, 3)))
+	var left_rect: Rect2 = board.call("_pillar_torch_rect", pillar_rect, left_texture, -1.0)
+	var right_rect: Rect2 = board.call("_pillar_torch_rect", pillar_rect, right_texture, 1.0)
+	_assert(left_rect.get_center().x < pillar_rect.get_center().x, "The left torch should mount on the screen-left visible pillar face")
+	_assert(right_rect.get_center().x > pillar_rect.get_center().x, "The right torch should mount on the screen-right visible pillar face")
+	_assert(left_rect.size.x >= pillar_rect.size.x * 0.28, "Column torches should be large enough to read at board scale")
+	_assert(right_rect.size.x >= pillar_rect.size.x * 0.28, "Column torches should be large enough to read at board scale")
+	_assert(left_rect.size.x <= pillar_rect.size.x * 0.34, "Column torches should stay compact enough to mount on the pillar shaft")
+	_assert(right_rect.size.x <= pillar_rect.size.x * 0.34, "Column torches should stay compact enough to mount on the pillar shaft")
+	_assert(left_rect.get_center().distance_to(right_rect.get_center()) >= pillar_rect.size.x * 0.70, "Column torches should be spread onto their respective pillar sides")
+	_assert(left_rect.position.y >= pillar_rect.position.y + pillar_rect.size.y * 0.24, "Column torches should sit on the pillar shaft below the cap")
+	_assert(right_rect.position.y >= pillar_rect.position.y + pillar_rect.size.y * 0.24, "Column torches should sit on the pillar shaft below the cap")
+	board.free()
+
+func _test_column_torch_idle_sheets_load_and_are_clean() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	var grid: Array = _simple_grid()
+	grid[3][3] = "pillar"
+	board.combat_state = {
+		"grid": grid,
+		"player": {"pos": Vector2i(2, 2), "hp": 10, "max_hp": 10}
+	}
+	board.call("_load_assets")
+	var idle_frames: Dictionary = board.get("_pillar_torch_idle_frames") as Dictionary
+	_assert((idle_frames.get("left", []) as Array).size() == 16, "Left column torch idle sheet should load as a 4x4 animation")
+	_assert((idle_frames.get("right", []) as Array).size() == 16, "Right column torch idle sheet should load as a 4x4 animation")
+	_assert(bool(board.call("_pillar_torch_idle_animation_active")), "Column torch idle animation should run when a room has pillars")
+	board.set("_idle_elapsed", 0.0)
+	var first_left: Texture2D = board.call("_pillar_torch_texture", "left")
+	board.set("_idle_elapsed", 0.12)
+	var second_left: Texture2D = board.call("_pillar_torch_texture", "left")
+	_assert(first_left != null and second_left != null and first_left != second_left, "Column torch texture should advance through idle frames")
+	board.set("_idle_elapsed", 0.10)
+	var before_torch_tick: String = str(board.call("_active_idle_frame_key"))
+	board.set("_idle_elapsed", 0.12)
+	var after_torch_tick: String = str(board.call("_active_idle_frame_key"))
+	_assert(before_torch_tick != after_torch_tick, "Board redraw gating should notice torch frame changes even when unit frame timing does not align")
+	_assert_torch_sheet_has_no_chroma_speckles("res://assets/art/tiles/column_torch_left_idle.png")
+	_assert_torch_sheet_has_no_chroma_speckles("res://assets/art/tiles/column_torch_right_idle.png")
+	board.free()
+
+func _assert_torch_sheet_has_no_chroma_speckles(path: String) -> void:
+	var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
+	_assert(image != null and not image.is_empty(), "%s should expose image data for chroma validation" % path)
+	if image == null or image.is_empty():
+		return
+	var chroma_pixels: int = 0
+	for y: int in range(image.get_height()):
+		for x: int in range(image.get_width()):
+			var color: Color = image.get_pixel(x, y)
+			if color.a <= 0.0:
+				continue
+			if color.g > 0.12 and color.g > color.r * 1.12 and color.g > color.b * 1.12:
+				chroma_pixels += 1
+			elif color.r > 0.28 and color.b > 0.24 and color.r > color.g * 1.18 and color.b > color.g * 1.18:
+				chroma_pixels += 1
+	_assert(chroma_pixels == 0, "%s should not keep visible green or purple chroma-key speckles" % path)
 
 func _test_pillar_moss_overlay_is_anchored_to_pillar_cap() -> void:
 	var board := CombatBoardView.new()

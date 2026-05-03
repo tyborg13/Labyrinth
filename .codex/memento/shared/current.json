@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-03T02:16:46Z",
+  "updated_at": "2026-05-03T15:54:40Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1933,6 +1933,52 @@
       "source": {
         "branch": "master",
         "commit": "84ee0ad"
+      }
+    },
+    {
+      "id": "mnt_20260503T153311Z_86bc3b27",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Column torches use cleaned 4x4 idle sheets.",
+      "details": "column_torch_left/right remain the static fallback textures, but CombatBoardView now loads column_torch_left_idle.png and column_torch_right_idle.png as 4x4 overlays with COLUMN_TORCH_IDLE_FRAME_SECONDS=0.08. The sheets were cleaned for green/purple chroma speckles; the right sheet's non-flame torch body was partially normalized toward stable frame colors to reduce the frame-to-frame glow recolor while preserving flame flicker.",
+      "status": "active",
+      "created_at": "2026-05-03T15:33:11Z",
+      "updated_at": "2026-05-03T15:33:11Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260503T150332Z_c53754c6"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "b2c9722"
+      }
+    },
+    {
+      "id": "mnt_20260503T155440Z_14b6b7a3",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Idle redraw gating must track actual frame keys for mixed animation cadences.",
+      "details": "Using the fastest active idle interval as the only redraw tick caused slower column torches (7/60s) to be sampled on unit redraws (0.10s), repeating torch frames several times per loop. CombatBoardView now builds _active_idle_frame_key from unit, scene prop, and pillar torch frame indices so any visible animation frame change queues a redraw.",
+      "status": "active",
+      "created_at": "2026-05-03T15:54:40Z",
+      "updated_at": "2026-05-03T15:54:40Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "b2c9722"
       }
     }
   ]

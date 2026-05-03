@@ -112,6 +112,16 @@ const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
+const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
+const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
+const COLUMN_TORCH_LEFT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_left_idle.png"
+const COLUMN_TORCH_RIGHT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_right_idle.png"
+const COLUMN_TORCH_IDLE_COLUMNS: int = 4
+const COLUMN_TORCH_IDLE_ROWS: int = 4
+const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
+const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
+const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
+const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
 const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
@@ -151,6 +161,7 @@ var _moss_tiles_by_surface: Dictionary = {}
 var _prop_textures: Dictionary = {}
 var _scene_prop_textures: Dictionary = {}
 var _scene_prop_idle_frames: Dictionary = {}
+var _pillar_torch_idle_frames: Dictionary = {}
 var _effect_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
@@ -166,7 +177,7 @@ var _tooltip_regions: Array[Dictionary] = []
 var _idle_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
-var _idle_tick: int = 0
+var _idle_frame_key: String = ""
 var _board_layout_cache_valid: bool = false
 var _board_layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
 var _board_layout_cache_tiles: Array[Vector2i] = []
@@ -188,15 +199,14 @@ func _process(delta: float) -> void:
 	if animating != _idle_animating:
 		_idle_animating = animating
 		_idle_elapsed = 0.0
-		_idle_tick = 0
+		_idle_frame_key = ""
 		queue_redraw()
 	if not animating:
 		return
-	var tick_seconds: float = _active_idle_frame_seconds()
-	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, tick_seconds * 1024.0)
-	var next_tick: int = int(floor(_idle_elapsed / tick_seconds))
-	if next_tick != _idle_tick:
-		_idle_tick = next_tick
+	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, 3600.0)
+	var next_frame_key: String = _active_idle_frame_key()
+	if next_frame_key != _idle_frame_key:
+		_idle_frame_key = next_frame_key
 		queue_redraw()
 
 func _presentation_needs_redraw() -> bool:
@@ -222,6 +232,8 @@ func _any_idle_animation_active() -> bool:
 		for prop_var: Variant in presentation.get("scene_props", []):
 			if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
 				return true
+	if _pillar_torch_idle_animation_active():
+		return true
 	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
@@ -458,6 +470,11 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 				if icon_texture != null:
 					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect)
 	_draw_prop_moss_overlay(tile_id, grid, tile, units_to_draw)
+	if tile_id == "pillar":
+		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+		if pillar_texture != null:
+			var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
+			_draw_pillar_torch_fixtures(tile_id, tile, pillar_rect, units_to_draw)
 	for loot: Dictionary in combat_state.get("loot", []):
 		if bool(loot.get("claimed", false)):
 			continue
@@ -475,6 +492,46 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		if trap.get("pos", Vector2i(-1, -1)) != tile:
 			continue
 		_draw_trap_marker(trap)
+
+func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, units_to_draw: Array) -> void:
+	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, units_to_draw)
+	var left_texture: Texture2D = _pillar_torch_texture("left")
+	var right_texture: Texture2D = _pillar_torch_texture("right")
+	if left_texture != null:
+		draw_texture_rect(left_texture, _pillar_torch_rect(pillar_rect, left_texture, -1.0), false, tint)
+	if right_texture != null:
+		draw_texture_rect(right_texture, _pillar_torch_rect(pillar_rect, right_texture, 1.0), false, tint)
+
+func _pillar_torch_texture(side_key: String) -> Texture2D:
+	var idle_frames: Array[Texture2D] = _pillar_torch_idle_frames_for_side(side_key)
+	if _pillar_torch_idle_animation_active() and not idle_frames.is_empty():
+		return idle_frames[_pillar_torch_idle_frame_index(side_key)]
+	return _prop_textures.get("column_torch_%s" % side_key, null)
+
+func _pillar_torch_idle_frames_for_side(side_key: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_var: Variant in _pillar_torch_idle_frames.get(side_key, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
+
+func _pillar_torch_idle_frame_index(side_key: String) -> int:
+	var idle_frames: Array[Texture2D] = _pillar_torch_idle_frames_for_side(side_key)
+	if idle_frames.is_empty():
+		return 0
+	var side_offset: int = 3 if side_key == "right" else 0
+	return (int(floor(_idle_elapsed / COLUMN_TORCH_IDLE_FRAME_SECONDS)) + side_offset) % idle_frames.size()
+
+func _pillar_torch_rect(pillar_rect: Rect2, texture: Texture2D, side_sign: float) -> Rect2:
+	var draw_width: float = pillar_rect.size.x * COLUMN_TORCH_WIDTH_SCALE
+	var draw_height: float = draw_width
+	if texture != null and texture.get_size().x > 0.0:
+		draw_height = draw_width * texture.get_size().y / texture.get_size().x
+	var anchor_x: float = pillar_rect.get_center().x + pillar_rect.size.x * COLUMN_TORCH_FACE_OFFSET_X_SCALE * side_sign
+	var top_y: float = pillar_rect.position.y + pillar_rect.size.y * COLUMN_TORCH_TOP_Y_SCALE
+	if side_sign < 0.0:
+		return Rect2(Vector2(anchor_x - draw_width * 0.84, top_y), Vector2(draw_width, draw_height))
+	return Rect2(Vector2(anchor_x - draw_width * 0.16, top_y), Vector2(draw_width, draw_height))
 
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, units_to_draw: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
@@ -2012,7 +2069,9 @@ func _load_assets() -> void:
 		"wall_col": AssetLoader.flip_texture_h(wall_row_texture),
 		"door": door_texture,
 		"door_row": door_texture,
-		"door_col": AssetLoader.flip_texture_h(door_texture)
+		"door_col": AssetLoader.flip_texture_h(door_texture),
+		"column_torch_left": AssetLoader.load_texture(COLUMN_TORCH_LEFT_PATH),
+		"column_torch_right": AssetLoader.load_texture(COLUMN_TORCH_RIGHT_PATH)
 	}
 	_scene_prop_textures = {
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
@@ -2023,6 +2082,18 @@ func _load_assets() -> void:
 			CAMPFIRE_BONFIRE_IDLE_PATH,
 			CAMPFIRE_BONFIRE_IDLE_COLUMNS,
 			CAMPFIRE_BONFIRE_IDLE_ROWS
+		)
+	}
+	_pillar_torch_idle_frames = {
+		"left": _load_sprite_sheet_frames(
+			COLUMN_TORCH_LEFT_IDLE_PATH,
+			COLUMN_TORCH_IDLE_COLUMNS,
+			COLUMN_TORCH_IDLE_ROWS
+		),
+		"right": _load_sprite_sheet_frames(
+			COLUMN_TORCH_RIGHT_IDLE_PATH,
+			COLUMN_TORCH_IDLE_COLUMNS,
+			COLUMN_TORCH_IDLE_ROWS
 		)
 	}
 	_effect_textures = {
@@ -2223,29 +2294,26 @@ func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
 func _scene_prop_idle_frame_seconds(prop: Dictionary) -> float:
 	return maxf(0.01, float(prop.get("idle_frame_seconds", CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS)))
 
-func _active_idle_frame_seconds() -> float:
-	var active_seconds: float = IDLE_FRAME_SECONDS
-	var found_active_unit: bool = false
+func _active_idle_frame_key() -> String:
+	var parts: Array[String] = []
 	for unit: Dictionary in _visible_units():
 		if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
 			continue
 		if not _unit_idle_animation_active(unit):
 			continue
-		var unit_seconds: float = _unit_idle_frame_seconds(unit)
-		if not found_active_unit or unit_seconds < active_seconds:
-			active_seconds = unit_seconds
-			found_active_unit = true
+		var actor_key: String = str(unit.get("key", unit.get("id", "")))
+		parts.append("u:%s:%d" % [actor_key, _idle_frame_index(unit)])
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) != TYPE_DICTIONARY:
 			continue
 		var prop: Dictionary = prop_var
 		if not _scene_prop_idle_animation_active(prop):
 			continue
-		var prop_seconds: float = _scene_prop_idle_frame_seconds(prop)
-		if not found_active_unit or prop_seconds < active_seconds:
-			active_seconds = prop_seconds
-			found_active_unit = true
-	return active_seconds
+		parts.append("p:%s:%s:%d" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO)), _scene_prop_idle_frame_index(prop)])
+	if _pillar_torch_idle_animation_active():
+		parts.append("tl:%d" % _pillar_torch_idle_frame_index("left"))
+		parts.append("tr:%d" % _pillar_torch_idle_frame_index("right"))
+	return "|".join(parts)
 
 func _unit_idle_animation_active(unit: Dictionary) -> bool:
 	if not visible or combat_state.is_empty() or _unit_idle_frames(unit).is_empty():
@@ -2265,6 +2333,24 @@ func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
 	if not visible or combat_state.is_empty():
 		return false
 	return not _scene_prop_idle_frames_for_kind(str(prop.get("kind", ""))).is_empty()
+
+func _pillar_torch_idle_animation_active() -> bool:
+	if not visible or combat_state.is_empty():
+		return false
+	if _pillar_torch_idle_frames_for_side("left").is_empty() and _pillar_torch_idle_frames_for_side("right").is_empty():
+		return false
+	return _grid_has_tile("pillar")
+
+func _grid_has_tile(tile_id: String) -> bool:
+	var grid: Array = combat_state.get("grid", [])
+	for row_var: Variant in grid:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row: Array = row_var
+		for cell_var: Variant in row:
+			if str(cell_var) == tile_id:
+				return true
+	return false
 
 func _unit_draw_rect(unit: Dictionary) -> Rect2:
 	return _unit_draw_rect_for_center(unit, _unit_center(unit))

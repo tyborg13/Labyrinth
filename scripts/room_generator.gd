@@ -193,6 +193,8 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 				continue
 			if transformed.x <= 0 or transformed.y <= 0 or transformed.x >= ROOM_WIDTH - 1 or transformed.y >= ROOM_HEIGHT - 1:
 				continue
+			if tile_id == TILE_PILLAR and _pillar_has_cardinal_neighbor(grid, transformed):
+				continue
 			grid[transformed.y][transformed.x] = tile_id
 	if _reachable_floor_count(grid, Vector2i(4, 7)) < 18:
 		for y: int in range(ROOM_HEIGHT):
@@ -208,6 +210,18 @@ func _apply_corner_pillar_layout(grid: Array) -> void:
 			grid[y][x] = TILE_ASH
 	for pillar_tile: Vector2i in _corner_pillar_tiles():
 		grid[pillar_tile.y][pillar_tile.x] = TILE_PILLAR
+
+func _pillar_has_cardinal_neighbor(grid: Array, tile: Vector2i) -> bool:
+	for dir: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		var neighbor: Vector2i = tile + dir
+		if neighbor.x < 0 or neighbor.y < 0 or neighbor.y >= grid.size():
+			continue
+		var row: Array = grid[neighbor.y]
+		if neighbor.x >= row.size():
+			continue
+		if str(row[neighbor.x]) == TILE_PILLAR:
+			return true
+	return false
 
 func _corner_pillar_tiles() -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = [
