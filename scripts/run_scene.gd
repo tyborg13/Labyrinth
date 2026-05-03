@@ -10,6 +10,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const MusicLibrary = preload("res://scripts/music_library.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
@@ -131,6 +132,8 @@ var _card_fx_layer: Control
 var _death_overlay: DeathEngulfOverlay
 var _death_sequence_started: bool = false
 var _drag_card_proxy: Control
+var _music_player: AudioStreamPlayer
+var _active_music_id: String = ""
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
 var _animating_hand_card_index: int = -1
@@ -1540,6 +1543,7 @@ func _refresh_ui() -> void:
 		display_room["name"] = str(_combat_state.get("room_name", display_room.get("name", "Chamber")))
 		display_room["type"] = str(_combat_state.get("room_type", display_room.get("type", "combat")))
 		display_room["element"] = str(_combat_state.get("room_element", display_room.get("element", ElementData.NONE)))
+	_update_music_for_context(display_room)
 	var room_element: String = str(display_room.get("element", ElementData.NONE))
 	var title_color: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("f0e6d2")
 	room_title.add_theme_color_override("font_color", title_color)
@@ -2833,6 +2837,7 @@ func _animate_ember_reward(source_tile: Vector2i, amount: int, from_count: int, 
 	await _pulse_ember_counter()
 
 func _animate_ember_mote(icon_texture: Texture2D, start: Vector2, target: Vector2, mote_index: int, mote_count: int) -> void:
+	_play_sfx(AttackSfxLibrary.entry_for_ember_collect())
 	var icon := Sprite2D.new()
 	var mote_size: float = 40.0 + float(mote_index % 4) * 3.0
 	var texture_size: Vector2 = icon_texture.get_size() if icon_texture != null else Vector2.ONE
@@ -2982,7 +2987,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"tiles": focus_tiles
 			}
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			_play_attack_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
+			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
 			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
 			var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
 			for frame: int in range(1, ATTACK_FRAMES + 1):
@@ -3015,7 +3020,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			_play_attack_sfx(AttackSfxLibrary.entry_for_block_action(_card_def(card_id, before_state), action))
+			_play_sfx(AttackSfxLibrary.entry_for_block_action(_card_def(card_id, before_state), action))
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -3127,7 +3132,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 				if str(step.get("kind", "")) == "block":
-					_play_attack_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
+					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				await _animate_floating_text_presentation(animated_state, {
 					"focus_actor_keys": [step_actor_key],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -3141,7 +3146,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if str(step.get("kind", "")) in ["aoe", "lightning_strikes"]:
 					focus_tiles = _vector2i_array(step.get("tiles", []))
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
-				_play_attack_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
+				_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
 				for frame: int in range(1, ATTACK_FRAMES + 1):
@@ -3197,7 +3202,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
 
-func _play_attack_sfx(entry: Dictionary) -> void:
+func _play_sfx(entry: Dictionary) -> void:
 	var path: String = str(entry.get("path", ""))
 	if path.is_empty():
 		return
@@ -3220,6 +3225,44 @@ func _stop_attack_sfx_player(player: AudioStreamPlayer) -> void:
 		return
 	player.stop()
 	player.queue_free()
+
+func _update_music_for_context(room: Dictionary) -> void:
+	_play_music(MusicLibrary.entry_for_context(str(_run_state.get("mode", "room")), room, _combat_state))
+
+func _play_music(entry: Dictionary) -> void:
+	var track_id: String = str(entry.get("id", ""))
+	if track_id == _active_music_id:
+		return
+	_ensure_music_player()
+	if track_id.is_empty():
+		_music_player.stop()
+		_music_player.stream = null
+		_active_music_id = ""
+		return
+	var path: String = str(entry.get("path", ""))
+	var resource: Resource = load(path)
+	if not (resource is AudioStream):
+		_music_player.stop()
+		_music_player.stream = null
+		_active_music_id = ""
+		return
+	_music_player.stream = resource as AudioStream
+	_music_player.volume_db = float(entry.get("volume_db", -12.0))
+	_active_music_id = track_id
+	_music_player.play()
+
+func _ensure_music_player() -> void:
+	if _music_player != null:
+		return
+	_music_player = AudioStreamPlayer.new()
+	_music_player.name = "MusicPlayer"
+	add_child(_music_player)
+	_music_player.finished.connect(_on_music_finished)
+
+func _on_music_finished() -> void:
+	if _music_player == null or _active_music_id.is_empty() or _music_player.stream == null:
+		return
+	_music_player.play()
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(true)
