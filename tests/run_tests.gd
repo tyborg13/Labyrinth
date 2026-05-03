@@ -35,7 +35,7 @@ func _initialize() -> void:
 	_test_room_generation_uses_perimeter_walls_only()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
 	_test_room_generation_populates_elemental_traps()
-	_test_campfire_room_uses_bonfire_layout()
+	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
 	_test_boss_room_spawns_zekarion_with_wisps()
 	_test_start_room_spawns_emaciated_man()
@@ -294,22 +294,39 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
 	_assert(ash_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
 
-func _test_campfire_room_uses_bonfire_layout() -> void:
+func _test_special_rooms_use_corner_pillar_layout() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
-	var room: Dictionary = generator.generate_room(91, {
+	var campfire_room: Dictionary = generator.generate_room(91, {
 		"coord": Vector2i(2, 0),
 		"depth": 2,
 		"type": "campfire"
 	}, Vector2i(1, 0))
-	var grid: Array = room.get("grid", [])
-	for pillar_tile: Vector2i in [Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 6), Vector2i(6, 6)]:
-		_assert(str((grid[pillar_tile.y] as Array)[pillar_tile.x]) == "pillar", "Campfire rooms should place pillars on the second-to-last ring corners")
+	_assert_corner_pillar_room(campfire_room, "Campfire")
+	var treasure_room: Dictionary = generator.generate_room(91, {
+		"coord": Vector2i(1, 1),
+		"depth": 2,
+		"type": "treasure"
+	}, Vector2i(0, -1))
+	_assert_corner_pillar_room(treasure_room, "Treasure")
+	var grid: Array = campfire_room.get("grid", [])
 	for y: int in range(3, 6):
 		for x: int in range(3, 6):
 			_assert(str((grid[y] as Array)[x]) == "ash", "The campfire bonfire footprint should remain floor tiles")
-	var floor_moss: Array = (room.get("moss", {}) as Dictionary).get("floor", [])
+	var floor_moss: Array = (campfire_room.get("moss", {}) as Dictionary).get("floor", [])
 	for tile: Vector2i in floor_moss:
 		_assert(tile.x < 3 or tile.x > 5 or tile.y < 3 or tile.y > 5, "Campfire moss should leave the 3x3 bonfire footprint visually clear")
+
+func _assert_corner_pillar_room(room: Dictionary, label: String) -> void:
+	var grid: Array = room.get("grid", [])
+	var pillar_tiles: Array[Vector2i] = [Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 6), Vector2i(6, 6)]
+	for pillar_tile: Vector2i in pillar_tiles:
+		_assert(str((grid[pillar_tile.y] as Array)[pillar_tile.x]) == "pillar", "%s rooms should place pillars on the second-to-last ring corners" % label)
+	for y: int in range(1, grid.size() - 1):
+		for x: int in range(1, (grid[y] as Array).size() - 1):
+			var tile := Vector2i(x, y)
+			if pillar_tiles.has(tile):
+				continue
+			_assert(str((grid[y] as Array)[x]) == "ash", "%s rooms should keep the rest of the interior clear" % label)
 
 func _test_room_generation_populates_elemental_traps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()

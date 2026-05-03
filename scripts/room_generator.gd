@@ -89,8 +89,8 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var grid: Array = _base_grid(rng)
 	var entrance_tile: Vector2i = ENTRANCE_BY_TRAVEL_DIR.get(travel_dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
 	_apply_available_doors(grid, room)
-	if room_type == "campfire":
-		_apply_campfire_layout(grid)
+	if room_type == "campfire" or room_type == "treasure":
+		_apply_corner_pillar_layout(grid)
 	elif room_type == "boss":
 		_apply_boss_layout(grid)
 	else:
@@ -202,14 +202,14 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 						continue
 					grid[y][x] = TILE_ASH
 
-func _apply_campfire_layout(grid: Array) -> void:
+func _apply_corner_pillar_layout(grid: Array) -> void:
 	for y: int in range(1, ROOM_HEIGHT - 1):
 		for x: int in range(1, ROOM_WIDTH - 1):
 			grid[y][x] = TILE_ASH
-	for pillar_tile: Vector2i in _campfire_pillar_tiles():
+	for pillar_tile: Vector2i in _corner_pillar_tiles():
 		grid[pillar_tile.y][pillar_tile.x] = TILE_PILLAR
 
-func _campfire_pillar_tiles() -> Array[Vector2i]:
+func _corner_pillar_tiles() -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = [
 		Vector2i(2, 2),
 		Vector2i(ROOM_WIDTH - 3, 2),

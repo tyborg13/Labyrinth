@@ -109,6 +109,9 @@ const CAMPFIRE_BONFIRE_IDLE_ROWS: int = 4
 const CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS: float = 0.10
 const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
+const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
+const RELIC_CHEST_WIDTH_SCALE: float = 0.68
+const RELIC_CHEST_BASELINE_SCALE: float = 0.44
 const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
@@ -371,13 +374,16 @@ func _draw_scene_props_for_tile(tile: Vector2i) -> void:
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
 	var center: Vector2 = _tile_center(tile)
-	var width_scale: float = float(prop.get("width_scale", CAMPFIRE_BONFIRE_WIDTH_SCALE))
+	center.x += _tile_width() * float(prop.get("x_offset_scale", 0.0))
+	var default_width_scale: float = RELIC_CHEST_WIDTH_SCALE if str(prop.get("kind", "")) == "relic_chest" else CAMPFIRE_BONFIRE_WIDTH_SCALE
+	var width_scale: float = float(prop.get("width_scale", default_width_scale))
 	var draw_width: float = _tile_width() * width_scale
 	var texture_size: Vector2 = texture.get_size()
 	var draw_height: float = draw_width
 	if texture_size.x > 0.0:
 		draw_height = draw_width * texture_size.y / texture_size.x
-	var baseline_scale: float = float(prop.get("baseline_scale", CAMPFIRE_BONFIRE_BASELINE_SCALE))
+	var default_baseline_scale: float = RELIC_CHEST_BASELINE_SCALE if str(prop.get("kind", "")) == "relic_chest" else CAMPFIRE_BONFIRE_BASELINE_SCALE
+	var baseline_scale: float = float(prop.get("baseline_scale", default_baseline_scale))
 	var bottom_y: float = center.y + _tile_height() * baseline_scale
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
@@ -460,7 +466,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		var loot_texture: Texture2D = _loot_textures.get(str(loot.get("kind", "")), null)
 		if loot_texture == null:
 			continue
-		var loot_rect: Rect2 = _loot_rect_for_tile(tile)
+		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture)
 		draw_texture_rect(loot_texture, loot_rect, false)
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
@@ -709,8 +715,14 @@ func _door_is_visible(tile: Vector2i) -> bool:
 	var locked_doors: Dictionary = presentation.get("locked_door_tiles", {})
 	return bool(locked_doors.get(tile, false))
 
-func _loot_rect_for_tile(tile: Vector2i) -> Rect2:
-	return Rect2(_tile_center(tile) - Vector2(26.0, 58.0), Vector2(52.0, 68.0))
+func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null) -> Rect2:
+	var draw_width: float = 58.0
+	var draw_height: float = 58.0
+	if texture != null and texture.get_size().x > 0.0:
+		draw_height = draw_width * texture.get_size().y / texture.get_size().x
+	var center: Vector2 = _tile_center(tile)
+	var bottom_y: float = center.y + _tile_height() * 0.30
+	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
 func _draw_exit_marker_for_tile(tile: Vector2i) -> void:
 	if not exit_tiles.has(tile):
@@ -2003,7 +2015,8 @@ func _load_assets() -> void:
 		"door_col": AssetLoader.flip_texture_h(door_texture)
 	}
 	_scene_prop_textures = {
-		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH)
+		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
+		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH)
 	}
 	_scene_prop_idle_frames = {
 		"campfire_bonfire": _load_sprite_sheet_frames(

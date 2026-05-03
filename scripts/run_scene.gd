@@ -51,6 +51,8 @@ const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
+const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(760.0, 136.0)
+const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(172.0, 118.0)
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
@@ -116,6 +118,8 @@ var _play_meter_icon: TextureRect
 var _ember_count_override: int = -1
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
+var _relic_choice_overlay: Control
+var _relic_choice_bar: HBoxContainer
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -209,6 +213,7 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_RESIZED:
 		_layout_mini_map_overlay()
 		_layout_context_choice_overlay()
+		_layout_relic_choice_overlay()
 
 func _apply_style() -> void:
 	$Backdrop.color = Color("18120f")
@@ -238,8 +243,8 @@ func _apply_style() -> void:
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		pile_panel.clip_contents = true
-	UiTypography.set_label_size(room_title, UiTypography.SIZE_SECTION_LARGE)
-	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE)
+	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
 	room_title.add_theme_color_override("font_color", Color("f0e6d2"))
@@ -250,8 +255,8 @@ func _apply_style() -> void:
 	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	stats_label.add_theme_constant_override("outline_size", 2)
 	relic_bar.visible = false
-	relic_bar.add_theme_constant_override("h_separation", 6)
-	relic_bar.add_theme_constant_override("v_separation", 6)
+	relic_bar.add_theme_constant_override("h_separation", 8)
+	relic_bar.add_theme_constant_override("v_separation", 8)
 	action_banner.add_theme_color_override("font_color", Color("fbf0d7"))
 	action_banner.add_theme_color_override("font_outline_color", Color("2d1f18"))
 	action_banner.add_theme_constant_override("outline_size", 2)
@@ -339,6 +344,7 @@ func _build_context_choice_overlay() -> void:
 	_context_choice_bar.add_theme_constant_override("separation", 16)
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
+	_build_relic_choice_overlay(stage_root)
 
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
@@ -355,6 +361,43 @@ func _layout_context_choice_overlay() -> void:
 	_context_choice_overlay.offset_right = width * 0.5
 	_context_choice_overlay.offset_top = -height - 24.0
 	_context_choice_overlay.offset_bottom = -24.0
+	_layout_relic_choice_overlay()
+
+func _build_relic_choice_overlay(stage_root: Control) -> void:
+	_relic_choice_overlay = Control.new()
+	_relic_choice_overlay.name = "RelicChoiceOverlay"
+	_relic_choice_overlay.visible = false
+	_relic_choice_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage_root.add_child(_relic_choice_overlay)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.anchor_right = 1.0
+	center.anchor_bottom = 1.0
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_relic_choice_overlay.add_child(center)
+
+	_relic_choice_bar = HBoxContainer.new()
+	_relic_choice_bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	_relic_choice_bar.add_theme_constant_override("separation", 18)
+	center.add_child(_relic_choice_bar)
+	_layout_relic_choice_overlay()
+
+func _layout_relic_choice_overlay() -> void:
+	if _relic_choice_overlay == null:
+		return
+	var stage_root: Control = board_view.get_parent()
+	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
+	var width: float = clampf(stage_size.x * 0.74, 440.0, RELIC_CHOICE_OVERLAY_SIZE.x)
+	var height: float = RELIC_CHOICE_OVERLAY_SIZE.y
+	_relic_choice_overlay.anchor_left = 0.5
+	_relic_choice_overlay.anchor_top = 1.0
+	_relic_choice_overlay.anchor_right = 0.5
+	_relic_choice_overlay.anchor_bottom = 1.0
+	_relic_choice_overlay.offset_left = -width * 0.5
+	_relic_choice_overlay.offset_right = width * 0.5
+	_relic_choice_overlay.offset_top = -height - 20.0
+	_relic_choice_overlay.offset_bottom = -20.0
 
 func _build_card_fx_layer() -> void:
 	_card_fx_layer = Control.new()
@@ -1542,7 +1585,8 @@ func _refresh_relic_bar() -> void:
 		if relic.is_empty():
 			continue
 		var frame := PanelContainer.new()
-		frame.custom_minimum_size = Vector2(28.0, 28.0)
+		frame.custom_minimum_size = Vector2(52.0, 52.0)
+		frame.set_meta("relic_id", relic_id)
 		frame.tooltip_text = "%s\n%s" % [
 			str(relic.get("name", relic_id)),
 			str(relic.get("description", ""))
@@ -1557,10 +1601,10 @@ func _refresh_relic_bar() -> void:
 		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 		margin.anchor_right = 1.0
 		margin.anchor_bottom = 1.0
-		margin.add_theme_constant_override("margin_left", 3)
-		margin.add_theme_constant_override("margin_top", 3)
-		margin.add_theme_constant_override("margin_right", 3)
-		margin.add_theme_constant_override("margin_bottom", 3)
+		margin.add_theme_constant_override("margin_left", 5)
+		margin.add_theme_constant_override("margin_top", 5)
+		margin.add_theme_constant_override("margin_right", 5)
+		margin.add_theme_constant_override("margin_bottom", 5)
 		frame.add_child(margin)
 		var icon := TextureRect.new()
 		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1675,6 +1719,7 @@ func _refresh_death_overlay() -> void:
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
 	_clear_context_choice_overlay()
+	_clear_relic_choice_overlay()
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "combat" and _selected_card_index >= 0:
 		if _current_action_can_skip():
@@ -1692,13 +1737,15 @@ func _refresh_choice_bar() -> void:
 			for relic_id_var: Variant in _run_state.get("pending_relics", []):
 				var relic_id: String = str(relic_id_var)
 				var relic: Dictionary = GameData.relic_def(relic_id)
-				_add_choice_button(str(relic.get("name", relic_id)), _on_relic_pressed.bind(relic_id), str(relic.get("description", "")))
+				_add_relic_choice(relic_id, relic)
 		"victory":
 			_add_choice_button("Menu", _on_back_to_menu_pressed)
 			_add_choice_button("Again", _on_restart_pressed)
 	choice_bar.visible = choice_bar.get_child_count() > 0
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = _context_choice_bar != null and _context_choice_bar.get_child_count() > 0
+	if _relic_choice_overlay != null:
+		_relic_choice_overlay.visible = _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := Button.new()
@@ -1730,6 +1777,88 @@ func _clear_context_choice_overlay() -> void:
 		_clear_children(_context_choice_bar)
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = false
+
+func _clear_relic_choice_overlay() -> void:
+	if _relic_choice_bar != null:
+		_clear_children(_relic_choice_bar)
+	if _relic_choice_overlay != null:
+		_relic_choice_overlay.visible = false
+
+func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
+	if _relic_choice_bar == null:
+		return
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.tooltip_text = str(relic.get("description", ""))
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(str(relic.get("accent", "#8a6d49"))), false))
+	panel.gui_input.connect(_on_relic_choice_gui_input.bind(relic_id))
+	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
+	panel.mouse_exited.connect(_set_relic_choice_hovered.bind(panel, relic, false))
+	_relic_choice_bar.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 6)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(58.0, 58.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon)
+
+	var label := Label.new()
+	label.text = str(relic.get("name", relic_id))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 24.0, 34.0)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", Color("fff1d5"))
+	label.add_theme_color_override("font_outline_color", Color("26180f"))
+	label.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(label)
+
+func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
+	if panel == null:
+		return
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(str(relic.get("accent", "#8a6d49"))), hovered))
+
+func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.06, 0.045, 0.92).lightened(0.08) if hovered else Color(0.09, 0.06, 0.045, 0.86)
+	style.border_color = accent.lightened(0.20) if hovered else Color(accent.r, accent.g, accent.b, 0.78)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.30)
+	style.shadow_size = 10 if hovered else 6
+	return style
+
+func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		await _on_relic_pressed(relic_id)
 
 func _refresh_hand_panel() -> void:
 	_clear_children(hand_box)
@@ -1827,6 +1956,15 @@ func _refresh_stage_view() -> void:
 				"kind": "campfire_bonfire",
 				"tile": Vector2i(4, 4),
 				"idle_frame_seconds": 0.10
+			}
+		]
+	elif str(current_room.get("type", "")) == "treasure":
+		presentation["scene_props"] = [
+			{
+				"kind": "relic_chest",
+				"tile": Vector2i(4, 4),
+				"width_scale": 0.68,
+				"baseline_scale": 0.44
 			}
 		]
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
@@ -3491,6 +3629,34 @@ func _on_relic_pressed(relic_id: String) -> void:
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_refresh_ui()
+	await _animate_relic_acquired(relic_id)
+
+func _animate_relic_acquired(relic_id: String) -> void:
+	await get_tree().process_frame
+	var frame: Control = _relic_frame_for_id(relic_id)
+	if frame == null:
+		return
+	frame.pivot_offset = frame.size * 0.5
+	frame.scale = Vector2(0.86, 0.86)
+	frame.modulate = Color(1.0, 0.92, 0.62, 1.0)
+	var tween := create_tween()
+	tween.set_loops(3)
+	tween.tween_property(frame, "scale", Vector2(1.18, 1.18), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await tween.finished
+	var settle := create_tween()
+	settle.set_parallel(true)
+	settle.tween_property(frame, "scale", Vector2.ONE, 0.10)
+	settle.tween_property(frame, "modulate", Color.WHITE, 0.10)
+	await settle.finished
+
+func _relic_frame_for_id(relic_id: String) -> Control:
+	if relic_bar == null:
+		return null
+	for child: Node in relic_bar.get_children():
+		if child is Control and str(child.get_meta("relic_id", "")) == relic_id:
+			return child as Control
+	return null
 
 func _on_back_to_menu_pressed() -> void:
 	if not _is_debug_boss_run():
