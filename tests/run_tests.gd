@@ -2067,6 +2067,13 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
 	_assert(ActionIcons.tooltip("poison").contains("Delayed damage"), "Keyword icon tooltips should include readable descriptions")
+	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("grave_sprint"))
+	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
+	var cost_row: Array = cost_rows[0] as Array
+	_assert(str((cost_row[0] as Dictionary).get("icon", "")) == "exhaust", "Exhausting cards should use the exhaust cost icon")
+	_assert(str((cost_row[1] as Dictionary).get("icon", "")) == "health_cost", "Health costs should use the health-cost token")
+	_assert(not ActionIcons.tooltip("burn").contains("card"), "Burn status tooltip should not describe card exhaust costs")
+	_assert(ActionIcons.tooltip("exhaust").contains("Removes this card"), "Exhaust cost tooltip should describe card removal")
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
 	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
 	tooltip_panel.free()

@@ -25,7 +25,7 @@ const SFX: Dictionary = {
 	EMBER_COLLECT_SFX_ID: {
 		"path": "res://assets/audio/sfx/ember_collect.wav",
 		"duration": 0.45,
-		"volume_db": -5.0
+		"volume_db": -17.0
 	}
 }
 

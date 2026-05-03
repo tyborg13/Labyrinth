@@ -346,7 +346,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool) -> None:
             tag_bits.append(str(row["element"]))
         tag_bits.append(str(row["rarity"]))
         if row["burn"]:
-            tag_bits.append("burn-card")
+            tag_bits.append("exhaust-card")
         if row["health_cost"] > 0:
             tag_bits.append(f"hp-cost={row['health_cost']}")
         tags = ", ".join(tag_bits)
@@ -365,7 +365,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool) -> None:
                         f"mobility={breakdown['mobility']:.2f}",
                         f"synergy={breakdown['synergy']:.2f}",
                         f"health_cost={breakdown['health_cost']:.2f}",
-                        f"burn_penalty={breakdown['burn_card_penalty']:.2f}",
+                        f"exhaust_penalty={breakdown['burn_card_penalty']:.2f}",
                     ]
                 )
             )

@@ -41,11 +41,11 @@ It intentionally excludes, for now:
 - Each round:
   - The player plays exactly `1` card.
   - The card resolves its scripted actions in sequence.
-  - The card is discarded or burned.
+  - The card is discarded or exhausted.
   - Enemies execute their previewed intent.
   - A new card is drawn.
 - When the draw pile empties and the discard pile is reshuffled, the player loses health from fatigue.
-- Burned cards stay removed for the rest of the run, accelerating future fatigue cycles.
+- Exhausted cards stay removed for the rest of the run, accelerating future fatigue cycles.
 
 ## Combat Rules
 
@@ -80,7 +80,7 @@ It intentionally excludes, for now:
 - Regression tests cover:
   - room generation determinism and reachability
   - combat damage and targeting rules
-  - deck cycling and burn exhaustion behavior
+  - deck cycling and card exhaustion behavior
   - enemy intent progression
   - run map generation and reward flow
   - progression save/load behavior

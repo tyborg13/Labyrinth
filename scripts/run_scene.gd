@@ -2100,7 +2100,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
-	var summary_rows: Array = []
+	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
 	for action_var: Variant in card.get("actions", []):
@@ -3792,7 +3792,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	_close_card_upgrade_overlay()
 	var cards: Array = _cards_for_pile(pile_kind)
 	_active_pile_kind = pile_kind
-	_pile_dialog_title.text = "%s Pile" % pile_kind.capitalize()
+	_pile_dialog_title.text = "%s Pile" % _pile_display_name(pile_kind)
 	_clear_children(_pile_dialog_cards)
 	for card_id_var: Variant in cards:
 		var widget = CardWidgetScene.instantiate()
@@ -3982,6 +3982,9 @@ func _cards_for_pile(pile_kind: String) -> Array:
 		return cards
 	cards.reverse()
 	return cards
+
+func _pile_display_name(pile_kind: String) -> String:
+	return "Exhaust" if pile_kind == "burn" else pile_kind.capitalize()
 
 func _room_title_text(room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))

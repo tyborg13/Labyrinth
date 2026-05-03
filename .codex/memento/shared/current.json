@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-03T15:54:40Z",
+  "updated_at": "2026-05-03T21:01:23Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -1979,6 +1979,28 @@
       "source": {
         "branch": "master",
         "commit": "b2c9722"
+      }
+    },
+    {
+      "id": "mnt_20260503T165115Z_8b5ab9d8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/action_icon_library.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/action_icon_library.gd",
+      "summary": "Card exhaust costs are virtual leading action rows.",
+      "details": "Card data still uses the legacy burn boolean for the exhaust-on-play cost to avoid save/progression/action-index churn. UI code should render it through ActionIconLibrary.cost_rows_for_card/rows_for_card as an Exhaust token; keep Burn icon/tooltip reserved for the fire status effect.",
+      "status": "active",
+      "created_at": "2026-05-03T16:51:15Z",
+      "updated_at": "2026-05-03T16:51:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "f7751c9"
       }
     }
   ]

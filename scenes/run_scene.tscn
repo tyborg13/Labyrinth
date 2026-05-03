@@ -255,7 +255,7 @@ theme_override_constants/separation = 4
 [node name="BurnTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox"]
 layout_mode = 2
 horizontal_alignment = 1
-text = "BURN"
+text = "EXH"
 
 [node name="BurnCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox"]
 layout_mode = 2

@@ -34,14 +34,6 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="ElementIcon" type="TextureRect" parent="Margin/VBox/TopRow"]
-visible = false
-custom_minimum_size = Vector2(26, 26)
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-mouse_filter = 2
-
 [node name="Title" type="Label" parent="Margin/VBox/TopRow"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -52,15 +44,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 mouse_filter = 2
 text = "Card"
-
-[node name="CostBadge" type="Label" parent="Margin/VBox/TopRow"]
-visible = false
-layout_mode = 2
-custom_minimum_size = Vector2(0, 28)
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
-text = "BURN"
 
 [node name="ArtBleed" type="MarginContainer" parent="Margin/VBox"]
 layout_mode = 2

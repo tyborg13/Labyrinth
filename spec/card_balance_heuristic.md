@@ -56,7 +56,7 @@ mobility or range coefficient changes.
 
 The total score is:
 
-`EV = offense + control + defense + flow + mobility + synergy - health_cost - burn_card_penalty`
+`EV = offense + control + defense + flow + mobility + synergy - health_cost - exhaust_card_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -77,7 +77,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Move on an attacking card: `0.08` per tile
 - Blink on an attacking card: `0.12` per tile
 - Health cost: `1.0` per HP
-- Burn-card penalty: `0.55`
+- Exhaust-card penalty: `0.55`
 - AOE base target multiplier: `1.20`
 - AOE extra tile multiplier: `0.10`
 - Chain extra target bonus: `0.45`

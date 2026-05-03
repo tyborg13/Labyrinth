@@ -32,6 +32,18 @@ const ART_MAX_HEIGHT: float = 118.0
 const DETAILS_MIN_HEIGHT: float = 92.0
 const DETAILS_MAX_HEIGHT: float = 142.0
 const SUMMARY_VERTICAL_PADDING: float = 10.0
+const TITLE_MIN_SIZE: int = 10
+const HAND_TITLE_WIDTH_MAX: float = 236.0
+const ELEMENT_FRAME_BAND: int = 42
+const ELEMENT_FRAME_VALUE_MAX: float = 0.58
+const ELEMENT_FRAME_SATURATION_MAX: float = 0.42
+const ELEMENT_FRAME_SATURATION_FLOOR: float = 0.46
+const ELEMENT_FRAME_TINT_BLEND: float = 0.78
+const FIRE_FRAME_SATURATION_FLOOR: float = 0.68
+const FIRE_FRAME_TINT_BLEND: float = 0.88
+const FIRE_FRAME_VALUE_LIFT: float = 1.035
+
+static var _elemental_frame_cache: Dictionary = {}
 
 class AoePatternView:
 	extends Control
@@ -42,10 +54,12 @@ class AoePatternView:
 
 	var pattern_offsets: Array[Vector2i] = []
 	var show_origin: bool = false
+	var tile_scale: float = 1.0
 
-	func setup(raw_pattern: Variant, next_show_origin: bool, next_tooltip: String) -> void:
+	func setup(raw_pattern: Variant, next_show_origin: bool, next_tooltip: String, next_tile_scale: float = 1.0) -> void:
 		pattern_offsets = _parse_offsets(raw_pattern)
 		show_origin = next_show_origin
+		tile_scale = clampf(next_tile_scale, 0.42, 1.0)
 		tooltip_text = next_tooltip
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		custom_minimum_size = _desired_size()
@@ -69,9 +83,10 @@ class AoePatternView:
 	func _desired_size() -> Vector2:
 		var draw_offsets: Array[Vector2i] = _draw_offsets()
 		if draw_offsets.is_empty():
-			return Vector2(34.0, 24.0)
+			return Vector2(34.0, 24.0) * tile_scale
 		var bounds: Rect2 = _bounds_for_offsets(draw_offsets)
-		return Vector2(maxf(34.0, bounds.size.x + TILE_PADDING * 2.0), maxf(24.0, bounds.size.y + TILE_PADDING * 2.0))
+		var padding: float = _tile_padding()
+		return Vector2(maxf(34.0 * tile_scale, bounds.size.x + padding * 2.0), maxf(24.0 * tile_scale, bounds.size.y + padding * 2.0))
 
 	func _draw_offsets() -> Array[Vector2i]:
 		var lookup: Dictionary = {}
@@ -95,7 +110,7 @@ class AoePatternView:
 		var rect := Rect2()
 		for offset: Vector2i in offsets:
 			var center: Vector2 = _iso_center(offset)
-			var tile_rect := Rect2(center - Vector2(TILE_WIDTH * 0.5, TILE_HEIGHT * 0.5), Vector2(TILE_WIDTH, TILE_HEIGHT))
+			var tile_rect := Rect2(center - Vector2(_tile_width() * 0.5, _tile_height() * 0.5), Vector2(_tile_width(), _tile_height()))
 			if first:
 				rect = tile_rect
 				first = false
@@ -104,18 +119,29 @@ class AoePatternView:
 		return rect
 
 	func _iso_center(offset: Vector2i) -> Vector2:
-		return Vector2(float(offset.x - offset.y) * TILE_WIDTH * 0.5, float(offset.x + offset.y) * TILE_HEIGHT * 0.5)
+		return Vector2(float(offset.x - offset.y) * _tile_width() * 0.5, float(offset.x + offset.y) * _tile_height() * 0.5)
 
 	func _draw_tile(center: Vector2, fill: Color, border: Color) -> void:
+		var tile_width: float = _tile_width()
+		var tile_height: float = _tile_height()
 		var points := PackedVector2Array([
-			center + Vector2(0.0, -TILE_HEIGHT * 0.5),
-			center + Vector2(TILE_WIDTH * 0.5, 0.0),
-			center + Vector2(0.0, TILE_HEIGHT * 0.5),
-			center + Vector2(-TILE_WIDTH * 0.5, 0.0),
-			center + Vector2(0.0, -TILE_HEIGHT * 0.5)
+			center + Vector2(0.0, -tile_height * 0.5),
+			center + Vector2(tile_width * 0.5, 0.0),
+			center + Vector2(0.0, tile_height * 0.5),
+			center + Vector2(-tile_width * 0.5, 0.0),
+			center + Vector2(0.0, -tile_height * 0.5)
 		])
 		draw_colored_polygon(points, fill)
 		draw_polyline(points, border, 1.0, true)
+
+	func _tile_width() -> float:
+		return TILE_WIDTH * tile_scale
+
+	func _tile_height() -> float:
+		return TILE_HEIGHT * tile_scale
+
+	func _tile_padding() -> float:
+		return TILE_PADDING * tile_scale
 
 	func _parse_offsets(raw_pattern: Variant) -> Array[Vector2i]:
 		var parsed: Array[Vector2i] = []
@@ -139,8 +165,6 @@ class AoePatternView:
 
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
-@onready var cost_badge: Label = $Margin/VBox/TopRow/CostBadge
-@onready var element_icon: TextureRect = $Margin/VBox/TopRow/ElementIcon
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
 @onready var art_rect: TextureRect = $Margin/VBox/ArtBleed/ArtFrame/Art
 @onready var details_panel: PanelContainer = $Margin/VBox/DetailsPanel
@@ -165,7 +189,6 @@ var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
 var _pose_tween: Tween
 var _summary_icon_box: VBoxContainer
-var _cost_badge_icon: TextureRect
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
@@ -181,6 +204,8 @@ func _ready() -> void:
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title_label.clip_text = true
 	desc_label.add_theme_color_override("default_color", Color("503d2c"))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.fit_content = true
@@ -190,16 +215,12 @@ func _ready() -> void:
 	footer_label.add_theme_color_override("font_color", Color("6d5841"))
 	footer_label.add_theme_color_override("font_outline_color", Color("f5ecdb"))
 	footer_label.add_theme_constant_override("outline_size", 1)
-	cost_badge.add_theme_color_override("font_color", Color("fff4dc"))
-	cost_badge.add_theme_color_override("font_outline_color", Color("2f2018"))
-	cost_badge.add_theme_constant_override("outline_size", 2)
-	cost_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_summary_icon_box()
-	_ensure_cost_badge_icon()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
 	_update_layout_metrics()
 	_apply_configuration()
+	_queue_title_refit()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and is_node_ready():
@@ -246,11 +267,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	return UiTooltipPanel.make_text(for_text)
 
 func _tooltip_for_icon_at(global_point: Vector2) -> String:
-	for root_node: Variant in [_summary_icon_box, cost_badge]:
-		var tooltip: String = _tooltip_for_control_at(root_node as Node, global_point)
-		if not tooltip.is_empty():
-			return tooltip
-	return ""
+	return _tooltip_for_control_at(_summary_icon_box, global_point)
 
 func _tooltip_for_control_at(node: Node, global_point: Vector2) -> String:
 	if node == null or not (node is Control):
@@ -300,15 +317,13 @@ func _apply_configuration() -> void:
 		return
 	var card: Dictionary = _display_card_def()
 	var element_id: String = GameData.card_element_from_def(card)
-	var element: Dictionary = ElementData.def(element_id)
 	title_label.text = str(card.get("name", card_id))
+	_fit_title_label(_base_title_size())
+	_queue_title_refit()
 	_refresh_summary_display(card)
 	footer_label.text = ""
 	footer_label.visible = false
 	art_rect.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
-	element_icon.visible = ElementData.is_elemental(element_id)
-	element_icon.texture = AssetLoader.load_texture(str(element.get("icon_path", ""))) if element_icon.visible else null
-	element_icon.modulate = Color(str(element.get("accent", "#8a6b4a")))
 	var accent: Color = ElementData.accent(element_id) if ElementData.is_elemental(element_id) else Color(str(card.get("accent", "#8a6b4a")))
 	var background: Color = ElementData.card_background(element_id, _selected)
 	if not ElementData.is_elemental(element_id):
@@ -317,19 +332,7 @@ func _apply_configuration() -> void:
 		background = background.lightened(0.03)
 	if _dimmed:
 		background = background.darkened(0.12)
-	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id), str(card.get("rarity", "common")))
-	var badge_text: String = ""
-	var badge_icon: String = ""
-	if bool(card.get("burn", false)):
-		badge_icon = "burn"
-	elif int(card.get("health_cost", 0)) > 0:
-		badge_icon = "health"
-		badge_text = "  -%d" % int(card.get("health_cost", 0))
-	cost_badge.visible = not badge_text.is_empty() or not badge_icon.is_empty()
-	cost_badge.text = badge_text
-	cost_badge.tooltip_text = ActionIcons.tooltip(badge_icon) if not badge_icon.is_empty() else ""
-	_configure_cost_badge_icon(badge_icon, not badge_text.is_empty())
-	cost_badge.add_theme_stylebox_override("normal", _badge_style(accent))
+	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id), str(card.get("rarity", "common")), element_id)
 	disabled = false
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _interactive else Control.CURSOR_ARROW
 	var alpha: float = 1.0
@@ -345,24 +348,24 @@ func _apply_configuration() -> void:
 func _update_layout_metrics() -> void:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	var compact: bool = width <= COMPACT_CARD_WIDTH
-	var title_size: int = 14 if compact else 16
 	var detail_size: int = 13 if compact else 15
-	var badge_size: int = 12 if compact else 14
-	UiTypography.set_label_size(title_label, title_size)
-	UiTypography.set_label_size(cost_badge, badge_size)
+	_fit_title_label(_base_title_size())
 	UiTypography.set_rich_text_size(desc_label, detail_size)
 	UiTypography.set_label_size(footer_label, detail_size)
 	var height: float = size.y if size.y > 0.0 else custom_minimum_size.y
-	var art_height: float = clampf(width * 0.46, ART_MIN_HEIGHT, ART_MAX_HEIGHT)
-	var details_height: float = clampf(width * 0.56, DETAILS_MIN_HEIGHT, DETAILS_MAX_HEIGHT)
+	var art_min_height: float = 68.0 if compact else ART_MIN_HEIGHT
+	var details_min_height: float = 104.0 if compact else DETAILS_MIN_HEIGHT
+	var details_target: float = width * (0.62 if compact else 0.56)
+	var art_height: float = clampf(width * 0.46, art_min_height, ART_MAX_HEIGHT)
+	var details_height: float = clampf(details_target, details_min_height, DETAILS_MAX_HEIGHT)
 	var available_body_height: float = maxf(148.0, height - CARD_VERTICAL_CHROME)
 	var body_overflow: float = art_height + details_height - available_body_height
 	if body_overflow > 0.0:
-		var art_reduction: float = minf(body_overflow, art_height - ART_MIN_HEIGHT)
+		var art_reduction: float = minf(body_overflow, art_height - art_min_height)
 		art_height -= art_reduction
 		body_overflow -= art_reduction
 		if body_overflow > 0.0:
-			details_height = maxf(DETAILS_MIN_HEIGHT, details_height - body_overflow)
+			details_height = maxf(details_min_height, details_height - body_overflow)
 	art_frame.custom_minimum_size = Vector2(0.0, art_height)
 	details_panel.custom_minimum_size = Vector2(0.0, details_height)
 	desc_label.custom_minimum_size = Vector2(0.0, details_height)
@@ -371,11 +374,11 @@ func _update_layout_metrics() -> void:
 		_summary_icon_box.custom_minimum_size = Vector2(0.0, details_height)
 	pivot_offset = size * 0.5
 
-func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color, rarity: String) -> void:
-	var normal: StyleBoxTexture = _card_frame_style(0.0, rarity)
-	var hover: StyleBoxTexture = _card_frame_style(2.0, rarity)
-	var pressed: StyleBoxTexture = _card_frame_style(0.0, rarity)
-	var disabled_style: StyleBoxTexture = _card_frame_style(0.0, rarity)
+func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color, rarity: String, element_id: String) -> void:
+	var normal: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
+	var hover: StyleBoxTexture = _card_frame_style(2.0, rarity, element_id)
+	var pressed: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
+	var disabled_style: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
 	add_theme_stylebox_override("normal", normal)
 	add_theme_stylebox_override("hover", hover)
 	add_theme_stylebox_override("pressed", pressed)
@@ -384,9 +387,9 @@ func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previ
 	art_frame.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	details_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
-func _card_frame_style(expand: float = 0.0, rarity: String = "") -> StyleBoxTexture:
+func _card_frame_style(expand: float = 0.0, rarity: String = "", element_id: String = ElementData.NONE) -> StyleBoxTexture:
 	var style := StyleBoxTexture.new()
-	style.texture = AssetLoader.load_texture(_card_frame_path(rarity))
+	style.texture = _card_frame_texture(rarity, element_id)
 	style.texture_margin_left = CARD_FRAME_MARGIN
 	style.texture_margin_top = CARD_FRAME_MARGIN
 	style.texture_margin_right = CARD_FRAME_MARGIN
@@ -398,6 +401,89 @@ func _card_frame_style(expand: float = 0.0, rarity: String = "") -> StyleBoxText
 	style.expand_margin_right = expand
 	style.expand_margin_bottom = expand
 	return style
+
+func _card_frame_texture(rarity: String, element_id: String) -> Texture2D:
+	var base_path: String = _card_frame_path(rarity)
+	var base_texture: Texture2D = AssetLoader.load_texture(base_path)
+	if base_texture == null or not ElementData.is_elemental(element_id):
+		return base_texture
+	var cache_key: String = "%s|%s" % [base_path, element_id]
+	if _elemental_frame_cache.has(cache_key):
+		return _elemental_frame_cache.get(cache_key, base_texture)
+	var image: Image = base_texture.get_image()
+	if image == null or image.is_empty():
+		_elemental_frame_cache[cache_key] = base_texture
+		return base_texture
+	var tinted_image: Image = image.duplicate()
+	var accent_hsv: Vector3 = _color_to_hsv(_element_frame_tint_color(element_id))
+	for y: int in range(tinted_image.get_height()):
+		for x: int in range(tinted_image.get_width()):
+			var pixel: Color = tinted_image.get_pixel(x, y)
+			if not _is_element_frame_metal_pixel(pixel, Vector2i(x, y), Vector2i(tinted_image.get_width(), tinted_image.get_height())):
+				continue
+			var pixel_hsv: Vector3 = _color_to_hsv(pixel)
+			var tinted_pixel: Color = Color.from_hsv(
+				accent_hsv.x,
+				_element_frame_saturation(element_id, accent_hsv),
+				_element_frame_value(element_id, pixel_hsv.z),
+				pixel.a
+			)
+			tinted_image.set_pixel(x, y, pixel.lerp(tinted_pixel, _element_frame_tint_blend(element_id)))
+	var tinted_texture: Texture2D = ImageTexture.create_from_image(tinted_image)
+	_elemental_frame_cache[cache_key] = tinted_texture
+	return tinted_texture
+
+func _element_frame_tint_color(element_id: String) -> Color:
+	var accent: Color = ElementData.accent(element_id)
+	if element_id == ElementData.FIRE:
+		return accent.lerp(Color("e13f35"), 0.38)
+	return accent
+
+func _element_frame_saturation(element_id: String, accent_hsv: Vector3) -> float:
+	if element_id == ElementData.FIRE:
+		return clampf(maxf(FIRE_FRAME_SATURATION_FLOOR, accent_hsv.y * 1.02), 0.0, 0.86)
+	return clampf(maxf(ELEMENT_FRAME_SATURATION_FLOOR, accent_hsv.y * 0.74), 0.0, 1.0)
+
+func _element_frame_value(element_id: String, pixel_value: float) -> float:
+	if element_id == ElementData.FIRE:
+		return clampf(pixel_value * FIRE_FRAME_VALUE_LIFT, 0.0, 1.0)
+	return pixel_value
+
+func _element_frame_tint_blend(element_id: String) -> float:
+	return FIRE_FRAME_TINT_BLEND if element_id == ElementData.FIRE else ELEMENT_FRAME_TINT_BLEND
+
+func _is_element_frame_metal_pixel(pixel: Color, point: Vector2i, image_size: Vector2i) -> bool:
+	if pixel.a < 0.08:
+		return false
+	var in_frame_band: bool = (
+		point.x < ELEMENT_FRAME_BAND
+		or point.x >= image_size.x - ELEMENT_FRAME_BAND
+		or point.y < ELEMENT_FRAME_BAND
+		or point.y >= image_size.y - ELEMENT_FRAME_BAND
+	)
+	if not in_frame_band:
+		return false
+	var hsv: Vector3 = _color_to_hsv(pixel)
+	if hsv.z > ELEMENT_FRAME_VALUE_MAX:
+		return false
+	return hsv.y <= ELEMENT_FRAME_SATURATION_MAX
+
+func _color_to_hsv(color: Color) -> Vector3:
+	var max_channel: float = maxf(color.r, maxf(color.g, color.b))
+	var min_channel: float = minf(color.r, minf(color.g, color.b))
+	var chroma: float = max_channel - min_channel
+	var hue: float = 0.0
+	if chroma > 0.00001:
+		if is_equal_approx(max_channel, color.r):
+			hue = fmod((color.g - color.b) / chroma, 6.0) / 6.0
+		elif is_equal_approx(max_channel, color.g):
+			hue = (((color.b - color.r) / chroma) + 2.0) / 6.0
+		else:
+			hue = (((color.r - color.g) / chroma) + 4.0) / 6.0
+		if hue < 0.0:
+			hue += 1.0
+	var saturation: float = 0.0 if max_channel <= 0.00001 else chroma / max_channel
+	return Vector3(hue, saturation, max_channel)
 
 func _card_frame_path(rarity: String) -> String:
 	match rarity:
@@ -412,24 +498,6 @@ func _card_frame_path(rarity: String) -> String:
 		_:
 			return CARD_FRAME_PATH
 
-func _badge_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = accent.darkened(0.08)
-	style.border_color = accent.lightened(0.14)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.content_margin_left = 7.0
-	style.content_margin_top = 4.0
-	style.content_margin_right = 7.0
-	style.content_margin_bottom = 4.0
-	return style
-
 func _ensure_summary_icon_box() -> void:
 	if _summary_icon_box != null:
 		return
@@ -440,20 +508,10 @@ func _ensure_summary_icon_box() -> void:
 	details_vbox.add_child(_summary_icon_box)
 	details_vbox.move_child(_summary_icon_box, desc_label.get_index() + 1)
 
-func _ensure_cost_badge_icon() -> void:
-	if _cost_badge_icon != null:
-		return
-	_cost_badge_icon = TextureRect.new()
-	_cost_badge_icon.name = "KeywordIcon"
-	_cost_badge_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_cost_badge_icon.expand_mode = 1
-	_cost_badge_icon.stretch_mode = 5
-	cost_badge.add_child(_cost_badge_icon)
-
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)
 	if rows.is_empty() and _summary_bbcode.is_empty():
-		rows = ActionIcons.rows_for_actions(card.get("actions", []))
+		rows = ActionIcons.rows_for_card(card)
 	if rows.is_empty():
 		desc_label.visible = true
 		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else str(card.get("description", ""))
@@ -499,7 +557,7 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	var tooltip: String = ActionIcons.token_tooltip(token)
 	if str(token.get("kind", "")) == "aoe_pattern":
 		var pattern_view := AoePatternView.new()
-		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip)
+		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip, _aoe_pattern_scale(icon_size))
 		row.add_child(pattern_view)
 		return
 	var icon := TextureRect.new()
@@ -528,12 +586,18 @@ func _summary_icon_size() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	return 22.0 if width <= COMPACT_CARD_WIDTH else 26.0
 
+func _aoe_pattern_scale(icon_size: float) -> float:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	if width <= COMPACT_CARD_WIDTH:
+		return clampf(icon_size / 40.0, 0.42, 0.78)
+	return clampf(icon_size / 30.0, 0.52, 1.0)
+
 func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
 	var available_height: float = maxf(56.0, details_height - SUMMARY_VERTICAL_PADDING)
-	var icon_candidates: Array = [28.0, 26.0, 24.0, 22.0, 20.0] if compact else [30.0, 28.0, 26.0, 24.0, 22.0]
+	var icon_candidates: Array = [28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var row_count: int = maxi(1, rendered_rows.size())
 	for candidate_var: Variant in icon_candidates:
 		var icon_size: float = float(candidate_var)
@@ -609,31 +673,55 @@ func _token_value_color(token: Dictionary) -> Color:
 func _display_card_def() -> Dictionary:
 	return _card_override.duplicate(true) if not _card_override.is_empty() else GameData.card_def(card_id)
 
-func _configure_cost_badge_icon(icon_key: String, has_text: bool) -> void:
-	if _cost_badge_icon == null:
+func _base_title_size() -> int:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	if width <= COMPACT_CARD_WIDTH:
+		return 17
+	if width <= HAND_TITLE_WIDTH_MAX:
+		return 18
+	return 19
+
+func _queue_title_refit() -> void:
+	if is_node_ready():
+		call_deferred("_fit_title_label", _base_title_size())
+
+func _fit_title_label(base_size: int) -> void:
+	if title_label == null:
 		return
-	_cost_badge_icon.visible = not icon_key.is_empty()
-	if icon_key.is_empty():
-		_cost_badge_icon.texture = null
-		_cost_badge_icon.tooltip_text = ""
+	var font: Font = UiTypography.default_font(title_label)
+	if font == null:
+		UiTypography.set_label_size(title_label, base_size)
 		return
-	_cost_badge_icon.texture = ActionIcons.icon_texture(icon_key)
-	_cost_badge_icon.tooltip_text = ActionIcons.tooltip(icon_key)
-	_cost_badge_icon.anchor_left = 0.0
-	_cost_badge_icon.anchor_top = 0.0
-	_cost_badge_icon.anchor_bottom = 1.0
-	if has_text:
-		_cost_badge_icon.anchor_right = 0.0
-		_cost_badge_icon.offset_left = 5.0
-		_cost_badge_icon.offset_top = 3.0
-		_cost_badge_icon.offset_right = 24.0
-		_cost_badge_icon.offset_bottom = -3.0
-	else:
-		_cost_badge_icon.anchor_right = 1.0
-		_cost_badge_icon.offset_left = 5.0
-		_cost_badge_icon.offset_top = 3.0
-		_cost_badge_icon.offset_right = -5.0
-		_cost_badge_icon.offset_bottom = -3.0
+	var available_width: float = _title_available_width()
+	var available_height: float = maxf(28.0, title_label.custom_minimum_size.y)
+	for candidate: int in range(base_size, TITLE_MIN_SIZE - 1, -1):
+		var scaled_size: int = UiTypography.scaled_size(title_label, candidate)
+		if _title_fits(font, title_label.text, scaled_size, available_width, available_height):
+			UiTypography.set_label_size(title_label, candidate)
+			return
+	UiTypography.set_label_size(title_label, TITLE_MIN_SIZE)
+
+func _title_available_width() -> float:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var card_inner_width: float = maxf(80.0, width - 32.0)
+	if title_label.size.x > 0.0:
+		return minf(title_label.size.x, card_inner_width)
+	var top_row: Control = title_label.get_parent() as Control
+	if top_row != null and top_row.size.x > 0.0:
+		return minf(top_row.size.x, card_inner_width)
+	return card_inner_width
+
+func _title_fits(font: Font, title: String, font_size: int, available_width: float, available_height: float) -> bool:
+	if title.strip_edges().is_empty():
+		return true
+	var longest_word_width: float = 0.0
+	for word: String in title.split(" ", false):
+		longest_word_width = maxf(longest_word_width, font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x)
+	var full_width: float = font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var line_height: float = font.get_height(font_size)
+	if longest_word_width > available_width:
+		return false
+	return full_width <= available_width and line_height <= available_height + 3.0
 
 func _clear_children(node: Node) -> void:
 	for child: Node in node.get_children():

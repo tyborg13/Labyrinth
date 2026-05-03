@@ -58,8 +58,13 @@ const KEYWORDS: Dictionary = {
 	},
 	"burn": {
 		"label": "Burn",
-		"description": "Fire effect. On cards, removes the card for this combat; on units, deals fire damage when it ticks.",
+		"description": "Fire damage over time. Ticks at the start of turn, then decays.",
 		"path": "%s/burn.png" % ICON_ROOT
+	},
+	"exhaust": {
+		"label": "Exhaust",
+		"description": "Removes this card from the deck for the rest of combat.",
+		"path": "%s/exhaust.png" % ICON_ROOT
 	},
 	"freeze": {
 		"label": "Freeze",
@@ -99,6 +104,11 @@ const KEYWORDS: Dictionary = {
 	"health": {
 		"label": "Health",
 		"description": "Health paid or restored.",
+		"path": "%s/health.png" % ICON_ROOT
+	},
+	"health_cost": {
+		"label": "Health Cost",
+		"description": "Health paid to play this card.",
 		"path": "%s/health.png" % ICON_ROOT
 	}
 }
@@ -160,10 +170,36 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 			rows.append(row)
 	return rows
 
+static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Array:
+	var rows: Array = cost_rows_for_card(card)
+	rows.append_array(rows_for_actions(card.get("actions", []), options_by_index))
+	return rows
+
+static func cost_rows_for_card(card: Dictionary) -> Array:
+	var row: Array = []
+	if bool(card.get("burn", false)):
+		row.append(token_for("exhaust"))
+	var health_cost: int = int(card.get("health_cost", 0))
+	if health_cost > 0:
+		row.append(token_for("health_cost", "-%d" % health_cost))
+	return [row] if not row.is_empty() else []
+
 static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> Array:
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
 	match action_type:
+		"cost":
+			if bool(action.get("exhaust", false)):
+				tokens.append(token_for("exhaust"))
+			var health_cost: int = int(action.get("health", action.get("health_cost", 0)))
+			if health_cost > 0:
+				tokens.append(token_for("health_cost", "-%d" % health_cost))
+		"exhaust":
+			tokens.append(token_for("exhaust"))
+		"health_cost":
+			var health_cost: int = int(action.get("amount", action.get("health", 0)))
+			if health_cost > 0:
+				tokens.append(token_for("health_cost", "-%d" % health_cost))
 		"move", "move_toward":
 			tokens.append(token_for("move", int(action.get("range", 0))))
 		"move_away":

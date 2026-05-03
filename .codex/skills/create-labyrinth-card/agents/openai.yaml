@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Card Builder"
+  short_description: "Create balanced Labyrinth cards"
+  default_prompt: "Use $create-labyrinth-card to design and implement a new Labyrinth card."

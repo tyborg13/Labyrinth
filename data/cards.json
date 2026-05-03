@@ -85,7 +85,7 @@
     "burn": true,
     "health_cost": 0,
     "starter": true,
-    "description": "Burn. Heal 3 and gain 2 block.",
+    "description": "Exhaust. Heal 3 and gain 2 block.",
     "accent": "#698353",
     "art_path": "res://assets/art/cards/patch_up.png",
     "actions": [
@@ -204,7 +204,7 @@
     "rarity": "common",
     "burn": true,
     "health_cost": 0,
-    "description": "Burn. Heal 4, then draw 1.",
+    "description": "Exhaust. Heal 4, then draw 1.",
     "accent": "#6f8c5e",
     "art_path": "res://assets/art/cards/rallying_breath.png",
     "actions": [
@@ -280,7 +280,7 @@
     "rarity": "rare",
     "burn": true,
     "health_cost": 0,
-    "description": "Burn. Blink 5, then strike for 10.",
+    "description": "Exhaust. Blink 5, then strike for 10.",
     "accent": "#5f4b94",
     "art_path": "res://assets/art/cards/shadow_gate.png",
     "actions": [
@@ -293,7 +293,7 @@
     "rarity": "rare",
     "burn": true,
     "health_cost": 0,
-    "description": "Burn. Deal 8 in a cross pattern at range 4.",
+    "description": "Exhaust. Deal 8 in a cross pattern at range 4.",
     "accent": "#9d5a39",
     "art_path": "res://assets/art/cards/cyclone_seal.png",
     "actions": [
@@ -305,7 +305,7 @@
     "rarity": "rare",
     "burn": true,
     "health_cost": 0,
-    "description": "Burn. Heal 6 and gain 4 block.",
+    "description": "Exhaust. Heal 6 and gain 4 block.",
     "accent": "#d1b361",
     "art_path": "res://assets/art/cards/last_light.png",
     "actions": [
@@ -318,7 +318,7 @@
     "rarity": "rare",
     "burn": true,
     "health_cost": 1,
-    "description": "Burn. Lose 1 health. Move 6, then draw 3 and gain 4 block.",
+    "description": "Exhaust. Lose 1 health. Move 6, then draw 3 and gain 4 block.",
     "accent": "#60706d",
     "art_path": "res://assets/art/cards/grave_sprint.png",
     "actions": [
