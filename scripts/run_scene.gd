@@ -55,6 +55,8 @@ const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(760.0, 136.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(172.0, 118.0)
+const MUSIC_FADE_SECONDS: float = 2.5
+const MUSIC_SILENCE_DB: float = -60.0
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
@@ -134,6 +136,7 @@ var _death_overlay: DeathEngulfOverlay
 var _death_sequence_started: bool = false
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
+var _music_tween: Tween
 var _active_music_id: String = ""
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
@@ -3305,21 +3308,19 @@ func _play_music(entry: Dictionary) -> void:
 		return
 	_ensure_music_player()
 	if track_id.is_empty():
-		_music_player.stop()
-		_music_player.stream = null
-		_active_music_id = ""
+		_fade_out_music()
 		return
 	var path: String = str(entry.get("path", ""))
 	var resource: Resource = load(path)
 	if not (resource is AudioStream):
-		_music_player.stop()
-		_music_player.stream = null
-		_active_music_id = ""
+		_fade_out_music()
 		return
 	_music_player.stream = resource as AudioStream
-	_music_player.volume_db = float(entry.get("volume_db", -12.0))
 	_active_music_id = track_id
+	_stop_music_tween()
+	_music_player.volume_db = MUSIC_SILENCE_DB
 	_music_player.play()
+	_fade_music_to(float(entry.get("volume_db", -12.0)))
 
 func _ensure_music_player() -> void:
 	if _music_player != null:
@@ -3333,6 +3334,35 @@ func _on_music_finished() -> void:
 	if _music_player == null or _active_music_id.is_empty() or _music_player.stream == null:
 		return
 	_music_player.play()
+
+func _fade_music_to(volume_db: float) -> void:
+	if _music_player == null:
+		return
+	_music_tween = create_tween()
+	_music_tween.tween_property(_music_player, "volume_db", volume_db, MUSIC_FADE_SECONDS)
+
+func _fade_out_music() -> void:
+	if _music_player == null or _music_player.stream == null:
+		_active_music_id = ""
+		return
+	_active_music_id = ""
+	_stop_music_tween()
+	_music_tween = create_tween()
+	_music_tween.tween_property(_music_player, "volume_db", MUSIC_SILENCE_DB, MUSIC_FADE_SECONDS)
+	_music_tween.finished.connect(_finish_music_fade_out)
+
+func _finish_music_fade_out() -> void:
+	if _music_player == null or not _active_music_id.is_empty():
+		return
+	_music_player.stop()
+	_music_player.stream = null
+
+func _stop_music_tween() -> void:
+	if _music_tween == null:
+		return
+	if _music_tween.is_valid():
+		_music_tween.kill()
+	_music_tween = null
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(true)

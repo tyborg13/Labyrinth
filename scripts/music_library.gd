@@ -5,6 +5,7 @@ const GameData = preload("res://scripts/game_data.gd")
 
 const GENERIC_COMBAT_TRACK_ID: String = "combat.generic"
 const ZEKARION_BOSS_TRACK_ID: String = "boss.zekarion"
+const RELIC_ROOM_TRACK_ID: String = "room.relic"
 
 const TRACKS: Dictionary = {
 	GENERIC_COMBAT_TRACK_ID: {
@@ -14,12 +15,17 @@ const TRACKS: Dictionary = {
 	ZEKARION_BOSS_TRACK_ID: {
 		"path": "res://assets/audio/music/zekarion_boss.wav",
 		"volume_db": -12.0
+	},
+	RELIC_ROOM_TRACK_ID: {
+		"path": "res://assets/audio/music/relic_room_loop.wav",
+		"volume_db": -13.0
 	}
 }
 
 const ROOM_TYPE_TRACKS: Dictionary = {
 	"combat": GENERIC_COMBAT_TRACK_ID,
-	"boss": GENERIC_COMBAT_TRACK_ID
+	"boss": GENERIC_COMBAT_TRACK_ID,
+	"treasure": RELIC_ROOM_TRACK_ID
 }
 
 const BOSS_TRACKS: Dictionary = {
@@ -27,7 +33,10 @@ const BOSS_TRACKS: Dictionary = {
 }
 
 const ELEMENT_TRACKS: Dictionary = {}
-const MODE_TRACKS: Dictionary = {}
+const MODE_TRACKS: Dictionary = {
+	"reward": RELIC_ROOM_TRACK_ID,
+	"treasure": RELIC_ROOM_TRACK_ID
+}
 
 static func entry_for_context(mode: String, room: Dictionary, combat_state: Dictionary = {}) -> Dictionary:
 	var track_id: String = _track_id_for_context(mode, room, combat_state)
@@ -45,6 +54,13 @@ static func entry(track_id: String) -> Dictionary:
 static func _track_id_for_context(mode: String, room: Dictionary, combat_state: Dictionary = {}) -> String:
 	if MODE_TRACKS.has(mode):
 		return str(MODE_TRACKS.get(mode, ""))
+	if mode == "room":
+		var resting_room_type: String = str(room.get("type", ""))
+		if bool(room.get("cleared", false)) and resting_room_type in ["combat", "boss"]:
+			return RELIC_ROOM_TRACK_ID
+		if ROOM_TYPE_TRACKS.has(resting_room_type):
+			return str(ROOM_TYPE_TRACKS.get(resting_room_type, ""))
+		return ""
 	if mode != "combat":
 		return ""
 	var room_type: String = str(room.get("type", combat_state.get("room_type", "")))
