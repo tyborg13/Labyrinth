@@ -33,6 +33,8 @@ These assumptions are baked into the current coefficients:
 - Burn ticks at enemy start of turn and decays by `1`.
 - Poison lands after a two-turn delay.
 - Stoneskin is persistent defense and is valued above temporary block.
+- Illusions are stationary, have only health, and redirect enemies that are
+  closer to the illusion than to the player.
 
 Encounter calibration is also important:
 
@@ -73,6 +75,8 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Heal: `0.90` per point
 - Draw: `0.85` per card
 - Card Play: `0.75` per added card play this turn
+- Illusion health: `0.48` per point
+- Illusion placement range: `0.12` per tile
 - Pure move: `0.25` per tile
 - Pure blink: `0.33` per tile
 - Move on an attacking card: `0.08` per tile
@@ -102,6 +106,8 @@ Synergy bonuses:
 - `+0.40` for `draw + card play`
 - `+0.20` for `move + push/pull`
 - `+0.40` for `move + defense` on non-attack cards
+- `+0.30` for `illusion + move/blink`
+- `+0.25` when `illusion` appears before later movement on the same card
 
 ## Playability Factors
 
@@ -150,6 +156,8 @@ This heuristic is intentionally conservative about:
 - Relic-specific synergies
 - Multi-card combos that need a particular hand pattern
 - Boss-only value
+- Enemy target redirection from illusion placement, especially when board geometry
+  lets one illusion absorb multiple enemy turns
 - Extreme deck-thinning or fatigue exploitation
 - Card-play bonuses beyond the current standalone hand context
 

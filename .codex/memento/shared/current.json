@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-03T21:47:25Z",
+  "updated_at": "2026-05-04T13:24:43Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2023,6 +2023,28 @@
       "source": {
         "branch": "master",
         "commit": "718c5bf"
+      }
+    },
+    {
+      "id": "mnt_20260504T030942Z_59f8695a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Illusion cards use health/range actors",
+      "details": "The illusion card action stores health and range on the action, creates entries under combat_state.illusions with id/pos/hp/max_hp, and enemy targeting treats live illusions plus the player as actor targets. Animation steps carry target_losses/impact_actor_keys so non-player decoy damage renders correctly.",
+      "status": "active",
+      "created_at": "2026-05-04T03:09:42Z",
+      "updated_at": "2026-05-04T03:09:42Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "0f37c24"
       }
     }
   ]

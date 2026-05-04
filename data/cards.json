@@ -33,11 +33,12 @@
     "burn": false,
     "health_cost": 0,
     "starter": true,
-    "description": "Blink 5.",
+    "description": "Create a 2-health illusion at range 3, then blink 4.",
     "accent": "#53607e",
     "art_path": "res://assets/art/cards/shadow_step.png",
     "actions": [
-      { "type": "blink", "range": 5 }
+      { "type": "illusion", "health": 2, "range": 3 },
+      { "type": "blink", "range": 4 }
     ]
   },
   "bone_dart": {
@@ -388,12 +389,13 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 1,
-    "description": "Lose 1 health. Move 2, then strike for 7. Burn 2.",
+    "description": "Lose 1 health. Create a 2-health illusion at range 3, move 2, then strike for 5. Burn 2.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/hearth_rush.png",
     "actions": [
+      { "type": "illusion", "health": 2, "range": 3 },
       { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 7, "range": 1, "burn": 2 }
+      { "type": "melee", "damage": 5, "range": 1, "burn": 2 }
     ]
   },
   "ashline_tempo": {
@@ -468,11 +470,12 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "description": "Deal 6 at range 5.",
+    "description": "Create a 2-health illusion at range 4, then deal 5 at range 5.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rime_shard.png",
     "actions": [
-      { "type": "ranged", "damage": 6, "range": 5 }
+      { "type": "illusion", "health": 2, "range": 4 },
+      { "type": "ranged", "damage": 5, "range": 5 }
     ]
   },
   "cold_grasp": {
@@ -600,11 +603,12 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
-    "description": "Deal 7 at range 7.",
+    "description": "Create a 3-health illusion at range 5, then deal 6 at range 6.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
-      { "type": "ranged", "damage": 7, "range": 7 }
+      { "type": "illusion", "health": 3, "range": 5 },
+      { "type": "ranged", "damage": 6, "range": 6 }
     ]
   },
   "thunderline": {
@@ -626,12 +630,13 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "description": "Move 2, then pull 2 at range 4. Hit 5.",
+    "description": "Create a 2-health illusion at range 4, move 2, then pull 2 at range 4. Hit 4.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/gust_step.png",
     "actions": [
+      { "type": "illusion", "health": 2, "range": 4 },
       { "type": "move", "range": 2 },
-      { "type": "pull", "amount": 2, "range": 4, "damage": 5 }
+      { "type": "pull", "amount": 2, "range": 4, "damage": 4 }
     ]
   },
   "slipstream_cut": {
@@ -750,12 +755,13 @@
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
-    "description": "Gain 4 block and 4 stoneskin.",
+    "description": "Create a 4-health illusion at range 3, then gain 3 block and 3 stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/basalt_guard.png",
     "actions": [
-      { "type": "block", "amount": 4 },
-      { "type": "stoneskin", "amount": 4 }
+      { "type": "illusion", "health": 4, "range": 3 },
+      { "type": "block", "amount": 3 },
+      { "type": "stoneskin", "amount": 3 }
     ]
   },
   "grave_mortar": {

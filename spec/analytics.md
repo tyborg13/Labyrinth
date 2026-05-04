@@ -46,6 +46,7 @@ The current event stream is enough to derive:
 - move distance
 - cards drawn during resolution
 - card plays gained during resolution
+- illusions created and their total created health
 - immediate status application deltas
 - actual resolved action list and chosen targets
 
@@ -72,6 +73,7 @@ Update analytics instrumentation when changes affect:
 - reward offering or reward selection flow
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
+- card actions that create, remove, or redirect combat actors
 - combat outcome flow
 - status timing or turn sequencing
 - any fields used by the balance heuristic or future card-performance dashboards

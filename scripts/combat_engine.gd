@@ -48,6 +48,8 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"moss": room_layout.get("moss", {}).duplicate(true),
 		"player": player,
 		"enemies": enemies,
+		"illusions": [],
+		"next_illusion_id": 1,
 		"traps": room_layout.get("traps", []).duplicate(true),
 		"loot": room_layout.get("loot", []).duplicate(true),
 		"relics": player_snapshot.get("relics", []).duplicate(),
@@ -98,7 +100,7 @@ func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
 	if action_type == "aoe":
 		return int(action.get("range", 0)) > 0
-	return action_type in ["move", "blink", "melee", "ranged", "push", "pull"]
+	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion"]
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -119,13 +121,25 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 	var targets: Array[Vector2i] = []
 	match action_type:
 		"move":
+			occupied = _occupied_actor_tiles(state)
 			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
 			targets = PathUtils.reachable_tiles(state.get("grid", []), player_pos, move_range, occupied)
 		"blink":
+			occupied = _occupied_actor_tiles(state)
 			var max_range: int = int(action.get("range", 0))
 			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, max_range, state.get("grid", [])):
 				if tile == player_pos:
 					continue
+				if occupied.has(tile):
+					continue
+				if not PathUtils.is_passable(state.get("grid", []), tile):
+					continue
+				targets.append(tile)
+		"illusion":
+			occupied = _occupied_actor_tiles(state)
+			occupied[player_pos] = true
+			var illusion_range: int = int(action.get("range", 0))
+			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, illusion_range, state.get("grid", [])):
 				if occupied.has(tile):
 					continue
 				if not PathUtils.is_passable(state.get("grid", []), tile):
@@ -235,6 +249,9 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
 			if bonus_card_plays > 0:
 				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
+		"illusion":
+			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				next_state = _create_illusion(next_state, target_tile, int(action.get("health", action.get("amount", 0))))
 	return next_state
 
 func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
@@ -282,8 +299,9 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		return {"move": [], "attack": []}
 	var grid: Array = state.get("grid", [])
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
-	occupied[player_pos] = true
+	var target: Dictionary = _closest_enemy_target(state, enemy)
+	var target_pos: Vector2i = target.get("pos", player_pos)
+	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
 	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
 		occupied[trap_tile_var] = true
 	var frontier: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
@@ -298,7 +316,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 				var next_frontier: Array[Vector2i] = []
 				var next_lookup: Dictionary = {}
 				for start_tile: Vector2i in frontier:
-					for move_tile: Vector2i in _threat_movement_tiles(grid, start_tile, player_pos, action, occupied):
+					for move_tile: Vector2i in _threat_movement_tiles(grid, start_tile, target_pos, action, occupied):
 						move_lookup[move_tile] = true
 						if next_lookup.has(move_tile):
 							continue
@@ -534,11 +552,15 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var hp_loss: int = int(before_player.get("hp", 0)) - int(after_player.get("hp", 0))
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
 			var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
+			var target_losses: Array[Dictionary] = _actor_target_losses(before_state, after_state)
 			var moved: bool = before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO)
 			var status_text: String = _player_status_step_text(before_player, after_player, action)
-			if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0 and not moved and status_text.is_empty() and action_type != "lightning_strikes":
+			if target_losses.is_empty() and not moved and status_text.is_empty() and action_type != "lightning_strikes":
 				return {}
-			var center_tile: Vector2i = before_player.get("pos", Vector2i.ZERO)
+			var target_tile: Vector2i = after_player.get("pos", Vector2i.ZERO)
+			if not target_losses.is_empty():
+				target_tile = (target_losses[0] as Dictionary).get("tile", target_tile)
+			var center_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
 				center_tile = before_enemy.get("pos", Vector2i.ZERO)
 			var aoe_tiles: Array[Vector2i] = []
@@ -551,15 +573,17 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"actor_key": _enemy_key(after_enemy),
 				"actor_name": actor_name,
 				"from": after_enemy.get("pos", Vector2i.ZERO),
-				"to": after_player.get("pos", Vector2i.ZERO),
+				"to": target_tile,
 				"player_from": before_player.get("pos", Vector2i.ZERO),
 				"player_to": after_player.get("pos", Vector2i.ZERO),
 				"center": center_tile,
 				"tiles": aoe_tiles,
-				"amount": hp_loss + block_loss + stoneskin_loss,
+				"amount": _target_loss_amount(target_losses),
 				"hp_loss": hp_loss,
 				"block_loss": block_loss,
 				"stoneskin_loss": stoneskin_loss,
+				"target_losses": target_losses,
+				"impact_actor_keys": _target_loss_keys(target_losses),
 				"status_text": status_text,
 				"range": int(action.get("range", 0)),
 				"sfx_id": str(action.get("sfx_id", action.get("attack_sfx_id", ""))),
@@ -582,8 +606,166 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 		_:
 			return {}
 
+func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var losses: Array[Dictionary] = []
+	var before_player: Dictionary = _normalized_player(before_state.get("player", {}))
+	var after_player: Dictionary = _normalized_player(after_state.get("player", {}))
+	var player_hp_loss: int = maxi(0, int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)))
+	var player_block_loss: int = maxi(0, int(before_player.get("block", 0)) - int(after_player.get("block", 0)))
+	var player_stoneskin_loss: int = maxi(0, int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)))
+	if player_hp_loss > 0 or player_block_loss > 0 or player_stoneskin_loss > 0:
+		losses.append({
+			"key": "player",
+			"kind": "player",
+			"tile": after_player.get("pos", before_player.get("pos", Vector2i.ZERO)),
+			"hp_loss": player_hp_loss,
+			"block_loss": player_block_loss,
+			"stoneskin_loss": player_stoneskin_loss,
+			"amount": player_hp_loss + player_block_loss + player_stoneskin_loss
+		})
+	var after_illusions_by_id: Dictionary = {}
+	for after_illusion_var: Variant in after_state.get("illusions", []):
+		if typeof(after_illusion_var) != TYPE_DICTIONARY:
+			continue
+		var after_illusion: Dictionary = _normalized_illusion(after_illusion_var as Dictionary)
+		after_illusions_by_id[int(after_illusion.get("id", -1))] = after_illusion
+	for before_illusion_var: Variant in before_state.get("illusions", []):
+		if typeof(before_illusion_var) != TYPE_DICTIONARY:
+			continue
+		var before_illusion: Dictionary = _normalized_illusion(before_illusion_var as Dictionary)
+		if int(before_illusion.get("hp", 0)) <= 0:
+			continue
+		var illusion_id: int = int(before_illusion.get("id", -1))
+		var after_illusion: Dictionary = after_illusions_by_id.get(illusion_id, before_illusion)
+		var hp_loss: int = maxi(0, int(before_illusion.get("hp", 0)) - int(after_illusion.get("hp", 0)))
+		if hp_loss <= 0:
+			continue
+		losses.append({
+			"key": _illusion_key(before_illusion),
+			"kind": "illusion",
+			"id": illusion_id,
+			"tile": after_illusion.get("pos", before_illusion.get("pos", Vector2i.ZERO)),
+			"hp_loss": hp_loss,
+			"block_loss": 0,
+			"stoneskin_loss": 0,
+			"amount": hp_loss
+		})
+	return losses
+
+func _target_loss_amount(target_losses: Array[Dictionary]) -> int:
+	var total: int = 0
+	for loss: Dictionary in target_losses:
+		total += int(loss.get("amount", 0))
+	return total
+
+func _target_loss_keys(target_losses: Array[Dictionary]) -> Array[String]:
+	var keys: Array[String] = []
+	for loss: Dictionary in target_losses:
+		var key: String = str(loss.get("key", ""))
+		if not key.is_empty() and not keys.has(key):
+			keys.append(key)
+	return keys
+
 func _enemy_key(enemy: Dictionary) -> String:
 	return "enemy_%d" % int(enemy.get("id", -1))
+
+func _actor_targets(state: Dictionary) -> Array[Dictionary]:
+	var targets: Array[Dictionary] = []
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	if int(player.get("hp", 0)) > 0:
+		targets.append({
+			"kind": "player",
+			"key": "player",
+			"pos": player.get("pos", Vector2i.ZERO),
+			"hp": int(player.get("hp", 0))
+		})
+	for illusion: Dictionary in _live_illusions(state):
+		targets.append({
+			"kind": "illusion",
+			"key": _illusion_key(illusion),
+			"id": int(illusion.get("id", -1)),
+			"pos": illusion.get("pos", Vector2i.ZERO),
+			"hp": int(illusion.get("hp", 0))
+		})
+	return targets
+
+func _closest_enemy_target(state: Dictionary, enemy: Dictionary) -> Dictionary:
+	var best_target: Dictionary = {}
+	var best_distance: int = 9999
+	for target: Dictionary in _actor_targets(state):
+		var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
+		var distance: int = _enemy_distance_to_tile(enemy, target_pos)
+		if distance < best_distance:
+			best_distance = distance
+			best_target = target
+	return best_target
+
+func _closest_enemy_target_for_action(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Dictionary:
+	var best_target: Dictionary = {}
+	var best_distance: int = 9999
+	for target: Dictionary in _actor_targets(state):
+		if not _enemy_action_reaches_target(state, enemy, action, target):
+			continue
+		var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
+		var distance: int = _enemy_distance_to_tile(enemy, target_pos)
+		if distance < best_distance:
+			best_distance = distance
+			best_target = target
+	return best_target
+
+func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
+	match action_type:
+		"melee":
+			return _enemy_distance_to_tile(enemy, target_pos) <= int(action.get("range", 1))
+		"ranged":
+			return (
+				PathUtils.manhattan(source_pos, target_pos) <= int(action.get("range", 1))
+				and PathUtils.has_line_of_sight(state.get("grid", []), source_pos, target_pos)
+			)
+		"push", "pull":
+			var max_range: int = int(action.get("range", 1))
+			return (
+				PathUtils.manhattan(source_pos, target_pos) <= max_range
+				and (max_range <= 1 or PathUtils.has_line_of_sight(state.get("grid", []), source_pos, target_pos))
+			)
+		"aoe":
+			var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
+			if int(action.get("range", 0)) > 0:
+				if PathUtils.manhattan(source_pos, target_pos) > int(action.get("range", 0)):
+					return false
+				if not PathUtils.has_line_of_sight(state.get("grid", []), source_pos, target_pos):
+					return false
+				center = target_pos
+			return _best_aoe_tiles_for_target(state, action, center, true).has(target_pos)
+	return false
+
+func _actor_targets_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[Dictionary]:
+	var tile_lookup: Dictionary = {}
+	for tile: Vector2i in tiles:
+		tile_lookup[tile] = true
+	var targets: Array[Dictionary] = []
+	for target: Dictionary in _actor_targets(state):
+		if tile_lookup.has(target.get("pos", Vector2i.ZERO)):
+			targets.append(target)
+	return targets
+
+func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, bypass_block: bool) -> Dictionary:
+	if damage <= 0:
+		return state
+	match str(target.get("kind", "")):
+		"player":
+			return _damage_player(state, damage, bypass_block)
+		"illusion":
+			return _damage_illusion(state, int(target.get("id", -1)), damage)
+	return state
+
+func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
+	if str(target.get("kind", "")) != "player":
+		return state
+	return _apply_action_keywords_to_player(state, action, source_pos)
 
 func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
 	var next_state: Dictionary = state
@@ -595,15 +777,17 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+	var target: Dictionary = _closest_enemy_target(next_state, enemy)
+	var target_pos: Vector2i = target.get("pos", player_pos)
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move_toward":
-			var toward_tile: Vector2i = _best_move_toward(next_state, enemy_index, player_pos, int(action.get("range", 0)))
+			var toward_tile: Vector2i = _best_move_toward(next_state, enemy_index, target_pos, int(action.get("range", 0)))
 			enemy["pos"] = toward_tile
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"move_away":
-			var away_tile: Vector2i = _best_move_away(next_state, enemy_index, player_pos, int(action.get("range", 0)))
+			var away_tile: Vector2i = _best_move_away(next_state, enemy_index, target_pos, int(action.get("range", 0)))
 			enemy["pos"] = away_tile
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s falls back." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
@@ -624,17 +808,17 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				int(action.get("amount", 0))
 			])
 		"melee":
-			next_state = _enemy_attack_player(next_state, enemy_index, action, "hits")
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits")
 		"ranged":
-			next_state = _enemy_attack_player(next_state, enemy_index, action, "fires")
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires")
 		"aoe":
-			next_state = _enemy_attack_player(next_state, enemy_index, action, "sweeps the area")
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area")
 		"lightning_strikes":
 			next_state = _enemy_lightning_strikes(next_state, enemy_index, action)
 		"push":
-			next_state = _enemy_push_or_pull_player(next_state, enemy_index, action, true)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true)
 		"pull":
-			next_state = _enemy_push_or_pull_player(next_state, enemy_index, action, false)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false)
 		"summon_minions":
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
 	return next_state
@@ -736,8 +920,54 @@ func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_fr
 func _lose_player_health(state: Dictionary, amount: int, bypass_block: bool, apply_freeze_multiplier: bool = true) -> Dictionary:
 	return _damage_player(state, amount, bypass_block, apply_freeze_multiplier)
 
+func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if damage <= 0:
+		return next_state
+	var illusions: Array = next_state.get("illusions", []).duplicate(true)
+	for index: int in range(illusions.size()):
+		if typeof(illusions[index]) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = _normalized_illusion(illusions[index] as Dictionary)
+		if int(illusion.get("id", -1)) != illusion_id:
+			continue
+		var was_alive: bool = int(illusion.get("hp", 0)) > 0
+		illusion["hp"] = maxi(0, int(illusion.get("hp", 0)) - damage)
+		illusions[index] = illusion
+		next_state["illusions"] = illusions
+		if was_alive and int(illusion.get("hp", 0)) <= 0:
+			_log(next_state, "Illusion fades.")
+		return next_state
+	return next_state
+
+func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var illusion_health: int = maxi(1, health)
+	var illusions: Array = next_state.get("illusions", []).duplicate(true)
+	var illusion_id: int = int(next_state.get("next_illusion_id", 1))
+	illusions.append({
+		"id": illusion_id,
+		"pos": pos,
+		"hp": illusion_health,
+		"max_hp": illusion_health
+	})
+	next_state["illusions"] = illusions
+	next_state["next_illusion_id"] = illusion_id + 1
+	_log(next_state, "Illusion appears.")
+	return next_state
+
 func _normalized_player(player_value: Variant) -> Dictionary:
 	return _normalized_unit(player_value)
+
+func _normalized_illusion(illusion_value: Variant) -> Dictionary:
+	var illusion: Dictionary = {}
+	if typeof(illusion_value) == TYPE_DICTIONARY:
+		illusion = (illusion_value as Dictionary).duplicate(true)
+	illusion["id"] = int(illusion.get("id", -1))
+	illusion["pos"] = illusion.get("pos", Vector2i.ZERO)
+	illusion["hp"] = int(illusion.get("hp", 0))
+	illusion["max_hp"] = maxi(1, int(illusion.get("max_hp", illusion.get("hp", 1))))
+	return illusion
 
 func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	var enemy: Dictionary = _normalized_unit(enemy_value)
@@ -888,65 +1118,57 @@ func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dict
 			best_index = index
 	return best_index
 
-func _enemy_attack_player(state: Dictionary, enemy_index: int, action: Dictionary, verb: String) -> Dictionary:
+func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
-	var connects: bool = false
-	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-	if action_type == "melee":
-		connects = _enemy_distance_to_tile(enemy, player_pos) <= int(action.get("range", 1))
-	elif action_type == "ranged":
-		connects = (
-			PathUtils.manhattan(source_pos, player_pos) <= int(action.get("range", 1))
-			and PathUtils.has_line_of_sight(next_state.get("grid", []), source_pos, player_pos)
-		)
-	elif action_type == "aoe":
-		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
-		if int(action.get("range", 0)) > 0:
-			if PathUtils.manhattan(enemy.get("pos", Vector2i.ZERO), player_pos) > int(action.get("range", 0)):
-				return next_state
-			if not PathUtils.has_line_of_sight(next_state.get("grid", []), enemy.get("pos", Vector2i.ZERO), player_pos):
-				return next_state
-			center = player_pos
-		connects = _best_aoe_tiles_for_target(next_state, action, center, true).has(player_pos)
-	if not connects:
+	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action)
+	if target.is_empty():
 		return next_state
 	var damage: int = int(action.get("damage", 0))
-	if damage > 0:
-		next_state = _damage_player(next_state, damage, false)
+	if action_type == "aoe":
+		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
+		if int(action.get("range", 0)) > 0:
+			center = target.get("pos", Vector2i.ZERO)
+		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, _best_aoe_tiles_for_target(next_state, action, center, true))
+		if affected_targets.is_empty():
+			return next_state
+		for affected_target: Dictionary in affected_targets:
+			if damage > 0:
+				next_state = _damage_actor_target(next_state, affected_target, damage, false)
+			next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
+	else:
+		if damage > 0:
+			next_state = _damage_actor_target(next_state, target, damage, false)
+		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	_log(next_state, "%s %s for %d." % [
 		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
 		verb,
 		damage
 	])
-	next_state = _apply_action_keywords_to_player(next_state, action, source_pos)
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	return next_state
 
-func _enemy_push_or_pull_player(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool) -> Dictionary:
+func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var max_range: int = int(action.get("range", 1))
-	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-	if PathUtils.manhattan(source_pos, player_pos) > max_range:
+	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action)
+	if target.is_empty():
 		return next_state
-	if max_range > 1 and not PathUtils.has_line_of_sight(next_state.get("grid", []), source_pos, player_pos):
-		return next_state
+	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
 	var damage: int = int(action.get("damage", 0))
 	if damage > 0:
-		next_state = _damage_player(next_state, damage, false)
-	next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
-	next_state = _apply_action_keywords_to_player(next_state, action, source_pos)
+		next_state = _damage_actor_target(next_state, target, damage, false)
+	if str(target.get("kind", "")) == "player":
+		next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
+	next_state = _apply_action_keywords_to_target(next_state, target, action, source_pos)
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	_log(next_state, "%s %s." % [
 		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
@@ -960,11 +1182,10 @@ func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dicti
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(next_state, enemy, action)
-	if strike_tiles.has(player.get("pos", Vector2i.ZERO)):
-		next_state = _damage_player(next_state, int(action.get("damage", 0)), false)
-		next_state = _apply_action_keywords_to_player(next_state, action, _closest_enemy_tile_to(enemy, player.get("pos", Vector2i.ZERO)))
+	for target: Dictionary in _actor_targets_in_tiles(next_state, strike_tiles):
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), false)
+		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
@@ -1034,15 +1255,16 @@ func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Ve
 		if int(enemy.get("hp", 0)) <= 0:
 			break
 		var current: Vector2i = enemy.get("pos", Vector2i.ZERO)
-		var occupied: Dictionary = _occupied_enemy_tiles(next_state, int(enemy.get("id", -1)))
+		var occupied: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
+		var player_pos: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
 		var candidate: Vector2i = (
-			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, occupied, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99)))
+			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, occupied, player_pos)
 			if pushing
 			else _next_tile_toward_source(next_state.get("grid", []), current, source_pos, occupied)
 		)
 		if candidate == current:
 			break
-		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))):
+		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, player_pos):
 			break
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
@@ -1059,7 +1281,7 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 	for _step: int in range(amount):
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
 		var current: Vector2i = player.get("pos", Vector2i.ZERO)
-		var enemy_occupied: Dictionary = _occupied_enemy_tiles(next_state)
+		var enemy_occupied: Dictionary = _occupied_actor_tiles(next_state)
 		var next_tile: Vector2i = (
 			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, enemy_occupied, Vector2i(-99, -99))
 			if pushing
@@ -1097,7 +1319,7 @@ func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vect
 		start,
 		goal,
 		max_distance,
-		_occupied_enemy_tiles(state),
+		_occupied_actor_tiles(state),
 		_trap_tiles_lookup(state)
 	)
 
@@ -1652,12 +1874,45 @@ func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionar
 			occupied[tile] = true
 	return occupied
 
+func _occupied_illusion_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
+	var occupied: Dictionary = {}
+	for illusion: Dictionary in _live_illusions(state):
+		if int(illusion.get("id", -1)) == exclude_id:
+			continue
+		occupied[illusion.get("pos", Vector2i.ZERO)] = true
+	return occupied
+
+func _occupied_actor_tiles(state: Dictionary, exclude_enemy_id: int = -1, exclude_illusion_id: int = -1) -> Dictionary:
+	var occupied: Dictionary = _occupied_enemy_tiles(state, exclude_enemy_id)
+	for tile_var: Variant in _occupied_illusion_tiles(state, exclude_illusion_id).keys():
+		occupied[tile_var] = true
+	return occupied
+
+func _enemy_blocking_tiles(state: Dictionary, exclude_enemy_id: int = -1) -> Dictionary:
+	var occupied: Dictionary = _occupied_actor_tiles(state, exclude_enemy_id)
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	occupied[player_pos] = true
+	return occupied
+
 func _live_enemies(state: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) > 0:
 			result.append(enemy)
 	return result
+
+func _live_illusions(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for illusion_var: Variant in state.get("illusions", []):
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = _normalized_illusion(illusion_var as Dictionary)
+		if int(illusion.get("hp", 0)) > 0:
+			result.append(illusion)
+	return result
+
+func _illusion_key(illusion: Dictionary) -> String:
+	return "illusion_%d" % int(illusion.get("id", -1))
 
 func _enemy_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 	var enemies: Array = state.get("enemies", [])
@@ -1755,9 +2010,7 @@ func _lightning_tile_score(state: Dictionary, enemy: Dictionary, action: Diction
 
 func _summon_tiles_for_enemy(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
 	var candidates: Array[Vector2i] = []
-	var occupied: Dictionary = _occupied_enemy_tiles(state)
-	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	occupied[player_pos] = true
+	var occupied: Dictionary = _enemy_blocking_tiles(state)
 	for tile: Vector2i in PathUtils.diamond_tiles(enemy.get("pos", Vector2i.ZERO), 4, state.get("grid", [])):
 		if occupied.has(tile):
 			continue
@@ -1818,8 +2071,7 @@ func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_ti
 		var tiles: Array[Vector2i] = _tiles_for_aoe_offsets(grid, target_tile, offsets)
 		var score: int = 0
 		if score_player:
-			var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-			score = 1 if tiles.has(player_pos) else 0
+			score = _actor_targets_in_tiles(state, tiles).size()
 		else:
 			score = _enemy_indices_in_tiles(state, tiles).size()
 		if score > best_score or (score == best_score and tiles.size() < best_size):
@@ -2066,7 +2318,7 @@ func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, mo
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	if move_range <= 0:
 		return start
-	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
+	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
 	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
 		occupied[trap_tile_var] = true
 	if enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
@@ -2098,7 +2350,7 @@ func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	if move_range <= 0:
 		return start
-	var occupied: Dictionary = _occupied_enemy_tiles(state, int(enemy.get("id", -1)))
+	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
 	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
 		occupied[trap_tile_var] = true
 	if enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:

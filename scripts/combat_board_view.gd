@@ -26,6 +26,7 @@ const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
+const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
 const ENEMY_BAR_FILL: Color = Color("d06752")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_FREEZE: Color = Color("7dd4ff")
@@ -820,6 +821,28 @@ func _visible_units() -> Array[Dictionary]:
 			"stun": int(player_statuses.get("stun", 0)),
 			"poison": player.get("poison", {}).duplicate(true)
 		})
+	for illusion_var: Variant in combat_state.get("illusions", []):
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = illusion_var
+		if int(illusion.get("hp", 0)) <= 0:
+			continue
+		units_to_draw.append({
+			"key": "illusion_%d" % int(illusion.get("id", -1)),
+			"role": "illusion",
+			"type": "player",
+			"name": "Illusion",
+			"pos": illusion.get("pos", Vector2i.ZERO),
+			"hp": int(illusion.get("hp", 0)),
+			"max_hp": int(illusion.get("max_hp", illusion.get("hp", 1))),
+			"block": 0,
+			"stoneskin": 0,
+			"burn": 0,
+			"freeze": 0,
+			"shock": 0,
+			"stun": 0,
+			"poison": {}
+		})
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
@@ -881,7 +904,12 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		if impact > 0.0:
 			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
-		draw_texture_rect(texture, shifted_rect, false, Color.WHITE)
+		var body_tint: Color = Color.WHITE
+		if str(unit.get("role", "")) == "illusion":
+			var echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -5.0), shifted_rect.size)
+			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
+			body_tint = Color(0.70, 0.95, 1.0, 0.58)
+		draw_texture_rect(texture, shifted_rect, false, body_tint)
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
@@ -948,6 +976,8 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
 	var preview: Dictionary = _unit_damage_preview(unit)
 	var display_hp: int = int(preview.get("hp", unit.get("hp", 0)))
+	var role: String = str(unit.get("role", ""))
+	var fill_color: Color = ILLUSION_BAR_FILL if role == "illusion" else PLAYER_BAR_FILL if role == "player" else ENEMY_BAR_FILL
 	SegmentedHealthBar.draw_bar(
 		self,
 		rect,
@@ -955,7 +985,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		float(maxi(1, int(unit.get("max_hp", 1)))),
 		maxi(1, int(ceili(float(maxi(1, int(unit.get("max_hp", 1)))) / 10.0))),
 		Color("2d1f18"),
-		PLAYER_BAR_FILL if str(unit.get("role", "")) == "player" else ENEMY_BAR_FILL,
+		fill_color,
 		Color("f5efdf"),
 		Color("eed3a6"),
 		Color(0.0, 0.0, 0.0, 0.35),
@@ -1121,7 +1151,8 @@ func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
 	return _unit_draw_rect_for_center(unit, center).position.y
 
 func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
-	var bar_size: Vector2 = PLAYER_HEALTH_BAR_SIZE if str(unit.get("role", "")) == "player" else ENEMY_HEALTH_BAR_SIZE
+	var role: String = str(unit.get("role", ""))
+	var bar_size: Vector2 = PLAYER_HEALTH_BAR_SIZE if role == "player" or role == "illusion" else ENEMY_HEALTH_BAR_SIZE
 	var bottom_y: float = _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE
 	return Rect2(
 		Vector2(center.x - bar_size.x * 0.5, bottom_y - bar_size.y),
@@ -2521,6 +2552,8 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 	return Vector2i(-1, -1)
 
 func _draw_unit_shadow(unit: Dictionary) -> void:
+	if str(unit.get("role", "")) == "illusion":
+		return
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture == null:
 		_draw_unit_shadow_fallback(unit)

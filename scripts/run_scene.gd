@@ -2972,6 +2972,30 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect_progress": 1.0
 			})
 			await get_tree().create_timer(0.14).timeout
+		"illusion":
+			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile])
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			for frame: int in range(1, ATTACK_FRAMES + 1):
+				var t: float = float(frame) / float(ATTACK_FRAMES)
+				_render_board_state(before_state, {
+					"focus_actor_keys": ["player"],
+					"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+					"focus_tiles": focus_tiles,
+					"focus_color": Color(0.40, 0.86, 0.94, 0.18 + 0.12 * t)
+				})
+				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+			await _animate_floating_text_presentation(after_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"focus_tiles": focus_tiles,
+				"focus_color": Color(0.40, 0.86, 0.94, 0.26),
+				"floating_texts": [{
+					"tile": target_tile,
+					"text": "+%d illusion" % int(action.get("health", action.get("amount", 0))),
+					"color": Color("9beeff"),
+					"offset": -6.0
+				}]
+			})
 		"melee", "ranged", "aoe", "push", "pull":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
@@ -3184,6 +3208,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					_render_board_state(animated_state, presentation)
 					await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
 				_apply_animation_step(animated_state, step)
+				var impact_actor_keys: Array = step.get("impact_actor_keys", [])
+				if impact_actor_keys.is_empty() and (int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0):
+					impact_actor_keys = ["player"]
 				await _animate_floating_text_presentation(animated_state, {
 					"focus_actor_keys": [step_actor_key],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
@@ -3191,7 +3218,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 					"effect": step,
 					"effect_progress": 1.0,
-					"impact_actor_keys": ["player"] if int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0 else [],
+					"impact_actor_keys": impact_actor_keys,
 					"floating_texts": _floating_texts_for_step(step)
 				})
 
@@ -3308,7 +3335,11 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 		"status_damage":
 			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
-			_apply_player_losses(animated_state, int(step.get("hp_loss", 0)), int(step.get("block_loss", 0)), int(step.get("stoneskin_loss", 0)))
+			var target_losses: Array = step.get("target_losses", [])
+			if target_losses.is_empty():
+				_apply_player_losses(animated_state, int(step.get("hp_loss", 0)), int(step.get("block_loss", 0)), int(step.get("stoneskin_loss", 0)))
+			else:
+				_apply_actor_losses(animated_state, target_losses)
 			if step.has("player_to"):
 				_set_player_pos(animated_state, step.get("player_to", Vector2i.ZERO))
 
@@ -3350,6 +3381,9 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"offset": -6.0
 			}]
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
+			var target_losses: Array = step.get("target_losses", [])
+			if not target_losses.is_empty():
+				return _floating_texts_for_target_losses(target_losses, str(step.get("status_text", "")), step.get("to", Vector2i.ZERO))
 			var floats: Array[Dictionary] = []
 			if int(step.get("hp_loss", 0)) > 0:
 				floats.append({
@@ -3382,6 +3416,45 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 			return floats
 		_:
 			return []
+
+func _floating_texts_for_target_losses(target_losses: Array, status_text: String = "", status_tile: Vector2i = Vector2i.ZERO) -> Array[Dictionary]:
+	var floats: Array[Dictionary] = []
+	for loss_var: Variant in target_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		var tile: Vector2i = loss.get("tile", Vector2i.ZERO)
+		if int(loss.get("hp_loss", 0)) > 0:
+			floats.append({
+				"tile": tile,
+				"text": "-%d" % int(loss.get("hp_loss", 0)),
+				"color": Color("f39779"),
+				"offset": -10.0
+			})
+		if int(loss.get("block_loss", 0)) > 0:
+			floats.append({
+				"tile": tile,
+				"text": "-%d B" % int(loss.get("block_loss", 0)),
+				"color": Color("90d9ff"),
+				"offset": 10.0
+			})
+		if int(loss.get("stoneskin_loss", 0)) > 0:
+			floats.append({
+				"tile": tile,
+				"text": "-%d S" % int(loss.get("stoneskin_loss", 0)),
+				"color": ElementData.accent(ElementData.EARTH),
+				"offset": 22.0
+			})
+		if str(loss.get("kind", "")) == "player":
+			status_tile = tile
+	if not status_text.is_empty():
+		floats.append({
+			"tile": status_tile,
+			"text": status_text,
+			"color": Color("f1d18b"),
+			"offset": -24.0
+		})
+	return floats
 
 func _set_enemy_pos_by_key(state: Dictionary, actor_key: String, pos: Vector2i) -> void:
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
@@ -3434,6 +3507,29 @@ func _apply_player_losses(state: Dictionary, hp_loss: int, block_loss: int, ston
 	player["stoneskin"] = maxi(0, int(player.get("stoneskin", 0)) - stoneskin_loss)
 	player["hp"] = maxi(0, int(player.get("hp", 0)) - hp_loss)
 	state["player"] = player
+
+func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
+	for loss_var: Variant in target_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		match str(loss.get("kind", "")):
+			"player":
+				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
+			"illusion":
+				_apply_illusion_loss_by_key(state, str(loss.get("key", "")), int(loss.get("hp_loss", 0)))
+
+func _apply_illusion_loss_by_key(state: Dictionary, actor_key: String, hp_loss: int) -> void:
+	if actor_key.is_empty() or hp_loss <= 0:
+		return
+	for illusion_index: int in range((state.get("illusions", []) as Array).size()):
+		var illusion: Dictionary = (state.get("illusions", []) as Array)[illusion_index]
+		var key: String = "illusion_%d" % int(illusion.get("id", -1))
+		if key != actor_key:
+			continue
+		illusion["hp"] = maxi(0, int(illusion.get("hp", 0)) - hp_loss)
+		(state.get("illusions", []) as Array)[illusion_index] = illusion
+		return
 
 func _set_player_pos(state: Dictionary, pos: Vector2i) -> void:
 	var player: Dictionary = state.get("player", {})
@@ -3550,7 +3646,7 @@ func _room_hover_hint() -> String:
 
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
-		"move", "blink":
+		"move", "blink", "illusion":
 			return "Choose tile"
 		"aoe":
 			return "Choose area" if int(action.get("range", 0)) > 0 else "Resolve"
@@ -4433,6 +4529,24 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
 	var player_stun_applied: int = maxi(0, int(after_player.get("stun", 0)) - int(before_player.get("stun", 0)))
 	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
+	var before_illusion_ids: Dictionary = {}
+	for before_illusion_var: Variant in before_state.get("illusions", []):
+		if typeof(before_illusion_var) != TYPE_DICTIONARY:
+			continue
+		var before_illusion: Dictionary = before_illusion_var
+		before_illusion_ids[int(before_illusion.get("id", -1))] = true
+	var illusions_created: int = 0
+	var illusion_health_created: int = 0
+	for after_illusion_var: Variant in resolved_state.get("illusions", []):
+		if typeof(after_illusion_var) != TYPE_DICTIONARY:
+			continue
+		var after_illusion: Dictionary = after_illusion_var
+		if before_illusion_ids.has(int(after_illusion.get("id", -1))):
+			continue
+		if int(after_illusion.get("hp", 0)) <= 0:
+			continue
+		illusions_created += 1
+		illusion_health_created += maxi(0, int(after_illusion.get("max_hp", after_illusion.get("hp", 0))))
 	var printed_card: Dictionary = _card_def(card_id, before_state)
 	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
 	var play_mode: String = "printed"
@@ -4452,6 +4566,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"move_distance": absi(after_pos.x - before_pos.x) + absi(after_pos.y - before_pos.y),
 		"cards_drawn": _draw_entries_between_states(before_state, resolved_state).size(),
 		"card_plays_gained": maxi(0, _combat_engine.cards_remaining_this_turn(resolved_state) - _combat_engine.cards_remaining_this_turn(before_state)),
+		"illusions_created": illusions_created,
+		"illusion_health_created": illusion_health_created,
 		"enemy_status_applied": {
 			"burn": enemy_burn_applied,
 			"freeze": enemy_freeze_applied,
@@ -4604,6 +4720,13 @@ func _enemy_occupied_tiles(state: Dictionary) -> Dictionary:
 			continue
 		for tile: Vector2i in _enemy_footprint_tiles(enemy):
 			occupied[tile] = true
+	for illusion_var: Variant in state.get("illusions", []):
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = illusion_var
+		if int(illusion.get("hp", 0)) <= 0:
+			continue
+		occupied[illusion.get("pos", Vector2i.ZERO)] = true
 	return occupied
 
 func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:

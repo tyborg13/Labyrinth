@@ -43,6 +43,7 @@ func _initialize() -> void:
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
 	_test_card_play_action_grants_bonus_play()
+	_test_illusion_action_creates_decoy_and_redirects_enemy()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_hand_draw_caps_at_eight()
@@ -83,6 +84,7 @@ func _initialize() -> void:
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_unit_shadow_uses_alpha_silhouette()
 	_test_player_uses_original_anime_art()
+	_test_combat_board_surfaces_illusion_units()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
@@ -500,6 +502,7 @@ func _test_two_card_turn_draw_flow() -> void:
 func _test_card_play_action_grants_bonus_play() -> void:
 	var starter_has_draw: bool = false
 	var starter_has_card_play: bool = false
+	var starter_has_illusion: bool = false
 	for card_id: String in GameData.starting_deck():
 		var starter_card: Dictionary = GameData.card_def(card_id)
 		for action_var: Variant in starter_card.get("actions", []):
@@ -508,8 +511,10 @@ func _test_card_play_action_grants_bonus_play() -> void:
 			var action: Dictionary = action_var as Dictionary
 			starter_has_draw = starter_has_draw or str(action.get("type", "")) == "draw"
 			starter_has_card_play = starter_has_card_play or str(action.get("type", "")) == "card_play"
+			starter_has_illusion = starter_has_illusion or str(action.get("type", "")) == "illusion"
 	_assert(starter_has_draw, "The starting deck should include at least one draw card")
 	_assert(starter_has_card_play, "The starting deck should include at least one card-play card")
+	_assert(starter_has_illusion, "The starting deck should include at least one illusion card")
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(1511, _simple_room_layout(), {
 		"hp": 24,
@@ -532,6 +537,60 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(combat.cards_remaining_this_turn(state) == 2, "Finishing the card should spend one play while preserving the action bonus")
 	state = combat.prepare_next_player_turn(state)
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
+
+func _test_illusion_action_creates_decoy_and_redirects_enemy() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(1512, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["shadow_step", "quick_stab", "brace"],
+		"relics": [],
+		"hand_size": 3,
+		"heal_bonus": 0
+	})
+	state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 0,
+		"stoneskin": 0
+	}
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(5, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Claw", "actions": [{"type": "melee", "damage": 3, "range": 1}]}
+		}
+	]
+	var action := {"type": "illusion", "health": 4, "range": 3}
+	_assert(combat.valid_targets_for_player_action(state, action).has(Vector2i(4, 4)), "Illusion actions should target open tiles within placement range")
+	state = combat.apply_player_action(state, action, Vector2i(4, 4))
+	var illusions: Array = state.get("illusions", [])
+	_assert(illusions.size() == 1, "Illusion actions should add a combat actor")
+	_assert(int((illusions[0] as Dictionary).get("hp", 0)) == 4, "Created illusions should use the action health")
+	_assert(not combat.valid_targets_for_player_action(state, {"type": "move", "range": 3}).has(Vector2i(4, 4)), "Player movement should treat illusions as occupied")
+	var hp_before: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_state: Dictionary = phase.get("state", {})
+	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == hp_before, "Enemies should attack a closer illusion instead of the player")
+	var after_illusion: Dictionary = (after_state.get("illusions", []) as Array)[0]
+	_assert(int(after_illusion.get("hp", 0)) == 1, "Enemy damage should reduce illusion health")
+	var saw_illusion_loss_step: bool = false
+	for step_var: Variant in phase.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		for loss_var: Variant in step.get("target_losses", []):
+			if typeof(loss_var) != TYPE_DICTIONARY:
+				continue
+			var loss: Dictionary = loss_var
+			if str(loss.get("key", "")) == "illusion_1" and int(loss.get("hp_loss", 0)) == 3:
+				saw_illusion_loss_step = true
+	_assert(saw_illusion_loss_step, "Enemy animation steps should report illusion damage as target loss")
 
 func _test_enemy_death_grants_card_play_and_embers() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1629,6 +1688,32 @@ func _test_player_uses_original_anime_art() -> void:
 	_assert(idle_frames.size() == 8, "Original anime player art should still load its matching idle sheet")
 	_assert(player_texture != null, "Original anime player art should load for board rendering")
 
+func _test_combat_board_surfaces_illusion_units() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
+		"illusions": [{"id": 7, "pos": Vector2i(4, 4), "hp": 3, "max_hp": 3}],
+		"enemies": []
+	}
+	board.presentation = {}
+	var illusion_unit: Dictionary = {}
+	for unit_var: Variant in board.call("_visible_units"):
+		if typeof(unit_var) != TYPE_DICTIONARY:
+			continue
+		var unit: Dictionary = unit_var
+		if str(unit.get("role", "")) == "illusion":
+			illusion_unit = unit
+			break
+	_assert(not illusion_unit.is_empty(), "Combat board should include live illusions in visible units")
+	_assert(str(illusion_unit.get("key", "")) == "illusion_7", "Illusion units should use stable actor keys")
+	_assert(str(illusion_unit.get("type", "")) == "player", "Illusion units should reuse protagonist art")
+	_assert(int(illusion_unit.get("hp", 0)) == 3, "Illusion units should expose their health for HUD rendering")
+	_assert(board.call("_texture_for_unit", illusion_unit) != null, "Illusions should resolve the player texture for drawing")
+	board.free()
+
 func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
@@ -2107,6 +2192,10 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
 	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
+	var illusion_row: Array = ActionIcons.tokens_for_action({"type": "illusion", "health": 4, "range": 3})
+	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
+	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
+	_assert(ActionIcons.tooltip("illusion").contains("stationary copy"), "Illusion tooltip should explain the decoy")
 	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("grave_sprint"))
 	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
 	var cost_row: Array = cost_rows[0] as Array
@@ -3325,6 +3414,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(int(play_payload.get("player_heal_gained", 0)) == 3, "Card play analytics should capture observed healing")
 	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
+	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
 	var reward_payload: Dictionary = reward_event.get("payload", {})
 	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")

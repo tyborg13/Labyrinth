@@ -61,6 +61,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Adds card plays for this turn.",
 		"path": "%s/card_play.png" % ICON_ROOT
 	},
+	"illusion": {
+		"label": "Illusion",
+		"description": "Creates a stationary copy that enemies can target.",
+		"path": "%s/illusion.png" % ICON_ROOT
+	},
 	"burn": {
 		"label": "Burn",
 		"description": "Fire damage over time. Ticks at the start of turn, then decays.",
@@ -248,6 +253,9 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(token_for("draw", int(action.get("amount", 0))))
 		"card_play":
 			tokens.append(token_for("card_play", int(action.get("amount", 0))))
+		"illusion":
+			tokens.append(token_for("illusion", int(action.get("health", action.get("amount", 0)))))
+			tokens.append(token_for("range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(token_for("shock", int(action.get("count", 0)), "neutral", "Random lightning strikes."))

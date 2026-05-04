@@ -224,7 +224,7 @@ static func upgradeable_elements_for_card(card_id: String, progression: Dictiona
 				"label": "Damage"
 			})
 		if action.has("range"):
-			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Attack Range"
+			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Illusion Range" if action_type == "illusion" else "Attack Range"
 			_append_upgrade_element_if_available(elements, card_id, progression, {
 				"key": "stat:%d:range" % index,
 				"kind": "stat",
@@ -239,6 +239,14 @@ static func upgradeable_elements_for_card(card_id: String, progression: Dictiona
 				"action_index": index,
 				"field": "amount",
 				"label": _amount_upgrade_label(action_type)
+			})
+		if action.has("health"):
+			_append_upgrade_element_if_available(elements, card_id, progression, {
+				"key": "stat:%d:health" % index,
+				"kind": "stat",
+				"action_index": index,
+				"field": "health",
+				"label": "Illusion Health" if action_type == "illusion" else "Health"
 			})
 		if action_type in ATTACK_ACTION_TYPES:
 			for status_field: String in STATUS_UPGRADE_FIELDS:
@@ -459,8 +467,8 @@ static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Ar
 			for amount: int in [1, 2, 3]:
 				options.append(_stat_mod(action_index, field, amount, "Damage +%d" % amount, base_cost * amount * amount))
 		"range":
-			if action_type in ["move", "blink"]:
-				var base_cost: int = 150 if action_type == "move" else 190
+			if action_type in ["move", "blink", "illusion"]:
+				var base_cost: int = 150 if action_type == "move" else 170 if action_type == "illusion" else 190
 				for amount: int in [1, 2]:
 					options.append(_stat_mod(action_index, field, amount, "Range +%d" % amount, base_cost * amount * amount))
 			elif action_type in ATTACK_ACTION_TYPES:
@@ -481,6 +489,10 @@ static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Ar
 						options.append(_stat_mod(action_index, field, amount, "Heal +%d" % amount, 210 * amount * amount))
 				"draw":
 					options.append(_stat_mod(action_index, field, 1, "Draw +1", 520))
+		"health":
+			if action_type == "illusion":
+				for amount: int in [1, 2]:
+					options.append(_stat_mod(action_index, field, amount, "Health +%d" % amount, 130 * amount * amount))
 	return options
 
 static func _status_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
@@ -678,6 +690,9 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("amount", 0))) * 2.4
 		"card_play":
 			value += float(int(action.get("amount", 0))) * 2.0
+		"illusion":
+			value += float(int(action.get("health", action.get("amount", 0)))) * 0.95
+			value += float(int(action.get("range", 0))) * 0.28
 	value += float(int(action.get("burn", 0))) * 1.15
 	value += float(int(action.get("poison", 0))) * 0.95
 	value += float(int(action.get("freeze", 0))) * 3.2

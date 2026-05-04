@@ -32,6 +32,8 @@ class HeuristicWeights:
     heal_per_point: float = 0.90
     draw_per_point: float = 0.85
     card_play_per_point: float = 0.75
+    illusion_health_per_point: float = 0.48
+    illusion_range_per_tile: float = 0.12
     pure_move_per_tile: float = 0.25
     pure_blink_per_tile: float = 0.33
     attack_move_followthrough_per_tile: float = 0.08
@@ -55,6 +57,8 @@ class HeuristicWeights:
     draw_card_play_synergy: float = 0.40
     move_push_pull_synergy: float = 0.20
     move_defense_synergy: float = 0.40
+    illusion_move_synergy: float = 0.30
+    illusion_before_move_synergy: float = 0.25
 
 
 @dataclass
@@ -148,6 +152,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     has_defense = False
     has_draw = False
     has_card_play = False
+    has_illusion = False
+    illusion_before_move = False
     has_status = False
     has_push_pull = False
 
@@ -155,12 +161,16 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         action_type = str(action.get("type", ""))
 
         if action_type == "move":
+            if has_illusion:
+                illusion_before_move = True
             move_tiles += int(action.get("range", 0))
             pre_attack_reach += int(action.get("range", 0))
             has_move = True
             continue
 
         if action_type == "blink":
+            if has_illusion:
+                illusion_before_move = True
             blink_tiles += int(action.get("range", 0))
             pre_attack_reach += int(action.get("range", 0)) + 1
             has_move = True
@@ -239,6 +249,13 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             has_card_play = True
             continue
 
+        if action_type == "illusion":
+            breakdown.defense += int(action.get("health", action.get("amount", 0))) * weights.illusion_health_per_point
+            breakdown.control += int(action.get("range", 0)) * weights.illusion_range_per_tile
+            has_illusion = True
+            has_defense = True
+            continue
+
     if has_attack:
         breakdown.mobility += move_tiles * weights.attack_move_followthrough_per_tile
         breakdown.mobility += blink_tiles * weights.attack_blink_followthrough_per_tile
@@ -262,6 +279,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         breakdown.synergy += weights.move_push_pull_synergy
     if has_move and has_defense and not has_attack:
         breakdown.synergy += weights.move_defense_synergy
+    if has_move and has_illusion:
+        breakdown.synergy += weights.illusion_move_synergy
+    if illusion_before_move:
+        breakdown.synergy += weights.illusion_before_move_synergy
 
     breakdown.health_cost = int(card.get("health_cost", 0)) * weights.health_cost_per_point
     if bool(card.get("burn", False)):
