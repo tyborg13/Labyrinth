@@ -37,6 +37,7 @@ const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
 const DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
+const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const HAND_CARD_OVERLAP: float = -28.0
@@ -2245,18 +2246,45 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	}
 	var action: Dictionary = preview.get("action", {})
 	var action_type: String = str(action.get("type", ""))
-	result["focus_actor_color"] = PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink"] else PLAYER_ATTACK_FOCUS
+	result["focus_actor_color"] = PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "illusion"] else PLAYER_ATTACK_FOCUS
 	var focus_tiles: Array[Vector2i] = _focus_tiles_for_preview(preview)
 	if not focus_tiles.is_empty():
 		result["focus_tiles"] = focus_tiles
-		result["focus_color"] = Color(0.42, 0.84, 0.93, 0.24) if action_type in ["move", "blink"] else Color(0.95, 0.62, 0.37, 0.22)
+		if action_type == "illusion":
+			result["focus_color"] = Color(0.40, 0.86, 0.94, 0.22)
+		else:
+			result["focus_color"] = Color(0.42, 0.84, 0.93, 0.24) if action_type in ["move", "blink"] else Color(0.95, 0.62, 0.37, 0.22)
 	var path_tiles: Array[Vector2i] = _path_tiles_for_preview(preview)
 	if not path_tiles.is_empty():
 		result["path_tiles"] = path_tiles
 	var effect: Dictionary = _preview_effect_for_action(preview)
 	if not effect.is_empty():
 		result["effect"] = effect
+	var preview_units: Array = _preview_units_for_action(preview)
+	if not preview_units.is_empty():
+		result["preview_units"] = preview_units
 	return result
+
+func _preview_units_for_action(preview: Dictionary) -> Array:
+	var action: Dictionary = preview.get("action", {})
+	if str(action.get("type", "")) != "illusion":
+		return []
+	if _selected_card_index < 0 or _hovered_board_tile.x < 0:
+		return []
+	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
+	if not valid_targets.has(_hovered_board_tile):
+		return []
+	var health: int = maxi(1, int(action.get("health", action.get("amount", 1))))
+	return [{
+		"key": "illusion_preview",
+		"role": "illusion_preview",
+		"type": "player",
+		"name": "Illusion preview",
+		"pos": _hovered_board_tile,
+		"hp": health,
+		"max_hp": health,
+		"accent": ILLUSION_PREVIEW_FOCUS
+	}]
 
 func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = preview.get("action", {})

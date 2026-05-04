@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-04T13:24:43Z",
+  "updated_at": "2026-05-04T14:32:08Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2045,6 +2045,28 @@
       "source": {
         "branch": "master",
         "commit": "0f37c24"
+      }
+    },
+    {
+      "id": "mnt_20260504T143208Z_faab211f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Illusion hover previews are presentation-only units",
+      "details": "RunScene emits presentation.preview_units with role illusion_preview only while a selected illusion action hovers a valid target tile. CombatBoardView draws those previews with translucent protagonist art, no HUD or shadow, and no procedural placement ring, keeping combat_state.illusions reserved for placed decoys.",
+      "status": "active",
+      "created_at": "2026-05-04T14:32:08Z",
+      "updated_at": "2026-05-04T14:32:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "6f7984e"
       }
     }
   ]

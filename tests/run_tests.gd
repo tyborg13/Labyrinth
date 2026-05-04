@@ -85,6 +85,7 @@ func _initialize() -> void:
 	_test_unit_shadow_uses_alpha_silhouette()
 	_test_player_uses_original_anime_art()
 	_test_combat_board_surfaces_illusion_units()
+	_test_combat_board_surfaces_illusion_preview_units()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
@@ -140,6 +141,7 @@ func _initialize() -> void:
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
+	await _test_run_scene_illusion_hover_surfaces_preview_unit()
 	await _test_run_scene_move_previews_avoid_traps_when_possible()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_discard_pile_is_face_up_without_count()
@@ -1714,6 +1716,41 @@ func _test_combat_board_surfaces_illusion_units() -> void:
 	_assert(board.call("_texture_for_unit", illusion_unit) != null, "Illusions should resolve the player texture for drawing")
 	board.free()
 
+func _test_combat_board_surfaces_illusion_preview_units() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
+		"illusions": [],
+		"enemies": []
+	}
+	board.presentation = {
+		"preview_units": [{
+			"key": "illusion_preview",
+			"role": "illusion_preview",
+			"type": "player",
+			"pos": Vector2i(4, 4),
+			"hp": 2,
+			"max_hp": 2
+		}]
+	}
+	var preview_unit: Dictionary = {}
+	for unit_var: Variant in board.call("_visible_units"):
+		if typeof(unit_var) != TYPE_DICTIONARY:
+			continue
+		var unit: Dictionary = unit_var
+		if str(unit.get("role", "")) == "illusion_preview":
+			preview_unit = unit
+			break
+	_assert(not preview_unit.is_empty(), "Combat board should include illusion placement previews in visible units")
+	_assert(str(preview_unit.get("key", "")) == "illusion_preview", "Illusion preview units should use a stable presentation key")
+	_assert(str(preview_unit.get("type", "")) == "player", "Illusion previews should reuse protagonist art")
+	_assert(int(preview_unit.get("hp", 0)) == 2, "Illusion previews should carry action health for presentation metadata")
+	_assert(board.call("_texture_for_unit", preview_unit) != null, "Illusion previews should resolve the player texture for drawing")
+	board.free()
+
 func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
@@ -3089,6 +3126,53 @@ func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
 	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	_assert(move_tiles.has(target_tile), "Stage refresh should accept untyped preview target arrays and surface them on the combat board")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for illusion hover preview coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(106, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["shadow_step"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["shadow_step"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	var target_tile := Vector2i(3, 4)
+	instance.call("_on_board_tile_hovered", target_tile)
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var presentation: Dictionary = board_view.get("presentation")
+	var preview_units: Array = presentation.get("preview_units", [])
+	_assert(preview_units.size() == 1, "Hovering a valid illusion target should surface one placement preview unit")
+	if not preview_units.is_empty():
+		var preview_unit: Dictionary = preview_units[0] as Dictionary
+		_assert(str(preview_unit.get("role", "")) == "illusion_preview", "Illusion target hovers should tag preview units distinctly from placed illusions")
+		_assert(preview_unit.get("pos", Vector2i.ZERO) == target_tile, "Illusion preview units should appear on the hovered valid tile")
+		_assert(int(preview_unit.get("hp", 0)) > 0, "Illusion preview units should expose the pending illusion health")
+	instance.call("_on_board_tile_hovered", Vector2i(5, 2))
+	presentation = board_view.get("presentation")
+	_assert((presentation.get("preview_units", []) as Array).is_empty(), "Hovering an invalid illusion target should hide the placement preview unit")
 	instance.queue_free()
 	await process_frame
 

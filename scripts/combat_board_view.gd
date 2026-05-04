@@ -217,6 +217,8 @@ func _presentation_needs_redraw() -> bool:
 		return true
 	if not (presentation.get("impact_actor_keys", []) as Array).is_empty():
 		return true
+	if not (presentation.get("preview_units", []) as Array).is_empty():
+		return true
 	var effect: Dictionary = presentation.get("effect", {})
 	return bool(effect.get("preview", false))
 
@@ -843,6 +845,33 @@ func _visible_units() -> Array[Dictionary]:
 			"stun": 0,
 			"poison": {}
 		})
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) != TYPE_DICTIONARY:
+			continue
+		var preview_unit: Dictionary = preview_var
+		if str(preview_unit.get("role", "")) != "illusion_preview":
+			continue
+		var preview_tile: Vector2i = preview_unit.get("pos", Vector2i(-1, -1))
+		if preview_tile.x < 0:
+			continue
+		var preview_hp: int = maxi(1, int(preview_unit.get("hp", preview_unit.get("max_hp", 1))))
+		units_to_draw.append({
+			"key": str(preview_unit.get("key", "illusion_preview")),
+			"role": "illusion_preview",
+			"type": "player",
+			"name": str(preview_unit.get("name", "Illusion preview")),
+			"pos": preview_tile,
+			"hp": preview_hp,
+			"max_hp": maxi(1, int(preview_unit.get("max_hp", preview_hp))),
+			"block": 0,
+			"stoneskin": 0,
+			"burn": 0,
+			"freeze": 0,
+			"shock": 0,
+			"stun": 0,
+			"poison": {},
+			"preview": true
+		})
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
@@ -905,7 +934,13 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
 		var body_tint: Color = Color.WHITE
-		if str(unit.get("role", "")) == "illusion":
+		var role: String = str(unit.get("role", ""))
+		if role == "illusion_preview":
+			var pulse: float = 0.5 + sin(Time.get_ticks_msec() * 0.008) * 0.5
+			var preview_echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -7.0), shifted_rect.size)
+			draw_texture_rect(texture, preview_echo_rect, false, Color(0.38, 0.90, 1.0, 0.08 + 0.04 * pulse))
+			body_tint = Color(0.76, 0.98, 1.0, 0.30 + 0.06 * pulse)
+		elif role == "illusion":
 			var echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -5.0), shifted_rect.size)
 			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
@@ -924,6 +959,8 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 		var center: Vector2 = _unit_center(unit)
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
+			continue
+		if str(unit.get("role", "")) == "illusion_preview":
 			continue
 		if bool(unit.get("boss_bar", false)):
 			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
@@ -2552,7 +2589,7 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 	return Vector2i(-1, -1)
 
 func _draw_unit_shadow(unit: Dictionary) -> void:
-	if str(unit.get("role", "")) == "illusion":
+	if str(unit.get("role", "")) in ["illusion", "illusion_preview"]:
 		return
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture == null:
