@@ -18,12 +18,13 @@
     "burn": false,
     "health_cost": 0,
     "starter": true,
-    "description": "Move 2, then gain 4 block.",
+    "description": "Move 2, gain 3 block, and gain 1 card play.",
     "accent": "#547f90",
     "art_path": "res://assets/art/cards/guarded_step.png",
     "actions": [
       { "type": "move", "range": 2 },
-      { "type": "block", "amount": 4 }
+      { "type": "block", "amount": 3 },
+      { "type": "card_play", "amount": 1 }
     ]
   },
   "shadow_step": {
@@ -140,11 +141,12 @@
     "burn": false,
     "health_cost": 0,
     "starter": true,
-    "description": "Deal 4 at range 6.",
+    "description": "Deal 4 at range 6, then draw 1.",
     "accent": "#d49b42",
     "art_path": "res://assets/art/cards/lantern_shot.png",
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 6 }
+      { "type": "ranged", "damage": 4, "range": 6 },
+      { "type": "draw", "amount": 1 }
     ]
   },
   "iron_wheel": {
@@ -210,6 +212,19 @@
     "actions": [
       { "type": "heal", "amount": 4 },
       { "type": "draw", "amount": 1 }
+    ]
+  },
+  "battle_rhythm": {
+    "name": "Battle Rhythm",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Gain 4 block and gain 1 card play.",
+    "accent": "#8b7855",
+    "art_path": "res://assets/art/cards/battle_rhythm.png",
+    "actions": [
+      { "type": "block", "amount": 4 },
+      { "type": "card_play", "amount": 1 }
     ]
   },
   "cinderburst": {
@@ -327,6 +342,20 @@
       { "type": "block", "amount": 4 }
     ]
   },
+  "gate_gambit": {
+    "name": "Gate Gambit",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 1,
+    "description": "Exhaust. Lose 1 health. Draw 3, gain 2 card plays, and gain 3 block.",
+    "accent": "#8f6da8",
+    "art_path": "res://assets/art/cards/gate_gambit.png",
+    "actions": [
+      { "type": "draw", "amount": 3 },
+      { "type": "card_play", "amount": 2 },
+      { "type": "block", "amount": 3 }
+    ]
+  },
   "firebrand_volley": {
     "name": "Firebrand Volley",
     "element": "fire",
@@ -365,6 +394,20 @@
     "actions": [
       { "type": "move", "range": 2 },
       { "type": "melee", "damage": 7, "range": 1, "burn": 2 }
+    ]
+  },
+  "ashline_tempo": {
+    "name": "Ashline Tempo",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 5 at range 4 and gain 1 card play.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/ashline_tempo.png",
+    "actions": [
+      { "type": "ranged", "damage": 5, "range": 4 },
+      { "type": "card_play", "amount": 1 }
     ]
   },
   "inferno_ritual": {
@@ -511,6 +554,20 @@
       { "type": "ranged", "damage": 4, "range": 5, "chain": 2 }
     ]
   },
+  "spark_focus": {
+    "name": "Spark Focus",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Deal 4 at range 5, then draw 1.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/spark_focus.png",
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 5 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
   "static_lash": {
     "name": "Static Lash",
     "element": "lightning",
@@ -597,11 +654,12 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "description": "Push 3 at range 4. Hit 6.",
+    "description": "Push 3 at range 4. Hit 6. Gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/updraft.png",
     "actions": [
-      { "type": "push", "amount": 3, "range": 4, "damage": 6 }
+      { "type": "push", "amount": 3, "range": 4, "damage": 6 },
+      { "type": "card_play", "amount": 1 }
     ]
   },
   "vacuum_line": {
@@ -664,11 +722,12 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "description": "Gain 6 stoneskin.",
+    "description": "Gain 5 stoneskin, then draw 1.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/stone_plate.png",
     "actions": [
-      { "type": "stoneskin", "amount": 6 }
+      { "type": "stoneskin", "amount": 5 },
+      { "type": "draw", "amount": 1 }
     ]
   },
   "quarry_step": {

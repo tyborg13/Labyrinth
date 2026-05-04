@@ -42,6 +42,7 @@ func _initialize() -> void:
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
+	_test_card_play_action_grants_bonus_play()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_hand_draw_caps_at_eight()
@@ -495,6 +496,42 @@ func _test_two_card_turn_draw_flow() -> void:
 	_assert(int(state.get("cards_played_this_turn", 0)) == 0, "A new turn should reset the play counter")
 	_assert(int(state.get("turn", 0)) == 2, "Advancing the player turn should increment the turn counter")
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5, "A new turn should draw two replacement cards")
+
+func _test_card_play_action_grants_bonus_play() -> void:
+	var starter_has_draw: bool = false
+	var starter_has_card_play: bool = false
+	for card_id: String in GameData.starting_deck():
+		var starter_card: Dictionary = GameData.card_def(card_id)
+		for action_var: Variant in starter_card.get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var as Dictionary
+			starter_has_draw = starter_has_draw or str(action.get("type", "")) == "draw"
+			starter_has_card_play = starter_has_card_play or str(action.get("type", "")) == "card_play"
+	_assert(starter_has_draw, "The starting deck should include at least one draw card")
+	_assert(starter_has_card_play, "The starting deck should include at least one card-play card")
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(1511, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["guarded_step", "quick_stab", "brace"],
+		"relics": [],
+		"hand_size": 3,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["guarded_step", "quick_stab", "brace"]
+	deck["draw"] = []
+	deck["discard"] = []
+	state["deck"] = deck
+	_assert(combat.cards_remaining_this_turn(state) == 2, "Combat should start with its base card plays available")
+	state = combat.apply_player_action(state, {"type": "card_play", "amount": 1})
+	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 1, "Card-play actions should track their temporary bonus separately from death rewards")
+	_assert(combat.cards_remaining_this_turn(state) == 3, "Card-play actions should increase current turn capacity before the played card is finished")
+	state = combat.finish_player_card(state, 0)
+	_assert(combat.cards_remaining_this_turn(state) == 2, "Finishing the card should spend one play while preserving the action bonus")
+	state = combat.prepare_next_player_turn(state)
+	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
 func _test_enemy_death_grants_card_play_and_embers() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -2067,6 +2104,9 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
 	_assert(ActionIcons.tooltip("poison").contains("Delayed damage"), "Keyword icon tooltips should include readable descriptions")
+	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
+	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
+	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
 	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("grave_sprint"))
 	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
 	var cost_row: Array = cost_rows[0] as Array
@@ -3284,6 +3324,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(str(play_event.get("card_id", "")) == "patch_up", "Card play analytics should record the played card id")
 	_assert(int(play_payload.get("player_heal_gained", 0)) == 3, "Card play analytics should capture observed healing")
 	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
+	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
 	var reward_payload: Dictionary = reward_event.get("payload", {})
 	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")

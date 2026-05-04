@@ -72,6 +72,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Stoneskin: `0.40` per point
 - Heal: `0.90` per point
 - Draw: `0.85` per card
+- Card Play: `0.75` per added card play this turn
 - Pure move: `0.25` per tile
 - Pure blink: `0.33` per tile
 - Move on an attacking card: `0.08` per tile
@@ -97,6 +98,8 @@ Synergy bonuses:
 - `+0.25` for `attack + defense`
 - `+0.25` for `attack + status`
 - `+0.25` for `draw + another useful action`
+- `+0.20` for `card play + another useful action`
+- `+0.40` for `draw + card play`
 - `+0.20` for `move + push/pull`
 - `+0.40` for `move + defense` on non-attack cards
 
@@ -148,6 +151,7 @@ This heuristic is intentionally conservative about:
 - Multi-card combos that need a particular hand pattern
 - Boss-only value
 - Extreme deck-thinning or fatigue exploitation
+- Card-play bonuses beyond the current standalone hand context
 
 If a card is intentionally better than its standalone score because of one of
 those factors, note that explicitly in review or commit context.

@@ -45,6 +45,7 @@ The current event stream is enough to derive:
 - block, stoneskin, and healing gained
 - move distance
 - cards drawn during resolution
+- card plays gained during resolution
 - immediate status application deltas
 - actual resolved action list and chosen targets
 

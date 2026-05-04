@@ -3074,6 +3074,21 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			})
 			await _animate_draw_cards_fx(_draw_entries_between_states(before_state, after_state))
 			await get_tree().create_timer(0.12).timeout
+		"card_play":
+			var card_plays_gained: int = maxi(0, _combat_engine.cards_remaining_this_turn(after_state) - _combat_engine.cards_remaining_this_turn(before_state))
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await _animate_floating_text_presentation(after_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"floating_texts": [{
+					"tile": player_after_tile,
+					"text": "+%d play" % maxi(1, card_plays_gained),
+					"color": Color("ffe27a"),
+					"offset": -6.0
+				}]
+			})
+			await _animate_card_play_reward(_combat_engine.cards_remaining_this_turn(after_state))
+			await get_tree().create_timer(0.10).timeout
 	await _animate_death_rewards(before_state, after_state)
 
 func _resolve_enemy_round() -> void:
@@ -4436,6 +4451,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"player_stoneskin_gained": maxi(0, int(after_player.get("stoneskin", 0)) - int(before_player.get("stoneskin", 0))),
 		"move_distance": absi(after_pos.x - before_pos.x) + absi(after_pos.y - before_pos.y),
 		"cards_drawn": _draw_entries_between_states(before_state, resolved_state).size(),
+		"card_plays_gained": maxi(0, _combat_engine.cards_remaining_this_turn(resolved_state) - _combat_engine.cards_remaining_this_turn(before_state)),
 		"enemy_status_applied": {
 			"burn": enemy_burn_applied,
 			"freeze": enemy_freeze_applied,

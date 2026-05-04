@@ -31,6 +31,7 @@ class HeuristicWeights:
     stoneskin_per_point: float = 0.40
     heal_per_point: float = 0.90
     draw_per_point: float = 0.85
+    card_play_per_point: float = 0.75
     pure_move_per_tile: float = 0.25
     pure_blink_per_tile: float = 0.33
     attack_move_followthrough_per_tile: float = 0.08
@@ -50,6 +51,8 @@ class HeuristicWeights:
     attack_defense_synergy: float = 0.25
     attack_status_synergy: float = 0.25
     draw_synergy: float = 0.25
+    card_play_synergy: float = 0.20
+    draw_card_play_synergy: float = 0.40
     move_push_pull_synergy: float = 0.20
     move_defense_synergy: float = 0.40
 
@@ -144,6 +147,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     has_move = False
     has_defense = False
     has_draw = False
+    has_card_play = False
     has_status = False
     has_push_pull = False
 
@@ -229,6 +233,12 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             has_draw = True
             continue
 
+        if action_type == "card_play":
+            card_plays = int(action.get("amount", 0))
+            breakdown.flow += card_plays * weights.card_play_per_point
+            has_card_play = True
+            continue
+
     if has_attack:
         breakdown.mobility += move_tiles * weights.attack_move_followthrough_per_tile
         breakdown.mobility += blink_tiles * weights.attack_blink_followthrough_per_tile
@@ -244,6 +254,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         breakdown.synergy += weights.attack_status_synergy
     if has_draw and (has_attack or has_move):
         breakdown.synergy += weights.draw_synergy
+    if has_card_play and (has_attack or has_move or has_defense):
+        breakdown.synergy += weights.card_play_synergy
+    if has_draw and has_card_play:
+        breakdown.synergy += weights.draw_card_play_synergy
     if has_move and has_push_pull:
         breakdown.synergy += weights.move_push_pull_synergy
     if has_move and has_defense and not has_attack:

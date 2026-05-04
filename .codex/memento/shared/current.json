@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-03T21:01:23Z",
+  "updated_at": "2026-05-03T21:47:25Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2001,6 +2001,28 @@
       "source": {
         "branch": "master",
         "commit": "f7751c9"
+      }
+    },
+    {
+      "id": "mnt_20260503T214725Z_05dfe403",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Card-play actions use a separate temporary turn bonus.",
+      "details": "The targetless card_play action increments card_play_bonus_this_turn and _card_play_capacity adds it alongside death_bonus_card_plays_this_turn. This keeps card-driven tempo distinct from enemy-death rewards while preserving cards_remaining_this_turn for UI, analytics, and tests; prepare_next_player_turn resets the action bonus.",
+      "status": "active",
+      "created_at": "2026-05-03T21:47:25Z",
+      "updated_at": "2026-05-03T21:47:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "718c5bf"
       }
     }
   ]

@@ -58,6 +58,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)),
 		"cards_played_this_turn": 0,
 		"death_bonus_card_plays_this_turn": 0,
+		"card_play_bonus_this_turn": 0,
 		"heal_bonus": int(player_snapshot.get("heal_bonus", 0)),
 		"deck": {
 			"draw": draw_pile,
@@ -229,6 +230,11 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			_log(next_state, "Recovered %d health." % heal_amount)
 		"draw":
 			next_state = _draw_cards_in_place(next_state, int(action.get("amount", 0)))
+		"card_play":
+			var bonus_card_plays: int = maxi(0, int(action.get("amount", 0)))
+			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
+			if bonus_card_plays > 0:
+				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
 	return next_state
 
 func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
@@ -371,6 +377,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["cards_played_this_turn"] = 0
 	next_state["death_bonus_card_plays_this_turn"] = 0
+	next_state["card_play_bonus_this_turn"] = 0
 	next_state["player_turn_restrictions"] = {
 		"frozen": false,
 		"shocked": false,
@@ -397,7 +404,11 @@ func cards_remaining_this_turn(state: Dictionary) -> int:
 	)
 
 func _card_play_capacity(state: Dictionary) -> int:
-	return int(state.get("cards_per_turn", BASE_CARDS_PER_TURN)) + int(state.get("death_bonus_card_plays_this_turn", 0))
+	return (
+		int(state.get("cards_per_turn", BASE_CARDS_PER_TURN))
+		+ int(state.get("death_bonus_card_plays_this_turn", 0))
+		+ int(state.get("card_play_bonus_this_turn", 0))
+	)
 
 func attack_bonus_for_current_turn(state: Dictionary) -> int:
 	return _attack_bonus_for_current_turn(state)

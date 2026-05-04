@@ -430,6 +430,8 @@ static func _amount_upgrade_label(action_type: String) -> String:
 			return "Healing"
 		"draw":
 			return "Draw"
+		"card_play":
+			return "Card Play"
 		_:
 			return "Amount"
 
@@ -674,6 +676,8 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("amount", 0))) * 1.35
 		"draw":
 			value += float(int(action.get("amount", 0))) * 2.4
+		"card_play":
+			value += float(int(action.get("amount", 0))) * 2.0
 	value += float(int(action.get("burn", 0))) * 1.15
 	value += float(int(action.get("poison", 0))) * 0.95
 	value += float(int(action.get("freeze", 0))) * 3.2
