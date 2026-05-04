@@ -9,6 +9,7 @@ const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
+const MAX_LOG_LINES: int = 12
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
 const ZEKARION_TYPE: String = "zekarion"
@@ -2439,4 +2440,6 @@ func _combat_seed(run_seed: int, coord: Vector2i) -> int:
 func _log(state: Dictionary, message: String) -> void:
 	var log_lines: Array = state.get("log", [])
 	log_lines.append(message)
+	while log_lines.size() > MAX_LOG_LINES:
+		log_lines.remove_at(0)
 	state["log"] = log_lines

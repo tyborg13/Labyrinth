@@ -42,6 +42,7 @@ func _initialize() -> void:
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
+	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
 	_test_illusion_action_creates_decoy_and_redirects_enemy()
 	_test_enemy_death_grants_card_play_and_embers()
@@ -500,6 +501,23 @@ func _test_two_card_turn_draw_flow() -> void:
 	_assert(int(state.get("cards_played_this_turn", 0)) == 0, "A new turn should reset the play counter")
 	_assert(int(state.get("turn", 0)) == 2, "Advancing the player turn should increment the turn counter")
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5, "A new turn should draw two replacement cards")
+
+func _test_combat_log_is_bounded() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(1510, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	for index: int in range(24):
+		combat.call("_log", state, "Line %d" % index)
+	var lines: Array = state.get("log", [])
+	_assert(lines.size() == CombatEngine.MAX_LOG_LINES, "Combat logs should stay bounded so state copies do not grow over long fights")
+	_assert(str(lines[0]) == "Line 12", "Bounded combat logs should keep the most recent entries")
+	_assert(str(lines[lines.size() - 1]) == "Line 23", "Bounded combat logs should retain the newest entry")
 
 func _test_card_play_action_grants_bonus_play() -> void:
 	var starter_has_draw: bool = false

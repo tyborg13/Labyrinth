@@ -17,18 +17,27 @@ static var _castle_control_texture_cache: Dictionary = {}
 static var _flipped_texture_cache: Dictionary = {}
 static var _outline_clean_texture_cache: Dictionary = {}
 static var _scaled_texture_cache: Dictionary = {}
+static var _texture_cache: Dictionary = {}
 
 static func load_texture(path: String) -> Texture2D:
+	if path.is_empty():
+		return null
+	if _texture_cache.has(path):
+		return _texture_cache.get(path, null)
 	if ResourceLoader.exists(path):
 		var loaded: Resource = load(path)
 		if loaded is Texture2D:
 			return loaded
 	if not FileAccess.file_exists(path):
+		_texture_cache[path] = null
 		return null
 	var image: Image = Image.load_from_file(path)
 	if image == null or image.is_empty():
+		_texture_cache[path] = null
 		return null
-	return ImageTexture.create_from_image(image)
+	var texture: Texture2D = ImageTexture.create_from_image(image)
+	_texture_cache[path] = texture
+	return texture
 
 static func load_texture_region(path: String, region: Rect2i) -> Texture2D:
 	var texture: Texture2D = load_texture(path)

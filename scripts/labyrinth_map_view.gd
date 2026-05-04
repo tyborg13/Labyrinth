@@ -31,14 +31,52 @@ var run_state: Dictionary = {}
 @export var show_legend: bool = true
 var _hover_coord: Vector2i = Vector2i(-999, -999)
 var _room_icon_textures: Dictionary = {}
+var _run_state_signature: String = ""
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = Vector2(120.0, 120.0) if not interactive else Vector2(820.0, 620.0)
 
 func set_run_state(next_state: Dictionary) -> void:
-	run_state = next_state.duplicate(true)
+	var next_signature: String = _map_state_signature(next_state)
+	if next_signature == _run_state_signature:
+		return
+	_run_state_signature = next_signature
+	run_state = _compact_map_state(next_state)
 	queue_redraw()
+
+func _compact_map_state(source_state: Dictionary) -> Dictionary:
+	return {
+		"current_room": source_state.get("current_room", Vector2i.ZERO),
+		"rooms": (source_state.get("rooms", {}) as Dictionary).duplicate(true)
+	}
+
+func _map_state_signature(source_state: Dictionary) -> String:
+	if source_state.is_empty():
+		return ""
+	var rooms: Dictionary = source_state.get("rooms", {})
+	var keys: Array[String] = []
+	for key_var: Variant in rooms.keys():
+		keys.append(str(key_var))
+	keys.sort()
+	var parts: Array[String] = []
+	parts.append("cur:%s" % _coord_signature(source_state.get("current_room", Vector2i.ZERO)))
+	for key: String in keys:
+		var room: Dictionary = rooms.get(key, {}) as Dictionary
+		parts.append("%s:%s:%s:%s:%d:%d:%d:%d" % [
+			key,
+			_coord_signature(room.get("coord", Vector2i.ZERO)),
+			str(room.get("type", "")),
+			str(room.get("element", "")),
+			1 if bool(room.get("revealed", false)) else 0,
+			1 if bool(room.get("visited", false)) else 0,
+			1 if bool(room.get("cleared", false)) else 0,
+			1 if bool(room.get("sealed", false)) else 0
+		])
+	return "|".join(parts)
+
+func _coord_signature(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
 
 func _gui_input(event: InputEvent) -> void:
 	if not interactive or run_state.is_empty():

@@ -120,6 +120,7 @@ const COLUMN_TORCH_RIGHT_IDLE_PATH: String = "res://assets/art/tiles/column_torc
 const COLUMN_TORCH_IDLE_COLUMNS: int = 4
 const COLUMN_TORCH_IDLE_ROWS: int = 4
 const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
+const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
 const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
 const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
 const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
@@ -185,6 +186,10 @@ var _board_layout_cache_tiles: Array[Vector2i] = []
 var _board_layout_cache_extents: Dictionary = {}
 var _board_layout_cache_tile_width: float = 90.0
 var _board_layout_cache_origin: Vector2 = Vector2.ZERO
+var _board_layout_signature: String = ""
+var _floor_variant_signature: String = ""
+var _moss_signature: String = ""
+var _continuous_presentation_elapsed: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -194,8 +199,13 @@ func _ready() -> void:
 	_load_assets()
 
 func _process(delta: float) -> void:
-	if _presentation_needs_redraw():
-		queue_redraw()
+	if _presentation_needs_continuous_redraw():
+		_continuous_presentation_elapsed += delta
+		if _continuous_presentation_elapsed >= CONTINUOUS_PRESENTATION_REDRAW_SECONDS:
+			_continuous_presentation_elapsed = 0.0
+			queue_redraw()
+	else:
+		_continuous_presentation_elapsed = 0.0
 	var animating: bool = _any_idle_animation_active()
 	if animating != _idle_animating:
 		_idle_animating = animating
@@ -210,7 +220,7 @@ func _process(delta: float) -> void:
 		_idle_frame_key = next_frame_key
 		queue_redraw()
 
-func _presentation_needs_redraw() -> bool:
+func _presentation_needs_continuous_redraw() -> bool:
 	if not visible or presentation.is_empty():
 		return false
 	if not (presentation.get("damage_preview", {}) as Dictionary).is_empty():
@@ -240,6 +250,10 @@ func _any_idle_animation_active() -> bool:
 	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
+	var next_room_grid_signature: String = _room_grid_signature(next_state)
+	var next_layout_signature: String = _layout_signature_for_state(next_state, next_exit_tiles, next_presentation, next_room_grid_signature)
+	var next_floor_signature: String = next_room_grid_signature
+	var next_moss_signature: String = _moss_signature_for_state(next_state)
 	combat_state = next_state.duplicate(true)
 	move_tiles = _vector2i_array(next_move_tiles)
 	attack_tiles = _vector2i_array(next_attack_tiles)
@@ -249,9 +263,15 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles.duplicate(true)
 	exit_icon_ids = next_exit_icon_ids.duplicate(true)
 	presentation = next_presentation.duplicate(true)
-	_invalidate_board_layout_cache()
-	_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
-	_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
+	if next_layout_signature != _board_layout_signature:
+		_board_layout_signature = next_layout_signature
+		_invalidate_board_layout_cache()
+	if next_floor_signature != _floor_variant_signature:
+		_floor_variant_signature = next_floor_signature
+		_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
+	if next_moss_signature != _moss_signature:
+		_moss_signature = next_moss_signature
+		_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
 	_update_cursor_shape()
 	queue_redraw()
 
@@ -2033,6 +2053,70 @@ func _build_moss_tile_lookup(moss: Dictionary) -> Dictionary:
 				surface_lookup[tile_var] = true
 		lookup[surface] = surface_lookup
 	return lookup
+
+func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictionary, next_presentation: Dictionary, room_grid_signature: String) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String] = []
+	parts.append(room_grid_signature)
+	parts.append("exit:%s" % _vector2i_dict_key_signature(next_exit_tiles))
+	parts.append("active:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("active_door_tiles", {}) as Dictionary))
+	parts.append("locked:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("locked_door_tiles", {}) as Dictionary))
+	return "|".join(parts)
+
+func _moss_signature_for_state(next_state: Dictionary) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String] = []
+	parts.append(_coord_signature(next_state.get("room_coord", Vector2i.ZERO)))
+	var moss: Dictionary = next_state.get("moss", {})
+	for surface: String in ["floor", "wall", "pillar"]:
+		parts.append("%s:%s" % [surface, _vector2i_array_signature(moss.get(surface, []))])
+	return "|".join(parts)
+
+func _room_grid_signature(next_state: Dictionary) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String] = []
+	parts.append(_coord_signature(next_state.get("room_coord", Vector2i.ZERO)))
+	var grid: Array = next_state.get("grid", [])
+	for row_var: Variant in grid:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var cells: Array[String] = []
+		for cell_var: Variant in (row_var as Array):
+			cells.append(str(cell_var))
+		parts.append(",".join(cells))
+	return "|".join(parts)
+
+func _vector2i_dict_key_signature(values: Dictionary) -> String:
+	var keys: Array[String] = []
+	for key_var: Variant in values.keys():
+		if typeof(key_var) == TYPE_VECTOR2I:
+			keys.append(_coord_signature(key_var))
+	keys.sort()
+	return ",".join(keys)
+
+func _truthy_vector2i_dict_key_signature(values: Dictionary) -> String:
+	var keys: Array[String] = []
+	for key_var: Variant in values.keys():
+		if typeof(key_var) != TYPE_VECTOR2I:
+			continue
+		if bool(values.get(key_var, false)):
+			keys.append(_coord_signature(key_var))
+	keys.sort()
+	return ",".join(keys)
+
+func _vector2i_array_signature(values: Array) -> String:
+	var keys: Array[String] = []
+	for value: Variant in values:
+		if typeof(value) == TYPE_VECTOR2I:
+			keys.append(_coord_signature(value))
+	keys.sort()
+	return ",".join(keys)
+
+func _coord_signature(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
 
 func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
 	var surface_lookup: Dictionary = _moss_tiles_by_surface.get(surface, {})
