@@ -45,7 +45,9 @@ The current event stream is enough to derive:
 - block, stoneskin, and healing gained
 - move distance
 - cards drawn during resolution
-- card plays gained during resolution
+- card play economy during resolution: plays spent, remaining plays before/after,
+  net remaining-play delta, total play capacity gained, kill-granted plays, and
+  card-action-granted plays
 - illusions created and their total created health
 - immediate status application deltas
 - actual resolved action list and chosen targets

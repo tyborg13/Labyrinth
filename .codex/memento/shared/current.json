@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-05T01:31:32Z",
+  "updated_at": "2026-05-05T13:31:11Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2091,6 +2091,50 @@
       "source": {
         "branch": "master",
         "commit": "b171180"
+      }
+    },
+    {
+      "id": "mnt_20260505T062748Z_a7061cd2",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "tools/headless_playtest.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tools/headless_playtest.gd",
+      "summary": "Manual headless console mirrors real input: click/card plays printed text; drag play|attack|move models UI lanes, including fallback attack 2 and move 2. Notes and analytics stay under the chosen output dir.",
+      "details": null,
+      "status": "active",
+      "created_at": "2026-05-05T06:27:48Z",
+      "updated_at": "2026-05-05T06:27:48Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1b579c3"
+      }
+    },
+    {
+      "id": "mnt_20260505T133111Z_4b1ebcd9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "tools/headless_playtest.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tools/headless_playtest.gd",
+      "summary": "Headless playtest console exposes ambiguity-critical combat sources.",
+      "details": "Manual validation found that kill/card-play bonuses and block-only attacks were easy to misread, and target-choice indices could be confused with enemy indices. The harness now prints spent/remaining plays with kill/card bonuses, block/stoneskin removal, enemy intent payloads, pass previews, trap/path risks, skipped actions/logs/draws/restrictions, labels enemy targets, supports target eN, and logs card_played analytics after finish_player_card so play spend and health-cost effects match the console.",
+      "status": "active",
+      "created_at": "2026-05-05T13:31:11Z",
+      "updated_at": "2026-05-05T13:31:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1b579c3"
       }
     }
   ]

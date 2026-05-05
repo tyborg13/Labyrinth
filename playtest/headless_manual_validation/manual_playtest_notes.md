@@ -1,0 +1,106 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-05T12:59:14Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 9910
+- Moved to (0,-1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,-1): depth 1 none treasure.
+- Treasure: took Iron Lung.
+- Moved to (-1,0): depth 1 lightning combat.
+- Validation restart: checking that intent payloads, pass-now damage, trap details, action logs, and next-turn HP sources are all visible.
+- Played bone_dart as printed: 7 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, moved 2.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage, drew 1.
+- Played shadow_step as printed: moved 1, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Validation run: source breakdown is now explicit for card cost, illusion absorbs, and enemy damage.
+- Played sidestep_slash as printed: 7 damage, moved 2.
+- Played quick_stab as printed: 1 damage, 1 kills.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played sidestep_slash as printed: 3 damage.
+- Played whirlwind_slash as printed: 5 damage, 1 kills.
+- Reward: took Thunderline.
+- Moved to (-1,1): depth 1 fire combat.
+- Played thunderline as printed: 8 damage, -3 HP, enemy +1 shock.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played quick_stab as printed: 6 damage, 1 kills.
+- Played bloody_lunge as printed: 3 damage, -1 HP.
+- Played lantern_shot as printed: 1 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played sidestep_slash as printed: 4 damage, 1 kills.
+- Played lantern_shot as printed: drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Validation run: draw-only Lantern ambiguity is resolved; console explicitly says skipped ranged action and shows the drawn card.
+- Played thunderline as printed: 1 damage, 1 kills, -3 HP.
+- Reward: skipped for heal to 19/42.
+- Moved to (0,1): depth 1 air combat.
+- Played lantern_shot as printed: 6 damage, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Validation run: shortcut hints now expose movement-leg trap risk, including the hidden trap on the route to Harrier.
+- Played bloody_lunge as printed: 4 damage, -1 HP, moved 1.
+- Played whirlwind_slash as printed: 5 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played thunderline as printed: 8 damage, -3 HP, enemy +1 shock.
+- Played sidestep_slash as printed: 2 damage, 1 kills, -2 HP, moved 2, player +1 stun.
+- Played guarded_step as printed: +3 block.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Validation run: turn-lock ambiguity is resolved; stun source, fatigue source, zero plays, and no-legal-input reason are all visible.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage, 1 kills.
+- Reward: skipped for heal to 20/42.
+- Moved to (1,1): depth 1 ice combat.
+- Played bone_dart as printed: 3 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage.
+- Played thunderline as printed: 9 damage, 1 kills, -3 HP, enemy +1 shock.
+- Played guarded_step as printed: +3 block.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 3 damage, 1 kills.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played bloody_lunge as printed: -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played lantern_shot as printed: 3 damage, -2 HP, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played thunderline as printed: 7 damage, 1 kills, -3 HP.
+- Reward: skipped for heal to 20/42.
+- Moved to (1,0): depth 1 air combat.
+- Played sidestep_slash as printed: 7 damage, moved 2.
+- Played whirlwind_slash as printed: 3 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played bloody_lunge as printed: 9 damage, -1 HP.
+- Played thunderline as printed: 5 damage, 1 kills, -3 HP.
+- Validation: Crooked Vault surfaced a possible mechanics/balance issue rather than an ambiguity: Thunderline/Whirlwind left plays at 1 after resolving, enabling a third card in a 2-play turn. Verify whether this is intended.
+- Played guarded_step as printed: +3 block.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 11 damage.
+- Played bone_dart as printed: 3 damage, 1 kills.
+- Reward: took Warded Advance.
+- Moved to (1,-1): depth 1 fire combat.
+- Played thunderline as printed: 8 damage, -3 HP, enemy +1 shock.
+- Played guarded_step as printed: +3 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 11 damage.
+- Played bone_dart as printed: 3 damage, 1 kills.
+- Validation: remaining ambiguity found: after several attacks, especially kill cards, plays stayed at 1 with no explicit explanation. Harness should show play count delta/reason so I know whether a card was free, refunded, or display is wrong.

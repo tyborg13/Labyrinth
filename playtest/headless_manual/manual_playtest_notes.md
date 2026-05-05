@@ -1,0 +1,1059 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-05T04:11:52Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 9001
+- Console is immediately better than click guessing: map exits are legible and legal options are explicit, but board output may still be dense once combat starts.
+- - Moved to (1,0): depth 1 ice combat.
+- - Played lantern_shot as printed: 1 damage.
+- - Played guarded_step as printed: +3 block.
+- - Played bone_dart as printed: 5 damage.
+- - Enemy round: 4 HP lost, mode now combat.
+- - Played quick_stab as printed: 9 damage, 1 kills.
+- - Played patch_up as printed: +3 HP, +2 block.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played shadow_step as printed: low impact.
+- - Played whirlwind_slash as printed: 6 damage.
+- - Enemy round: 4 HP lost, mode now combat.
+- Illusion did not meaningfully absorb pressure when placed a little off-line; enemies still hit me hard. Decoy targeting needs careful positioning and may be opaque without threat previews.
+- - Played quick_stab as printed: 4 damage.
+- - Played sidestep_slash as printed: 2 damage, 1 kills.
+- - Played lantern_shot as printed: low impact.
+- - Enemy round: 0 HP lost, mode now combat.
+- Attack-plus-draw cards can silently become pure draw when no target is available; mechanically useful, but it made me wonder whether I had misplayed because there was no explicit skipped-attack feedback in the console/game flow.
+- - Played bone_dart as printed: 5 damage.
+- - Played guarded_step as printed: +3 block.
+- - Played bloody_lunge as printed: 4 damage, 1 kills.
+- Reward/card summaries need status keywords in the text view; I had to infer Frostbolt/Cold Grasp effects from names instead of seeing freeze explicitly.
+- - Reward: took Frostbolt.
+- - Moved to (1,-1): depth 1 air combat.
+- - Played lantern_shot as printed: 4 damage.
+- - Played frostbolt as printed: 5 damage.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played bloody_lunge as printed: 3 damage.
+- - Played whirlwind_slash as printed: 2 damage, 1 kills.
+- - Played bone_dart as printed: 5 damage.
+- - Enemy round: 3 HP lost, mode now combat.
+- - Played quick_stab as printed: 9 damage, 1 kills.
+- - Played guarded_step as printed: +3 block.
+- - Played sidestep_slash as printed: 5 damage.
+- - Enemy round: 0 HP lost, mode now combat.
+- Trap damage preview was inconsistent: moving onto an obvious trap at (5,3) did not show HP loss in the target hint, but I lost 2 afterward. That makes path/risk planning harder.
+- - Played quick_stab as printed: 5 damage, 1 kills.
+- At 19/36 after only two rooms, the heal skip is already a serious option. Combat output feels spiky when several enemies get early ranged/melee pressure and traps tax positioning.
+- - Reward: skipped for heal to 25/36.
+- - Moved to (2,-1): depth 2 none treasure.
+- - Treasure: took Ember Lens.
+- - Moved to (2,-2): depth 2 air combat.
+- - Played brace as printed: +8 block.
+- - Played guarded_step as printed: +3 block.
+- - Played bone_dart as printed: 7 damage.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played whirlwind_slash as printed: 8 damage.
+- - Played frostbolt as printed: 5 damage.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played lantern_shot as printed: 1 damage, 1 kills.
+- - Played patch_up as printed: +3 HP, +2 block.
+- - Played shadow_step as printed: low impact.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played bloody_lunge as printed: 9 damage.
+- - Played quick_stab as printed: 9 damage.
+- - Enemy round: 3 HP lost, mode now combat.
+- - Played whirlwind_slash as printed: 2 damage, 1 kills.
+- - Played lantern_shot as printed: low impact.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played guarded_step as printed: +3 block.
+- - Played sidestep_slash as printed: 7 damage.
+- - Enemy round: 7 HP lost, mode now combat.
+- Moving in to finish a low Harrier backfired badly: trap/control plus enemy phase dropped me from 19 to 9 and ended the new turn with 0 playable cards. This feels like a harsh failure state because the turn starts but I cannot respond.
+- - Enemy round: 1 HP lost, mode now combat.
+- - Played whirlwind_slash as printed: 3 damage, 1 kills.
+- - Played frostbolt as printed: 5 damage.
+- Frostbolt showed freeze on the enemy, which is tactically important, but I still saw an unexplained 3 HP drop immediately after playing it. I need analytics/log review to determine whether this was trap/status/health-cost confusion or a rules bug.
+- - Played bone_dart as printed: 6 damage, 1 kills.
+- Depth-2 four-enemy room was brutal but dramatic: I scraped through at 5 HP. Grave Sprint looks tempting and exciting, but the heal choice feels mandatory at this health total.
+- - Reward: skipped for heal to 11/36.
+- - Moved to (3,-2): depth 3 ice combat.
+- - Played brace as printed: +8 block.
+- - Played guarded_step as printed: +3 block.
+- - Played bone_dart as printed: 7 damage.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played whirlwind_slash as printed: 7 damage, 1 kills.
+- - Played frostbolt as printed: 5 damage.
+- - Played shadow_step as printed: low impact.
+- - Enemy round: 0 HP lost, mode now combat.
+- - Played patch_up as printed: +3 HP, +2 block.
+- - Played lantern_shot as printed: 6 damage.
+- - Enemy round: 2 HP lost, mode now combat.
+- - Enemy round: 7 HP lost, mode now defeat.
+## Run 2 - seed 9102
+- Run 2 starts with a visible treasure option at depth 1. That feels like a strong relief valve after Run 1's punishing opener, so I'm taking it to see how much an early relic stabilizes the run.
+- Moved to (1,0): depth 1 none treasure.
+- Treasure: took Mirror Shard.
+- Moved to (1,-1): depth 1 air combat.
+- Played lantern_shot as printed: 4 damage.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage.
+- Played quick_stab as printed: 9 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 1 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 1 damage, 1 kills.
+- Mirror Shard made a noticeable difference immediately: extra opening card let me combine damage, block, and movement without the desperate feel of Run 1.
+- Reward: took Updraft.
+- Moved to (2,-1): depth 2 ice combat.
+- Played lantern_shot as printed: 4 damage.
+- Played updraft as printed: 6 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 7 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 8 damage.
+- Played quick_stab as printed: 1 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played sidestep_slash as printed: 1 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 4 damage, 1 kills.
+- Played lantern_shot as printed: 4 damage.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 7 HP lost, mode now combat.
+- Played updraft as printed: 6 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills.
+- Updraft felt excellent: push damage plus card-play refund created a clear tactical swing and let me finish the Warden instead of eating another huge hit.
+- Reward: skipped for heal to 19/36.
+- Moved to (2,-2): depth 2 air combat.
+- Played lantern_shot as printed: 4 damage.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played updraft as printed: low impact.
+- Updraft can also silently become just a card-play refund when its push target is unavailable; strong tempo, but the skipped primary effect needs clearer feedback.
+- Played bloody_lunge as printed: low impact.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 5 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played updraft as printed: 9 damage.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage.
+- Played sidestep_slash as printed: 1 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: -3 HP.
+- Drawing at low HP can be dangerous: Lantern Shot resolved as draw-only again and dropped me from 7 to 4, likely fatigue. The console now makes costs visible, so this looked like draw/fatigue rather than card cost.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played updraft as printed: 6 damage.
+- Enemy round: 4 HP lost, mode now defeat.
+## Run 3 - seed 9203
+- Moved to (0,1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,1): depth 1 none treasure.
+- Run 3 gets two relics before first combat. I expect Ember Lens + Mirror Shard to be the high-roll stabilization package; useful to compare against the first two deaths.
+- Treasure: took Mirror Shard.
+- Moved to (-2,1): depth 2 none treasure.
+- Treasure: took Iron Lung.
+- Moved to (-2,2): depth 2 air combat.
+- Played lantern_shot as printed: 6 damage.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played quick_stab as printed: 3 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 16 damage.
+- Played lantern_shot as printed: 2 damage, 1 kills.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played bone_dart as printed: 3 damage, 1 kills.
+- Played guarded_step as move: low impact.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 2 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage, 1 kills.
+- Run 3: Playing card submodes is a real UX/balance wrinkle in the console. I accidentally used Guarded Step as move-only and lost the block/card-play line; if the actual UI exposes modes, the difference between printed-mode and action-mode needs to be extremely explicit.
+- Reward: took Blood Price.
+- Moved to (-1,2): depth 2 ice combat.
+- Played guarded_step as printed: +3 block.
+- Played lantern_shot as printed: 6 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 16 damage.
+- Played quick_stab as printed: 1 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 10 HP lost, mode now combat.
+- Played sidestep_slash as printed: 1 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 1 HP lost, mode now combat.
+- Played blood_price as printed: 10 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: low impact.
+- Played lantern_shot as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: low impact.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Harness correction after user clarification: universal attack 2 / move 2 is a real drag-lane affordance for busted draws, not a design problem by itself. Future notes should evaluate whether it succeeds as a safety valve, not whether it exists.
+- Played quick_stab as printed: 11 damage.
+- Played guarded_step as printed: +3 block.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Played brace as move: low impact.
+- Played whirlwind_slash as printed: 4 damage, 1 kills.
+- Run 3: The universal move 2 safety valve just mattered in a good way: at 3 HP, I converted Brace into move 2 to get adjacent and then used Whirlwind for the kill. That felt like the intended anti-brick affordance, not a dominant default.
+- Reward: skipped for heal to 9/42.
+- Moved to (0,2): depth 2 none campfire.
+- Run 3: Reached campfire with 82 unbanked embers but only 9/42 HP despite three early relics. I am choosing rest because continuing feels reckless; if this is expected, campfires are more like extraction points than recovery beats.
+- Campfire: rested and banked 82 embers.
+## Run 4 - seed 9304
+- Moved to (0,-1): depth 1 none treasure.
+- Run 4: Took Pilgrim Boots over Mirror Shard/Iron Lung to test whether movement smoothing can reduce incoming damage as much as raw hand size or HP.
+- Treasure: took Pilgrim Boots.
+- Moved to (-1,-1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,0): depth 1 fire combat.
+- Played lantern_shot as printed: low impact.
+- Played guarded_step as printed: +3 block.
+- Played bloody_lunge as printed: 9 damage.
+- Enemy round: 8 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 7 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage, 1 kills.
+- Run 4: Pilgrim Boots plus the console's shortcut target display made movement-to-attack turns readable. Still took 19 damage in first combat, so movement smoothing helps tactics but does not erase damage spikes.
+- Reward: took Trapdoor.
+- Moved to (-1,1): depth 1 air combat.
+- Played guarded_step as printed: +3 block.
+- Played bloody_lunge as printed: 9 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 9 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Played brace as attack: 1 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage.
+- Played shadow_step as printed: low impact.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage, 1 kills.
+- Reward: took Cinderburst.
+- Moved to (0,1): depth 1 ice combat.
+- Played cinderburst as printed: 8 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills.
+- Played trapdoor as printed: +5 HP, +5 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played lantern_shot as printed: low impact.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as move: low impact.
+- Played whirlwind_slash as printed: 4 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played sidestep_slash as printed: 3 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played quick_stab as printed: 10 damage, 1 kills.
+- Run 4: Gate Gambit looks extremely tempting despite HP cost/exhaust: draw 3 + card_play 2 + block 3 may be strong enough to solve the action economy spikes that keep hurting me.
+- Reward: took Gate Gambit.
+- Moved to (1,1): depth 1 earth combat.
+- Played gate_gambit as printed: +3 block.
+- Played lantern_shot as printed: 6 damage.
+- Played guarded_step as printed: +3 block.
+- Played bloody_lunge as printed: 7 damage.
+- Played shadow_step as attack: 1 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 7 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played trapdoor as printed: +5 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played cinderburst as printed: 3 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 3 damage, 1 kills.
+- Run 4: Gate Gambit was powerful and fun, but it did not trivialize the room. It created options, then stoneskin/warding and split enemy placement still forced damage. At 11/36, healing over a good block card feels mandatory.
+- Reward: skipped for heal to 17/36.
+- Moved to (1,0): depth 1 ice combat.
+- Played cinderburst as printed: 8 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -2 HP.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Run 4: After Crawler Coil, I began turn 2 with plays 0 and no legal input despite a hand with Gate/Patch/Lantern. This is a brutal lockdown moment; if intended, the status needs very clear UI warning because it feels like a skipped turn.
+- Enemy round: 0 HP lost, mode now combat.
+- Played gate_gambit as printed: +3 block.
+- Played sidestep_slash as printed: 7 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played lantern_shot as printed: low impact.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played trapdoor as printed: +5 HP, +5 block.
+- Played bone_dart as printed: 4 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 6 damage, 1 kills.
+- Reward: took Battle Rhythm.
+- Moved to (1,-1): depth 1 air combat.
+- Played cinderburst as printed: 8 damage.
+- Played sidestep_slash as printed: 2 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played battle_rhythm as printed: +4 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 3 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played gate_gambit as printed: +3 block.
+- Played bone_dart as printed: 7 damage.
+- Played lantern_shot as printed: 2 damage, 1 kills.
+- Reward: skipped for heal to 22/36.
+- Moved to (2,-1): depth 2 ice combat.
+- Played lantern_shot as printed: 6 damage.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played gate_gambit as printed: +3 block.
+- Played battle_rhythm as printed: +4 block.
+- Played cinderburst as printed: 8 damage.
+- Played bone_dart as printed: 2 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 1 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage.
+- Played quick_stab as printed: 1 damage, 1 kills.
+- Played trapdoor as printed: +5 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +4 block.
+- Played cinderburst as printed: 8 damage.
+- Played shadow_step as attack: 2 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 4 damage, 1 kills.
+- Run 4: Depth-2 four-enemy fight was long but survivable with Gate Gambit, Battle Rhythm, and repeated bonus plays from kills. The main pain was cleanup pacing: last single Crawler took several turns because I had movement/defense but not enough finishing damage.
+- Reward: skipped for heal to 22/36.
+- Moved to (2,0): depth 2 none campfire.
+- Run 4: Campfire at 207 embers and 22/36 HP is a real push-your-luck decision. Unlike Run 3, the deck feels strong enough to continue, so I am leaving to test whether the build can convert tempo into a win.
+- Campfire: left with 207 unbanked embers.
+- Moved to (2,1): depth 2 none treasure.
+- Treasure: took Mirror Shard.
+- Moved to (2,2): depth 2 fire combat.
+- Played cinderburst as printed: 8 damage.
+- Played bone_dart as printed: 4 damage, 1 kills.
+- Played trapdoor as printed: +5 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played gate_gambit as printed: +3 block.
+- Played battle_rhythm as printed: +4 block.
+- Played lantern_shot as printed: 6 damage.
+- Played bloody_lunge as printed: 4 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 7 damage, -3 HP.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 9 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 4 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +4 block.
+- Played lantern_shot as printed: 2 damage.
+- Enemy round: 0 HP lost, mode now defeat.
+- Run 4: Defeat after leaving campfire with 207 embers. The post-campfire push felt viable until a Warden/Crawler cleanup spiral: trap-adjacent melee positioning and a huge Warden hit dropped me from 20 to 5, then Crawler pressure finished me. Leaving campfire is high drama but maybe too punishing if the next room has no recovery valve.
+## Run 5 - seed 9405
+- Moved to (1,0): depth 1 ice combat.
+- Played guarded_step as printed: +3 block.
+- Played bloody_lunge as printed: 7 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played lantern_shot as printed: 1 damage.
+- Played whirlwind_slash as printed: 8 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 6 HP lost, mode now combat.
+- Played quick_stab as printed: 3 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played bloody_lunge as printed: 2 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 2 damage, 1 kills.
+- Reward: took Ricochet Knife.
+- Moved to (1,1): depth 1 earth combat.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played bone_dart as printed: 3 damage, 1 kills.
+- Played ricochet_knife as printed: low impact.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 2 HP lost, mode now combat.
+- Played bloody_lunge as printed: 3 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 1 kills.
+- Played lantern_shot as printed: low impact.
+- Played guarded_step as printed: +3 block.
+- Played sidestep_slash as printed: low impact.
+- Enemy round: 1 HP lost, mode now combat.
+- Played ricochet_knife as printed: 5 damage, -3 HP.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Run 5: Stoneskin/warding created a drawn-out Acolyte cleanup where several attacks only stripped protection. Ricochet Knife's draw was useful but caused a noticeable HP drop, likely fatigue, making draw-on-attack risky in long combats.
+- Reward: skipped for heal to 19/36.
+- Moved to (0,1): depth 1 ice combat.
+- Played ricochet_knife as printed: 6 damage.
+- Played guarded_step as printed: +3 block.
+- Played quick_stab as printed: 8 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 5 damage, 1 kills.
+- Played lantern_shot as printed: low impact.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: -2 HP, +3 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage.
+- Played whirlwind_slash as printed: 3 damage, 1 kills.
+- Reward: took Battle Rhythm.
+- Moved to (-1,1): depth 1 air combat.
+- Played ricochet_knife as printed: 6 damage.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage.
+- Played whirlwind_slash as printed: 3 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +4 block.
+- Played bloody_lunge as printed: 2 damage.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: -2 HP.
+- Played quick_stab as printed: 5 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ricochet_knife as printed: 6 damage.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 3 damage, 1 kills.
+- Reward: skipped for heal to 20/36.
+- Moved to (-1,0): depth 1 fire combat.
+- Played battle_rhythm as printed: +4 block.
+- Played bone_dart as printed: 5 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 12 damage.
+- Played sidestep_slash as printed: 1 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 2 HP lost, mode now combat.
+- Played quick_stab as printed: 8 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage.
+- Played shadow_step as attack: 2 damage.
+- Enemy round: 6 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage.
+- Played ricochet_knife as printed: 1 damage, 1 kills.
+- Run 5: Choosing Battle Rhythm over heal earlier paid off tactically, but I am still getting ground down. The last Crawler did 8 damage after I chose an attack instead of escape/block, so low-HP cleanup remains one of the most lethal states.
+- Reward: skipped for heal to 14/36.
+- Moved to (-1,-1): depth 1 lightning combat.
+- Played battle_rhythm as printed: +4 block.
+- Played bone_dart as printed: 5 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played quick_stab as printed: 5 damage.
+- Played bloody_lunge as printed: 4 damage, 1 kills.
+- Played lantern_shot as printed: 4 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played ricochet_knife as printed: 6 damage, -2 HP.
+- Played quick_stab as printed: 8 damage, 1 kills.
+- Played sidestep_slash as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +4 block.
+- Played bloody_lunge as printed: 2 damage.
+- Played shadow_step as attack: 2 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played bone_dart as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage.
+- Played whirlwind_slash as printed: 2 damage, 1 kills.
+- Run 5: Acolyte ward/stoneskin chain made a 12 HP enemy require repeated full-card actions; satisfying finish when draw lined up, but the block/ward loop makes cleanup costly at low HP.
+- Reward: skipped for heal to 15/36.
+- Moved to (0,-1): depth 1 fire combat.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 6 damage.
+- Played quick_stab as printed: 4 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: low impact.
+- Played ricochet_knife as printed: 6 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Played battle_rhythm as printed: +4 block.
+- Played sidestep_slash as printed: 5 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, -2 HP.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 5 HP lost, mode now defeat.
+- Run 5 defeat: draw-on-attack into fatigue at low HP was lethal-feeling; Lantern Shot dropped HP before cleanup, then Crawler pressure ended run. Fatigue feedback needs to be very explicit when draw cards are tempting finisher tools.
+## Run 6 - seed 9506
+- Moved to (1,0): depth 1 none treasure.
+- Treasure: took Pilgrim Boots.
+- Moved to (1,1): depth 1 earth combat.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 2 HP lost, mode now combat.
+- Played sidestep_slash as printed: 1 damage, 1 kills.
+- Played lantern_shot as printed: 4 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played bone_dart as printed: 1 damage, 1 kills.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played bloody_lunge as printed: low impact.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 3 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Run 6: Acolyte Siphon fully erased a setup turn after stoneskin; this produces a stall loop where correct defensive play can feel like losing progress rather than stabilizing.
+- Played quick_stab as printed: 9 damage.
+- Played bone_dart as printed: 3 damage, 1 kills.
+- Reward: took Tectonic Maul.
+- Moved to (0,1): depth 1 ice combat.
+- Played bone_dart as printed: low impact.
+- Played lantern_shot as printed: 4 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 6 damage.
+- Played sidestep_slash as printed: 2 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played bloody_lunge as printed: 5 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played tectonic_maul as printed: 13 damage.
+- Played shadow_step as attack: 1 damage, 1 kills.
+- Run 6: Tectonic Maul felt like a satisfying rare payoff because it compresses Crawler cleanup without needing draw/fatigue; universal attack 2 was useful to finish the 1 HP poison setup without paying Bloody Lunge HP.
+- Reward: took Ricochet Knife.
+- Moved to (-1,1): depth 1 air combat.
+- Played lantern_shot as printed: 4 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 5 damage, 1 kills.
+- Played ricochet_knife as printed: low impact.
+- Enemy round: 2 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 1 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 7 damage, 1 kills.
+- Reward: skipped for heal to 28/36.
+- Moved to (-2,1): depth 2 fire combat.
+- Played bloody_lunge as printed: 7 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 7 HP lost, mode now combat.
+- Played tectonic_maul as printed: 3 damage, 1 kills.
+- Played lantern_shot as printed: low impact.
+- Run 6: Lantern Shot could be clicked with no target and silently became draw-only again; this is easy to misread as a targeting/range failure during a dangerous turn.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ricochet_knife as printed: -2 HP.
+- Played guarded_step as printed: +3 block.
+- Played tectonic_maul as printed: 10 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as move: low impact.
+- Played whirlwind_slash as move: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as move: -3 HP.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: low impact.
+- Played lantern_shot as printed: -3 HP.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ricochet_knife as printed: low impact.
+- Played bloody_lunge as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played tectonic_maul as printed: 13 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Run 6: The depth-2 Warden fight produced a memorable 3 HP clutch with Tectonic+Quick, but the path there was dominated by trap damage plus draw-only/fatigue misreads; Warden rooms punish any wasted play extremely hard.
+- Reward: skipped for heal to 9/36.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: rested and banked 118 embers.
+## Run 7 - seed 9607
+- Moved to (0,1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,1): depth 1 none treasure.
+- Treasure: took Iron Lung.
+- Moved to (-2,1): depth 2 none treasure.
+- Treasure: took Pilgrim Boots.
+- Moved to (-2,2): depth 2 air combat.
+- Played bone_dart as printed: 7 damage.
+- Played guarded_step as printed: +3 block.
+- Played quick_stab as printed: 5 damage, 1 kills.
+- Played lantern_shot as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 9 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: low impact.
+- Played whirlwind_slash as printed: 4 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 2 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 8 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Played bloody_lunge as printed: 5 damage, 1 kills.
+- Run 7: Ember Lens plus Boots made melee openers feel much smoother; first-attack bonus turns starter attacks into real removal and reduces the grind without feeling automatic.
+- Reward: took Updraft.
+- Moved to (-3,2): depth 3 fire combat.
+- Played lantern_shot as printed: 6 damage.
+- Played sidestep_slash as printed: 4 damage, 1 kills.
+- Played guarded_step as printed: +4 HP, +3 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage.
+- Played updraft as printed: 6 damage.
+- Played bone_dart as printed: 1 damage, 1 kills.
+- Played whirlwind_slash as move: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 1 damage.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 11 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played sidestep_slash as printed: 7 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Enemy round: 2 HP lost, mode now combat.
+- Played updraft as printed: 8 damage.
+- Played lantern_shot as printed: 4 damage.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 2 damage, 1 kills.
+- Played whirlwind_slash as move: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 7 HP lost, mode now combat.
+- Played updraft as printed: low impact.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now defeat.
+- Run 7 defeat: Even Ember Lens + Iron Lung + Boots could not carry a depth-3 double-Warden room; Warden damage scales brutally, and Bulwark at 1 HP created a near-miss where block math prevented a clean finish.
+## Run 8 - seed 9708
+- Moved to (0,-1): depth 1 none treasure.
+- Treasure: took Iron Lung.
+- Moved to (-1,-1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,0): depth 1 fire combat.
+- Played bone_dart as printed: 7 damage.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 9 HP lost, mode now combat.
+- Played lantern_shot as printed: 1 damage, 1 kills.
+- Played shadow_step as printed: +5 HP.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 7 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage.
+- Played whirlwind_slash as printed: 2 damage, 1 kills.
+- Reward: took Ember Rain.
+- Moved to (-1,1): depth 1 air combat.
+- Played sidestep_slash as printed: 7 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 5 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ember_rain as printed: 3 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played shadow_step as printed: low impact.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played lantern_shot as printed: 3 damage, 1 kills.
+- Reward: took Warded Advance.
+- Moved to (-2,1): depth 2 fire combat.
+- Played lantern_shot as printed: 3 damage.
+- Played ember_rain as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played warded_advance as printed: +6 block.
+- Played quick_stab as printed: 7 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 7 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 4 HP lost, mode now combat.
+- Run 8: Shortcut preview again hides trap damage: Sidestep to kill Acolyte routes through (3,5), while direct move shows trap damage. This is a real tactical-readability problem.
+- Played sidestep_slash as printed: 7 damage, 1 kills, -3 HP.
+- Played guarded_step as printed: +3 block.
+- Played brace as printed: +8 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now defeat.
+- Run 8 defeat: I overtrusted block/positioning against Warden Bulwark and died immediately after blinking adjacent. The intent name reads defensive, but it still allowed a lethal outcome here; Warden intent communication needs scrutiny.
+## Run 9 - seed 9809
+- Moved to (0,1): depth 1 none treasure.
+- Treasure: took Mirror Shard.
+- Moved to (-1,1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,0): depth 1 lightning combat.
+- Played sidestep_slash as printed: 7 damage.
+- Played quick_stab as printed: 7 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played lantern_shot as printed: 4 damage, -2 HP.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 1 kills.
+- Run 9: Mirror Shard opening felt meaningfully better; extra card let me line up movement plus defense, but the Acolyte surviving at 1 HP still converted a good turn into 6 damage.
+- Reward: took Rallying Breath.
+- Moved to (-1,-1): depth 1 earth combat.
+- Played rallying_breath as printed: +4 HP.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played bone_dart as printed: 7 damage.
+- Played bloody_lunge as printed: 7 damage, 1 kills.
+- Played sidestep_slash as printed: 2 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 3 damage, -2 HP.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 6 damage.
+- Played whirlwind_slash as printed: 6 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played sidestep_slash as printed: 2 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 3 damage, 1 kills.
+- Reward: took Tectonic Maul.
+- Moved to (0,-1): depth 1 lightning combat.
+- Played lantern_shot as printed: 6 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played tectonic_maul as printed: 11 damage.
+- Played bone_dart as printed: 1 damage, 1 kills.
+- Played sidestep_slash as printed: 3 damage, 1 kills.
+- Reward: took Volt Surge.
+- Moved to (1,-1): depth 1 fire combat.
+- Played volt_surge as printed: 8 damage.
+- Played bloody_lunge as printed: 4 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 2 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played tectonic_maul as printed: 14 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage, 1 kills.
+- Reward: took Ashline Tempo.
+- Moved to (2,-1): depth 2 air combat.
+- Played bloody_lunge as printed: 9 damage.
+- Played tectonic_maul as printed: 11 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 3 damage.
+- Played lantern_shot as printed: 4 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played ashline_tempo as printed: 5 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Played quick_stab as printed: 5 damage, 1 kills.
+- Played rallying_breath as printed: +4 HP.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played volt_surge as printed: 8 damage.
+- Played shadow_step as attack: 1 damage, 1 kills.
+- Reward: skipped for heal to 28/36.
+- Moved to (2,-2): depth 2 none treasure.
+- Treasure: took Iron Lung.
+- Moved to (1,-2): depth 2 none treasure.
+- Treasure: took Pilgrim Boots.
+- Moved to (0,-2): depth 2 none campfire.
+- Run 9: At campfire with 34/42 HP, 147 embers, Mirror+Lens+Iron Lung+Boots and a strong deck, continuing feels rational; this is the clearest run where pressing past campfire should be viable.
+- Campfire: left with 147 unbanked embers.
+- Moved to (-1,-2): depth 2 ice combat.
+- Played ashline_tempo as printed: 7 damage.
+- Played rallying_breath as printed: +4 HP.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 13 HP lost, mode now combat.
+- Played tectonic_maul as printed: 6 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Played quick_stab as printed: 9 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage.
+- Played guarded_step as printed: +3 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Played bone_dart as printed: 6 damage, 1 kills.
+- Played volt_surge as printed: 6 damage.
+- Played shadow_step as printed: low impact.
+- Enemy round: 3 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, 1 kills.
+- Reward: skipped for heal to 25/42.
+- Moved to (-2,-2): depth 2 ice combat.
+- Played volt_surge as printed: 8 damage.
+- Played bloody_lunge as printed: 4 damage, 1 kills.
+- Played rallying_breath as printed: +4 HP.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ashline_tempo as printed: low impact.
+- Played lantern_shot as printed: 3 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Played tectonic_maul as printed: 14 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage.
+- Played whirlwind_slash as printed: 2 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage, 1 kills.
+- Reward: took Shadow Gate.
+- Moved to (-2,-3): depth 3 none treasure.
+- Treasure: took Coffin Nails.
+- Moved to (-1,-3): depth 3 air combat.
+- Played shadow_gate as printed: 12 damage.
+- Played ashline_tempo as printed: 5 damage.
+- Played volt_surge as printed: 3 damage, 1 kills.
+- Played rallying_breath as printed: +4 HP.
+- Enemy round: 3 HP lost, mode now combat.
+- Played tectonic_maul as printed: 14 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 6 damage.
+- Played whirlwind_slash as printed: 4 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage.
+- Played quick_stab as move: low impact.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played lantern_shot as printed: 1 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played tectonic_maul as printed: 15 damage, 1 kills.
+- Run 9: Continuing past campfire can work with a high-roll deck, but the run becomes long and attritional; Tectonic Maul repeatedly converted lethal Warden/Crawler positions into wins.
+- Reward: skipped for heal to 24/42.
+- Moved to (-1,-4): depth 4 lightning boss.
+- Played bone_dart as printed: 6 damage, 1 kills.
+- Played volt_surge as printed: 6 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: -4 HP.
+- Played quick_stab as move: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage.
+- Played ashline_tempo as printed: 5 damage.
+- Played bloody_lunge as printed: 1 damage, 1 kills.
+- Enemy round: 2 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage, 1 kills.
+- Played guarded_step as printed: +3 block.
+- Played rallying_breath as printed: +4 HP.
+- Enemy round: 9 HP lost, mode now combat.
+- Played tectonic_maul as printed: 15 damage.
+- Played shadow_gate as printed: 10 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ashline_tempo as printed: 6 damage, 1 kills.
+- Played bloody_lunge as printed: 6 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage, 1 kills.
+- Played quick_stab as printed: 6 damage, 1 kills.
+- Enemy round: 8 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 14 damage, 1 kills.
+- Played volt_surge as printed: 6 damage, 1 kills.
+- Enemy round: 4 HP lost, mode now defeat.
+- Run 9 defeat: Boss reached and got Zekarion to 13/72. The fight had a strong arc, but repeated wisp waves plus Storm Claw left no recovery window at low HP; illusions did not reliably save me from lethal boss follow-up.
+## Run 10 - seed 9910
+- Moved to (0,-1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,-1): depth 1 none treasure.
+- Treasure: took Iron Lung.
+- Moved to (-1,0): depth 1 lightning combat.
+- Played bone_dart as printed: 7 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 11 damage, 1 kills.
+- Played quick_stab as printed: 6 damage, 1 kills.
+- Reward: took Thunderline.
+- Moved to (-1,1): depth 1 fire combat.
+- Played thunderline as printed: 8 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage.
+- Played quick_stab as printed: 6 damage, 1 kills.
+- Played bloody_lunge as printed: 7 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Played lantern_shot as printed: 2 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bone_dart as printed: 2 damage, 1 kills.
+- Reward: skipped for heal to 22/42.
+- Moved to (0,1): depth 1 air combat.
+- Played lantern_shot as printed: 6 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 2 damage.
+- Played bloody_lunge as printed: 7 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played thunderline as printed: 8 damage.
+- Played sidestep_slash as printed: 2 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Run 10: Crawler Coil again started the next turn at 0 plays with a normal-looking hand; if this is intended, the turn-lock needs much louder telegraphing and/or an icon/status label because it feels like the console/game ate my input agency.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 9 damage.
+- Played quick_stab as printed: 5 damage, 1 kills.
+- Reward: skipped for heal to 24/42.
+- Moved to (1,1): depth 1 ice combat.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 4 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 10 damage, 1 kills.
+- Played thunderline as printed: 6 damage.
+- Played bone_dart as printed: 4 damage, 1 kills.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played bloody_lunge as printed: 9 damage, 1 kills.
+- Reward: skipped for heal to 21/42.
+- Moved to (1,0): depth 1 air combat.
+- Played bloody_lunge as printed: 9 damage.
+- Played whirlwind_slash as printed: 1 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played thunderline as printed: 8 damage.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 1 kills.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 11 damage.
+- Played lantern_shot as printed: 3 damage, 1 kills.
+- Reward: took Warded Advance.
+- Moved to (1,-1): depth 1 fire combat.
+- Played guarded_step as printed: +3 block.
+- Played thunderline as printed: 8 damage.
+- Played lantern_shot as printed: 2 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 11 damage, 1 kills.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills.
+- Reward: skipped for heal to 16/42.
+- Moved to (2,-1): depth 2 air combat.
+- Played brace as printed: +8 block.
+- Played thunderline as printed: 8 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played lantern_shot as printed: 4 damage.
+- Enemy round: 7 HP lost, mode now combat.
+- Played sidestep_slash as printed: 1 damage, 1 kills.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played warded_advance as printed: +6 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block.
+- Played whirlwind_slash as printed: 11 damage.
+- Played quick_stab as printed: 9 damage, 1 kills.
+- Played bloody_lunge as printed: 6 damage, 1 kills.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: low impact.
+- Played guarded_step as printed: +3 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played thunderline as printed: 8 damage.
+- Played shadow_step as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played warded_advance as printed: +6 block.
+- Played sidestep_slash as printed: low impact.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 2 damage, 1 kills.
+- Reward: skipped for heal to 8/42.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire: rested and banked 193 embers.
+- Run 10: resting at the campfire at 8 HP after a brutal depth-2 Warden/Acolyte/Harrier room felt correct; even with 193 embers and Thunderline/Warded Advance, continuing would have been almost certainly dead. The run was tense in a good way, but Warden plus support enemies produces an attrition cliff.

@@ -1,0 +1,119 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-05T13:16:16Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 9910
+- Clean validation run: all previously observed ambiguity patches are active, including play-economy and enemy block/stoneskin removal summaries.
+- Moved to (0,-1): depth 1 none treasure.
+- Treasure: took Ember Lens.
+- Moved to (-1,-1): depth 1 none treasure.
+- Treasure: took Pilgrim Boots.
+- Moved to (-1,0): depth 1 lightning combat.
+- Played bone_dart as printed: 7 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage, drew 1.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 11 damage, 1 kills, +1 play.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Reward: took Thunderline.
+- Moved to (-1,1): depth 1 fire combat.
+- Played thunderline as printed: 8 damage, -3 HP, enemy +1 shock.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 4 HP lost, mode now combat.
+- Played lantern_shot as printed: 3 damage, 3 block removed, drew 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 2 damage, 1 kills, moved 4, +1 play.
+- Reward: took Battle Rhythm.
+- Moved to (0,1): depth 1 air combat.
+- Played bloody_lunge as printed: 9 damage, -1 HP, moved 3.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played thunderline as printed: 9 damage, 5 block removed, 1 kills, -3 HP, +1 play, enemy +1 shock.
+- Played sidestep_slash as printed: moved 4.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as attack: 4 damage, 1 kills, +1 play.
+- Reward: skipped for heal to 21/36.
+- Moved to (1,1): depth 1 ice combat.
+- Played lantern_shot as printed: 6 damage, drew 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Enemy round: 4 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 9 damage, 1 kills, +1 play.
+- Played quick_stab as printed: 2 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 7 damage.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played thunderline as printed: 2 damage, 4 block removed, 1 kills, -3 HP, +1 play.
+- Reward: skipped for heal to 16/36.
+- Moved to (1,0): depth 1 air combat.
+- Played sidestep_slash as printed: 7 damage, moved 2.
+- Played quick_stab as printed: 3 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage, drew 1.
+- Played thunderline as printed: 6 damage, -3 HP, enemy +1 shock.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 10 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
+- Reward: skipped for heal to 20/36.
+- Moved to (1,-1): depth 1 fire combat.
+- Played thunderline as printed: 8 damage, -3 HP, enemy +1 shock.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 11 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 7 damage, 4 block removed, 1 kills, +1 play.
+- Played bone_dart as printed: 2 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bloody_lunge as printed: 1 damage, 1 kills, -1 HP, +1 play.
+- Reward: skipped for heal to 18/36.
+- Moved to (2,-1): depth 2 air combat.
+- Played thunderline as printed: 8 damage, -3 HP, enemy +1 shock.
+- Played bone_dart as printed: 5 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 6 damage, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 6 damage, 1 kills, moved 1, +1 play.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +4 block, +1 play.
+- Played bloody_lunge as printed: -1 HP, moved 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 9 damage, -1 HP, moved 3.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: moved 4.
+- Played bone_dart as printed: 7 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 3 damage, 1 kills, +1 play.
+- Reward: skipped for heal to 15/36.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire: rested and banked 193 embers.
