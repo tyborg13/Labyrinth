@@ -164,6 +164,21 @@ func _capture_run_states() -> void:
 			await _save_root_screenshot("user://probes/run_discard_pile.png")
 			instance.call("_close_pile_view")
 
+	var reward_run_state: Dictionary = instance.get("_run_state")
+	reward_run_state["mode"] = "reward"
+	reward_run_state["pending_reward"] = {
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
+		"heal_amount": 6,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", reward_run_state)
+	instance.set("_selected_card_index", -1)
+	instance.set("_drag_card_index", -1)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_reward.png")
+
 	instance.queue_free()
 	await process_frame
 

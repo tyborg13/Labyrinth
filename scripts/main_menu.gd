@@ -39,6 +39,9 @@ func _apply_style() -> void:
 	UiTypography.set_button_size(continue_button, UiTypography.SIZE_SMALL)
 	UiTypography.set_button_size(start_button, UiTypography.SIZE_SMALL)
 	UiTypography.set_button_size(boss_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(continue_button, UiSkin.BUTTON_HEIGHT_LARGE, 234.0)
+	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_LARGE, 234.0)
+	_ui_skin.apply_button_native_size(boss_button, UiSkin.BUTTON_HEIGHT_LARGE, 234.0)
 	continue_button.disabled = false
 	UiTypography.set_label_size(title_label, UiTypography.SIZE_HERO)
 	UiTypography.set_label_size(subtitle_label, UiTypography.SIZE_BODY_LARGE)

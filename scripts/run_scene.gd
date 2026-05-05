@@ -55,6 +55,8 @@ const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(760.0, 136.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(172.0, 118.0)
+const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
+const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
@@ -69,15 +71,16 @@ const MUSIC_SILENCE_DB: float = -60.0
 @onready var log_overlay: PanelContainer = $Backdrop/Margin/MainVBox/StageRoot/LogOverlay
 @onready var log_label: RichTextLabel = $Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log
 @onready var bottom_stack: VBoxContainer = $Backdrop/Margin/MainVBox/BottomStack
-@onready var choice_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/ChoiceBar
+@onready var left_action_stack: VBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack
+@onready var choice_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar
 @onready var hand_row: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow
-@onready var piles_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar
-@onready var draw_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile
-@onready var discard_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile
-@onready var burn_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile
-@onready var draw_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
-@onready var discard_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
-@onready var burn_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
+@onready var piles_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar
+@onready var draw_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile
+@onready var discard_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile
+@onready var burn_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile
+@onready var draw_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
+@onready var discard_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
+@onready var burn_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
 @onready var hand_scroll: ScrollContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
 @onready var hand_box: HandFanContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
 
@@ -267,11 +270,13 @@ func _apply_style() -> void:
 	action_banner.add_theme_color_override("font_color", Color("fbf0d7"))
 	action_banner.add_theme_color_override("font_outline_color", Color("2d1f18"))
 	action_banner.add_theme_constant_override("outline_size", 2)
+	choice_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_ui_skin.apply_button_stylebox_overrides(menu_button)
 	_ui_skin.apply_button_text_overrides(menu_button)
 	menu_button.disabled = false
 	menu_button.modulate = Color.WHITE
 	UiTypography.set_button_size(menu_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(menu_button, UiSkin.BUTTON_HEIGHT_SMALL)
 	UiTypography.set_rich_text_size(log_label, UiTypography.SIZE_SMALL)
 	log_label.add_theme_color_override("default_color", Color("f2e7d4"))
 	log_label.fit_content = true
@@ -290,9 +295,9 @@ func _apply_style() -> void:
 	piles_bar.add_theme_constant_override("separation", 18)
 	hand_row.custom_minimum_size = Vector2(0.0, 352.0)
 	for pile_label: Label in [
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
+		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
+		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
+		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
 		draw_count,
 		discard_count,
 		burn_count
@@ -487,10 +492,10 @@ func _build_menu_overlay() -> void:
 	]:
 		var button := Button.new()
 		button.text = str(entry.get("text", ""))
-		button.custom_minimum_size = Vector2(0.0, 40.0)
 		_ui_skin.apply_button_stylebox_overrides(button)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+		_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, MENU_DIALOG_BUTTON_MIN_WIDTH)
 		button.pressed.connect(entry.get("callback", Callable()))
 		vbox.add_child(button)
 
@@ -656,10 +661,10 @@ func _build_pile_overlay() -> void:
 
 	var close_button := Button.new()
 	close_button.text = "X"
-	close_button.custom_minimum_size = Vector2(44.0, 36.0)
 	_ui_skin.apply_button_stylebox_overrides(close_button)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(close_button, 36.0)
 	close_button.pressed.connect(_close_pile_view)
 	top_row.add_child(close_button)
 
@@ -746,10 +751,10 @@ func _build_card_upgrade_overlay() -> void:
 
 	var close_button := Button.new()
 	close_button.text = "X"
-	close_button.custom_minimum_size = Vector2(44.0, 36.0)
 	_ui_skin.apply_button_stylebox_overrides(close_button)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(close_button, 36.0)
 	close_button.pressed.connect(_close_card_upgrade_overlay)
 	top_row.add_child(close_button)
 
@@ -1037,10 +1042,10 @@ func _update_dialogue_footer() -> void:
 		var option: Dictionary = (option_var as Dictionary).duplicate(true)
 		var button := Button.new()
 		button.text = str(option.get("label", "Continue"))
-		button.custom_minimum_size = Vector2(132.0, 40.0)
 		_ui_skin.apply_button_stylebox_overrides(button)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
+		_ui_skin.apply_button_native_size(button, 44.0)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
 
@@ -1696,6 +1701,7 @@ func _refresh_visibility() -> void:
 	hand_row.visible = mode in ["combat", "reward"]
 	piles_bar.visible = mode == "combat"
 	hand_scroll.visible = mode in ["combat", "reward"]
+	left_action_stack.visible = choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 	if _context_choice_overlay != null and mode != "campfire":
 		_context_choice_overlay.visible = false
@@ -1736,8 +1742,6 @@ func _refresh_choice_bar() -> void:
 	elif mode == "combat" and not _animation_lock and _drag_card_index < 0:
 		_add_choice_button("Pass", _on_pass_turn_pressed)
 	match mode:
-		"reward":
-			_add_choice_button("Skip +%d HP" % int((_run_state.get("pending_reward", {}) as Dictionary).get("heal_amount", 0)), _on_skip_reward_pressed)
 		"campfire":
 			_add_context_choice_button("Sit", _on_campfire_sit_pressed, "Rest and bank embers")
 			_add_context_choice_button("Leave", _on_campfire_leave_pressed, "Continue onward")
@@ -1759,12 +1763,16 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	var button := Button.new()
 	button.text = text
 	button.tooltip_text = tooltip
-	button.custom_minimum_size = Vector2(0.0, 36.0)
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+	var large_action_button: bool = _large_action_choice_text(text)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION if large_action_button else UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD)
 	button.pressed.connect(callback)
 	choice_bar.add_child(button)
+
+func _large_action_choice_text(text: String) -> bool:
+	return text == "Pass" or text == "Skip" or text == "Cancel"
 
 func _add_context_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	if _context_choice_bar == null:
@@ -1772,11 +1780,10 @@ func _add_context_choice_button(text: String, callback: Callable, tooltip: Strin
 	var button := Button.new()
 	button.text = text
 	button.tooltip_text = tooltip
-	button.custom_minimum_size = Vector2(176.0, 58.0)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE)
 	button.pressed.connect(callback)
 	_context_choice_bar.add_child(button)
 
@@ -1905,16 +1912,21 @@ func _refresh_hand_panel() -> void:
 			hand_box.add_child(_hand_card_slot(widget, card_size))
 		hand_box.configure_layout(HAND_CARD_OVERLAP, true)
 	elif mode == "reward":
-		var reward_cards: Array = (_run_state.get("pending_reward", {}) as Dictionary).get("cards", [])
-		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if reward_cards.size() <= 4 else ScrollContainer.SCROLL_MODE_AUTO
+		var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+		var reward_cards: Array = reward_state.get("cards", [])
+		var heal_amount: int = int(reward_state.get("heal_amount", 0))
+		var reward_choice_count: int = reward_cards.size() + (1 if heal_amount > 0 else 0)
+		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if reward_choice_count <= 4 else ScrollContainer.SCROLL_MODE_AUTO
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		var reward_card_size: Vector2 = _hand_card_size(reward_cards.size(), true)
+		var reward_card_size: Vector2 = _hand_card_size(reward_choice_count, true)
 		for card_id_var: Variant in reward_cards:
 			var widget = CardWidgetScene.instantiate()
 			widget.custom_minimum_size = reward_card_size
 			widget.configure(str(card_id_var), false, false, true, false, true, true, _card_def(str(card_id_var)))
 			widget.activated.connect(_on_reward_card_pressed.bind(str(card_id_var)))
 			hand_box.add_child(_hand_card_slot(widget, reward_card_size))
+		if heal_amount > 0:
+			hand_box.add_child(_reward_heal_choice_slot(heal_amount, reward_card_size))
 		hand_box.configure_layout(HAND_CARD_GAP, false)
 	else:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
@@ -1925,6 +1937,22 @@ func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slot.add_child(widget)
 	widget.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return slot
+
+func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
+	var slot := CenterContainer.new()
+	slot.custom_minimum_size = slot_size
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var button := Button.new()
+	button.text = "+%d HP" % heal_amount
+	button.tooltip_text = "Recover instead"
+	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	var button_height: float = minf(UiSkin.BUTTON_HEIGHT_ACTION, maxf(UiSkin.BUTTON_HEIGHT_STANDARD, slot_size.x / UiSkin.BUTTON_TEXTURE_ASPECT))
+	_ui_skin.apply_button_native_size(button, button_height)
+	button.pressed.connect(_on_skip_reward_pressed)
+	slot.add_child(button)
 	return slot
 
 func _refresh_stage_view() -> void:
@@ -4091,7 +4119,6 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 	info.add_child(cost_label)
 
 	var button := Button.new()
-	button.custom_minimum_size = Vector2(126.0, 42.0)
 	if ProgressionStore.can_purchase_card_mod(_progression, _upgrade_selected_card_id, option):
 		button.text = "Confirm"
 	else:
@@ -4100,6 +4127,7 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(button, 42.0)
 	if not button.disabled:
 		button.pressed.connect(_on_card_mod_upgrade_pressed.bind(option))
 	row.add_child(button)
@@ -4108,11 +4136,10 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 func _upgrade_list_button(text: String, selected: bool) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(0.0, 36.0)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, UPGRADE_LIST_BUTTON_MIN_WIDTH)
 	if selected:
 		button.modulate = Color("ffd99a")
 	return button

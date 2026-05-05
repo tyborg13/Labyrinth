@@ -70,7 +70,7 @@ layout_mode = 2
 text = "Stats"
 
 [node name="MenuButton" type="Button" parent="Backdrop/Margin/MainVBox/TopBar"]
-custom_minimum_size = Vector2(110, 34)
+custom_minimum_size = Vector2(171, 38)
 layout_mode = 2
 text = "Menu"
 
@@ -168,96 +168,101 @@ text = ""
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="ChoiceBar" type="HBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 10
-
 [node name="HandRow" type="HBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 188)
 theme_override_constants/separation = 10
 
-[node name="PilesBar" type="HBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow"]
+[node name="LeftActionStack" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow"]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/separation = 4
+
+[node name="ChoiceBar" type="HBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PilesBar" type="HBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack"]
 custom_minimum_size = Vector2(208, 0)
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="DrawPile" type="PanelContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar"]
+[node name="DrawPile" type="PanelContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
 
-[node name="DrawMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile"]
+[node name="DrawMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="DrawVBox" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin"]
+[node name="DrawVBox" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="DrawTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin/DrawVBox"]
+[node name="DrawTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox"]
 layout_mode = 2
 horizontal_alignment = 1
 text = "DRAW"
 
-[node name="DrawCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DrawPile/DrawMargin/DrawVBox"]
+[node name="DrawCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_alignment = 1
 vertical_alignment = 1
 text = "0"
 
-[node name="DiscardPile" type="PanelContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar"]
+[node name="DiscardPile" type="PanelContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
 
-[node name="DiscardMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile"]
+[node name="DiscardMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="DiscardVBox" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin"]
+[node name="DiscardVBox" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="DiscardTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
+[node name="DiscardTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
 layout_mode = 2
 horizontal_alignment = 1
 text = "DISC"
 
-[node name="DiscardCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
+[node name="DiscardCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_alignment = 1
 vertical_alignment = 1
 text = "0"
 
-[node name="BurnPile" type="PanelContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar"]
+[node name="BurnPile" type="PanelContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
 
-[node name="BurnMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile"]
+[node name="BurnMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="BurnVBox" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin"]
+[node name="BurnVBox" type="VBoxContainer" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BurnTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox"]
+[node name="BurnTitle" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox"]
 layout_mode = 2
 horizontal_alignment = 1
 text = "EXH"
 
-[node name="BurnCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/PilesBar/BurnPile/BurnMargin/BurnVBox"]
+[node name="BurnCount" type="Label" parent="Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_alignment = 1

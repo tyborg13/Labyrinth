@@ -88,17 +88,17 @@ theme_override_constants/separation = 12
 
 [node name="ContinueButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
 visible = false
-custom_minimum_size = Vector2(196, 56)
+custom_minimum_size = Vector2(234, 52)
 layout_mode = 2
 text = "Continue"
 
 [node name="StartButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
-custom_minimum_size = Vector2(196, 56)
+custom_minimum_size = Vector2(234, 52)
 layout_mode = 2
 text = "New Run"
 
 [node name="BossButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
-custom_minimum_size = Vector2(196, 56)
+custom_minimum_size = Vector2(234, 52)
 layout_mode = 2
 text = "Fight Boss"
 

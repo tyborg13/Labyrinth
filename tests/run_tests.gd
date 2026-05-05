@@ -13,6 +13,7 @@ const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
 var _failures: Array[String] = []
@@ -133,6 +134,8 @@ func _initialize() -> void:
 	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
+	await _test_run_scene_action_selection_buttons_are_large()
+	await _test_run_scene_reward_heal_choice_sits_with_cards()
 	await _test_run_scene_campfire_choices_use_context_overlay()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
@@ -2735,13 +2738,15 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/ChoiceBar")
-	var pass_found: bool = false
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var pass_button: Button = null
 	for child: Node in choice_bar.get_children():
 		if child is Button and (child as Button).text == "Pass":
-			pass_found = true
+			pass_button = child as Button
 			break
-	_assert(pass_found, "Combat UI should always offer Pass when the player can end the turn manually")
+	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
+	if pass_button != null:
+		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Combat Pass button should use a large native-ratio frame")
 	instance.queue_free()
 	await process_frame
 
@@ -2774,13 +2779,76 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/ChoiceBar")
-	var pass_found: bool = false
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var pass_button: Button = null
 	for child: Node in choice_bar.get_children():
 		if child is Button and (child as Button).text == "Pass":
-			pass_found = true
+			pass_button = child as Button
 			break
-	_assert(pass_found, "Combat UI should offer Pass when the hand has no playable cards")
+	_assert(pass_button != null, "Combat UI should offer Pass when the hand has no playable cards")
+	if pass_button != null:
+		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Dead-hand Pass button should use a large native-ratio frame")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_action_selection_buttons_are_large() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for action-selection button coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	instance.set("_run_state", run_state)
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", [{"type": "ranged"}])
+	instance.set("_pending_action_index", 0)
+	instance.set("_pending_action_can_skip", true)
+	instance.call("_refresh_choice_bar")
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var skip_button: Button = _button_with_text(choice_bar, "Skip")
+	var cancel_button: Button = _button_with_text(choice_bar, "Cancel")
+	_assert(skip_button != null, "Action selection should show Skip when the current action can be skipped")
+	_assert(cancel_button != null, "Action selection should show Cancel while a card action is selected")
+	if skip_button != null:
+		_assert_button_uses_native_ratio(skip_button, UiSkin.BUTTON_HEIGHT_ACTION, "Action-selection Skip button should use a large native-ratio frame")
+	if cancel_button != null:
+		_assert_button_uses_native_ratio(cancel_button, UiSkin.BUTTON_HEIGHT_ACTION, "Action-selection Cancel button should use a large native-ratio frame")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for reward heal-choice coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "reward"
+	run_state["pending_reward"] = {
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
+		"heal_amount": 6,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_choice_bar")
+	instance.call("_refresh_hand_panel")
+	instance.call("_refresh_visibility")
+	await process_frame
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var heal_button: Button = _button_with_text(hand_box, "+6 HP")
+	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward heal choice should not appear in the combat choice bar")
+	_assert(heal_button != null, "Reward heal choice should render as a button beside the offered cards")
+	if heal_button != null:
+		_assert_button_uses_native_ratio(heal_button, UiSkin.BUTTON_HEIGHT_STANDARD, "Reward heal choice should use a native-ratio button frame")
+		var heal_slot: Node = heal_button.get_parent()
+		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
+		_assert(hand_box.get_child_count() == 4 and hand_box.get_child(3) == heal_slot, "Reward heal choice should sit immediately to the right of the offered cards")
 	instance.queue_free()
 	await process_frame
 
@@ -2796,7 +2864,7 @@ func _test_run_scene_campfire_choices_use_context_overlay() -> void:
 	run_state["mode"] = "campfire"
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/ChoiceBar")
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
 	var overlay_button_count: int = 0
 	var found_sit: bool = false
@@ -3758,6 +3826,21 @@ func _buttons_under(node: Node) -> Array[Button]:
 	for child: Node in node.get_children():
 		buttons.append_array(_buttons_under(child))
 	return buttons
+
+func _button_with_text(node: Node, text: String) -> Button:
+	for button: Button in _buttons_under(node):
+		if button.text == text:
+			return button
+	return null
+
+func _assert_button_uses_native_ratio(button: Button, min_height: float, message: String) -> void:
+	var minimum_size: Vector2 = button.custom_minimum_size
+	_assert(minimum_size.y >= min_height, message)
+	if minimum_size.y <= 0.0:
+		_failures.append("%s should have a positive minimum height" % message)
+		return
+	var ratio: float = minimum_size.x / minimum_size.y
+	_assert(is_equal_approx(ratio, UiSkin.BUTTON_TEXTURE_ASPECT), "%s should preserve the button art ratio" % message)
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

@@ -31,9 +31,14 @@ const TEXTURES := {
 
 const PANEL_MARGIN := 12.0
 const INSET_MARGIN := 10.0
-const BUTTON_TEXTURE_MARGIN := 7.0
+const BUTTON_TEXTURE_MARGIN := 14.0
 const BUTTON_MARGIN_H := 14.0
 const BUTTON_MARGIN_V := 6.0
+const BUTTON_TEXTURE_ASPECT: float = 4.5
+const BUTTON_HEIGHT_SMALL: float = 38.0
+const BUTTON_HEIGHT_STANDARD: float = 46.0
+const BUTTON_HEIGHT_LARGE: float = 52.0
+const BUTTON_HEIGHT_ACTION: float = 58.0
 const BUTTON_FONT_COLOR := Color("efe4c1")
 const BUTTON_FONT_OUTLINE_COLOR := Color("3e2f22")
 const BUTTON_FONT_FOCUS_COLOR := Color("fff7dd")
@@ -116,7 +121,7 @@ func make_plain_card_style(background: Color = Color("e8dcc0"), border: Color = 
 
 func make_button_style(texture_key: String) -> StyleBoxTexture:
 	var style := StyleBoxTexture.new()
-	var pressed_offset: float = 1.0 if texture_key == "button_pressed" else 0.0
+	var pressed_offset: float = 3.0 if texture_key == "button_pressed" else 0.0
 	var focus_expand: float = 3.0 if texture_key == "button_focus" else 0.0
 	style.texture = texture(texture_key)
 	style.texture_margin_left = BUTTON_TEXTURE_MARGIN
@@ -128,12 +133,29 @@ func make_button_style(texture_key: String) -> StyleBoxTexture:
 	style.content_margin_left = BUTTON_MARGIN_H
 	style.content_margin_top = BUTTON_MARGIN_V + pressed_offset
 	style.content_margin_right = BUTTON_MARGIN_H
-	style.content_margin_bottom = BUTTON_MARGIN_V - pressed_offset
+	style.content_margin_bottom = maxf(2.0, BUTTON_MARGIN_V - pressed_offset)
 	style.expand_margin_left = focus_expand
 	style.expand_margin_top = focus_expand
 	style.expand_margin_right = focus_expand
 	style.expand_margin_bottom = focus_expand
 	return style
+
+func button_native_size(height: float, min_width: float = 0.0) -> Vector2:
+	var fitted_height: float = maxf(height, min_width / BUTTON_TEXTURE_ASPECT)
+	return Vector2(fitted_height * BUTTON_TEXTURE_ASPECT, fitted_height)
+
+func apply_button_native_size(
+	button: BaseButton,
+	height: float = BUTTON_HEIGHT_STANDARD,
+	min_width: float = 0.0,
+	center_in_parent: bool = true
+) -> void:
+	if button == null:
+		return
+	button.custom_minimum_size = button_native_size(height, min_width)
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if center_in_parent:
+		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
 func apply_button_stylebox_overrides(
 	button: BaseButton,
@@ -148,6 +170,7 @@ func apply_button_stylebox_overrides(
 	button.add_theme_stylebox_override("pressed", make_button_style(pressed_state))
 	button.add_theme_stylebox_override("focus", make_button_style(focus_state))
 	button.add_theme_stylebox_override("disabled", make_button_style(disabled_state))
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func apply_button_text_overrides(
 	button: BaseButton,

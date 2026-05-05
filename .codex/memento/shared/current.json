@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-04T14:32:08Z",
+  "updated_at": "2026-05-05T01:31:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2067,6 +2067,30 @@
       "source": {
         "branch": "master",
         "commit": "6f7984e"
+      }
+    },
+    {
+      "id": "mnt_20260505T013132Z_8b8a8963",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ui_skin.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ui_skin.gd",
+      "summary": "Wood UI buttons use muted antique-gold raised 4.5:1 sprites",
+      "details": "button_wood_gold_*.png remain crisp 216x48 RGBA sprites, but the trim is muted toward the card_back/card_frame gold palette with sparse light glints instead of bright brass. UiSkin keeps BUTTON_TEXTURE_ASPECT at 4.5 and sizes small/standard/large/action buttons at 38/46/52/58 px; Pass/Skip/Cancel use the action height in the left bottom stack directly above the deck/discard piles, while reward +HP is rendered as a hand-row choice slot to the right of reward cards.",
+      "status": "active",
+      "created_at": "2026-05-05T01:31:32Z",
+      "updated_at": "2026-05-05T01:31:32Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260505T010605Z_d3ebd793"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "b171180"
       }
     }
   ]
