@@ -110,6 +110,7 @@ func _initialize() -> void:
 	_test_door_opening_sheet_loads_as_directional_frames()
 	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
 	_test_combat_board_assigns_deterministic_floor_variants()
+	_test_combat_board_ambient_particles_follow_room_element()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_room_icon_library_covers_door_room_types()
@@ -2218,6 +2219,30 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 		or shifted_lookup.get(Vector2i(5, 4), -1) != first_lookup.get(Vector2i(5, 4), -1),
 		"Different room coordinates should reshuffle the deterministic floor-variant mix"
 	)
+	board.free()
+
+func _test_combat_board_ambient_particles_follow_room_element() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var neutral_state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1), "room_element": "none"}
+	board.set_combat_state(neutral_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	_assert(not bool(board.call("_ambient_particles_active")), "Neutral rooms should not render elemental ambient particles")
+	_assert(not bool(board.call("_presentation_needs_continuous_redraw")), "Neutral rooms with no active presentation should not request continuous redraw")
+	var fire_state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1), "room_element": "fire"}
+	board.set_combat_state(fire_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	_assert(bool(board.call("_ambient_particles_active")), "Elemental rooms should activate ambient particles")
+	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Ambient particles should drive a lightweight redraw loop")
+	_assert(board.call("_ambient_particle_texture", "fire", 0) != null, "Elemental ambient particles should use the generated raster atlas")
+	_assert(board.call("_ambient_air_wisp_texture", 0, 4) != null, "Air ambient particles should use the path-reveal wisp animation atlas")
+	_assert(board.call("_ambient_air_wisp_glow_texture", 0, 4) != null, "Air wisp reveal frames should have matching glow frames")
+	_assert(int(board.call("_ambient_air_wisp_frame_index", 0.0)) == 0, "Air wisp reveal animation should start at the first frame")
+	_assert(int(board.call("_ambient_air_wisp_frame_index", 0.99)) == 31, "Air wisp reveal animation should reach the final erase frame")
+	var first_seed: int = int(board.call("_ambient_room_seed", "fire"))
+	board.set_combat_state(fire_state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	_assert(int(board.call("_ambient_room_seed", "fire")) == first_seed, "Ambient particle seeds should stay stable for the same room coordinate and element")
+	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(3, 1), "room_element": "fire"}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	_assert(int(board.call("_ambient_room_seed", "fire")) != first_seed, "Ambient particle seeds should vary across rooms")
+	_assert(int(board.call("_ambient_particle_count", "ice", 72)) > int(board.call("_ambient_particle_count", "earth", 72)), "Snow rooms should carry more particles than heavier earth motes")
 	board.free()
 
 func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-05T13:31:11Z",
+  "updated_at": "2026-05-05T17:47:42Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2135,6 +2135,30 @@
       "source": {
         "branch": "master",
         "commit": "1b579c3"
+      }
+    },
+    {
+      "id": "mnt_20260505T174742Z_2bf49024",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Ambient elemental particles use raster atlases; air wisps animate through 32 path-reveal frames and ice is tuned as fine white snowfall.",
+      "details": "Base/glow elemental atlases are 4 columns x 5 rows in assets/art/effects/ambient_particles.png and ambient_particles_glow.png, rows fire, ice, lightning, air, earth. Air wisps use 32-frame x 4-variant sheets ambient_air_wisp_frames.png and ambient_air_wisp_glow_frames.png with faster per-particle phase speeds so each wisp writes on and erases along its curved alpha path without obvious frame stepping. Ice keeps the base atlas but its row is whitened, the renderer draws it at smaller width scales, and ice has a higher base count for denser snowfall.",
+      "status": "active",
+      "created_at": "2026-05-05T17:47:42Z",
+      "updated_at": "2026-05-05T17:47:42Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260505T170813Z_4d7c979f"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "aeb3396"
       }
     }
   ]

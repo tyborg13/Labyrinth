@@ -121,9 +121,20 @@ const COLUMN_TORCH_IDLE_COLUMNS: int = 4
 const COLUMN_TORCH_IDLE_ROWS: int = 4
 const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
 const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
+const AMBIENT_PARTICLE_DENSITY: float = 0.76
+const AMBIENT_PARTICLE_OPACITY: float = 0.68
+const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
 const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
 const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
 const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
+const AMBIENT_PARTICLE_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles.png"
+const AMBIENT_PARTICLE_GLOW_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles_glow.png"
+const AMBIENT_AIR_WISP_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_frames.png"
+const AMBIENT_AIR_WISP_GLOW_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_glow_frames.png"
+const AMBIENT_PARTICLE_ATLAS_COLUMNS: int = 4
+const AMBIENT_PARTICLE_ATLAS_ROWS: int = 5
+const AMBIENT_AIR_WISP_FRAME_COLUMNS: int = 32
+const AMBIENT_AIR_WISP_VARIANTS: int = 4
 const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
@@ -165,6 +176,14 @@ var _scene_prop_textures: Dictionary = {}
 var _scene_prop_idle_frames: Dictionary = {}
 var _pillar_torch_idle_frames: Dictionary = {}
 var _effect_textures: Dictionary = {}
+var _ambient_particle_atlas: Texture2D = null
+var _ambient_particle_glow_atlas: Texture2D = null
+var _ambient_air_wisp_atlas: Texture2D = null
+var _ambient_air_wisp_glow_atlas: Texture2D = null
+var _ambient_particle_textures: Dictionary = {}
+var _ambient_particle_glow_textures: Dictionary = {}
+var _ambient_air_wisp_textures: Dictionary = {}
+var _ambient_air_wisp_glow_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
@@ -221,7 +240,11 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 func _presentation_needs_continuous_redraw() -> bool:
-	if not visible or presentation.is_empty():
+	if not visible:
+		return false
+	if _ambient_particles_active():
+		return true
+	if presentation.is_empty():
 		return false
 	if not (presentation.get("damage_preview", {}) as Dictionary).is_empty():
 		return true
@@ -313,6 +336,7 @@ func _draw() -> void:
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	for tile: Vector2i in tiles:
 		_draw_floor_tile(grid, tile)
+	_draw_ambient_particles(tiles)
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
 	_draw_path_preview()
@@ -328,6 +352,367 @@ func _draw_empty_state() -> void:
 	if font == null:
 		return
 	draw_string(font, Vector2(34, 52), "No active combat.", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f0e5cf"))
+
+func _ambient_particles_active() -> bool:
+	if combat_state.is_empty():
+		return false
+	return ElementData.is_elemental(_ambient_element_id())
+
+func _ambient_element_id() -> String:
+	return str(combat_state.get("room_element", ElementData.NONE))
+
+func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
+	var element_id: String = _ambient_element_id()
+	if tiles.is_empty() or not ElementData.is_elemental(element_id):
+		return
+	var particle_count: int = _ambient_particle_count(element_id, tiles.size())
+	if particle_count <= 0:
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var room_seed: int = _ambient_room_seed(element_id)
+	for index: int in range(particle_count):
+		var particle_seed: int = room_seed + index * 7919
+		var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
+		var base_point: Vector2 = _tile_center(tiles[tile_index])
+		_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
+
+func _ambient_particle_count(element_id: String, tile_count: int) -> int:
+	var base_count: int = 0
+	match element_id:
+		"fire":
+			base_count = 84
+		"ice":
+			base_count = 172
+		"lightning":
+			base_count = 112
+		"air":
+			base_count = 86
+		"earth":
+			base_count = 88
+	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
+	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY)))
+
+func _ambient_room_seed(element_id: String) -> int:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	return room_coord.x * 92821 + room_coord.y * 68917 + _ambient_element_seed(element_id) * 3571
+
+func _ambient_element_seed(element_id: String) -> int:
+	match element_id:
+		"fire":
+			return 11
+		"ice":
+			return 23
+		"lightning":
+			return 37
+		"air":
+			return 43
+		"earth":
+			return 59
+		_:
+			return 3
+
+func _ambient_hash(seed: int) -> int:
+	var value: int = posmod(seed, 2147483647)
+	value = posmod(value * 1103515245 + 12345, 2147483647)
+	value = posmod(value * 1103515245 + 12345, 2147483647)
+	return value
+
+func _ambient_hash01(seed: int) -> float:
+	return float(posmod(_ambient_hash(seed), 10000)) / 10000.0
+
+func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
+	return wrapf(_ambient_hash01(seed) + time_seconds * speed * AMBIENT_PARTICLE_SPEED_SCALE, 0.0, 1.0)
+
+func _ambient_particle_alpha(cycle: float) -> float:
+	return clampf(sin(cycle * PI), 0.0, 1.0)
+
+func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, time_seconds: float) -> void:
+	var variant_index: int = int(_ambient_hash01(seed + 41) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
+	var texture: Texture2D = _ambient_particle_texture(element_id, variant_index)
+	if texture == null:
+		return
+	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
+	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed))
+	if element_id == "air":
+		var wisp_phase: float = _ambient_air_wisp_phase(seed, time_seconds)
+		var wisp_frame_index: int = _ambient_air_wisp_frame_index(wisp_phase)
+		var wisp_texture: Texture2D = _ambient_air_wisp_texture(variant_index, wisp_frame_index)
+		if wisp_texture != null:
+			texture = wisp_texture
+		var wisp_glow_texture: Texture2D = _ambient_air_wisp_glow_texture(variant_index, wisp_frame_index)
+		if wisp_glow_texture != null:
+			glow_texture = wisp_glow_texture
+	var alpha: float = _ambient_alpha_for_element(element_id, cycle)
+	if alpha <= 0.04:
+		return
+	var tile_width: float = _tile_width()
+	var point: Vector2 = base_point + _ambient_particle_offset(element_id, seed, cycle, time_seconds, tile_width)
+	var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta(element_id), 0.0, 1.0)
+	var previous_point: Vector2 = base_point + _ambient_particle_offset(element_id, seed, previous_cycle, time_seconds - 0.12, tile_width)
+	var velocity: Vector2 = point - previous_point
+	var draw_width: float = _ambient_particle_draw_width(element_id, seed)
+	var texture_size: Vector2 = texture.get_size()
+	var draw_size := Vector2(draw_width, draw_width)
+	if texture_size.x > 0.0:
+		draw_size.y = draw_width * texture_size.y / texture_size.x
+	if glow_texture != null:
+		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha, element_id)
+		_draw_ambient_particle_sprite(glow_texture, point, draw_size * _ambient_glow_scale(element_id), _ambient_particle_rotation(element_id, seed, time_seconds), alpha * _ambient_glow_alpha(element_id))
+	_draw_ambient_particle_sprite(texture, point, draw_size, _ambient_particle_rotation(element_id, seed, time_seconds), alpha)
+
+func _ambient_particle_texture(element_id: String, variant_index: int) -> Texture2D:
+	if _ambient_particle_atlas == null:
+		return null
+	return _ambient_particle_texture_from_atlas(_ambient_particle_atlas, _ambient_particle_textures, element_id, variant_index)
+
+func _ambient_particle_glow_texture(element_id: String, variant_index: int) -> Texture2D:
+	if _ambient_particle_glow_atlas == null:
+		return null
+	return _ambient_particle_texture_from_atlas(_ambient_particle_glow_atlas, _ambient_particle_glow_textures, element_id, variant_index)
+
+func _ambient_air_wisp_texture(variant_index: int, frame_index: int) -> Texture2D:
+	if _ambient_air_wisp_atlas == null:
+		return null
+	return _ambient_air_wisp_texture_from_atlas(_ambient_air_wisp_atlas, _ambient_air_wisp_textures, variant_index, frame_index)
+
+func _ambient_air_wisp_glow_texture(variant_index: int, frame_index: int) -> Texture2D:
+	if _ambient_air_wisp_glow_atlas == null:
+		return null
+	return _ambient_air_wisp_texture_from_atlas(_ambient_air_wisp_glow_atlas, _ambient_air_wisp_glow_textures, variant_index, frame_index)
+
+func _ambient_particle_texture_from_atlas(atlas: Texture2D, cache: Dictionary, element_id: String, variant_index: int) -> Texture2D:
+	var row: int = _ambient_particle_row(element_id)
+	if row < 0:
+		return null
+	var col: int = posmod(variant_index, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+	var cache_key: String = "%d:%d" % [row, col]
+	if cache.has(cache_key):
+		return cache.get(cache_key, null)
+	var atlas_size: Vector2 = atlas.get_size()
+	var cell_size := Vector2(
+		atlas_size.x / float(AMBIENT_PARTICLE_ATLAS_COLUMNS),
+		atlas_size.y / float(AMBIENT_PARTICLE_ATLAS_ROWS)
+	)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), cell_size.y * float(row)), cell_size)
+	cache[cache_key] = atlas_texture
+	return atlas_texture
+
+func _ambient_air_wisp_texture_from_atlas(atlas: Texture2D, cache: Dictionary, variant_index: int, frame_index: int) -> Texture2D:
+	var row: int = posmod(variant_index, AMBIENT_AIR_WISP_VARIANTS)
+	var col: int = clampi(frame_index, 0, AMBIENT_AIR_WISP_FRAME_COLUMNS - 1)
+	var cache_key: String = "%d:%d" % [row, col]
+	if cache.has(cache_key):
+		return cache.get(cache_key, null)
+	var atlas_size: Vector2 = atlas.get_size()
+	var cell_size := Vector2(
+		atlas_size.x / float(AMBIENT_AIR_WISP_FRAME_COLUMNS),
+		atlas_size.y / float(AMBIENT_AIR_WISP_VARIANTS)
+	)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), cell_size.y * float(row)), cell_size)
+	cache[cache_key] = atlas_texture
+	return atlas_texture
+
+func _ambient_particle_row(element_id: String) -> int:
+	match element_id:
+		"fire":
+			return 0
+		"ice":
+			return 1
+		"lightning":
+			return 2
+		"air":
+			return 3
+		"earth":
+			return 4
+		_:
+			return -1
+
+func _ambient_particle_speed(element_id: String, seed: int) -> float:
+	match element_id:
+		"fire":
+			return lerpf(0.105, 0.170, _ambient_hash01(seed + 2))
+		"ice":
+			return lerpf(0.085, 0.140, _ambient_hash01(seed + 2))
+		"lightning":
+			return lerpf(0.70, 1.15, _ambient_hash01(seed + 2))
+		"air":
+			return lerpf(0.070, 0.120, _ambient_hash01(seed + 2))
+		"earth":
+			return lerpf(0.060, 0.105, _ambient_hash01(seed + 2))
+		_:
+			return 0.10
+
+func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
+	if element_id == "lightning":
+		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
+		return clampf(pulse * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+	var floor_alpha: float = 0.12 if element_id in ["fire", "ice"] else 0.08
+	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+
+func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_seconds: float, tile_width: float) -> Vector2:
+	var lateral: float = lerpf(-0.54, 0.54, _ambient_hash01(seed + 3)) * tile_width
+	var y_jitter: float = lerpf(-0.18, 0.22, _ambient_hash01(seed + 4)) * tile_width
+	match element_id:
+		"fire":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(1.2, 2.5, _ambient_hash01(seed + 5)) + _ambient_hash01(seed + 6) * TAU) * tile_width * 0.07,
+				_tile_height() * 0.30 - cycle * tile_width * 0.90
+			)
+		"ice":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(0.8, 1.6, _ambient_hash01(seed + 5)) + _ambient_hash01(seed + 6) * TAU) * tile_width * 0.12 - cycle * tile_width * 0.16,
+				-tile_width * 0.66 + cycle * tile_width * 1.02
+			)
+		"lightning":
+			return Vector2(lateral, y_jitter - tile_width * 0.10)
+		"air":
+			return Vector2(
+				lateral + (cycle - 0.5) * tile_width * 0.48,
+				y_jitter + sin((cycle + _ambient_hash01(seed + 5)) * TAU) * tile_width * 0.18
+			)
+		"earth":
+			return Vector2(
+				lateral + sin(time_seconds * 0.7 + _ambient_hash01(seed + 5) * TAU) * tile_width * 0.06,
+				y_jitter - cycle * tile_width * 0.24
+			)
+		_:
+			return Vector2(lateral, y_jitter)
+
+func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
+	var tile_width: float = _tile_width()
+	var min_scale: float = 0.0
+	var max_scale: float = 0.0
+	match element_id:
+		"fire":
+			min_scale = 0.17
+			max_scale = 0.32
+		"ice":
+			min_scale = 0.08
+			max_scale = 0.15
+		"lightning":
+			min_scale = 0.18
+			max_scale = 0.35
+		"air":
+			min_scale = 0.20
+			max_scale = 0.39
+		"earth":
+			min_scale = 0.15
+			max_scale = 0.30
+		_:
+			min_scale = 0.16
+			max_scale = 0.28
+	return tile_width * lerpf(min_scale, max_scale, _ambient_hash01(seed + 9))
+
+func _ambient_particle_rotation(element_id: String, seed: int, time_seconds: float) -> float:
+	var base_angle: float = lerpf(-0.32, 0.32, _ambient_hash01(seed + 10))
+	match element_id:
+		"air", "earth":
+			return base_angle + sin(time_seconds * 0.45 + _ambient_hash01(seed + 11) * TAU) * 0.12
+		"lightning":
+			return lerpf(-0.46, 0.46, _ambient_hash01(seed + 10))
+		_:
+			return base_angle
+
+func _ambient_air_wisp_phase(seed: int, time_seconds: float) -> float:
+	var speed: float = lerpf(0.70, 0.95, _ambient_hash01(seed + 12))
+	return wrapf(_ambient_hash01(seed + 13) + time_seconds * speed, 0.0, 1.0)
+
+func _ambient_air_wisp_frame_index(phase: float) -> int:
+	return clampi(int(floorf(wrapf(phase, 0.0, 1.0) * float(AMBIENT_AIR_WISP_FRAME_COLUMNS))), 0, AMBIENT_AIR_WISP_FRAME_COLUMNS - 1)
+
+func _ambient_motion_blur_cycle_delta(element_id: String) -> float:
+	match element_id:
+		"fire":
+			return 0.055
+		"ice":
+			return 0.045
+		"lightning":
+			return 0.085
+		"air":
+			return 0.070
+		"earth":
+			return 0.038
+		_:
+			return 0.050
+
+func _ambient_glow_scale(element_id: String) -> Vector2:
+	match element_id:
+		"fire":
+			return Vector2(1.85, 1.72)
+		"lightning":
+			return Vector2(2.10, 1.82)
+		"air":
+			return Vector2(1.95, 1.65)
+		_:
+			return Vector2(1.72, 1.58)
+
+func _ambient_glow_alpha(element_id: String) -> float:
+	match element_id:
+		"lightning":
+			return 0.24
+		"fire":
+			return 0.22
+		"ice":
+			return 0.13
+		"air":
+			return 0.17
+		"earth":
+			return 0.14
+		_:
+			return 0.16
+
+func _draw_ambient_particle_trail(texture: Texture2D, point: Vector2, velocity: Vector2, draw_size: Vector2, alpha: float, element_id: String) -> void:
+	if velocity.length_squared() < 4.0:
+		return
+	var trail_strength: float = _ambient_trail_alpha(element_id) * alpha
+	if trail_strength <= 0.01:
+		return
+	var length_scale: float = clampf(1.0 + velocity.length() / maxf(1.0, _tile_width()) * _ambient_trail_length_scale(element_id), 1.20, 3.80)
+	var trail_size := Vector2(draw_size.x * length_scale, draw_size.y * _ambient_trail_height_scale(element_id))
+	var trail_center: Vector2 = point - velocity.normalized() * trail_size.x * 0.16
+	_draw_ambient_particle_sprite(texture, trail_center, trail_size, velocity.angle(), trail_strength)
+
+func _ambient_trail_alpha(element_id: String) -> float:
+	match element_id:
+		"lightning":
+			return 0.20
+		"fire":
+			return 0.16
+		"ice":
+			return 0.08
+		"air":
+			return 0.15
+		"earth":
+			return 0.08
+		_:
+			return 0.11
+
+func _ambient_trail_length_scale(element_id: String) -> float:
+	match element_id:
+		"lightning":
+			return 8.0
+		"fire":
+			return 5.8
+		"ice":
+			return 4.2
+		"air":
+			return 6.5
+		"earth":
+			return 3.0
+		_:
+			return 4.0
+
+func _ambient_trail_height_scale(element_id: String) -> float:
+	return 0.50 if element_id in ["fire", "lightning", "air"] else 0.62
+
+func _draw_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float) -> void:
+	draw_set_transform(point, rotation, Vector2.ONE)
+	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(1.0, 1.0, 1.0, alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_floor_moss_overlay(tile: Vector2i) -> void:
 	if not _tile_has_moss("floor", tile):
@@ -2252,6 +2637,14 @@ func _load_assets() -> void:
 		"melee_slash": AssetLoader.load_texture(MELEE_SLASH_EFFECT_PATH),
 		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
 	}
+	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)
+	_ambient_particle_glow_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_GLOW_ATLAS_PATH)
+	_ambient_air_wisp_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_FRAMES_PATH)
+	_ambient_air_wisp_glow_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_GLOW_FRAMES_PATH)
+	_ambient_particle_textures.clear()
+	_ambient_particle_glow_textures.clear()
+	_ambient_air_wisp_textures.clear()
+	_ambient_air_wisp_glow_textures.clear()
 	_door_opening_frames = _load_door_opening_frames()
 	_door_opening_flipped_frames = []
 	for frame_texture: Texture2D in _door_opening_frames:
