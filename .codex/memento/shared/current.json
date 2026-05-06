@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-05T17:47:42Z",
+  "updated_at": "2026-05-06T14:05:22Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2159,6 +2159,118 @@
       "source": {
         "branch": "master",
         "commit": "aeb3396"
+      }
+    },
+    {
+      "id": "mnt_20260505T191150Z_0234154c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Pierce is an attack action flag that bypasses defenses.",
+      "details": "Cards express pierce as pierce: true on melee, ranged, aoe, push, or pull actions. Combat damage still uses final_damage_for_player_action and freeze multipliers, then bypasses block/stoneskin without removing them; ActionIconLibrary renders the damage number on a Pierce icon instead of adding a keyword token. Analytics logs pierce_actions and enemy_defense_bypassed for card_played payloads.",
+      "status": "active",
+      "created_at": "2026-05-05T19:11:50Z",
+      "updated_at": "2026-05-05T19:11:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fb5643"
+      }
+    },
+    {
+      "id": "mnt_20260505T202323Z_8b8ee04b",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Card-facing Labyrinth art should be imagegen-derived, not procedural placeholder art.",
+      "details": "For new or replacement card art and action icons, inspect existing Labyrinth art/icon references, generate raster bitmap assets through the imagegen skill, resize to the exact project dimensions, and validate in CardWidget screenshots. Avoid SVG, PIL, canvas, or hand-coded placeholder visuals for final card assets unless the user explicitly asks for temporary placeholders.",
+      "status": "active",
+      "created_at": "2026-05-05T20:23:23Z",
+      "updated_at": "2026-05-05T20:23:23Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fb5643"
+      }
+    },
+    {
+      "id": "mnt_20260505T203937Z_f418be3f",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Use fresh filenames for visual proof screenshots in Codex.",
+      "details": "Codex image previews may show cached content when a screenshot path is reused. For iterative visual QA, especially CardWidget renders, save each proof image with a unique timestamp or versioned filename and reference that new path in the response instead of overwriting the old screenshot.",
+      "status": "active",
+      "created_at": "2026-05-05T20:39:37Z",
+      "updated_at": "2026-05-05T20:39:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fb5643"
+      }
+    },
+    {
+      "id": "mnt_20260505T205516Z_166e4797",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Card art needs the existing transparent ragged window, not just 256x144 dimensions.",
+      "details": "New card art PNGs must have transparent corners and alpha statistics like existing assets; opaque black/full-bleed rectangles look wrong in CardWidget. Since CardWidget uses STRETCH_KEEP_ASPECT_COVERED in a wider art slot, inset generated focal content into the existing alpha window and verify with fresh-filename CardWidget screenshots.",
+      "status": "active",
+      "created_at": "2026-05-05T20:55:16Z",
+      "updated_at": "2026-05-05T20:55:16Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fb5643"
+      }
+    },
+    {
+      "id": "mnt_20260506T140522Z_58fab739",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "CardWidget title nameplate width is calibrated to half card width.",
+      "details": "TITLE_NAMEPLATE_WIDTH_RATIO is 0.500 after visual calibration: this lets long-but-valid names such as Rallying Breath and Firebrand Volley render one point larger while the full card pool still measures at or below about 125 px on a 250 px card. Keep future title tuning systematic through the shared ratio rather than per-card overrides.",
+      "status": "active",
+      "created_at": "2026-05-06T14:05:22Z",
+      "updated_at": "2026-05-06T14:05:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260506T135403Z_8e5f767d"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "2fb5643"
       }
     }
   ]

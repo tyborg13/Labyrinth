@@ -4643,6 +4643,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"enemy_hp_damage": enemy_hp_damage,
 		"enemy_block_removed": enemy_block_removed,
 		"enemy_stoneskin_removed": enemy_stoneskin_removed,
+		"enemy_defense_bypassed": _analytics_enemy_defense_bypassed(before_state, resolved_state, actions),
 		"kills_secured": kills_secured,
 		"player_hp_delta": int(after_player.get("hp", 0)) - int(before_player.get("hp", 0)),
 		"player_heal_gained": maxi(0, int(after_player.get("hp", 0)) - int(before_player.get("hp", 0))),
@@ -4651,6 +4652,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"move_distance": absi(after_pos.x - before_pos.x) + absi(after_pos.y - before_pos.y),
 		"cards_drawn": _draw_entries_between_states(before_state, resolved_state).size(),
 		"card_plays_gained": maxi(0, _combat_engine.cards_remaining_this_turn(resolved_state) - _combat_engine.cards_remaining_this_turn(before_state)),
+		"pierce_actions": _analytics_pierce_action_count(actions),
 		"illusions_created": illusions_created,
 		"illusion_health_created": illusion_health_created,
 		"enemy_status_applied": {
@@ -4670,6 +4672,36 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
 	}
+
+func _analytics_pierce_action_count(actions: Array) -> int:
+	var count: int = 0
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		if not bool(action.get("pierce", false)):
+			continue
+		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
+			count += 1
+	return count
+
+func _analytics_enemy_defense_bypassed(before_state: Dictionary, resolved_state: Dictionary, actions: Array) -> int:
+	if _analytics_pierce_action_count(actions) <= 0:
+		return 0
+	var total: int = 0
+	var before_enemies: Array = before_state.get("enemies", [])
+	var after_enemies: Array = resolved_state.get("enemies", [])
+	for index: int in range(mini(before_enemies.size(), after_enemies.size())):
+		if typeof(before_enemies[index]) != TYPE_DICTIONARY or typeof(after_enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var before_enemy: Dictionary = before_enemies[index]
+		var after_enemy: Dictionary = after_enemies[index]
+		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0)))
+		if hp_loss <= 0:
+			continue
+		var before_defense: int = maxi(0, int(before_enemy.get("block", 0))) + maxi(0, int(before_enemy.get("stoneskin", 0)))
+		total += mini(hp_loss, before_defense)
+	return total
 
 func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 	for step_var: Variant in phase_result.get("steps", []):

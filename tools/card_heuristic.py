@@ -44,6 +44,7 @@ class HeuristicWeights:
     aoe_base_target_multiplier: float = 1.20
     aoe_extra_tile_multiplier: float = 0.10
     chain_extra_targets: float = 0.45
+    pierce_value: float = 0.75
     freeze_value: float = 3.8
     shock_value: float = 2.5
     push_value_per_tile: float = 0.28
@@ -185,6 +186,9 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             damage = int(action.get("damage", 0))
 
             breakdown.offense += immediate_damage_value(damage, playability, targets, weights)
+
+            if bool(action.get("pierce", False)) and damage > 0:
+                breakdown.offense += weights.pierce_value * playability * targets
 
             burn = int(action.get("burn", 0))
             if burn > 0:

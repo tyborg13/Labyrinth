@@ -833,7 +833,7 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 	if damage > 0 or _action_has_keyword_effect(action):
 		if _attack_bonus_for_current_turn(next_state) > 0 and int(action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
-		next_state = _damage_enemy(next_state, enemy_index, damage)
+		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
 		next_state = _apply_chain_from_enemy(next_state, enemy_index, action, damage)
 		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
@@ -852,12 +852,12 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 	if _attack_bonus_for_current_turn(next_state) > 0 and int(action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
 	for enemy_index: int in affected:
-		next_state = _damage_enemy(next_state, enemy_index, damage)
+		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
 	_log(next_state, "Area attack hits %d foe(s) for %d." % [affected.size(), damage])
 	return next_state
 
-func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true) -> Dictionary:
+func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true, bypass_defense: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
@@ -865,16 +865,18 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var total_damage: int = damage
 	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
 		total_damage *= 2
-	var block_amount: int = int(enemy.get("block", 0))
-	var applied_to_block: int = mini(block_amount, total_damage)
-	block_amount -= applied_to_block
-	var remaining: int = total_damage - applied_to_block
-	var stoneskin_amount: int = int(enemy.get("stoneskin", 0))
-	var applied_to_stoneskin: int = mini(stoneskin_amount, remaining)
-	stoneskin_amount -= applied_to_stoneskin
-	remaining -= applied_to_stoneskin
-	enemy["block"] = block_amount
-	enemy["stoneskin"] = stoneskin_amount
+	var remaining: int = total_damage
+	if not bypass_defense:
+		var block_amount: int = int(enemy.get("block", 0))
+		var applied_to_block: int = mini(block_amount, remaining)
+		block_amount -= applied_to_block
+		remaining -= applied_to_block
+		var stoneskin_amount: int = int(enemy.get("stoneskin", 0))
+		var applied_to_stoneskin: int = mini(stoneskin_amount, remaining)
+		stoneskin_amount -= applied_to_stoneskin
+		remaining -= applied_to_stoneskin
+		enemy["block"] = block_amount
+		enemy["stoneskin"] = stoneskin_amount
 	enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - remaining)
 	enemies[enemy_index] = enemy
 	if was_alive and int(enemy.get("hp", 0)) <= 0:
@@ -1030,6 +1032,9 @@ func _action_has_keyword_effect(action: Dictionary) -> bool:
 		or int(action.get("chain", 0)) > 0
 	)
 
+func _action_pierces_defense(action: Dictionary) -> bool:
+	return bool(action.get("pierce", false))
+
 func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
@@ -1096,7 +1101,7 @@ func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action
 		if next_index < 0:
 			break
 		visited[next_index] = true
-		next_state = _damage_enemy(next_state, next_index, damage)
+		next_state = _damage_enemy(next_state, next_index, damage, true, _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_enemy(next_state, next_index, action, current_enemy.get("pos", Vector2i.ZERO))
 		current_index = next_index
 	return next_state
@@ -1139,11 +1144,11 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 			return next_state
 		for affected_target: Dictionary in affected_targets:
 			if damage > 0:
-				next_state = _damage_actor_target(next_state, affected_target, damage, false)
+				next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action))
 			next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
 	else:
 		if damage > 0:
-			next_state = _damage_actor_target(next_state, target, damage, false)
+			next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	_log(next_state, "%s %s for %d." % [
 		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
@@ -1166,7 +1171,7 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
 	var damage: int = int(action.get("damage", 0))
 	if damage > 0:
-		next_state = _damage_actor_target(next_state, target, damage, false)
+		next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action))
 	if str(target.get("kind", "")) == "player":
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
 	next_state = _apply_action_keywords_to_target(next_state, target, action, source_pos)
@@ -1185,7 +1190,7 @@ func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dicti
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(next_state, enemy, action)
 	for target: Dictionary in _actor_targets_in_tiles(next_state, strike_tiles):
-		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), false)
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
@@ -1237,7 +1242,7 @@ func _push_or_pull_enemy(state: Dictionary, action: Dictionary, target_tile: Vec
 	if _attack_bonus_for_current_turn(next_state) > 0 and int(action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
 	if damage > 0:
-		next_state = _damage_enemy(next_state, enemy_index, damage)
+		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(action))
 	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 		return next_state
 	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))

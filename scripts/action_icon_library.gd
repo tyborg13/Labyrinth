@@ -16,6 +16,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Deals damage from a distance.",
 		"path": "%s/ranged.png" % ICON_ROOT
 	},
+	"pierce": {
+		"label": "Pierce",
+		"description": "Deals damage straight through block and stoneskin.",
+		"path": "%s/pierce.png" % ICON_ROOT
+	},
 	"move": {
 		"label": "Move",
 		"description": "Moves across board tiles.",
@@ -217,16 +222,16 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"blink":
 			tokens.append(token_for("blink", int(action.get("range", 0))))
 		"melee":
-			_append_damage_token(tokens, "melee", action, options)
+			_append_damage_token(tokens, _damage_icon_for_action(action, "melee"), action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(token_for("range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"ranged":
-			_append_damage_token(tokens, "ranged", action, options)
+			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
 			tokens.append(token_for("range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"aoe":
-			_append_damage_token(tokens, "ranged" if int(action.get("range", 0)) > 0 else "melee", action, options)
+			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(token_for("range", int(action.get("range", 0))))
 			tokens.append(_aoe_pattern_token(action))
@@ -293,12 +298,15 @@ static func _append_damage_token(tokens: Array, icon_key: String, action: Dictio
 	var final_damage: int = int(options.get("final_damage", base_damage))
 	tokens.append(token_for(icon_key, final_damage, _damage_tone(final_damage, base_damage)))
 
+static func _damage_icon_for_action(action: Dictionary, fallback_icon: String) -> String:
+	return "pierce" if bool(action.get("pierce", false)) else fallback_icon
+
 static func _append_optional_hit_token(tokens: Array, action: Dictionary, options: Dictionary) -> void:
 	if int(action.get("damage", 0)) <= 0:
 		return
 	var base_damage: int = int(action.get("damage", 0))
 	var final_damage: int = int(options.get("final_damage", base_damage))
-	tokens.append(token_for("melee", final_damage, _damage_tone(final_damage, base_damage)))
+	tokens.append(token_for(_damage_icon_for_action(action, "melee"), final_damage, _damage_tone(final_damage, base_damage)))
 
 static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 	return {

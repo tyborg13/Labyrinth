@@ -33,6 +33,9 @@ const DETAILS_MIN_HEIGHT: float = 92.0
 const DETAILS_MAX_HEIGHT: float = 142.0
 const SUMMARY_VERTICAL_PADDING: float = 10.0
 const TITLE_MIN_SIZE: int = 10
+const TITLE_FIT_RELIEF: int = 2
+const TITLE_MAX_RENDER_SIZE: int = 15
+const TITLE_NAMEPLATE_WIDTH_RATIO: float = 0.500
 const HAND_TITLE_WIDTH_MAX: float = 236.0
 const ELEMENT_FRAME_BAND: int = 42
 const ELEMENT_FRAME_VALUE_MAX: float = 0.58
@@ -690,16 +693,20 @@ func _fit_title_label(base_size: int) -> void:
 		return
 	var font: Font = UiTypography.default_font(title_label)
 	if font == null:
-		UiTypography.set_label_size(title_label, base_size)
+		UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
 		return
-	var available_width: float = _title_available_width()
+	var available_width: float = _title_nameplate_width()
 	var available_height: float = maxf(28.0, title_label.custom_minimum_size.y)
 	for candidate: int in range(base_size, TITLE_MIN_SIZE - 1, -1):
-		var scaled_size: int = UiTypography.scaled_size(title_label, candidate)
+		var render_size: int = _relieved_title_size(candidate)
+		var scaled_size: int = UiTypography.scaled_size(title_label, render_size)
 		if _title_fits(font, title_label.text, scaled_size, available_width, available_height):
-			UiTypography.set_label_size(title_label, candidate)
+			UiTypography.set_label_size(title_label, render_size)
 			return
 	UiTypography.set_label_size(title_label, TITLE_MIN_SIZE)
+
+func _relieved_title_size(candidate: int) -> int:
+	return mini(TITLE_MAX_RENDER_SIZE, maxi(TITLE_MIN_SIZE, candidate - TITLE_FIT_RELIEF))
 
 func _title_available_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
@@ -710,6 +717,11 @@ func _title_available_width() -> float:
 	if top_row != null and top_row.size.x > 0.0:
 		return minf(top_row.size.x, card_inner_width)
 	return card_inner_width
+
+func _title_nameplate_width() -> float:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var visual_width: float = maxf(72.0, width * TITLE_NAMEPLATE_WIDTH_RATIO)
+	return minf(_title_available_width(), visual_width)
 
 func _title_fits(font: Font, title: String, font_size: int, available_width: float, available_height: float) -> bool:
 	if title.strip_edges().is_empty():

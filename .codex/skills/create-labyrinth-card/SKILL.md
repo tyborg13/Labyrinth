@@ -22,11 +22,13 @@ description: Create, implement, rebalance, or review cards for Labyrinth of Ash.
    python3 tools/card_heuristic.py
    ```
 4. Implement the card data and art together when the card is new. Use the same snake_case stem for the card id and art file.
-5. Validate the integration. At minimum run JSON parsing, the touched-card heuristic, and the full heuristic. Run Godot tests for any code or novel-mechanic change:
+5. For card art, action icons, or other raster visual assets, use the `imagegen` skill and current Labyrinth visual references. Do not substitute hand-drawn, code-drawn, SVG, canvas, PIL, or placeholder graphics for final card art or icons unless the user explicitly asks for a placeholder. For card art, also preserve the existing transparent ragged art-window treatment; a full-bleed opaque 16:9 rectangle is not acceptable even when the file is `256 x 144`.
+6. Validate the integration. At minimum run JSON parsing, the touched-card heuristic, and the full heuristic. Run Godot tests for any code or novel-mechanic change:
    ```bash
    jq empty data/cards.json
    godot --headless --path . --script tests/run_tests.gd
    ```
+7. When showing visual proof screenshots, always save them with a fresh timestamped or versioned filename. Do not overwrite and relink a previously shown screenshot path, because Codex image previews may cache stale bitmap content.
 
 ## Data Rules
 

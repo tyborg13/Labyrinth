@@ -40,6 +40,7 @@ The current event stream is enough to derive:
 `card_played.payload` currently logs raw observed ingredients instead of a single heuristic score:
 
 - enemy HP, block, and stoneskin removed
+- pierce actions resolved and enemy defense bypassed by observed HP damage
 - kills secured
 - player HP delta
 - block, stoneskin, and healing gained

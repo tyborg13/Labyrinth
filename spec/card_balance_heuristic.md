@@ -28,6 +28,8 @@ These assumptions are baked into the current coefficients:
 - Fatigue starts at `2` health and increases by `1` each reshuffle.
 - Enemy preview block matters immediately during the player turn.
 - Freeze doubles incoming damage and skips the enemy's next turn.
+- Pierce attacks deal HP damage through block and stoneskin without removing
+  those defenses.
 - Shock lets the enemy keep movement, but strips non-movement actions for that
   turn.
 - Burn ticks at enemy start of turn and decays by `1`.
@@ -86,6 +88,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - AOE base target multiplier: `1.20`
 - AOE extra tile multiplier: `0.10`
 - Chain extra target bonus: `0.45`
+- Pierce defense bypass: `0.75`
 - Freeze: `3.8`
 - Shock: `2.5`
 - Push: `0.28` per tile
@@ -156,6 +159,8 @@ This heuristic is intentionally conservative about:
 - Relic-specific synergies
 - Multi-card combos that need a particular hand pattern
 - Boss-only value
+- How often pierce converts damage through block or stoneskin; its bonus is a
+  conditional pool-average estimate rather than enemy-intent-specific value.
 - Enemy target redirection from illusion placement, especially when board geometry
   lets one illusion absorb multiple enemy turns
 - Extreme deck-thinning or fatigue exploitation

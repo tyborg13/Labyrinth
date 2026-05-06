@@ -176,6 +176,19 @@
       { "type": "draw", "amount": 1 }
     ]
   },
+  "needle_flurry": {
+    "name": "Needle Flurry",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Pierce an adjacent enemy for 6, then draw 1.",
+    "accent": "#8f7356",
+    "art_path": "res://assets/art/cards/needle_flurry.png",
+    "actions": [
+      { "type": "melee", "damage": 6, "range": 1, "pierce": true },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
   "warded_advance": {
     "name": "Warded Advance",
     "rarity": "common",
@@ -277,6 +290,19 @@
     "actions": [
       { "type": "blink", "range": 6 },
       { "type": "block", "amount": 5 }
+    ]
+  },
+  "bodkin_arrow": {
+    "name": "Bodkin Arrow",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Pierce for 7 at range 5 and gain 1 card play.",
+    "accent": "#9c8259",
+    "art_path": "res://assets/art/cards/bodkin_arrow.png",
+    "actions": [
+      { "type": "ranged", "damage": 7, "range": 5, "pierce": true },
+      { "type": "card_play", "amount": 1 }
     ]
   },
   "ember_rain": {
@@ -491,6 +517,19 @@
       { "type": "melee", "damage": 5, "range": 1, "freeze": 1 }
     ]
   },
+  "icicle_lance": {
+    "name": "Icicle Lance",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Pierce for 6 at range 5.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/icicle_lance.png",
+    "actions": [
+      { "type": "ranged", "damage": 6, "range": 5, "pierce": true }
+    ]
+  },
   "hush_of_winter": {
     "name": "Hush of Winter",
     "element": "ice",
@@ -503,6 +542,19 @@
     "actions": [
       { "type": "ranged", "damage": 4, "range": 7, "freeze": 1 },
       { "type": "draw", "amount": 1 }
+    ]
+  },
+  "shatterline": {
+    "name": "Shatterline",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 5,
+    "description": "Lose 5 health. Pierce a line for 4 at range 5. Freeze.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/shatterline.png",
+    "actions": [
+      { "type": "aoe", "damage": 4, "range": 5, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true, "freeze": 1, "pierce": true }
     ]
   },
   "glacier_pin": {
@@ -749,6 +801,19 @@
       { "type": "melee", "damage": 6, "range": 1, "poison": 2 }
     ]
   },
+  "thorn_skewer": {
+    "name": "Thorn Skewer",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Pierce an adjacent enemy for 7. Poison 3.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/thorn_skewer.png",
+    "actions": [
+      { "type": "melee", "damage": 7, "range": 1, "poison": 3, "pierce": true }
+    ]
+  },
   "basalt_guard": {
     "name": "Basalt Guard",
     "element": "earth",
@@ -775,6 +840,20 @@
     "art_path": "res://assets/art/cards/grave_mortar.png",
     "actions": [
       { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "poison": 2 }
+    ]
+  },
+  "spike_mantle": {
+    "name": "Spike Mantle",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "description": "Pierce all adjacent tiles for 8, then gain 4 stoneskin.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/spike_mantle.png",
+    "actions": [
+      { "type": "aoe", "damage": 8, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "pierce": true },
+      { "type": "stoneskin", "amount": 4 }
     ]
   },
   "tectonic_maul": {

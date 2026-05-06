@@ -699,4 +699,6 @@ static func _action_value(action: Dictionary) -> float:
 	value += float(int(action.get("shock", 0))) * 2.4
 	value += float(int(action.get("stun", 0))) * 3.0
 	value += float(int(action.get("chain", 0))) * 1.5
+	if bool(action.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
+		value += 1.1
 	return value

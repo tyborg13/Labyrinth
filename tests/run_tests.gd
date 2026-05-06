@@ -50,6 +50,8 @@ func _initialize() -> void:
 	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
+	_test_pierce_ignores_defenses()
+	_test_pierce_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_player_block_absorbs_full_enemy_phase()
@@ -730,6 +732,98 @@ func _test_first_attack_bonus_damage_math() -> void:
 	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
 	_assert(int(enemy.get("hp", 0)) == 10, "A 6-damage strike with Ember Lens into 4 block should deal 4 health damage")
 	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
+
+func _test_pierce_ignores_defenses() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var melee_state: Dictionary = combat.create_combat(1701, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	melee_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	melee_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 4,
+		"stoneskin": 3
+	}]
+	melee_state = combat.apply_player_action(melee_state, {"type": "melee", "damage": 5, "range": 1, "pierce": true}, Vector2i(3, 4))
+	var pierced_enemy: Dictionary = (melee_state.get("enemies", []) as Array)[0]
+	_assert(int(pierced_enemy.get("hp", 0)) == 9, "Pierce melee should damage HP through enemy defenses")
+	_assert(int(pierced_enemy.get("block", 0)) == 4, "Pierce melee should not remove enemy block")
+	_assert(int(pierced_enemy.get("stoneskin", 0)) == 3, "Pierce melee should not remove enemy stoneskin")
+
+	var aoe_state: Dictionary = combat.create_combat(1702, _aoe_test_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["whirlwind_slash"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	aoe_state["player"] = {"pos": Vector2i(4, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	aoe_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 14, "max_hp": 14, "block": 2, "stoneskin": 2},
+		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 10, "max_hp": 10, "block": 3, "stoneskin": 1}
+	]
+	var aoe_action: Dictionary = {"type": "aoe", "damage": 4, "range": 0, "pattern": [[0, -1], [1, 0]], "rotate": false, "pierce": true}
+	aoe_state = combat.apply_player_action(aoe_state, aoe_action)
+	var aoe_enemies: Array = aoe_state.get("enemies", [])
+	_assert(int((aoe_enemies[0] as Dictionary).get("hp", 0)) == 10, "Pierce AOE should damage the first target through defenses")
+	_assert(int((aoe_enemies[0] as Dictionary).get("block", 0)) == 2, "Pierce AOE should leave first target block intact")
+	_assert(int((aoe_enemies[1] as Dictionary).get("hp", 0)) == 6, "Pierce AOE should damage the second target through defenses")
+	_assert(int((aoe_enemies[1] as Dictionary).get("stoneskin", 0)) == 1, "Pierce AOE should leave second target stoneskin intact")
+
+	var enemy_state: Dictionary = combat.create_combat(1703, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	enemy_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 6, "stoneskin": 4}
+	enemy_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0,
+		"intent": {"name": "Needle", "actions": [{"type": "melee", "damage": 5, "range": 1, "pierce": true}]}
+	}]
+	enemy_state = combat.resolve_enemy_phase(enemy_state)
+	var pierced_player: Dictionary = enemy_state.get("player", {})
+	_assert(int(pierced_player.get("hp", 0)) == 19, "Enemy pierce attacks should damage player HP through defenses")
+	_assert(int(pierced_player.get("block", 0)) == 6, "Enemy pierce attacks should leave player block intact")
+	_assert(int(pierced_player.get("stoneskin", 0)) == 4, "Enemy pierce attacks should leave player stoneskin intact")
+
+func _test_pierce_cards_stay_in_allowed_elements() -> void:
+	var allowed_elements: Dictionary = {
+		"none": true,
+		"ice": true,
+		"earth": true
+	}
+	for card_id: String in GameData.cards().keys():
+		var card: Dictionary = GameData.card_def(card_id)
+		var has_pierce: bool = false
+		for action_var: Variant in card.get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			if bool((action_var as Dictionary).get("pierce", false)):
+				has_pierce = true
+				break
+		if not has_pierce:
+			continue
+		var card_element: String = GameData.card_element_from_def(card)
+		_assert(bool(allowed_elements.get(card_element, false)), "Pierce cards should currently stay neutral, ice, or earth: %s" % card_id)
 
 func _test_healing_cards_are_burned_and_downweighted() -> void:
 	for card_id: String in ["patch_up", "rallying_breath", "last_light"]:
@@ -2268,6 +2362,10 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged action tokens should use the bow icon")
 	_assert(str((row[1] as Dictionary).get("icon", "")) == "range", "Ranged action tokens should include the shared range icon")
 	_assert(str((row[2] as Dictionary).get("icon", "")) == "poison", "Status keywords should use their shared icon token")
+	var pierce_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 6, "range": 5, "pierce": true})
+	_assert(pierce_row.size() == 2, "Pierce should replace the ranged damage icon instead of adding another keyword token")
+	_assert(str((pierce_row[0] as Dictionary).get("icon", "")) == "pierce", "Pierce attacks should use the pierce damage icon")
+	_assert(ActionIcons.tooltip("pierce").contains("block"), "Pierce tooltip should explain defense bypass")
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
