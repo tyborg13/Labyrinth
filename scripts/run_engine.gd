@@ -138,7 +138,9 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
-	_reveal_neighbors(next_state, next_state.get("current_room", Vector2i.ZERO))
+	var current_room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
+	if str(next_state.get("mode", "room")) != "combat" or not _room_blocks_exit_reveal(current_room):
+		_reveal_neighbors(next_state, next_state.get("current_room", Vector2i.ZERO))
 	return next_state
 
 func available_moves(run_state: Dictionary) -> Array[Vector2i]:
@@ -197,7 +199,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	next_state["turns_spent"] = int(next_state.get("turns_spent", 0)) + 1
 	next_state["notice"] = ""
 	next_state["rooms"] = rooms
-	_reveal_neighbors(next_state, destination)
+	var reveal_exits_on_entry: bool = not _room_blocks_exit_reveal(room)
+	if reveal_exits_on_entry:
+		_reveal_neighbors(next_state, destination)
 	rooms = next_state.get("rooms", {}).duplicate(true)
 	room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
@@ -270,6 +274,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	room["cleared"] = true
 	rooms[room_key] = room
 	next_state["rooms"] = rooms
+	_reveal_neighbors(next_state, current_room)
 	var ember_bonus: int = GameData.stat_bonus_from_relics(next_state.get("relics", []), "combat_ember_bonus")
 	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
 	next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + total_embers
@@ -393,7 +398,7 @@ func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:
 		"element": element_id,
 		"connections": _room_connections(coord),
 		"npcs": npcs,
-		"revealed": depth <= 1,
+		"revealed": depth == 0,
 		"visited": false,
 		"cleared": room_type == "start",
 		"sealed": false
@@ -529,6 +534,16 @@ func _room_npcs_for_coord(_seed: int, coord: Vector2i) -> Array[Dictionary]:
 
 func _room_has_npcs(room: Dictionary) -> bool:
 	return (room.get("npcs", []) as Array).size() > 0
+
+func _room_blocks_exit_reveal(room: Dictionary) -> bool:
+	var room_type: String = str(room.get("type", "combat"))
+	if room_type not in ["combat", "boss"]:
+		return false
+	if bool(room.get("cleared", false)):
+		return false
+	if _room_has_npcs(room):
+		return false
+	return true
 
 func _merge_room_metadata(seed: int, coord: Vector2i, stored_room: Dictionary) -> Dictionary:
 	var room: Dictionary = _build_room_metadata(seed, coord)

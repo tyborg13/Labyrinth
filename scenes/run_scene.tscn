@@ -113,7 +113,9 @@ offset_left = -228.0
 offset_top = 8.0
 offset_right = -8.0
 offset_bottom = 216.0
-mouse_filter = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+tooltip_text = "Map"
 
 [node name="MiniMapMargin" type="Control" parent="Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"]
 layout_mode = 1
@@ -135,6 +137,8 @@ anchor_bottom = 1.0
 offset_right = 0.0
 offset_bottom = 0.0
 script = ExtResource("2_map")
+interactive = false
+show_legend = false
 
 [node name="LogOverlay" type="PanelContainer" parent="Backdrop/Margin/MainVBox/StageRoot"]
 layout_mode = 1

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-06T16:21:45Z",
+  "updated_at": "2026-05-06T20:22:07Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2273,6 +2273,52 @@
       "source": {
         "branch": "master",
         "commit": "3870ce0"
+      }
+    },
+    {
+      "id": "mnt_20260506T174008Z_466cd495",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "Uncleared combat rooms defer exit reveal until victory",
+      "details": "Generated room metadata now defaults non-origin rooms to unrevealed; visibility should enter run_state only through explicit reveal calls. move_to_room does not reveal neighbors for uncleared combat/boss rooms, while finish_combat reveals them after marking the room cleared, so minimap and door exits stay hidden during active combat.",
+      "status": "active",
+      "created_at": "2026-05-06T17:40:08Z",
+      "updated_at": "2026-05-06T17:40:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "85ea430"
+      }
+    },
+    {
+      "id": "mnt_20260506T202207Z_5ed8e46e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat action controls overlay wider targeting buttons without resizing the hand row.",
+      "details": "RunScene keeps ChoiceBar as a one-action layout placeholder during combat and parents the visible Pass/Skip/Cancel buttons to a root overlay positioned over that placeholder. This preserves the original pile/pass footprint while letting Skip+Cancel occupy nearby dead space without pushing the hand or top UI.",
+      "status": "active",
+      "created_at": "2026-05-06T20:22:07Z",
+      "updated_at": "2026-05-06T20:22:07Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260506T201510Z_9ebcb802"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "85ea430"
       }
     }
   ]

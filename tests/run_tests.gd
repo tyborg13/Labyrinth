@@ -134,10 +134,12 @@ func _initialize() -> void:
 	_test_hand_fan_layout_lifts_center_cards()
 	_test_default_theme_uses_pixel_font()
 	await _test_main_scenes_instantiate()
+	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_action_selection_buttons_are_large()
+	await _test_run_scene_action_selection_keeps_hand_layout_stable()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
 	await _test_run_scene_campfire_choices_use_context_overlay()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
@@ -2420,6 +2422,64 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	var uncleared_distance: float = absf(uncleared.r - grey.r) + absf(uncleared.g - grey.g) + absf(uncleared.b - grey.b)
 	var cleared_distance: float = absf(cleared.r - grey.r) + absf(cleared.g - grey.g) + absf(cleared.b - grey.b)
 	_assert(cleared_distance < uncleared_distance, "Cleared minimap rooms should read as muted grey instead of using a large X mark")
+	map_view.set("interactive", false)
+	map_view.set_run_state({
+		"mode": "room",
+		"current_room": Vector2i.ZERO,
+		"rooms": {
+			"0,0": {"coord": Vector2i.ZERO, "type": "start", "revealed": true, "cleared": true}
+		}
+	})
+	map_view.size = Vector2(220.0, 188.0)
+	_assert(float(map_view.call("_base_node_size")) >= 14.0, "Compact minimap icons should keep a legible minimum node size")
+	map_view.set_run_state({
+		"mode": "room",
+		"current_room": Vector2i.ZERO,
+		"rooms": {
+			"0,0": {
+				"coord": Vector2i.ZERO,
+				"type": "start",
+				"revealed": true,
+				"cleared": true,
+				"connections": [{"coord": Vector2i(1, 0)}]
+			},
+			"1,0": {
+				"coord": Vector2i(1, 0),
+				"type": "combat",
+				"element": "fire",
+				"revealed": true,
+				"cleared": false,
+				"connections": [{"coord": Vector2i.ZERO}]
+			}
+		}
+	})
+	var node_size: float = float(map_view.call("_base_node_size"))
+	var left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
+	var right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
+	var compact_spacing: float = float(map_view.call("_grid_spacing"))
+	_assert(left_position.x - node_size * 0.5 >= 6.0, "Compact minimap rooms should keep visible horizontal padding inside the frame")
+	_assert(right_position.x + node_size * 0.5 <= map_view.size.x - 6.0, "Compact minimap rooms should keep visible horizontal padding inside the frame")
+	_assert(is_equal_approx(absf(right_position.x - left_position.x), compact_spacing), "Compact minimap adjacent rooms should use the same spacing that connectors draw across")
+	map_view.set("interactive", true)
+	map_view.set("show_legend", true)
+	map_view.size = Vector2(920.0, 580.0)
+	var full_left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
+	var full_right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
+	var full_spacing: float = float(map_view.call("_grid_spacing"))
+	_assert(full_spacing <= 72.0 and full_spacing > compact_spacing, "Full map should use a larger fixed grid without stretching sparse rooms to the frame edges")
+	_assert(is_equal_approx(absf(full_right_position.x - full_left_position.x), full_spacing), "Full map adjacent rooms should stay evenly spaced on the same grid")
+	_assert(absf(full_right_position.x - full_left_position.x) < map_view.size.x * 0.25, "Full map should allow dead space instead of stretching early rooms apart")
+	var map_rect: Rect2 = map_view.call("_map_rect")
+	var legend_rect: Rect2 = map_view.call("_legend_rect")
+	_assert(map_rect.end.x + 1.0 <= legend_rect.position.x, "Full map legend should reserve space instead of covering map rooms")
+	_assert(legend_rect.size.y < map_view.size.y * 0.70, "Full map legend should only be as tall as its entries need")
+	var labels: Dictionary = {}
+	for entry_var: Variant in map_view.call("_legend_entries"):
+		var entry: Dictionary = entry_var
+		labels[str(entry.get("label", ""))] = true
+	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Boss"]:
+		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
+	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
 	map_view.free()
 
 func _test_combat_board_loads_door_icons_for_room_types() -> void:
@@ -2473,6 +2533,14 @@ func _test_run_map_seals_departed_rooms() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
 	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
+	if str(run_state.get("mode", "")) == "combat":
+		var combat_state: Dictionary = run_state.get("combat_state", {}).duplicate(true)
+		for enemy_index: int in range((combat_state.get("enemies", []) as Array).size()):
+			var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[enemy_index]
+			enemy["hp"] = 0
+			(combat_state.get("enemies", []) as Array)[enemy_index] = enemy
+		run_state = run_engine.finish_combat(run_state, combat_state)
+		run_state = run_engine.skip_reward_for_heal(run_state)
 	_assert(bool(run_engine.room_metadata(run_state, Vector2i.ZERO).get("sealed", false)), "Leaving the waypoint should seal it forever")
 	_assert(not run_engine.available_moves(run_state).has(Vector2i.ZERO), "Backtracking into a sealed room should be impossible")
 	var side_destination := Vector2i(999, 999)
@@ -2599,6 +2667,8 @@ func _test_combat_finish_generates_reward_state() -> void:
 			break
 	_assert(combat_destination != Vector2i.ZERO, "The opening ring should include at least one combat room")
 	run_state = run_engine.move_to_room(run_state, combat_destination)
+	_assert(str(run_state.get("mode", "")) == "combat", "Entering an uncleared combat room should start combat")
+	_assert(run_engine.available_moves(run_state).is_empty(), "Uncleared combat rooms should not reveal or expose adjacent exits on the minimap")
 	var combat_state: Dictionary = run_state.get("combat_state", {}).duplicate(true)
 	for enemy_index: int in range((combat_state.get("enemies", []) as Array).size()):
 		var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[enemy_index]
@@ -2609,6 +2679,7 @@ func _test_combat_finish_generates_reward_state() -> void:
 	_assert(str(run_state.get("mode", "")) == "reward", "Winning a non-boss combat should transition to the reward state")
 	_assert(int(run_state.get("unbanked_embers", 0)) >= 12, "Combat victory should award embers to the run")
 	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
+	_assert(not run_engine.available_moves(run_state).is_empty(), "Cleared combat rooms should reveal adjacent exits once the fight ends")
 
 func _test_boss_victory_restores_player_health() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -2809,6 +2880,38 @@ func _test_main_scenes_instantiate() -> void:
 	run_scene_instance.queue_free()
 	await process_frame
 
+func _test_run_scene_minimap_click_opens_large_map() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for minimap click coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var mini_map_overlay: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay") as Control
+	var mini_map: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap") as Control
+	_assert(mini_map_overlay.mouse_filter == Control.MOUSE_FILTER_STOP, "Minimap overlay should receive clicks")
+	_assert(mini_map.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Embedded minimap should not consume clicks before the overlay can open the large map")
+	instance.call("_close_dialogue")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	instance.call("_on_mini_map_overlay_gui_input", click)
+	await process_frame
+	var large_map_scrim: ColorRect = instance.get("_large_map_scrim") as ColorRect
+	_assert(large_map_scrim != null and large_map_scrim.visible, "Clicking the minimap should open the large map overlay")
+	var large_map_view: Control = instance.get("_large_map_view") as Control
+	_assert(large_map_view != null and not bool(large_map_view.get("draw_background")), "Large map view should let the translucent panel show through behind map rooms")
+	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
+	var close_button: Button = null
+	if large_map_dialog != null:
+		close_button = large_map_dialog.find_child("CloseButton", true, false) as Button
+	_assert(close_button != null, "Large map should expose a close button")
+	if close_button != null:
+		_assert(absf(close_button.custom_minimum_size.x - close_button.custom_minimum_size.y) <= 1.0, "Large map close button should be boxy instead of a wide native button")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_debug_boss_fixture_boots() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -2867,12 +2970,8 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var pass_button: Button = null
-	for child: Node in choice_bar.get_children():
-		if child is Button and (child as Button).text == "Pass":
-			pass_button = child as Button
-			break
+	var choice_host: Node = _run_scene_choice_button_host(instance)
+	var pass_button: Button = _button_with_text(choice_host, "Pass")
 	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
 	if pass_button != null:
 		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Combat Pass button should use a large native-ratio frame")
@@ -2908,12 +3007,8 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var pass_button: Button = null
-	for child: Node in choice_bar.get_children():
-		if child is Button and (child as Button).text == "Pass":
-			pass_button = child as Button
-			break
+	var choice_host: Node = _run_scene_choice_button_host(instance)
+	var pass_button: Button = _button_with_text(choice_host, "Pass")
 	_assert(pass_button != null, "Combat UI should offer Pass when the hand has no playable cards")
 	if pass_button != null:
 		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Dead-hand Pass button should use a large native-ratio frame")
@@ -2936,15 +3031,58 @@ func _test_run_scene_action_selection_buttons_are_large() -> void:
 	instance.set("_pending_action_index", 0)
 	instance.set("_pending_action_can_skip", true)
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var skip_button: Button = _button_with_text(choice_bar, "Skip")
-	var cancel_button: Button = _button_with_text(choice_bar, "Cancel")
+	var choice_host: Node = _run_scene_choice_button_host(instance)
+	var skip_button: Button = _button_with_text(choice_host, "Skip")
+	var cancel_button: Button = _button_with_text(choice_host, "Cancel")
 	_assert(skip_button != null, "Action selection should show Skip when the current action can be skipped")
 	_assert(cancel_button != null, "Action selection should show Cancel while a card action is selected")
 	if skip_button != null:
 		_assert_button_uses_native_ratio(skip_button, UiSkin.BUTTON_HEIGHT_ACTION, "Action-selection Skip button should use a large native-ratio frame")
 	if cancel_button != null:
 		_assert_button_uses_native_ratio(cancel_button, UiSkin.BUTTON_HEIGHT_ACTION, "Action-selection Cancel button should use a large native-ratio frame")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for action-selection layout coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	instance.set("_run_state", run_state)
+	instance.set("_selected_card_index", -1)
+	instance.set("_pending_actions", [])
+	instance.set("_pending_action_index", 0)
+	instance.set("_pending_action_can_skip", false)
+	instance.call("_refresh_choice_bar")
+	instance.call("_refresh_visibility")
+	await process_frame
+	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var left_action_stack: VBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
+	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var pass_hand_x: float = hand_scroll.global_position.x
+	var pass_action_width: float = left_action_stack.size.x
+	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION).x
+	var expected_action_width: float = maxf(piles_bar.get_combined_minimum_size().x, single_action_width)
+	var two_action_width: float = single_action_width * 2.0 + float(choice_bar.get_theme_constant("separation"))
+	_assert(absf(pass_action_width - expected_action_width) <= 1.0, "Combat action controls should keep the original pile/pass layout footprint")
+	_assert(pass_action_width < two_action_width - 1.0, "Combat action controls should not permanently reserve the wider Skip/Cancel footprint")
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", [{"type": "move"}])
+	instance.set("_pending_action_index", 0)
+	instance.set("_pending_action_can_skip", true)
+	instance.call("_refresh_choice_bar")
+	instance.call("_refresh_visibility")
+	await process_frame
+	var targeting_hand_x: float = hand_scroll.global_position.x
+	var targeting_action_width: float = left_action_stack.size.x
+	_assert(absf(targeting_hand_x - pass_hand_x) <= 1.0, "Move targeting Skip/Cancel controls should not shift the hand area")
+	_assert(absf(targeting_action_width - pass_action_width) <= 1.0, "Combat action controls should reserve a stable column width")
 	instance.queue_free()
 	await process_frame
 
@@ -3961,6 +4099,12 @@ func _button_with_text(node: Node, text: String) -> Button:
 		if button.text == text:
 			return button
 	return null
+
+func _run_scene_choice_button_host(instance: Node) -> Node:
+	var overlay: Node = instance.get("_choice_button_overlay") as Node
+	if overlay != null and overlay.get_child_count() > 0:
+		return overlay
+	return instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 
 func _assert_button_uses_native_ratio(button: Button, min_height: float, message: String) -> void:
 	var minimum_size: Vector2 = button.custom_minimum_size

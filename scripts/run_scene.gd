@@ -12,6 +12,7 @@ const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
@@ -123,10 +124,14 @@ var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
 var _ember_count_override: int = -1
+var _choice_button_overlay: HBoxContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
 var _relic_choice_bar: HBoxContainer
+var _large_map_scrim: ColorRect
+var _large_map_dialog: PanelContainer
+var _large_map_view: Control
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -224,6 +229,7 @@ func _notification(what: int) -> void:
 		_layout_mini_map_overlay()
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
+		_layout_choice_button_overlay()
 
 func _apply_style() -> void:
 	$Backdrop.color = Color("18120f")
@@ -241,6 +247,11 @@ func _apply_style() -> void:
 	mini_map_style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
 	mini_map_style.shadow_size = 0
 	mini_map_overlay.add_theme_stylebox_override("panel", mini_map_style)
+	mini_map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	mini_map_overlay.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	mini_map_overlay.tooltip_text = "Map"
+	if not mini_map_overlay.gui_input.is_connected(_on_mini_map_overlay_gui_input):
+		mini_map_overlay.gui_input.connect(_on_mini_map_overlay_gui_input)
 	var log_style := StyleBoxFlat.new()
 	log_style.bg_color = Color(0.09, 0.06, 0.05, 0.74)
 	log_style.corner_radius_top_left = 8
@@ -284,6 +295,7 @@ func _apply_style() -> void:
 	log_label.scroll_active = false
 	mini_map.interactive = false
 	mini_map.show_legend = false
+	mini_map.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mini_map.custom_minimum_size = Vector2.ZERO
 	board_view.visible = true
 	board_view.custom_minimum_size = Vector2.ZERO
@@ -309,12 +321,146 @@ func _apply_style() -> void:
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
+	_build_choice_button_overlay()
 	_build_dialogue_overlay()
 	_build_menu_overlay()
 	_build_pile_overlay()
 	_build_card_upgrade_overlay()
+	_build_large_map_overlay()
 	_build_drag_overlay()
 	_build_death_overlay()
+
+func _build_choice_button_overlay() -> void:
+	_choice_button_overlay = HBoxContainer.new()
+	_choice_button_overlay.name = "ChoiceButtonOverlay"
+	_choice_button_overlay.visible = false
+	_choice_button_overlay.mouse_filter = Control.MOUSE_FILTER_PASS
+	_choice_button_overlay.clip_contents = false
+	_choice_button_overlay.z_index = 120
+	_choice_button_overlay.z_as_relative = false
+	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
+	add_child(_choice_button_overlay)
+
+func _combat_choice_placeholder_size() -> Vector2:
+	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION)
+
+func _layout_choice_button_overlay() -> void:
+	if _choice_button_overlay == null or not _choice_button_overlay.visible:
+		return
+	if not choice_bar.is_inside_tree() or not choice_bar.visible:
+		return
+	var overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
+	_choice_button_overlay.global_position = choice_bar.get_global_rect().position
+	_choice_button_overlay.size = overlay_size
+
+func _build_large_map_overlay() -> void:
+	_large_map_scrim = ColorRect.new()
+	_large_map_scrim.name = "LargeMapScrim"
+	_large_map_scrim.visible = false
+	_large_map_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_large_map_scrim.z_index = 940
+	_large_map_scrim.z_as_relative = false
+	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 0.62)
+	_large_map_scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_large_map_scrim.anchor_right = 1.0
+	_large_map_scrim.anchor_bottom = 1.0
+	add_child(_large_map_scrim)
+
+	var frame_margin := MarginContainer.new()
+	frame_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame_margin.anchor_right = 1.0
+	frame_margin.anchor_bottom = 1.0
+	frame_margin.add_theme_constant_override("margin_left", 34)
+	frame_margin.add_theme_constant_override("margin_top", 30)
+	frame_margin.add_theme_constant_override("margin_right", 34)
+	frame_margin.add_theme_constant_override("margin_bottom", 30)
+	frame_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_large_map_scrim.add_child(frame_margin)
+
+	_large_map_dialog = PanelContainer.new()
+	_large_map_dialog.name = "LargeMapDialog"
+	_large_map_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
+	_large_map_dialog.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_large_map_dialog.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var dialog_style := _ui_skin.make_plain_card_style(Color(0.10, 0.075, 0.055, 0.38), Color(0.92, 0.80, 0.60, 0.70), 16.0)
+	dialog_style.corner_radius_top_left = 10
+	dialog_style.corner_radius_top_right = 10
+	dialog_style.corner_radius_bottom_right = 10
+	dialog_style.corner_radius_bottom_left = 10
+	dialog_style.shadow_size = 18
+	_large_map_dialog.add_theme_stylebox_override("panel", dialog_style)
+	frame_margin.add_child(_large_map_dialog)
+
+	var content_margin := MarginContainer.new()
+	content_margin.add_theme_constant_override("margin_left", 18)
+	content_margin.add_theme_constant_override("margin_top", 16)
+	content_margin.add_theme_constant_override("margin_right", 18)
+	content_margin.add_theme_constant_override("margin_bottom", 18)
+	_large_map_dialog.add_child(content_margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 12)
+	content_margin.add_child(vbox)
+
+	var top_row := HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", 10)
+	vbox.add_child(top_row)
+
+	var title := Label.new()
+	title.text = "Map"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
+	title.add_theme_color_override("font_color", Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 2)
+	top_row.add_child(title)
+
+	var close_button := Button.new()
+	close_button.name = "CloseButton"
+	close_button.text = "X"
+	close_button.tooltip_text = "Close"
+	_ui_skin.apply_button_text_overrides(close_button)
+	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	close_button.add_theme_stylebox_override("normal", _large_map_close_button_style(Color(0.18, 0.13, 0.09, 0.84), Color(0.88, 0.76, 0.56, 0.72)))
+	close_button.add_theme_stylebox_override("hover", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
+	close_button.add_theme_stylebox_override("pressed", _large_map_close_button_style(Color(0.12, 0.09, 0.07, 0.92), Color(0.72, 0.58, 0.40, 0.90)))
+	close_button.add_theme_stylebox_override("focus", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
+	close_button.custom_minimum_size = Vector2(40.0, 40.0)
+	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	close_button.pressed.connect(_close_large_map)
+	top_row.add_child(close_button)
+
+	_large_map_view = LabyrinthMapViewScript.new()
+	_large_map_view.name = "LargeMap"
+	_large_map_view.set("interactive", true)
+	_large_map_view.set("show_legend", true)
+	_large_map_view.set("draw_background", false)
+	_large_map_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_large_map_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_large_map_view.custom_minimum_size = Vector2(720.0, 460.0)
+	_large_map_view.connect("room_selected", _on_large_map_room_selected)
+	vbox.add_child(_large_map_view)
+
+func _large_map_close_button_style(fill: Color, border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.content_margin_left = 6
+	style.content_margin_top = 6
+	style.content_margin_right = 6
+	style.content_margin_bottom = 6
+	return style
 
 func _build_context_choice_overlay() -> void:
 	var stage_root: Control = board_view.get_parent()
@@ -1562,6 +1708,8 @@ func _refresh_ui() -> void:
 	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
 	mini_map.set_run_state(_run_state)
+	if _large_map_view != null:
+		_large_map_view.call("set_run_state", _run_state)
 	_refresh_pile_counts()
 	_refresh_card_play_meter()
 	_refresh_pile_visuals()
@@ -1703,6 +1851,8 @@ func _refresh_visibility() -> void:
 	hand_scroll.visible = mode in ["combat", "reward"]
 	left_action_stack.visible = choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
+	if mode != "combat" and _choice_button_overlay != null:
+		_choice_button_overlay.visible = false
 	if _context_choice_overlay != null and mode != "campfire":
 		_context_choice_overlay.visible = false
 	menu_button.visible = mode != "defeat"
@@ -1711,6 +1861,9 @@ func _refresh_visibility() -> void:
 		_close_pile_view()
 	if mode != "room":
 		_close_card_upgrade_overlay()
+	if mode == "defeat":
+		_close_large_map()
+	_layout_choice_button_overlay()
 
 func _refresh_death_overlay() -> void:
 	if _death_overlay == null:
@@ -1732,9 +1885,13 @@ func _refresh_death_overlay() -> void:
 
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
+	if _choice_button_overlay != null:
+		_clear_children(_choice_button_overlay)
+		_choice_button_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
 	var mode: String = str(_run_state.get("mode", "room"))
+	choice_bar.custom_minimum_size = Vector2.ZERO
 	if mode == "combat" and _selected_card_index >= 0:
 		if _current_action_can_skip():
 			_add_choice_button("Skip", _on_skip_action_pressed)
@@ -1753,7 +1910,14 @@ func _refresh_choice_bar() -> void:
 		"victory":
 			_add_choice_button("Menu", _on_back_to_menu_pressed)
 			_add_choice_button("Again", _on_restart_pressed)
-	choice_bar.visible = choice_bar.get_child_count() > 0
+	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
+	if has_overlay_choices:
+		choice_bar.custom_minimum_size = _combat_choice_placeholder_size()
+	choice_bar.visible = choice_bar.get_child_count() > 0 or has_overlay_choices
+	if _choice_button_overlay != null:
+		_choice_button_overlay.visible = has_overlay_choices
+		_layout_choice_button_overlay()
+		call_deferred("_layout_choice_button_overlay")
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = _context_choice_bar != null and _context_choice_bar.get_child_count() > 0
 	if _relic_choice_overlay != null:
@@ -1769,7 +1933,13 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION if large_action_button else UiTypography.SIZE_SMALL)
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD)
 	button.pressed.connect(callback)
-	choice_bar.add_child(button)
+	if _choice_buttons_use_overlay():
+		_choice_button_overlay.add_child(button)
+	else:
+		choice_bar.add_child(button)
+
+func _choice_buttons_use_overlay() -> bool:
+	return str(_run_state.get("mode", "room")) == "combat" and _choice_button_overlay != null
 
 func _large_action_choice_text(text: String) -> bool:
 	return text == "Pass" or text == "Skip" or text == "Cancel"
@@ -2664,6 +2834,9 @@ func _on_cancel_requested() -> void:
 	if _drag_card_index >= 0:
 		await _animate_drag_cancel_to_source()
 		return
+	if _large_map_scrim != null and _large_map_scrim.visible:
+		_close_large_map()
+		return
 	if _pile_scrim != null and _pile_scrim.visible:
 		_close_pile_view()
 		return
@@ -2674,6 +2847,33 @@ func _on_cancel_requested() -> void:
 		_cancel_card_selection()
 		return
 	_open_menu_overlay()
+
+func _on_mini_map_overlay_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if _dialogue_active or _animation_lock:
+			return
+		_open_large_map()
+		get_viewport().set_input_as_handled()
+
+func _open_large_map() -> void:
+	if _large_map_scrim == null:
+		return
+	_close_menu_overlay()
+	_close_pile_view()
+	_close_card_upgrade_overlay()
+	if _large_map_view != null:
+		_large_map_view.call("set_run_state", _run_state)
+	_large_map_scrim.visible = true
+	_large_map_scrim.move_to_front()
+
+func _close_large_map() -> void:
+	if _large_map_scrim == null:
+		return
+	_large_map_scrim.visible = false
+
+func _on_large_map_room_selected(coord: Vector2i) -> void:
+	_close_large_map()
+	await _on_map_view_room_selected(coord)
 
 func _cancel_card_selection() -> void:
 	if _selected_card_index < 0:
@@ -4736,8 +4936,8 @@ func _layout_mini_map_overlay() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
-	var overlay_width: float = clampf(viewport_size.x * 0.105, 132.0, 168.0)
-	var overlay_height: float = clampf(viewport_size.y * 0.145, 132.0, 164.0)
+	var overlay_width: float = clampf(viewport_size.x * 0.15, 184.0, 244.0)
+	var overlay_height: float = clampf(viewport_size.y * 0.20, 168.0, 224.0)
 	mini_map_overlay.offset_left = -overlay_width - 8.0
 	mini_map_overlay.offset_top = 8.0
 	mini_map_overlay.offset_right = -8.0

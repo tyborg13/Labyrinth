@@ -13,22 +13,23 @@ const ROOM_COLORS := {
 	"treasure": Color("89a862"),
 	"boss": Color("b75643")
 }
-const CLEARED_TINT: Color = Color("6f6a63")
-const CLEARED_ICON_MODULATE: Color = Color(0.78, 0.74, 0.67, 0.58)
-const UNCLEARED_SHADE: float = 0.10
-
-const LEGEND_ORDER: Array[String] = ["start", "combat", "campfire", "treasure", "boss"]
-const LEGEND_LABELS := {
-	"start": "Start",
-	"combat": "Fight",
-	"campfire": "Fire",
-	"treasure": "Relic",
-	"boss": "Boss"
-}
+const CLEARED_TINT: Color = Color("5f6462")
+const CLEARED_ICON_MODULATE: Color = Color(0.70, 0.73, 0.69, 0.78)
+const CLEARED_BADGE_COLOR: Color = Color("d8c79d")
+const UNCLEARED_SHADE: float = 0.02
+const COMPACT_EDGE_BUFFER: float = 26.0
+const EXPANDED_EDGE_BUFFER: float = 56.0
+const COMPACT_GRID_SPACING: float = 34.0
+const EXPANDED_GRID_SPACING: float = 72.0
+const LEGEND_GAP: float = 18.0
+const LEGEND_WIDTH: float = 142.0
+const LEGEND_PADDING: float = 12.0
+const LEGEND_ROW_HEIGHT: float = 26.0
 
 var run_state: Dictionary = {}
 @export var interactive: bool = true
 @export var show_legend: bool = true
+@export var draw_background: bool = true
 var _hover_coord: Vector2i = Vector2i(-999, -999)
 var _room_icon_textures: Dictionary = {}
 var _run_state_signature: String = ""
@@ -47,6 +48,7 @@ func set_run_state(next_state: Dictionary) -> void:
 
 func _compact_map_state(source_state: Dictionary) -> Dictionary:
 	return {
+		"mode": str(source_state.get("mode", "room")),
 		"current_room": source_state.get("current_room", Vector2i.ZERO),
 		"rooms": (source_state.get("rooms", {}) as Dictionary).duplicate(true)
 	}
@@ -60,6 +62,7 @@ func _map_state_signature(source_state: Dictionary) -> String:
 		keys.append(str(key_var))
 	keys.sort()
 	var parts: Array[String] = []
+	parts.append("mode:%s" % str(source_state.get("mode", "room")))
 	parts.append("cur:%s" % _coord_signature(source_state.get("current_room", Vector2i.ZERO)))
 	for key: String in keys:
 		var room: Dictionary = rooms.get(key, {}) as Dictionary
@@ -90,8 +93,11 @@ func _gui_input(event: InputEvent) -> void:
 			room_selected.emit(coord)
 
 func _draw() -> void:
-	if interactive:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.08, 0.06, 0.05, 0.94), true)
+	if draw_background:
+		if interactive:
+			draw_rect(Rect2(Vector2.ZERO, size), Color(0.075, 0.055, 0.045, 0.56), true)
+		else:
+			draw_rect(Rect2(Vector2.ZERO, size), Color(0.075, 0.055, 0.045, 0.58), true)
 	if run_state.is_empty():
 		return
 	var rooms: Dictionary = run_state.get("rooms", {})
@@ -126,10 +132,11 @@ func _draw() -> void:
 func _draw_room_shell(room: Dictionary) -> void:
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var position: Vector2 = _coord_position(coord)
-	var node_size: float = _base_node_size() * 0.82
+	var node_size: float = _base_node_size() * 0.92
 	var rect := Rect2(position - Vector2.ONE * node_size * 0.5, Vector2.ONE * node_size)
-	draw_rect(rect, Color(0.18, 0.15, 0.13, 0.48), true)
-	draw_rect(rect, Color(0.42, 0.35, 0.31, 0.44), false, 1.0)
+	draw_rect(rect.grow(2.0 if interactive else 1.0), Color(0.02, 0.015, 0.012, 0.42), true)
+	draw_rect(rect, Color(0.18, 0.15, 0.13, 0.60), true)
+	draw_rect(rect, Color(0.42, 0.35, 0.31, 0.54), false, 1.0)
 
 func _draw_room_node(room: Dictionary) -> void:
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
@@ -145,16 +152,19 @@ func _draw_room_node(room: Dictionary) -> void:
 	if coord == _hover_coord and accessible:
 		fill = fill.lightened(0.22)
 	var rect := Rect2(position - Vector2.ONE * node_size * 0.5, Vector2.ONE * node_size)
+	draw_rect(rect.grow(2.0 if interactive else 1.0), Color(0.0, 0.0, 0.0, 0.24), true)
 	draw_rect(rect, fill, true)
-	draw_rect(rect, Color("f3e6c5"), false, 2.0 if interactive else 1.3)
+	draw_rect(rect, _room_border_color(room, accessible), false, 2.2 if interactive else 1.6)
 	if coord == current:
 		draw_rect(rect.grow(4.0 if interactive else 2.5), Color("f2c978"), false, 2.0)
-	_draw_room_icon(room, position, node_size * 0.54, _room_icon_modulate(room))
+	_draw_room_icon(room, position, node_size * 0.62, _room_icon_modulate(room))
+	if bool(room.get("cleared", false)):
+		_draw_cleared_badge(position, node_size)
 
 func _draw_room_icon(room: Dictionary, center: Vector2, radius: float, modulate: Color) -> void:
 	var texture: Texture2D = _room_icon_texture_for_room(room)
 	if texture != null:
-		var icon_size: float = radius * 1.62
+		var icon_size: float = radius * 1.70
 		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
 		draw_texture_rect(texture, rect, false, modulate)
 		return
@@ -172,11 +182,29 @@ func _room_fill_color(room: Dictionary) -> Color:
 	if room_type == "combat":
 		fill = ElementData.room_tint(str(room.get("element", ElementData.NONE)))
 	if bool(room.get("cleared", false)):
-		return fill.lerp(CLEARED_TINT, 0.66).darkened(0.08)
+		return fill.lerp(CLEARED_TINT, 0.86).darkened(0.10)
 	return fill.darkened(UNCLEARED_SHADE)
+
+func _room_border_color(room: Dictionary, accessible: bool) -> Color:
+	if bool(room.get("cleared", false)):
+		return Color(0.72, 0.70, 0.64, 0.72)
+	if accessible and interactive:
+		return Color("ffe1a3")
+	return Color("f3e6c5")
 
 func _room_icon_modulate(room: Dictionary) -> Color:
 	return CLEARED_ICON_MODULATE if bool(room.get("cleared", false)) else Color.WHITE
+
+func _draw_cleared_badge(center: Vector2, node_size: float) -> void:
+	var radius: float = clampf(node_size * 0.15, 3.8, 7.8)
+	var badge_center: Vector2 = center + Vector2(node_size * 0.30, node_size * 0.30)
+	draw_circle(badge_center, radius, Color(0.055, 0.050, 0.045, 0.88))
+	draw_arc(badge_center, radius, 0.0, TAU, 18, CLEARED_BADGE_COLOR, 1.2, true)
+	var left: Vector2 = badge_center + Vector2(-radius * 0.48, -radius * 0.02)
+	var mid: Vector2 = badge_center + Vector2(-radius * 0.14, radius * 0.34)
+	var right: Vector2 = badge_center + Vector2(radius * 0.52, -radius * 0.42)
+	draw_line(left, mid, CLEARED_BADGE_COLOR, 1.8, true)
+	draw_line(mid, right, CLEARED_BADGE_COLOR, 1.8, true)
 
 func _room_icon_texture_for_room(room: Dictionary) -> Texture2D:
 	var icon_id: String = RoomIcons.icon_id_for_room(room)
@@ -188,30 +216,51 @@ func _draw_map_legend() -> void:
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
+	var entries: Array[Dictionary] = _legend_entries()
+	if entries.is_empty():
+		return
 	var legend_rect: Rect2 = _legend_rect()
-	draw_rect(legend_rect, Color(0.08, 0.06, 0.05, 0.74), true)
+	draw_rect(legend_rect, Color(0.08, 0.06, 0.05, 0.82), true)
 	draw_rect(legend_rect, Color(0.93, 0.85, 0.70, 0.36), false, 1.0)
-	var current_room: Dictionary = _room_at(run_state.get("current_room", Vector2i.ZERO))
-	draw_string(font, legend_rect.position + Vector2(0.0, 10.0), "D %d" % int(current_room.get("depth", 0)), HORIZONTAL_ALIGNMENT_CENTER, legend_rect.size.x, 8, Color("f2e7d4"))
-	for index: int in range(LEGEND_ORDER.size()):
-		var room_type: String = LEGEND_ORDER[index]
-		var icon_center: Vector2 = legend_rect.position + Vector2(12.0, 28.0 + float(index) * 18.0)
-		var fill_rect := Rect2(icon_center - Vector2(6.0, 6.0), Vector2(12.0, 12.0))
-		draw_rect(fill_rect, ROOM_COLORS.get(room_type, Color("8c7462")), true)
+	var label_size: int = 12 if interactive else 7
+	var icon_side: float = 18.0 if interactive else 12.0
+	var icon_radius: float = 7.0 if interactive else 4.6
+	for index: int in range(entries.size()):
+		var entry: Dictionary = entries[index]
+		var room: Dictionary = entry.get("room", {})
+		var icon_center: Vector2 = legend_rect.position + Vector2(LEGEND_PADDING + icon_side * 0.5, LEGEND_PADDING + icon_side * 0.5 + float(index) * LEGEND_ROW_HEIGHT)
+		var fill_rect := Rect2(icon_center - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side)
+		draw_rect(fill_rect, _room_fill_color(room), true)
 		draw_rect(fill_rect, Color("f3e6c5"), false, 1.0)
-		_draw_room_icon({"type": room_type, "element": ElementData.NONE}, icon_center, 4.6, Color.WHITE)
+		_draw_room_icon(room, icon_center, icon_radius, Color.WHITE)
 		draw_string(
 			font,
-			icon_center + Vector2(10.0, 4.0),
-			str(LEGEND_LABELS.get(room_type, room_type)),
+			icon_center + Vector2(14.0 if interactive else 10.0, 4.0),
+			str(entry.get("label", "")),
 			HORIZONTAL_ALIGNMENT_LEFT,
-			legend_rect.size.x - 24.0,
-			7,
+			legend_rect.size.x - (30.0 if interactive else 24.0),
+			label_size,
 			Color("d9cbb2")
 		)
 
+func _legend_entries() -> Array[Dictionary]:
+	var entries: Array[Dictionary] = [
+		{"label": "Start", "room": {"type": "start", "element": ElementData.NONE}}
+	]
+	for element_id: String in ElementData.all_elements():
+		entries.append({
+			"label": ElementData.name(element_id),
+			"room": {"type": "combat", "element": element_id}
+		})
+	entries.append({"label": "Campfire", "room": {"type": "campfire", "element": ElementData.NONE}})
+	entries.append({"label": "Relic", "room": {"type": "treasure", "element": ElementData.NONE}})
+	entries.append({"label": "Boss", "room": {"type": "boss", "element": ElementData.LIGHTNING}})
+	return entries
+
 func _available_move_coords() -> Array[Vector2i]:
 	var coords: Array[Vector2i] = []
+	if str(run_state.get("mode", "room")) != "room":
+		return coords
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = _room_at(current)
 	var current_depth: int = int(current_room.get("depth", 0))
@@ -237,14 +286,13 @@ func _available_move_coords() -> Array[Vector2i]:
 func _coord_position(coord: Vector2i) -> Vector2:
 	var map_rect: Rect2 = _map_rect()
 	var bounds: Rect2i = _coord_bounds()
-	var span_x: int = maxi(1, bounds.size.x)
-	var span_y: int = maxi(1, bounds.size.y)
-	var x_ratio: float = 0.5 if span_x <= 1 else float(coord.x - bounds.position.x) / float(span_x - 1)
-	var y_ratio: float = 0.5 if span_y <= 1 else float(coord.y - bounds.position.y) / float(span_y - 1)
-	return Vector2(
-		map_rect.position.x + x_ratio * map_rect.size.x,
-		map_rect.position.y + y_ratio * map_rect.size.y
+	var bounds_center := Vector2(
+		float(bounds.position.x) + float(bounds.size.x - 1) * 0.5,
+		float(bounds.position.y) + float(bounds.size.y - 1) * 0.5
 	)
+	var spacing: float = _grid_spacing()
+	var coord_offset := Vector2(float(coord.x), float(coord.y)) - bounds_center
+	return map_rect.get_center() + coord_offset * spacing
 
 func _coord_at_point(point: Vector2) -> Vector2i:
 	var hit_radius: float = _base_node_size() * 0.72
@@ -260,8 +308,9 @@ func _coord_at_point(point: Vector2) -> Vector2i:
 func _draw_connector(a: Vector2i, b: Vector2i, revealed: bool = true) -> void:
 	var a_pos: Vector2 = _coord_position(a)
 	var b_pos: Vector2 = _coord_position(b)
-	var thickness: float = maxf(2.0, _base_node_size() * 0.34)
-	draw_line(a_pos, b_pos, Color("7b6a5b") if revealed else Color(0.27, 0.23, 0.20, 0.56), thickness, true)
+	var thickness: float = maxf(3.0 if not interactive else 4.0, _base_node_size() * 0.28)
+	draw_line(a_pos, b_pos, Color(0.025, 0.020, 0.016, 0.58), thickness + 2.0, true)
+	draw_line(a_pos, b_pos, Color("9a8062") if revealed else Color(0.27, 0.23, 0.20, 0.56), thickness, true)
 
 func _room_at(coord: Vector2i) -> Dictionary:
 	var rooms: Dictionary = run_state.get("rooms", {})
@@ -274,14 +323,21 @@ func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
 func _base_node_size() -> float:
+	var base: float = _grid_spacing() * 0.56
+	return clampf(base, 14.0 if not interactive else 20.0, 24.0 if not interactive else 48.0)
+
+func _grid_spacing() -> float:
 	var map_rect: Rect2 = _map_rect()
 	var bounds: Rect2i = _coord_bounds()
-	var span_x: int = maxi(1, bounds.size.x)
-	var span_y: int = maxi(1, bounds.size.y)
-	var spacing_x: float = map_rect.size.x / float(maxi(1, span_x - 1))
-	var spacing_y: float = map_rect.size.y / float(maxi(1, span_y - 1))
-	var base: float = minf(spacing_x, spacing_y) * 0.38
-	return clampf(base, 8.0 if not interactive else 10.0, 18.0 if not interactive else 22.0)
+	var span_x: int = maxi(0, bounds.size.x - 1)
+	var span_y: int = maxi(0, bounds.size.y - 1)
+	var desired: float = COMPACT_GRID_SPACING if not interactive else EXPANDED_GRID_SPACING
+	var spacing: float = desired
+	if span_x > 0:
+		spacing = minf(spacing, map_rect.size.x / float(span_x))
+	if span_y > 0:
+		spacing = minf(spacing, map_rect.size.y / float(span_y))
+	return maxf(12.0, spacing)
 
 func _coord_bounds() -> Rect2i:
 	var rooms: Array[Dictionary] = _visible_rooms()
@@ -295,12 +351,6 @@ func _coord_bounds() -> Rect2i:
 		max_x = maxi(max_x, coord.x)
 		min_y = mini(min_y, coord.y)
 		max_y = maxi(max_y, coord.y)
-	if min_x == max_x:
-		min_x -= 1
-		max_x += 1
-	if min_y == max_y:
-		min_y -= 1
-		max_y += 1
 	return Rect2i(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
 
 func _visible_rooms() -> Array[Dictionary]:
@@ -315,8 +365,8 @@ func _visible_rooms() -> Array[Dictionary]:
 	return results
 
 func _map_rect() -> Rect2:
-	var padding: float = 18.0 if not interactive else 28.0
-	var legend_width: float = 82.0 if show_legend else 0.0
+	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER
+	var legend_width: float = LEGEND_WIDTH + LEGEND_GAP if show_legend else 0.0
 	return Rect2(
 		Vector2(padding, padding),
 		Vector2(
@@ -326,9 +376,10 @@ func _map_rect() -> Rect2:
 	)
 
 func _legend_rect() -> Rect2:
-	var padding: float = 18.0 if not interactive else 28.0
-	var width: float = 74.0
+	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER
+	var width: float = LEGEND_WIDTH
+	var height: float = LEGEND_PADDING * 2.0 + float(_legend_entries().size()) * LEGEND_ROW_HEIGHT
 	return Rect2(
 		Vector2(size.x - padding - width, padding),
-		Vector2(width, maxf(12.0, size.y - padding * 2.0))
+		Vector2(width, minf(height, maxf(12.0, size.y - padding * 2.0)))
 	)
