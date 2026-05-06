@@ -129,11 +129,16 @@ const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
 const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
 const AMBIENT_PARTICLE_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles.png"
 const AMBIENT_PARTICLE_GLOW_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles_glow.png"
+const AMBIENT_FIRE_SOFT_ATLAS_PATH: String = "res://assets/art/effects/ambient_fire_soft_particles.png"
 const AMBIENT_AIR_WISP_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_frames.png"
+const AMBIENT_AIR_WISP_SOFT_ATLAS_PATH: String = "res://assets/art/effects/ambient_air_wisp_soft_particles.png"
 const AMBIENT_AIR_WISP_GLOW_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_glow_frames.png"
 const AMBIENT_PARTICLE_ATLAS_COLUMNS: int = 4
 const AMBIENT_PARTICLE_ATLAS_ROWS: int = 5
+const AMBIENT_FIRE_SOFT_ATLAS_COLUMNS: int = 4
+const AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS: int = 4
 const AMBIENT_AIR_WISP_FRAME_COLUMNS: int = 32
+const AMBIENT_AIR_WISP_FULL_FRAME_INDEX: int = 16
 const AMBIENT_AIR_WISP_VARIANTS: int = 4
 const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
@@ -178,11 +183,15 @@ var _pillar_torch_idle_frames: Dictionary = {}
 var _effect_textures: Dictionary = {}
 var _ambient_particle_atlas: Texture2D = null
 var _ambient_particle_glow_atlas: Texture2D = null
+var _ambient_fire_soft_atlas: Texture2D = null
 var _ambient_air_wisp_atlas: Texture2D = null
+var _ambient_air_wisp_soft_atlas: Texture2D = null
 var _ambient_air_wisp_glow_atlas: Texture2D = null
 var _ambient_particle_textures: Dictionary = {}
 var _ambient_particle_glow_textures: Dictionary = {}
+var _ambient_fire_soft_textures: Dictionary = {}
 var _ambient_air_wisp_textures: Dictionary = {}
+var _ambient_air_wisp_soft_textures: Dictionary = {}
 var _ambient_air_wisp_glow_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
@@ -386,7 +395,7 @@ func _ambient_particle_count(element_id: String, tile_count: int) -> int:
 		"lightning":
 			base_count = 112
 		"air":
-			base_count = 86
+			base_count = 43
 		"earth":
 			base_count = 88
 	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
@@ -432,14 +441,15 @@ func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, 
 	if texture == null:
 		return
 	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
+	var air_soft_texture: Texture2D = null
 	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed))
 	if element_id == "air":
-		var wisp_phase: float = _ambient_air_wisp_phase(seed, time_seconds)
-		var wisp_frame_index: int = _ambient_air_wisp_frame_index(wisp_phase)
-		var wisp_texture: Texture2D = _ambient_air_wisp_texture(variant_index, wisp_frame_index)
+		var wisp_variant_index: int = _ambient_air_wisp_variant_index(seed)
+		var wisp_texture: Texture2D = _ambient_air_wisp_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
 		if wisp_texture != null:
 			texture = wisp_texture
-		var wisp_glow_texture: Texture2D = _ambient_air_wisp_glow_texture(variant_index, wisp_frame_index)
+		air_soft_texture = _ambient_air_wisp_soft_texture(wisp_variant_index)
+		var wisp_glow_texture: Texture2D = _ambient_air_wisp_glow_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
 		if wisp_glow_texture != null:
 			glow_texture = wisp_glow_texture
 	var alpha: float = _ambient_alpha_for_element(element_id, cycle)
@@ -455,10 +465,28 @@ func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, 
 	var draw_size := Vector2(draw_width, draw_width)
 	if texture_size.x > 0.0:
 		draw_size.y = draw_width * texture_size.y / texture_size.x
+	var rotation: float = _ambient_particle_rotation(element_id, seed, time_seconds)
+	if element_id == "fire":
+		_draw_ambient_fire_particle(
+			texture,
+			_ambient_fire_soft_texture(variant_index),
+			glow_texture,
+			point,
+			velocity,
+			draw_size,
+			rotation,
+			alpha,
+			seed,
+			time_seconds
+		)
+		return
+	if element_id == "air":
+		_draw_ambient_air_wisp_particle(texture, air_soft_texture, glow_texture, point, velocity, draw_size, rotation, alpha)
+		return
 	if glow_texture != null:
 		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha, element_id)
-		_draw_ambient_particle_sprite(glow_texture, point, draw_size * _ambient_glow_scale(element_id), _ambient_particle_rotation(element_id, seed, time_seconds), alpha * _ambient_glow_alpha(element_id))
-	_draw_ambient_particle_sprite(texture, point, draw_size, _ambient_particle_rotation(element_id, seed, time_seconds), alpha)
+		_draw_ambient_particle_sprite(glow_texture, point, draw_size * _ambient_glow_scale(element_id), rotation, alpha * _ambient_glow_alpha(element_id))
+	_draw_ambient_particle_sprite(texture, point, draw_size, rotation, alpha)
 
 func _ambient_particle_texture(element_id: String, variant_index: int) -> Texture2D:
 	if _ambient_particle_atlas == null:
@@ -470,10 +498,40 @@ func _ambient_particle_glow_texture(element_id: String, variant_index: int) -> T
 		return null
 	return _ambient_particle_texture_from_atlas(_ambient_particle_glow_atlas, _ambient_particle_glow_textures, element_id, variant_index)
 
+func _ambient_fire_soft_texture(variant_index: int) -> Texture2D:
+	if _ambient_fire_soft_atlas == null:
+		return null
+	var col: int = posmod(variant_index, AMBIENT_FIRE_SOFT_ATLAS_COLUMNS)
+	var cache_key: String = str(col)
+	if _ambient_fire_soft_textures.has(cache_key):
+		return _ambient_fire_soft_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _ambient_fire_soft_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x / float(AMBIENT_FIRE_SOFT_ATLAS_COLUMNS), atlas_size.y)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _ambient_fire_soft_atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), 0.0), cell_size)
+	_ambient_fire_soft_textures[cache_key] = atlas_texture
+	return atlas_texture
+
 func _ambient_air_wisp_texture(variant_index: int, frame_index: int) -> Texture2D:
 	if _ambient_air_wisp_atlas == null:
 		return null
 	return _ambient_air_wisp_texture_from_atlas(_ambient_air_wisp_atlas, _ambient_air_wisp_textures, variant_index, frame_index)
+
+func _ambient_air_wisp_soft_texture(variant_index: int) -> Texture2D:
+	if _ambient_air_wisp_soft_atlas == null:
+		return null
+	var col: int = posmod(variant_index, AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS)
+	var cache_key: String = str(col)
+	if _ambient_air_wisp_soft_textures.has(cache_key):
+		return _ambient_air_wisp_soft_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _ambient_air_wisp_soft_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x / float(AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS), atlas_size.y)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _ambient_air_wisp_soft_atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), 0.0), cell_size)
+	_ambient_air_wisp_soft_textures[cache_key] = atlas_texture
+	return atlas_texture
 
 func _ambient_air_wisp_glow_texture(variant_index: int, frame_index: int) -> Texture2D:
 	if _ambient_air_wisp_glow_atlas == null:
@@ -540,7 +598,7 @@ func _ambient_particle_speed(element_id: String, seed: int) -> float:
 		"lightning":
 			return lerpf(0.70, 1.15, _ambient_hash01(seed + 2))
 		"air":
-			return lerpf(0.070, 0.120, _ambient_hash01(seed + 2))
+			return lerpf(0.12, 0.20, _ambient_hash01(seed + 2))
 		"earth":
 			return lerpf(0.060, 0.105, _ambient_hash01(seed + 2))
 		_:
@@ -550,6 +608,8 @@ func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
 	if element_id == "lightning":
 		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
 		return clampf(pulse * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+	if element_id == "air":
+		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
 	var floor_alpha: float = 0.12 if element_id in ["fire", "ice"] else 0.08
 	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
 
@@ -570,9 +630,10 @@ func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_
 		"lightning":
 			return Vector2(lateral, y_jitter - tile_width * 0.10)
 		"air":
+			var wind_direction: float = _ambient_air_wind_direction()
 			return Vector2(
-				lateral + (cycle - 0.5) * tile_width * 0.48,
-				y_jitter + sin((cycle + _ambient_hash01(seed + 5)) * TAU) * tile_width * 0.18
+				lateral + (cycle - 0.5) * tile_width * 1.55 * wind_direction,
+				y_jitter + sin((cycle + _ambient_hash01(seed + 5)) * TAU) * tile_width * 0.10
 			)
 		"earth":
 			return Vector2(
@@ -588,8 +649,8 @@ func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
 	var max_scale: float = 0.0
 	match element_id:
 		"fire":
-			min_scale = 0.17
-			max_scale = 0.32
+			min_scale = 0.0425
+			max_scale = 0.08
 		"ice":
 			min_scale = 0.08
 			max_scale = 0.15
@@ -610,19 +671,110 @@ func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
 func _ambient_particle_rotation(element_id: String, seed: int, time_seconds: float) -> float:
 	var base_angle: float = lerpf(-0.32, 0.32, _ambient_hash01(seed + 10))
 	match element_id:
-		"air", "earth":
+		"air":
+			return _ambient_air_wisp_rotation(seed, time_seconds)
+		"earth":
 			return base_angle + sin(time_seconds * 0.45 + _ambient_hash01(seed + 11) * TAU) * 0.12
 		"lightning":
 			return lerpf(-0.46, 0.46, _ambient_hash01(seed + 10))
 		_:
 			return base_angle
 
-func _ambient_air_wisp_phase(seed: int, time_seconds: float) -> float:
-	var speed: float = lerpf(0.70, 0.95, _ambient_hash01(seed + 12))
-	return wrapf(_ambient_hash01(seed + 13) + time_seconds * speed, 0.0, 1.0)
+func _ambient_air_wind_direction() -> float:
+	return 1.0 if _ambient_hash01(_ambient_room_seed("air") + 73) >= 0.5 else -1.0
 
-func _ambient_air_wisp_frame_index(phase: float) -> int:
-	return clampi(int(floorf(wrapf(phase, 0.0, 1.0) * float(AMBIENT_AIR_WISP_FRAME_COLUMNS))), 0, AMBIENT_AIR_WISP_FRAME_COLUMNS - 1)
+func _ambient_air_wisp_variant_index(seed: int) -> int:
+	return 1 if _ambient_hash01(seed + 41) < 0.72 else 3
+
+func _ambient_air_wisp_rotation(seed: int, time_seconds: float) -> float:
+	var wind_direction: float = _ambient_air_wind_direction()
+	var variant_index: int = _ambient_air_wisp_variant_index(seed)
+	var base_angle: float = 0.0 if wind_direction > 0.0 else PI
+	if variant_index == 3:
+		base_angle = PI * 0.5 if wind_direction > 0.0 else -PI * 0.5
+	var wobble: float = lerpf(-0.08, 0.08, _ambient_hash01(seed + 10))
+	return base_angle + wobble + sin(time_seconds * 0.38 + _ambient_hash01(seed + 11) * TAU) * 0.045
+
+func _draw_ambient_fire_particle(texture: Texture2D, soft_texture: Texture2D, glow_texture: Texture2D, point: Vector2, velocity: Vector2, draw_size: Vector2, rotation: float, alpha: float, seed: int, time_seconds: float) -> void:
+	var flicker: float = 0.88 + sin(time_seconds * lerpf(7.0, 10.5, _ambient_hash01(seed + 14)) + _ambient_hash01(seed + 15) * TAU) * 0.12
+	var ember_offset := Vector2(
+		sin(time_seconds * lerpf(1.6, 2.8, _ambient_hash01(seed + 16)) + _ambient_hash01(seed + 17) * TAU) * draw_size.x * 0.10,
+		sin(time_seconds * lerpf(2.2, 3.8, _ambient_hash01(seed + 18)) + _ambient_hash01(seed + 19) * TAU) * draw_size.y * 0.05
+	)
+	if glow_texture != null:
+		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha * 0.90, "fire")
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			point + ember_offset * 0.45,
+			draw_size * Vector2(2.35, 2.05),
+			rotation + sin(time_seconds * 0.9 + _ambient_hash01(seed + 20) * TAU) * 0.16,
+			alpha * 0.24 * flicker,
+			Color(1.0, 0.60, 0.22, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point + ember_offset,
+			draw_size * Vector2(1.30, 1.18),
+			rotation + sin(time_seconds * 1.3 + _ambient_hash01(seed + 21) * TAU) * 0.22,
+			alpha * 0.82 * flicker,
+			Color(1.0, 0.78, 0.42, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point - ember_offset * 0.35,
+			draw_size * Vector2(0.72, 0.68),
+			rotation - sin(time_seconds * 1.7 + _ambient_hash01(seed + 22) * TAU) * 0.18,
+			alpha * 0.46,
+			Color(1.0, 0.94, 0.66, 1.0)
+		)
+	_draw_ambient_particle_sprite(
+		texture,
+		point + ember_offset * 0.18,
+		draw_size * Vector2(0.58, 0.56),
+		rotation,
+		alpha * 0.16,
+		Color(1.0, 0.72, 0.38, 1.0)
+	)
+
+func _draw_ambient_air_wisp_particle(texture: Texture2D, soft_texture: Texture2D, glow_texture: Texture2D, point: Vector2, velocity: Vector2, draw_size: Vector2, rotation: float, alpha: float) -> void:
+	if glow_texture != null:
+		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha * 0.82, "air")
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			point,
+			draw_size * _ambient_glow_scale("air"),
+			rotation,
+			alpha * 0.14,
+			Color(0.70, 0.90, 1.0, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point,
+			draw_size,
+			rotation,
+			alpha * 0.82,
+			Color(0.90, 0.98, 1.0, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point,
+			draw_size * Vector2(0.82, 0.82),
+			rotation,
+			alpha * 0.30,
+			Color(1.0, 1.0, 1.0, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			texture,
+			point,
+			draw_size,
+			rotation,
+			alpha * 0.26,
+			Color(0.94, 1.0, 1.0, 1.0)
+		)
+	else:
+		_draw_ambient_particle_sprite(texture, point, draw_size, rotation, alpha)
 
 func _ambient_motion_blur_cycle_delta(element_id: String) -> float:
 	match element_id:
@@ -709,9 +861,9 @@ func _ambient_trail_length_scale(element_id: String) -> float:
 func _ambient_trail_height_scale(element_id: String) -> float:
 	return 0.50 if element_id in ["fire", "lightning", "air"] else 0.62
 
-func _draw_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float) -> void:
+func _draw_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float, modulate: Color = Color(1.0, 1.0, 1.0, 1.0)) -> void:
 	draw_set_transform(point, rotation, Vector2.ONE)
-	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(1.0, 1.0, 1.0, alpha))
+	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_floor_moss_overlay(tile: Vector2i) -> void:
@@ -2639,11 +2791,15 @@ func _load_assets() -> void:
 	}
 	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)
 	_ambient_particle_glow_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_GLOW_ATLAS_PATH)
+	_ambient_fire_soft_atlas = AssetLoader.load_texture(AMBIENT_FIRE_SOFT_ATLAS_PATH)
 	_ambient_air_wisp_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_FRAMES_PATH)
+	_ambient_air_wisp_soft_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_SOFT_ATLAS_PATH)
 	_ambient_air_wisp_glow_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_GLOW_FRAMES_PATH)
 	_ambient_particle_textures.clear()
 	_ambient_particle_glow_textures.clear()
+	_ambient_fire_soft_textures.clear()
 	_ambient_air_wisp_textures.clear()
+	_ambient_air_wisp_soft_textures.clear()
 	_ambient_air_wisp_glow_textures.clear()
 	_door_opening_frames = _load_door_opening_frames()
 	_door_opening_flipped_frames = []

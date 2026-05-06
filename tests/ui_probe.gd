@@ -6,6 +6,8 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 
 func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute("user://probes")
+	ProgressionStore.set_storage_path("user://labyrinth_progression_probe.json")
+	ProgressionStore.set_run_storage_path("user://labyrinth_run_probe.save")
 	ProgressionStore.clear_saved_run()
 	await _capture_scene("res://scenes/main_menu.tscn", "user://probes/main_menu.png")
 	await _capture_run_states()
