@@ -393,7 +393,7 @@ func _ambient_particle_count(element_id: String, tile_count: int) -> int:
 		"ice":
 			base_count = 172
 		"lightning":
-			base_count = 112
+			base_count = 56
 		"air":
 			base_count = 43
 		"earth":
@@ -655,8 +655,8 @@ func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
 			min_scale = 0.08
 			max_scale = 0.15
 		"lightning":
-			min_scale = 0.18
-			max_scale = 0.35
+			min_scale = 0.135
+			max_scale = 0.2625
 		"air":
 			min_scale = 0.20
 			max_scale = 0.39

@@ -2387,6 +2387,7 @@ func _test_combat_board_ambient_particles_follow_room_element() -> void:
 	board.set_combat_state({"grid": _simple_grid(), "room_coord": Vector2i(3, 1), "room_element": "fire"}, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	_assert(int(board.call("_ambient_room_seed", "fire")) != first_seed, "Ambient particle seeds should vary across rooms")
 	_assert(int(board.call("_ambient_particle_count", "ice", 72)) > int(board.call("_ambient_particle_count", "earth", 72)), "Snow rooms should carry more particles than heavier earth motes")
+	_assert(int(board.call("_ambient_particle_count", "lightning", 72)) < int(board.call("_ambient_particle_count", "fire", 72)), "Lightning rooms should stay sparser than fire after density tuning")
 	board.free()
 
 func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
