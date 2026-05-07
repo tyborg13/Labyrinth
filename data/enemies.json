@@ -32,7 +32,7 @@
         "weight": 2,
         "actions": [
           { "type": "move_toward", "range": 4 },
-          { "type": "melee", "damage": 5, "range": 1 }
+          { "type": "melee", "damage": 5, "range": 1, "pierce": true }
         ]
       }
     ]
@@ -92,7 +92,7 @@
         "name": "Pelt",
         "weight": 4,
         "actions": [
-          { "type": "ranged", "damage": 3, "range": 4 }
+          { "type": "ranged", "damage": 3, "range": 4, "pierce": true }
         ]
       },
       {

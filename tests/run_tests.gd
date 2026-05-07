@@ -51,6 +51,7 @@ func _initialize() -> void:
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
 	_test_pierce_ignores_defenses()
+	_test_enemy_pierce_intents_surface_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
@@ -806,6 +807,47 @@ func _test_pierce_ignores_defenses() -> void:
 	_assert(int(pierced_player.get("hp", 0)) == 19, "Enemy pierce attacks should damage player HP through defenses")
 	_assert(int(pierced_player.get("block", 0)) == 6, "Enemy pierce attacks should leave player block intact")
 	_assert(int(pierced_player.get("stoneskin", 0)) == 4, "Enemy pierce attacks should leave player stoneskin intact")
+
+func _test_enemy_pierce_intents_surface_icons() -> void:
+	var board := CombatBoardView.new()
+	for enemy_type: String in ["crawler", "harrier"]:
+		var pierce_intents: Array = []
+		var non_pierce_attack_count: int = 0
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		for intent_var: Variant in enemy_def.get("intents", []):
+			if typeof(intent_var) != TYPE_DICTIONARY:
+				continue
+			var intent: Dictionary = intent_var
+			var has_attack: bool = false
+			var has_pierce: bool = false
+			for action_var: Variant in intent.get("actions", []):
+				if typeof(action_var) != TYPE_DICTIONARY:
+					continue
+				var action: Dictionary = action_var
+				var action_type: String = str(action.get("type", ""))
+				if action_type in ["melee", "ranged", "aoe", "push", "pull"]:
+					has_attack = true
+					if bool(action.get("pierce", false)):
+						has_pierce = true
+			if has_pierce:
+				pierce_intents.append(intent)
+			elif has_attack:
+				non_pierce_attack_count += 1
+		_assert(pierce_intents.size() == 1, "%s should have exactly one pierce attack intent" % str(enemy_def.get("name", enemy_type)))
+		_assert(non_pierce_attack_count >= 1, "%s should keep at least one non-pierce attack intent" % str(enemy_def.get("name", enemy_type)))
+		if pierce_intents.is_empty():
+			continue
+		var found_pierce_icon: bool = false
+		for row_var: Variant in board.call("_intent_rows", pierce_intents[0]):
+			if typeof(row_var) != TYPE_ARRAY:
+				continue
+			for token_var: Variant in row_var as Array:
+				if typeof(token_var) != TYPE_DICTIONARY:
+					continue
+				if str((token_var as Dictionary).get("icon", "")) == "pierce":
+					found_pierce_icon = true
+		_assert(found_pierce_icon, "%s pierce intent should render with the pierce icon" % str(enemy_def.get("name", enemy_type)))
+	board.free()
 
 func _test_pierce_cards_stay_in_allowed_elements() -> void:
 	var allowed_elements: Dictionary = {
