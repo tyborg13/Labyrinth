@@ -56,6 +56,8 @@ const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(760.0, 136.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(172.0, 118.0)
+const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
+const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const MUSIC_FADE_SECONDS: float = 2.5
@@ -730,7 +732,7 @@ func _build_dialogue_overlay() -> void:
 	vbox.add_child(_dialogue_text_label)
 
 	var footer := HBoxContainer.new()
-	footer.custom_minimum_size = Vector2(0.0, 44.0)
+	footer.custom_minimum_size = Vector2(0.0, DIALOGUE_OPTION_BUTTON_HEIGHT)
 	footer.add_theme_constant_override("separation", 12)
 	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(footer)
@@ -744,7 +746,7 @@ func _build_dialogue_overlay() -> void:
 	footer.add_child(_dialogue_hint_label)
 
 	_dialogue_choice_bar = HBoxContainer.new()
-	_dialogue_choice_bar.custom_minimum_size = Vector2(0.0, 44.0)
+	_dialogue_choice_bar.custom_minimum_size = Vector2(0.0, DIALOGUE_OPTION_BUTTON_HEIGHT)
 	_dialogue_choice_bar.alignment = BoxContainer.ALIGNMENT_END
 	_dialogue_choice_bar.add_theme_constant_override("separation", 10)
 	_dialogue_choice_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1190,8 +1192,8 @@ func _update_dialogue_footer() -> void:
 		button.text = str(option.get("label", "Continue"))
 		_ui_skin.apply_button_stylebox_overrides(button)
 		_ui_skin.apply_button_text_overrides(button)
-		UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
-		_ui_skin.apply_button_native_size(button, 44.0)
+		UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
+		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, DIALOGUE_OPTION_BUTTON_MIN_WIDTH)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
 

@@ -10,6 +10,11 @@ const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
 const MAX_LOG_LINES: int = 12
+const DEPTHS_PER_SEQUENCE: int = 4
+const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
+const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 4
+const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 2
+const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 2
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
 const ZEKARION_TYPE: String = "zekarion"
@@ -1207,15 +1212,15 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 	var first_minion_index: int = enemies.size()
 	var next_id: int = _next_enemy_id(next_state)
 	for tile: Vector2i in spawn_tiles:
-		var definition: Dictionary = GameData.enemy_def(minion_type)
+		var minion_max_hp: int = _scaled_enemy_max_hp(minion_type, int(next_state.get("room_depth", 1)))
 		var minion: Dictionary = {
 			"id": next_id,
 			"type": minion_type,
 			"summoned": true,
 			"element": str(next_state.get("room_element", ElementData.NONE)),
 			"pos": tile,
-			"hp": int(definition.get("max_hp", 1)),
-			"max_hp": int(definition.get("max_hp", 1)),
+			"hp": minion_max_hp,
+			"max_hp": minion_max_hp,
 			"block": 0,
 			"stoneskin": 0
 		}
@@ -2206,30 +2211,34 @@ func _elementalized_enemy_intents(base_intents: Array, room_element: String, roo
 
 func _elementalize_enemy_intent(base_intent: Dictionary, room_element: String, room_depth: int) -> Dictionary:
 	var intent: Dictionary = base_intent.duplicate(true)
-	if not ElementData.is_elemental(room_element):
-		return intent
+	var is_elemental_room: bool = ElementData.is_elemental(room_element)
 	var allow_control: bool = _intent_gets_elemental_control(base_intent, room_element, room_depth)
 	var actions: Array = []
 	for action_var: Variant in base_intent.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
-		actions.append(_elementalize_enemy_action(action_var as Dictionary, room_element, room_depth, allow_control))
+		var action: Dictionary = (action_var as Dictionary).duplicate(true)
+		if is_elemental_room:
+			action = _elementalize_enemy_action(action, room_element, room_depth, allow_control)
+		actions.append(_scale_enemy_action_for_depth(action, room_depth))
 	intent["actions"] = actions
-	intent["element"] = room_element
+	if is_elemental_room:
+		intent["element"] = room_element
 	return intent
 
 func _intent_gets_elemental_control(base_intent: Dictionary, room_element: String, room_depth: int) -> bool:
 	if room_element not in [ElementData.ICE, ElementData.LIGHTNING]:
 		return false
-	if room_depth < 3:
+	if _encounter_depth_for_room_depth(room_depth) < 3:
 		return false
 	return int(base_intent.get("weight", 1)) <= 2
 
 func _elementalize_enemy_action(base_action: Dictionary, room_element: String, room_depth: int, allow_control: bool = true) -> Dictionary:
 	var action: Dictionary = base_action.duplicate(true)
 	var action_type: String = str(action.get("type", ""))
-	var full_power: bool = room_depth >= 3
-	var medium_power: bool = room_depth >= 2
+	var encounter_depth: int = _encounter_depth_for_room_depth(room_depth)
+	var full_power: bool = encounter_depth >= 3
+	var medium_power: bool = encounter_depth >= 2
 	var shallow_power: bool = not medium_power
 	match room_element:
 		ElementData.FIRE:
@@ -2300,6 +2309,35 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 					poison_bonus = 3
 				action["poison"] = maxi(1 if shallow_power else 2, int(action.get("poison", 0)) + poison_bonus)
 	return action
+
+func _encounter_depth_for_room_depth(room_depth: int) -> int:
+	return posmod(maxi(1, room_depth) - 1, DEPTHS_PER_SEQUENCE) + 1
+
+func _depth_sequence_index(room_depth: int) -> int:
+	return int((maxi(1, room_depth) - 1) / DEPTHS_PER_SEQUENCE)
+
+func _scaled_enemy_max_hp(enemy_type: String, room_depth: int) -> int:
+	var base_hp: int = int(GameData.enemy_def(enemy_type).get("max_hp", 1))
+	var sequence_index: int = _depth_sequence_index(room_depth)
+	if sequence_index <= 0:
+		return base_hp
+	var scaled_hp: int = ceili(float(base_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
+	return scaled_hp + ENEMY_HP_FLAT_BONUS_PER_SEQUENCE * sequence_index
+
+func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dictionary:
+	var sequence_index: int = _depth_sequence_index(room_depth)
+	if sequence_index <= 0:
+		return action
+	var scaled: Dictionary = action.duplicate(true)
+	var action_type: String = str(scaled.get("type", ""))
+	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes":
+		if scaled.has("damage"):
+			scaled["damage"] = int(scaled.get("damage", 0)) + ENEMY_DAMAGE_BONUS_PER_SEQUENCE * sequence_index
+	if action_type == "block" or action_type == "stoneskin":
+		scaled["amount"] = int(scaled.get("amount", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
+	elif action_type == "heal_self":
+		scaled["amount"] = int(scaled.get("amount", 0)) + sequence_index
+	return scaled
 
 func _apply_revealed_intent_blocks(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)

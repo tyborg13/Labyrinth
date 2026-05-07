@@ -63,11 +63,11 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, _run_state: Dict
 					"text": "Let me but touch upon this newfound power and I will grant you magicks that may yet win your freedom.",
 					"options": [
 						{
-							"label": "[touch the emaciated man]",
+							"label": "touch the emaciated man",
 							"action": "open_card_upgrades"
 						},
 						{
-							"label": "[begin your journey again]",
+							"label": "begin your journey again",
 							"action": "close"
 						}
 					]
@@ -91,11 +91,11 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, _run_state: Dict
 	if upgrades_unlocked:
 		(lines[lines.size() - 1] as Dictionary)["options"] = [
 			{
-				"label": "[touch the emaciated man]",
+				"label": "touch the emaciated man",
 				"action": "open_card_upgrades"
 			},
 			{
-				"label": "[begin your journey again]",
+				"label": "begin your journey again",
 				"action": "close"
 			}
 		]

@@ -7,7 +7,10 @@ const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
-const MAX_DEPTH: int = 4
+const PLANNED_DEPTH_SEQUENCES: int = 4
+const ACTIVE_DEPTH_SEQUENCES: int = 2
+const DEPTHS_PER_SEQUENCE: int = 4
+const MAX_DEPTH: int = ACTIVE_DEPTH_SEQUENCES * DEPTHS_PER_SEQUENCE
 const BASE_MAX_HP: int = 36
 const BASE_HAND_SIZE: int = 5
 const BASE_CARDS_PER_TURN: int = 2
@@ -147,12 +150,19 @@ func available_moves(run_state: Dictionary) -> Array[Vector2i]:
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(run_state, current)
 	var current_depth: int = int(current_room.get("depth", 0))
+	var cleared_intermediate_boss: bool = (
+		str(current_room.get("type", "")) == "boss"
+		and bool(current_room.get("cleared", false))
+		and not _is_final_boss_depth(current_depth)
+	)
 	var neighbors: Array[Vector2i] = []
 	var seen: Dictionary = {}
 	for connection_var: Variant in current_room.get("connections", []):
 		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue
 		var connection: Dictionary = connection_var
+		if cleared_intermediate_boss and str(connection.get("kind", "")) != "outward":
+			continue
 		var candidate: Vector2i = connection.get("coord", Vector2i(999, 999))
 		if seen.has(candidate):
 			continue
@@ -280,9 +290,15 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + total_embers
 	if str(room.get("type", "")) == "boss":
 		next_state["player_hp"] = int(next_state.get("player_max_hp", next_state.get("player_hp", 1)))
-		next_state["victory"] = true
-		next_state["mode"] = "victory"
 		next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + BOSS_VICTORY_EMBERS
+		next_state["pending_reward"] = {}
+		if _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)):
+			next_state["victory"] = true
+			next_state["mode"] = "victory"
+		else:
+			next_state["victory"] = false
+			next_state["mode"] = "room"
+			next_state["notice"] = "The labyrinth opens outward."
 		return next_state
 	next_state["pending_reward"] = {
 		"cards": _generate_card_rewards(next_state, current_room),
@@ -435,9 +451,11 @@ func _room_type_for_coord(seed: int, coord: Vector2i) -> String:
 	var depth: int = _room_depth(coord)
 	if depth == 0:
 		return "start"
-	if depth >= MAX_DEPTH:
+	if depth > MAX_DEPTH:
 		return "boss"
-	if depth == 2 and (coord.x == 0 or coord.y == 0):
+	if _is_sequence_boss_depth(depth):
+		return "boss"
+	if _depth_step_in_sequence(depth) == 2 and (coord.x == 0 or coord.y == 0):
 		return "campfire"
 	var roll: int = _coord_hash(seed, coord, 77) % 100
 	if roll < 18:
@@ -454,6 +472,15 @@ func _room_element_for_coord(seed: int, coord: Vector2i, room_type: String) -> S
 
 func _room_depth(coord: Vector2i) -> int:
 	return maxi(absi(coord.x), absi(coord.y))
+
+func _depth_step_in_sequence(depth: int) -> int:
+	return posmod(maxi(1, depth) - 1, DEPTHS_PER_SEQUENCE) + 1
+
+func _is_sequence_boss_depth(depth: int) -> bool:
+	return depth > 0 and depth <= MAX_DEPTH and _depth_step_in_sequence(depth) == DEPTHS_PER_SEQUENCE
+
+func _is_final_boss_depth(depth: int) -> bool:
+	return depth >= MAX_DEPTH and _is_sequence_boss_depth(depth)
 
 func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -579,7 +606,7 @@ func _room_connections(coord: Vector2i) -> Array[Dictionary]:
 	var inward_coord: Vector2i = _inward_source_for_room(coord)
 	if inward_coord.x < 900:
 		connections.append({"door_dir": inward_coord - coord, "coord": inward_coord, "kind": "inward"})
-	if depth < MAX_DEPTH and _room_has_outward_link(depth, index):
+	if _room_can_link_outward(depth, index):
 		var outward_coord: Vector2i = _outward_coord_for_room(coord)
 		connections.append({"door_dir": outward_coord - coord, "coord": outward_coord, "kind": "outward"})
 	return connections
@@ -616,6 +643,13 @@ func _ring_index_for_coord(ring: Array[Vector2i], coord: Vector2i) -> int:
 func _room_has_outward_link(depth: int, ring_index: int) -> bool:
 	return depth > 0 and ring_index % 4 == 0
 
+func _room_can_link_outward(depth: int, ring_index: int) -> bool:
+	if depth <= 0 or depth >= MAX_DEPTH:
+		return false
+	if _is_sequence_boss_depth(depth):
+		return true
+	return _room_has_outward_link(depth, ring_index)
+
 func _outward_coord_for_room(coord: Vector2i) -> Vector2i:
 	return coord + _outward_dir_for_room(coord)
 
@@ -651,7 +685,7 @@ func _inward_source_for_room(coord: Vector2i) -> Vector2i:
 			continue
 		var previous_ring: Array[Vector2i] = _ring_coords(depth - 1)
 		var previous_index: int = _ring_index_for_coord(previous_ring, candidate)
-		if previous_index < 0 or not _room_has_outward_link(depth - 1, previous_index):
+		if previous_index < 0 or not _room_can_link_outward(depth - 1, previous_index):
 			continue
 		if _outward_coord_for_room(candidate) == coord:
 			return candidate

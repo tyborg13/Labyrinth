@@ -40,10 +40,14 @@ These assumptions are baked into the current coefficients:
 
 Encounter calibration is also important:
 
-- Standard rooms currently average about `3`, `4`, and `5` enemies at depths
-  `1`, `2`, and `3`.
-- Standard-room enemies average about `13.78` max HP and `3.03` raw damage per
-  enemy turn across the non-boss roster.
+- Standard rooms repeat in four-depth sequences: the first three depths of each
+  sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
+  boss gate.
+- First-sequence standard-room enemies average about `13.78` max HP and `3.03`
+  raw damage per enemy turn across the non-boss roster.
+- Later sequences keep the same local density and elemental-control curve, but
+  raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
+  `+2` block/stoneskin per completed sequence.
 - Rooms reserve a small halo around the player's entry tile, then seed enemies
   with weighted randomness across the room. Placement softly discourages
   adjacent pileups and same-corner clusters, but no longer pushes enemies to

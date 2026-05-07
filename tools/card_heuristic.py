@@ -6,8 +6,11 @@ stable, reviewable baseline for valuing cards in "health saved equivalent"
 terms without coupling the live game to the balance model.
 
 Current encounter assumptions that shape the coefficients but are not directly
-scored here: elemental combat rooms seed 2-3 central-biased traps, so
-forced-movement trap setups remain a manual review item.
+scored here: combat depths repeat in four-depth sequences with 3/4/5 standard
+enemy density before a boss gate; later sequences keep the local curve while
+raising enemy HP and intent baselines. Elemental combat rooms seed 2-3
+central-biased traps, so forced-movement trap setups remain a manual review
+item.
 """
 
 from __future__ import annotations
@@ -21,6 +24,12 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
+
+DEPTHS_PER_SEQUENCE = 4
+ENEMY_HP_SCALE_PER_SEQUENCE = 0.45
+ENEMY_HP_FLAT_BONUS_PER_SEQUENCE = 4
+ENEMY_DAMAGE_BONUS_PER_SEQUENCE = 2
+ENEMY_SUPPORT_BONUS_PER_SEQUENCE = 2
 
 
 @dataclass(frozen=True)

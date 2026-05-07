@@ -59,6 +59,10 @@ large-area attacks.
 
 `enemy_status_tick` captures delayed status resolution at the combat level. It is useful for later value-model work, but it is not yet card-source attributed.
 
+Intermediate boss victories emit `combat_ended` and return the run to room mode
+without `reward_offered` or `run_ended`; only defeat and the final boss victory
+emit `run_ended`.
+
 ## AWS-Friendly Expectations
 
 If this gets uploaded later, keep the event contract compatible with object storage and batch processing:

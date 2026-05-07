@@ -29,9 +29,14 @@ It intentionally excludes, for now:
 ## Run Structure
 
 - The player starts at `(0, 0)` in a safe central room.
-- The map is a Manhattan-distance labyrinth up to depth `4`.
-- Depth `1-3` rooms are a mixture of combat, treasure, and checkpoint spaces.
-- Depth `4` rooms are boss-tier sanctums; clearing one wins the run.
+- The current playable map works outward through two four-depth sequences, with
+  the structure intended to grow to four sequences.
+- Depths `1-3` are a mixture of combat, treasure, and checkpoint spaces, and
+  depth `4` is the first boss gate.
+- Depths `5-7` repeat the same local room-density curve with a higher enemy
+  baseline, and depth `8` is the temporary final boss gate.
+- Clearing an intermediate boss opens the next sequence; clearing the final
+  placeholder boss wins the run.
 - Rooms can be revisited. Cleared rooms stay safe.
 - Lateral movement keeps depth the same, allowing safer farming at the cost of more turns and deck cycles.
 

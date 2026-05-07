@@ -40,6 +40,7 @@ func _initialize() -> void:
 	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
 	_test_boss_room_spawns_zekarion_with_wisps()
+	_test_second_sequence_uses_scaled_zekarion_placeholder()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
@@ -120,12 +121,14 @@ func _initialize() -> void:
 	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
 	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
+	_test_run_map_repeats_depth_sequences()
 	_test_run_map_ring_links_and_outward_quarter()
 	_test_run_map_seals_departed_rooms()
 	_test_run_map_never_moves_back_toward_center()
 	_test_empty_treasure_room_falls_back_to_room_mode()
 	_test_loaded_run_repairs_stranded_room_visibility()
 	_test_combat_finish_generates_reward_state()
+	_test_intermediate_boss_opens_next_sequence()
 	_test_boss_victory_restores_player_health()
 	_test_progression_save_and_purchase(default_progression)
 	_test_emaciated_man_unlocks_card_upgrade_dialogue()
@@ -421,6 +424,16 @@ func _test_room_generation_scales_enemy_density() -> void:
 		"depth": 3,
 		"type": "combat"
 	}, Vector2i(1, 0))
+	var second_sequence_opening: Dictionary = generator.generate_room(27, {
+		"coord": Vector2i(5, 0),
+		"depth": 5,
+		"type": "combat"
+	}, Vector2i(1, 0))
+	var second_sequence_deep: Dictionary = generator.generate_room(27, {
+		"coord": Vector2i(6, 1),
+		"depth": 7,
+		"type": "combat"
+	}, Vector2i(1, 0))
 	var boss_room: Dictionary = generator.generate_room(27, {
 		"coord": Vector2i(4, 0),
 		"depth": 4,
@@ -428,6 +441,9 @@ func _test_room_generation_scales_enemy_density() -> void:
 	}, Vector2i(1, 0))
 	_assert((depth_one_room.get("enemies", []) as Array).size() >= 3, "Opening combat rooms should pack at least three enemies")
 	_assert((depth_three_room.get("enemies", []) as Array).size() >= 5, "Outer combat rooms should feel denser than the opening ring")
+	_assert((second_sequence_opening.get("enemies", []) as Array).size() == (depth_one_room.get("enemies", []) as Array).size(), "Second sequence opening rooms should reset to opening density")
+	_assert((second_sequence_deep.get("enemies", []) as Array).size() >= 5, "Second sequence deep rooms should climb back to five-enemy density")
+	_assert(int(((second_sequence_opening.get("enemies", []) as Array)[0] as Dictionary).get("max_hp", 0)) > int(((depth_one_room.get("enemies", []) as Array)[0] as Dictionary).get("max_hp", 0)), "Second sequence enemies should start from a tougher HP baseline")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
@@ -450,6 +466,25 @@ func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	_assert(occupied.size() == 4, "Zekarion footprint should cover four unique squares")
 	_assert(str((enemies[1] as Dictionary).get("type", "")) == "lightning_wisp", "Boss room should include lightning wisps")
 	_assert(str((enemies[2] as Dictionary).get("type", "")) == "lightning_wisp", "Boss room should include a second lightning wisp")
+
+func _test_second_sequence_uses_scaled_zekarion_placeholder() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var first_boss_room: Dictionary = generator.generate_room(100, {
+		"coord": Vector2i(4, 0),
+		"depth": 4,
+		"type": "boss",
+		"element": ElementData.LIGHTNING
+	}, Vector2i(1, 0))
+	var second_boss_room: Dictionary = generator.generate_room(100, {
+		"coord": Vector2i(8, 0),
+		"depth": 8,
+		"type": "boss",
+		"element": ElementData.LIGHTNING
+	}, Vector2i(1, 0))
+	var first_boss: Dictionary = (first_boss_room.get("enemies", []) as Array)[0]
+	var second_boss: Dictionary = (second_boss_room.get("enemies", []) as Array)[0]
+	_assert(str(second_boss.get("type", "")) == "zekarion", "Second sequence boss should use Zekarion as the placeholder dragon")
+	_assert(int(second_boss.get("max_hp", 0)) > int(first_boss.get("max_hp", 0)), "Placeholder Zekarion should scale up at the end of the second sequence")
 
 func _test_start_room_spawns_emaciated_man() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -1403,6 +1438,13 @@ func _test_shallow_elemental_enemy_actions_scale_back() -> void:
 	_assert(int(common_lightning_action.get("shock", 0)) == 0, "Common lightning intents should not shock on every shot")
 	_assert(int(rare_lightning_action.get("shock", 0)) == 1, "Rarer lightning intents should keep their shock identity")
 	_assert(int(rare_lightning_action.get("range", 0)) == 4, "Shock-bearing lightning attacks should use a shorter range than the longest elemental shots")
+	var second_sequence_opening: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 5)
+	var second_sequence_deep: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 7)
+	var second_sequence_opening_action: Dictionary = (second_sequence_opening.get("actions", [])[0] as Dictionary)
+	var second_sequence_deep_action: Dictionary = (second_sequence_deep.get("actions", [])[0] as Dictionary)
+	_assert(int(second_sequence_opening_action.get("shock", 0)) == 0, "Second sequence opening rooms should repeat the shallow control curve")
+	_assert(int(second_sequence_opening_action.get("damage", 0)) > int(shallow_lightning_action.get("damage", 0)), "Second sequence opening rooms should still hit from a higher damage baseline")
+	_assert(int(second_sequence_deep_action.get("shock", 0)) == 1, "Second sequence deep rooms should regain full elemental control")
 	var shallow_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 1)
 	var deep_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 3)
 	_assert(int(shallow_fire.get("burn", 0)) < int(deep_fire.get("burn", 0)), "Shallow elemental rooms should use lighter status payloads than deeper rooms")
@@ -2539,12 +2581,28 @@ func _test_run_map_room_types() -> void:
 	var run_state: Dictionary = run_engine.create_new_run(13, progression)
 	_assert(str(run_engine.room_metadata(run_state, Vector2i.ZERO).get("type", "")) == "start", "Origin should be the start room")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(2, 0)).get("type", "")) == "campfire", "Axis depth-2 rooms should be campfire rooms")
-	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Outer ring should be boss territory")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Depth-four rooms should punctuate the first sequence with boss territory")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(6, 0)).get("type", "")) == "campfire", "Axis depth-6 rooms should repeat the campfire beat in the second sequence")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(8, 0)).get("type", "")) == "boss", "Depth-eight rooms should be the temporary final boss territory")
+
+func _test_run_map_repeats_depth_sequences() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var depth_four_room: Dictionary = run_engine.room_metadata(run_state, Vector2i(4, 0))
+	var has_depth_five_exit: bool = false
+	for connection_var: Variant in depth_four_room.get("connections", []):
+		var connection: Dictionary = connection_var
+		var target: Vector2i = connection.get("coord", Vector2i.ZERO)
+		if int(run_engine.room_metadata(run_state, target).get("depth", 0)) == 5:
+			has_depth_five_exit = true
+			break
+	_assert(has_depth_five_exit, "Intermediate boss rooms should open directly into the next depth sequence")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(5, 0)).get("type", "")) != "boss", "Depth five should restart regular room generation instead of remaining boss territory")
 
 func _test_run_map_ring_links_and_outward_quarter() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
-	for depth: int in range(1, 4):
+	for depth: int in [1, 2, 3, 5, 6, 7]:
 		var outward_rooms: int = 0
 		var total_rooms: int = 0
 		for x: int in range(-depth, depth + 1):
@@ -2724,45 +2782,53 @@ func _test_combat_finish_generates_reward_state() -> void:
 	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
 	_assert(not run_engine.available_moves(run_state).is_empty(), "Cleared combat rooms should reveal adjacent exits once the fight ends")
 
-func _test_boss_victory_restores_player_health() -> void:
+func _test_intermediate_boss_opens_next_sequence() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
-	run_state["current_room"] = Vector2i(4, 0)
+	var boss_coord := Vector2i(4, 0)
+	run_state["current_room"] = boss_coord
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
-	rooms["4,0"] = {
-		"coord": Vector2i(4, 0),
-		"depth": 4,
-		"type": "boss",
-		"element": ElementData.LIGHTNING,
-		"revealed": true,
-		"visited": true,
-		"cleared": false,
-		"connections": []
-	}
+	var boss_room: Dictionary = run_engine.room_metadata(run_state, boss_coord)
+	boss_room["revealed"] = true
+	boss_room["visited"] = true
+	boss_room["cleared"] = false
+	rooms["4,0"] = boss_room
 	run_state["rooms"] = rooms
 	run_state["player_hp"] = 9
 	run_state["player_max_hp"] = 36
-	var combat_state: Dictionary = _zekarion_test_room_layout()
-	combat_state["room_name"] = "Tempest God's Perch"
-	combat_state["room_coord"] = Vector2i(4, 0)
-	combat_state["room_depth"] = 4
-	combat_state["room_type"] = "boss"
-	combat_state["room_element"] = ElementData.LIGHTNING
-	combat_state["player"] = {
-		"pos": Vector2i(2, 6),
-		"hp": 9,
-		"max_hp": 36,
-		"block": 0,
-		"stoneskin": 0
-	}
-	for index: int in range((combat_state.get("enemies", []) as Array).size()):
-		var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[index]
-		if str(enemy.get("type", "")) == "zekarion":
-			enemy["hp"] = 0
-			(combat_state.get("enemies", []) as Array)[index] = enemy
+	var combat_state: Dictionary = _defeated_zekarion_combat_state(4, boss_coord)
 	run_state = run_engine.finish_combat(run_state, combat_state)
-	_assert(str(run_state.get("mode", "")) == "victory", "Defeating Zekarion should end the run in victory")
-	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating Zekarion should restore the player to full health")
+	_assert(str(run_state.get("mode", "")) == "room", "Defeating a non-final sequence boss should return to room mode")
+	_assert(not bool(run_state.get("victory", false)), "The first sequence boss should not end the expanded run")
+	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating an intermediate boss should restore the player to full health")
+	var has_next_sequence_move: bool = false
+	var exposes_lateral_boss_move: bool = false
+	for coord: Vector2i in run_engine.available_moves(run_state):
+		var depth: int = int(run_engine.room_metadata(run_state, coord).get("depth", 0))
+		if depth == 5:
+			has_next_sequence_move = true
+		elif depth == 4:
+			exposes_lateral_boss_move = true
+	_assert(has_next_sequence_move, "Clearing the first boss should reveal a route into depth five")
+	_assert(not exposes_lateral_boss_move, "Clearing an intermediate boss should push the route outward instead of farming sideways boss gates")
+
+func _test_boss_victory_restores_player_health() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
+	run_state["current_room"] = Vector2i(8, 0)
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	var final_boss_room: Dictionary = run_engine.room_metadata(run_state, Vector2i(8, 0))
+	final_boss_room["revealed"] = true
+	final_boss_room["visited"] = true
+	final_boss_room["cleared"] = false
+	rooms["8,0"] = final_boss_room
+	run_state["rooms"] = rooms
+	run_state["player_hp"] = 9
+	run_state["player_max_hp"] = 36
+	var combat_state: Dictionary = _defeated_zekarion_combat_state(8, Vector2i(8, 0))
+	run_state = run_engine.finish_combat(run_state, combat_state)
+	_assert(str(run_state.get("mode", "")) == "victory", "Defeating the final placeholder Zekarion should end the run in victory")
+	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating the final placeholder Zekarion should restore the player to full health")
 
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
 	var data: Dictionary = ProgressionStore.add_embers(default_progression, 1000)
@@ -3973,11 +4039,11 @@ func _aoe_test_room_layout() -> Dictionary:
 		"loot": []
 	}
 
-func _zekarion_test_room_layout() -> Dictionary:
+func _zekarion_test_room_layout(depth: int = 4, coord: Vector2i = Vector2i(4, 0)) -> Dictionary:
 	return {
 		"name": "Tempest God's Perch",
-		"coord": Vector2i(4, 0),
-		"depth": 4,
+		"coord": coord,
+		"depth": depth,
 		"type": "boss",
 		"element": ElementData.LIGHTNING,
 		"grid": _simple_grid(),
@@ -4014,6 +4080,27 @@ func _zekarion_test_room_layout() -> Dictionary:
 		],
 		"loot": []
 	}
+
+func _defeated_zekarion_combat_state(depth: int, coord: Vector2i) -> Dictionary:
+	var combat_state: Dictionary = _zekarion_test_room_layout(depth, coord)
+	combat_state["room_name"] = "Tempest God's Perch"
+	combat_state["room_coord"] = coord
+	combat_state["room_depth"] = depth
+	combat_state["room_type"] = "boss"
+	combat_state["room_element"] = ElementData.LIGHTNING
+	combat_state["player"] = {
+		"pos": Vector2i(2, 6),
+		"hp": 9,
+		"max_hp": 36,
+		"block": 0,
+		"stoneskin": 0
+	}
+	for index: int in range((combat_state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (combat_state.get("enemies", []) as Array)[index]
+		if str(enemy.get("type", "")) == "zekarion":
+			enemy["hp"] = 0
+			(combat_state.get("enemies", []) as Array)[index] = enemy
+	return combat_state
 
 func _dead_hand_room_layout() -> Dictionary:
 	return {

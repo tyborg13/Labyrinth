@@ -7,8 +7,11 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 
 const ROOM_WIDTH: int = 9
 const ROOM_HEIGHT: int = 9
+const DEPTHS_PER_SEQUENCE: int = 4
 const ENEMY_SPAWN_SAFE_RADIUS: int = 2
 const ENEMY_SPAWN_PICK_WINDOW: int = 6
+const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
+const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 4
 
 const TILE_ASH: String = "ash"
 const TILE_EMBER: String = "ember"
@@ -79,6 +82,7 @@ const ROOM_NAME_SUFFIXES: Array[String] = [
 
 func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
 	var depth: int = int(room.get("depth", 1))
+	var encounter_depth: int = _encounter_depth_for_global_depth(depth)
 	var room_type: String = str(room.get("type", "combat"))
 	var room_element: String = str(room.get("element", "none"))
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
@@ -98,18 +102,19 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord, room_type)
 
 	var player_start: Vector2i = entrance_tile
-	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, depth, rng)
+	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng)
 	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
 		var enemy_type: String = str(enemy_types[index])
+		var enemy_max_hp: int = _scaled_enemy_max_hp(enemy_type, depth)
 		var enemy: Dictionary = {
 			"id": index + 1,
 			"type": enemy_type,
 			"element": room_element,
 			"pos": enemy_positions[index],
-			"hp": int(GameData.enemy_def(enemy_type).get("max_hp", 1)),
-			"max_hp": int(GameData.enemy_def(enemy_type).get("max_hp", 1)),
+			"hp": enemy_max_hp,
+			"max_hp": enemy_max_hp,
 			"block": 0,
 			"stoneskin": 0
 		}
@@ -125,7 +130,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var npcs: Array[Dictionary] = _build_room_npcs(grid, player_start, npc_specs, rng, occupied)
 	for npc: Dictionary in npcs:
 		occupied[npc.get("pos", Vector2i(-1, -1))] = true
-	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, depth, player_start, rng, occupied)
+	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, encounter_depth, player_start, rng, occupied)
 	for trap: Dictionary in traps:
 		occupied[trap.get("pos", Vector2i(-1, -1))] = true
 	var loot: Array = []
@@ -411,6 +416,20 @@ func _reachable_floor_count(grid: Array, start: Vector2i) -> int:
 			visited[next_tile] = true
 			queue.append(next_tile)
 	return visited.size()
+
+func _encounter_depth_for_global_depth(depth: int) -> int:
+	return posmod(maxi(1, depth) - 1, DEPTHS_PER_SEQUENCE) + 1
+
+func _depth_sequence_index(depth: int) -> int:
+	return int((maxi(1, depth) - 1) / DEPTHS_PER_SEQUENCE)
+
+func _scaled_enemy_max_hp(enemy_type: String, depth: int) -> int:
+	var base_hp: int = int(GameData.enemy_def(enemy_type).get("max_hp", 1))
+	var sequence_index: int = _depth_sequence_index(depth)
+	if sequence_index <= 0:
+		return base_hp
+	var scaled_hp: int = ceili(float(base_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
+	return scaled_hp + ENEMY_HP_FLAT_BONUS_PER_SEQUENCE * sequence_index
 
 func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator) -> Array:
 	if room_type == "start" or room_type == "campfire" or room_type == "treasure":
