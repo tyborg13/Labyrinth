@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-08T16:23:21Z",
+  "updated_at": "2026-05-09T02:41:05Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2385,6 +2385,72 @@
       "source": {
         "branch": "master",
         "commit": "05dc497"
+      }
+    },
+    {
+      "id": "mnt_20260509T020358Z_316b6732",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ui_tooltip_panel.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ui_tooltip_panel.gd",
+      "summary": "UiTooltipPanel factories should keep returning PanelContainer.",
+      "details": "tests/run_tests.gd types UiTooltipPanel.make_text as PanelContainer, so anti-clipping wrappers should be PanelContainer-based rather than returning MarginContainer or a generic Control.",
+      "status": "active",
+      "created_at": "2026-05-09T02:03:58Z",
+      "updated_at": "2026-05-09T02:03:58Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "564b8e6"
+      }
+    },
+    {
+      "id": "mnt_20260509T022332Z_9fd930ac",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Custom tooltip halos can come from Godot's TooltipPanel wrapper.",
+      "details": "Even when UiTooltipPanel's own StyleBoxFlat shadow is disabled, Godot may draw a default TooltipPanel style around custom tooltip controls. RunScene clears the scene theme's TooltipPanel/panel style with StyleBoxEmpty in _apply_tooltip_wrapper_style to remove that outer translucent halo.",
+      "status": "active",
+      "created_at": "2026-05-09T02:23:32Z",
+      "updated_at": "2026-05-09T02:23:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "564b8e6"
+      }
+    },
+    {
+      "id": "mnt_20260509T024105Z_8d32b000",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Visual QA probes must redirect user:// storage before loading RunScene.",
+      "details": "Instantiating scenes/run_scene.tscn for screenshots can execute RunScene._ready(), which may start a new run, update progression.json, or clear user://current_run.save before test code injects a fixture state. Probe scripts should call ProgressionStore.set_storage_path and set_run_storage_path to unique probe/test files before adding RunScene to the tree, or otherwise avoid the live Godot app_userdata save slot.",
+      "status": "active",
+      "created_at": "2026-05-09T02:41:05Z",
+      "updated_at": "2026-05-09T02:41:05Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "564b8e6"
       }
     }
   ]

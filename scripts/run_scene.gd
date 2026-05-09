@@ -21,6 +21,15 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
+class TooltipPanelContainer:
+	extends PanelContainer
+	const UiTooltipPanelScript = preload("res://scripts/ui_tooltip_panel.gd")
+
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if for_text.strip_edges().is_empty():
+			return null
+		return UiTooltipPanelScript.make_text(for_text)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -54,8 +63,12 @@ const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
-const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(760.0, 136.0)
-const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(172.0, 118.0)
+const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
+const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
+const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
+const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
+const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
+const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
 const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
 const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
@@ -130,6 +143,8 @@ var _choice_button_overlay: HBoxContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
+var _relic_choice_title: Label
+var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
@@ -234,6 +249,7 @@ func _notification(what: int) -> void:
 		_layout_choice_button_overlay()
 
 func _apply_style() -> void:
+	_apply_tooltip_wrapper_style()
 	$Backdrop.color = Color("18120f")
 	var mini_map_style := StyleBoxFlat.new()
 	mini_map_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
@@ -320,6 +336,11 @@ func _apply_style() -> void:
 		pile_label.add_theme_color_override("font_color", Color("f0e4c8"))
 		pile_label.add_theme_color_override("font_outline_color", Color("261b14"))
 		pile_label.add_theme_constant_override("outline_size", 1)
+
+func _apply_tooltip_wrapper_style() -> void:
+	var scene_theme: Theme = theme if theme != null else Theme.new()
+	scene_theme.set_stylebox("panel", "TooltipPanel", StyleBoxEmpty.new())
+	theme = scene_theme
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
@@ -528,19 +549,31 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_overlay.name = "RelicChoiceOverlay"
 	_relic_choice_overlay.visible = false
 	_relic_choice_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_relic_choice_overlay.z_index = 70
 	stage_root.add_child(_relic_choice_overlay)
 
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.anchor_right = 1.0
-	center.anchor_bottom = 1.0
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_relic_choice_overlay.add_child(center)
+	_relic_choice_title = Label.new()
+	_relic_choice_title.name = "TreasureTitle"
+	_relic_choice_title.text = "CLAIM YOUR TREASURE"
+	_relic_choice_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_relic_choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_relic_choice_title.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_relic_choice_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	UiTypography.set_label_size(_relic_choice_title, RELIC_CHOICE_TITLE_FONT_SIZE)
+	_relic_choice_title.add_theme_color_override("font_color", Color("ffe4a5"))
+	_relic_choice_title.add_theme_color_override("font_outline_color", Color("26160e"))
+	_relic_choice_title.add_theme_constant_override("outline_size", 8)
+	_relic_choice_overlay.add_child(_relic_choice_title)
+
+	_relic_choice_host = CenterContainer.new()
+	_relic_choice_host.name = "RelicChoiceHost"
+	_relic_choice_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_relic_choice_overlay.add_child(_relic_choice_host)
 
 	_relic_choice_bar = HBoxContainer.new()
 	_relic_choice_bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	_relic_choice_bar.add_theme_constant_override("separation", 18)
-	center.add_child(_relic_choice_bar)
+	_relic_choice_bar.add_theme_constant_override("separation", 28)
+	_relic_choice_host.add_child(_relic_choice_bar)
 	_layout_relic_choice_overlay()
 
 func _layout_relic_choice_overlay() -> void:
@@ -548,16 +581,30 @@ func _layout_relic_choice_overlay() -> void:
 		return
 	var stage_root: Control = board_view.get_parent()
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
-	var width: float = clampf(stage_size.x * 0.74, 440.0, RELIC_CHOICE_OVERLAY_SIZE.x)
-	var height: float = RELIC_CHOICE_OVERLAY_SIZE.y
-	_relic_choice_overlay.anchor_left = 0.5
-	_relic_choice_overlay.anchor_top = 1.0
-	_relic_choice_overlay.anchor_right = 0.5
+	_relic_choice_overlay.anchor_left = 0.0
+	_relic_choice_overlay.anchor_top = 0.0
+	_relic_choice_overlay.anchor_right = 1.0
 	_relic_choice_overlay.anchor_bottom = 1.0
-	_relic_choice_overlay.offset_left = -width * 0.5
-	_relic_choice_overlay.offset_right = width * 0.5
-	_relic_choice_overlay.offset_top = -height - 20.0
-	_relic_choice_overlay.offset_bottom = -20.0
+	_relic_choice_overlay.offset_left = 0.0
+	_relic_choice_overlay.offset_top = 0.0
+	_relic_choice_overlay.offset_right = 0.0
+	_relic_choice_overlay.offset_bottom = 0.0
+	if _relic_choice_title != null:
+		var title_height: float = clampf(stage_size.y * 0.20, 116.0, RELIC_CHOICE_TITLE_HEIGHT)
+		var title_top: float = maxf(10.0, stage_size.y * RELIC_CHOICE_TITLE_TOP_RATIO)
+		_relic_choice_title.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_relic_choice_title.position = Vector2(0.0, title_top)
+		_relic_choice_title.size = Vector2(stage_size.x, title_height)
+	if _relic_choice_host != null:
+		var max_width: float = minf(RELIC_CHOICE_OVERLAY_SIZE.x, maxf(360.0, stage_size.x - 24.0))
+		var min_width: float = minf(640.0, max_width)
+		var width: float = clampf(stage_size.x * 0.90, min_width, max_width)
+		var height: float = RELIC_CHOICE_OVERLAY_SIZE.y
+		var left: float = (stage_size.x - width) * 0.5
+		var top: float = stage_size.y - height - RELIC_CHOICE_BOTTOM_MARGIN
+		_relic_choice_host.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_relic_choice_host.position = Vector2(left, top)
+		_relic_choice_host.size = Vector2(width, height)
 
 func _build_card_fx_layer() -> void:
 	_card_fx_layer = Control.new()
@@ -1747,7 +1794,7 @@ func _refresh_relic_bar() -> void:
 		var relic: Dictionary = GameData.relic_def(relic_id)
 		if relic.is_empty():
 			continue
-		var frame := PanelContainer.new()
+		var frame := TooltipPanelContainer.new()
 		frame.custom_minimum_size = Vector2(52.0, 52.0)
 		frame.set_meta("relic_id", relic_id)
 		frame.tooltip_text = "%s\n%s" % [
@@ -1924,6 +1971,9 @@ func _refresh_choice_bar() -> void:
 		_context_choice_overlay.visible = _context_choice_bar != null and _context_choice_bar.get_child_count() > 0
 	if _relic_choice_overlay != null:
 		_relic_choice_overlay.visible = _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0
+		if _relic_choice_overlay.visible:
+			_layout_relic_choice_overlay()
+			call_deferred("_layout_relic_choice_overlay")
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	var button := Button.new()
@@ -1974,11 +2024,12 @@ func _clear_relic_choice_overlay() -> void:
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	if _relic_choice_bar == null:
 		return
-	var panel := PanelContainer.new()
+	var panel := TooltipPanelContainer.new()
 	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.clip_contents = false
+	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	panel.tooltip_text = str(relic.get("description", ""))
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
 	panel.gui_input.connect(_on_relic_choice_gui_input.bind(relic_id))
 	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
@@ -1989,20 +2040,20 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 14)
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 7)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(58.0, 58.0)
+	icon.custom_minimum_size = Vector2(76.0, 76.0)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
@@ -2014,34 +2065,53 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 24.0, 34.0)
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
 	label.add_theme_color_override("font_color", Color("fff1d5"))
 	label.add_theme_color_override("font_outline_color", Color("26180f"))
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
 
+	var description := Label.new()
+	description.text = str(relic.get("description", ""))
+	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
+	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
+	description.add_theme_color_override("font_color", Color("dec9a7"))
+	description.add_theme_color_override("font_outline_color", Color("21150e"))
+	description.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(description)
+
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
 	if panel == null:
 		return
 	var accent: String = str(relic.get("accent", GameData.relic_rarity_accent(str(relic.get("rarity", "common")))))
+	panel.z_index = 40 if hovered else 30
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), hovered))
 
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.06, 0.045, 0.92).lightened(0.08) if hovered else Color(0.09, 0.06, 0.045, 0.86)
 	style.border_color = accent.lightened(0.20) if hovered else Color(accent.r, accent.g, accent.b, 0.78)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.30)
-	style.shadow_size = 10 if hovered else 6
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
+	style.shadow_size = 22 if hovered else 16
+	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
+	style.expand_margin_left = 8.0
+	style.expand_margin_top = 8.0
+	style.expand_margin_right = 8.0
+	style.expand_margin_bottom = 14.0
 	return style
 
 func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
