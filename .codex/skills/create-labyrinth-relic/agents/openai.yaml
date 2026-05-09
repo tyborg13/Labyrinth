@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Relic Builder"
+  short_description: "Create build-defining Labyrinth relics"
+  default_prompt: "Use $create-labyrinth-relic to design and implement a new Labyrinth relic."

@@ -1751,14 +1751,14 @@ func _refresh_relic_bar() -> void:
 		frame.custom_minimum_size = Vector2(52.0, 52.0)
 		frame.set_meta("relic_id", relic_id)
 		frame.tooltip_text = "%s\n%s" % [
-			str(relic.get("name", relic_id)),
-			str(relic.get("description", ""))
+				str(relic.get("name", relic_id)),
+				str(relic.get("description", ""))
 		]
 		frame.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		frame.add_theme_stylebox_override("panel", _pile_card_style(
-			Color("261b14"),
-			Color(str(relic.get("accent", "#8a6d49"))),
-			4.0
+				Color("261b14"),
+				Color(GameData.relic_accent(relic_id)),
+				4.0
 		))
 		var margin := MarginContainer.new()
 		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1979,7 +1979,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.tooltip_text = str(relic.get("description", ""))
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(str(relic.get("accent", "#8a6d49"))), false))
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
 	panel.gui_input.connect(_on_relic_choice_gui_input.bind(relic_id))
 	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
 	panel.mouse_exited.connect(_set_relic_choice_hovered.bind(panel, relic, false))
@@ -2025,7 +2025,8 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
 	if panel == null:
 		return
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(str(relic.get("accent", "#8a6d49"))), hovered))
+	var accent: String = str(relic.get("accent", GameData.relic_rarity_accent(str(relic.get("rarity", "common")))))
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), hovered))
 
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -3861,8 +3862,6 @@ func _board_status_label(preview: Dictionary) -> String:
 		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
 		if bool(restrictions.get("frozen", false)):
 			return "Frozen"
-		if bool(restrictions.get("stunned", false)):
-			return "Stunned"
 		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
 			return "Shocked"
 		if _drag_card_index >= 0:
@@ -3899,8 +3898,6 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if mode == "combat":
 		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
 		if bool(restrictions.get("frozen", false)):
-			return "Pass to continue"
-		if bool(restrictions.get("stunned", false)):
 			return "Pass to continue"
 		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
 			return "Only move/blink, or pass"
@@ -4794,7 +4791,6 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_burn_applied: int = 0
 	var enemy_freeze_applied: int = 0
 	var enemy_shock_applied: int = 0
-	var enemy_stun_applied: int = 0
 	var enemy_poison_applied: int = 0
 	var before_enemies: Array = before_state.get("enemies", [])
 	var after_enemies: Array = resolved_state.get("enemies", [])
@@ -4809,12 +4805,10 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		enemy_burn_applied += maxi(0, int(after_enemy.get("burn", 0)) - int(before_enemy.get("burn", 0)))
 		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
 		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
-		enemy_stun_applied += maxi(0, int(after_enemy.get("stun", 0)) - int(before_enemy.get("stun", 0)))
 		enemy_poison_applied += maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
 	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
 	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
-	var player_stun_applied: int = maxi(0, int(after_player.get("stun", 0)) - int(before_player.get("stun", 0)))
 	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
 	var before_illusion_ids: Dictionary = {}
 	for before_illusion_var: Variant in before_state.get("illusions", []):
@@ -4861,14 +4855,12 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 			"burn": enemy_burn_applied,
 			"freeze": enemy_freeze_applied,
 			"shock": enemy_shock_applied,
-			"stun": enemy_stun_applied,
 			"poison": enemy_poison_applied
 		},
 		"player_status_applied": {
 			"burn": player_burn_applied,
 			"freeze": player_freeze_applied,
 			"shock": player_shock_applied,
-			"stun": player_stun_applied,
 			"poison": player_poison_applied
 		},
 		"selected_targets": _vector2i_array(selected_targets),

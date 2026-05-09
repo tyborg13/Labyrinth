@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-07T17:51:56Z",
+  "updated_at": "2026-05-08T16:23:21Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2341,6 +2341,50 @@
       "source": {
         "branch": "master",
         "commit": "b155353"
+      }
+    },
+    {
+      "id": "mnt_20260507T211059Z_9e300e9f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Stun is removed as a gameplay status.",
+      "details": "Do not add new stun actions, badges, restrictions, analytics fields, or trap effects. Lightning Wisp Blinding Arc now uses shock, and Air traps are intentionally damage-only until a distinct Air secondary effect is chosen.",
+      "status": "active",
+      "created_at": "2026-05-07T21:10:59Z",
+      "updated_at": "2026-05-07T21:10:59Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "05dc497"
+      }
+    },
+    {
+      "id": "mnt_20260508T162321Z_0d2ec21f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Relics use reusable effect hooks instead of per-relic id branches.",
+      "details": "Relic data defines reusable effects in data/relics.json. GameData applies card-action mutations from relics, while CombatEngine groups trigger hooks by timing, such as start-combat bonuses, status triggers, blink/long-move once-per-turn triggers, status-target damage, stoneskin thorns, death-status healing, and prevent-lethal effects. Add new effect types when needed, but do not branch on specific relic ids.",
+      "status": "active",
+      "created_at": "2026-05-08T16:23:21Z",
+      "updated_at": "2026-05-08T16:23:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "05dc497"
       }
     }
   ]

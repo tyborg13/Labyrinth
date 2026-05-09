@@ -19,6 +19,7 @@ const REWARD_HEAL: int = 6
 const BOSS_VICTORY_EMBERS: int = 30
 const DEBUG_BOSS_SEED: int = 90429
 const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
+const RELIC_ROOM_CANDIDATE_PERCENT: int = 47
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -336,9 +337,8 @@ func claim_relic(run_state: Dictionary, relic_id: String) -> Dictionary:
 	if not relics.has(relic_id):
 		relics.append(relic_id)
 	next_state["relics"] = relics
-	var relic: Dictionary = GameData.relic_def(relic_id)
-	if str(relic.get("effect", "")) == "max_hp":
-		var bonus: int = int(relic.get("value", 0))
+	var bonus: int = GameData.stat_bonus_from_relics([relic_id], "max_hp")
+	if bonus != 0:
 		next_state["player_max_hp"] = int(next_state.get("player_max_hp", 1)) + bonus
 		next_state["player_hp"] = int(next_state.get("player_hp", 1)) + bonus
 	next_state["pending_relics"] = []
@@ -455,10 +455,9 @@ func _room_type_for_coord(seed: int, coord: Vector2i) -> String:
 		return "boss"
 	if _is_sequence_boss_depth(depth):
 		return "boss"
-	if _depth_step_in_sequence(depth) == 2 and (coord.x == 0 or coord.y == 0):
+	if _is_campfire_coord(coord):
 		return "campfire"
-	var roll: int = _coord_hash(seed, coord, 77) % 100
-	if roll < 18:
+	if _is_relic_room_coord(seed, coord):
 		return "treasure"
 	return "combat"
 
@@ -481,6 +480,55 @@ func _is_sequence_boss_depth(depth: int) -> bool:
 
 func _is_final_boss_depth(depth: int) -> bool:
 	return depth >= MAX_DEPTH and _is_sequence_boss_depth(depth)
+
+func _is_campfire_coord(coord: Vector2i) -> bool:
+	var depth: int = _room_depth(coord)
+	return _depth_step_in_sequence(depth) == 2 and (coord.x == 0 or coord.y == 0)
+
+func _is_relic_room_coord(seed: int, coord: Vector2i) -> bool:
+	return _is_relic_room_coord_with_memo(seed, coord, {})
+
+func _is_relic_room_coord_with_memo(seed: int, coord: Vector2i, memo: Dictionary) -> bool:
+	var key: String = _room_key(coord)
+	if memo.has(key):
+		return bool(memo[key])
+	if not _is_relic_room_candidate(seed, coord):
+		memo[key] = false
+		return false
+	var priority: int = _relic_room_priority(seed, coord)
+	for dir: Vector2i in PathUtils.DIRS_4:
+		var neighbor: Vector2i = coord + dir
+		if not _is_relic_room_candidate(seed, neighbor):
+			continue
+		var neighbor_priority: int = _relic_room_priority(seed, neighbor)
+		var neighbor_has_priority: bool = neighbor_priority < priority or (neighbor_priority == priority and _room_key(neighbor) < key)
+		if not neighbor_has_priority:
+			continue
+		if _is_relic_room_coord_with_memo(seed, neighbor, memo):
+			memo[key] = false
+			return false
+	memo[key] = true
+	return true
+
+func _is_relic_room_candidate(seed: int, coord: Vector2i) -> bool:
+	if not _is_relic_room_eligible(coord):
+		return false
+	return (_coord_hash(seed, coord, 77) % 1000) < RELIC_ROOM_CANDIDATE_PERCENT * 10
+
+func _is_relic_room_eligible(coord: Vector2i) -> bool:
+	var depth: int = _room_depth(coord)
+	if depth <= 0 or depth > MAX_DEPTH:
+		return false
+	if _is_sequence_boss_depth(depth):
+		return false
+	if _is_campfire_coord(coord):
+		return false
+	if coord in [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]:
+		return false
+	return true
+
+func _relic_room_priority(seed: int, coord: Vector2i) -> int:
+	return _coord_hash(seed, coord, 733)
 
 func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -528,10 +576,25 @@ func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[St
 	for relic_id: String in GameData.relic_ids():
 		if not owned.has(relic_id):
 			available.append(relic_id)
+	available.sort()
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, 543)
-	var shuffled: Array[String] = GameData.shuffle_cards(available, rng)
-	return shuffled.slice(0, mini(3, shuffled.size()))
+	var choices: Array[String] = []
+	while choices.size() < 3 and not available.is_empty():
+		var total_weight: int = 0
+		for relic_id: String in available:
+			total_weight += maxi(1, GameData.relic_offer_weight(relic_id))
+		var roll: int = rng.randi_range(1, total_weight)
+		var cursor: int = 0
+		var picked_index: int = 0
+		for index: int in range(available.size()):
+			cursor += maxi(1, GameData.relic_offer_weight(available[index]))
+			if roll <= cursor:
+				picked_index = index
+				break
+		choices.append(available[picked_index])
+		available.remove_at(picked_index)
+	return choices
 
 func _reveal_neighbors(run_state: Dictionary, center: Vector2i) -> void:
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)

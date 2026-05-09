@@ -29,6 +29,7 @@ func _initialize() -> void:
 	_assert(GameData.npcs().size() >= 1, "NPC data should load")
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	_test_relic_data_rarity_and_offer_weights()
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
 	_test_room_generation_enemy_spawns_keep_player_halo()
@@ -51,6 +52,7 @@ func _initialize() -> void:
 	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
+	_test_relic_effect_hooks()
 	_test_pierce_ignores_defenses()
 	_test_enemy_pierce_intents_surface_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
@@ -77,7 +79,7 @@ func _initialize() -> void:
 	_test_shallow_elemental_enemy_actions_scale_back()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
-	_test_trap_tooltip_surfaces_damage_and_effect()
+	_test_air_trap_tooltip_is_damage_only()
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_intent_panels_expand_on_hover_or_toggle()
 	_test_enemy_hud_layout_stays_centered_when_clear()
@@ -121,6 +123,7 @@ func _initialize() -> void:
 	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
 	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
+	_test_run_map_relic_room_spacing_and_density()
 	_test_run_map_repeats_depth_sequences()
 	_test_run_map_ring_links_and_outward_quarter()
 	_test_run_map_seals_departed_rooms()
@@ -173,6 +176,26 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
 	quit(1)
+
+func _test_relic_data_rarity_and_offer_weights() -> void:
+	var valid_rarities: Dictionary = {
+		"common": true,
+		"rare": true,
+		"epic": true,
+		"legendary": true
+	}
+	_assert(GameData.relics().size() >= 20, "Relic pool should have enough breadth for build choices")
+	for relic_id: String in GameData.relic_ids():
+		var relic: Dictionary = GameData.relic_def(relic_id)
+		var rarity: String = str(relic.get("rarity", ""))
+		_assert(valid_rarities.has(rarity), "%s should use the relic rarity set" % relic_id)
+		_assert(str(relic.get("accent", "")) == GameData.relic_rarity_accent(rarity), "%s border accent should match relic rarity" % relic_id)
+		_assert(not (relic.get("effects", []) as Array).is_empty(), "%s should define reusable relic effects" % relic_id)
+		var icon_path: String = str(relic.get("icon_path", ""))
+		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
+	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
+	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
+	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
 
 func _test_room_generation_is_deterministic() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -770,6 +793,65 @@ func _test_first_attack_bonus_damage_math() -> void:
 	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
 	_assert(int(enemy.get("hp", 0)) == 10, "A 6-damage strike with Ember Lens into 4 block should deal 4 health damage")
 	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
+
+func _test_relic_effect_hooks() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var shield_state: Dictionary = combat.create_combat(1601, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["reinforced_shield"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4, "Start-combat relic effects should apply before the first turn")
+	var fire_card: Dictionary = combat.card_def("hearth_rush", {"relics": ["flint_edge"]})
+	var fire_melee: Dictionary = (fire_card.get("actions", []) as Array)[2]
+	_assert(int(fire_melee.get("burn", 0)) == 3, "Elemental relic action mods should augment matching card actions")
+	var storm_card: Dictionary = combat.card_def("spark_dart", {"relics": ["storm_crown"]})
+	var storm_actions: Array = storm_card.get("actions", [])
+	_assert(str((storm_actions[storm_actions.size() - 1] as Dictionary).get("type", "")) == "card_play", "Append-action relic effects should add reusable card actions")
+	var frost_state: Dictionary = combat.create_combat(1602, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["frost_prism"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	frost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	frost_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0,
+		"freeze": 1
+	}]
+	frost_state = combat.apply_player_action(frost_state, {"type": "melee", "damage": 4, "range": 1}, Vector2i(3, 4))
+	_assert(int(((frost_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 2, "Target-status relic effects should add damage before existing freeze vulnerability")
+	var phoenix_state: Dictionary = combat.create_combat(1603, _simple_room_layout(), {
+		"hp": 3,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["phoenix_ember"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	phoenix_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
+	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 1, "Prevent-lethal relic effects should rescue the player once")
+	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Prevent-lethal relic effects should be able to apply follow-up status")
 
 func _test_pierce_ignores_defenses() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1592,15 +1674,13 @@ func _test_status_badges_surface_countdowns() -> void:
 		"burn": 5,
 		"freeze": 1,
 		"shock": 1,
-		"stun": 1,
 		"poison": {"damage": 4, "delay": 2}
 	})
-	_assert(badges.size() == 5, "Status badges should surface each active elemental status independently")
+	_assert(badges.size() == 4, "Status badges should surface each active elemental status independently")
 	_assert(str((badges[0] as Dictionary).get("icon", "")) == "burn", "Burn badges should use the shared burn icon")
 	_assert(int((badges[0] as Dictionary).get("count", 0)) == 5, "Burn badges should show their remaining countdown")
-	_assert(str((badges[3] as Dictionary).get("icon", "")) == "stun", "Stun badges should use the shared stun icon")
-	_assert(str((badges[4] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
-	_assert(int((badges[4] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
+	_assert(str((badges[3] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
+	_assert(int((badges[3] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
 
 func _test_player_restriction_badges_show_turn_lock() -> void:
 	var board := CombatBoardView.new()
@@ -1608,19 +1688,16 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 	_assert(int(statuses.get("freeze", 0)) == 1, "Frozen turns should still surface a freeze badge even after the restriction consumes the stored counter")
 	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0}, {"frozen": false, "shocked": true})
 	_assert(int(statuses.get("shock", 0)) == 1, "Shocked turns should still surface a shock badge even after the restriction consumes the stored counter")
-	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0, "stun": 0}, {"frozen": false, "shocked": false, "stunned": true})
-	_assert(int(statuses.get("stun", 0)) == 1, "Stunned turns should still surface a stun badge even after the restriction consumes the stored counter")
 
-func _test_trap_tooltip_surfaces_damage_and_effect() -> void:
+func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
 	var tooltip: String = str(board.call("_trap_tooltip_text", {
 		"element": "air",
-		"damage": 3,
-		"stun": 1
+		"damage": 3
 	}))
 	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
 	_assert(tooltip.contains("3 damage"), "Trap tooltips should show trap damage")
-	_assert(tooltip.contains("Stun"), "Trap tooltips should surface the trap's elemental effect")
+	_assert(tooltip == "Air Trap\n3 damage", "Air trap tooltips should only show damage until the air secondary effect is decided")
 
 func _test_unit_hud_stacks_above_sprite_art() -> void:
 	var board := CombatBoardView.new()
@@ -2585,6 +2662,45 @@ func _test_run_map_room_types() -> void:
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(6, 0)).get("type", "")) == "campfire", "Axis depth-6 rooms should repeat the campfire beat in the second sequence")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(8, 0)).get("type", "")) == "boss", "Depth-eight rooms should be the temporary final boss territory")
 
+func _test_run_map_relic_room_spacing_and_density() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var total_non_boss_rooms: int = 0
+	var total_relic_rooms: int = 0
+	var first_signature: String = ""
+	var found_different_signature: bool = false
+	for seed: int in range(1, 41):
+		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
+		var signature_parts: Array[String] = []
+		for exit_coord: Vector2i in [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]:
+			_assert(str(run_engine.room_metadata(run_state, exit_coord).get("type", "")) != "treasure", "Relic rooms should never be direct exits from the start")
+		for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+			for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+				var coord := Vector2i(x, y)
+				if maxi(absi(coord.x), absi(coord.y)) > RunEngine.MAX_DEPTH:
+					continue
+				var room: Dictionary = run_engine.room_metadata(run_state, coord)
+				var room_type: String = str(room.get("type", "combat"))
+				if room_type != "boss":
+					total_non_boss_rooms += 1
+				if room_type != "treasure":
+					continue
+				total_relic_rooms += 1
+				signature_parts.append("%d,%d" % [coord.x, coord.y])
+				for dir: Vector2i in PathUtils.DIRS_4:
+					var neighbor: Vector2i = coord + dir
+					if maxi(absi(neighbor.x), absi(neighbor.y)) > RunEngine.MAX_DEPTH:
+						continue
+					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) != "treasure", "Relic rooms should not be cardinally adjacent")
+		signature_parts.sort()
+		var signature: String = "|".join(signature_parts)
+		if seed == 1:
+			first_signature = signature
+		elif signature != first_signature:
+			found_different_signature = true
+	var density: float = float(total_relic_rooms) / float(maxi(1, total_non_boss_rooms))
+	_assert(density > 0.20 and density < 0.30, "Relic rooms should average roughly one quarter of non-boss rooms")
+	_assert(found_different_signature, "Relic room placement should vary probabilistically by seed")
+
 func _test_run_map_repeats_depth_sequences() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
@@ -2932,7 +3048,7 @@ func _test_recovery_marker_flow() -> void:
 	var route: Array = _find_route_to_coord(run_engine, run_state, recovery_coord)
 	_assert(not route.is_empty(), "Recovery markers should still be reachable on the next run")
 	for step: Vector2i in route:
-		run_state = run_engine.move_to_room(run_state, step)
+		run_state = _route_state_after_step(run_engine, run_state, step)
 	_assert(int(run_state.get("unbanked_embers", 0)) == 23, "Reaching the recovery room on the next run should restore lost embers")
 	_assert(str(run_state.get("notice", "")).contains("Recovered"), "Recovery should leave a short room notice")
 	_assert(ProgressionStore.recovery_marker(run_state.get("progression", {})).is_empty(), "Recovering lost embers should clear the marker")
@@ -4169,10 +4285,28 @@ func _find_route_to_coord(run_engine: RunEngine, start_state: Dictionary, target
 			var next_path: Array = path.duplicate()
 			next_path.append(move)
 			queue.append({
-				"state": run_engine.move_to_room(state, move),
+				"state": _route_state_after_step(run_engine, state, move),
 				"path": next_path
 			})
 	return []
+
+func _route_state_after_step(run_engine: RunEngine, state: Dictionary, move: Vector2i) -> Dictionary:
+	return _route_clear_current_combat(run_engine, run_engine.move_to_room(state, move))
+
+func _route_clear_current_combat(run_engine: RunEngine, state: Dictionary) -> Dictionary:
+	if str(state.get("mode", "")) != "combat":
+		return state
+	var next_state: Dictionary = state.duplicate(true)
+	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
+	var current: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var room_key: String = "%d,%d" % [current.x, current.y]
+	var room: Dictionary = run_engine.room_metadata(next_state, current).duplicate(true)
+	room["cleared"] = true
+	rooms[room_key] = room
+	next_state["rooms"] = rooms
+	next_state["mode"] = "room"
+	next_state["combat_state"] = {}
+	return run_engine.repair_loaded_run_state(next_state)
 
 func _route_search_key(state: Dictionary) -> String:
 	var flags: Array[String] = []

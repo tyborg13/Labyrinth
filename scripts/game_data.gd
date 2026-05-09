@@ -10,6 +10,18 @@ const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock"]
+const RELIC_RARITY_ACCENTS := {
+	"common": "#8f9499",
+	"rare": "#4b84d8",
+	"epic": "#9b62d6",
+	"legendary": "#d9862f"
+}
+const RELIC_RARITY_OFFER_WEIGHTS := {
+	"common": 12,
+	"rare": 6,
+	"epic": 3,
+	"legendary": 1
+}
 
 static var _cache: Dictionary = {}
 
@@ -57,6 +69,7 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	var card: Dictionary = card_def_with_upgrades(card_id, progression.get("card_upgrades", {}) as Dictionary)
 	var mods: Array = ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).duplicate(true)
 	card = _apply_card_mods(card, mods)
+	card = _apply_relic_card_effects(card, progression.get("relics", []))
 	var total_count: int = card_upgrade_count(progression, card_id)
 	if total_count > 0:
 		card["base_card_id"] = card_id
@@ -144,6 +157,45 @@ static func reward_offer_weight(card_id: String) -> int:
 
 static func relic_ids() -> Array:
 	return relics().keys()
+
+static func relic_rarity(relic_id: String) -> String:
+	var rarity: String = str(relic_def(relic_id).get("rarity", "common"))
+	return rarity if RELIC_RARITY_ACCENTS.has(rarity) else "common"
+
+static func relic_rarity_accent(rarity: String) -> String:
+	return str(RELIC_RARITY_ACCENTS.get(str(rarity), RELIC_RARITY_ACCENTS["common"]))
+
+static func relic_accent(relic_id: String) -> String:
+	var relic: Dictionary = relic_def(relic_id)
+	return str(relic.get("accent", relic_rarity_accent(relic_rarity(relic_id))))
+
+static func relic_offer_weight(relic_id: String) -> int:
+	return int(RELIC_RARITY_OFFER_WEIGHTS.get(relic_rarity(relic_id), RELIC_RARITY_OFFER_WEIGHTS["common"]))
+
+static func relic_effects(relic_id: String) -> Array[Dictionary]:
+	var relic: Dictionary = relic_def(relic_id)
+	var result: Array[Dictionary] = []
+	var raw_effects: Array = relic.get("effects", [])
+	for effect_var: Variant in raw_effects:
+		if typeof(effect_var) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = (effect_var as Dictionary).duplicate(true)
+		effect["relic_id"] = relic_id
+		result.append(effect)
+	var legacy_effect: String = str(relic.get("effect", ""))
+	if result.is_empty() and not legacy_effect.is_empty():
+		result.append({
+			"type": legacy_effect,
+			"value": int(relic.get("value", 0)),
+			"relic_id": relic_id
+		})
+	return result
+
+static func relic_effects_for_ids(relic_ids_list: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for relic_id_var: Variant in relic_ids_list:
+		result.append_array(relic_effects(str(relic_id_var)))
+	return result
 
 static func upgrade_ids() -> Array:
 	return upgrades().keys()
@@ -331,11 +383,9 @@ static func stat_bonus_from_upgrades(progression: Dictionary, effect_key: String
 
 static func stat_bonus_from_relics(relic_ids_list: Array, effect_key: String) -> int:
 	var total: int = 0
-	for relic_id_var: Variant in relic_ids_list:
-		var relic_id: String = str(relic_id_var)
-		var relic: Dictionary = relics().get(relic_id, {})
-		if str(relic.get("effect", "")) == effect_key:
-			total += int(relic.get("value", 0))
+	for effect: Dictionary in relic_effects_for_ids(relic_ids_list):
+		if str(effect.get("type", "")) == effect_key:
+			total += int(effect.get("value", 0))
 	return total
 
 static func shuffle_cards(card_ids: Array, rng: RandomNumberGenerator) -> Array[String]:
@@ -581,6 +631,98 @@ static func _apply_card_mods(card: Dictionary, mods: Array) -> Dictionary:
 		next_card = _apply_card_mod(next_card, mod_var as Dictionary)
 	return next_card
 
+static func _apply_relic_card_effects(card: Dictionary, relic_ids_list: Array) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	if relic_ids_list.is_empty():
+		return next_card
+	for effect: Dictionary in relic_effects_for_ids(relic_ids_list):
+		match str(effect.get("type", "")):
+			"card_action_mod":
+				next_card = _apply_relic_action_mod(next_card, effect)
+			"card_append_action":
+				next_card = _apply_relic_append_action(next_card, effect)
+	return _tag_card_actions_for_combat(next_card)
+
+static func _apply_relic_action_mod(card: Dictionary, effect: Dictionary) -> Dictionary:
+	if not _relic_effect_matches_card(card, effect):
+		return card
+	var actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	for index: int in range(actions.size()):
+		if typeof(actions[index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
+		if not _relic_effect_matches_action(action, effect):
+			continue
+		var field: String = str(effect.get("field", ""))
+		if field.is_empty():
+			continue
+		if typeof(effect.get("value", null)) == TYPE_BOOL:
+			action[field] = bool(effect.get("value", false))
+		elif field == "pierce":
+			action[field] = true
+		else:
+			action[field] = int(action.get(field, 0)) + int(effect.get("amount", effect.get("value", 0)))
+		actions[index] = action
+	var next_card: Dictionary = card.duplicate(true)
+	next_card["actions"] = actions
+	return next_card
+
+static func _apply_relic_append_action(card: Dictionary, effect: Dictionary) -> Dictionary:
+	if not _relic_effect_matches_card(card, effect):
+		return card
+	if not _relic_effect_matches_card_action_requirement(card, effect):
+		return card
+	var appended_action: Variant = effect.get("action", {})
+	if typeof(appended_action) != TYPE_DICTIONARY:
+		return card
+	var actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	actions.append((appended_action as Dictionary).duplicate(true))
+	var next_card: Dictionary = card.duplicate(true)
+	next_card["actions"] = actions
+	return next_card
+
+static func _relic_effect_matches_card(card: Dictionary, effect: Dictionary) -> bool:
+	var element: String = str(effect.get("element", ""))
+	return element.is_empty() or element == card_element_from_def(card)
+
+static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary) -> bool:
+	var action_types: Array = effect.get("action_types", [])
+	if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
+		return false
+	var required_field: String = str(effect.get("requires_field", ""))
+	if not required_field.is_empty() and int(action.get(required_field, 0)) <= 0:
+		return false
+	return true
+
+static func _relic_effect_matches_card_action_requirement(card: Dictionary, effect: Dictionary) -> bool:
+	var required_field: String = str(effect.get("requires_field", ""))
+	var required_type: String = str(effect.get("requires_action_type", ""))
+	if required_field.is_empty() and required_type.is_empty():
+		return true
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		if not required_type.is_empty() and str(action.get("type", "")) != required_type:
+			continue
+		if not required_field.is_empty() and int(action.get(required_field, 0)) <= 0:
+			continue
+		return true
+	return false
+
+static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	var element_id: String = card_element_from_def(card)
+	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
+	for index: int in range(actions.size()):
+		if typeof(actions[index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
+		action["_card_element"] = element_id
+		actions[index] = action
+	next_card["actions"] = actions
+	return next_card
+
 static func _apply_card_mod(card: Dictionary, mod: Dictionary) -> Dictionary:
 	var next_card: Dictionary = card.duplicate(true)
 	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
@@ -697,7 +839,6 @@ static func _action_value(action: Dictionary) -> float:
 	value += float(int(action.get("poison", 0))) * 0.95
 	value += float(int(action.get("freeze", 0))) * 3.2
 	value += float(int(action.get("shock", 0))) * 2.4
-	value += float(int(action.get("stun", 0))) * 3.0
 	value += float(int(action.get("chain", 0))) * 1.5
 	if bool(action.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
 		value += 1.1

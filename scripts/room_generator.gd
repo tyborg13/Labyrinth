@@ -731,7 +731,7 @@ func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Diction
 		ElementData.LIGHTNING:
 			trap["shock"] = 1
 		ElementData.AIR:
-			trap["stun"] = 1
+			pass
 		ElementData.EARTH:
 			trap["poison"] = 2 if depth <= 2 else 3
 	return trap

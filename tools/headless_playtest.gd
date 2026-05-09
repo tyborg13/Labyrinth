@@ -1720,7 +1720,7 @@ func _action_text(action: Dictionary) -> String:
 
 func _keyword_suffix(action: Dictionary) -> String:
 	var extras: Array[String] = []
-	for status_key: String in ["burn", "freeze", "shock", "stun", "poison", "chain"]:
+	for status_key: String in ["burn", "freeze", "shock", "poison", "chain"]:
 		if int(action.get(status_key, 0)) > 0:
 			extras.append("%s %d" % [status_key, int(action.get(status_key, 0))])
 	if int(action.get("self_damage", 0)) > 0:
@@ -1794,7 +1794,7 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary) -> Stri
 
 func _status_text(unit: Dictionary) -> String:
 	var parts: Array[String] = []
-	for key: String in ["burn", "freeze", "shock", "stun", "stoneskin"]:
+	for key: String in ["burn", "freeze", "shock", "stoneskin"]:
 		if int(unit.get(key, 0)) > 0:
 			parts.append("%s=%d" % [key, int(unit.get(key, 0))])
 	if unit.has("poison") and int((unit.get("poison", {}) as Dictionary).get("damage", 0)) > 0:
@@ -1806,8 +1806,6 @@ func _restriction_text(state: Dictionary) -> String:
 	var parts: Array[String] = []
 	if bool(restrictions.get("frozen", false)):
 		parts.append("frozen: no move and turn locked")
-	if bool(restrictions.get("stunned", false)):
-		parts.append("stunned: turn locked")
 	if bool(restrictions.get("shocked", false)):
 		parts.append("shocked: limited actions")
 	var pending: String = str(state.get("pending_player_trap_restriction", ""))
@@ -1817,7 +1815,7 @@ func _restriction_text(state: Dictionary) -> String:
 
 func _player_status_delta_text(before_player: Dictionary, after_player: Dictionary) -> String:
 	var parts: Array[String] = []
-	for key: String in ["burn", "freeze", "shock", "stun"]:
+	for key: String in ["burn", "freeze", "shock"]:
 		var delta: int = int(after_player.get(key, 0)) - int(before_player.get(key, 0))
 		if delta > 0:
 			parts.append("+%d %s" % [delta, key])
@@ -1829,7 +1827,7 @@ func _player_status_delta_text(before_player: Dictionary, after_player: Dictiona
 
 func _status_breakdown_text(breakdown: Dictionary) -> String:
 	var parts: Array[String] = []
-	for key: String in ["burn", "freeze", "shock", "stun", "poison"]:
+	for key: String in ["burn", "freeze", "shock", "poison"]:
 		var amount: int = int(breakdown.get(key, 0))
 		if amount > 0:
 			parts.append("+%d %s" % [amount, key])
@@ -1877,7 +1875,7 @@ func _trap_text(trap: Dictionary) -> String:
 	var parts: Array[String] = ["%s trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
 	if int(trap.get("damage", 0)) > 0:
 		parts.append("%d dmg" % int(trap.get("damage", 0)))
-	for key: String in ["burn", "freeze", "shock", "stun", "poison"]:
+	for key: String in ["burn", "freeze", "shock", "poison"]:
 		if int(trap.get(key, 0)) > 0:
 			parts.append("%s %d" % [key, int(trap.get(key, 0))])
 	return " ".join(parts)
@@ -1965,23 +1963,23 @@ func _illusion_health_created_between(before_state: Dictionary, after_state: Dic
 	return total
 
 func _enemy_status_added_breakdown(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
-	var result: Dictionary = {"burn": 0, "freeze": 0, "shock": 0, "stun": 0, "poison": 0}
+	var result: Dictionary = {"burn": 0, "freeze": 0, "shock": 0, "poison": 0}
 	var after_by_id: Dictionary = _enemies_by_id(after_state)
 	for before_enemy: Dictionary in _live_enemies(before_state):
 		var enemy_id: int = int(before_enemy.get("id", -1))
 		if not after_by_id.has(enemy_id):
 			continue
 		var after_enemy: Dictionary = after_by_id[enemy_id]
-		for status: String in ["burn", "freeze", "shock", "stun"]:
+		for status: String in ["burn", "freeze", "shock"]:
 			result[status] = int(result.get(status, 0)) + maxi(0, int(after_enemy.get(status, 0)) - int(before_enemy.get(status, 0)))
 		result["poison"] = int(result.get("poison", 0)) + maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
 	return result
 
 func _player_status_added_breakdown(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
-	var result: Dictionary = {"burn": 0, "freeze": 0, "shock": 0, "stun": 0, "poison": 0}
+	var result: Dictionary = {"burn": 0, "freeze": 0, "shock": 0, "poison": 0}
 	var before_player: Dictionary = before_state.get("player", {})
 	var after_player: Dictionary = after_state.get("player", {})
-	for status: String in ["burn", "freeze", "shock", "stun"]:
+	for status: String in ["burn", "freeze", "shock"]:
 		result[status] = maxi(0, int(after_player.get(status, 0)) - int(before_player.get(status, 0)))
 	result["poison"] = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
 	return result

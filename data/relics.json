@@ -1,42 +1,275 @@
 {
   "iron_lung": {
     "name": "Iron Lung",
+    "rarity": "common",
     "description": "Gain 6 max health.",
     "icon_path": "res://assets/art/relics/iron_lung.png",
-    "effect": "max_hp",
-    "value": 6,
-    "accent": "#8b5d43"
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "max_hp", "value": 6}
+    ]
   },
   "ember_lens": {
     "name": "Ember Lens",
+    "rarity": "rare",
     "description": "Your first attack each turn deals 2 extra damage.",
     "icon_path": "res://assets/art/relics/ember_lens.png",
-    "effect": "first_attack_bonus",
-    "value": 2,
-    "accent": "#d07438"
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "first_attack_bonus", "value": 2}
+    ]
   },
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
+    "rarity": "common",
     "description": "Your first move each turn gains +1 range.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
-    "effect": "first_move_bonus",
-    "value": 1,
-    "accent": "#6c7a8f"
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "first_move_bonus", "value": 1}
+    ]
   },
   "mirror_shard": {
     "name": "Mirror Shard",
+    "rarity": "rare",
     "description": "Draw 1 extra card at the start of each combat.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
-    "effect": "opening_draw_bonus",
-    "value": 1,
-    "accent": "#907ab0"
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "opening_draw_bonus", "value": 1}
+    ]
   },
   "coffin_nails": {
     "name": "Coffin Nails",
+    "rarity": "common",
     "description": "Gain 2 extra embers after each combat.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
-    "effect": "combat_ember_bonus",
-    "value": 2,
-    "accent": "#61705f"
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "combat_ember_bonus", "value": 2}
+    ]
+  },
+  "reinforced_shield": {
+    "name": "Reinforced Shield",
+    "rarity": "common",
+    "description": "Start each combat with 4 stoneskin.",
+    "icon_path": "res://assets/art/relics/reinforced_shield.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "start_combat_stoneskin", "value": 4}
+    ]
+  },
+  "ashen_buckler": {
+    "name": "Ashen Buckler",
+    "rarity": "common",
+    "description": "Start each combat with 6 block.",
+    "icon_path": "res://assets/art/relics/ashen_buckler.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "start_combat_block", "value": 6}
+    ]
+  },
+  "flint_edge": {
+    "name": "Flint Edge",
+    "rarity": "common",
+    "description": "Melee attacks on Fire cards inflict +1 burn.",
+    "icon_path": "res://assets/art/relics/flint_edge.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "card_action_mod", "element": "fire", "action_types": ["melee"], "field": "burn", "amount": 1}
+    ]
+  },
+  "static_soles": {
+    "name": "Static Soles",
+    "rarity": "common",
+    "description": "Move and blink actions on Lightning cards gain +1 range.",
+    "icon_path": "res://assets/art/relics/static_soles.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "card_action_mod", "element": "lightning", "action_types": ["move", "blink"], "field": "range", "amount": 1}
+    ]
+  },
+  "mossbound_wraps": {
+    "name": "Mossbound Wraps",
+    "rarity": "common",
+    "description": "Earth cards that grant block or stoneskin grant +2 more.",
+    "icon_path": "res://assets/art/relics/mossbound_wraps.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "card_action_mod", "element": "earth", "action_types": ["block", "stoneskin"], "field": "amount", "amount": 2}
+    ]
+  },
+  "tailwind_fletching": {
+    "name": "Tailwind Fletching",
+    "rarity": "common",
+    "description": "Ranged attacks on Air cards gain +1 range and push 1.",
+    "icon_path": "res://assets/art/relics/tailwind_fletching.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "card_action_mod", "element": "air", "action_types": ["ranged"], "field": "range", "amount": 1},
+      {"type": "card_action_mod", "element": "air", "action_types": ["ranged"], "field": "push", "amount": 1}
+    ]
+  },
+  "frost_prism": {
+    "name": "Frost Prism",
+    "rarity": "rare",
+    "description": "Your attacks deal +2 damage to frozen enemies.",
+    "icon_path": "res://assets/art/relics/frost_prism.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "damage_vs_status", "status": "freeze", "value": 2}
+    ]
+  },
+  "storm_capacitor": {
+    "name": "Storm Capacitor",
+    "rarity": "rare",
+    "description": "Ranged attacks on Lightning cards chain 1 additional tile.",
+    "icon_path": "res://assets/art/relics/storm_capacitor.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "card_action_mod", "element": "lightning", "action_types": ["ranged"], "field": "chain", "amount": 1}
+    ]
+  },
+  "gale_tabi": {
+    "name": "Gale Tabi",
+    "rarity": "rare",
+    "description": "The first time you blink each turn, draw 1.",
+    "icon_path": "res://assets/art/relics/gale_tabi.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "blink_draw_once_per_turn", "value": 1}
+    ]
+  },
+  "anchor_chain": {
+    "name": "Anchor Chain",
+    "rarity": "rare",
+    "description": "Push and pull actions deal +1 damage and move enemies 1 farther.",
+    "icon_path": "res://assets/art/relics/anchor_chain.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "card_action_mod", "action_types": ["push", "pull"], "field": "damage", "amount": 1},
+      {"type": "card_action_mod", "action_types": ["push", "pull"], "field": "amount", "amount": 1}
+    ]
+  },
+  "venom_signet": {
+    "name": "Venom Signet",
+    "rarity": "rare",
+    "description": "Attacks that already poison apply +2 poison.",
+    "icon_path": "res://assets/art/relics/venom_signet.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "card_action_mod", "action_types": ["melee", "ranged", "aoe"], "requires_field": "poison", "field": "poison", "amount": 2}
+    ]
+  },
+  "thawing_charm": {
+    "name": "Thawing Charm",
+    "rarity": "rare",
+    "description": "Heal actions restore 2 additional health.",
+    "icon_path": "res://assets/art/relics/thawing_charm.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "card_action_mod", "action_types": ["heal"], "field": "amount", "amount": 2}
+    ]
+  },
+  "ember_siphon": {
+    "name": "Ember Siphon",
+    "rarity": "rare",
+    "description": "When a burning enemy dies, recover 2 health.",
+    "icon_path": "res://assets/art/relics/ember_siphon.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "kill_status_heal", "status": "burn", "value": 2}
+    ]
+  },
+  "bloodglass_knife": {
+    "name": "Bloodglass Knife",
+    "rarity": "epic",
+    "description": "Your attacks deal +3 damage while you have no block or stoneskin.",
+    "icon_path": "res://assets/art/relics/bloodglass_knife.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "glass_attack_bonus", "value": 3}
+    ]
+  },
+  "cold_mirror": {
+    "name": "Cold Mirror",
+    "rarity": "epic",
+    "description": "The first time each combat you freeze an enemy, gain 1 card play.",
+    "icon_path": "res://assets/art/relics/cold_mirror.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "first_status_card_play", "status": "freeze", "value": 1}
+    ]
+  },
+  "thunder_relay": {
+    "name": "Thunder Relay",
+    "rarity": "epic",
+    "description": "The first time each turn you shock an enemy, draw 1.",
+    "icon_path": "res://assets/art/relics/thunder_relay.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "status_draw_once_per_turn", "status": "shock", "value": 1}
+    ]
+  },
+  "thornmail_brooch": {
+    "name": "Thornmail Brooch",
+    "rarity": "epic",
+    "description": "When a card grants stoneskin, deal 1 damage to adjacent enemies.",
+    "icon_path": "res://assets/art/relics/thornmail_brooch.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "stoneskin_thorns", "value": 1}
+    ]
+  },
+  "vaulting_sigil": {
+    "name": "Vaulting Sigil",
+    "rarity": "epic",
+    "description": "The first time each turn a move travels 5 or more tiles, gain 1 card play.",
+    "icon_path": "res://assets/art/relics/vaulting_sigil.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "long_move_card_play", "threshold": 5, "value": 1}
+    ]
+  },
+  "obsidian_heart": {
+    "name": "Obsidian Heart",
+    "rarity": "epic",
+    "description": "Start each combat with 10 stoneskin, but draw 1 fewer opening card.",
+    "icon_path": "res://assets/art/relics/obsidian_heart.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "start_combat_stoneskin", "value": 10},
+      {"type": "opening_draw_bonus", "value": -1}
+    ]
+  },
+  "storm_crown": {
+    "name": "Storm Crown",
+    "rarity": "legendary",
+    "description": "Lightning cards that shock also grant 1 card play.",
+    "icon_path": "res://assets/art/relics/storm_crown.png",
+    "accent": "#d9862f",
+    "effects": [
+      {"type": "card_append_action", "element": "lightning", "requires_field": "shock", "action": {"type": "card_play", "amount": 1}}
+    ]
+  },
+  "phoenix_ember": {
+    "name": "Phoenix Ember",
+    "rarity": "legendary",
+    "description": "Once per combat, lethal damage leaves you at 1 health and burns all enemies for 3.",
+    "icon_path": "res://assets/art/relics/phoenix_ember.png",
+    "accent": "#d9862f",
+    "effects": [
+      {"type": "prevent_lethal_once", "burn_all_enemies": 3}
+    ]
+  },
+  "worldroot_idol": {
+    "name": "Worldroot Idol",
+    "rarity": "legendary",
+    "description": "If your deck has 4 or more Earth cards, start combat with 3 stoneskin per Earth card, up to 15.",
+    "icon_path": "res://assets/art/relics/worldroot_idol.png",
+    "accent": "#d9862f",
+    "effects": [
+      {"type": "start_combat_stoneskin_per_deck_element", "element": "earth", "threshold": 4, "value": 3, "max_value": 15}
+    ]
   }
 }
