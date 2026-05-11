@@ -112,6 +112,15 @@
           { "type": "move_toward", "range": 3 },
           { "type": "melee", "damage": 4, "range": 1 }
         ]
+      },
+      {
+        "id": "darting_pelt",
+        "name": "Darting Pelt",
+        "weight": 2,
+        "actions": [
+          { "type": "move_toward", "range": 2 },
+          { "type": "ranged", "damage": 3, "range": 4 }
+        ]
       }
     ]
   },

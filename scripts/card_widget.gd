@@ -573,6 +573,8 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	row.add_child(icon)
 	var value_text: String = ActionIcons.token_value_text(token)
 	if value_text.is_empty():
+		if ActionIcons.token_is_modified(token):
+			_add_token_modifier_marker(row, tooltip, label_size)
 		return
 	var label := Label.new()
 	label.text = value_text
@@ -584,6 +586,20 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 	label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 	label.add_theme_constant_override("outline_size", 1)
 	row.add_child(label)
+	if ActionIcons.token_is_modified(token):
+		_add_token_modifier_marker(row, tooltip, label_size)
+
+func _add_token_modifier_marker(row: HBoxContainer, tooltip: String, label_size: int) -> void:
+	var marker := Label.new()
+	marker.text = "+"
+	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	marker.tooltip_text = tooltip
+	marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(marker, maxi(10, label_size - 1))
+	marker.add_theme_color_override("font_color", Color(DAMAGE_BONUS_COLOR))
+	marker.add_theme_color_override("font_outline_color", Color("f8f1dd"))
+	marker.add_theme_constant_override("outline_size", 1)
+	row.add_child(marker)
 
 func _summary_icon_size() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x

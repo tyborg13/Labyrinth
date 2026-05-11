@@ -16,6 +16,7 @@ signal cancel_requested
 const GRID_OUTLINE: Color = Color("1f1713")
 const MOVE_HIGHLIGHT: Color = Color(0.28, 0.75, 0.86, 0.20)
 const ATTACK_HIGHLIGHT: Color = Color(0.96, 0.40, 0.25, 0.20)
+const ABILITY_HIGHLIGHT: Color = Color(0.30, 0.78, 0.35, 0.22)
 const HOVER_HIGHLIGHT: Color = Color(1.0, 0.96, 0.82, 0.22)
 const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
@@ -139,7 +140,9 @@ const AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS: int = 4
 const AMBIENT_AIR_WISP_FRAME_COLUMNS: int = 32
 const AMBIENT_AIR_WISP_FULL_FRAME_INDEX: int = 16
 const AMBIENT_AIR_WISP_VARIANTS: int = 4
-const MELEE_SLASH_EFFECT_PATH: String = "res://assets/art/effects/melee_slash.png"
+const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_sheet.png"
+const MELEE_SLASH_SHEET_COLUMNS: int = 6
+const MELEE_SLASH_SHEET_ROWS: int = 1
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
@@ -180,6 +183,7 @@ var _scene_prop_textures: Dictionary = {}
 var _scene_prop_idle_frames: Dictionary = {}
 var _pillar_torch_idle_frames: Dictionary = {}
 var _effect_textures: Dictionary = {}
+var _effect_frames: Dictionary = {}
 var _ambient_particle_atlas: Texture2D = null
 var _ambient_particle_glow_atlas: Texture2D = null
 var _ambient_fire_soft_atlas: Texture2D = null
@@ -251,6 +255,10 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
 		return false
 	if _ambient_particles_active():
+		return true
+	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
+		return true
+	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
 		return true
 	if presentation.is_empty():
 		return false
@@ -895,18 +903,42 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
 	if exit_tiles.has(tile):
 		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
+		if bool(presentation.get("pulse_exit_tiles", false)):
+			_draw_exit_tile_pulse(tile)
 	for focus_tile_var: Variant in presentation.get("focus_tiles", []):
 		if focus_tile_var == tile:
 			draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
 	if move_tiles.has(tile):
 		draw_colored_polygon(polygon, MOVE_HIGHLIGHT)
 		_draw_tile_ring(tile, Color(0.60, 0.91, 0.94, 0.58), 2.0, 0.86)
+	var ability_tiles: Array[Vector2i] = _ability_tiles()
+	if ability_tiles.has(tile):
+		draw_colored_polygon(polygon, ABILITY_HIGHLIGHT)
+		_draw_tile_ring(tile, Color(0.55, 0.92, 0.48, 0.62), 2.0, 0.86)
 	if attack_tiles.has(tile):
 		draw_colored_polygon(polygon, ATTACK_HIGHLIGHT)
+		if bool(presentation.get("pulse_attack_tiles", false)):
+			_draw_attack_target_pulse(tile)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile:
 		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
+
+func _draw_attack_target_pulse(tile: Vector2i) -> void:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.45)
+	var alpha: float = lerpf(0.30, 0.78, pulse)
+	var width: float = lerpf(1.6, 3.2, pulse)
+	var scale: float = lerpf(0.82, 0.96, pulse)
+	_draw_tile_ring(tile, Color(1.0, 0.78, 0.44, alpha), width, scale)
+
+func _draw_exit_tile_pulse(tile: Vector2i) -> void:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.15)
+	var alpha: float = lerpf(0.26, 0.70, pulse)
+	var width: float = lerpf(1.4, 3.0, pulse)
+	var scale: float = lerpf(0.84, 0.98, pulse)
+	_draw_tile_ring(tile, Color(1.0, 0.83, 0.38, alpha), width, scale)
 
 func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 0.92) -> void:
 	var center: Vector2 = _tile_center(tile)
@@ -1845,6 +1877,8 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		var tooltip: String = ActionIcons.token_tooltip(token)
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
 		_draw_keyword_icon(icon_key, icon_rect, tooltip)
+		if ActionIcons.token_is_modified(token) and font != null:
+			_draw_token_modifier_marker(icon_rect, tooltip, font)
 		cursor_x += icon_size + 3.0
 		var value_text: String = ActionIcons.token_value_text(token)
 		if not value_text.is_empty() and font != null:
@@ -1863,6 +1897,11 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			cursor_x += value_width + 6.0
 		else:
 			cursor_x += 5.0
+
+func _draw_token_modifier_marker(icon_rect: Rect2, tooltip: String, font: Font) -> void:
+	var marker_rect := Rect2(icon_rect.position + Vector2(icon_rect.size.x - 7.0, -3.0), Vector2(10.0, 10.0))
+	draw_string(font, marker_rect.position + Vector2(0.0, 8.0), "+", HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 10, Color("78c46a"))
+	_register_tooltip(marker_rect.grow(2.0), tooltip)
 
 func _enemy_intent_popup_width(intent: Dictionary, rows: Array, font: Font) -> float:
 	var popup_width: float = INTENT_POPUP_WIDTH
@@ -2360,14 +2399,7 @@ func _draw_effect_overlay() -> void:
 				return
 			_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
-			var effect_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
-			if effect_tiles.is_empty() and center_tile.x >= 0:
-				effect_tiles = [center_tile]
-			var warm_alpha: float = 0.18 + progress * 0.18
-			for tile: Vector2i in effect_tiles:
-				var tile_point: Vector2 = _tile_center(tile)
-				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.10), 0.0, TAU, 18, Color(0.96, 0.50, 0.30, 0.52 + progress * 0.28), 3.0)
-				draw_circle(tile_point, _tile_width() * 0.13, Color(1.0, 0.35, 0.18, warm_alpha))
+			return
 		"lightning_strikes":
 			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 			var bolt_alpha: float = 0.24 + progress * 0.34
@@ -2407,20 +2439,29 @@ func _draw_floating_texts() -> void:
 		draw_string(font, text_pos, str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, 48.0, 16, color)
 
 func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
-	var texture: Texture2D = _effect_textures.get("melee_slash", null)
+	if progress >= 0.82:
+		return
+	var frames: Array = _effect_frames.get("melee_slash", [])
+	if frames.is_empty():
+		return
+	var slash_progress: float = clampf(progress / 0.82, 0.0, 1.0)
+	var frame_index: int = clampi(int(floor(slash_progress * float(frames.size()))), 0, frames.size() - 1)
+	var texture: Texture2D = frames[frame_index]
 	if texture == null:
 		return
 	var from_anchor: Vector2 = from_point + Vector2(0.0, -_tile_width() * 0.52)
 	var to_anchor: Vector2 = to_point + Vector2(0.0, -_tile_width() * 0.38)
 	var direction: Vector2 = to_anchor - from_anchor
-	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
-	var slash_center: Vector2 = from_anchor.lerp(to_anchor, 0.38 + progress * 0.30)
-	var draw_size := Vector2.ONE * _tile_width() * (0.92 + progress * 0.16)
-	var alpha: float = clampf(sin(progress * PI) * 1.12, 0.0, 1.0)
-	if progress >= 0.92:
-		alpha = maxf(alpha, 0.32)
-	var rotation: float = dir.angle() + PI * 0.25
-	draw_set_transform(slash_center, rotation, Vector2.ONE)
+	var slash_center: Vector2 = from_anchor.lerp(to_anchor, 0.50)
+	var draw_size := Vector2.ONE * _tile_width() * 1.24
+	var alpha: float = clampf(sin(slash_progress * PI) * 1.18, 0.0, 1.0)
+	if frame_index == 0:
+		alpha = maxf(alpha, 0.58)
+	elif frame_index >= frames.size() - 1:
+		alpha = minf(alpha, 0.22)
+	var horizontal_sign: float = -1.0 if direction.x < -1.0 else 1.0
+	var rotation: float = deg_to_rad(-10.0 * horizontal_sign)
+	draw_set_transform(slash_center, rotation, Vector2(horizontal_sign, 1.0))
 	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
 	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -2781,8 +2822,14 @@ func _load_assets() -> void:
 		)
 	}
 	_effect_textures = {
-		"melee_slash": AssetLoader.load_texture(MELEE_SLASH_EFFECT_PATH),
 		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
+	}
+	_effect_frames = {
+		"melee_slash": _load_sprite_sheet_frames(
+			MELEE_SLASH_SHEET_PATH,
+			MELEE_SLASH_SHEET_COLUMNS,
+			MELEE_SLASH_SHEET_ROWS
+		)
 	}
 	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)
 	_ambient_particle_glow_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_GLOW_ATLAS_PATH)
@@ -3421,6 +3468,9 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 			result.append(value)
 	return result
 
+func _ability_tiles() -> Array[Vector2i]:
+	return _vector2i_array(presentation.get("ability_tiles", []))
+
 func _tile_width() -> float:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tile_width
@@ -3606,7 +3656,7 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 	)
 
 func _update_cursor_shape() -> void:
-	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile)
+	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile) or _ability_tiles().has(_hover_tile)
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if is_hot else Control.CURSOR_ARROW
 
 func _draw_trap_marker(trap: Dictionary) -> void:
@@ -3619,19 +3669,6 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 		var trap_rect: Rect2 = _trap_draw_rect(tile)
 		draw_texture_rect(trap_texture, trap_rect, false)
 		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
-		return
-	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -18.0)
-	var accent: Color = ElementData.accent(element_id)
-	draw_circle(center, 13.0, Color(accent.r, accent.g, accent.b, 0.78))
-	draw_arc(center, 13.0, 0.0, TAU, 22, Color("1a130f"), 2.0)
-	draw_line(center + Vector2(-8.0, -8.0), center + Vector2(8.0, 8.0), Color("1a130f"), 2.0, true)
-	draw_line(center + Vector2(8.0, -8.0), center + Vector2(-8.0, 8.0), Color("1a130f"), 2.0, true)
-	var icon_texture: Texture2D = _element_textures.get(element_id, null)
-	var icon_rect := Rect2(center - Vector2(8.0, 18.0), Vector2(16.0, 16.0))
-	if icon_texture != null:
-		draw_texture_rect(icon_texture, icon_rect, false)
-	var tooltip_rect := Rect2(center - Vector2(14.0, 20.0), Vector2(28.0, 34.0))
-	_register_tooltip(tooltip_rect, _trap_tooltip_text(trap))
 
 func _trap_draw_rect(tile: Vector2i) -> Rect2:
 	var tile_width: float = _tile_width()

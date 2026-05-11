@@ -102,12 +102,15 @@
   "tailwind_fletching": {
     "name": "Tailwind Fletching",
     "rarity": "common",
-    "description": "Ranged attacks on Air cards gain +1 range and push 1.",
+    "description": "Ranged attacks on Air cards gain +1 range. Air attacks with push or pull gain +1 push or pull distance.",
     "icon_path": "res://assets/art/relics/tailwind_fletching.png",
     "accent": "#8f9499",
     "effects": [
       {"type": "card_action_mod", "element": "air", "action_types": ["ranged"], "field": "range", "amount": 1},
-      {"type": "card_action_mod", "element": "air", "action_types": ["ranged"], "field": "push", "amount": 1}
+      {"type": "card_action_mod", "element": "air", "action_types": ["melee", "ranged", "aoe"], "requires_field": "push", "field": "push", "amount": 1, "modifier_label": "+1 push distance"},
+      {"type": "card_action_mod", "element": "air", "action_types": ["melee", "ranged", "aoe"], "requires_field": "pull", "field": "pull", "amount": 1, "modifier_label": "+1 pull distance"},
+      {"type": "card_action_mod", "element": "air", "action_types": ["push"], "requires_field": "amount", "field": "amount", "amount": 1, "modifier_label": "+1 push distance"},
+      {"type": "card_action_mod", "element": "air", "action_types": ["pull"], "requires_field": "amount", "field": "amount", "amount": 1, "modifier_label": "+1 pull distance"}
     ]
   },
   "frost_prism": {

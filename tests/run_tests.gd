@@ -11,6 +11,7 @@ const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
+const MusicLibrary = preload("res://scripts/music_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -29,6 +30,7 @@ func _initialize() -> void:
 	_assert(GameData.npcs().size() >= 1, "NPC data should load")
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	_test_music_library_routes_elemental_combat_tracks()
 	_test_relic_data_rarity_and_offer_weights()
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
@@ -53,11 +55,13 @@ func _initialize() -> void:
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
 	_test_relic_effect_hooks()
+	_test_tailwind_fletching_modifies_existing_forced_movement()
 	_test_pierce_ignores_defenses()
 	_test_enemy_pierce_intents_surface_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
+	_test_harrier_has_moving_ranged_attack()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_preview_block_mitigates_current_turn_damage()
 	_test_aoe_hits_multiple_targets()
@@ -176,6 +180,53 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
 	quit(1)
+
+func _test_music_library_routes_elemental_combat_tracks() -> void:
+	var expected_tracks: Dictionary = {
+		ElementData.FIRE: MusicLibrary.FIRE_COMBAT_TRACK_ID,
+		ElementData.ICE: MusicLibrary.ICE_COMBAT_TRACK_ID,
+		ElementData.LIGHTNING: MusicLibrary.LIGHTNING_COMBAT_TRACK_ID,
+		ElementData.AIR: MusicLibrary.AIR_COMBAT_TRACK_ID,
+		ElementData.EARTH: MusicLibrary.EARTH_COMBAT_TRACK_ID
+	}
+	for element_id_var: Variant in expected_tracks.keys():
+		var element_id: String = str(element_id_var)
+		var entry: Dictionary = MusicLibrary.entry_for_context("combat", {
+			"type": "combat",
+			"element": element_id
+		})
+		var expected_track_id: String = str(expected_tracks.get(element_id, ""))
+		var path: String = str(entry.get("path", ""))
+		_assert(str(entry.get("id", "")) == expected_track_id, "%s combat rooms should use their element music track" % ElementData.name(element_id))
+		_assert(FileAccess.file_exists(path), "%s music asset should exist" % expected_track_id)
+		_assert(load(path) is AudioStream, "%s music asset should load as audio" % expected_track_id)
+	var room_entry: Dictionary = MusicLibrary.entry_for_context("room", {
+		"type": "combat",
+		"element": ElementData.FIRE
+	})
+	_assert(str(room_entry.get("id", "")) == MusicLibrary.FIRE_COMBAT_TRACK_ID, "Uncleared elemental combat rooms should use their element music outside combat mode")
+	var cleared_entry: Dictionary = MusicLibrary.entry_for_context("room", {
+		"type": "combat",
+		"element": ElementData.FIRE,
+		"cleared": true
+	})
+	_assert(str(cleared_entry.get("id", "")) == MusicLibrary.RELIC_ROOM_TRACK_ID, "Cleared combat rooms should still switch to the post-combat room music")
+	var generic_entry: Dictionary = MusicLibrary.entry_for_context("combat", {
+		"type": "combat",
+		"element": ElementData.NONE
+	})
+	_assert(str(generic_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Neutral combat should keep the generic combat music fallback")
+	var boss_entry: Dictionary = MusicLibrary.entry_for_context("combat", {
+		"type": "boss",
+		"element": ElementData.LIGHTNING,
+		"boss_id": "zekarion"
+	})
+	_assert(str(boss_entry.get("id", "")) == MusicLibrary.ZEKARION_BOSS_TRACK_ID, "Zekarion should keep boss music over elemental music")
+	var generic_boss_entry: Dictionary = MusicLibrary.entry_for_context("combat", {
+		"type": "boss",
+		"element": ElementData.LIGHTNING
+	})
+	_assert(str(generic_boss_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Boss fallback should not use non-boss elemental combat music")
 
 func _test_relic_data_rarity_and_offer_weights() -> void:
 	var valid_rarities: Dictionary = {
@@ -853,6 +904,26 @@ func _test_relic_effect_hooks() -> void:
 	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 1, "Prevent-lethal relic effects should rescue the player once")
 	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Prevent-lethal relic effects should be able to apply follow-up status")
 
+func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
+	var tailwind_skybreak: Dictionary = GameData.card_def_for_progression("skybreak_current", {"relics": ["tailwind_fletching"]})
+	var skybreak_attack: Dictionary = (tailwind_skybreak.get("actions", []) as Array)[1]
+	_assert(int(skybreak_attack.get("range", 0)) == 7, "Tailwind should keep its ranged Air range bonus")
+	_assert(int(skybreak_attack.get("push", 0)) == 4, "Tailwind should increase existing push on Air ranged attacks")
+	_assert(ActionIcons.token_tooltip(ActionIcons.tokens_for_action(skybreak_attack)[2] as Dictionary).contains("Tailwind Fletching"), "Relic-modified push tokens should name Tailwind in their tooltip")
+	var tailwind_squall: Dictionary = GameData.card_def_for_progression("squall_shot", {"relics": ["tailwind_fletching"]})
+	var squall_action: Dictionary = (tailwind_squall.get("actions", []) as Array)[0]
+	_assert(int(squall_action.get("push", 0)) == 2, "Tailwind should increase existing push on Air AOE attacks")
+	var tailwind_vacuum: Dictionary = GameData.card_def_for_progression("vacuum_line", {"relics": ["tailwind_fletching"]})
+	var vacuum_action: Dictionary = (tailwind_vacuum.get("actions", []) as Array)[0]
+	_assert(int(vacuum_action.get("amount", 0)) == 4, "Tailwind should increase existing Air pull action distance")
+	var stacked_updraft: Dictionary = GameData.card_def_for_progression("updraft", {"relics": ["tailwind_fletching", "anchor_chain"]})
+	var stacked_action: Dictionary = (stacked_updraft.get("actions", []) as Array)[0]
+	_assert(int(stacked_action.get("amount", 0)) == 5, "Multiple relics should stack on the same forced-movement number")
+	var stacked_push_token: Dictionary = (ActionIcons.tokens_for_action(stacked_action)[0] as Dictionary)
+	var stacked_tooltip: String = ActionIcons.token_tooltip(stacked_push_token)
+	_assert(ActionIcons.token_is_modified(stacked_push_token), "Relic-modified forced movement should carry a dynamic token marker")
+	_assert(stacked_tooltip.contains("Tailwind Fletching") and stacked_tooltip.contains("Anchor Chain"), "A token modified by multiple relics should list every source")
+
 func _test_pierce_ignores_defenses() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var melee_state: Dictionary = combat.create_combat(1701, _simple_room_layout(), {
@@ -1010,6 +1081,26 @@ func _test_low_movement_enemies_advance_without_outpacing_crawlers() -> void:
 	_assert(is_equal_approx(warden_average, 1.0), "Wardens should average one tile of forward movement across their intents")
 	_assert(crawler_weighted_average > acolyte_weighted_average, "Crawlers should move more aggressively than acolytes in actual intent frequency")
 	_assert(warden_weighted_average < crawler_weighted_average, "Wardens should stay slower than crawlers in actual intent frequency")
+
+func _test_harrier_has_moving_ranged_attack() -> void:
+	var found: bool = false
+	for intent_var: Variant in GameData.enemy_def("harrier").get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var has_move_toward: bool = false
+		var has_ranged_attack: bool = false
+		for action_var: Variant in (intent_var as Dictionary).get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var as Dictionary
+			if str(action.get("type", "")) == "move_toward" and int(action.get("range", 0)) > 0:
+				has_move_toward = true
+			if str(action.get("type", "")) == "ranged" and int(action.get("damage", 0)) > 0:
+				has_ranged_attack = true
+		if has_move_toward and has_ranged_attack:
+			found = true
+			break
+	_assert(found, "Harriers should have at least one ranged attack that advances before firing")
 
 func _average_enemy_toward_move(enemy_type: String) -> float:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -2443,6 +2534,8 @@ func _test_combat_board_hides_outer_walls_without_hiding_visible_doors() -> void
 	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Usable exits should stay visually present even while the outer wall toggle is off")
 	var exit_tiles: Array = board.call("_tiles_in_draw_order", grid)
 	_assert(exit_tiles.has(door_tile), "Usable exits should remain in draw order so the player can click them")
+	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {door_tile: "N"}, {}, {"pulse_exit_tiles": true})
+	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Pulsing exit doors should keep the board redraw loop active")
 	board.set_combat_state({"grid": grid}, [], [], Vector2i(-1, -1), "", "", {}, {}, {"locked_door_tiles": {door_tile: true}})
 	_assert(board.call("_display_tile_id", "door", door_tile) == "door", "Locked traversal doors should still render as doors for presentation")
 	var locked_tiles: Array = board.call("_tiles_in_draw_order", grid)
@@ -3494,6 +3587,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(attack_tiles.has(enemy_tile), "Move-attack previews should let the player click a reachable enemy directly")
+	_assert(bool(board_view.get("presentation").get("pulse_attack_tiles", false)), "Player attack targets should request pulsing attack highlights")
 	var focus_tiles: Array = board_view.get("presentation").get("focus_tiles", [])
 	var typed_focus_tiles: bool = not focus_tiles.is_empty()
 	for tile_var: Variant in focus_tiles:
@@ -3615,8 +3709,9 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	_assert(str(damage_token.get("icon", "")) == "melee", "Damage cards should render the action keyword as an icon")
 	_assert(int(damage_token.get("value", 0)) == 11, "Damage cards should show final damage, not base damage, when a modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
-	_assert(modifier_lines.size() == 1, "Damage cards should surface active damage modifiers for the tooltip")
-	_assert(str(modifier_lines[0]).contains("Ember Lens"), "The damage tooltip should name the modifier source")
+	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
+	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")
+	_assert(ActionIcons.token_tooltip(damage_token).contains("Ember Lens"), "The damage token tooltip should name the modifier source")
 	instance.queue_free()
 	await process_frame
 
@@ -3742,6 +3837,11 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var preview_units: Array = presentation.get("preview_units", [])
+	var ability_tiles: Array = presentation.get("ability_tiles", [])
+	var attack_tiles: Array = board_view.get("attack_tiles")
+	_assert(ability_tiles.has(target_tile), "Illusion target previews should expose green ability target tiles")
+	_assert(not attack_tiles.has(target_tile), "Illusion target previews should stay out of attack target highlights")
+	_assert(not bool(presentation.get("pulse_attack_tiles", false)), "Illusion target previews should not request attack target pulsing")
 	_assert(preview_units.size() == 1, "Hovering a valid illusion target should surface one placement preview unit")
 	if not preview_units.is_empty():
 		var preview_unit: Dictionary = preview_units[0] as Dictionary
@@ -3886,6 +3986,7 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(move_tiles.has(Vector2i(4, 2)), "Hovering an enemy should surface its movement threat tiles on the board")
 	_assert(attack_tiles.has(Vector2i(2, 4)), "Hovering an enemy should surface its attack threat tiles on the board")
+	_assert(not bool(board_view.get("presentation").get("pulse_attack_tiles", false)), "Enemy threat overlays should keep static attack highlights")
 	instance.queue_free()
 	await process_frame
 

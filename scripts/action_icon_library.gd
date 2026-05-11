@@ -146,7 +146,11 @@ static func tooltip(icon_key: String) -> String:
 	return "%s\n%s" % [text, detail]
 
 static func token_tooltip(token: Dictionary) -> String:
-	return str(token.get("tooltip", tooltip(str(token.get("icon", "")))))
+	var text: String = str(token.get("tooltip", tooltip(str(token.get("icon", "")))))
+	var modifier_lines: PackedStringArray = _modifier_tooltip_lines(token)
+	if modifier_lines.is_empty():
+		return text
+	return "%s\nModified by:\n%s" % [text, "\n".join(modifier_lines)]
 
 static func token_value_text(token: Dictionary) -> String:
 	if not token.has("value"):
@@ -156,7 +160,7 @@ static func token_value_text(token: Dictionary) -> String:
 		return ""
 	return str(value)
 
-static func token_for(icon_key: String, value: Variant = null, tone: String = "neutral", tooltip_override: String = "") -> Dictionary:
+static func token_for(icon_key: String, value: Variant = null, tone: String = "neutral", tooltip_override: String = "", modifiers: Array = [], base_value: Variant = null) -> Dictionary:
 	var token: Dictionary = {
 		"icon": icon_key,
 		"tone": tone
@@ -165,7 +169,91 @@ static func token_for(icon_key: String, value: Variant = null, tone: String = "n
 		token["value"] = value
 	if not tooltip_override.is_empty():
 		token["tooltip"] = tooltip_override
+	if not modifiers.is_empty():
+		token["modifiers"] = modifiers.duplicate(true)
+		token["modified"] = true
+		if base_value != null:
+			token["base_value"] = base_value
 	return token
+
+static func token_is_modified(token: Dictionary) -> bool:
+	return bool(token.get("modified", false)) or not (token.get("modifiers", []) as Array).is_empty()
+
+static func _token_for_action_field(action: Dictionary, icon_key: String, field: String, value: Variant = null, tone: String = "neutral", tooltip_override: String = "", base_value: Variant = null, extra_modifiers: Array = []) -> Dictionary:
+	var modifiers: Array = _action_modifiers_for_field(action, field)
+	for modifier_var: Variant in extra_modifiers:
+		if typeof(modifier_var) == TYPE_DICTIONARY:
+			modifiers.append((modifier_var as Dictionary).duplicate(true))
+	var resolved_base_value: Variant = base_value
+	if resolved_base_value == null and value != null and not modifiers.is_empty() and typeof(value) in [TYPE_INT, TYPE_FLOAT]:
+		resolved_base_value = int(value) - _modifier_amount_total(modifiers)
+	var resolved_tone: String = tone
+	if resolved_tone == "neutral" and resolved_base_value != null and value != null and typeof(value) in [TYPE_INT, TYPE_FLOAT] and typeof(resolved_base_value) in [TYPE_INT, TYPE_FLOAT]:
+		resolved_tone = _value_tone(int(value), int(resolved_base_value))
+	var token: Dictionary = token_for(icon_key, value, resolved_tone, tooltip_override, modifiers, resolved_base_value)
+	if not field.is_empty():
+		token["field"] = field
+	return token
+
+static func _action_modifiers_for_field(action: Dictionary, field: String) -> Array:
+	var modifiers: Array = []
+	if typeof(action.get("_modifiers", {})) != TYPE_DICTIONARY:
+		return modifiers
+	var modifiers_by_field: Dictionary = action.get("_modifiers", {}) as Dictionary
+	var modifier_keys: Array = ["_action"]
+	if field != "_action":
+		modifier_keys.append(field)
+	for key: String in modifier_keys:
+		if key.is_empty():
+			continue
+		if typeof(modifiers_by_field.get(key, [])) != TYPE_ARRAY:
+			continue
+		for modifier_var: Variant in modifiers_by_field.get(key, []):
+			if typeof(modifier_var) == TYPE_DICTIONARY:
+				modifiers.append((modifier_var as Dictionary).duplicate(true))
+	return modifiers
+
+static func _option_modifiers_for_field(options: Dictionary, field: String) -> Array:
+	var modifiers: Array = []
+	var field_key: String = "%s_modifiers" % field
+	if typeof(options.get(field_key, [])) == TYPE_ARRAY:
+		for modifier_var: Variant in options.get(field_key, []):
+			if typeof(modifier_var) == TYPE_DICTIONARY:
+				modifiers.append((modifier_var as Dictionary).duplicate(true))
+	if typeof(options.get("modifiers_by_field", {})) == TYPE_DICTIONARY:
+		var by_field: Dictionary = options.get("modifiers_by_field", {}) as Dictionary
+		if typeof(by_field.get(field, [])) == TYPE_ARRAY:
+			for modifier_var: Variant in by_field.get(field, []):
+				if typeof(modifier_var) == TYPE_DICTIONARY:
+					modifiers.append((modifier_var as Dictionary).duplicate(true))
+	return modifiers
+
+static func _modifier_amount_total(modifiers: Array) -> int:
+	var total: int = 0
+	for modifier_var: Variant in modifiers:
+		if typeof(modifier_var) != TYPE_DICTIONARY:
+			continue
+		total += int((modifier_var as Dictionary).get("amount", 0))
+	return total
+
+static func _modifier_tooltip_lines(token: Dictionary) -> PackedStringArray:
+	var lines: PackedStringArray = []
+	for modifier_var: Variant in token.get("modifiers", []):
+		if typeof(modifier_var) != TYPE_DICTIONARY:
+			continue
+		var modifier: Dictionary = modifier_var
+		var source: String = str(modifier.get("source", "Modifier"))
+		var label_text: String = str(modifier.get("label", ""))
+		if label_text.is_empty() and int(modifier.get("amount", 0)) != 0:
+			label_text = "%+d" % int(modifier.get("amount", 0))
+		var detail: String = str(modifier.get("detail", ""))
+		var line: String = source
+		if not label_text.is_empty():
+			line = "%s %s" % [line, label_text]
+		if not detail.is_empty():
+			line = "%s  %s" % [line, detail]
+		lines.append(line)
+	return lines
 
 static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Array:
 	var rows: Array = []
@@ -211,57 +299,57 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if health_cost > 0:
 				tokens.append(token_for("health_cost", "-%d" % health_cost))
 		"move", "move_toward":
-			tokens.append(token_for("move", int(action.get("range", 0))))
+			tokens.append(_token_for_action_field(action, "move", "range", int(action.get("range", 0))))
 		"move_away":
-			tokens.append(token_for("retreat", int(action.get("range", 0))))
+			tokens.append(_token_for_action_field(action, "retreat", "range", int(action.get("range", 0))))
 		"blink":
-			tokens.append(token_for("blink", int(action.get("range", 0))))
+			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 0))))
 		"melee":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "melee"), action, options)
 			if int(action.get("range", 0)) > 1:
-				tokens.append(token_for("range", int(action.get("range", 0))))
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"ranged":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
-			tokens.append(token_for("range", int(action.get("range", 0))))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"aoe":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
 			if int(action.get("range", 0)) > 0:
-				tokens.append(token_for("range", int(action.get("range", 0))))
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
 		"push":
-			tokens.append(token_for("push", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0))))
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
-				tokens.append(token_for("range", int(action.get("range", 0))))
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"pull":
-			tokens.append(token_for("pull", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
-				tokens.append(token_for("range", int(action.get("range", 0))))
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"block":
-			tokens.append(token_for("block", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "block", "amount", int(action.get("amount", 0))))
 		"stoneskin":
-			tokens.append(token_for("stoneskin", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "stoneskin", "amount", int(action.get("amount", 0))))
 		"heal", "heal_self":
-			tokens.append(token_for("heal", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "heal", "amount", int(action.get("amount", 0))))
 		"draw":
-			tokens.append(token_for("draw", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "draw", "amount", int(action.get("amount", 0))))
 		"card_play":
-			tokens.append(token_for("card_play", int(action.get("amount", 0))))
+			tokens.append(_token_for_action_field(action, "card_play", "amount", int(action.get("amount", 0))))
 		"illusion":
-			tokens.append(token_for("illusion", int(action.get("health", action.get("amount", 0)))))
-			tokens.append(token_for("range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
+			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(token_for("shock", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
+			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
-			tokens.append(token_for("shock", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
+			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
 	return tokens
 
 static func plain_text_for_tokens(tokens: Array) -> String:
@@ -291,7 +379,16 @@ static func plain_text_for_rows(rows: Array) -> String:
 static func _append_damage_token(tokens: Array, icon_key: String, action: Dictionary, options: Dictionary) -> void:
 	var base_damage: int = int(action.get("damage", 0))
 	var final_damage: int = int(options.get("final_damage", base_damage))
-	tokens.append(token_for(icon_key, final_damage, _damage_tone(final_damage, base_damage)))
+	tokens.append(_token_for_action_field(
+		action,
+		icon_key,
+		"damage",
+		final_damage,
+		_damage_tone(final_damage, base_damage),
+		"",
+		base_damage,
+		_option_modifiers_for_field(options, "damage")
+	))
 
 static func _damage_icon_for_action(action: Dictionary, fallback_icon: String) -> String:
 	return "pierce" if bool(action.get("pierce", false)) else fallback_icon
@@ -301,7 +398,16 @@ static func _append_optional_hit_token(tokens: Array, action: Dictionary, option
 		return
 	var base_damage: int = int(action.get("damage", 0))
 	var final_damage: int = int(options.get("final_damage", base_damage))
-	tokens.append(token_for(_damage_icon_for_action(action, "melee"), final_damage, _damage_tone(final_damage, base_damage)))
+	tokens.append(_token_for_action_field(
+		action,
+		_damage_icon_for_action(action, "melee"),
+		"damage",
+		final_damage,
+		_damage_tone(final_damage, base_damage),
+		"",
+		base_damage,
+		_option_modifiers_for_field(options, "damage")
+	))
 
 static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 	return {
@@ -314,23 +420,26 @@ static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 
 static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 	if int(action.get("burn", 0)) > 0:
-		tokens.append(token_for("burn", int(action.get("burn", 0))))
+		tokens.append(_token_for_action_field(action, "burn", "burn", int(action.get("burn", 0))))
 	if int(action.get("freeze", 0)) > 0:
-		tokens.append(token_for("freeze", int(action.get("freeze", 0))))
+		tokens.append(_token_for_action_field(action, "freeze", "freeze", int(action.get("freeze", 0))))
 	if int(action.get("shock", 0)) > 0:
-		tokens.append(token_for("shock", int(action.get("shock", 0))))
+		tokens.append(_token_for_action_field(action, "shock", "shock", int(action.get("shock", 0))))
 	if int(action.get("chain", 0)) > 0:
-		tokens.append(token_for("chain", int(action.get("chain", 0))))
+		tokens.append(_token_for_action_field(action, "chain", "chain", int(action.get("chain", 0))))
 	if int(action.get("push", 0)) > 0:
-		tokens.append(token_for("push", int(action.get("push", 0))))
+		tokens.append(_token_for_action_field(action, "push", "push", int(action.get("push", 0))))
 	if int(action.get("pull", 0)) > 0:
-		tokens.append(token_for("pull", int(action.get("pull", 0))))
+		tokens.append(_token_for_action_field(action, "pull", "pull", int(action.get("pull", 0))))
 	if int(action.get("poison", 0)) > 0:
-		tokens.append(token_for("poison", int(action.get("poison", 0))))
+		tokens.append(_token_for_action_field(action, "poison", "poison", int(action.get("poison", 0))))
 
 static func _damage_tone(final_damage: int, base_damage: int) -> String:
-	if final_damage > base_damage:
+	return _value_tone(final_damage, base_damage)
+
+static func _value_tone(final_value: int, base_value: int) -> String:
+	if final_value > base_value:
 		return "bonus"
-	if final_damage < base_damage:
+	if final_value < base_value:
 		return "penalty"
 	return "neutral"

@@ -2203,19 +2203,27 @@ func _refresh_stage_view() -> void:
 	var display_state: Dictionary = _board_display_state()
 	var move_tiles: Array[Vector2i] = []
 	var attack_tiles: Array[Vector2i] = []
+	var ability_tiles: Array[Vector2i] = []
 	var presentation: Dictionary = _board_presentation.duplicate(true)
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
 		if not preview.is_empty() and not bool(preview.get("complete", false)):
 			var action: Dictionary = preview.get("action", {})
+			var action_type: String = str(action.get("type", ""))
 			var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
-			if str(action.get("type", "")) in ["move", "blink"]:
+			if action_type in ["move", "blink"]:
 				move_tiles = target_tiles
 				var shortcuts: Dictionary = _preview_shortcuts_for_current_action(preview)
 				attack_tiles = _vector2i_array(shortcuts.get("tiles", []))
-			else:
+				if not attack_tiles.is_empty():
+					presentation["pulse_attack_tiles"] = true
+			elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
 				attack_tiles = target_tiles
+				presentation["pulse_attack_tiles"] = true
+			else:
+				ability_tiles = target_tiles
+				presentation["ability_tiles"] = ability_tiles
 			var preview_presentation: Dictionary = _preview_presentation(preview)
 			for key: Variant in preview_presentation.keys():
 				presentation[key] = preview_presentation[key]
@@ -2228,6 +2236,8 @@ func _refresh_stage_view() -> void:
 				presentation["focus_actor_color"] = Color("f2ddb2")
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
+	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and not _exit_destinations_by_tile.is_empty():
+		presentation["pulse_exit_tiles"] = true
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
 	if str(current_room.get("type", "")) == "campfire":
 		presentation["scene_props"] = [
@@ -2383,16 +2393,20 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		var action_type: String = str(action.get("type", ""))
 		match action_type:
 			"melee", "ranged", "aoe":
-				var base_damage: int = int(action.get("damage", 0))
-				var final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
-				summary_rows.append(ActionIcons.tokens_for_action(action, {"final_damage": final_damage}))
-				for modifier: Dictionary in _combat_engine.damage_modifiers_for_player_action(preview_state, action):
-					modifier_lines.append(_damage_modifier_line(modifier))
+				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
+				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
+				summary_rows.append(ActionIcons.tokens_for_action(action, {
+					"final_damage": attack_final_damage,
+					"damage_modifiers": attack_damage_modifiers
+				}))
 				_consume_preview_damage_modifiers(preview_state, action)
 			"push", "pull":
-				summary_rows.append(ActionIcons.tokens_for_action(action, {"final_damage": _combat_engine.final_damage_for_player_action(preview_state, action)}))
-				for modifier: Dictionary in _combat_engine.damage_modifiers_for_player_action(preview_state, action):
-					modifier_lines.append(_damage_modifier_line(modifier))
+				var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
+				var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
+				summary_rows.append(ActionIcons.tokens_for_action(action, {
+					"final_damage": shove_final_damage,
+					"damage_modifiers": shove_damage_modifiers
+				}))
 				_consume_preview_damage_modifiers(preview_state, action)
 			_:
 				var row: Array = ActionIcons.tokens_for_action(action)
@@ -2406,15 +2420,6 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		"summary_rows": summary_rows,
 		"modifier_lines": modifier_lines
 	}
-
-func _damage_modifier_line(modifier: Dictionary) -> String:
-	var amount: int = int(modifier.get("amount", 0))
-	var amount_label: String = "%+d" % amount
-	var source: String = str(modifier.get("source", "Modifier"))
-	var detail: String = str(modifier.get("detail", ""))
-	if detail.is_empty():
-		return "%s %s" % [source, amount_label]
-	return "%s %s  %s" % [source, amount_label, detail]
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
 	var action_type: String = str(action.get("type", ""))
@@ -2525,7 +2530,7 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	if not focus_tiles.is_empty():
 		result["focus_tiles"] = focus_tiles
 		if action_type == "illusion":
-			result["focus_color"] = Color(0.40, 0.86, 0.94, 0.22)
+			result["focus_color"] = Color(0.42, 0.88, 0.42, 0.22)
 		else:
 			result["focus_color"] = Color(0.42, 0.84, 0.93, 0.24) if action_type in ["move", "blink"] else Color(0.95, 0.62, 0.37, 0.22)
 	var path_tiles: Array[Vector2i] = _path_tiles_for_preview(preview)

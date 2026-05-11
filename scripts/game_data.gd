@@ -656,12 +656,14 @@ static func _apply_relic_action_mod(card: Dictionary, effect: Dictionary) -> Dic
 		var field: String = str(effect.get("field", ""))
 		if field.is_empty():
 			continue
+		var before_value: Variant = action.get(field, null)
 		if typeof(effect.get("value", null)) == TYPE_BOOL:
 			action[field] = bool(effect.get("value", false))
 		elif field == "pierce":
 			action[field] = true
 		else:
 			action[field] = int(action.get(field, 0)) + int(effect.get("amount", effect.get("value", 0)))
+		action = _record_relic_action_modifier(action, effect, field, before_value, action.get(field, null))
 		actions[index] = action
 	var next_card: Dictionary = card.duplicate(true)
 	next_card["actions"] = actions
@@ -676,10 +678,57 @@ static func _apply_relic_append_action(card: Dictionary, effect: Dictionary) -> 
 	if typeof(appended_action) != TYPE_DICTIONARY:
 		return card
 	var actions: Array = (card.get("actions", []) as Array).duplicate(true)
-	actions.append((appended_action as Dictionary).duplicate(true))
+	var action: Dictionary = (appended_action as Dictionary).duplicate(true)
+	action = _record_relic_action_modifier(action, effect, "_action", null, action.get("type", ""))
+	actions.append(action)
 	var next_card: Dictionary = card.duplicate(true)
 	next_card["actions"] = actions
 	return next_card
+
+static func _record_relic_action_modifier(action: Dictionary, effect: Dictionary, field: String, before_value: Variant, after_value: Variant) -> Dictionary:
+	var next_action: Dictionary = action.duplicate(true)
+	var modifiers_by_field: Dictionary = {}
+	if typeof(next_action.get("_modifiers", {})) == TYPE_DICTIONARY:
+		modifiers_by_field = (next_action.get("_modifiers", {}) as Dictionary).duplicate(true)
+	var field_modifiers: Array = []
+	if typeof(modifiers_by_field.get(field, [])) == TYPE_ARRAY:
+		field_modifiers = (modifiers_by_field.get(field, []) as Array).duplicate(true)
+	field_modifiers.append({
+		"source": _relic_effect_source_name(effect),
+		"amount": _relic_modifier_amount(effect, before_value, after_value),
+		"label": _relic_modifier_label(effect, field, before_value, after_value),
+		"field": field,
+		"before": _duplicate_variant(before_value),
+		"after": _duplicate_variant(after_value)
+	})
+	modifiers_by_field[field] = field_modifiers
+	next_action["_modifiers"] = modifiers_by_field
+	return next_action
+
+static func _relic_modifier_amount(effect: Dictionary, before_value: Variant, after_value: Variant) -> int:
+	if typeof(effect.get("amount", null)) in [TYPE_INT, TYPE_FLOAT]:
+		return int(effect.get("amount", 0))
+	if typeof(effect.get("value", null)) in [TYPE_INT, TYPE_FLOAT]:
+		return int(effect.get("value", 0))
+	if typeof(before_value) in [TYPE_INT, TYPE_FLOAT] or typeof(after_value) in [TYPE_INT, TYPE_FLOAT]:
+		return int(after_value) - int(before_value)
+	return 0
+
+static func _relic_modifier_label(effect: Dictionary, field: String, before_value: Variant, after_value: Variant) -> String:
+	var label: String = str(effect.get("modifier_label", ""))
+	if not label.is_empty():
+		return label
+	if field == "_action":
+		return "added action"
+	if typeof(after_value) == TYPE_BOOL:
+		return "adds %s" % field.capitalize()
+	var amount: int = _relic_modifier_amount(effect, before_value, after_value)
+	return "%+d %s" % [amount, field.replace("_", " ")]
+
+static func _relic_effect_source_name(effect: Dictionary) -> String:
+	var relic_id: String = str(effect.get("relic_id", ""))
+	var relic: Dictionary = relic_def(relic_id)
+	return str(relic.get("name", relic_id))
 
 static func _relic_effect_matches_card(card: Dictionary, effect: Dictionary) -> bool:
 	var element: String = str(effect.get("element", ""))
