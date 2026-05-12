@@ -10,6 +10,7 @@ const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
 const MAX_LOG_LINES: int = 12
+const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 4
@@ -17,6 +18,7 @@ const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 2
 const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 2
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
+const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "chain", "push", "pull"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const DEFAULT_AOE_PATTERN: Array = [
@@ -53,6 +55,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"room_depth": int(room_layout.get("depth", 1)),
 		"room_type": str(room_layout.get("type", "combat")),
 		"room_element": str(room_layout.get("element", ElementData.NONE)),
+		"elemental_intensity": _initial_elemental_intensity(str(room_layout.get("element", ElementData.NONE))),
 		"grid": room_layout.get("grid", []).duplicate(true),
 		"moss": room_layout.get("moss", {}).duplicate(true),
 		"player": player,
@@ -134,6 +137,8 @@ func player_action_needs_target(action: Dictionary) -> bool:
 	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion"]
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
+	if not action_intensity_requirement_met(state, action):
+		return false
 	var action_type: String = str(action.get("type", ""))
 	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
@@ -236,6 +241,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	match action_type:
 		"move":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
@@ -263,30 +269,38 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 		"pull":
 			next_state = _push_or_pull_enemy(next_state, action, target_tile, false)
 		"block":
-			player["block"] = int(player.get("block", 0)) + int(action.get("amount", 0))
+			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
-			_log(next_state, "Gained %d block." % int(action.get("amount", 0)))
+			_log(next_state, "Gained %d block." % int(resolved_action.get("amount", 0)))
 		"stoneskin":
 			var stoneskin_before: int = int(player.get("stoneskin", 0))
-			player["stoneskin"] = int(player.get("stoneskin", 0)) + int(action.get("amount", 0))
+			player["stoneskin"] = int(player.get("stoneskin", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
 			next_state = _trigger_stoneskin_relics(next_state, int(player.get("stoneskin", 0)) - stoneskin_before)
-			_log(next_state, "Gained %d stoneskin." % int(action.get("amount", 0)))
+			_log(next_state, "Gained %d stoneskin." % int(resolved_action.get("amount", 0)))
 		"heal":
-			var heal_amount: int = int(action.get("amount", 0))
+			var heal_amount: int = int(resolved_action.get("amount", 0))
 			player["hp"] = mini(int(player.get("max_hp", 1)), int(player.get("hp", 0)) + heal_amount)
 			next_state["player"] = player
 			_log(next_state, "Recovered %d health." % heal_amount)
 		"draw":
-			next_state = _draw_cards_in_place(next_state, int(action.get("amount", 0)))
+			next_state = _draw_cards_in_place(next_state, int(resolved_action.get("amount", 0)))
 		"card_play":
-			var bonus_card_plays: int = maxi(0, int(action.get("amount", 0)))
+			var bonus_card_plays: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
 			if bonus_card_plays > 0:
 				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
+		"intensity":
+			var element_id: String = _action_intensity_element(action)
+			var amount: int = maxi(0, int(action.get("amount", 0)))
+			if ElementData.is_elemental(element_id) and amount > 0:
+				var intensities: Dictionary = elemental_intensities(next_state)
+				intensities[element_id] = int(intensities.get(element_id, 0)) + amount
+				next_state["elemental_intensity"] = intensities
+				_log(next_state, "%s intensity rises by %d." % [ElementData.name(element_id), amount])
 		"illusion":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
-				next_state = _create_illusion(next_state, target_tile, int(action.get("health", action.get("amount", 0))))
+				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
 	return next_state
 
 func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
@@ -474,11 +488,12 @@ func aoe_tiles_for_player_action(state: Dictionary, action: Dictionary, target_t
 	return _best_aoe_tiles_for_target(state, action, center, false)
 
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
-	var action_type: String = str(action.get("type", ""))
+	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var action_type: String = str(resolved_action.get("type", ""))
 	if action_type not in ATTACK_ACTION_TYPES:
-		return int(action.get("damage", 0))
-	var base_damage: int = int(action.get("damage", 0))
-	return maxi(0, base_damage + _attack_bonus_for_current_turn(state) + _conditional_attack_bonus_for_action(state, action))
+		return int(resolved_action.get("damage", 0))
+	var base_damage: int = int(resolved_action.get("damage", 0))
+	return maxi(0, base_damage + _attack_bonus_for_current_turn(state) + _conditional_attack_bonus_for_action(state, resolved_action))
 
 func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
 	var modifiers: Array[Dictionary] = []
@@ -489,12 +504,51 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 	if attack_bonus != 0:
 		modifiers.append({
 			"source": "Ember Lens",
+			"kind": "relic",
 			"amount": attack_bonus,
 			"detail": "First attack this turn"
 		})
+	for modifier: Dictionary in _intensity_bonus_damage_modifiers_for_action(state, action):
+		modifiers.append(modifier)
 	for modifier: Dictionary in _conditional_attack_modifiers_for_action(state, action):
 		modifiers.append(modifier)
 	return modifiers
+
+func elemental_intensities(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	var raw: Variant = state.get("elemental_intensity", {})
+	var source: Dictionary = {}
+	if typeof(raw) == TYPE_DICTIONARY:
+		source = raw as Dictionary
+	for element_id: String in ElementData.all_elements():
+		result[element_id] = maxi(0, int(source.get(element_id, 0)))
+	return result
+
+func elemental_intensity(state: Dictionary, element_id: String) -> int:
+	if not ElementData.is_elemental(element_id):
+		return 0
+	return int(elemental_intensities(state).get(element_id, 0))
+
+func action_intensity_requirement(action: Dictionary) -> Dictionary:
+	return _action_intensity_requirement(action)
+
+func action_intensity_requirement_met(state: Dictionary, action: Dictionary) -> bool:
+	var requirement: Dictionary = _action_intensity_requirement(action)
+	if requirement.is_empty():
+		return true
+	return elemental_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
+
+func action_intensity_bonus(action: Dictionary) -> Dictionary:
+	return _action_intensity_bonus(action)
+
+func action_intensity_bonus_requirement(action: Dictionary) -> Dictionary:
+	return _action_intensity_bonus_requirement(action)
+
+func action_intensity_bonus_requirement_met(state: Dictionary, action: Dictionary) -> bool:
+	var requirement: Dictionary = _action_intensity_bonus_requirement(action)
+	if requirement.is_empty():
+		return false
+	return elemental_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
 
 func combat_outcome(state: Dictionary) -> String:
 	if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
@@ -861,21 +915,23 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 
 func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
-	var damage: int = _damage_for_enemy_target(next_state, action, enemy_index)
-	if damage > 0 or _action_has_keyword_effect(action):
-		if _attack_bonus_for_current_turn(next_state) > 0 and int(action.get("damage", 0)) > 0:
+	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
+	if damage > 0 or _action_has_keyword_effect(resolved_action):
+		if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
-		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(action))
-		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-		next_state = _apply_chain_from_enemy(next_state, enemy_index, action, damage)
+		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
+		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage)
 		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
 	return next_state
 
 func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
 	if int(action.get("range", 0)) > 0 and not valid_targets_for_player_action(next_state, action).has(center):
@@ -883,14 +939,14 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 	var affected: Array[int] = _enemy_indices_in_tiles(next_state, _best_aoe_tiles_for_target(next_state, action, center, false))
 	if affected.is_empty():
 		return next_state
-	if _attack_bonus_for_current_turn(next_state) > 0 and int(action.get("damage", 0)) > 0:
+	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
 	var last_damage: int = 0
 	for enemy_index: int in affected:
-		var damage: int = _damage_for_enemy_target(next_state, action, enemy_index)
+		var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
 		last_damage = damage
-		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(action))
-		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
+		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
 	_log(next_state, "Area attack hits %d foe(s) for %d." % [affected.size(), last_damage])
 	return next_state
 
@@ -1073,6 +1129,86 @@ func _action_has_keyword_effect(action: Dictionary) -> bool:
 
 func _action_pierces_defense(action: Dictionary) -> bool:
 	return bool(action.get("pierce", false))
+
+func _initial_elemental_intensity(room_element: String) -> Dictionary:
+	var intensities: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		intensities[element_id] = ELEMENTAL_INTENSITY_ROOM_BASE if element_id == room_element else 0
+	return intensities
+
+func _action_intensity_element(action: Dictionary) -> String:
+	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
+	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
+
+func _action_intensity_requirement(action: Dictionary) -> Dictionary:
+	var raw: Variant = action.get("requires_intensity", {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return {}
+	var requirement: Dictionary = raw as Dictionary
+	var element_id: String = str(requirement.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
+	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
+	if not ElementData.is_elemental(element_id) or threshold <= 0:
+		return {}
+	return {
+		"element": element_id,
+		"amount": threshold
+	}
+
+func _action_intensity_bonus(action: Dictionary) -> Dictionary:
+	var raw: Variant = action.get("intensity_bonus", {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return {}
+	var bonus: Dictionary = (raw as Dictionary).duplicate(true)
+	var element_id: String = str(bonus.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
+	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
+	if not ElementData.is_elemental(element_id) or threshold <= 0:
+		return {}
+	bonus["element"] = element_id
+	bonus["threshold"] = threshold
+	return bonus
+
+func _action_intensity_bonus_requirement(action: Dictionary) -> Dictionary:
+	var bonus: Dictionary = _action_intensity_bonus(action)
+	if bonus.is_empty():
+		return {}
+	return {
+		"element": str(bonus.get("element", ElementData.NONE)),
+		"amount": int(bonus.get("threshold", 0))
+	}
+
+func _action_with_intensity_bonus(state: Dictionary, action: Dictionary) -> Dictionary:
+	var resolved_action: Dictionary = action.duplicate(true)
+	resolved_action.erase("intensity_bonus")
+	var bonus: Dictionary = _action_intensity_bonus(action)
+	if bonus.is_empty():
+		return resolved_action
+	var element_id: String = str(bonus.get("element", ElementData.NONE))
+	if elemental_intensity(state, element_id) < int(bonus.get("threshold", 0)):
+		return resolved_action
+	for field: String in INTENSITY_BONUS_ADDITIVE_FIELDS:
+		if not bonus.has(field):
+			continue
+		resolved_action[field] = int(resolved_action.get(field, 0)) + int(bonus.get(field, 0))
+	if bool(bonus.get("pierce", false)):
+		resolved_action["pierce"] = true
+	return resolved_action
+
+func _intensity_bonus_damage_modifiers_for_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
+	var modifiers: Array[Dictionary] = []
+	var bonus: Dictionary = _action_intensity_bonus(action)
+	if bonus.is_empty() or int(bonus.get("damage", 0)) == 0:
+		return modifiers
+	var element_id: String = str(bonus.get("element", ElementData.NONE))
+	var threshold: int = int(bonus.get("threshold", 0))
+	if elemental_intensity(state, element_id) < threshold:
+		return modifiers
+	modifiers.append({
+		"source": "%s Intensity" % ElementData.name(element_id),
+		"kind": "elemental_intensity",
+		"amount": int(bonus.get("damage", 0)),
+		"detail": "%s %d+" % [ElementData.name(element_id), threshold]
+	})
+	return modifiers
 
 func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, trigger_player_relics: bool = true) -> Dictionary:
 	var next_state: Dictionary = state
@@ -1282,19 +1418,20 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 
 func _push_or_pull_enemy(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
-	var damage: int = _damage_for_enemy_target(next_state, action, enemy_index)
-	if _attack_bonus_for_current_turn(next_state) > 0 and int(action.get("damage", 0)) > 0:
+	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
+	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
 	if damage > 0:
-		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(action))
+		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
 	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 		return next_state
-	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
-	next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(action.get("amount", 0)), pushing)
-	_log(next_state, "%s %d." % ["Push" if pushing else "Pull", int(action.get("amount", 0))])
+	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
+	next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing)
+	_log(next_state, "%s %d." % ["Push" if pushing else "Pull", int(resolved_action.get("amount", 0))])
 	return next_state
 
 func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Vector2i, amount: int, pushing: bool) -> Dictionary:
@@ -2528,6 +2665,7 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 			continue
 		modifiers.append({
 			"source": _relic_effect_source_name(effect),
+			"kind": "relic",
 			"amount": amount,
 			"detail": detail
 		})

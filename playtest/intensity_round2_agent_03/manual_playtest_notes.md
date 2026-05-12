@@ -1,0 +1,271 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T16:07:35Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 720003
+- Starting seed 720003. Guide read; I will avoid traps, pass rather than step into bad enemy range, and use target previews after each action.
+- Moved to (1,0): depth 1 air combat.
+- Room 1 air: two traps at center, enemies far. Passing costs only 1, but Crawler is safely in range from spawn, so I will chip/draw before deciding.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2: Crawler is adjacent and at 5 HP, so immediate lethal is best. Avoiding trap tiles at (3,3)/(4,4).
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: enemies are close but Harrier block prevents a clean two-card kill. Looking for an illusion/blocker line rather than stepping onto central traps.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Illusion at (2,3) successfully draws Siphon preview; I will pass rather than move into range without a kill.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 4: safe according to preview. Took fatigue from long combat, so I will heal while safe instead of advancing into range.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5: illusion still buys time, but fatigue is starting to matter. I will use Guarded Step for safe positioning and extra play, avoiding trap tiles.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: moved 2.
+- Warning: current pass preview would push player onto trap (3,3). I am checking for a final action that avoids that trap displacement.
+- Played bloody_lunge as printed: -1 HP, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6: both enemies have block from defensive intents. Harrier can be chipped through block from safety; using Lantern first for draw.
+- Played lantern_shot as printed: 1 damage, 3 block removed, -3 HP, drew 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 7: Harrier is low but out of reach. Plan: Guarded Step safely to (1,3), then Sidestep through safe tiles to finish Harrier; no trap path.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: 4 damage, 1 kills, moved 3, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 8: Acolyte is at 5 HP with 5 block. Use Guarded Step to safe adjacent tile, then Whirlwind to clear block and Quick Stab to finish.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played whirlwind_slash as printed: 1 damage, 5 block removed.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Reward: HP 27/36. Taking Squall Shot over heal because it is a low-impact Air producer with AoE and future play refund at Air 3+, matching opportunistic intensity building.
+- Reward: took Squall Shot.
+- Route choice: taking treasure next to stabilize after a long first fight.
+- Moved to (1,1): depth 1 none treasure.
+- Treasure: taking Pilgrim Boots for safer positioning and trap avoidance; it should help execute the guide.
+- Treasure: took Pilgrim Boots.
+- Moved to (0,1): depth 1 air combat.
+- Air combat 2: traps at (4,4)/(5,5). Opening pass is -4 HP, so I will use Guarded Step first for block, extra play, and safer position before attacking/building Air.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played squall_shot as printed: 3 damage, +1 Air intensity.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 4 HP lost, mode now combat.
+- Turn 2: three enemies in range. Use Bone Dart plus Bloody Lunge to secure lethal on the wounded Crawler via safe tile (7,4), avoiding nearby traps at (4,4)/(5,5).
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 4 HP lost, mode now combat.
+- Brace did not prevent the displayed HP loss here, which is a possible harness/combat note. Turn 3: prioritize safely finishing Harrier before it keeps pulling; use Lantern draw first.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 1 HP lost, mode now combat.
+- Turn 4: Harrier at 1 HP is adjacent. Secure lethal first, then reassess Crawler.
+- Played quick_stab as printed: 1 damage, 1 kills, +1 play.
+- With Harrier down, use Shadow Step to safely reposition adjacent to Crawler without touching traps, then spend remaining play on Whirlwind damage.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Turn 5: Crawler at 8 HP adjacent. I cannot quite kill with Bloody Lunge alone, so I will layer Guarded Step/Brace and leave it at 1 HP for next turn; no movement needed.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Reward: HP 16/36 after another long fight. Heal is higher priority than another Air card right now.
+- Reward: skipped for heal to 22/36.
+- Forced path into fire combat at 22 HP.
+- Moved to (-1,1): depth 1 fire combat.
+- Fire combat: room Fire intensity starts at 1 as expected. Fire traps at (3,3)/(4,4)/(3,5); never step there. Opening pass burns, so use illusion at (7,3) to intercept the Crawler line.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Illusion successfully absorbs the Crawler; since pass is safe, use Patch Up to recover before ending turn.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2: Crawler 1 can be killed with Bloody Lunge into safe adjacent tile plus Quick Stab. This prevents the burn hit.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- I mis-indexed after the hand shifted and used Bone Dart instead of Quick Stab, leaving the Crawler alive. Correcting now: Quick Stab adjacent low Crawler first.
+- Played quick_stab as printed: 2 damage, 4 block removed, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 block removed, drew 1.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 4: Crawler threatens 6 burn damage while adjacent. Use Whirlwind + Bloody Lunge to kill it immediately.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, +1 play.
+- Harrier is out of safe reach and pass has no direct hit; do not move into range just to use Squall. Passing to let it approach.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5: Harrier is blocking/retreating, so this is a safe setup window. Use Shadow Step to blink adjacent without touching fire traps, then Quick Stab to chunk it.
+- Played guarded_step as printed: +3 block, moved 3, +1 play.
+- Played squall_shot as printed: 3 block removed, +1 Air intensity.
+- Played shadow_step as printed: moved 4.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6: Harrier still defensive and safe. Use ranged attacks from outside trap tiles; Lantern first for draw.
+- Played lantern_shot as printed: 1 damage, 3 block removed, drew 1.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 7: Harrier at 4 HP will burn me if left alive. Use Guarded Step to safe adjacent tile, then Quick Stab lethal.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Reward: HP 13/36, so healing is mandatory. Cinder Bloom looked like a good common Fire producer, but survival takes priority.
+- Reward: skipped for heal to 19/36.
+- Route: choose depth-1 lightning combat over depth-2 lightning combat at 19 HP.
+- Moved to (-1,0): depth 1 lightning combat.
+- Lightning room starts at Lightning 1. Traps at (4,4)/(5,3). Opening pass takes 5, so check movement lines before blocking.
+- Played sidestep_slash as printed: moved 3.
+- Moving to (1,7) avoided all opening damage without traps. Since safe, heal.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2 lightning: incoming -8, no clean lethal because Crawler would survive at 1. Use illusion as blocker and blink away rather than trading into damage.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Brace again did not reduce displayed HP loss from ranged attacks; noting as balance/harness concern. Turn 3: Crawler adjacent can be killed with Whirlwind + Quick Stab, preventing at least one shot.
+- Played whirlwind_slash as printed: 6 damage.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 3 HP lost, mode now combat.
+- HP is low at 12. No clean kill through Acolyte block; use Guarded Step to reposition and preserve plays, staying off lightning traps.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Safe after reposition. Use Squall + Bone Dart on blocked Acolyte to build Air opportunistically without risking Lantern fatigue draw.
+- Played squall_shot as printed: 3 block removed, +1 Air intensity.
+- Played bone_dart as printed: 3 damage, 2 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Safe turn but enemies are stacking block. Focus Acolyte: Lantern to strip block, then Bloody Lunge through safe tile to put it near lethal.
+- Played lantern_shot as printed: 4 block removed, drew 1.
+- Played bloody_lunge as printed: 6 damage, 1 block removed, -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6: Acolyte at 2 HP must die before Siphon. Quick Stab lethal, then spend extra play pressuring remaining Crawler while its intent is defensive.
+- Played quick_stab as printed: 2 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 1 damage, 4 block removed, moved 1.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- HP 8 and Crawler threatens 5. Bloody Lunge is exact lethal despite HP cost; take it.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Reward at 7 HP: healing is mandatory. Lightning gated cards offered without Lightning producers would be hard to support.
+- Reward: skipped for heal to 13/36.
+- Forced into earth combat at 13 HP; survival is fragile.
+- Moved to (-1,-1): depth 1 earth combat.
+- Earth room starts Earth 1. Poison traps at (4,4)/(5,5)/(5,3). Opening pass is safe, so heal first.
+- Played patch_up as printed: +3 HP, +2 block.
+- No attack is needed before enemies close; passing rather than moving into range or toward poison traps.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2 earth: incoming -9 poison. Plan is to kill Harrier with Bone Dart + Bloody Lunge, then use the kill play on Shadow Step to block Crawler and blink away. Avoid poison traps.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 5 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: Acolyte is about to gain stoneskin but is reachable now. Use Sidestep plus Quick Stab for lethal before it hardens.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Acolyte killed before stoneskin. Remaining Crawler is far and pass is safe, so wait rather than chase through trap cluster.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler has stoneskin and threatens poison. Use Guarded Step to reposition away from the melee line while keeping play count, then strip stoneskin safely.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played lantern_shot as printed: 4 stone removed, -2 HP, drew 1.
+- Lantern stripping stoneskin caused fatigue; avoid extra draw unless lethal. Pass is safe, so wait for Crawler to approach instead of chasing through poison traps.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5: finish final Crawler with Guarded Step into safe adjacent tile, then Quick Stab + Bone Dart. This avoids the poison hit and all traps.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played quick_stab as printed: 9 damage.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Reward: Basalt Guard looks like a good defensive Earth producer, but 13 HP is too low; take heal.
+- Reward: skipped for heal to 19/36.
+- Forced lightning combat at 19 HP.
+- Moved to (0,-1): depth 1 lightning combat.
+- Lightning combat starts dangerous (-8). Check Sidestep escape routes before committing attacks; traps at (5,4)/(4,3).
+- Played sidestep_slash as printed: moved 3.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 5 HP lost, mode now combat.
+- Turn 2: wounded Crawler at 10 can be killed with Bone Dart + Bloody Lunge from safe tiles, reducing incoming shots and giving a play back.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 5 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Turn 3: adjacent Crawler can be killed with Quick Stab + Whirlwind, removing immediate shot.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Harrier is out of safe reach and pass has no direct hit; do not step into ranged Pelt just to chip.
+- Enemy round: 0 HP lost, mode now combat.
+- To avoid endless fatigue, advance with Guarded Step for block, then Sidestep Harrier from a safe tile. This should absorb the Pelt if it fires.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played squall_shot as printed: 3 damage, +1 Air intensity.
+- Enemy round: 3 HP lost, mode now combat.
+- Harrier at 2 HP; finish with Bloody Lunge despite cost to prevent 4 damage.
+- Played bloody_lunge as printed: 2 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Reward: Static Lash is exactly the common Lightning producer I wanted earlier, but HP 9/36 forces heal again.
+- Reward: skipped for heal to 15/36.
+- Forced fire combat at 15 HP.
+- Moved to (1,-1): depth 1 fire combat.
+- Fire room Fire 1. Traps at (3,3)/(4,4)/(5,3). Opening pass safe, so heal before enemies close.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2 fire: Crawler at (2,5) threatens burn. Use Bloody Lunge + Quick Stab for lethal from safe tile, then reassess.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played quick_stab as printed: 3 damage, 1 kills, +1 play.
+- Played squall_shot as printed: 3 block removed, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler cannot be killed in two plays. Use illusion at (2,6) plus blink away so it eats the burn attack, then chip with Bone Dart from safety.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Safe turn. Crawler is blocked, so use Squall to strip block/build Air, then Sidestep for damage while its intent is defensive.
+- Played squall_shot as printed: 3 block removed, +1 Air intensity.
+- Played sidestep_slash as printed: 4 damage, 1 block removed, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5: kill adjacent Crawler immediately with Whirlwind, then use remaining plays to chase/prepare Harrier.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 4 damage, 3 block removed, -1 HP, moved 3.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Reward: Rallying Breath is tempting sustain, but immediate HP is still critical at 14/36. Heal.
+- Reward: skipped for heal to 20/36.
+- Moving into depth-2 air combat at 20 HP.
+- Moved to (2,-1): depth 2 air combat.
+- Depth-2 air room with Warden; pass is -9. Warden is low-move/high-damage, so use illusion/positioning rather than trying to rush it. Avoid air traps at (4,3)/(5,4)/(4,5).
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Turn 2 is safe but enemies are armoring up. Use Squall to build Air/strip block, then Sidestep the nearer Crawler from safe tiles.
+- Played squall_shot as printed: 3 block removed, +1 Air intensity.
+- Played sidestep_slash as printed: 4 damage, 1 block removed, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: two Crawlers adjacent; Whirlwind hits both, then Quick Stab kills the wounded one for a play refund.
+- Played whirlwind_slash as printed: 12 damage.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 3, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Turn 4: low Crawler must die. Lantern kill should refund play; then use block/movement if possible against Warden/Harrier.
+- Played lantern_shot as printed: 3 damage, 1 kills, -2 HP, drew 1, +1 play.
+- Air intensity is 2; Squall should self-enable Air 3+ play refund here. Use it on Harrier, then Bloody Lunge for lethal and keep Warden for last.
+- Played squall_shot as printed: 6 damage, +1 play, +1 Air intensity.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Warden only remains and is guarding; chip through block while safe.
+- Played quick_stab as printed: 1 damage, 8 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Use Guarded Step for extra play, then Whirlwind + Sidestep to keep pressure on Warden while it is still defensive.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played whirlwind_slash as printed: 6 block removed.
+- Played sidestep_slash as printed: 3 damage, 2 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Fatigue is becoming the real clock. Warden at 13 HP; Quick Stab puts it in lethal range, then Brace to absorb the shot.
+- Played quick_stab as printed: 9 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Finish Warden with Bone Dart; avoid Lantern draw fatigue.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Reward: Gust Step looks good for Air engine and self-enables at Air 3, but HP is 10/36 after a fatigue-heavy fight, so heal.
+- Reward: skipped for heal to 16/36.
+- Route offers campfire with 226 embers and only 16 HP. This is a clear terminal stopping point; take campfire/rest rather than greed treasure.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire: rested and banked 226 embers.

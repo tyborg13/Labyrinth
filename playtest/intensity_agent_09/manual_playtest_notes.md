@@ -1,0 +1,46 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:54:19Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710009
+- Playtest Agent 09 starting seed 710009; focus elemental intensity visibility, intensity producers, gated effects, rewards, dead cards, and balance spikes.
+- Moved to (1,0): depth 1 lightning combat.
+- Initial lightning combat clearly prints Intensity line and lightning traps; good top-level visibility in state. Need to see whether hand cards expose producer/gated labels when drawn.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Enemy round: 5 HP lost, mode now combat.
+- Played quick_stab as printed: 2 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played sidestep_slash as printed: moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bloody_lunge as printed: 2 damage, 5 block removed, 1 kills, -1 HP, +1 play.
+- Reward after first lightning combat: Static Lash visibly lists Lightning intensity +1 and a separate +requires Lightning 4+ shock rider; Spark Focus visibly lists Lightning intensity +2 plus draw. Gating text is explicit, but it is dense in the one-line card display.
+- Reward: took Spark Focus.
+- Moved to (1,1): depth 1 none treasure.
+- Treasure offers Static Soles: a Lightning-specific movement relic. It signals element identity well, but current Lightning pickup Spark Focus has no move/blink so the synergy is speculative. Taking it anyway to watch future Lightning rewards.
+- Treasure: took Static Soles.
+- Moved to (0,1): depth 1 lightning combat.
+- Spark Focus appears in hand with explicit Lightning intensity +2 before play; current room starts at Lightning 1 from environment.
+- Played spark_focus as printed: 3 damage, drew 1, +2 Lightning intensity.
+- Spark Focus resolution log clearly says Lightning intensity rises by 2 and state updates to Lightning 3. Visibility is good after play, though target prompt began at action 2/3 so the intensity step itself is implicit until resolved.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Enemy round: 7 HP lost, mode now combat.
+- Balance spike: second lightning combat escalated to 12 incoming by turn 3 with three ranged enemies, after Spark Focus setup did not materially reduce pressure. At 14 HP this feels close to lethal unless kill refunds line up.
+- Played bone_dart as printed: 5 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 10 HP lost, mode now combat.
+- Enemy round: 5 HP lost, mode now defeat.
+- Defeat in second lightning combat at depth 1. Harness command queue/card index shifting is risky: after Bone Dart removed itself, queued card numbers no longer referred to the intended cards, leading to Patch Up instead of Quick Stab and then an unresolved Spark Focus before pass. Manual UX would benefit from stable card ids or refusing multi-command card chains after hand mutation.

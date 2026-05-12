@@ -1,0 +1,71 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:47:45Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710002
+- Start seed 710002. Focus: intensity clarity, cards that create intensity, gated effects, reward pressure, dead draws.
+- Moved to (1,0): depth 1 lightning combat.
+- Room 1 starts with Lightning intensity already visible as a compact line above board; good visibility in console. No obvious explanation of source/gate yet.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 3 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Played shadow_step as attack: 2 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played sidestep_slash as printed: 1 damage, 4 block removed.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as attack: 2 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Reward after room 1 offered Volt Surge and Spark Dart. Both clearly show Lightning intensity +1 and gated requires Lightning 3+, which is good for discovery; taking Spark Dart to test repeated producer/gated rider in combat.
+- Reward: took Spark Dart.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure choices: Bloodglass Knife, Storm Capacitor, Ashen Buckler. Taking Storm Capacitor because it should interact with Lightning/ranged intensity cards and reveal whether those synergies are visible.
+- Treasure: took Storm Capacitor.
+- Moved to (2,-1): depth 2 lightning combat.
+- Spark Dart in hand clearly shows Storm Capacitor as +chain 1 on both ranged lines. Gate still says requires Lightning 3+ while room intensity is Lightning 1, so first Spark likely creates intensity 2 but rider remains gated.
+- Played spark_dart as printed: 3 damage, +1 Lightning intensity.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 3 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 10 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 10 block removed.
+- Played lantern_shot as printed: 3 damage, 1 kills, drew 1, +1 play.
+- Played bloody_lunge as printed: 4 damage, 2 block removed, 1 kills, -1 HP, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Second Spark draw at Lightning 2 is the key gate test: card text still shows +requires Lightning 3+ before play, but if intensity is checked after its own +1 the shock rider may fire this play.
+- Played spark_dart as printed: 4 damage, +1 Lightning intensity, enemy +1 shock.
+- Gate behavior: Spark at Lightning 2 did unlock its own requires Lightning 3+ rider after the intensity increment. Console makes this learnable because action 3/3 appears pending instead of being skipped.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 2 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 4.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played whirlwind_slash as move: moved 2.
+- Enemy round: 3 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, 1 kills, +1 play.
+- Room 2 was a major spike: four enemies plus Warden block made HP drop from 36 to 11 despite clean play and kill-play chaining. Spark gate was readable and useful, but one Spark was not enough to smooth the combat. Reward offers Static Lash/Chain Bolt/Iron Wheel; taking Chain Bolt over heal to stress-test intensity package, but heal is very tempting at 11/36.
+- Reward: took Chain Bolt.
+- Moved to (2,0): depth 2 none campfire.
+- Deliberate rest endpoint: HP 11/36 after two combats, 64 embers bankable, and next alternative is another depth-2 combat. This feels like the rational playtest stop rather than pushing into likely defeat.
+- Campfire: rested and banked 64 embers.

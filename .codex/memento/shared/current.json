@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-11T01:01:12Z",
+  "updated_at": "2026-05-12T14:24:25Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2475,6 +2475,94 @@
       "source": {
         "branch": "master",
         "commit": "8fce3db"
+      }
+    },
+    {
+      "id": "mnt_20260511T202425Z_e58ea3ec",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "tools/headless_playtest.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tools/headless_playtest.gd",
+      "summary": "Shortcut plans rank trap-free paths before shortest movement",
+      "details": "Headless target shortcuts should preserve the strategy guide's never-step-on-traps priority by preferring lower trap-risk movement paths before comparing movement distance/path length. This avoids playtest agents accidentally selecting an auto shortcut through a trap when a longer safe shortcut exists.",
+      "status": "active",
+      "created_at": "2026-05-11T20:24:25Z",
+      "updated_at": "2026-05-11T20:24:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "e04bae2"
+      }
+    },
+    {
+      "id": "mnt_20260512T131504Z_f5ff3ae5",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Hide combat board idle status text",
+      "details": "Do not render the combat board's top-left idle/hover status labels such as Pick Card, Drag Card, Pass, or hovered/selected card names. They overlap the elemental intensity HUD and the user considers them low-value; keep animation banners and non-combat labels separate.",
+      "status": "active",
+      "created_at": "2026-05-12T13:15:04Z",
+      "updated_at": "2026-05-12T13:15:04Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "e04bae2"
+      }
+    },
+    {
+      "id": "mnt_20260512T135522Z_4c543165",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Conditional card rows prefer compact light text",
+      "details": "Elemental intensity conditional blocks should keep 3-value-token rows slightly tighter than regular card rows, and render their values as light text with a dark outline for readability against the mostly opaque elemental background.",
+      "status": "active",
+      "created_at": "2026-05-12T13:55:22Z",
+      "updated_at": "2026-05-12T13:55:22Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "e04bae2"
+      }
+    },
+    {
+      "id": "mnt_20260512T142425Z_fae44d6f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Conditional card rows size against visual width and active state",
+      "details": "Elemental intensity conditional rows should choose summary icon/label metrics against both available height and available visual width, including scaled card widgets such as discard pile previews. Requirement tokens can carry condition_active from RunScene; CardWidget uses it only for active glow styling, while inactive rows keep the same compact block layout.",
+      "status": "active",
+      "created_at": "2026-05-12T14:24:25Z",
+      "updated_at": "2026-05-12T14:24:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "e04bae2"
       }
     }
   ]

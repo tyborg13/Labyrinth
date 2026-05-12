@@ -1,0 +1,160 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T16:07:26Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 720006
+- Starting seed 720006. Strategy guide loaded; will avoid traps, avoid entering enemy range until lethal/safe, use previews after each action, and build elemental intensity only opportunistically.
+- Moved to (0,-1): depth 1 lightning combat.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played quick_stab as move: moved 1.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Took 3 HP on turn 1 after misusing Quick Stab as movement-only; no trap stepped. Going forward using previews more cautiously before spending movement/attack cards.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Killed Harrier and Acolyte safely; used Bloody Lunge cost 1 to prevent Acolyte shot/heal. Passing instead of wasting Shadow Step because Crawler has no direct hit and no trap path needed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played bloody_lunge as printed: 5 damage, 1 kills, -1 HP, +1 play.
+- Room 1 cleared at 29/36. No traps stepped. Shadow Step successfully blocked Crawler attack by placing illusion closer and blinking away. Reward chose Chain Bolt because Lightning room starts at 1 and the card self-enables Lightning 2+ while adding ranged damage/chain.
+- Reward: took Chain Bolt.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure choice: took Reinforced Shield for consistent prevention; current deck has limited lightning movement and only one heal, so this best supports guide priority of avoiding damage.
+- Treasure: took Reinforced Shield.
+- Moved to (2,-1): depth 2 air combat.
+- Played chain_bolt as printed: 3 damage, +1 Lightning intensity.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played lantern_shot as printed: 2 damage, 1 kills, drew 1, +1 play.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Turn 2: used Guarded Step without moving, then Sidestep+Quick Stab to kill the near crawler. Avoided trap shortcuts around (3,3); no trap stepped.
+- Enemy round: 0 HP lost, mode now combat.
+- Played patch_up as printed: +3 HP, +2 block.
+- Safe turn: used Patch Up as guide recommends; did not move toward enemies/traps while no lethal was available.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played chain_bolt as printed: 8 damage, +1 Lightning intensity.
+- Played sidestep_slash as printed: moved 3.
+- Enemy round: 3 HP lost, mode now combat.
+- Mistake: selected Sidestep move tile instead of enemy shortcut, so no melee attack resolved and I took 3 HP from Crawler plus block/stone loss. No trap stepped, but this is a harness-input caution.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler at 5 HP but Sidestep shortcut would require trap earlier and current move-only options would not secure lethal. Passing rather than stepping into trap/range; accepting fatigue risk.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: moved 3.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Room 2 cleared at 22/36, no traps stepped. Air trap layout made safe melee hard; I had to pass/use illusion and ranged finish. Chain Bolt at Lightning 2 felt strong/clear. Reward: taking Bodkin Arrow over heal because high damage plus card play should shorten future fights and prevent more damage than +6 HP.
+- Reward: took Bodkin Arrow.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire reached at 22/36 with 66 embers. Continuing rather than resting because this is still playable and the request is a full run unless terminal.
+- Campfire: left with 66 unbanked embers.
+- Moved to (2,1): depth 2 earth combat.
+- Played bone_dart as printed: 5 damage.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bloody_lunge as printed: -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Mistake: avoiding the trap shortcut by manually moving Bloody Lunge to (6,3) skipped its melee action and paid HP. This exposed me to a severe poison burst; trying to recover with kills/block.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 10 stone removed.
+- Played bodkin_arrow as printed: 6 damage, 1 kills, +2 play.
+- Played quick_stab as printed: 9 damage.
+- Played sidestep_slash as printed: 3 damage, 1 kills, +1 play.
+- Played chain_bolt as printed: 1 damage, 2 stone removed, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played chain_bolt as printed: 4 damage, +1 Lightning intensity.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Stabilized somewhat: Bodkin/kill extra play let me remove Harrier and one Crawler, Chain+Bone killed second Crawler. Still carrying poison 8 and will eat Acolyte hit; trap count remains zero.
+- Enemy round: 5 HP lost, mode now combat.
+- Only non-damage hand while Acolyte is warding; passing rather than spending Shadow/Brace uselessly. Need draw damage before poison/fatigue overwhelms.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Poison tick dropped me to 1 HP. Shadow Step blocker correctly prevents the lethal Acolyte strike this turn; no trap stepped.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bodkin_arrow as printed: 7 damage, +1 play.
+- Played sidestep_slash as printed: 5 stone removed, moved 3.
+- Played quick_stab as printed: 5 damage, 1 stone removed, 1 kills, +1 play.
+- Earth room cleared at 1/36. No traps stepped, but poison burst from unsafe manual move nearly ended the run. Taking heal over card; any further combat at 1 HP is untenable.
+- Reward: skipped for heal to 7/36.
+- Moved to (2,2): depth 2 lightning combat.
+- Entered lightning room at only 7 HP. Priority is immediate Harrier kill and block; avoiding all trap shortcuts.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played chain_bolt as printed: 4 damage, +1 Lightning intensity.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, moved 3, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bodkin_arrow as printed: 7 damage, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 1 damage, 4 block removed, moved 2.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Shadow Step again prevented Warden damage. Low-movement Warden is now last, per guide; need to kite and use ranged/card-play turns.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bodkin_arrow as printed: +1 play.
+- Bodkin had no valid line/target at max range and only granted card play, which is a UI/harness clarity issue: it looked clickable but skipped damage. At 2 HP with fatigue rising, this is likely terminal despite no trap incidents.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played sidestep_slash as printed: moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played quick_stab as printed: 9 damage.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played lantern_shot as printed: 4 damage, 1 kills, +1 play.
+- Lightning room cleared at 1/36. No traps stepped. Chain Bolt/Lightning 2 and kill-card-play sequencing were essential; Bloody Lunge health cost remains scary but was the only line to kill Warden before lethal.
+- Reward: skipped for heal to 7/36.
+- Moved to (2,3): depth 3 none treasure.
+- Treasure: taking Obsidian Heart because at 7 HP the 10 starting stoneskin is the best chance to survive, even with one fewer opening card.
+- Treasure: took Obsidian Heart.
+- Moved to (1,3): depth 3 lightning combat.
+- Depth 3 lightning fight, HP 7 but 14 starting stoneskin from relics. Priority: kill/shut down shocking Crawler without stepping on traps.
+- Played bodkin_arrow as printed: 7 damage, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bone_dart as printed: 3 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4.
+- Enemy round: 5 HP lost, mode now combat.
+- Played sidestep_slash as printed: moved 3.
+- While shocked, Sidestep only allowed movement/no attack, but moving to (7,3) avoided direct HP damage. This seems important for harness/card-mode clarity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played chain_bolt as printed: 4 block removed, +1 Lightning intensity.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4.
+- Enemy round: 0 HP lost, mode now defeat.

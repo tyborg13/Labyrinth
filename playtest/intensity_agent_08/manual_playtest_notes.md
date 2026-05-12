@@ -1,0 +1,136 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:53:51Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710008
+- Playtest Agent 08 start seed 710008. Focus: elemental intensity visibility, intensity-producing cards, gated effects, reward/relic choices, spikes/dead cards.
+- Moved to (1,0): depth 1 lightning combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played sidestep_slash as printed: 1 damage, 4 block removed, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 block removed.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 block removed, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played shadow_step as printed: +1 HP, moved 3, 1 illusion.
+- Enemy round: 5 HP lost, mode now combat.
+- Shadow Step placed illusion at (3,3) then blinked to vial. Enemy still shot player for 5; unclear if illusion should draw targeting. Vial target listed +1 hp but log says collected for 5 health and net HP rose only 1 because already near max.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 1 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: moved 3.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 2 damage, 3 block removed.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- First reward offered Storm Relay with Lightning 3+ gated rider and Spark Focus as +2 Lightning producer. Taking Spark Focus to test whether gated effects can be enabled reliably; Storm Relay looked appealing but currently hard to evaluate from reward screen without knowing future base intensity.
+- Reward: took Spark Focus.
+- Moved to (1,1): depth 1 fire combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 block removed.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Spark Focus drawn in fire room: current room intensity Fire 1 / Lightning 0, card text clearly says Lightning intensity +2 before ranged+draw. Testing if state display updates immediately and whether value persists across turns only.
+- Played spark_focus as printed: 3 block removed, drew 1, +2 Lightning intensity.
+- Played bone_dart as printed: 2 damage, 1 block removed, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, moved 3, +1 play.
+- Played sidestep_slash as printed: moved 3.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Fire room was a noticeable spike: turn 1 preview showed -8 HP +2 burn, and a later pass preview reached -9 HP/-3 block +3 burn after one move. Shadow Step was critical; it did redirect one melee hit to illusion once placed in the lane. Spark Focus updated state display immediately to Lightning 2 and stayed visible across turns in-combat.
+- Second reward has two Fire intensity producers with gated burn riders. Taking Firebrand Volley because base Fire 1 plus its +1 should immediately enable its Fire 2+ rider, a clean gated-effect test.
+- Reward: took Firebrand Volley.
+- Moved to (0,1): depth 1 lightning combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Firebrand Volley drawn in Lightning room with Fire 0, so its +1 Fire probably will not enable Fire 2+ rider here. Good test for whether gated action is skipped/communicated cleanly.
+- Played firebrand_volley as printed: 5 damage, +1 Fire intensity.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 3 HP lost, mode now combat.
+- Played spark_focus as printed: 3 damage, drew 1, +2 Lightning intensity.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 7 damage, 4 block removed, 1 kills, +1 play.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played sidestep_slash as printed: 5 damage, 1 kills, +1 play.
+- Third reward: Spark Dart is another Lightning producer with Lightning 3+ rider, but at base Lightning 1 it appears to need Spark Focus or other setup before the rider matters. At 11/36 HP after a hard room, taking heal over card; this feels like a meaningful survival tradeoff, though it delays more gated testing.
+- Reward: skipped for heal to 17/36.
+- Moved to (-1,1): depth 1 earth combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Played spark_focus as printed: 3 damage, drew 1, +2 Lightning intensity.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played firebrand_volley as printed: 5 stone removed, +1 Fire intensity.
+- Played bloody_lunge as printed: 5 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Firebrand now drawn at Fire 1 (carried from previous Firebrand), so its own +1 should reach Fire 2 and enable the Fire 2+ burn rider in same play if gating checks after intensity gain.
+- Played firebrand_volley as printed: 3 damage, 4 stone removed, 1 kills, +1 play, +1 Fire intensity.
+- Firebrand successful gated test: at Fire 1, playing Firebrand raised Fire to 2, then action 3/3 became targetable and killed through remaining HP after stoneskin. This was clear in the pending prompt and satisfying. Reward now offers Earth intensity options; Basalt Guard looks defensive and tests Earth visibility without risky HP cost.
+- Reward: took Basalt Guard.
+- Moved to (-2,1): depth 2 ice combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 block removed, 1 kills, +1 play.
+- Played spark_focus as printed: drew 1, +2 Lightning intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 2 damage, 3 block removed.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Enemy round: 3 HP lost, mode now combat.
+- Played firebrand_volley as printed: 1 damage, 1 kills, +1 play, +1 Fire intensity.
+- Played basalt_guard as printed: +3 block, 1 illusion, +1 Earth intensity.
+- Basalt Guard felt excellent here: Earth intensity, illusion, block, stoneskin all resolved and preview showed illusion soaking Ash Acolyte shot while player block covered crawler. Very readable defensive payoff.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played basalt_guard as printed: +3 block, 1 illusion, +1 Earth intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 11 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
+- Depth 2 ice fight was near-death: 4 enemies, low HP, fatigue, and ranged pressure. Whirlwind plus kill refunds saved the run at 7 HP. Ice reward gates looked much higher (Ice 4+/5+) than current base Ice 1, so those cards read as likely dead unless multiple intensity producers appear. Taking heal at 6/36.
+- Reward: skipped for heal to 12/36.
+- Moved to (-2,0): depth 2 none campfire.
+- Deliberate rest endpoint: reached campfire after clearing depth 2 ice combat at 12/36 HP. Continuing into another depth 2 fight would likely test death more than intensity; banking here captures a meaningful endpoint after several gated/intensity observations.
+- Campfire: rested and banked 147 embers.

@@ -1,0 +1,135 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:47:46Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710006
+- Playtest Agent 06 start. Focus: elemental intensity visibility, producer cards, gated effects, reward/relic decisions, spikes/dead cards.
+- Moved to (1,0): depth 1 lightning combat.
+- First combat starts with Lightning intensity 1 and traps listed in state; visibility is explicit in console before any action.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 7 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 5 block removed.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Played quick_stab as printed: 3 damage, 1 kills, +1 play.
+- Reward after room 1 offered Storm Relay (requires Lightning 3 secondary), Volt Surge (Lightning +1 plus requires Lightning 3 ranged), and Threaded Path. Taking Volt Surge to test producer/gated visibility.
+- Reward: took Volt Surge.
+- Moved to (1,1): depth 1 fire combat.
+- Room 2 Fire intensity 1 correctly changes enemy intents/traps to burn; pass preview explicitly says no direct hit despite upcoming movement.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played shadow_step as printed: +5 HP, moved 4, 1 illusion.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Volt Surge in hand during Fire room shows Lightning +1 plus gated ranged requiring Lightning 3+. This is readable, but it may be strategically awkward because current room intensity is Fire 1/Lightning 0.
+- Played volt_surge as printed: 1 illusion, +1 Lightning intensity.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played whirlwind_slash as printed: 3 damage, 3 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 2 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played brace as printed: +8 block.
+- Enemy round: 6 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 1 damage, 1 kills, +1 play.
+- Room 2 was a spike: Fire intensity added burn pressure, long chase/fatigue dragged combat to turn 7, HP fell to 10. Volt Surge raised Lightning from 0 to 1 and clearly reported skipped requires-Lightning-3 effect.
+- Reward after room 2 offered two Fire producers with Fire 2+ gated riders. At 10/36 HP, healing is the practical choice; this may make intensity decks hard to pursue after spike rooms.
+- Reward: skipped for heal to 16/36.
+- Moved to (0,1): depth 1 lightning combat.
+- Room 3 starts Lightning 1; Volt Surge can raise to 2 but its Lightning 3+ rider is still off. Testing whether repeated producer plays make threshold reachable.
+- Played volt_surge as printed: 1 illusion, +1 Lightning intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 3 damage, 4 block removed, -1 HP, moved 2.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, -2 HP, drew 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Volt Surge drawn at Lightning 2: playing it should cross threshold to 3 and turn on the gated ranged hit in the same card.
+- Played volt_surge as printed: 5 damage, 1 kills, +1 play, 1 illusion, +1 Lightning intensity.
+- The same Volt Surge did unlock its Lightning 3+ ranged action after raising intensity; console target list and resolved log made the threshold behavior clear.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Room 3 proved Lightning 3 payoffs. Reward offered Storm Relay/Spark Dart as further Lightning payoff/producer; HP again 10, so heal is hard to pass despite synergy.
+- Reward: skipped for heal to 16/36.
+- Moved to (-1,1): depth 1 earth combat.
+- Room 4 Earth intensity 1 swaps traps/status to poison and enemy defensive intent to stoneskin; intensity visibility remains clear in state and intent lines.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 3 damage, 4 stone removed, -1 HP, moved 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 stone removed.
+- Played lantern_shot as printed: 4 damage, 1 kills, -2 HP, drew 1, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played quick_stab as printed: 6 damage, 3 stone removed.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 4 damage, 1 kills, +1 play.
+- Earth reward offered Thorn Skewer/Venom Claw producers with Earth 2+ poison riders, but HP remains pressured. Third heal-over-synergy decision reinforces that intensity decks may need more recovery cushion or less early status attrition.
+- Reward: skipped for heal to 19/36.
+- Moved to (-2,1): depth 2 ice combat.
+- Depth 2 Ice combat opens with four enemies and visible Ice traps/freeze; Ash Warden has high block. This looks like a notable difficulty jump.
+- Played bone_dart as printed: 5 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 5 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played volt_surge as printed: 1 illusion, +1 Lightning intensity.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Enemy round: 10 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: -2 HP, drew 1.
+- Lantern Shot against the remaining depth-2 enemies skipped its ranged action despite enemies visible; unclear whether line-of-sight/range was blocked. The console says skipped but not why, making this feel like a dead card moment.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage, 5 block removed.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- At depth 2, fatigue plus Ash Warden pressure has pushed HP to 3. This feels like the likely endpoint; trying Volt Surge illusion as a last defensive play.
+- Played volt_surge as printed: 1 illusion, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
+- Depth 2 Ice fight cleared at 2 HP after turn 10. Ash Warden was a major spike: high HP/block plus repeated 5-7 ranged pressure forced defensive play and fatigue nearly ended the run. Reward offers Ice producers and Rallying Breath, but immediate heal is mandatory.
+- Reward: skipped for heal to 8/36.
+- Path now offers treasure or campfire. At 8/36 after the depth-2 spike, choosing campfire as a deliberate rest endpoint.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: rested and banked 144 embers.

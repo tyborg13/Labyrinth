@@ -739,7 +739,7 @@ static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary)
 	if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
 		return false
 	var required_field: String = str(effect.get("requires_field", ""))
-	if not required_field.is_empty() and int(action.get(required_field, 0)) <= 0:
+	if not required_field.is_empty() and not _action_has_field_or_intensity_bonus(action, required_field):
 		return false
 	return true
 
@@ -754,10 +754,18 @@ static func _relic_effect_matches_card_action_requirement(card: Dictionary, effe
 		var action: Dictionary = action_var
 		if not required_type.is_empty() and str(action.get("type", "")) != required_type:
 			continue
-		if not required_field.is_empty() and int(action.get(required_field, 0)) <= 0:
+		if not required_field.is_empty() and not _action_has_field_or_intensity_bonus(action, required_field):
 			continue
 		return true
 	return false
+
+static func _action_has_field_or_intensity_bonus(action: Dictionary, field: String) -> bool:
+	if int(action.get(field, 0)) > 0:
+		return true
+	var raw_bonus: Variant = action.get("intensity_bonus", {})
+	if typeof(raw_bonus) != TYPE_DICTIONARY:
+		return false
+	return int((raw_bonus as Dictionary).get(field, 0)) > 0
 
 static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
 	var next_card: Dictionary = card.duplicate(true)
@@ -881,6 +889,8 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("amount", 0))) * 2.4
 		"card_play":
 			value += float(int(action.get("amount", 0))) * 2.0
+		"intensity":
+			value += float(int(action.get("amount", 0))) * 1.4
 		"illusion":
 			value += float(int(action.get("health", action.get("amount", 0)))) * 0.95
 			value += float(int(action.get("range", 0))) * 0.28
@@ -891,4 +901,49 @@ static func _action_value(action: Dictionary) -> float:
 	value += float(int(action.get("chain", 0))) * 1.5
 	if bool(action.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
 		value += 1.1
-	return value
+	value += _intensity_bonus_value(action, action_type)
+	return value * _intensity_requirement_value_scale(action)
+
+static func _intensity_bonus_value(action: Dictionary, action_type: String) -> float:
+	var raw: Variant = action.get("intensity_bonus", {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return 0.0
+	var bonus: Dictionary = raw as Dictionary
+	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
+	if threshold <= 0:
+		return 0.0
+	var value: float = 0.0
+	if action_type in ATTACK_ACTION_TYPES:
+		var damage_multiplier: float = 1.0
+		match action_type:
+			"melee":
+				damage_multiplier = 1.05
+			"aoe":
+				damage_multiplier = 1.35
+			"push", "pull":
+				damage_multiplier = 0.9
+		value += float(int(bonus.get("damage", 0))) * damage_multiplier
+	value += float(int(bonus.get("burn", 0))) * 1.15
+	value += float(int(bonus.get("poison", 0))) * 0.95
+	value += float(int(bonus.get("freeze", 0))) * 3.2
+	value += float(int(bonus.get("shock", 0))) * 2.4
+	value += float(int(bonus.get("chain", 0))) * 1.5
+	value += float(int(bonus.get("push", 0))) * 0.9
+	value += float(int(bonus.get("pull", 0))) * 0.65
+	if action_type == "push":
+		value += float(int(bonus.get("amount", 0))) * 0.9
+	elif action_type == "pull":
+		value += float(int(bonus.get("amount", 0))) * 0.65
+	if bool(bonus.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
+		value += 1.1
+	return value * clampf(1.0 - float(threshold - 1) * 0.18, 0.34, 0.82)
+
+static func _intensity_requirement_value_scale(action: Dictionary) -> float:
+	var raw: Variant = action.get("requires_intensity", {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return 1.0
+	var requirement: Dictionary = raw as Dictionary
+	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
+	if threshold <= 0:
+		return 1.0
+	return clampf(1.0 - float(threshold - 1) * 0.18, 0.34, 0.82)

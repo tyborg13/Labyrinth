@@ -1,0 +1,214 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:47:46Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710001
+- Start: focusing on elemental intensity visibility, intensity producers, gated effects, reward/dead-card feel. First branch offers ice/lightning combats; choosing lightning to sample intensity interactions early.
+- Moved to (1,0): depth 1 lightning combat.
+- Lightning intensity is visible immediately in combat header as 'Intensity: ... Lightning 1', plus lightning traps visible with shock text. Need watch whether cards/rewards explain what intensity changes.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 5 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played lantern_shot as printed: 4 damage, 1 kills, drew 1, +1 play.
+- Shortcut target list clearly surfaces trap risk before taking it, including damage and shock. Testing one lightning trap now to see shock/intensity/status feedback.
+- Played shadow_step as printed: -2 HP, moved 4, 1 illusion, player +1 shock.
+- Enemy round: 3 HP lost, mode now combat.
+- Shock feedback is visible as player status '[shocked: limited actions]' and setup log says limited actions, but the hand only indirectly communicates restrictions via missing click/play modes (Brace became drag-move only). This is understandable in console but could feel like a dead card without a tooltip in UI.
+- Played guarded_step as printed: moved 1.
+- Shock appears to truncate multi-action cards after the first action: Guarded Step only moved, no block/+play; skipping its movement produced no effect. That creates surprisingly dead/gated behavior for block cards while shocked.
+- Enemy round: 4 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
+- Reward surfaced intensity cards well in text: Thunderline shows gated '+requires Lightning 4+' rider, Chain Bolt shows 'Lightning intensity +1' then a second gated Lightning 2+ chain. Taking Chain Bolt to test producer/gate loop; Thunderline at Lightning 4+ looks potentially dead early.
+- Reward: took Chain Bolt.
+- Moved to (1,1): depth 1 none treasure.
+- Relic offer had no lightning/intensity synergy: Cold Mirror freeze payoff, Mossbound Earth defense, Pilgrim Boots movement. Taking Pilgrim Boots for broad consistency after the shock turn showed positioning pain.
+- Treasure: took Pilgrim Boots.
+- Moved to (0,1): depth 1 lightning combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 3, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 10 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 block removed, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Chain Bolt drawn at Lightning 1; card text says it produces +1 intensity before a Lightning 2+ gated second ranged action. Testing whether the produced intensity enables its own gate in the same play.
+- Played chain_bolt as printed: 5 damage, +1 Lightning intensity.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 7 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed.
+- Played bloody_lunge as printed: 2 damage, 1 kills, -1 HP, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 block removed, moved 1.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 3 damage, 1 kills, +1 play.
+- Second lightning reward is a meaningful tension at 2/36 HP: Storm Relay is gated Lightning 3+, Volt Surge produces Lightning and has a Lightning 3+ payoff, Ricochet is safe cycle. I want Volt Surge for testing, but forced to take heal because the prior lightning fight spiked to near-death.
+- Reward: skipped for heal to 8/36.
+- Moved to (-1,1): depth 1 earth combat.
+- New Earth room resets visible intensity: Earth 1, Lightning 0. Chain Bolt remains playable off-element as a producer, but its Lightning 2+ rider should stay gated unless another source appears.
+- Played chain_bolt as printed: 3 damage, +1 Lightning intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 2 damage, 1 kills, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 3, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 stone removed.
+- Played sidestep_slash as printed: 4 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
+- Earth reward mirrors lightning pattern: Grave Mortar and Stone Plate both produce Earth intensity, with Mortar showing Earth 3+ gated poison payoff. At 6 HP, Stone Plate looks like the best test card because it is both intensity production and defense/cycle; Blood Price is a dead-risk card this low.
+- Reward: took Stone Plate.
+- Moved to (-1,0): depth 1 ice combat.
+- Played guarded_step as printed: +3 block, moved 3, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Resumed after harness process exit; continuing from saved state in Shuttered Gallery turn 2.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Stone Plate drawn in an Ice room at Earth 0. Testing whether off-element Earth producer is readable/useful defensively.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played chain_bolt as printed: 1 damage, 1 kills, +1 play, +1 Lightning intensity.
+- Played guarded_step as printed: +3 block, moved 3, +1 play.
+- Played sidestep_slash as printed: 2 damage, 3 block removed, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 1 damage, 3 block removed, drew 1.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, moved 4, +1 play.
+- Ice reward again gives a clear producer/gate option: Rime Shard produces Ice +1 and gates ranged damage at Ice 2+. White Silence's Ice 4+ rider looks aspirational/dead early. At 4 HP, taking heal over Rime Shard; low HP is overriding interesting elemental picks.
+- Reward: skipped for heal to 10/36.
+- Moved to (-1,-1): depth 1 air combat.
+- Air room shows Air 1 in header and air traps have damage-only text, matching earlier note that Air has no secondary status. Off-element Stone Plate/Chain Bolt still show as playable producers.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 9 damage, 3 block removed.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played chain_bolt as printed: +1 Lightning intensity.
+- Enemy round: 1 HP lost, mode now combat.
+- Chain Bolt can become a pure intensity-only play when no target is available for its ranged action; console reports skipped damage lines. This is useful as a producer but could feel underwhelming if the player expected at least one bolt.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played sidestep_slash as printed: 1 damage, 1 kills, +1 play.
+- Air reward finally offers Air intensity producers. Both Slipstream Cut and Gust Step clearly show Air +1 and Air 3+ card_play gates. Taking Gust Step for illusion/control and to test Air gating despite low HP; Battle Rhythm is the safe non-element pick.
+- Reward: took Gust Step.
+- Moved to (0,-1): depth 1 ice combat.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played quick_stab as printed: 5 damage, 4 block removed.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 3 damage, 1 kills, drew 1, +1 play.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Gust Step drawn in an Ice room at Air 0; testing whether its Air +1 producer leaves the Air 3+ card_play gated, and how much of the multi-action resolves.
+- Played gust_step as printed: 2 damage, 1 illusion, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played chain_bolt as printed: 3 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed.
+- Played bone_dart as printed: 2 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 block removed, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, +1 play.
+- Repeat Ice offer: taking Rime Shard this time to test a native Ice producer/gated payoff. HP remains low, but repeated heal picks were crowding out elemental testing.
+- Reward: took Rime Shard.
+- Moved to (1,-1): depth 1 earth combat.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Movement target list can surface '+5 hp' pickups inline, which is very helpful at low HP. Taking the safe heal pickup with Guarded Step.
+- Played guarded_step as printed: +5 HP, +3 block, moved 1, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played gust_step as printed: 4 damage, 1 illusion, +1 Air intensity, enemy +2 poison.
+- Enemy round: 0 HP lost, mode now combat.
+- Gust Step's pull moved a crawler through/onto an Earth trap: log shows enemy poison applied. Nice emergent elemental board interaction, but it depends on reading logs rather than a preview of the forced path.
+- Played whirlwind_slash as printed: 4 damage, 8 stone removed.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, +1 play.
+- Rime Shard drawn in Earth room with Ice 0; testing whether it behaves as producer + illusion only while Ice 2+ damage remains gated.
+- Played rime_shard as printed: 1 illusion, +1 Ice intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: drew 1.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played chain_bolt as printed: 3 damage, +1 Lightning intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Earth reward at end of Earth room offers Thorn Skewer/Quarry Step; both are producers and their Earth 2+ gates would be active if drawn after Stone Plate or room intensity. Taking heal instead because HP is still the dominant constraint and deck is already 14 cards.
+- Reward: skipped for heal to 13/36.
+- Moved to (2,-1): depth 2 lightning combat.
+- Depth 2 lightning room scales trap damage to 3 and shows Lightning 1. Testing Chain Bolt again in native Lightning room; it should self-enable Lightning 2+ rider like before.
+- Played chain_bolt as printed: 5 block removed, +1 Lightning intensity.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played quick_stab as printed: 4 damage, 1 kills, +1 play.
+- Played gust_step as printed: 2 damage, 1 illusion, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 block removed.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played rime_shard as printed: 1 illusion, +1 Ice intensity.
+- Enemy round: 1 HP lost, mode now combat.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Played gust_step as printed: 2 damage, 1 illusion, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played chain_bolt as printed: 5 damage, 1 kills, +1 play, +1 Lightning intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 1 damage, 1 kills, moved 1, +1 play.
+- Played bloody_lunge as printed: -1 HP, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Rime Shard now drawn at Ice 1; testing self-enable to Ice 2+ like Chain Bolt did.
+- Played rime_shard as printed: 5 block removed, 1 illusion, +1 Ice intensity.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played chain_bolt as printed: 2 damage, 1 kills, +1 play, +1 Lightning intensity.
+- Depth 2 lightning reward offers Spark Focus (+2 Lightning, damage, draw), which looks much smoother than high-gate Thunderline. Taking Spark Focus despite low HP because it is the cleanest intensity producer seen so far.
+- Reward: took Spark Focus.
+- Campfire offered at depth 2 with 215 unbanked embers and 6/36 HP. Choosing deliberate rest endpoint rather than risking another depth 2 combat, so the run ends with a clean bank and notes.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire: rested and banked 215 embers.

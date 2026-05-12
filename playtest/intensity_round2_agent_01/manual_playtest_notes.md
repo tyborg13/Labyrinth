@@ -1,0 +1,83 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T16:07:30Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 720001
+- Starting route: choose air combat over lightning to reduce early shock/trap pressure; will prioritize trap avoidance and safe kills.
+- Moved to (1,0): depth 1 air combat.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Turn 1 killed Bone Harrier first, avoided both air traps, used Guarded Step to absorb crawler shot rather than overextending.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played lantern_shot as printed: drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3 traded one Bloody Lunge HP for immediate lethal on the closest crawler, then healed when safe; no trap contact.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played shadow_step as printed: moved 1, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Illusion successfully absorbed crawler shots but occupied the clean melee approach, so I passed instead of stepping into poor positioning or traps.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills, moved 3, +1 play.
+- Reward 1: choosing Squall Shot over small heal because HP is nearly full and it builds/uses room Air intensity without needing trap risk.
+- Reward: took Squall Shot.
+- Route choice: no Air continuation, picking fire over ice to avoid movement-freeze pressure while preserving trap avoidance.
+- Moved to (1,-1): depth 1 fire combat.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills, moved 3, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Fire room turn 2 killed Ash Acolyte before its burn AoE and healed at safety. Testing Squall Shot opportunistically now, but preventing crawler damage has priority.
+- Played squall_shot as printed: 3 damage, +1 Air intensity.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played lantern_shot as printed: 4 block removed, -2 HP, drew 1.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 2 damage, 1 kills, +1 play.
+- Reward 2: taking Cinder Bloom as a common intensity producer/payoff; the compact +Fire 3+ line is readable in text harness.
+- Reward: took Cinder Bloom.
+- Route choice: choose depth 2 air combat to use Squall Shot's Air build and avoid lightning shock rooms.
+- Moved to (2,-1): depth 2 air combat.
+- Depth 2 air opener is dangerous. I will avoid the trap shortcut and kill the near crawler first, accepting that Warden pressure may need later kiting.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played squall_shot as printed: 3 damage, +1 Air intensity.
+- Enemy round: 1 HP lost, mode now combat.
+- Played shadow_step as printed: moved 1, 1 illusion.
+- Played cinder_bloom as printed: 3 damage, +1 Fire intensity.
+- Enemy round: 3 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 2 damage, 3 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Guarded Step let me absorb Warden damage without HP loss, but fatigue is showing. I am saving the Warden until safer, using block when I must stay in range.
+- Played whirlwind_slash as printed: 6 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 2 HP lost, mode now combat.
+- Played cinder_bloom as printed: 5 damage, 1 kills, +1 play, +1 Fire intensity.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Reward 3: taking Gust Step despite 26 HP because it is a common Air producer with illusion/move utility, directly aligned with safer play and Air 3 setup.
+- Reward: took Gust Step.
+- Taking campfire now; HP is low enough that rest is better than greed.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire: rested and banked 91 embers.

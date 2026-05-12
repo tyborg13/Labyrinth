@@ -25,7 +25,12 @@ The main assumptions come from:
 These assumptions are baked into the current coefficients:
 
 - Player pace: `2` cards per turn and `2` draw per turn.
+- Killing an enemy with a card grants `+1` card play for the turn, so high
+  damage gets a modest execute-tempo premium.
 - Fatigue starts at `2` health and increases by `1` each reshuffle.
+- Each combat tracks room-wide elemental intensity for fire, ice, lightning,
+  air, and earth. The room's element starts at intensity `1`; other elements
+  start at `0`.
 - Enemy preview block matters immediately during the player turn.
 - Freeze doubles incoming damage and skips the enemy's next turn.
 - Pierce attacks deal HP damage through block and stoneskin without removing
@@ -64,7 +69,7 @@ mobility or range coefficient changes.
 
 The total score is:
 
-`EV = offense + control + defense + flow + mobility + synergy - health_cost - exhaust_card_penalty`
+`EV = offense + control + defense + flow + elemental_intensity + mobility + synergy - health_cost - exhaust_card_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -81,6 +86,9 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Heal: `0.90` per point
 - Draw: `0.85` per card
 - Card Play: `0.75` per added card play this turn
+- Elemental intensity gain: `0.70` per point
+- High-damage kill-card-play premium: up to `0.45`, scaled by damage,
+  playability, and target count
 - Illusion health: `0.48` per point
 - Illusion placement range: `0.12` per tile
 - Pure move: `0.25` per tile
@@ -115,6 +123,32 @@ Synergy bonuses:
 - `+0.40` for `move + defense` on non-attack cards
 - `+0.30` for `illusion + move/blink`
 - `+0.25` when `illusion` appears before later movement on the same card
+- `+0.18` when an elemental card raises its own element's intensity
+- `+0.30` when a card both raises intensity and has intensity-gated text
+
+## Elemental Intensity Gating
+
+For heuristic purposes, elemental cards are scored as if they are played in a
+room of their own element, so their element starts at intensity `1`. Intensity
+actions on the same card update this local context before later actions are
+valued.
+
+Actions with `requires_intensity` and attack-side `intensity_bonus` clauses are
+discounted by how far their threshold is from the current local context:
+
+- Already met: `1.00`
+- Short by `1`: `0.62`
+- Short by `2`: `0.44`
+- Short by `3`: `0.28`
+- Short by `4+`: `0.18`
+
+For `intensity_bonus`, the base action is scored normally and only the bonus
+damage, status, chain, pierce, or forced movement is discounted. This mirrors
+the card UI convention that a card should generally have one targetable attack,
+with intensity-gated upside shown as a shaded modifier row instead of a second
+attack. This makes mild `2+` text meaningful in matching rooms, gives
+self-enabling cards credit for sequencing, and keeps large `4+` payoffs from
+scoring as always-on standalone power.
 
 ## Playability Factors
 
@@ -168,7 +202,8 @@ This heuristic is intentionally conservative about:
 - Enemy target redirection from illusion placement, especially when board geometry
   lets one illusion absorb multiple enemy turns
 - Extreme deck-thinning or fatigue exploitation
-- Card-play bonuses beyond the current standalone hand context
+- Exact frequency of matching-element rooms after a player drafts heavily into
+  one element
 
 If a card is intentionally better than its standalone score because of one of
 those factors, note that explicitly in review or commit context.

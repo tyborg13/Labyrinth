@@ -61,6 +61,8 @@ const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
+const INTENSITY_BADGE_SIZE: Vector2 = Vector2(58.0, 58.0)
+const INTENSITY_ICON_INSET: float = 5.0
 const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
@@ -138,6 +140,9 @@ var _active_pile_kind: String = ""
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
+var _intensity_bar: HFlowContainer
+var _intensity_badges: Dictionary = {}
+var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _choice_button_overlay: HBoxContainer
 var _context_choice_overlay: PanelContainer
@@ -196,6 +201,7 @@ func _ready() -> void:
 	_build_context_choice_overlay()
 	_setup_pile_widgets()
 	_setup_play_meter()
+	_setup_elemental_intensity_bar()
 	_boot_run()
 
 func _process(delta: float) -> void:
@@ -247,6 +253,7 @@ func _notification(what: int) -> void:
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
 		_layout_choice_button_overlay()
+		_layout_elemental_intensity_bar()
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
@@ -1515,6 +1522,78 @@ func _setup_play_meter() -> void:
 	hand_row.move_child(_play_meter, insert_index)
 	_refresh_card_play_meter()
 
+func _setup_elemental_intensity_bar() -> void:
+	_intensity_bar = HFlowContainer.new()
+	_intensity_bar.name = "ElementalIntensityBar"
+	_intensity_bar.visible = false
+	_intensity_bar.mouse_filter = Control.MOUSE_FILTER_PASS
+	_intensity_bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_intensity_bar.custom_minimum_size = _intensity_bar_size()
+	_intensity_bar.size = _intensity_bar_size()
+	_intensity_bar.z_index = 30
+	_intensity_bar.add_theme_constant_override("h_separation", 9)
+	_intensity_bar.add_theme_constant_override("v_separation", 7)
+	add_child(_intensity_bar)
+	for element_id: String in ElementData.all_elements():
+		var badge := TooltipPanelContainer.new()
+		badge.custom_minimum_size = INTENSITY_BADGE_SIZE
+		badge.mouse_filter = Control.MOUSE_FILTER_STOP
+		badge.mouse_default_cursor_shape = Control.CURSOR_HELP
+		badge.tooltip_text = _intensity_tooltip(element_id)
+		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, false))
+		_intensity_bar.add_child(badge)
+		_intensity_badges[element_id] = badge
+
+		var content := Control.new()
+		content.set_anchors_preset(Control.PRESET_FULL_RECT)
+		content.anchor_right = 1.0
+		content.anchor_bottom = 1.0
+		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		badge.add_child(content)
+
+		var icon := TextureRect.new()
+		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon.anchor_right = 1.0
+		icon.anchor_bottom = 1.0
+		icon.offset_left = INTENSITY_ICON_INSET
+		icon.offset_top = INTENSITY_ICON_INSET
+		icon.offset_right = -INTENSITY_ICON_INSET
+		icon.offset_bottom = -INTENSITY_ICON_INSET
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture = AssetLoader.load_texture(ElementData.intensity_icon_path(element_id))
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(icon)
+
+		var count := Label.new()
+		count.set_anchors_preset(Control.PRESET_FULL_RECT)
+		count.anchor_right = 1.0
+		count.anchor_bottom = 1.0
+		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		count.text = "0"
+		UiTypography.set_label_size(count, UiTypography.SIZE_SECTION)
+		count.add_theme_color_override("font_color", Color("fff7df"))
+		count.add_theme_color_override("font_outline_color", Color("24160f"))
+		count.add_theme_constant_override("outline_size", 4)
+		content.add_child(count)
+		_intensity_labels[element_id] = count
+	_refresh_elemental_intensity_bar()
+
+func _intensity_bar_size() -> Vector2:
+	return Vector2(INTENSITY_BADGE_SIZE.x * 5.0 + 9.0 * 4.0, INTENSITY_BADGE_SIZE.y)
+
+func _layout_elemental_intensity_bar() -> void:
+	if _intensity_bar == null or room_title == null or room_subtitle == null:
+		return
+	_intensity_bar.size = _intensity_bar_size()
+	var title_rect: Rect2 = room_title.get_global_rect()
+	var y: float = room_subtitle.get_global_rect().end.y + 8.0
+	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
+		y = relic_bar.get_global_rect().end.y + 8.0
+	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
+
 func _build_pile_widget(spec: Dictionary) -> void:
 	var kind: String = str(spec.get("kind", ""))
 	var panel: PanelContainer = spec.get("panel", null)
@@ -1756,6 +1835,8 @@ func _refresh_ui() -> void:
 	room_subtitle.text = _room_subtitle_text(display_room)
 	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
+	_refresh_elemental_intensity_bar()
+	call_deferred("_layout_elemental_intensity_bar")
 	mini_map.set_run_state(_run_state)
 	if _large_map_view != null:
 		_large_map_view.call("set_run_state", _run_state)
@@ -1871,6 +1952,54 @@ func _refresh_card_play_meter() -> void:
 	_play_meter_count.text = str(cards_left)
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
+
+func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
+	if _intensity_bar == null:
+		return
+	var state: Dictionary = display_state if not display_state.is_empty() else _combat_state
+	var active: bool = str(_run_state.get("mode", "room")) == "combat" and not state.is_empty()
+	_intensity_bar.visible = active
+	if not active:
+		return
+	_layout_elemental_intensity_bar()
+	var intensities: Dictionary = _combat_engine.elemental_intensities(state)
+	for element_id: String in ElementData.all_elements():
+		var value: int = int(intensities.get(element_id, 0))
+		var label: Label = _intensity_labels.get(element_id, null)
+		if label != null:
+			label.text = str(value)
+		var badge: PanelContainer = _intensity_badges.get(element_id, null)
+		if badge != null:
+			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
+			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value > 0))
+
+func _intensity_tooltip(element_id: String) -> String:
+	return "%s Intensity\nRoom-wide %s power. Some %s card effects need this value." % [
+		ElementData.name(element_id),
+		ElementData.name(element_id),
+		ElementData.name(element_id)
+	]
+
+func _intensity_badge_style(element_id: String, active: bool) -> StyleBoxFlat:
+	var accent: Color = ElementData.accent(element_id)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.055, 0.045, 0.86 if active else 0.58)
+	style.border_color = accent.lightened(0.18) if active else Color(accent.r, accent.g, accent.b, 0.42)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.32 if active else 0.12)
+	style.shadow_size = 8 if active else 3
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
 
 func _displayed_ember_count() -> int:
 	if _ember_count_override >= 0:
@@ -2395,23 +2524,34 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			"melee", "ranged", "aoe":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-				summary_rows.append(ActionIcons.tokens_for_action(action, {
+				var attack_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(attack_damage_modifiers)
+				var attack_row: Array = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
-					"damage_modifiers": attack_damage_modifiers
-				}))
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers),
+					"damage_modifiers": attack_visible_modifiers
+				})
+				summary_rows.append(_annotate_intensity_condition_row(attack_row, _combat_engine.action_intensity_requirement_met(preview_state, action)))
 				_consume_preview_damage_modifiers(preview_state, action)
 			"push", "pull":
 				var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-				summary_rows.append(ActionIcons.tokens_for_action(action, {
+				var shove_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(shove_damage_modifiers)
+				var shove_row: Array = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
-					"damage_modifiers": shove_damage_modifiers
-				}))
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers),
+					"damage_modifiers": shove_visible_modifiers
+				})
+				summary_rows.append(_annotate_intensity_condition_row(shove_row, _combat_engine.action_intensity_requirement_met(preview_state, action)))
 				_consume_preview_damage_modifiers(preview_state, action)
 			_:
 				var row: Array = ActionIcons.tokens_for_action(action)
 				if not row.is_empty():
-					summary_rows.append(row)
+					summary_rows.append(_annotate_intensity_condition_row(row, _combat_engine.action_intensity_requirement_met(preview_state, action)))
+		if action_type == "intensity" and _combat_engine.player_action_can_resolve(preview_state, action):
+			preview_state = _combat_engine.apply_player_action(preview_state, action)
+		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
+		if not bonus_row.is_empty():
+			summary_rows.append(_annotate_intensity_condition_row(bonus_row, _combat_engine.action_intensity_bonus_requirement_met(preview_state, action)))
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
 		summary_text = str(card.get("description", ""))
@@ -2420,6 +2560,32 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		"summary_rows": summary_rows,
 		"modifier_lines": modifier_lines
 	}
+
+func _annotate_intensity_condition_row(row: Array, active: bool) -> Array:
+	var annotated: Array = []
+	for token_var: Variant in row:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			annotated.append(token_var)
+			continue
+		var token: Dictionary = (token_var as Dictionary).duplicate(true)
+		if str(token.get("kind", "")) == "intensity_requirement":
+			token["condition_active"] = active
+		annotated.append(token)
+	return annotated
+
+func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dictionary]:
+	var filtered: Array[Dictionary] = []
+	for modifier: Dictionary in modifiers:
+		if str(modifier.get("kind", "")) == "elemental_intensity":
+			continue
+		filtered.append(modifier)
+	return filtered
+
+func _damage_tone_base_excluding_modifiers(final_damage: int, visible_modifiers: Array[Dictionary]) -> int:
+	var tone_base: int = final_damage
+	for modifier: Dictionary in visible_modifiers:
+		tone_base -= int(modifier.get("amount", 0))
+	return tone_base
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
 	var action_type: String = str(action.get("type", ""))
@@ -3159,6 +3325,30 @@ func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	await settle.finished
 	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
 
+func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
+	if not ElementData.is_elemental(element_id):
+		return
+	var badge: PanelContainer = _intensity_badges.get(element_id, null)
+	var label: Label = _intensity_labels.get(element_id, null)
+	if badge == null or label == null:
+		return
+	_refresh_elemental_intensity_bar(_combat_state)
+	label.text = str(displayed_value)
+	badge.pivot_offset = badge.size * 0.5
+	label.add_theme_color_override("font_color", Color("fff4dc"))
+	var accent: Color = ElementData.accent(element_id).lightened(0.18)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(badge, "scale", Vector2(1.18, 1.18), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(badge, "modulate", Color(accent.r, accent.g, accent.b, 1.0), 0.11)
+	await tween.finished
+	var settle := create_tween()
+	settle.set_parallel(true)
+	settle.tween_property(badge, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	settle.tween_property(badge, "modulate", Color.WHITE, 0.20)
+	await settle.finished
+	label.add_theme_color_override("font_color", Color("fff7df"))
+
 func _animate_ember_reward(source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
 	if _card_fx_layer == null:
 		return
@@ -3246,6 +3436,8 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	var target_index: int = 0
 	for action_var: Variant in actions:
 		var action: Dictionary = action_var
+		if not _combat_engine.player_action_can_resolve(animated_state, action):
+			continue
 		var target_tile: Vector2i = INVALID_TARGET_TILE
 		if _combat_engine.player_action_needs_target(action):
 			if target_index < selected_targets.size():
@@ -3450,6 +3642,24 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			})
 			await _animate_card_play_reward(_combat_engine.cards_remaining_this_turn(after_state))
 			await get_tree().create_timer(0.10).timeout
+		"intensity":
+			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
+			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
+			var after_value: int = _combat_engine.elemental_intensity(after_state, element_id)
+			var gained: int = maxi(0, after_value - before_value)
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await _animate_floating_text_presentation(after_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"floating_texts": [{
+					"tile": player_after_tile,
+					"text": "+%d %s" % [gained, ElementData.name(element_id)],
+					"color": ElementData.accent(element_id),
+					"offset": -6.0
+				}]
+			})
+			await _animate_intensity_gain(element_id, after_value)
+			await get_tree().create_timer(0.08).timeout
 	await _animate_death_rewards(before_state, after_state)
 
 func _resolve_enemy_round() -> void:
@@ -3934,24 +4144,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if _animation_lock:
 		return ""
 	if mode == "combat":
-		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
-		if bool(restrictions.get("frozen", false)):
-			return "Frozen"
-		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
-			return "Shocked"
-		if _drag_card_index >= 0:
-			return "Play Card"
-		if _selected_card_index >= 0:
-			if not _selected_card_label_override.is_empty():
-				return _selected_card_label_override
-			return str(_card_def(_card_id_for_hand_index(_selected_card_index), _combat_state).get("name", "Card"))
-		if _hovered_card_index >= 0 and bool(preview.get("playable", false)):
-			return str(_card_def(str(preview.get("card_id", "")), _combat_state).get("name", "Card"))
-		if not _has_any_playable_combat_card():
-			return "Pass"
-		if not _has_playable_combat_card():
-			return "Drag Card"
-		return "Pick Card"
+		return ""
 	if mode == "room":
 		return "Choose door"
 	if mode == "reward":
@@ -3971,25 +4164,6 @@ func _board_status_detail(preview: Dictionary) -> String:
 	if _animation_lock:
 		return ""
 	if mode == "combat":
-		var restrictions: Dictionary = (_combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
-		if bool(restrictions.get("frozen", false)):
-			return "Pass to continue"
-		if bool(restrictions.get("shocked", false)) and _selected_card_index < 0 and _hovered_card_index < 0:
-			return "Only move/blink, or pass"
-		if _drag_card_index >= 0:
-			if _drag_hover_zone == "play":
-				return "Play"
-			if _drag_hover_zone == "attack":
-				return "2 attack"
-			if _drag_hover_zone == "move":
-				return "2 move"
-			return "Drop in a lane"
-		if _selected_card_index >= 0 and _pending_action_index < _pending_actions.size():
-			return _action_prompt(_pending_actions[_pending_action_index])
-		if _hovered_card_index >= 0 and not preview.is_empty() and not bool(preview.get("complete", true)):
-			return _action_prompt(preview.get("action", {}))
-		if _combat_engine.cards_remaining_this_turn(_combat_state) > 0 and not _has_playable_combat_card() and _has_any_playable_combat_card():
-			return "2 atk / 2 move"
 		return ""
 	if mode == "room":
 		return _room_hover_hint()
@@ -4577,7 +4751,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary) if not combat_state.is_empty() else {}
 	var combat_analytics: Dictionary = (combat_state.get("analytics", {}) as Dictionary).duplicate(true)
 	var run_analytics: Dictionary = (run_state.get("analytics", {}) as Dictionary).duplicate(true)
-	return {
+	var context: Dictionary = {
 		"run_id": str(run_analytics.get("run_id", "")),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),
@@ -4589,6 +4763,9 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"card_id": card_id,
 		"card_instance_id": card_instance_id
 	}
+	if not combat_state.is_empty():
+		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
+	return context
 
 func _analytics_log_run_started() -> void:
 	_analytics_store.write_event("run_started", _analytics_context_from_states(_run_state, _combat_state), {
@@ -4663,6 +4840,7 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"room_name": str(_combat_state.get("room_name", "")),
 		"room_type": str(_combat_state.get("room_type", "")),
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
+		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
 	})
@@ -4905,6 +5083,9 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		illusion_health_created += maxi(0, int(after_illusion.get("max_hp", after_illusion.get("hp", 0))))
 	var printed_card: Dictionary = _card_def(card_id, before_state)
 	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
+	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
+	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
+	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
 	if JSON.stringify(actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("move")) else "custom"
@@ -4922,7 +5103,16 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"player_stoneskin_gained": maxi(0, int(after_player.get("stoneskin", 0)) - int(before_player.get("stoneskin", 0))),
 		"move_distance": absi(after_pos.x - before_pos.x) + absi(after_pos.y - before_pos.y),
 		"cards_drawn": _draw_entries_between_states(before_state, resolved_state).size(),
-		"card_plays_gained": maxi(0, _combat_engine.cards_remaining_this_turn(resolved_state) - _combat_engine.cards_remaining_this_turn(before_state)),
+		"card_plays_gained": maxi(0, capacity_delta),
+		"card_plays_remaining_before": _combat_engine.cards_remaining_this_turn(before_state),
+		"card_plays_remaining_after": _combat_engine.cards_remaining_this_turn(resolved_state),
+		"net_card_plays_remaining_delta": _combat_engine.cards_remaining_this_turn(resolved_state) - _combat_engine.cards_remaining_this_turn(before_state),
+		"card_plays_spent": maxi(0, int(resolved_state.get("cards_played_this_turn", 0)) - int(before_state.get("cards_played_this_turn", 0))),
+		"death_bonus_card_plays_gained": maxi(0, int(resolved_state.get("death_bonus_card_plays_this_turn", 0)) - int(before_state.get("death_bonus_card_plays_this_turn", 0))),
+		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
+		"elemental_intensity_before": intensity_before,
+		"elemental_intensity_after": intensity_after,
+		"elemental_intensity_gained": _elemental_intensity_delta(intensity_before, intensity_after),
 		"pierce_actions": _analytics_pierce_action_count(actions),
 		"illusions_created": illusions_created,
 		"illusion_health_created": illusion_health_created,
@@ -4941,6 +5131,21 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
 	}
+
+func _elemental_intensity_delta(before_intensity: Dictionary, after_intensity: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		var gained: int = int(after_intensity.get(element_id, 0)) - int(before_intensity.get(element_id, 0))
+		if gained > 0:
+			result[element_id] = gained
+	return result
+
+func _card_play_capacity_value(state: Dictionary) -> int:
+	return (
+		int(state.get("cards_per_turn", 2))
+		+ int(state.get("death_bonus_card_plays_this_turn", 0))
+		+ int(state.get("card_play_bonus_this_turn", 0))
+	)
 
 func _analytics_pierce_action_count(actions: Array) -> int:
 	var count: int = 0

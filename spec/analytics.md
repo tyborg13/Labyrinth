@@ -32,6 +32,7 @@ The current event stream is enough to derive:
 
 - pick rate via `reward_offered` + `reward_choice`
 - combats-in-deck via `combat_started.payload.deck_cards`
+- elemental intensity at combat start via `combat_started.payload.elemental_intensity`
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
 - play count via `card_played`
@@ -49,6 +50,8 @@ The current event stream is enough to derive:
 - card play economy during resolution: plays spent, remaining plays before/after,
   net remaining-play delta, total play capacity gained, kill-granted plays, and
   card-action-granted plays
+- elemental intensity before/after resolution and the positive per-element
+  intensity gained by the played card
 - illusions created and their total created health
 - immediate status application deltas
 - actual resolved action list and chosen targets
@@ -80,6 +83,7 @@ Update analytics instrumentation when changes affect:
 - reward offering or reward selection flow
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
+- elemental intensity production, gating, or room-start rules
 - card actions that create, remove, or redirect combat actors
 - combat outcome flow
 - status timing or turn sequencing

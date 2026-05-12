@@ -1,0 +1,186 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T16:07:34Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 720004
+- Playtester 04 starting seed 720004. I will follow the strategy guide: avoid traps, avoid entering enemy range without lethal/setup, use state/cards/moves after actions, and build intensity only when it does not cost safety.
+- Moved to (1,0): depth 1 air combat.
+- Room 1 air starts at Air intensity 1. Two air traps at (4,5)/(5,4); I cancelled an early Sidestep target because attacking would enter range without lethal. Taking block/pass setup instead.
+- Played brace as printed: +8 block.
+- Played guarded_step as printed: +3 block, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Killed crawler first with Sidestep+Quick Stab because it was the 3 damage threat; took safe path via (3,4), no traps. Using Patch Up as prevention here instead of taking harrier chip.
+- Played patch_up as printed: +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played lantern_shot as printed: 4 damage, 1 kills, drew 1, +1 play.
+- Harrier killed with Lantern to gain a play and draw. Crawler left; using Shadow Step as blocker instead of taking chip, placing illusion one square closer to crawler.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler is screened by the illusion and pass preview shows no player hit, so I am not spending movement into range or stepping near traps. Passing to let it waste attacks and draw a cleaner kill hand.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Room clear at 33/36 with no trap steps. Reward shows new intensity text: Slipstream Cut builds Air and gates card_play at Air 3+; Vacuum Line has compact Air 3+ bonus text. Taking Slipstream as a common producer to build engine.
+- Reward: took Slipstream Cut.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure choice: Reinforced Shield looks like the safest general pick for preventing early damage across combats; Gale Tabi has Shadow Step synergy but is narrower right now.
+- Treasure: took Reinforced Shield.
+- Moved to (0,-1): depth 1 lightning combat.
+- Lightning combat has traps at (4,4), (3,3), (3,5). I am prioritizing trap avoidance and will use illusion/block rather than chasing enemies through the trapped center.
+- Played shadow_step as printed: 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Two lunging crawlers threaten 10. Plan: kill nearer crawler with Sidestep+Quick for kill play refund, then use Brace against the remaining incoming damage.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Brace did not preserve as expected against the crawler hit in the preview/result ordering; I still took 5 HP while acolyte hit block/stone. Crawler is adjacent and dangerous; I am using max damage this turn without moving onto traps.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 block removed, 1 kills, +1 play.
+- Safe turn with only acolyte warding. Healing now per guide, then using Lantern to strip block and draw without changing position.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played lantern_shot as printed: 4 block removed, -2 HP, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Lantern draw caused fatigue damage; useful to track because draw on an empty deck can undermine safe turns. Acolyte keeps re-warding, so I am spending attacks now.
+- Played whirlwind_slash as printed: 1 damage, 5 block removed.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Cleared lightning room at 23/36, no trap steps. Chain Bolt looks like a good common producer/consumer: Lightning +1 and self-enables its Lightning 2+ bonus in native lightning rooms. Taking it over heal despite HP because engine support is needed.
+- Reward: took Chain Bolt.
+- Moved to (-1,-1): depth 1 earth combat.
+- Earth room traps at (4,4), (3,3), (5,5). Harrier threatens poison; I will try to kill it before enemy phase using Guarded Step for safe positioning/card play refund.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played quick_stab as printed: 9 damage.
+- Played lantern_shot as printed: 1 damage, 1 kills, drew 1, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Poison status came from acolyte despite block/stone interaction. I will use illusion to pull the next poison melee off the player if possible, then reassess with pass preview.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played chain_bolt as printed: 3 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy intents are defensive and pass preview is safe. I will build Air with Slipstream only because it also advances damage on acolyte without trap risk.
+- Played slipstream_cut as printed: 6 damage, moved 2, +1 Air intensity, enemy +2 poison.
+- Slipstream shortcut did not step the player on a trap; it appears the acolyte ended on the earth trap and got poisoned. This is acceptable trap use against enemies, but the shortcut preview did not make the trap interaction obvious.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage, 11 stone removed, 1 kills, +1 play.
+- Played sidestep_slash as printed: moved 3.
+- Played bloody_lunge as printed: -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Used Bloody Lunge purely as movement to avoid the poison hit; it cost 1 HP plus later fatigue, but prevented another poison stack. No trap steps.
+- Played bone_dart as printed: 5 stone removed.
+- Played slipstream_cut as printed: 3 damage, 1 stone removed, moved 2, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler poison is the remaining threat. Air intensity is now 2 from Slipstream; using illusion/blink to avoid another poison stack rather than trading hits.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Cannot kill crawler through stoneskin this turn. Following guide: reposition first rather than standing in poison melee range.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Now crawler is close enough for a two-card lethal through stoneskin using Bloody Lunge + Quick Stab. Taking the HP cost to prevent poison and end room.
+- Played bloody_lunge as printed: 3 damage, 4 stone removed, -1 HP, moved 1.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Cleared earth room at 22/36, no player trap steps. Stone Plate is a common Earth producer plus defense; taking it to support intensity and survivability instead of the immediate heal.
+- Reward: took Stone Plate.
+- Moved to (-1,0): depth 1 lightning combat.
+- New lightning room, traps at center. Initial threat is left crawler lunge for 5; using illusion as a way blocker instead of trying for a nonlethal chase through the room.
+- Played shadow_step as printed: 1 illusion.
+- Played chain_bolt as printed: 4 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2 has no clean lethal; pass preview is 9 damage. I am checking movement via Bloody Lunge to avoid entering ranged focus, accepting HP cost if it prevents larger certain damage.
+- Played bloody_lunge as printed: 3 damage, 4 block removed, -1 HP, moved 3.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Patch Up block again failed to reduce incoming ranged damage, so I am treating block as unreliable in this harness/build and prioritizing kills/stoneskin. Whirlwind should set up a kill refund.
+- Played whirlwind_slash as printed: 12 damage.
+- Played lantern_shot as printed: 1 damage, 1 kills, drew 1, +1 play.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Acolyte is isolated; I am using Guarded Step to approach through the top lane, avoiding the visible lightning traps, then looking for a one-turn kill.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Cleared lightning room at 16/36, no trap steps. Reward offers two common lightning producers, which is good for engine availability, but HP is now low and next rooms may punish fatigue; taking heal.
+- Reward: skipped for heal to 22/36.
+- Moved to (-1,1): depth 1 none treasure.
+- Treasure: choosing Ember Lens. The extra first-attack damage should improve one-turn kill thresholds, which has mattered more than raw block in this run.
+- Treasure: took Ember Lens.
+- Moved to (0,1): depth 1 air combat.
+- Air room starts safe. Taking the safe heal first, then using Ember Lens-boosted Bone Dart to make progress without moving toward traps.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played bone_dart as printed: 4 damage, 3 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Harrier is low and pulling; using first-attack Bloody Lunge to secure lethal and avoid future displacement. Checking shortcut for trap safety.
+- Played bloody_lunge as printed: -1 HP, moved 3.
+- Misread Bloody Lunge adjacency: moving to (2,2) did not allow diagonal melee on harrier, so it became movement-only. This reinforces relying on shortcut target lines instead of guessing adjacency.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- With shortcut lesson learned, I will use Guarded Step to move orthogonally adjacent to harrier, then Quick Stab for lethal and play refund.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Played chain_bolt as printed: 3 damage, +1 Lightning intensity.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played chain_bolt as printed: 1 damage, 4 block removed, 1 kills, +1 play, +1 Lightning intensity.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played slipstream_cut as printed: 4 damage, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
+- Cleared air room at 22/36, no player trap steps. Updraft is a common Air producer with Air 3+ play refund; taking it to make the Air engine easier to assemble.
+- Reward: took Updraft.
+- Moved to (1,1): depth 1 ice combat.
+- Ice room has freeze traps in center. Primary threat is lunge crawler; using Bloody + ranged follow-up for lethal from the left lane, avoiding trap tiles.
+- Played bloody_lunge as printed: 9 damage, -1 HP, moved 2.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 block removed, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played chain_bolt as printed: 5 damage, +1 Lightning intensity.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler will hit stoneskin but not HP. I will use illusion to absorb and Stone Plate to rebuild stoneskin/intensity while avoiding the ice traps.
+- Played shadow_step as printed: 1 illusion.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played slipstream_cut as printed: 6 damage, moved 2, +1 Air intensity.
+- Played updraft as printed: 3 damage, 1 kills, +1 play, +1 Air intensity.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Harrier is out of range and not threatening HP this turn. Passing rather than moving through/near traps for a low-value setup.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played chain_bolt as printed: +1 Lightning intensity.
+- Chain Bolt only built intensity because the harrier was apparently out of range despite the card being selectable; no damage target appeared. Useful UI/harness clarity issue.
+- Played lantern_shot as printed: drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Air is at 2; Updraft should self-enable Air 3+ and may refund a play if it can reach. Trying that before committing movement.
+- Played updraft as printed: +1 play, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Avoiding Sidestep shortcut because it explicitly routes through the ice trap at (3,5). No legal ranged click target for Bone Dart here, so I am using defensive cards rather than stepping on traps.
+- Played brace as printed: +8 block.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 3 HP lost, mode now combat.
+- Brace/Stone still did not stop harrier HP damage; this looks like a combat/block preview or resolution issue. Passing now because preview is only stoneskin loss and moving through trap lanes is worse.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 7 damage.
+- Played slipstream_cut as printed: 3 damage, 1 kills, moved 1, +2 play, +1 Air intensity.
+- Cleared ice room at 19/36, no player trap steps. Slipstream at Air 3+ felt great: kill plus gated play refund gave tempo. Reward has common Ice producers, but HP is low; taking heal.
+- Reward: skipped for heal to 25/36.
+- Stopping point: after clearing depth 1 ice combat at (1,1), harness reports no legal room moves. Run is not victory/defeat but is terminal for navigation in this seed/path.

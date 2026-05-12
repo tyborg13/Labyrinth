@@ -1,0 +1,249 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T16:07:31Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 720005
+- Starting seed 720005. Following strategy guide: avoid traps, avoid entering range until lethal, use pass/illusion/blockers, build intensity only when safe.
+- Moved to (1,0): depth 1 air combat.
+- Played sidestep_slash as printed: 5 damage, moved 3.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Used Shadow Step illusion at (2,3) as closer blocker for crawler; blinked to (5,1) safely, no trap path.
+- Enemy round: 0 HP lost, mode now combat.
+- Played patch_up as printed: +1 HP, +2 block.
+- Played lantern_shot as printed: 1 damage, 3 block removed, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played bloody_lunge as printed: 4 damage, 3 block removed, 1 kills, -1 HP, +1 play.
+- Accepted 1 HP Bloody Lunge cost for immediate harrier kill while crawler was blocked by illusion; no trap stepping.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played lantern_shot as printed: 4 damage, -3 HP, drew 1.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Reward choice: took Slipstream Cut over heal to add common Air intensity production and gated extra play; HP 29/36 still serviceable after first-room fatigue/draw cost.
+- Reward: took Slipstream Cut.
+- Moved to (1,1): depth 1 none treasure.
+- Took Tailwind Fletching to support an Air build and make future Air pull/push/ranged cards more attractive.
+- Treasure: took Tailwind Fletching.
+- Moved to (0,1): depth 1 air combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played slipstream_cut as printed: 3 damage, 3 block removed, moved 2, +1 Air intensity.
+- Enemy round: 2 HP lost, mode now combat.
+- Trap incident: Slipstream shortcut to harrier moved through/onto an Air trap even though target preview did not label the shortcut as move risk. This looks like a harness/path-preview issue; I did not intentionally choose a trap tile.
+- Played lantern_shot as printed: 4 block removed, drew 1.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Enemy round: 3 HP lost, mode now combat.
+- Guarded Step block did not appear to prevent the crawler shot; HP went 27 to 24 despite 3 block, so either preview/state is misleading or block timing is not behaving as expected.
+- Played quick_stab as printed: 9 damage.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: moved 3.
+- Enemy round: 4 HP lost, mode now combat.
+- Mistake: Sidestep reposition to (5,6) entered enemy ranges and caused 4 HP plus fatigue; should have passed safe instead. Continuing defensively.
+- Played slipstream_cut as printed: 4 damage, moved 2, +1 play, +1 Air intensity.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played whirlwind_slash as printed: 4 damage, 3 block removed, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Reward choice: healed instead of adding Updraft/Squall because HP was 20/36 after several avoidable losses; survival takes priority.
+- Reward: skipped for heal to 26/36.
+- Moved to (-1,1): depth 1 fire combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: drew 1.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Fire turn 3: passing while safe rather than moving into enemy range; enemies should close for a safer burst turn.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, moved 1, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played quick_stab as printed: 2 damage, 1 kills, +1 play.
+- Reward choice: took Hearth Rush over heal because it is a common Fire producer with an illusion component, giving defensive utility plus a way to test Fire intensity gating. HP 22/36 is low but not critical.
+- Reward: took Hearth Rush.
+- Moved to (-1,0): depth 1 lightning combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Turn 2 lightning: drew Bloody Lunge after Lantern but only one play left, cannot secure kill; using Brace to test/hope block prevents large ranged hit.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Brace absorbed the acolyte shot but not the crawler shot; block behavior versus enemy order/attack type feels hard to predict.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played whirlwind_slash as printed: 2 damage, 1 kills, +1 play.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Last crawler is boxed in by lightning traps/wall; melee would require trap adjacency/pathing. Holding position and waiting for ranged rather than stepping onto traps.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Hand is clogged with melee/move while crawler is trap-boxed. Cycling safe non-damage cards instead of taking trap shortcut.
+- Played brace as printed: +8 block.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Reward choice: healed at 14/36 despite Chain Bolt being a strong common Lightning producer; HP was too low after fatigue and block issues.
+- Reward: skipped for heal to 20/36.
+- Moved to (-1,-1): depth 1 earth combat.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Brace plus Patch block again failed to prevent the crawler hit; HP dropped 22 to 17 and poison applied despite 13 block shown before enemy phase.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played shadow_step as printed: moved 1, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played slipstream_cut as printed: moved 3, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 4 damage, 3 stone removed, -1 HP, moved 3.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Reward choice: healed at 13/36. Quarry Step looked like a useful Earth producer, but current HP and poison/fatigue pressure made survival more important.
+- Reward: skipped for heal to 19/36.
+- Moved to (0,-1): depth 1 lightning combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Enemy round: 3 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played lantern_shot as printed: 1 damage, 3 block removed, drew 1.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Reward choice: healed at 13/36. Static Lash and Chain Bolt both looked like accessible Lightning producers, but repeated fatigue/block issues keep HP management dominant.
+- Reward: skipped for heal to 19/36.
+- Moved to (1,-1): depth 1 fire combat.
+- Played slipstream_cut as printed: moved 3, +1 Air intensity.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played slipstream_cut as printed: moved 2, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Played shadow_step as printed: 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Played bloody_lunge as printed: +4 HP, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played slipstream_cut as printed: 4 damage, moved 3, +1 play, +1 Air intensity.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played lantern_shot as printed: 4 damage, 1 kills, +1 play.
+- Took Ashline Tempo over heal at 18/36 because it is a common Fire producer/payoff with Fire 2+ rider and card_play; important to test whether common intensity engine cards are too efficient.
+- Reward: took Ashline Tempo.
+- Moved to (2,-1): depth 2 air combat.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 1 HP lost, mode now combat.
+- Played ashline_tempo as printed: 2 damage, 3 block removed, +1 play, +1 Fire intensity, enemy +1 burn.
+- Played lantern_shot as printed: 3 damage, 1 kills, drew 1, +1 play.
+- Played shadow_step as printed: 1 illusion.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Enemy round: 1 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played slipstream_cut as printed: 3 damage, 1 kills, +1 play, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played guarded_step as printed: +3 block, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played slipstream_cut as printed: 4 block removed, +1 play, +1 Air intensity.
+- Played lantern_shot as printed: 4 block removed, drew 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played ashline_tempo as printed: 5 block removed, +1 play, +1 Fire intensity, enemy +1 burn.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 2 damage, 1 kills, +1 play.
+- Took Gust Step over heal at 15/36 because it is a common Air producer with illusion utility and Air 3+ play refund; good test of defensive intensity engine versus low HP reward pressure.
+- Reward: took Gust Step.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire: left with 224 unbanked embers.
+- Moved to (2,1): depth 2 earth combat.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- In Earth room, Guarded+Brace blocked the crawler hit's HP damage but poison still applied. This makes block much weaker against poison rooms and should be surfaced clearly in UI/strategy.
+- Played ashline_tempo as printed: 5 damage, +1 play, +1 Fire intensity, enemy +1 burn.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played gust_step as printed: 1 damage, 1 kills, +1 play, 1 illusion, +1 Air intensity.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Shadow Step illusion at (2,1) did not prevent adjacent crawler at (3,1) from previewing advance to (2,1) and hitting player at (1,1), despite illusion being closer. Possible illusion targeting/pathing/harness issue.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 2 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played slipstream_cut as printed: 4 stone removed, moved 1, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 stone removed.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bloody_lunge as printed: -1 HP, moved 3.
+- Played bone_dart as printed: 5 stone removed.
+- Enemy round: 4 HP lost, mode now defeat.

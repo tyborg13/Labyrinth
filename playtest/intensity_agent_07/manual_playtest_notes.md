@@ -1,0 +1,45 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:53:47Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710007
+- Agent07 start: focusing route toward elemental rooms and intensity-producing cards; will favor testing gated effects even if tactically imperfect.
+- Moved to (1,0): depth 1 lightning combat.
+- Room 1 lightning combat: intensity line is visible in state and traps are explicit; opening hand has no intensity producer, mostly baseline attacks/defense.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played patch_up as printed: +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Misinput exposed UX hazard: after draw, hand indices shifted; my queued card 3 selected Patch Up instead of Bone Dart and consumed last play. In REPL, multi-command batches are risky when draw effects change hand ordering.
+- Played whirlwind_slash as printed: 6 damage, 1 kills, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Enemy round: 6 HP lost, mode now combat.
+- Played quick_stab as printed: 2 damage, 4 block removed, 1 kills, +1 play.
+- Played sidestep_slash as printed: 5 damage.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed.
+- Played shadow_step as attack: 2 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Reward 1: Thunderline rare has Lightning 4+ gated second AoE but no producer attached; Chain Bolt is clear as Lightning intensity +1 with Lightning 2+ chain rider. Taking Chain Bolt to test ramp and gate readability.
+- Reward: took Chain Bolt.
+- Moved to (1,1): depth 1 none treasure.
+- Treasure after low-HP first fight: no elemental intensity relics; Ashen Buckler is the clear survival pick over Earth-only block scaling and heal bonus.
+- Treasure: took Ashen Buckler.
+- Harness exited code 1 after first attempt to move from treasure to next combat; resumed successfully from saved room state.
+- Moved to (0,1): depth 1 lightning combat.
+- Room 2 lightning: Ashen Buckler start block appears. Still base Lightning 1 from room only; Chain Bolt not drawn yet. Several melee cards show only drag-move because no targets, which makes dead-card pressure clear in spread-out starts.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played guarded_step as printed: +3 block, +1 play.
+- Bloody Lunge shortcut preview is useful and explicitly warns trap route plus shock. I am taking a risky Lightning-trap shortcut to see shock/intensity visibility in resolution.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2, player +1 shock.
+- Enemy round: 5 HP lost, mode now combat.
+- Shock status is very visible in header and hand affordances: all cards reduced to drag-move only, including Patch Up/Lantern Shot. This is a severe tempo spike at 11 HP.
+- Played quick_stab as move: moved 2.
+- Enemy round: 11 HP lost, mode now defeat.
+- Defeat in room 2 after deliberate Lightning trap/shock test. Shock made the whole hand movement-only, including heal/draw cards; reposition preview showed lethal but no recovery affordance remained.

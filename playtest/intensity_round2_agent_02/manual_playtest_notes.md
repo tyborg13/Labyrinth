@@ -1,0 +1,168 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T16:07:25Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 720002
+- Read strategy guide. Will avoid traps, avoid entering range without lethal or defensive plan, use illusions as blockers, and build intensity only when it does not compromise safety.
+- Moved to (1,0): depth 1 air combat.
+- Played shadow_step as printed: 1 illusion.
+- Played guarded_step as printed: +3 block, +1 play.
+- Turn 1: used Shadow Step illusion at (2,5) to absorb Bone Harrier shot; skipped unsafe movement/attacks that would path through traps.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Played patch_up as printed: +1 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2: Lantern damaged Harrier; Bloody Lunge drew into immediate lethal and was worth 1 HP to prevent incoming ranged damage; healed it back with Patch Up while safe.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: safely moved adjacent to Ash Acolyte, chained Sidestep plus Quick Stab for lethal, then used Brace to absorb crawler shot. No traps stepped on; HP loss was fatigue only.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played sidestep_slash as printed: 3 damage, 1 kills, +1 play.
+- Reward 1: took Gust Step over heal because HP was only 2 down and it gives common Air intensity production plus illusion/move utility. Skybreak was attractive but producer first seemed better.
+- Reward: took Gust Step.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure: chose Coffin Nails for reliable economy; other relics had no current deck support.
+- Treasure: took Coffin Nails.
+- Moved to (2,-1): depth 2 air combat.
+- Entered depth 2 Air. Initial pressure is high (-6 if pass); plan is to use Gust Step for Air intensity plus illusion blocker, then Guarded Step/block or movement after preview. Avoiding both Air traps.
+- Played gust_step as printed: 2 damage, 1 illusion, +1 Air intensity.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 2 HP lost, mode now combat.
+- Turn 2 depth 2: used Bloody Lunge plus Patch Up as damage + recovery; no trap movement. Warden pressure remains high, so using Shadow Step to make illusion closer and blink away.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: Shadow Step succeeded as a Warden blocker; passed instead of taking low-value damage while safe. Turn 4 pressure is high; prioritizing crawler lethal and block.
+- Played whirlwind_slash as printed: 6 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played lantern_shot as printed: 4 damage, -2 HP, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Lantern draw triggered fatigue, which is notable: draw cards can become HP costs when the deck is thin mid-combat. Turn 5 hand can activate Air 3 via Gust Step; testing whether it gives enough play economy to kill crawler and block Warden safely.
+- Played gust_step as printed: 2 damage, +1 play, 1 illusion, +1 Air intensity.
+- Played quick_stab as printed: 9 damage.
+- Misclicked Quick Stab target: hit Warden instead of the 8 HP crawler because target index 0 was Warden. This is exactly why target previews matter; trying to salvage with movement so the illusion takes Warden shot.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 6 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played bone_dart as printed: 1 damage, 4 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6: blinked out of being boxed in, but Bone Dart could only chip crawler through block. Turn 7 pass is safe because illusion is still closer to Warden; not moving toward enemies without lethal.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Block did not prevent the crawler shot in the resolved log despite 11 block shown, which looks like a harness/engine issue worth reviewing. Turn 9 has lethal line: kill crawler, then Bone Dart + Bloody Lunge Warden.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed, 1 kills, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Reward 2: healed at 19/36 instead of taking more Air cards. Squall Shot and Slipstream both looked attractive after Air 3 proved useful, but survival is priority.
+- Reward: skipped for heal to 25/36.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire at 25/36: continuing rather than banking/resting because HP is workable and this is a full-run playtest.
+- Campfire: left with 68 unbanked embers.
+- Moved to (2,1): depth 2 earth combat.
+- Earth room has poison traps at (3,3) and (4,4); no reason to approach. Pass is safe, so use safe heal and ranged chip rather than stepping into threat.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2 Earth: incoming poison melee is dangerous; using Shadow Step preview to avoid hits instead of relying on block, since status may apply through blocked attacks.
+- Played bloody_lunge as printed: 3 damage, 4 stone removed, -1 HP, moved 1.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played gust_step as printed: 1 illusion, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 1, 1 illusion.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: moved 3.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Brace blocked damage but still allowed poison application. That is a key combat/UI note: block does not protect against poison from a blocked hit. Using Shadow Step to escape crawler rather than blocking.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6 Earth: using Gust Step as utility even off-element: make illusion closer to Ash, reposition toward Harrier, then try Bloody Lunge lethal on Harrier to remove poison threat.
+- Played gust_step as printed: 2 damage, moved 2, 1 illusion, +1 Air intensity.
+- Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 8: Air intensity at 2. Plan is Gust Step to Air 3, pull Ash Acolyte stoneskin down, then Bloody Lunge + Quick Stab for lethal if positioning works. This is the clearest elemental intensity payoff so far.
+- Played gust_step as printed: 2 stone removed, moved 2, +1 play, 1 illusion, +1 Air intensity.
+- Played bloody_lunge as printed: 4 damage, 3 stone removed, -1 HP, moved 1.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Crawler has stacked to 12 stoneskin, which is dragging the fight into fatigue. Using Air 3 Gust as a defensive engine again: illusion to eat the hit, pull/chip stone, then spend refunded plays on ranged chip while avoiding traps.
+- Played gust_step as printed: 2 stone removed, moved 1, +1 play, 1 illusion, +1 Air intensity.
+- Gust reposition did not protect because the crawler stayed adjacent; illusion was not closer. Since I cannot path out with current card modes, I am chipping through stoneskin aggressively and accepting the likely blocked/unblocked poison hit.
+- Played bone_dart as printed: 5 stone removed.
+- Played whirlwind_slash as printed: 1 damage, 5 stone removed.
+- Enemy round: 4 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played sidestep_slash as printed: 4 damage, 1 kills, +1 play.
+- Reward 3: healed at 11/36. Quarry Step looked like a good common Earth producer/consumer hybrid, but HP was too low after poison/fatigue pressure.
+- Reward: skipped for heal to 17/36.
+- Moved to (2,2): depth 2 lightning combat.
+- Lightning room at 17/36, incoming 9. No illusion in hand and trap tiles are avoidable; using Guarded Step play refund plus Brace + Patch Up to survive without stepping anywhere.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2 lightning incoming 16. Need Shadow Step blocker/reposition first; all traps remain avoidable, so I will not path through shock tiles.
+- Played quick_stab as printed: 9 damage.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 8 HP lost, mode now combat.
+- Blink destination at (5,3) was bad: both crawlers could still shoot. Need recover by moving out of range; still no trap steps.
+- Played sidestep_slash as printed: moved 3.
+- Played whirlwind_slash as move: moved 2.
+- Enemy round: 5 HP lost, mode now combat.
+- Played gust_step as printed: moved 2, 1 illusion, +1 Air intensity.
+- Played bloody_lunge as printed: -1 HP, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played gust_step as printed: 1 damage, 4 block removed, +6 HP, moved 1, 1 illusion, +1 Air intensity, enemy +1 shock.
+- Enemy round: 0 HP lost, mode now combat.
+- Vial move was safe for player; the Lightning trap log appears to be from the pulled enemy getting shocked, not me stepping on a trap. Current lethal line on crawler: Whirlwind + Bloody, then survive Warden shot.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Played bone_dart as move: moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 4 HP lost, mode now combat.
+- Turn 11 at 1 HP: Air intensity line available. Gust should hit Air 3, refund play, pull/remove block, then Whirlwind + Sidestep can kill through Warden block.
+- Played gust_step as printed: 2 block removed, +1 play, 1 illusion, +1 Air intensity.
+- Played whirlwind_slash as printed: 6 block removed.
+- Played sidestep_slash as printed: 4 damage, 1 kills, +1 play.
+- Reward 4: survived at 1/36. Spark Dart/Volt Surge looked relevant for Lightning intensity, but this is mandatory heal. Air 3 play refund directly enabled the final Warden kill.
+- Reward: skipped for heal to 7/36.
+- Moved to (1,2): depth 2 none treasure.
+- Treasure 2: taking Ashen Buckler. At low HP, guaranteed opening block is more valuable than conditional heal scaling.
+- Treasure: took Ashen Buckler.
+- Moved to (0,2): depth 2 none campfire.
+- Campfire at 7/36 after multiple near-death rooms. Resting/banking here is the correct conservative play; continuing to depth 3 at 7 HP is likely throwing the run.
+- Campfire: rested and banked 146 embers.

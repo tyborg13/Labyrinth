@@ -1,0 +1,80 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:47:47Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710005
+- Playtest Agent 05 start. Focus: elemental intensity visibility, intensity-producing cards, gated effects, rewards, relics, balance spikes/dead cards.
+- Moved to (1,0): depth 1 lightning combat.
+- Lightning room immediately shows Intensity line and lightning traps; visibility is present in console before any card use.
+- Played bone_dart as printed: 5 damage.
+- Played sidestep_slash as printed: 5 damage, 1 kills, -2 HP, moved 3, +1 play, player +1 shock.
+- Trap preview on Sidestep shortcut was clear: showed trap damage and shock before choosing the kill. Kill play refund was also clear after resolution.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 8 damage, 4 block removed.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 3 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played lantern_shot as printed: 3 damage, 1 kills, +1 play.
+- Reward offered two lightning gated/intensity cards. Spark Dart communicates both +1 Lightning intensity and a Lightning 3+ rider; choosing it to test intensity buildup and gated payoff.
+- Reward: took Spark Dart.
+- Moved to (1,1): depth 1 none treasure.
+- Relic choices included Cold Mirror with freeze payoff but current deck has no freeze, Flint Edge with no Fire melee support, and Obsidian Heart as universally relevant defense. Took Obsidian Heart; other two read as dead/speculative in this deck.
+- Treasure: took Obsidian Heart.
+- Moved to (0,1): depth 1 lightning combat.
+- Obsidian Heart visibly starts combat with 10 stoneskin but opening hand has 4 cards, so drawback is apparent. Spark Dart is in opening hand; testing at Lightning 1 should raise to 2 and leave Lightning 3+ rider gated.
+- Played spark_dart as printed: 3 damage, +1 Lightning intensity.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 3 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 9 damage, 9 block removed.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Enemy round: 5 HP lost, mode now combat.
+- Enemy round: 6 HP lost, mode now combat.
+- Balance spike: second lightning combat after Obsidian Heart still became dangerous fast. My manual sequencing was imperfect, but repeated crawler ranged pressure plus fatigue dropped HP from 24 to 7 by turn 5.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Spark Dart drawn again at Lightning 2. Playing it now should cross to Lightning 3 and reveal whether the requires Lightning 3+ rider checks after the intensity gain.
+- Played spark_dart as printed: 4 block removed, +1 Lightning intensity, enemy +1 shock.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 3 damage, 1 kills, +1 play.
+- Spark Dart crossed Lightning 2 to 3 and the Lightning 3+ rider became playable in the same card resolution; this is strong and readable in the pending prompts. Reward now offers Static Lash/Chain Bolt, but at 10/36 the heal is the only prudent choice; tension between testing synergy and survival is high.
+- Reward: skipped for heal to 16/36.
+- Moved to (-1,1): depth 1 earth combat.
+- Earth room starts Earth intensity 1 and Lightning reset to 0, so intensity appears room/element scoped rather than carrying between combats. Spark Dart is still playable but its Lightning gate is dead until rebuilt.
+- Played spark_dart as printed: 3 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, moved 2, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played sidestep_slash as printed: 1 damage, 4 stone removed, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 stone removed.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +8 block.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 stone removed.
+- Played lantern_shot as printed: 1 damage, 1 kills, +1 play.
+- Earth reward offered Stone Plate as clean Earth intensity producer plus defense/draw; this looks like a good pickup for testing Earth gates. Tectonic Maul is strong but asks for Earth 3+ and melee positioning; Rallying Breath competes with heal but is exhaust sustain.
+- Reward: took Stone Plate.
+- Moved to (-2,1): depth 2 none treasure.
+- Treasure offered Mossbound Wraps immediately after Stone Plate; good synergy and clear choice. Flint Edge still dead, Gale Tabi only supports Shadow Step blink.
+- Treasure: took Mossbound Wraps.
+- Deliberate rest endpoint chosen at depth 2 campfire branch: HP is 16/36 with 78 unbanked embers after two difficult elemental combats, so banking/resting is the sensible playtest endpoint rather than forcing a likely death into the next depth-2 combat.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: rested and banked 78 embers.

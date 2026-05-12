@@ -1,0 +1,105 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:55:09Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710010
+- Agent 10 start: focusing on elemental intensity visibility, intensity producers, gated effects, reward choices, balance spikes, and dead cards.
+- Moved to (1,0): depth 1 lightning combat.
+- Room 1 lightning combat: intensity line clearly visible at top of state, starts Lightning 1; trap descriptions include Lightning but hand has no intensity interactions yet.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played whirlwind_slash as printed: 6 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Enemy round: 3 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Reward 1 offered Spark Focus (+2 Lightning + draw), Spark Dart (+1 Lightning plus requires Lightning 3+ shock rider), and Bodkin Arrow. Taking Spark Dart to test gated Lightning 3+ behavior even though baseline damage is low.
+- Reward: took Spark Dart.
+- Moved to (1,1): depth 1 fire combat.
+- Room 2 fire combat starts Fire 1, Lightning 0. Spark Dart text exposes both producer (+1 Lightning) and locked rider (requires Lightning 3+) in hand, but it is not obvious from hand alone whether the rider will fail silently or remain pending.
+- Played spark_dart as printed: 3 damage, +1 Lightning intensity.
+- Spark Dart at Lightning 0 raised visible Lightning to 1, then explicitly logged skipped gated rider. The pending prompt started at action 2/3, so the intensity action itself has no target/prompt and may be easy to miss without reading the log.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 9 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: -2 HP, drew 1.
+- Lantern Shot with no legal target still spent the card, skipped damage, drew a card, and caused fatigue HP loss. That feels like a dead-card/UX trap in low-HP cleanup if target range is just short.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 block removed, moved 1.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played spark_dart as printed: 3 damage, 1 kills, +1 play, +1 Lightning intensity.
+- Reward 2 offered Inferno Ritual (Fire 3+ gated burn), Ashline Tempo (Fire +1, play refund, Fire 2+ rider), and Shadow Gate. At 7 HP after a high-pressure fire room, healing is the pragmatic choice; skipping Ashline feels bad because it is exactly the intensity payoff card I wanted to test.
+- Reward: skipped for heal to 13/36.
+- Moved to (0,1): depth 1 lightning combat.
+- Played bone_dart as printed: 5 damage.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bloody_lunge as printed: 3 damage, 1 kills, -1 HP, +1 play.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played sidestep_slash as printed: 1 damage, 4 block removed, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 4 block removed.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 4 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played spark_dart as printed: 3 damage, +1 Lightning intensity.
+- Enemy round: 3 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played bloody_lunge as printed: 2 damage, 1 kills, -3 HP, moved 3, +1 play, player +1 shock.
+- Reward 3 offered Thunderline (Lightning 4+ rider), Static Lash (+1 Lightning, Lightning 4+ rider), and Cyclone Seal. At 6 HP, intensity picks are tempting but likely run-ending; taking heal again. Lightning threshold appears to climb from 3+ to 4+ on later rewards, which makes single +1 producers feel slow without +2 support.
+- Reward: skipped for heal to 12/36.
+- Moved to (-1,1): depth 1 earth combat.
+- Room 4 earth combat: Earth 1 visible, poison trap text clear. No Earth cards in deck, so earth intensity is only environmental pressure here.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played spark_dart as printed: 3 damage, +1 Lightning intensity.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 4 stone removed.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 3 damage, 4 stone removed, -1 HP, moved 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Earth room stoneskin/poison created a major attrition spike: lots of damage got absorbed by stoneskin, and poison plus fatigue from draw effects dropped HP to 3 despite defensive plays.
+- Played brace as printed: +8 block.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played spark_dart as printed: 2 damage, 1 stone removed, +1 Lightning intensity.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 5 stone removed, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now defeat.

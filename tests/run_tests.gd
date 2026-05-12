@@ -49,6 +49,11 @@ func _initialize() -> void:
 	_test_two_card_turn_draw_flow()
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
+	_test_elemental_intensity_starts_from_room_element()
+	_test_elemental_intensity_actions_gate_effects()
+	_test_elemental_intensity_icons_surface_card_requirements()
+	_test_elemental_intensity_bonus_modifies_single_attack()
+	_test_cards_do_not_define_multiple_player_attacks()
 	_test_illusion_action_creates_decoy_and_redirects_enemy()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
@@ -159,6 +164,7 @@ func _initialize() -> void:
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_commits_play()
 	await _test_run_scene_damage_display_matches_bonus()
+	await _test_run_scene_intensity_condition_rows_mark_activity()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
@@ -676,6 +682,183 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	state = combat.prepare_next_player_turn(state)
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
+func _test_elemental_intensity_starts_from_room_element() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
+	var state: Dictionary = combat.create_combat(15121, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["firebrand_volley"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_assert(combat.elemental_intensity(state, ElementData.FIRE) == 1, "Combat should seed the room element with baseline intensity")
+	_assert(combat.elemental_intensity(state, ElementData.ICE) == 0, "Combat should not seed off-element intensity")
+
+func _test_elemental_intensity_actions_gate_effects() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
+	var state: Dictionary = combat.create_combat(15122, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["firebrand_volley"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 0,
+		"stoneskin": 0
+	}
+	state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	var gated_action: Dictionary = {
+		"type": "melee",
+		"damage": 5,
+		"range": 1,
+		"requires_intensity": {"element": ElementData.FIRE, "amount": 2}
+	}
+	_assert(not combat.player_action_can_resolve(state, gated_action), "Intensity-gated effects should not resolve below their threshold")
+	var unchanged: Dictionary = combat.apply_player_action(state, gated_action, Vector2i(3, 4))
+	_assert(int(((unchanged.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 14, "Applying an unmet intensity-gated attack should leave state unchanged")
+	state = combat.apply_player_action(state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
+	_assert(combat.elemental_intensity(state, ElementData.FIRE) == 2, "Intensity actions should raise the matching room counter")
+	_assert(combat.player_action_can_resolve(state, gated_action), "Intensity-gated effects should resolve after the threshold is met")
+	state = combat.apply_player_action(state, gated_action, Vector2i(3, 4))
+	_assert(int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 9, "Met intensity-gated attacks should deal damage normally")
+
+func _test_elemental_intensity_icons_surface_card_requirements() -> void:
+	var intensity_tokens: Array = ActionIcons.tokens_for_action({"type": "intensity", "element": ElementData.FIRE, "amount": 2})
+	_assert(not intensity_tokens.is_empty() and str((intensity_tokens[0] as Dictionary).get("kind", "")) == "elemental_intensity", "Intensity actions should render as elemental intensity tokens")
+	_assert(ActionIcons.token_value_text(intensity_tokens[0] as Dictionary) == "+2", "Intensity tokens should show the gained amount")
+	_assert(str((intensity_tokens[0] as Dictionary).get("tone", "")) == "neutral", "Intensity gain numbers should use the normal number tone")
+	var gated_tokens: Array = ActionIcons.tokens_for_action({
+		"type": "ranged",
+		"damage": 4,
+		"range": 5,
+		"requires_intensity": {"element": ElementData.FIRE, "amount": 3}
+	})
+	_assert(not gated_tokens.is_empty() and str((gated_tokens[0] as Dictionary).get("kind", "")) == "intensity_requirement", "Gated actions should lead with an elemental requirement token")
+	_assert(ActionIcons.token_value_text(gated_tokens[0] as Dictionary) == "3+:", "Intensity requirements should visually separate the gate with a colon")
+	_assert(ActionIcons.plain_text_for_tokens(gated_tokens).begins_with("Fire 3+:"), "Plain card text should expose the elemental intensity threshold")
+	var bonus_tokens: Array = ActionIcons.tokens_for_intensity_bonus({
+		"type": "ranged",
+		"damage": 4,
+		"range": 5,
+		"intensity_bonus": {"element": ElementData.FIRE, "threshold": 3, "damage": 2, "burn": 1}
+	})
+	_assert(not bonus_tokens.is_empty() and str((bonus_tokens[0] as Dictionary).get("kind", "")) == "intensity_requirement", "Intensity bonus rows should lead with an elemental requirement token")
+	_assert(ActionIcons.plain_text_for_tokens(bonus_tokens).begins_with("Fire 3+:"), "Plain bonus text should expose the elemental intensity threshold")
+	_assert(bonus_tokens.size() > 1 and str((bonus_tokens[1] as Dictionary).get("tone", "")) == "neutral", "Intensity bonus effect numbers should use the normal number tone")
+
+func _test_elemental_intensity_bonus_modifies_single_attack() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
+	var state: Dictionary = combat.create_combat(15123, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["firebrand_volley"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 0,
+		"stoneskin": 0
+	}
+	state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	var action: Dictionary = {
+		"type": "melee",
+		"damage": 5,
+		"range": 1,
+		"intensity_bonus": {"element": ElementData.FIRE, "threshold": 2, "damage": 4, "burn": 2}
+	}
+	_assert(not combat.action_intensity_bonus_requirement_met(state, action), "Intensity bonuses should stay inactive below their threshold")
+	_assert(combat.final_damage_for_player_action(state, action) == 5, "Inactive intensity bonuses should not inflate damage previews")
+	var boosted_state: Dictionary = combat.apply_player_action(state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
+	_assert(combat.action_intensity_bonus_requirement_met(boosted_state, action), "Intensity bonuses should activate once the threshold is met")
+	_assert(combat.final_damage_for_player_action(boosted_state, action) == 9, "Active intensity bonuses should increase damage previews")
+	boosted_state = combat.apply_player_action(boosted_state, action, Vector2i(3, 4))
+	var enemy: Dictionary = ((boosted_state.get("enemies", []) as Array)[0] as Dictionary)
+	_assert(int(enemy.get("hp", 0)) == 11, "Active intensity bonuses should add damage to the same attack")
+	_assert(int(enemy.get("burn", 0)) == 2, "Active intensity bonuses should add gated statuses to the same attack")
+
+	var earth_layout: Dictionary = _simple_room_layout()
+	earth_layout["element"] = ElementData.EARTH
+	var venom_state: Dictionary = combat.create_combat(15124, earth_layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["venom_claw"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	venom_state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 0,
+		"stoneskin": 0
+	}
+	venom_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	var venom_card: Dictionary = GameData.card_def("venom_claw")
+	var venom_actions: Array = venom_card.get("actions", [])
+	venom_state = combat.apply_player_action(venom_state, venom_actions[0] as Dictionary)
+	_assert(combat.elemental_intensity(venom_state, ElementData.EARTH) == 2, "Venom Claw should self-enable its Earth 2+ rider in an Earth room")
+	_assert(combat.final_damage_for_player_action(venom_state, venom_actions[1] as Dictionary) == 10, "Venom Claw's active Earth rider should increase same-attack damage")
+	venom_state = combat.apply_player_action(venom_state, venom_actions[1] as Dictionary, Vector2i(3, 4))
+	var venom_enemy: Dictionary = ((venom_state.get("enemies", []) as Array)[0] as Dictionary)
+	_assert(int(venom_enemy.get("hp", 0)) == 10, "Venom Claw should apply its conditional damage to the target")
+	var venom_poison: Dictionary = venom_enemy.get("poison", {}) as Dictionary
+	_assert(int(venom_poison.get("damage", 0)) == 4, "Venom Claw should apply its conditional poison to the target")
+
+func _test_cards_do_not_define_multiple_player_attacks() -> void:
+	var attack_types: Array = ["melee", "ranged", "aoe", "push", "pull"]
+	for card_id_var: Variant in GameData.cards().keys():
+		var card_id: String = str(card_id_var)
+		var card: Dictionary = GameData.card_def(card_id)
+		var attack_count: int = 0
+		for action_var: Variant in card.get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var
+			if str(action.get("type", "")) in attack_types:
+				attack_count += 1
+		_assert(attack_count <= 1, "%s should not define multiple player attacks" % card_id)
+
 func _test_illusion_action_creates_decoy_and_redirects_enemy() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(1512, _simple_room_layout(), {
@@ -857,8 +1040,16 @@ func _test_relic_effect_hooks() -> void:
 	})
 	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4, "Start-combat relic effects should apply before the first turn")
 	var fire_card: Dictionary = combat.card_def("hearth_rush", {"relics": ["flint_edge"]})
-	var fire_melee: Dictionary = (fire_card.get("actions", []) as Array)[2]
-	_assert(int(fire_melee.get("burn", 0)) == 3, "Elemental relic action mods should augment matching card actions")
+	var fire_base_melee: Dictionary = {}
+	for action_var: Variant in fire_card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		if str(action.get("type", "")) != "melee":
+			continue
+		fire_base_melee = action
+	_assert(int(fire_base_melee.get("burn", 0)) == 1, "Elemental relic action mods should augment matching base card actions")
+	_assert(int((fire_base_melee.get("intensity_bonus", {}) as Dictionary).get("burn", 0)) == 2, "Elemental relic action mods should preserve matching intensity-gated bonus actions")
 	var storm_card: Dictionary = combat.card_def("spark_dart", {"relics": ["storm_crown"]})
 	var storm_actions: Array = storm_card.get("actions", [])
 	_assert(str((storm_actions[storm_actions.size() - 1] as Dictionary).get("type", "")) == "card_play", "Append-action relic effects should add reusable card actions")
@@ -908,17 +1099,17 @@ func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	var tailwind_skybreak: Dictionary = GameData.card_def_for_progression("skybreak_current", {"relics": ["tailwind_fletching"]})
 	var skybreak_attack: Dictionary = (tailwind_skybreak.get("actions", []) as Array)[1]
 	_assert(int(skybreak_attack.get("range", 0)) == 7, "Tailwind should keep its ranged Air range bonus")
-	_assert(int(skybreak_attack.get("push", 0)) == 4, "Tailwind should increase existing push on Air ranged attacks")
+	_assert(int(skybreak_attack.get("push", 0)) == 3, "Tailwind should increase existing push on Air ranged attacks")
 	_assert(ActionIcons.token_tooltip(ActionIcons.tokens_for_action(skybreak_attack)[2] as Dictionary).contains("Tailwind Fletching"), "Relic-modified push tokens should name Tailwind in their tooltip")
 	var tailwind_squall: Dictionary = GameData.card_def_for_progression("squall_shot", {"relics": ["tailwind_fletching"]})
-	var squall_action: Dictionary = (tailwind_squall.get("actions", []) as Array)[0]
+	var squall_action: Dictionary = (tailwind_squall.get("actions", []) as Array)[1]
 	_assert(int(squall_action.get("push", 0)) == 2, "Tailwind should increase existing push on Air AOE attacks")
 	var tailwind_vacuum: Dictionary = GameData.card_def_for_progression("vacuum_line", {"relics": ["tailwind_fletching"]})
 	var vacuum_action: Dictionary = (tailwind_vacuum.get("actions", []) as Array)[0]
-	_assert(int(vacuum_action.get("amount", 0)) == 4, "Tailwind should increase existing Air pull action distance")
+	_assert(int(vacuum_action.get("amount", 0)) == 3, "Tailwind should increase existing Air pull action distance")
 	var stacked_updraft: Dictionary = GameData.card_def_for_progression("updraft", {"relics": ["tailwind_fletching", "anchor_chain"]})
-	var stacked_action: Dictionary = (stacked_updraft.get("actions", []) as Array)[0]
-	_assert(int(stacked_action.get("amount", 0)) == 5, "Multiple relics should stack on the same forced-movement number")
+	var stacked_action: Dictionary = (stacked_updraft.get("actions", []) as Array)[1]
+	_assert(int(stacked_action.get("amount", 0)) == 4, "Multiple relics should stack on the same forced-movement number")
 	var stacked_push_token: Dictionary = (ActionIcons.tokens_for_action(stacked_action)[0] as Dictionary)
 	var stacked_tooltip: String = ActionIcons.token_tooltip(stacked_push_token)
 	_assert(ActionIcons.token_is_modified(stacked_push_token), "Relic-modified forced movement should carry a dynamic token marker")
@@ -3714,6 +3905,57 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	_assert(ActionIcons.token_tooltip(damage_token).contains("Ember Lens"), "The damage token tooltip should name the modifier source")
 	instance.queue_free()
 	await process_frame
+
+func _test_run_scene_intensity_condition_rows_mark_activity() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for intensity display coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var earth_layout: Dictionary = _simple_room_layout()
+	earth_layout["element"] = ElementData.EARTH
+	var active_state: Dictionary = combat.create_combat(15124, earth_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["venom_claw"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var active_display: Dictionary = instance.call("_card_widget_display", "venom_claw", active_state)
+	var active_token: Dictionary = _first_intensity_requirement_token(active_display.get("summary_rows", []))
+	_assert(not active_token.is_empty() and bool(active_token.get("condition_active", false)), "A card that builds enough intensity before its bonus should mark that bonus active")
+	var fire_layout: Dictionary = _simple_room_layout()
+	fire_layout["element"] = ElementData.FIRE
+	var inactive_state: Dictionary = combat.create_combat(15125, fire_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["venom_claw"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
+	var inactive_token: Dictionary = _first_intensity_requirement_token(inactive_display.get("summary_rows", []))
+	_assert(not inactive_token.is_empty() and not bool(inactive_token.get("condition_active", false)), "An unmet intensity bonus should not render as active")
+	instance.queue_free()
+	await process_frame
+
+func _first_intensity_requirement_token(rows: Array) -> Dictionary:
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row: Array = row_var as Array
+		for token_var: Variant in row:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			var token: Dictionary = token_var
+			if str(token.get("kind", "")) == "intensity_requirement":
+				return token
+	return {}
 
 func _test_run_scene_ranged_cards_show_range() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

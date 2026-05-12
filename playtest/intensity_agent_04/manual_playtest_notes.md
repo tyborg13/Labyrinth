@@ -1,0 +1,65 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-11T14:47:40Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 710004
+- Playtest Agent 04 start seed 710004; focus elemental intensity visibility, intensity-producing cards, gated effects, reward choices, balance spikes, dead cards.
+- Moved to (1,0): depth 1 lightning combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Enemy round: 5 HP lost, mode now combat.
+- Early Sealed Vault is punishing if pass/command timing misfires: took two enemy phases quickly; lightning intensity is visible in state line and traps, but no explanation of what intensity 1 changes yet.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 5 damage, 4 block removed, 1 kills, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Played brace as printed: +8 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Possible issue: Brace showed +8 block before final crawler shot, but enemy phase reported -5 HP rather than block loss; verify whether this is intended (pierce?) or block state display/log mismatch.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Reward after room 1: Spark Focus clearly says Lightning intensity +2; Thunderline shows +requires Lightning 4+ on second AOE, useful but potentially dead without producers. Taking Spark Focus to test intensity building.
+- Reward: took Spark Focus.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure offers Static Soles (Lightning movement/blink +1), Mirror Shard, Reinforced Shield. Static Soles is elemental but current Lightning producer Spark Focus is not movement, so this reads narrow; choosing Reinforced Shield for survival after severe opening damage.
+- Treasure: took Reinforced Shield.
+- Moved to (2,-1): depth 2 lightning combat.
+- Played spark_focus as printed: 3 damage, drew 1, +2 Lightning intensity.
+- Spark Focus feedback is strong in log/state: Lightning rises from 1 to 3 immediately, and hand draw is visible. Still no visible explanation of thresholds except on gated cards.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 2 damage, 4 block removed.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 1 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played lantern_shot as printed: 3 damage, 1 kills, drew 1, +1 play.
+- Played bone_dart as printed: 5 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 5 block removed.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 1 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played spark_focus as printed: drew 1, +2 Lightning intensity.
+- Enemy round: 3 HP lost, mode now combat.
+- At Lightning 5 the state line is clear, but Spark Focus skipped its damage when no target was in range; as a player I might expect either targeting before spending or clearer 'intensity-only' resolution.
+- Played bone_dart as printed: 5 damage.
+- Played spark_focus as printed: 1 damage, 1 kills, drew 1, +1 play, +2 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 block removed, moved 2.
+- Played quick_stab as printed: 6 damage, 3 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played spark_focus as printed: 3 damage, 1 kills, +1 play, +2 Lightning intensity.
+- Reward after room 2: Volt Surge and Spark Dart both pair Lightning production with Lightning 3+ gated effects; now that Spark Focus can push to 7-9, these look playable. Taking heal instead because HP is 5/36 and fatigue spikes threaten to end the playtest before more observations.
+- Reward: skipped for heal to 11/36.
+- Moved to (2,0): depth 2 none campfire.
+- Deliberate rest endpoint at campfire after two combats plus treasure. HP 11/36; Lightning producer/gated reward loop observed repeatedly. Continuing would likely be dominated by low HP/fatigue rather than clean intensity evaluation.
+- Campfire: rested and banked 67 embers.

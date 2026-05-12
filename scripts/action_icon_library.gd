@@ -2,6 +2,7 @@ extends RefCounted
 class_name ActionIconLibrary
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 
@@ -120,6 +121,31 @@ const KEYWORDS: Dictionary = {
 		"label": "Health Cost",
 		"description": "Health paid to play this card.",
 		"path": "%s/health.png" % ICON_ROOT
+	},
+	"element_fire": {
+		"label": "Fire Intensity",
+		"description": "Room-wide Fire power. Some Fire card effects need this value.",
+		"path": "%s/intensity_fire.png" % ICON_ROOT
+	},
+	"element_ice": {
+		"label": "Ice Intensity",
+		"description": "Room-wide Ice power. Some Ice card effects need this value.",
+		"path": "%s/intensity_ice.png" % ICON_ROOT
+	},
+	"element_lightning": {
+		"label": "Lightning Intensity",
+		"description": "Room-wide Lightning power. Some Lightning card effects need this value.",
+		"path": "%s/intensity_lightning.png" % ICON_ROOT
+	},
+	"element_air": {
+		"label": "Air Intensity",
+		"description": "Room-wide Air power. Some Air card effects need this value.",
+		"path": "%s/intensity_air.png" % ICON_ROOT
+	},
+	"element_earth": {
+		"label": "Earth Intensity",
+		"description": "Room-wide Earth power. Some Earth card effects need this value.",
+		"path": "%s/intensity_earth.png" % ICON_ROOT
 	}
 }
 
@@ -175,6 +201,9 @@ static func token_for(icon_key: String, value: Variant = null, tone: String = "n
 		if base_value != null:
 			token["base_value"] = base_value
 	return token
+
+static func element_icon_key(element_id: String) -> String:
+	return "element_%s" % str(element_id)
 
 static func token_is_modified(token: Dictionary) -> bool:
 	return bool(token.get("modified", false)) or not (token.get("modifiers", []) as Array).is_empty()
@@ -266,6 +295,9 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 		var row: Array = tokens_for_action(actions[index] as Dictionary, options)
 		if not row.is_empty():
 			rows.append(row)
+		var bonus_row: Array = tokens_for_intensity_bonus(actions[index] as Dictionary)
+		if not bonus_row.is_empty():
+			rows.append(bonus_row)
 	return rows
 
 static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Array:
@@ -341,6 +373,22 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "draw", "amount", int(action.get("amount", 0))))
 		"card_play":
 			tokens.append(_token_for_action_field(action, "card_play", "amount", int(action.get("amount", 0))))
+		"intensity":
+			var intensity_element: String = _action_element(action)
+			var intensity_amount: int = int(action.get("amount", 0))
+			var intensity_token: Dictionary = token_for(
+				element_icon_key(intensity_element),
+				"+%d" % intensity_amount,
+				"neutral",
+				"%s Intensity\nRaise %s intensity in this room by %d." % [
+					ElementData.name(intensity_element),
+					ElementData.name(intensity_element),
+					intensity_amount
+				]
+			)
+			intensity_token["kind"] = "elemental_intensity"
+			intensity_token["element"] = intensity_element
+			tokens.append(intensity_token)
 		"illusion":
 			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
@@ -350,7 +398,109 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
 			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
+	var requirement: Dictionary = intensity_requirement_for_action(action)
+	if not requirement.is_empty() and not tokens.is_empty():
+		tokens.push_front(intensity_requirement_token(requirement))
 	return tokens
+
+static func intensity_bonus_for_action(action: Dictionary) -> Dictionary:
+	var raw: Variant = action.get("intensity_bonus", {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return {}
+	var bonus: Dictionary = (raw as Dictionary).duplicate(true)
+	var element_id: String = str(bonus.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
+	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
+	if not ElementData.is_elemental(element_id) or threshold <= 0:
+		return {}
+	bonus["element"] = element_id
+	bonus["threshold"] = threshold
+	return bonus
+
+static func tokens_for_intensity_bonus(action: Dictionary) -> Array:
+	var bonus: Dictionary = intensity_bonus_for_action(action)
+	if bonus.is_empty():
+		return []
+	var element_id: String = str(bonus.get("element", ElementData.NONE))
+	var tokens: Array = [intensity_requirement_token({
+		"element": element_id,
+		"amount": int(bonus.get("threshold", 0))
+	})]
+	var action_type: String = str(action.get("type", ""))
+	if int(bonus.get("damage", 0)) > 0:
+		tokens.append(_bonus_token(
+			_damage_icon_for_action(action, _damage_bonus_fallback_icon(action)),
+			int(bonus.get("damage", 0)),
+			"Extra damage when %s intensity is high enough." % ElementData.name(element_id)
+		))
+	if int(bonus.get("amount", 0)) > 0 and action_type in ["push", "pull"]:
+		tokens.append(_bonus_token(
+			action_type,
+			int(bonus.get("amount", 0)),
+			"Extra forced movement when %s intensity is high enough." % ElementData.name(element_id)
+		))
+	for status_key: String in ["burn", "freeze", "shock", "poison", "chain", "push", "pull"]:
+		if int(bonus.get(status_key, 0)) <= 0:
+			continue
+		tokens.append(_bonus_token(
+			status_key,
+			int(bonus.get(status_key, 0)),
+			"Extra %s when %s intensity is high enough." % [label(status_key).to_lower(), ElementData.name(element_id)]
+		))
+	if bool(bonus.get("pierce", false)):
+		tokens.append(token_for(
+			"pierce",
+			"+",
+			"neutral",
+			"Pierces defense when %s intensity is high enough." % ElementData.name(element_id)
+		))
+	if tokens.size() <= 1:
+		return []
+	return tokens
+
+static func intensity_requirement_for_action(action: Dictionary) -> Dictionary:
+	var raw: Variant = action.get("requires_intensity", {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return {}
+	var requirement: Dictionary = raw as Dictionary
+	var element_id: String = str(requirement.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
+	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
+	if not ElementData.is_elemental(element_id) or threshold <= 0:
+		return {}
+	return {
+		"element": element_id,
+		"amount": threshold
+	}
+
+static func intensity_requirement_token(requirement: Dictionary) -> Dictionary:
+	var element_id: String = str(requirement.get("element", ElementData.NONE))
+	var threshold: int = int(requirement.get("amount", 0))
+	var token: Dictionary = token_for(
+		element_icon_key(element_id),
+		"%d+:" % threshold,
+		"neutral",
+		"%s Intensity %d+\nThis effect is active when this room's %s intensity is at least %d." % [
+			ElementData.name(element_id),
+			threshold,
+			ElementData.name(element_id),
+			threshold
+		]
+	)
+	token["kind"] = "intensity_requirement"
+	token["element"] = element_id
+	token["threshold"] = threshold
+	return token
+
+static func _bonus_token(icon_key: String, amount: int, tooltip_text: String) -> Dictionary:
+	return token_for(icon_key, "+%d" % amount, "neutral", tooltip_text)
+
+static func _damage_bonus_fallback_icon(action: Dictionary) -> String:
+	match str(action.get("type", "")):
+		"ranged":
+			return "ranged"
+		"aoe":
+			return "ranged" if int(action.get("range", 0)) > 0 else "melee"
+		_:
+			return "melee"
 
 static func plain_text_for_tokens(tokens: Array) -> String:
 	var parts: PackedStringArray = []
@@ -360,6 +510,9 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 		var token: Dictionary = token_var
 		if str(token.get("kind", "")) == "aoe_pattern":
 			parts.append("Area")
+			continue
+		if str(token.get("kind", "")) == "intensity_requirement":
+			parts.append("%s %s" % [ElementData.name(str(token.get("element", ElementData.NONE))), token_value_text(token)])
 			continue
 		var value_text: String = token_value_text(token)
 		if value_text.is_empty():
@@ -379,14 +532,15 @@ static func plain_text_for_rows(rows: Array) -> String:
 static func _append_damage_token(tokens: Array, icon_key: String, action: Dictionary, options: Dictionary) -> void:
 	var base_damage: int = int(action.get("damage", 0))
 	var final_damage: int = int(options.get("final_damage", base_damage))
+	var tone_base_damage: int = int(options.get("tone_base_damage", base_damage))
 	tokens.append(_token_for_action_field(
 		action,
 		icon_key,
 		"damage",
 		final_damage,
-		_damage_tone(final_damage, base_damage),
+		_damage_tone(final_damage, tone_base_damage),
 		"",
-		base_damage,
+		tone_base_damage,
 		_option_modifiers_for_field(options, "damage")
 	))
 
@@ -398,14 +552,15 @@ static func _append_optional_hit_token(tokens: Array, action: Dictionary, option
 		return
 	var base_damage: int = int(action.get("damage", 0))
 	var final_damage: int = int(options.get("final_damage", base_damage))
+	var tone_base_damage: int = int(options.get("tone_base_damage", base_damage))
 	tokens.append(_token_for_action_field(
 		action,
 		_damage_icon_for_action(action, "melee"),
 		"damage",
 		final_damage,
-		_damage_tone(final_damage, base_damage),
+		_damage_tone(final_damage, tone_base_damage),
 		"",
-		base_damage,
+		tone_base_damage,
 		_option_modifiers_for_field(options, "damage")
 	))
 
@@ -433,6 +588,10 @@ static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 		tokens.append(_token_for_action_field(action, "pull", "pull", int(action.get("pull", 0))))
 	if int(action.get("poison", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "poison", "poison", int(action.get("poison", 0))))
+
+static func _action_element(action: Dictionary) -> String:
+	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
+	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
 
 static func _damage_tone(final_damage: int, base_damage: int) -> String:
 	return _value_tone(final_damage, base_damage)
