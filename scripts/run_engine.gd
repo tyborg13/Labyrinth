@@ -142,9 +142,12 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
-	var current_room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
+	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var current_room: Dictionary = room_metadata(next_state, current_coord)
 	if str(next_state.get("mode", "room")) != "combat" or not _room_blocks_exit_reveal(current_room):
-		_reveal_neighbors(next_state, next_state.get("current_room", Vector2i.ZERO))
+		_reveal_neighbors(next_state, current_coord)
+		_ensure_loop_escape_connection(next_state, current_coord)
+		_sync_current_layout_doors(next_state, current_coord)
 	return next_state
 
 func available_moves(run_state: Dictionary) -> Array[Vector2i]:
@@ -191,7 +194,8 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 		return run_state.duplicate(true)
 	if not available_moves(run_state).has(destination):
 		return run_state.duplicate(true)
-	var connection: Dictionary = _connection_to(current, destination)
+	var current_room_before_move: Dictionary = room_metadata(run_state, current)
+	var connection: Dictionary = _connection_to_room(current_room_before_move, destination)
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -213,6 +217,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	var reveal_exits_on_entry: bool = not _room_blocks_exit_reveal(room)
 	if reveal_exits_on_entry:
 		_reveal_neighbors(next_state, destination)
+		_ensure_loop_escape_connection(next_state, destination)
 	rooms = next_state.get("rooms", {}).duplicate(true)
 	room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
@@ -286,6 +291,8 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	rooms[room_key] = room
 	next_state["rooms"] = rooms
 	_reveal_neighbors(next_state, current_room)
+	_ensure_loop_escape_connection(next_state, current_room)
+	_sync_current_layout_doors(next_state, current_room)
 	var ember_bonus: int = GameData.stat_bonus_from_relics(next_state.get("relics", []), "combat_ember_bonus")
 	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
 	next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + total_embers
@@ -345,8 +352,12 @@ func claim_relic(run_state: Dictionary, relic_id: String) -> Dictionary:
 	next_state["mode"] = "room"
 	return next_state
 
-func leave_campfire(run_state: Dictionary) -> Dictionary:
+func leave_campfire(run_state: Dictionary, heal_amount: int = 0) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	if heal_amount > 0:
+		var max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
+		var current_hp: int = int(next_state.get("player_hp", max_hp))
+		next_state["player_hp"] = mini(max_hp, current_hp + heal_amount)
 	next_state["mode"] = "room"
 	return next_state
 
@@ -598,7 +609,8 @@ func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[St
 
 func _reveal_neighbors(run_state: Dictionary, center: Vector2i) -> void:
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
-	for connection_var: Variant in _room_connections(center):
+	var center_room: Dictionary = room_metadata(run_state, center)
+	for connection_var: Variant in center_room.get("connections", []):
 		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue
 		var connection: Dictionary = connection_var
@@ -675,13 +687,98 @@ func _room_connections(coord: Vector2i) -> Array[Dictionary]:
 	return connections
 
 func _connection_to(from_coord: Vector2i, destination: Vector2i) -> Dictionary:
-	for connection_var: Variant in _room_connections(from_coord):
+	return _connection_to_room({"connections": _room_connections(from_coord)}, destination)
+
+func _connection_to_room(room: Dictionary, destination: Vector2i) -> Dictionary:
+	for connection_var: Variant in room.get("connections", []):
 		if typeof(connection_var) != TYPE_DICTIONARY:
 			continue
 		var connection: Dictionary = connection_var
 		if connection.get("coord", Vector2i(999, 999)) == destination:
 			return connection.duplicate(true)
 	return {}
+
+func _ensure_loop_escape_connection(run_state: Dictionary, coord: Vector2i) -> void:
+	var room: Dictionary = room_metadata(run_state, coord)
+	if not _room_can_gain_loop_escape(room):
+		return
+	if _room_has_progressive_available_move(run_state, room):
+		return
+	var outward_coord: Vector2i = _outward_coord_for_room(coord)
+	if _room_depth(outward_coord) != int(room.get("depth", 0)) + 1:
+		return
+	var outward_connection: Dictionary = {
+		"door_dir": outward_coord - coord,
+		"coord": outward_coord,
+		"kind": "outward",
+		"loop_escape": true
+	}
+	var connections: Array = (room.get("connections", []) as Array).duplicate(true)
+	for connection_var: Variant in connections:
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var connection: Dictionary = connection_var
+		if connection.get("coord", Vector2i(999, 999)) == outward_coord:
+			return
+	connections.append(outward_connection)
+	room["connections"] = connections
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	rooms[_room_key(coord)] = room
+	var outward_key: String = _room_key(outward_coord)
+	var outward_room: Dictionary = _merge_room_metadata(int(run_state.get("seed", 0)), outward_coord, rooms.get(outward_key, {}) as Dictionary)
+	outward_room["revealed"] = true
+	rooms[outward_key] = outward_room
+	run_state["rooms"] = rooms
+
+func _room_can_gain_loop_escape(room: Dictionary) -> bool:
+	var depth: int = int(room.get("depth", 0))
+	if depth <= 0 or depth >= MAX_DEPTH:
+		return false
+	if str(room.get("type", "combat")) == "boss":
+		return false
+	return true
+
+func _room_has_progressive_available_move(run_state: Dictionary, room: Dictionary) -> bool:
+	var current_depth: int = int(room.get("depth", 0))
+	for connection_var: Variant in room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var connection: Dictionary = connection_var
+		var candidate: Vector2i = connection.get("coord", Vector2i(999, 999))
+		var candidate_room: Dictionary = room_metadata(run_state, candidate)
+		if not bool(candidate_room.get("revealed", false)):
+			continue
+		if int(candidate_room.get("depth", 0)) < current_depth:
+			continue
+		if bool(candidate_room.get("sealed", false)):
+			continue
+		return true
+	return false
+
+func _sync_current_layout_doors(run_state: Dictionary, coord: Vector2i) -> void:
+	if run_state.get("current_room", Vector2i.ZERO) != coord:
+		return
+	var layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	if layout.is_empty():
+		return
+	var grid: Array = layout.get("grid", []).duplicate(true)
+	if grid.is_empty():
+		return
+	var room: Dictionary = room_metadata(run_state, coord)
+	for connection_var: Variant in room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var connection: Dictionary = connection_var
+		var door_tile: Vector2i = RoomGeneratorScript.door_tile_for_direction(connection.get("door_dir", Vector2i.ZERO))
+		if door_tile.x < 0 or door_tile.y < 0 or door_tile.y >= grid.size():
+			continue
+		var row: Array = (grid[door_tile.y] as Array).duplicate()
+		if door_tile.x >= row.size():
+			continue
+		row[door_tile.x] = RoomGeneratorScript.TILE_DOOR
+		grid[door_tile.y] = row
+	layout["grid"] = grid
+	run_state["current_room_layout"] = layout
 
 func _ring_coords(depth: int) -> Array[Vector2i]:
 	var coords: Array[Vector2i] = []

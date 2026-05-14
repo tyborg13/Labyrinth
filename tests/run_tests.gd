@@ -137,7 +137,9 @@ func _initialize() -> void:
 	_test_run_map_ring_links_and_outward_quarter()
 	_test_run_map_seals_departed_rooms()
 	_test_run_map_never_moves_back_toward_center()
+	_test_run_map_last_loop_room_opens_outward()
 	_test_empty_treasure_room_falls_back_to_room_mode()
+	_test_run_engine_campfire_linger_heals_and_continues()
 	_test_loaded_run_repairs_stranded_room_visibility()
 	_test_combat_finish_generates_reward_state()
 	_test_intermediate_boss_opens_next_sequence()
@@ -157,7 +159,9 @@ func _initialize() -> void:
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
-	await _test_run_scene_campfire_choices_use_context_overlay()
+	await _test_run_scene_selection_prompts_clear_after_pick()
+	await _test_run_scene_fatigue_damage_visual_event()
+	await _test_run_scene_campfire_choices_use_relic_overlay()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
@@ -3063,6 +3067,50 @@ func _test_run_map_never_moves_back_toward_center() -> void:
 	for coord: Vector2i in run_engine.available_moves(run_state):
 		_assert(int(run_engine.room_metadata(run_state, coord).get("depth", 0)) >= current_depth, "Available exits should never move back toward easier central rooms")
 
+func _test_run_map_last_loop_room_opens_outward() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var current := Vector2i(2, -1)
+	var outward := Vector2i(3, -1)
+	var rooms: Dictionary = {}
+	var current_room: Dictionary = run_engine.room_metadata(run_state, current).duplicate(true)
+	current_room["revealed"] = true
+	current_room["visited"] = true
+	current_room["cleared"] = true
+	current_room["sealed"] = false
+	rooms["%d,%d" % [current.x, current.y]] = current_room
+	var sealed_coords: Array[Vector2i] = []
+	sealed_coords.append(Vector2i(2, -2))
+	sealed_coords.append(Vector2i(2, 0))
+	for sealed_coord: Vector2i in sealed_coords:
+		var sealed_room: Dictionary = run_engine.room_metadata(run_state, sealed_coord).duplicate(true)
+		sealed_room["revealed"] = true
+		sealed_room["visited"] = true
+		sealed_room["cleared"] = true
+		sealed_room["sealed"] = true
+		rooms["%d,%d" % [sealed_coord.x, sealed_coord.y]] = sealed_room
+	run_state["current_room"] = current
+	run_state["mode"] = "room"
+	run_state["rooms"] = rooms
+	run_state["current_room_layout"] = run_engine.call("_display_layout_for_room", int(run_state.get("seed", 0)), current_room, Vector2i.ZERO)
+	_assert(run_engine.available_moves(run_state).is_empty(), "Regression fixture should strand the loop-closing room before repair")
+	run_state = run_engine.repair_loaded_run_state(run_state)
+	_assert(run_engine.available_moves(run_state).has(outward), "A loop-closing room with no remaining progressive exits should open an outward escape")
+	var repaired_room: Dictionary = run_engine.room_metadata(run_state, current)
+	var found_loop_escape: bool = false
+	for connection_var: Variant in repaired_room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var connection: Dictionary = connection_var
+		if connection.get("coord", Vector2i.ZERO) == outward and bool(connection.get("loop_escape", false)):
+			found_loop_escape = true
+			break
+	_assert(found_loop_escape, "The emergency outward connection should be persisted on the current room")
+	var layout: Dictionary = run_state.get("current_room_layout", {})
+	var grid: Array = layout.get("grid", [])
+	var door_tile: Vector2i = RoomGenerator.door_tile_for_direction(Vector2i(1, 0))
+	_assert(not grid.is_empty() and str((grid[door_tile.y] as Array)[door_tile.x]) == "door", "The loop escape should stamp an outward door into the visible room layout")
+
 func _test_empty_treasure_room_falls_back_to_room_mode() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var base_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
@@ -3113,6 +3161,19 @@ func _test_empty_treasure_room_falls_back_to_room_mode() -> void:
 	_assert(str(base_state.get("mode", "")) == "room", "Treasure rooms with no relic choices should fall back to normal room mode")
 	_assert((base_state.get("pending_relics", []) as Array).is_empty(), "Empty treasure rooms should not leave stale relic choices behind")
 	_assert(not run_engine.available_moves(base_state).is_empty(), "Entering a treasure room should still reveal at least one onward exit")
+
+func _test_run_engine_campfire_linger_heals_and_continues() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	run_state["mode"] = "campfire"
+	run_state["player_hp"] = 19
+	run_state["player_max_hp"] = 24
+	var healed_state: Dictionary = run_engine.leave_campfire(run_state, 10)
+	_assert(str(healed_state.get("mode", "")) == "room", "Lingering at a fire should continue onward")
+	_assert(int(healed_state.get("player_hp", 0)) == 24, "Lingering at a fire should heal without exceeding max HP")
+	run_state["player_hp"] = 12
+	healed_state = run_engine.leave_campfire(run_state, 10)
+	_assert(int(healed_state.get("player_hp", 0)) == 22, "Lingering at a fire should heal the configured amount below max HP")
 
 func _test_loaded_run_repairs_stranded_room_visibility() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -3628,7 +3689,111 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_campfire_choices_use_context_overlay() -> void:
+func _test_run_scene_selection_prompts_clear_after_pick() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for selection prompt coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "reward"
+	run_state["pending_reward"] = {
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
+		"heal_amount": 6,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_choice_bar")
+	var prompt_overlay: Control = instance.get("_relic_choice_overlay") as Control
+	var prompt_title: Label = instance.get("_relic_choice_title") as Label
+	_assert(prompt_overlay != null and prompt_overlay.visible, "Card reward selection should show the shared stage prompt overlay")
+	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "GROW YOUR POWER", "Card reward selection should use the Grow your power prompt")
+	instance.call("_on_reward_card_pressed", "quick_stab")
+	await process_frame
+	_assert(prompt_overlay != null and not prompt_overlay.visible, "Card reward prompt should clear after picking a reward")
+	_assert(prompt_title != null and not prompt_title.visible, "Card reward title should hide after picking a reward")
+
+	run_state = instance.get("_run_state")
+	run_state["mode"] = "treasure"
+	run_state["pending_relics"] = ["iron_lung", "ember_lens", "pilgrim_boots"]
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_choice_bar")
+	_assert(prompt_overlay != null and prompt_overlay.visible, "Relic selection should show the shared stage prompt overlay")
+	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "CLAIM YOUR TREASURE", "Relic selection should keep the treasure prompt")
+	run_state = instance.get("_run_state")
+	var run_engine: RunEngine = instance.get("_run_engine") as RunEngine
+	instance.set("_run_state", run_engine.claim_relic(run_state, "iron_lung"))
+	instance.call("_refresh_choice_bar")
+	await process_frame
+	_assert(prompt_overlay != null and not prompt_overlay.visible, "Relic prompt should clear after picking a relic")
+	_assert(prompt_title != null and not prompt_title.visible, "Relic title should hide after picking a relic")
+
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_fatigue_damage_visual_event() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for fatigue visual coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+
+	var combat: CombatEngine = CombatEngine.new()
+	var before_state: Dictionary = combat.create_combat(118, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab", "brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (before_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = []
+	deck["draw"] = []
+	deck["discard"] = ["quick_stab"]
+	deck["burned"] = []
+	deck["cycles"] = 0
+	before_state["deck"] = deck
+	var after_state: Dictionary = combat.prepare_next_player_turn(before_state)
+	var fatigue_events: Array = instance.call("_fatigue_damage_events_between_states", before_state, after_state)
+	_assert(fatigue_events.size() == 1, "Fatigue draw should create one visual event when the deck cycles")
+	if not fatigue_events.is_empty():
+		var event: Dictionary = fatigue_events[0]
+		var player_tile: Vector2i = (after_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+		_assert(int(event.get("amount", 0)) == 2, "First fatigue visual event should carry the first fatigue damage amount")
+		_assert(event.get("tile", Vector2i(-1, -1)) == player_tile, "Fatigue visual text should anchor to the player tile")
+	var fatigue_texts: Array = instance.call("_fatigue_floating_texts_for_events", after_state, fatigue_events)
+	var found_damage_number: bool = false
+	var found_fatigue_text: bool = false
+	for text_var: Variant in fatigue_texts:
+		var text_entry: Dictionary = text_var
+		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-2"
+		found_fatigue_text = found_fatigue_text or str(text_entry.get("text", "")) == "fatigue sets in"
+	_assert(found_damage_number, "Fatigue visual should include the normal floating damage number")
+	_assert(found_fatigue_text, "Fatigue visual should include the fatigue text callout")
+	var fatigue_presentation: Dictionary = instance.call("_fatigue_damage_presentation_for_progress", after_state, fatigue_events, 0.25)
+	_assert((fatigue_presentation.get("impact_actor_keys", []) as Array).has("player"), "Fatigue visual should drive the player's damage impact animation")
+	_assert(float(fatigue_presentation.get("impact_strength", 0.0)) > 1.0, "Fatigue visual should boost the player damage impact so it reads on the player sprite")
+	_assert((fatigue_presentation.get("floating_texts", []) as Array).size() >= 2, "Fatigue damage presentation should show both damage number and fatigue text")
+	var overlay: Control = instance.get("_fatigue_edge_overlay") as Control
+	_assert(overlay != null, "RunScene should build a full-screen fatigue edge overlay")
+	if overlay != null:
+		instance.call("_set_fatigue_edge_progress", 0.5)
+		await process_frame
+		_assert(overlay.visible, "Fatigue edge overlay should appear while the pulse is active")
+		instance.call("_set_fatigue_edge_progress", -1.0)
+		await process_frame
+		_assert(not overlay.visible, "Fatigue edge overlay should hide after the pulse")
+
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
 		_failures.append("Run scene should load for campfire overlay coverage")
@@ -3638,20 +3803,30 @@ func _test_run_scene_campfire_choices_use_context_overlay() -> void:
 	await process_frame
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "campfire"
+	run_state["progression"] = ProgressionStore.default_data()
 	instance.set("_run_state", run_state)
+	instance.set("_progression", ProgressionStore.default_data())
 	instance.call("_refresh_choice_bar")
 	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
-	var overlay_button_count: int = 0
-	var found_sit: bool = false
-	var found_leave: bool = false
-	for button: Button in _buttons_under(overlay):
-		overlay_button_count += 1
-		found_sit = found_sit or button.text == "Sit"
-		found_leave = found_leave or button.text == "Leave"
+	var context_overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
+	var relic_overlay: Control = instance.get("_relic_choice_overlay") as Control
+	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
-	_assert(overlay.visible, "Campfire choices should use the floating board context overlay")
-	_assert(overlay_button_count == 2 and found_sit and found_leave, "Campfire context overlay should expose large Sit and Leave buttons")
+	_assert(not context_overlay.visible and _buttons_under(context_overlay).is_empty(), "Campfire choices should no longer use button overlays")
+	_assert(relic_overlay != null and relic_overlay.visible, "Campfire choices should use the shared relic-style stage overlay")
+	_assert(relic_bar != null and relic_bar.get_child_count() == 2, "Campfire overlay should expose exactly two choice panels")
+	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
+	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
+	_assert(_label_with_text(relic_overlay, "Heal 10 and continue onward") != null, "Campfire linger choice should describe the heal")
+	_assert(_label_with_text(relic_overlay, "???") != null, "Campfire abandon choice should remain mysterious before the first rest")
+	var loaded_icon_count: int = 0
+	for texture_rect: TextureRect in _texture_rects_under(relic_overlay):
+		if texture_rect.texture != null:
+			loaded_icon_count += 1
+	_assert(loaded_icon_count >= 2, "Campfire choice panels should load generated protagonist icons")
+	instance.set("_progression", ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data()))
+	instance.call("_refresh_choice_bar")
+	_assert(_label_with_text(relic_overlay, "Abandon your escape and retain gathered power") != null, "Campfire abandon choice should reveal its effect after the first fire rest")
 	instance.queue_free()
 	await process_frame
 
@@ -4706,6 +4881,28 @@ func _button_with_text(node: Node, text: String) -> Button:
 		if button.text == text:
 			return button
 	return null
+
+func _labels_under(node: Node) -> Array[Label]:
+	var labels: Array[Label] = []
+	if node is Label:
+		labels.append(node)
+	for child: Node in node.get_children():
+		labels.append_array(_labels_under(child))
+	return labels
+
+func _label_with_text(node: Node, text: String) -> Label:
+	for label: Label in _labels_under(node):
+		if label.text == text:
+			return label
+	return null
+
+func _texture_rects_under(node: Node) -> Array[TextureRect]:
+	var texture_rects: Array[TextureRect] = []
+	if node is TextureRect:
+		texture_rects.append(node)
+	for child: Node in node.get_children():
+		texture_rects.append_array(_texture_rects_under(child))
+	return texture_rects
 
 func _run_scene_choice_button_host(instance: Node) -> Node:
 	var overlay: Node = instance.get("_choice_button_overlay") as Node

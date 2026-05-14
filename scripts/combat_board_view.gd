@@ -1743,7 +1743,8 @@ func _unit_impact_strength(unit: Dictionary) -> float:
 	if not impact_keys.has(actor_key):
 		return 0.0
 	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
-	return clampf(1.0 - progress, 0.0, 1.0)
+	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	return clampf(1.0 - progress, 0.0, 1.0) * strength
 
 func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
 	draw_rect(rect, fill, true)
@@ -2433,10 +2434,28 @@ func _draw_floating_texts() -> void:
 		if tile.x < 0:
 			continue
 		var rise: float = float(entry.get("rise", 0.0))
-		var text_pos: Vector2 = _tile_center(tile) + Vector2(-18.0, -84.0 + float(entry.get("offset", 0.0)) - rise)
+		var text_pos: Vector2 = _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), -84.0 + float(entry.get("offset", 0.0)) - rise)
 		var color: Color = entry.get("color", Color("f8f0da"))
 		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
-		draw_string(font, text_pos, str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, 48.0, 16, color)
+		var label_width: float = float(entry.get("width", 48.0))
+		var font_size: int = int(entry.get("font_size", 16))
+		var text: String = str(entry.get("text", ""))
+		var outline_size: int = int(entry.get("outline_size", 0))
+		if outline_size > 0:
+			var outline_color: Color = entry.get("outline_color", Color("200806"))
+			outline_color.a *= color.a
+			for outline_offset: Vector2 in [
+				Vector2(-outline_size, 0.0),
+				Vector2(outline_size, 0.0),
+				Vector2(0.0, -outline_size),
+				Vector2(0.0, outline_size),
+				Vector2(-outline_size, -outline_size),
+				Vector2(outline_size, -outline_size),
+				Vector2(-outline_size, outline_size),
+				Vector2(outline_size, outline_size)
+			]:
+				draw_string(font, text_pos + outline_offset, text, HORIZONTAL_ALIGNMENT_LEFT, label_width, font_size, outline_color)
+		draw_string(font, text_pos, text, HORIZONTAL_ALIGNMENT_LEFT, label_width, font_size, color)
 
 func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
 	if progress >= 0.82:

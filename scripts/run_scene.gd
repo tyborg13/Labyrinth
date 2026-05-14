@@ -30,6 +30,81 @@ class TooltipPanelContainer:
 			return null
 		return UiTooltipPanelScript.make_text(for_text)
 
+class FatigueEdgeOverlay:
+	extends Control
+
+	const WEB_LINE_COLOR: Color = Color(0.96, 0.06, 0.04, 0.70)
+	const WEB_GLOW_COLOR: Color = Color(0.58, 0.0, 0.0, 0.30)
+	const EDGE_WASH_COLOR: Color = Color(0.52, 0.0, 0.0, 0.14)
+
+	var progress: float = -1.0:
+		set(value):
+			progress = value
+			visible = progress >= 0.0
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		visible = false
+
+	func _draw() -> void:
+		if progress < 0.0 or size.x <= 0.0 or size.y <= 0.0:
+			return
+		var t: float = clampf(progress, 0.0, 1.0)
+		var pulse: float = sin(t * PI)
+		if pulse <= 0.001:
+			return
+		var wash_color: Color = EDGE_WASH_COLOR
+		wash_color.a *= pulse
+		var edge_thickness: float = lerpf(18.0, 46.0, pulse)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(size.x, edge_thickness)), wash_color, true)
+		draw_rect(Rect2(Vector2(0.0, size.y - edge_thickness), Vector2(size.x, edge_thickness)), wash_color, true)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(edge_thickness, size.y)), wash_color, true)
+		draw_rect(Rect2(Vector2(size.x - edge_thickness, 0.0), Vector2(edge_thickness, size.y)), wash_color, true)
+
+		var line_color: Color = WEB_LINE_COLOR
+		line_color.a *= pulse
+		var glow_color: Color = WEB_GLOW_COLOR
+		glow_color.a *= pulse
+		var reach: float = minf(size.x, size.y) * lerpf(0.10, 0.27, pulse)
+		_draw_corner_web(Vector2.ZERO, Vector2(1.0, 1.0), reach, line_color, glow_color)
+		_draw_corner_web(Vector2(size.x, 0.0), Vector2(-1.0, 1.0), reach, line_color, glow_color)
+		_draw_corner_web(Vector2(0.0, size.y), Vector2(1.0, -1.0), reach, line_color, glow_color)
+		_draw_corner_web(size, Vector2(-1.0, -1.0), reach, line_color, glow_color)
+		_draw_edge_strand(Vector2(size.x * 0.20, 0.0), Vector2(0.12, 1.0), reach * 0.62, line_color, glow_color)
+		_draw_edge_strand(Vector2(size.x * 0.78, size.y), Vector2(-0.18, -1.0), reach * 0.58, line_color, glow_color)
+		_draw_edge_strand(Vector2(0.0, size.y * 0.36), Vector2(1.0, -0.12), reach * 0.66, line_color, glow_color)
+		_draw_edge_strand(Vector2(size.x, size.y * 0.62), Vector2(-1.0, 0.16), reach * 0.60, line_color, glow_color)
+
+	func _draw_corner_web(origin: Vector2, direction: Vector2, reach: float, line_color: Color, glow_color: Color) -> void:
+		var endpoints: Array = [
+			origin + Vector2(direction.x * reach, 0.0),
+			origin + Vector2(direction.x * reach * 0.78, direction.y * reach * 0.28),
+			origin + Vector2(direction.x * reach * 0.50, direction.y * reach * 0.64),
+			origin + Vector2(0.0, direction.y * reach)
+		]
+		for endpoint_var: Variant in endpoints:
+			var endpoint: Vector2 = endpoint_var
+			draw_line(origin, endpoint, glow_color, 4.0, true)
+			draw_line(origin, endpoint, line_color, 1.3, true)
+		for ring_var: Variant in [0.34, 0.58, 0.82]:
+			var ring: float = float(ring_var)
+			var points := PackedVector2Array()
+			for endpoint_var: Variant in endpoints:
+				var endpoint: Vector2 = endpoint_var
+				points.append(origin.lerp(endpoint, ring))
+			draw_polyline(points, glow_color, 3.0, true)
+			draw_polyline(points, line_color, 1.1, true)
+
+	func _draw_edge_strand(start: Vector2, direction: Vector2, length: float, line_color: Color, glow_color: Color) -> void:
+		var points := PackedVector2Array()
+		points.append(start)
+		points.append(start + Vector2(direction.x * length * 0.34, direction.y * length * 0.34) + Vector2(direction.y, -direction.x) * 7.0)
+		points.append(start + Vector2(direction.x * length * 0.68, direction.y * length * 0.68) - Vector2(direction.y, -direction.x) * 5.0)
+		points.append(start + direction * length)
+		draw_polyline(points, glow_color, 4.0, true)
+		draw_polyline(points, line_color, 1.2, true)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -44,6 +119,10 @@ const DOOR_OPENING_FRAME_SECONDS: float = 0.075
 const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
 const FLOAT_TEXT_FRAMES: int = 7
 const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
+const FATIGUE_EFFECT_FRAMES: int = 9
+const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
+const FATIGUE_EDGE_LINGER_FRAMES: int = 3
+const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
@@ -65,8 +144,18 @@ const INTENSITY_BADGE_SIZE: Vector2 = Vector2(58.0, 58.0)
 const INTENSITY_ICON_INSET: float = 5.0
 const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
+const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 10
+const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
+const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
+const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
+const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
+const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal 10 and continue onward"
+const CAMPFIRE_CHOICE_EMBRACE_LOCKED_DESCRIPTION: String = "???"
+const CAMPFIRE_CHOICE_EMBRACE_UNLOCKED_DESCRIPTION: String = "Abandon your escape and retain gathered power"
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
+const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
+const RELIC_CHOICE_TITLE_TEXT: String = "CLAIM YOUR TREASURE"
 const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
@@ -162,6 +251,7 @@ var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
 var _card_fx_layer: Control
+var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _death_overlay: DeathEngulfOverlay
 var _death_sequence_started: bool = false
 var _drag_card_proxy: Control
@@ -351,6 +441,7 @@ func _apply_tooltip_wrapper_style() -> void:
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
+	_build_fatigue_edge_overlay()
 	_build_choice_button_overlay()
 	_build_dialogue_overlay()
 	_build_menu_overlay()
@@ -561,7 +652,8 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 
 	_relic_choice_title = Label.new()
 	_relic_choice_title.name = "TreasureTitle"
-	_relic_choice_title.text = "CLAIM YOUR TREASURE"
+	_relic_choice_title.visible = false
+	_relic_choice_title.text = ""
 	_relic_choice_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_relic_choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_relic_choice_title.vertical_alignment = VERTICAL_ALIGNMENT_TOP
@@ -621,6 +713,16 @@ func _build_card_fx_layer() -> void:
 	_card_fx_layer.anchor_right = 1.0
 	_card_fx_layer.anchor_bottom = 1.0
 	add_child(_card_fx_layer)
+
+func _build_fatigue_edge_overlay() -> void:
+	_fatigue_edge_overlay = FatigueEdgeOverlay.new()
+	_fatigue_edge_overlay.name = "FatigueEdgeOverlay"
+	_fatigue_edge_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fatigue_edge_overlay.anchor_right = 1.0
+	_fatigue_edge_overlay.anchor_bottom = 1.0
+	_fatigue_edge_overlay.z_index = 210
+	_fatigue_edge_overlay.z_as_relative = false
+	add_child(_fatigue_edge_overlay)
 
 func _build_death_overlay() -> void:
 	_death_overlay = DeathEngulfOverlay.new()
@@ -1793,6 +1895,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_death_sequence_started = false
 	if _death_overlay != null:
 		_death_overlay.reset()
+	_set_fatigue_edge_progress(-1.0)
 	_board_presentation.clear()
 	action_banner.visible = false
 	_refresh_ui()
@@ -2078,10 +2181,28 @@ func _refresh_choice_bar() -> void:
 		_add_choice_button("Pass", _on_pass_turn_pressed)
 	match mode:
 		"campfire":
-			_add_context_choice_button("Sit", _on_campfire_sit_pressed, "Rest and bank embers")
-			_add_context_choice_button("Leave", _on_campfire_leave_pressed, "Continue onward")
+			_add_campfire_choice(
+				"linger",
+				CAMPFIRE_CHOICE_LINGER_TEXT,
+				CAMPFIRE_CHOICE_LINGER_DESCRIPTION,
+				CAMPFIRE_CHOICE_LINGER_ICON_PATH,
+				Color("efb35f")
+			)
+			_add_campfire_choice(
+				"embrace",
+				CAMPFIRE_CHOICE_EMBRACE_TEXT,
+				_campfire_embrace_description(),
+				CAMPFIRE_CHOICE_EMBRACE_ICON_PATH,
+				Color("d85d42")
+			)
+		"reward":
+			if _reward_choices_available():
+				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
 		"treasure":
-			for relic_id_var: Variant in _run_state.get("pending_relics", []):
+			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+			if not pending_relics.is_empty():
+				_set_relic_choice_title(RELIC_CHOICE_TITLE_TEXT)
+			for relic_id_var: Variant in pending_relics:
 				var relic_id: String = str(relic_id_var)
 				var relic: Dictionary = GameData.relic_def(relic_id)
 				_add_relic_choice(relic_id, relic)
@@ -2099,7 +2220,11 @@ func _refresh_choice_bar() -> void:
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = _context_choice_bar != null and _context_choice_bar.get_child_count() > 0
 	if _relic_choice_overlay != null:
-		_relic_choice_overlay.visible = _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0
+		var has_relic_choices: bool = _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0
+		var has_selection_title: bool = _relic_choice_title != null and _relic_choice_title.visible
+		if _relic_choice_host != null:
+			_relic_choice_host.visible = has_relic_choices
+		_relic_choice_overlay.visible = has_relic_choices or has_selection_title
 		if _relic_choice_overlay.visible:
 			_layout_relic_choice_overlay()
 			call_deferred("_layout_relic_choice_overlay")
@@ -2140,15 +2265,30 @@ func _add_context_choice_button(text: String, callback: Callable, tooltip: Strin
 
 func _clear_context_choice_overlay() -> void:
 	if _context_choice_bar != null:
-		_clear_children(_context_choice_bar)
+		_clear_children_now(_context_choice_bar)
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = false
 
 func _clear_relic_choice_overlay() -> void:
 	if _relic_choice_bar != null:
-		_clear_children(_relic_choice_bar)
+		_clear_children_now(_relic_choice_bar)
+	if _relic_choice_host != null:
+		_relic_choice_host.visible = false
+	if _relic_choice_title != null:
+		_relic_choice_title.visible = false
+		_relic_choice_title.text = ""
 	if _relic_choice_overlay != null:
 		_relic_choice_overlay.visible = false
+
+func _reward_choices_available() -> bool:
+	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	return (reward_state.get("cards", []) as Array).size() > 0 or int(reward_state.get("heal_amount", 0)) > 0
+
+func _set_relic_choice_title(text: String) -> void:
+	if _relic_choice_title == null:
+		return
+	_relic_choice_title.text = text
+	_relic_choice_title.visible = not text.is_empty()
 
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	if _relic_choice_bar == null:
@@ -2215,12 +2355,90 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
 
+func _add_campfire_choice(choice_id: String, title: String, detail: String, icon_path: String, accent: Color) -> void:
+	if _relic_choice_bar == null:
+		return
+	var panel := TooltipPanelContainer.new()
+	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.clip_contents = false
+	panel.z_index = 30
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent, false))
+	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id))
+	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
+	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
+	_relic_choice_bar.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 7)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(76.0, 76.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(icon_path)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon)
+
+	var label := Label.new()
+	label.text = title
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
+	label.add_theme_color_override("font_color", Color("fff1d5"))
+	label.add_theme_color_override("font_outline_color", Color("26180f"))
+	label.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(label)
+
+	var description := Label.new()
+	description.text = detail
+	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
+	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
+	description.add_theme_color_override("font_color", Color("dec9a7"))
+	description.add_theme_color_override("font_outline_color", Color("21150e"))
+	description.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(description)
+
+func _campfire_embrace_description() -> String:
+	var progression: Dictionary = _progression
+	if progression.is_empty():
+		progression = _run_state.get("progression", {}) as Dictionary
+	var upgrades_unlocked: bool = bool(progression.get("card_upgrades_unlocked", false)) or bool(progression.get("rested_at_fire", false))
+	return CAMPFIRE_CHOICE_EMBRACE_UNLOCKED_DESCRIPTION if upgrades_unlocked else CAMPFIRE_CHOICE_EMBRACE_LOCKED_DESCRIPTION
+
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
 	if panel == null:
 		return
 	var accent: String = str(relic.get("accent", GameData.relic_rarity_accent(str(relic.get("rarity", "common")))))
 	panel.z_index = 40 if hovered else 30
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), hovered))
+
+func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
+	if panel == null:
+		return
+	panel.z_index = 40 if hovered else 30
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent, hovered))
 
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -2246,6 +2464,15 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		await _on_relic_pressed(relic_id)
+
+func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void:
+	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
+		return
+	match choice_id:
+		"linger":
+			_on_campfire_linger_pressed()
+		"embrace":
+			_on_campfire_embrace_pressed()
 
 func _refresh_hand_panel() -> void:
 	_clear_children(hand_box)
@@ -3432,6 +3659,98 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		_render_board_state(display_state, presentation)
 		await get_tree().create_timer(frame_seconds).timeout
 
+func _fatigue_damage_events_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var before_deck: Dictionary = before_state.get("deck", {})
+	var after_deck: Dictionary = after_state.get("deck", {})
+	var before_cycles: int = int(before_deck.get("cycles", 0))
+	var after_cycles: int = int(after_deck.get("cycles", 0))
+	var events: Array[Dictionary] = []
+	if after_cycles <= before_cycles:
+		return events
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var player_tile: Vector2i = after_player.get("pos", before_player.get("pos", Vector2i.ZERO))
+	var fatigue_base: int = int(after_deck.get("fatigue_base", before_deck.get("fatigue_base", CombatEngineScript.FATIGUE_BASE_DAMAGE)))
+	for cycle: int in range(before_cycles + 1, after_cycles + 1):
+		events.append({
+			"cycle": cycle,
+			"amount": fatigue_base + cycle - 1,
+			"tile": player_tile
+		})
+	return events
+
+func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_events: Array[Dictionary]) -> Array[Dictionary]:
+	var floats: Array[Dictionary] = []
+	if fatigue_events.is_empty():
+		return floats
+	var player_tile: Vector2i = (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var total_damage: int = 0
+	for event_var: Variant in fatigue_events:
+		var event: Dictionary = event_var
+		total_damage += maxi(0, int(event.get("amount", 0)))
+		player_tile = event.get("tile", player_tile)
+	if total_damage > 0:
+		floats.append({
+			"tile": player_tile,
+			"text": "-%d" % total_damage,
+			"color": Color("f39779"),
+			"offset": -36.0,
+			"x_offset": -34.0,
+			"width": 84.0,
+			"font_size": 20,
+			"outline_size": 2,
+			"outline_color": Color("270806")
+		})
+	floats.append({
+		"tile": player_tile,
+		"text": "fatigue sets in",
+		"color": Color("ff695f"),
+		"offset": -4.0,
+		"x_offset": 20.0,
+		"width": 152.0,
+		"font_size": 16,
+		"outline_size": 2,
+		"outline_color": Color("270806")
+	})
+	return floats
+
+func _fatigue_damage_presentation_for_progress(display_state: Dictionary, fatigue_events: Array[Dictionary], progress: float) -> Dictionary:
+	var base_texts: Array[Dictionary] = _fatigue_floating_texts_for_events(display_state, fatigue_events)
+	var animated_texts: Array[Dictionary] = []
+	var t: float = clampf(progress, 0.0, 1.0)
+	for text_var: Variant in base_texts:
+		var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
+		text_entry["rise"] = lerpf(0.0, 18.0, t)
+		text_entry["alpha"] = 1.0 if t < 0.66 else clampf(1.0 - ((t - 0.66) / 0.34), 0.0, 1.0)
+		animated_texts.append(text_entry)
+	return {
+		"impact_actor_keys": ["player"],
+		"impact_progress": t,
+		"impact_strength": 1.35,
+		"floating_texts": animated_texts
+	}
+
+func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Dictionary]) -> void:
+	if fatigue_events.is_empty():
+		return
+	var frame_count: int = maxi(1, FATIGUE_EFFECT_FRAMES)
+	for frame: int in range(frame_count):
+		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
+		_set_fatigue_edge_progress(minf(t, FATIGUE_EDGE_HOLD_PROGRESS))
+		_render_board_state(display_state, _fatigue_damage_presentation_for_progress(display_state, fatigue_events, t))
+		await get_tree().create_timer(FATIGUE_EFFECT_FRAME_SECONDS).timeout
+	for linger_frame: int in range(FATIGUE_EDGE_LINGER_FRAMES):
+		var linger_t: float = float(linger_frame + 1) / float(FATIGUE_EDGE_LINGER_FRAMES)
+		_set_fatigue_edge_progress(lerpf(FATIGUE_EDGE_HOLD_PROGRESS, 1.0, linger_t))
+		await get_tree().create_timer(FATIGUE_EFFECT_FRAME_SECONDS).timeout
+	_set_fatigue_edge_progress(-1.0)
+	_render_board_state(display_state, {})
+
+func _set_fatigue_edge_progress(progress: float) -> void:
+	if _fatigue_edge_overlay == null:
+		return
+	_fatigue_edge_overlay.progress = progress
+
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var target_index: int = 0
 	for action_var: Variant in actions:
@@ -3680,9 +3999,12 @@ func _resolve_enemy_round() -> void:
 	if outcome == "":
 		var before_draw_state: Dictionary = _combat_state.duplicate(true)
 		_combat_state = _combat_engine.prepare_next_player_turn(_combat_state)
+		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
 		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
 		_analytics_log_card_draws(before_draw_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
 		_analytics_log_playable_cards()
+		if not fatigue_events.is_empty():
+			await _animate_fatigue_damage(_combat_state, fatigue_events)
 		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
 		outcome = _combat_engine.combat_outcome(_combat_state)
 	var transition_combat_state: Dictionary = _combat_state.duplicate(true)
@@ -4299,6 +4621,9 @@ func _on_skip_reward_pressed() -> void:
 	_refresh_ui()
 
 func _on_campfire_sit_pressed() -> void:
+	_on_campfire_embrace_pressed()
+
+func _on_campfire_embrace_pressed() -> void:
 	_sync_progression_from_run()
 	var bankable: int = _run_engine.bankable_embers(_run_state)
 	if bankable > 0:
@@ -4307,6 +4632,10 @@ func _on_campfire_sit_pressed() -> void:
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+func _on_campfire_linger_pressed() -> void:
+	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
+	_refresh_ui()
 
 func _on_campfire_leave_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state)
