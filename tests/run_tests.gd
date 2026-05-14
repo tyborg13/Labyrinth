@@ -176,6 +176,8 @@ func _initialize() -> void:
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_discard_pile_is_face_up_without_count()
 	await _test_run_scene_displays_owned_relic_icons()
+	await _test_run_scene_relic_header_keeps_relics_and_intensity_tight()
+	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
 	await _test_run_scene_card_upgrade_overlay_opens()
 	await _test_run_scene_logs_local_analytics()
@@ -3664,6 +3666,11 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
 	if pass_button != null:
 		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Combat Pass button should use a large native-ratio frame")
+	var overlay: Control = instance.get("_choice_button_overlay") as Control
+	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
+	if overlay != null and piles_bar != null:
+		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat Pass overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
 	instance.queue_free()
 	await process_frame
 
@@ -4591,6 +4598,84 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
 	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
 	_assert(relic_bar.get_child_count() == 3, "The run HUD should render one icon per owned relic")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for relic/intensity HUD layout coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var relic_ids: Array = [
+		"iron_lung",
+		"ember_lens",
+		"pilgrim_boots",
+		"mirror_shard",
+		"coffin_nails",
+		"reinforced_shield",
+		"ashen_buckler",
+		"flint_edge"
+	]
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(15126, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": relic_ids,
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	combat_state["relics"] = relic_ids
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["relics"] = relic_ids
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	_assert(relic_bar.visible and relic_bar.get_child_count() == relic_ids.size(), "Relic HUD should render all owned relic icons")
+	if relic_bar.get_child_count() > 0:
+		var first_row_y: float = (relic_bar.get_child(0) as Control).global_position.y
+		for child: Node in relic_bar.get_children():
+			var child_control: Control = child as Control
+			_assert(child_control != null and absf(child_control.global_position.y - first_row_y) <= 1.0, "The first eight relic HUD icons should stay on one horizontal row")
+	var intensity_bar: HFlowContainer = instance.get("_intensity_bar") as HFlowContainer
+	_assert(intensity_bar != null and intensity_bar.visible, "Combat should show the elemental intensity HUD")
+	if intensity_bar != null and intensity_bar.get_child_count() > 0:
+		var first_badge: Control = intensity_bar.get_child(0) as Control
+		_assert(first_badge.custom_minimum_size.x >= 86.0 and first_badge.custom_minimum_size.y >= 86.0, "Elemental intensity badges should be visibly larger than relic badges")
+		var relic_bottom: float = float(instance.call("_relic_bar_visible_bottom_y"))
+		var gap: float = intensity_bar.global_position.y - relic_bottom
+		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the relic row without a stale layout gap")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_attack_impact_presentation_drops_projectile_effect() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for attack impact presentation coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var impact_presentation: Dictionary = instance.call("_attack_impact_presentation", {
+		"focus_actor_keys": ["player"],
+		"focus_tiles": [Vector2i(5, 2)],
+		"effect": {"kind": "ranged", "from": Vector2i(2, 4), "to": Vector2i(5, 2)},
+		"effect_progress": 1.0,
+		"impact_actor_keys": ["enemy_1"],
+		"floating_texts": [{"tile": Vector2i(5, 2), "text": "-4"}]
+	})
+	_assert(not impact_presentation.has("effect"), "Attack impact presentation should not keep a completed projectile effect while redraw-driven impact text animates")
+	_assert(not impact_presentation.has("effect_progress"), "Attack impact presentation should clear completed effect progress during impact text")
+	_assert((impact_presentation.get("impact_actor_keys", []) as Array).has("enemy_1"), "Attack impact presentation should preserve hit flash actors")
+	_assert((impact_presentation.get("floating_texts", []) as Array).size() == 1, "Attack impact presentation should preserve floating combat text")
 	instance.queue_free()
 	await process_frame
 

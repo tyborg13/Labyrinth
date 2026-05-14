@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-14T05:07:12Z",
+  "updated_at": "2026-05-14T13:43:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2653,6 +2653,28 @@
       "source": {
         "branch": "master",
         "commit": "88dea1b"
+      }
+    },
+    {
+      "id": "mnt_20260514T134330Z_13f9dc29",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "RunScene root overlays need resize-driven relayouts.",
+      "details": "Root-level HUD overlays such as elemental intensity and combat choice buttons should not rely on a single immediate get_global_rect() from container placeholders after refresh. Relic/header reflow and ChoiceBar placeholder layout can settle a frame later, so connect resized signals and provide nearby fallback anchors like relic child bottoms or PilesBar to avoid stale gaps or top-screen jumps.",
+      "status": "active",
+      "created_at": "2026-05-14T13:43:30Z",
+      "updated_at": "2026-05-14T13:43:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "3db4ad9"
       }
     }
   ]

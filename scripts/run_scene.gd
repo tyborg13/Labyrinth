@@ -140,8 +140,13 @@ const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
-const INTENSITY_BADGE_SIZE: Vector2 = Vector2(58.0, 58.0)
-const INTENSITY_ICON_INSET: float = 5.0
+const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
+const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
+const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
+const HEADER_RELIC_WRAP_MARGIN: float = 24.0
+const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
+const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
+const INTENSITY_ICON_INSET: float = 8.0
 const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 10
@@ -166,9 +171,12 @@ const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
+@onready var top_bar: HBoxContainer = $Backdrop/Margin/MainVBox/TopBar
+@onready var title_box: VBoxContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
 @onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var header_spacer: Control = $Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $Backdrop/Margin/MainVBox/TopBar/StatsLabel
 @onready var menu_button: Button = $Backdrop/Margin/MainVBox/TopBar/MenuButton
 @onready var board_view = $Backdrop/Margin/MainVBox/StageRoot/CombatBoard
@@ -292,6 +300,8 @@ func _ready() -> void:
 	_setup_pile_widgets()
 	_setup_play_meter()
 	_setup_elemental_intensity_bar()
+	_connect_header_layout_signals()
+	_connect_choice_overlay_layout_signals()
 	_boot_run()
 
 func _process(delta: float) -> void:
@@ -343,6 +353,7 @@ func _notification(what: int) -> void:
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
 		_layout_choice_button_overlay()
+		_layout_header_hud()
 		_layout_elemental_intensity_bar()
 
 func _apply_style() -> void:
@@ -390,8 +401,13 @@ func _apply_style() -> void:
 	stats_label.add_theme_color_override("font_color", Color("f0c978"))
 	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	stats_label.add_theme_constant_override("outline_size", 2)
+	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_box.size_flags_stretch_ratio = 2.0
+	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_spacer.size_flags_stretch_ratio = 1.0
 	relic_bar.visible = false
-	relic_bar.add_theme_constant_override("h_separation", 8)
+	relic_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	relic_bar.add_theme_constant_override("h_separation", int(RELIC_BAR_HORIZONTAL_GAP))
 	relic_bar.add_theme_constant_override("v_separation", 8)
 	action_banner.add_theme_color_override("font_color", Color("fbf0d7"))
 	action_banner.add_theme_color_override("font_outline_color", Color("2d1f18"))
@@ -471,8 +487,39 @@ func _layout_choice_button_overlay() -> void:
 	if not choice_bar.is_inside_tree() or not choice_bar.visible:
 		return
 	var overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
-	_choice_button_overlay.global_position = choice_bar.get_global_rect().position
+	_choice_button_overlay.global_position = _choice_button_overlay_anchor_position(overlay_size)
 	_choice_button_overlay.size = overlay_size
+
+func _connect_choice_overlay_layout_signals() -> void:
+	for control_var: Variant in [choice_bar, piles_bar, left_action_stack, bottom_stack, hand_row]:
+		var control: Control = control_var as Control
+		if control == null:
+			continue
+		if not control.resized.is_connected(_queue_choice_button_overlay_layout):
+			control.resized.connect(_queue_choice_button_overlay_layout)
+
+func _queue_choice_button_overlay_layout() -> void:
+	call_deferred("_layout_choice_button_overlay")
+
+func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
+	var choice_rect: Rect2 = choice_bar.get_global_rect()
+	if _choice_bar_anchor_is_ready(choice_rect):
+		return choice_rect.position
+	if piles_bar != null and piles_bar.is_inside_tree():
+		var piles_rect: Rect2 = piles_bar.get_global_rect()
+		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
+			var separation: float = float(left_action_stack.get_theme_constant("separation")) if left_action_stack != null else 0.0
+			return Vector2(piles_rect.position.x, piles_rect.position.y - overlay_size.y - separation)
+	return choice_rect.position
+
+func _choice_bar_anchor_is_ready(choice_rect: Rect2) -> bool:
+	if choice_rect.size.x <= 0.0 or choice_rect.size.y <= 0.0:
+		return false
+	if bottom_stack != null and bottom_stack.is_inside_tree():
+		var bottom_rect: Rect2 = bottom_stack.get_global_rect()
+		if bottom_rect.position.y > 0.0 and choice_rect.position.y < bottom_rect.position.y - 1.0:
+			return false
+	return choice_rect.position.y > 0.0
 
 func _build_large_map_overlay() -> void:
 	_large_map_scrim = ColorRect.new()
@@ -1683,18 +1730,88 @@ func _setup_elemental_intensity_bar() -> void:
 		_intensity_labels[element_id] = count
 	_refresh_elemental_intensity_bar()
 
+func _connect_header_layout_signals() -> void:
+	for control_var: Variant in [title_box, room_title, room_subtitle, relic_bar]:
+		var control: Control = control_var as Control
+		if control == null:
+			continue
+		if not control.resized.is_connected(_queue_elemental_intensity_layout):
+			control.resized.connect(_queue_elemental_intensity_layout)
+
+func _queue_elemental_intensity_layout() -> void:
+	call_deferred("_layout_header_hud")
+	call_deferred("_layout_elemental_intensity_bar")
+
 func _intensity_bar_size() -> Vector2:
 	return Vector2(INTENSITY_BADGE_SIZE.x * 5.0 + 9.0 * 4.0, INTENSITY_BADGE_SIZE.y)
+
+func _layout_header_hud() -> void:
+	if title_box == null:
+		return
+	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
+	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
+	if intensity_active:
+		min_width = maxf(min_width, _intensity_bar_size().x)
+	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
+		min_width = maxf(min_width, _desired_relic_bar_width())
+	var available_width: float = _header_title_available_width()
+	if available_width > 0.0:
+		min_width = minf(min_width, available_width)
+	title_box.custom_minimum_size = Vector2(min_width, title_box.custom_minimum_size.y)
+	if relic_bar != null:
+		relic_bar.custom_minimum_size = Vector2(min_width, relic_bar.custom_minimum_size.y)
+
+func _desired_relic_bar_width() -> float:
+	if relic_bar == null or relic_bar.get_child_count() <= 0:
+		return 0.0
+	var relic_count: int = mini(relic_bar.get_child_count(), RELIC_BAR_MIN_VISIBLE_RELICS)
+	return RELIC_BADGE_SIZE.x * float(relic_count) + RELIC_BAR_HORIZONTAL_GAP * float(maxi(0, relic_count - 1))
+
+func _header_title_available_width() -> float:
+	if top_bar == null or title_box == null:
+		return 0.0
+	var width: float = top_bar.size.x
+	if width <= 0.0:
+		return 0.0
+	var fixed_width: float = 0.0
+	var visible_children: int = 0
+	for child: Node in top_bar.get_children():
+		if not (child is Control):
+			continue
+		var child_control: Control = child as Control
+		if not child_control.visible:
+			continue
+		visible_children += 1
+		if child_control == title_box or child_control == header_spacer:
+			continue
+		fixed_width += child_control.get_combined_minimum_size().x
+	var separation: float = float(top_bar.get_theme_constant("separation"))
+	var total_gap: float = separation * float(maxi(0, visible_children - 1))
+	return maxf(0.0, width - fixed_width - total_gap - HEADER_RELIC_WRAP_MARGIN)
 
 func _layout_elemental_intensity_bar() -> void:
 	if _intensity_bar == null or room_title == null or room_subtitle == null:
 		return
+	_layout_header_hud()
 	_intensity_bar.size = _intensity_bar_size()
 	var title_rect: Rect2 = room_title.get_global_rect()
-	var y: float = room_subtitle.get_global_rect().end.y + 8.0
+	var y: float = room_subtitle.get_global_rect().end.y + ELEMENTAL_INTENSITY_HEADER_GAP
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
-		y = relic_bar.get_global_rect().end.y + 8.0
+		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
+
+func _relic_bar_visible_bottom_y() -> float:
+	if relic_bar == null:
+		return 0.0
+	var bottom: float = relic_bar.get_global_rect().end.y
+	for child: Node in relic_bar.get_children():
+		if not (child is Control):
+			continue
+		var child_control: Control = child as Control
+		if not child_control.visible:
+			continue
+		bottom = maxf(bottom, child_control.get_global_rect().end.y)
+	return bottom
 
 func _build_pile_widget(spec: Dictionary) -> void:
 	var kind: String = str(spec.get("kind", ""))
@@ -1938,7 +2055,9 @@ func _refresh_ui() -> void:
 	room_subtitle.text = _room_subtitle_text(display_room)
 	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
+	_layout_header_hud()
 	_refresh_elemental_intensity_bar()
+	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
 	mini_map.set_run_state(_run_state)
 	if _large_map_view != null:
@@ -1979,7 +2098,7 @@ func _refresh_relic_bar() -> void:
 		if relic.is_empty():
 			continue
 		var frame := TooltipPanelContainer.new()
-		frame.custom_minimum_size = Vector2(52.0, 52.0)
+		frame.custom_minimum_size = RELIC_BADGE_SIZE
 		frame.set_meta("relic_id", relic_id)
 		frame.tooltip_text = "%s\n%s" % [
 				str(relic.get("name", relic_id)),
@@ -2023,6 +2142,9 @@ func _refresh_relic_bar() -> void:
 			fallback.add_theme_constant_override("outline_size", 1)
 			margin.add_child(fallback)
 		relic_bar.add_child(frame)
+	_layout_header_hud()
+	call_deferred("_layout_header_hud")
+	call_deferred("_layout_elemental_intensity_bar")
 
 func _refresh_pile_visuals() -> void:
 	var piles: Dictionary = _deck_piles()
@@ -3769,6 +3891,12 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
+func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
+	var impact_presentation: Dictionary = base_presentation.duplicate(true)
+	impact_presentation.erase("effect")
+	impact_presentation.erase("effect_progress")
+	return impact_presentation
+
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i) -> void:
 	var action_type: String = str(action.get("type", ""))
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
@@ -3879,7 +4007,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					presentation["unit_draw_tiles"] = {"player": effect_target_tile}
 				_render_board_state(before_state, presentation)
 				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
-			await _animate_floating_text_presentation(after_state, {
+			await _animate_floating_text_presentation(after_state, _attack_impact_presentation({
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_ATTACK_FOCUS,
 				"focus_tiles": focus_tiles,
@@ -3888,7 +4016,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect_progress": 1.0,
 				"impact_actor_keys": _damaged_enemy_keys(before_state, after_state),
 				"floating_texts": _player_damage_floating_texts(before_state, after_state)
-				})
+			}))
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -4080,7 +4208,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				var impact_actor_keys: Array = step.get("impact_actor_keys", [])
 				if impact_actor_keys.is_empty() and (int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0):
 					impact_actor_keys = ["player"]
-				await _animate_floating_text_presentation(animated_state, {
+				await _animate_floating_text_presentation(animated_state, _attack_impact_presentation({
 					"focus_actor_keys": [step_actor_key],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
 					"focus_tiles": focus_tiles,
@@ -4089,7 +4217,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"effect_progress": 1.0,
 					"impact_actor_keys": impact_actor_keys,
 					"floating_texts": _floating_texts_for_step(step)
-				})
+				}))
 
 func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var from_tile: Vector2i = step.get("from", Vector2i.ZERO)
