@@ -2812,6 +2812,17 @@ func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
 	}
 	var draw_tile: Vector2i = board.call("_effective_unit_tile", {"key": "enemy_1", "pos": from_tile})
 	_assert(draw_tile == to_tile, "Moving units should use their presentation draw tile for stable layering during motion")
+	var boss_unit := {"key": "enemy_2", "pos": from_tile, "footprint": Vector2i(2, 2)}
+	var boss_draw_tile: Vector2i = board.draw_tile_for_unit_origin(boss_unit, to_tile)
+	var boss_center: Vector2 = board.world_position_for_unit_origin(boss_unit, to_tile)
+	var expected_boss_center: Vector2 = (
+		board.world_position_for_tile(to_tile)
+		+ board.world_position_for_tile(to_tile + Vector2i(1, 0))
+		+ board.world_position_for_tile(to_tile + Vector2i(0, 1))
+		+ board.world_position_for_tile(to_tile + Vector2i(1, 1))
+	) / 4.0
+	_assert(boss_draw_tile == to_tile + Vector2i(1, 1), "Large moving units should draw on the destination footprint's front tile")
+	_assert(boss_center.distance_to(expected_boss_center) <= 0.001, "Large moving units should animate from their footprint center, not their anchor tile")
 	board.free()
 
 func _test_keyword_icon_library_surfaces_tooltips() -> void:

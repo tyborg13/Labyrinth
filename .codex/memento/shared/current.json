@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-14T04:15:57Z",
+  "updated_at": "2026-05-14T04:42:16Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2609,6 +2609,28 @@
       "source": {
         "branch": "master",
         "commit": "a8c932c"
+      }
+    },
+    {
+      "id": "mnt_20260514T044216Z_4a3693c6",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Movement animation state is staged at destination.",
+      "details": "RunScene stages moving actors at their destination before rendering movement frames, then uses CombatBoardView presentation unit_world_positions to interpolate the visible sprite and unit_draw_tiles for final layering. CombatBoardView exposes footprint-aware world_position_for_unit_origin and draw_tile_for_unit_origin so large enemies such as Zekarion animate from their visual footprint center and draw on the destination front tile instead of snapping to the anchor/origin if a presentation frame is missed.",
+      "status": "active",
+      "created_at": "2026-05-14T04:42:16Z",
+      "updated_at": "2026-05-14T04:42:16Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "0acadaa"
       }
     }
   ]

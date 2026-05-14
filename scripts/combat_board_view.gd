@@ -2542,10 +2542,7 @@ func _effective_unit_tile(unit: Dictionary) -> Vector2i:
 		var overrides: Dictionary = presentation.get("unit_draw_tiles", {})
 		if overrides.has(actor_key):
 			return overrides[actor_key]
-	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
-	if footprint != Vector2i.ONE:
-		return unit.get("pos", Vector2i.ZERO) + Vector2i(maxi(1, footprint.x) - 1, maxi(1, footprint.y) - 1)
-	return unit.get("pos", Vector2i.ZERO)
+	return draw_tile_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
 
 func _nearest_tile_for_world_position(world_position: Vector2) -> Vector2i:
 	var grid: Array = combat_state.get("grid", [])
@@ -3131,18 +3128,7 @@ func _unit_center(unit: Dictionary) -> Vector2:
 	var overrides: Dictionary = presentation.get("unit_world_positions", {})
 	if overrides.has(unit_key):
 		return overrides[unit_key]
-	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
-	if footprint != Vector2i.ONE:
-		var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
-		var total := Vector2.ZERO
-		var count: int = 0
-		for y: int in range(maxi(1, footprint.y)):
-			for x: int in range(maxi(1, footprint.x)):
-				total += _tile_center(origin + Vector2i(x, y))
-				count += 1
-		if count > 0:
-			return total / float(count)
-	return _tile_center(unit.get("pos", Vector2i.ZERO))
+	return world_position_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
 
 func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
 	return _fitted_draw_rect(texture, frame_rect)
@@ -3240,6 +3226,23 @@ func _tile_step_offset(dir: Vector2i) -> Vector2:
 
 func world_position_for_tile(tile: Vector2i) -> Vector2:
 	return _tile_center(tile)
+
+func world_position_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2:
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	if footprint != Vector2i.ONE:
+		var total := Vector2.ZERO
+		var count: int = 0
+		for y: int in range(maxi(1, footprint.y)):
+			for x: int in range(maxi(1, footprint.x)):
+				total += _tile_center(origin + Vector2i(x, y))
+				count += 1
+		if count > 0:
+			return total / float(count)
+	return _tile_center(origin)
+
+func draw_tile_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2i:
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	return origin + Vector2i(maxi(1, footprint.x) - 1, maxi(1, footprint.y) - 1)
 
 func _tile_polygon(tile: Vector2i) -> PackedVector2Array:
 	var center: Vector2 = _tile_center(tile)

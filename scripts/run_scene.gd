@@ -4095,8 +4095,11 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var from_tile: Vector2i = step.get("from", Vector2i.ZERO)
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
-	var from_point: Vector2 = board_view.world_position_for_tile(from_tile)
-	var to_point: Vector2 = board_view.world_position_for_tile(to_tile)
+	var actor_unit: Dictionary = _animation_actor_unit(animated_state, actor_key)
+	var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, from_tile)
+	var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, to_tile)
+	var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, to_tile)
+	_apply_animation_step(animated_state, step)
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 	for frame: int in range(1, MOVE_STEP_FRAMES + 1):
 		var t: float = float(frame) / float(MOVE_STEP_FRAMES)
@@ -4106,10 +4109,9 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 			"focus_tiles": [to_tile],
 			"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 			"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
-			"unit_draw_tiles": {actor_key: to_tile}
+			"unit_draw_tiles": {actor_key: draw_tile}
 		})
 		await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
-	_apply_animation_step(animated_state, step)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
 
@@ -4456,6 +4458,24 @@ func _clear_enemy_blocks(state: Dictionary) -> void:
 		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
 		enemy["block"] = 0
 		(state.get("enemies", []) as Array)[enemy_index] = enemy
+
+func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
+	if actor_key == "player":
+		return (state.get("player", {}) as Dictionary).duplicate(true)
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if _enemy_key(enemy) == actor_key:
+			return enemy.duplicate(true)
+	for illusion_var: Variant in state.get("illusions", []):
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = illusion_var as Dictionary
+		var illusion_key: String = "illusion_%d" % int(illusion.get("id", -1))
+		if illusion_key == actor_key:
+			return illusion.duplicate(true)
+	return {"footprint": Vector2i.ONE}
 
 func _set_action_banner(text: String) -> void:
 	action_banner.visible = not text.is_empty()
