@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-14T04:42:16Z",
+  "updated_at": "2026-05-14T05:07:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2631,6 +2631,28 @@
       "source": {
         "branch": "master",
         "commit": "0acadaa"
+      }
+    },
+    {
+      "id": "mnt_20260514T050712Z_6420409a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Intensity-spending relics track gross gain and spend counters.",
+      "details": "CombatEngine increments elemental_intensity_gained_total whenever intensity is raised and elemental_intensity_spent_total whenever relic threshold rewards consume intensity. RunScene card_played analytics compares those counters so raise-and-consume relic payoffs do not disappear into a net before/after elemental_intensity delta.",
+      "status": "active",
+      "created_at": "2026-05-14T05:07:12Z",
+      "updated_at": "2026-05-14T05:07:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "88dea1b"
       }
     }
   ]

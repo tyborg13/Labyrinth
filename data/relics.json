@@ -274,5 +274,105 @@
     "effects": [
       {"type": "start_combat_stoneskin_per_deck_element", "element": "earth", "threshold": 4, "value": 3, "max_value": 15}
     ]
+  },
+  "cinderbrand_tongs": {
+    "name": "Cinderbrand Tongs",
+    "rarity": "common",
+    "description": "The first time each turn you burn an enemy, raise Fire intensity by 1.",
+    "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "status_intensity_gain", "status": "burn", "element": "fire", "amount": 1, "once": "turn"}
+    ]
+  },
+  "rimecatcher_vial": {
+    "name": "Rimecatcher Vial",
+    "rarity": "common",
+    "description": "The first time each turn you freeze an enemy, raise Ice intensity by 1.",
+    "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "status_intensity_gain", "status": "freeze", "element": "ice", "amount": 1, "once": "turn"}
+    ]
+  },
+  "ion_spool": {
+    "name": "Ion Spool",
+    "rarity": "common",
+    "description": "The first time each turn you shock an enemy, raise Lightning intensity by 1.",
+    "icon_path": "res://assets/art/relics/ion_spool.png",
+    "accent": "#8f9499",
+    "effects": [
+      {"type": "status_intensity_gain", "status": "shock", "element": "lightning", "amount": 1, "once": "turn"}
+    ]
+  },
+  "updraft_bottle": {
+    "name": "Updraft Bottle",
+    "rarity": "rare",
+    "description": "The first time you blink each turn, raise Air intensity by 1.",
+    "icon_path": "res://assets/art/relics/updraft_bottle.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "blink_intensity_gain_once_per_turn", "element": "air", "amount": 1}
+    ]
+  },
+  "basalt_calendar": {
+    "name": "Basalt Calendar",
+    "rarity": "rare",
+    "description": "If your deck has 4 or more Earth cards, start combat with +1 Earth intensity.",
+    "icon_path": "res://assets/art/relics/basalt_calendar.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "start_combat_intensity", "element": "earth", "deck_element": "earth", "threshold": 4, "amount": 1}
+    ]
+  },
+  "coalheart_crucible": {
+    "name": "Coalheart Crucible",
+    "rarity": "rare",
+    "description": "Once each turn, when Fire intensity reaches 4+, consume 2 Fire, gain 1 card play, and burn all enemies for 2.",
+    "icon_path": "res://assets/art/relics/coalheart_crucible.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "intensity_threshold_reward", "element": "fire", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "card_play", "amount": 1}, {"type": "all_enemies_status", "status": "burn", "amount": 2}]}
+    ]
+  },
+  "voltaic_tuning_fork": {
+    "name": "Voltaic Tuning Fork",
+    "rarity": "rare",
+    "description": "Once each turn, when Lightning intensity reaches 3+, draw 1.",
+    "icon_path": "res://assets/art/relics/voltaic_tuning_fork.png",
+    "accent": "#4b84d8",
+    "effects": [
+      {"type": "intensity_threshold_reward", "element": "lightning", "threshold": 3, "once": "turn", "rewards": [{"type": "draw", "amount": 1}]}
+    ]
+  },
+  "tectonic_abacus": {
+    "name": "Tectonic Abacus",
+    "rarity": "epic",
+    "description": "Once each turn, when Earth intensity reaches 4+, consume 2 Earth and gain 8 stoneskin.",
+    "icon_path": "res://assets/art/relics/tectonic_abacus.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "intensity_threshold_reward", "element": "earth", "threshold": 4, "consume": 2, "once": "turn", "rewards": [{"type": "stoneskin", "amount": 8}]}
+    ]
+  },
+  "overflow_censer": {
+    "name": "Overflow Censer",
+    "rarity": "epic",
+    "description": "The first time each turn any intensity reaches 3+, gain 5 block.",
+    "icon_path": "res://assets/art/relics/overflow_censer.png",
+    "accent": "#9b62d6",
+    "effects": [
+      {"type": "intensity_threshold_reward", "element": "any", "threshold": 3, "once": "turn", "rewards": [{"type": "block", "amount": 5}]}
+    ]
+  },
+  "black_sun_dial": {
+    "name": "Black Sun Dial",
+    "rarity": "legendary",
+    "description": "The first time each combat each element reaches 5+, consume 3 of it, deal 3 to all enemies, and draw 1.",
+    "icon_path": "res://assets/art/relics/black_sun_dial.png",
+    "accent": "#d9862f",
+    "effects": [
+      {"type": "intensity_threshold_reward", "element": "any", "threshold": 5, "consume": 3, "once": "combat_per_element", "rewards": [{"type": "all_enemies_damage", "amount": 3}, {"type": "draw", "amount": 1}]}
+    ]
   }
 }

@@ -5434,6 +5434,10 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
 	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
 	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
+	var intensity_gained: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_gained_total")
+	if intensity_gained.is_empty():
+		intensity_gained = _elemental_intensity_delta(intensity_before, intensity_after)
+	var intensity_spent: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_spent_total")
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
 	if JSON.stringify(actions) != JSON.stringify(printed_actions):
@@ -5461,7 +5465,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
 		"elemental_intensity_before": intensity_before,
 		"elemental_intensity_after": intensity_after,
-		"elemental_intensity_gained": _elemental_intensity_delta(intensity_before, intensity_after),
+		"elemental_intensity_gained": intensity_gained,
+		"elemental_intensity_spent": intensity_spent,
 		"pierce_actions": _analytics_pierce_action_count(actions),
 		"illusions_created": illusions_created,
 		"illusion_health_created": illusion_health_created,
@@ -5487,6 +5492,16 @@ func _elemental_intensity_delta(before_intensity: Dictionary, after_intensity: D
 		var gained: int = int(after_intensity.get(element_id, 0)) - int(before_intensity.get(element_id, 0))
 		if gained > 0:
 			result[element_id] = gained
+	return result
+
+func _elemental_intensity_counter_delta(before_state: Dictionary, after_state: Dictionary, counter_key: String) -> Dictionary:
+	var result: Dictionary = {}
+	var before_counter: Dictionary = _combat_engine.elemental_intensity_counter(before_state, counter_key)
+	var after_counter: Dictionary = _combat_engine.elemental_intensity_counter(after_state, counter_key)
+	for element_id: String in ElementData.all_elements():
+		var delta: int = int(after_counter.get(element_id, 0)) - int(before_counter.get(element_id, 0))
+		if delta > 0:
+			result[element_id] = delta
 	return result
 
 func _card_play_capacity_value(state: Dictionary) -> int:

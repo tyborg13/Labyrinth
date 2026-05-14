@@ -56,6 +56,8 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"room_type": str(room_layout.get("type", "combat")),
 		"room_element": str(room_layout.get("element", ElementData.NONE)),
 		"elemental_intensity": _initial_elemental_intensity(str(room_layout.get("element", ElementData.NONE))),
+		"elemental_intensity_gained_total": _empty_elemental_intensity(),
+		"elemental_intensity_spent_total": _empty_elemental_intensity(),
 		"grid": room_layout.get("grid", []).duplicate(true),
 		"moss": room_layout.get("moss", {}).duplicate(true),
 		"player": player,
@@ -124,6 +126,14 @@ func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dicti
 				if effect.has("max_value"):
 					bonus = mini(bonus, int(effect.get("max_value", bonus)))
 				player["stoneskin"] = int(player.get("stoneskin", 0)) + bonus
+			"start_combat_intensity":
+				if not _start_combat_intensity_effect_applies(effect, deck_cards):
+					continue
+				var start_element: String = str(effect.get("element", ElementData.NONE))
+				var start_amount: int = int(effect.get("amount", effect.get("value", 0)))
+				next_state["player"] = player
+				next_state = _gain_elemental_intensity(next_state, start_element, start_amount, _relic_effect_source_name(effect))
+				player = _normalized_player(next_state.get("player", {}))
 	next_state["player"] = player
 	return next_state
 
@@ -293,11 +303,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 		"intensity":
 			var element_id: String = _action_intensity_element(action)
 			var amount: int = maxi(0, int(action.get("amount", 0)))
-			if ElementData.is_elemental(element_id) and amount > 0:
-				var intensities: Dictionary = elemental_intensities(next_state)
-				intensities[element_id] = int(intensities.get(element_id, 0)) + amount
-				next_state["elemental_intensity"] = intensities
-				_log(next_state, "%s intensity rises by %d." % [ElementData.name(element_id), amount])
+			next_state = _gain_elemental_intensity(next_state, element_id, amount)
 		"illusion":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
@@ -528,6 +534,16 @@ func elemental_intensity(state: Dictionary, element_id: String) -> int:
 	if not ElementData.is_elemental(element_id):
 		return 0
 	return int(elemental_intensities(state).get(element_id, 0))
+
+func elemental_intensity_counter(state: Dictionary, counter_key: String) -> Dictionary:
+	var result: Dictionary = _empty_elemental_intensity()
+	var raw: Variant = state.get(counter_key, {})
+	if typeof(raw) != TYPE_DICTIONARY:
+		return result
+	var source: Dictionary = raw as Dictionary
+	for element_id: String in ElementData.all_elements():
+		result[element_id] = maxi(0, int(source.get(element_id, 0)))
+	return result
 
 func action_intensity_requirement(action: Dictionary) -> Dictionary:
 	return _action_intensity_requirement(action)
@@ -1135,6 +1151,47 @@ func _initial_elemental_intensity(room_element: String) -> Dictionary:
 	for element_id: String in ElementData.all_elements():
 		intensities[element_id] = ELEMENTAL_INTENSITY_ROOM_BASE if element_id == room_element else 0
 	return intensities
+
+func _empty_elemental_intensity() -> Dictionary:
+	var intensities: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		intensities[element_id] = 0
+	return intensities
+
+func _gain_elemental_intensity(state: Dictionary, element_id: String, amount: int, source_name: String = "") -> Dictionary:
+	var next_state: Dictionary = state
+	if not ElementData.is_elemental(element_id) or amount <= 0:
+		return next_state
+	var before_value: int = elemental_intensity(next_state, element_id)
+	var intensities: Dictionary = elemental_intensities(next_state)
+	intensities[element_id] = before_value + amount
+	next_state["elemental_intensity"] = intensities
+	var gained_total: Dictionary = elemental_intensity_counter(next_state, "elemental_intensity_gained_total")
+	gained_total[element_id] = int(gained_total.get(element_id, 0)) + amount
+	next_state["elemental_intensity_gained_total"] = gained_total
+	if source_name.is_empty():
+		_log(next_state, "%s intensity rises by %d." % [ElementData.name(element_id), amount])
+	else:
+		_log(next_state, "%s raises %s intensity by %d." % [source_name, ElementData.name(element_id), amount])
+	return _trigger_intensity_threshold_relics(next_state, element_id, before_value, before_value + amount)
+
+func _consume_elemental_intensity(state: Dictionary, element_id: String, amount: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if not ElementData.is_elemental(element_id) or amount <= 0:
+		return next_state
+	var before_value: int = elemental_intensity(next_state, element_id)
+	var after_value: int = maxi(0, before_value - amount)
+	var spent: int = before_value - after_value
+	if spent <= 0:
+		return next_state
+	var intensities: Dictionary = elemental_intensities(next_state)
+	intensities[element_id] = after_value
+	next_state["elemental_intensity"] = intensities
+	var spent_total: Dictionary = elemental_intensity_counter(next_state, "elemental_intensity_spent_total")
+	spent_total[element_id] = int(spent_total.get(element_id, 0)) + spent
+	next_state["elemental_intensity_spent_total"] = spent_total
+	_log(next_state, "%s intensity is spent by %d." % [ElementData.name(element_id), spent])
+	return next_state
 
 func _action_intensity_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
@@ -2674,13 +2731,19 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 func _trigger_blink_relics(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
 	for effect: Dictionary in _relic_effects(next_state):
-		if str(effect.get("type", "")) != "blink_draw_once_per_turn":
-			continue
-		var flag_key: String = _turn_relic_flag_key(effect, "blink_draw")
-		if _turn_flag(next_state, flag_key):
-			continue
-		_set_turn_flag(next_state, flag_key, true)
-		next_state = _draw_cards_in_place(next_state, int(effect.get("value", 1)))
+		match str(effect.get("type", "")):
+			"blink_draw_once_per_turn":
+				var draw_key: String = _turn_relic_flag_key(effect, "blink_draw")
+				if _turn_flag(next_state, draw_key):
+					continue
+				_set_turn_flag(next_state, draw_key, true)
+				next_state = _draw_cards_in_place(next_state, int(effect.get("value", 1)))
+			"blink_intensity_gain_once_per_turn":
+				var intensity_key: String = _turn_relic_flag_key(effect, "blink_intensity")
+				if _turn_flag(next_state, intensity_key):
+					continue
+				_set_turn_flag(next_state, intensity_key, true)
+				next_state = _gain_elemental_intensity(next_state, str(effect.get("element", ElementData.NONE)), int(effect.get("amount", effect.get("value", 1))), _relic_effect_source_name(effect))
 	return next_state
 
 func _trigger_long_move_relics(state: Dictionary, distance: int) -> Dictionary:
@@ -2725,6 +2788,31 @@ func _trigger_status_relics(state: Dictionary, status_id: String) -> Dictionary:
 					continue
 				_set_turn_flag(next_state, turn_key, true)
 				next_state = _draw_cards_in_place(next_state, int(effect.get("value", 1)))
+			"status_intensity_gain":
+				var intensity_key: String = _turn_relic_flag_key(effect, "status_intensity")
+				if _turn_flag(next_state, intensity_key):
+					continue
+				_set_turn_flag(next_state, intensity_key, true)
+				next_state = _gain_elemental_intensity(next_state, str(effect.get("element", ElementData.NONE)), int(effect.get("amount", effect.get("value", 1))), _relic_effect_source_name(effect))
+	return next_state
+
+func _trigger_intensity_threshold_relics(state: Dictionary, element_id: String, before_value: int, after_value: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if not ElementData.is_elemental(element_id) or after_value <= before_value:
+		return next_state
+	for effect: Dictionary in _relic_effects(next_state):
+		if str(effect.get("type", "")) != "intensity_threshold_reward":
+			continue
+		if not _relic_effect_matches_intensity_element(effect, element_id):
+			continue
+		var threshold: int = int(effect.get("threshold", effect.get("amount", 0)))
+		if threshold <= 0 or before_value >= threshold or after_value < threshold:
+			continue
+		if not _relic_once_available(next_state, effect, "intensity_threshold", element_id):
+			continue
+		_mark_relic_once(next_state, effect, "intensity_threshold", element_id)
+		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
+		next_state = _consume_elemental_intensity(next_state, element_id, int(effect.get("consume", 0)))
 	return next_state
 
 func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictionary:
@@ -2755,6 +2843,89 @@ func _trigger_prevent_lethal_relics(state: Dictionary) -> Dictionary:
 			next_state = _burn_all_live_enemies(next_state, burn_amount)
 		_log(next_state, "%s prevents death." % _relic_effect_source_name(effect))
 		return next_state
+	return next_state
+
+func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var rewards: Array = []
+	if typeof(raw_rewards) == TYPE_ARRAY:
+		rewards = (raw_rewards as Array).duplicate(true)
+	elif typeof(raw_rewards) == TYPE_DICTIONARY:
+		rewards = [raw_rewards]
+	for reward_var: Variant in rewards:
+		if typeof(reward_var) != TYPE_DICTIONARY:
+			continue
+		var reward: Dictionary = reward_var as Dictionary
+		var amount: int = int(reward.get("amount", reward.get("value", 0)))
+		match str(reward.get("type", "")):
+			"draw":
+				next_state = _draw_cards_in_place(next_state, amount)
+			"card_play":
+				if amount > 0:
+					next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + amount
+			"block":
+				var block_player: Dictionary = _normalized_player(next_state.get("player", {}))
+				block_player["block"] = int(block_player.get("block", 0)) + maxi(0, amount)
+				next_state["player"] = block_player
+			"stoneskin":
+				var stoneskin_player: Dictionary = _normalized_player(next_state.get("player", {}))
+				var stoneskin_before: int = int(stoneskin_player.get("stoneskin", 0))
+				stoneskin_player["stoneskin"] = int(stoneskin_player.get("stoneskin", 0)) + maxi(0, amount)
+				next_state["player"] = stoneskin_player
+				next_state = _trigger_stoneskin_relics(next_state, int(stoneskin_player.get("stoneskin", 0)) - stoneskin_before)
+			"heal":
+				next_state = _heal_player(next_state, amount)
+			"all_enemies_status":
+				next_state = _apply_status_to_all_live_enemies(next_state, str(reward.get("status", "")), amount)
+			"all_enemies_damage":
+				next_state = _damage_all_live_enemies(next_state, amount)
+	if not rewards.is_empty():
+		_log(next_state, "%s triggers." % _relic_effect_source_name(effect))
+	return next_state
+
+func _apply_status_to_all_live_enemies(state: Dictionary, status_id: String, amount: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if amount <= 0 or status_id.is_empty():
+		return next_state
+	var enemies: Array = next_state.get("enemies", []).duplicate(true)
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		match status_id:
+			"burn":
+				enemy["burn"] = int(enemy.get("burn", 0)) + amount
+			"freeze":
+				enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), amount)
+			"shock":
+				if not _enemy_is_immune_to_status(enemy, "shock"):
+					enemy["shock"] = maxi(int(enemy.get("shock", 0)), amount)
+			"poison":
+				var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
+				poison["damage"] = int(poison.get("damage", 0)) + amount
+				poison["delay"] = 2
+				enemy["poison"] = poison
+			_:
+				continue
+		enemies[index] = enemy
+	next_state["enemies"] = enemies
+	return next_state
+
+func _damage_all_live_enemies(state: Dictionary, amount: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if amount <= 0:
+		return next_state
+	var enemies: Array = next_state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var current_enemies: Array = next_state.get("enemies", [])
+		if index < 0 or index >= current_enemies.size() or typeof(current_enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = _normalized_enemy(current_enemies[index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		next_state = _damage_enemy(next_state, index, amount)
 	return next_state
 
 func _damage_adjacent_enemies_from_player(state: Dictionary, amount: int) -> Dictionary:
@@ -2794,6 +2965,54 @@ func _heal_player(state: Dictionary, amount: int) -> Dictionary:
 	player["hp"] = mini(int(player.get("max_hp", 1)), int(player.get("hp", 0)) + amount)
 	next_state["player"] = player
 	return next_state
+
+func _start_combat_intensity_effect_applies(effect: Dictionary, deck_cards: Array) -> bool:
+	var deck_element: String = str(effect.get("deck_element", ""))
+	if not ElementData.is_elemental(deck_element):
+		return true
+	var count: int = 0
+	for card_id_var: Variant in deck_cards:
+		if GameData.card_element(str(card_id_var)) == deck_element:
+			count += 1
+	return count >= int(effect.get("threshold", 1))
+
+func _relic_effect_matches_intensity_element(effect: Dictionary, element_id: String) -> bool:
+	var effect_element: String = str(effect.get("element", "any"))
+	return effect_element.is_empty() or effect_element == "any" or effect_element == element_id
+
+func _relic_once_available(state: Dictionary, effect: Dictionary, suffix: String, element_id: String) -> bool:
+	var once: String = str(effect.get("once", ""))
+	if once.is_empty():
+		return true
+	var include_element: bool = once.ends_with("_per_element")
+	var key: String = _relic_once_key(effect, suffix, element_id, include_element)
+	if once.begins_with("turn"):
+		return not _turn_flag(state, key)
+	if once.begins_with("combat"):
+		return not _combat_relic_flag(state, key)
+	return true
+
+func _mark_relic_once(state: Dictionary, effect: Dictionary, suffix: String, element_id: String) -> void:
+	var once: String = str(effect.get("once", ""))
+	if once.is_empty():
+		return
+	var include_element: bool = once.ends_with("_per_element")
+	var key: String = _relic_once_key(effect, suffix, element_id, include_element)
+	if once.begins_with("turn"):
+		_set_turn_flag(state, key, true)
+	elif once.begins_with("combat"):
+		_set_combat_relic_flag(state, key, true)
+
+func _relic_once_key(effect: Dictionary, suffix: String, element_id: String, include_element: bool) -> String:
+	var key: String = "%s:%s:%s:%d" % [
+		str(effect.get("relic_id", "")),
+		str(effect.get("status", "")),
+		suffix,
+		int(effect.get("threshold", effect.get("amount", 0)))
+	]
+	if include_element:
+		key = "%s:%s" % [key, element_id]
+	return key
 
 func _relic_effects(state: Dictionary) -> Array[Dictionary]:
 	return GameData.relic_effects_for_ids(state.get("relics", []))

@@ -50,8 +50,8 @@ The current event stream is enough to derive:
 - card play economy during resolution: plays spent, remaining plays before/after,
   net remaining-play delta, total play capacity gained, kill-granted plays, and
   card-action-granted plays
-- elemental intensity before/after resolution and the positive per-element
-  intensity gained by the played card
+- elemental intensity before/after resolution, gross positive per-element
+  intensity gained by the played card, and intensity spent by relic payoffs
 - illusions created and their total created health
 - immediate status application deltas
 - actual resolved action list and chosen targets

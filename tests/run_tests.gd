@@ -1098,6 +1098,114 @@ func _test_relic_effect_hooks() -> void:
 	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
 	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 1, "Prevent-lethal relic effects should rescue the player once")
 	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Prevent-lethal relic effects should be able to apply follow-up status")
+	var cinder_state: Dictionary = combat.create_combat(1604, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["cinderbrand_tongs", "coalheart_crucible"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var cinder_intensity: Dictionary = combat.elemental_intensities(cinder_state)
+	cinder_intensity[ElementData.FIRE] = 3
+	cinder_state["elemental_intensity"] = cinder_intensity
+	cinder_state["player"] = {"pos": Vector2i(4, 2), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	cinder_state = combat.apply_player_action(cinder_state, {"type": "melee", "damage": 1, "range": 1, "burn": 1}, Vector2i(5, 2))
+	_assert(combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2, "Fire threshold relics should be able to consume intensity after crossing")
+	_assert(int(cinder_state.get("card_play_bonus_this_turn", 0)) == 1, "Intensity threshold rewards should be able to grant card plays")
+	_assert(int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Intensity threshold rewards should apply all-enemy statuses")
+	var cinder_spent: Dictionary = combat.elemental_intensity_counter(cinder_state, "elemental_intensity_spent_total")
+	_assert(int(cinder_spent.get(ElementData.FIRE, 0)) == 2, "Combat state should track gross intensity spent by relic payoffs")
+	var overflow_state: Dictionary = combat.create_combat(1610, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["overflow_censer"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var overflow_intensity: Dictionary = combat.elemental_intensities(overflow_state)
+	overflow_intensity[ElementData.ICE] = 2
+	overflow_state["elemental_intensity"] = overflow_intensity
+	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.ICE, "amount": 1})
+	_assert(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 5, "Any-element threshold rewards should trigger from matching crossings")
+	var voltaic_state: Dictionary = combat.create_combat(1605, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["voltaic_tuning_fork"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var voltaic_intensity: Dictionary = combat.elemental_intensities(voltaic_state)
+	voltaic_intensity[ElementData.LIGHTNING] = 2
+	voltaic_state["elemental_intensity"] = voltaic_intensity
+	var voltaic_deck: Dictionary = (voltaic_state.get("deck", {}) as Dictionary).duplicate(true)
+	voltaic_deck["draw"] = ["quick_stab"]
+	voltaic_deck["hand"] = []
+	voltaic_deck["discard"] = []
+	voltaic_deck["burned"] = []
+	voltaic_state["deck"] = voltaic_deck
+	voltaic_state = combat.apply_player_action(voltaic_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
+	_assert(combat.elemental_intensity(voltaic_state, ElementData.LIGHTNING) == 3, "Non-consuming threshold rewards should leave intensity in place")
+	_assert(((voltaic_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Intensity threshold rewards should be able to draw cards")
+	var basalt_room: Dictionary = _simple_room_layout()
+	basalt_room["element"] = ElementData.NONE
+	var basalt_state: Dictionary = combat.create_combat(1606, basalt_room, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["venom_claw", "stone_plate", "quarry_step", "thorn_skewer"],
+		"relics": ["basalt_calendar"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_assert(combat.elemental_intensity(basalt_state, ElementData.EARTH) == 1, "Deck-conditioned relics should be able to seed elemental intensity at combat start")
+	var updraft_state: Dictionary = combat.create_combat(1607, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["updraft_bottle"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	updraft_state = combat.apply_player_action(updraft_state, {"type": "blink", "range": 2}, Vector2i(3, 4))
+	updraft_state = combat.apply_player_action(updraft_state, {"type": "blink", "range": 2}, Vector2i(2, 4))
+	_assert(combat.elemental_intensity(updraft_state, ElementData.AIR) == 1, "Blink intensity relics should trigger only once per turn")
+	var tectonic_state: Dictionary = combat.create_combat(1608, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["tectonic_abacus"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var tectonic_intensity: Dictionary = combat.elemental_intensities(tectonic_state)
+	tectonic_intensity[ElementData.EARTH] = 3
+	tectonic_state["elemental_intensity"] = tectonic_intensity
+	tectonic_state = combat.apply_player_action(tectonic_state, {"type": "intensity", "element": ElementData.EARTH, "amount": 1})
+	_assert(combat.elemental_intensity(tectonic_state, ElementData.EARTH) == 2, "Earth threshold relics should consume their configured intensity")
+	_assert(int((tectonic_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 8, "Earth threshold relics should be able to grant stoneskin")
+	var black_sun_state: Dictionary = combat.create_combat(1609, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": ["black_sun_dial"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var black_sun_intensity: Dictionary = combat.elemental_intensities(black_sun_state)
+	black_sun_intensity[ElementData.FIRE] = 4
+	black_sun_state["elemental_intensity"] = black_sun_intensity
+	var black_sun_deck: Dictionary = (black_sun_state.get("deck", {}) as Dictionary).duplicate(true)
+	black_sun_deck["draw"] = ["quick_stab"]
+	black_sun_deck["hand"] = []
+	black_sun_deck["discard"] = []
+	black_sun_deck["burned"] = []
+	black_sun_state["deck"] = black_sun_deck
+	black_sun_state = combat.apply_player_action(black_sun_state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
+	_assert(combat.elemental_intensity(black_sun_state, ElementData.FIRE) == 2, "Any-element consuming relics should spend the triggering element")
+	_assert(int(((black_sun_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 11, "Any-element threshold rewards should be able to damage all enemies")
+	_assert(((black_sun_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Any-element threshold rewards should be able to draw")
 
 func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	var tailwind_skybreak: Dictionary = GameData.card_def_for_progression("skybreak_current", {"relics": ["tailwind_fletching"]})
@@ -4606,6 +4714,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
+	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by relic payoffs")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
 	var reward_payload: Dictionary = reward_event.get("payload", {})
 	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")
