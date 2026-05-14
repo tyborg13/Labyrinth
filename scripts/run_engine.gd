@@ -436,8 +436,6 @@ func _display_layout_for_room(seed: int, room: Dictionary, travel_dir: Vector2i)
 	if layout.is_empty():
 		return {}
 	layout["enemies"] = []
-	if _room_has_npcs(room) or (str(room.get("type", "")) != "combat" and str(room.get("type", "")) != "boss"):
-		layout["loot"] = []
 	return layout
 
 func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: Dictionary) -> Dictionary:
@@ -455,7 +453,8 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"npcs": [],
 		"enemies": [],
 		"traps": combat_state.get("traps", []).duplicate(true),
-		"loot": combat_state.get("loot", []).duplicate(true)
+		"loot": combat_state.get("loot", []).duplicate(true),
+		"terrain": combat_state.get("terrain", []).duplicate(true)
 	}
 
 func _room_type_for_coord(seed: int, coord: Vector2i) -> String:

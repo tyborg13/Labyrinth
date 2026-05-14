@@ -40,6 +40,7 @@ func _initialize() -> void:
 	_test_room_generation_avoids_adjacent_columns()
 	_test_room_generation_uses_stone_floor_with_moss_accents()
 	_test_room_generation_populates_elemental_traps()
+	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
 	_test_boss_room_spawns_zekarion_with_wisps()
@@ -78,8 +79,13 @@ func _initialize() -> void:
 	_test_traps_trigger_and_apply_current_turn_control()
 	_test_traps_roll_control_to_next_turn_when_no_plays_remain()
 	_test_move_paths_only_cross_required_traps()
+	_test_terrain_blocks_movement_without_blocking_line_of_sight()
+	_test_attacking_trap_blasts_adjacent_tiles()
+	_test_enemy_attacks_profitable_trap_without_self_damage()
+	_test_enemy_breaks_blocking_terrain()
 	_test_poison_and_stoneskin_behaviors()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
+	_test_enemy_close_aoe_still_hits_player()
 	_test_enemy_threat_tiles_follow_intent()
 	_test_zekarion_summons_wisps_when_alone()
 	_test_summoned_wisps_receive_preview_intents()
@@ -89,6 +95,9 @@ func _initialize() -> void:
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
 	_test_air_trap_tooltip_is_damage_only()
+	_test_pickup_tooltips_describe_effects()
+	_test_terrain_health_bars_are_contextual()
+	_test_run_scene_terrain_damage_previews_use_terrain_keys()
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_intent_panels_expand_on_hover_or_toggle()
 	_test_enemy_hud_layout_stays_centered_when_clear()
@@ -109,7 +118,7 @@ func _initialize() -> void:
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_combat_board_zooms_to_rendered_room_bounds()
-	_test_foreground_props_fade_when_covering_behind_units()
+	_test_foreground_props_fade_when_covering_behind_objects()
 	_test_pillar_art_fits_bottom_center_without_stretching()
 	_test_pillar_torch_fixtures_mount_on_both_visible_faces()
 	_test_column_torch_idle_sheets_load_and_are_clean()
@@ -455,6 +464,36 @@ func _assert_corner_pillar_room(room: Dictionary, label: String) -> void:
 				continue
 			_assert(str((grid[y] as Array)[x]) == "ash", "%s rooms should keep the rest of the interior clear" % label)
 
+func _open_floor_count_with_blockers(grid: Array, blocked: Dictionary) -> int:
+	var count: int = 0
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		for x: int in range(row.size()):
+			var tile: Vector2i = Vector2i(x, y)
+			if blocked.has(tile):
+				continue
+			if PathUtils.is_passable(grid, tile):
+				count += 1
+	return count
+
+func _reachable_floor_count_with_blockers(grid: Array, start: Vector2i, blocked: Dictionary) -> int:
+	if blocked.has(start) or not PathUtils.is_passable(grid, start):
+		return 0
+	var queue: Array[Vector2i] = []
+	queue.append(start)
+	var visited: Dictionary = {start: true}
+	while not queue.is_empty():
+		var current: Vector2i = queue.pop_front()
+		for direction: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current + direction
+			if visited.has(next_tile) or blocked.has(next_tile):
+				continue
+			if not PathUtils.is_passable(grid, next_tile):
+				continue
+			visited[next_tile] = true
+			queue.append(next_tile)
+	return visited.size()
+
 func _test_room_generation_populates_elemental_traps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
 	var trap_count_histogram: Dictionary = {}
@@ -497,6 +536,70 @@ func _test_room_generation_populates_elemental_traps() -> void:
 	_assert(trap_count_histogram.has(2) and trap_count_histogram.has(3), "Trap counts should vary between two and three across generated rooms")
 	_assert(total_center_distance / float(total_traps) < 2.2, "Trap placement should favor central traversal lanes over room corners")
 	_assert(corner_traps < total_traps / 4, "Trap placement should rarely choose room-corner bands")
+
+func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	for room_type: String in ["combat", "boss", "campfire", "treasure"]:
+		var room: Dictionary = generator.generate_room(412, {
+			"coord": Vector2i(2, 2),
+			"depth": 4 if room_type == "boss" else 2,
+			"type": room_type,
+			"element": ElementData.FIRE
+		}, Vector2i(0, -1))
+		var loot_by_kind: Dictionary = {}
+		for loot_var: Variant in room.get("loot", []):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			loot_by_kind[str(loot.get("kind", ""))] = loot
+			_assert(PathUtils.is_passable(room.get("grid", []), loot.get("pos", Vector2i(-1, -1))), "Generated pickups should sit on passable floor tiles")
+		if room_type in ["combat", "boss"]:
+			_assert(loot_by_kind.has("healing_vial"), "%s rooms should always place a healing potion" % room_type.capitalize())
+			_assert(int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 4, "Healing potions should heal 4")
+			_assert(loot_by_kind.has("rusty_shield"), "%s rooms should always place a rusty shield" % room_type.capitalize())
+			_assert(int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 4, "Rusty shields should grant 4 block")
+		else:
+			_assert(loot_by_kind.is_empty(), "%s rooms should not place battlefield pickups" % room_type.capitalize())
+		_assert(not loot_by_kind.has("ember_cache"), "Generated tile loot should no longer spawn random ember caches")
+	var combat_room: Dictionary = generator.generate_room(413, {
+		"coord": Vector2i(3, 1),
+		"depth": 2,
+		"type": "combat",
+		"element": ElementData.EARTH
+	}, Vector2i(1, 0))
+	var occupied: Dictionary = {combat_room.get("player_start", Vector2i.ZERO): true}
+	for enemy_var: Variant in combat_room.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		occupied[(enemy_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for trap_var: Variant in combat_room.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		occupied[(trap_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for loot_var: Variant in combat_room.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		occupied[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	var terrain_entries: Array = combat_room.get("terrain", [])
+	_assert(terrain_entries.size() >= 5 and terrain_entries.size() <= 7, "Combat rooms should scatter five to seven destructible terrain pieces")
+	var blocked: Dictionary = {}
+	for terrain_var: Variant in terrain_entries:
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		var pos: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+		_assert(str(terrain.get("kind", "")) in ["wooden_box", "wooden_crate"], "Generated terrain should be boxes or crates")
+		_assert(int(terrain.get("hp", 0)) == 3 and int(terrain.get("max_hp", 0)) == 3, "Generated terrain should have low 3 HP")
+		_assert(PathUtils.is_passable(combat_room.get("grid", []), pos), "Generated terrain should sit on passable floor tiles")
+		_assert(not occupied.has(pos), "Generated terrain should avoid actors, traps, and pickups")
+		occupied[pos] = true
+		blocked[pos] = true
+	var grid: Array = combat_room.get("grid", [])
+	var player_start: Vector2i = combat_room.get("player_start", Vector2i.ZERO)
+	_assert(
+		_reachable_floor_count_with_blockers(grid, player_start, blocked) == _open_floor_count_with_blockers(grid, blocked),
+		"Generated terrain should still leave the open floor connected"
+	)
 
 func _test_room_generation_scales_enemy_density() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1781,6 +1884,167 @@ func _test_move_paths_only_cross_required_traps() -> void:
 	_assert(remaining_traps.size() == 1 and ((remaining_traps[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(3, 4)), "Only the required destination trap should be consumed")
 	_assert(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 22, "Avoiding extra traps should only apply the destination trap's damage")
 
+func _test_terrain_blocks_movement_without_blocking_line_of_sight() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(5, 4),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0
+	}]
+	layout["terrain"] = [{
+		"id": "terrain_3_4",
+		"kind": "wooden_box",
+		"pos": Vector2i(3, 4),
+		"hp": 3,
+		"max_hp": 3
+	}]
+	var state: Dictionary = combat.create_combat(164, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var move_targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, {"type": "move", "range": 2})
+	_assert(not move_targets.has(Vector2i(3, 4)), "Destructible terrain should block movement target tiles")
+	var ranged_targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, {"type": "ranged", "damage": 1, "range": 5})
+	_assert(ranged_targets.has(Vector2i(5, 4)), "Destructible terrain should not block line of sight")
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 3, "range": 1}, Vector2i(3, 4))
+	var terrain: Dictionary = (state.get("terrain", []) as Array)[0]
+	_assert(int(terrain.get("hp", 0)) == 0, "Player attacks should be able to destroy low-HP terrain")
+
+func _test_attacking_trap_blasts_adjacent_tiles() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(4, 4),
+		"hp": 10,
+		"max_hp": 10,
+		"block": 0
+	}]
+	layout["traps"] = [{
+		"id": "trap_3_4",
+		"pos": Vector2i(3, 4),
+		"element": ElementData.FIRE,
+		"damage": 3,
+		"burn": 1
+	}]
+	var state: Dictionary = combat.create_combat(165, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["spark_dart"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 0, "range": 2}, Vector2i(3, 4))
+	_assert((state.get("traps", []) as Array).is_empty(), "Attacking a trap should consume and trigger it even for zero attack damage")
+	_assert(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 17, "Trap blasts should damage the player on adjacent tiles")
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(int(enemy.get("hp", 0)) == 7, "Trap blasts should damage enemies on adjacent tiles")
+
+func _test_enemy_attacks_profitable_trap_without_self_damage() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(5, 4)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(1, 4),
+		"hp": 12,
+		"max_hp": 12,
+		"block": 0,
+		"intent": {"name": "Snipe", "actions": [{"type": "ranged", "damage": 1, "range": 5}]}
+	}]
+	layout["traps"] = [{
+		"id": "trap_4_4",
+		"pos": Vector2i(4, 4),
+		"element": ElementData.FIRE,
+		"damage": 4,
+		"burn": 1
+	}]
+	var state: Dictionary = combat.create_combat(166, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(state, 0, {"name": "Snipe", "actions": [{"type": "ranged", "damage": 1, "range": 5}]})
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_state: Dictionary = phase.get("state", {})
+	_assert((after_state.get("traps", []) as Array).is_empty(), "Enemies should attack a trap when its blast beats their direct attack")
+	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 16, "Enemy-triggered traps should apply their blast damage to the player")
+	var steps: Array = phase.get("steps", [])
+	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("triggered_traps", []) as Array).is_empty(), "Enemy attack animation steps should report triggered traps")
+
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 12,
+		"max_hp": 12,
+		"block": 0,
+		"intent": {"name": "Snipe", "actions": [{"type": "ranged", "damage": 1, "range": 5}]}
+	}]
+	var self_risk_state: Dictionary = combat.create_combat(167, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(self_risk_state, 0, {"name": "Snipe", "actions": [{"type": "ranged", "damage": 1, "range": 5}]})
+	var self_risk_after: Dictionary = combat.resolve_enemy_phase(self_risk_state)
+	_assert((self_risk_after.get("traps", []) as Array).size() == 1, "Enemies should not attack a trap if its blast would hit themselves")
+	_assert(int((self_risk_after.get("player", {}) as Dictionary).get("hp", 0)) == 19, "Enemies should fall back to a direct attack when the trap would be self-damaging")
+
+func _test_enemy_breaks_blocking_terrain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(5, 4)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(2, 4),
+		"hp": 12,
+		"max_hp": 12,
+		"block": 0,
+		"intent": {"name": "Break Through", "actions": [{"type": "melee", "damage": 3, "range": 1}]}
+	}]
+	layout["terrain"] = [{
+		"id": "terrain_3_4",
+		"kind": "wooden_crate",
+		"pos": Vector2i(3, 4),
+		"hp": 3,
+		"max_hp": 3
+	}]
+	var state: Dictionary = combat.create_combat(168, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(state, 0, {"name": "Break Through", "actions": [{"type": "melee", "damage": 3, "range": 1}]})
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_state: Dictionary = phase.get("state", {})
+	var terrain: Dictionary = (after_state.get("terrain", []) as Array)[0]
+	_assert(int(terrain.get("hp", 0)) == 0, "Enemies should break destructible terrain blocking their most direct attack path")
+	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Enemy terrain-breaking attacks should not also damage the player")
+	var steps: Array = phase.get("steps", [])
+	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("terrain_losses", []) as Array).is_empty(), "Enemy terrain-breaking steps should report terrain damage")
+
 func _test_poison_and_stoneskin_behaviors() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(177, _simple_room_layout(), {
@@ -1893,6 +2157,36 @@ func _test_out_of_range_elemental_enemy_attack_skips_step() -> void:
 			attack_step_found = true
 			break
 	_assert(not attack_step_found, "Enemy attack animations should only enqueue when the attack actually connects")
+
+func _test_enemy_close_aoe_still_hits_player() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(4, 4)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(4, 5),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0
+	}]
+	var state: Dictionary = combat.create_combat(1782, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(state, 0, {
+		"name": "Ground Slam",
+		"actions": [{"type": "aoe", "damage": 3, "range": 0, "pattern": [[0, -1]], "rotate": false}]
+	})
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_state: Dictionary = phase.get("state", {})
+	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 21, "Close enemy AOE attacks should still hit the player")
+	var steps: Array = phase.get("steps", [])
+	_assert(not steps.is_empty() and str((steps.back() as Dictionary).get("kind", "")) == "aoe", "Close enemy AOE hits should still enqueue an impact step")
 
 func _test_shallow_elemental_enemy_actions_scale_back() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -2092,8 +2386,99 @@ func _test_air_trap_tooltip_is_damage_only() -> void:
 		"damage": 3
 	}))
 	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
-	_assert(tooltip.contains("3 damage"), "Trap tooltips should show trap damage")
-	_assert(tooltip == "Air Trap\n3 damage", "Air trap tooltips should only show damage until the air secondary effect is decided")
+	_assert(tooltip.contains("3 damage to adjacent tiles"), "Trap tooltips should show adjacent blast damage")
+	_assert(not tooltip.contains("Burn") and not tooltip.contains("Freeze") and not tooltip.contains("Shock") and not tooltip.contains("Poison"), "Air trap tooltips should stay damage-only until the air secondary effect is decided")
+
+func _test_pickup_tooltips_describe_effects() -> void:
+	var board := CombatBoardView.new()
+	_assert(
+		str(board.call("_loot_tooltip_text", {"kind": "healing_vial", "amount": 4})) == "Healing potion: Heal 4",
+		"Potion tooltips should describe the exact healing effect"
+	)
+	_assert(
+		str(board.call("_loot_tooltip_text", {"kind": "rusty_shield", "amount": 4})) == "Rusty shield: Gain 4 block",
+		"Rusty shield tooltips should describe the exact block effect"
+	)
+	var terrain_tooltip: String = str(board.call("_terrain_tooltip_text", {
+		"kind": "wooden_crate",
+		"hp": 2,
+		"max_hp": 3
+	}))
+	_assert(terrain_tooltip.contains("Wooden crate"), "Terrain tooltips should identify the object")
+	_assert(terrain_tooltip.contains("2/3 HP"), "Terrain tooltips should show HP")
+	_assert(not terrain_tooltip.contains("Blocks movement"), "Client terrain tooltips should stay concise")
+	_assert(not terrain_tooltip.contains("Line of sight open"), "Client terrain tooltips should not repeat tactical harness guidance")
+	_assert(not terrain_tooltip.contains("Attack to break"), "Client terrain tooltips should avoid instructional text")
+
+func _test_terrain_health_bars_are_contextual() -> void:
+	var board := CombatBoardView.new()
+	var terrain_tile := Vector2i(3, 4)
+	var terrain := {
+		"id": "box_a",
+		"kind": "wooden_box",
+		"pos": terrain_tile,
+		"hp": 3,
+		"max_hp": 3
+	}
+	_assert(not bool(board.call("_should_show_terrain_health_bar", terrain)), "Undamaged, unhighlighted terrain should hide its health bar")
+	var damaged_terrain: Dictionary = terrain.duplicate(true)
+	damaged_terrain["hp"] = 2
+	_assert(bool(board.call("_should_show_terrain_health_bar", damaged_terrain)), "Damaged terrain should show its health bar")
+	var highlighted_tiles: Array[Vector2i] = []
+	highlighted_tiles.append(terrain_tile)
+	board.set("attack_tiles", highlighted_tiles)
+	_assert(bool(board.call("_should_show_terrain_health_bar", terrain)), "Attack-highlighted terrain should show its health bar")
+	var empty_tiles: Array[Vector2i] = []
+	board.set("attack_tiles", empty_tiles)
+	board.set("presentation", {
+		"effect": {
+			"preview": true,
+			"damage_preview": {
+				"terrain_box_a": {
+					"hp": 1,
+					"hp_loss": 2,
+					"lethal": false
+				}
+			}
+		}
+	})
+	var terrain_preview: Dictionary = board.call("_terrain_damage_preview", terrain)
+	_assert(bool(board.call("_should_show_terrain_health_bar", terrain)), "Terrain with a pending damage preview should show its health bar")
+	_assert(int(terrain_preview.get("hp", -1)) == 1 and int(terrain_preview.get("hp_loss", 0)) == 2, "Terrain health bars should read terrain damage previews by terrain key")
+
+func _test_run_scene_terrain_damage_previews_use_terrain_keys() -> void:
+	var run_scene_script: Script = load("res://scripts/run_scene.gd")
+	_assert(run_scene_script != null, "Run scene script should load for terrain preview coverage")
+	if run_scene_script == null:
+		return
+	var instance: Node = run_scene_script.new()
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(2, 4)
+	layout["enemies"] = []
+	layout["terrain"] = [{
+		"id": "box_a",
+		"kind": "wooden_box",
+		"pos": Vector2i(3, 4),
+		"hp": 3,
+		"max_hp": 3
+	}]
+	var state: Dictionary = combat.create_combat(169, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var preview: Dictionary = instance.call("_preview_damage_for_action", state, {"type": "melee", "damage": 2, "range": 1}, Vector2i(3, 4))
+	var terrain_preview: Dictionary = preview.get("terrain_box_a", {}) as Dictionary
+	_assert(not terrain_preview.is_empty(), "Run scene attack previews should include terrain damage entries")
+	_assert(int(terrain_preview.get("hp", -1)) == 1 and int(terrain_preview.get("hp_loss", 0)) == 2, "Terrain damage previews should project remaining HP and loss")
+	var lethal_preview: Dictionary = instance.call("_preview_damage_for_action", state, {"type": "melee", "damage": 4, "range": 1}, Vector2i(3, 4))
+	var lethal_terrain_preview: Dictionary = lethal_preview.get("terrain_box_a", {}) as Dictionary
+	_assert(bool(lethal_terrain_preview.get("lethal", false)), "Terrain damage previews should mark lethal terrain hits")
+	instance.free()
 
 func _test_unit_hud_stacks_above_sprite_art() -> void:
 	var board := CombatBoardView.new()
@@ -2504,7 +2889,7 @@ func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	_assert(npc_texture != null, "Emaciated Man static art should load for board rendering")
 	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Ash Acolyte texture")
 
-func _test_foreground_props_fade_when_covering_behind_units() -> void:
+func _test_foreground_props_fade_when_covering_behind_objects() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	board.combat_state = {"grid": _simple_grid()}
@@ -2516,8 +2901,20 @@ func _test_foreground_props_fade_when_covering_behind_units() -> void:
 	var front_unit := {"key": "front", "type": "player", "pos": Vector2i(3, 4)}
 	var clear_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [front_unit])
 	_assert(is_equal_approx(clear_tint.a, 1.0), "Pillars should not fade for units that will draw in front of them")
-	var flat_tint: Color = board.call("_foreground_blocker_tint", "door", blocker_tile, prop_rect, [behind_unit])
-	_assert(is_equal_approx(flat_tint.a, 1.0), "Flat door terrain should not use foreground obstruction fading")
+	var behind_pickup := {"tile": Vector2i(3, 2), "rect": board.call("_loot_rect_for_tile", Vector2i(3, 2), null)}
+	var door_tint: Color = board.call("_foreground_blocker_tint", "door", blocker_tile, prop_rect, [behind_pickup])
+	_assert(door_tint.a < 1.0, "Foreground doors should fade when covering pickups on farther-back tiles")
+	var behind_trap := {"tile": Vector2i(3, 2), "rect": board.call("_trap_draw_rect", Vector2i(3, 2))}
+	var terrain_tint: Color = board.call("_foreground_blocker_tint", "terrain", blocker_tile, prop_rect, [behind_trap])
+	_assert(terrain_tint.a < 1.0, "Foreground destructible terrain should fade when covering traps or other tile contents")
+	var sliver_rect := Rect2(prop_rect.position + Vector2(prop_rect.size.x - 3.0, prop_rect.size.y - 3.0), Vector2(20.0, 20.0))
+	var sliver_entry := {"tile": Vector2i(3, 2), "rect": sliver_rect}
+	var sliver_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [sliver_entry])
+	_assert(is_equal_approx(sliver_tint.a, 1.0), "Foreground props should stay opaque when covering less than 25% of a farther-back sprite")
+	var covered_rect := Rect2(prop_rect.position + Vector2(12.0, 12.0), Vector2(24.0, 24.0))
+	var covered_entry := {"tile": Vector2i(3, 2), "rect": covered_rect}
+	var covered_tint: Color = board.call("_foreground_blocker_tint", "pillar", blocker_tile, prop_rect, [covered_entry])
+	_assert(covered_tint.a < 1.0, "Foreground props should fade when covering at least 25% of a farther-back sprite")
 	board.free()
 
 func _test_pillar_art_fits_bottom_center_without_stretching() -> void:
@@ -4800,6 +5197,10 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
 	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by relic payoffs")
+	_assert(play_payload.has("terrain_hp_damage"), "Card play analytics should include terrain damage")
+	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
+	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
+	_assert(play_payload.has("pickups_collected"), "Card play analytics should include collected battlefield pickups")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
 	var reward_payload: Dictionary = reward_event.get("payload", {})
 	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")
@@ -4829,6 +5230,16 @@ func _analytics_events_by_type(events: Array[Dictionary], event_type: String) ->
 		if str(event.get("event_type", "")) == event_type:
 			filtered.append(event)
 	return filtered
+
+func _set_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictionary) -> void:
+	var enemies: Array = (state.get("enemies", []) as Array).duplicate(true)
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return
+	var enemy: Dictionary = enemies[enemy_index]
+	enemy["intent"] = intent.duplicate(true)
+	enemy["block"] = 0
+	enemies[enemy_index] = enemy
+	state["enemies"] = enemies
 
 func _simple_room_layout() -> Dictionary:
 	return {

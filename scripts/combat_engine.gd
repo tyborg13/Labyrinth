@@ -28,6 +28,17 @@ const DEFAULT_AOE_PATTERN: Array = [
 	[0, 1],
 	[0, -1]
 ]
+const TRAP_BLAST_OFFSETS: Array[Vector2i] = [
+	Vector2i.ZERO,
+	Vector2i(0, -1),
+	Vector2i(1, -1),
+	Vector2i(1, 0),
+	Vector2i(1, 1),
+	Vector2i(0, 1),
+	Vector2i(-1, 1),
+	Vector2i(-1, 0),
+	Vector2i(-1, -1)
+]
 
 func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dictionary) -> Dictionary:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -66,6 +77,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"next_illusion_id": 1,
 		"traps": room_layout.get("traps", []).duplicate(true),
 		"loot": room_layout.get("loot", []).duplicate(true),
+		"terrain": room_layout.get("terrain", []).duplicate(true),
 		"relics": relic_ids,
 		"card_upgrades": (player_snapshot.get("card_upgrades", {}) as Dictionary).duplicate(true),
 		"card_mods": (player_snapshot.get("card_mods", {}) as Dictionary).duplicate(true),
@@ -192,21 +204,50 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					continue
 				targets.append(tile)
 		"melee":
+			var melee_range: int = int(action.get("range", 1))
 			for enemy: Dictionary in _live_enemies(state):
-				if _enemy_distance_to_tile(enemy, player_pos) <= int(action.get("range", 1)):
-					targets.append(_closest_enemy_tile_to(enemy, player_pos))
+				if _enemy_distance_to_tile(enemy, player_pos) <= melee_range:
+					var enemy_tile: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
+					if not targets.has(enemy_tile):
+						targets.append(enemy_tile)
+			for terrain: Dictionary in _live_terrain(state):
+				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
+				if PathUtils.manhattan(player_pos, terrain_pos) <= melee_range and not targets.has(terrain_pos):
+					targets.append(terrain_pos)
+			for trap: Dictionary in _live_traps(state):
+				var trap_pos: Vector2i = trap.get("pos", Vector2i.ZERO)
+				if PathUtils.manhattan(player_pos, trap_pos) <= melee_range and not targets.has(trap_pos):
+					targets.append(trap_pos)
 		"ranged":
+			var ranged_range: int = int(action.get("range", 1))
 			for enemy: Dictionary in _live_enemies(state):
 				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-				if PathUtils.manhattan(player_pos, enemy_pos) > int(action.get("range", 1)):
+				if PathUtils.manhattan(player_pos, enemy_pos) > ranged_range:
 					continue
 				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
 					continue
-				targets.append(enemy_pos)
+				if not targets.has(enemy_pos):
+					targets.append(enemy_pos)
+			for terrain: Dictionary in _live_terrain(state):
+				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
+				if PathUtils.manhattan(player_pos, terrain_pos) > ranged_range:
+					continue
+				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, terrain_pos):
+					continue
+				if not targets.has(terrain_pos):
+					targets.append(terrain_pos)
+			for trap: Dictionary in _live_traps(state):
+				var trap_pos: Vector2i = trap.get("pos", Vector2i.ZERO)
+				if PathUtils.manhattan(player_pos, trap_pos) > ranged_range:
+					continue
+				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, trap_pos):
+					continue
+				if not targets.has(trap_pos):
+					targets.append(trap_pos)
 		"aoe":
 			var aoe_range: int = int(action.get("range", 0))
 			if aoe_range <= 0:
-				if not _enemy_indices_in_tiles(state, _best_aoe_tiles_for_target(state, action, player_pos, false)).is_empty():
+				if _has_attackable_in_tiles(state, _best_aoe_tiles_for_target(state, action, player_pos, false)):
 					targets.append(player_pos)
 			else:
 				for tile: Vector2i in PathUtils.diamond_tiles(player_pos, aoe_range, state.get("grid", [])):
@@ -216,18 +257,35 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 						continue
 					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
 						continue
-					if _enemy_indices_in_tiles(state, _best_aoe_tiles_for_target(state, action, tile, false)).is_empty():
+					if not _has_attackable_in_tiles(state, _best_aoe_tiles_for_target(state, action, tile, false)):
 						continue
 					targets.append(tile)
 		"push", "pull":
+			var forced_range: int = int(action.get("range", 1))
 			for enemy: Dictionary in _live_enemies(state):
 				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-				var max_range: int = int(action.get("range", 1))
-				if PathUtils.manhattan(player_pos, enemy_pos) > max_range:
+				if PathUtils.manhattan(player_pos, enemy_pos) > forced_range:
 					continue
-				if max_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
+				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
 					continue
-				targets.append(enemy_pos)
+				if not targets.has(enemy_pos):
+					targets.append(enemy_pos)
+			for terrain: Dictionary in _live_terrain(state):
+				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
+				if PathUtils.manhattan(player_pos, terrain_pos) > forced_range:
+					continue
+				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, terrain_pos):
+					continue
+				if not targets.has(terrain_pos):
+					targets.append(terrain_pos)
+			for trap: Dictionary in _live_traps(state):
+				var trap_pos: Vector2i = trap.get("pos", Vector2i.ZERO)
+				if PathUtils.manhattan(player_pos, trap_pos) > forced_range:
+					continue
+				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, trap_pos):
+					continue
+				if not targets.has(trap_pos):
+					targets.append(trap_pos)
 	return targets
 
 func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
@@ -269,15 +327,15 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 				next_state = _trigger_blink_relics(next_state)
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
-			next_state = _attack_enemy_on_tile(next_state, action, target_tile, "melee")
+			next_state = _attack_target_on_tile(next_state, action, target_tile, "melee")
 		"ranged":
-			next_state = _attack_enemy_on_tile(next_state, action, target_tile, "ranged")
+			next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged")
 		"aoe":
 			next_state = _aoe_enemies(next_state, action, target_tile)
 		"push":
-			next_state = _push_or_pull_enemy(next_state, action, target_tile, true)
+			next_state = _push_or_pull_target(next_state, action, target_tile, true)
 		"pull":
-			next_state = _push_or_pull_enemy(next_state, action, target_tile, false)
+			next_state = _push_or_pull_target(next_state, action, target_tile, false)
 		"block":
 			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
@@ -659,13 +717,19 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
 			var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
 			var target_losses: Array[Dictionary] = _actor_target_losses(before_state, after_state)
+			var terrain_losses: Array[Dictionary] = _terrain_target_losses(before_state, after_state)
+			var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
 			var moved: bool = before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO)
 			var status_text: String = _player_status_step_text(before_player, after_player, action)
-			if target_losses.is_empty() and not moved and status_text.is_empty() and action_type != "lightning_strikes":
+			if target_losses.is_empty() and terrain_losses.is_empty() and triggered_traps.is_empty() and not moved and status_text.is_empty() and action_type != "lightning_strikes":
 				return {}
 			var target_tile: Vector2i = after_player.get("pos", Vector2i.ZERO)
 			if not target_losses.is_empty():
 				target_tile = (target_losses[0] as Dictionary).get("tile", target_tile)
+			elif not terrain_losses.is_empty():
+				target_tile = (terrain_losses[0] as Dictionary).get("tile", target_tile)
+			elif not triggered_traps.is_empty():
+				target_tile = (triggered_traps[0] as Dictionary).get("pos", target_tile)
 			var center_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
 				center_tile = before_enemy.get("pos", Vector2i.ZERO)
@@ -689,6 +753,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"block_loss": block_loss,
 				"stoneskin_loss": stoneskin_loss,
 				"target_losses": target_losses,
+				"terrain_losses": terrain_losses,
+				"triggered_traps": triggered_traps,
 				"impact_actor_keys": _target_loss_keys(target_losses),
 				"status_text": status_text,
 				"range": int(action.get("range", 0)),
@@ -755,8 +821,55 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 			"block_loss": 0,
 			"stoneskin_loss": 0,
 			"amount": hp_loss
+			})
+	return losses
+
+func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var losses: Array[Dictionary] = []
+	var after_by_id: Dictionary = {}
+	for after_terrain_var: Variant in after_state.get("terrain", []):
+		if typeof(after_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var after_terrain: Dictionary = _normalized_terrain(after_terrain_var)
+		after_by_id[str(after_terrain.get("id", ""))] = after_terrain
+	for before_terrain_var: Variant in before_state.get("terrain", []):
+		if typeof(before_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var before_terrain: Dictionary = _normalized_terrain(before_terrain_var)
+		if int(before_terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		var after_terrain: Dictionary = after_by_id.get(terrain_id, before_terrain)
+		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - int(after_terrain.get("hp", 0)))
+		if hp_loss <= 0:
+			continue
+		losses.append({
+			"key": "terrain_%s" % terrain_id,
+			"kind": str(before_terrain.get("kind", "terrain")),
+			"id": terrain_id,
+			"tile": before_terrain.get("pos", Vector2i.ZERO),
+			"hp_loss": hp_loss,
+			"amount": hp_loss
 		})
 	return losses
+
+func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var after_ids: Dictionary = {}
+	for after_trap_var: Variant in after_state.get("traps", []):
+		if typeof(after_trap_var) != TYPE_DICTIONARY:
+			continue
+		var after_trap: Dictionary = after_trap_var
+		after_ids[str(after_trap.get("id", ""))] = true
+	var triggered: Array[Dictionary] = []
+	for before_trap_var: Variant in before_state.get("traps", []):
+		if typeof(before_trap_var) != TYPE_DICTIONARY:
+			continue
+		var before_trap: Dictionary = (before_trap_var as Dictionary).duplicate(true)
+		var trap_id: String = str(before_trap.get("id", ""))
+		if trap_id.is_empty() or after_ids.has(trap_id):
+			continue
+		triggered.append(before_trap)
+	return triggered
 
 func _target_loss_amount(target_losses: Array[Dictionary]) -> int:
 	var total: int = 0
@@ -848,6 +961,86 @@ func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: 
 			return _best_aoe_tiles_for_target(state, action, center, true).has(target_pos)
 	return false
 
+func _enemy_action_reaches_tile(state: Dictionary, enemy: Dictionary, action: Dictionary, tile: Vector2i) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, tile)
+	match action_type:
+		"melee":
+			return _enemy_distance_to_tile(enemy, tile) <= int(action.get("range", 1))
+		"ranged":
+			return (
+				PathUtils.manhattan(source_pos, tile) <= int(action.get("range", 1))
+				and PathUtils.has_line_of_sight(state.get("grid", []), source_pos, tile)
+			)
+		"push", "pull":
+			var max_range: int = int(action.get("range", 1))
+			return (
+				PathUtils.manhattan(source_pos, tile) <= max_range
+				and (max_range <= 1 or PathUtils.has_line_of_sight(state.get("grid", []), source_pos, tile))
+			)
+		"aoe":
+			var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
+			if int(action.get("range", 0)) > 0:
+				if PathUtils.manhattan(source_pos, tile) > int(action.get("range", 0)):
+					return false
+				if not PathUtils.has_line_of_sight(state.get("grid", []), source_pos, tile):
+					return false
+				center = tile
+			return _best_aoe_tiles_for_target(state, action, center, true).has(tile)
+	return false
+
+func _best_enemy_trap_attack_index(state: Dictionary, enemy_index: int, action: Dictionary) -> int:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return -1
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var direct_damage: int = _enemy_direct_player_damage_estimate(state, enemy, action)
+	var best_index: int = -1
+	var best_damage: int = direct_damage
+	var traps: Array = state.get("traps", [])
+	for trap_index: int in range(traps.size()):
+		if typeof(traps[trap_index]) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = traps[trap_index]
+		if not _enemy_action_reaches_tile(state, enemy, action, trap.get("pos", Vector2i(-1, -1))):
+			continue
+		if _trap_blast_hits_enemy(state, trap, enemy):
+			continue
+		if not _trap_blast_hits_player(state, trap):
+			continue
+		var trap_damage: int = int(trap.get("damage", 0))
+		if direct_damage >= 0 and trap_damage <= direct_damage:
+			continue
+		if direct_damage < 0 and trap_damage <= 0:
+			continue
+		if trap_damage > best_damage:
+			best_damage = trap_damage
+			best_index = trap_index
+	return best_index
+
+func _enemy_direct_player_damage_estimate(state: Dictionary, enemy: Dictionary, action: Dictionary) -> int:
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	var target: Dictionary = {
+		"kind": "player",
+		"key": "player",
+		"pos": player.get("pos", Vector2i.ZERO),
+		"hp": int(player.get("hp", 0))
+	}
+	if not _enemy_action_reaches_target(state, enemy, action, target):
+		return -1
+	return int(action.get("damage", 0))
+
+func _trap_blast_hits_player(state: Dictionary, trap: Dictionary) -> bool:
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1))
+	return _trap_blast_tiles(state, trap).has(player_pos)
+
+func _trap_blast_hits_enemy(state: Dictionary, trap: Dictionary, enemy: Dictionary) -> bool:
+	var blast_tiles: Array[Vector2i] = _trap_blast_tiles(state, trap)
+	for tile: Vector2i in _enemy_footprint_tiles(enemy):
+		if blast_tiles.has(tile):
+			return true
+	return false
+
 func _actor_targets_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[Dictionary]:
 	var tile_lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
@@ -857,6 +1050,13 @@ func _actor_targets_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array
 		if tile_lookup.has(target.get("pos", Vector2i.ZERO)):
 			targets.append(target)
 	return targets
+
+func _has_attackable_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> bool:
+	return (
+		not _enemy_indices_in_tiles(state, tiles).is_empty()
+		or not _terrain_indices_in_tiles(state, tiles).is_empty()
+		or not _trap_tiles_in_tiles(state, tiles).is_empty()
+	)
 
 func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, bypass_block: bool) -> Dictionary:
 	if damage <= 0:
@@ -929,6 +1129,28 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
 	return next_state
 
+func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	if not valid_targets_for_player_action(next_state, action).has(target_tile):
+		return next_state
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
+	if trap_index >= 0:
+		if int(resolved_action.get("damage", 0)) > 0:
+			_mark_first_attack_used(next_state)
+		next_state = _trigger_trap_at_index(next_state, trap_index)
+		_log(next_state, "%s triggers a trap." % attack_kind.capitalize())
+		return next_state
+	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
+	if terrain_index >= 0:
+		var terrain_damage: int = final_damage_for_player_action(next_state, action)
+		if terrain_damage > 0:
+			_mark_first_attack_used(next_state)
+			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
+			_log(next_state, "%s splinters terrain for %d." % [attack_kind.capitalize(), terrain_damage])
+		return next_state
+	return _attack_enemy_on_tile(next_state, action, target_tile, attack_kind)
+
 func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
@@ -952,8 +1174,11 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
 	if int(action.get("range", 0)) > 0 and not valid_targets_for_player_action(next_state, action).has(center):
 		return next_state
-	var affected: Array[int] = _enemy_indices_in_tiles(next_state, _best_aoe_tiles_for_target(next_state, action, center, false))
-	if affected.is_empty():
+	var affected_tiles: Array[Vector2i] = _best_aoe_tiles_for_target(next_state, action, center, false)
+	var affected: Array[int] = _enemy_indices_in_tiles(next_state, affected_tiles)
+	var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
+	var affected_traps: Array[Vector2i] = _trap_tiles_in_tiles(next_state, affected_tiles)
+	if affected.is_empty() and affected_terrain.is_empty() and affected_traps.is_empty():
 		return next_state
 	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
@@ -963,7 +1188,14 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		last_damage = damage
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-	_log(next_state, "Area attack hits %d foe(s) for %d." % [affected.size(), last_damage])
+	for terrain_index: int in affected_terrain:
+		var terrain_damage: int = final_damage_for_player_action(next_state, action)
+		if terrain_damage <= 0:
+			continue
+		last_damage = terrain_damage
+		next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
+	next_state = _trigger_traps_on_tiles(next_state, affected_traps)
+	_log(next_state, "Area attack hits %d target(s) for %d." % [affected.size() + affected_terrain.size() + affected_traps.size(), last_damage])
 	return next_state
 
 func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true, bypass_defense: bool = false) -> Dictionary:
@@ -1053,7 +1285,24 @@ func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dicti
 		next_state["illusions"] = illusions
 		if was_alive and int(illusion.get("hp", 0)) <= 0:
 			_log(next_state, "Illusion fades.")
+			return next_state
+	return next_state
+
+func _damage_terrain(state: Dictionary, terrain_index: int, damage: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if damage <= 0:
 		return next_state
+	var terrain_entries: Array = next_state.get("terrain", []).duplicate(true)
+	if terrain_index < 0 or terrain_index >= terrain_entries.size():
+		return next_state
+	var terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index])
+	if int(terrain.get("hp", 0)) <= 0:
+		return next_state
+	terrain["hp"] = maxi(0, int(terrain.get("hp", 0)) - damage)
+	terrain_entries[terrain_index] = terrain
+	next_state["terrain"] = terrain_entries
+	if int(terrain.get("hp", 0)) <= 0:
+		_log(next_state, "Terrain breaks.")
 	return next_state
 
 func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictionary:
@@ -1084,6 +1333,17 @@ func _normalized_illusion(illusion_value: Variant) -> Dictionary:
 	illusion["hp"] = int(illusion.get("hp", 0))
 	illusion["max_hp"] = maxi(1, int(illusion.get("max_hp", illusion.get("hp", 1))))
 	return illusion
+
+func _normalized_terrain(terrain_value: Variant) -> Dictionary:
+	var terrain: Dictionary = {}
+	if typeof(terrain_value) == TYPE_DICTIONARY:
+		terrain = (terrain_value as Dictionary).duplicate(true)
+	terrain["id"] = str(terrain.get("id", ""))
+	terrain["kind"] = str(terrain.get("kind", "wooden_box"))
+	terrain["pos"] = terrain.get("pos", Vector2i.ZERO)
+	terrain["hp"] = int(terrain.get("hp", 0))
+	terrain["max_hp"] = maxi(1, int(terrain.get("max_hp", terrain.get("hp", 1))))
+	return terrain
 
 func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	var enemy: Dictionary = _normalized_unit(enemy_value)
@@ -1371,9 +1631,14 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var action_type: String = str(action.get("type", ""))
+	var trap_attack_index: int = _best_enemy_trap_attack_index(next_state, enemy_index, action)
+	if trap_attack_index >= 0:
+		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
+		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+		return next_state
 	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action)
 	if target.is_empty():
-		return next_state
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
 	var damage: int = int(action.get("damage", 0))
 	if action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
@@ -1404,9 +1669,14 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var trap_attack_index: int = _best_enemy_trap_attack_index(next_state, enemy_index, action)
+	if trap_attack_index >= 0:
+		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
+		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+		return next_state
 	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action)
 	if target.is_empty():
-		return next_state
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
 	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
 	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
 	var damage: int = int(action.get("damage", 0))
@@ -1421,6 +1691,44 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 		"batters the line" if pushing else "drags inward"
 	])
 	return next_state
+
+func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	if int(action.get("damage", 0)) <= 0:
+		return next_state
+	var terrain_index: int = _blocking_terrain_index_for_enemy_action(next_state, enemy_index, action)
+	if terrain_index < 0:
+		return next_state
+	var damage: int = int(action.get("damage", 0))
+	next_state = _damage_terrain(next_state, terrain_index, damage)
+	var enemies: Array = next_state.get("enemies", [])
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	_log(next_state, "%s breaks through terrain for %d." % [
+		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+		damage
+	])
+	return next_state
+
+func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary) -> int:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return -1
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var occupied: Dictionary = _enemy_blocking_tiles_without_terrain(state, int(enemy.get("id", -1)))
+	var start: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
+	var path: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), start, player_pos, occupied, true)
+	if path.is_empty():
+		return -1
+	for step_index: int in range(1, path.size()):
+		var tile: Vector2i = path[step_index]
+		var terrain_index: int = _terrain_index_at_tile(state, tile)
+		if terrain_index < 0:
+			continue
+		if _enemy_action_reaches_tile(state, enemy, action, tile):
+			return terrain_index
+		return -1
+	return -1
 
 func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -1473,9 +1781,27 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 	_log(next_state, "%s summons lightning wisps." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
-func _push_or_pull_enemy(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
+func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	if not valid_targets_for_player_action(next_state, action).has(target_tile):
+		return next_state
+	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
+	if trap_index >= 0:
+		if int(resolved_action.get("damage", 0)) > 0:
+			_mark_first_attack_used(next_state)
+		next_state = _trigger_trap_at_index(next_state, trap_index)
+		_log(next_state, "%s triggers a trap." % ("Push" if pushing else "Pull"))
+		return next_state
+	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
+	if terrain_index >= 0:
+		var terrain_damage: int = final_damage_for_player_action(next_state, resolved_action)
+		if terrain_damage > 0:
+			if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
+				_mark_first_attack_used(next_state)
+			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
+			_log(next_state, "%s splinters terrain for %d." % ["Push" if pushing else "Pull", terrain_damage])
+		return next_state
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
@@ -1632,17 +1958,7 @@ func _trigger_trap_on_player(state: Dictionary) -> Dictionary:
 	var trap_index: int = _trap_index_at_tile(state, (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1)))
 	if trap_index < 0:
 		return state
-	var next_state: Dictionary = state
-	var traps: Array = next_state.get("traps", []).duplicate(true)
-	var trap: Dictionary = traps[trap_index]
-	traps.remove_at(trap_index)
-	next_state["traps"] = traps
-	var damage: int = int(trap.get("damage", 0))
-	if damage > 0:
-		next_state = _damage_player(next_state, damage, false)
-	next_state = _apply_trap_keywords_to_player(next_state, trap)
-	_log(next_state, _trap_trigger_log(trap))
-	return next_state
+	return _trigger_trap_at_index(state, trap_index)
 
 func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
@@ -1656,16 +1972,61 @@ func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int) -> Dictionary:
 			break
 	if trap_index < 0:
 		return state
+	return _trigger_trap_at_index(state, trap_index)
+
+func _trigger_traps_on_tiles(state: Dictionary, trap_tiles: Array[Vector2i]) -> Dictionary:
+	var next_state: Dictionary = state
+	for trap_tile: Vector2i in trap_tiles:
+		var trap_index: int = _trap_index_at_tile(next_state, trap_tile)
+		if trap_index < 0:
+			continue
+		next_state = _trigger_trap_at_index(next_state, trap_index)
+	return next_state
+
+func _trigger_trap_at_index(state: Dictionary, trap_index: int) -> Dictionary:
 	var next_state: Dictionary = state
 	var traps: Array = next_state.get("traps", []).duplicate(true)
-	var trap: Dictionary = traps[trap_index]
+	if trap_index < 0 or trap_index >= traps.size():
+		return next_state
+	var trap: Dictionary = (traps[trap_index] as Dictionary).duplicate(true)
 	traps.remove_at(trap_index)
 	next_state["traps"] = traps
+	var blast_tiles: Array[Vector2i] = _trap_blast_tiles(next_state, trap)
+	var blast_lookup: Dictionary = {}
+	for tile: Vector2i in blast_tiles:
+		blast_lookup[tile] = true
 	var damage: int = int(trap.get("damage", 0))
-	if damage > 0:
-		next_state = _damage_enemy(next_state, enemy_index, damage)
-	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
-		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, enemy.get("pos", Vector2i.ZERO), false)
+	var player_hit: bool = blast_lookup.has((_normalized_player(next_state.get("player", {}))).get("pos", Vector2i(-1, -1)))
+	if player_hit:
+		if damage > 0:
+			next_state = _damage_player(next_state, damage, false)
+		next_state = _apply_trap_keywords_to_player(next_state, trap)
+	var illusions: Array = next_state.get("illusions", [])
+	for illusion_var: Variant in illusions:
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = _normalized_illusion(illusion_var as Dictionary)
+		if int(illusion.get("hp", 0)) <= 0:
+			continue
+		if not blast_lookup.has(illusion.get("pos", Vector2i.ZERO)):
+			continue
+		next_state = _damage_illusion(next_state, int(illusion.get("id", -1)), damage)
+	var enemies: Array = next_state.get("enemies", [])
+	for enemy_index: int in range(enemies.size()):
+		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		var enemy_hit: bool = false
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			if blast_lookup.has(tile):
+				enemy_hit = true
+				break
+		if not enemy_hit:
+			continue
+		if damage > 0:
+			next_state = _damage_enemy(next_state, enemy_index, damage)
+		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
+			next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, trap.get("pos", Vector2i.ZERO), false)
 	_log(next_state, _trap_trigger_log(trap))
 	return next_state
 
@@ -1746,6 +2107,37 @@ func _trap_tiles_lookup(state: Dictionary) -> Dictionary:
 		var trap: Dictionary = trap_var
 		lookup[trap.get("pos", Vector2i(-1, -1))] = true
 	return lookup
+
+func _live_traps(state: Dictionary) -> Array[Dictionary]:
+	var traps: Array[Dictionary] = []
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		traps.append((trap_var as Dictionary).duplicate(true))
+	return traps
+
+func _trap_tiles_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[Vector2i]:
+	var tile_lookup: Dictionary = {}
+	for tile: Vector2i in tiles:
+		tile_lookup[tile] = true
+	var trap_tiles: Array[Vector2i] = []
+	for trap: Dictionary in _live_traps(state):
+		var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if tile_lookup.has(trap_pos):
+			trap_tiles.append(trap_pos)
+	return trap_tiles
+
+func _trap_blast_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
+	var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	var tiles: Array[Vector2i] = []
+	for offset: Vector2i in TRAP_BLAST_OFFSETS:
+		var tile: Vector2i = trap_pos + offset
+		if not PathUtils.is_in_bounds(state.get("grid", []), tile):
+			continue
+		if not PathUtils.is_passable(state.get("grid", []), tile):
+			continue
+		tiles.append(tile)
+	return tiles
 
 func _trap_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 	var traps: Array = state.get("traps", [])
@@ -2077,13 +2469,15 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 		match str(loot.get("kind", "")):
 			"healing_vial":
 				var player: Dictionary = state.get("player", {})
-				var total_heal: int = amount + int(state.get("heal_bonus", 0))
+				var total_heal: int = amount
 				player["hp"] = mini(int(player.get("max_hp", 1)), int(player.get("hp", 0)) + total_heal)
 				state["player"] = player
-				_log(state, "Collected a vial for %d health." % total_heal)
-			"ember_cache":
-				state["room_embers"] = int(state.get("room_embers", 0)) + amount
-				_log(state, "Collected %d embers." % amount)
+				_log(state, "Collected a potion for %d health." % total_heal)
+			"rusty_shield":
+				var shield_player: Dictionary = state.get("player", {})
+				shield_player["block"] = int(shield_player.get("block", 0)) + amount
+				state["player"] = shield_player
+				_log(state, "Collected a rusty shield for %d block." % amount)
 
 func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = {}
@@ -2102,14 +2496,30 @@ func _occupied_illusion_tiles(state: Dictionary, exclude_id: int = -1) -> Dictio
 		occupied[illusion.get("pos", Vector2i.ZERO)] = true
 	return occupied
 
+func _occupied_terrain_tiles(state: Dictionary) -> Dictionary:
+	var occupied: Dictionary = {}
+	for terrain: Dictionary in _live_terrain(state):
+		occupied[terrain.get("pos", Vector2i.ZERO)] = true
+	return occupied
+
 func _occupied_actor_tiles(state: Dictionary, exclude_enemy_id: int = -1, exclude_illusion_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = _occupied_enemy_tiles(state, exclude_enemy_id)
 	for tile_var: Variant in _occupied_illusion_tiles(state, exclude_illusion_id).keys():
+		occupied[tile_var] = true
+	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
 	return occupied
 
 func _enemy_blocking_tiles(state: Dictionary, exclude_enemy_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = _occupied_actor_tiles(state, exclude_enemy_id)
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	occupied[player_pos] = true
+	return occupied
+
+func _enemy_blocking_tiles_without_terrain(state: Dictionary, exclude_enemy_id: int = -1) -> Dictionary:
+	var occupied: Dictionary = _occupied_enemy_tiles(state, exclude_enemy_id)
+	for tile_var: Variant in _occupied_illusion_tiles(state).keys():
+		occupied[tile_var] = true
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	occupied[player_pos] = true
 	return occupied
@@ -2131,6 +2541,16 @@ func _live_illusions(state: Dictionary) -> Array[Dictionary]:
 			result.append(illusion)
 	return result
 
+func _live_terrain(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = _normalized_terrain(terrain_var)
+		if int(terrain.get("hp", 0)) > 0:
+			result.append(terrain)
+	return result
+
 func _illusion_key(illusion: Dictionary) -> String:
 	return "illusion_%d" % int(illusion.get("id", -1))
 
@@ -2141,6 +2561,18 @@ func _enemy_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
 		if _enemy_footprint_tiles(enemy).has(tile):
+				return index
+	return -1
+
+func _terrain_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
+	var terrain_entries: Array = state.get("terrain", [])
+	for index: int in range(terrain_entries.size()):
+		if typeof(terrain_entries[index]) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = _normalized_terrain(terrain_entries[index])
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		if terrain.get("pos", Vector2i(-1, -1)) == tile:
 			return index
 	return -1
 
@@ -2158,6 +2590,22 @@ func _enemy_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array
 			if tile_lookup.has(tile):
 				indices.append(index)
 				break
+	return indices
+
+func _terrain_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[int]:
+	var tile_lookup: Dictionary = {}
+	for tile: Vector2i in tiles:
+		tile_lookup[tile] = true
+	var indices: Array[int] = []
+	var terrain_entries: Array = state.get("terrain", [])
+	for index: int in range(terrain_entries.size()):
+		if typeof(terrain_entries[index]) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = _normalized_terrain(terrain_entries[index])
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		if tile_lookup.has(terrain.get("pos", Vector2i.ZERO)):
+			indices.append(index)
 	return indices
 
 func _enemy_footprint_tiles(enemy: Dictionary, origin_override: Vector2i = Vector2i(-999, -999)) -> Array[Vector2i]:
@@ -2294,6 +2742,8 @@ func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_ti
 			score = _actor_targets_in_tiles(state, tiles).size()
 		else:
 			score = _enemy_indices_in_tiles(state, tiles).size()
+			score += _terrain_indices_in_tiles(state, tiles).size()
+			score += _trap_tiles_in_tiles(state, tiles).size()
 		if score > best_score or (score == best_score and tiles.size() < best_size):
 			best_score = score
 			best_size = tiles.size()

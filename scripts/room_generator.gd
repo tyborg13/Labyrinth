@@ -12,6 +12,11 @@ const ENEMY_SPAWN_SAFE_RADIUS: int = 2
 const ENEMY_SPAWN_PICK_WINDOW: int = 6
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 4
+const HEALING_POTION_AMOUNT: int = 4
+const RUSTY_SHIELD_BLOCK: int = 4
+const TERRAIN_HP: int = 3
+const TERRAIN_TARGET_COUNT_MIN: int = 5
+const TERRAIN_TARGET_COUNT_MAX: int = 7
 
 const TILE_ASH: String = "ash"
 const TILE_EMBER: String = "ember"
@@ -133,9 +138,10 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, encounter_depth, player_start, rng, occupied)
 	for trap: Dictionary in traps:
 		occupied[trap.get("pos", Vector2i(-1, -1))] = true
-	var loot: Array = []
-	if npcs.is_empty():
-		loot = _generate_loot(grid, room_type, depth, rng, occupied)
+	var loot: Array[Dictionary] = _generate_loot(grid, room_type, rng, occupied)
+	for loot_entry: Dictionary in loot:
+		occupied[loot_entry.get("pos", Vector2i(-1, -1))] = true
+	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied)
 
 	return {
 		"name": _room_name(coord, room_type, rng),
@@ -150,6 +156,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"enemies": enemies,
 		"traps": traps,
 		"loot": loot,
+		"terrain": terrain,
 		"theme": TILE_ASH
 	}
 
@@ -636,34 +643,148 @@ func _fallback_npc_position(grid: Array, player_start: Vector2i, occupied: Dicti
 			best_tile = tile
 	return best_tile
 
-func _generate_loot(grid: Array, room_type: String, depth: int, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+func _generate_loot(grid: Array, room_type: String, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
 	var loot: Array[Dictionary] = []
-	if room_type == "boss":
-		return loot
-	if room_type == "treasure" or room_type == "campfire":
-		return loot
-	if rng.randf() > 0.55:
+	if room_type not in ["combat", "boss"]:
 		return loot
 	var candidates: Array[Vector2i] = []
 	for tile: Vector2i in _floor_tiles(grid):
 		if occupied.has(tile):
 			continue
-		if PathUtils.manhattan(tile, Vector2i(4, 4)) > 4:
+		candidates.append(tile)
+	var occupied_pickups: Dictionary = occupied.duplicate(true)
+	var potion_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
+	if potion_tile.x >= 0:
+		occupied_pickups[potion_tile] = true
+		loot.append({
+			"id": "loot_potion_%d_%d" % [potion_tile.x, potion_tile.y],
+			"kind": "healing_vial",
+			"amount": HEALING_POTION_AMOUNT,
+			"pos": potion_tile
+		})
+	var shield_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
+	if shield_tile.x >= 0:
+		loot.append({
+			"id": "loot_shield_%d_%d" % [shield_tile.x, shield_tile.y],
+			"kind": "rusty_shield",
+			"amount": RUSTY_SHIELD_BLOCK,
+			"pos": shield_tile
+		})
+	return loot
+
+func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator) -> Vector2i:
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_score: float = -INF
+	for tile: Vector2i in candidates:
+		if occupied.has(tile):
+			continue
+		var distance_from_center: float = tile.distance_to(Vector2i(4, 4))
+		var score: float = -distance_from_center
+		score += rng.randf() * 0.45
+		if score > best_score:
+			best_score = score
+			best_tile = tile
+	return best_tile
+
+func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+	var terrain: Array[Dictionary] = []
+	if room_type not in ["combat", "boss"]:
+		return terrain
+	var target_count: int = rng.randi_range(TERRAIN_TARGET_COUNT_MIN, TERRAIN_TARGET_COUNT_MAX)
+	if room_type == "boss":
+		target_count = maxi(3, target_count - 2)
+	var candidates: Array[Vector2i] = _terrain_candidates(grid, player_start, occupied)
+	var terrain_blocked: Dictionary = {}
+	while terrain.size() < target_count and not candidates.is_empty():
+		var best_index: int = -1
+		var best_score: float = -INF
+		for index: int in range(candidates.size()):
+			var tile: Vector2i = candidates[index]
+			if terrain_blocked.has(tile):
+				continue
+			var proposed_blocked: Dictionary = terrain_blocked.duplicate(true)
+			proposed_blocked[tile] = true
+			if not _terrain_layout_stays_connected(grid, player_start, proposed_blocked):
+				continue
+			var score: float = _terrain_spawn_score(tile, player_start, terrain_blocked, rng)
+			if score > best_score:
+				best_score = score
+				best_index = index
+		if best_index < 0:
+			break
+		var terrain_tile: Vector2i = candidates[best_index]
+		candidates.remove_at(best_index)
+		terrain_blocked[terrain_tile] = true
+		var terrain_kind: String = "wooden_box" if rng.randf() < 0.5 else "wooden_crate"
+		terrain.append({
+			"id": "terrain_%d_%d" % [terrain_tile.x, terrain_tile.y],
+			"kind": terrain_kind,
+			"pos": terrain_tile,
+			"hp": TERRAIN_HP,
+			"max_hp": TERRAIN_HP
+		})
+	return terrain
+
+func _terrain_candidates(grid: Array, player_start: Vector2i, occupied: Dictionary) -> Array[Vector2i]:
+	var protected_tiles: Dictionary = {}
+	for entry_tile: Vector2i in ENTRANCE_BY_TRAVEL_DIR.values():
+		protected_tiles[entry_tile] = true
+	for tile: Vector2i in PathUtils.diamond_tiles(player_start, 1, grid):
+		protected_tiles[tile] = true
+	var candidates: Array[Vector2i] = []
+	for tile: Vector2i in _floor_tiles(grid):
+		if occupied.has(tile) or protected_tiles.has(tile):
+			continue
+		if _room_edge_count(tile) >= 2:
 			continue
 		candidates.append(tile)
-	if candidates.is_empty():
-		return loot
-	var loot_tile: Vector2i = candidates[rng.randi_range(0, candidates.size() - 1)]
-	var heal_amount: int = 4 + depth
-	var ember_amount: int = 5 + depth * 2
-	var loot_kind: String = "healing_vial" if rng.randf() < 0.5 else "ember_cache"
-	loot.append({
-		"id": "loot_%d_%d" % [loot_tile.x, loot_tile.y],
-		"kind": loot_kind,
-		"amount": heal_amount if loot_kind == "healing_vial" else ember_amount,
-		"pos": loot_tile
-	})
-	return loot
+	return candidates
+
+func _terrain_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Dictionary, rng: RandomNumberGenerator) -> float:
+	var score: float = rng.randf() * 0.65
+	score -= tile.distance_to(Vector2i(4, 4)) * 0.18
+	score -= absf(float(PathUtils.manhattan(tile, player_start) - 4)) * 0.10
+	var neighbor_count: int = 0
+	for dir: Vector2i in PathUtils.DIRS_4:
+		if chosen.has(tile + dir):
+			neighbor_count += 1
+	if neighbor_count == 1:
+		score += 0.25
+	elif neighbor_count > 1:
+		score -= float(neighbor_count) * 1.4
+	score -= float(_room_edge_count(tile)) * 0.18
+	return score
+
+func _terrain_layout_stays_connected(grid: Array, start: Vector2i, blocked: Dictionary) -> bool:
+	if blocked.has(start):
+		return false
+	var open_tiles: int = 0
+	for tile: Vector2i in _floor_tiles(grid):
+		if blocked.has(tile):
+			continue
+		open_tiles += 1
+	if open_tiles <= 0:
+		return false
+	var reachable: int = _reachable_floor_count_with_blocked(grid, start, blocked)
+	return reachable == open_tiles
+
+func _reachable_floor_count_with_blocked(grid: Array, start: Vector2i, blocked: Dictionary) -> int:
+	var queue: Array[Vector2i] = []
+	queue.append(start)
+	var visited: Dictionary = {start: true}
+	while not queue.is_empty():
+		var current: Vector2i = queue.pop_front()
+		for dir: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current + dir
+			if visited.has(next_tile):
+				continue
+			if blocked.has(next_tile):
+				continue
+			if not PathUtils.is_passable(grid, next_tile):
+				continue
+			visited[next_tile] = true
+			queue.append(next_tile)
+	return visited.size()
 
 func _generate_traps(grid: Array, room_type: String, room_element: String, depth: int, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
 	var traps: Array[Dictionary] = []

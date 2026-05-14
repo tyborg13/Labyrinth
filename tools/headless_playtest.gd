@@ -30,6 +30,10 @@ var _running: bool = true
 
 func _initialize() -> void:
 	_options = _parse_args()
+	if bool(_options.get("show_help", false)):
+		_print_help()
+		quit(0)
+		return
 	_setup_paths()
 	ProgressionStore.set_storage_path(str(_options.get("output_dir", DEFAULT_OUTPUT_DIR)).path_join("manual_progression.json"))
 	ProgressionStore.set_run_storage_path(str(_options.get("output_dir", DEFAULT_OUTPUT_DIR)).path_join("manual_run.save"))
@@ -55,7 +59,8 @@ func _parse_args() -> Dictionary:
 		"notes_path": DEFAULT_OUTPUT_DIR.path_join("manual_playtest_notes.md"),
 		"session_path": DEFAULT_OUTPUT_DIR.path_join("manual_session.save"),
 		"clear_analytics": true,
-		"resume": false
+		"resume": false,
+		"show_help": false
 	}
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var index: int = 0
@@ -86,8 +91,7 @@ func _parse_args() -> Dictionary:
 				parsed["resume"] = true
 				parsed["clear_analytics"] = false
 			"--help":
-				_print_help()
-				quit(0)
+				parsed["show_help"] = true
 		index += 1
 	return parsed
 
@@ -95,6 +99,7 @@ func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
 	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, reward N|heal, relic N, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
 
 func _setup_paths() -> void:
 	var output_dir: String = str(_options.get("output_dir", DEFAULT_OUTPUT_DIR))
@@ -313,6 +318,8 @@ func _print_combat_state() -> void:
 	if plays_remaining <= 0 and not restriction_status.is_empty():
 		print("Turn locked by %s." % restriction_status)
 	_print_board()
+	_print_pickups()
+	_print_terrain()
 	_print_traps()
 	_print_enemies()
 	_print_incoming_preview()
@@ -332,9 +339,15 @@ func _print_board() -> void:
 	for trap_var: Variant in _combat_state.get("traps", []):
 		if typeof(trap_var) == TYPE_DICTIONARY:
 			marks[(trap_var as Dictionary).get("pos", Vector2i.ZERO)] = "T"
+	for terrain_var: Variant in _combat_state.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY and int((terrain_var as Dictionary).get("hp", 0)) > 0:
+			var terrain: Dictionary = terrain_var
+			marks[terrain.get("pos", Vector2i.ZERO)] = "C" if str(terrain.get("kind", "")) == "wooden_crate" else "B"
 	for loot_var: Variant in _combat_state.get("loot", []):
-		if typeof(loot_var) == TYPE_DICTIONARY:
-			marks[(loot_var as Dictionary).get("pos", Vector2i.ZERO)] = "$"
+		if typeof(loot_var) == TYPE_DICTIONARY and not bool((loot_var as Dictionary).get("claimed", false)):
+			var loot: Dictionary = loot_var
+			var loot_mark: String = "H" if str(loot.get("kind", "")) == "healing_vial" else "S" if str(loot.get("kind", "")) == "rusty_shield" else "$"
+			marks[loot.get("pos", Vector2i.ZERO)] = loot_mark
 	for illusion_var: Variant in _combat_state.get("illusions", []):
 		if typeof(illusion_var) == TYPE_DICTIONARY and int((illusion_var as Dictionary).get("hp", 0)) > 0:
 			marks[(illusion_var as Dictionary).get("pos", Vector2i.ZERO)] = "I"
@@ -365,6 +378,30 @@ func _print_board() -> void:
 					cells.append(".")
 		print("  %d %s" % [y, " ".join(cells)])
 	print("    0 1 2 3 4 5 6 7 8")
+
+func _print_pickups() -> void:
+	var parts: Array[String] = []
+	for loot_var: Variant in _combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)):
+			continue
+		parts.append("%s %s" % [_coord_text(loot.get("pos", Vector2i.ZERO)), _loot_text(loot)])
+	if not parts.is_empty():
+		print("Pickups: %s" % "; ".join(parts))
+
+func _print_terrain() -> void:
+	var parts: Array[String] = []
+	for terrain_var: Variant in _combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		parts.append("%s %s" % [_coord_text(terrain.get("pos", Vector2i.ZERO)), _terrain_text(terrain)])
+	if not parts.is_empty():
+		print("Terrain: %s" % "; ".join(parts))
 
 func _print_enemies() -> void:
 	print("Enemies:")
@@ -688,9 +725,9 @@ func _pending_target_choices() -> Array:
 
 func _pending_choice_label(choice: Dictionary) -> String:
 	var tile: Vector2i = choice.get("tile", INVALID_TARGET_TILE)
-	var enemy_label: String = _enemy_label_at_tile((_pending.get("state", {}) as Dictionary), tile)
-	if not enemy_label.is_empty():
-		return "%s at %s" % [enemy_label, _coord_text(tile)]
+	var target_label: String = _target_label_at_tile((_pending.get("state", {}) as Dictionary), tile)
+	if not target_label.is_empty():
+		return "%s at %s" % [target_label, _coord_text(tile)]
 	return _coord_text(tile)
 
 func _choice_for_target_tile(choices: Array, tile: Vector2i) -> Dictionary:
@@ -718,6 +755,18 @@ func _enemy_label_at_tile(state: Dictionary, tile: Vector2i) -> String:
 		if enemy.get("pos", Vector2i.ZERO) == tile:
 			return "enemy %d" % live_index
 		live_index += 1
+	return ""
+
+func _target_label_at_tile(state: Dictionary, tile: Vector2i) -> String:
+	var enemy_label: String = _enemy_label_at_tile(state, tile)
+	if not enemy_label.is_empty():
+		return enemy_label
+	var terrain: Dictionary = _terrain_at_tile(state, tile)
+	if not terrain.is_empty():
+		return _terrain_label(terrain)
+	var trap: Dictionary = _trap_at_tile(state, tile)
+	if not trap.is_empty():
+		return "%s trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))
 	return ""
 
 func _live_enemy_tile_by_index(state: Dictionary, target_index: int) -> Vector2i:
@@ -1372,6 +1421,10 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"enemy_hp_damage": _enemy_damage_between(before_state, resolved_state),
 		"enemy_block_removed": _enemy_block_removed_between(before_state, resolved_state),
 		"enemy_stoneskin_removed": _enemy_stoneskin_removed_between(before_state, resolved_state),
+		"terrain_hp_damage": _terrain_damage_between(before_state, resolved_state),
+		"terrain_destroyed": _terrain_destroyed_between(before_state, resolved_state),
+		"traps_triggered": _triggered_traps_between(before_state, resolved_state).size(),
+		"pickups_collected": _picked_loot_between(before_state, resolved_state).size(),
 		"kills_secured": _kills_between(before_state, resolved_state),
 		"player_hp_delta": int(after_player.get("hp", 0)) - int(before_player.get("hp", 0)),
 		"player_heal_gained": maxi(0, int(after_player.get("hp", 0)) - int(before_player.get("hp", 0))),
@@ -1565,6 +1618,12 @@ func _enemy_step_text(step: Dictionary) -> String:
 			var losses: String = _target_losses_text(step.get("target_losses", []))
 			if not losses.is_empty():
 				bits.append(losses)
+			var terrain_losses: String = _terrain_losses_text(step.get("terrain_losses", []))
+			if not terrain_losses.is_empty():
+				bits.append(terrain_losses)
+			var triggered_traps: String = _triggered_traps_text(step.get("triggered_traps", []))
+			if not triggered_traps.is_empty():
+				bits.append(triggered_traps)
 			if step.get("player_from", Vector2i.ZERO) != step.get("player_to", Vector2i.ZERO):
 				bits.append("moves player %s -> %s" % [_coord_text(step.get("player_from", Vector2i.ZERO)), _coord_text(step.get("player_to", Vector2i.ZERO))])
 			if not str(step.get("status_text", "")).is_empty():
@@ -1594,6 +1653,29 @@ func _target_losses_text(losses: Array) -> String:
 		if not bits.is_empty():
 			parts.append("%s %s" % [who, "/".join(bits)])
 	return ", ".join(parts)
+
+func _terrain_losses_text(losses: Array) -> String:
+	var parts: Array[String] = []
+	for loss_var: Variant in losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		var hp_loss: int = int(loss.get("hp_loss", loss.get("amount", 0)))
+		if hp_loss <= 0:
+			continue
+		parts.append("%s -%d HP" % [str(loss.get("kind", "terrain")).replace("_", " "), hp_loss])
+	return ", ".join(parts)
+
+func _triggered_traps_text(traps: Array) -> String:
+	var parts: Array[String] = []
+	for trap_var: Variant in traps:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		parts.append("%s %s" % [_coord_text(trap.get("pos", Vector2i.ZERO)), _trap_text(trap)])
+	if parts.is_empty():
+		return ""
+	return "triggered " + " / ".join(parts)
 
 func _skipped_action_lines(actions: Array, targets: Array[Vector2i]) -> Array[String]:
 	var lines: Array[String] = []
@@ -1791,10 +1873,15 @@ func _target_hint(state: Dictionary, action: Dictionary, target: Vector2i) -> St
 	var damage: int = _enemy_damage_between(state, after_state)
 	var block_removed: int = _enemy_block_removed_between(state, after_state)
 	var stoneskin_removed: int = _enemy_stoneskin_removed_between(state, after_state)
+	var terrain_damage: int = _terrain_damage_between(state, after_state)
+	var terrain_destroyed: int = _terrain_destroyed_between(state, after_state)
+	var triggered_traps: Array[Dictionary] = _triggered_traps_between(state, after_state)
 	var kills: int = _kills_between(state, after_state)
 	var hp_delta: int = int((after_state.get("player", {}) as Dictionary).get("hp", 0)) - int((state.get("player", {}) as Dictionary).get("hp", 0))
+	var block_delta: int = int((after_state.get("player", {}) as Dictionary).get("block", 0)) - int((state.get("player", {}) as Dictionary).get("block", 0))
 	var move_risk: String = _movement_risk_text(state, action, target, [], false)
 	var intensity_delta: String = _intensity_delta_text(state, after_state)
+	var picked_loot: String = _picked_loot_text_between(state, after_state)
 	var bits: Array[String] = []
 	if damage > 0:
 		bits.append("%d dmg" % damage)
@@ -1802,10 +1889,20 @@ func _target_hint(state: Dictionary, action: Dictionary, target: Vector2i) -> St
 		bits.append("%d block" % block_removed)
 	if stoneskin_removed > 0:
 		bits.append("%d stone" % stoneskin_removed)
+	if terrain_damage > 0:
+		bits.append("%d terrain dmg" % terrain_damage)
+	if terrain_destroyed > 0:
+		bits.append("%d terrain broken" % terrain_destroyed)
+	if not triggered_traps.is_empty():
+		bits.append(_triggered_traps_text(triggered_traps))
 	if kills > 0:
 		bits.append("%d kill" % kills)
 	if hp_delta != 0:
 		bits.append("%+d hp" % hp_delta)
+	if block_delta > 0:
+		bits.append("+%d block" % block_delta)
+	if not picked_loot.is_empty():
+		bits.append(picked_loot)
 	if not intensity_delta.is_empty():
 		bits.append(intensity_delta)
 	if not move_risk.is_empty():
@@ -1850,6 +1947,10 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary) -> Stri
 	var damage: int = _enemy_damage_between(before_state, after_state)
 	var enemy_block_removed: int = _enemy_block_removed_between(before_state, after_state)
 	var enemy_stoneskin_removed: int = _enemy_stoneskin_removed_between(before_state, after_state)
+	var terrain_damage: int = _terrain_damage_between(before_state, after_state)
+	var terrain_destroyed: int = _terrain_destroyed_between(before_state, after_state)
+	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
+	var picked_loot: String = _picked_loot_text_between(before_state, after_state)
 	var kills: int = _kills_between(before_state, after_state)
 	var hp_delta: int = int((after_state.get("player", {}) as Dictionary).get("hp", 0)) - int((before_state.get("player", {}) as Dictionary).get("hp", 0))
 	var block_delta: int = int((after_state.get("player", {}) as Dictionary).get("block", 0)) - int((before_state.get("player", {}) as Dictionary).get("block", 0))
@@ -1866,6 +1967,12 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary) -> Stri
 		bits.append("%d block removed" % enemy_block_removed)
 	if enemy_stoneskin_removed > 0:
 		bits.append("%d stone removed" % enemy_stoneskin_removed)
+	if terrain_damage > 0:
+		bits.append("%d terrain damage" % terrain_damage)
+	if terrain_destroyed > 0:
+		bits.append("%d terrain broken" % terrain_destroyed)
+	if not triggered_traps.is_empty():
+		bits.append("%d trap blast" % triggered_traps.size())
 	if kills > 0:
 		bits.append("%d kills" % kills)
 	if hp_delta != 0:
@@ -1886,6 +1993,8 @@ func _card_delta_text(before_state: Dictionary, after_state: Dictionary) -> Stri
 		bits.append("enemy %s" % enemy_status)
 	if not player_status.is_empty():
 		bits.append("player %s" % player_status)
+	if not picked_loot.is_empty():
+		bits.append(picked_loot)
 	return ", ".join(bits) if not bits.is_empty() else "low impact"
 
 func _status_text(unit: Dictionary) -> String:
@@ -1958,22 +2067,52 @@ func _movement_risk_text(state: Dictionary, action: Dictionary, target: Vector2i
 			bits.append(status_delta)
 	return "move risk: %s" % ", ".join(bits)
 
+func _loot_text(loot: Dictionary) -> String:
+	match str(loot.get("kind", "")):
+		"healing_vial":
+			return "Healing potion: Heal %d" % int(loot.get("amount", 0))
+		"rusty_shield":
+			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
+	return "Loot"
+
+func _terrain_label(terrain: Dictionary) -> String:
+	return "wooden crate" if str(terrain.get("kind", "")) == "wooden_crate" else "wooden box"
+
+func _terrain_text(terrain: Dictionary) -> String:
+	return "%s HP %d/%d, blocks movement, LoS open, attackable" % [
+		_terrain_label(terrain),
+		int(terrain.get("hp", 0)),
+		int(terrain.get("max_hp", 1))
+	]
+
+func _terrain_at_tile(state: Dictionary, tile: Vector2i) -> Dictionary:
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		if terrain.get("pos", Vector2i(-1, -1)) == tile:
+			return terrain
+	return {}
+
 func _trap_at_tile(state: Dictionary, tile: Vector2i) -> Dictionary:
 	for trap_var: Variant in state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
 		var trap: Dictionary = trap_var
 		if trap.get("pos", Vector2i(-1, -1)) == tile:
-			return trap
+				return trap
 	return {}
 
 func _trap_text(trap: Dictionary) -> String:
 	var parts: Array[String] = ["%s trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
 	if int(trap.get("damage", 0)) > 0:
-		parts.append("%d dmg" % int(trap.get("damage", 0)))
+		parts.append("%d adjacent blast dmg" % int(trap.get("damage", 0)))
 	for key: String in ["burn", "freeze", "shock", "poison"]:
 		if int(trap.get(key, 0)) > 0:
 			parts.append("%s %d" % [key, int(trap.get(key, 0))])
+	parts.append("attackable")
 	return " ".join(parts)
 
 func _player_move_distance_between(before_state: Dictionary, after_state: Dictionary) -> int:
@@ -1988,12 +2127,27 @@ func _live_enemies(state: Dictionary) -> Array[Dictionary]:
 			result.append(enemy_var as Dictionary)
 	return result
 
+func _live_terrain(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY and int((terrain_var as Dictionary).get("hp", 0)) > 0:
+			result.append(terrain_var as Dictionary)
+	return result
+
 func _enemies_by_id(state: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for enemy_var: Variant in state.get("enemies", []):
 		if typeof(enemy_var) == TYPE_DICTIONARY:
 			var enemy: Dictionary = enemy_var
 			result[int(enemy.get("id", -1))] = enemy
+	return result
+
+func _terrain_by_id(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY:
+			var terrain: Dictionary = terrain_var
+			result[str(terrain.get("id", ""))] = terrain
 	return result
 
 func _enemy_damage_between(before_state: Dictionary, after_state: Dictionary) -> int:
@@ -2020,8 +2174,79 @@ func _enemy_stoneskin_removed_between(before_state: Dictionary, after_state: Dic
 	for before_enemy: Dictionary in _live_enemies(before_state):
 		var enemy_id: int = int(before_enemy.get("id", -1))
 		if after_by_id.has(enemy_id):
-			total += maxi(0, int(before_enemy.get("stoneskin", 0)) - int((after_by_id[enemy_id] as Dictionary).get("stoneskin", 0)))
+				total += maxi(0, int(before_enemy.get("stoneskin", 0)) - int((after_by_id[enemy_id] as Dictionary).get("stoneskin", 0)))
 	return total
+
+func _terrain_damage_between(before_state: Dictionary, after_state: Dictionary) -> int:
+	var total: int = 0
+	var after_by_id: Dictionary = _terrain_by_id(after_state)
+	for before_terrain: Dictionary in _live_terrain(before_state):
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		if after_by_id.has(terrain_id):
+			total += maxi(0, int(before_terrain.get("hp", 0)) - int((after_by_id[terrain_id] as Dictionary).get("hp", 0)))
+	return total
+
+func _terrain_destroyed_between(before_state: Dictionary, after_state: Dictionary) -> int:
+	var destroyed: int = 0
+	var after_by_id: Dictionary = _terrain_by_id(after_state)
+	for before_terrain: Dictionary in _live_terrain(before_state):
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		if after_by_id.has(terrain_id) and int((after_by_id[terrain_id] as Dictionary).get("hp", 0)) <= 0:
+			destroyed += 1
+	return destroyed
+
+func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var after_ids: Dictionary = {}
+	for after_trap_var: Variant in after_state.get("traps", []):
+		if typeof(after_trap_var) != TYPE_DICTIONARY:
+			continue
+		var after_trap: Dictionary = after_trap_var
+		after_ids[str(after_trap.get("id", ""))] = true
+	var triggered: Array[Dictionary] = []
+	for before_trap_var: Variant in before_state.get("traps", []):
+		if typeof(before_trap_var) != TYPE_DICTIONARY:
+			continue
+		var before_trap: Dictionary = before_trap_var
+		var trap_id: String = str(before_trap.get("id", ""))
+		if trap_id.is_empty() or after_ids.has(trap_id):
+			continue
+		triggered.append(before_trap)
+	return triggered
+
+func _picked_loot_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var after_claimed: Dictionary = {}
+	for after_loot_var: Variant in after_state.get("loot", []):
+		if typeof(after_loot_var) != TYPE_DICTIONARY:
+			continue
+		var after_loot: Dictionary = after_loot_var
+		if bool(after_loot.get("claimed", false)):
+			after_claimed[_loot_key(after_loot)] = true
+	var picked: Array[Dictionary] = []
+	for before_loot_var: Variant in before_state.get("loot", []):
+		if typeof(before_loot_var) != TYPE_DICTIONARY:
+			continue
+		var before_loot: Dictionary = before_loot_var
+		if bool(before_loot.get("claimed", false)):
+			continue
+		if after_claimed.has(_loot_key(before_loot)):
+			picked.append(before_loot)
+	return picked
+
+func _picked_loot_text_between(before_state: Dictionary, after_state: Dictionary) -> String:
+	var picked: Array[Dictionary] = _picked_loot_between(before_state, after_state)
+	if picked.is_empty():
+		return ""
+	var parts: Array[String] = []
+	for loot: Dictionary in picked:
+		parts.append(_loot_text(loot))
+	return "picked " + " / ".join(parts)
+
+func _loot_key(loot: Dictionary) -> String:
+	var loot_id: String = str(loot.get("id", ""))
+	if not loot_id.is_empty():
+		return loot_id
+	var pos: Vector2i = loot.get("pos", Vector2i.ZERO)
+	return "%s:%d:%d" % [str(loot.get("kind", "")), pos.x, pos.y]
 
 func _kills_between(before_state: Dictionary, after_state: Dictionary) -> int:
 	var kills: int = 0

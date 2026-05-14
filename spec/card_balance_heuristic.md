@@ -59,7 +59,14 @@ Encounter calibration is also important:
   the far side by default. This should make turn-1 reach and early enemy threat
   more variable than the old far-spawn calibration.
 - Elemental combat rooms seed `2-3` traps, biased toward central traversal
-  lanes while still avoiding the player's entry halo and occupied tiles.
+  lanes while still avoiding the player's entry halo and occupied tiles. Traps
+  now blast adjacent tiles when stepped on or attacked, so forced movement and
+  area targeting can create higher positional upside and risk than the old
+  single-tile trap model.
+- Every room places a `4` HP healing potion and a `4` block rusty shield as
+  floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates that block
+  movement, do not block line of sight, and can be destroyed by player or enemy
+  attacks.
 
 The heuristic still rewards cards that compress setup and payoff into the same
 play, but early reach assumptions should be reprobed before making fine-grained

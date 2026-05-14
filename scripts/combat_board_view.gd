@@ -29,6 +29,7 @@ const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const PLAYER_BAR_FILL: Color = Color("8ec26c")
 const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
 const ENEMY_BAR_FILL: Color = Color("d06752")
+const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
@@ -50,6 +51,7 @@ const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
 const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
+const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
@@ -147,6 +149,13 @@ const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
+const TRAP_BLAST_DRAW_WIDTH_SCALE: float = 0.76
+const TRAP_BLAST_DRAW_HEIGHT_SCALE: float = 1.18
+const TRAP_BLAST_BASELINE_SCALE: float = 0.32
+const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
+const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
+const TERRAIN_DRAW_BASELINE_SCALE: float = 0.42
+const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
 const SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.22)
 const SHADOW_LIGHT_VECTOR: Vector2 = Vector2(1.0, 0.55)
 const SHADOW_POINT_COUNT: int = 24
@@ -197,9 +206,11 @@ var _ambient_air_wisp_textures: Dictionary = {}
 var _ambient_air_wisp_soft_textures: Dictionary = {}
 var _ambient_air_wisp_glow_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
+var _terrain_textures: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _element_textures: Dictionary = {}
 var _trap_textures: Dictionary = {}
+var _trap_blast_textures: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
@@ -955,12 +966,13 @@ func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 
 	draw_polyline(points, color, width, true)
 
 func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
+	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 	for tile: Vector2i in tiles:
-		_draw_scene_props_for_tile(tile)
-		_draw_tile_props(grid, tile, units_to_draw)
+		_draw_scene_props_for_tile(tile, obstruction_entries)
+		_draw_tile_props(grid, tile, obstruction_entries)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
-func _draw_scene_props_for_tile(tile: Vector2i) -> void:
+func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) != TYPE_DICTIONARY:
 			continue
@@ -971,8 +983,9 @@ func _draw_scene_props_for_tile(tile: Vector2i) -> void:
 		if texture == null:
 			continue
 		var draw_rect: Rect2 = _scene_prop_rect(texture, prop)
+		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
-		draw_texture_rect(texture, draw_rect, false)
+		draw_texture_rect(texture, draw_rect, false, tint)
 
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
@@ -990,7 +1003,73 @@ func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var bottom_y: float = center.y + _tile_height() * baseline_scale
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
-func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, units_to_draw: Array) -> void:
+func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	for unit: Dictionary in units_to_draw:
+		entries.append({
+			"tile": _effective_unit_tile(unit),
+			"rect": _unit_draw_rect(unit)
+		})
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		var texture: Texture2D = _texture_for_scene_prop(prop)
+		if texture == null:
+			continue
+		var tile: Vector2i = prop.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		entries.append({
+			"tile": tile,
+			"rect": _scene_prop_rect(texture, prop)
+		})
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
+		if terrain_texture == null:
+			continue
+		var terrain_tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+		if terrain_tile.x < 0:
+			continue
+		entries.append({
+			"tile": terrain_tile,
+			"rect": _terrain_rect_for_tile(terrain_tile, terrain_texture, str(terrain.get("kind", "")))
+		})
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)):
+			continue
+		var loot_texture: Texture2D = _loot_textures.get(str(loot.get("kind", "")), null)
+		if loot_texture == null:
+			continue
+		var loot_tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
+		if loot_tile.x < 0:
+			continue
+		entries.append({
+			"tile": loot_tile,
+			"rect": _loot_rect_for_tile(loot_tile, loot_texture)
+		})
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		var trap_tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if trap_tile.x < 0:
+			continue
+		entries.append({
+			"tile": trap_tile,
+			"rect": _trap_draw_rect(trap_tile)
+		})
+	return entries
+
+func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstruction_entries: Array) -> void:
 	if tile_id == "pillar":
 		if not _tile_has_moss("pillar", tile):
 			return
@@ -1003,7 +1082,7 @@ func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, units
 		if texture == null:
 			return
 		var moss_rect: Rect2 = _pillar_moss_rect(draw_rect)
-		draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, units_to_draw))
+		draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries))
 		return
 	if tile_id != "wall" or not _tile_has_moss("wall", tile):
 		return
@@ -1019,9 +1098,9 @@ func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, units
 	if texture == null:
 		return
 	var moss_rect: Rect2 = _wall_moss_rect(draw_rect)
-	draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, units_to_draw))
+	draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries))
 
-func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) -> void:
+func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = []) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
 		tile_id = "pillar"
@@ -1031,7 +1110,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
 			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
-			draw_texture_rect(texture, draw_rect, false, _foreground_blocker_tint(tile_id, tile, draw_rect, units_to_draw))
+			draw_texture_rect(texture, draw_rect, false, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
 	elif tile_id == "wall":
 		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
 		for segment: Dictionary in segments:
@@ -1040,7 +1119,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 				continue
 			var draw_rect: Rect2 = segment.get("draw_rect", Rect2())
 			var source_rect: Rect2 = segment.get("source_rect", Rect2(Vector2.ZERO, texture.get_size()))
-			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, units_to_draw)
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
 			_draw_wall_segment_shadow(tile, str(segment.get("orientation", "")), draw_rect)
 			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
 				draw_texture_rect(texture, draw_rect, false, tint)
@@ -1051,22 +1130,35 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		if door_texture != null:
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
-				draw_texture_rect(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), false)
+				draw_texture_rect(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), false, tint)
 			else:
-				draw_texture_rect(door_texture, draw_rect, false)
+				draw_texture_rect(door_texture, draw_rect, false, tint)
 				var icon_id: String = str(exit_icon_ids.get(tile, ""))
 				var icon_texture: Texture2D = _door_icon_texture(icon_id)
 				if icon_texture != null:
-					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect)
-	_draw_prop_moss_overlay(tile_id, grid, tile, units_to_draw)
+					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
+	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
 	if tile_id == "pillar":
 		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 		if pillar_texture != null:
 			var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
-			_draw_pillar_torch_fixtures(tile_id, tile, pillar_rect, units_to_draw)
-	for loot: Dictionary in combat_state.get("loot", []):
+			_draw_pillar_torch_fixtures(tile_id, tile, pillar_rect, obstruction_entries)
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		if terrain.get("pos", Vector2i(-1, -1)) != tile:
+			continue
+		_draw_terrain_object(terrain, obstruction_entries)
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
 		if bool(loot.get("claimed", false)):
 			continue
 		if loot.get("pos", Vector2i(-1, -1)) != tile:
@@ -1075,7 +1167,9 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 		if loot_texture == null:
 			continue
 		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture)
+		_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
 		draw_texture_rect(loot_texture, loot_rect, false)
+		_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -1084,8 +1178,8 @@ func _draw_tile_props(grid: Array, tile: Vector2i, units_to_draw: Array = []) ->
 			continue
 		_draw_trap_marker(trap)
 
-func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, units_to_draw: Array) -> void:
-	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, units_to_draw)
+func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
+	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries)
 	var left_texture: Texture2D = _pillar_torch_texture("left")
 	var right_texture: Texture2D = _pillar_torch_texture("right")
 	if left_texture != null:
@@ -1124,22 +1218,44 @@ func _pillar_torch_rect(pillar_rect: Rect2, texture: Texture2D, side_sign: float
 		return Rect2(Vector2(anchor_x - draw_width * 0.84, top_y), Vector2(draw_width, draw_height))
 	return Rect2(Vector2(anchor_x - draw_width * 0.16, top_y), Vector2(draw_width, draw_height))
 
-func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, units_to_draw: Array) -> Color:
+func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
 		return Color.WHITE
-	for unit_var: Variant in units_to_draw:
-		if typeof(unit_var) != TYPE_DICTIONARY:
+	for entry_var: Variant in obstruction_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
-		var unit: Dictionary = unit_var
-		var unit_tile: Vector2i = _effective_unit_tile(unit)
-		if not _tile_draws_before(unit_tile, tile):
+		var entry: Dictionary = entry_var
+		var entry_tile: Vector2i = entry.get("tile", entry.get("pos", Vector2i(-1, -1)))
+		if entry_tile.x < 0 or entry_tile.y < 0:
 			continue
-		if prop_rect.intersects(_unit_draw_rect(unit), true):
+		if not _tile_draws_before(entry_tile, tile):
+			continue
+		var entry_rect: Rect2 = entry.get("rect", Rect2())
+		if entry_rect == Rect2() and not entry.has("rect"):
+			entry_rect = _unit_draw_rect(entry)
+		if _foreground_overlap_coverage(prop_rect, entry_rect) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
 			return FOREGROUND_OBSTRUCTION_TINT
 	return Color.WHITE
 
+func _foreground_overlap_coverage(foreground_rect: Rect2, covered_rect: Rect2) -> float:
+	if foreground_rect.size.x <= 0.0 or foreground_rect.size.y <= 0.0:
+		return 0.0
+	if covered_rect.size.x <= 0.0 or covered_rect.size.y <= 0.0:
+		return 0.0
+	if not foreground_rect.intersects(covered_rect, true):
+		return 0.0
+	var left: float = maxf(foreground_rect.position.x, covered_rect.position.x)
+	var top: float = maxf(foreground_rect.position.y, covered_rect.position.y)
+	var right: float = minf(foreground_rect.position.x + foreground_rect.size.x, covered_rect.position.x + covered_rect.size.x)
+	var bottom: float = minf(foreground_rect.position.y + foreground_rect.size.y, covered_rect.position.y + covered_rect.size.y)
+	var intersection_size: Vector2 = Vector2(maxf(0.0, right - left), maxf(0.0, bottom - top))
+	var covered_area: float = covered_rect.size.x * covered_rect.size.y
+	if covered_area <= 0.0:
+		return 0.0
+	return (intersection_size.x * intersection_size.y) / covered_area
+
 func _is_tall_obstructive_tile(tile_id: String) -> bool:
-	return tile_id == "pillar" or tile_id == "wall"
+	return tile_id in ["pillar", "wall", "door", "scene_prop", "terrain"]
 
 func _prop_rect_for_tile(tile: Vector2i) -> Rect2:
 	var center: Vector2 = _tile_center(tile)
@@ -1266,7 +1382,7 @@ func _texture_used_rect(texture: Texture2D) -> Rect2i:
 		return Rect2i()
 	return image.get_used_rect()
 
-func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Texture2D, door_draw_rect: Rect2) -> void:
+func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Texture2D, door_draw_rect: Rect2, tint: Color = Color.WHITE) -> void:
 	if icon_texture == null:
 		return
 	var door_used_rect: Rect2 = _texture_used_draw_rect(door_texture, door_draw_rect)
@@ -1277,10 +1393,10 @@ func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Tex
 		door_used_rect.position.y - icon_size * 0.5 - _tile_height() * DOOR_ICON_FLOAT_GAP_SCALE
 	)
 	var radius: float = icon_size * 0.56
-	draw_circle(center, radius, Color(0.07, 0.05, 0.04, 0.86))
-	draw_arc(center, radius, 0.0, TAU, 28, Color(accent.r, accent.g, accent.b, 0.88), 2.0, true)
+	draw_circle(center, radius, Color(0.07, 0.05, 0.04, 0.86 * tint.a))
+	draw_arc(center, radius, 0.0, TAU, 28, Color(accent.r, accent.g, accent.b, 0.88 * tint.a), 2.0, true)
 	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
-	draw_texture_rect(icon_texture, icon_rect, false)
+	draw_texture_rect(icon_texture, icon_rect, false, tint)
 
 func _is_outer_boundary_tile(grid: Array, tile: Vector2i) -> bool:
 	if grid.is_empty():
@@ -1349,6 +1465,18 @@ func _display_tile_id(tile_id: String, tile: Vector2i) -> String:
 		return "wall"
 	return tile_id
 
+func _tile_in_grid(grid: Array, tile: Vector2i) -> bool:
+	if tile.y < 0 or tile.y >= grid.size():
+		return false
+	var row: Array = grid[tile.y]
+	return tile.x >= 0 and tile.x < row.size()
+
+func _tile_drawn_as_floor(grid: Array, tile: Vector2i) -> bool:
+	if not _tile_in_grid(grid, tile):
+		return false
+	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+	return tile_id != "wall" and tile_id != "pillar" and tile_id != "door"
+
 func _should_render_tile(display_tile_id: String, tile: Vector2i, grid: Array) -> bool:
 	if not OUTER_WALL_RENDERING_ENABLED and display_tile_id == "wall" and _is_outer_boundary_tile(grid, tile):
 		return false
@@ -1371,6 +1499,98 @@ func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null) -> Rect2:
 	var center: Vector2 = _tile_center(tile)
 	var bottom_y: float = center.y + _tile_height() * 0.30
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
+
+func _loot_tooltip_text(loot: Dictionary) -> String:
+	match str(loot.get("kind", "")):
+		"healing_vial":
+			return "Healing potion: Heal %d" % int(loot.get("amount", 0))
+		"rusty_shield":
+			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
+	return ""
+
+func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) -> void:
+	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+	if tile.x < 0:
+		return
+	var terrain_kind: String = str(terrain.get("kind", ""))
+	var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
+	if texture == null:
+		return
+	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
+	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
+	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
+	draw_texture_rect(texture, terrain_rect, false, tint)
+	_draw_terrain_health_bar(terrain, terrain_rect)
+	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
+
+func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	var draw_width: float = _tile_width() * _terrain_draw_width_scale(terrain_kind)
+	var draw_height: float = draw_width
+	if texture != null and texture.get_size().x > 0.0:
+		draw_height = draw_width * texture.get_size().y / texture.get_size().x
+	var center: Vector2 = _tile_center(tile)
+	var bottom_y: float = center.y + _tile_height() * TERRAIN_DRAW_BASELINE_SCALE
+	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
+
+func _terrain_draw_width_scale(terrain_kind: String) -> float:
+	if terrain_kind == "wooden_crate":
+		return TERRAIN_CRATE_DRAW_WIDTH_SCALE
+	return TERRAIN_BOX_DRAW_WIDTH_SCALE
+
+func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
+	if not _should_show_terrain_health_bar(terrain):
+		return
+	var bar_size: Vector2 = TERRAIN_HEALTH_BAR_SIZE
+	var bar_rect := Rect2(
+		Vector2(terrain_rect.get_center().x - bar_size.x * 0.5, terrain_rect.position.y - 10.0),
+		bar_size
+	)
+	var preview: Dictionary = _terrain_damage_preview(terrain)
+	SegmentedHealthBar.draw_bar(
+		self,
+		bar_rect,
+		float(terrain.get("hp", 0)),
+		float(maxi(1, int(terrain.get("max_hp", 1)))),
+		maxi(1, int(terrain.get("max_hp", 1))),
+		Color("2d1f18"),
+		TERRAIN_BAR_FILL,
+		Color("fff0bf"),
+		Color("eed3a6"),
+		Color(0.0, 0.0, 0.0, 0.35),
+		1.0,
+		1.0
+	)
+	if not preview.is_empty():
+		_draw_health_damage_preview(terrain, bar_rect, preview)
+
+func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
+	if int(terrain.get("hp", 0)) <= 0:
+		return false
+	if int(terrain.get("hp", 0)) < maxi(1, int(terrain.get("max_hp", 1))):
+		return true
+	if not _terrain_damage_preview(terrain).is_empty():
+		return true
+	return attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
+
+func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
+	var terrain_key: String = _terrain_key(terrain)
+	if terrain_key.is_empty():
+		return {}
+	return _damage_preview_map().get(terrain_key, {}) as Dictionary
+
+func _terrain_key(terrain: Dictionary) -> String:
+	var terrain_id: String = str(terrain.get("id", ""))
+	if terrain_id.is_empty():
+		return ""
+	return "terrain_%s" % terrain_id
+
+func _terrain_tooltip_text(terrain: Dictionary) -> String:
+	var label: String = "Wooden box" if str(terrain.get("kind", "")) == "wooden_box" else "Wooden crate"
+	return "%s\n%d/%d HP" % [
+		label,
+		int(terrain.get("hp", 0)),
+		int(terrain.get("max_hp", 1))
+	]
 
 func _draw_exit_marker_for_tile(tile: Vector2i) -> void:
 	if not exit_tiles.has(tile):
@@ -1716,9 +1936,15 @@ func _unit_damage_preview(unit: Dictionary) -> Dictionary:
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty():
 		return {}
+	return _damage_preview_map().get(actor_key, {}) as Dictionary
+
+func _damage_preview_map() -> Dictionary:
 	var effect: Dictionary = presentation.get("effect", {})
-	var preview_map: Dictionary = effect.get("damage_preview", presentation.get("damage_preview", {}))
-	return preview_map.get(actor_key, {}) as Dictionary
+	var preview_map: Dictionary = (presentation.get("damage_preview", {}) as Dictionary).duplicate(true)
+	var effect_preview_map: Dictionary = effect.get("damage_preview", {}) as Dictionary
+	for key: Variant in effect_preview_map.keys():
+		preview_map[key] = effect_preview_map[key]
+	return preview_map
 
 func _unit_is_preview_lethal(unit: Dictionary) -> bool:
 	return bool(_unit_damage_preview(unit).get("lethal", false))
@@ -2356,10 +2582,13 @@ func _arc_control_point(from_point: Vector2, to_point: Vector2) -> Vector2:
 
 func _draw_effect_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	var trap_effects: Array = presentation.get("trap_effects", [])
+	if not trap_effects.is_empty():
+		_draw_trap_blast_effects(trap_effects, progress)
 	if effect.is_empty():
 		return
 	var kind: String = str(effect.get("kind", ""))
-	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
 	var center_tile: Vector2i = effect.get("center", to_tile)
@@ -2865,7 +3094,11 @@ func _load_assets() -> void:
 		_door_opening_flipped_frames.append(AssetLoader.flip_texture_h(frame_texture))
 	_loot_textures = {
 		"healing_vial": AssetLoader.load_texture("res://assets/art/tiles/healing_vial.png"),
-		"ember_cache": AssetLoader.load_texture("res://assets/art/tiles/ember_cache.png")
+		"rusty_shield": AssetLoader.load_texture("res://assets/art/tiles/rusty_shield.png")
+	}
+	_terrain_textures = {
+		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
+		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png")
 	}
 	_element_textures.clear()
 	for element_id: String in ElementData.all_elements():
@@ -2873,6 +3106,9 @@ func _load_assets() -> void:
 	_trap_textures.clear()
 	for element_id: String in ElementData.all_elements():
 		_trap_textures[element_id] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element_id)
+	_trap_blast_textures.clear()
+	for element_id: String in ElementData.all_elements():
+		_trap_blast_textures[element_id] = AssetLoader.load_texture("res://assets/art/effects/trap_blast_%s.png" % element_id)
 	_door_icon_textures.clear()
 	for icon_id: String in RoomIcons.all_icon_ids():
 		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
@@ -3681,6 +3917,59 @@ func _update_cursor_shape() -> void:
 	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile) or _ability_tiles().has(_hover_tile)
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if is_hot else Control.CURSOR_ARROW
 
+func _draw_trap_blast_effects(trap_effects: Array, progress: float) -> void:
+	for trap_var: Variant in trap_effects:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		var element_id: String = str(trap.get("element", ElementData.NONE))
+		var texture: Texture2D = _trap_blast_textures.get(element_id, null)
+		if texture == null:
+			continue
+		for tile: Vector2i in _trap_blast_tiles(trap):
+			_draw_trap_blast_tile(tile, texture, progress)
+
+func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
+	var offsets: Array[Vector2i] = [
+		Vector2i.ZERO,
+		Vector2i(0, -1),
+		Vector2i(1, -1),
+		Vector2i(1, 0),
+		Vector2i(1, 1),
+		Vector2i(0, 1),
+		Vector2i(-1, 1),
+		Vector2i(-1, 0),
+		Vector2i(-1, -1)
+	]
+	var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	var tiles: Array[Vector2i] = []
+	var grid: Array = combat_state.get("grid", [])
+	for offset: Vector2i in offsets:
+		var tile: Vector2i = trap_pos + offset
+		if not _tile_in_grid(grid, tile):
+			continue
+		if not _tile_drawn_as_floor(grid, tile):
+			continue
+		tiles.append(tile)
+	return tiles
+
+func _draw_trap_blast_tile(tile: Vector2i, texture: Texture2D, progress: float) -> void:
+	var t: float = clampf(progress, 0.0, 1.0)
+	var pulse: float = sin(t * PI)
+	var texture_size: Vector2 = texture.get_size()
+	if texture_size.x <= 0.0:
+		return
+	var draw_width: float = _tile_width() * TRAP_BLAST_DRAW_WIDTH_SCALE * (0.88 + 0.12 * pulse)
+	var draw_height: float = _tile_height() * TRAP_BLAST_DRAW_HEIGHT_SCALE * (0.88 + 0.12 * pulse)
+	var center: Vector2 = _tile_center(tile)
+	var bottom_y: float = center.y + _tile_height() * TRAP_BLAST_BASELINE_SCALE
+	var rect := Rect2(
+		Vector2(center.x - draw_width * 0.5, bottom_y - draw_height),
+		Vector2(draw_width, draw_height)
+	)
+	var alpha: float = 0.18 + 0.82 * pulse
+	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, alpha))
+
 func _draw_trap_marker(trap: Dictionary) -> void:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
 	if tile.x < 0:
@@ -3700,7 +3989,7 @@ func _trap_draw_rect(tile: Vector2i) -> Rect2:
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
 	var lines: PackedStringArray = ["%s Trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
-	lines.append("%d damage" % int(trap.get("damage", 0)))
+	lines.append("%d damage to adjacent tiles" % int(trap.get("damage", 0)))
 	if int(trap.get("burn", 0)) > 0:
 		lines.append("Burn %d" % int(trap.get("burn", 0)))
 	if int(trap.get("freeze", 0)) > 0:

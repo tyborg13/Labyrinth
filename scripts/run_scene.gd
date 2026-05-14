@@ -2784,6 +2784,7 @@ func _board_display_state() -> Dictionary:
 		"enemies": [],
 		"traps": layout.get("traps", []).duplicate(true),
 		"loot": layout.get("loot", []).duplicate(true),
+		"terrain": layout.get("terrain", []).duplicate(true),
 		"log": []
 	}
 
@@ -3195,6 +3196,28 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 			"stoneskin": int(after_enemy.get("stoneskin", 0)),
 			"stoneskin_loss": stoneskin_loss,
 			"lethal": int(after_enemy.get("hp", 0)) <= 0
+		}
+	var after_terrain_by_id: Dictionary = {}
+	for after_terrain_var: Variant in after_state.get("terrain", []):
+		if typeof(after_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var after_terrain: Dictionary = after_terrain_var
+		after_terrain_by_id[str(after_terrain.get("id", ""))] = after_terrain
+	for before_terrain_var: Variant in state.get("terrain", []):
+		if typeof(before_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var before_terrain: Dictionary = before_terrain_var
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		if terrain_id.is_empty() or not after_terrain_by_id.has(terrain_id):
+			continue
+		var after_terrain: Dictionary = after_terrain_by_id[terrain_id]
+		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - int(after_terrain.get("hp", 0)))
+		if hp_loss <= 0:
+			continue
+		preview[_terrain_key(before_terrain)] = {
+			"hp": int(after_terrain.get("hp", 0)),
+			"hp_loss": hp_loss,
+			"lethal": int(after_terrain.get("hp", 0)) <= 0
 		}
 	return preview
 
@@ -3771,6 +3794,8 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = t
+		if not (presentation.get("trap_effects", []) as Array).is_empty() and not presentation.has("effect_progress"):
+			presentation["effect_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
 			var text_entry: Dictionary = (text_var as Dictionary).duplicate(true)
@@ -3897,6 +3922,15 @@ func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	impact_presentation.erase("effect_progress")
 	return impact_presentation
 
+func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
+	if trap_effects.is_empty():
+		return
+	var presentation: Dictionary = base_presentation.duplicate(true)
+	presentation["trap_effects"] = trap_effects
+	presentation["floating_texts"] = _player_action_floating_texts(before_state, after_state)
+	presentation["impact_actor_keys"] = _player_action_impact_actor_keys(before_state, after_state)
+	await _animate_floating_text_presentation(after_state, presentation)
+
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i) -> void:
 	var action_type: String = str(action.get("type", ""))
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
@@ -3905,6 +3939,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	var player_after: Dictionary = after_state.get("player", {})
 	var player_before_tile: Vector2i = player_before.get("pos", Vector2i.ZERO)
 	var player_after_tile: Vector2i = player_after.get("pos", player_before_tile)
+	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
 	var base_presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
 		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink"] else PLAYER_ATTACK_FOCUS
@@ -3926,6 +3961,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
 			_render_board_state(after_state, base_presentation)
 			await get_tree().create_timer(0.06).timeout
+			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			for frame: int in range(1, ATTACK_FRAMES + 1):
@@ -3948,6 +3984,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect_progress": 1.0
 			})
 			await get_tree().create_timer(0.14).timeout
+			await _animate_player_trap_result(after_state, before_state, triggered_traps, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"focus_tiles": [player_after_tile],
+				"focus_color": Color(0.53, 0.48, 0.92, 0.24)
+			})
 		"illusion":
 			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile])
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -4014,8 +4056,9 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_color": Color(0.95, 0.62, 0.37, 0.22),
 				"effect": effect,
 				"effect_progress": 1.0,
-				"impact_actor_keys": _damaged_enemy_keys(before_state, after_state),
-				"floating_texts": _player_damage_floating_texts(before_state, after_state)
+				"impact_actor_keys": _player_action_impact_actor_keys(before_state, after_state),
+				"trap_effects": triggered_traps,
+				"floating_texts": _player_action_floating_texts(before_state, after_state)
 			}))
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
@@ -4215,6 +4258,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 					"effect": step,
 					"effect_progress": 1.0,
+					"trap_effects": step.get("triggered_traps", []),
 					"impact_actor_keys": impact_actor_keys,
 					"floating_texts": _floating_texts_for_step(step)
 				}))
@@ -4368,6 +4412,8 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				_apply_actor_losses(animated_state, target_losses)
 			if step.has("player_to"):
 				_set_player_pos(animated_state, step.get("player_to", Vector2i.ZERO))
+			_apply_terrain_losses(animated_state, step.get("terrain_losses", []))
+			_remove_triggered_traps(animated_state, step.get("triggered_traps", []))
 
 func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 	match str(step.get("kind", "")):
@@ -4408,37 +4454,40 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 			}]
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
-			if not target_losses.is_empty():
-				return _floating_texts_for_target_losses(target_losses, str(step.get("status_text", "")), step.get("to", Vector2i.ZERO))
+			var terrain_losses: Array = step.get("terrain_losses", [])
 			var floats: Array[Dictionary] = []
-			if int(step.get("hp_loss", 0)) > 0:
-				floats.append({
-					"tile": step.get("to", Vector2i.ZERO),
-					"text": "-%d" % int(step.get("hp_loss", 0)),
-					"color": Color("f39779"),
-					"offset": -10.0
-				})
-			if int(step.get("block_loss", 0)) > 0:
-				floats.append({
-					"tile": step.get("to", Vector2i.ZERO),
-					"text": "-%d B" % int(step.get("block_loss", 0)),
-					"color": Color("90d9ff"),
-					"offset": 10.0
-				})
-			if int(step.get("stoneskin_loss", 0)) > 0:
-				floats.append({
-					"tile": step.get("to", Vector2i.ZERO),
-					"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
-					"color": ElementData.accent(ElementData.EARTH),
-					"offset": 22.0
-				})
-			if not str(step.get("status_text", "")).is_empty():
-				floats.append({
-					"tile": step.get("to", Vector2i.ZERO),
-					"text": str(step.get("status_text", "")),
-					"color": Color("f1d18b"),
-					"offset": -24.0
-				})
+			if not target_losses.is_empty():
+				floats.append_array(_floating_texts_for_target_losses(target_losses, str(step.get("status_text", "")), step.get("to", Vector2i.ZERO)))
+			else:
+				if int(step.get("hp_loss", 0)) > 0:
+					floats.append({
+						"tile": step.get("to", Vector2i.ZERO),
+						"text": "-%d" % int(step.get("hp_loss", 0)),
+						"color": Color("f39779"),
+						"offset": -10.0
+					})
+				if int(step.get("block_loss", 0)) > 0:
+					floats.append({
+						"tile": step.get("to", Vector2i.ZERO),
+						"text": "-%d B" % int(step.get("block_loss", 0)),
+						"color": Color("90d9ff"),
+						"offset": 10.0
+					})
+				if int(step.get("stoneskin_loss", 0)) > 0:
+					floats.append({
+						"tile": step.get("to", Vector2i.ZERO),
+						"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
+						"color": ElementData.accent(ElementData.EARTH),
+						"offset": 22.0
+					})
+				if not str(step.get("status_text", "")).is_empty():
+					floats.append({
+						"tile": step.get("to", Vector2i.ZERO),
+						"text": str(step.get("status_text", "")),
+						"color": Color("f1d18b"),
+						"offset": -24.0
+					})
+			floats.append_array(_floating_texts_for_terrain_losses(terrain_losses))
 			return floats
 		_:
 			return []
@@ -4481,6 +4530,70 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			"offset": -24.0
 		})
 	return floats
+
+func _floating_texts_for_terrain_losses(terrain_losses: Array) -> Array[Dictionary]:
+	var floats: Array[Dictionary] = []
+	for loss_var: Variant in terrain_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		var hp_loss: int = int(loss.get("hp_loss", loss.get("amount", 0)))
+		if hp_loss <= 0:
+			continue
+		floats.append({
+			"tile": loss.get("tile", Vector2i.ZERO),
+			"text": "-%d" % hp_loss,
+			"color": Color("f0c85c"),
+			"offset": -4.0
+		})
+	return floats
+
+func _terrain_target_losses_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var after_by_id: Dictionary = {}
+	for after_terrain_var: Variant in after_state.get("terrain", []):
+		if typeof(after_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var after_terrain: Dictionary = after_terrain_var
+		after_by_id[str(after_terrain.get("id", ""))] = after_terrain
+	var losses: Array[Dictionary] = []
+	for before_terrain_var: Variant in before_state.get("terrain", []):
+		if typeof(before_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var before_terrain: Dictionary = before_terrain_var
+		if int(before_terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		var after_terrain: Dictionary = after_by_id.get(terrain_id, before_terrain)
+		var hp_loss: int = int(before_terrain.get("hp", 0)) - int(after_terrain.get("hp", 0))
+		if hp_loss <= 0:
+			continue
+		losses.append({
+			"key": "terrain_%s" % terrain_id,
+			"kind": str(before_terrain.get("kind", "terrain")),
+			"id": terrain_id,
+			"tile": before_terrain.get("pos", Vector2i.ZERO),
+			"hp_loss": hp_loss,
+			"amount": hp_loss
+		})
+	return losses
+
+func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var after_ids: Dictionary = {}
+	for after_trap_var: Variant in after_state.get("traps", []):
+		if typeof(after_trap_var) != TYPE_DICTIONARY:
+			continue
+		var after_trap: Dictionary = after_trap_var
+		after_ids[str(after_trap.get("id", ""))] = true
+	var triggered: Array[Dictionary] = []
+	for before_trap_var: Variant in before_state.get("traps", []):
+		if typeof(before_trap_var) != TYPE_DICTIONARY:
+			continue
+		var before_trap: Dictionary = (before_trap_var as Dictionary).duplicate(true)
+		var trap_id: String = str(before_trap.get("id", ""))
+		if trap_id.is_empty() or after_ids.has(trap_id):
+			continue
+		triggered.append(before_trap)
+	return triggered
 
 func _set_enemy_pos_by_key(state: Dictionary, actor_key: String, pos: Vector2i) -> void:
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
@@ -4544,6 +4657,48 @@ func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
 				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
 			"illusion":
 				_apply_illusion_loss_by_key(state, str(loss.get("key", "")), int(loss.get("hp_loss", 0)))
+
+func _apply_terrain_losses(state: Dictionary, terrain_losses: Array) -> void:
+	if terrain_losses.is_empty():
+		return
+	var terrain_entries: Array = (state.get("terrain", []) as Array).duplicate(true)
+	for loss_var: Variant in terrain_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		var terrain_id: String = str(loss.get("id", ""))
+		if terrain_id.is_empty():
+			continue
+		for terrain_index: int in range(terrain_entries.size()):
+			var terrain: Dictionary = terrain_entries[terrain_index]
+			if str(terrain.get("id", "")) != terrain_id:
+				continue
+			terrain["hp"] = maxi(0, int(terrain.get("hp", 0)) - int(loss.get("hp_loss", loss.get("amount", 0))))
+			terrain_entries[terrain_index] = terrain
+			break
+	state["terrain"] = terrain_entries
+
+func _remove_triggered_traps(state: Dictionary, triggered_traps: Array) -> void:
+	if triggered_traps.is_empty():
+		return
+	var triggered_ids: Dictionary = {}
+	for trap_var: Variant in triggered_traps:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap_id: String = str((trap_var as Dictionary).get("id", ""))
+		if not trap_id.is_empty():
+			triggered_ids[trap_id] = true
+	if triggered_ids.is_empty():
+		return
+	var remaining: Array = []
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if triggered_ids.has(str(trap.get("id", ""))):
+			continue
+		remaining.append(trap)
+	state["traps"] = remaining
 
 func _apply_illusion_loss_by_key(state: Dictionary, actor_key: String, hp_loss: int) -> void:
 	if actor_key.is_empty() or hp_loss <= 0:
@@ -4661,6 +4816,58 @@ func _action_prompt(action: Dictionary) -> String:
 
 func _player_action_label(card_id: String, _action: Dictionary, _state: Dictionary = _combat_state) -> String:
 	return str(_card_def(card_id, _state).get("name", card_id))
+
+func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var floats: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	floats.append_array(_player_loss_floating_texts(before_state, after_state))
+	floats.append_array(_floating_texts_for_terrain_losses(_terrain_target_losses_between(before_state, after_state)))
+	return floats
+
+func _player_action_impact_actor_keys(before_state: Dictionary, after_state: Dictionary) -> Array[String]:
+	var keys: Array[String] = _damaged_enemy_keys(before_state, after_state)
+	if _player_took_loss(before_state, after_state):
+		keys.append("player")
+	return keys
+
+func _player_took_loss(before_state: Dictionary, after_state: Dictionary) -> bool:
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	if int(before_player.get("hp", 0)) > int(after_player.get("hp", 0)):
+		return true
+	if int(before_player.get("block", 0)) > int(after_player.get("block", 0)):
+		return true
+	return int(before_player.get("stoneskin", 0)) > int(after_player.get("stoneskin", 0))
+
+func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var player_tile: Vector2i = after_player.get("pos", before_player.get("pos", Vector2i.ZERO))
+	var hp_loss: int = int(before_player.get("hp", 0)) - int(after_player.get("hp", 0))
+	var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
+	var stoneskin_loss: int = int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0))
+	var floats: Array[Dictionary] = []
+	if hp_loss > 0:
+		floats.append({
+			"tile": player_tile,
+			"text": "-%d" % hp_loss,
+			"color": Color("f39779"),
+			"offset": -10.0
+		})
+	if block_loss > 0:
+		floats.append({
+			"tile": player_tile,
+			"text": "-%d B" % block_loss,
+			"color": Color("90d9ff"),
+			"offset": 10.0
+		})
+	if stoneskin_loss > 0:
+		floats.append({
+			"tile": player_tile,
+			"text": "-%d S" % stoneskin_loss,
+			"color": ElementData.accent(ElementData.EARTH),
+			"offset": 22.0
+		})
+	return floats
 
 func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_by_id: Dictionary = {}
@@ -5522,6 +5729,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_freeze_applied: int = 0
 	var enemy_shock_applied: int = 0
 	var enemy_poison_applied: int = 0
+	var terrain_hp_damage: int = 0
+	var terrain_destroyed: int = 0
 	var before_enemies: Array = before_state.get("enemies", [])
 	var after_enemies: Array = resolved_state.get("enemies", [])
 	for index: int in range(mini(before_enemies.size(), after_enemies.size())):
@@ -5536,6 +5745,26 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
 		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
 		enemy_poison_applied += maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
+	var after_terrain_by_id: Dictionary = {}
+	for after_terrain_var: Variant in resolved_state.get("terrain", []):
+		if typeof(after_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var after_terrain: Dictionary = after_terrain_var
+		after_terrain_by_id[str(after_terrain.get("id", ""))] = after_terrain
+	for before_terrain_var: Variant in before_state.get("terrain", []):
+		if typeof(before_terrain_var) != TYPE_DICTIONARY:
+			continue
+		var before_terrain: Dictionary = before_terrain_var
+		if int(before_terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		if not after_terrain_by_id.has(terrain_id):
+			continue
+		var after_terrain: Dictionary = after_terrain_by_id[terrain_id]
+		var terrain_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - int(after_terrain.get("hp", 0)))
+		terrain_hp_damage += terrain_loss
+		if terrain_loss > 0 and int(after_terrain.get("hp", 0)) <= 0:
+			terrain_destroyed += 1
 	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
 	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
@@ -5577,6 +5806,10 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"enemy_block_removed": enemy_block_removed,
 		"enemy_stoneskin_removed": enemy_stoneskin_removed,
 		"enemy_defense_bypassed": _analytics_enemy_defense_bypassed(before_state, resolved_state, actions),
+		"terrain_hp_damage": terrain_hp_damage,
+		"terrain_destroyed": terrain_destroyed,
+		"traps_triggered": _triggered_traps_between(before_state, resolved_state).size(),
+		"pickups_collected": _analytics_picked_loot_count(before_state, resolved_state),
 		"kills_secured": kills_secured,
 		"player_hp_delta": int(after_player.get("hp", 0)) - int(before_player.get("hp", 0)),
 		"player_heal_gained": maxi(0, int(after_player.get("hp", 0)) - int(before_player.get("hp", 0))),
@@ -5650,6 +5883,32 @@ func _analytics_pierce_action_count(actions: Array) -> int:
 		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
 			count += 1
 	return count
+
+func _analytics_picked_loot_count(before_state: Dictionary, after_state: Dictionary) -> int:
+	var after_claimed: Dictionary = {}
+	for after_loot_var: Variant in after_state.get("loot", []):
+		if typeof(after_loot_var) != TYPE_DICTIONARY:
+			continue
+		var after_loot: Dictionary = after_loot_var
+		if bool(after_loot.get("claimed", false)):
+			after_claimed[_analytics_loot_key(after_loot)] = true
+	var picked_count: int = 0
+	for before_loot_var: Variant in before_state.get("loot", []):
+		if typeof(before_loot_var) != TYPE_DICTIONARY:
+			continue
+		var before_loot: Dictionary = before_loot_var
+		if bool(before_loot.get("claimed", false)):
+			continue
+		if after_claimed.has(_analytics_loot_key(before_loot)):
+			picked_count += 1
+	return picked_count
+
+func _analytics_loot_key(loot: Dictionary) -> String:
+	var loot_id: String = str(loot.get("id", ""))
+	if not loot_id.is_empty():
+		return loot_id
+	var pos: Vector2i = loot.get("pos", Vector2i.ZERO)
+	return "%s:%d:%d" % [str(loot.get("kind", "")), pos.x, pos.y]
 
 func _analytics_enemy_defense_bypassed(before_state: Dictionary, resolved_state: Dictionary, actions: Array) -> int:
 	if _analytics_pierce_action_count(actions) <= 0:
@@ -5810,6 +6069,13 @@ func _enemy_occupied_tiles(state: Dictionary) -> Dictionary:
 		if int(illusion.get("hp", 0)) <= 0:
 			continue
 		occupied[illusion.get("pos", Vector2i.ZERO)] = true
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		occupied[terrain.get("pos", Vector2i.ZERO)] = true
 	return occupied
 
 func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
@@ -5823,3 +6089,9 @@ func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
 
 func _enemy_key(enemy: Dictionary) -> String:
 	return "enemy_%d" % int(enemy.get("id", -1))
+
+func _terrain_key(terrain: Dictionary) -> String:
+	var terrain_id: String = str(terrain.get("id", ""))
+	if terrain_id.is_empty():
+		return ""
+	return "terrain_%s" % terrain_id

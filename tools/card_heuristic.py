@@ -9,8 +9,11 @@ Current encounter assumptions that shape the coefficients but are not directly
 scored here: combat depths repeat in four-depth sequences with 3/4/5 standard
 enemy density before a boss gate; later sequences keep the local curve while
 raising enemy HP and intent baselines. Elemental combat rooms seed 2-3
-central-biased traps, and enemies killed by a card add a bonus card play for the
-turn, so large damage and broad damage get a small execute-tempo premium.
+central-biased traps that blast adjacent tiles when stepped on or attacked.
+Every room places a 4 HP potion and 4 block shield, and combat rooms scatter
+5-7 low-HP boxes/crates that block movement without blocking line of sight.
+Enemies killed by a card add a bonus card play for the turn, so large damage and
+broad damage get a small execute-tempo premium.
 """
 
 from __future__ import annotations

@@ -42,6 +42,8 @@ The current event stream is enough to derive:
 
 - enemy HP, block, and stoneskin removed
 - pierce actions resolved and enemy defense bypassed by observed HP damage
+- terrain HP damage, terrain destroyed, traps triggered, and battlefield pickups
+  collected
 - kills secured
 - player HP delta
 - block, stoneskin, and healing gained
