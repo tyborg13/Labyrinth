@@ -1,0 +1,89 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-14T20:55:20Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5142604
+- Starting seed 5142604. Opening map offers four depth-1 combat rooms: two air and two earth; choosing north air to begin with a neutral combat sample.
+- Moved to (0,-1): depth 1 air combat.
+- Turn 1 plan: use Bloody Lunge plus Quick Stab to remove Ash Acolyte before it can pull/shoot; this costs 1 HP and moves near trap cluster but avoids recurring ranged pressure.
+- UX/harness: Bloody Lunge move preview to (6,6) looked adjacent to Ash Acolyte, but melee follow-up only offered terrain, not e2; likely diagonal melee is not legal or crate/box occlusion makes the setup non-obvious.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played patch_up as printed: +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2: Patch Up negated the acolyte shot but overhealed at full HP; drawn Guarded Step/Brace gives strong defensive buffer. Acolyte is adjacent with 5 block, so spending two attacks should finally remove it.
+- Played quick_stab as printed: 4 damage, 5 block removed.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Suspicious: combat log awarded Ash Acolyte +10 embers, but top-line embers still shows 0 immediately after kill.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Passing with block because previews show enemies shooting terrain rather than player; spending Shadow Step would risk confusing pickup/illusion targeting near the shield.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: enemies continue wasting shots on crates, so breaking the damaged crate at (3,5) opens the efficient path to the rusty shield while staying out of direct fire.
+- Played sidestep_slash as printed: 2 terrain damage, 1 terrain broken, moved 1.
+- Played shadow_step as printed: +4 block, moved 2, picked Rusty shield: Gain 4 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Balance/trap lesson: blinking to shield at (3,4) was punished hard; crawler shot pulled player onto the trap, trap detonations dealt enough to turn a safe pickup into 5 total HP loss including fatigue. Preview warned trap adjacency only indirectly, but pass preview before the blink would have been useful.
+- Played whirlwind_slash as printed: 6 damage.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +4 HP, +3 block, moved 1, +1 play, picked Healing potion: Heal 4.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5 harrier pass preview spikes to 4 HP due trap push into (5,5); this confirms trap/push interactions are dangerous and easy to underestimate.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6: after Brace absorbed the trap-push shot, Bloody Lunge finally has a clean shortcut to kill the last harrier.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, moved 3, +1 play.
+- Reward choice: taking Reprise over Air cards because current Air intensity is only 1 and both Air rewards require Air 3+, while Reprise gives immediate draw/block despite HP cost.
+- Reward: took Reprise.
+- Post-room route offers fire or ice combat at same depth. Choosing ice to test a different element/encounter while HP remains healthy enough at 30/36.
+- Moved to (1,-1): depth 1 ice combat.
+- Second combat opens with severe -11 pass preview from three ranged enemies. Need immediate mitigation; testing Reprise reward for draw + block under pressure.
+- Played reprise as printed: -1 HP, +5 block, drew 3.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 5 HP lost, mode now combat.
+- Turn 2 second combat: Reprise/Patch Up still allowed 5 HP loss because enemy damage was front-loaded before later block absorbed smaller shots; now two enemies are adjacent and Whirlwind can potentially stabilize.
+- Played whirlwind_slash as printed: 8 damage, 4 block removed.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Played brace as printed: +8 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Suspicious/block issue: Brace gave +8 block on turn 2 but enemy phase still resolved as -3 HP from harrier and fatigue; expected block to absorb the shot. Either block expired before enemy phase or output is misleading.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played bone_dart as printed: 5 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Turn 4 second combat: one harrier left at 6 HP, HP has fallen to 18/36. Pass preview shows no immediate hit, but fatigue is mounting; need end combat quickly and then consider reward heal/rest.
+- Choosing Sidestep Slash shortcut despite -2 trap risk because preview says it kills the last harrier and ends combat before more fatigue/4-damage shots.
+- Played sidestep_slash as printed: 6 damage, 1 trap blast, 1 kills, -2 HP, moved 3, +1 play, enemy +1 freeze.
+- Second combat endpoint: won at 16/36 after two rooms. This room felt like a sharp damage spike: opening pass preview was -11, mitigation still lost substantial HP, and fatigue forced aggressive trap use. Choosing reward heal over cards due low HP and enough deck size.
+- Reward: skipped for heal to 22/36.
+- Route choice after two combats: HP is 22/36 after reward heal. Taking depth-2 earth combat for a stronger balance sample; if this spikes too hard, that will be a rational endpoint.
+- Moved to (2,-1): depth 2 earth combat.
+- Depth-2 earth room opens with four enemies but pass preview is only -4 plus poison. Prioritizing shield pickup with Guarded Step to absorb melee/poison setup while preserving play economy.
+- Played guarded_step as printed: +7 block, moved 2, +1 play, picked Rusty shield: Gain 4 block.
+- Played reprise as printed: -1 HP, +5 block, drew 4.
+- Played whirlwind_slash as printed: 15 damage, 2 trap blast, enemy +6 poison, player +4 poison.
+- Enemy round: 10 HP lost, mode now combat.
+- Major spike: Whirlwind near earth traps hit three enemies but also triggered two earth traps and left player at 11/36 with poison=10. This is probably the clearest balance/UX finding: area attacks can create huge self-poison from adjacent trap clutter.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3 depth-2 earth: poison is now 12 and pass preview is -10/+4 poison. This looks unrecoverable unless kills chain immediately; prioritizing harrier kill to reduce incoming poison stack.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +4 HP, +3 block, moved 2, +1 play, picked Healing potion: Heal 4.
+- Played bloody_lunge as printed: 3 damage, 4 stone removed, -1 HP.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 6 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage, 3 terrain damage, 1 terrain broken, 1 kills, +1 play.
+- Played lantern_shot as printed: 1 damage, 3 stone removed, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5: at 6 HP and poison=16, only path is lethal this turn. Bloody Lunge plus Sidestep should exactly kill if both connect, but HP-cost card makes this extremely narrow.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played sidestep_slash as printed: 5 damage, 1 kills, +1 play.
+- Depth-2 earth won at 5/36 HP after exact lethal. This is a natural stopping point for balance reporting: three combats completed, third nearly lethal primarily due poison/trap cascade. Taking reward heal; would not rationally continue deeper without a rest/safer option.
+- Reward: skipped for heal to 11/36.
+- Stopping after reward heal because run reached 11/36 after heal, poison/trap balance evidence is sufficient, and continuing into another combat from this HP would be reckless rather than useful.

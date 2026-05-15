@@ -1,0 +1,65 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-14T20:55:46Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5142605
+- Opening choice: four depth-1 combats, two air and two earth. Picking an earth combat to start building earth intensity while gathering baseline combat difficulty.
+- Moved to (1,0): depth 1 earth combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Suspicious harness/output issue: after resolving Bone Dart and one pass, the log advanced through two enemy phases to turn 3 with no second typed command echoed. Could be buffered input/display artifact, but it looked like an unintended extra pass.
+- Played quick_stab as printed: 5 damage, 4 stone removed.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 8 HP lost, mode now combat.
+- Balance pressure: first depth-1 combat became severe after acolyte stacked to 10 stoneskin and poison reached 3. The 1 HP harrier is oddly hard to finish because retreat/stoneskin plus traps/boxes make melee access costly.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played whirlwind_slash as printed: 2 damage, 6 stone removed, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: +4 block, moved 4, 1 illusion, picked Rusty shield: Gain 4 block.
+- UX/mechanics: Shadow Step preview for blinking to shield did not flag that ending adjacent to the earth trap would let the acolyte attack through/trigger the trap on enemy phase. Pass preview after the move shows a huge +3 poison spike.
+- Played brace as printed: +8 block.
+- Enemy round: 3 HP lost, mode now combat.
+- Played guarded_step as printed: +4 HP, +3 block, moved 2, +1 play, picked Healing potion: Heal 4.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played bone_dart as printed: 1 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 1 damage, 4 stone removed, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 5 stone removed.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Cleared first combat at 12/36 HP and 27 embers. This felt overtuned for depth 1: poison reached 7, trap interaction added 3 poison in one enemy phase, and acolyte stoneskin delayed cleanup. Taking heal reward over card because survival is the rational choice.
+- Reward: skipped for heal to 18/36.
+- Map choice after room 1: selecting treasure over immediate lightning combat because HP is only 18/36 and the guide favors rational recovery/survival when available.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure choice: Anchor Chain and Tailwind Fletching look low-synergy for the current starter deck/earth path, so Coffin Nails is the only reliable value despite being economy-only.
+- Treasure: took Coffin Nails.
+- Pathing: choosing depth-1 air combat instead of depth-2 earth combat because HP remains half and the first depth-1 fight already nearly exhausted recovery.
+- Moved to (0,-1): depth 1 air combat.
+- Second combat opening: pass preview is only 2 damage, much gentler than the first room, but starting hand has mostly melee while crates/traps separate the player from enemies. Will use ranged-safe positioning and pickups rather than rushing central traps.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played bone_dart as printed: 3 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 3 damage, 4 block removed, -1 HP, moved 1.
+- Enemy round: 3 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 damage.
+- Played whirlwind_slash as printed: 8 damage, 4 block removed.
+- Enemy round: 3 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 block removed, drew 1.
+- Played sidestep_slash as printed: 3 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 3 damage, 4 block removed, -1 HP.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 2 damage, 4 block removed, 1 kills, +1 play.
+- Cleared second depth-1 air combat at 8/36 HP, 55 embers after Coffin Nails. This fight felt fairer than the first: ranged chip and fatigue mattered, but no poison runaway. Still, ending at 8 HP after two depth-1 combats suggests early sustain is tight.
+- Reward: skipped for heal to 14/36.
+- Stop reason: after two depth-1 combats plus one treasure, only legal progress is another combat at 14/36 HP. This is a rational stopping point with enough depth/combat evidence; continuing likely tests low-HP attrition more than baseline balance.

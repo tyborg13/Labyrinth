@@ -1,0 +1,87 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-14T20:55:15Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5142603
+- Starting route: choose first earth combat from start to gather depth/combat evidence while avoiding trap exposure.
+- Moved to (1,0): depth 1 earth combat.
+- First combat has immediate projected -6 HP/+2 poison if passing, so I will spend actions to reduce crawler pressure instead of waiting.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 9 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Harness UX: pass resolved the turn even while Bone Dart targeting was pending after an illegal target attempt; easy to accidentally end turn instead of canceling target selection.
+- Played lantern_shot as printed: drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 3 HP lost, mode now combat.
+- Turn 4 pressure spike: projected -9 HP/+2 poison with crawler already adjacent and acolyte in range; poison stacking is quickly becoming more threatening than direct damage.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played bone_dart as printed: 2 damage, 1 trap blast, enemy +2 poison.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Enemy round: 6 HP lost, mode now combat.
+- Enemy round: 9 HP lost, mode now combat.
+- Bad tactical result: by turn 6 I am at 12/36 with poison 6 in room 1. Early inability to kill the second crawler before poison stacked created a steep failure spiral.
+- Played quick_stab as printed: 3 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played whirlwind_slash as printed: 1 damage, 5 stone removed.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 5 stone removed.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
+- First room cleared at 5/36 HP after heal pickups were inaccessible behind clutter/traps; reward heal is mandatory over card choice despite interesting Earth options.
+- Reward: skipped for heal to 11/36.
+- Route choice: at 11/36 after first combat, take treasure over immediate lightning combat to stabilize/evaluate rewards.
+- Moved to (1,-1): depth 1 none treasure.
+- Relic choice: Bloodglass Knife selected over healing boost because first combat showed kill timing/poison prevention was the bottleneck; the no-block condition creates a meaningful tension with Brace/Guarded Step.
+- Treasure: took Bloodglass Knife.
+- Route choice: choose depth-1 air combat rather than depth-2 earth combat because current HP is still only 11/36.
+- Moved to (0,-1): depth 1 air combat.
+- Second combat starts at 11/36; Bloodglass boosts melee enough to consider killing Bone Harrier before ranged push/trap interactions compound.
+- Played guarded_step as printed: +4 HP, +3 block, moved 2, +1 play, picked Healing potion: Heal 4.
+- Harness/mechanics check: after moving to potion, pass preview says acolyte push would move player onto Air trap at (5,5) and 'triggered' it, but projected loss is only -1 HP/-3 block; unclear whether trap damage is suppressed by push/block or preview text is incomplete.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played sidestep_slash as printed: 5 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 4 damage, 4 block removed.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played quick_stab as printed: 10 damage, 1 kills, +1 play.
+- Played whirlwind_slash as move: moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 7 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Tactical choice: blink onto Air trap for 2 damage to get adjacent lethal on final crawler; acceptable because room is nearly solved and HP is 15.
+- Played shadow_step as printed: 2 damage, 1 trap blast, -2 HP, moved 4.
+- Played sidestep_slash as printed: 1 damage, 1 kills, +4 block, moved 1, +1 play, picked Rusty shield: Gain 4 block.
+- Second combat cleared at 13/36 after Bloodglass carried key lethal lines; potion pickup plus kill refunds made the room recoverable but still left low HP. Card reward skipped for heal due survival pressure.
+- Reward: skipped for heal to 19/36.
+- Route forced into depth-1 fire combat at 19/36; continue because there is no rest/leave option and HP is not hopeless.
+- Moved to (-1,-1): depth 1 fire combat.
+- Third combat: using illusion as crawler blocker/decoy because pass preview is immediate -6 plus burn and HP pool is still modest.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played bone_dart as printed: 3 damage, 5 block removed.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 7 damage, 5 block removed.
+- Played sidestep_slash as printed: 2 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 10 damage, -1 HP, moved 1.
+- Played whirlwind_slash as printed: 4 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bloody_lunge as printed: -1 HP, moved 3.
+- Enemy round: 4 HP lost, mode now combat.
+- Played bone_dart as printed: 8 damage.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as move: moved 1.
+- Played whirlwind_slash as printed: 2 damage, 1 kills, +1 play.
+- Third combat cleared at 12/36. Bloodglass damage and kill refunds make individual turns explosive, but repeated mandatory reward heals suggest sustain/burn/poison pressure is overtuned or early rooms are too dense for base deck.
+- Reward: skipped for heal to 18/36.
+- Stopping reason: natural balance-call endpoint after three depth-1 combats plus one treasure. Current HP is 18/36, all three card rewards were skipped for healing, and the only available next move is another combat, so additional play would mostly test survival snowball rather than a new system.

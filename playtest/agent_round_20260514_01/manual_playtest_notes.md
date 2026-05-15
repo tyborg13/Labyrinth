@@ -1,0 +1,82 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-14T20:54:50Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5142601
+- Starting seed 5142601. Initial choices are four depth-1 combats split air/earth; will favor a combat path that lets pickups and terrain decide risk after scouting.
+- Moved to (1,0): depth 1 earth combat.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 3.
+- Played lantern_shot as printed: 3 damage, 1 kills, drew 1, +1 play.
+- Room 1 turn 1: focused Bone Harrier with Bloody Lunge plus Lantern Shot because pass preview showed immediate poison/damage; kill refund kept tempo. Passing final play because preview shows enemies hit terrain/no direct damage and Patch Up would overheal for little value.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 1 damage, 4 stone removed.
+- Played sidestep_slash as printed: moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 5 damage, moved 2.
+- Played quick_stab as printed: 8 damage, 1 kills, +1 play.
+- Room 1 midfight: Shadow Step illusion absorbed multiple crawler attacks, but moving to engage with Guarded Step caused a poison-threat preview; had to spend Sidestep movement defensively, then killed crawler with Sidestep/Quick Stab. Fatigue hit for 2 before cleanup.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Room 1 cleanup: final acolyte picked up 5 stoneskin while out of range; passing a safe turn rather than shooting traps/terrain or moving beside trap cluster.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played bone_dart as printed: 5 stone removed.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 4 damage, 5 stone removed.
+- Played lantern_shot as printed: 1 damage, 1 kills, +1 play.
+- Reward 1: choosing Stone Plate over heal because 32/36 is stable and Earth intensity already at 1 makes Earth-scaling defense/draw attractive. Thorn Skewer's Earth 2 poison looks tempting, but the run needs mitigation after fatigue/poison threats.
+- Reward: took Stone Plate.
+- Moved to (1,-1): depth 1 none treasure.
+- Treasure choice: Mirror Shard seems highest impact because opening hands decide whether early enemy range/poison can be avoided; Boots also good for trap-heavy rooms but extra card likely more consistently converts into kills/defense.
+- Treasure: took Mirror Shard.
+- Route: taking depth-2 earth combat for meaningful balance evidence after one successful combat plus treasure; HP 32/36 and Mirror Shard should support the risk.
+- Moved to (2,-1): depth 2 earth combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: moved 2.
+- Depth 2 turn 2 spike: after safe Shadow Step opener, four-enemy room with warden + two crawlers creates unavoidable poison pressure. Even Guarded Step + Sidestep movement back to the corner still previews poison; cannot kill a stoneskinned crawler in two remaining plays.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 3: switching to warden burst because adjacent crawler is coiling, not attacking; trying to remove highest poison/damage source even though two-card burst cannot quite kill 20 HP.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 2 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, 1 kills, drew 1, +1 play.
+- Status checkpoint: not blocked. In depth-2 combat turn 4 at 27/36 HP with poison 4; warden killed, two stoneskinned crawlers and harrier remain. Continuing because combat is still live and gives useful spike evidence.
+- Played quick_stab as printed: 1 damage, 8 stone removed.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 6 damage, 6 stone removed.
+- Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 after warden: poison reached 6 and dealt a large delayed hit, but killing warden plus one crawler stabilized immediate damage. Remaining issue is crawler repeatedly coiling to high stoneskin, making cleanup slow.
+- Played stone_plate as printed: -3 HP, drew 1, +1 Earth intensity.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: +4 block, moved 1, picked Rusty shield: Gain 4 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Suspicious combat output: after moving to shield at (4,3), Bone Harrier at (5,1) struck and output says it triggered the (5,3) Earth trap while damaging player block/adding poison. It is unclear whether trap blast affected player/enemy or why that trap triggered from the attack.
+- Played bone_dart as printed: 2 damage, 3 stone removed.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 8: fatigue plus poison is now the main clock; HP 16, crawler has 14 stoneskin from repeated Coil while remaining at full HP. This feels like a cleanup snowball rather than tactical danger alone.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Played whirlwind_slash as printed: 9 stone removed, 1 trap blast, -1 HP, enemy +2 poison, player +2 poison.
+- Played quick_stab as printed: 4 damage, 5 stone removed.
+- Enemy round: 6 HP lost, mode now combat.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
+- Depth-2 combat ended at 8/36 HP. Victory was possible, but warden + double crawler + harrier produced a severe spike: poison reached 6, fatigue hit repeatedly, and final crawler's 14 stoneskin made cleanup nearly lethal. Taking heal rather than a card is mandatory here.
+- Reward: skipped for heal to 14/36.
+- Route after spike: choosing campfire over another depth-2 combat because HP is only 14/36 after mandatory reward heal; another combat would be reckless rather than informative.
+- Moved to (2,0): depth 2 none campfire.
+- Stopping reason: resting at campfire with 14/36 HP after two combats and one treasure. Continuing would risk losing the run after enough depth-2 evidence; this is a rational bank/end point.
+- Campfire: rested and banked 66 embers.

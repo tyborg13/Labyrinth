@@ -1,0 +1,77 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-14T20:55:33Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5142606
+- Starting from depth 0 with four combat options; choosing an earth branch first to gather combat evidence and avoid making route choice blindly.
+- Moved to (1,0): depth 1 earth combat.
+- Initial combat has three enemies and pass preview is 8 damage plus 2 poison, so I am using Guarded Step for tempo/block and trying to kill the acolyte before letting enemies converge.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: 5 damage, moved 1.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 3 HP lost, mode now combat.
+- Harness UX/user-risk: queued commands after a final play can spill into the next turn after auto enemy phase; I accidentally passed turn 2 this way, so command batching is unsafe for manual playtests.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Shadow Step successfully prevented direct damage by pulling the acolyte into the illusion, but poison/fatigue still cost 4 HP at next setup, making early poison feel punishing.
+- Played bloody_lunge as printed: 4 damage, 1 kills, -1 HP, moved 3, +1 play.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Tunnel Crawler Coil stacks stoneskin while chasing; after a few avoidance turns one crawler reached 8 stoneskin, which makes delayed engagement materially harder.
+- Played sidestep_slash as printed: 1 damage, 4 stone removed, moved 1.
+- Played quick_stab as printed: 9 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played sidestep_slash as printed: 1 damage, 4 stone removed, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 9 damage.
+- Played whirlwind_slash as printed: 4 damage, 1 kills, +1 play.
+- Reward after room 1 offered Spike Mantle, Tectonic Maul, Ricochet Knife, or heal 6. At 22/36 after a poison-heavy opener, heal is the rational pick over adding a card.
+- Reward: skipped for heal to 28/36.
+- Taking treasure over immediate ice combat because HP is only 28/36 and this route should increase run context without another early attrition spike.
+- Moved to (1,1): depth 1 none treasure.
+- Treasure relic choice: Tailwind Fletching seems most likely to affect current starter ranged/movement patterns; Ion Spool and Cold Mirror need shock/freeze support I have not seen yet.
+- Treasure: took Tailwind Fletching.
+- Moved to (0,1): depth 1 earth combat.
+- Second combat opens with a trap cluster around potion/shield and an acolyte using Ward Chant for 5 stoneskin; pickups are attractive but surrounded by trap risk.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Played whirlwind_slash as printed: 3 terrain damage, 1 terrain broken.
+- Enemy round: 5 HP lost, mode now combat.
+- Whirlwind Slash at (5,7) hit/broke adjacent terrain rather than the nearby crawler; if range-0 AOE excludes diagonals this is mechanically plausible, but the click preview was not shown and the result was surprising.
+- Played bloody_lunge as printed: 7 damage, -1 HP.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 5 HP lost, mode now combat.
+- Second combat spike: by turn 3 both crawlers can Lunge for 10 damage plus 2 poison while an acolyte has stoneskin; at 17 HP this is a high-pressure breakpoint.
+- Played quick_stab as printed: 2 damage, 4 stone removed, 1 kills, +1 play.
+- Played bone_dart as printed: 5 damage.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 5 HP lost, mode now combat.
+- Played quick_stab as printed: 5 damage, 1 kills, +1 play.
+- Played patch_up as printed: +3 HP, +2 block.
+- Played bloody_lunge as printed: -1 HP, moved 3.
+- Enemy round: 0 HP lost, mode now combat.
+- With only the acolyte left, I used Bloody Lunge purely as movement to escape range and let poison tick down; this avoided a hit but HP is now 9/36.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played brace as printed: +8 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bone_dart as printed: 4 damage, 1 stone removed.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: drew 1.
+- Played guarded_step as printed: +3 block, moved 1, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 1 trap blast, +1 HP, moved 3, player +2 poison, picked Healing potion: Heal 4.
+- Trap/pickup preview for moving to potion showed net +2 hp, but resolution with Bloody Lunge HP cost was only +1 HP and added 2 poison; preview was accurate for trap+potion but easy to undercount card cost.
+- Enemy round: 0 HP lost, mode now combat.
+- Stopping at second combat turn 10 as a natural balance endpoint: HP is 3/36 with poison 2, fatigue has reached 4 per turn, final acolyte still has 11 HP plus 5 stoneskin, and continuing is mostly a low-odds kite rather than new evidence.

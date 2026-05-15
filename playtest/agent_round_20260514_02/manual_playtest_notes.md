@@ -1,0 +1,105 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-14T20:55:09Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed N`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5142602
+- Start: choosing north air combat from four symmetric depth-1 combat options; no reward/map info favors another route.
+- Moved to (0,-1): depth 1 air combat.
+- Turn 1: ranged shot can chip crawler 1 without moving into trap cluster; avoiding central pickups because trap adjacency is too risky now.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, +1 play.
+- Turn 1: skipped Guarded Step movement; potion tile is inside trap cluster, while staying put plus 3 block absorbs predicted chip cleanly.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 2: crawler 1 is adjacent and already chipped, spending melee now sets up a kill before it keeps generating unavoidable chip.
+- Played quick_stab as printed: 9 damage.
+- Played sidestep_slash as printed: 1 damage, 1 kills, +1 play.
+- Turn 2: after killing crawler 1, previews show e0 attack requires trap-step risk and pass has no direct damage, so banking position is better than forcing lunge.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 3: Bone Dart reaches crawler 0 from safe corner; acolyte is out of range and still spending turns warding, so focus crawler.
+- Played bone_dart as printed: 5 damage.
+- Turn 3: pass remains damage-free, and Shadow Step would only spend tempo before enemies commit; holding resources/position feels optimal.
+- Enemy round: 0 HP lost, mode now combat.
+- UX: pass preview said no direct player hit on turn 3, but next-turn setup applied -2 fatigue HP; technically not enemy damage, but easy to misread as fully safe.
+- Played bone_dart as printed: 5 damage.
+- Turn 4: Bone Dart plus Lantern Shot cleanly kills crawler 0 from range, confirming ranged chip is very strong on this cluttered/trap-heavy room.
+- Played lantern_shot as printed: 4 damage, 1 kills, drew 1, +1 play.
+- Turn 4: only acolyte remains and pass is enemy-safe, but fatigue is active; using Patch Up to offset stall cost while waiting for approach.
+- Played patch_up as printed: +2 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 5: moving along right edge toward acolyte avoids trap cluster; trying to close distance while it wards instead of waiting through more fatigue.
+- Played sidestep_slash as printed: moved 3.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Turn 5: Guarded Step's +play lets reposition and still keep an action, but no attack is in range; pass should bring acolyte to melee lane with block already up.
+- Enemy round: 0 HP lost, mode now combat.
+- Turn 6: closing cost paid off; acolyte is close enough for ranged burst, but not melee because box at (6,5) is the only adjacent target.
+- Played bone_dart as printed: 5 damage.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Enemy round: 1 HP lost, mode now combat.
+- Turn 7: acolyte healing plus fatigue punished the delayed chase hard (-5 net HP turn 6 to 7); now adjacent and killable with Quick Stab.
+- Played quick_stab as printed: 6 damage, 1 kills, +1 play.
+- Reward 1: choosing Skybreak Current over Updraft/Threaded Path because run already needs safer ranged damage plus movement; rare has useful baseline even before Air 3.
+- Reward: took Skybreak Current.
+- Path: after first combat at 28/36, continue for more evidence; choosing ice over fire arbitrarily since both are same depth combat and no map reward difference shown.
+- Moved to (1,-1): depth 1 ice combat.
+- Room 2 turn 1: opening pass preview is a 10 HP spike at only depth 1; first priority is block/illusion, not trap pickups.
+- Played guarded_step as printed: +3 block, +1 play.
+- Played brace as printed: +8 block.
+- Room 2 turn 1: Guarded Step + Brace absorbs the whole 10-damage opener; adding Patch Up because current HP is already low and it still contributes block.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 12 damage.
+- Room 2 turn 2: Whirlwind hit both nearby enemies and immediately improved tempo; Bone Dart can now kill harrier to remove 3 incoming and gain a play.
+- Played bone_dart as printed: 4 damage, 1 kills, +1 play.
+- Room 2 turn 2: taking Sidestep hit on crawler 1 rather than shield pickup; shield tile is adjacent to multiple traps and may be worse if enemies detonate them.
+- Played sidestep_slash as printed: 5 damage.
+- Enemy round: 3 HP lost, mode now combat.
+- Room 2 turn 3: both enemies are coiling, but crawler 1 has low HP behind block; killing it now avoids future ranged pressure.
+- Played quick_stab as printed: 3 damage, 4 block removed, 1 kills, +1 play.
+- Room 2 turn 3: lunge preview through ice trap costs HP but strips most of final crawler's block/health; taking it because pass is enemy-safe but fatigue will punish stalling.
+- Played bloody_lunge as printed: 12 damage, 4 block removed, 1 trap blast, -3 HP, moved 2, enemy +1 freeze.
+- Enemy round: 0 HP lost, mode now combat.
+- Room 2 turn 4: ice trap freeze worked clearly and made the risky lunge worthwhile; final crawler is now killable before its 5-damage lunge.
+- Played lantern_shot as printed: 2 damage, 1 kills, +1 play.
+- Reward 2: taking heal over card because HP is 25/36 after a very high-pressure room; offered cards are modest commons and deck already gained Skybreak.
+- Reward: skipped for heal to 31/36.
+- Path: with 31/36 HP after reward heal, continue to depth 2 rather than looping to another depth-1 room; goal is enough combat-depth evidence for balance call.
+- Moved to (2,-1): depth 2 earth combat.
+- Depth 2 turn 1: opener is less raw damage than room 2 but introduces poison and stoneskin; focus should be preventing poison while clipping fragile/ranged enemies.
+- Played lantern_shot as printed: 4 damage, drew 1.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Depth 2 turn 1: Guarded Step move to (1,6) changed pass preview from poison hit to no direct hit; using remaining action to chip warden rather than overblock.
+- Played bone_dart as printed: 5 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 2: incoming poison/damage comes from crawler 2; using Bloody Lunge on it before blocking, while warden is only bulwarking.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 2.
+- Played quick_stab as printed: 7 damage, 1 kills, +1 play.
+- Depth 2 turn 2: kill refund made the lunge+stab sequence strong; using Patch Up with spare play since pass preview is safe but fatigue clock remains relevant.
+- Played patch_up as printed: +3 HP, +2 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 3: Skybreak's damage is mostly eaten by stoneskin, so I am using its movement to kite crawler poison instead of forcing bad chip.
+- Played skybreak_current as printed: moved 3.
+- Depth 2 turn 3: moving to (1,7) made the turn safe; conserving remaining action because Brace/Shadow do not change a no-hit preview enough to justify complexity.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 4: warden/crawler stoneskin has ballooned; Lantern Shot cannot deal HP damage, but drawing while stripping crawler stoneskin is better than another pure pass.
+- Played lantern_shot as printed: 4 stone removed, drew 1.
+- Played bloody_lunge as printed: 7 damage, -1 HP, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 5: this is a major spike: warden plus crawler threaten 14 damage and 4 poison after stoneskin buildup; must kill/escape, block alone is insufficient.
+- Played whirlwind_slash as printed: 2 damage, 4 stone removed.
+- Played sidestep_slash as printed: 5 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +3 block, moved 2, +1 play.
+- Depth 2 turn 5: with pass safe after kiting, using Skybreak to collect the central potion safely; preview shows no trap risk for (3,4).
+- Played skybreak_current as printed: +4 HP, moved 2, picked Healing potion: Heal 4.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 6: warden has 24 stoneskin; single-target attacks are reduced to stone stripping, making progress feel stalled despite good HP.
+- Played bone_dart as printed: 5 stone removed.
+- Depth 2 turn 6: placing illusion near warden lane to test/consume attack path while passing would otherwise be safe but fatigue is rising.
+- Played shadow_step as printed: +4 block, moved 2, 1 illusion, picked Rusty shield: Gain 4 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth 2 turn 7: illusion successfully soaked warden attack, but fatigue still cost 3; now trying to pressure harrier/warden before stoneskin grows further.
+- Played skybreak_current as printed: 5 stone removed, moved 2.
+- Depth 2 turn 7: Skybreak's movement keeps the turn safe, but it still only removes stoneskin; warden bulwark may be creating a long low-agency cleanup.
+- Enemy round: 0 HP lost, mode now combat.
+- Stop reason: stopping mid depth-2 combat after 2 full rooms plus 8 turns of depth-2 evidence; run is not blocked or near defeat, but warden/harrier stoneskin buildup is creating a prolonged low-agency cleanup where many turns are spent kiting and stripping stone while fatigue rises.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Playtester"
+  short_description: "Run headless Labyrinth playtest rounds"
+  default_prompt: "Use $run-labyrinth-playtest to run a six-agent headless playtest round and summarize balance findings."
