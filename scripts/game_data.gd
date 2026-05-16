@@ -8,8 +8,37 @@ const ENEMIES_PATH: String = "res://data/enemies.json"
 const NPCS_PATH: String = "res://data/npcs.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
+const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
+const PROGRESSION_STATS_PATH: String = "res://data/stats.json"
+const FIXED_POINT_SCALE: int = 10
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
+const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]
 const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock"]
+const PROGRESSION_STAT_IDS: Array[String] = [
+	"might",
+	"dexterity",
+	"vigor",
+	"guard",
+	"focus",
+	"fire_magick",
+	"ice_magick",
+	"lightning_magick",
+	"air_magick",
+	"earth_magick"
+]
+const ELEMENT_MAGICK_STAT_IDS := {
+	ElementData.FIRE: "fire_magick",
+	ElementData.ICE: "ice_magick",
+	ElementData.LIGHTNING: "lightning_magick",
+	ElementData.AIR: "air_magick",
+	ElementData.EARTH: "earth_magick"
+}
+const FIXED_RELIC_STAT_BONUS_KEYS: Array[String] = [
+	"max_hp",
+	"start_combat_block",
+	"start_combat_stoneskin",
+	"first_attack_bonus"
+]
 const RELIC_RARITY_ACCENTS := {
 	"common": "#8f9499",
 	"rare": "#4b84d8",
@@ -40,8 +69,14 @@ static func relics() -> Dictionary:
 static func upgrades() -> Dictionary:
 	return _load_json_dict(UPGRADES_PATH)
 
+static func progression_levels() -> Dictionary:
+	return _load_json_dict(PROGRESSION_LEVELS_PATH)
+
+static func progression_stat_defs() -> Dictionary:
+	return _load_json_dict(PROGRESSION_STATS_PATH)
+
 static func card_def(card_id: String) -> Dictionary:
-	return _duplicate_dict(cards().get(card_id, {}))
+	return _scale_card_fixed_point(_raw_card_def(card_id))
 
 static func card_def_with_upgrades(card_id: String, card_upgrades: Dictionary) -> Dictionary:
 	var entry: Variant = card_upgrades.get(card_id, "")
@@ -54,11 +89,12 @@ static func card_def_with_upgrades(card_id: String, card_upgrades: Dictionary) -
 	return card_def(card_id)
 
 static func card_def_with_card_mods(card_id: String, card_mods: Dictionary) -> Dictionary:
-	var card: Dictionary = card_def(card_id)
+	var card: Dictionary = _raw_card_def(card_id)
 	if card.is_empty():
 		return {}
 	var mods: Array = (card_mods.get(card_id, []) as Array).duplicate(true)
 	card = _apply_card_mods(card, mods)
+	card = _scale_card_fixed_point(card)
 	if not mods.is_empty():
 		card["base_card_id"] = card_id
 		card["upgraded"] = true
@@ -66,10 +102,13 @@ static func card_def_with_card_mods(card_id: String, card_mods: Dictionary) -> D
 	return card
 
 static func card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
-	var card: Dictionary = card_def_with_upgrades(card_id, progression.get("card_upgrades", {}) as Dictionary)
+	var card: Dictionary = _raw_card_def_for_progression(card_id, progression)
 	var mods: Array = ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).duplicate(true)
 	card = _apply_card_mods(card, mods)
+	card = _scale_card_fixed_point(card)
 	card = _apply_relic_card_effects(card, progression.get("relics", []))
+	card = _apply_progression_stat_effects(card, progression)
+	card = _tag_card_actions_for_combat(card)
 	var total_count: int = card_upgrade_count(progression, card_id)
 	if total_count > 0:
 		card["base_card_id"] = card_id
@@ -78,21 +117,28 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	return card
 
 static func enemy_def(enemy_type: String) -> Dictionary:
-	return _duplicate_dict(enemies().get(enemy_type, {}))
+	return _scale_enemy_fixed_point(_duplicate_dict(enemies().get(enemy_type, {})))
 
 static func npc_def(npc_id: String) -> Dictionary:
 	return _duplicate_dict(npcs().get(npc_id, {}))
 
 static func relic_def(relic_id: String) -> Dictionary:
-	return _duplicate_dict(relics().get(relic_id, {}))
+	var relic: Dictionary = _duplicate_dict(relics().get(relic_id, {}))
+	if relic.is_empty():
+		return relic
+	relic["description"] = _format_relic_description(relic)
+	return relic
 
 static func upgrade_def(upgrade_id: String) -> Dictionary:
 	return _duplicate_dict(upgrades().get(upgrade_id, {}))
 
 static func upgraded_card_def(upgrade_id: String) -> Dictionary:
+	return _scale_card_fixed_point(_raw_upgraded_card_def(upgrade_id))
+
+static func _raw_upgraded_card_def(upgrade_id: String) -> Dictionary:
 	var upgrade: Dictionary = upgrade_def(upgrade_id)
 	var card_id: String = str(upgrade.get("card_id", ""))
-	var card: Dictionary = card_def(card_id)
+	var card: Dictionary = _raw_card_def(card_id)
 	if card.is_empty():
 		return {}
 	var overrides: Dictionary = upgrade.get("card_overrides", {}) as Dictionary
@@ -103,6 +149,19 @@ static func upgraded_card_def(upgrade_id: String) -> Dictionary:
 	card["upgrade_id"] = upgrade_id
 	card["upgraded"] = true
 	return card
+
+static func _raw_card_def(card_id: String) -> Dictionary:
+	return _duplicate_dict(cards().get(card_id, {}))
+
+static func _raw_card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
+	var entry: Variant = (progression.get("card_upgrades", {}) as Dictionary).get(card_id, "")
+	if typeof(entry) == TYPE_ARRAY:
+		return _raw_card_def(card_id)
+	var upgrade_id: String = str(entry)
+	if not upgrade_id.is_empty():
+		var upgraded: Dictionary = _raw_upgraded_card_def(upgrade_id)
+		return upgraded if not upgraded.is_empty() else _raw_card_def(card_id)
+	return _raw_card_def(card_id)
 
 static func starting_deck() -> Array[String]:
 	return [
@@ -372,6 +431,66 @@ static func card_upgrade_count(progression: Dictionary, card_id: String) -> int:
 	total += ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).size()
 	return total
 
+static func progression_stat_ids() -> Array[String]:
+	return PROGRESSION_STAT_IDS.duplicate()
+
+static func progression_stat_def(stat_id: String) -> Dictionary:
+	return _duplicate_dict(progression_stat_defs().get(stat_id, {}))
+
+static func default_progression_stats() -> Dictionary:
+	var result: Dictionary = {}
+	for stat_id: String in PROGRESSION_STAT_IDS:
+		result[stat_id] = 0
+	return result
+
+static func normalized_progression_stats(stats_value: Variant) -> Dictionary:
+	var source: Dictionary = {}
+	if typeof(stats_value) == TYPE_DICTIONARY:
+		source = stats_value as Dictionary
+	var result: Dictionary = {}
+	var cap: int = progression_stat_cap()
+	for stat_id: String in PROGRESSION_STAT_IDS:
+		result[stat_id] = clampi(int(source.get(stat_id, 0)), 0, cap)
+	return result
+
+static func spent_progression_stat_points(stats_value: Variant) -> int:
+	var total: int = 0
+	var stats: Dictionary = normalized_progression_stats(stats_value)
+	for stat_id: String in PROGRESSION_STAT_IDS:
+		total += int(stats.get(stat_id, 0))
+	return total
+
+static func max_progression_level() -> int:
+	return maxi(1, int(progression_levels().get("max_level", 20)))
+
+static func progression_stat_cap() -> int:
+	return maxi(1, int(progression_levels().get("stat_cap", 10)))
+
+static func progression_stat_points_per_level() -> int:
+	return maxi(1, int(progression_levels().get("stat_points_per_level", 1)))
+
+static func progression_stat_points_for_level(level: int) -> int:
+	return maxi(0, clampi(level, 1, max_progression_level()) - 1) * progression_stat_points_per_level()
+
+static func progression_level_cost(target_level: int) -> int:
+	var max_level: int = max_progression_level()
+	if target_level <= 1 or target_level > max_level:
+		return 0
+	var costs: Dictionary = progression_levels().get("costs", {}) as Dictionary
+	return maxi(0, int(costs.get(str(target_level), 0)))
+
+static func progression_level_total_cost(level: int) -> int:
+	var total: int = 0
+	for target_level: int in range(2, mini(level, max_progression_level()) + 1):
+		total += progression_level_cost(target_level)
+	return total
+
+static func stat_value(progression: Dictionary, stat_id: String) -> int:
+	return int(normalized_progression_stats(progression.get("stats", {})).get(stat_id, 0))
+
+static func vigor_max_hp_bonus(progression: Dictionary) -> int:
+	return stat_value(progression, "vigor") * FIXED_POINT_SCALE
+
 static func stat_bonus_from_upgrades(progression: Dictionary, effect_key: String) -> int:
 	var total: int = 0
 	for upgrade_id_var: Variant in progression.get("purchased_upgrades", []):
@@ -386,7 +505,155 @@ static func stat_bonus_from_relics(relic_ids_list: Array, effect_key: String) ->
 	for effect: Dictionary in relic_effects_for_ids(relic_ids_list):
 		if str(effect.get("type", "")) == effect_key:
 			total += int(effect.get("value", 0))
+	if effect_key in FIXED_RELIC_STAT_BONUS_KEYS:
+		total *= FIXED_POINT_SCALE
 	return total
+
+static func fixed_point_amount(amount: int) -> int:
+	return amount * FIXED_POINT_SCALE
+
+static func status_tick_reduction(status_id: String) -> int:
+	return FIXED_POINT_SCALE if status_id in ["burn", "poison"] else 1
+
+static func action_field_uses_fixed_point(action_type: String, field: String) -> bool:
+	if field in ["damage", "self_damage", "burn", "poison"]:
+		return action_type in FIXED_POINT_ATTACK_ACTION_TYPES or action_type in ["trap", "all_enemies_damage", "all_enemies_status"]
+	if field == "amount":
+		return action_type in ["block", "stoneskin", "heal", "heal_self"]
+	if field == "health":
+		return action_type == "illusion"
+	return false
+
+static func scaled_action_field_delta(action_type: String, field: String, amount: int) -> int:
+	return amount * FIXED_POINT_SCALE if action_field_uses_fixed_point(action_type, field) else amount
+
+static func _format_relic_description(relic: Dictionary) -> String:
+	var template: String = str(relic.get("description", ""))
+	if template.is_empty():
+		return template
+	var values: Dictionary = _relic_description_values(relic)
+	for key_var: Variant in values.keys():
+		var key: String = str(key_var)
+		template = template.replace("{%s}" % key, str(values.get(key, "")))
+	return template
+
+static func _relic_description_values(relic: Dictionary) -> Dictionary:
+	var values: Dictionary = {}
+	var raw_effects: Variant = relic.get("effects", [])
+	if typeof(raw_effects) != TYPE_ARRAY:
+		return values
+	var effects: Array = raw_effects as Array
+	for effect_index: int in range(effects.size()):
+		if typeof(effects[effect_index]) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = effects[effect_index] as Dictionary
+		for key_var: Variant in effect.keys():
+			var key: String = str(key_var)
+			var display_value: Variant = _relic_effect_display_value(effect, key)
+			_store_relic_description_value(values, "%d.%s" % [effect_index, key], display_value)
+			if effect_index == 0:
+				_store_relic_description_value(values, key, display_value)
+		if str(effect.get("type", "")) == "prevent_lethal_once":
+			_store_relic_description_value(values, "%d.lethal_health" % effect_index, FIXED_POINT_SCALE)
+			if effect_index == 0:
+				_store_relic_description_value(values, "lethal_health", FIXED_POINT_SCALE)
+		_append_relic_action_description_values(values, effect, effect_index)
+		_append_relic_reward_description_values(values, effect, effect_index)
+	return values
+
+static func _append_relic_action_description_values(values: Dictionary, effect: Dictionary, effect_index: int) -> void:
+	var raw_action: Variant = effect.get("action", {})
+	if typeof(raw_action) != TYPE_DICTIONARY:
+		return
+	var action: Dictionary = raw_action as Dictionary
+	for key_var: Variant in action.keys():
+		var key: String = str(key_var)
+		var display_value: Variant = _relic_action_display_value(action, key)
+		_store_relic_description_value(values, "%d.action.%s" % [effect_index, key], display_value)
+		if effect_index == 0:
+			_store_relic_description_value(values, "action.%s" % key, display_value)
+
+static func _append_relic_reward_description_values(values: Dictionary, effect: Dictionary, effect_index: int) -> void:
+	var raw_rewards: Variant = effect.get("rewards", [])
+	var rewards: Array = []
+	if typeof(raw_rewards) == TYPE_ARRAY:
+		rewards = raw_rewards as Array
+	elif typeof(raw_rewards) == TYPE_DICTIONARY:
+		rewards = [raw_rewards]
+	for reward_index: int in range(rewards.size()):
+		if typeof(rewards[reward_index]) != TYPE_DICTIONARY:
+			continue
+		var reward: Dictionary = rewards[reward_index] as Dictionary
+		for key_var: Variant in reward.keys():
+			var key: String = str(key_var)
+			var display_value: Variant = _relic_reward_display_value(reward, key)
+			_store_relic_description_value(values, "%d.reward%d.%s" % [effect_index, reward_index, key], display_value)
+			if effect_index == 0:
+				_store_relic_description_value(values, "reward%d.%s" % [reward_index, key], display_value)
+
+static func _store_relic_description_value(values: Dictionary, key: String, value: Variant) -> void:
+	values[key] = value
+	if typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT:
+		return
+	var dot_index: int = key.rfind(".")
+	var abs_key: String = "abs_%s" % key
+	if dot_index >= 0:
+		abs_key = "%sabs_%s" % [key.substr(0, dot_index + 1), key.substr(dot_index + 1)]
+	values[abs_key] = absi(int(value))
+
+static func _relic_effect_display_value(effect: Dictionary, key: String) -> Variant:
+	var raw_value: Variant = effect.get(key, "")
+	if typeof(raw_value) != TYPE_INT and typeof(raw_value) != TYPE_FLOAT:
+		return raw_value
+	var amount: int = int(raw_value)
+	var effect_type: String = str(effect.get("type", ""))
+	match effect_type:
+		"max_hp", "first_attack_bonus", "start_combat_stoneskin", "start_combat_block", "damage_vs_status", "kill_status_heal", "glass_attack_bonus", "stoneskin_thorns":
+			if key == "value":
+				return fixed_point_amount(amount)
+		"prevent_lethal_once":
+			if key == "burn_all_enemies":
+				return fixed_point_amount(amount)
+		"start_combat_stoneskin_per_deck_element":
+			if key == "value" or key == "max_value":
+				return fixed_point_amount(amount)
+		"card_action_mod":
+			if (key == "amount" or key == "value") and _relic_card_action_mod_uses_fixed_point(effect):
+				return fixed_point_amount(amount)
+	return amount
+
+static func _relic_action_display_value(action: Dictionary, key: String) -> Variant:
+	var raw_value: Variant = action.get(key, "")
+	if typeof(raw_value) != TYPE_INT and typeof(raw_value) != TYPE_FLOAT:
+		return raw_value
+	var amount: int = int(raw_value)
+	return scaled_action_field_delta(str(action.get("type", "")), key, amount)
+
+static func _relic_reward_display_value(reward: Dictionary, key: String) -> Variant:
+	var raw_value: Variant = reward.get(key, "")
+	if typeof(raw_value) != TYPE_INT and typeof(raw_value) != TYPE_FLOAT:
+		return raw_value
+	var amount: int = int(raw_value)
+	if key != "amount" and key != "value":
+		return amount
+	match str(reward.get("type", "")):
+		"block", "stoneskin", "heal", "all_enemies_damage":
+			return fixed_point_amount(amount)
+		"all_enemies_status":
+			var status_id: String = str(reward.get("status", ""))
+			return fixed_point_amount(amount) if status_id in ["burn", "poison"] else amount
+		_:
+			return amount
+
+static func _relic_card_action_mod_uses_fixed_point(effect: Dictionary) -> bool:
+	var field: String = str(effect.get("field", ""))
+	var raw_action_types: Variant = effect.get("action_types", [])
+	if typeof(raw_action_types) != TYPE_ARRAY:
+		return false
+	for action_type_var: Variant in raw_action_types as Array:
+		if action_field_uses_fixed_point(str(action_type_var), field):
+			return true
+	return false
 
 static func shuffle_cards(card_ids: Array, rng: RandomNumberGenerator) -> Array[String]:
 	var result: Array[String] = []
@@ -434,6 +701,55 @@ static func _duplicate_variant(value: Variant) -> Variant:
 			return (value as Array).duplicate(true)
 		_:
 			return value
+
+static func _scale_card_fixed_point(card: Dictionary) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	if next_card.is_empty():
+		return next_card
+	if next_card.has("health_cost"):
+		next_card["health_cost"] = int(next_card.get("health_cost", 0)) * FIXED_POINT_SCALE
+	var actions: Array = []
+	for action_var: Variant in next_card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		actions.append(_scale_action_fixed_point(action_var as Dictionary))
+	next_card["actions"] = actions
+	return next_card
+
+static func _scale_enemy_fixed_point(enemy: Dictionary) -> Dictionary:
+	var next_enemy: Dictionary = enemy.duplicate(true)
+	if next_enemy.is_empty():
+		return next_enemy
+	if next_enemy.has("max_hp"):
+		next_enemy["max_hp"] = int(next_enemy.get("max_hp", 0)) * FIXED_POINT_SCALE
+	var intents: Array = []
+	for intent_var: Variant in next_enemy.get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = (intent_var as Dictionary).duplicate(true)
+		var actions: Array = []
+		for action_var: Variant in intent.get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			actions.append(_scale_action_fixed_point(action_var as Dictionary))
+		intent["actions"] = actions
+		intents.append(intent)
+	next_enemy["intents"] = intents
+	return next_enemy
+
+static func _scale_action_fixed_point(action: Dictionary) -> Dictionary:
+	var next_action: Dictionary = action.duplicate(true)
+	var action_type: String = str(next_action.get("type", ""))
+	for field: String in ["damage", "self_damage", "burn", "poison", "amount", "health"]:
+		if next_action.has(field) and action_field_uses_fixed_point(action_type, field):
+			next_action[field] = int(next_action.get(field, 0)) * FIXED_POINT_SCALE
+	if typeof(next_action.get("intensity_bonus", {})) == TYPE_DICTIONARY:
+		var bonus: Dictionary = (next_action.get("intensity_bonus", {}) as Dictionary).duplicate(true)
+		for field: String in ["damage", "self_damage", "burn", "poison", "amount", "health"]:
+			if bonus.has(field) and action_field_uses_fixed_point(action_type, field):
+				bonus[field] = int(bonus.get(field, 0)) * FIXED_POINT_SCALE
+		next_action["intensity_bonus"] = bonus
+	return next_action
 
 static func _rarity_sort_index(rarity: String) -> int:
 	match rarity:
@@ -641,7 +957,120 @@ static func _apply_relic_card_effects(card: Dictionary, relic_ids_list: Array) -
 				next_card = _apply_relic_action_mod(next_card, effect)
 			"card_append_action":
 				next_card = _apply_relic_append_action(next_card, effect)
-	return _tag_card_actions_for_combat(next_card)
+	return next_card
+
+static func _apply_progression_stat_effects(card: Dictionary, progression: Dictionary) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	if next_card.is_empty():
+		return next_card
+	var stats: Dictionary = normalized_progression_stats(progression.get("stats", {}))
+	var vigor: int = int(stats.get("vigor", 0))
+	var health_cost: int = int(next_card.get("health_cost", 0))
+	if health_cost > 0 and vigor > 0:
+		var before_cost: int = health_cost
+		var min_cost: int = ceili(float(before_cost) * 0.5)
+		health_cost = maxi(min_cost, before_cost - vigor)
+		next_card["health_cost"] = health_cost
+	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
+	var appended_actions: Array = []
+	for index: int in range(actions.size()):
+		if typeof(actions[index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
+		var action_type: String = str(action.get("type", ""))
+		action = _apply_progression_stats_to_action(action, stats, health_cost > 0)
+		actions[index] = action
+		if action_type == "blink" and int(stats.get("air_magick", 0)) > 0:
+			appended_actions.append(_stat_appended_action(
+				{"type": "block", "amount": int(stats.get("air_magick", 0)) * 2},
+				"Air Magick",
+				"+%d block after blink" % (int(stats.get("air_magick", 0)) * 2)
+			))
+		if int(action.get("freeze", 0)) > 0 and int(stats.get("ice_magick", 0)) > 0:
+			appended_actions.append(_stat_appended_action(
+				{"type": "block", "amount": int(stats.get("ice_magick", 0)) * 2},
+				"Ice Magick",
+				"+%d block after freeze" % (int(stats.get("ice_magick", 0)) * 2)
+			))
+	for appended_action: Dictionary in appended_actions:
+		actions.append(appended_action)
+	next_card["actions"] = actions
+	return next_card
+
+static func _apply_progression_stats_to_action(action: Dictionary, stats: Dictionary, has_health_cost: bool) -> Dictionary:
+	var next_action: Dictionary = action.duplicate(true)
+	var action_type: String = str(next_action.get("type", ""))
+	if action_type == "melee":
+		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("might", 0)) * 2, "Might")
+	if action_type in ["ranged", "aoe"]:
+		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("dexterity", 0)) * 2, "Dexterity")
+	if action_type in ["push", "pull"]:
+		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("air_magick", 0)) * 2, "Air Magick")
+	if action_type in ATTACK_ACTION_TYPES and has_health_cost:
+		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("fire_magick", 0)) * 2, "Fire Magick")
+	if action_type in ATTACK_ACTION_TYPES and (int(next_action.get("shock", 0)) > 0 or int(next_action.get("chain", 0)) > 0):
+		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("lightning_magick", 0)) * 2, "Lightning Magick")
+	if next_action.has("burn"):
+		next_action = _add_stat_action_delta(next_action, "burn", int(stats.get("fire_magick", 0)) * 2, "Fire Magick")
+	if next_action.has("poison"):
+		next_action = _add_stat_action_delta(next_action, "poison", int(stats.get("earth_magick", 0)) * 2, "Earth Magick")
+	match action_type:
+		"block":
+			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("guard", 0)) * 2, "Guard")
+		"stoneskin":
+			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("guard", 0)), "Guard")
+			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("earth_magick", 0)), "Earth Magick")
+		"heal":
+			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("vigor", 0)) * 2, "Vigor")
+		"intensity":
+			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("focus", 0)), "Focus")
+		"illusion":
+			next_action = _add_stat_action_delta(next_action, "health", int(stats.get("guard", 0)) * 2, "Guard")
+			next_action = _add_stat_action_delta(next_action, "health", int(stats.get("earth_magick", 0)) * 2, "Earth Magick")
+	next_action = _apply_progression_stats_to_intensity_bonus(next_action, stats, has_health_cost)
+	return next_action
+
+static func _apply_progression_stats_to_intensity_bonus(action: Dictionary, stats: Dictionary, has_health_cost: bool) -> Dictionary:
+	if typeof(action.get("intensity_bonus", {})) != TYPE_DICTIONARY:
+		return action
+	var next_action: Dictionary = action.duplicate(true)
+	var action_type: String = str(next_action.get("type", ""))
+	var bonus: Dictionary = (next_action.get("intensity_bonus", {}) as Dictionary).duplicate(true)
+	var focus_delta: int = int(stats.get("focus", 0)) * 2
+	for field: String in ["damage", "burn", "poison", "health", "amount"]:
+		if not bonus.has(field) or focus_delta <= 0:
+			continue
+		if not action_field_uses_fixed_point(action_type, field):
+			continue
+		bonus[field] = int(bonus.get(field, 0)) + focus_delta
+	var fire_delta: int = int(stats.get("fire_magick", 0)) * 2
+	if bonus.has("burn") and fire_delta > 0:
+		bonus["burn"] = int(bonus.get("burn", 0)) + fire_delta
+	if bonus.has("damage") and has_health_cost and fire_delta > 0:
+		bonus["damage"] = int(bonus.get("damage", 0)) + fire_delta
+	var earth_delta: int = int(stats.get("earth_magick", 0)) * 2
+	if bonus.has("poison") and earth_delta > 0:
+		bonus["poison"] = int(bonus.get("poison", 0)) + earth_delta
+	var lightning_delta: int = int(stats.get("lightning_magick", 0)) * 2
+	if bonus.has("damage") and lightning_delta > 0 and (int(action.get("shock", 0)) > 0 or int(action.get("chain", 0)) > 0 or int(bonus.get("shock", 0)) > 0 or int(bonus.get("chain", 0)) > 0):
+		bonus["damage"] = int(bonus.get("damage", 0)) + lightning_delta
+	var air_delta: int = int(stats.get("air_magick", 0)) * 2
+	if bonus.has("damage") and air_delta > 0 and action_type in ["push", "pull"]:
+		bonus["damage"] = int(bonus.get("damage", 0)) + air_delta
+	next_action["intensity_bonus"] = bonus
+	return next_action
+
+static func _add_stat_action_delta(action: Dictionary, field: String, amount: int, source: String) -> Dictionary:
+	if amount <= 0:
+		return action
+	var next_action: Dictionary = action.duplicate(true)
+	var before_value: Variant = next_action.get(field, 0)
+	next_action[field] = int(next_action.get(field, 0)) + amount
+	return _record_stat_action_modifier(next_action, source, field, before_value, next_action.get(field, null), "%+d %s" % [amount, field.replace("_", " ")])
+
+static func _stat_appended_action(action: Dictionary, source: String, label: String) -> Dictionary:
+	var next_action: Dictionary = action.duplicate(true)
+	return _record_stat_action_modifier(next_action, source, "_action", null, str(action.get("type", "")), label)
 
 static func _apply_relic_action_mod(card: Dictionary, effect: Dictionary) -> Dictionary:
 	if not _relic_effect_matches_card(card, effect):
@@ -662,7 +1091,11 @@ static func _apply_relic_action_mod(card: Dictionary, effect: Dictionary) -> Dic
 		elif field == "pierce":
 			action[field] = true
 		else:
-			action[field] = int(action.get(field, 0)) + int(effect.get("amount", effect.get("value", 0)))
+			action[field] = int(action.get(field, 0)) + scaled_action_field_delta(
+				str(action.get("type", "")),
+				field,
+				int(effect.get("amount", effect.get("value", 0)))
+			)
 		action = _record_relic_action_modifier(action, effect, field, before_value, action.get(field, null))
 		actions[index] = action
 	var next_card: Dictionary = card.duplicate(true)
@@ -679,6 +1112,7 @@ static func _apply_relic_append_action(card: Dictionary, effect: Dictionary) -> 
 		return card
 	var actions: Array = (card.get("actions", []) as Array).duplicate(true)
 	var action: Dictionary = (appended_action as Dictionary).duplicate(true)
+	action = _scale_action_fixed_point(action)
 	action = _record_relic_action_modifier(action, effect, "_action", null, action.get("type", ""))
 	actions.append(action)
 	var next_card: Dictionary = card.duplicate(true)
@@ -705,13 +1139,33 @@ static func _record_relic_action_modifier(action: Dictionary, effect: Dictionary
 	next_action["_modifiers"] = modifiers_by_field
 	return next_action
 
+static func _record_stat_action_modifier(action: Dictionary, source: String, field: String, before_value: Variant, after_value: Variant, label: String) -> Dictionary:
+	var next_action: Dictionary = action.duplicate(true)
+	var modifiers_by_field: Dictionary = {}
+	if typeof(next_action.get("_modifiers", {})) == TYPE_DICTIONARY:
+		modifiers_by_field = (next_action.get("_modifiers", {}) as Dictionary).duplicate(true)
+	var field_modifiers: Array = []
+	if typeof(modifiers_by_field.get(field, [])) == TYPE_ARRAY:
+		field_modifiers = (modifiers_by_field.get(field, []) as Array).duplicate(true)
+	field_modifiers.append({
+		"source": source,
+		"amount": int(after_value) - int(before_value) if typeof(before_value) in [TYPE_INT, TYPE_FLOAT] and typeof(after_value) in [TYPE_INT, TYPE_FLOAT] else 0,
+		"label": label,
+		"field": field,
+		"before": _duplicate_variant(before_value),
+		"after": _duplicate_variant(after_value)
+	})
+	modifiers_by_field[field] = field_modifiers
+	next_action["_modifiers"] = modifiers_by_field
+	return next_action
+
 static func _relic_modifier_amount(effect: Dictionary, before_value: Variant, after_value: Variant) -> int:
+	if typeof(before_value) in [TYPE_INT, TYPE_FLOAT] and typeof(after_value) in [TYPE_INT, TYPE_FLOAT]:
+		return int(after_value) - int(before_value)
 	if typeof(effect.get("amount", null)) in [TYPE_INT, TYPE_FLOAT]:
 		return int(effect.get("amount", 0))
 	if typeof(effect.get("value", null)) in [TYPE_INT, TYPE_FLOAT]:
 		return int(effect.get("value", 0))
-	if typeof(before_value) in [TYPE_INT, TYPE_FLOAT] or typeof(after_value) in [TYPE_INT, TYPE_FLOAT]:
-		return int(after_value) - int(before_value)
 	return 0
 
 static func _relic_modifier_label(effect: Dictionary, field: String, before_value: Variant, after_value: Variant) -> String:

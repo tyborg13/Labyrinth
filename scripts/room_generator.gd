@@ -11,10 +11,10 @@ const DEPTHS_PER_SEQUENCE: int = 4
 const ENEMY_SPAWN_SAFE_RADIUS: int = 2
 const ENEMY_SPAWN_PICK_WINDOW: int = 6
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
-const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 4
-const HEALING_POTION_AMOUNT: int = 4
-const RUSTY_SHIELD_BLOCK: int = 4
-const TERRAIN_HP: int = 3
+const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
+const HEALING_POTION_AMOUNT: int = 40
+const RUSTY_SHIELD_BLOCK: int = 40
+const TERRAIN_HP: int = 30
 const TERRAIN_TARGET_COUNT_MIN: int = 5
 const TERRAIN_TARGET_COUNT_MAX: int = 7
 
@@ -842,11 +842,11 @@ func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Diction
 		"id": "trap_%d_%d" % [tile.x, tile.y],
 		"pos": tile,
 		"element": room_element,
-		"damage": clampi(1 + depth, 2, 4)
+		"damage": GameData.fixed_point_amount(clampi(1 + depth, 2, 4))
 	}
 	match room_element:
 		ElementData.FIRE:
-			trap["burn"] = 1 if depth <= 1 else 2 if depth == 2 else 3
+			trap["burn"] = GameData.fixed_point_amount(1 if depth <= 1 else 2 if depth == 2 else 3)
 		ElementData.ICE:
 			trap["freeze"] = 1
 		ElementData.LIGHTNING:
@@ -854,7 +854,7 @@ func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Diction
 		ElementData.AIR:
 			pass
 		ElementData.EARTH:
-			trap["poison"] = 2 if depth <= 2 else 3
+			trap["poison"] = GameData.fixed_point_amount(2 if depth <= 2 else 3)
 	return trap
 
 func _floor_tiles(grid: Array) -> Array[Vector2i]:

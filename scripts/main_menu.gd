@@ -1,6 +1,7 @@
 extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -62,11 +63,11 @@ func _apply_style() -> void:
 
 func _reload_progression() -> void:
 	_progression = ProgressionStore.load_data()
-	embers_label.text = "Banked Embers: %d" % int(_progression.get("embers", 0))
+	embers_label.text = "Level %d  |  Held Embers: %d" % [int(_progression.get("level", 1)), int(_progression.get("embers", 0))]
 	continue_button.visible = ProgressionStore.has_saved_run()
-	footer_label.text = "Continue or start fresh." if continue_button.visible else "Start at the center. Bank embers at campfires."
-	upgrade_title_label.text = "Bound Magicks"
-	upgrade_subtitle_label.text = "Touch the Emaciated Man in the waypoint."
+	footer_label.text = "Continue or start fresh." if continue_button.visible else "Start at the center. Carry embers from campfires."
+	upgrade_title_label.text = "Character"
+	upgrade_subtitle_label.text = "Spend held embers at campfires."
 	_clear_children(upgrade_list)
 	upgrade_list.add_child(_build_upgrade_hint())
 
@@ -79,17 +80,13 @@ func _build_upgrade_hint() -> Control:
 	info.add_theme_constant_override("separation", 6)
 	container.add_child(info)
 	var title := Label.new()
-	var bound_count: int = _bound_magick_count()
-	title.text = "%d card magick%s bound" % [
-		bound_count,
-		"" if bound_count == 1 else "s"
-	]
+	title.text = "Next level: %s" % _next_level_label()
 	title.add_theme_color_override("font_color", Color("433122"))
 	title.add_theme_color_override("font_outline_color", Color("fff4dd"))
 	title.add_theme_constant_override("outline_size", 2)
 	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
 	var description := Label.new()
-	description.text = "Rest at a fire, then return to the waypoint to bind cards with banked embers."
+	description.text = _stat_summary_text()
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.add_theme_color_override("font_color", Color("6d5841"))
 	UiTypography.set_label_size(description, UiTypography.SIZE_CAPTION)
@@ -104,9 +101,30 @@ func _bound_magick_count() -> int:
 			total += (mods_var as Array).size()
 	return total
 
+func _next_level_label() -> String:
+	if ProgressionStore.is_max_level(_progression):
+		return "max"
+	return "%d embers" % ProgressionStore.next_level_cost(_progression)
+
+func _stat_summary_text() -> String:
+	var stats: Dictionary = GameData.normalized_progression_stats(_progression.get("stats", {}))
+	var parts: PackedStringArray = []
+	for stat_id: String in GameData.progression_stat_ids():
+		var value: int = int(stats.get(stat_id, 0))
+		if value <= 0:
+			continue
+		var stat_def: Dictionary = GameData.progression_stat_def(stat_id)
+		parts.append("%s %d" % [str(stat_def.get("name", stat_id)), value])
+	if parts.is_empty():
+		return "No stat points spent yet."
+	return ", ".join(parts)
+
 func _on_start_button_pressed() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
 		get_tree().root.remove_meta("labyrinth_resume_saved_run")
+	if ProgressionStore.has_saved_run():
+		_progression = ProgressionStore.set_embers(ProgressionStore.load_data(), 0)
+		ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
 

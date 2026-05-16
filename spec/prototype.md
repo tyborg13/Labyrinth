@@ -5,7 +5,7 @@
 - Gloomhaven-meets-Slay-the-Spire combat loop: one card played per turn from a shifting deck.
 - Isometric, tile-based dungeon rooms with procedural blockers, enemy formations, and occasional loot pickups.
 - Health is the timer. Damage, some card costs, and cycling the deck all chip away at a run.
-- Spatial push-your-luck structure: a central start room, outward escalation, lateral farming, and checkpoint banking.
+- Spatial push-your-luck structure: a central start room, outward escalation, lateral farming, and campfire extraction or leveling choices.
 - Headless-first architecture: all room generation, combat resolution, rewards, and progression logic must run without the renderer.
 
 ## Prototype Scope
@@ -15,7 +15,7 @@ This first playable prototype intentionally focuses on:
 - One fully playable hero with a deckbuilding loop.
 - Four regular enemy archetypes plus one boss archetype.
 - Procedural rooms on a finite labyrinth map with revisiting and lateral movement.
-- Card rewards, treasure relics, checkpoints, and persistent upgrade currency.
+- Card rewards, treasure relics, campfires, and persistent character levels.
 - Placeholder SVG art and polished-enough UI framing for repeated playtesting.
 
 It intentionally excludes, for now:
@@ -42,9 +42,9 @@ It intentionally excludes, for now:
 
 ## Combat Loop
 
-- The player begins combat with a hand of `3` cards, plus persistent-upgrade and relic adjustments.
+- The player begins combat with a hand of `5` cards, plus relic adjustments.
 - Each round:
-  - The player plays exactly `1` card.
+  - The player normally plays up to `2` cards.
   - The card resolves its scripted actions in sequence.
   - The card is discarded or exhausted.
   - Enemies execute their previewed intent.
@@ -58,16 +58,21 @@ It intentionally excludes, for now:
 - Melee attacks use adjacency.
 - Ranged attacks target enemies within range, while ranged AOE attacks target a tile pattern within line-of-sight.
 - Temporary block absorbs damage until the actor’s next major phase.
-- Rooms can spawn loot pickups such as healing vials and ember caches.
+- Rooms can spawn loot pickups such as healing vials and rusty shields.
 - Enemy behavior is deterministic from seed plus state, and each enemy always displays its next intent.
 
 ## Progression
 
-- Rooms award unbanked embers.
-- Checkpoints let the player bank embers permanently and recover some health.
-- Death loses unbanked embers but keeps what was banked earlier.
+- Rooms award held embers.
+- Campfires force a choice: heal and continue, carry held embers into the next
+  run by ending safely, or spend held embers to gain a permanent character
+  level and stat point.
+- Death loses held embers unless they were carried forward from a campfire or
+  final victory.
 - Treasure rooms offer relics for the current run only.
-- Persistent upgrades modify future runs, starting with max health, hand size, and healing support.
+- Persistent progression is character-level based. Stats such as Might,
+  Dexterity, Vigor, Guard, Focus, and elemental Magick stats increment card and
+  character effects directly.
 
 ## Content Targets
 
@@ -76,7 +81,8 @@ It intentionally excludes, for now:
 - Regular enemies: crawler, acolyte, harrier, warden.
 - Boss: heart warden.
 - Relics: 4-6 simple, high-signal effects.
-- Persistent upgrades: 3-4 simple upgrades.
+- Persistent progression: 20 character levels with two stat points per level
+  after level 1.
 
 ## Technical Targets
 

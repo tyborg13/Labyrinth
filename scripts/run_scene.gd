@@ -149,14 +149,24 @@ const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
 const INTENSITY_ICON_INSET: float = 8.0
 const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
-const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 10
+const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 100
 const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
 const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
+const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength.png"
 const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
-const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal 10 and continue onward"
-const CAMPFIRE_CHOICE_EMBRACE_LOCKED_DESCRIPTION: String = "???"
-const CAMPFIRE_CHOICE_EMBRACE_UNLOCKED_DESCRIPTION: String = "Abandon your escape and retain gathered power"
+const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw strength from the flame"
+const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal 100 and continue onward"
+const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Carry held embers into the next run"
+const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers to become permanently stronger"
+const PROGRESSION_STEPPER_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_stepper_normal.png"
+const PROGRESSION_STEPPER_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_stepper_hover.png"
+const PROGRESSION_STEPPER_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_stepper_pressed.png"
+const PROGRESSION_STEPPER_BUTTON_DISABLED_PATH: String = "res://assets/art/ui/progression_stepper_disabled.png"
+const PROGRESSION_COMMAND_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_command_normal.png"
+const PROGRESSION_COMMAND_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_command_hover.png"
+const PROGRESSION_COMMAND_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_command_pressed.png"
+const PROGRESSION_COMMAND_BUTTON_DISABLED_PATH: String = "res://assets/art/ui/progression_command_disabled.png"
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
@@ -217,9 +227,9 @@ var _pending_action_index: int = 0
 var _pending_action_can_skip: bool = false
 var _pending_target_tiles: Array[Vector2i] = []
 var _pending_selected_targets: Array[Vector2i] = []
-var _victory_bank_processed: bool = false
+var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
-var _victory_bank_amount: int = 0
+var _victory_carry_amount: int = 0
 var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
 var _board_presentation: Dictionary = {}
@@ -284,6 +294,8 @@ var _upgrade_option_list: VBoxContainer
 var _upgrade_preview_box: HBoxContainer
 var _upgrade_selected_card_id: String = ""
 var _upgrade_selected_element_key: String = ""
+var _progression_overlay_mode: String = ""
+var _progression_pending_stats: Dictionary = {}
 var _dialogue_active: bool = false
 var _dialogue_script: Dictionary = {}
 var _dialogue_line_index: int = -1
@@ -836,6 +848,7 @@ func _build_menu_overlay() -> void:
 	vbox.add_child(subtitle)
 
 	for entry: Dictionary in [
+		{"text": "Character", "callback": Callable(self, "_on_character_stats_pressed")},
 		{"text": "Exit to Desktop", "callback": Callable(self, "_on_exit_to_desktop_pressed")},
 		{"text": "Save and Quit", "callback": Callable(self, "_on_save_and_quit_pressed")},
 		{"text": "Succumb to the Darkness", "callback": Callable(self, "_on_abandon_run_pressed")},
@@ -1044,6 +1057,8 @@ func _build_card_upgrade_overlay() -> void:
 	_upgrade_scrim.name = "CardUpgradeScrim"
 	_upgrade_scrim.visible = false
 	_upgrade_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_upgrade_scrim.z_index = 1200
+	_upgrade_scrim.z_as_relative = false
 	_upgrade_scrim.color = Color(0.02, 0.02, 0.02, 0.64)
 	_upgrade_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_upgrade_scrim.anchor_right = 1.0
@@ -2006,9 +2021,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_sync_combat_state_from_run()
 	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
-	_victory_bank_processed = false
+	_victory_carry_processed = false
 	_defeat_loss_processed = false
-	_victory_bank_amount = 0
+	_victory_carry_amount = 0
 	_death_sequence_started = false
 	if _death_overlay != null:
 		_death_overlay.reset()
@@ -2035,8 +2050,8 @@ func _refresh_ui() -> void:
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
 	_sync_analytics_combat_tracker()
-	if str(_run_state.get("mode", "room")) == "victory" and not _victory_bank_processed:
-		_process_victory_banking()
+	if str(_run_state.get("mode", "room")) == "victory" and not _victory_carry_processed:
+		_process_victory_carry()
 	if str(_run_state.get("mode", "room")) == "defeat" and not _defeat_loss_processed:
 		_process_defeat_loss()
 	_sync_progression_from_run()
@@ -2229,13 +2244,14 @@ func _intensity_badge_style(element_id: String, active: bool) -> StyleBoxFlat:
 func _displayed_ember_count() -> int:
 	if _ember_count_override >= 0:
 		return _ember_count_override
-	var total: int = int(_run_state.get("unbanked_embers", 0))
+	var total: int = _run_engine.held_embers(_run_state)
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
 		total += int(_combat_state.get("room_embers", 0))
 	return total
 
 func _set_stats_label_text(ember_count: int) -> void:
-	stats_label.text = "EMBERS %d" % ember_count
+	var level: int = int((_run_state.get("progression", _progression) as Dictionary).get("level", _progression.get("level", 1)))
+	stats_label.text = "LV %d  EMBERS %d" % [level, ember_count]
 
 func _deck_piles() -> Dictionary:
 	if _combat_state.is_empty():
@@ -2313,9 +2329,17 @@ func _refresh_choice_bar() -> void:
 			_add_campfire_choice(
 				"embrace",
 				CAMPFIRE_CHOICE_EMBRACE_TEXT,
-				_campfire_embrace_description(),
+				CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION,
 				CAMPFIRE_CHOICE_EMBRACE_ICON_PATH,
 				Color("d85d42")
+			)
+			_add_campfire_choice(
+				"strength",
+				CAMPFIRE_CHOICE_STRENGTH_TEXT,
+				_campfire_strength_description(),
+				CAMPFIRE_CHOICE_STRENGTH_ICON_PATH,
+				Color("d79a4d"),
+				_can_level_at_campfire()
 			)
 		"reward":
 			if _reward_choices_available():
@@ -2477,7 +2501,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
 
-func _add_campfire_choice(choice_id: String, title: String, detail: String, icon_path: String, accent: Color) -> void:
+func _add_campfire_choice(choice_id: String, title: String, detail: String, icon_path: String, accent: Color, enabled: bool = true) -> void:
 	if _relic_choice_bar == null:
 		return
 	var panel := TooltipPanelContainer.new()
@@ -2485,8 +2509,10 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.clip_contents = false
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent, false))
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
+	panel.set_meta("choice_enabled", enabled)
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent if enabled else Color("5c5046"), false))
+	panel.modulate = Color(1.0, 1.0, 1.0, 1.0) if enabled else Color(0.58, 0.55, 0.50, 0.82)
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
@@ -2524,7 +2550,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("fff1d5"))
+	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("b8aa94"))
 	label.add_theme_color_override("font_outline_color", Color("26180f"))
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
@@ -2537,17 +2563,25 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
-	description.add_theme_color_override("font_color", Color("dec9a7"))
+	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("948572"))
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
 
-func _campfire_embrace_description() -> String:
-	var progression: Dictionary = _progression
-	if progression.is_empty():
-		progression = _run_state.get("progression", {}) as Dictionary
-	var upgrades_unlocked: bool = bool(progression.get("card_upgrades_unlocked", false)) or bool(progression.get("rested_at_fire", false))
-	return CAMPFIRE_CHOICE_EMBRACE_UNLOCKED_DESCRIPTION if upgrades_unlocked else CAMPFIRE_CHOICE_EMBRACE_LOCKED_DESCRIPTION
+func _can_level_at_campfire() -> bool:
+	_sync_progression_from_run()
+	return ProgressionStore.can_level_up(_progression)
+
+func _campfire_strength_description() -> String:
+	_sync_progression_from_run()
+	if ProgressionStore.is_max_level(_progression):
+		return "Maximum level"
+	var cost: int = ProgressionStore.next_level_cost(_progression)
+	if cost <= 0:
+		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
+	if ProgressionStore.can_level_up(_progression):
+		return "%s (%d embers)" % [CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION, cost]
+	return "Need %d embers" % cost
 
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
 	if panel == null:
@@ -2558,6 +2592,8 @@ func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered
 
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
+		return
+	if not bool(panel.get_meta("choice_enabled", true)):
 		return
 	panel.z_index = 40 if hovered else 30
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent, hovered))
@@ -2590,11 +2626,15 @@ func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
 		return
+	if choice_id == "strength" and not _can_level_at_campfire():
+		return
 	match choice_id:
 		"linger":
 			_on_campfire_linger_pressed()
 		"embrace":
 			_on_campfire_embrace_pressed()
+		"strength":
+			_open_level_up_overlay()
 
 func _refresh_hand_panel() -> void:
 	_clear_children(hand_box)
@@ -2850,7 +2890,7 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 func _fallback_actions(play_kind: String) -> Array:
 	match play_kind:
 		"attack":
-			return [{"type": "melee", "damage": 2, "range": 1}]
+			return [{"type": "melee", "damage": 20, "range": 1}]
 		"move":
 			return [{"type": "move", "range": 2}]
 		_:
@@ -3664,7 +3704,7 @@ func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -
 	var rewards: Array[Dictionary] = _death_rewards_between_states(before_state, after_state)
 	if rewards.is_empty():
 		return
-	var displayed_embers: int = int(_run_state.get("unbanked_embers", 0)) + int(before_state.get("room_embers", 0))
+	var displayed_embers: int = _run_engine.held_embers(_run_state) + int(before_state.get("room_embers", 0))
 	var displayed_card_plays: int = _combat_engine.cards_remaining_this_turn(before_state)
 	_ember_count_override = displayed_embers
 	_set_stats_label_text(displayed_embers)
@@ -4980,9 +5020,8 @@ func _on_campfire_sit_pressed() -> void:
 
 func _on_campfire_embrace_pressed() -> void:
 	_sync_progression_from_run()
-	var bankable: int = _run_engine.bankable_embers(_run_state)
-	if bankable > 0:
-		_progression = ProgressionStore.add_embers(_progression, bankable)
+	var held: int = _run_engine.held_embers(_run_state)
+	_progression = ProgressionStore.set_embers(_progression, held)
 	_progression = ProgressionStore.mark_rested_at_fire(_progression)
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
@@ -5083,11 +5122,16 @@ func _is_debug_boss_run() -> bool:
 func _save_run_progress() -> void:
 	if _is_debug_boss_run():
 		return
-	ProgressionStore.save_data(_progression)
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode in ["victory", "defeat"] or _run_state.is_empty():
+		ProgressionStore.save_data(_progression)
 		ProgressionStore.clear_saved_run()
 		return
+	var saved_progression: Dictionary = _progression.duplicate(true)
+	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
+	if not run_progression.is_empty():
+		saved_progression["embers"] = int(run_progression.get("embers", 0))
+	ProgressionStore.save_data(saved_progression)
 	ProgressionStore.save_run_state(_committed_run_state())
 
 func _on_save_and_quit_pressed() -> void:
@@ -5105,6 +5149,14 @@ func _on_abandon_run_pressed() -> void:
 	_reset_card_resolution()
 	_analytics_log_run_ended("abandoned")
 	if not _is_debug_boss_run():
+		_sync_progression_from_run()
+		_progression = ProgressionStore.record_lost_embers(
+			_progression,
+			_run_engine.held_embers(_run_state),
+			_run_state.get("current_room", Vector2i.ZERO),
+			int(_run_state.get("run_index", 0))
+		)
+		ProgressionStore.save_data(_progression)
 		ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -5138,17 +5190,403 @@ func _close_pile_view() -> void:
 	_active_pile_kind = ""
 
 func _open_card_upgrade_overlay() -> void:
+	_open_character_stats_overlay()
+
+func _on_character_stats_pressed() -> void:
+	_open_character_stats_overlay()
+
+func _open_character_stats_overlay() -> void:
 	if _upgrade_scrim == null:
 		return
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_menu_overlay()
-	_refresh_card_upgrade_overlay()
+	_progression_overlay_mode = "stats"
+	_progression_pending_stats.clear()
+	_rebuild_progression_overlay()
+	_upgrade_scrim.visible = true
+
+func _open_level_up_overlay() -> void:
+	if _upgrade_scrim == null or not _can_level_at_campfire():
+		return
+	_cancel_drag_play()
+	_close_pile_view()
+	_close_menu_overlay()
+	_progression_overlay_mode = "level_up"
+	_progression_pending_stats.clear()
+	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 
 func _close_card_upgrade_overlay() -> void:
 	if _upgrade_scrim != null:
 		_upgrade_scrim.visible = false
+	_progression_overlay_mode = ""
+	_progression_pending_stats.clear()
+
+func _rebuild_progression_overlay() -> void:
+	if _upgrade_dialog == null:
+		return
+	_sync_progression_from_run()
+	_clear_children_now(_upgrade_dialog)
+	_upgrade_dialog.custom_minimum_size = Vector2(1040.0, 660.0)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 22)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_right", 22)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	_upgrade_dialog.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 14)
+	margin.add_child(vbox)
+
+	var top_row := HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", 10)
+	vbox.add_child(top_row)
+
+	var title := Label.new()
+	title.text = "Draw Strength" if _progression_overlay_mode == "level_up" else "Character"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
+	title.add_theme_color_override("font_color", Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 2)
+	top_row.add_child(title)
+
+	var summary := Label.new()
+	summary.text = _progression_overlay_summary_text()
+	UiTypography.set_label_size(summary, UiTypography.SIZE_SMALL)
+	summary.add_theme_color_override("font_color", Color("f0c978"))
+	summary.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	summary.add_theme_constant_override("outline_size", 1)
+	top_row.add_child(summary)
+
+	var close_button := Button.new()
+	close_button.text = "X"
+	_apply_progression_stepper_button_style(close_button)
+	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	close_button.custom_minimum_size = Vector2(48.0, 48.0)
+	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	close_button.pressed.connect(_close_card_upgrade_overlay)
+	top_row.add_child(close_button)
+
+	var body := HBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 16)
+	vbox.add_child(body)
+
+	body.add_child(_build_progression_status_panel())
+	body.add_child(_build_progression_stat_list())
+
+	if _progression_overlay_mode == "level_up":
+		var confirm_row := HBoxContainer.new()
+		confirm_row.alignment = BoxContainer.ALIGNMENT_END
+		confirm_row.add_theme_constant_override("separation", 10)
+		vbox.add_child(confirm_row)
+
+		var cancel_button := Button.new()
+		cancel_button.text = "Cancel"
+		_apply_progression_command_button_style(cancel_button)
+		UiTypography.set_button_size(cancel_button, UiTypography.SIZE_SMALL)
+		cancel_button.custom_minimum_size = Vector2(176.0, 52.0)
+		cancel_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		cancel_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		cancel_button.pressed.connect(_close_card_upgrade_overlay)
+		confirm_row.add_child(cancel_button)
+
+		var confirm_button := Button.new()
+		var pending_stat_ids: Array[String] = _progression_pending_stat_ids()
+		var can_confirm: bool = ProgressionStore.can_purchase_level_with_stats(_progression, pending_stat_ids)
+		confirm_button.text = "Confirm"
+		confirm_button.disabled = not can_confirm
+		_apply_progression_command_button_style(confirm_button)
+		UiTypography.set_button_size(confirm_button, UiTypography.SIZE_SMALL)
+		confirm_button.custom_minimum_size = Vector2(188.0, 52.0)
+		confirm_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		confirm_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		if can_confirm:
+			confirm_button.pressed.connect(_confirm_level_up)
+		confirm_row.add_child(confirm_button)
+
+func _progression_overlay_summary_text() -> String:
+	var level: int = int(_progression.get("level", 1))
+	var embers: int = int(_progression.get("embers", 0))
+	if _progression_overlay_mode == "level_up":
+		return "LV %d -> %d   COST %d   EMBERS %d" % [level, mini(level + 1, GameData.max_progression_level()), ProgressionStore.next_level_cost(_progression), embers]
+	return "LV %d   EMBERS %d" % [level, embers]
+
+func _build_progression_status_panel() -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(282.0, 0.0)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _ui_skin.make_plain_card_style(Color(0.13, 0.09, 0.065, 0.96), Color("8f6f46"), 12.0))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	for row_text: String in _progression_status_rows():
+		var label := Label.new()
+		label.text = row_text
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+		label.add_theme_color_override("font_color", Color("e8dcc5"))
+		label.add_theme_color_override("font_outline_color", Color("241912"))
+		label.add_theme_constant_override("outline_size", 1)
+		vbox.add_child(label)
+	return panel
+
+func _progression_status_rows() -> Array[String]:
+	var rows: Array[String] = []
+	rows.append("Level %d" % int(_progression.get("level", 1)))
+	rows.append("Held embers %d" % int(_progression.get("embers", 0)))
+	if _progression_overlay_mode == "level_up":
+		rows.append("Cost %d" % ProgressionStore.next_level_cost(_progression))
+		rows.append("Choose %d different stats." % GameData.progression_stat_points_per_level())
+		rows.append("Assigned %d/%d" % [_progression_pending_point_count(), GameData.progression_stat_points_per_level()])
+	else:
+		rows.append("Max health %d" % int(_run_state.get("player_max_hp", RunEngineScript.BASE_MAX_HP)))
+		rows.append("Unspent points %d" % int(_progression.get("unspent_stat_points", 0)))
+	return rows
+
+func _build_progression_stat_list() -> Control:
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 8)
+	scroll.add_child(list)
+	var stats: Dictionary = GameData.normalized_progression_stats(_progression.get("stats", {}))
+	for stat_id: String in GameData.progression_stat_ids():
+		list.add_child(_build_progression_stat_row(stat_id, int(stats.get(stat_id, 0))))
+	return scroll
+
+func _build_progression_stat_row(stat_id: String, value: int) -> Control:
+	var stat_def: Dictionary = GameData.progression_stat_def(stat_id)
+	var pending: int = _progression_pending_stat_delta(stat_id)
+	var displayed_value: int = value + pending
+	var selected: bool = pending > 0
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _progression_stat_row_style(Color(str(stat_def.get("accent", "#c28a53"))), selected))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	margin.add_child(row)
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(48.0, 48.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(str(stat_def.get("icon_path", "")))
+	row.add_child(icon)
+	var text_box := VBoxContainer.new()
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.add_theme_constant_override("separation", 2)
+	row.add_child(text_box)
+	var name_label := Label.new()
+	name_label.text = str(stat_def.get("name", stat_id))
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
+	name_label.add_theme_color_override("font_color", Color("f5ead4"))
+	name_label.add_theme_color_override("font_outline_color", Color("241912"))
+	name_label.add_theme_constant_override("outline_size", 1)
+	text_box.add_child(name_label)
+	var desc_label := Label.new()
+	desc_label.text = str(stat_def.get("short", ""))
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.set_label_size(desc_label, UiTypography.SIZE_CAPTION)
+	desc_label.add_theme_color_override("font_color", Color("cdbca2"))
+	text_box.add_child(desc_label)
+	if _progression_overlay_mode == "level_up":
+		var minus_button := Button.new()
+		minus_button.text = "-"
+		minus_button.disabled = not _can_decrement_level_up_stat(stat_id)
+		_apply_progression_stepper_button_style(minus_button)
+		UiTypography.set_button_size(minus_button, UiTypography.SIZE_BODY)
+		minus_button.custom_minimum_size = Vector2(46.0, 46.0)
+		minus_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		minus_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		if not minus_button.disabled:
+			minus_button.pressed.connect(_change_level_up_stat.bind(stat_id, -1))
+		row.add_child(minus_button)
+
+		row.add_child(_build_progression_stat_value_badge(displayed_value, GameData.progression_stat_cap(), selected))
+
+		var plus_button := Button.new()
+		plus_button.text = "+"
+		plus_button.disabled = not _can_increment_level_up_stat(stat_id, value)
+		_apply_progression_stepper_button_style(plus_button)
+		UiTypography.set_button_size(plus_button, UiTypography.SIZE_BODY)
+		plus_button.custom_minimum_size = Vector2(46.0, 46.0)
+		plus_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		plus_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		if not plus_button.disabled:
+			plus_button.pressed.connect(_change_level_up_stat.bind(stat_id, 1))
+		row.add_child(plus_button)
+	else:
+		row.add_child(_build_progression_stat_value_badge(displayed_value, GameData.progression_stat_cap(), false))
+	return panel
+
+func _build_progression_stat_value_badge(value: int, cap: int, selected: bool) -> Control:
+	var badge := PanelContainer.new()
+	badge.custom_minimum_size = Vector2(74.0, 46.0)
+	badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.045, 0.040, 0.94).lightened(0.10 if selected else 0.0)
+	style.border_color = Color("d7a85d") if selected else Color("6d5a46")
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	badge.add_theme_stylebox_override("panel", style)
+	var label := Label.new()
+	label.text = "%d/%d" % [value, cap]
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", Color("fff0ce") if selected else Color("e8dcc5"))
+	label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	return badge
+
+func _apply_progression_stepper_button_style(button: Button) -> void:
+	if button == null:
+		return
+	button.add_theme_stylebox_override("normal", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_NORMAL_PATH, 18.0, 5.0, 5.0))
+	button.add_theme_stylebox_override("hover", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_HOVER_PATH, 18.0, 5.0, 5.0))
+	button.add_theme_stylebox_override("pressed", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_PRESSED_PATH, 18.0, 6.0, 4.0))
+	button.add_theme_stylebox_override("focus", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_HOVER_PATH, 18.0, 5.0, 5.0))
+	button.add_theme_stylebox_override("disabled", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_DISABLED_PATH, 18.0, 5.0, 5.0))
+	_apply_progression_button_text(button, UiTypography.SIZE_BODY)
+
+func _apply_progression_command_button_style(button: Button) -> void:
+	if button == null:
+		return
+	button.add_theme_stylebox_override("normal", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_NORMAL_PATH, 26.0, 16.0, 7.0))
+	button.add_theme_stylebox_override("hover", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_HOVER_PATH, 26.0, 16.0, 7.0))
+	button.add_theme_stylebox_override("pressed", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_PRESSED_PATH, 26.0, 16.0, 8.0))
+	button.add_theme_stylebox_override("focus", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_HOVER_PATH, 26.0, 16.0, 7.0))
+	button.add_theme_stylebox_override("disabled", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_DISABLED_PATH, 26.0, 16.0, 7.0))
+	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
+
+func _progression_texture_button_style(path: String, texture_margin: float, content_margin_h: float, content_margin_v: float) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = AssetLoader.load_texture(path)
+	style.texture_margin_left = texture_margin
+	style.texture_margin_top = texture_margin
+	style.texture_margin_right = texture_margin
+	style.texture_margin_bottom = texture_margin
+	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+	style.content_margin_left = content_margin_h
+	style.content_margin_top = content_margin_v
+	style.content_margin_right = content_margin_h
+	style.content_margin_bottom = content_margin_v
+	return style
+
+func _apply_progression_button_text(button: Button, font_size: int) -> void:
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	button.add_theme_color_override("font_color", Color("ffe8b6"))
+	button.add_theme_color_override("font_hover_color", Color("fff4d2"))
+	button.add_theme_color_override("font_focus_color", Color("fff4d2"))
+	button.add_theme_color_override("font_pressed_color", Color("f5c179"))
+	button.add_theme_color_override("font_disabled_color", Color("928a7d"))
+	button.add_theme_color_override("font_outline_color", Color("1c120c"))
+	button.add_theme_constant_override("outline_size", 2)
+	UiTypography.set_button_size(button, font_size)
+
+func _progression_stat_row_style(accent: Color, selected: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.10, 0.07, 0.05, 0.92).lightened(0.06 if selected else 0.0)
+	style.border_color = accent.lightened(0.30) if selected else Color(accent.r, accent.g, accent.b, 0.58)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	return style
+
+func _progression_pending_stat_delta(stat_id: String) -> int:
+	return int(_progression_pending_stats.get(stat_id, 0))
+
+func _progression_pending_point_count() -> int:
+	var total: int = 0
+	for amount_var: Variant in _progression_pending_stats.values():
+		total += int(amount_var)
+	return total
+
+func _progression_pending_stat_ids() -> Array[String]:
+	var result: Array[String] = []
+	for stat_id: String in GameData.progression_stat_ids():
+		if int(_progression_pending_stats.get(stat_id, 0)) > 0:
+			result.append(stat_id)
+	return result
+
+func _can_increment_level_up_stat(stat_id: String, current_value: int) -> bool:
+	if _progression_overlay_mode != "level_up":
+		return false
+	if _progression_pending_stat_delta(stat_id) > 0:
+		return false
+	if _progression_pending_point_count() >= GameData.progression_stat_points_per_level():
+		return false
+	return current_value < GameData.progression_stat_cap()
+
+func _can_decrement_level_up_stat(stat_id: String) -> bool:
+	return _progression_overlay_mode == "level_up" and _progression_pending_stat_delta(stat_id) > 0
+
+func _change_level_up_stat(stat_id: String, delta: int) -> void:
+	if _progression_overlay_mode != "level_up":
+		return
+	var stats: Dictionary = GameData.normalized_progression_stats(_progression.get("stats", {}))
+	var current_value: int = int(stats.get(stat_id, 0))
+	var current_pending: int = _progression_pending_stat_delta(stat_id)
+	if delta > 0:
+		if not _can_increment_level_up_stat(stat_id, current_value):
+			return
+		_progression_pending_stats[stat_id] = 1
+	elif delta < 0:
+		if current_pending <= 0:
+			return
+		_progression_pending_stats.erase(stat_id)
+	_rebuild_progression_overlay()
+
+func _confirm_level_up() -> void:
+	var pending_stat_ids: Array[String] = _progression_pending_stat_ids()
+	if not ProgressionStore.can_purchase_level_with_stats(_progression, pending_stat_ids):
+		return
+	var before_progression: Dictionary = _progression.duplicate(true)
+	_progression = ProgressionStore.purchase_level_with_stats(_progression, pending_stat_ids)
+	ProgressionStore.save_data(_progression)
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
+	_run_state = _run_engine.leave_campfire(_run_state, 0)
+	ProgressionStore.save_run_state(_run_state)
+	_analytics_log_level_up(before_progression, _progression)
+	_close_card_upgrade_overlay()
+	_refresh_ui()
 
 func _refresh_card_upgrade_overlay() -> void:
 	if _upgrade_card_list == null:
@@ -5377,7 +5815,7 @@ func _card_id_for_hand_index(index: int) -> String:
 	return str(hand[index])
 
 func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
-	if not state.is_empty() and (state.has("card_upgrades") or state.has("card_mods")):
+	if not state.is_empty() and (state.has("card_upgrades") or state.has("card_mods") or state.has("stats") or state.has("relics")):
 		return GameData.card_def_for_progression(card_id, state)
 	if not _progression.is_empty():
 		return GameData.card_def_for_progression(card_id, _progression)
@@ -5435,6 +5873,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary) if not combat_state.is_empty() else {}
 	var combat_analytics: Dictionary = (combat_state.get("analytics", {}) as Dictionary).duplicate(true)
 	var run_analytics: Dictionary = (run_state.get("analytics", {}) as Dictionary).duplicate(true)
+	var progression: Dictionary = (run_state.get("progression", _progression) as Dictionary).duplicate(true)
 	var context: Dictionary = {
 		"run_id": str(run_analytics.get("run_id", "")),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
@@ -5443,6 +5882,8 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"room_element": str(combat_state.get("room_element", room_meta.get("element", ""))),
 		"player_hp": int(player.get("hp", run_state.get("player_hp", -1))),
 		"player_max_hp": int(player.get("max_hp", run_state.get("player_max_hp", -1))),
+		"progression_level": int(progression.get("level", 1)),
+		"progression_stats": GameData.normalized_progression_stats(progression.get("stats", {})),
 		"deck_size": int((run_state.get("deck_cards", []) as Array).size()),
 		"card_id": card_id,
 		"card_instance_id": card_instance_id
@@ -5479,8 +5920,24 @@ func _analytics_log_run_ended(outcome: String) -> void:
 	_analytics_store.write_event("run_ended", _analytics_context_from_states(_run_state, _combat_state), {
 		"outcome": outcome,
 		"turns_spent": int(_run_state.get("turns_spent", 0)),
-		"unbanked_embers": int(_run_state.get("unbanked_embers", 0)),
+		"held_embers": _run_engine.held_embers(_run_state),
 		"mode": str(_run_state.get("mode", "room"))
+	})
+
+func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary) -> void:
+	var chosen_stat_ids: Array[String] = _progression_pending_stat_ids()
+	var stat_values: Dictionary = {}
+	for stat_id: String in chosen_stat_ids:
+		stat_values[stat_id] = GameData.stat_value(after_progression, stat_id)
+	_analytics_store.write_event("progression_level_up", _analytics_context_from_states(_run_state, _combat_state), {
+		"level_before": int(before_progression.get("level", 1)),
+		"level_after": int(after_progression.get("level", 1)),
+		"stat_id": str(chosen_stat_ids[0]) if not chosen_stat_ids.is_empty() else "",
+		"stat_ids": chosen_stat_ids,
+		"stat_values": stat_values,
+		"cost": ProgressionStore.next_level_cost(before_progression),
+		"held_embers_after": int(after_progression.get("embers", 0)),
+		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 
 func _analytics_log_reward_choice(choice_kind: String, reward_state: Dictionary, selected_card_id: String, player_hp_before: int, player_hp_after: int) -> void:
@@ -5953,7 +6410,7 @@ func _sync_progression_from_run() -> void:
 	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
 	if run_progression.is_empty():
 		return
-	_progression = run_progression
+	_progression = ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
 func _layout_mini_map_overlay() -> void:
 	if mini_map_overlay == null:
@@ -6024,25 +6481,24 @@ func _locked_door_tiles_for_board() -> Dictionary:
 		locked[door_tile] = true
 	return locked
 
-func _process_victory_banking() -> void:
+func _process_victory_carry() -> void:
 	if _is_debug_boss_run():
-		_victory_bank_amount = _run_engine.bankable_embers(_run_state)
-		_victory_bank_processed = true
+		_victory_carry_amount = _run_engine.held_embers(_run_state)
+		_victory_carry_processed = true
 		return
-	var amount: int = _run_engine.bankable_embers(_run_state)
-	_victory_bank_amount = amount
-	if amount > 0:
-		_progression = ProgressionStore.add_embers(_progression, amount)
-		ProgressionStore.save_data(_progression)
-		_run_state = _run_engine.consume_banked_embers(_run_state)
+	var amount: int = _run_engine.held_embers(_run_state)
+	_victory_carry_amount = amount
+	_progression = ProgressionStore.set_embers(_progression, amount)
+	ProgressionStore.save_data(_progression)
+	_run_state = _run_engine.clear_held_embers(_run_state)
 	_run_state["progression"] = _progression.duplicate(true)
-	_victory_bank_processed = true
+	_victory_carry_processed = true
 
 func _process_defeat_loss() -> void:
 	if _is_debug_boss_run():
 		_defeat_loss_processed = true
 		return
-	var lost_amount: int = _run_engine.bankable_embers(_run_state)
+	var lost_amount: int = _run_engine.held_embers(_run_state)
 	_progression = ProgressionStore.record_lost_embers(
 		_progression,
 		lost_amount,
@@ -6050,7 +6506,7 @@ func _process_defeat_loss() -> void:
 		int(_run_state.get("run_index", 0))
 	)
 	ProgressionStore.save_data(_progression)
-	_run_state = _run_engine.consume_banked_embers(_run_state)
+	_run_state = _run_engine.clear_held_embers(_run_state)
 	_run_state["progression"] = _progression.duplicate(true)
 	_defeat_loss_processed = true
 

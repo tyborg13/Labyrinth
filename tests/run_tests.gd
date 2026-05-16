@@ -154,7 +154,7 @@ func _initialize() -> void:
 	_test_intermediate_boss_opens_next_sequence()
 	_test_boss_victory_restores_player_health()
 	_test_progression_save_and_purchase(default_progression)
-	_test_emaciated_man_unlocks_card_upgrade_dialogue()
+	_test_emaciated_man_does_not_unlock_card_upgrade_dialogue()
 	_test_recovery_marker_flow()
 	_test_recovery_marker_expires_after_next_run()
 	_test_run_state_save_and_load()
@@ -188,7 +188,7 @@ func _initialize() -> void:
 	await _test_run_scene_relic_header_keeps_relics_and_intensity_tight()
 	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
-	await _test_run_scene_card_upgrade_overlay_opens()
+	await _test_run_scene_character_stats_overlay_opens()
 	await _test_run_scene_logs_local_analytics()
 	await _test_main_menu_shows_continue_for_saved_run()
 
@@ -263,8 +263,14 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		_assert(valid_rarities.has(rarity), "%s should use the relic rarity set" % relic_id)
 		_assert(str(relic.get("accent", "")) == GameData.relic_rarity_accent(rarity), "%s border accent should match relic rarity" % relic_id)
 		_assert(not (relic.get("effects", []) as Array).is_empty(), "%s should define reusable relic effects" % relic_id)
+		var description: String = str(relic.get("description", ""))
+		_assert(not description.contains("{") and not description.contains("}"), "%s description placeholders should be formatted for display" % relic_id)
 		var icon_path: String = str(relic.get("icon_path", ""))
 		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
+	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("10 damage"), "Thornmail Brooch should display fixed-point thorns damage")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("100 stoneskin"), "Obsidian Heart should display fixed-point stoneskin")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("draw 1 fewer"), "Obsidian Heart should format negative draw as a positive fewer amount")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 30"), "Black Sun Dial should display fixed-point all-enemy damage")
 	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
@@ -555,9 +561,9 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 			_assert(PathUtils.is_passable(room.get("grid", []), loot.get("pos", Vector2i(-1, -1))), "Generated pickups should sit on passable floor tiles")
 		if room_type in ["combat", "boss"]:
 			_assert(loot_by_kind.has("healing_vial"), "%s rooms should always place a healing potion" % room_type.capitalize())
-			_assert(int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 4, "Healing potions should heal 4")
+			_assert(int((loot_by_kind.get("healing_vial", {}) as Dictionary).get("amount", 0)) == 40, "Healing potions should heal 40")
 			_assert(loot_by_kind.has("rusty_shield"), "%s rooms should always place a rusty shield" % room_type.capitalize())
-			_assert(int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 4, "Rusty shields should grant 4 block")
+			_assert(int((loot_by_kind.get("rusty_shield", {}) as Dictionary).get("amount", 0)) == 40, "Rusty shields should grant 40 block")
 		else:
 			_assert(loot_by_kind.is_empty(), "%s rooms should not place battlefield pickups" % room_type.capitalize())
 		_assert(not loot_by_kind.has("ember_cache"), "Generated tile loot should no longer spawn random ember caches")
@@ -589,7 +595,7 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 		var terrain: Dictionary = terrain_var
 		var pos: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 		_assert(str(terrain.get("kind", "")) in ["wooden_box", "wooden_crate"], "Generated terrain should be boxes or crates")
-		_assert(int(terrain.get("hp", 0)) == 3 and int(terrain.get("max_hp", 0)) == 3, "Generated terrain should have low 3 HP")
+		_assert(int(terrain.get("hp", 0)) == 30 and int(terrain.get("max_hp", 0)) == 30, "Generated terrain should have low 30 HP")
 		_assert(PathUtils.is_passable(combat_room.get("grid", []), pos), "Generated terrain should sit on passable floor tiles")
 		_assert(not occupied.has(pos), "Generated terrain should avoid actors, traps, and pickups")
 		occupied[pos] = true
@@ -706,7 +712,7 @@ func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
 	_assert((state.get("deck", {}) as Dictionary).get("burned", []).has("shadow_gate"), "Burn cards should move to the burned pile")
 	state = combat.prepare_next_player_turn(state)
 	var hp_after: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
-	_assert(hp_after == hp_before - 2, "Cycling the deck should deal fatigue damage")
+	_assert(hp_after == hp_before - 20, "Cycling the deck should deal fatigue damage")
 	_assert((state.get("deck", {}) as Dictionary).get("hand", []).has("quick_stab"), "Discard should reshuffle into the draw and refill hand")
 
 func _test_two_card_turn_draw_flow() -> void:
@@ -938,8 +944,8 @@ func _test_elemental_intensity_bonus_modifies_single_attack() -> void:
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 20,
-		"max_hp": 20,
+		"hp": 200,
+		"max_hp": 200,
 		"block": 0,
 		"stoneskin": 0
 	}]
@@ -947,12 +953,12 @@ func _test_elemental_intensity_bonus_modifies_single_attack() -> void:
 	var venom_actions: Array = venom_card.get("actions", [])
 	venom_state = combat.apply_player_action(venom_state, venom_actions[0] as Dictionary)
 	_assert(combat.elemental_intensity(venom_state, ElementData.EARTH) == 2, "Venom Claw should self-enable its Earth 2+ rider in an Earth room")
-	_assert(combat.final_damage_for_player_action(venom_state, venom_actions[1] as Dictionary) == 10, "Venom Claw's active Earth rider should increase same-attack damage")
+	_assert(combat.final_damage_for_player_action(venom_state, venom_actions[1] as Dictionary) == 100, "Venom Claw's active Earth rider should increase same-attack damage")
 	venom_state = combat.apply_player_action(venom_state, venom_actions[1] as Dictionary, Vector2i(3, 4))
 	var venom_enemy: Dictionary = ((venom_state.get("enemies", []) as Array)[0] as Dictionary)
-	_assert(int(venom_enemy.get("hp", 0)) == 10, "Venom Claw should apply its conditional damage to the target")
+	_assert(int(venom_enemy.get("hp", 0)) == 100, "Venom Claw should apply its conditional damage to the target")
 	var venom_poison: Dictionary = venom_enemy.get("poison", {}) as Dictionary
-	_assert(int(venom_poison.get("damage", 0)) == 4, "Venom Claw should apply its conditional poison to the target")
+	_assert(int(venom_poison.get("damage", 0)) == 40, "Venom Claw should apply its conditional poison to the target")
 
 func _test_cards_do_not_define_multiple_player_attacks() -> void:
 	var attack_types: Array = ["melee", "ranged", "aoe", "push", "pull"]
@@ -1124,17 +1130,17 @@ func _test_first_attack_bonus_damage_math() -> void:
 			"id": 1,
 			"type": "crawler",
 			"pos": Vector2i(3, 4),
-			"hp": 14,
-			"max_hp": 14,
-			"block": 4
+			"hp": 140,
+			"max_hp": 140,
+			"block": 40
 		}
 	]
-	var action: Dictionary = {"type": "melee", "damage": 6, "range": 1}
-	_assert(combat.final_damage_for_player_action(state, action) == 8, "Displayed attack damage should include the first-attack bonus before the card resolves")
+	var action: Dictionary = {"type": "melee", "damage": 60, "range": 1}
+	_assert(combat.final_damage_for_player_action(state, action) == 80, "Displayed attack damage should include the first-attack bonus before the card resolves")
 	state = combat.apply_player_action(state, action, Vector2i(3, 4))
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
 	_assert(int(enemy.get("block", 0)) == 0, "Damage should remove enemy block before health")
-	_assert(int(enemy.get("hp", 0)) == 10, "A 6-damage strike with Ember Lens into 4 block should deal 4 health damage")
+	_assert(int(enemy.get("hp", 0)) == 100, "A 60-damage strike with Ember Lens into 40 block should deal 40 health damage")
 	_assert(combat.attack_bonus_for_current_turn(state) == 0, "The first-attack bonus should be consumed after the hit resolves")
 
 func _test_relic_effect_hooks() -> void:
@@ -1147,7 +1153,27 @@ func _test_relic_effect_hooks() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4, "Start-combat relic effects should apply before the first turn")
+	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 40, "Start-combat relic effects should apply before the first turn")
+	var thorn_state: Dictionary = combat.create_combat(1611, _simple_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["stone_plate"],
+		"relics": ["thornmail_brooch"],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	thorn_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	thorn_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	thorn_state = combat.apply_player_action(thorn_state, {"type": "stoneskin", "amount": 40})
+	_assert(int(((thorn_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 130, "Thornmail Brooch should use fixed-point thorns damage")
 	var fire_card: Dictionary = combat.card_def("hearth_rush", {"relics": ["flint_edge"]})
 	var fire_base_melee: Dictionary = {}
 	for action_var: Variant in fire_card.get("actions", []):
@@ -1157,8 +1183,8 @@ func _test_relic_effect_hooks() -> void:
 		if str(action.get("type", "")) != "melee":
 			continue
 		fire_base_melee = action
-	_assert(int(fire_base_melee.get("burn", 0)) == 1, "Elemental relic action mods should augment matching base card actions")
-	_assert(int((fire_base_melee.get("intensity_bonus", {}) as Dictionary).get("burn", 0)) == 2, "Elemental relic action mods should preserve matching intensity-gated bonus actions")
+	_assert(int(fire_base_melee.get("burn", 0)) == 10, "Elemental relic action mods should augment matching base card actions")
+	_assert(int((fire_base_melee.get("intensity_bonus", {}) as Dictionary).get("burn", 0)) == 20, "Elemental relic action mods should preserve matching intensity-gated bonus actions")
 	var storm_card: Dictionary = combat.card_def("spark_dart", {"relics": ["storm_crown"]})
 	var storm_actions: Array = storm_card.get("actions", [])
 	_assert(str((storm_actions[storm_actions.size() - 1] as Dictionary).get("type", "")) == "card_play", "Append-action relic effects should add reusable card actions")
@@ -1170,22 +1196,22 @@ func _test_relic_effect_hooks() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	frost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	frost_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
 	frost_state["enemies"] = [{
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 14,
-		"max_hp": 14,
+		"hp": 140,
+		"max_hp": 140,
 		"block": 0,
 		"stoneskin": 0,
 		"freeze": 1
 	}]
-	frost_state = combat.apply_player_action(frost_state, {"type": "melee", "damage": 4, "range": 1}, Vector2i(3, 4))
-	_assert(int(((frost_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 2, "Target-status relic effects should add damage before existing freeze vulnerability")
+	frost_state = combat.apply_player_action(frost_state, {"type": "melee", "damage": 40, "range": 1}, Vector2i(3, 4))
+	_assert(int(((frost_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 20, "Target-status relic effects should add damage before existing freeze vulnerability")
 	var phoenix_state: Dictionary = combat.create_combat(1603, _simple_room_layout(), {
-		"hp": 3,
-		"max_hp": 24,
+		"hp": 30,
+		"max_hp": 240,
 		"deck_cards": ["quick_stab"],
 		"relics": ["phoenix_ember"],
 		"hand_size": 1,
@@ -1195,14 +1221,14 @@ func _test_relic_effect_hooks() -> void:
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(3, 4),
-		"hp": 14,
-		"max_hp": 14,
+		"hp": 140,
+		"max_hp": 140,
 		"block": 0,
 		"stoneskin": 0
 	}]
-	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
-	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 1, "Prevent-lethal relic effects should rescue the player once")
-	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Prevent-lethal relic effects should be able to apply follow-up status")
+	phoenix_state = combat.call("_damage_player", phoenix_state, 90, true)
+	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 10, "Prevent-lethal relic effects should rescue the player once")
+	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 30, "Prevent-lethal relic effects should be able to apply follow-up status")
 	var cinder_state: Dictionary = combat.create_combat(1604, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -1215,10 +1241,10 @@ func _test_relic_effect_hooks() -> void:
 	cinder_intensity[ElementData.FIRE] = 3
 	cinder_state["elemental_intensity"] = cinder_intensity
 	cinder_state["player"] = {"pos": Vector2i(4, 2), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	cinder_state = combat.apply_player_action(cinder_state, {"type": "melee", "damage": 1, "range": 1, "burn": 1}, Vector2i(5, 2))
+	cinder_state = combat.apply_player_action(cinder_state, {"type": "melee", "damage": 10, "range": 1, "burn": 10}, Vector2i(5, 2))
 	_assert(combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2, "Fire threshold relics should be able to consume intensity after crossing")
 	_assert(int(cinder_state.get("card_play_bonus_this_turn", 0)) == 1, "Intensity threshold rewards should be able to grant card plays")
-	_assert(int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Intensity threshold rewards should apply all-enemy statuses")
+	_assert(int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 30, "Intensity threshold rewards should apply all-enemy statuses")
 	var cinder_spent: Dictionary = combat.elemental_intensity_counter(cinder_state, "elemental_intensity_spent_total")
 	_assert(int(cinder_spent.get(ElementData.FIRE, 0)) == 2, "Combat state should track gross intensity spent by relic payoffs")
 	var overflow_state: Dictionary = combat.create_combat(1610, _simple_room_layout(), {
@@ -1233,7 +1259,7 @@ func _test_relic_effect_hooks() -> void:
 	overflow_intensity[ElementData.ICE] = 2
 	overflow_state["elemental_intensity"] = overflow_intensity
 	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.ICE, "amount": 1})
-	_assert(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 5, "Any-element threshold rewards should trigger from matching crossings")
+	_assert(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 50, "Any-element threshold rewards should trigger from matching crossings")
 	var voltaic_state: Dictionary = combat.create_combat(1605, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -1289,7 +1315,7 @@ func _test_relic_effect_hooks() -> void:
 	tectonic_state["elemental_intensity"] = tectonic_intensity
 	tectonic_state = combat.apply_player_action(tectonic_state, {"type": "intensity", "element": ElementData.EARTH, "amount": 1})
 	_assert(combat.elemental_intensity(tectonic_state, ElementData.EARTH) == 2, "Earth threshold relics should consume their configured intensity")
-	_assert(int((tectonic_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 8, "Earth threshold relics should be able to grant stoneskin")
+	_assert(int((tectonic_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 80, "Earth threshold relics should be able to grant stoneskin")
 	var black_sun_state: Dictionary = combat.create_combat(1609, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -1307,9 +1333,18 @@ func _test_relic_effect_hooks() -> void:
 	black_sun_deck["discard"] = []
 	black_sun_deck["burned"] = []
 	black_sun_state["deck"] = black_sun_deck
+	black_sun_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(5, 2),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0,
+		"stoneskin": 0
+	}]
 	black_sun_state = combat.apply_player_action(black_sun_state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
 	_assert(combat.elemental_intensity(black_sun_state, ElementData.FIRE) == 2, "Any-element consuming relics should spend the triggering element")
-	_assert(int(((black_sun_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 11, "Any-element threshold rewards should be able to damage all enemies")
+	_assert(int(((black_sun_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 110, "Any-element threshold rewards should be able to damage all enemies")
 	_assert(((black_sun_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Any-element threshold rewards should be able to draw")
 
 func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
@@ -1469,9 +1504,9 @@ func _test_healing_cards_are_burned_and_downweighted() -> void:
 	for card_id: String in ["patch_up", "rallying_breath", "last_light"]:
 		var card: Dictionary = GameData.card_def(card_id)
 		_assert(bool(card.get("burn", false)), "Healing cards should burn so recovery is a shorter-term tactical choice")
-	_assert(int((GameData.card_def("patch_up").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 3, "Patch Up should heal less than the original starter version")
-	_assert(int((GameData.card_def("rallying_breath").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 4, "Rallying Breath should heal less than the original common version")
-	_assert(int((GameData.card_def("last_light").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 6, "Last Light should heal less than the original rare version")
+	_assert(int((GameData.card_def("patch_up").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 30, "Patch Up should heal less than the original starter version")
+	_assert(int((GameData.card_def("rallying_breath").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 40, "Rallying Breath should heal less than the original common version")
+	_assert(int((GameData.card_def("last_light").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 60, "Last Light should heal less than the original rare version")
 	_assert(GameData.reward_offer_weight("rallying_breath") < GameData.reward_offer_weight("iron_wheel"), "Healing cards should be rarer reward offers than standard non-heal cards")
 
 func _test_low_movement_enemies_advance_without_outpacing_crawlers() -> void:
@@ -1649,18 +1684,18 @@ func _test_close_aoe_hits_adjacent_targets() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	state["player"] = {"pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	state["player"] = {"pos": Vector2i(4, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
 	state["enemies"] = [
-		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 14, "max_hp": 14, "block": 0},
-		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 10, "max_hp": 10, "block": 0},
-		{"id": 3, "type": "acolyte", "pos": Vector2i(5, 5), "hp": 12, "max_hp": 12, "block": 0}
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 3), "hp": 140, "max_hp": 140, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 100, "max_hp": 100, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(5, 5), "hp": 120, "max_hp": 120, "block": 0}
 	]
 	var action: Dictionary = GameData.card_def("whirlwind_slash").get("actions", [])[0]
 	state = combat.apply_player_action(state, action)
 	var enemies: Array = state.get("enemies", [])
-	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 8, "Close AOE should hit the northern adjacent tile")
-	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 4, "Close AOE should hit the eastern adjacent tile")
-	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 12, "Close AOE should not hit diagonal tiles")
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 80, "Close AOE should hit the northern adjacent tile")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 40, "Close AOE should hit the eastern adjacent tile")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 120, "Close AOE should not hit diagonal tiles")
 
 func _test_enemy_phase_preserves_preview_cycle() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -3757,7 +3792,7 @@ func _test_combat_finish_generates_reward_state() -> void:
 	combat_state["room_embers"] = 12
 	run_state = run_engine.finish_combat(run_state, combat_state)
 	_assert(str(run_state.get("mode", "")) == "reward", "Winning a non-boss combat should transition to the reward state")
-	_assert(int(run_state.get("unbanked_embers", 0)) >= 12, "Combat victory should award embers to the run")
+	_assert(run_engine.held_embers(run_state) >= 12, "Combat victory should award held embers to the run")
 	_assert((run_state.get("pending_reward", {}) as Dictionary).get("cards", []).size() == 3, "Combat rewards should offer three card choices")
 	_assert(not run_engine.available_moves(run_state).is_empty(), "Cleared combat rooms should reveal adjacent exits once the fight ends")
 
@@ -3810,57 +3845,41 @@ func _test_boss_victory_restores_player_health() -> void:
 	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating the final placeholder Zekarion should restore the player to full health")
 
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
-	var data: Dictionary = ProgressionStore.add_embers(default_progression, 1000)
+	var data: Dictionary = ProgressionStore.add_embers(default_progression, 180)
 	_assert(ProgressionStore.save_data(data), "Progression save should succeed")
 	var loaded: Dictionary = ProgressionStore.load_data()
-	_assert(int(loaded.get("embers", 0)) == 1000, "Saved progression embers should reload")
-	var elements: Array = GameData.upgradeable_elements_for_card("quick_stab", loaded)
-	var damage_element: Dictionary = {}
-	var action_element: Dictionary = {}
-	for element_var: Variant in elements:
-		var element: Dictionary = element_var
-		if str(element.get("kind", "")) == "stat" and str(element.get("field", "")) == "damage":
-			damage_element = element
-		if str(element.get("kind", "")) == "action":
-			action_element = element
-	_assert(not damage_element.is_empty(), "Permanent card upgrades should expose card elements the player can customize")
-	_assert(not action_element.is_empty(), "Permanent card upgrades should include card-level action additions")
-	var action_options: Array = GameData.upgrade_options_for_element("quick_stab", action_element, loaded)
-	_assert(action_options.size() >= 3, "Action additions should offer multiple upgrade choices")
-	var action_preview: Dictionary = GameData.preview_card_with_mod("quick_stab", action_options[0], loaded)
-	_assert((action_preview.get("actions", []) as Array).size() == 2, "Action addition previews should show the added action on the card")
-	var options: Array = GameData.upgrade_options_for_element("quick_stab", damage_element, loaded)
-	_assert(options.size() >= 3, "Damage elements should offer multiple upgrade strengths")
-	var damage_mod: Dictionary = options[0]
-	var cost: int = int(damage_mod.get("cost", 0))
-	_assert(cost >= 100, "Starter card upgrade costs should be tuned above short-run ember payouts")
-	loaded = ProgressionStore.purchase_card_mod(loaded, "quick_stab", damage_mod)
-	var card_mods: Dictionary = loaded.get("card_mods", {}) as Dictionary
-	_assert((card_mods.get("quick_stab", []) as Array).size() == 1, "Purchased card mods should stack under their base card id")
-	_assert(int(loaded.get("embers", 0)) == 1000 - cost, "Card mod purchases should deduct their computed ember cost")
+	_assert(int(loaded.get("embers", 0)) == 180, "Saved progression embers should reload as held embers")
+	_assert(int(loaded.get("level", 0)) == 1, "Progression should start at level one")
+	_assert(ProgressionStore.next_level_cost(loaded) == 180, "The first level-up cost should require a meaningful run")
+	_assert(not ProgressionStore.can_purchase_level_with_stats(loaded, ["might"]), "Level-up purchases should require two stat picks")
+	_assert(not ProgressionStore.can_purchase_level_with_stats(loaded, ["might", "might"]), "Level-up stat picks should be different stats")
+	loaded = ProgressionStore.purchase_level_with_stats(loaded, ["might", "dexterity"])
+	_assert(int(loaded.get("level", 0)) == 2, "Buying a level should permanently raise character level")
+	_assert(int(loaded.get("embers", 0)) == 0, "Buying a level should spend held embers")
+	_assert(GameData.stat_value(loaded, "might") == 1, "Buying a level should allocate the first chosen stat point")
+	_assert(GameData.stat_value(loaded, "dexterity") == 1, "Buying a level should allocate the second chosen stat point")
+	_assert(int(loaded.get("unspent_stat_points", 0)) == 0, "A normal level-up should assign both stat points immediately")
 	var upgraded_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
 	var upgraded_action: Dictionary = (upgraded_card.get("actions", []) as Array)[0]
-	_assert(int(upgraded_action.get("damage", 0)) == 10, "Purchased card mods should alter future card definitions")
-	var second_options: Array = GameData.upgrade_options_for_element("quick_stab", damage_element, loaded)
-	var second_mod: Dictionary = second_options[0]
-	var second_cost: int = int(second_mod.get("cost", 0))
-	_assert(second_cost > cost, "Stacking more upgrades onto one card should become increasingly expensive")
-	loaded = ProgressionStore.purchase_card_mod(loaded, "quick_stab", second_mod)
-	_assert(GameData.card_upgrade_count(loaded, "quick_stab") == 2, "A card should be able to carry multiple permanent mods")
+	_assert(int(upgraded_action.get("damage", 0)) == 92, "Might should increment melee cards on top of fixed-point base damage")
+	loaded = ProgressionStore.set_embers(loaded, 42)
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
-		"hp": 12,
-		"max_hp": 20,
+		"hp": 120,
+		"max_hp": 200,
 		"deck_cards": ["quick_stab"],
-		"card_upgrades": loaded.get("card_upgrades", {}),
-		"card_mods": loaded.get("card_mods", {}),
+		"stats": loaded.get("stats", {}),
+		"level": loaded.get("level", 1),
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 11, "Combat should resolve stacked card mods from progression")
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 92, "Combat should resolve progression stats from the combat snapshot")
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(9, loaded)
+	_assert(run_engine.held_embers(run_state) == 42, "New runs should carry the current held ember count")
 
-func _test_emaciated_man_unlocks_card_upgrade_dialogue() -> void:
+func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var dialogue_engine: DialogueEngine = DialogueEngine.new()
 	var room: Dictionary = {
 		"coord": Vector2i.ZERO,
@@ -3869,21 +3888,17 @@ func _test_emaciated_man_unlocks_card_upgrade_dialogue() -> void:
 	var progression: Dictionary = ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data())
 	var dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {}, progression)
 	var lines: Array = dialogue.get("lines", [])
-	_assert(lines.size() == 7, "Resting at a fire should unlock the Emaciated Man's card-upgrade dialogue")
-	_assert(bool(dialogue.get("marks_fire_rest_seen", false)), "The one-time fire-rest dialogue should mark itself consumed after it closes")
-	_assert(str((lines[1] as Dictionary).get("bbcode", "")).contains("[i]intoxicating[/i]"), "The fire-rest dialogue should italicize intoxicating")
+	_assert(lines.size() == 3, "Resting at a fire should no longer unlock a card-upgrade dialogue branch")
+	_assert(not bool(dialogue.get("marks_fire_rest_seen", false)), "Fire rests should not create a one-time card-upgrade dialogue marker")
 	var options: Array = (lines[lines.size() - 1] as Dictionary).get("options", [])
-	_assert(options.size() == 2, "The awakened dialogue should offer touch and journey choices")
-	_assert(str((options[0] as Dictionary).get("action", "")) == "open_card_upgrades", "Touching the Emaciated Man should open the card upgrade UI")
-	_assert(str((options[1] as Dictionary).get("action", "")) == "close", "Beginning the journey again should close dialogue")
+	_assert(options.is_empty(), "The Emaciated Man should no longer offer permanent card upgrade options")
 	progression = ProgressionStore.mark_fire_rest_dialogue_seen(progression)
 	dialogue = dialogue_engine.build_room_dialogue(room, {}, progression)
 	lines = dialogue.get("lines", [])
-	_assert(lines.size() == 3, "After the fire-rest line is consumed, future runs should return to the default Emaciated Man dialogue")
-	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Unlocked runs should still use the default start-room dialogue text")
+	_assert(lines.size() == 3, "Legacy fire-rest markers should still return to the default Emaciated Man dialogue")
+	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
-	_assert(options.size() == 2, "Unlocked default dialogue should still offer touch and journey choices")
-	_assert(str((options[0] as Dictionary).get("action", "")) == "open_card_upgrades", "Touch should remain available after the one-time fire-rest dialogue")
+	_assert(options.is_empty(), "Legacy unlocked progression should not keep the old touch option alive")
 
 func _test_recovery_marker_flow() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -3912,7 +3927,7 @@ func _test_recovery_marker_flow() -> void:
 	_assert(not route.is_empty(), "Recovery markers should still be reachable on the next run")
 	for step: Vector2i in route:
 		run_state = _route_state_after_step(run_engine, run_state, step)
-	_assert(int(run_state.get("unbanked_embers", 0)) == 23, "Reaching the recovery room on the next run should restore lost embers")
+	_assert(run_engine.held_embers(run_state) == 23, "Reaching the recovery room on the next run should restore lost embers")
 	_assert(str(run_state.get("notice", "")).contains("Recovered"), "Recovery should leave a short room notice")
 	_assert(ProgressionStore.recovery_marker(run_state.get("progression", {})).is_empty(), "Recovering lost embers should clear the marker")
 
@@ -4288,14 +4303,14 @@ func _test_run_scene_fatigue_damage_visual_event() -> void:
 	if not fatigue_events.is_empty():
 		var event: Dictionary = fatigue_events[0]
 		var player_tile: Vector2i = (after_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-		_assert(int(event.get("amount", 0)) == 2, "First fatigue visual event should carry the first fatigue damage amount")
+		_assert(int(event.get("amount", 0)) == 20, "First fatigue visual event should carry the first fatigue damage amount")
 		_assert(event.get("tile", Vector2i(-1, -1)) == player_tile, "Fatigue visual text should anchor to the player tile")
 	var fatigue_texts: Array = instance.call("_fatigue_floating_texts_for_events", after_state, fatigue_events)
 	var found_damage_number: bool = false
 	var found_fatigue_text: bool = false
 	for text_var: Variant in fatigue_texts:
 		var text_entry: Dictionary = text_var
-		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-2"
+		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-20"
 		found_fatigue_text = found_fatigue_text or str(text_entry.get("text", "")) == "fatigue sets in"
 	_assert(found_damage_number, "Fatigue visual should include the normal floating damage number")
 	_assert(found_fatigue_text, "Fatigue visual should include the fatigue text callout")
@@ -4327,6 +4342,8 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "campfire"
 	run_state["progression"] = ProgressionStore.default_data()
+	run_state["held_embers"] = 0
+	run_state["unbanked_embers"] = 0
 	instance.set("_run_state", run_state)
 	instance.set("_progression", ProgressionStore.default_data())
 	instance.call("_refresh_choice_bar")
@@ -4337,19 +4354,27 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
 	_assert(not context_overlay.visible and _buttons_under(context_overlay).is_empty(), "Campfire choices should no longer use button overlays")
 	_assert(relic_overlay != null and relic_overlay.visible, "Campfire choices should use the shared relic-style stage overlay")
-	_assert(relic_bar != null and relic_bar.get_child_count() == 2, "Campfire overlay should expose exactly two choice panels")
+	_assert(relic_bar != null and relic_bar.get_child_count() == 3, "Campfire overlay should expose heal, carry, and level-up choice panels")
 	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
-	_assert(_label_with_text(relic_overlay, "Heal 10 and continue onward") != null, "Campfire linger choice should describe the heal")
-	_assert(_label_with_text(relic_overlay, "???") != null, "Campfire abandon choice should remain mysterious before the first rest")
+	_assert(_label_with_text(relic_overlay, "Draw strength from the flame") != null, "Campfire overlay should label the level-up option")
+	_assert(_label_with_text(relic_overlay, "Heal 100 and continue onward") != null, "Campfire linger choice should describe the heal")
+	_assert(_label_with_text(relic_overlay, "Carry held embers into the next run") != null, "Campfire abandon choice should describe ember carry-forward")
+	_assert(_label_with_text(relic_overlay, "Need 180 embers") != null, "Campfire level-up choice should be disabled when held embers are short")
 	var loaded_icon_count: int = 0
 	for texture_rect: TextureRect in _texture_rects_under(relic_overlay):
 		if texture_rect.texture != null:
 			loaded_icon_count += 1
-	_assert(loaded_icon_count >= 2, "Campfire choice panels should load generated protagonist icons")
-	instance.set("_progression", ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data()))
+	_assert(loaded_icon_count >= 3, "Campfire choice panels should load generated protagonist icons")
+	run_state = instance.get("_run_state")
+	run_state["held_embers"] = 180
+	run_state["unbanked_embers"] = 180
+	run_state["progression"] = ProgressionStore.set_embers(ProgressionStore.default_data(), 180)
+	instance.set("_run_state", run_state)
+	instance.set("_progression", run_state.get("progression", {}))
 	instance.call("_refresh_choice_bar")
-	_assert(_label_with_text(relic_overlay, "Abandon your escape and retain gathered power") != null, "Campfire abandon choice should reveal its effect after the first fire rest")
+	relic_overlay = instance.get("_relic_choice_overlay") as Control
+	_assert(_label_with_text(relic_overlay, "Spend embers to become permanently stronger (180 embers)") != null, "Campfire level-up choice should reveal its cost when affordable")
 	instance.queue_free()
 	await process_frame
 
@@ -4446,8 +4471,8 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 		"id": 1,
 		"type": "crawler",
 		"pos": Vector2i(5, 5),
-		"hp": 14,
-		"max_hp": 14,
+		"hp": 140,
+		"max_hp": 140,
 		"block": 0
 	}]
 	var combat_state: Dictionary = combat.create_combat(92, layout, {
@@ -4490,7 +4515,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	_assert(player_tile == Vector2i(4, 5), "Enemy shortcut clicks should move only the minimum distance needed to attack")
 	var enemies: Array = final_state.get("enemies", [])
 	var enemy: Dictionary = enemies[0] if not enemies.is_empty() else {}
-	_assert(int(enemy.get("hp", 0)) == 9, "Enemy shortcut clicks should still resolve the follow-up attack")
+	_assert(int(enemy.get("hp", 0)) == 90, "Enemy shortcut clicks should still resolve the follow-up attack")
 	instance.queue_free()
 	await process_frame
 
@@ -4534,15 +4559,15 @@ func _test_run_scene_targetless_card_click_commits_play() -> void:
 	await process_frame
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(95, _simple_room_layout(), {
-		"hp": 12,
-		"max_hp": 20,
+		"hp": 120,
+		"max_hp": 200,
 		"deck_cards": ["patch_up"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
-	player["hp"] = 12
+	player["hp"] = 120
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["patch_up"]
@@ -4560,8 +4585,8 @@ func _test_run_scene_targetless_card_click_commits_play() -> void:
 	await create_timer(1.5).timeout
 	var committed_state: Dictionary = instance.get("_combat_state")
 	var committed_player: Dictionary = committed_state.get("player", {})
-	_assert(int(committed_player.get("hp", 0)) == 15, "Clicking a targetless self card should immediately commit its heal")
-	_assert(int(committed_player.get("block", 0)) == 2, "Clicking a targetless self card should immediately commit its block")
+	_assert(int(committed_player.get("hp", 0)) == 150, "Clicking a targetless self card should immediately commit its heal")
+	_assert(int(committed_player.get("block", 0)) == 20, "Clicking a targetless self card should immediately commit its block")
 	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Resolved targetless cards should leave the hand")
 	instance.queue_free()
 	await process_frame
@@ -4596,7 +4621,7 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	_assert(not summary_rows.is_empty(), "Damage cards should render icon summary rows")
 	var damage_token: Dictionary = ((summary_rows[0] as Array)[0] as Dictionary)
 	_assert(str(damage_token.get("icon", "")) == "melee", "Damage cards should render the action keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 11, "Damage cards should show final damage, not base damage, when a modifier applies")
+	_assert(int(damage_token.get("value", 0)) == 110, "Damage cards should show final damage, not base damage, when a modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
 	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")
@@ -5103,32 +5128,41 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_card_upgrade_overlay_opens() -> void:
+func _test_run_scene_character_stats_overlay_opens() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for card upgrade UI coverage")
+		_failures.append("Run scene should load for character stats UI coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
 	await process_frame
 	var progression: Dictionary = ProgressionStore.add_embers(
-		ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data()),
-		100
+		ProgressionStore.default_data(),
+		180
 	)
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["progression"] = progression
+	run_state["held_embers"] = 180
+	run_state["unbanked_embers"] = 180
 	instance.set("_run_state", run_state)
 	instance.set("_progression", progression)
 	instance.call("_close_dialogue")
 	instance.call("_open_card_upgrade_overlay")
 	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")
-	var card_list: VBoxContainer = instance.get("_upgrade_card_list")
-	var element_list: VBoxContainer = instance.get("_upgrade_element_list")
-	var option_list: VBoxContainer = instance.get("_upgrade_option_list")
-	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Touching the Emaciated Man should show the card upgrade overlay")
-	_assert(card_list != null and card_list.get_child_count() == GameData.upgradeable_card_ids().size(), "The card upgrade overlay should list cards first")
-	_assert(element_list != null and element_list.get_child_count() > 0, "Selecting a card should reveal upgradeable card elements")
-	_assert(option_list != null and option_list.get_child_count() > 0, "Selecting a card element should reveal purchasable upgrade options")
+	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the character stats overlay")
+	_assert(upgrade_scrim.z_index >= 1200 and not upgrade_scrim.z_as_relative, "The character overlay should render above combat hand cards")
+	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
+	_assert(_label_with_text(upgrade_scrim, "Level 1") != null, "The character overlay should show current level")
+	_assert(_label_with_text(upgrade_scrim, "Held embers 180") != null, "The character overlay should show held embers")
+	_assert(_label_with_text(upgrade_scrim, "Might") != null, "The character overlay should list physical stats")
+	_assert(_label_with_text(upgrade_scrim, "Fire Magick") != null, "The character overlay should list elemental magick stats")
+	instance.call("_close_card_upgrade_overlay")
+	instance.call("_open_level_up_overlay")
+	_assert(_label_with_text(upgrade_scrim, "Draw Strength") != null, "The campfire level-up overlay should use the Draw Strength title")
+	_assert(_label_with_text(upgrade_scrim, "Choose 2 different stats.") != null, "The level-up overlay should explain the two-stat pick")
+	_assert(_button_with_text(upgrade_scrim, "+") != null, "The level-up overlay should use plus buttons instead of set buttons")
+	_assert(_button_with_text(upgrade_scrim, "-") != null, "The level-up overlay should use minus buttons beside stat values")
+	_assert(_button_with_text(upgrade_scrim, "Set") == null, "The level-up overlay should not show old select buttons")
 	instance.queue_free()
 	await process_frame
 
@@ -5143,15 +5177,15 @@ func _test_run_scene_logs_local_analytics() -> void:
 	await process_frame
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(118, _simple_room_layout(), {
-		"hp": 12,
-		"max_hp": 20,
+		"hp": 120,
+		"max_hp": 200,
 		"deck_cards": ["patch_up"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
-	player["hp"] = 12
+	player["hp"] = 120
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["patch_up"]
@@ -5192,8 +5226,8 @@ func _test_run_scene_logs_local_analytics() -> void:
 	var play_event: Dictionary = played_events[played_events.size() - 1]
 	var play_payload: Dictionary = play_event.get("payload", {})
 	_assert(str(play_event.get("card_id", "")) == "patch_up", "Card play analytics should record the played card id")
-	_assert(int(play_payload.get("player_heal_gained", 0)) == 3, "Card play analytics should capture observed healing")
-	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
+	_assert(int(play_payload.get("player_heal_gained", 0)) == 30, "Card play analytics should capture observed healing")
+	_assert(int(play_payload.get("player_block_gained", 0)) == 20, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
 	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by relic payoffs")

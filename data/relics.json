@@ -2,7 +2,7 @@
   "iron_lung": {
     "name": "Iron Lung",
     "rarity": "common",
-    "description": "Gain 6 max health.",
+    "description": "Gain {value} max health.",
     "icon_path": "res://assets/art/relics/iron_lung.png",
     "accent": "#8f9499",
     "effects": [
@@ -12,7 +12,7 @@
   "ember_lens": {
     "name": "Ember Lens",
     "rarity": "rare",
-    "description": "Your first attack each turn deals 2 extra damage.",
+    "description": "Your first attack each turn deals {value} extra damage.",
     "icon_path": "res://assets/art/relics/ember_lens.png",
     "accent": "#4b84d8",
     "effects": [
@@ -22,7 +22,7 @@
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Your first move each turn gains +1 range.",
+    "description": "Your first move each turn gains +{value} range.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
     "effects": [
@@ -32,7 +32,7 @@
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "Draw 1 extra card at the start of each combat.",
+    "description": "Draw {value} extra card at the start of each combat.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
     "effects": [
@@ -42,7 +42,7 @@
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "Gain 2 extra embers after each combat.",
+    "description": "Gain {value} extra embers after each combat.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
     "effects": [
@@ -52,7 +52,7 @@
   "reinforced_shield": {
     "name": "Reinforced Shield",
     "rarity": "common",
-    "description": "Start each combat with 4 stoneskin.",
+    "description": "Start each combat with {value} stoneskin.",
     "icon_path": "res://assets/art/relics/reinforced_shield.png",
     "accent": "#8f9499",
     "effects": [
@@ -62,7 +62,7 @@
   "ashen_buckler": {
     "name": "Ashen Buckler",
     "rarity": "common",
-    "description": "Start each combat with 6 block.",
+    "description": "Start each combat with {value} block.",
     "icon_path": "res://assets/art/relics/ashen_buckler.png",
     "accent": "#8f9499",
     "effects": [
@@ -72,7 +72,7 @@
   "flint_edge": {
     "name": "Flint Edge",
     "rarity": "common",
-    "description": "Melee attacks on Fire cards inflict +1 burn.",
+    "description": "Melee attacks on Fire cards inflict +{amount} burn.",
     "icon_path": "res://assets/art/relics/flint_edge.png",
     "accent": "#8f9499",
     "effects": [
@@ -82,7 +82,7 @@
   "static_soles": {
     "name": "Static Soles",
     "rarity": "common",
-    "description": "Move and blink actions on Lightning cards gain +1 range.",
+    "description": "Move and blink actions on Lightning cards gain +{amount} range.",
     "icon_path": "res://assets/art/relics/static_soles.png",
     "accent": "#8f9499",
     "effects": [
@@ -92,7 +92,7 @@
   "mossbound_wraps": {
     "name": "Mossbound Wraps",
     "rarity": "common",
-    "description": "Earth cards that grant block or stoneskin grant +2 more.",
+    "description": "Earth cards that grant block or stoneskin grant +{amount} more.",
     "icon_path": "res://assets/art/relics/mossbound_wraps.png",
     "accent": "#8f9499",
     "effects": [
@@ -102,7 +102,7 @@
   "tailwind_fletching": {
     "name": "Tailwind Fletching",
     "rarity": "common",
-    "description": "Ranged attacks on Air cards gain +1 range. Air attacks with push or pull gain +1 push or pull distance.",
+    "description": "Ranged attacks on Air cards gain +{0.amount} range. Air attacks with push or pull gain +{1.amount} push or pull distance.",
     "icon_path": "res://assets/art/relics/tailwind_fletching.png",
     "accent": "#8f9499",
     "effects": [
@@ -116,7 +116,7 @@
   "frost_prism": {
     "name": "Frost Prism",
     "rarity": "rare",
-    "description": "Your attacks deal +2 damage to frozen enemies.",
+    "description": "Your attacks deal +{value} damage to frozen enemies.",
     "icon_path": "res://assets/art/relics/frost_prism.png",
     "accent": "#4b84d8",
     "effects": [
@@ -126,7 +126,7 @@
   "storm_capacitor": {
     "name": "Storm Capacitor",
     "rarity": "rare",
-    "description": "Ranged attacks on Lightning cards chain 1 additional tile.",
+    "description": "Ranged attacks on Lightning cards chain {amount} additional tile.",
     "icon_path": "res://assets/art/relics/storm_capacitor.png",
     "accent": "#4b84d8",
     "effects": [
@@ -136,7 +136,7 @@
   "gale_tabi": {
     "name": "Gale Tabi",
     "rarity": "rare",
-    "description": "The first time you blink each turn, draw 1.",
+    "description": "The first time you blink each turn, draw {value}.",
     "icon_path": "res://assets/art/relics/gale_tabi.png",
     "accent": "#4b84d8",
     "effects": [
@@ -146,7 +146,7 @@
   "anchor_chain": {
     "name": "Anchor Chain",
     "rarity": "rare",
-    "description": "Push and pull actions deal +1 damage and move enemies 1 farther.",
+    "description": "Push and pull actions deal +{0.amount} damage and move enemies {1.amount} farther.",
     "icon_path": "res://assets/art/relics/anchor_chain.png",
     "accent": "#4b84d8",
     "effects": [
@@ -157,7 +157,7 @@
   "venom_signet": {
     "name": "Venom Signet",
     "rarity": "rare",
-    "description": "Attacks that already poison apply +2 poison.",
+    "description": "Attacks that already poison apply +{amount} poison.",
     "icon_path": "res://assets/art/relics/venom_signet.png",
     "accent": "#4b84d8",
     "effects": [
@@ -167,7 +167,7 @@
   "thawing_charm": {
     "name": "Thawing Charm",
     "rarity": "rare",
-    "description": "Heal actions restore 2 additional health.",
+    "description": "Heal actions restore {amount} additional health.",
     "icon_path": "res://assets/art/relics/thawing_charm.png",
     "accent": "#4b84d8",
     "effects": [
@@ -177,7 +177,7 @@
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "When a burning enemy dies, recover 2 health.",
+    "description": "When a burning enemy dies, recover {value} health.",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
     "effects": [
@@ -187,7 +187,7 @@
   "bloodglass_knife": {
     "name": "Bloodglass Knife",
     "rarity": "epic",
-    "description": "Your attacks deal +3 damage while you have no block or stoneskin.",
+    "description": "Your attacks deal +{value} damage while you have no block or stoneskin.",
     "icon_path": "res://assets/art/relics/bloodglass_knife.png",
     "accent": "#9b62d6",
     "effects": [
@@ -197,7 +197,7 @@
   "cold_mirror": {
     "name": "Cold Mirror",
     "rarity": "epic",
-    "description": "The first time each combat you freeze an enemy, gain 1 card play.",
+    "description": "The first time each combat you freeze an enemy, gain {value} card play.",
     "icon_path": "res://assets/art/relics/cold_mirror.png",
     "accent": "#9b62d6",
     "effects": [
@@ -207,7 +207,7 @@
   "thunder_relay": {
     "name": "Thunder Relay",
     "rarity": "epic",
-    "description": "The first time each turn you shock an enemy, draw 1.",
+    "description": "The first time each turn you shock an enemy, draw {value}.",
     "icon_path": "res://assets/art/relics/thunder_relay.png",
     "accent": "#9b62d6",
     "effects": [
@@ -217,7 +217,7 @@
   "thornmail_brooch": {
     "name": "Thornmail Brooch",
     "rarity": "epic",
-    "description": "When a card grants stoneskin, deal 1 damage to adjacent enemies.",
+    "description": "When a card grants stoneskin, deal {value} damage to adjacent enemies.",
     "icon_path": "res://assets/art/relics/thornmail_brooch.png",
     "accent": "#9b62d6",
     "effects": [
@@ -227,7 +227,7 @@
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "The first time each turn a move travels 5 or more tiles, gain 1 card play.",
+    "description": "The first time each turn a move travels {threshold} or more tiles, gain {value} card play.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
     "effects": [
@@ -237,7 +237,7 @@
   "obsidian_heart": {
     "name": "Obsidian Heart",
     "rarity": "epic",
-    "description": "Start each combat with 10 stoneskin, but draw 1 fewer opening card.",
+    "description": "Start each combat with {0.value} stoneskin, but draw {1.abs_value} fewer opening card.",
     "icon_path": "res://assets/art/relics/obsidian_heart.png",
     "accent": "#9b62d6",
     "effects": [
@@ -248,7 +248,7 @@
   "storm_crown": {
     "name": "Storm Crown",
     "rarity": "legendary",
-    "description": "Lightning cards that shock also grant 1 card play.",
+    "description": "Lightning cards that shock also grant {action.amount} card play.",
     "icon_path": "res://assets/art/relics/storm_crown.png",
     "accent": "#d9862f",
     "effects": [
@@ -258,7 +258,7 @@
   "phoenix_ember": {
     "name": "Phoenix Ember",
     "rarity": "legendary",
-    "description": "Once per combat, lethal damage leaves you at 1 health and burns all enemies for 3.",
+    "description": "Once per combat, lethal damage leaves you at {lethal_health} health and burns all enemies for {burn_all_enemies}.",
     "icon_path": "res://assets/art/relics/phoenix_ember.png",
     "accent": "#d9862f",
     "effects": [
@@ -268,7 +268,7 @@
   "worldroot_idol": {
     "name": "Worldroot Idol",
     "rarity": "legendary",
-    "description": "If your deck has 4 or more Earth cards, start combat with 3 stoneskin per Earth card, up to 15.",
+    "description": "If your deck has {threshold} or more Earth cards, start combat with {value} stoneskin per Earth card, up to {max_value}.",
     "icon_path": "res://assets/art/relics/worldroot_idol.png",
     "accent": "#d9862f",
     "effects": [
@@ -278,7 +278,7 @@
   "cinderbrand_tongs": {
     "name": "Cinderbrand Tongs",
     "rarity": "common",
-    "description": "The first time each turn you burn an enemy, raise Fire intensity by 1.",
+    "description": "The first time each turn you burn an enemy, raise Fire intensity by {amount}.",
     "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
     "accent": "#8f9499",
     "effects": [
@@ -288,7 +288,7 @@
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
     "rarity": "common",
-    "description": "The first time each turn you freeze an enemy, raise Ice intensity by 1.",
+    "description": "The first time each turn you freeze an enemy, raise Ice intensity by {amount}.",
     "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
     "accent": "#8f9499",
     "effects": [
@@ -298,7 +298,7 @@
   "ion_spool": {
     "name": "Ion Spool",
     "rarity": "common",
-    "description": "The first time each turn you shock an enemy, raise Lightning intensity by 1.",
+    "description": "The first time each turn you shock an enemy, raise Lightning intensity by {amount}.",
     "icon_path": "res://assets/art/relics/ion_spool.png",
     "accent": "#8f9499",
     "effects": [
@@ -308,7 +308,7 @@
   "updraft_bottle": {
     "name": "Updraft Bottle",
     "rarity": "rare",
-    "description": "The first time you blink each turn, raise Air intensity by 1.",
+    "description": "The first time you blink each turn, raise Air intensity by {amount}.",
     "icon_path": "res://assets/art/relics/updraft_bottle.png",
     "accent": "#4b84d8",
     "effects": [
@@ -318,7 +318,7 @@
   "basalt_calendar": {
     "name": "Basalt Calendar",
     "rarity": "rare",
-    "description": "If your deck has 4 or more Earth cards, start combat with +1 Earth intensity.",
+    "description": "If your deck has {threshold} or more Earth cards, start combat with +{amount} Earth intensity.",
     "icon_path": "res://assets/art/relics/basalt_calendar.png",
     "accent": "#4b84d8",
     "effects": [
@@ -328,7 +328,7 @@
   "coalheart_crucible": {
     "name": "Coalheart Crucible",
     "rarity": "rare",
-    "description": "Once each turn, when Fire intensity reaches 4+, consume 2 Fire, gain 1 card play, and burn all enemies for 2.",
+    "description": "Once each turn, when Fire intensity reaches {threshold}+, consume {consume} Fire, gain {0.reward0.amount} card play, and burn all enemies for {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/coalheart_crucible.png",
     "accent": "#4b84d8",
     "effects": [
@@ -338,7 +338,7 @@
   "voltaic_tuning_fork": {
     "name": "Voltaic Tuning Fork",
     "rarity": "rare",
-    "description": "Once each turn, when Lightning intensity reaches 3+, draw 1.",
+    "description": "Once each turn, when Lightning intensity reaches {threshold}+, draw {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/voltaic_tuning_fork.png",
     "accent": "#4b84d8",
     "effects": [
@@ -348,7 +348,7 @@
   "tectonic_abacus": {
     "name": "Tectonic Abacus",
     "rarity": "epic",
-    "description": "Once each turn, when Earth intensity reaches 4+, consume 2 Earth and gain 8 stoneskin.",
+    "description": "Once each turn, when Earth intensity reaches {threshold}+, consume {consume} Earth and gain {0.reward0.amount} stoneskin.",
     "icon_path": "res://assets/art/relics/tectonic_abacus.png",
     "accent": "#9b62d6",
     "effects": [
@@ -358,7 +358,7 @@
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "The first time each turn any intensity reaches 3+, gain 5 block.",
+    "description": "The first time each turn any intensity reaches {threshold}+, gain {0.reward0.amount} block.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
     "effects": [
@@ -368,7 +368,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "The first time each combat each element reaches 5+, consume 3 of it, deal 3 to all enemies, and draw 1.",
+    "description": "The first time each combat each element reaches {threshold}+, consume {consume} of it, deal {0.reward0.amount} to all enemies, and draw {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "effects": [

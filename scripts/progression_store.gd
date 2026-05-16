@@ -5,6 +5,7 @@ const GameData = preload("res://scripts/game_data.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
+const PROGRESSION_SCHEMA: int = 2
 
 static var _storage_path: String = DEFAULT_STORAGE_PATH
 static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
@@ -18,6 +19,10 @@ static func set_run_storage_path(path: String) -> void:
 static func default_data() -> Dictionary:
 	return {
 		"embers": 0,
+		"level": 1,
+		"unspent_stat_points": 0,
+		"stats": GameData.default_progression_stats(),
+		"progression_schema": PROGRESSION_SCHEMA,
 		"purchased_upgrades": [],
 		"card_upgrades": {},
 		"card_mods": {},
@@ -44,6 +49,15 @@ static func load_data() -> Dictionary:
 static func _normalized_data(data: Dictionary) -> Dictionary:
 	if not data.has("embers"):
 		data["embers"] = 0
+	if int(data.get("progression_schema", 1)) < PROGRESSION_SCHEMA:
+		data = _migrated_legacy_card_upgrades(data)
+	data["progression_schema"] = PROGRESSION_SCHEMA
+	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
+	data["stats"] = GameData.normalized_progression_stats(data.get("stats", {}))
+	data["unspent_stat_points"] = maxi(
+		0,
+		GameData.progression_stat_points_for_level(int(data.get("level", 1))) - GameData.spent_progression_stat_points(data.get("stats", {}))
+	)
 	if not data.has("purchased_upgrades"):
 		data["purchased_upgrades"] = []
 	if not data.has("card_upgrades") or typeof(data.get("card_upgrades", {})) != TYPE_DICTIONARY:
@@ -71,11 +85,47 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data["card_upgrades"] = card_upgrades
 	return data
 
+static func _migrated_legacy_card_upgrades(data: Dictionary) -> Dictionary:
+	var next_data: Dictionary = data.duplicate(true)
+	var refund: int = 0
+	var seen_upgrades: Dictionary = {}
+	for upgrade_id_var: Variant in next_data.get("purchased_upgrades", []):
+		var upgrade_id: String = str(upgrade_id_var)
+		if upgrade_id.is_empty() or seen_upgrades.has(upgrade_id):
+			continue
+		seen_upgrades[upgrade_id] = true
+		refund += maxi(0, GameData.upgrade_cost(upgrade_id))
+	for upgrade_id_var: Variant in (next_data.get("card_upgrades", {}) as Dictionary).values():
+		var upgrade_id: String = str(upgrade_id_var)
+		if upgrade_id.is_empty() or seen_upgrades.has(upgrade_id):
+			continue
+		seen_upgrades[upgrade_id] = true
+		refund += maxi(0, GameData.upgrade_cost(upgrade_id))
+	var legacy_mods_by_card: Dictionary = {}
+	if typeof(next_data.get("card_mods", {})) == TYPE_DICTIONARY:
+		legacy_mods_by_card = (next_data.get("card_mods", {}) as Dictionary).duplicate(true)
+	for mods_var: Variant in legacy_mods_by_card.values():
+		if typeof(mods_var) != TYPE_ARRAY:
+			continue
+		for mod_var: Variant in (mods_var as Array):
+			if typeof(mod_var) != TYPE_DICTIONARY:
+				continue
+			refund += maxi(0, int((mod_var as Dictionary).get("cost_paid", 0)))
+	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) + refund)
+	next_data["purchased_upgrades"] = []
+	next_data["card_upgrades"] = {}
+	next_data["card_mods"] = {}
+	next_data["rested_at_fire"] = false
+	next_data["card_upgrades_unlocked"] = false
+	next_data["pending_fire_rest_dialogue"] = false
+	next_data["fire_rest_dialogue_seen"] = false
+	return next_data
+
 static func save_data(data: Dictionary) -> bool:
 	var file: FileAccess = FileAccess.open(_storage_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify(data, "\t"))
+	file.store_string(JSON.stringify(_normalized_data(data.duplicate(true)), "\t"))
 	return true
 
 static func has_saved_run() -> bool:
@@ -109,12 +159,94 @@ static func add_embers(data: Dictionary, amount: int) -> Dictionary:
 	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) + amount)
 	return next_data
 
+static func set_embers(data: Dictionary, amount: int) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	next_data["embers"] = maxi(0, amount)
+	return next_data
+
+static func next_level_cost(data: Dictionary) -> int:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	return GameData.progression_level_cost(int(normalized.get("level", 1)) + 1)
+
+static func is_max_level(data: Dictionary) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	return int(normalized.get("level", 1)) >= GameData.max_progression_level()
+
+static func can_level_up(data: Dictionary) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	var cost: int = next_level_cost(normalized)
+	return cost > 0 and int(normalized.get("embers", 0)) >= cost
+
+static func can_purchase_level_with_stats(data: Dictionary, stat_ids: Array) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_level_up(normalized):
+		return false
+	var unique_stat_ids: Array[String] = _unique_valid_stat_ids(stat_ids)
+	if unique_stat_ids.size() != GameData.progression_stat_points_per_level():
+		return false
+	var stats: Dictionary = (normalized.get("stats", {}) as Dictionary)
+	for stat_id: String in unique_stat_ids:
+		if int(stats.get(stat_id, 0)) >= GameData.progression_stat_cap():
+			return false
+	return true
+
+static func can_allocate_stat(data: Dictionary, stat_id: String) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not GameData.progression_stat_ids().has(stat_id):
+		return false
+	if int(normalized.get("unspent_stat_points", 0)) <= 0:
+		return false
+	return int((normalized.get("stats", {}) as Dictionary).get(stat_id, 0)) < GameData.progression_stat_cap()
+
+static func allocate_stat(data: Dictionary, stat_id: String) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_allocate_stat(next_data, stat_id):
+		return next_data
+	var stats: Dictionary = (next_data.get("stats", {}) as Dictionary).duplicate(true)
+	stats[stat_id] = mini(GameData.progression_stat_cap(), int(stats.get(stat_id, 0)) + 1)
+	next_data["stats"] = stats
+	next_data["unspent_stat_points"] = maxi(0, int(next_data.get("unspent_stat_points", 0)) - 1)
+	return _normalized_data(next_data)
+
+static func purchase_level(data: Dictionary) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_level_up(next_data):
+		return next_data
+	var cost: int = next_level_cost(next_data)
+	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) - cost)
+	next_data["level"] = mini(GameData.max_progression_level(), int(next_data.get("level", 1)) + 1)
+	next_data["unspent_stat_points"] = int(next_data.get("unspent_stat_points", 0)) + GameData.progression_stat_points_per_level()
+	return _normalized_data(next_data)
+
+static func purchase_level_with_stat(data: Dictionary, stat_id: String) -> Dictionary:
+	var leveled: Dictionary = purchase_level(data)
+	if int(leveled.get("level", 1)) == int(_normalized_data(data.duplicate(true)).get("level", 1)):
+		return leveled
+	return allocate_stat(leveled, stat_id)
+
+static func purchase_level_with_stats(data: Dictionary, stat_ids: Array) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_purchase_level_with_stats(normalized, stat_ids):
+		return normalized
+	var leveled: Dictionary = purchase_level(normalized)
+	for stat_id: String in _unique_valid_stat_ids(stat_ids):
+		leveled = allocate_stat(leveled, stat_id)
+	return _normalized_data(leveled)
+
+static func _unique_valid_stat_ids(stat_ids: Array) -> Array[String]:
+	var result: Array[String] = []
+	for stat_id_var: Variant in stat_ids:
+		var stat_id: String = str(stat_id_var)
+		if result.has(stat_id):
+			continue
+		if not GameData.progression_stat_ids().has(stat_id):
+			continue
+		result.append(stat_id)
+	return result
+
 static func mark_rested_at_fire(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
-	if not bool(next_data.get("card_upgrades_unlocked", false)):
-		next_data["pending_fire_rest_dialogue"] = true
 	next_data["rested_at_fire"] = true
-	next_data["card_upgrades_unlocked"] = true
 	return next_data
 
 static func mark_fire_rest_dialogue_seen(data: Dictionary) -> Dictionary:
@@ -151,7 +283,8 @@ static func recovery_coord(data: Dictionary) -> Vector2i:
 	return Vector2i(int(marker.get("coord_x", 0)), int(marker.get("coord_y", 0)))
 
 static func record_lost_embers(data: Dictionary, amount: int, coord: Vector2i, current_run: int) -> Dictionary:
-	var next_data: Dictionary = data.duplicate(true)
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	next_data["embers"] = 0
 	if amount <= 0:
 		next_data["recovery_marker"] = {}
 		return next_data

@@ -5,7 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 
-const FATIGUE_BASE_DAMAGE: int = 2
+const FATIGUE_BASE_DAMAGE: int = 20
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
@@ -13,9 +13,9 @@ const MAX_LOG_LINES: int = 12
 const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
-const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 4
-const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 2
-const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 2
+const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
+const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 20
+const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 20
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
 const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "chain", "push", "pull"]
@@ -81,6 +81,8 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"relics": relic_ids,
 		"card_upgrades": (player_snapshot.get("card_upgrades", {}) as Dictionary).duplicate(true),
 		"card_mods": (player_snapshot.get("card_mods", {}) as Dictionary).duplicate(true),
+		"stats": GameData.normalized_progression_stats(player_snapshot.get("stats", {})),
+		"level": int(player_snapshot.get("level", 1)),
 		"hand_size": int(player_snapshot.get("hand_size", 5)) + GameData.stat_bonus_from_relics(relic_ids, "hand_size_bonus"),
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "cards_per_turn_bonus"),
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "draw_per_turn_bonus"),
@@ -134,9 +136,9 @@ func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dicti
 						count += 1
 				if count < int(effect.get("threshold", 1)):
 					continue
-				var bonus: int = count * int(effect.get("value", 0))
+				var bonus: int = count * GameData.fixed_point_amount(int(effect.get("value", 0)))
 				if effect.has("max_value"):
-					bonus = mini(bonus, int(effect.get("max_value", bonus)))
+					bonus = mini(bonus, GameData.fixed_point_amount(int(effect.get("max_value", bonus))))
 				player["stoneskin"] = int(player.get("stoneskin", 0)) + bonus
 			"start_combat_intensity":
 				if not _start_combat_intensity_effect_applies(effect, deck_cards):
@@ -360,7 +362,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
 		"intensity":
 			var element_id: String = _action_intensity_element(action)
-			var amount: int = maxi(0, int(action.get("amount", 0)))
+			var amount: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state = _gain_elemental_intensity(next_state, element_id, amount)
 		"illusion":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
@@ -2189,7 +2191,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		var before_enemy: Dictionary = enemy.duplicate(true)
 		next_state = _damage_enemy(next_state, enemy_index, burn_amount)
 		enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
-		enemy["burn"] = maxi(0, int(enemy.get("burn", 0)) - 1)
+		enemy["burn"] = maxi(0, int(enemy.get("burn", 0)) - GameData.status_tick_reduction("burn"))
 		var burn_enemies: Array = next_state.get("enemies", [])
 		burn_enemies[enemy_index] = enemy
 		next_state["enemies"] = burn_enemies
@@ -2275,7 +2277,7 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 		var burn_amount: int = int(player.get("burn", 0))
 		next_state = _damage_player(next_state, burn_amount, false)
 		player = _normalized_player(next_state.get("player", {}))
-		player["burn"] = maxi(0, int(player.get("burn", 0)) - 1)
+		player["burn"] = maxi(0, int(player.get("burn", 0)) - GameData.status_tick_reduction("burn"))
 		next_state["player"] = player
 		_log(next_state, "Burn deals %d." % burn_amount)
 		if combat_outcome(next_state) != "":
@@ -2907,10 +2909,13 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 					if not action.has("pattern"):
 						action["pattern"] = DEFAULT_AOE_PATTERN.duplicate(true)
 					action["rotate"] = bool(action.get("rotate", true))
-				action["damage"] = int(action.get("damage", 0)) + (2 if medium_power else 1)
-				action["burn"] = maxi(1 if shallow_power else 2, int(action.get("burn", 0)) + (2 if full_power else 1))
-				if full_power and int(action.get("damage", 0)) >= 6:
-					action["self_damage"] = maxi(1, int(action.get("self_damage", 0)))
+				action["damage"] = int(action.get("damage", 0)) + GameData.fixed_point_amount(2 if medium_power else 1)
+				action["burn"] = maxi(
+					GameData.fixed_point_amount(1 if shallow_power else 2),
+					int(action.get("burn", 0)) + GameData.fixed_point_amount(2 if full_power else 1)
+				)
+				if full_power and int(action.get("damage", 0)) >= GameData.fixed_point_amount(6):
+					action["self_damage"] = maxi(GameData.fixed_point_amount(1), int(action.get("self_damage", 0)))
 		ElementData.ICE:
 			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				var base_range: int = int(action.get("range", 1))
@@ -2947,7 +2952,7 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 				action["range"] = maxi(3 if not medium_power else 4, int(action.get("range", 1)))
 				action.erase("pattern")
 				action.erase("rotate")
-				action["damage"] = maxi(1, int(action.get("damage", 0)) - 2)
+				action["damage"] = maxi(GameData.fixed_point_amount(1), int(action.get("damage", 0)) - GameData.fixed_point_amount(2))
 				if int(action.get("damage", 0)) % 2 == 0:
 					action["push"] = maxi(1, int(action.get("push", 0)) + (2 if full_power else 1))
 				else:
@@ -2960,13 +2965,16 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 				action["range"] = mini(2, maxi(1, int(action.get("range", 1))))
 				action.erase("pattern")
 				action.erase("rotate")
-				action["damage"] = int(action.get("damage", 0)) + (1 if medium_power else 0)
+				action["damage"] = int(action.get("damage", 0)) + GameData.fixed_point_amount(1 if medium_power else 0)
 				var poison_bonus: int = 1
 				if medium_power:
 					poison_bonus = 2
 				if full_power:
 					poison_bonus = 3
-				action["poison"] = maxi(1 if shallow_power else 2, int(action.get("poison", 0)) + poison_bonus)
+				action["poison"] = maxi(
+					GameData.fixed_point_amount(1 if shallow_power else 2),
+					int(action.get("poison", 0)) + GameData.fixed_point_amount(poison_bonus)
+				)
 	return action
 
 func _encounter_depth_for_room_depth(room_depth: int) -> int:
@@ -2995,7 +3003,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	if action_type == "block" or action_type == "stoneskin":
 		scaled["amount"] = int(scaled.get("amount", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
 	elif action_type == "heal_self":
-		scaled["amount"] = int(scaled.get("amount", 0)) + sequence_index
+		scaled["amount"] = int(scaled.get("amount", 0)) + GameData.fixed_point_amount(sequence_index)
 	return scaled
 
 func _apply_revealed_intent_blocks(state: Dictionary) -> Dictionary:
@@ -3010,7 +3018,7 @@ func _apply_revealed_intent_blocks(state: Dictionary) -> Dictionary:
 func _preview_block_for_intent(intent: Dictionary) -> int:
 	var total: int = 0
 	for action_var: Variant in intent.get("actions", []):
-		var action: Dictionary = action_var
+		var action: Dictionary = action_var as Dictionary
 		if str(action.get("type", "")) == "block":
 			total += int(action.get("amount", 0))
 	return total
@@ -3124,7 +3132,9 @@ func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index
 		var status_id: String = str(effect.get("status", ""))
 		if status_id.is_empty() or _unit_status_amount(enemy, status_id) <= 0:
 			continue
-		damage += int(effect.get("value", 0))
+		damage += GameData.fixed_point_amount(int(effect.get("value", 0)))
+	if _unit_status_amount(enemy, "freeze") > 0:
+		damage += GameData.stat_value(state, "ice_magick") * 2
 	return maxi(0, damage)
 
 func _conditional_attack_bonus_for_action(state: Dictionary, action: Dictionary) -> int:
@@ -3136,14 +3146,14 @@ func _conditional_attack_bonus_for_action(state: Dictionary, action: Dictionary)
 		match str(effect.get("type", "")):
 			"glass_attack_bonus":
 				if int(player.get("block", 0)) <= 0 and int(player.get("stoneskin", 0)) <= 0:
-					total += int(effect.get("value", 0))
+					total += GameData.fixed_point_amount(int(effect.get("value", 0)))
 			"bloodied_attack_bonus":
 				if int(player.get("hp", 0)) * 2 <= int(player.get("max_hp", 1)):
-					total += int(effect.get("value", 0))
+					total += GameData.fixed_point_amount(int(effect.get("value", 0)))
 			"room_element_attack_bonus":
 				var card_element: String = str(action.get("_card_element", ElementData.NONE))
 				if ElementData.is_elemental(card_element) and card_element == str(state.get("room_element", ElementData.NONE)):
-					total += int(effect.get("value", 0))
+					total += GameData.fixed_point_amount(int(effect.get("value", 0)))
 	return total
 
 func _conditional_attack_modifiers_for_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
@@ -3157,16 +3167,16 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 		match str(effect.get("type", "")):
 			"glass_attack_bonus":
 				if int(player.get("block", 0)) <= 0 and int(player.get("stoneskin", 0)) <= 0:
-					amount = int(effect.get("value", 0))
+					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
 					detail = "No block or stoneskin"
 			"bloodied_attack_bonus":
 				if int(player.get("hp", 0)) * 2 <= int(player.get("max_hp", 1)):
-					amount = int(effect.get("value", 0))
+					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
 					detail = "At half health or less"
 			"room_element_attack_bonus":
 				var card_element: String = str(action.get("_card_element", ElementData.NONE))
 				if ElementData.is_elemental(card_element) and card_element == str(state.get("room_element", ElementData.NONE)):
-					amount = int(effect.get("value", 0))
+					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
 					detail = "Matching room element"
 		if amount == 0:
 			continue
@@ -3217,7 +3227,7 @@ func _trigger_stoneskin_relics(state: Dictionary, gained: int) -> Dictionary:
 	for effect: Dictionary in _relic_effects(next_state):
 		if str(effect.get("type", "")) != "stoneskin_thorns":
 			continue
-		next_state = _damage_adjacent_enemies_from_player(next_state, int(effect.get("value", 0)))
+		next_state = _damage_adjacent_enemies_from_player(next_state, GameData.fixed_point_amount(int(effect.get("value", 0))))
 	return next_state
 
 func _trigger_status_relics(state: Dictionary, status_id: String) -> Dictionary:
@@ -3273,7 +3283,7 @@ func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictio
 				var status_id: String = str(effect.get("status", ""))
 				if _unit_status_amount(enemy, status_id) <= 0:
 					continue
-				next_state = _heal_player(next_state, int(effect.get("value", 0)))
+				next_state = _heal_player(next_state, GameData.fixed_point_amount(int(effect.get("value", 0))))
 	return next_state
 
 func _trigger_prevent_lethal_relics(state: Dictionary) -> Dictionary:
@@ -3286,14 +3296,25 @@ func _trigger_prevent_lethal_relics(state: Dictionary) -> Dictionary:
 			continue
 		_set_combat_relic_flag(next_state, flag_key, true)
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
-		player["hp"] = 1
+		player["hp"] = GameData.FIXED_POINT_SCALE
 		next_state["player"] = player
-		var burn_amount: int = int(effect.get("burn_all_enemies", 0))
+		var burn_amount: int = GameData.fixed_point_amount(int(effect.get("burn_all_enemies", 0)))
 		if burn_amount > 0:
 			next_state = _burn_all_live_enemies(next_state, burn_amount)
 		_log(next_state, "%s prevents death." % _relic_effect_source_name(effect))
 		return next_state
 	return next_state
+
+func _scaled_relic_reward_amount(reward: Dictionary) -> int:
+	var amount: int = int(reward.get("amount", reward.get("value", 0)))
+	match str(reward.get("type", "")):
+		"block", "stoneskin", "heal", "all_enemies_damage":
+			return GameData.fixed_point_amount(amount)
+		"all_enemies_status":
+			var status_id: String = str(reward.get("status", ""))
+			return GameData.fixed_point_amount(amount) if status_id in ["burn", "poison"] else amount
+		_:
+			return amount
 
 func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -3306,7 +3327,7 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 		if typeof(reward_var) != TYPE_DICTIONARY:
 			continue
 		var reward: Dictionary = reward_var as Dictionary
-		var amount: int = int(reward.get("amount", reward.get("value", 0)))
+		var amount: int = _scaled_relic_reward_amount(reward)
 		match str(reward.get("type", "")):
 			"draw":
 				next_state = _draw_cards_in_place(next_state, amount)

@@ -11,6 +11,12 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 
 Each event includes a stable `install_id`, per-launch `session_id`, monotonic `sequence`, `run_id`, and `combat_id` when available.
 
+Run and combat events also include the current character progression snapshot in
+their context when available:
+
+- `progression_level`
+- `progression_stats`
+
 ## Current Event Types
 
 - `run_started`
@@ -25,6 +31,7 @@ Each event includes a stable `install_id`, per-launch `session_id`, monotonic `s
 - `card_became_playable`
 - `card_played`
 - `enemy_status_tick`
+- `progression_level_up`
 
 ## Card Metrics Supported
 
@@ -68,6 +75,13 @@ Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory
 emit `run_ended`.
 
+`progression_level_up` fires when the player confirms Draw Strength at a
+campfire. Its payload records the previous and new levels, chosen stats,
+post-purchase stat values, ember cost, held embers before purchase, and held
+embers after purchase. `stat_id` remains as the first chosen stat for older
+analysis, while `stat_ids` and `stat_values` represent the full two-stat
+assignment.
+
 ## AWS-Friendly Expectations
 
 If this gets uploaded later, keep the event contract compatible with object storage and batch processing:
@@ -83,6 +97,7 @@ If this gets uploaded later, keep the event contract compatible with object stor
 Update analytics instrumentation when changes affect:
 
 - reward offering or reward selection flow
+- ember carry, loss, extraction, or campfire level-up flow
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
 - elemental intensity production, gating, or room-start rules

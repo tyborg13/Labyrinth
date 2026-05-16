@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="540" viewBox="0 0 1200 540" role="img" aria-labelledby="title desc">
+  <title id="title">Campfire leveling flow</title>
+  <desc id="desc">A flow diagram showing a run reaching a campfire, choosing between heal, safe carry-forward, or spending held embers to level up and continue the run.</desc>
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#261d18"/>
+      <stop offset="1" stop-color="#14191c"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto">
+      <path d="M 0 0 L 10 5.5 L 0 11 z" fill="#d9b56d"/>
+    </marker>
+    <style>
+      .bg { fill: #101316; }
+      .card { fill: url(#panel); stroke: #6d5942; stroke-width: 2; filter: url(#shadow); }
+      .choice { fill: #1b2526; stroke: #506963; stroke-width: 2; filter: url(#shadow); }
+      .disabled { fill: #1b1b1b; stroke: #4a4a4a; stroke-width: 2; opacity: 0.72; }
+      .title { font: 700 26px Inter, Arial, sans-serif; fill: #f3ddad; }
+      .label { font: 700 20px Inter, Arial, sans-serif; fill: #f4efe3; }
+      .body { font: 500 15px Inter, Arial, sans-serif; fill: #cdbf9f; }
+      .muted { font: 500 15px Inter, Arial, sans-serif; fill: #8c877a; }
+      .line { fill: none; stroke: #d9b56d; stroke-width: 3; marker-end: url(#arrow); }
+      .line2 { fill: none; stroke: #76b79f; stroke-width: 3; marker-end: url(#arrow); }
+      .ember { fill: #d96a3b; }
+      .gold { fill: #d7af62; }
+      .green { fill: #76b79f; }
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="540"/>
+  <text class="title" x="48" y="56">Campfire Leveling Loop</text>
+
+  <rect class="card" x="48" y="108" rx="8" width="178" height="122"/>
+  <circle class="ember" cx="82" cy="146" r="15"/>
+  <text class="label" x="108" y="153">Run</text>
+  <text class="body" x="72" y="188">Earn held embers</text>
+  <text class="body" x="72" y="212">from combat and bosses</text>
+
+  <path class="line" d="M 226 169 L 294 169"/>
+
+  <rect class="card" x="294" y="108" rx="8" width="188" height="122"/>
+  <text class="label" x="330" y="150">Campfire</text>
+  <text class="body" x="324" y="188">Choose exactly one</text>
+  <text class="body" x="324" y="212">fire action</text>
+
+  <path class="line" d="M 482 169 C 536 86 592 78 646 98"/>
+  <path class="line" d="M 482 169 L 638 169"/>
+  <path class="line" d="M 482 169 C 536 252 592 260 646 240"/>
+
+  <rect class="choice" x="646" y="48" rx="8" width="218" height="98"/>
+  <text class="label" x="684" y="86">Linger</text>
+  <text class="body" x="674" y="118">Heal 100 and continue</text>
+
+  <rect class="choice" x="646" y="152" rx="8" width="218" height="98"/>
+  <text class="label" x="678" y="190">Embrace</text>
+  <text class="body" x="674" y="222">Carry embers, end run</text>
+
+  <rect class="choice" x="646" y="256" rx="8" width="218" height="116"/>
+  <text class="label" x="676" y="296">Draw Strength</text>
+  <text class="body" x="674" y="328">Spend embers to level</text>
+  <text class="body" x="674" y="352">and continue the run</text>
+
+  <path class="line2" d="M 864 314 L 926 314"/>
+
+  <rect class="card" x="926" y="252" rx="8" width="224" height="126"/>
+  <text class="label" x="964" y="292">Enough Embers?</text>
+  <circle class="gold" cx="974" cy="330" r="10"/>
+  <text class="body" x="994" y="336">Open level-up screen</text>
+  <text class="muted" x="994" y="360">Otherwise disabled</text>
+
+  <path class="line2" d="M 1038 378 C 1038 456 878 470 714 454"/>
+
+  <rect class="card" x="468" y="402" rx="8" width="246" height="98"/>
+  <circle class="green" cx="500" cy="440" r="12"/>
+  <text class="label" x="522" y="446">Confirm Stat</text>
+  <text class="body" x="500" y="476">Exit room with new power</text>
+
+  <path class="line2" d="M 468 450 C 244 460 98 332 98 230"/>
+</svg>

@@ -11,11 +11,11 @@ const PLANNED_DEPTH_SEQUENCES: int = 4
 const ACTIVE_DEPTH_SEQUENCES: int = 2
 const DEPTHS_PER_SEQUENCE: int = 4
 const MAX_DEPTH: int = ACTIVE_DEPTH_SEQUENCES * DEPTHS_PER_SEQUENCE
-const BASE_MAX_HP: int = 36
+const BASE_MAX_HP: int = 360
 const BASE_HAND_SIZE: int = 5
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
-const REWARD_HEAL: int = 6
+const REWARD_HEAL: int = 60
 const BOSS_VICTORY_EMBERS: int = 30
 const DEBUG_BOSS_SEED: int = 90429
 const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
@@ -25,9 +25,10 @@ var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
 
 func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
-	var max_hp: int = BASE_MAX_HP + GameData.stat_bonus_from_upgrades(progression, "max_hp")
+	var max_hp: int = BASE_MAX_HP + GameData.vigor_max_hp_bonus(progression) + GameData.stat_bonus_from_upgrades(progression, "max_hp")
 	var hand_size: int = BASE_HAND_SIZE + GameData.stat_bonus_from_upgrades(progression, "hand_size")
 	var heal_bonus: int = GameData.stat_bonus_from_upgrades(progression, "heal_bonus")
+	var starting_embers: int = maxi(0, int(progression.get("embers", 0)))
 	var rooms: Dictionary = {}
 	var start_room: Dictionary = _build_room_metadata(seed, Vector2i.ZERO)
 	start_room["revealed"] = true
@@ -48,7 +49,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"player_max_hp": max_hp,
 		"hand_size": hand_size,
 		"heal_bonus": heal_bonus,
-		"unbanked_embers": 0,
+		"held_embers": starting_embers,
+		"unbanked_embers": starting_embers,
 		"combat_state": {},
 		"pending_reward": {},
 		"pending_relics": [],
@@ -63,8 +65,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	return run_state
 
 func create_debug_boss_run(progression: Dictionary) -> Dictionary:
-	var max_hp: int = 42
-	var current_hp: int = 34
+	var max_hp: int = 420
+	var current_hp: int = 340
 	var deck_cards: Array[String] = []
 	for card_id: String in [
 		"quick_stab",
@@ -126,6 +128,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"cards_per_turn": BASE_CARDS_PER_TURN,
 		"draw_per_turn": BASE_DRAW_PER_TURN,
 		"heal_bonus": 2,
+		"held_embers": 44,
 		"unbanked_embers": 44,
 		"combat_state": combat_state,
 		"pending_reward": {},
@@ -142,6 +145,9 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	if not next_state.has("held_embers"):
+		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
+	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
 	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(next_state, current_coord)
 	if str(next_state.get("mode", "room")) != "combat" or not _room_blocks_exit_reveal(current_room):
@@ -295,10 +301,10 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	_sync_current_layout_doors(next_state, current_room)
 	var ember_bonus: int = GameData.stat_bonus_from_relics(next_state.get("relics", []), "combat_ember_bonus")
 	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
-	next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + total_embers
+	next_state = add_held_embers(next_state, total_embers)
 	if str(room.get("type", "")) == "boss":
 		next_state["player_hp"] = int(next_state.get("player_max_hp", next_state.get("player_hp", 1)))
-		next_state["unbanked_embers"] = int(next_state.get("unbanked_embers", 0)) + BOSS_VICTORY_EMBERS
+		next_state = add_held_embers(next_state, BOSS_VICTORY_EMBERS)
 		next_state["pending_reward"] = {}
 		if _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)):
 			next_state["victory"] = true
@@ -361,12 +367,35 @@ func leave_campfire(run_state: Dictionary, heal_amount: int = 0) -> Dictionary:
 	next_state["mode"] = "room"
 	return next_state
 
-func bankable_embers(run_state: Dictionary) -> int:
-	return int(run_state.get("unbanked_embers", 0))
+func held_embers(run_state: Dictionary) -> int:
+	return maxi(0, int(run_state.get("held_embers", run_state.get("unbanked_embers", 0))))
 
-func consume_banked_embers(run_state: Dictionary) -> Dictionary:
+func set_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
-	next_state["unbanked_embers"] = 0
+	next_state["held_embers"] = maxi(0, amount)
+	next_state["unbanked_embers"] = maxi(0, amount)
+	return next_state
+
+func add_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
+	return set_held_embers(run_state, held_embers(run_state) + amount)
+
+func spend_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
+	return set_held_embers(run_state, held_embers(run_state) - amount)
+
+func clear_held_embers(run_state: Dictionary) -> Dictionary:
+	return set_held_embers(run_state, 0)
+
+func apply_progression_update(run_state: Dictionary, progression: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var previous_progression: Dictionary = (next_state.get("progression", {}) as Dictionary).duplicate(true)
+	var old_vigor_bonus: int = GameData.vigor_max_hp_bonus(previous_progression)
+	var new_vigor_bonus: int = GameData.vigor_max_hp_bonus(progression)
+	var hp_delta: int = new_vigor_bonus - old_vigor_bonus
+	if hp_delta != 0:
+		next_state["player_max_hp"] = maxi(1, int(next_state.get("player_max_hp", 1)) + hp_delta)
+		next_state["player_hp"] = clampi(int(next_state.get("player_hp", 1)) + hp_delta, 1, int(next_state.get("player_max_hp", 1)))
+	next_state["progression"] = progression.duplicate(true)
+	next_state = set_held_embers(next_state, int(progression.get("embers", held_embers(next_state))))
 	return next_state
 
 func room_neighbors_with_metadata(run_state: Dictionary) -> Array[Dictionary]:
@@ -406,6 +435,8 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
 		"card_upgrades": ((run_state.get("progression", {}) as Dictionary).get("card_upgrades", {}) as Dictionary).duplicate(true),
 		"card_mods": ((run_state.get("progression", {}) as Dictionary).get("card_mods", {}) as Dictionary).duplicate(true),
+		"stats": ((run_state.get("progression", {}) as Dictionary).get("stats", {}) as Dictionary).duplicate(true),
+		"level": int((run_state.get("progression", {}) as Dictionary).get("level", 1)),
 		"relics": run_state.get("relics", []).duplicate(),
 		"hand_size": int(run_state.get("hand_size", BASE_HAND_SIZE)),
 		"heal_bonus": int(run_state.get("heal_bonus", 0)),
@@ -869,6 +900,8 @@ func _try_recover_lost_embers(run_state: Dictionary) -> void:
 	var amount: int = int(marker.get("amount", 0))
 	if amount <= 0:
 		return
-	run_state["unbanked_embers"] = int(run_state.get("unbanked_embers", 0)) + amount
+	var recovered_state: Dictionary = add_held_embers(run_state, amount)
+	run_state["held_embers"] = recovered_state.get("held_embers", amount)
+	run_state["unbanked_embers"] = recovered_state.get("unbanked_embers", amount)
 	run_state["notice"] = "Recovered %d embers." % amount
 	run_state["progression"] = ProgressionStore.clear_recovery_marker(progression)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-14T20:42:08Z",
+  "updated_at": "2026-05-16T00:43:33Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2588,30 +2588,6 @@
       }
     },
     {
-      "id": "mnt_20260514T041557Z_b3904706",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Campfire choices use relic-style panels.",
-      "details": "RunScene now presents campfire choices through the shared RelicChoiceOverlay instead of ContextChoiceOverlay buttons. Linger for a moment calls RunEngine.leave_campfire with a 10 HP heal and continues; Embrace the fire's warmth keeps the old fire-rest banking/unlock flow, showing ??? until rested_at_fire/card_upgrades_unlocked is true.",
-      "status": "active",
-      "created_at": "2026-05-14T04:15:57Z",
-      "updated_at": "2026-05-14T04:15:57Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260426T145126Z_25ae5fad"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "a8c932c"
-      }
-    },
-    {
       "id": "mnt_20260514T044216Z_4a3693c6",
       "layer": "shared",
       "kind": "decision",
@@ -2787,6 +2763,96 @@
       "source": {
         "branch": "master",
         "commit": "66bcf98"
+      }
+    },
+    {
+      "id": "mnt_20260515T225644Z_2d2b5964",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Campfires now choose between heal, carry, or level up.",
+      "details": "Campfire choice panels remain relic-style, but the third Draw strength from the flame option opens the level-up overlay when held embers meet ProgressionStore.next_level_cost. Linger heals 100 and continues; Embrace carries the current held ember count into the next run; Draw Strength spends held embers, assigns one stat point, exits campfire mode without healing, and continues the run.",
+      "status": "active",
+      "created_at": "2026-05-15T22:56:44Z",
+      "updated_at": "2026-05-15T22:56:44Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260514T041557Z_b3904706"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "4ff46ac"
+      }
+    },
+    {
+      "id": "mnt_20260515T225647Z_b08161c0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/game_data.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/game_data.gd",
+      "summary": "Fixed-point scaling lives at data load boundaries.",
+      "details": "Cards and enemy definitions are scaled from old small data values through GameData before combat/UI use: HP, damage, block, heal, health cost, burn, poison, terrain and pickup amounts are 10x, while embers, draw/card-play counts, movement/range, freeze, shock, chain, and intensity remain unscaled. Progression stat bonuses are intentionally small displayed increments applied after this base scaling.",
+      "status": "active",
+      "created_at": "2026-05-15T22:56:47Z",
+      "updated_at": "2026-05-15T22:56:47Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "4ff46ac"
+      }
+    },
+    {
+      "id": "mnt_20260515T233019Z_933dbaa3",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/game_data.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/game_data.gd",
+      "summary": "Relic descriptions are formatted display templates.",
+      "details": "data/relics.json descriptions may contain placeholders like {value}, {0.value}, {action.amount}, and {0.reward0.amount}. Player-facing relic copy should come from GameData.relic_def(), which replaces placeholders with effect-derived display values and applies fixed-point scaling for health, damage, block, stoneskin, burn, poison, and relevant reward/action amounts; GameData.relics() remains raw data.",
+      "status": "active",
+      "created_at": "2026-05-15T23:30:19Z",
+      "updated_at": "2026-05-15T23:30:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "4ff46ac"
+      }
+    },
+    {
+      "id": "mnt_20260516T004333Z_d7aa4cd3",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/progression_store.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/progression_store.gd",
+      "summary": "Character levels now assign two distinct stat points.",
+      "details": "Progression level purchases use GameData.progression_stat_points_per_level from data/progression_levels.json, currently 2. Campfire Draw Strength requires choosing two different non-capped stats before confirm; ProgressionStore.purchase_level_with_stats validates the distinct stat list and allocates both points in the same purchase.",
+      "status": "active",
+      "created_at": "2026-05-16T00:43:33Z",
+      "updated_at": "2026-05-16T00:43:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "4ff46ac"
       }
     }
   ]
