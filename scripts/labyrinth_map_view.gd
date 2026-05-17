@@ -1,6 +1,7 @@
 extends Control
 class_name LabyrinthMapView
 
+const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 
@@ -25,6 +26,8 @@ const LEGEND_GAP: float = 18.0
 const LEGEND_WIDTH: float = 142.0
 const LEGEND_PADDING: float = 12.0
 const LEGEND_ROW_HEIGHT: float = 26.0
+const RECOVERY_MARKER_ICON_PATH: String = "res://assets/art/tiles/dropped_embers.png"
+const RECOVERY_MARKER_ACCENT: Color = Color("ff9d39")
 
 var run_state: Dictionary = {}
 @export var interactive: bool = true
@@ -32,6 +35,7 @@ var run_state: Dictionary = {}
 @export var draw_background: bool = true
 var _hover_coord: Vector2i = Vector2i(-999, -999)
 var _room_icon_textures: Dictionary = {}
+var _recovery_marker_texture: Texture2D = null
 var _run_state_signature: String = ""
 
 func _ready() -> void:
@@ -76,6 +80,8 @@ func _map_state_signature(source_state: Dictionary) -> String:
 			1 if bool(room.get("cleared", false)) else 0,
 			1 if bool(room.get("sealed", false)) else 0
 		])
+		if bool(room.get("recovery_marker", false)):
+			parts.append("recovery:%s:%d" % [key, int(room.get("recovery_amount", 0))])
 	return "|".join(parts)
 
 func _coord_signature(coord: Vector2i) -> String:
@@ -104,6 +110,8 @@ func _draw() -> void:
 	var drawn_connections: Dictionary = {}
 	for room_key: String in rooms.keys():
 		var room: Dictionary = rooms[room_key] as Dictionary
+		if not _room_visible_on_this_map(room):
+			continue
 		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 		for connection_var: Variant in room.get("connections", []):
 			if typeof(connection_var) != TYPE_DICTIONARY:
@@ -115,15 +123,17 @@ func _draw() -> void:
 			var neighbor_room: Dictionary = _room_at(neighbor)
 			if drawn_connections.has(pair_key):
 				continue
-			if neighbor_room.is_empty():
+			if neighbor_room.is_empty() or not _room_visible_on_this_map(neighbor_room):
 				continue
 			drawn_connections[pair_key] = true
 			_draw_connector(coord, neighbor, bool(room.get("revealed", false)) and bool(neighbor_room.get("revealed", false)))
 	for room_key: String in rooms.keys():
+		if not _room_visible_on_this_map(rooms[room_key]):
+			continue
 		_draw_room_shell(rooms[room_key])
 	for room_key: String in rooms.keys():
 		var room: Dictionary = rooms[room_key]
-		if not bool(room.get("revealed", false)) and room.get("coord", Vector2i.ZERO) != run_state.get("current_room", Vector2i.ZERO):
+		if not _room_visible_on_this_map(room):
 			continue
 		_draw_room_node(room)
 	if show_legend:
@@ -160,6 +170,8 @@ func _draw_room_node(room: Dictionary) -> void:
 	_draw_room_icon(room, position, node_size * 0.62, _room_icon_modulate(room))
 	if bool(room.get("cleared", false)):
 		_draw_cleared_badge(position, node_size)
+	if interactive and bool(room.get("recovery_marker", false)):
+		_draw_recovery_marker_badge(position, node_size)
 
 func _draw_room_icon(room: Dictionary, center: Vector2, radius: float, modulate: Color) -> void:
 	var texture: Texture2D = _room_icon_texture_for_room(room)
@@ -186,6 +198,8 @@ func _room_fill_color(room: Dictionary) -> Color:
 	return fill.darkened(UNCLEARED_SHADE)
 
 func _room_border_color(room: Dictionary, accessible: bool) -> Color:
+	if interactive and bool(room.get("recovery_marker", false)):
+		return RECOVERY_MARKER_ACCENT.lightened(0.12)
 	if bool(room.get("cleared", false)):
 		return Color(0.72, 0.70, 0.64, 0.72)
 	if accessible and interactive:
@@ -205,6 +219,23 @@ func _draw_cleared_badge(center: Vector2, node_size: float) -> void:
 	var right: Vector2 = badge_center + Vector2(radius * 0.52, -radius * 0.42)
 	draw_line(left, mid, CLEARED_BADGE_COLOR, 1.8, true)
 	draw_line(mid, right, CLEARED_BADGE_COLOR, 1.8, true)
+
+func _draw_recovery_marker_badge(center: Vector2, node_size: float) -> void:
+	var badge_size: float = clampf(node_size * 0.38, 13.0, 24.0)
+	var badge_center: Vector2 = center + Vector2(node_size * 0.30, -node_size * 0.30)
+	var radius: float = badge_size * 0.56
+	draw_circle(badge_center, radius, Color(0.06, 0.035, 0.02, 0.92))
+	draw_arc(badge_center, radius, 0.0, TAU, 24, RECOVERY_MARKER_ACCENT, 1.8, true)
+	var texture: Texture2D = _recovery_marker_icon_texture()
+	if texture != null:
+		draw_texture_rect(texture, Rect2(badge_center - Vector2.ONE * badge_size * 0.5, Vector2.ONE * badge_size), false)
+		return
+	draw_circle(badge_center, badge_size * 0.22, RECOVERY_MARKER_ACCENT)
+
+func _recovery_marker_icon_texture() -> Texture2D:
+	if _recovery_marker_texture == null:
+		_recovery_marker_texture = AssetLoader.load_texture(RECOVERY_MARKER_ICON_PATH)
+	return _recovery_marker_texture
 
 func _room_icon_texture_for_room(room: Dictionary) -> Texture2D:
 	var icon_id: String = RoomIcons.icon_id_for_room(room)
@@ -358,11 +389,20 @@ func _visible_rooms() -> Array[Dictionary]:
 	var rooms: Dictionary = run_state.get("rooms", {})
 	for room_var: Variant in rooms.values():
 		var room: Dictionary = room_var
-		if bool(room.get("revealed", false)) or room.get("coord", Vector2i.ZERO) == run_state.get("current_room", Vector2i.ZERO):
+		if _room_visible_on_this_map(room):
 			results.append(room)
 	if results.is_empty():
 		results.append({"coord": run_state.get("current_room", Vector2i.ZERO)})
 	return results
+
+func _room_visible_on_this_map(room: Dictionary) -> bool:
+	if room.is_empty():
+		return false
+	if bool(room.get("revealed", false)):
+		return true
+	if room.get("coord", Vector2i.ZERO) == run_state.get("current_room", Vector2i.ZERO):
+		return true
+	return interactive and bool(room.get("recovery_marker", false))
 
 func _map_rect() -> Rect2:
 	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER

@@ -193,7 +193,7 @@
         "weight": 3,
         "actions": [
           { "type": "move_toward", "range": 1 },
-          { "type": "ranged", "damage": 8, "range": 6, "shock": 1 }
+          { "type": "ranged", "damage": 8, "range": 3, "shock": 1 }
         ]
       },
       {

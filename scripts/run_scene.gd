@@ -5892,13 +5892,28 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
 	return context
 
+func _combat_recovery_marker_amount(combat_state: Dictionary) -> int:
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)):
+			continue
+		if str(loot.get("kind", "")) == "dropped_embers":
+			return maxi(0, int(loot.get("amount", 0)))
+	return 0
+
 func _analytics_log_run_started() -> void:
+	var recovery_marker: Dictionary = ProgressionStore.recovery_marker(_progression)
 	_analytics_store.write_event("run_started", _analytics_context_from_states(_run_state, _combat_state), {
 		"seed": int(_run_state.get("seed", 0)),
 		"run_index": int(_run_state.get("run_index", 0)),
 		"player_start_hp": int(_run_state.get("player_hp", 0)),
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
-		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true)
+		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"recovery_marker_active": not recovery_marker.is_empty(),
+		"recovery_marker_amount": int(recovery_marker.get("amount", 0)),
+		"recovery_marker_coord": ProgressionStore.recovery_coord(_progression) if not recovery_marker.is_empty() else Vector2i(-999, -999)
 	})
 
 func _analytics_log_run_resumed() -> void:
@@ -5981,6 +5996,8 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"room_name": str(_combat_state.get("room_name", "")),
 		"room_type": str(_combat_state.get("room_type", "")),
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
+		"recovery_marker_present": _combat_recovery_marker_amount(_combat_state) > 0,
+		"recovery_marker_amount": _combat_recovery_marker_amount(_combat_state),
 		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
@@ -5994,6 +6011,7 @@ func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> vo
 		"outcome": _combat_engine.combat_outcome(combat_state),
 		"turn": int(combat_state.get("turn", 0)),
 		"room_embers": int(combat_state.get("room_embers", 0)),
+		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
 		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	})
 
@@ -6267,6 +6285,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"terrain_destroyed": terrain_destroyed,
 		"traps_triggered": _triggered_traps_between(before_state, resolved_state).size(),
 		"pickups_collected": _analytics_picked_loot_count(before_state, resolved_state),
+		"embers_recovered": maxi(0, int(resolved_state.get("recovered_embers_total", 0)) - int(before_state.get("recovered_embers_total", 0))),
 		"kills_secured": kills_secured,
 		"player_hp_delta": int(after_player.get("hp", 0)) - int(before_player.get("hp", 0)),
 		"player_heal_gained": maxi(0, int(after_player.get("hp", 0)) - int(before_player.get("hp", 0))),

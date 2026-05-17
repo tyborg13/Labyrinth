@@ -111,6 +111,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"relic_flags": {},
 		"death_rewards": [],
 		"room_embers": 0,
+		"recovered_embers_total": 0,
 		"rng_state": rng.state,
 		"log": []
 	}
@@ -412,13 +413,8 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var intent: Dictionary = enemy.get("intent", {})
 	if intent.is_empty():
 		return {"move": [], "attack": []}
-	var grid: Array = state.get("grid", [])
-	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var target: Dictionary = _closest_enemy_target(state, enemy)
-	var target_pos: Vector2i = target.get("pos", player_pos)
-	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
-	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
-		occupied[trap_tile_var] = true
+	var occupied: Dictionary = _enemy_threat_path_blockers(state, enemy, true, true)
+	var blocked_target: Vector2i = Vector2i(-999, -999)
 	var frontier: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
 	var move_lookup: Dictionary = {}
 	var attack_lookup: Dictionary = {}
@@ -428,22 +424,17 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		var action: Dictionary = action_var
 		match str(action.get("type", "")):
 			"move_toward", "move_away":
-				var next_frontier: Array[Vector2i] = []
 				var next_lookup: Dictionary = {}
 				for start_tile: Vector2i in frontier:
-					for move_tile: Vector2i in _threat_movement_tiles(grid, start_tile, target_pos, action, occupied):
+					next_lookup[start_tile] = true
+					for move_tile: Vector2i in _threat_movement_tiles(state, enemy, start_tile, action, occupied, blocked_target):
 						move_lookup[move_tile] = true
-						if next_lookup.has(move_tile):
-							continue
 						next_lookup[move_tile] = true
-						next_frontier.append(move_tile)
-				if not next_frontier.is_empty():
-					frontier = next_frontier
-			"melee", "ranged", "aoe", "push", "pull":
+				if not next_lookup.is_empty():
+					frontier = _sorted_tiles_from_lookup(next_lookup)
+			"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 				for start_tile: Vector2i in frontier:
-					for attack_tile: Vector2i in _threat_attack_tiles(grid, start_tile, action):
-						if move_lookup.has(attack_tile):
-							continue
+					for attack_tile: Vector2i in _threat_attack_tiles(state, enemy, start_tile, action):
 						attack_lookup[attack_tile] = true
 	return {
 		"move": _sorted_tiles_from_lookup(move_lookup),
@@ -2342,64 +2333,110 @@ func _advance_poison(unit: Dictionary) -> Dictionary:
 func _enemy_action_is_movement(action: Dictionary) -> bool:
 	return str(action.get("type", "")) in ["move_toward", "move_away"]
 
-func _threat_movement_tiles(grid: Array, start_tile: Vector2i, player_pos: Vector2i, action: Dictionary, occupied: Dictionary) -> Array[Vector2i]:
+func _threat_movement_tiles(state: Dictionary, enemy: Dictionary, start_tile: Vector2i, action: Dictionary, occupied: Dictionary, blocked_target: Vector2i) -> Array[Vector2i]:
 	var move_range: int = int(action.get("range", 0))
 	if move_range <= 0:
 		return []
-	var current_distance: int = PathUtils.manhattan(start_tile, player_pos)
-	var results: Array[Vector2i] = []
-	for tile: Vector2i in PathUtils.reachable_tiles(grid, start_tile, move_range, occupied):
-		var tile_distance: int = PathUtils.manhattan(tile, player_pos)
-		if str(action.get("type", "")) == "move_toward" and tile_distance >= current_distance:
-			continue
-		if str(action.get("type", "")) == "move_away" and tile_distance <= current_distance:
-			continue
-		results.append(tile)
-	return results
+	var preview_enemy: Dictionary = enemy.duplicate(true)
+	preview_enemy["pos"] = start_tile
+	if preview_enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
+		return _reachable_enemy_anchor_tiles(state, preview_enemy, move_range, occupied, blocked_target)
+	return PathUtils.reachable_tiles(state.get("grid", []), start_tile, move_range, occupied)
 
-func _threat_attack_tiles(grid: Array, start_tile: Vector2i, action: Dictionary) -> Array[Vector2i]:
+func _threat_attack_tiles(state: Dictionary, enemy: Dictionary, start_tile: Vector2i, action: Dictionary) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
+	var grid: Array = state.get("grid", [])
+	var preview_enemy: Dictionary = enemy.duplicate(true)
+	preview_enemy["pos"] = start_tile
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
-		"melee":
-			for tile: Vector2i in PathUtils.diamond_tiles(start_tile, int(action.get("range", 1)), grid):
-				if tile == start_tile or not PathUtils.is_passable(grid, tile):
-					continue
-				lookup[tile] = true
-		"ranged":
-			for tile: Vector2i in PathUtils.diamond_tiles(start_tile, int(action.get("range", 1)), grid):
-				if tile == start_tile or not PathUtils.is_passable(grid, tile):
-					continue
-				if not PathUtils.has_line_of_sight(grid, start_tile, tile):
-					continue
-				lookup[tile] = true
-		"push", "pull":
-			for tile: Vector2i in PathUtils.diamond_tiles(start_tile, int(action.get("range", 1)), grid):
-				if tile == start_tile or not PathUtils.is_passable(grid, tile):
-					continue
-				if int(action.get("range", 1)) > 1 and not PathUtils.has_line_of_sight(grid, start_tile, tile):
-					continue
+		"melee", "ranged", "push", "pull":
+			for tile: Vector2i in _threat_candidate_tiles(state, preview_enemy):
+				if _enemy_action_reaches_tile(state, preview_enemy, action, tile):
+					lookup[tile] = true
+			for tile: Vector2i in _threat_trap_blast_tiles(state, preview_enemy, action):
 				lookup[tile] = true
 		"aoe":
-			var attack_range: int = int(action.get("range", 0))
-			var centers: Array[Vector2i] = _vector2i_values([start_tile])
-			if attack_range > 0:
-				centers = PathUtils.diamond_tiles(start_tile, attack_range, grid)
-			for center: Vector2i in centers:
-				if center != start_tile and not PathUtils.has_line_of_sight(grid, start_tile, center):
-					continue
-				if not PathUtils.is_passable(grid, center):
-					continue
-				for tile: Vector2i in _aoe_tiles_for_anchor(grid, action, center):
-					if tile == start_tile:
-						continue
-					lookup[tile] = true
+			for tile: Vector2i in _threat_aoe_tiles(state, preview_enemy, action):
+				lookup[tile] = true
+			for tile: Vector2i in _threat_trap_blast_tiles(state, preview_enemy, action):
+				lookup[tile] = true
 		"lightning_strikes":
-			for tile: Vector2i in PathUtils.diamond_tiles(start_tile, 99, grid):
-				if tile == start_tile or not PathUtils.is_passable(grid, tile):
+			var preview_state: Dictionary = _state_with_enemy_anchor(state, preview_enemy, start_tile)
+			for tile: Vector2i in _lightning_strike_tiles(preview_state, preview_enemy, action):
+				lookup[tile] = true
+	return _sorted_tiles_from_lookup(lookup)
+
+func _threat_candidate_tiles(state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
+	var grid: Array = state.get("grid", [])
+	var enemy_footprint: Array[Vector2i] = _enemy_footprint_tiles(enemy)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile: Vector2i = Vector2i(x, y)
+			if enemy_footprint.has(tile):
+				continue
+			if not PathUtils.is_passable(grid, tile):
+				continue
+			tiles.append(tile)
+	return tiles
+
+func _threat_aoe_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	var grid: Array = state.get("grid", [])
+	var lookup: Dictionary = {}
+	var centers: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
+	var attack_range: int = int(action.get("range", 0))
+	if attack_range > 0:
+		centers = _threat_candidate_tiles(state, enemy)
+	for center: Vector2i in centers:
+		if attack_range > 0 and not _enemy_aoe_can_target_center(state, enemy, action, center):
+			continue
+		for offsets_var: Variant in _aoe_pattern_variants(action):
+			var offsets: Array = offsets_var
+			for tile: Vector2i in _tiles_for_aoe_offsets(grid, center, offsets):
+				if _enemy_footprint_tiles(enemy).has(tile):
 					continue
 				lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
+
+func _threat_trap_blast_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	var lookup: Dictionary = {}
+	for trap: Dictionary in _live_traps(state):
+		var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if not _enemy_action_reaches_tile(state, enemy, action, trap_pos):
+			continue
+		if _trap_blast_hits_enemy(state, trap, enemy):
+			continue
+		for tile: Vector2i in _trap_blast_tiles(state, trap):
+			lookup[tile] = true
+	return _sorted_tiles_from_lookup(lookup)
+
+func _enemy_aoe_can_target_center(state: Dictionary, enemy: Dictionary, action: Dictionary, center: Vector2i) -> bool:
+	var grid: Array = state.get("grid", [])
+	if not PathUtils.is_passable(grid, center):
+		return false
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, center)
+	return (
+		PathUtils.manhattan(source_pos, center) <= int(action.get("range", 0))
+		and PathUtils.has_line_of_sight(grid, source_pos, center)
+	)
+
+func _state_with_enemy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> Dictionary:
+	var preview_state: Dictionary = state.duplicate(true)
+	var enemies: Array = preview_state.get("enemies", []).duplicate(true)
+	var enemy_id: int = int(enemy.get("id", -1))
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = enemies[index]
+		if int(candidate.get("id", -1)) != enemy_id:
+			continue
+		var preview_enemy: Dictionary = enemy.duplicate(true)
+		preview_enemy["pos"] = anchor
+		enemies[index] = preview_enemy
+		break
+	preview_state["enemies"] = enemies
+	return preview_state
 
 func _player_status_step_text(before_player: Dictionary, after_player: Dictionary, action: Dictionary) -> String:
 	var tags: PackedStringArray = []
@@ -2480,6 +2517,10 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 				shield_player["block"] = int(shield_player.get("block", 0)) + amount
 				state["player"] = shield_player
 				_log(state, "Collected a rusty shield for %d block." % amount)
+			"dropped_embers":
+				state["recovered_embers_total"] = int(state.get("recovered_embers_total", 0)) + amount
+				state["recovery_marker_claimed"] = true
+				_log(state, "Recovered %d embers." % amount)
 
 func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = {}
@@ -3029,31 +3070,12 @@ func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, mo
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	if move_range <= 0:
 		return start
-	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
-	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
-		occupied[trap_tile_var] = true
-	if enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
-		var reachable: Array[Vector2i] = _reachable_enemy_anchor_tiles(state, enemy, move_range, occupied, target)
-		var best_tile: Vector2i = start
-		var best_score: int = _enemy_distance_to_tile(enemy, target)
-		for tile: Vector2i in reachable:
-			var candidate_enemy: Dictionary = enemy.duplicate(true)
-			candidate_enemy["pos"] = tile
-			var score: int = _enemy_distance_to_tile(candidate_enemy, target)
-			if score < best_score:
-				best_tile = tile
-				best_score = score
+	var movement_occupied: Dictionary = _enemy_path_blockers(state, enemy, true, true)
+	var best_tile: Vector2i = _best_move_toward_with_scoring(state, enemy, target, move_range, movement_occupied, movement_occupied)
+	if best_tile != start:
 		return best_tile
-	var path: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), start, target, occupied, true)
-	if path.is_empty():
-		return start
-	var best_tile: Vector2i = start
-	for step_index: int in range(1, mini(path.size(), move_range + 1)):
-		var candidate: Vector2i = path[step_index]
-		if candidate == target:
-			break
-		best_tile = candidate
-	return best_tile
+	var terrain_planning_occupied: Dictionary = _enemy_path_blockers(state, enemy, false, true)
+	return _best_move_toward_with_scoring(state, enemy, target, move_range, movement_occupied, terrain_planning_occupied)
 
 func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move_range: int) -> Vector2i:
 	var enemies: Array = state.get("enemies", [])
@@ -3061,9 +3083,7 @@ func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	if move_range <= 0:
 		return start
-	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
-	for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
-		occupied[trap_tile_var] = true
+	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, true)
 	if enemy.get("footprint", Vector2i.ONE) != Vector2i.ONE:
 		var reachable: Array[Vector2i] = _reachable_enemy_anchor_tiles(state, enemy, move_range, occupied, target)
 		var best_big_tile: Vector2i = start
@@ -3085,6 +3105,76 @@ func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move
 			best_tile = tile
 			best_score = score
 	return best_tile
+
+func _best_move_toward_with_scoring(state: Dictionary, enemy: Dictionary, target: Vector2i, move_range: int, movement_occupied: Dictionary, scoring_occupied: Dictionary) -> Vector2i:
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var start_score: int = _enemy_anchor_path_distance(state, enemy, target, scoring_occupied)
+	var start_distance: int = _enemy_distance_to_tile(enemy, target)
+	var best_tile: Vector2i = start
+	var best_score: int = start_score
+	var best_distance: int = start_distance
+	for tile: Vector2i in _reachable_enemy_anchor_tiles(state, enemy, move_range, movement_occupied, target):
+		var candidate_enemy: Dictionary = enemy.duplicate(true)
+		candidate_enemy["pos"] = tile
+		var score: int = _enemy_anchor_path_distance(state, candidate_enemy, target, scoring_occupied)
+		var distance: int = _enemy_distance_to_tile(candidate_enemy, target)
+		var improves_start: bool = score < start_score or (score == start_score and distance < start_distance)
+		if not improves_start:
+			continue
+		if best_tile == start or _toward_move_candidate_is_better(score, distance, tile, best_score, best_distance, best_tile):
+			best_tile = tile
+			best_score = score
+			best_distance = distance
+	return best_tile
+
+func _toward_move_candidate_is_better(score: int, distance: int, tile: Vector2i, best_score: int, best_distance: int, best_tile: Vector2i) -> bool:
+	if score != best_score:
+		return score < best_score
+	if distance != best_distance:
+		return distance < best_distance
+	if tile.y != best_tile.y:
+		return tile.y < best_tile.y
+	return tile.x < best_tile.x
+
+func _enemy_anchor_path_distance(state: Dictionary, enemy: Dictionary, target: Vector2i, occupied: Dictionary) -> int:
+	if _enemy_distance_to_tile(enemy, target) <= 1:
+		return 0
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var queue: Array[Vector2i] = _vector2i_values([start])
+	var distance_by_tile: Dictionary = {start: 0}
+	while not queue.is_empty():
+		var current: Vector2i = queue.pop_front()
+		var current_distance: int = int(distance_by_tile.get(current, 0))
+		for dir: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current + dir
+			if distance_by_tile.has(next_tile):
+				continue
+			if not _enemy_can_occupy_anchor(state, enemy, next_tile, occupied, target):
+				continue
+			var next_enemy: Dictionary = enemy.duplicate(true)
+			next_enemy["pos"] = next_tile
+			var next_distance: int = current_distance + 1
+			if _enemy_distance_to_tile(next_enemy, target) <= 1:
+				return next_distance
+			distance_by_tile[next_tile] = next_distance
+			queue.append(next_tile)
+	return 10000 + _enemy_distance_to_tile(enemy, target)
+
+func _enemy_path_blockers(state: Dictionary, enemy: Dictionary, block_terrain: bool, avoid_traps: bool) -> Dictionary:
+	var enemy_id: int = int(enemy.get("id", -1))
+	var occupied: Dictionary = _enemy_blocking_tiles(state, enemy_id) if block_terrain else _enemy_blocking_tiles_without_terrain(state, enemy_id)
+	if avoid_traps:
+		for trap_tile_var: Variant in _trap_tiles_lookup(state).keys():
+			occupied[trap_tile_var] = true
+	return occupied
+
+func _enemy_threat_path_blockers(state: Dictionary, enemy: Dictionary, block_terrain: bool, avoid_traps: bool) -> Dictionary:
+	var occupied: Dictionary = _enemy_path_blockers(state, enemy, block_terrain, avoid_traps)
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	var player_pos_value: Variant = player.get("pos", null)
+	if typeof(player_pos_value) == TYPE_VECTOR2I:
+		occupied.erase(player_pos_value)
+	return occupied
 
 func _reachable_enemy_anchor_tiles(state: Dictionary, enemy: Dictionary, max_distance: int, occupied: Dictionary, blocked_target: Vector2i) -> Array[Vector2i]:
 	var results: Array[Vector2i] = []

@@ -61,7 +61,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"progression": progression.duplicate(true)
 	}
 	_reveal_neighbors(run_state, Vector2i.ZERO)
-	_try_recover_lost_embers(run_state)
+	_stage_recovery_marker(run_state)
 	return run_state
 
 func create_debug_boss_run(progression: Dictionary) -> Dictionary:
@@ -148,6 +148,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
+	_stage_recovery_marker(next_state)
 	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(next_state, current_coord)
 	if str(next_state.get("mode", "room")) != "combat" or not _room_blocks_exit_reveal(current_room):
@@ -228,7 +229,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
 	next_state["current_room_layout"] = _display_layout_for_room(int(next_state.get("seed", 0)), room, travel_dir)
-	_try_recover_lost_embers(next_state)
+	_stage_recovery_marker(next_state)
 	match str(room.get("type", "combat")):
 		"start":
 			next_state["mode"] = "room"
@@ -273,7 +274,7 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	var next_state: Dictionary = run_state.duplicate(true)
 	next_state["combat_state"] = combat_state.duplicate(true)
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
-	return next_state
+	return _apply_recovered_embers_from_combat(next_state, combat_state)
 
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = set_combat_state(run_state, combat_state)
@@ -470,7 +471,13 @@ func _display_layout_for_room(seed: int, room: Dictionary, travel_dir: Vector2i)
 	return layout
 
 func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: Dictionary) -> Dictionary:
-	return _room_generator.generate_room(int(run_state.get("seed", 0)), room, travel_dir)
+	var layout_room: Dictionary = room.duplicate(true)
+	if _room_has_recovery_marker(room):
+		layout_room["type"] = "combat"
+		if not ElementData.is_elemental(str(layout_room.get("element", ElementData.NONE))):
+			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")
+	var layout: Dictionary = _room_generator.generate_room(int(run_state.get("seed", 0)), layout_room, travel_dir)
+	return _layout_with_recovery_loot(layout, room, run_state)
 
 func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 	return {
@@ -887,7 +894,7 @@ func _coord_hash(seed: int, coord: Vector2i, salt: int) -> int:
 	value = int((value + coord.x * 73856093 + coord.y * 19349663) & 0x7fffffff)
 	return value
 
-func _try_recover_lost_embers(run_state: Dictionary) -> void:
+func _stage_recovery_marker(run_state: Dictionary) -> void:
 	var progression: Dictionary = (run_state.get("progression", {}) as Dictionary).duplicate(true)
 	var marker: Dictionary = ProgressionStore.recovery_marker(progression)
 	if marker.is_empty():
@@ -895,13 +902,130 @@ func _try_recover_lost_embers(run_state: Dictionary) -> void:
 	if int(run_state.get("run_index", 0)) != int(marker.get("available_run", -1)):
 		return
 	var coord: Vector2i = ProgressionStore.recovery_coord(progression)
-	if coord != run_state.get("current_room", Vector2i.ZERO):
-		return
 	var amount: int = int(marker.get("amount", 0))
 	if amount <= 0:
 		return
-	var recovered_state: Dictionary = add_held_embers(run_state, amount)
-	run_state["held_embers"] = recovered_state.get("held_embers", amount)
-	run_state["unbanked_embers"] = recovered_state.get("unbanked_embers", amount)
-	run_state["notice"] = "Recovered %d embers." % amount
-	run_state["progression"] = ProgressionStore.clear_recovery_marker(progression)
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	var key: String = _room_key(coord)
+	var room: Dictionary = _merge_room_metadata(int(run_state.get("seed", 0)), coord, rooms.get(key, {}) as Dictionary)
+	if coord != Vector2i.ZERO and str(room.get("type", "")) != "boss":
+		room["type"] = "combat"
+		room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), coord, "combat")
+		room["npcs"] = []
+		room["cleared"] = false
+	room["recovery_marker"] = true
+	room["recovery_amount"] = amount
+	room["recovery_available_run"] = int(marker.get("available_run", 0))
+	rooms[key] = room
+	run_state["rooms"] = rooms
+
+func _room_has_recovery_marker(room: Dictionary) -> bool:
+	return bool(room.get("recovery_marker", false)) and int(room.get("recovery_amount", 0)) > 0
+
+func _layout_with_recovery_loot(layout: Dictionary, room: Dictionary, run_state: Dictionary) -> Dictionary:
+	if layout.is_empty() or not _room_has_recovery_marker(room):
+		return layout
+	var progression: Dictionary = (run_state.get("progression", {}) as Dictionary).duplicate(true)
+	var marker: Dictionary = ProgressionStore.recovery_marker(progression)
+	if marker.is_empty() or int(marker.get("available_run", -1)) != int(run_state.get("run_index", 0)):
+		return layout
+	if ProgressionStore.recovery_coord(progression) != layout.get("coord", Vector2i.ZERO):
+		return layout
+	var loot: Array = layout.get("loot", []).duplicate(true)
+	for loot_var: Variant in loot:
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		if str((loot_var as Dictionary).get("kind", "")) == "dropped_embers":
+			layout["loot"] = loot
+			return layout
+	var tile: Vector2i = _recovery_loot_tile(layout)
+	if tile.x < 0:
+		return layout
+	loot.append({
+		"id": "lost_embers_%d_%d" % [tile.x, tile.y],
+		"kind": "dropped_embers",
+		"amount": int(marker.get("amount", 0)),
+		"pos": tile,
+		"recovery_marker": true
+	})
+	layout["loot"] = loot
+	return layout
+
+func _recovery_loot_tile(layout: Dictionary) -> Vector2i:
+	var grid: Array = layout.get("grid", [])
+	var occupied: Dictionary = _layout_occupied_tiles(layout)
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_score: float = -INF
+	var center := Vector2(4.0, 4.0)
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		for x: int in range(row.size()):
+			var tile := Vector2i(x, y)
+			if occupied.has(tile):
+				continue
+			if not PathUtils.is_passable(grid, tile):
+				continue
+			var score: float = -tile.distance_to(center)
+			score += float(_coord_hash(int(layout.get("depth", 0)), tile, 1307) % 1000) / 10000.0
+			if score > best_score:
+				best_score = score
+				best_tile = tile
+	return best_tile
+
+func _layout_occupied_tiles(layout: Dictionary) -> Dictionary:
+	var occupied: Dictionary = {}
+	occupied[layout.get("player_start", Vector2i.ZERO)] = true
+	for enemy_var: Variant in layout.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		for tile: Vector2i in _enemy_footprint_tiles(enemy_var as Dictionary):
+			occupied[tile] = true
+	for npc_var: Variant in layout.get("npcs", []):
+		if typeof(npc_var) == TYPE_DICTIONARY:
+			occupied[(npc_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for trap_var: Variant in layout.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY:
+			occupied[(trap_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for loot_var: Variant in layout.get("loot", []):
+		if typeof(loot_var) == TYPE_DICTIONARY:
+			occupied[(loot_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for terrain_var: Variant in layout.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY:
+			occupied[(terrain_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	return occupied
+
+func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
+	var origin: Vector2i = enemy.get("pos", Vector2i(-1, -1))
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i] = []
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
+
+func _apply_recovered_embers_from_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	var recovered_total: int = int(combat_state.get("recovered_embers_total", 0))
+	var previous_total: int = int(run_state.get("recovered_embers_total", 0))
+	if recovered_total <= previous_total:
+		return run_state
+	var delta: int = recovered_total - previous_total
+	var next_state: Dictionary = add_held_embers(run_state, delta)
+	next_state["recovered_embers_total"] = recovered_total
+	var progression: Dictionary = (next_state.get("progression", {}) as Dictionary).duplicate(true)
+	next_state["progression"] = ProgressionStore.clear_recovery_marker(progression)
+	next_state["notice"] = "Recovered %d embers." % delta
+	_clear_recovery_marker_on_current_room(next_state)
+	return next_state
+
+func _clear_recovery_marker_on_current_room(run_state: Dictionary) -> void:
+	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	var key: String = _room_key(coord)
+	if not rooms.has(key):
+		return
+	var room: Dictionary = (rooms.get(key, {}) as Dictionary).duplicate(true)
+	room.erase("recovery_marker")
+	room.erase("recovery_amount")
+	room.erase("recovery_available_run")
+	rooms[key] = room
+	run_state["rooms"] = rooms

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-16T00:43:33Z",
+  "updated_at": "2026-05-17T21:11:53Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2853,6 +2853,96 @@
       "source": {
         "branch": "master",
         "commit": "4ff46ac"
+      }
+    },
+    {
+      "id": "mnt_20260516T114356Z_8aca0d9c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Lost embers are recovered through staged run recovery markers.",
+      "details": "RunEngine stages ProgressionStore recovery_marker data into the next run as room metadata at the death coordinate, forcing that room to a combat encounter and injecting dropped_embers loot into its combat layout. Combat collection increments combat_state.recovered_embers_total; RunEngine.set_combat_state applies only the new delta to held embers and clears the progression marker after reclaim.",
+      "status": "active",
+      "created_at": "2026-05-16T11:43:56Z",
+      "updated_at": "2026-05-16T11:43:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "f547456"
+      }
+    },
+    {
+      "id": "mnt_20260516T125351Z_3340db92",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/room_generator.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/room_generator.gd",
+      "summary": "Tile pickups, traps, and destructible terrain can occupy playable edge-band floor tiles.",
+      "details": "RoomGenerator no longer center-biases pickup/trap/terrain scoring or excludes playable corner floor tiles for destructible terrain. Terrain still avoids occupied tiles, the current entry halo, and placements that disconnect the remaining open floor.",
+      "status": "active",
+      "created_at": "2026-05-16T12:53:51Z",
+      "updated_at": "2026-05-16T12:53:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "f547456"
+      }
+    },
+    {
+      "id": "mnt_20260516T224906Z_86fadfac",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "data/enemies.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/enemies.json",
+      "summary": "Zekarion Tempest Breath is intentionally short-range.",
+      "details": "Tempest Breath uses move_toward 1 plus ranged range 3 because Zekarion's 2x2 gameplay footprint otherwise turns range 4+ into near room-wide coverage on open boss boards. Tests assert the opposite corner can remain outside the preview and actual hit.",
+      "status": "active",
+      "created_at": "2026-05-16T22:49:06Z",
+      "updated_at": "2026-05-16T22:49:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "f547456"
+      }
+    },
+    {
+      "id": "mnt_20260517T210903Z_3b7c9933",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Enemy threat previews assume player relocation and enemy-triggered hazards.",
+      "details": "enemy_threat_tiles uses a threat-only blocker set that erases the current player position while preserving terrain, traps, enemies, and illusions, so move/blink destinations account for routes through the old player tile. Attack previews also include blast tiles for traps an enemy can safely trigger from any reachable endpoint, keeping red zones conservative for enemy actions that can damage the moved player without the player changing blockers.",
+      "status": "active",
+      "created_at": "2026-05-17T21:09:03Z",
+      "updated_at": "2026-05-17T21:09:03Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260517T210647Z_56ecd398"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "f547456"
       }
     }
   ]

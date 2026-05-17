@@ -152,6 +152,7 @@ const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_BLAST_DRAW_WIDTH_SCALE: float = 0.76
 const TRAP_BLAST_DRAW_HEIGHT_SCALE: float = 1.18
 const TRAP_BLAST_BASELINE_SCALE: float = 0.32
+const DROPPED_EMBERS_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
 const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
 const TERRAIN_DRAW_BASELINE_SCALE: float = 0.42
@@ -1506,6 +1507,8 @@ func _loot_tooltip_text(loot: Dictionary) -> String:
 			return "Healing potion: Heal %d" % int(loot.get("amount", 0))
 		"rusty_shield":
 			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
+		"dropped_embers":
+			return "Dropped embers: Reclaim %d" % int(loot.get("amount", 0))
 	return ""
 
 func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) -> void:
@@ -3094,7 +3097,8 @@ func _load_assets() -> void:
 		_door_opening_flipped_frames.append(AssetLoader.flip_texture_h(frame_texture))
 	_loot_textures = {
 		"healing_vial": AssetLoader.load_texture("res://assets/art/tiles/healing_vial.png"),
-		"rusty_shield": AssetLoader.load_texture("res://assets/art/tiles/rusty_shield.png")
+		"rusty_shield": AssetLoader.load_texture("res://assets/art/tiles/rusty_shield.png"),
+		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
 	}
 	_terrain_textures = {
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),

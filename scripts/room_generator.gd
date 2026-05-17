@@ -678,9 +678,15 @@ func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: R
 	for tile: Vector2i in candidates:
 		if occupied.has(tile):
 			continue
-		var distance_from_center: float = tile.distance_to(Vector2i(4, 4))
-		var score: float = -distance_from_center
-		score += rng.randf() * 0.45
+		var score: float = rng.randf()
+		if not occupied.is_empty():
+			var nearest_pickup_distance: int = 99
+			for occupied_tile_var: Variant in occupied.keys():
+				if typeof(occupied_tile_var) != TYPE_VECTOR2I:
+					continue
+				var occupied_tile: Vector2i = occupied_tile_var
+				nearest_pickup_distance = mini(nearest_pickup_distance, PathUtils.manhattan(tile, occupied_tile))
+			score -= absf(float(nearest_pickup_distance - 3)) * 0.08
 		if score > best_score:
 			best_score = score
 			best_tile = tile
@@ -727,23 +733,18 @@ func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, r
 
 func _terrain_candidates(grid: Array, player_start: Vector2i, occupied: Dictionary) -> Array[Vector2i]:
 	var protected_tiles: Dictionary = {}
-	for entry_tile: Vector2i in ENTRANCE_BY_TRAVEL_DIR.values():
-		protected_tiles[entry_tile] = true
 	for tile: Vector2i in PathUtils.diamond_tiles(player_start, 1, grid):
 		protected_tiles[tile] = true
 	var candidates: Array[Vector2i] = []
 	for tile: Vector2i in _floor_tiles(grid):
 		if occupied.has(tile) or protected_tiles.has(tile):
 			continue
-		if _room_edge_count(tile) >= 2:
-			continue
 		candidates.append(tile)
 	return candidates
 
 func _terrain_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Dictionary, rng: RandomNumberGenerator) -> float:
-	var score: float = rng.randf() * 0.65
-	score -= tile.distance_to(Vector2i(4, 4)) * 0.18
-	score -= absf(float(PathUtils.manhattan(tile, player_start) - 4)) * 0.10
+	var score: float = rng.randf()
+	score -= absf(float(PathUtils.manhattan(tile, player_start) - 4)) * 0.06
 	var neighbor_count: int = 0
 	for dir: Vector2i in PathUtils.DIRS_4:
 		if chosen.has(tile + dir):
@@ -752,7 +753,6 @@ func _terrain_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Dictio
 		score += 0.25
 	elif neighbor_count > 1:
 		score -= float(neighbor_count) * 1.4
-	score -= float(_room_edge_count(tile)) * 0.18
 	return score
 
 func _terrain_layout_stays_connected(grid: Array, start: Vector2i, blocked: Dictionary) -> bool:
@@ -819,13 +819,9 @@ func _generate_traps(grid: Array, room_type: String, room_element: String, depth
 	return traps
 
 func _trap_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vector2i], rng: RandomNumberGenerator) -> float:
-	var room_center: Vector2 = Vector2((ROOM_WIDTH - 1) * 0.5, (ROOM_HEIGHT - 1) * 0.5)
 	var player_distance: int = PathUtils.manhattan(tile, player_start)
-	var score: float = -tile.distance_to(room_center) * 1.1
-	score -= absf(float(player_distance - 4)) * 0.18
-	score -= float(_room_edge_count(tile)) * 0.45
-	if _room_corner_band(tile) != Vector2i.ZERO:
-		score -= 0.65
+	var score: float = rng.randf()
+	score -= absf(float(player_distance - 4)) * 0.06
 	if not chosen.is_empty():
 		var nearest_distance: int = 99
 		for existing: Vector2i in chosen:
@@ -834,7 +830,6 @@ func _trap_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vec
 			score -= 4.0
 		else:
 			score -= absf(float(nearest_distance - 3)) * 0.28
-	score += rng.randf() * 0.35
 	return score
 
 func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Dictionary:

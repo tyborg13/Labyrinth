@@ -297,7 +297,7 @@ static func record_lost_embers(data: Dictionary, amount: int, coord: Vector2i, c
 	return next_data
 
 static func clear_recovery_marker(data: Dictionary) -> Dictionary:
-	var next_data: Dictionary = data.duplicate(true)
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	next_data["recovery_marker"] = {}
 	return next_data
 

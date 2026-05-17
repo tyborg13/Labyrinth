@@ -33,6 +33,10 @@ their context when available:
 - `enemy_status_tick`
 - `progression_level_up`
 
+`run_started` includes recovery marker fields when a previous death dropped
+embers for the new run: `recovery_marker_active`, `recovery_marker_amount`, and
+`recovery_marker_coord`.
+
 ## Card Metrics Supported
 
 The current event stream is enough to derive:
@@ -50,7 +54,7 @@ The current event stream is enough to derive:
 - enemy HP, block, and stoneskin removed
 - pierce actions resolved and enemy defense bypassed by observed HP damage
 - terrain HP damage, terrain destroyed, traps triggered, and battlefield pickups
-  collected
+  collected, including dropped ember piles reclaimed through `embers_recovered`
 - kills secured
 - player HP delta
 - block, stoneskin, and healing gained
@@ -70,6 +74,10 @@ offsets so offline balance analysis can distinguish close, line, cluster, and
 large-area attacks.
 
 `enemy_status_tick` captures delayed status resolution at the combat level. It is useful for later value-model work, but it is not yet card-source attributed.
+
+`combat_started` marks recovery combats with `recovery_marker_present` and
+`recovery_marker_amount`. `combat_ended` includes `recovered_embers`, the total
+embers reclaimed from dropped piles during that combat.
 
 Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory

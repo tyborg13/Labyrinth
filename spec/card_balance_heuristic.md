@@ -53,24 +53,30 @@ Encounter calibration is also important:
 - Later sequences keep the same local density and elemental-control curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.
+- Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
+  His Tempest Breath is intentionally capped at ranged `3` after a one-tile
+  advance so corner repositioning can produce real safe tiles in open boss
+  rooms.
 - Rooms reserve a small halo around the player's entry tile, then seed enemies
   with weighted randomness across the room. Placement softly discourages
   adjacent pileups and same-corner clusters, but no longer pushes enemies to
   the far side by default. This should make turn-1 reach and early enemy threat
   more variable than the old far-spawn calibration.
-- Elemental combat rooms seed `2-3` traps, biased toward central traversal
-  lanes while still avoiding the player's entry halo and occupied tiles. Traps
-  now blast adjacent tiles when stepped on or attacked, so forced movement and
-  area targeting can create higher positional upside and risk than the old
-  single-tile trap model.
+- Elemental combat rooms seed `2-3` traps across eligible passable floor tiles,
+  including the playable edge band, while still avoiding occupied tiles and the
+  player's entry halo. Traps blast adjacent tiles when stepped on or attacked,
+  so forced movement and area targeting can create higher positional upside and
+  risk than the old single-tile trap model.
 - Every room places a `4` HP healing potion and a `4` block rusty shield as
-  floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates that block
-  movement, do not block line of sight, and can be destroyed by player or enemy
-  attacks.
+  floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates across
+  eligible passable floor tiles, including edge-band and corner floor tiles when
+  connectivity stays intact. They block movement, do not block line of sight,
+  and can be destroyed by player or enemy attacks.
 
 The heuristic still rewards cards that compress setup and payoff into the same
 play, but early reach assumptions should be reprobed before making fine-grained
-mobility or range coefficient changes.
+mobility or range coefficient changes, especially now that perimeter routes are
+not guaranteed to stay clear.
 
 ## Formula
 
