@@ -71,7 +71,10 @@ The current event stream is enough to derive:
 
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
-large-area attacks.
+large-area attacks. Runtime-selected AOE aim orientation is additive on the
+resolved action as `orientation`; legal push and pull direction choices are
+additive as `force_direction`, while `play_mode` comparison ignores those runtime
+direction fields so printed cards still classify as printed plays.
 
 `enemy_status_tick` captures delayed status resolution at the combat level. It is useful for later value-model work, but it is not yet card-source attributed.
 

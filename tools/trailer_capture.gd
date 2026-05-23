@@ -237,7 +237,7 @@ func _force_reward_showcase() -> void:
 	state["mode"] = "reward"
 	state["pending_reward"] = {
 		"cards": ["cinderburst", "threaded_path", "rallying_breath"],
-		"heal_amount": 6,
+		"heal_amount": RunEngineScript.REWARD_HEAL,
 		"ember_amount": 9
 	}
 	state["unbanked_embers"] = 16

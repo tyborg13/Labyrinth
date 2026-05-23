@@ -8,8 +8,8 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
-const FALLBACK_ATTACK: Array = [{"type": "melee", "damage": 2, "range": 1}]
-const FALLBACK_MOVE: Array = [{"type": "move", "range": 2}]
+const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
+const FALLBACK_MOVE_RANGE: int = 2
 const SHORTCUT_ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull"]
 const DEFAULT_OUTPUT_DIR: String = "res://playtest/headless"
 const DEFAULT_SEED_BASE: int = 5052026
@@ -567,11 +567,17 @@ func _can_start_card(hand_index: int, mode: String) -> bool:
 func _actions_for_card_mode(card_id: String, mode: String) -> Array:
 	match mode:
 		"attack":
-			return FALLBACK_ATTACK.duplicate(true)
+			return _fallback_attack_actions()
 		"move":
-			return FALLBACK_MOVE.duplicate(true)
+			return _fallback_move_actions()
 		_:
 			return (_card_def(card_id, _combat_state).get("actions", []) as Array).duplicate(true)
+
+func _fallback_attack_actions() -> Array:
+	return [{"type": "melee", "damage": GameData.fixed_point_amount(FALLBACK_ATTACK_BASE_DAMAGE), "range": 1}]
+
+func _fallback_move_actions() -> Array:
+	return [{"type": "move", "range": FALLBACK_MOVE_RANGE}]
 
 func _continue_pending() -> void:
 	if _pending.is_empty():
@@ -1414,7 +1420,7 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
 	var play_mode: String = "printed"
 	if JSON.stringify(actions) != JSON.stringify(printed_actions):
-		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(FALLBACK_ATTACK) else "move" if JSON.stringify(actions) == JSON.stringify(FALLBACK_MOVE) else "custom"
+		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_attack_actions()) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_move_actions()) else "custom"
 	return {
 		"play_mode": play_mode,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),

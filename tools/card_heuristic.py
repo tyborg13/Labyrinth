@@ -65,12 +65,14 @@ class HeuristicWeights:
     burn_card_draw_offset_per_card: float = 0.18
     aoe_base_target_multiplier: float = 1.20
     aoe_extra_tile_multiplier: float = 0.10
+    aoe_rotatable_orientation_bonus: float = 0.05
     chain_extra_targets: float = 0.45
     pierce_value: float = 0.75
     freeze_value: float = 3.8
     shock_value: float = 2.5
     push_value_per_tile: float = 0.28
     pull_value_per_tile: float = 0.14
+    directed_force_bonus_per_tile: float = 0.03
     move_pull_bonus_per_tile: float = 0.08
     attack_move_synergy: float = 0.40
     attack_defense_synergy: float = 0.25
@@ -156,6 +158,8 @@ def target_multiplier(action: dict[str, Any], weights: HeuristicWeights) -> floa
     if str(action.get("type", "")) == "aoe":
         tile_count = aoe_pattern_tile_count(action)
         multiplier *= weights.aoe_base_target_multiplier + max(0, tile_count - 1) * weights.aoe_extra_tile_multiplier
+        if bool(action.get("rotate", True)) and tile_count > 1:
+            multiplier += weights.aoe_rotatable_orientation_bonus
     return multiplier
 
 
@@ -300,13 +304,17 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 has_status = True
 
             push = int(action.get("push", 0))
+            if action_type == "push":
+                push += int(action.get("amount", 0))
             if push > 0:
-                breakdown.control += push * weights.push_value_per_tile * playability * targets * action_scale
+                breakdown.control += push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile) * playability * targets * action_scale
                 has_push_pull = True
 
             pull = int(action.get("pull", 0))
+            if action_type == "pull":
+                pull += int(action.get("amount", 0))
             if pull > 0:
-                pull_value = weights.pull_value_per_tile
+                pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile
                 if has_move:
                     pull_value += weights.move_pull_bonus_per_tile
                 breakdown.control += pull * pull_value * playability * targets * action_scale
@@ -349,14 +357,14 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 if action_type == "push":
                     bonus_push += int(intensity_bonus.get("amount", 0))
                 if bonus_push > 0:
-                    breakdown.control += bonus_push * weights.push_value_per_tile * playability * targets * bonus_scale
+                    breakdown.control += bonus_push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile) * playability * targets * bonus_scale
                     has_push_pull = True
 
                 bonus_pull = int(intensity_bonus.get("pull", 0))
                 if action_type == "pull":
                     bonus_pull += int(intensity_bonus.get("amount", 0))
                 if bonus_pull > 0:
-                    pull_value = weights.pull_value_per_tile
+                    pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile
                     if has_move:
                         pull_value += weights.move_pull_bonus_per_tile
                     breakdown.control += bonus_pull * pull_value * playability * targets * bonus_scale

@@ -106,6 +106,7 @@ func _capture_run_states() -> void:
 				await _save_root_screenshot("user://probes/run_combat_damage_tooltip.png")
 				tooltip_control.queue_free()
 				await process_frame
+		await _capture_orientation_previews(instance)
 		instance.call("_open_menu_overlay")
 		await process_frame
 		await process_frame
@@ -170,7 +171,7 @@ func _capture_run_states() -> void:
 	reward_run_state["mode"] = "reward"
 	reward_run_state["pending_reward"] = {
 		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
-		"heal_amount": 6,
+		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
 	instance.set("_run_state", reward_run_state)
@@ -182,6 +183,77 @@ func _capture_run_states() -> void:
 	await _save_root_screenshot("user://probes/run_reward.png")
 
 	instance.queue_free()
+	await process_frame
+
+func _capture_orientation_previews(instance: Node) -> void:
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 14, "max_hp": 14, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 10, "max_hp": 10, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 12, "max_hp": 12, "block": 0}
+	]
+	combat_state["traps"] = []
+	combat_state["terrain"] = []
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["thunderline", "updraft"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	instance.call("_on_card_pressed", 0)
+	await process_frame
+	await process_frame
+	var thunder_target: Vector2i = Vector2i(5, 4)
+	instance.call("_on_board_tile_hovered", thunder_target)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_thunderline_target_hover.png")
+	instance.call("_rotate_aoe_aim", -1)
+	await process_frame
+	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_thunderline_orientation_north.png")
+	instance.call("_on_cancel_requested")
+	await process_frame
+
+	combat_state = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 100, "max_hp": 100, "block": 0}
+	]
+	deck = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["updraft"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	run_state = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	instance.call("_on_card_pressed", 0)
+	await process_frame
+	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	await process_frame
+	instance.call("_on_board_tile_hovered", Vector2i(4, 4))
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_push_orientation_north.png")
+	instance.call("_on_cancel_requested")
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:

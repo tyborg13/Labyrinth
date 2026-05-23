@@ -18,6 +18,12 @@ const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 20
 const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 20
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
+const CARDINAL_DIRECTIONS: Array[Vector2i] = [
+	Vector2i(0, -1),
+	Vector2i(1, 0),
+	Vector2i(0, 1),
+	Vector2i(-1, 0)
+]
 const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "chain", "push", "pull"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
@@ -161,6 +167,12 @@ func player_action_needs_target(action: Dictionary) -> bool:
 		return int(action.get("range", 0)) > 0
 	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion"]
 
+func player_action_needs_orientation(action: Dictionary) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	if action_type == "aoe":
+		return int(action.get("range", 0)) > 0 and _aoe_pattern_variants(action).size() > 1
+	return _action_has_forced_movement(action)
+
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	if not action_intensity_requirement_met(state, action):
 		return false
@@ -265,30 +277,26 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					targets.append(tile)
 		"push", "pull":
 			var forced_range: int = int(action.get("range", 1))
-			for enemy: Dictionary in _live_enemies(state):
+			var resolved_force_action: Dictionary = _action_with_intensity_bonus(state, action)
+			var force_direction: Vector2i = _action_force_direction(resolved_force_action)
+			var force_amount: int = _forced_movement_amount(resolved_force_action)
+			var pushing: bool = action_type == "push"
+			for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+				var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+				if int(enemy.get("hp", 0)) <= 0:
+					continue
 				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 				if PathUtils.manhattan(player_pos, enemy_pos) > forced_range:
 					continue
 				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
 					continue
+				if force_direction != Vector2i.ZERO:
+					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing):
+						continue
+				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
+					continue
 				if not targets.has(enemy_pos):
 					targets.append(enemy_pos)
-			for terrain: Dictionary in _live_terrain(state):
-				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
-				if PathUtils.manhattan(player_pos, terrain_pos) > forced_range:
-					continue
-				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, terrain_pos):
-					continue
-				if not targets.has(terrain_pos):
-					targets.append(terrain_pos)
-			for trap: Dictionary in _live_traps(state):
-				var trap_pos: Vector2i = trap.get("pos", Vector2i.ZERO)
-				if PathUtils.manhattan(player_pos, trap_pos) > forced_range:
-					continue
-				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, trap_pos):
-					continue
-				if not targets.has(trap_pos):
-					targets.append(trap_pos)
 	return targets
 
 func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
@@ -543,6 +551,35 @@ func aoe_tiles_for_player_action(state: Dictionary, action: Dictionary, target_t
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
 	return _best_aoe_tiles_for_target(state, action, center, false)
+
+func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var force_direction: Vector2i = _action_force_direction(resolved_action)
+	if force_direction == Vector2i.ZERO:
+		return []
+	if not force_directions_for_player_action(state, action, target_tile).has(force_direction):
+		return []
+	var enemy_index: int = _enemy_index_at_tile(state, target_tile)
+	if enemy_index < 0:
+		return []
+	var amount: int = _forced_movement_amount(resolved_action)
+	if amount <= 0:
+		return []
+	return _enemy_direction_path(state, enemy_index, force_direction, amount)
+
+func force_directions_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var enemy_index: int = _enemy_index_at_tile(state, target_tile)
+	if enemy_index < 0:
+		return []
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	return _force_directions_for_enemy(
+		state,
+		enemy_index,
+		player_pos,
+		_forced_movement_pushes(resolved_action),
+		_forced_movement_amount(resolved_action)
+	)
 
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
 	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
@@ -1396,6 +1433,59 @@ func _action_has_keyword_effect(action: Dictionary) -> bool:
 		or int(action.get("chain", 0)) > 0
 	)
 
+func _action_has_forced_movement(action: Dictionary) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	return (
+		(action_type == "push" and int(action.get("amount", 0)) > 0)
+		or (action_type == "pull" and int(action.get("amount", 0)) > 0)
+		or int(action.get("push", 0)) > 0
+		or int(action.get("pull", 0)) > 0
+	)
+
+func _forced_movement_amount(action: Dictionary) -> int:
+	match str(action.get("type", "")):
+		"push", "pull":
+			return maxi(0, int(action.get("amount", 0)))
+		_:
+			return maxi(0, maxi(int(action.get("push", 0)), int(action.get("pull", 0))))
+
+func _forced_movement_pushes(action: Dictionary) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	if action_type == "pull":
+		return false
+	if action_type == "push":
+		return true
+	var push_amount: int = int(action.get("push", 0))
+	var pull_amount: int = int(action.get("pull", 0))
+	return push_amount > 0 or pull_amount <= 0
+
+func _action_force_direction(action: Dictionary) -> Vector2i:
+	return _cardinal_direction(action.get("force_direction", action.get("orientation", Vector2i.ZERO)))
+
+func _action_orientation_direction(action: Dictionary) -> Vector2i:
+	return _cardinal_direction(action.get("orientation", Vector2i.ZERO))
+
+func _cardinal_direction(value: Variant) -> Vector2i:
+	var raw: Vector2i = Vector2i.ZERO
+	match typeof(value):
+		TYPE_VECTOR2I:
+			raw = value
+		TYPE_VECTOR2:
+			var vector_value: Vector2 = value
+			raw = Vector2i(int(roundf(vector_value.x)), int(roundf(vector_value.y)))
+		TYPE_ARRAY:
+			var pair: Array = value
+			if pair.size() >= 2:
+				raw = Vector2i(int(pair[0]), int(pair[1]))
+		TYPE_DICTIONARY:
+			var dict: Dictionary = value
+			raw = Vector2i(int(dict.get("x", 0)), int(dict.get("y", 0)))
+	if raw == Vector2i.ZERO:
+		return Vector2i.ZERO
+	if absi(raw.x) >= absi(raw.y):
+		return Vector2i(1 if raw.x >= 0 else -1, 0)
+	return Vector2i(0, 1 if raw.y >= 0 else -1)
+
 func _action_pierces_defense(action: Dictionary) -> bool:
 	return bool(action.get("pierce", false))
 
@@ -1554,9 +1644,17 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		for status_id: String in triggered_statuses:
 			next_state = _trigger_status_relics(next_state, status_id)
 	if int(action.get("push", 0)) > 0:
-		next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("push", 0)), true)
+		var push_direction: Vector2i = _action_force_direction(action)
+		if push_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, push_direction, source_pos, true):
+			next_state = _move_enemy_in_direction(next_state, enemy_index, push_direction, int(action.get("push", 0)))
+		elif push_direction == Vector2i.ZERO:
+			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("push", 0)), true)
 	elif int(action.get("pull", 0)) > 0:
-		next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("pull", 0)), false)
+		var pull_direction: Vector2i = _action_force_direction(action)
+		if pull_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, pull_direction, source_pos, false):
+			next_state = _move_enemy_in_direction(next_state, enemy_index, pull_direction, int(action.get("pull", 0)))
+		elif pull_direction == Vector2i.ZERO:
+			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("pull", 0)), false)
 	return next_state
 
 func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
@@ -1806,8 +1904,93 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 		return next_state
 	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
-	next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing)
+	var force_direction: Vector2i = _action_force_direction(resolved_action)
+	if force_direction != Vector2i.ZERO:
+		var player_source: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+		if _forced_direction_can_move_enemy(next_state, enemy_index, force_direction, player_source, pushing):
+			next_state = _move_enemy_in_direction(next_state, enemy_index, force_direction, int(resolved_action.get("amount", 0)))
+	else:
+		next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing)
 	_log(next_state, "%s %d." % ["Push" if pushing else "Pull", int(resolved_action.get("amount", 0))])
+	return next_state
+
+func _force_directions_for_enemy(state: Dictionary, enemy_index: int, source_pos: Vector2i, pushing: bool, amount: int) -> Array[Vector2i]:
+	var directions: Array[Vector2i] = []
+	if amount <= 0:
+		return directions
+	for direction: Vector2i in CARDINAL_DIRECTIONS:
+		if not _forced_direction_can_move_enemy(state, enemy_index, direction, source_pos, pushing):
+			continue
+		directions.append(direction)
+	return directions
+
+func _forced_direction_can_move_enemy(state: Dictionary, enemy_index: int, direction: Vector2i, source_pos: Vector2i, pushing: bool) -> bool:
+	var step_direction: Vector2i = _cardinal_direction(direction)
+	if step_direction == Vector2i.ZERO:
+		return false
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return false
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if int(enemy.get("hp", 0)) <= 0:
+		return false
+	var before_distance: int = _enemy_distance_to_tile(enemy, source_pos)
+	var moved_enemy: Dictionary = enemy.duplicate(true)
+	moved_enemy["pos"] = enemy.get("pos", Vector2i.ZERO) + step_direction
+	var after_distance: int = _enemy_distance_to_tile(moved_enemy, source_pos)
+	if pushing and after_distance <= before_distance:
+		return false
+	if not pushing and after_distance >= before_distance:
+		return false
+	return not _enemy_direction_path(state, enemy_index, step_direction, 1).is_empty()
+
+func _enemy_direction_path(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int) -> Array[Vector2i]:
+	var path: Array[Vector2i] = []
+	var step_direction: Vector2i = _cardinal_direction(direction)
+	if step_direction == Vector2i.ZERO or amount <= 0:
+		return path
+	var next_state: Dictionary = state.duplicate(true)
+	for _step: int in range(amount):
+		var enemies: Array = next_state.get("enemies", [])
+		if enemy_index < 0 or enemy_index >= enemies.size():
+			break
+		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			break
+		var candidate: Vector2i = enemy.get("pos", Vector2i.ZERO) + step_direction
+		var occupied: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
+		var player_pos: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
+		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, player_pos):
+			break
+		enemy["pos"] = candidate
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+		path.append(candidate)
+	return path
+
+func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var step_direction: Vector2i = _cardinal_direction(direction)
+	if step_direction == Vector2i.ZERO or amount <= 0:
+		return next_state
+	for _step: int in range(amount):
+		var enemies: Array = next_state.get("enemies", [])
+		if enemy_index < 0 or enemy_index >= enemies.size():
+			break
+		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			break
+		var candidate: Vector2i = enemy.get("pos", Vector2i.ZERO) + step_direction
+		var occupied: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
+		var player_pos: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
+		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, player_pos):
+			break
+		enemy["pos"] = candidate
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
+		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+			break
 	return next_state
 
 func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Vector2i, amount: int, pushing: bool) -> Dictionary:
@@ -2773,13 +2956,18 @@ func _zekarion_summon_intent() -> Dictionary:
 
 func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, score_player: bool) -> Array[Vector2i]:
 	var grid: Array = state.get("grid", [])
+	var centered_target: bool = int(action.get("range", 0)) > 0
+	var orientation: Vector2i = _action_orientation_direction(action)
+	if orientation != Vector2i.ZERO:
+		var oriented_offsets: Array[Vector2i] = _aoe_pattern_offsets_for_direction(action, orientation)
+		return _tiles_for_centered_aoe_offsets(grid, target_tile, oriented_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, oriented_offsets)
 	var variants: Array = _aoe_pattern_variants(action)
 	var best_tiles: Array[Vector2i] = []
 	var best_score: int = -1
 	var best_size: int = 9999
 	for offsets_var: Variant in variants:
 		var offsets: Array = offsets_var
-		var tiles: Array[Vector2i] = _tiles_for_aoe_offsets(grid, target_tile, offsets)
+		var tiles: Array[Vector2i] = _tiles_for_centered_aoe_offsets(grid, target_tile, offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, offsets)
 		var score: int = 0
 		if score_player:
 			score = _actor_targets_in_tiles(state, tiles).size()
@@ -2794,10 +2982,18 @@ func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_ti
 	return best_tiles
 
 func _aoe_tiles_for_anchor(grid: Array, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var centered_target: bool = int(action.get("range", 0)) > 0
+	var orientation: Vector2i = _action_orientation_direction(action)
+	if orientation != Vector2i.ZERO:
+		var oriented_offsets: Array[Vector2i] = _aoe_pattern_offsets_for_direction(action, orientation)
+		return _tiles_for_centered_aoe_offsets(grid, target_tile, oriented_offsets) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, oriented_offsets)
 	var variants: Array = _aoe_pattern_variants(action)
 	if variants.is_empty():
 		return []
-	return _tiles_for_aoe_offsets(grid, target_tile, variants[0])
+	return _tiles_for_centered_aoe_offsets(grid, target_tile, variants[0]) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, variants[0])
+
+func _tiles_for_centered_aoe_offsets(grid: Array, center: Vector2i, offsets: Array) -> Array[Vector2i]:
+	return _tiles_for_aoe_offsets(grid, center - _aoe_center_offset(offsets), offsets)
 
 func _tiles_for_aoe_offsets(grid: Array, anchor: Vector2i, offsets: Array) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
@@ -2807,6 +3003,29 @@ func _tiles_for_aoe_offsets(grid: Array, anchor: Vector2i, offsets: Array) -> Ar
 			continue
 		lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
+
+func _aoe_center_offset(offsets: Array) -> Vector2i:
+	var typed_offsets: Array[Vector2i] = _vector2i_values(offsets)
+	if typed_offsets.is_empty():
+		return Vector2i.ZERO
+	var center_sum: Vector2 = Vector2.ZERO
+	for offset: Vector2i in typed_offsets:
+		center_sum += Vector2(float(offset.x), float(offset.y))
+	var centroid: Vector2 = center_sum / float(typed_offsets.size())
+	var rounded_centroid: Vector2i = Vector2i(int(roundf(centroid.x)), int(roundf(centroid.y)))
+	if is_equal_approx(centroid.x, float(rounded_centroid.x)) and is_equal_approx(centroid.y, float(rounded_centroid.y)):
+		return rounded_centroid
+	var best_offset: Vector2i = typed_offsets[0]
+	var best_distance: float = INF
+	var best_origin_distance: int = 99999
+	for offset: Vector2i in typed_offsets:
+		var distance: float = Vector2(float(offset.x), float(offset.y)).distance_squared_to(centroid)
+		var origin_distance: int = PathUtils.manhattan(Vector2i.ZERO, offset)
+		if distance < best_distance or (is_equal_approx(distance, best_distance) and origin_distance < best_origin_distance):
+			best_distance = distance
+			best_origin_distance = origin_distance
+			best_offset = offset
+	return best_offset
 
 func _aoe_pattern_variants(action: Dictionary) -> Array:
 	var offsets: Array[Vector2i] = _aoe_pattern_offsets(action)
@@ -2831,6 +3050,24 @@ func _aoe_pattern_variants(action: Dictionary) -> Array:
 		var unique_offsets: Array[Vector2i] = _sorted_tiles_from_lookup(unique_lookup)
 		variants.append(unique_offsets)
 	return variants
+
+func _aoe_pattern_offsets_for_direction(action: Dictionary, direction: Vector2i) -> Array[Vector2i]:
+	var rotation: int = _rotation_for_direction(direction)
+	var result: Array[Vector2i] = []
+	for offset: Vector2i in _aoe_pattern_offsets(action):
+		result.append(_rotated_offset(offset, rotation))
+	return result
+
+func _rotation_for_direction(direction: Vector2i) -> int:
+	match _cardinal_direction(direction):
+		Vector2i(0, 1):
+			return 1
+		Vector2i(-1, 0):
+			return 2
+		Vector2i(0, -1):
+			return 3
+		_:
+			return 0
 
 func _aoe_pattern_offsets(action: Dictionary) -> Array[Vector2i]:
 	var raw_pattern: Array = action.get("pattern", DEFAULT_AOE_PATTERN)
@@ -2972,7 +3209,11 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 				else:
 					action.erase("freeze")
 		ElementData.LIGHTNING:
-			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
+			if action_type == "move_toward" or action_type == "move_away":
+				var lightning_move_range: int = int(action.get("range", 0))
+				if lightning_move_range > 0:
+					action["range"] = maxi(1, lightning_move_range - 1)
+			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				var base_range: int = int(action.get("range", 1))
 				var range_floor: int = 4 if action_type == "ranged" else 3
 				action["type"] = "ranged"
@@ -2990,7 +3231,7 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 				action["range"] = int(action.get("range", 0)) + (1 if medium_power else 0)
 			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
 				action["type"] = "ranged"
-				action["range"] = maxi(3 if not medium_power else 4, int(action.get("range", 1)))
+				action["range"] = mini(4, maxi(3, int(action.get("range", 1))))
 				action.erase("pattern")
 				action.erase("rotate")
 				action["damage"] = maxi(GameData.fixed_point_amount(1), int(action.get("damage", 0)) - GameData.fixed_point_amount(2))

@@ -129,6 +129,14 @@ const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
+const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
+const FALLBACK_MOVE_RANGE: int = 2
+const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
+	Vector2i(0, -1),
+	Vector2i(1, 0),
+	Vector2i(0, 1),
+	Vector2i(-1, 0)
+]
 const HAND_CARD_OVERLAP: float = -28.0
 const HAND_CARD_GAP: float = 14.0
 const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 314.0)
@@ -227,6 +235,8 @@ var _pending_action_index: int = 0
 var _pending_action_can_skip: bool = false
 var _pending_target_tiles: Array[Vector2i] = []
 var _pending_selected_targets: Array[Vector2i] = []
+var _pending_orientation_target_tile: Vector2i = INVALID_TARGET_TILE
+var _aoe_aim_orientation: Vector2i = Vector2i(1, 0)
 var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
 var _victory_carry_amount: int = 0
@@ -251,6 +261,7 @@ var _intensity_bar: HFlowContainer
 var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
+var _card_play_count_override: int = -1
 var _choice_button_overlay: HBoxContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
@@ -314,6 +325,7 @@ func _ready() -> void:
 	_setup_elemental_intensity_bar()
 	_connect_header_layout_signals()
 	_connect_choice_overlay_layout_signals()
+	_connect_board_aim_signals()
 	_boot_run()
 
 func _process(delta: float) -> void:
@@ -353,8 +365,25 @@ func _input(event: InputEvent) -> void:
 			await _animate_drag_cancel_to_source()
 			get_viewport().set_input_as_handled()
 			return
+	if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
+		if event.is_action_pressed("ui_left"):
+			_rotate_aoe_aim(-1)
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_right"):
+			_rotate_aoe_aim(1)
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("ui_cancel"):
 		await _on_cancel_requested()
+
+func _connect_board_aim_signals() -> void:
+	if board_view == null:
+		return
+	if board_view.has_signal("tile_dragged") and not board_view.tile_dragged.is_connected(_on_board_tile_dragged):
+		board_view.tile_dragged.connect(_on_board_tile_dragged)
+	if board_view.has_signal("tile_drag_released") and not board_view.tile_drag_released.is_connected(_on_board_tile_drag_released):
+		board_view.tile_drag_released.connect(_on_board_tile_drag_released)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -1240,11 +1269,11 @@ func _build_drag_overlay() -> void:
 	bottom_row.add_theme_constant_override("separation", 14)
 	vbox.add_child(bottom_row)
 
-	_drag_zone_panels["attack"] = _build_drag_zone("2 Attack", UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
+	_drag_zone_panels["attack"] = _build_drag_zone(_fallback_label("attack"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
 	bottom_row.add_child(_drag_zone_panels["attack"])
 	_drag_zone_labels["attack"] = _drag_zone_panels["attack"].get_meta("label")
 
-	_drag_zone_panels["move"] = _build_drag_zone("2 Move", UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
+	_drag_zone_panels["move"] = _build_drag_zone(_fallback_label("move"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
 	bottom_row.add_child(_drag_zone_panels["move"])
 	_drag_zone_labels["move"] = _drag_zone_panels["move"].get_meta("label")
 
@@ -1477,10 +1506,10 @@ func _commit_drag_drop(zone: String) -> void:
 			preview = options.get("play", {})
 		"attack":
 			preview = options.get("attack", {})
-			label_override = "2 Attack"
+			label_override = _fallback_label("attack")
 		"move":
 			preview = options.get("move", {})
-			label_override = "2 Move"
+			label_override = _fallback_label("move")
 		_:
 			await _animate_drag_cancel_to_source()
 			return
@@ -2188,10 +2217,28 @@ func _refresh_card_play_meter() -> void:
 	if not active:
 		_play_meter_count.text = ""
 		return
-	var cards_left: int = _combat_engine.cards_remaining_this_turn(_combat_state)
+	var cards_left: int = _displayed_card_play_count()
 	_play_meter_count.text = str(cards_left)
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
+
+func _displayed_card_play_count() -> int:
+	if _card_play_count_override >= 0:
+		return _card_play_count_override
+	return _combat_engine.cards_remaining_this_turn(_combat_state)
+
+func _card_play_count_for_resolution_state(state: Dictionary) -> int:
+	var cards_left: int = _combat_engine.cards_remaining_this_turn(state)
+	if _card_play_count_override >= 0:
+		cards_left -= 1
+	return maxi(0, cards_left)
+
+func _set_card_play_count_override(cards_left: int) -> void:
+	_card_play_count_override = maxi(0, cards_left)
+	_refresh_card_play_meter()
+
+func _begin_card_play_meter_spend_preview() -> void:
+	_set_card_play_count_override(maxi(0, _combat_engine.cards_remaining_this_turn(_combat_state) - 1))
 
 func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 	if _intensity_bar == null:
@@ -2737,8 +2784,13 @@ func _refresh_stage_view() -> void:
 				if not attack_tiles.is_empty():
 					presentation["pulse_attack_tiles"] = true
 			elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
-				attack_tiles = target_tiles
-				presentation["pulse_attack_tiles"] = true
+				if bool(preview.get("orientation_pending", false)):
+					attack_tiles = _vector2i_array([preview.get("orientation_target", INVALID_TARGET_TILE)])
+					presentation["ability_tiles"] = _direction_choice_tiles(preview.get("orientation_target", INVALID_TARGET_TILE))
+				else:
+					attack_tiles = target_tiles
+					if action_type != "aoe":
+						presentation["pulse_attack_tiles"] = true
 			else:
 				ability_tiles = target_tiles
 				presentation["ability_tiles"] = ability_tiles
@@ -2833,16 +2885,27 @@ func _active_card_preview() -> Dictionary:
 		return {}
 	if _selected_card_index >= 0:
 		if _pending_action_index < _pending_actions.size():
+			var action: Dictionary = _pending_actions[_pending_action_index]
+			var target_tiles: Array[Vector2i] = _vector2i_array(_pending_target_tiles)
+			var orientation_pending: bool = _orientation_pending()
+			if orientation_pending:
+				action = _pending_oriented_action()
+				target_tiles = _vector2i_array([_pending_orientation_target_tile])
+			elif str(action.get("type", "")) == "aoe":
+				action = _action_with_aoe_aim_orientation(action)
+				target_tiles = _combat_engine.valid_targets_for_player_action(_preview_combat_state, action)
 			return {
 				"card_id": _card_id_for_hand_index(_selected_card_index),
 				"state": _preview_combat_state.duplicate(true),
 				"actions": _pending_actions.duplicate(true),
 				"action_index": _pending_action_index,
-				"target_tiles": _vector2i_array(_pending_target_tiles),
+				"target_tiles": target_tiles,
 				"complete": false,
 				"playable": true,
-				"action": _pending_actions[_pending_action_index],
-				"skip_allowed": _pending_action_can_skip
+				"action": action,
+				"skip_allowed": _pending_action_can_skip and not orientation_pending,
+				"orientation_pending": orientation_pending,
+				"orientation_target": _pending_orientation_target_tile
 			}
 		return {}
 	if _hovered_card_index >= 0:
@@ -2890,11 +2953,23 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 func _fallback_actions(play_kind: String) -> Array:
 	match play_kind:
 		"attack":
-			return [{"type": "melee", "damage": 20, "range": 1}]
+			return [{"type": "melee", "damage": _fallback_attack_damage(), "range": 1}]
 		"move":
-			return [{"type": "move", "range": 2}]
+			return [{"type": "move", "range": FALLBACK_MOVE_RANGE}]
 		_:
 			return []
+
+func _fallback_attack_damage() -> int:
+	return GameData.fixed_point_amount(FALLBACK_ATTACK_BASE_DAMAGE)
+
+func _fallback_label(play_kind: String) -> String:
+	match play_kind:
+		"attack":
+			return "%d Attack" % _fallback_attack_damage()
+		"move":
+			return "%d Move" % FALLBACK_MOVE_RANGE
+		_:
+			return ""
 
 func _card_widget_display_for_index(index: int) -> Dictionary:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -3033,8 +3108,24 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 			var skip_playable: bool = false
 			if skip_allowed:
 				skip_playable = bool(_card_preview_from_state(card_id, working_state, actions, cursor + 1, effect_seen).get("playable", false))
+			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action)
+			if _remaining_actions_are_targetless(actions, cursor + 1):
+				if candidate_targets.is_empty() and skip_playable:
+					cursor += 1
+					continue
+				return {
+					"card_id": card_id,
+					"state": working_state,
+					"actions": actions.duplicate(true),
+					"action_index": cursor,
+					"target_tiles": _vector2i_array(candidate_targets),
+					"complete": false,
+					"playable": not candidate_targets.is_empty(),
+					"action": action,
+					"skip_allowed": skip_playable
+				}
 			var valid_targets: Array[Vector2i] = []
-			for target_tile: Vector2i in _combat_engine.valid_targets_for_player_action(working_state, action):
+			for target_tile: Vector2i in candidate_targets:
 				var next_state: Dictionary = _combat_engine.apply_player_action(working_state, action, target_tile)
 				var continuation: Dictionary = _card_preview_from_state(card_id, next_state, actions, cursor + 1, true)
 				if bool(continuation.get("playable", false)):
@@ -3067,6 +3158,14 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 		"action": {},
 		"skip_allowed": false
 	}
+
+func _remaining_actions_are_targetless(actions: Array, start_index: int) -> bool:
+	for index: int in range(maxi(0, start_index), actions.size()):
+		if typeof(actions[index]) != TYPE_DICTIONARY:
+			continue
+		if _combat_engine.player_action_needs_target(actions[index] as Dictionary):
+			return false
+	return true
 
 func _target_action_can_skip(action: Dictionary, actions: Array) -> bool:
 	if bool(action.get("required", false)):
@@ -3124,19 +3223,28 @@ func _preview_units_for_action(preview: Dictionary) -> Array:
 func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = preview.get("action", {})
 	var action_type: String = str(action.get("type", ""))
+	if bool(preview.get("orientation_pending", false)):
+		var orientation_target: Vector2i = preview.get("orientation_target", INVALID_TARGET_TILE)
+		if action_type == "aoe":
+			return _aoe_tiles_for_action(preview.get("state", {}), action, orientation_target)
+		if action_type in ["push", "pull"] or int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0:
+			var force_tiles: Array[Vector2i] = _combat_engine.forced_movement_tiles_for_player_action(preview.get("state", {}), action, orientation_target)
+			force_tiles.push_front(orientation_target)
+			return force_tiles
+		return _vector2i_array([orientation_target])
 	if _hovered_board_tile.x < 0:
 		return []
 	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
 	if not shortcut_plan.is_empty():
 		var path_tiles: Array[Vector2i] = _vector2i_array(shortcut_plan.get("path_tiles", []))
 		return path_tiles if not path_tiles.is_empty() else _vector2i_array([_hovered_board_tile])
+	if action_type == "aoe" and _aoe_hover_can_show_pattern(preview.get("state", {}), action, _hovered_board_tile):
+		return _aoe_tiles_for_action(preview.get("state", {}), action, _hovered_board_tile)
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return []
 	if action_type in ["move", "blink"]:
 		return _path_tiles_for_preview(preview)
-	if action_type == "aoe":
-		return _aoe_tiles_for_action(preview.get("state", {}), action, _hovered_board_tile)
 	return _vector2i_array([_hovered_board_tile])
 
 func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
@@ -3159,6 +3267,11 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 
 func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var action: Dictionary = preview.get("action", {})
+	if bool(preview.get("orientation_pending", false)):
+		var orientation_target: Vector2i = preview.get("orientation_target", INVALID_TARGET_TILE)
+		var orientation_state: Dictionary = preview.get("state", {})
+		var orientation_player_tile: Vector2i = (orientation_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+		return _preview_effect_for_target(orientation_state, orientation_player_tile, orientation_target, action)
 	if _hovered_board_tile.x < 0:
 		return {}
 	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
@@ -3184,11 +3297,13 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 		"blink":
 			return {"kind": "blink", "from": from_tile, "to": target_tile, "preview": true}
 		"melee", "ranged", "push", "pull":
+			var force_tiles: Array[Vector2i] = _combat_engine.forced_movement_tiles_for_player_action(state, action, target_tile)
 			return {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
+				"force_tiles": force_tiles,
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
 			}
 		"aoe":
@@ -3355,6 +3470,176 @@ func _aoe_tiles_for_action(state: Dictionary, action: Dictionary, target_tile: V
 		return []
 	return _combat_engine.aoe_tiles_for_player_action(state, action, target_tile)
 
+func _aoe_hover_can_show_pattern(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
+	if str(action.get("type", "")) != "aoe":
+		return false
+	if target_tile.x < 0:
+		return false
+	var grid: Array = state.get("grid", [])
+	if int(action.get("range", 0)) <= 0:
+		return true
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	return (
+		PathUtils.is_passable(grid, target_tile)
+		and PathUtils.manhattan(player_tile, target_tile) <= int(action.get("range", 0))
+		and PathUtils.has_line_of_sight(grid, player_tile, target_tile)
+	)
+
+func _orientation_pending() -> bool:
+	return _selected_card_index >= 0 and _pending_orientation_target_tile.x >= 0 and _pending_action_index < _pending_actions.size()
+
+func _current_action_is_aimed_aoe() -> bool:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return false
+	return str((_pending_actions[_pending_action_index] as Dictionary).get("type", "")) == "aoe"
+
+func _action_with_aoe_aim_orientation(action: Dictionary) -> Dictionary:
+	if str(action.get("type", "")) != "aoe":
+		return action
+	var oriented: Dictionary = action.duplicate(true)
+	if _combat_engine.player_action_needs_orientation(action):
+		oriented["orientation"] = _aoe_aim_orientation
+	else:
+		oriented.erase("orientation")
+	return oriented
+
+func _reset_aoe_aim_orientation_for_action(action: Dictionary) -> void:
+	var direction: Vector2i = _cardinal_direction(action.get("orientation", Vector2i(1, 0)))
+	_aoe_aim_orientation = direction if direction != Vector2i.ZERO else Vector2i(1, 0)
+
+func _refresh_pending_aoe_target_tiles() -> void:
+	if not _current_action_is_aimed_aoe():
+		return
+	var action: Dictionary = _action_with_aoe_aim_orientation(_pending_actions[_pending_action_index])
+	_pending_target_tiles = _combat_engine.valid_targets_for_player_action(_preview_combat_state, action)
+
+func _set_aoe_aim_orientation(direction: Vector2i) -> void:
+	var snapped: Vector2i = _cardinal_direction(direction)
+	if snapped == Vector2i.ZERO or snapped == _aoe_aim_orientation:
+		return
+	_aoe_aim_orientation = snapped
+	if _current_action_is_aimed_aoe():
+		_refresh_pending_aoe_target_tiles()
+		_refresh_stage_view()
+
+func _rotate_aoe_aim(step: int) -> void:
+	var current_index: int = ORIENTATION_DIRECTIONS.find(_aoe_aim_orientation)
+	if current_index < 0:
+		current_index = ORIENTATION_DIRECTIONS.find(Vector2i(1, 0))
+	if current_index < 0:
+		current_index = 0
+	_set_aoe_aim_orientation(ORIENTATION_DIRECTIONS[posmod(current_index + step, ORIENTATION_DIRECTIONS.size())])
+
+func _direction_from_tiles(start_tile: Vector2i, current_tile: Vector2i) -> Vector2i:
+	if start_tile.x < 0 or current_tile.x < 0 or start_tile == current_tile:
+		return Vector2i.ZERO
+	var delta: Vector2i = current_tile - start_tile
+	if absi(delta.x) >= absi(delta.y):
+		return Vector2i(1 if delta.x >= 0 else -1, 0)
+	return Vector2i(0, 1 if delta.y >= 0 else -1)
+
+func _cardinal_direction(direction: Variant) -> Vector2i:
+	var raw: Vector2i = Vector2i.ZERO
+	match typeof(direction):
+		TYPE_VECTOR2I:
+			raw = direction
+		TYPE_VECTOR2:
+			var vector_direction: Vector2 = direction
+			raw = Vector2i(int(roundf(vector_direction.x)), int(roundf(vector_direction.y)))
+		TYPE_ARRAY:
+			var pair: Array = direction
+			if pair.size() >= 2:
+				raw = Vector2i(int(pair[0]), int(pair[1]))
+		TYPE_DICTIONARY:
+			var direction_dict: Dictionary = direction
+			raw = Vector2i(int(direction_dict.get("x", 0)), int(direction_dict.get("y", 0)))
+	if raw == Vector2i.ZERO:
+		return Vector2i.ZERO
+	if absi(raw.x) >= absi(raw.y):
+		return Vector2i(1 if raw.x >= 0 else -1, 0)
+	return Vector2i(0, 1 if raw.y >= 0 else -1)
+
+func _force_direction_for_action(action: Dictionary, target_tile: Vector2i, hover_tile: Vector2i) -> Vector2i:
+	var allowed: Array[Vector2i] = _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile)
+	if allowed.is_empty():
+		return Vector2i.ZERO
+	var candidate: Vector2i = Vector2i.ZERO
+	if hover_tile.x >= 0 and hover_tile != target_tile:
+		candidate = _direction_from_tiles(target_tile, hover_tile)
+	var player_tile: Vector2i = (_preview_combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	if candidate == Vector2i.ZERO and player_tile != target_tile:
+		var fallback_delta: Vector2i = target_tile - player_tile
+		var action_type: String = str(action.get("type", ""))
+		if action_type == "pull" or (int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0):
+			fallback_delta = player_tile - target_tile
+		candidate = _cardinal_direction(fallback_delta)
+	if allowed.has(candidate):
+		return candidate
+	return allowed[0]
+
+func _force_direction_for_confirmation(action: Dictionary, target_tile: Vector2i, click_tile: Vector2i) -> Vector2i:
+	var allowed: Array[Vector2i] = _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile)
+	if allowed.is_empty():
+		return Vector2i.ZERO
+	if click_tile == target_tile:
+		return _force_direction_for_action(action, target_tile, _hovered_board_tile)
+	var candidate: Vector2i = _direction_from_tiles(target_tile, click_tile)
+	return candidate if allowed.has(candidate) else Vector2i.ZERO
+
+func _action_with_pending_orientation(action: Dictionary, direction: Vector2i) -> Dictionary:
+	var oriented: Dictionary = action.duplicate(true)
+	var action_type: String = str(oriented.get("type", ""))
+	if _combat_engine.player_action_needs_orientation(action) and (
+		action_type in ["push", "pull"]
+		or int(oriented.get("push", 0)) > 0
+		or int(oriented.get("pull", 0)) > 0
+	):
+		oriented["force_direction"] = direction
+	return oriented
+
+func _target_needs_force_orientation(action: Dictionary, target_tile: Vector2i) -> bool:
+	if str(action.get("type", "")) == "aoe":
+		return false
+	if not _combat_engine.player_action_needs_orientation(action):
+		return false
+	return not _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile).is_empty()
+
+func _pending_oriented_action() -> Dictionary:
+	if not _orientation_pending():
+		return {}
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	return _action_with_pending_orientation(action, _force_direction_for_action(action, _pending_orientation_target_tile, _hovered_board_tile))
+
+func _direction_choice_tiles(target_tile: Vector2i) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var grid: Array = _preview_combat_state.get("grid", [])
+	var action: Dictionary = _pending_actions[_pending_action_index] if _pending_action_index >= 0 and _pending_action_index < _pending_actions.size() else {}
+	for direction: Vector2i in _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile):
+		var tile: Vector2i = target_tile + direction
+		if grid.is_empty() or PathUtils.is_in_bounds(grid, tile):
+			result.append(tile)
+	return result
+
+func _confirm_pending_orientation(click_tile: Vector2i) -> void:
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	var direction: Vector2i = _force_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
+	if direction == Vector2i.ZERO:
+		_refresh_stage_view()
+		return
+	var oriented_action: Dictionary = _action_with_pending_orientation(action, direction)
+	if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, oriented_action).has(_pending_orientation_target_tile):
+		_refresh_stage_view()
+		return
+	var previous_action_index: int = _pending_action_index
+	_pending_actions[_pending_action_index] = oriented_action
+	_pending_selected_targets.append(_pending_orientation_target_tile)
+	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, oriented_action, _pending_orientation_target_tile)
+	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
+	_append_skipped_target_placeholders(previous_action_index + 1, int(next_preview.get("action_index", 0)))
+	await _apply_pending_preview_result(next_preview)
+
 func _vector2i_array(values: Array) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	for value: Variant in values:
@@ -3415,6 +3700,8 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_pending_action_can_skip = false
 		_pending_target_tiles.clear()
 		_pending_selected_targets.clear()
+		_pending_orientation_target_tile = INVALID_TARGET_TILE
+		_aoe_aim_orientation = Vector2i(1, 0)
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_refresh_ui()
 		await _play_player_card(
@@ -3431,6 +3718,10 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
 	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
 	_pending_selected_targets.clear()
+	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	if _pending_action_index < _pending_actions.size():
+		_reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
+		_refresh_pending_aoe_target_tiles()
 	_append_skipped_target_placeholders(0, _pending_action_index)
 	_refresh_ui()
 
@@ -3454,6 +3745,28 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		_refresh_stage_view()
 
+func _on_board_tile_dragged(start_tile: Vector2i, current_tile: Vector2i) -> void:
+	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
+		return
+	if str(_run_state.get("mode", "room")) != "combat" or not _current_action_is_aimed_aoe():
+		return
+	var direction: Vector2i = _direction_from_tiles(start_tile, current_tile)
+	if direction != Vector2i.ZERO:
+		_set_aoe_aim_orientation(direction)
+	_hovered_board_tile = current_tile
+	_refresh_stage_view()
+
+func _on_board_tile_drag_released(start_tile: Vector2i, current_tile: Vector2i) -> void:
+	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
+		return
+	if str(_run_state.get("mode", "room")) != "combat" or not _current_action_is_aimed_aoe():
+		return
+	var direction: Vector2i = _direction_from_tiles(start_tile, current_tile)
+	if direction != Vector2i.ZERO:
+		_set_aoe_aim_orientation(direction)
+	_hovered_board_tile = current_tile
+	await _on_board_tile_clicked(current_tile)
+
 func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
 		return
@@ -3462,6 +3775,9 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		await _on_map_view_room_selected(_exit_destinations_by_tile[tile], tile)
 		return
 	if mode != "combat" or _selected_card_index < 0:
+		return
+	if _orientation_pending():
+		await _confirm_pending_orientation(tile)
 		return
 	var preview: Dictionary = _active_card_preview()
 	var shortcut_plan: Dictionary = {}
@@ -3474,6 +3790,16 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		return
 	var action: Dictionary = _pending_actions[_pending_action_index]
 	var previous_action_index: int = _pending_action_index
+	if str(action.get("type", "")) == "aoe":
+		action = _action_with_aoe_aim_orientation(action)
+		if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, action).has(tile):
+			return
+		_pending_actions[_pending_action_index] = action
+	elif _target_needs_force_orientation(action, tile):
+		_pending_orientation_target_tile = tile
+		_hovered_board_tile = tile
+		_refresh_stage_view()
+		return
 	_pending_selected_targets.append(tile)
 	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, action, tile)
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
@@ -3568,6 +3894,11 @@ func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictiona
 		_refresh_ui()
 		return
 	var attack_action_index: int = _pending_action_index
+	if _target_needs_force_orientation(_pending_actions[_pending_action_index], target_tile):
+		_pending_orientation_target_tile = target_tile
+		_hovered_board_tile = target_tile
+		_refresh_stage_view()
+		return
 	_pending_selected_targets.append(target_tile)
 	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, _pending_actions[_pending_action_index], target_tile)
 	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
@@ -3579,6 +3910,10 @@ func _load_pending_preview_state(preview: Dictionary) -> void:
 	_pending_action_index = int(preview.get("action_index", 0))
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
 	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
+	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	if _pending_action_index < _pending_actions.size():
+		_reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
+		_refresh_pending_aoe_target_tiles()
 
 func _apply_pending_preview_result(next_preview: Dictionary) -> void:
 	if bool(next_preview.get("complete", false)):
@@ -3610,6 +3945,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
 	_animating_hand_card_index = hand_index
 	_animation_lock = true
+	_begin_card_play_meter_spend_preview()
 	_refresh_ui()
 	await _animate_player_card_resolution(_combat_state.duplicate(true), card_id, actions, selected_targets)
 	_board_presentation.clear()
@@ -3629,6 +3965,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
 	_animation_lock = false
 	_animating_hand_card_index = -1
+	_card_play_count_override = -1
 	_reset_card_resolution()
 	_hovered_card_index = -1
 	_refresh_ui()
@@ -3705,7 +4042,7 @@ func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -
 	if rewards.is_empty():
 		return
 	var displayed_embers: int = _run_engine.held_embers(_run_state) + int(before_state.get("room_embers", 0))
-	var displayed_card_plays: int = _combat_engine.cards_remaining_this_turn(before_state)
+	var displayed_card_plays: int = _card_play_count_for_resolution_state(before_state)
 	_ember_count_override = displayed_embers
 	_set_stats_label_text(displayed_embers)
 	for reward: Dictionary in rewards:
@@ -3722,7 +4059,9 @@ func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -
 func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	if _play_meter == null or _play_meter_count == null:
 		return
-	_play_meter_count.text = str(displayed_card_plays)
+	var safe_displayed_card_plays: int = maxi(0, displayed_card_plays)
+	_card_play_count_override = safe_displayed_card_plays
+	_play_meter_count.text = str(safe_displayed_card_plays)
 	_play_meter.pivot_offset = _play_meter.size * 0.5
 	_play_meter_count.add_theme_color_override("font_color", Color("ffe27a"))
 	var tween := create_tween()
@@ -4066,7 +4405,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"from": player_before_tile,
 				"to": effect_target_tile,
 				"center": effect_target_tile,
-				"tiles": focus_tiles
+				"tiles": focus_tiles,
+				"force_tiles": _combat_engine.forced_movement_tiles_for_player_action(before_state, action, target_tile)
 			}
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
@@ -4158,7 +4498,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_draw_cards_fx(_draw_entries_between_states(before_state, after_state))
 			await get_tree().create_timer(0.12).timeout
 		"card_play":
-			var card_plays_gained: int = maxi(0, _combat_engine.cards_remaining_this_turn(after_state) - _combat_engine.cards_remaining_this_turn(before_state))
+			var card_plays_gained: int = maxi(0, _card_play_count_for_resolution_state(after_state) - _card_play_count_for_resolution_state(before_state))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
@@ -4170,7 +4510,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			})
-			await _animate_card_play_reward(_combat_engine.cards_remaining_this_turn(after_state))
+			await _animate_card_play_reward(_card_play_count_for_resolution_state(after_state))
 			await get_tree().create_timer(0.10).timeout
 		"intensity":
 			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
@@ -5830,6 +6170,8 @@ func _reset_card_resolution() -> void:
 	_pending_action_can_skip = false
 	_pending_target_tiles.clear()
 	_pending_selected_targets.clear()
+	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	_aoe_aim_orientation = Vector2i(1, 0)
 	_preview_combat_state.clear()
 	_hovered_board_tile = Vector2i(-1, -1)
 
@@ -6272,8 +6614,9 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var intensity_spent: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_spent_total")
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
-	if JSON.stringify(actions) != JSON.stringify(printed_actions):
-		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_actions("move")) else "custom"
+	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
+	if JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
+		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
 	return {
 		"play_mode": play_mode,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -6322,6 +6665,18 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
 	}
+
+func _analytics_actions_without_runtime_orientation(actions: Array) -> Array:
+	var result: Array = []
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			result.append(action_var)
+			continue
+		var action: Dictionary = (action_var as Dictionary).duplicate(true)
+		action.erase("orientation")
+		action.erase("force_direction")
+		result.append(action)
+	return result
 
 func _elemental_intensity_delta(before_intensity: Dictionary, after_intensity: Dictionary) -> Dictionary:
 	var result: Dictionary = {}

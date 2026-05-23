@@ -11,6 +11,8 @@ const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
+signal tile_dragged(start_tile: Vector2i, current_tile: Vector2i)
+signal tile_drag_released(start_tile: Vector2i, current_tile: Vector2i)
 signal cancel_requested
 
 const GRID_OUTLINE: Color = Color("1f1713")
@@ -183,6 +185,8 @@ var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
+var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
+var _left_drag_moved: bool = false
 var _tile_textures: Dictionary = {}
 var _floor_texture_variants: Dictionary = {}
 var _floor_variant_by_tile: Dictionary = {}
@@ -334,10 +338,23 @@ func _gui_input(event: InputEvent) -> void:
 			tile_hovered.emit(_hover_tile)
 			_update_cursor_shape()
 			queue_redraw()
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if _left_drag_start_tile.x >= 0 and next_hover.x >= 0 and (int(event.button_mask) & MOUSE_BUTTON_MASK_LEFT) != 0:
+			if next_hover != _left_drag_start_tile:
+				_left_drag_moved = true
+			if _left_drag_moved:
+				tile_dragged.emit(_left_drag_start_tile, next_hover)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		var clicked: Vector2i = _tile_at_point(event.position)
-		if clicked.x >= 0:
-			tile_clicked.emit(clicked)
+		if event.pressed:
+			_left_drag_start_tile = clicked
+			_left_drag_moved = false
+		elif _left_drag_start_tile.x >= 0:
+			if clicked.x >= 0 and _left_drag_moved:
+				tile_drag_released.emit(_left_drag_start_tile, clicked)
+			elif clicked.x >= 0:
+				tile_clicked.emit(clicked)
+			_left_drag_start_tile = Vector2i(-1, -1)
+			_left_drag_moved = false
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		cancel_requested.emit()
 
@@ -1554,7 +1571,7 @@ func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
 		bar_rect,
 		float(terrain.get("hp", 0)),
 		float(maxi(1, int(terrain.get("max_hp", 1)))),
-		maxi(1, int(terrain.get("max_hp", 1))),
+		_health_bar_segment_count(int(terrain.get("max_hp", 1))),
 		Color("2d1f18"),
 		TERRAIN_BAR_FILL,
 		Color("fff0bf"),
@@ -1827,7 +1844,7 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		rect,
 		float(unit.get("hp", 0)),
 		float(maxi(1, int(unit.get("max_hp", 1)))),
-		maxi(1, int(ceili(float(maxi(1, int(unit.get("max_hp", 1)))) / 10.0))),
+		_health_bar_segment_count(int(unit.get("max_hp", 1))),
 		Color("2d1f18"),
 		fill_color,
 		Color("f5efdf"),
@@ -1899,7 +1916,7 @@ func _draw_boss_health_bar(units_to_draw: Array[Dictionary]) -> void:
 		bar_rect,
 		float(boss_unit.get("hp", 0)),
 		float(maxi(1, int(boss_unit.get("max_hp", 1)))),
-		maxi(1, int(ceili(float(maxi(1, int(boss_unit.get("max_hp", 1)))) / 12.0))),
+		_health_bar_segment_count(int(boss_unit.get("max_hp", 1))),
 		Color("1a1110"),
 		Color("b83d3a"),
 		Color("f5efdf"),
@@ -1913,6 +1930,9 @@ func _draw_boss_health_bar(units_to_draw: Array[Dictionary]) -> void:
 	if font != null:
 		var hp_text: String = "%d/%d" % [int(boss_unit.get("hp", 0)), int(boss_unit.get("max_hp", 1))]
 		draw_string(font, bar_rect.position + Vector2(0.0, bar_rect.size.y - 7.0), hp_text, HORIZONTAL_ALIGNMENT_CENTER, bar_rect.size.x, 14, Color("fff4dc"))
+
+func _health_bar_segment_count(max_hp_value: int) -> int:
+	return SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp_value)))
 
 func _boss_health_bar_rect() -> Rect2:
 	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
@@ -2627,6 +2647,8 @@ func _draw_effect_overlay() -> void:
 				draw_circle(start, 5.0, Color(1.0, 0.88, 0.68, 0.16))
 			if progress >= 0.98:
 				draw_circle(to_point, 12.0, Color(0.94, 0.47, 0.30, 0.20))
+			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
+				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
 			if to_tile.x < 0:
 				return

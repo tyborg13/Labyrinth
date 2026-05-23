@@ -7,6 +7,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
+const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
@@ -72,6 +73,8 @@ func _initialize() -> void:
 	_test_enemy_preview_block_mitigates_current_turn_damage()
 	_test_aoe_hits_multiple_targets()
 	_test_close_aoe_hits_adjacent_targets()
+	_test_rotated_line_aoe_uses_selected_orientation()
+	_test_forced_movement_uses_selected_straight_line()
 	_test_enemy_phase_preserves_preview_cycle()
 	_test_elemental_room_rewards_follow_affinity(default_progression)
 	_test_chain_hits_clustered_enemies()
@@ -103,6 +106,7 @@ func _initialize() -> void:
 	_test_air_trap_tooltip_is_damage_only()
 	_test_pickup_tooltips_describe_effects()
 	_test_terrain_health_bars_are_contextual()
+	_test_health_bar_segments_use_fixed_point_scale()
 	_test_run_scene_terrain_damage_previews_use_terrain_keys()
 	_test_enemy_intent_name_reserves_header_line()
 	_test_enemy_intent_panels_expand_on_hover_or_toggle()
@@ -180,8 +184,12 @@ func _initialize() -> void:
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
+	await _test_run_scene_aoe_aim_rotates_before_click()
+	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_commits_play()
+	_test_run_scene_fallback_attack_uses_scaled_damage()
+	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
 	await _test_run_scene_ranged_cards_show_range()
@@ -1585,6 +1593,31 @@ func _test_harrier_has_moving_ranged_attack() -> void:
 			break
 	_assert(found, "Harriers should have at least one ranged attack that advances before firing")
 
+func _max_elemental_enemy_move_attack_reach(combat: CombatEngine, element_id: String, room_depth: int) -> int:
+	var max_reach: int = 0
+	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden"]:
+		for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
+			if typeof(intent_var) != TYPE_DICTIONARY:
+				continue
+			var intent: Dictionary = combat.call("_elementalize_enemy_intent", intent_var as Dictionary, element_id, room_depth)
+			max_reach = maxi(max_reach, _move_attack_reach_for_intent(intent))
+	return max_reach
+
+func _move_attack_reach_for_intent(intent: Dictionary) -> int:
+	var move_range: int = 0
+	var attack_range: int = 0
+	for action_var: Variant in intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		var action_type: String = str(action.get("type", ""))
+		if action_type == "move_toward" or action_type == "move_away":
+			move_range += int(action.get("range", 0))
+		elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
+			var fallback_range: int = 1 if action_type == "melee" else 0
+			attack_range = maxi(attack_range, int(action.get("range", fallback_range)))
+	return move_range + attack_range
+
 func _average_enemy_toward_move(enemy_type: String) -> float:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 	var intent_count: int = 0
@@ -1736,6 +1769,73 @@ func _test_close_aoe_hits_adjacent_targets() -> void:
 	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 80, "Close AOE should hit the northern adjacent tile")
 	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 40, "Close AOE should hit the eastern adjacent tile")
 	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 120, "Close AOE should not hit diagonal tiles")
+
+func _test_rotated_line_aoe_uses_selected_orientation() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(4101, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["thunderline"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 20, "max_hp": 20, "block": 0}
+	]
+	var action: Dictionary = {"type": "aoe", "damage": 5, "range": 6, "pattern": [[0, 0], [1, 0], [2, 0]], "rotate": true}
+	_assert(combat.player_action_needs_orientation(action), "Asymmetric ranged line AOE should ask the player for an orientation")
+	var north_action: Dictionary = action.duplicate(true)
+	north_action["orientation"] = Vector2i(0, -1)
+	var north_tiles: Array[Vector2i] = combat.aoe_tiles_for_player_action(state, north_action, Vector2i(4, 3))
+	_assert(north_tiles.has(Vector2i(4, 2)) and north_tiles.has(Vector2i(4, 4)) and not north_tiles.has(Vector2i(6, 4)), "Line AOE preview should rotate around the selected center tile")
+	var north_state: Dictionary = combat.apply_player_action(state, north_action, Vector2i(4, 3))
+	var north_enemies: Array = north_state.get("enemies", [])
+	_assert(int((north_enemies[1] as Dictionary).get("hp", 0)) == 15, "North-oriented line should hit the northern enemy")
+	_assert(int((north_enemies[2] as Dictionary).get("hp", 0)) == 20, "North-oriented line should not hit the eastern enemy")
+	var east_action: Dictionary = action.duplicate(true)
+	east_action["orientation"] = Vector2i(1, 0)
+	var east_tiles: Array[Vector2i] = combat.aoe_tiles_for_player_action(state, east_action, Vector2i(5, 4))
+	_assert(east_tiles.has(Vector2i(4, 4)) and east_tiles.has(Vector2i(6, 4)) and not east_tiles.has(Vector2i(4, 2)), "East-oriented line should center on the hovered middle tile")
+	var east_state: Dictionary = combat.apply_player_action(state, east_action, Vector2i(5, 4))
+	var east_enemies: Array = east_state.get("enemies", [])
+	_assert(int((east_enemies[1] as Dictionary).get("hp", 0)) == 20, "East-oriented line should not hit the northern enemy")
+	_assert(int((east_enemies[2] as Dictionary).get("hp", 0)) == 15, "East-oriented line should hit the eastern enemy")
+
+func _test_forced_movement_uses_selected_straight_line() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(4102, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["updraft"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0}
+	]
+	var push_action: Dictionary = {"type": "push", "amount": 2, "range": 5, "damage": 0, "force_direction": Vector2i(0, -1)}
+	_assert(combat.player_action_needs_orientation(push_action), "Push actions should ask the player for a movement direction")
+	var push_directions: Array[Vector2i] = combat.force_directions_for_player_action(state, push_action, Vector2i(4, 4))
+	_assert(push_directions.has(Vector2i(0, -1)) and push_directions.has(Vector2i(1, 0)) and not push_directions.has(Vector2i(-1, 0)), "Push should only offer directions that move farther from the player")
+	var push_preview: Array[Vector2i] = combat.forced_movement_tiles_for_player_action(state, push_action, Vector2i(4, 4))
+	_assert(push_preview.size() == 2 and push_preview[0] == Vector2i(4, 3) and push_preview[1] == Vector2i(4, 2), "Push preview should follow a chosen straight line that increases distance")
+	var pushed_state: Dictionary = combat.apply_player_action(state, push_action, Vector2i(4, 4))
+	var pushed_enemy: Dictionary = (pushed_state.get("enemies", []) as Array)[0]
+	_assert(pushed_enemy.get("pos", Vector2i.ZERO) == Vector2i(4, 2), "Push should move the target along the selected away direction")
+	var invalid_push_action: Dictionary = {"type": "push", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i(-1, 0)}
+	_assert(not combat.valid_targets_for_player_action(state, invalid_push_action).has(Vector2i(4, 4)), "Push should reject directions that move the target closer to the player")
+	var pull_action: Dictionary = {"type": "pull", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i(-1, 0)}
+	var pull_directions: Array[Vector2i] = combat.force_directions_for_player_action(state, pull_action, Vector2i(4, 4))
+	_assert(pull_directions.size() == 1 and pull_directions.has(Vector2i(-1, 0)), "Pull should only offer directions that move closer to the player")
+	var pulled_state: Dictionary = combat.apply_player_action(state, pull_action, Vector2i(4, 4))
+	var pulled_enemy: Dictionary = (pulled_state.get("enemies", []) as Array)[0]
+	_assert(pulled_enemy.get("pos", Vector2i.ZERO) == Vector2i(3, 4), "Pull should move the target along the selected closer direction")
 
 func _test_enemy_phase_preserves_preview_cycle() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -2348,6 +2448,23 @@ func _test_shallow_elemental_enemy_actions_scale_back() -> void:
 	_assert(int(second_sequence_opening_action.get("shock", 0)) == 0, "Second sequence opening rooms should repeat the shallow control curve")
 	_assert(int(second_sequence_opening_action.get("damage", 0)) > int(shallow_lightning_action.get("damage", 0)), "Second sequence opening rooms should still hit from a higher damage baseline")
 	_assert(int(second_sequence_deep_action.get("shock", 0)) == 1, "Second sequence deep rooms should regain full elemental control")
+	var air_lunge_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "move_toward", "range": 4}, {"type": "melee", "damage": 5, "range": 1}]}, "air", 3)
+	var air_lunge_actions: Array = air_lunge_intent.get("actions", [])
+	var air_lunge_move: Dictionary = air_lunge_actions[0] as Dictionary
+	var air_lunge_attack: Dictionary = air_lunge_actions[1] as Dictionary
+	_assert(int(air_lunge_move.get("range", 0)) == 5, "Air rooms should keep their high enemy movement identity")
+	_assert(int(air_lunge_attack.get("range", 0)) == 3, "Air enemy attacks should give back safety by using shorter follow-up range")
+	var lightning_bolt_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 4, "actions": [{"type": "move_toward", "range": 2}, {"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 3)
+	var lightning_bolt_actions: Array = lightning_bolt_intent.get("actions", [])
+	var lightning_bolt_move: Dictionary = lightning_bolt_actions[0] as Dictionary
+	var lightning_bolt_attack: Dictionary = lightning_bolt_actions[1] as Dictionary
+	_assert(int(lightning_bolt_move.get("range", 0)) == 1, "Lightning rooms should pull enemy movement back while keeping pressure")
+	_assert(int(lightning_bolt_attack.get("range", 0)) == 5, "Lightning rooms should keep their relatively high attack range")
+	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.AIR, 3) == 8, "Air room enemies should no longer combine max movement with four-plus range attacks")
+	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.LIGHTNING, 3) == 6, "Lightning room enemies should leave more movement-based safety than before")
+	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.FIRE, 3) <= 7, "Fire room enemy reach should stay below the extreme mobility threshold")
+	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.ICE, 3) <= 7, "Ice room enemy reach should stay below the extreme mobility threshold")
+	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.EARTH, 3) <= 5, "Earth room enemy reach should stay close and punish through durability/status instead")
 	var shallow_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 1)
 	var deep_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 3)
 	_assert(int(shallow_fire.get("burn", 0)) < int(deep_fire.get("burn", 0)), "Shallow elemental rooms should use lighter status payloads than deeper rooms")
@@ -2792,6 +2909,13 @@ func _test_terrain_health_bars_are_contextual() -> void:
 	var terrain_preview: Dictionary = board.call("_terrain_damage_preview", terrain)
 	_assert(bool(board.call("_should_show_terrain_health_bar", terrain)), "Terrain with a pending damage preview should show its health bar")
 	_assert(int(terrain_preview.get("hp", -1)) == 1 and int(terrain_preview.get("hp_loss", 0)) == 2, "Terrain health bars should read terrain damage previews by terrain key")
+
+func _test_health_bar_segments_use_fixed_point_scale() -> void:
+	var board := CombatBoardView.new()
+	_assert(SegmentedHealthBar.segment_count_for_max_hp(140.0) == 7, "Segmented health bars should default to 20 HP per divider after fixed-point scaling")
+	_assert(int(board.call("_health_bar_segment_count", 140)) == 7, "Combat board unit health bars should use the shared fixed-point segment size")
+	_assert(int(board.call("_health_bar_segment_count", 30)) == 2, "Low-HP terrain should avoid one segment per HP")
+	_assert(int(board.call("_health_bar_segment_count", 10)) == 1, "Tiny health bars should keep at least one filled segment")
 
 func _test_run_scene_terrain_damage_previews_use_terrain_keys() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
@@ -4567,7 +4691,7 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	run_state["mode"] = "reward"
 	run_state["pending_reward"] = {
 		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
-		"heal_amount": 6,
+		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
 	instance.set("_run_state", run_state)
@@ -4577,7 +4701,7 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	await process_frame
 	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var heal_button: Button = _button_with_text(hand_box, "+6 HP")
+	var heal_button: Button = _button_with_text(hand_box, "+%d HP" % RunEngine.REWARD_HEAL)
 	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward heal choice should not appear in the combat choice bar")
 	_assert(heal_button != null, "Reward heal choice should render as a button beside the offered cards")
 	if heal_button != null:
@@ -4601,7 +4725,7 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	run_state["mode"] = "reward"
 	run_state["pending_reward"] = {
 		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
-		"heal_amount": 6,
+		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
 	instance.set("_run_state", run_state)
@@ -4880,6 +5004,112 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_aoe_aim_rotates_before_click() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for AOE aim rotation coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(921, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["thunderline"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 20, "max_hp": 20, "block": 0}
+	]
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["thunderline"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var presentation: Dictionary = board_view.get("presentation")
+	var focus_tiles: Array = presentation.get("focus_tiles", [])
+	_assert(focus_tiles.has(Vector2i(4, 4)) and focus_tiles.has(Vector2i(6, 4)), "Default line AOE aim should show the full centered east pattern before clicking")
+	instance.call("_rotate_aoe_aim", -1)
+	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
+	presentation = board_view.get("presentation")
+	focus_tiles = presentation.get("focus_tiles", [])
+	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(4, 4)) and not focus_tiles.has(Vector2i(6, 4)), "Rotating line AOE aim should update the hover pattern before target confirmation")
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 3))
+	await create_timer(1.5).timeout
+	var final_state: Dictionary = instance.get("_combat_state")
+	var enemies: Array = final_state.get("enemies", [])
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) < 20, "Rotated Thunderline should hit the selected vertical line")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 20, "Rotated Thunderline should not hit the old horizontal line")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for push direction filtering coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(922, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["updraft"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 100, "max_hp": 100, "block": 0}
+	]
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["updraft"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var presentation: Dictionary = board_view.get("presentation")
+	var ability_tiles: Array = presentation.get("ability_tiles", [])
+	_assert(not ability_tiles.has(Vector2i(2, 4)), "Push direction selection should not show the protagonist tile as a valid closer direction")
+	_assert(ability_tiles.has(Vector2i(4, 4)), "Push direction selection should still show directions that move the enemy farther away")
+	await instance.call("_on_board_tile_clicked", Vector2i(2, 4))
+	_assert(instance.get("_pending_orientation_target_tile") == Vector2i(3, 4), "Clicking an invalid closer push direction should keep direction selection pending")
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
+	await create_timer(1.5).timeout
+	var final_state: Dictionary = instance.get("_combat_state")
+	var enemies: Array = final_state.get("enemies", [])
+	var enemy: Dictionary = enemies[0] if not enemies.is_empty() else {}
+	_assert(enemy.get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Confirming a valid push direction should move the enemy farther from the player")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_block_card_skips_dead_move() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -4949,6 +5179,57 @@ func _test_run_scene_targetless_card_click_commits_play() -> void:
 	_assert(int(committed_player.get("hp", 0)) == 150, "Clicking a targetless self card should immediately commit its heal")
 	_assert(int(committed_player.get("block", 0)) == 20, "Clicking a targetless self card should immediately commit its block")
 	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Resolved targetless cards should leave the hand")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_fallback_attack_uses_scaled_damage() -> void:
+	var run_scene_script: Script = load("res://scripts/run_scene.gd")
+	_assert(run_scene_script != null, "Run scene script should load for fallback action coverage")
+	if run_scene_script == null:
+		return
+	var instance: Node = run_scene_script.new()
+	var attack_actions: Array = instance.call("_fallback_actions", "attack")
+	var attack_action: Dictionary = attack_actions[0] as Dictionary
+	_assert(int(attack_action.get("damage", 0)) == GameData.fixed_point_amount(2), "Fallback attack should use scaled fixed-point damage")
+	_assert(str(instance.call("_fallback_label", "attack")) == "20 Attack", "Fallback attack drag labels should match scaled damage")
+	instance.free()
+
+func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for card play meter spend preview coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(951, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab", "quick_stab"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab", "quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	var count_label: Label = instance.get("_play_meter_count") as Label
+	_assert(count_label != null and count_label.text == "2", "Card play meter should start from available combat plays")
+	instance.call("_begin_card_play_meter_spend_preview")
+	_assert(count_label != null and count_label.text == "1", "Card play meter should spend the played card immediately")
+	var rewarded_state: Dictionary = combat_state.duplicate(true)
+	rewarded_state["death_bonus_card_plays_this_turn"] = 1
+	_assert(int(instance.call("_card_play_count_for_resolution_state", rewarded_state)) == 2, "Death-reward play previews should add to the already-spent meter count")
 	instance.queue_free()
 	await process_frame
 
@@ -5570,7 +5851,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	reward_run_state["mode"] = "reward"
 	reward_run_state["pending_reward"] = {
 		"cards": ["spark_dart", "brace", "frostbolt"],
-		"heal_amount": 6,
+		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 4
 	}
 	instance.set("_run_state", reward_run_state)

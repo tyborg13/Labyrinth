@@ -112,12 +112,14 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Exhaust-card penalty: `0.55`
 - AOE base target multiplier: `1.20`
 - AOE extra tile multiplier: `0.10`
+- Rotatable asymmetric AOE orientation bonus: `0.05`
 - Chain extra target bonus: `0.45`
 - Pierce defense bypass: `0.75`
 - Freeze: `3.8`
 - Shock: `2.5`
 - Push: `0.28` per tile
 - Pull: `0.14` per tile
+- Directed push/pull bonus: `0.03` per forced-movement tile
 
 Status damage proxies:
 
@@ -177,7 +179,11 @@ blink in the same card:
 - Reach `5+`: `0.95`
 
 For ranged, ranged AOE, push, and pull attacks, playability is based on printed
-range:
+range. Rotatable asymmetric AOE patterns get a small orientation bonus because
+the player can rotate the pattern while aiming around the hovered center tile.
+Push and pull get a small directed-force bonus because the player chooses among
+legal straight cardinal lines after choosing the target, constrained to directions
+that move the target farther from or closer to the caster:
 
 - Range `4` or less: `0.80`
 - Range `5`: `0.88`
