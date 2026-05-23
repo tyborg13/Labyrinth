@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-20T17:10:14Z",
+  "updated_at": "2026-05-23T13:30:57Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2993,6 +2993,72 @@
       "source": {
         "branch": "master",
         "commit": "4e8fbef"
+      }
+    },
+    {
+      "id": "mnt_20260523T033146Z_8a4515b9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Immobilize is a boolean one-turn movement lock",
+      "details": "Cards express immobilize as immobilize: true, not a numeric stack. Combat stores it as a one-turn boolean unit condition consumed at the affected unit's next activation; enemies skip movement actions only, while player restriction blocks move and blink actions.",
+      "status": "active",
+      "created_at": "2026-05-23T03:31:46Z",
+      "updated_at": "2026-05-23T03:31:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1c92d0c"
+      }
+    },
+    {
+      "id": "mnt_20260523T120954Z_b8ced589",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Avoid repeated side-profile ranged duel card art compositions",
+      "details": "For ranged card art, do not default to a hooded attacker on the left firing across a detailed scene at an enemy on the right. Vary compositions toward close-ups, over-the-shoulder views, environmental silhouettes, impact moments, or other card-specific framing unless that side-profile duel is explicitly requested.",
+      "status": "active",
+      "created_at": "2026-05-23T12:09:54Z",
+      "updated_at": "2026-05-23T12:09:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1c92d0c"
+      }
+    },
+    {
+      "id": "mnt_20260523T124300Z_ce754529",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "data/cards.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/cards.json",
+      "summary": "Bone Dart is retired from active starter/reward pools",
+      "details": "Hamstring Shot replaces Bone Dart in GameData.starting_deck as the starter ranged card. Bone Dart remains defined with rarity starter so old saves, tests, or debug fixtures can still load it, but it is not marked starter and should not appear in starting_deck or reward_card_pool_by_rarity unless intentionally revived.",
+      "status": "active",
+      "created_at": "2026-05-23T12:43:00Z",
+      "updated_at": "2026-05-23T12:43:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1c92d0c"
       }
     }
   ]

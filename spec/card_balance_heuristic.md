@@ -117,6 +117,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Pierce defense bypass: `0.75`
 - Freeze: `3.8`
 - Shock: `2.5`
+- Immobilize one-turn movement lock: `1.7`
 - Push: `0.28` per tile
 - Pull: `0.14` per tile
 - Directed push/pull bonus: `0.03` per forced-movement tile

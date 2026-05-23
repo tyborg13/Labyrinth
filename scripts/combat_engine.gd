@@ -107,7 +107,8 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"turn": 1,
 		"player_turn_restrictions": {
 			"frozen": false,
-			"shocked": false
+			"shocked": false,
+			"immobilized": false
 		},
 		"pending_player_trap_restriction": "",
 		"turn_flags": {
@@ -181,7 +182,10 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	if bool(restrictions.get("frozen", false)):
 		return false
 	if bool(restrictions.get("shocked", false)):
-		return action_type in ["move", "blink"]
+		if action_type not in ["move", "blink"]:
+			return false
+	if bool(restrictions.get("immobilized", false)) and action_type in ["move", "blink"]:
+		return false
 	return true
 
 func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> Array[Vector2i]:
@@ -472,6 +476,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 			_assign_enemy_intent(next_state, enemy_index, rng)
 			continue
 		var shocked: bool = bool(turn_setup.get("shocked", false))
+		var immobilized: bool = bool(turn_setup.get("immobilized", false))
 		enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 		var intent: Dictionary = enemy.get("intent", {})
 		if not intent.is_empty():
@@ -486,6 +491,8 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				if combat_outcome(next_state) != "":
 					break
 				if shocked and not _enemy_action_is_movement(action):
+					continue
+				if immobilized and _enemy_action_is_movement(action):
 					continue
 				var before_state: Dictionary = next_state.duplicate(true)
 				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng)
@@ -512,7 +519,8 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["card_play_bonus_this_turn"] = 0
 	next_state["player_turn_restrictions"] = {
 		"frozen": false,
-		"shocked": false
+		"shocked": false,
+		"immobilized": false
 	}
 	next_state["pending_player_trap_restriction"] = ""
 	next_state["turn_flags"] = {
@@ -1398,6 +1406,7 @@ func _normalized_unit(unit_value: Variant) -> Dictionary:
 	unit["burn"] = int(unit.get("burn", 0))
 	unit["freeze"] = int(unit.get("freeze", 0))
 	unit["shock"] = int(unit.get("shock", 0))
+	unit["immobilize"] = bool(unit.get("immobilize", false))
 	var poison_value: Variant = unit.get("poison", {})
 	var poison: Dictionary = {}
 	if typeof(poison_value) == TYPE_DICTIONARY:
@@ -1427,6 +1436,7 @@ func _action_has_keyword_effect(action: Dictionary) -> bool:
 		int(action.get("burn", 0)) > 0
 		or int(action.get("freeze", 0)) > 0
 		or int(action.get("shock", 0)) > 0
+		or _action_applies_immobilize(action)
 		or int(action.get("poison", 0)) > 0
 		or int(action.get("push", 0)) > 0
 		or int(action.get("pull", 0)) > 0
@@ -1441,6 +1451,9 @@ func _action_has_forced_movement(action: Dictionary) -> bool:
 		or int(action.get("push", 0)) > 0
 		or int(action.get("pull", 0)) > 0
 	)
+
+func _action_applies_immobilize(action: Dictionary) -> bool:
+	return bool(action.get("immobilize", false))
 
 func _forced_movement_amount(action: Dictionary) -> int:
 	match str(action.get("type", "")):
@@ -1591,6 +1604,8 @@ func _action_with_intensity_bonus(state: Dictionary, action: Dictionary) -> Dict
 		resolved_action[field] = int(resolved_action.get(field, 0)) + int(bonus.get(field, 0))
 	if bool(bonus.get("pierce", false)):
 		resolved_action["pierce"] = true
+	if bool(bonus.get("immobilize", false)):
+		resolved_action["immobilize"] = true
 	return resolved_action
 
 func _intensity_bonus_damage_modifiers_for_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
@@ -1632,6 +1647,11 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		enemy["shock"] = maxi(int(enemy.get("shock", 0)), int(action.get("shock", 0)))
 		if int(enemy.get("shock", 0)) > before_shock:
 			triggered_statuses.append("shock")
+	if _action_applies_immobilize(action) and not _enemy_is_immune_to_status(enemy, "immobilize"):
+		var before_immobilize: bool = bool(enemy.get("immobilize", false))
+		enemy["immobilize"] = true
+		if not before_immobilize:
+			triggered_statuses.append("immobilize")
 	if int(action.get("poison", 0)) > 0:
 		var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
 		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
@@ -1666,6 +1686,8 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 		player["freeze"] = maxi(int(player.get("freeze", 0)), int(action.get("freeze", 0)))
 	if int(action.get("shock", 0)) > 0:
 		player["shock"] = maxi(int(player.get("shock", 0)), int(action.get("shock", 0)))
+	if _action_applies_immobilize(action):
+		player["immobilize"] = true
 	if int(action.get("poison", 0)) > 0:
 		var poison: Dictionary = player.get("poison", {}).duplicate(true)
 		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
@@ -2227,7 +2249,10 @@ func _apply_trap_keywords_to_player(state: Dictionary, trap: Dictionary) -> Dict
 			restriction_kind
 		)
 		return next_state
-	player[restriction_kind] = maxi(int(player.get(restriction_kind, 0)), int(trap.get(restriction_kind, 0)))
+	if restriction_kind == "immobilize":
+		player["immobilize"] = true
+	else:
+		player[restriction_kind] = maxi(int(player.get(restriction_kind, 0)), int(trap.get(restriction_kind, 0)))
 	next_state["player"] = player
 	return next_state
 
@@ -2239,12 +2264,18 @@ func _trap_action_blocker_kind(trap: Dictionary) -> String:
 		return "freeze"
 	if int(trap.get("shock", 0)) > 0:
 		return "shock"
+	if bool(trap.get("immobilize", false)):
+		return "immobilize"
 	return ""
 
 func _stronger_restriction(current_kind: String, next_kind: String) -> String:
 	if current_kind.is_empty():
 		return next_kind
 	if current_kind == "freeze":
+		return current_kind
+	if next_kind == "freeze":
+		return next_kind
+	if current_kind == "shock" and next_kind == "immobilize":
 		return current_kind
 	return next_kind
 
@@ -2260,6 +2291,8 @@ func _apply_pending_player_trap_restriction(state: Dictionary) -> Dictionary:
 			restrictions["frozen"] = true
 		"shock":
 			restrictions["shocked"] = true
+		"immobilize":
+			restrictions["immobilized"] = true
 	next_state["player_turn_restrictions"] = restrictions
 	return next_state
 
@@ -2271,6 +2304,8 @@ func _trap_trigger_log(trap: Dictionary) -> String:
 		parts.append("Freeze.")
 	if int(trap.get("shock", 0)) > 0:
 		parts.append("Shock.")
+	if bool(trap.get("immobilize", false)):
+		parts.append("Immobilize.")
 	if int(trap.get("poison", 0)) > 0:
 		parts.append("Poison %d." % int(trap.get("poison", 0)))
 	return " ".join(parts)
@@ -2357,7 +2392,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 	var steps: Array[Dictionary] = []
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		return {"steps": steps, "skip_all": false, "shocked": false}
+		return {"steps": steps, "skip_all": false, "shocked": false, "immobilized": false}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var actor_name: String = str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))
 	if int(enemy.get("burn", 0)) > 0:
@@ -2379,7 +2414,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			"text": "Burn %d" % burn_amount
 		})
 		if int(enemy.get("hp", 0)) <= 0:
-			return {"steps": steps, "skip_all": true, "shocked": false}
+			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false}
 	if _poison_damage(enemy) > 0:
 		var poison_before: Dictionary = enemy.duplicate(true)
 		enemy = _advance_poison(enemy)
@@ -2406,7 +2441,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			poison_enemies[enemy_index] = enemy
 			next_state["enemies"] = poison_enemies
 			if int(enemy.get("hp", 0)) <= 0:
-				return {"steps": steps, "skip_all": true, "shocked": false}
+				return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false}
 	else:
 		enemy = _advance_poison(enemy)
 		var pending_poison_enemies: Array = next_state.get("enemies", [])
@@ -2414,6 +2449,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		next_state["enemies"] = pending_poison_enemies
 	var skip_all: bool = false
 	var shocked: bool = false
+	var immobilized: bool = false
 	if int(enemy.get("freeze", 0)) > 0:
 		enemy["freeze"] = maxi(0, int(enemy.get("freeze", 0)) - 1)
 		var frozen_enemies: Array = next_state.get("enemies", [])
@@ -2428,21 +2464,33 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			"label": "Frozen",
 			"text": "Frozen"
 		})
-	elif int(enemy.get("shock", 0)) > 0:
-		enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
-		var shocked_enemies: Array = next_state.get("enemies", [])
-		shocked_enemies[enemy_index] = enemy
-		next_state["enemies"] = shocked_enemies
-		shocked = true
-		steps.append({
-			"kind": "status",
-			"actor_key": _enemy_key(enemy),
-			"actor_name": actor_name,
-			"tile": enemy.get("pos", Vector2i.ZERO),
-			"label": "Shocked",
-			"text": "Shocked"
-		})
-	return {"steps": steps, "skip_all": skip_all, "shocked": shocked, "state": next_state}
+	else:
+		if int(enemy.get("shock", 0)) > 0:
+			enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
+			shocked = true
+			steps.append({
+				"kind": "status",
+				"actor_key": _enemy_key(enemy),
+				"actor_name": actor_name,
+				"tile": enemy.get("pos", Vector2i.ZERO),
+				"label": "Shocked",
+				"text": "Shocked"
+			})
+		if bool(enemy.get("immobilize", false)):
+			enemy["immobilize"] = false
+			immobilized = true
+			steps.append({
+				"kind": "status",
+				"actor_key": _enemy_key(enemy),
+				"actor_name": actor_name,
+				"tile": enemy.get("pos", Vector2i.ZERO),
+				"label": "Immobilized",
+				"text": "Immobilized"
+			})
+		var restricted_enemies: Array = next_state.get("enemies", [])
+		restricted_enemies[enemy_index] = enemy
+		next_state["enemies"] = restricted_enemies
+	return {"steps": steps, "skip_all": skip_all, "shocked": shocked, "immobilized": immobilized, "state": next_state}
 
 func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -2475,16 +2523,22 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 		next_state["player"] = player
 	var restrictions: Dictionary = {
 		"frozen": false,
-		"shocked": false
+		"shocked": false,
+		"immobilized": false
 	}
 	if int(player.get("freeze", 0)) > 0:
 		player["freeze"] = maxi(0, int(player.get("freeze", 0)) - 1)
 		restrictions["frozen"] = true
 		_log(next_state, "Frozen this turn.")
-	elif int(player.get("shock", 0)) > 0:
-		player["shock"] = maxi(0, int(player.get("shock", 0)) - 1)
-		restrictions["shocked"] = true
-		_log(next_state, "Shocked this turn.")
+	else:
+		if int(player.get("shock", 0)) > 0:
+			player["shock"] = maxi(0, int(player.get("shock", 0)) - 1)
+			restrictions["shocked"] = true
+			_log(next_state, "Shocked this turn.")
+		if bool(player.get("immobilize", false)):
+			player["immobilize"] = false
+			restrictions["immobilized"] = true
+			_log(next_state, "Immobilized this turn.")
 	next_state["player"] = player
 	next_state["player_turn_restrictions"] = restrictions
 	return next_state
@@ -2629,6 +2683,8 @@ func _player_status_step_text(before_player: Dictionary, after_player: Dictionar
 		tags.append("Freeze")
 	if int(after_player.get("shock", 0)) > int(before_player.get("shock", 0)):
 		tags.append("Shock")
+	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
+		tags.append("Immobilize")
 	var before_poison: Dictionary = before_player.get("poison", {})
 	var after_poison: Dictionary = after_player.get("poison", {})
 	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):

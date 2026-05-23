@@ -51,6 +51,7 @@ func _initialize() -> void:
 	_test_two_card_turn_draw_flow()
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
+	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
 	_test_elemental_intensity_icons_surface_card_requirements()
@@ -66,6 +67,7 @@ func _initialize() -> void:
 	_test_pierce_ignores_defenses()
 	_test_enemy_pierce_intents_surface_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
+	_test_immobilize_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_harrier_has_moving_ranged_attack()
@@ -79,6 +81,7 @@ func _initialize() -> void:
 	_test_elemental_room_rewards_follow_affinity(default_progression)
 	_test_chain_hits_clustered_enemies()
 	_test_freeze_and_shock_control_turn_flow()
+	_test_immobilize_control_turn_flow()
 	_test_traps_trigger_and_apply_current_turn_control()
 	_test_traps_roll_control_to_next_turn_when_no_plays_remain()
 	_test_move_paths_only_cross_required_traps()
@@ -845,6 +848,18 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	state = combat.prepare_next_player_turn(state)
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
+func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
+	var starting_deck: Array[String] = GameData.starting_deck()
+	_assert(starting_deck.has("hamstring_shot"), "Hamstring Shot should replace the plain ranged starter in the starting deck")
+	_assert(not starting_deck.has("bone_dart"), "Bone Dart should stay out of the starting deck while retired")
+	_assert(bool(GameData.card_def("hamstring_shot").get("starter", false)), "Hamstring Shot should be marked as a starter card")
+	_assert(not bool(GameData.card_def("bone_dart").get("starter", false)), "Bone Dart should not be marked as an active starter card")
+	var reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
+	for rarity: String in ["common", "uncommon", "rare"]:
+		var cards: Array = reward_pool.get(rarity, [])
+		_assert(not cards.has("bone_dart"), "Bone Dart should stay out of reward offers while retired")
+		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
+
 func _test_elemental_intensity_starts_from_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
@@ -1548,6 +1563,27 @@ func _test_pierce_cards_stay_in_allowed_elements() -> void:
 		var card_element: String = GameData.card_element_from_def(card)
 		_assert(bool(allowed_elements.get(card_element, false)), "Pierce cards should currently stay neutral, ice, or earth: %s" % card_id)
 
+func _test_immobilize_cards_stay_in_allowed_elements() -> void:
+	var allowed_elements: Dictionary = {
+		"none": true,
+		"ice": true,
+		"earth": true
+	}
+	for card_id: String in GameData.cards().keys():
+		var card: Dictionary = GameData.card_def(card_id)
+		var has_immobilize: bool = false
+		for action_var: Variant in card.get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var as Dictionary
+			if bool(action.get("immobilize", false)) or bool((action.get("intensity_bonus", {}) as Dictionary).get("immobilize", false)):
+				has_immobilize = true
+				break
+		if not has_immobilize:
+			continue
+		var card_element: String = GameData.card_element_from_def(card)
+		_assert(bool(allowed_elements.get(card_element, false)), "Immobilize cards should currently stay neutral, ice, or earth: %s" % card_id)
+
 func _test_healing_cards_are_burned_and_downweighted() -> void:
 	for card_id: String in ["patch_up", "rallying_breath", "last_light"]:
 		var card: Dictionary = GameData.card_def(card_id)
@@ -1955,6 +1991,73 @@ func _test_freeze_and_shock_control_turn_flow() -> void:
 	player_state = combat.prepare_next_player_turn(player_state)
 	_assert(combat.player_action_can_resolve(player_state, {"type": "move", "range": 2}), "Shock should still allow movement actions")
 	_assert(not combat.player_action_can_resolve(player_state, {"type": "block", "amount": 4}), "Shock should block non-movement player actions for the turn")
+
+func _test_immobilize_control_turn_flow() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(157, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["root_snare"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(4, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Lunge", "actions": [{"type": "move_toward", "range": 2}, {"type": "melee", "damage": 5, "range": 1}]}
+		}
+	]
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 0, "range": 6, "immobilize": true}, Vector2i(4, 4))
+	var phase_result: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_phase: Dictionary = phase_result.get("state", {})
+	var rooted_enemy: Dictionary = (after_phase.get("enemies", []) as Array)[0]
+	_assert(rooted_enemy.get("pos", Vector2i.ZERO) == Vector2i(4, 4), "Immobilized enemies should skip movement actions for their activation")
+	_assert(int((after_phase.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Immobilize should deny attacks that needed movement to reach")
+
+	var adjacent_state: Dictionary = combat.create_combat(158, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["root_snare"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	adjacent_state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(3, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Claw", "actions": [{"type": "move_toward", "range": 2}, {"type": "melee", "damage": 5, "range": 1}]}
+		}
+	]
+	adjacent_state = combat.apply_player_action(adjacent_state, {"type": "ranged", "damage": 0, "range": 6, "immobilize": true}, Vector2i(3, 4))
+	adjacent_state = combat.resolve_enemy_phase(adjacent_state)
+	_assert(int((adjacent_state.get("player", {}) as Dictionary).get("hp", 0)) == 19, "Immobilized enemies should still attack if already in range")
+
+	var player_state: Dictionary = combat.create_combat(159, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["guarded_step"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var player: Dictionary = (player_state.get("player", {}) as Dictionary).duplicate(true)
+	player["immobilize"] = true
+	player_state["player"] = player
+	player_state = combat.prepare_next_player_turn(player_state)
+	_assert(not combat.player_action_can_resolve(player_state, {"type": "move", "range": 2}), "Immobilize should block player movement actions for the turn")
+	_assert(not combat.player_action_can_resolve(player_state, {"type": "blink", "range": 3}), "Immobilize should block player blink actions for the turn")
+	_assert(combat.player_action_can_resolve(player_state, {"type": "block", "amount": 4}), "Immobilize should still allow non-movement player actions")
 
 func _test_traps_trigger_and_apply_current_turn_control() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -2824,20 +2927,24 @@ func _test_status_badges_surface_countdowns() -> void:
 		"burn": 5,
 		"freeze": 1,
 		"shock": 1,
+		"immobilize": true,
 		"poison": {"damage": 4, "delay": 2}
 	})
-	_assert(badges.size() == 4, "Status badges should surface each active elemental status independently")
+	_assert(badges.size() == 5, "Status badges should surface each active status independently")
 	_assert(str((badges[0] as Dictionary).get("icon", "")) == "burn", "Burn badges should use the shared burn icon")
 	_assert(int((badges[0] as Dictionary).get("count", 0)) == 5, "Burn badges should show their remaining countdown")
-	_assert(str((badges[3] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
-	_assert(int((badges[3] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
+	_assert(str((badges[3] as Dictionary).get("icon", "")) == "immobilize", "Immobilize badges should use the shared immobilize icon")
+	_assert(str((badges[4] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
+	_assert(int((badges[4] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
 
 func _test_player_restriction_badges_show_turn_lock() -> void:
 	var board := CombatBoardView.new()
-	var statuses: Dictionary = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0}, {"frozen": true, "shocked": false})
+	var statuses: Dictionary = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0, "immobilize": false}, {"frozen": true, "shocked": false, "immobilized": false})
 	_assert(int(statuses.get("freeze", 0)) == 1, "Frozen turns should still surface a freeze badge even after the restriction consumes the stored counter")
-	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0}, {"frozen": false, "shocked": true})
+	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0, "immobilize": false}, {"frozen": false, "shocked": true, "immobilized": false})
 	_assert(int(statuses.get("shock", 0)) == 1, "Shocked turns should still surface a shock badge even after the restriction consumes the stored counter")
+	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0, "immobilize": false}, {"frozen": false, "shocked": false, "immobilized": true})
+	_assert(bool(statuses.get("immobilize", false)), "Immobilized turns should still surface an immobilize badge after the restriction consumes the stored condition")
 
 func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
@@ -2847,7 +2954,7 @@ func _test_air_trap_tooltip_is_damage_only() -> void:
 	}))
 	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
 	_assert(tooltip.contains("3 damage to adjacent tiles"), "Trap tooltips should show adjacent blast damage")
-	_assert(not tooltip.contains("Burn") and not tooltip.contains("Freeze") and not tooltip.contains("Shock") and not tooltip.contains("Poison"), "Air trap tooltips should stay damage-only until the air secondary effect is decided")
+	_assert(not tooltip.contains("Burn") and not tooltip.contains("Freeze") and not tooltip.contains("Shock") and not tooltip.contains("Immobilize") and not tooltip.contains("Poison"), "Air trap tooltips should stay damage-only until the air secondary effect is decided")
 
 func _test_pickup_tooltips_describe_effects() -> void:
 	var board := CombatBoardView.new()
@@ -3809,6 +3916,9 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged action tokens should use the bow icon")
 	_assert(str((row[1] as Dictionary).get("icon", "")) == "range", "Ranged action tokens should include the shared range icon")
 	_assert(str((row[2] as Dictionary).get("icon", "")) == "poison", "Status keywords should use their shared icon token")
+	var immobilize_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 3, "range": 5, "immobilize": true})
+	_assert(str((immobilize_row[2] as Dictionary).get("icon", "")) == "immobilize", "Immobilize should use its shared status icon token")
+	_assert(ActionIcons.tooltip("immobilize").contains("movement"), "Immobilize tooltip should explain the movement lock")
 	var pierce_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 6, "range": 5, "pierce": true})
 	_assert(pierce_row.size() == 2, "Pierce should replace the ranged damage icon instead of adding another keyword token")
 	_assert(str((pierce_row[0] as Dictionary).get("icon", "")) == "pierce", "Pierce attacks should use the pierce damage icon")
@@ -5877,6 +5987,8 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
 	_assert(play_payload.has("pickups_collected"), "Card play analytics should include collected battlefield pickups")
+	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
+	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
 	var reward_payload: Dictionary = reward_event.get("payload", {})
 	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")

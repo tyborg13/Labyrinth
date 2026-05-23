@@ -72,7 +72,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"quick_stab",
 		"guarded_step",
 		"shadow_step",
-		"bone_dart",
+		"hamstring_shot",
 		"sidestep_slash",
 		"whirlwind_slash",
 		"patch_up",

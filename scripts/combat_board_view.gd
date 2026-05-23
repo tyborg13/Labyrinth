@@ -35,6 +35,7 @@ const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
+const STATUS_IMMOBILIZE: Color = Color("b8c48f")
 const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
@@ -1648,6 +1649,7 @@ func _visible_units() -> Array[Dictionary]:
 			"burn": int(player_statuses.get("burn", 0)),
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
+			"immobilize": bool(player_statuses.get("immobilize", false)),
 			"poison": player.get("poison", {}).duplicate(true)
 		})
 	for illusion_var: Variant in combat_state.get("illusions", []):
@@ -1669,6 +1671,7 @@ func _visible_units() -> Array[Dictionary]:
 			"burn": 0,
 			"freeze": 0,
 			"shock": 0,
+			"immobilize": false,
 			"poison": {}
 		})
 	for preview_var: Variant in presentation.get("preview_units", []):
@@ -1694,6 +1697,7 @@ func _visible_units() -> Array[Dictionary]:
 			"burn": 0,
 			"freeze": 0,
 			"shock": 0,
+			"immobilize": false,
 			"poison": {},
 			"preview": true
 		})
@@ -1716,6 +1720,7 @@ func _visible_units() -> Array[Dictionary]:
 			"burn": int(enemy.get("burn", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
+			"immobilize": bool(enemy.get("immobilize", false)),
 			"poison": enemy.get("poison", {}).duplicate(true)
 		})
 	for npc_index: int in range((combat_state.get("npcs", []) as Array).size()):
@@ -3898,6 +3903,13 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_SHOCK,
 			"border": STATUS_SHOCK.lightened(0.18)
 		})
+	if bool(unit.get("immobilize", false)):
+		badges.append({
+			"icon": "immobilize",
+			"count": 0,
+			"fill": STATUS_IMMOBILIZE,
+			"border": STATUS_IMMOBILIZE.lightened(0.20)
+		})
 	var poison: Dictionary = unit.get("poison", {})
 	if int(poison.get("damage", 0)) > 0 and int(poison.get("delay", 0)) > 0:
 		badges.append({
@@ -3912,7 +3924,8 @@ func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> D
 	return {
 		"burn": int(player.get("burn", 0)),
 		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
-		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0)
+		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0),
+		"immobilize": bool(player.get("immobilize", false)) or bool(restrictions.get("immobilized", false))
 	}
 
 func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
@@ -4022,6 +4035,8 @@ func _trap_tooltip_text(trap: Dictionary) -> String:
 		lines.append("Freeze")
 	if int(trap.get("shock", 0)) > 0:
 		lines.append("Shock")
+	if bool(trap.get("immobilize", false)):
+		lines.append("Immobilize")
 	if int(trap.get("poison", 0)) > 0:
 		lines.append("Poison %d" % int(trap.get("poison", 0)))
 	return "\n".join(lines)

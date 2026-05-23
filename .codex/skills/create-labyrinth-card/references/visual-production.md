@@ -149,6 +149,17 @@ If a card needs many effects, consider whether the design is too busy before add
 
 ## Visual Validation
 
+Every new or visually changed card needs a fresh `CardWidget` preview screenshot before delivery. This includes changes to card art, icons, card names, rarity/element framing, summary rows, or any card-facing UI code.
+
+Preview rendering rules:
+
+- Instantiate `scenes/card_widget.tscn` and let the real `CardWidget` render the card; do not assemble card previews by hand.
+- Use an actual game card size. For standalone proof sheets, use the scene default `250 x 352`. For surface-specific checks, use the matching `RunScene` size such as `_hand_card_size(...)`, pile, reward, or upgrade card size.
+- Do not resize a `CardWidget` to oversized proof dimensions such as `360 x 507`; CardWidget clamps interior art and icon metrics for real game sizes, so oversized controls create false visual bugs like tiny icons, stretched sockets, excess parchment, and cleanly clipped art.
+- If a larger image is needed for inspection, render cards at the true size first, then scale the final screenshot/contact sheet uniformly.
+- Prefer the normal Godot renderer for preview screenshots when textures or viewports are involved. Headless tests are still useful for logic, but dummy-renderer screenshots can be blank or misleading.
+- Save every proof with a fresh timestamped or versioned filename under `tmp/card_screenshots/` so Codex does not show a cached old bitmap.
+
 Check:
 
 - `file assets/art/cards/<card_id>.png` reports `256 x 144` PNG RGBA.
@@ -158,5 +169,5 @@ Check:
 - The card name fits without awkward ellipsis.
 - Icon rows communicate the card without relying on long fallback text.
 - Elemental frame and rarity frame are produced by data fields, not painted into art.
-- Actual `CardWidget` screenshots show the art fitting inside the frame without focal content cropped by the wider art slot.
+- Actual `CardWidget` screenshots show normal icon scale, unstretched rarity sockets/gems, and art fitting inside the frame with the intended ragged alpha edge visible.
 - Visual proof screenshots use fresh timestamped or versioned filenames; do not overwrite a previously shown path because Codex may display stale cached images.

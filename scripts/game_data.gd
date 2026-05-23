@@ -169,7 +169,7 @@ static func starting_deck() -> Array[String]:
 		"guarded_step",
 		"shadow_step",
 		"whirlwind_slash",
-		"bone_dart",
+		"hamstring_shot",
 		"sidestep_slash",
 		"patch_up",
 		"bloody_lunge",
@@ -819,6 +819,8 @@ static func _status_label(status_field: String) -> String:
 			return "Freeze"
 		"shock":
 			return "Shock"
+		"immobilize":
+			return "Immobilize"
 		_:
 			return status_field.capitalize()
 
@@ -1352,6 +1354,8 @@ static func _action_value(action: Dictionary) -> float:
 	value += float(int(action.get("poison", 0))) * 0.95
 	value += float(int(action.get("freeze", 0))) * 3.2
 	value += float(int(action.get("shock", 0))) * 2.4
+	if bool(action.get("immobilize", false)):
+		value += 1.7
 	value += float(int(action.get("chain", 0))) * 1.5
 	if bool(action.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
 		value += 1.1
@@ -1381,6 +1385,8 @@ static func _intensity_bonus_value(action: Dictionary, action_type: String) -> f
 	value += float(int(bonus.get("poison", 0))) * 0.95
 	value += float(int(bonus.get("freeze", 0))) * 3.2
 	value += float(int(bonus.get("shock", 0))) * 2.4
+	if bool(bonus.get("immobilize", false)):
+		value += 1.7
 	value += float(int(bonus.get("chain", 0))) * 1.5
 	value += float(int(bonus.get("push", 0))) * 0.9
 	value += float(int(bonus.get("pull", 0))) * 0.65

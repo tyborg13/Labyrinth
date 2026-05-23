@@ -92,6 +92,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Disrupts the affected unit's next action.",
 		"path": "%s/shock.png" % ICON_ROOT
 	},
+	"immobilize": {
+		"label": "Immobilize",
+		"description": "Stops movement for the rest of the turn.",
+		"path": "%s/immobilize.png" % ICON_ROOT
+	},
 	"poison": {
 		"label": "Poison",
 		"description": "Delayed damage that lands after its countdown.",
@@ -446,6 +451,13 @@ static func tokens_for_intensity_bonus(action: Dictionary) -> Array:
 			int(bonus.get(status_key, 0)),
 			"Extra %s when %s intensity is high enough." % [label(status_key).to_lower(), ElementData.name(element_id)]
 		))
+	if bool(bonus.get("immobilize", false)):
+		tokens.append(token_for(
+			"immobilize",
+			"+",
+			"neutral",
+			"Immobilizes when %s intensity is high enough." % ElementData.name(element_id)
+		))
 	if bool(bonus.get("pierce", false)):
 		tokens.append(token_for(
 			"pierce",
@@ -580,6 +592,8 @@ static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 		tokens.append(_token_for_action_field(action, "freeze", "freeze", int(action.get("freeze", 0))))
 	if int(action.get("shock", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "shock", "shock", int(action.get("shock", 0))))
+	if bool(action.get("immobilize", false)):
+		tokens.append(_token_for_action_field(action, "immobilize", "immobilize"))
 	if int(action.get("chain", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "chain", "chain", int(action.get("chain", 0))))
 	if int(action.get("push", 0)) > 0:

@@ -70,6 +70,7 @@ class HeuristicWeights:
     pierce_value: float = 0.75
     freeze_value: float = 3.8
     shock_value: float = 2.5
+    immobilize_value: float = 1.7
     push_value_per_tile: float = 0.28
     pull_value_per_tile: float = 0.14
     directed_force_bonus_per_tile: float = 0.03
@@ -303,6 +304,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 breakdown.control += weights.shock_value * shock * playability * targets * action_scale
                 has_status = True
 
+            if bool(action.get("immobilize", False)):
+                breakdown.control += weights.immobilize_value * playability * targets * action_scale
+                has_status = True
+
             push = int(action.get("push", 0))
             if action_type == "push":
                 push += int(action.get("amount", 0))
@@ -351,6 +356,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 bonus_shock = int(intensity_bonus.get("shock", 0))
                 if bonus_shock > 0:
                     breakdown.control += weights.shock_value * bonus_shock * playability * targets * bonus_scale
+                    has_status = True
+
+                if bool(intensity_bonus.get("immobilize", False)):
+                    breakdown.control += weights.immobilize_value * playability * targets * bonus_scale
                     has_status = True
 
                 bonus_push = int(intensity_bonus.get("push", 0))

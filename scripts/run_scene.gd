@@ -6545,6 +6545,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_burn_applied: int = 0
 	var enemy_freeze_applied: int = 0
 	var enemy_shock_applied: int = 0
+	var enemy_immobilize_applied: int = 0
 	var enemy_poison_applied: int = 0
 	var terrain_hp_damage: int = 0
 	var terrain_destroyed: int = 0
@@ -6561,6 +6562,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		enemy_burn_applied += maxi(0, int(after_enemy.get("burn", 0)) - int(before_enemy.get("burn", 0)))
 		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
 		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
+		if bool(after_enemy.get("immobilize", false)) and not bool(before_enemy.get("immobilize", false)):
+			enemy_immobilize_applied += 1
 		enemy_poison_applied += maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
 	var after_terrain_by_id: Dictionary = {}
 	for after_terrain_var: Variant in resolved_state.get("terrain", []):
@@ -6585,6 +6588,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
 	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
+	var player_immobilize_applied: int = 1 if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)) else 0
 	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
 	var before_illusion_ids: Dictionary = {}
 	for before_illusion_var: Variant in before_state.get("illusions", []):
@@ -6654,12 +6658,14 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 			"burn": enemy_burn_applied,
 			"freeze": enemy_freeze_applied,
 			"shock": enemy_shock_applied,
+			"immobilize": enemy_immobilize_applied,
 			"poison": enemy_poison_applied
 		},
 		"player_status_applied": {
 			"burn": player_burn_applied,
 			"freeze": player_freeze_applied,
 			"shock": player_shock_applied,
+			"immobilize": player_immobilize_applied,
 			"poison": player_poison_applied
 		},
 		"selected_targets": _vector2i_array(selected_targets),

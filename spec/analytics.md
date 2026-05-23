@@ -66,7 +66,8 @@ The current event stream is enough to derive:
 - elemental intensity before/after resolution, gross positive per-element
   intensity gained by the played card, and intensity spent by relic payoffs
 - illusions created and their total created health
-- immediate status application deltas
+- immediate status application deltas for burn, freeze, shock, immobilize, and
+  poison
 - actual resolved action list and chosen targets
 
 AOE card actions are logged in that action list with their explicit `pattern`
