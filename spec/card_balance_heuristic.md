@@ -25,6 +25,14 @@ The main assumptions come from:
 These assumptions are baked into the current coefficients:
 
 - Player pace: `2` cards per turn and `2` draw per turn.
+- Player turns now run on an initiative clock instead of a fixed player-then-all-
+  enemies round. The player starts combat active, then their next turn is
+  scheduled at `base initiative + time spent on played cards`.
+- Player base initiative starts at `9`, is reduced by `1` per Agility point,
+  and floors at `5`.
+- Printed cards carry a `time` cost on a `1-10` scale. The current baseline
+  card is `5` time; fast cards are meant to be a real initiative advantage,
+  while heavy cards can let enemies lap the player if overplayed.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
 - Fatigue starts at `2` health and increases by `1` each reshuffle.
@@ -49,7 +57,13 @@ Encounter calibration is also important:
   sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
   boss gate.
 - First-sequence standard-room enemies average about `13.78` max HP and `3.03`
-  raw damage per enemy turn across the non-boss roster.
+  raw damage per enemy turn across the non-boss roster. Enemy base initiative
+  is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
+  harriers are quick, acolytes are baseline, and wardens are slow. At depth `1`,
+  weighted repeat cycles are roughly `11` for wisps, `13` for crawlers, `13.4`
+  for harriers, `16.25` for acolytes, and `20.25` for wardens; Zekarion cycles
+  around `19.25` before summon forcing. Depth reduces enemy base initiative by
+  up to `4` over time.
 - Later sequences keep the same local density and elemental-control curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.
@@ -82,7 +96,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + elemental_intensity + mobility + synergy - health_cost - exhaust_card_penalty`
+`EV = offense + control + defense + flow + elemental_intensity + mobility + synergy + tempo - health_cost - exhaust_card_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -110,6 +124,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Blink on an attacking card: `0.12` per tile
 - Health cost: `1.0` per HP
 - Exhaust-card penalty: `0.55`
+- Card time tempo: `(5 - time) * 0.45`
 - AOE base target multiplier: `1.20`
 - AOE extra tile multiplier: `0.10`
 - Rotatable asymmetric AOE orientation bonus: `0.05`
@@ -224,6 +239,8 @@ This heuristic is intentionally conservative about:
 - Extreme deck-thinning or fatigue exploitation
 - Exact frequency of matching-element rooms after a player drafts heavily into
   one element
+- Exact initiative snowballing from multi-enemy queues, especially where a
+  fast enemy acts twice before a slow, high-time player build comes back online
 
 If a card is intentionally better than its standalone score because of one of
 those factors, note that explicitly in review or commit context.
@@ -234,6 +251,8 @@ Update this document and `tools/card_heuristic.py` together whenever any of the
 following change:
 
 - cards per turn or draw per turn
+- player base initiative, Agility scaling, card time costs, enemy base
+  initiative, or enemy intent time costs
 - fatigue rules
 - status behavior
 - damage, block, stoneskin, or healing semantics

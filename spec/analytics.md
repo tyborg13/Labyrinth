@@ -17,6 +17,13 @@ their context when available:
 - `progression_level`
 - `progression_stats`
 
+Combat-mode events also include initiative context when combat state is
+available:
+
+- `initiative_clock`
+- `current_actor_kind`
+- `current_actor_key`
+
 ## Current Event Types
 
 - `run_started`
@@ -51,7 +58,8 @@ The current event stream is enough to derive:
 
 `card_played.payload` currently logs raw observed ingredients instead of a single heuristic score:
 
-- enemy HP, block, and stoneskin removed
+- enemy HP, realized block, and stoneskin removed; future guard intents do not
+  count as removable block until that enemy resolves the block action
 - pierce actions resolved and enemy defense bypassed by observed HP damage
 - terrain HP damage, terrain destroyed, traps triggered, and battlefield pickups
   collected, including dropped ember piles reclaimed through `embers_recovered`
@@ -63,6 +71,8 @@ The current event stream is enough to derive:
 - card play economy during resolution: plays spent, remaining plays before/after,
   net remaining-play delta, total play capacity gained, kill-granted plays, and
   card-action-granted plays
+- initiative timing: printed `card_time`, player turn time spent before/after
+  the play, and the current `player_base_initiative`
 - elemental intensity before/after resolution, gross positive per-element
   intensity gained by the played card, and intensity spent by relic payoffs
 - illusions created and their total created health
@@ -77,7 +87,9 @@ resolved action as `orientation`; legal push and pull direction choices are
 additive as `force_direction`, while `play_mode` comparison ignores those runtime
 direction fields so printed cards still classify as printed plays.
 
-`enemy_status_tick` captures delayed status resolution at the combat level. It is useful for later value-model work, but it is not yet card-source attributed.
+`enemy_status_tick` captures delayed status resolution when the affected enemy's
+own initiative activation starts. It is useful for later value-model work, but
+it is not yet card-source attributed.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. `combat_ended` includes `recovered_embers`, the total

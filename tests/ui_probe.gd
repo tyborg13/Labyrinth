@@ -28,6 +28,8 @@ func _capture_run_states() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
+	await process_frame
+	await process_frame
 	var probe_run_engine := RunEngine.new()
 	instance.call("_load_run_state", probe_run_engine.create_new_run(123, ProgressionStore.default_data()))
 	await process_frame
@@ -44,10 +46,12 @@ func _capture_run_states() -> void:
 			break
 
 	if combat_coord != Vector2i.ZERO:
-		await instance.call("_on_map_view_room_selected", combat_coord)
+		instance.call("_on_map_view_room_selected", combat_coord)
+		await create_timer(0.95).timeout
 		await process_frame
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat.png")
+		await _capture_turn_order_probe(instance)
 		var combat_state: Dictionary = instance.get("_combat_state")
 		var ranged_deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 		if ranged_deck.get("hand", []).is_empty():
@@ -185,6 +189,44 @@ func _capture_run_states() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _capture_turn_order_probe(instance: Node) -> void:
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state.duplicate(true))
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_turn_order_before_pass.png")
+
+	var combat_engine = instance.get("_combat_engine")
+	var scheduled_state: Dictionary = combat_engine.finish_player_activation(combat_state.duplicate(true))
+	instance.call("_animate_turn_order_transition_between_states", combat_state.duplicate(true), scheduled_state.duplicate(true))
+	await create_timer(0.10).timeout
+	await process_frame
+	await _save_root_screenshot("user://probes/run_turn_order_player_pop_mid.png")
+	await create_timer(0.55).timeout
+	await process_frame
+	await _save_root_screenshot("user://probes/run_turn_order_player_reslot.png")
+
+	var reset_state: Dictionary = combat_state.duplicate(true)
+	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = reset_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", reset_state)
+	instance.set("_turn_order_animating", false)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	instance.call("_on_pass_turn_pressed")
+	await create_timer(3.2).timeout
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_turn_order_after_pass_full.png")
+
 func _capture_orientation_previews(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
@@ -247,7 +289,8 @@ func _capture_orientation_previews(instance: Node) -> void:
 	await process_frame
 	instance.call("_on_card_pressed", 0)
 	await process_frame
-	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	await create_timer(0.30).timeout
 	await process_frame
 	instance.call("_on_board_tile_hovered", Vector2i(4, 4))
 	await process_frame

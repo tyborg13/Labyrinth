@@ -49,6 +49,10 @@ func _initialize() -> void:
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
 	_test_two_card_turn_draw_flow()
+	_test_initiative_order_starts_with_active_player_and_fast_enemies()
+	_test_initiative_advances_enemy_turns_until_player_reacts()
+	_test_card_time_scale_changes_player_reentry_order()
+	_test_agility_reduces_player_base_initiative()
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
@@ -72,7 +76,7 @@ func _initialize() -> void:
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_harrier_has_moving_ranged_attack()
 	_test_player_block_absorbs_full_enemy_phase()
-	_test_enemy_preview_block_mitigates_current_turn_damage()
+	_test_enemy_block_applies_on_actor_turn_only()
 	_test_aoe_hits_multiple_targets()
 	_test_close_aoe_hits_adjacent_targets()
 	_test_rotated_line_aoe_uses_selected_orientation()
@@ -91,6 +95,7 @@ func _initialize() -> void:
 	_test_enemy_breaks_blocking_terrain()
 	_test_enemy_moves_toward_breakable_chokepoint()
 	_test_poison_and_stoneskin_behaviors()
+	_test_statuses_tick_on_affected_actor_turn()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_close_aoe_still_hits_player()
 	_test_enemy_threat_tiles_follow_intent()
@@ -791,6 +796,223 @@ func _test_two_card_turn_draw_flow() -> void:
 	_assert(int(state.get("cards_played_this_turn", 0)) == 0, "A new turn should reset the play counter")
 	_assert(int(state.get("turn", 0)) == 2, "Advancing the player turn should increment the turn counter")
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5, "A new turn should draw two replacement cards")
+
+func _test_initiative_order_starts_with_active_player_and_fast_enemies() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "warden",
+			"pos": Vector2i(5, 2),
+			"hp": 20,
+			"max_hp": 20,
+			"block": 0
+		},
+		{
+			"id": 2,
+			"type": "crawler",
+			"pos": Vector2i(6, 2),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0
+		}
+	]
+	var state: Dictionary = combat.create_combat(15130, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var order: Array[Dictionary] = combat.current_turn_order(state, 8)
+	_assert(order.size() >= 3, "Initiative order should include the active player and queued enemies")
+	_assert(bool(order[0].get("active", false)) and str(order[0].get("kind", "")) == "player", "The player should still start combat as the active actor")
+	var crawler_index: int = -1
+	var warden_index: int = -1
+	var crawler_count: int = 0
+	var warden_count: int = 0
+	var future_player_count: int = 0
+	var first_future_player_index: int = -1
+	for index: int in range(1, order.size()):
+		if str(order[index].get("kind", "")) == "player":
+			future_player_count += 1
+			if first_future_player_index < 0:
+				first_future_player_index = index
+		if str(order[index].get("type", "")) == "crawler" and crawler_index < 0:
+			crawler_index = index
+		if str(order[index].get("type", "")) == "warden" and warden_index < 0:
+			warden_index = index
+		if str(order[index].get("type", "")) == "crawler":
+			crawler_count += 1
+		if str(order[index].get("type", "")) == "warden":
+			warden_count += 1
+	_assert(crawler_index > 0, "Speedy enemies should appear in the visible initiative queue")
+	_assert(warden_index > crawler_index, "Slow enemies should appear later than speedy enemies")
+	_assert(future_player_count >= 1, "The player should see their projected next slot while their current turn is active")
+	_assert(first_future_player_index > 0 and bool(order[first_future_player_index].get("projected", false)), "The player's projected next turn should slot into the visible order by timing")
+	_assert(crawler_count >= 2 and warden_count >= 2, "Turn order should show each enemy's next queued turn plus its projected follow-up")
+
+func _test_initiative_advances_enemy_turns_until_player_reacts() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(15131, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "brace", "patch_up"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab", "brace"]
+	deck["draw"] = ["patch_up"]
+	deck["discard"] = []
+	state["deck"] = deck
+	var enemies: Array = state.get("enemies", [])
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["intent"] = {
+		"name": "Guard",
+		"time": 2,
+		"actions": [{"type": "block", "amount": 10}]
+	}
+	enemies[0] = enemy
+	state["enemies"] = enemies
+	state = combat.finish_player_card(state, 0)
+	_assert(int(state.get("player_turn_time_spent", 0)) == 2, "Played cards should add their time cost to the current player turn")
+	var scheduled_state: Dictionary = combat.finish_player_activation(state)
+	var scheduled_order: Array[Dictionary] = combat.current_turn_order(scheduled_state, 3)
+	_assert(str(scheduled_order[0].get("kind", "")) == "enemy", "Passing should hand control to the next queued enemy before the player returns")
+	_assert(not bool(scheduled_order[0].get("active", false)), "The player should no longer remain highlighted after their activation is scheduled out")
+	_assert(str(scheduled_order[1].get("kind", "")) == "player", "The player's next slot should be scheduled from base initiative plus card time")
+	_assert(int(scheduled_order[1].get("time", 0)) == 11, "Quick, two-time cards should schedule the next player turn at initiative 11")
+	var phase: Dictionary = combat.advance_to_next_player_turn_with_steps(scheduled_state)
+	var after_state: Dictionary = phase.get("state", {})
+	_assert(combat.is_player_turn(after_state), "Initiative advancement should stop once the next player turn becomes active")
+	_assert(int(after_state.get("initiative_clock", 0)) == 11, "The initiative clock should advance to the player's scheduled return")
+	_assert((phase.get("steps", []) as Array).size() >= 1, "Enemy turns resolved before the player should still emit animation steps")
+	var saw_turn_order_step: bool = false
+	for step_var: Variant in phase.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("kind", "")) == "turn_order":
+			saw_turn_order_step = true
+	_assert(saw_turn_order_step, "Initiative advancement should emit turn-order animation snapshots as actors activate and reslot")
+	var next_order: Array[Dictionary] = combat.current_turn_order(after_state, 3)
+	_assert(str(next_order[0].get("kind", "")) == "player" and bool(next_order[0].get("active", false)), "The refreshed order should mark the player as the active actor")
+	_assert(str(next_order[1].get("kind", "")) == "enemy", "Enemies should immediately reslot for their next future turn after acting")
+
+func _test_card_time_scale_changes_player_reentry_order() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "warden",
+			"pos": Vector2i(5, 2),
+			"hp": 20,
+			"max_hp": 20,
+			"block": 0
+		}
+	]
+	var fast_state: Dictionary = combat.create_combat(15134, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["brace"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	fast_state = combat.finish_player_card(fast_state, 0)
+	var fast_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(fast_state), 3)
+	_assert(int(GameData.card_def("brace").get("time", 0)) == 1, "Brace should anchor the fast end of the card time scale")
+	_assert(str(fast_order[0].get("kind", "")) == "player", "A one-time card should let the player jump ahead of slow enemies")
+
+	var heavy_state: Dictionary = combat.create_combat(15135, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["bloody_lunge"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	heavy_state = combat.finish_player_card(heavy_state, 0)
+	var heavy_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(heavy_state), 3)
+	_assert(int(GameData.card_def("bloody_lunge").get("time", 0)) == 8, "Bloody Lunge should anchor the heavy end of the starter card time scale")
+	_assert(str(heavy_order[0].get("kind", "")) == "enemy", "A heavy starter card should let the slow enemy act before the player returns")
+
+	var standard_state: Dictionary = combat.create_combat(15136, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["whirlwind_slash", "lantern_shot"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var standard_deck: Dictionary = (standard_state.get("deck", {}) as Dictionary).duplicate(true)
+	standard_deck["hand"] = ["whirlwind_slash", "lantern_shot"]
+	standard_deck["draw"] = []
+	standard_deck["discard"] = []
+	standard_state["deck"] = standard_deck
+	var standard_enemies: Array = standard_state.get("enemies", [])
+	var standard_enemy: Dictionary = (standard_enemies[0] as Dictionary).duplicate(true)
+	standard_enemy["intent"] = {"name": "Measured Claw", "time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]}
+	standard_enemies[0] = standard_enemy
+	standard_state["enemies"] = standard_enemies
+	standard_state = combat.finish_player_card(standard_state, 0)
+	standard_state = combat.finish_player_card(standard_state, 0)
+	var standard_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(standard_state), 4)
+	_assert(int(standard_state.get("player_turn_time_spent", 0)) == 9, "A normal two-card starter turn should spend about nine time")
+	_assert(str(standard_order[0].get("kind", "")) == "enemy", "A fast early enemy should still act once before a normal player return")
+	_assert(str(standard_order[1].get("kind", "")) == "player", "A normal two-card starter turn should return before the same fast enemy laps the player")
+	_assert(str(standard_order[2].get("kind", "")) == "enemy" and bool(standard_order[2].get("projected", false)), "The fast enemy's projected follow-up should remain visible after the player's standard return")
+
+	var slow_state: Dictionary = combat.create_combat(15137, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["bloody_lunge", "whirlwind_slash"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var slow_deck: Dictionary = (slow_state.get("deck", {}) as Dictionary).duplicate(true)
+	slow_deck["hand"] = ["bloody_lunge", "whirlwind_slash"]
+	slow_deck["draw"] = []
+	slow_deck["discard"] = []
+	slow_state["deck"] = slow_deck
+	var slow_enemies: Array = slow_state.get("enemies", [])
+	var slow_enemy: Dictionary = (slow_enemies[0] as Dictionary).duplicate(true)
+	slow_enemy["intent"] = {"name": "Measured Claw", "time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]}
+	slow_enemies[0] = slow_enemy
+	slow_state["enemies"] = slow_enemies
+	slow_state = combat.finish_player_card(slow_state, 0)
+	slow_state = combat.finish_player_card(slow_state, 0)
+	var slow_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(slow_state), 4)
+	_assert(int(slow_state.get("player_turn_time_spent", 0)) == 13, "Stacking a heavy card with a normal card should create a slow turn")
+	_assert(str(slow_order[0].get("kind", "")) == "enemy", "The fast enemy should act before a slow player return")
+	_assert(str(slow_order[1].get("kind", "")) == "enemy" and bool(slow_order[1].get("projected", false)), "Slow starter turns should let fast enemies threaten a double-up")
+	_assert(str(slow_order[2].get("kind", "")) == "player", "The player should return after the fast enemy's projected follow-up on slow turns")
+
+func _test_agility_reduces_player_base_initiative() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var agile_state: Dictionary = combat.create_combat(15132, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0,
+		"stats": {"agility": 3}
+	})
+	_assert(combat.player_base_initiative(agile_state) == 6, "Each agility point should reduce the player's base initiative by one")
+	var capped_state: Dictionary = combat.create_combat(15133, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0,
+		"stats": {"agility": 99}
+	})
+	_assert(combat.player_base_initiative(capped_state) == 5, "Player base initiative should not drop below the minimum delay")
 
 func _test_combat_log_is_bounded() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1738,7 +1960,7 @@ func _test_player_block_absorbs_full_enemy_phase() -> void:
 	_assert(int(player.get("hp", 0)) == hp_before - 1, "Player block should absorb damage across the whole enemy phase before health is lost")
 	_assert(int(player.get("block", 0)) == 0, "Enemy attacks should consume player block before health")
 
-func _test_enemy_preview_block_mitigates_current_turn_damage() -> void:
+func _test_enemy_block_applies_on_actor_turn_only() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(19, _simple_room_layout(), {
 		"hp": 24,
@@ -1761,11 +1983,34 @@ func _test_enemy_preview_block_mitigates_current_turn_damage() -> void:
 	]
 	state = combat._apply_revealed_intent_blocks(state)
 	var blocked_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(blocked_enemy.get("block", 0)) == 4, "Enemy block should appear as soon as the intent is revealed")
+	_assert(int(blocked_enemy.get("block", 0)) == 0, "Enemy block intents should not become real block before that enemy acts")
 	state = combat.apply_player_action(state, {"type": "melee", "damage": 6, "range": 1}, Vector2i(3, 4))
 	blocked_enemy = (state.get("enemies", []) as Array)[0]
-	_assert(int(blocked_enemy.get("hp", 0)) == 12, "Revealed enemy block should mitigate the current player turn immediately")
-	_assert(int(blocked_enemy.get("block", 0)) == 0, "Enemy block should be reduced before health when struck")
+	_assert(int(blocked_enemy.get("hp", 0)) == 8, "Future enemy block should not mitigate the current player turn")
+	_assert(int(blocked_enemy.get("block", 0)) == 0, "Unresolved enemy block intent should remain non-mitigating")
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(3, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Coil", "time": 2, "actions": [{"type": "block", "amount": 4}]}
+		}
+	]
+	var block_turn: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	state = block_turn.get("state", {})
+	blocked_enemy = (state.get("enemies", []) as Array)[0]
+	_assert(int(blocked_enemy.get("block", 0)) == 4, "Enemy block should apply when that enemy resolves its own block action")
+	var enemies: Array = state.get("enemies", [])
+	blocked_enemy = (enemies[0] as Dictionary).duplicate(true)
+	blocked_enemy["intent"] = {"name": "Claw", "time": 2, "actions": [{"type": "melee", "damage": 1, "range": 1}]}
+	enemies[0] = blocked_enemy
+	state["enemies"] = enemies
+	var next_turn: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	blocked_enemy = ((next_turn.get("state", {}) as Dictionary).get("enemies", []) as Array)[0]
+	_assert(int(blocked_enemy.get("block", 0)) == 0, "Enemy block should expire when that enemy's next turn starts")
 
 func _test_aoe_hits_multiple_targets() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1802,8 +2047,8 @@ func _test_close_aoe_hits_adjacent_targets() -> void:
 	var action: Dictionary = GameData.card_def("whirlwind_slash").get("actions", [])[0]
 	state = combat.apply_player_action(state, action)
 	var enemies: Array = state.get("enemies", [])
-	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 80, "Close AOE should hit the northern adjacent tile")
-	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 40, "Close AOE should hit the eastern adjacent tile")
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 60, "Close AOE should hit the northern adjacent tile")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 20, "Close AOE should hit the eastern adjacent tile")
 	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 120, "Close AOE should not hit diagonal tiles")
 
 func _test_rotated_line_aoe_uses_selected_orientation() -> void:
@@ -2418,6 +2663,59 @@ func _test_poison_and_stoneskin_behaviors() -> void:
 	var second_phase: Dictionary = combat.resolve_enemy_phase(combat.prepare_next_player_turn(first_phase))
 	var second_enemy: Dictionary = (second_phase.get("enemies", []) as Array)[0]
 	_assert(int(second_enemy.get("hp", 0)) == 10, "Poison should land after waiting two turns")
+
+func _test_statuses_tick_on_affected_actor_turn() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(179, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["venom_claw"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["enemies"] = [
+		{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(3, 4),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0,
+			"intent": {"name": "Wait", "time": 1, "actions": []}
+		},
+		{
+			"id": 2,
+			"type": "harrier",
+			"pos": Vector2i(5, 4),
+			"hp": 10,
+			"max_hp": 10,
+			"block": 0,
+			"burn": 3,
+			"intent": {"name": "Wait", "time": 1, "actions": []}
+		}
+	]
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 0, "range": 1, "poison": 4}, Vector2i(3, 4))
+	var other_turn: Dictionary = combat.resolve_enemy_turn_with_steps(state, 1)
+	state = other_turn.get("state", {})
+	var enemies: Array = state.get("enemies", [])
+	var poisoned_enemy: Dictionary = enemies[0]
+	var burned_enemy: Dictionary = enemies[1]
+	var poison: Dictionary = poisoned_enemy.get("poison", {}) as Dictionary
+	_assert(int(poison.get("delay", 0)) == 2, "Poison should not tick when a different enemy takes a turn")
+	_assert(int(poisoned_enemy.get("hp", 0)) == 14, "Poison should only damage the actor that owns it on that actor's turn")
+	_assert(int(burned_enemy.get("hp", 0)) == 7, "Burn should tick when the burned enemy's own turn starts")
+	_assert(int(burned_enemy.get("burn", 0)) < 3, "Burn countdown should decrement on the burned enemy's own turn")
+	var burn_after_own_turn: int = int(burned_enemy.get("burn", 0))
+	var poison_turn: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	state = poison_turn.get("state", {})
+	enemies = state.get("enemies", [])
+	poisoned_enemy = enemies[0]
+	burned_enemy = enemies[1]
+	poison = poisoned_enemy.get("poison", {}) as Dictionary
+	_assert(int(poison.get("delay", 0)) == 1, "Poison should advance at the start of the poisoned enemy's own turn")
+	_assert(int(poisoned_enemy.get("hp", 0)) == 14, "Poison should wait through its delay before dealing damage")
+	_assert(int(burned_enemy.get("burn", 0)) == burn_after_own_turn, "Burn should not tick again when a different enemy takes a turn")
 
 func _test_enemy_pathfinding_avoids_traps() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -3108,6 +3406,7 @@ func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
 	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
 	var center := Vector2(320.0, 320.0)
 	var enemy := {
+		"id": 7,
 		"type": "harrier",
 		"role": "enemy",
 		"pos": Vector2i(3, 3),
@@ -3127,6 +3426,10 @@ func _test_enemy_intent_panels_expand_on_hover_or_toggle() -> void:
 	_assert(hovered_rows.size() == 1, "Hovered enemy intent panels should expand to show action details")
 	_assert(hovered_rect.size.y > compact_rect.size.y, "Hovered enemy intent panels should grow when details become visible")
 	board.set("_hover_tile", Vector2i(-1, -1))
+	board.presentation = {"expanded_enemy_actor_keys": ["enemy_7"]}
+	var portrait_hover_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
+	var portrait_hover_rows: Array = portrait_hover_layout.get("rows", [])
+	_assert(portrait_hover_rows.size() == 1, "Turn-order portrait hovers should expand the matching enemy intent panel")
 	board.presentation = {"show_all_enemy_intents": true}
 	var toggled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var toggled_rows: Array = toggled_layout.get("rows", [])
@@ -5819,11 +6122,26 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 		for child: Node in relic_bar.get_children():
 			var child_control: Control = child as Control
 			_assert(child_control != null and absf(child_control.global_position.y - first_row_y) <= 1.0, "The first eight relic HUD icons should stay on one horizontal row")
-	var intensity_bar: HFlowContainer = instance.get("_intensity_bar") as HFlowContainer
+	var intensity_bar: Control = instance.get("_intensity_bar") as Control
 	_assert(intensity_bar != null and intensity_bar.visible, "Combat should show the elemental intensity HUD")
 	if intensity_bar != null and intensity_bar.get_child_count() > 0:
 		var first_badge: Control = intensity_bar.get_child(0) as Control
 		_assert(first_badge.custom_minimum_size.x >= 86.0 and first_badge.custom_minimum_size.y >= 86.0, "Elemental intensity badges should be visibly larger than relic badges")
+		_assert(intensity_bar.get_child_count() == 5, "Elemental intensity HUD should show all five elements")
+		var top_y: float = first_badge.position.y
+		var second_row_y: float = (intensity_bar.get_child(3) as Control).position.y
+		for index: int in range(3):
+			var badge: Control = intensity_bar.get_child(index) as Control
+			_assert(absf(badge.position.y - top_y) <= 1.0, "Elemental intensity HUD should keep the first three icons on the top row")
+		for index: int in range(3, 5):
+			var badge: Control = intensity_bar.get_child(index) as Control
+			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Elemental intensity HUD should center the final two icons on the second row")
+		var top_middle: Control = intensity_bar.get_child(1) as Control
+		var bottom_left: Control = intensity_bar.get_child(3) as Control
+		var bottom_right: Control = intensity_bar.get_child(4) as Control
+		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
+		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
+		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Elemental intensity HUD second row should be centered under the top row")
 		var relic_bottom: float = float(instance.call("_relic_bar_visible_bottom_y"))
 		var gap: float = intensity_bar.global_position.y - relic_bottom
 		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the relic row without a stale layout gap")

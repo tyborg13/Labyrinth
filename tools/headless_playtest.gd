@@ -315,6 +315,7 @@ func _print_combat_state() -> void:
 		status_suffix
 	])
 	print("Intensity: %s" % _elemental_intensity_text(_combat_state))
+	print("Order: %s" % _turn_order_text(_combat_state))
 	if plays_remaining <= 0 and not restriction_status.is_empty():
 		print("Turn locked by %s." % restriction_status)
 	_print_board()
@@ -443,7 +444,8 @@ func _print_traps() -> void:
 func _print_incoming_preview() -> void:
 	if _combat_state.is_empty() or str(_run_state.get("mode", "")) != "combat":
 		return
-	var phase: Dictionary = _combat_engine.resolve_enemy_phase_with_steps(_combat_state.duplicate(true))
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state.duplicate(true))
+	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_state: Dictionary = (phase.get("state", _combat_state) as Dictionary).duplicate(true)
 	var before_player: Dictionary = _combat_state.get("player", {})
 	var after_player: Dictionary = after_state.get("player", {})
@@ -465,6 +467,15 @@ func _print_incoming_preview() -> void:
 		print("  - %s" % step_lines[index])
 	if step_lines.size() > 6:
 		print("  - ... %d more enemy steps" % (step_lines.size() - 6))
+
+func _turn_order_text(state: Dictionary) -> String:
+	var entries: Array[Dictionary] = _combat_engine.current_turn_order(state, 8)
+	var parts: Array[String] = []
+	for entry: Dictionary in entries:
+		var name: String = str(entry.get("name", "Actor"))
+		var eta: String = "now" if bool(entry.get("active", false)) else "+%d" % int(entry.get("eta", 0))
+		parts.append("%s %s" % [name, eta])
+	return " -> ".join(parts)
 
 func _print_cards() -> void:
 	if str(_run_state.get("mode", "")) != "combat":
@@ -981,17 +992,17 @@ func _resolve_enemy_round(reason: String) -> void:
 	var before_run_state: Dictionary = _run_state.duplicate(true)
 	var before_combat_state: Dictionary = _combat_state.duplicate(true)
 	var before_tracker: Dictionary = _analytics_snapshot_combat_tracker()
-	var phase: Dictionary = _combat_engine.resolve_enemy_phase_with_steps(_combat_state)
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
+	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_enemy_state: Dictionary = (phase.get("state", {}) as Dictionary).duplicate(true)
 	_log_enemy_status_ticks(phase, after_enemy_state)
 	var hp_before: int = int((before_combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	var hp_after_enemy: int = int((after_enemy_state.get("player", {}) as Dictionary).get("hp", 0))
 	var outcome: String = _combat_engine.combat_outcome(after_enemy_state)
 	_combat_state = after_enemy_state
-	var before_draw_state: Dictionary = _combat_state.duplicate(true)
+	var before_draw_state: Dictionary = (phase.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	var next_turn_state: Dictionary = {}
-	if outcome.is_empty():
-		_combat_state = _combat_engine.prepare_next_player_turn(_combat_state)
+	if outcome.is_empty() and not before_draw_state.is_empty():
 		next_turn_state = _combat_state.duplicate(true)
 		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
 		_log_card_draws(before_draw_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
@@ -1174,6 +1185,9 @@ func _analytics_context(combat_state: Dictionary = _combat_state, card_id: Strin
 		"run_id": str(run_analytics.get("run_id", "")),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),
+		"initiative_clock": int(combat_state.get("initiative_clock", 0)),
+		"current_actor_kind": str((combat_state.get("current_actor", {}) as Dictionary).get("kind", "")),
+		"current_actor_key": str((combat_state.get("current_actor", {}) as Dictionary).get("actor_key", "")),
 		"room_depth": int(combat_state.get("room_depth", 0)),
 		"room_element": str(combat_state.get("room_element", "")),
 		"player_hp": int(player.get("hp", _run_state.get("player_hp", -1))),
@@ -1445,6 +1459,10 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"card_plays_spent": maxi(0, int(resolved_state.get("cards_played_this_turn", 0)) - int(before_state.get("cards_played_this_turn", 0))),
 		"death_bonus_card_plays_gained": maxi(0, int(resolved_state.get("death_bonus_card_plays_this_turn", 0)) - int(before_state.get("death_bonus_card_plays_this_turn", 0))),
 		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
+		"card_time": _combat_engine.card_time_cost_from_def(printed_card),
+		"turn_time_spent_before": int(before_state.get("player_turn_time_spent", 0)),
+		"turn_time_spent_after": int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card),
+		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
 		"elemental_intensity_before": intensity_before,
 		"elemental_intensity_after": intensity_after,
 		"elemental_intensity_gained": _elemental_intensity_delta(intensity_before, intensity_after),
@@ -1778,6 +1796,7 @@ func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 
 func _card_cost_suffix(card: Dictionary) -> String:
 	var parts: Array[String] = []
+	parts.append("%d time" % int(card.get("time", 5)))
 	if int(card.get("health_cost", 0)) > 0:
 		parts.append("cost %d HP" % int(card.get("health_cost", 0)))
 	if bool(card.get("burn", false)):

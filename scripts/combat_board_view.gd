@@ -2357,6 +2357,12 @@ func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Arr
 func _enemy_intent_expanded(unit: Dictionary) -> bool:
 	if _all_enemy_intents_expanded():
 		return true
+	var expanded_keys: Array = presentation.get("expanded_enemy_actor_keys", [])
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty() and str(unit.get("role", "enemy")) == "enemy":
+		actor_key = "enemy_%d" % int(unit.get("id", -1))
+	if not actor_key.is_empty() and expanded_keys.has(actor_key):
+		return true
 	return _unit_footprint_tiles(unit).has(_hover_tile)
 
 func _all_enemy_intents_expanded() -> bool:

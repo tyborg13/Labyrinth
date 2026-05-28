@@ -10,6 +10,15 @@ const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
 const MAX_LOG_LINES: int = 12
+const PLAYER_BASE_INITIATIVE: int = 9
+const PLAYER_MIN_INITIATIVE: int = 5
+const ENEMY_MIN_INITIATIVE: int = 4
+const DEFAULT_CARD_TIME_COST: int = 5
+const MIN_CARD_TIME_COST: int = 1
+const MAX_CARD_TIME_COST: int = 10
+const DEFAULT_ENEMY_BASE_INITIATIVE: int = 12
+const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
+const TURN_ORDER_PREVIEW_LIMIT: int = 8
 const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
@@ -105,6 +114,11 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"fatigue_base": FATIGUE_BASE_DAMAGE
 		},
 		"turn": 1,
+		"initiative_clock": 0,
+		"activation_seq": 0,
+		"current_actor": _player_actor_entry(0, 0),
+		"turn_queue": [],
+		"player_turn_time_spent": 0,
 		"player_turn_restrictions": {
 			"frozen": false,
 			"shocked": false,
@@ -126,6 +140,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
 		_assign_enemy_intent(state, enemy_index, rng)
 	state["rng_state"] = rng.state
+	state = _initialize_initiative_queue(state)
 	state = _draw_cards_in_place(state, maxi(0, int(state.get("hand_size", 5)) + GameData.stat_bonus_from_relics(state.get("relics", []), "opening_draw_bonus")))
 	_log(state, "Entered %s." % state.get("room_name", "a room"))
 	return state
@@ -406,14 +421,190 @@ func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 		next_state = _lose_player_health(next_state, health_cost, true, false)
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + 1
+	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + card_time_cost_from_def(card)
 	next_state = _apply_pending_player_trap_restriction(next_state)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
 	return next_state
 
+func is_player_turn(state: Dictionary) -> bool:
+	var current_actor: Dictionary = state.get("current_actor", {})
+	return str(current_actor.get("kind", "player")) == "player"
+
+func player_base_initiative(state: Dictionary) -> int:
+	var stats: Dictionary = GameData.normalized_progression_stats(state.get("stats", {}))
+	return maxi(PLAYER_MIN_INITIATIVE, PLAYER_BASE_INITIATIVE - int(stats.get("agility", 0)))
+
+func card_time_cost(card_id: String, state: Dictionary = {}) -> int:
+	return card_time_cost_from_def(card_def(card_id, state))
+
+func card_time_cost_from_def(card: Dictionary) -> int:
+	if card.has("time"):
+		return clampi(int(card.get("time", DEFAULT_CARD_TIME_COST)), MIN_CARD_TIME_COST, MAX_CARD_TIME_COST)
+	return _estimated_card_time_cost(card)
+
+func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var current_actor: Dictionary = _resolved_actor_entry(state, state.get("current_actor", {}))
+	if not current_actor.is_empty():
+		current_actor["active"] = true
+		result.append(current_actor)
+	var queue: Array = _sorted_turn_queue(state.get("turn_queue", []))
+	var preview_queue: Array = []
+	for entry_var: Variant in queue:
+		preview_queue.append(entry_var)
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			var projected_after_entry: Dictionary = _projected_next_entry_after_entry(state, entry_var as Dictionary)
+			if not projected_after_entry.is_empty():
+				preview_queue.append(projected_after_entry)
+	var projected_current_future: Dictionary = _projected_next_entry_for_current_actor(state, current_actor)
+	if not projected_current_future.is_empty():
+		preview_queue.append(projected_current_future)
+	queue = _sorted_turn_queue(preview_queue)
+	var clock: int = int(state.get("initiative_clock", 0))
+	for entry_var: Variant in queue:
+		if result.size() >= limit:
+			break
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = _resolved_actor_entry(state, entry_var as Dictionary)
+		if entry.is_empty():
+			continue
+		entry["active"] = false
+		entry["eta"] = maxi(0, int(entry.get("time", clock)) - clock)
+		result.append(entry)
+	return result
+
+func finish_player_activation(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	if combat_outcome(next_state) != "" or not is_player_turn(next_state):
+		return next_state
+	var scheduled_time: int = (
+		int(next_state.get("initiative_clock", 0))
+		+ player_base_initiative(next_state)
+		+ maxi(0, int(next_state.get("player_turn_time_spent", 0)))
+	)
+	_schedule_actor(next_state, _player_actor_entry(scheduled_time, 0))
+	next_state["current_actor"] = {}
+	return next_state
+
+func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var steps: Array[Dictionary] = []
+	var player_turn_before_state: Dictionary = {}
+	var safety: int = 0
+	while combat_outcome(next_state) == "" and safety < 100:
+		safety += 1
+		var before_pop_state: Dictionary = next_state.duplicate(true)
+		var popped: Dictionary = _pop_next_actor(next_state)
+		next_state = (popped.get("state", next_state) as Dictionary).duplicate(true)
+		var entry: Dictionary = popped.get("entry", {})
+		if entry.is_empty():
+			next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
+			player_turn_before_state = next_state.duplicate(true)
+			next_state = prepare_next_player_turn(next_state)
+			_append_turn_order_step(steps, before_pop_state, next_state, "activate")
+			break
+		match str(entry.get("kind", "")):
+			"player":
+				player_turn_before_state = next_state.duplicate(true)
+				next_state = prepare_next_player_turn(next_state)
+				_append_turn_order_step(steps, before_pop_state, next_state, "activate")
+				break
+			"enemy":
+				_append_turn_order_step(steps, before_pop_state, next_state, "activate")
+				var enemy_index: int = _enemy_index_for_id(next_state, int(entry.get("enemy_id", -1)))
+				if enemy_index < 0:
+					continue
+				var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index)
+				next_state = (turn_result.get("state", next_state) as Dictionary).duplicate(true)
+				for step_var: Variant in turn_result.get("steps", []):
+					if typeof(step_var) == TYPE_DICTIONARY:
+						steps.append(step_var)
+				if combat_outcome(next_state) != "":
+					break
+				enemy_index = _enemy_index_for_id(next_state, int(entry.get("enemy_id", -1)))
+				var before_reschedule_state: Dictionary = next_state.duplicate(true)
+				if enemy_index >= 0:
+					var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+					if int(enemy.get("hp", 0)) > 0:
+						_schedule_enemy_after_turn(next_state, enemy, int(turn_result.get("time_cost", 0)))
+				next_state["current_actor"] = {}
+				_append_turn_order_step(steps, before_reschedule_state, next_state, "reschedule")
+			_:
+				continue
+	if safety >= 100:
+		_log(next_state, "The initiative clock stalls.")
+	return {
+		"state": next_state,
+		"steps": steps,
+		"player_turn_before_state": player_turn_before_state
+	}
+
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)
+
+func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.state = int(next_state.get("rng_state", 0))
+	var steps: Array[Dictionary] = []
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return {"state": next_state, "steps": steps, "time_cost": 0}
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if int(enemy.get("hp", 0)) <= 0:
+		return {"state": next_state, "steps": steps, "time_cost": 0}
+	next_state["current_actor"] = _enemy_actor_entry(next_state, enemy, int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
+	var intent: Dictionary = (enemy.get("intent", {}) as Dictionary).duplicate(true)
+	var turn_time_cost: int = _enemy_intent_time_cost(intent)
+	enemy["block"] = 0
+	(next_state.get("enemies", []) as Array)[enemy_index] = enemy
+	var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
+	next_state = (turn_setup.get("state", next_state) as Dictionary).duplicate(true)
+	for step_var: Variant in turn_setup.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY:
+			steps.append(step_var)
+	if combat_outcome(next_state) != "":
+		next_state["rng_state"] = rng.state
+		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
+	if bool(turn_setup.get("skip_all", false)):
+		_assign_enemy_intent(next_state, enemy_index, rng)
+		next_state["rng_state"] = rng.state
+		return {"state": next_state, "steps": steps, "time_cost": 0}
+	var shocked: bool = bool(turn_setup.get("shocked", false))
+	var immobilized: bool = bool(turn_setup.get("immobilized", false))
+	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+	intent = enemy.get("intent", {})
+	if not intent.is_empty():
+		steps.append({
+			"kind": "intent",
+			"actor_key": _enemy_key(enemy),
+			"actor_name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+			"tile": enemy.get("pos", Vector2i.ZERO),
+			"intent_name": str(intent.get("name", "Action"))
+		})
+		for action: Dictionary in intent.get("actions", []):
+			if combat_outcome(next_state) != "":
+				break
+			if shocked and not _enemy_action_is_movement(action):
+				continue
+			if immobilized and _enemy_action_is_movement(action):
+				continue
+			var before_state: Dictionary = next_state.duplicate(true)
+			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng)
+			var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
+			if not step.is_empty():
+				steps.append(step)
+	if combat_outcome(next_state) == "":
+		_assign_enemy_intent(next_state, enemy_index, rng)
+	next_state["rng_state"] = rng.state
+	return {
+		"state": next_state,
+		"steps": steps,
+		"time_cost": turn_time_cost
+	}
 
 func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
@@ -510,10 +701,12 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if combat_outcome(next_state) != "":
 		return next_state
+	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	player["block"] = 0
 	next_state["player"] = player
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
+	next_state["player_turn_time_spent"] = 0
 	next_state["cards_played_this_turn"] = 0
 	next_state["death_bonus_card_plays_this_turn"] = 0
 	next_state["card_play_bonus_this_turn"] = 0
@@ -537,6 +730,8 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	return next_state
 
 func cards_remaining_this_turn(state: Dictionary) -> int:
+	if not is_player_turn(state):
+		return 0
 	return maxi(
 		0,
 		_card_play_capacity(state) - int(state.get("cards_played_this_turn", 0))
@@ -1136,7 +1331,12 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s falls back." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"block":
+			enemy["block"] = int(enemy.get("block", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
+			_log(next_state, "%s braces for %d block." % [
+				str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+				int(action.get("amount", 0))
+			])
 		"stoneskin":
 			enemy["stoneskin"] = int(enemy.get("stoneskin", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
@@ -1416,6 +1616,286 @@ func _normalized_unit(unit_value: Variant) -> Dictionary:
 		"delay": int(poison.get("delay", 0))
 	}
 	return unit
+
+func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	next_state["initiative_clock"] = 0
+	next_state["activation_seq"] = 0
+	next_state["current_actor"] = _player_actor_entry(0, 0)
+	next_state["player_turn_time_spent"] = 0
+	var queue: Array = []
+	var enemies: Array = next_state.get("enemies", [])
+	for enemy_index: int in range(enemies.size()):
+		if typeof(enemies[enemy_index]) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		var first_time: int = _enemy_base_initiative(next_state, enemy) + enemy_index
+		queue.append(_enemy_actor_entry(next_state, enemy, first_time, _claim_activation_seq(next_state)))
+	next_state["turn_queue"] = _sorted_turn_queue(queue)
+	return next_state
+
+func _player_actor_entry(scheduled_time: int, seq: int) -> Dictionary:
+	return {
+		"kind": "player",
+		"actor_key": "player",
+		"name": "Reaver",
+		"type": "player",
+		"team": "player",
+		"time": scheduled_time,
+		"seq": seq
+	}
+
+func _enemy_actor_entry(state: Dictionary, enemy: Dictionary, scheduled_time: int, seq: int) -> Dictionary:
+	var enemy_type: String = str(enemy.get("type", ""))
+	return {
+		"kind": "enemy",
+		"actor_key": _enemy_key(enemy),
+		"enemy_id": int(enemy.get("id", -1)),
+		"type": enemy_type,
+		"name": str(GameData.enemy_def(enemy_type).get("name", "Enemy")),
+		"team": "enemy",
+		"time": scheduled_time,
+		"seq": seq,
+		"pos": enemy.get("pos", Vector2i.ZERO)
+	}
+
+func _resolved_actor_entry(state: Dictionary, entry: Dictionary) -> Dictionary:
+	var kind: String = str(entry.get("kind", ""))
+	if kind == "player":
+		if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+			return {}
+		var player_entry: Dictionary = _player_actor_entry(int(entry.get("time", state.get("initiative_clock", 0))), int(entry.get("seq", 0)))
+		player_entry["eta"] = maxi(0, int(player_entry.get("time", 0)) - int(state.get("initiative_clock", 0)))
+		player_entry["base_initiative"] = player_base_initiative(state)
+		player_entry["turn_time_spent"] = int(state.get("player_turn_time_spent", 0))
+		if bool(entry.get("projected", false)):
+			player_entry["projected"] = true
+		if entry.has("projected_time_cost"):
+			player_entry["projected_time_cost"] = int(entry.get("projected_time_cost", 0))
+		if entry.has("projected_card_name"):
+			player_entry["projected_card_name"] = str(entry.get("projected_card_name", ""))
+		return player_entry
+	if kind == "enemy":
+		var enemy_index: int = _enemy_index_for_id(state, int(entry.get("enemy_id", -1)))
+		if enemy_index < 0:
+			return {}
+		var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			return {}
+		var enemy_entry: Dictionary = _enemy_actor_entry(state, enemy, int(entry.get("time", state.get("initiative_clock", 0))), int(entry.get("seq", 0)))
+		enemy_entry["eta"] = maxi(0, int(enemy_entry.get("time", 0)) - int(state.get("initiative_clock", 0)))
+		enemy_entry["base_initiative"] = _enemy_base_initiative(state, enemy)
+		if bool(entry.get("projected", false)):
+			enemy_entry["projected"] = true
+		if entry.has("intent_time_cost"):
+			enemy_entry["intent_time_cost"] = int(entry.get("intent_time_cost", 0))
+		return enemy_entry
+	return {}
+
+func _projected_next_entry_for_current_actor(state: Dictionary, current_actor: Dictionary) -> Dictionary:
+	if current_actor.is_empty():
+		return {}
+	var clock: int = int(state.get("initiative_clock", 0))
+	match str(current_actor.get("kind", "")):
+		"player":
+			var preview_delta: int = maxi(0, int(state.get("turn_order_preview_time_delta", 0)))
+			var player_entry: Dictionary = _player_actor_entry(
+				clock + player_base_initiative(state) + maxi(0, int(state.get("player_turn_time_spent", 0))) + preview_delta,
+				-1
+			)
+			player_entry["projected"] = true
+			if preview_delta > 0:
+				player_entry["projected_time_cost"] = preview_delta
+			if state.has("turn_order_preview_card_name"):
+				player_entry["projected_card_name"] = str(state.get("turn_order_preview_card_name", ""))
+			return player_entry
+		"enemy":
+			var enemy_index: int = _enemy_index_for_id(state, int(current_actor.get("enemy_id", -1)))
+			if enemy_index < 0:
+				return {}
+			var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+			if int(enemy.get("hp", 0)) <= 0:
+				return {}
+			var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
+			var delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(state, enemy) + maxi(0, intent_time_cost))
+			var enemy_entry: Dictionary = _enemy_actor_entry(state, enemy, clock + delay, -1)
+			enemy_entry["projected"] = true
+			enemy_entry["intent_time_cost"] = intent_time_cost
+			return enemy_entry
+	return {}
+
+func _projected_next_entry_after_entry(state: Dictionary, entry: Dictionary) -> Dictionary:
+	if bool(entry.get("projected", false)):
+		return {}
+	var resolved: Dictionary = _resolved_actor_entry(state, entry)
+	if resolved.is_empty():
+		return {}
+	var scheduled_time: int = int(resolved.get("time", state.get("initiative_clock", 0)))
+	var projected_seq: int = int(entry.get("seq", 0)) + 10000
+	match str(resolved.get("kind", "")):
+		"player":
+			var player_entry: Dictionary = _player_actor_entry(scheduled_time + player_base_initiative(state), projected_seq)
+			player_entry["projected"] = true
+			return player_entry
+		"enemy":
+			var enemy_index: int = _enemy_index_for_id(state, int(resolved.get("enemy_id", -1)))
+			if enemy_index < 0:
+				return {}
+			var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+			if int(enemy.get("hp", 0)) <= 0:
+				return {}
+			var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
+			var delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(state, enemy) + maxi(0, intent_time_cost))
+			var enemy_entry: Dictionary = _enemy_actor_entry(state, enemy, scheduled_time + delay, projected_seq)
+			enemy_entry["projected"] = true
+			enemy_entry["intent_time_cost"] = intent_time_cost
+			return enemy_entry
+	return {}
+
+func _sorted_turn_queue(queue_value: Variant) -> Array:
+	var queue: Array = []
+	if typeof(queue_value) == TYPE_ARRAY:
+		queue = (queue_value as Array).duplicate(true)
+	queue.sort_custom(func(a: Variant, b: Variant) -> bool:
+		var a_entry: Dictionary = {}
+		if typeof(a) == TYPE_DICTIONARY:
+			a_entry = a as Dictionary
+		var b_entry: Dictionary = {}
+		if typeof(b) == TYPE_DICTIONARY:
+			b_entry = b as Dictionary
+		var a_time: int = int(a_entry.get("time", 0))
+		var b_time: int = int(b_entry.get("time", 0))
+		if a_time == b_time:
+			return int(a_entry.get("seq", 0)) < int(b_entry.get("seq", 0))
+		return a_time < b_time
+	)
+	return queue
+
+func _pop_next_actor(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var queue: Array = _sorted_turn_queue(next_state.get("turn_queue", []))
+	while not queue.is_empty():
+		var entry_var: Variant = queue.pop_front()
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var resolved: Dictionary = _resolved_actor_entry(next_state, entry)
+		if resolved.is_empty():
+			continue
+		next_state["turn_queue"] = queue
+		next_state["current_actor"] = resolved
+		next_state["initiative_clock"] = int(resolved.get("time", next_state.get("initiative_clock", 0)))
+		return {"state": next_state, "entry": resolved}
+	next_state["turn_queue"] = queue
+	return {"state": next_state, "entry": {}}
+
+func _schedule_actor(state: Dictionary, entry: Dictionary) -> void:
+	if entry.is_empty():
+		return
+	var queue: Array = _sorted_turn_queue(state.get("turn_queue", []))
+	var scheduled: Dictionary = entry.duplicate(true)
+	scheduled["seq"] = _claim_activation_seq(state)
+	queue.append(scheduled)
+	state["turn_queue"] = _sorted_turn_queue(queue)
+
+func _schedule_enemy_after_turn(state: Dictionary, enemy: Dictionary, turn_time_cost: int) -> void:
+	var delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(state, enemy) + maxi(0, turn_time_cost))
+	_schedule_actor(state, _enemy_actor_entry(state, enemy, int(state.get("initiative_clock", 0)) + delay, 0))
+
+func _append_turn_order_step(steps: Array[Dictionary], before_state: Dictionary, after_state: Dictionary, label: String) -> void:
+	var before_order: Array[Dictionary] = current_turn_order(before_state, TURN_ORDER_PREVIEW_LIMIT)
+	var after_order: Array[Dictionary] = current_turn_order(after_state, TURN_ORDER_PREVIEW_LIMIT)
+	if _turn_order_signature(before_order) == _turn_order_signature(after_order):
+		return
+	steps.append({
+		"kind": "turn_order",
+		"label": label,
+		"before_order": before_order,
+		"after_order": after_order
+	})
+
+func _turn_order_signature(order: Array[Dictionary]) -> String:
+	var parts: Array[String] = []
+	for entry: Dictionary in order:
+		parts.append("%s:%s:%d:%d:%s" % [
+			str(entry.get("kind", "")),
+			str(entry.get("actor_key", "")),
+			int(entry.get("time", 0)),
+			int(entry.get("seq", 0)),
+			str(bool(entry.get("active", false)))
+		])
+	return "|".join(parts)
+
+func _claim_activation_seq(state: Dictionary) -> int:
+	var next_seq: int = int(state.get("activation_seq", 0)) + 1
+	state["activation_seq"] = next_seq
+	return next_seq
+
+func _enemy_index_for_id(state: Dictionary, enemy_id: int) -> int:
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		if typeof(enemies[index]) != TYPE_DICTIONARY:
+			continue
+		if int((enemies[index] as Dictionary).get("id", -1)) == enemy_id:
+			return index
+	return -1
+
+func _enemy_base_initiative(state: Dictionary, enemy: Dictionary) -> int:
+	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+	var base: int = int(definition.get("base_initiative", DEFAULT_ENEMY_BASE_INITIATIVE))
+	var depth: int = maxi(1, int(state.get("room_depth", 1)))
+	var depth_bonus: int = mini(4, int((depth - 1) / 3))
+	return maxi(ENEMY_MIN_INITIATIVE, base - depth_bonus)
+
+func _enemy_intent_time_cost(intent: Dictionary) -> int:
+	if intent.has("time"):
+		return clampi(int(intent.get("time", DEFAULT_ENEMY_INTENT_TIME_COST)), 0, 12)
+	var total: int = 0
+	for action_var: Variant in intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		total += _enemy_action_time_cost(action_var as Dictionary)
+	return maxi(DEFAULT_ENEMY_INTENT_TIME_COST, total)
+
+func _enemy_action_time_cost(action: Dictionary) -> int:
+	match str(action.get("type", "")):
+		"move_toward", "move_away":
+			return 2 if int(action.get("range", 0)) <= 2 else 3
+		"melee", "ranged", "push", "pull":
+			return 3
+		"aoe", "lightning_strikes":
+			return 4
+		"summon_minions":
+			return 5
+		"block", "stoneskin", "heal_self":
+			return 2
+		_:
+			return DEFAULT_ENEMY_INTENT_TIME_COST
+
+func _estimated_card_time_cost(card: Dictionary) -> int:
+	var total: int = 1
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		match str(action.get("type", "")):
+			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity":
+				total += 1
+			"heal", "illusion":
+				total += 2
+			"melee", "ranged", "push", "pull":
+				total += 2
+				if int(action.get("damage", 0)) >= 10:
+					total += 1
+			"aoe":
+				total += 3
+			_:
+				total += 1
+	if bool(card.get("burn", false)):
+		total = maxi(1, total - 1)
+	return clampi(total, MIN_CARD_TIME_COST, MAX_CARD_TIME_COST)
 
 func _enemy_status_immunities(enemy: Dictionary) -> Array[String]:
 	var immunities: Array[String] = []
@@ -3005,6 +3485,7 @@ func _zekarion_summon_intent() -> Dictionary:
 	return {
 		"id": "call_wisps",
 		"name": "Call Wisps",
+		"time": 6,
 		"actions": [
 			{"type": "summon_minions", "minion_type": LIGHTNING_WISP_TYPE, "count": 2}
 		]
@@ -3170,7 +3651,6 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
 	if _enemy_should_summon_wisps(state, enemy):
 		enemy["intent"] = _zekarion_summon_intent()
-		enemy["block"] = _preview_block_for_intent(enemy["intent"])
 		enemies[enemy_index] = enemy
 		return
 	var intents: Array = _elementalized_enemy_intents(
@@ -3189,11 +3669,9 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		cursor += maxi(1, int(intent.get("weight", 1)))
 		if roll <= cursor:
 			enemy["intent"] = intent.duplicate(true)
-			enemy["block"] = _preview_block_for_intent(enemy["intent"])
 			enemies[enemy_index] = enemy
 			return
 	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
-	enemy["block"] = _preview_block_for_intent(enemy["intent"])
 	enemies[enemy_index] = enemy
 
 func _elementalized_enemy_intents(base_intents: Array, room_element: String, room_depth: int) -> Array:
@@ -3345,13 +3823,9 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	return scaled
 
 func _apply_revealed_intent_blocks(state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state.duplicate(true)
-	var enemies: Array = next_state.get("enemies", [])
-	for enemy_index: int in range(enemies.size()):
-		var enemy: Dictionary = enemies[enemy_index]
-		enemy["block"] = _preview_block_for_intent(enemy.get("intent", {}))
-		enemies[enemy_index] = enemy
-	return next_state
+	# Intent can preview a future guard, but block only becomes real when that
+	# actor reaches its activation and resolves the block action.
+	return state.duplicate(true)
 
 func _preview_block_for_intent(intent: Dictionary) -> int:
 	var total: int = 0

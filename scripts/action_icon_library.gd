@@ -67,6 +67,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Adds card plays for this turn.",
 		"path": "%s/card_play.png" % ICON_ROOT
 	},
+	"time": {
+		"label": "Time",
+		"description": "Adds to the initiative delay before your next turn.",
+		"path": "%s/time.png" % ICON_ROOT
+	},
 	"illusion": {
 		"label": "Illusion",
 		"description": "Creates a stationary copy that enemies can target.",

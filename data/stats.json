@@ -13,6 +13,13 @@
     "icon_path": "res://assets/art/icons/stat_dexterity.png",
     "accent": "#d0b36a"
   },
+  "agility": {
+    "name": "Agility",
+    "short": "-1 initiative",
+    "description": "Reduce your base initiative by 1 per point, to a minimum of 5.",
+    "icon_path": "res://assets/art/icons/stat_agility.png",
+    "accent": "#7fc7a4"
+  },
   "vigor": {
     "name": "Vigor",
     "short": "+10 health",

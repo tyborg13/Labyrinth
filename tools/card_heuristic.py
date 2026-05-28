@@ -85,6 +85,9 @@ class HeuristicWeights:
     move_defense_synergy: float = 0.40
     illusion_move_synergy: float = 0.30
     illusion_before_move_synergy: float = 0.25
+    baseline_card_time: float = 5.0
+    # Calibrated against early enemy repeat cycles of roughly 11-20 initiative.
+    time_delta_value: float = 0.45
 
 
 @dataclass
@@ -98,6 +101,7 @@ class ScoreBreakdown:
     synergy: float = 0.0
     health_cost: float = 0.0
     burn_card_penalty: float = 0.0
+    tempo: float = 0.0
     total: float = 0.0
 
 
@@ -467,6 +471,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             0.0,
             weights.burn_card_penalty - draw_amount * weights.burn_card_draw_offset_per_card,
         )
+    card_time = max(1, min(10, int(card.get("time", weights.baseline_card_time))))
+    breakdown.tempo = (weights.baseline_card_time - card_time) * weights.time_delta_value
 
     breakdown.total = round(
         breakdown.offense
@@ -476,6 +482,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.elemental_intensity
         + breakdown.mobility
         + breakdown.synergy
+        + breakdown.tempo
         - breakdown.health_cost
         - breakdown.burn_card_penalty,
         4,
@@ -503,6 +510,7 @@ def scored_rows(cards: dict[str, Any], weights: HeuristicWeights) -> list[dict[s
                 "element": card.get("element", "none"),
                 "burn": bool(card.get("burn", False)),
                 "health_cost": int(card.get("health_cost", 0)),
+                "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),
                 "score": breakdown.total,
                 "breakdown": asdict(breakdown),
@@ -562,6 +570,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool) -> None:
             tag_bits.append("exhaust-card")
         if row["health_cost"] > 0:
             tag_bits.append(f"hp-cost={row['health_cost']}")
+        tag_bits.append(f"time={row['time']}")
         tags = ", ".join(tag_bits)
         print(f"{index:>2}. {row['score']:>5.2f}  {row['card_id']}  {row['name']}  [{tags}]")
         print(f"    {row['description']}")
@@ -578,6 +587,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool) -> None:
                         f"intensity={breakdown['elemental_intensity']:.2f}",
                         f"mobility={breakdown['mobility']:.2f}",
                         f"synergy={breakdown['synergy']:.2f}",
+                        f"tempo={breakdown['tempo']:.2f}",
                         f"health_cost={breakdown['health_cost']:.2f}",
                         f"exhaust_penalty={breakdown['burn_card_penalty']:.2f}",
                     ]

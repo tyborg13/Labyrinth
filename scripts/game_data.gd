@@ -17,6 +17,7 @@ const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock
 const PROGRESSION_STAT_IDS: Array[String] = [
 	"might",
 	"dexterity",
+	"agility",
 	"vigor",
 	"guard",
 	"focus",

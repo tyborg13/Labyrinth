@@ -168,6 +168,61 @@ class AoePatternView:
 			parsed.append(Vector2i.ZERO)
 		return parsed
 
+class TimeCostBadge:
+	extends Control
+
+	const ActionIconsScript = preload("res://scripts/action_icon_library.gd")
+	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
+
+	var value: int = 0
+	var icon_texture: Texture2D
+
+	func setup(next_value: int, next_tooltip: String) -> void:
+		value = maxi(0, next_value)
+		icon_texture = ActionIconsScript.icon_texture("time")
+		tooltip_text = next_tooltip
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		queue_redraw()
+
+	func _draw() -> void:
+		var draw_rect := Rect2(Vector2.ZERO, size)
+		if icon_texture != null:
+			draw_texture_rect(icon_texture, draw_rect, false, Color.WHITE)
+		else:
+			var fallback_fill: Color = Color("2b2118")
+			draw_circle(size * 0.5, minf(size.x, size.y) * 0.48, fallback_fill)
+			draw_arc(size * 0.5, minf(size.x, size.y) * 0.35, -PI * 0.5, PI * 1.25, 18, Color("e7cf98"), 2.0, true)
+		var font: Font = UiTypographyScript.default_font(self)
+		if font == null:
+			return
+		var font_size: int = UiTypographyScript.scaled_size(self, 14 if size.x <= 32.0 else 16)
+		var text: String = str(value)
+		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
+		while font_size > 10 and text_size.x > size.x * 0.58:
+			font_size -= 1
+			text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
+		var center: Vector2 = size * 0.5
+		var backing_color: Color = Color("20140d")
+		backing_color.a = 0.20
+		var backing_radius: float = minf(size.x, size.y) * 0.18
+		draw_circle(center, backing_radius, backing_color)
+		var rim_color: Color = Color("f1c86b")
+		rim_color.a = 0.24
+		draw_arc(center, backing_radius + 0.8, 0.0, PI * 2.0, 24, rim_color, 0.6, true)
+		var baseline: Vector2 = Vector2((size.x - text_size.x) * 0.5, (size.y + font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5 - 1.0)
+		var outline_color: Color = Color("fff0bf")
+		outline_color.a = 0.86
+		var outline_offsets: Array = [
+			Vector2(-1.0, 0.0),
+			Vector2(1.0, 0.0),
+			Vector2(0.0, -1.0),
+			Vector2(0.0, 1.0),
+			Vector2(1.0, 1.0)
+		]
+		for offset_var: Variant in outline_offsets:
+			draw_string(font, baseline + (offset_var as Vector2), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, outline_color)
+		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("1a0f08"))
+
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
@@ -194,6 +249,7 @@ var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
 var _pose_tween: Tween
 var _summary_icon_box: VBoxContainer
+var _time_badge: TimeCostBadge
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
@@ -221,6 +277,7 @@ func _ready() -> void:
 	footer_label.add_theme_color_override("font_outline_color", Color("f5ecdb"))
 	footer_label.add_theme_constant_override("outline_size", 1)
 	_ensure_summary_icon_box()
+	_ensure_time_badge()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
 	_update_layout_metrics()
@@ -231,6 +288,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and is_node_ready():
 		_update_layout_metrics()
 		pivot_offset = size * 0.5
+		_position_time_badge()
 		if not card_id.is_empty():
 			_apply_configuration()
 
@@ -257,6 +315,8 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 
 func _get_tooltip(_at_position: Vector2) -> String:
+	if _time_badge != null and _time_badge.visible and _time_badge.get_global_rect().has_point(get_global_mouse_position()):
+		return _time_badge.tooltip_text
 	var icon_tooltip: String = _tooltip_for_icon_at(get_global_mouse_position())
 	if not icon_tooltip.is_empty():
 		return icon_tooltip
@@ -326,6 +386,7 @@ func _apply_configuration() -> void:
 	_fit_title_label(_base_title_size())
 	_queue_title_refit()
 	_refresh_summary_display(card)
+	_refresh_time_badge(card)
 	footer_label.text = ""
 	footer_label.visible = false
 	art_rect.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
@@ -377,6 +438,7 @@ func _update_layout_metrics() -> void:
 	footer_label.custom_minimum_size = Vector2.ZERO
 	if _summary_icon_box != null:
 		_summary_icon_box.custom_minimum_size = Vector2(0.0, details_height)
+	_position_time_badge()
 	pivot_offset = size * 0.5
 
 func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color, rarity: String, element_id: String) -> void:
@@ -512,6 +574,33 @@ func _ensure_summary_icon_box() -> void:
 	_summary_icon_box.add_theme_constant_override("separation", 5)
 	details_vbox.add_child(_summary_icon_box)
 	details_vbox.move_child(_summary_icon_box, desc_label.get_index() + 1)
+
+func _ensure_time_badge() -> void:
+	if _time_badge != null:
+		return
+	_time_badge = TimeCostBadge.new()
+	_time_badge.name = "TimeCostBadge"
+	_time_badge.visible = false
+	add_child(_time_badge)
+	_position_time_badge()
+
+func _refresh_time_badge(card: Dictionary) -> void:
+	_ensure_time_badge()
+	var time_cost: int = maxi(1, int(card.get("time", 5)))
+	_time_badge.visible = time_cost > 0
+	_time_badge.setup(time_cost, "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost])
+	_position_time_badge()
+
+func _position_time_badge() -> void:
+	if _time_badge == null:
+		return
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var badge_size: float = clampf(width * 0.17, 28.0, 38.0)
+	_time_badge.custom_minimum_size = Vector2(badge_size, badge_size)
+	_time_badge.size = Vector2(badge_size, badge_size)
+	var inset: float = clampf(width * 0.060, 10.0, 16.0)
+	_time_badge.position = Vector2(maxf(0.0, width - badge_size - inset), inset)
+	_time_badge.z_index = 12
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)

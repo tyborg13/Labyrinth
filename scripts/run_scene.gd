@@ -187,6 +187,27 @@ const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
 const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
+const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(840.0, 104.0)
+const TURN_ORDER_PANEL_MIN_WIDTH: float = 520.0
+const TURN_ORDER_LABEL_WIDTH: float = 118.0
+const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(84.0, 84.0)
+const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(84.0, 84.0)
+const TURN_ORDER_SLOT_GAP: float = 9.0
+const TURN_ORDER_MAX_SLOTS: int = 10
+const TURN_ORDER_REMOVE_SECONDS: float = 0.18
+const TURN_ORDER_REFLOW_SECONDS: float = 0.24
+const TURN_ORDER_INSERT_SECONDS: float = 0.20
+const TURN_ORDER_STYLE_SECONDS: float = 0.18
+const TURN_ORDER_FLOAT_OFFSET: float = 24.0
+const TURN_ORDER_PORTRAITS := {
+	"player": "res://assets/art/portraits/player_reaver.png",
+	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
+	"acolyte": "res://assets/art/portraits/ash_acolyte.png",
+	"harrier": "res://assets/art/portraits/bone_harrier.png",
+	"warden": "res://assets/art/portraits/ash_warden.png",
+	"zekarion": "res://assets/art/portraits/zekarion.png",
+	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png"
+}
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 @onready var top_bar: HBoxContainer = $Backdrop/Margin/MainVBox/TopBar
@@ -257,7 +278,12 @@ var _active_pile_kind: String = ""
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
-var _intensity_bar: HFlowContainer
+var _intensity_bar: Control
+var _turn_order_panel: PanelContainer
+var _turn_order_bar: Control
+var _turn_order_animating: bool = false
+var _turn_order_hovered_enemy_key: String = ""
+var _turn_order_panel_locked_width: float = -1.0
 var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
@@ -446,6 +472,7 @@ func _apply_style() -> void:
 	title_box.size_flags_stretch_ratio = 2.0
 	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_spacer.size_flags_stretch_ratio = 1.0
+	_setup_turn_order_bar()
 	relic_bar.visible = false
 	relic_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	relic_bar.add_theme_constant_override("h_separation", int(RELIC_BAR_HORIZONTAL_GAP))
@@ -1716,7 +1743,7 @@ func _setup_play_meter() -> void:
 	_refresh_card_play_meter()
 
 func _setup_elemental_intensity_bar() -> void:
-	_intensity_bar = HFlowContainer.new()
+	_intensity_bar = Control.new()
 	_intensity_bar.name = "ElementalIntensityBar"
 	_intensity_bar.visible = false
 	_intensity_bar.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -1724,12 +1751,11 @@ func _setup_elemental_intensity_bar() -> void:
 	_intensity_bar.custom_minimum_size = _intensity_bar_size()
 	_intensity_bar.size = _intensity_bar_size()
 	_intensity_bar.z_index = 30
-	_intensity_bar.add_theme_constant_override("h_separation", 9)
-	_intensity_bar.add_theme_constant_override("v_separation", 7)
 	add_child(_intensity_bar)
 	for element_id: String in ElementData.all_elements():
 		var badge := TooltipPanelContainer.new()
 		badge.custom_minimum_size = INTENSITY_BADGE_SIZE
+		badge.size = INTENSITY_BADGE_SIZE
 		badge.mouse_filter = Control.MOUSE_FILTER_STOP
 		badge.mouse_default_cursor_shape = Control.CURSOR_HELP
 		badge.tooltip_text = _intensity_tooltip(element_id)
@@ -1772,6 +1798,7 @@ func _setup_elemental_intensity_bar() -> void:
 		count.add_theme_constant_override("outline_size", 4)
 		content.add_child(count)
 		_intensity_labels[element_id] = count
+	_layout_intensity_badges()
 	_refresh_elemental_intensity_bar()
 
 func _connect_header_layout_signals() -> void:
@@ -1787,7 +1814,28 @@ func _queue_elemental_intensity_layout() -> void:
 	call_deferred("_layout_elemental_intensity_bar")
 
 func _intensity_bar_size() -> Vector2:
-	return Vector2(INTENSITY_BADGE_SIZE.x * 5.0 + 9.0 * 4.0, INTENSITY_BADGE_SIZE.y)
+	return Vector2(INTENSITY_BADGE_SIZE.x * 3.0 + 9.0 * 2.0, INTENSITY_BADGE_SIZE.y * 2.0 + 7.0)
+
+func _intensity_badge_position(index: int) -> Vector2:
+	var row: int = 0 if index < 3 else 1
+	var column: int = index if row == 0 else index - 3
+	var row_count: int = 3 if row == 0 else 2
+	var row_width: float = INTENSITY_BADGE_SIZE.x * float(row_count) + 9.0 * float(maxi(0, row_count - 1))
+	var x_offset: float = (_intensity_bar_size().x - row_width) * 0.5
+	return Vector2(
+		x_offset + float(column) * (INTENSITY_BADGE_SIZE.x + 9.0),
+		float(row) * (INTENSITY_BADGE_SIZE.y + 7.0)
+	)
+
+func _layout_intensity_badges() -> void:
+	if _intensity_bar == null:
+		return
+	for index: int in range(_intensity_bar.get_child_count()):
+		var child: Control = _intensity_bar.get_child(index) as Control
+		if child == null:
+			continue
+		child.position = _intensity_badge_position(index)
+		child.size = INTENSITY_BADGE_SIZE
 
 func _layout_header_hud() -> void:
 	if title_box == null:
@@ -1838,6 +1886,7 @@ func _layout_elemental_intensity_bar() -> void:
 		return
 	_layout_header_hud()
 	_intensity_bar.size = _intensity_bar_size()
+	_layout_intensity_badges()
 	var title_rect: Rect2 = room_title.get_global_rect()
 	var y: float = room_subtitle.get_global_rect().end.y + ELEMENTAL_INTENSITY_HEADER_GAP
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
@@ -2099,6 +2148,7 @@ func _refresh_ui() -> void:
 	room_subtitle.text = _room_subtitle_text(display_room)
 	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
+	_refresh_turn_order_bar()
 	_layout_header_hud()
 	_refresh_elemental_intensity_bar()
 	call_deferred("_layout_header_hud")
@@ -2189,6 +2239,467 @@ func _refresh_relic_bar() -> void:
 	_layout_header_hud()
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
+
+func _setup_turn_order_bar() -> void:
+	if _turn_order_panel != null:
+		return
+	_turn_order_panel = PanelContainer.new()
+	_turn_order_panel.name = "TurnOrderPanel"
+	_turn_order_panel.visible = false
+	_turn_order_panel.custom_minimum_size = TURN_ORDER_PANEL_MIN_SIZE
+	_turn_order_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_turn_order_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_turn_order_panel.add_theme_stylebox_override("panel", _turn_order_panel_style())
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	_turn_order_panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 12)
+	margin.add_child(row)
+	var label := Label.new()
+	label.text = "TURN\nORDER"
+	label.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, 0.0)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
+	label.add_theme_color_override("font_color", Color("f5dfb3"))
+	label.add_theme_color_override("font_outline_color", Color("21150f"))
+	label.add_theme_constant_override("outline_size", 2)
+	row.add_child(label)
+	_turn_order_bar = Control.new()
+	_turn_order_bar.name = "TurnOrderBar"
+	_turn_order_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_turn_order_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_turn_order_bar.custom_minimum_size = TURN_ORDER_PORTRAIT_SIZE
+	row.add_child(_turn_order_bar)
+	top_bar.add_child(_turn_order_panel)
+	top_bar.move_child(_turn_order_panel, header_spacer.get_index())
+
+func _refresh_turn_order_bar() -> void:
+	if _turn_order_bar == null:
+		return
+	if _turn_order_animating:
+		return
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode != "combat" or _combat_state.is_empty():
+		_clear_children(_turn_order_bar)
+		_turn_order_panel_locked_width = -1.0
+		if _turn_order_panel != null:
+			_turn_order_panel.visible = false
+		return
+	var entries: Array[Dictionary] = _combat_engine.current_turn_order(_turn_order_display_state(), TURN_ORDER_MAX_SLOTS)
+	_set_turn_order_bar_entries(entries)
+
+func _turn_order_display_state() -> Dictionary:
+	var state: Dictionary = _combat_state.duplicate(true)
+	var preview: Dictionary = _turn_order_card_time_preview()
+	if not preview.is_empty():
+		state["turn_order_preview_time_delta"] = int(preview.get("time", 0))
+		state["turn_order_preview_card_name"] = str(preview.get("name", ""))
+	return state
+
+func _turn_order_card_time_preview() -> Dictionary:
+	if _animation_lock or _combat_state.is_empty() or not _combat_engine.is_player_turn(_combat_state):
+		return {}
+	var index: int = _selected_card_index if _selected_card_index >= 0 else _hovered_card_index
+	if index < 0:
+		return {}
+	if not bool(_card_play_options_for_index(index).get("any_playable", false)):
+		return {}
+	var card_id: String = _card_id_for_hand_index(index)
+	if card_id.is_empty():
+		return {}
+	var card: Dictionary = _card_def(card_id, _combat_state)
+	return {
+		"time": _combat_engine.card_time_cost_from_def(card),
+		"name": str(card.get("name", card_id))
+	}
+
+func _set_turn_order_bar_entries(entries: Array[Dictionary]) -> void:
+	if _turn_order_bar == null:
+		return
+	_clear_children(_turn_order_bar)
+	var entries_width: float = _turn_order_entries_width(entries.size())
+	_turn_order_bar.custom_minimum_size = Vector2(entries_width, TURN_ORDER_PORTRAIT_SIZE.y)
+	_turn_order_bar.size = _turn_order_bar.custom_minimum_size
+	if _turn_order_panel != null:
+		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
+		_turn_order_panel.custom_minimum_size = Vector2(panel_width, TURN_ORDER_PANEL_MIN_SIZE.y)
+		_turn_order_panel.visible = not entries.is_empty()
+	for index: int in range(entries.size()):
+		var slot: Control = _build_turn_order_slot(entries[index], index)
+		slot.position = _turn_order_slot_position(index)
+		_turn_order_bar.add_child(slot)
+
+func _turn_order_entries_width(count: int) -> float:
+	if count <= 0:
+		return 0.0
+	return float(count) * TURN_ORDER_PORTRAIT_SIZE.x + float(count - 1) * TURN_ORDER_SLOT_GAP
+
+func _turn_order_panel_width_for_count(count: int) -> float:
+	return maxf(TURN_ORDER_PANEL_MIN_WIDTH, 28.0 + TURN_ORDER_LABEL_WIDTH + 12.0 + _turn_order_entries_width(count))
+
+func _turn_order_slot_position(index: int) -> Vector2:
+	return Vector2(float(index) * (TURN_ORDER_PORTRAIT_SIZE.x + TURN_ORDER_SLOT_GAP), 0.0)
+
+func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
+	var active: bool = bool(entry.get("active", false))
+	var slot_size: Vector2 = TURN_ORDER_ACTIVE_SIZE if active else TURN_ORDER_PORTRAIT_SIZE
+	var frame := Control.new()
+	frame.custom_minimum_size = slot_size
+	frame.size = slot_size
+	frame.clip_contents = false
+	frame.mouse_filter = Control.MOUSE_FILTER_STOP
+	frame.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if str(entry.get("kind", "")) == "enemy" else Control.CURSOR_ARROW
+	frame.tooltip_text = _turn_order_tooltip(entry, index)
+	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
+	frame.set_meta("turn_order_size", slot_size)
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.anchor_right = 1.0
+	panel.anchor_bottom = 1.0
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", _turn_order_slot_style(entry, active))
+	frame.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	var inset: int = 5 if active else 6
+	margin.add_theme_constant_override("margin_left", inset)
+	margin.add_theme_constant_override("margin_top", inset)
+	margin.add_theme_constant_override("margin_right", inset)
+	margin.add_theme_constant_override("margin_bottom", inset)
+	panel.add_child(margin)
+	var portrait := TextureRect.new()
+	portrait.set_anchors_preset(Control.PRESET_FULL_RECT)
+	portrait.anchor_right = 1.0
+	portrait.anchor_bottom = 1.0
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	portrait.texture = AssetLoader.load_texture(_turn_order_portrait_path(entry))
+	portrait.modulate = Color(1.0, 1.0, 1.0, 0.74) if bool(entry.get("projected", false)) and not active else Color.WHITE
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(portrait)
+	var badge_text: String = _turn_order_clock_badge_text(entry)
+	frame.set_meta("turn_order_badge_text", badge_text)
+	frame.add_child(_turn_order_number_badge(badge_text, entry, active))
+	if str(entry.get("kind", "")) == "enemy":
+		var tile: Vector2i = entry.get("pos", Vector2i(-1, -1))
+		var actor_key: String = str(entry.get("actor_key", ""))
+		frame.mouse_entered.connect(_on_turn_order_enemy_hovered.bind(tile, actor_key))
+		frame.mouse_exited.connect(_on_turn_order_enemy_unhovered.bind(tile, actor_key))
+	return frame
+
+func _turn_order_clock_badge_text(entry: Dictionary) -> String:
+	return str(int(entry.get("time", 0)))
+
+func _turn_order_number_badge(text: String, entry: Dictionary, active: bool) -> Control:
+	var badge := PanelContainer.new()
+	badge.position = Vector2(3.0, 3.0)
+	var badge_size := Vector2(maxf(24.0, 12.0 + float(text.length()) * 8.0), 22.0)
+	badge.custom_minimum_size = badge_size
+	badge.size = badge_size
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_theme_stylebox_override("panel", _turn_order_number_badge_style(entry, active))
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL if text.length() >= 3 else UiTypography.SIZE_BODY)
+	label.add_theme_color_override("font_color", Color("fff4d2"))
+	label.add_theme_color_override("font_outline_color", Color("120b07"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	return badge
+
+func _turn_order_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.035, 0.025, 0.86)
+	style.border_color = Color(0.63, 0.43, 0.25, 0.78)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	style.shadow_size = 18
+	style.shadow_offset = Vector2(0.0, 7.0)
+	return style
+
+func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
+	var team: String = str(entry.get("team", "enemy"))
+	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
+	if team == "enemy":
+		var enemy_type: String = str(entry.get("type", ""))
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		if not enemy_def.is_empty():
+			accent = Color(str(enemy_def.get("accent", "#d36a55")))
+	var style := StyleBoxFlat.new()
+	var projected: bool = bool(entry.get("projected", false)) and not active
+	style.bg_color = Color(0.075, 0.050, 0.036, 0.94 if not projected else 0.78)
+	style.border_color = accent.lightened(0.30 if active else 0.06)
+	style.border_color.a = 0.95 if active else 0.74 if not projected else 0.52
+	var border_width: int = 5 if active else 3 if not projected else 2
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34 if active else 0.26)
+	style.shadow_size = 14 if active else 9
+	style.shadow_offset = Vector2(0.0, 4.0)
+	return style
+
+func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var team: String = str(entry.get("team", "enemy"))
+	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
+	style.bg_color = Color(0.05, 0.03, 0.02, 0.88)
+	style.border_color = accent.lightened(0.18 if active else 0.02)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	return style
+
+func _turn_order_tooltip(entry: Dictionary, index: int) -> String:
+	var clock: int = int(entry.get("time", 0))
+	var lines: Array[String] = ["Clock %d: %s" % [clock, str(entry.get("name", "Actor"))]]
+	var eta: int = int(entry.get("eta", 0))
+	if bool(entry.get("active", false)):
+		lines.append("Acting now at %d" % clock)
+	else:
+		lines.append("Acts at %d (+%d)" % [clock, eta])
+	if bool(entry.get("projected", false)):
+		lines.append("Projected next turn")
+	var base: int = int(entry.get("base_initiative", 0))
+	if str(entry.get("kind", "")) == "enemy":
+		var intent_time: int = int(entry.get("intent_time_cost", 0))
+		if intent_time > 0:
+			lines.append("Base %d + intent %d" % [base, intent_time])
+		elif base > 0:
+			lines.append("Base %d" % base)
+	else:
+		var spent: int = int(entry.get("turn_time_spent", 0))
+		var preview_time: int = int(entry.get("projected_time_cost", 0))
+		if preview_time > 0:
+			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
+			var card_name: String = str(entry.get("projected_card_name", ""))
+			if not card_name.is_empty():
+				lines.append(card_name)
+		elif spent > 0:
+			lines.append("Base %d + played %d" % [base, spent])
+		elif base > 0:
+			lines.append("Base %d" % base)
+	return "\n".join(lines)
+
+func _turn_order_portrait_path(entry: Dictionary) -> String:
+	var key: String = "player" if str(entry.get("kind", "")) == "player" else str(entry.get("type", ""))
+	return str(TURN_ORDER_PORTRAITS.get(key, TURN_ORDER_PORTRAITS.get("player", "")))
+
+func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
+	if tile.x < 0:
+		return
+	_turn_order_hovered_enemy_key = actor_key
+	_hovered_board_tile = tile
+	_refresh_stage_view()
+
+func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
+	if _turn_order_hovered_enemy_key == actor_key:
+		_turn_order_hovered_enemy_key = ""
+	if _hovered_board_tile == tile:
+		_hovered_board_tile = Vector2i(-1, -1)
+		_refresh_stage_view()
+
+func _turn_order_entries_from_state(state: Dictionary) -> Array[Dictionary]:
+	return _combat_engine.current_turn_order(state, TURN_ORDER_MAX_SLOTS)
+
+func _turn_order_array(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for entry_var: Variant in value:
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			result.append((entry_var as Dictionary).duplicate(true))
+	return result
+
+func _turn_order_entry_key(entry: Dictionary) -> String:
+	return "%s:%s:%d:%d" % [
+		str(entry.get("kind", "")),
+		str(entry.get("actor_key", "")),
+		int(entry.get("time", 0)),
+		int(entry.get("seq", 0))
+	]
+
+func _turn_order_signature(entries: Array[Dictionary]) -> String:
+	var parts: Array[String] = []
+	for entry: Dictionary in entries:
+		parts.append("%s:%s" % [_turn_order_entry_key(entry), str(bool(entry.get("active", false)))])
+	return "|".join(parts)
+
+func _turn_order_actor_key(entry: Dictionary) -> String:
+	return "%s:%s" % [str(entry.get("kind", "")), str(entry.get("actor_key", ""))]
+
+func _turn_order_animation_role(entry: Dictionary) -> String:
+	if bool(entry.get("active", false)):
+		return "active"
+	if bool(entry.get("projected", false)):
+		return "projected"
+	return "scheduled"
+
+func _turn_order_animation_base_key(entry: Dictionary) -> String:
+	return "%s:%s" % [_turn_order_actor_key(entry), _turn_order_animation_role(entry)]
+
+func _turn_order_active_removal_indices(before_order: Array[Dictionary]) -> Array:
+	for index: int in range(before_order.size()):
+		if bool(before_order[index].get("active", false)):
+			return [index]
+	return []
+
+func _turn_order_index_set(indices: Array) -> Dictionary:
+	var result: Dictionary = {}
+	for index_var: Variant in indices:
+		result[int(index_var)] = true
+	return result
+
+func _turn_order_is_activation_style_update(before_order: Array[Dictionary], after_order: Array[Dictionary]) -> bool:
+	if before_order.is_empty() or after_order.is_empty():
+		return false
+	if bool(before_order[0].get("active", false)) or not bool(after_order[0].get("active", false)):
+		return false
+	return _turn_order_actor_key(before_order[0]) == _turn_order_actor_key(after_order[0])
+
+func _turn_order_instance_keys(entries: Array[Dictionary], excluded_indices: Array = []) -> Array[String]:
+	var counts: Dictionary = {}
+	var keys: Array[String] = []
+	var excluded: Dictionary = _turn_order_index_set(excluded_indices)
+	for index: int in range(entries.size()):
+		if bool(excluded.get(index, false)):
+			keys.append("")
+			continue
+		var key: String = _turn_order_animation_base_key(entries[index])
+		var occurrence: int = int(counts.get(key, 0))
+		counts[key] = occurrence + 1
+		keys.append("%s#%d" % [key, occurrence])
+	return keys
+
+func _turn_order_child_positions(entries: Array[Dictionary], excluded_indices: Array = []) -> Dictionary:
+	var positions: Dictionary = {}
+	if _turn_order_bar == null:
+		return positions
+	var keys: Array[String] = _turn_order_instance_keys(entries, excluded_indices)
+	var count: int = mini(keys.size(), _turn_order_bar.get_child_count())
+	for index: int in range(count):
+		if keys[index].is_empty():
+			continue
+		var child: Control = _turn_order_bar.get_child(index) as Control
+		if child != null:
+			positions[keys[index]] = child.position
+	return positions
+
+func _animate_turn_order_transition_between_states(before_state: Dictionary, after_state: Dictionary) -> void:
+	await _animate_turn_order_transition(_turn_order_entries_from_state(before_state), _turn_order_entries_from_state(after_state))
+
+func _animate_turn_order_transition(before_order: Array[Dictionary], after_order: Array[Dictionary]) -> void:
+	if _turn_order_bar == null:
+		return
+	if _turn_order_signature(before_order) == _turn_order_signature(after_order):
+		return
+	if before_order.is_empty():
+		_set_turn_order_bar_entries(after_order)
+		return
+	if _turn_order_is_activation_style_update(before_order, after_order):
+		_set_turn_order_bar_entries(after_order)
+		await get_tree().create_timer(TURN_ORDER_STYLE_SECONDS).timeout
+		return
+	_turn_order_animating = true
+	var working_order: Array[Dictionary] = _turn_order_array(before_order)
+	_turn_order_panel_locked_width = maxf(_turn_order_panel_width_for_count(working_order.size()), _turn_order_panel_width_for_count(after_order.size()))
+	_set_turn_order_bar_entries(working_order)
+	await get_tree().process_frame
+	var removed_indices: Array = _turn_order_active_removal_indices(working_order)
+	if not removed_indices.is_empty():
+		var remove_tween: Tween = null
+		for index_var: Variant in removed_indices:
+			var removed_index: int = int(index_var)
+			if removed_index < 0 or removed_index >= _turn_order_bar.get_child_count():
+				continue
+			var removed_child: Control = _turn_order_bar.get_child(removed_index) as Control
+			if removed_child == null:
+				continue
+			if remove_tween == null:
+				remove_tween = create_tween().set_parallel(true)
+			var removed_target_position: Vector2 = removed_child.position + Vector2(0.0, -TURN_ORDER_FLOAT_OFFSET)
+			remove_tween.tween_property(removed_child, "position", removed_target_position, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			remove_tween.tween_property(removed_child, "modulate:a", 0.0, TURN_ORDER_REMOVE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		if remove_tween != null:
+			await remove_tween.finished
+	var previous_positions: Dictionary = _turn_order_child_positions(working_order, removed_indices)
+	var after_keys: Array[String] = _turn_order_instance_keys(after_order)
+	_set_turn_order_bar_entries(after_order)
+	await get_tree().process_frame
+	var reflow_tween: Tween = null
+	var inserted_slots: Array[Dictionary] = []
+	var child_count: int = mini(after_order.size(), _turn_order_bar.get_child_count())
+	for index: int in range(child_count):
+		var child: Control = _turn_order_bar.get_child(index) as Control
+		if child == null:
+			continue
+		var final_position: Vector2 = child.position
+		var instance_key: String = after_keys[index]
+		if previous_positions.has(instance_key):
+			var previous_position: Vector2 = previous_positions[instance_key]
+			var offset: Vector2 = previous_position - final_position
+			if offset.length() > 0.5:
+				child.position = final_position + offset
+				if reflow_tween == null:
+					reflow_tween = create_tween().set_parallel(true)
+				reflow_tween.tween_property(child, "position", final_position, TURN_ORDER_REFLOW_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		else:
+			child.modulate.a = 0.0
+			child.position = final_position + Vector2(0.0, -TURN_ORDER_FLOAT_OFFSET)
+			inserted_slots.append({
+				"child": child,
+				"position": final_position
+			})
+	if reflow_tween != null:
+		await reflow_tween.finished
+	else:
+		await get_tree().create_timer(TURN_ORDER_STYLE_SECONDS).timeout
+	if not inserted_slots.is_empty():
+		var insert_tween: Tween = create_tween().set_parallel(true)
+		for slot_var: Variant in inserted_slots:
+			var slot: Dictionary = slot_var
+			var inserted_child: Control = slot.get("child", null) as Control
+			if inserted_child == null:
+				continue
+			var target_position: Vector2 = slot.get("position", inserted_child.position)
+			insert_tween.tween_property(inserted_child, "position", target_position, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			insert_tween.tween_property(inserted_child, "modulate:a", 1.0, TURN_ORDER_INSERT_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		await insert_tween.finished
+	_turn_order_panel_locked_width = -1.0
+	_set_turn_order_bar_entries(after_order)
+	_turn_order_animating = false
 
 func _refresh_pile_visuals() -> void:
 	var piles: Dictionary = _deck_piles()
@@ -2362,7 +2873,7 @@ func _refresh_choice_bar() -> void:
 		if _current_action_can_skip():
 			_add_choice_button("Skip", _on_skip_action_pressed)
 		_add_choice_button("Cancel", _on_cancel_requested)
-	elif mode == "combat" and not _animation_lock and _drag_card_index < 0:
+	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state):
 		_add_choice_button("Pass", _on_pass_turn_pressed)
 	match mode:
 		"campfire":
@@ -2804,6 +3315,10 @@ func _refresh_stage_view() -> void:
 			if threat_preview.has("enemy_key"):
 				presentation["focus_actor_keys"] = [str(threat_preview.get("enemy_key", ""))]
 				presentation["focus_actor_color"] = Color("f2ddb2")
+		if not _turn_order_hovered_enemy_key.is_empty():
+			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
+			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
+			presentation["focus_actor_color"] = Color("f2ddb2")
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
 		presentation["focus_tiles"] = [_hovered_board_tile]
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and not _exit_destinations_by_tile.is_empty():
@@ -3730,6 +4245,7 @@ func _on_card_hover_started(index: int) -> void:
 		return
 	_hovered_card_index = index
 	_refresh_stage_view()
+	_refresh_turn_order_bar()
 
 func _on_card_hover_ended(index: int) -> void:
 	if _selected_card_index >= 0 or _drag_card_index >= 0:
@@ -3737,6 +4253,7 @@ func _on_card_hover_ended(index: int) -> void:
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
 		_refresh_stage_view()
+		_refresh_turn_order_bar()
 
 func _on_board_tile_hovered(tile: Vector2i) -> void:
 	if _dialogue_active or _drag_card_index >= 0:
@@ -4538,18 +5055,19 @@ func _resolve_enemy_round() -> void:
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
-	var phase_result: Dictionary = _combat_engine.resolve_enemy_phase_with_steps(_combat_state)
-	var animated_state: Dictionary = _combat_state.duplicate(true)
-	_clear_enemy_blocks(animated_state)
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
+	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
+	_combat_state = scheduled_state.duplicate(true)
+	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var animated_state: Dictionary = scheduled_state.duplicate(true)
 	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []))
 	_board_presentation.clear()
 	_set_action_banner("")
 	_combat_state = (phase_result.get("state", {}) as Dictionary).duplicate(true)
 	_analytics_log_enemy_status_ticks(phase_result)
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
-	if outcome == "":
-		var before_draw_state: Dictionary = _combat_state.duplicate(true)
-		_combat_state = _combat_engine.prepare_next_player_turn(_combat_state)
+	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
+	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
 		_analytics_reconcile_combat_tracker(before_draw_state, _combat_state)
 		_analytics_log_card_draws(before_draw_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "turn_draw")
@@ -4576,7 +5094,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
+			"turn_order":
+				await _animate_turn_order_transition(_turn_order_array(step.get("before_order", [])), _turn_order_array(step.get("after_order", [])))
 			"intent":
+				_clear_enemy_block_by_key(animated_state, step_actor_key)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("intent_name", ""))])
 				_render_board_state(animated_state, {
 					"focus_actor_keys": [step_actor_key],
@@ -4990,6 +5511,15 @@ func _add_enemy_block_by_key(state: Dictionary, actor_key: String, amount: int) 
 		if _enemy_key(enemy) != actor_key:
 			continue
 		enemy["block"] = int(enemy.get("block", 0)) + amount
+		(state.get("enemies", []) as Array)[enemy_index] = enemy
+		return
+
+func _clear_enemy_block_by_key(state: Dictionary, actor_key: String) -> void:
+	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+		if _enemy_key(enemy) != actor_key:
+			continue
+		enemy["block"] = 0
 		(state.get("enemies", []) as Array)[enemy_index] = enemy
 		return
 
@@ -5433,6 +5963,8 @@ func _on_menu_button_pressed() -> void:
 
 func _on_pass_turn_pressed() -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
+		return
+	if not _combat_engine.is_player_turn(_combat_state):
 		return
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
@@ -6220,6 +6752,9 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"run_id": str(run_analytics.get("run_id", "")),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),
+		"initiative_clock": int(combat_state.get("initiative_clock", 0)),
+		"current_actor_kind": str((combat_state.get("current_actor", {}) as Dictionary).get("kind", "")),
+		"current_actor_key": str((combat_state.get("current_actor", {}) as Dictionary).get("actor_key", "")),
 		"room_depth": int(combat_state.get("room_depth", room_meta.get("depth", 0))),
 		"room_element": str(combat_state.get("room_element", room_meta.get("element", ""))),
 		"player_hp": int(player.get("hp", run_state.get("player_hp", -1))),
@@ -6647,6 +7182,10 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"card_plays_spent": maxi(0, int(resolved_state.get("cards_played_this_turn", 0)) - int(before_state.get("cards_played_this_turn", 0))),
 		"death_bonus_card_plays_gained": maxi(0, int(resolved_state.get("death_bonus_card_plays_this_turn", 0)) - int(before_state.get("death_bonus_card_plays_this_turn", 0))),
 		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
+		"card_time": _combat_engine.card_time_cost_from_def(printed_card),
+		"turn_time_spent_before": int(before_state.get("player_turn_time_spent", 0)),
+		"turn_time_spent_after": int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card),
+		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
 		"elemental_intensity_before": intensity_before,
 		"elemental_intensity_after": intensity_after,
 		"elemental_intensity_gained": intensity_gained,

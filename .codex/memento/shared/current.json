@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-23T13:30:57Z",
+  "updated_at": "2026-05-28T03:36:31Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -3059,6 +3059,164 @@
       "source": {
         "branch": "master",
         "commit": "1c92d0c"
+      }
+    },
+    {
+      "id": "mnt_20260523T192724Z_bc63af3f",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/portraits",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/portraits",
+      "summary": "Turn order portraits should match the in-game unit sprites.",
+      "details": "For the initiative UI, portraits are sprite-derived thumbnails from assets/placeholders/units via tools/build_turn_order_assets.gd. Avoid generated reinterpretations that change character silhouette, tone, or style.",
+      "status": "active",
+      "created_at": "2026-05-23T19:27:24Z",
+      "updated_at": "2026-05-23T19:27:24Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
+      "id": "mnt_20260523T195911Z_c5ab6233",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn-order UI animates from engine-provided order snapshots.",
+      "details": "Initiative turn-order changes should emit explicit turn_order steps from CombatEngine with before_order/after_order arrays. RunScene consumes those snapshots for pop/reslot animation instead of inferring from its possibly stale _combat_state during enemy animations, which prevents the player portrait from remaining active at the head after finish_player_activation.",
+      "status": "active",
+      "created_at": "2026-05-23T19:59:11Z",
+      "updated_at": "2026-05-23T19:59:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
+      "id": "mnt_20260524T154359Z_9c580b93",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "_assign_enemy_intent"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#_assign_enemy_intent",
+      "summary": "Enemy guard intents must not materialize block before activation",
+      "details": "With initiative turns, revealed enemy intents are previews only. Block is cleared at the start of that enemy activation, applied by resolving the enemy block action, and persists until that same enemy's next activation starts. _apply_revealed_intent_blocks remains a no-op compatibility shim.",
+      "status": "active",
+      "created_at": "2026-05-24T15:43:59Z",
+      "updated_at": "2026-05-24T15:43:59Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
+      "id": "mnt_20260524T162421Z_39ac74d3",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/combat_engine.gd",
+        "symbol": "current_turn_order"
+      },
+      "scope_key": "symbol:scripts/combat_engine.gd#current_turn_order",
+      "summary": "Turn-order previews show up to two activations per actor",
+      "details": "current_turn_order now includes the active/current slot plus projected follow-up slots for live actors. Queued enemies get a second projected activation at queued_time + base_initiative + current intent time, and the active player gets a projected next slot using base initiative plus time already spent plus any RunScene card-hover preview delta.",
+      "status": "active",
+      "created_at": "2026-05-24T16:24:21Z",
+      "updated_at": "2026-05-24T16:24:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
+      "id": "mnt_20260526T032228Z_56569afd",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn-order animation removes only the active head entry",
+      "details": "Turn-order transitions must not infer removals from exact projected queue snapshots because projected times/seqs can change for multiple future entries. RunScene now uses active-head removal for the pop/fade, treats activation-only head changes as a style update, matches survivors by actor plus scheduled/projected role, and locks the panel width during reflow so the widget does not shrink or grow mid-animation.",
+      "status": "active",
+      "created_at": "2026-05-26T03:22:28Z",
+      "updated_at": "2026-05-26T03:22:28Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260524T172947Z_71a59cf6"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
+      "id": "mnt_20260526T035942Z_1f773fbe",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Initiative balance now favors standard early player returns",
+      "details": "Player base initiative is 9 with Agility reducing it to a floor of 5. Starter card times now average about 4.1; Whirlwind Slash is normal-speed at 5 and Bloody Lunge is the heavy starter at 8. First-sequence weighted repeat cycles are about wisp 11, crawler 13, harrier 13.4, acolyte 16.25, warden 20.25, and Zekarion 19.25, so normal two-card starter turns should usually return before the same fast enemy follows up while heavy+normal turns can let fast enemies double-up.",
+      "status": "active",
+      "created_at": "2026-05-26T03:59:42Z",
+      "updated_at": "2026-05-26T03:59:42Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260524T143337Z_6213710a"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
+      "id": "mnt_20260528T033631Z_97a7ab46",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Turn order header cap is 10 visible slots",
+      "details": "Four-enemy rooms show 10 turn entries including the player and fit acceptably; five-enemy rooms showing 12 were too wide, so cap the visible turn-order widget at 10 rather than 8.",
+      "status": "active",
+      "created_at": "2026-05-28T03:36:31Z",
+      "updated_at": "2026-05-28T03:36:31Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
       }
     }
   ]
