@@ -134,6 +134,8 @@ Do not bake frames or rarity marks into card art. CardWidget handles them:
 
 For elemental cards, the visual payload should hint at the element, but the frame tint and element iconography are runtime UI responsibilities.
 
+The card time cost is also runtime UI. `CardWidget` renders top-level `time` as the procedural clock badge in the top-right corner; do not paint clocks, numbers, or time-cost marks into generated card art.
+
 ## Names And Icon Layout
 
 CardWidget title fitting tests rendered sizes against the visual nameplate width, not the full label width. It starts from the normal 17-19 pt range, renders the chosen fitting size 2 pt smaller, caps normal rendered titles at 15 pt, and can shrink to 10 pt. Prefer short names, usually 1-3 words, with spaces between words. Avoid long unbreakable words.

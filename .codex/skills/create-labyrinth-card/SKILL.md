@@ -34,9 +34,10 @@ description: Create, implement, rebalance, or review cards for Labyrinth of Ash.
 ## Data Rules
 
 - Card ids are lowercase snake_case keys in `data/cards.json`.
-- New playable cards need `name`, `rarity`, `burn`, `health_cost`, `description`, `accent`, `art_path`, and `actions`.
+- New playable cards need `name`, `rarity`, `time`, `burn`, `health_cost`, `description`, `accent`, `art_path`, and `actions`.
 - Neutral cards normally omit `element`; elemental cards use `fire`, `ice`, `lightning`, `air`, or `earth` and should keep `accent` aligned with `scripts/element_data.gd`.
 - `rarity` is `common`, `uncommon`, or `rare` for rewards. Use `starter` only when also updating the starting deck intentionally.
+- `time` is the card's initiative cost on a `1-10` scale. Use `5` as the normal baseline, lower values for fast/simple/low-impact cards, and higher values for heavy, high-impact, broad, or setup-payoff cards.
 - Top-level `burn: true` means **Exhaust this card for the rest of combat**. It is rendered as the Exhaust cost icon. Do not confuse it with action-level `burn`, which is the fire status.
 - `description` is still useful fallback text, but the card UI primarily renders icon rows from `ActionIconLibrary.rows_for_card`.
 
@@ -51,6 +52,7 @@ description: Create, implement, rebalance, or review cards for Labyrinth of Ash.
 When finishing card work, explicitly report:
 
 - The card id, rarity, element, and intended role.
+- The chosen `time` cost and why it fits the card's power and pacing role.
 - The heuristic score and closest comparisons.
 - Any deliberate curve deviation.
 - The generated or edited art path.

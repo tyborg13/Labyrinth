@@ -171,57 +171,143 @@ class AoePatternView:
 class TimeCostBadge:
 	extends Control
 
-	const ActionIconsScript = preload("res://scripts/action_icon_library.gd")
 	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
+	const CLOCK_HOVER_SECONDS_PER_SECOND: float = 24.0
 
 	var value: int = 0
-	var icon_texture: Texture2D
+	var _clock_seconds: float = 0.0
+	var _hovered: bool = false
 
 	func setup(next_value: int, next_tooltip: String) -> void:
 		value = maxi(0, next_value)
-		icon_texture = ActionIconsScript.icon_texture("time")
+		_clock_seconds = float(posmod(value, 12)) * 3600.0 + float(posmod(value * 5, 60)) * 60.0 + float(posmod(value * 11, 60))
 		tooltip_text = next_tooltip
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_process(_hovered)
+		queue_redraw()
+
+	func set_hovered(hovered: bool) -> void:
+		if _hovered == hovered:
+			return
+		_hovered = hovered
+		set_process(_hovered)
+		queue_redraw()
+
+	func _process(delta: float) -> void:
+		if not _hovered:
+			return
+		_clock_seconds = fmod(_clock_seconds + delta * CLOCK_HOVER_SECONDS_PER_SECOND, 43200.0)
 		queue_redraw()
 
 	func _draw() -> void:
-		var draw_rect := Rect2(Vector2.ZERO, size)
-		if icon_texture != null:
-			draw_texture_rect(icon_texture, draw_rect, false, Color.WHITE)
-		else:
-			var fallback_fill: Color = Color("2b2118")
-			draw_circle(size * 0.5, minf(size.x, size.y) * 0.48, fallback_fill)
-			draw_arc(size * 0.5, minf(size.x, size.y) * 0.35, -PI * 0.5, PI * 1.25, 18, Color("e7cf98"), 2.0, true)
+		var center: Vector2 = size * 0.5
+		var radius: float = minf(size.x, size.y) * 0.48
+		_draw_clock_face(center, radius)
 		var font: Font = UiTypographyScript.default_font(self)
 		if font == null:
 			return
-		var font_size: int = UiTypographyScript.scaled_size(self, 14 if size.x <= 32.0 else 16)
+		var font_size: int = UiTypographyScript.scaled_size(self, 16 if size.x <= 42.0 else 18)
 		var text: String = str(value)
 		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		while font_size > 10 and text_size.x > size.x * 0.58:
+		while font_size > 10 and text_size.x > size.x * 0.50:
 			font_size -= 1
 			text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		var center: Vector2 = size * 0.5
-		var backing_color: Color = Color("20140d")
-		backing_color.a = 0.20
-		var backing_radius: float = minf(size.x, size.y) * 0.18
-		draw_circle(center, backing_radius, backing_color)
-		var rim_color: Color = Color("f1c86b")
-		rim_color.a = 0.24
-		draw_arc(center, backing_radius + 0.8, 0.0, PI * 2.0, 24, rim_color, 0.6, true)
-		var baseline: Vector2 = Vector2((size.x - text_size.x) * 0.5, (size.y + font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5 - 1.0)
-		var outline_color: Color = Color("fff0bf")
-		outline_color.a = 0.86
+		_draw_number_medallion(center, radius)
+		var baseline: Vector2 = Vector2(center.x - text_size.x * 0.5, center.y + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5 + radius * 0.12)
+		var outline_color: Color = Color("100804")
+		outline_color.a = 0.96
 		var outline_offsets: Array = [
 			Vector2(-1.0, 0.0),
 			Vector2(1.0, 0.0),
 			Vector2(0.0, -1.0),
 			Vector2(0.0, 1.0),
-			Vector2(1.0, 1.0)
+			Vector2(-1.0, -1.0),
+			Vector2(1.0, 1.0),
+			Vector2(-1.0, 1.0),
+			Vector2(1.0, -1.0)
 		]
 		for offset_var: Variant in outline_offsets:
 			draw_string(font, baseline + (offset_var as Vector2), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, outline_color)
-		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("1a0f08"))
+		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("fff3c2"))
+
+	func _draw_clock_face(center: Vector2, radius: float) -> void:
+		draw_circle(center + Vector2(radius * 0.05, radius * 0.09), radius * 1.07, Color(0.02, 0.01, 0.005, 0.60))
+		draw_circle(center, radius * 1.03, Color("1a1008"))
+		draw_circle(center + Vector2(-radius * 0.025, -radius * 0.035), radius * 0.96, Color("d9a850"))
+		draw_circle(center + Vector2(radius * 0.035, radius * 0.050), radius * 0.91, Color("6a3e18"))
+		draw_circle(center, radius * 0.86, Color("3a2515"))
+		draw_circle(center + Vector2(-radius * 0.020, -radius * 0.030), radius * 0.76, Color("2a190f"))
+		draw_circle(center + Vector2(-radius * 0.20, -radius * 0.24), radius * 0.42, Color(1.0, 0.78, 0.36, 0.11))
+		draw_circle(center + Vector2(radius * 0.24, radius * 0.26), radius * 0.56, Color(0.0, 0.0, 0.0, 0.18))
+		draw_arc(center, radius * 0.98, -PI * 0.88, -PI * 0.06, 24, Color(1.0, 0.86, 0.50, 0.84), 1.7, true)
+		draw_arc(center, radius * 0.98, PI * 0.18, PI * 0.95, 24, Color(0.18, 0.09, 0.03, 0.62), 2.0, true)
+		draw_arc(center, radius * 0.66, 0.0, PI * 2.0, 48, Color(0.86, 0.60, 0.25, 0.22), 0.8, true)
+		for tick: int in range(12):
+			var angle: float = -PI * 0.5 + float(tick) * TAU / 12.0
+			var inner: float = radius * (0.64 if tick % 3 == 0 else 0.71)
+			var outer: float = radius * 0.84
+			var tick_color: Color = Color("f6d98d") if tick % 3 == 0 else Color(0.80, 0.58, 0.30, 0.82)
+			var tick_width: float = 1.8 if tick % 3 == 0 else 1.1
+			draw_line(_polar_point(center, angle, inner) + Vector2(0.6, 0.8), _polar_point(center, angle, outer) + Vector2(0.6, 0.8), Color(0.05, 0.025, 0.01, 0.70), tick_width + 0.4, true)
+			draw_line(_polar_point(center, angle, inner), _polar_point(center, angle, outer), tick_color, tick_width, true)
+		var second_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds, 60.0) / 60.0
+		var minute_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds / 60.0, 60.0) / 60.0
+		var hour_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds / 3600.0, 12.0) / 12.0
+		_draw_clock_hand(center, hour_angle, radius * 0.34, radius * 0.090, Color("7c4820"), Color("d39b4a"))
+		_draw_clock_hand(center, minute_angle, radius * 0.53, radius * 0.066, Color("d39a43"), Color("ffe099"))
+		_draw_second_hand(center, second_angle, radius * 0.65)
+		draw_circle(center + Vector2(0.7, 0.9), radius * 0.105, Color(0.03, 0.015, 0.006, 0.70))
+		draw_circle(center, radius * 0.092, Color("f4d486"))
+		draw_circle(center + Vector2(-radius * 0.020, -radius * 0.025), radius * 0.052, Color("6b3b18"))
+		draw_circle(center + Vector2(-radius * 0.030, -radius * 0.040), radius * 0.020, Color(1.0, 0.88, 0.58, 0.60))
+
+	func _draw_number_medallion(center: Vector2, radius: float) -> void:
+		draw_circle(center + Vector2(0.0, radius * 0.06), radius * 0.34, Color(0.02, 0.01, 0.004, 0.58))
+		draw_circle(center, radius * 0.30, Color(0.10, 0.055, 0.026, 0.84))
+		draw_arc(center, radius * 0.29, -PI * 0.82, -PI * 0.18, 16, Color(1.0, 0.80, 0.42, 0.26), 0.9, true)
+		draw_arc(center, radius * 0.29, PI * 0.10, PI * 0.84, 16, Color(0.0, 0.0, 0.0, 0.26), 1.0, true)
+
+	func _draw_clock_hand(center: Vector2, angle: float, length: float, width: float, color: Color, highlight: Color) -> void:
+		var direction: Vector2 = Vector2(cos(angle), sin(angle))
+		var perpendicular: Vector2 = Vector2(-direction.y, direction.x)
+		var tail: Vector2 = center - direction * length * 0.14
+		var tip: Vector2 = center + direction * length
+		var points := PackedVector2Array([
+			tail + perpendicular * width,
+			center + perpendicular * width * 0.58,
+			tip + perpendicular * width * 0.18,
+			tip,
+			tip - perpendicular * width * 0.18,
+			center - perpendicular * width * 0.58,
+			tail - perpendicular * width
+		])
+		draw_colored_polygon(_offset_polygon(points, Vector2(0.8, 1.0)), Color(0.03, 0.015, 0.006, 0.58))
+		draw_colored_polygon(points, color)
+		draw_polyline(_closed_polygon(points), Color(0.10, 0.045, 0.014, 0.60), 0.7, true)
+		draw_line(tail + perpendicular * width * 0.36, tip + perpendicular * width * 0.08, highlight, 0.7, true)
+
+	func _draw_second_hand(center: Vector2, angle: float, length: float) -> void:
+		var direction: Vector2 = Vector2(cos(angle), sin(angle))
+		var tip: Vector2 = center + direction * length
+		var tail: Vector2 = center - direction * length * 0.24
+		draw_line(tail + Vector2(0.7, 0.8), tip + Vector2(0.7, 0.8), Color(0.03, 0.014, 0.006, 0.62), 1.8, true)
+		draw_line(tail, tip, Color("f6d783"), 1.15, true)
+		draw_circle(tip, length * 0.032, Color("fff0a8"))
+
+	func _offset_polygon(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
+		var shifted := PackedVector2Array()
+		for point: Vector2 in points:
+			shifted.append(point + offset)
+		return shifted
+
+	func _closed_polygon(points: PackedVector2Array) -> PackedVector2Array:
+		var closed := PackedVector2Array(points)
+		if not points.is_empty():
+			closed.append(points[0])
+		return closed
+
+	func _polar_point(center: Vector2, angle: float, length: float) -> Vector2:
+		return center + Vector2(cos(angle), sin(angle)) * length
 
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
@@ -255,7 +341,7 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	clip_contents = true
+	clip_contents = false
 	text = ""
 	art_frame.clip_contents = true
 	art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -595,11 +681,11 @@ func _position_time_badge() -> void:
 	if _time_badge == null:
 		return
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
-	var badge_size: float = clampf(width * 0.17, 28.0, 38.0)
+	var badge_size: float = clampf(width * 0.198, 38.0, 50.0)
 	_time_badge.custom_minimum_size = Vector2(badge_size, badge_size)
 	_time_badge.size = Vector2(badge_size, badge_size)
-	var inset: float = clampf(width * 0.060, 10.0, 16.0)
-	_time_badge.position = Vector2(maxf(0.0, width - badge_size - inset), inset)
+	var overhang: float = clampf(width * 0.020, 3.5, 5.0)
+	_time_badge.position = Vector2(width - badge_size + overhang, -overhang)
 	_time_badge.z_index = 12
 
 func _refresh_summary_display(card: Dictionary) -> void:
@@ -1006,10 +1092,14 @@ func _clear_children(node: Node) -> void:
 
 func _on_local_mouse_entered() -> void:
 	_local_hovered = true
+	if _time_badge != null:
+		_time_badge.set_hovered(true)
 	_update_pose()
 
 func _on_local_mouse_exited() -> void:
 	_local_hovered = false
+	if _time_badge != null:
+		_time_badge.set_hovered(false)
 	_update_pose()
 
 func _update_pose(immediate: bool = false) -> void:

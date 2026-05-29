@@ -20,6 +20,7 @@ Use this shape for a normal reward card:
   "name": "Card Name",
   "element": "fire",
   "rarity": "common",
+  "time": 5,
   "burn": false,
   "health_cost": 0,
   "description": "Short readable fallback.",
@@ -43,8 +44,11 @@ For neutral cards, follow the existing pool and usually omit `element`; `GameDat
 
 Top-level costs:
 
+- `time: N`: initiative delay added when the card is played. Valid printed costs are `1-10`; `5` is the normal baseline. Fast cards should be simple, low-impact, positional setup, or narrow tactical tools. Slow cards should pay for high damage, broad AOE, strong control, large defensive swings, high-value draw, multi-action packages, or powerful setup payoffs.
 - `burn: true`: exhausts the card for the rest of combat and renders as an Exhaust cost row.
 - `health_cost: N`: pays health after the card resolves and renders as a Health Cost token.
+
+Time is not just UI flavor. Player turns are scheduled on the initiative clock at `player base initiative + time spent on played cards`, so a low `time` card can help the player act again before enemies while a high `time` card can expose them to enemy double-ups. Use the current pool's time distribution and `tools/card_heuristic.py` tempo breakdown when choosing a cost.
 
 ## Current Action Model
 
@@ -95,6 +99,14 @@ Heuristic bands from `spec/card_balance_heuristic.md`:
 
 Do not balance only to a number. Compare against similar cards by role, element, rarity, reach, and setup burden.
 
+Time-cost pacing guidance:
+
+- `1-2`: very fast. Reserve for simple movement, tiny attacks, narrow setup, or cards whose value is intentionally low without synergy.
+- `3-4`: fast. Good for starter-speed utility, modest damage, focused positioning, or single-purpose defensive tools.
+- `5`: normal baseline. Use for straightforward attacks, useful mid-power utility, and most cards that should not strongly affect initiative strategy.
+- `6-7`: slow. Use for premium damage, multi-effect cards, strong control, broad reach, meaningful draw, or reliable defensive turns.
+- `8-10`: very slow. Use for major payoff turns, large AOE, rare spikes, multi-target control, or cards that can dramatically change combat state.
+
 ## Balance Workflow
 
 1. Read `spec/card_balance_heuristic.md` and inspect similar cards in `data/cards.json`.
@@ -119,6 +131,7 @@ Do not balance only to a number. Compare against similar cards by role, element,
 - Health costs: strong for rare spikes, but they affect analytics and player survivability.
 - Exhaust: top-level `burn` removes future combat use; use deliberately.
 - Healing cards: `GameData.reward_offer_weight` downweights heal cards in rewards.
+- Time costs: low time is a major strategic advantage even when raw damage is modest; high time must be justified by impact because it can let fast enemies double-up.
 
 ## Tests To Consider
 

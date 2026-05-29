@@ -2264,7 +2264,7 @@ func _setup_turn_order_bar() -> void:
 	row.add_theme_constant_override("separation", 12)
 	margin.add_child(row)
 	var label := Label.new()
-	label.text = "TURN\nORDER"
+	label.text = "TURN\nCLOCK"
 	label.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, 0.0)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -2400,7 +2400,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	return frame
 
 func _turn_order_clock_badge_text(entry: Dictionary) -> String:
-	return str(int(entry.get("time", 0)))
+	return str(_turn_order_relative_time(entry))
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool) -> Control:
 	var badge := PanelContainer.new()
@@ -2482,14 +2482,21 @@ func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBox
 	style.corner_radius_bottom_left = 5
 	return style
 
-func _turn_order_tooltip(entry: Dictionary, index: int) -> String:
+func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 	var clock: int = int(entry.get("time", 0))
-	var lines: Array[String] = ["Clock %d: %s" % [clock, str(entry.get("name", "Actor"))]]
-	var eta: int = int(entry.get("eta", 0))
-	if bool(entry.get("active", false)):
-		lines.append("Acting now at %d" % clock)
+	var eta: int = _turn_order_relative_time(entry)
+	var name: String = str(entry.get("name", "Actor"))
+	var lines: Array[String] = []
+	if eta <= 0:
+		lines.append("Now: %s" % name)
 	else:
-		lines.append("Acts at %d (+%d)" % [clock, eta])
+		lines.append("+%d: %s" % [eta, name])
+	if bool(entry.get("active", false)):
+		lines.append("Acting now")
+	else:
+		lines.append("Acts in %d" % eta)
+	if clock > 0:
+		lines.append("Clock %d" % clock)
 	if bool(entry.get("projected", false)):
 		lines.append("Projected next turn")
 	var base: int = int(entry.get("base_initiative", 0))
@@ -2512,6 +2519,11 @@ func _turn_order_tooltip(entry: Dictionary, index: int) -> String:
 		elif base > 0:
 			lines.append("Base %d" % base)
 	return "\n".join(lines)
+
+func _turn_order_relative_time(entry: Dictionary) -> int:
+	if entry.has("eta"):
+		return maxi(0, int(entry.get("eta", 0)))
+	return maxi(0, int(entry.get("time", 0)) - int(_combat_state.get("initiative_clock", 0)))
 
 func _turn_order_portrait_path(entry: Dictionary) -> String:
 	var key: String = "player" if str(entry.get("kind", "")) == "player" else str(entry.get("type", ""))

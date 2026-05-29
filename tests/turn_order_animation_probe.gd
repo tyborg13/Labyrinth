@@ -40,7 +40,8 @@ func _initialize() -> void:
 	print("turn order probe: combat ready")
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	_assert_turn_order_slot_count(instance, 10)
-	_assert_turn_order_badges_match_clocks(instance, combat_state)
+	_assert_turn_order_label(instance)
+	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
 	await _save_root_screenshot("user://probes/turn_order_anim_00_before.png")
 	var combat_engine = instance.get("_combat_engine")
 	var scheduled_state: Dictionary = combat_engine.finish_player_activation(combat_state.duplicate(true))
@@ -60,7 +61,7 @@ func _initialize() -> void:
 	await create_timer(0.35).timeout
 	await process_frame
 	_assert_turn_order_slot_count(instance, 10)
-	_assert_turn_order_badges_match_clocks(instance, scheduled_state)
+	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
 	await _save_root_screenshot("user://probes/turn_order_anim_04_final.png")
 	print("turn order probe: done")
 	print(ProjectSettings.globalize_path("user://probes"))
@@ -116,7 +117,28 @@ func _assert_turn_order_slot_count(instance: Node, max_count: int) -> void:
 		push_error("Turn order bar showed %d slots; expected at most %d." % [bar.get_child_count(), max_count])
 		quit(1)
 
-func _assert_turn_order_badges_match_clocks(instance: Node, state: Dictionary) -> void:
+func _assert_turn_order_label(instance: Node) -> void:
+	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
+	if panel == null:
+		push_error("Turn order panel missing during label probe.")
+		quit(1)
+		return
+	var labels: Array[Label] = _labels_under(panel)
+	for label: Label in labels:
+		if label.text == "TURN\nCLOCK":
+			return
+	push_error("Turn order panel should be labeled TURN CLOCK.")
+	quit(1)
+
+func _labels_under(node: Node) -> Array[Label]:
+	var labels: Array[Label] = []
+	if node is Label:
+		labels.append(node as Label)
+	for child: Node in node.get_children():
+		labels.append_array(_labels_under(child))
+	return labels
+
+func _assert_turn_order_badges_match_relative_clocks(instance: Node, state: Dictionary) -> void:
 	var bar: Control = instance.get("_turn_order_bar") as Control
 	var combat_engine = instance.get("_combat_engine")
 	if bar == null or combat_engine == null:
@@ -134,9 +156,9 @@ func _assert_turn_order_badges_match_clocks(instance: Node, state: Dictionary) -
 		if child == null:
 			continue
 		var entry: Dictionary = order[index] as Dictionary
-		var expected: String = str(int(entry.get("time", 0)))
+		var expected: String = str(int(entry.get("eta", 0)))
 		var actual: String = str(child.get_meta("turn_order_badge_text", ""))
 		if actual != expected:
-			push_error("Turn order badge %d showed %s, expected clock %s." % [index, actual, expected])
+			push_error("Turn order badge %d showed %s, expected relative clock %s." % [index, actual, expected])
 			quit(1)
 			return
