@@ -1,0 +1,121 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-29T20:42:59Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed 5293101 --output-dir res://playtest/agent_round_20260529_honest_r2_01`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5293101
+- Start route: choosing depth-1 lightning over air to look for Lightning intensity/card synergies for the first boss while still taking early deck-building value.
+- Moved to (0,-1): depth 1 lightning combat.
+- Played bloody_lunge as printed: 102 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 20 HP lost, mode now combat.
+- Turn 2: using Guarded Step/card-play extension to convert a close crawler into a kill instead of just absorbing repeated chip; willing to eat small trap blast if Whirlwind confirms lethal.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played lantern_shot as printed: 10 damage, 30 block removed, drew 1.
+- Enemy round: 20 HP lost, mode now combat.
+- Shock from the trap line limited this turn enough that I could not use normal attacks/blocks; passing is better than spending a movement-only card into a worse position.
+- Enemy round: 20 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 69 damage, 1 kills, +1 play.
+- Played hamstring_shot as printed: 20 damage, 30 block removed, enemy +immobilize.
+- Played bloody_lunge as printed: 89 damage, 1 kills, -10 HP, moved 3, +1 play.
+- Reward pick: Volt Surge over Storm Relay/Ricochet because it self-enables Lightning 2 in matching rooms and supplies both illusion safety and real ranged damage.
+- Reward: took Volt Surge.
+- Route after first combat has no deeper exit, only lateral depth-1 combats; taking earth over fire to avoid early burn while continuing deck building.
+- Moved to (-1,-1): depth 1 earth combat.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 50 damage, 30 stone removed.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 102 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played lantern_shot as printed: 40 damage, -15 HP, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 45 damage, 1 kills, +1 play.
+- Reward pick: Stone Plate over Basalt Guard/Blood Price; the run needs efficient defense plus cycling more than another slow setup card, and stoneskin helps against chip/pierce-heavy rooms.
+- Reward: took Stone Plate.
+- Still no outward option after two combats; taking forced lateral lightning. This is useful for Volt Surge activation but costs another health-risk combat before depth progression.
+- Moved to (-1,0): depth 1 lightning combat.
+- Lightning room finally turns on Volt Surge: pairing Brace + Volt to absorb the opening lunge while testing if the self-intensity gate pays off immediately.
+- Played brace as printed: +80 block.
+- Played volt_surge as printed: 70 damage, 1 illusion, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 15 damage, 1 kills, +1 play.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 119 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 62 damage, 40 block removed, 1 kills, -10 HP, moved 1, +1 play.
+- Reward pick: Spark Focus over Chain Bolt because outside Lightning rooms it is the cleaner enabler for Volt Surge and future Lightning 2 payoffs; Chain Bolt is better only once already enabled.
+- Reward: took Spark Focus.
+- Map pressure: after three victories the only exit is still lateral depth-1 fire. Continuing because the run goal is boss clear, but this is exactly the deck-building-vs-health tradeoff under test.
+- Moved to (-1,1): depth 1 fire combat.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played quick_stab as printed: 85 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Fire depth-1 is still highly lethal moment-to-moment: two crawlers threaten 100 plus burn on turn 2. Need spend Bloody + defense to stabilize rather than greed damage.
+- Played bloody_lunge as printed: 119 damage, 1 kills, -10 HP, moved 1, +1 play.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played whirlwind_slash as printed: 79 damage, 1 kills, +1 play.
+- Reward pick: Reprise over fire payoffs; the run already has Lightning build pieces and needs draw/block consistency more than a second elemental package.
+- Reward: took Reprise.
+- Route: finally offered outward depth-2 treasure after four depth-1 combats; taking free deeper value immediately rather than another lateral combat.
+- Moved to (-2,1): depth 2 none treasure.
+- Relic pick: Iron Lung over Ion Spool/Gale Tabi. Ion Spool has too little shock support in this deck, and the route has already spent too much HP before depth 2.
+- Treasure: took Iron Lung.
+- Route: taking lateral campfire because it is free recovery/value and does not add combat exposure.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: lingering to heal and continue. No rest/abort; first-boss goal remains active.
+- Campfire: lingered, healed 100, and continued with 105 unbanked embers.
+- Only exit after campfire is lateral depth-2 ice combat. Deck is stronger and HP recovered, so continuing.
+- Moved to (-2,-1): depth 2 ice combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played stone_plate as printed: +1 Earth intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 50 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, 1 kills, -10 HP, +1 play.
+- Played sidestep_slash as printed: 50 damage.
+- Played lantern_shot as printed: 40 damage, 1 kills, drew 1, +1 play.
+- Played shadow_step as printed: +40 block, moved 4, 1 illusion, picked Rusty shield: Gain 40 block.
+- Enemy round: 10 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 80 damage.
+- Played quick_stab as printed: 60 damage, 1 kills, +1 play.
+- Played reprise as printed: -25 HP, +50 block, drew 3.
+- Enemy round: 20 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage.
+- Played lantern_shot as printed: 10 damage, 1 kills, +1 play.
+- Reward pick: Cinderburst over Ice-gated cards; this deck needs unconditional multi-target damage more than a third element package, and HP is still acceptable after Iron Lung/campfire.
+- Reward: took Cinderburst.
+- Taking free lateral treasure; no combat cost and likely important for boss odds.
+- Moved to (-2,-2): depth 2 none treasure.
+- Relic pick: Ashen Buckler over Mirror Shard. The deck has draw from Reprise/Lantern/Spark/Stone, while guaranteed opening block directly addresses the health-clock problem.
+- Treasure: took Ashen Buckler.
+- Route decision: skipping optional depth-2 ice because deck now has Volt/Spark, Reprise, Cinderburst, Iron Lung, and Ashen Buckler. Taking outward depth-3 fire despite risk to reach boss clock.
+- Moved to (-2,-3): depth 3 fire combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Depth-3 fire spike is severe: five enemies, 70/60/50/90 damage packages and burn layering. Prioritizing removal of the adjacent crawler before it repeats burn pressure.
+- Played whirlwind_slash as printed: 80 damage.
+- Played bloody_lunge as printed: 67 damage, 1 kills, -10 HP, +1 play.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 110 HP lost, mode now combat.
+- Played stone_plate as printed: drew 1, +1 Earth intensity.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 60 HP lost, mode now defeat.

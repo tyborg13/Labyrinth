@@ -1,0 +1,214 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-29T20:42:47Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed 5293102 --output-dir res://playtest/agent_round_20260529_honest_r2_02`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5293102
+- r2_02 starting seed 5293102. Opening into depth-1 lightning to build toward first boss and test early stability with elemental rewards.
+- Moved to (0,-1): depth 1 lightning combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 20 damage, 30 block removed, moved 1.
+- Played whirlwind_slash as printed: 80 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 19 damage, 30 block removed, 1 kills, +1 play.
+- Played patch_up as printed: +20 block.
+- Enemy round: 20 HP lost, mode now combat.
+- Played bloody_lunge as printed: 119 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played sidestep_slash as printed: 52 damage, 1 trap blast, 1 kills, -10 HP, moved 2, +1 play, enemy +1 shock.
+- Crooked Spine cleared at 305 HP after 1 fatigue and one intentional trap hit. Thunderline picked over heal because HP still healthy and it gives boss-scaled lightning AOE payoff.
+- Reward: took Thunderline.
+- Route offers lateral treasure vs lateral fire combat only; taking free treasure since it has no combat health cost and may increase boss odds.
+- Moved to (-1,-1): depth 1 none treasure.
+- Treasure choice: Mirror Shard over ember economy/heal boost because extra opening card should improve tempo and reduce health loss every combat.
+- Treasure: took Mirror Shard.
+- Forced into another depth-1 lateral lightning combat; acceptable with Mirror Shard and Thunderline build, but route has not offered outward progress after first combat.
+- Moved to (-1,0): depth 1 lightning combat.
+- Played sidestep_slash as printed: 50 damage, moved 2.
+- Played quick_stab as printed: 35 damage, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played thunderline as printed: 100 damage.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 69 damage, 1 kills, -10 HP, moved 1, +1 play.
+- Played whirlwind_slash as printed: 69 damage, 1 kills, +1 play.
+- Hollow Grotto cleared at 310 HP. Mirror Shard plus kill plays made depth-1 lightning feel stable; Thunderline was useful even inactive as ranged AOE. Picking Volt Surge for Lightning intensity plus illusion/large hit synergy.
+- Reward: took Volt Surge.
+- Still no outward option; only lateral depth-1 fire combat. Taking it because singular goal requires progression and current HP/deck are strong enough.
+- Moved to (-1,1): depth 1 fire combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: +40 HP, moved 4, 1 illusion, picked Healing potion: Heal 40.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 1.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 69 damage, 30 block removed, 1 kills, -10 HP, moved 2, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played bloody_lunge as printed: 62 damage, 1 trap blast, 1 kills, -10 HP, moved 3, +1 play, enemy +10 burn, player +10 burn (HP tick).
+- Crooked Sanctum depth-1 fire cleared at 335 HP after taking only controlled burn/trap costs. Fire still asks careful decoy/move sequencing, but depth-1 felt survivable. Picking Hearth Rush for low-gate fire build plus illusion/move utility.
+- Reward: took Hearth Rush.
+- First outward choice appears after three depth-1 combats plus treasure. Deck is now stronger and HP high, so taking depth-2 lightning rather than extra lateral air.
+- Moved to (-2,1): depth 2 lightning combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played volt_surge as printed: 50 damage, 1 kills, +1 play, 1 illusion, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hearth_rush as printed: 30 damage, 1 illusion, +1 Fire intensity.
+- Played quick_stab as printed: 70 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played volt_surge as printed: 70 damage, 1 illusion, +1 Lightning intensity.
+- Played thunderline as printed: 70 damage, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, -10 HP, moved 2.
+- Played whirlwind_slash as printed: 80 damage, 1 kills, +1 play.
+- Bleak Vault depth-2 lightning cleared at 340 HP. Volt Surge into active Thunderline was the turning point: intensity payoff made the deck feel meaningfully stronger than starters. Picking Static Lash to lower setup burden and feed lightning chains.
+- Reward: took Static Lash.
+- Offered lateral fire combat or campfire. Taking campfire as free recovery/value, not ending the run.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: lingered, healed 20, and continued with 116 unbanked embers.
+- Campfire linger restored to full. Only route is lateral depth-2 ice combat; proceeding.
+- Moved to (-2,-1): depth 2 ice combat.
+- Played bloody_lunge as printed: 100 damage, 1 kills, -10 HP, moved 3, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played static_lash as printed: 30 damage, +1 Lightning intensity.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage.
+- Played whirlwind_slash as printed: 20 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage.
+- Played volt_surge as printed: 70 damage, 1 illusion, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 1, +1 play.
+- Played patch_up as printed: +25 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 30 damage, 1 kills, +1 play.
+- Played hamstring_shot as printed: 50 block removed, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played static_lash as printed: 30 damage, 30 block removed, +1 Lightning intensity, enemy +1 shock.
+- Played thunderline as printed: 120 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, 1 kills, moved 1, +1 play.
+- Shuttered Grotto depth-2 ice cleared at full HP. This was strong evidence that the tuned depth-2 can be health-stable with good decoy/block timing; extra reward cards paid off. Picking Hamstring Slice as a reliable off-element move/damage/immobilize card for boss path.
+- Reward: took Hamstring Slice.
+- Route again offers only lateral depth-2 air. HP is full and deck is strong, so continuing despite some concern about room count creeping upward.
+- Moved to (-2,-2): depth 2 air combat.
+- Played static_lash as printed: 30 damage, +1 Lightning intensity.
+- Played volt_surge as printed: 70 damage, 1 illusion, +1 Lightning intensity.
+- Enemy round: 30 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 40 damage, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 10 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 2.
+- Played quick_stab as printed: 50 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 60 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, -10 HP, moved 1.
+- Played hamstring_slice as printed: 20 damage, 1 kills, moved 1, +1 play.
+- Played hearth_rush as printed: 30 damage, 1 illusion, +1 Fire intensity.
+- Enemy round: 20 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played thunderline as printed: 40 damage, 1 kills, +1 play.
+- Shuttered Passage depth-2 air cleared at 260 HP; air push caused multiple forced trap/position hits and was much harder to stabilize than lightning/ice. Deck is already 15, so taking heal over more air cards to preserve boss odds.
+- Reward: skipped for heal to 320/360.
+- Offered lateral depth-2 ice versus outward depth-3 fire. Deck is strong enough and room count is high, so tightening route and taking depth-3 fire despite risk.
+- Moved to (-2,-3): depth 3 fire combat.
+- Depth-3 fire opens with five enemies including two wardens and a pierce/burn harrier. First pass is safe and draws more answers before any enemy acts.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hearth_rush as printed: 60 damage, moved 1, 1 illusion, +1 Fire intensity, enemy +20 burn.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 70 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage.
+- Played whirlwind_slash as printed: 7 damage, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 50 HP lost, mode now combat.
+- Played hamstring_slice as printed: 70 damage, moved 3, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +40 HP, +30 block, moved 2, +1 play, picked Healing potion: Heal 40.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 77 damage, 1 kills, -10 HP, moved 1, +1 play.
+- Played brace as printed: +80 block.
+- Enemy round: 10 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage.
+- Played whirlwind_slash as printed: 35 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hearth_rush as printed: 60 damage, moved 1, 1 illusion, +1 Fire intensity, enemy +20 burn.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: +40 block, moved 3, picked Rusty shield: Gain 40 block.
+- Played static_lash as printed: 30 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played volt_surge as printed: 1 illusion, +1 Lightning intensity.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played thunderline as printed: 33 damage, 1 kills, +1 play.
+- Depth-3 fire barely stabilized at 92 HP. Brace plus decoy timing saved the final harrier cycle; Hamstring Shot into Thunderline finished it. The fight shows fire depth-3 can spike very hard when burn/pierce/wardens stack, and fatigue started mattering during the cleanup.
+- Reward: skipped for heal to 152/360.
+- Took heal after depth-3 fire despite strong Wildfire Halo offer because HP 92 was too low and deck already had several real attacks; survival to the boss mattered more than another expensive card.
+- Moved to (-1,-3): depth 3 none treasure.
+- Chose free lateral treasure over another depth-3 combat; with HP still only 152, free relic value was clearly better than rushing or fighting laterally.
+- Treasure: took Updraft Bottle.
+- Boss fork reached at 152 HP. I am skipping lateral depth-3 ice because the deck is already functional and another combat is more likely to cost the run than improve boss odds.
+- Moved to (-1,-4): depth 4 lightning boss.
+- Played volt_surge as printed: 60 damage, 1 kills, +1 play, 1 illusion, +1 Lightning intensity.
+- Played hamstring_slice as printed: +40 HP, moved 2, picked Healing potion: Heal 40.
+- Enemy round: 40 HP lost, mode now combat.
+- Played quick_stab as printed: 60 damage, 1 kills, +1 play.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played static_lash as printed: 60 damage, +1 Lightning intensity.
+- Played thunderline as printed: 160 damage, 1 trap blast.
+- Enemy round: 50 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played shadow_step as printed: moved 4, 1 illusion, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played bloody_lunge as printed: 60 damage, 1 kills, -10 HP, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 120 damage, 2 kills.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 90 damage, 1 trap blast, 1 kills, enemy +1 shock.
+- Played static_lash as printed: 60 damage, 1 kills, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Played bloody_lunge as printed: 120 damage, -10 HP, moved 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +70 block, moved 2, +1 play, picked Rusty shield: Gain 40 block.
+- Played volt_surge as printed: 70 damage, 1 illusion, +1 Lightning intensity.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hearth_rush as printed: moved 2, 1 illusion, +1 Fire intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played thunderline as printed: 140 damage, 1 kills.
+- Enemy round: 80 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 3.
+- Played quick_stab as printed: 20 damage, 1 kills, +1 play.
+- Boss cleared at 1 HP before the Call Wisps action could resolve. Winning line was Lantern+Thunderline to set boss to 70 while surviving at 1 HP after fatigue, then Sidestep Slash into Quick Stab for exact lethal. Lightning build paid off hard, but the boss clear depended on razor-thin fatigue math and route HP preservation.

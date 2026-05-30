@@ -1,0 +1,189 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-29T20:43:07Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed 5293104 --output-dir res://playtest/agent_round_20260529_honest_r2_04`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5293104
+- Starting r2_04. Following guide: preserve health, build early deck if room offer is useful, no campfire abort; singular goal first boss.
+- Moved to (1,0): depth 1 air combat.
+- Played shadow_step as printed: +40 block, moved 3, 1 illusion, picked Rusty shield: Gain 40 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 3, picked Healing potion: Heal 40.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 79 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played lantern_shot as printed: 20 terrain damage, 1 terrain broken, drew 1.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 40 damage, 40 block removed.
+- Played quick_stab as printed: 32 damage, 1 kills, +1 play.
+- Depth1 air opener: health stayed high (319/360) despite long terrain dance; Guarded Step + Shadow/Sidestep routing mattered. Slipstream is attractive because Air room starts at 1 and reward turns on at 2.
+- Reward: took Slipstream Cut.
+- Route forced into lateral depth1 choices after first combat; taking ice over fire to reduce burn risk while still building deck.
+- Moved to (1,1): depth 1 ice combat.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played slipstream_cut as printed: 50 damage, moved 3, +1 Air intensity.
+- Played shadow_step as printed: +40 HP, moved 4, 1 illusion, picked Healing potion: Heal 40.
+- Enemy round: 40 HP lost, mode now combat.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 10 damage, 40 block removed, moved 2.
+- Played whirlwind_slash as printed: 72 damage, 30 terrain damage, 1 terrain broken, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Played lantern_shot as printed: 10 damage, 30 block removed, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 59 damage, 1 kills, +1 play.
+- Depth1 ice combat ended 334/360 after two fatigue cycles; Battle Rhythm looks premium because +play block lets us preserve HP while extending turns.
+- Reward: took Battle Rhythm.
+- Still no outward route after two combats; continuing forced lateral air combat, which should help Slipstream activation.
+- Moved to (0,1): depth 1 air combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played sidestep_slash as printed: 50 damage, moved 2.
+- Played quick_stab as printed: 52 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played slipstream_cut as printed: 50 damage, moved 3, +1 play, +1 Air intensity.
+- Played guarded_step as printed: +30 block, moved 1, +1 play.
+- Played whirlwind_slash as printed: 69 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 119 damage, 1 kills, -10 HP, moved 1, +1 play.
+- Air2 activation on Slipstream worked and felt genuinely build-around: it refunded the play, enabled reposition into Whirlwind, and preserved health. Taking Vacuum Line for Air2 payoff damage/draw.
+- Reward: took Vacuum Line.
+- Fourth combat is still forced lateral, now fire. This route is building a strong deck but consuming time; checking whether easier depth1 lets health stay stable.
+- Moved to (-1,1): depth 1 fire combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played slipstream_cut as printed: 60 damage, 1 trap blast, +36 HP, moved 3, +1 Air intensity, enemy +10 burn, picked Healing potion: Heal 40.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 32 damage, 1 kills, +1 play.
+- Played bloody_lunge as printed: 119 damage, 1 kills, -10 HP, moved 3, +1 play.
+- Played shadow_step as printed: +40 block, moved 2, 1 illusion, picked Rusty shield: Gain 40 block.
+- Played patch_up as printed: +20 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played vacuum_line as printed: 45 damage, 1 kills, +1 play.
+- Depth1 fire stayed stable at full HP only because movement/illusion avoided harrier pierce and burn; fire enemies still punish bad positioning immediately. Taking Molten Reach as a strong ranged payoff.
+- Reward: took Molten Reach.
+- First outward option appeared after four depth1 combats. Deck is strong and HP full, so tightening route and taking depth2 lightning.
+- Moved to (-2,1): depth 2 lightning combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played vacuum_line as printed: 50 damage, 1 kills, drew 1, +1 play.
+- Played guarded_step as printed: +30 block, +1 play.
+- Played whirlwind_slash as printed: 60 terrain damage, 2 terrain broken.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 70 damage, 50 block removed, -10 HP, moved 3.
+- Played quick_stab as printed: 50 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played molten_reach as printed: 70 damage.
+- Played sidestep_slash as printed: 50 damage, moved 3.
+- Enemy round: 20 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played vacuum_line as printed: 50 block removed, drew 1.
+- Played hamstring_shot as printed: 20 damage, 30 block removed, enemy +immobilize.
+- Enemy round: 70 HP lost, mode now combat.
+- Played molten_reach as printed: 70 damage.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 40 damage, 80 block removed, -10 HP, moved 1.
+- Played quick_stab as printed: 30 damage, 1 kills, +1 play.
+- Depth2 lightning was winnable but costly: warden 200HP/80 block caused a long cleanup and one 70 hit; finished at 235/360. Choosing heal over strong Rallying Breath because immediate survival matters before depth3.
+- Reward: skipped for heal to 295/360.
+- Taking lateral campfire because it is free sustain/value and not an endpoint; will linger/level/leave, not rest.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: lingered, healed 65, and continued with 146 unbanked embers.
+- Campfire linger restored to full. Route still lateral-only; taking depth2 ice and continuing toward boss.
+- Moved to (-2,-1): depth 2 ice combat.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Played brace as printed: +80 block.
+- Enemy round: 40 HP lost, mode now combat.
+- Crooked Spine turn2: Battle Rhythm is premium here because pass has no immediate hit but block plus extra play lets us remove harrier before ranged pressure stacks.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played molten_reach as printed: 60 damage, 1 kills, +1 play.
+- Played guarded_step as move: +40 block, moved 2, picked Rusty shield: Gain 40 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Enemy round: 50 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage.
+- Played sidestep_slash as printed: 50 damage, 1 kills, +1 play.
+- Crooked Spine turn4: kill refund is essential; Sidestep Slash cleanly finished crawler without moving, and Patch Up is worth spending before unavoidable ranged pressure.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 40 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played whirlwind_slash as move: moved 2.
+- Crooked Spine harness/control lesson: dragging Whirlwind with move only repositioned and did not fire the AoE, despite the card summary showing hits. For AoE damage I should use click/drag play or attack, not drag move.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 80 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage.
+- Played slipstream_cut as printed: 40 damage, 1 kills, +1 play, +1 Air intensity.
+- Crooked Spine cleared at 155 HP after a costly Whirlwind control mistake; reward heal is correct over Ice cards because entering depth3 below half health is a bigger boss-clear risk than marginal deck power.
+- Reward: skipped for heal to 215/360.
+- Route: from (-2,-1) only legal exit is lateral depth2 air combat, so continuing despite low-medium HP.
+- Moved to (-2,-2): depth 2 air combat.
+- Quiet Passage opener: pass is strong because the round clock returns before enemies act, effectively drawing Shadow Step/Bloody Lunge for free instead of spending into the enemy queue.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Played slipstream_cut as printed: 50 damage, moved 1, +1 play, +1 Air intensity.
+- Played sidestep_slash as printed: 50 damage, 1 kills, moved 1, +1 play.
+- Played guarded_step as move: +40 HP, moved 2, picked Healing potion: Heal 40.
+- Enemy round: 0 HP lost, mode now combat.
+- Played vacuum_line as printed: 90 damage, drew 1.
+- Played quick_stab as printed: 50 damage, 1 kills, +1 play.
+- Enemy round: 30 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played molten_reach as printed: 70 damage.
+- Played vacuum_line as printed: 70 damage, 1 kills, +1 play.
+- Quiet Passage reward: taking Gust Step over heal because HP is back to 230, Air2 was decisive, and an Air illusion/move card should reduce future damage while deepening the build.
+- Reward: took Gust Step.
+- Route choice at (-2,-2): choosing outward depth3 fire over lateral depth2 ice because deck is now Air-leaning and decent; another lateral combat risks health without guaranteed camp/relic payoff.
+- Moved to (-2,-3): depth 3 fire combat.
+- Quiet Vault depth3 fire: opener shows higher HP enemies and burn/pierce pressure; pass is free before enemy ticks, so draw extra cards before committing.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as move: moved 2.
+- Quiet Vault control lesson: using drag move on Guarded Step only moved and missed the block/card-play text. For full card effects, use click/card when the harness advertises compound actions.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage.
+- Played whirlwind_slash as printed: 45 damage, 1 kills, +1 play.
+- Played sidestep_slash as printed: 30 terrain damage, 1 terrain broken, +40 HP, moved 1, picked Healing potion: Heal 40.
+- Enemy round: 50 HP lost, mode now combat.
+- Played gust_step as printed: 30 damage, moved 1, 1 illusion, +1 Air intensity.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 30 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played slipstream_cut as printed: moved 3, +1 play, +1 Air intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 113 damage, 1 kills, -10 HP, moved 1, +1 play.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played vacuum_line as printed: 90 damage, -15 HP, drew 1.
+- Played quick_stab as printed: 67 damage, 1 kills, +1 play.
+- Played hamstring_shot as printed: 10 damage, 40 block removed, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played shadow_step as printed: +40 block, moved 4, 1 illusion, picked Rusty shield: Gain 40 block.
+- Played molten_reach as printed: 70 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played gust_step as printed: moved 2, +1 play, 1 illusion, +1 Air intensity.
+- Played lantern_shot as printed: 40 block removed, drew 1.
+- Played slipstream_cut as printed: moved 1, +1 play, +1 Air intensity.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now defeat.

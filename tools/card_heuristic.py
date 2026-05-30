@@ -7,16 +7,23 @@ terms without coupling the live game to the balance model.
 
 Current encounter assumptions that shape the coefficients but are not directly
 scored here: combat depths repeat in four-depth sequences with 3/4/5 standard
-enemy density before a boss gate; later sequences keep the local curve while
-raising enemy HP and intent baselines. Zekarion's 2x2 footprint makes printed
-reach feel larger, so Tempest Breath is capped at range 3 after its one-tile
-advance to preserve safe boss-room repositioning. Elemental combat rooms seed
-2-3 traps across eligible passable floor tiles, including the playable edge
-band, and those traps blast adjacent tiles when stepped on or attacked. Every
-room places a 4 HP potion and 4 block shield, and combat rooms scatter 5-7 low-HP
-boxes/crates across eligible passable floor tiles, including edge-band tiles
-when connectivity stays intact. Those crates block movement without blocking
-line of sight.
+enemy density before a boss gate; lateral rooms remain deck-building route
+choices, and emergency outward loop escapes only appear when no revealed,
+unsealed same-depth-or-deeper exits remain. The local combat band is wider:
+depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
+2 uses the base roster, and depth 3 enemies have 112% HP without an extra
+generic damage/support bump. Later sequences keep the local curve while raising
+enemy HP and intent baselines. Zekarion's 2x2 footprint makes printed reach feel
+larger, so Tempest Breath is capped at range 3 after its one-tile advance to
+preserve safe boss-room repositioning. Elemental combat rooms seed 2-3 traps
+across eligible passable floor tiles, including the playable edge band, and
+those traps blast adjacent tiles when stepped on or attacked. First-sequence
+trap damage is 1/2/3 player-scale damage at depths 1/2/3, while depth 1-2 fire
+rooms use shallow burn on enemy attacks and fire traps before depth-3 fire/earth
+trap statuses cap at 2. Every room places a 4 HP potion and 4
+block shield, and combat rooms scatter 5-7 low-HP boxes/crates across eligible
+passable floor tiles, including edge-band tiles when connectivity stays intact.
+Those crates block movement without blocking line of sight.
 Enemies killed by a card add a bonus card play for the turn, so large damage and
 broad damage get a small execute-tempo premium.
 """

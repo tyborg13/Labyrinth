@@ -62,6 +62,7 @@ func _initialize() -> void:
 	_test_elemental_intensity_bonus_modifies_single_attack()
 	_test_cards_do_not_define_multiple_player_attacks()
 	_test_illusion_action_creates_decoy_and_redirects_enemy()
+	_test_enemy_target_ties_randomize_between_player_side_actors()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_hand_draw_caps_at_eight()
@@ -571,6 +572,10 @@ func _test_room_generation_populates_elemental_traps() -> void:
 	_assert(trap_count_histogram.has(2) and trap_count_histogram.has(3), "Trap counts should vary between two and three across generated rooms")
 	_assert(edge_traps > 0, "Trap placement should allow playable edge-band floor tiles")
 	_assert(corner_traps > 0, "Trap placement should allow playable corner floor tiles")
+	var depth_two_fire_trap: Dictionary = generator.call("_trap_for_tile", Vector2i(4, 4), ElementData.FIRE, 2)
+	var deep_fire_trap: Dictionary = generator.call("_trap_for_tile", Vector2i(4, 4), ElementData.FIRE, 3)
+	_assert(int(depth_two_fire_trap.get("burn", 0)) == GameData.fixed_point_amount(1), "Depth-two fire traps should keep shallow burn pressure")
+	_assert(int(deep_fire_trap.get("burn", 0)) > int(depth_two_fire_trap.get("burn", 0)), "Deep fire traps should still ramp their burn pressure")
 
 func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -694,7 +699,14 @@ func _test_room_generation_scales_enemy_density() -> void:
 	_assert((depth_three_room.get("enemies", []) as Array).size() >= 5, "Outer combat rooms should feel denser than the opening ring")
 	_assert((second_sequence_opening.get("enemies", []) as Array).size() == (depth_one_room.get("enemies", []) as Array).size(), "Second sequence opening rooms should reset to opening density")
 	_assert((second_sequence_deep.get("enemies", []) as Array).size() >= 5, "Second sequence deep rooms should climb back to five-enemy density")
-	_assert(int(((second_sequence_opening.get("enemies", []) as Array)[0] as Dictionary).get("max_hp", 0)) > int(((depth_one_room.get("enemies", []) as Array)[0] as Dictionary).get("max_hp", 0)), "Second sequence enemies should start from a tougher HP baseline")
+	var opening_enemy: Dictionary = (depth_one_room.get("enemies", []) as Array)[0] as Dictionary
+	var deep_enemy: Dictionary = (depth_three_room.get("enemies", []) as Array)[0] as Dictionary
+	var second_opening_enemy: Dictionary = (second_sequence_opening.get("enemies", []) as Array)[0] as Dictionary
+	var opening_base_hp: int = int(GameData.enemy_def(str(opening_enemy.get("type", ""))).get("max_hp", 0))
+	var deep_base_hp: int = int(GameData.enemy_def(str(deep_enemy.get("type", ""))).get("max_hp", 0))
+	_assert(int(opening_enemy.get("max_hp", 0)) < opening_base_hp, "Opening-depth enemies should start below their base HP")
+	_assert(int(deep_enemy.get("max_hp", 0)) > deep_base_hp, "Outer standard rooms should push enemy HP above base")
+	_assert(int(second_opening_enemy.get("max_hp", 0)) > int(opening_enemy.get("max_hp", 0)), "Second sequence enemies should start from a tougher HP baseline")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
@@ -768,7 +780,7 @@ func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
 	_assert((state.get("deck", {}) as Dictionary).get("burned", []).has("shadow_gate"), "Burn cards should move to the burned pile")
 	state = combat.prepare_next_player_turn(state)
 	var hp_after: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
-	_assert(hp_after == hp_before - 20, "Cycling the deck should deal fatigue damage")
+	_assert(hp_after == hp_before - 15, "Cycling the deck should deal fatigue damage")
 	_assert((state.get("deck", {}) as Dictionary).get("hand", []).has("quick_stab"), "Discard should reshuffle into the draw and refill hand")
 
 func _test_two_card_turn_draw_flow() -> void:
@@ -1313,6 +1325,49 @@ func _test_illusion_action_creates_decoy_and_redirects_enemy() -> void:
 				saw_illusion_loss_step = true
 	_assert(saw_illusion_loss_step, "Enemy animation steps should report illusion damage as target loss")
 
+func _test_enemy_target_ties_randomize_between_player_side_actors() -> void:
+	var saw_player_hit: bool = false
+	var saw_illusion_hit: bool = false
+	for seed: int in range(400, 432):
+		var combat: CombatEngine = CombatEngine.new()
+		var state: Dictionary = combat.create_combat(seed, _simple_room_layout(), {
+			"hp": 24,
+			"max_hp": 24,
+			"deck_cards": ["shadow_step"],
+			"relics": [],
+			"hand_size": 1,
+			"heal_bonus": 0
+		})
+		state["player"] = {
+			"pos": Vector2i(3, 4),
+			"hp": 24,
+			"max_hp": 24,
+			"block": 0,
+			"stoneskin": 0
+		}
+		state["enemies"] = [
+			{
+				"id": 1,
+				"type": "crawler",
+				"pos": Vector2i(4, 4),
+				"hp": 14,
+				"max_hp": 14,
+				"block": 0,
+				"intent": {"name": "Tie Claw", "actions": [{"type": "melee", "damage": 3, "range": 1}]}
+			}
+		]
+		state["illusions"] = [{"id": 1, "pos": Vector2i(5, 4), "hp": 4, "max_hp": 4}]
+		state["rng_state"] = seed
+		var after_state: Dictionary = combat.resolve_enemy_phase(state)
+		if int((after_state.get("player", {}) as Dictionary).get("hp", 0)) < 24:
+			saw_player_hit = true
+		var illusions: Array = after_state.get("illusions", [])
+		if not illusions.is_empty() and int((illusions[0] as Dictionary).get("hp", 0)) < 4:
+			saw_illusion_hit = true
+		if saw_player_hit and saw_illusion_hit:
+			break
+	_assert(saw_player_hit and saw_illusion_hit, "Equal-distance player-side targets should be selected by deterministic random tie-breaks instead of always preferring the player")
+
 func _test_enemy_death_grants_card_play_and_embers() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(16, _simple_room_layout(), {
@@ -1726,7 +1781,7 @@ func _test_pierce_ignores_defenses() -> void:
 
 func _test_enemy_pierce_intents_surface_icons() -> void:
 	var board := CombatBoardView.new()
-	for enemy_type: String in ["crawler", "harrier"]:
+	for enemy_type: String in ["harrier"]:
 		var pierce_intents: Array = []
 		var non_pierce_attack_count: int = 0
 		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -2867,8 +2922,15 @@ func _test_shallow_elemental_enemy_actions_scale_back() -> void:
 	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.ICE, 3) <= 7, "Ice room enemy reach should stay below the extreme mobility threshold")
 	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.EARTH, 3) <= 5, "Earth room enemy reach should stay close and punish through durability/status instead")
 	var shallow_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 1)
+	var depth_two_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 2)
 	var deep_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 3)
+	_assert(int(depth_two_fire.get("burn", 0)) == int(shallow_fire.get("burn", 0)), "Depth-two fire rooms should keep shallow burn pressure")
 	_assert(int(shallow_fire.get("burn", 0)) < int(deep_fire.get("burn", 0)), "Shallow elemental rooms should use lighter status payloads than deeper rooms")
+	var shallow_earth: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "earth", 1)
+	var depth_two_earth: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "earth", 2)
+	var deep_earth: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "earth", 3)
+	_assert(int(depth_two_earth.get("poison", 0)) == int(shallow_earth.get("poison", 0)), "Depth-two earth rooms should keep shallow poison pressure")
+	_assert(int(shallow_earth.get("poison", 0)) < int(deep_earth.get("poison", 0)), "Deeper earth rooms should retain a stronger poison identity")
 
 func _test_enemy_threat_tiles_follow_intent() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -5201,14 +5263,14 @@ func _test_run_scene_fatigue_damage_visual_event() -> void:
 	if not fatigue_events.is_empty():
 		var event: Dictionary = fatigue_events[0]
 		var player_tile: Vector2i = (after_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-		_assert(int(event.get("amount", 0)) == 20, "First fatigue visual event should carry the first fatigue damage amount")
+		_assert(int(event.get("amount", 0)) == 15, "First fatigue visual event should carry the first fatigue damage amount")
 		_assert(event.get("tile", Vector2i(-1, -1)) == player_tile, "Fatigue visual text should anchor to the player tile")
 	var fatigue_texts: Array = instance.call("_fatigue_floating_texts_for_events", after_state, fatigue_events)
 	var found_damage_number: bool = false
 	var found_fatigue_text: bool = false
 	for text_var: Variant in fatigue_texts:
 		var text_entry: Dictionary = text_var
-		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-20"
+		found_damage_number = found_damage_number or str(text_entry.get("text", "")) == "-15"
 		found_fatigue_text = found_fatigue_text or str(text_entry.get("text", "")) == "fatigue sets in"
 	_assert(found_damage_number, "Fatigue visual should include the normal floating damage number")
 	_assert(found_fatigue_text, "Fatigue visual should include the fatigue text callout")

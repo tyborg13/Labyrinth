@@ -1,0 +1,233 @@
+# Manual Headless Playtest Notes
+
+- Started: 2026-05-29T20:43:07Z
+- Console command: `godot --headless --path . --script tools/headless_playtest.gd -- --seed 5293103 --output-dir res://playtest/agent_round_20260529_honest_r2_03`
+- Notes are written by explicit `note ...` commands while playing.
+
+## Run 1 - seed 5293103
+- Starting seed 5293103. Goal is first boss clear; will treat campfires as continue points and avoid early rest.
+- Moved to (0,-1): depth 1 lightning combat.
+- Played bloody_lunge as printed: 119 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: +10 HP, moved 1, 1 illusion, picked Healing potion: Heal 40.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 2.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Played patch_up as printed: +15 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played bloody_lunge as printed: 85 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Combat 1 cleared at 350/360 after 5 turns. Shadow Step decoy plus Brace kept HP nearly full; fatigue was only real loss.
+- Reward: took Chain Bolt.
+- Route forced lateral after first combat; choosing depth-1 earth over fire to collect another card while avoiding early burn spike.
+- Moved to (-1,-1): depth 1 earth combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played lantern_shot as printed: 35 damage, 1 kills, drew 1, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 1.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 40 damage, 80 stone removed, -10 HP, moved 2.
+- Played quick_stab as printed: 62 damage, 1 kills, +1 play.
+- Combat 2 cleared at 325/360. Immobilize prevented a harrier poison hit; Shadow Step decoy prevented an acolyte hit, but fatigue plus lunge cost still chipped 25 HP.
+- Reward: took Root Snare.
+- Still no deeper revealed path after two combats; taking required lateral lightning, which at least supports Chain Bolt.
+- Moved to (-1,0): depth 1 lightning combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played lantern_shot as printed: 35 damage, 1 kills, drew 1, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played chain_bolt as printed: 20 damage, 30 block removed, +1 Lightning intensity.
+- Played bloody_lunge as printed: 99 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played guarded_step as printed: +30 block, moved 2, +1 play.
+- Enemy round: 10 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 2.
+- Played quick_stab as printed: 69 damage, 1 kills, +1 play.
+- Combat 3 cleared at 335/360. Chain Bolt only did primary damage despite lightning 2 because no legal chain surfaced; Guarded Step preserved most HP during a long clock delay.
+- Reward: took Spark Focus.
+- Third forced lateral in a row; taking depth-1 fire despite burn risk because no route alternative exists.
+- Moved to (-1,1): depth 1 fire combat.
+- Played root_snare as printed: 40 damage, +1 Earth intensity, enemy +immobilize.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 102 damage, 1 kills, -10 HP, +1 play.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Played quick_stab as printed: 79 damage, 1 kills, +1 play.
+- Enemy round: 30 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 80 damage.
+- Played hamstring_shot as printed: 39 damage, 1 kills, +1 play.
+- Combat 4 fire cleared at 275/360. Depth-1 fire still pressured HP harder than prior rooms: acolyte AOE burn went through block as burn tick, and one crawler burn hit cost 40 total.
+- Reward: took Threaded Path.
+- First outward option appears after four combats; taking depth-2 treasure because free value beats another lateral combat at current HP.
+- Moved to (-2,1): depth 2 none treasure.
+- Treasure: took Reinforced Shield.
+- Took Reinforced Shield; start-of-combat stoneskin should directly address HP attrition. Taking lateral campfire free healing, not resting.
+- Moved to (-2,0): depth 2 none campfire.
+- Campfire: lingered, healed 85, and continued with 103 unbanked embers.
+- Campfire linger restored to full; continuing into required depth-2 ice combat.
+- Moved to (-2,-1): depth 2 ice combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 1, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, -10 HP, moved 3, picked Healing potion: Heal 40.
+- Played quick_stab as printed: 20 damage, 1 kills, +1 play.
+- Played shadow_step as printed: moved 2, 1 illusion.
+- Enemy round: 150 HP lost, mode now combat.
+- Played threaded_path as printed: +40 block, moved 4, drew 1, picked Rusty shield: Gain 40 block.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 80 damage, 60 terrain damage, 2 terrain broken.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 60 damage, 1 kills, +1 play.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage.
+- Played chain_bolt as printed: 10 damage, 1 kills, +1 play, +1 Lightning intensity.
+- Played spark_focus as printed: 30 damage, drew 1, +2 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 120 damage, -10 HP, moved 3.
+- Played sidestep_slash as printed: 50 damage, 1 kills, +1 play.
+- Depth-2 ice cleared at 205/360 after 8 turns. Reinforced Shield plus campfire mattered, but a 4-enemy depth-2 pack still dealt 145 HP after shield; Warden 70s and repeated ranged crawlers are the spike.
+- Reward: took Battle Rhythm.
+- Taking free lateral treasure over any hypothetical depth push because HP is low and relic value is free.
+- Moved to (-2,-2): depth 2 none treasure.
+- Treasure: took Pilgrim Boots.
+- Choosing lateral depth-2 ice over outward depth-3 fire at 205 HP; depth-3 fire would likely convert current attrition into death before boss.
+- Moved to (-1,-2): depth 2 ice combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played quick_stab as printed: 50 damage, 40 block removed.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 40 damage, 40 block removed.
+- Played hamstring_shot as printed: 50 damage, 1 kills, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 10 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played guarded_step as printed: +30 block, +1 play.
+- Played root_snare as printed: 40 block removed, +1 Earth intensity, enemy +immobilize.
+- Enemy round: 120 HP lost, mode now combat.
+- Played threaded_path as printed: 1 trap blast, trap-only; no enemy hit, -35 HP, +40 block, moved 6, drew 1, picked Rusty shield: Gain 40 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: +40 HP, moved 4, picked Healing potion: Heal 40.
+- Played bloody_lunge as printed: 100 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Enemy round: 30 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played quick_stab as printed: 50 damage, 40 block removed.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played whirlwind_slash as printed: 80 damage, 30 terrain damage, 1 terrain broken.
+- Played hamstring_shot as printed: 10 damage, 1 kills, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Played spark_focus as printed: 30 block removed, drew 1, +2 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: moved 3, 1 illusion.
+- Played chain_bolt as printed: 50 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played sidestep_slash as printed: 50 damage, moved 3.
+- Played quick_stab as printed: 60 damage, 1 kills, +1 play.
+- Depth-2 ice lateral barely cleared at 54/360. Battle Rhythm plus Brace let me survive, but the room was a near-death grind; taking heal over card because continuing otherwise is fake.
+- Reward: skipped for heal to 114/360.
+- Campfire found after the near-death room; taking it and continuing, no rest.
+- Moved to (0,-2): depth 2 none campfire.
+- Campfire: lingered, healed 100, and continued with 181 unbanked embers.
+- Lingered to 214 HP; taking free treasure next.
+- Moved to (1,-2): depth 2 none treasure.
+- Treasure: took Ion Spool.
+- Took Ion Spool for Chain Bolt shock scaling. Only route is depth-2 fire combat at 214 HP; continuing.
+- Moved to (2,-2): depth 2 fire combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played quick_stab as printed: 90 damage, 1 kills, +1 play.
+- Played shadow_step as printed: +40 HP, moved 4, 1 illusion, picked Healing potion: Heal 40.
+- Played threaded_path as printed: moved 5, drew 1.
+- Enemy round: 100 HP lost, mode now combat.
+- Played bloody_lunge as printed: 100 damage, 1 kills, -10 HP, moved 2, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played root_snare as printed: 40 damage, +1 Earth intensity, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 3, +1 play.
+- Played shadow_step as printed: +40 block, moved 3, 1 illusion, picked Rusty shield: Gain 40 block.
+- Played lantern_shot as printed: 40 damage, drew 1.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played whirlwind_slash as printed: 80 damage.
+- Played quick_stab as printed: 80 damage, 1 kills, +1 play.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played bloody_lunge as printed: 100 damage, 1 kills, -10 HP, +1 play.
+- Depth-2 fire cleared at 119/360. This was less lethal than the ice rooms because Battle/Brace/decoy sequencing worked, but burn plus fatigue still made it expensive. Taking heal.
+- Reward: skipped for heal to 179/360.
+- Taking free treasure over depth-3 air at 179 HP; need relic value before deeper push.
+- Moved to (2,-1): depth 2 none treasure.
+- Treasure: took Mirror Shard.
+- Moved to (2,0): depth 2 none campfire.
+- Campfire at (2,0) taken as mandatory survival bridge; choosing linger over level despite 220 embers because 179/360 HP is too low for depth3/boss push.
+- Campfire: lingered, healed 100, and continued with 220 unbanked embers.
+- Forced into another depth2 lateral combat after campfire; no outward/free alternative. Entering at 279/360 with Reinforced Shield + Battle Rhythm as core survival plan.
+- Moved to (2,1): depth 2 earth combat.
+- Played root_snare as printed: 40 damage, +1 Earth intensity, enemy +immobilize.
+- Played hamstring_shot as printed: 50 damage.
+- Enemy round: 0 HP lost, mode now combat.
+- Played threaded_path as printed: +40 HP, moved 4, drew 1, picked Healing potion: Heal 40.
+- Played whirlwind_slash as printed: 80 damage.
+- Enemy round: 10 HP lost, mode now combat.
+- Played lantern_shot as printed: 40 damage, 1 kills, drew 1, +1 play.
+- Enemy round: 0 HP lost, mode now combat.
+- Played shadow_step as printed: +40 block, moved 3, 1 illusion, picked Rusty shield: Gain 40 block.
+- Played bloody_lunge as printed: 100 damage, 1 kills, -10 HP, +1 play.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played quick_stab as printed: 50 damage, 40 stone removed.
+- Played sidestep_slash as printed: 50 damage, 1 kills, moved 4, +1 play.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played guarded_step as printed: +30 block, moved 3, +1 play.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played chain_bolt as printed: 30 damage, +1 Lightning intensity.
+- Enemy round: 0 HP lost, mode now combat.
+- Played spark_focus as printed: 10 damage, 1 kills, +1 play, +2 Lightning intensity.
+- Depth2 earth combat cleared at 304/360 after 7 turns. Battle Rhythm plus Guarded Step made a high-tempo defensive/offensive turn possible; immobilize mattered by stopping one lunge, but only for the immediate action while the projected action still advanced later.
+- Reward: took Basalt Guard.
+- Took Basalt Guard over heal at 304/360 because it combines Earth intensity, decoy, block, and stoneskin; this looks like exactly the kind of reward that can make lateral deck-building worthwhile.
+- Moved to (2,2): depth 2 none treasure.
+- Treasure after depth2 earth: choosing Vaulting Sigil. The deck already uses long Threaded Path/Shadow/Guarded repositioning, so first 5+ tile move granting a play could convert mobility into tempo.
+- Treasure: took Vaulting Sigil.
+- Route choice at (2,2): skipping lateral depth2 earth combat and taking outward depth3 fire. Deck now has Battle Rhythm, Basalt Guard, Threaded Path, Root Snare, and multiple tempo relics; extra depth2 combat likely costs more HP than the reward is worth.
+- Moved to (2,3): depth 3 fire combat.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 1, +1 play.
+- Played battle_rhythm as printed: +50 block, +1 play.
+- Played root_snare as printed: 40 damage, +1 Earth intensity, enemy +immobilize.
+- Enemy round: 0 HP lost, mode now combat.
+- Played threaded_path as printed: 60 damage, 1 trap blast, moved 6, drew 1, +1 play, enemy +40 burn, player +20 burn (HP tick).
+- Played shadow_step as printed: moved 4, 1 illusion.
+- Played sidestep_slash as printed: 30 terrain damage, 1 terrain broken, moved 2.
+- Enemy round: 0 HP lost, mode now combat.
+- Played hamstring_shot as printed: 50 damage, enemy +immobilize.
+- Played patch_up as printed: +30 HP, +20 block.
+- Enemy round: 30 HP lost, mode now combat.
+- Played brace as printed: +80 block.
+- Enemy round: 0 HP lost, mode now combat.
+- Played guarded_step as printed: +30 block, moved 1, +1 play.
+- Played basalt_guard as printed: +40 block, 1 illusion, +1 Earth intensity.
+- Played chain_bolt as printed: 60 damage, 30 block removed, +1 Lightning intensity.
+- Enemy round: 210 HP lost, mode now defeat.

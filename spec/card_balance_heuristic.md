@@ -35,7 +35,7 @@ These assumptions are baked into the current coefficients:
   while heavy cards can let enemies lap the player if overplayed.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
-- Fatigue starts at `2` health and increases by `1` each reshuffle.
+- Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
 - Each combat tracks room-wide elemental intensity for fire, ice, lightning,
   air, and earth. The room's element starts at intensity `1`; other elements
   start at `0`.
@@ -49,15 +49,21 @@ These assumptions are baked into the current coefficients:
 - Poison lands after a two-turn delay.
 - Stoneskin is persistent defense and is valued above temporary block.
 - Illusions are stationary, have only health, and redirect enemies that are
-  closer to the illusion than to the player.
+  closer to the illusion than to the player. If player-side actors are tied at
+  the same distance, enemies choose randomly among the tied targets.
 
 Encounter calibration is also important:
 
 - Standard rooms repeat in four-depth sequences: the first three depths of each
   sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
-  boss gate.
-- First-sequence standard-room enemies average about `13.78` max HP and `3.03`
-  raw damage per enemy turn across the non-boss roster. Enemy base initiative
+  boss gate. Lateral rooms remain a deck-building route choice; the map only
+  opens an emergency outward loop escape when a room has no revealed,
+  unsealed same-depth-or-deeper exit.
+- First-sequence standard rooms now use a wider local band. Depth `1` enemies
+  have `85%` HP and their damaging/support actions are shifted down by `1`
+  player-scale point, depth `2` uses the base roster, and depth `3` enemies
+  have `112%` HP without an extra generic damage/support bump.
+  Enemy base initiative
   is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
   harriers are quick, acolytes are baseline, and wardens are slow. At depth `1`,
   weighted repeat cycles are roughly `11` for wisps, `13` for crawlers, `13.4`
@@ -81,6 +87,12 @@ Encounter calibration is also important:
   player's entry halo. Traps blast adjacent tiles when stepped on or attacked,
   so forced movement and area targeting can create higher positional upside and
   risk than the old single-tile trap model.
+- First-sequence trap damage now follows the local room depth directly:
+  `1/2/3` player-scale damage at depths `1/2/3`, with boss-depth traps at `4`.
+  Depth-3 fire and earth trap statuses are capped at `2`.
+- Fire burn ramps gently in the first sequence: depth `1-2` fire enemy attacks
+  and traps apply shallow burn pressure, then deeper standard fire rooms restore
+  the heavier burn payload.
 - Every room places a `4` HP healing potion and a `4` block rusty shield as
   floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates across
   eligible passable floor tiles, including edge-band and corner floor tiles when
@@ -235,7 +247,8 @@ This heuristic is intentionally conservative about:
 - How often pierce converts damage through block or stoneskin; its bonus is a
   conditional pool-average estimate rather than enemy-intent-specific value.
 - Enemy target redirection from illusion placement, especially when board geometry
-  lets one illusion absorb multiple enemy turns
+  lets one illusion absorb multiple enemy turns or when tied target distances
+  make redirection probabilistic
 - Extreme deck-thinning or fatigue exploitation
 - Exact frequency of matching-element rooms after a player drafts heavily into
   one element

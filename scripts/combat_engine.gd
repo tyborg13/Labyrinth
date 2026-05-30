@@ -5,7 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 
-const FATIGUE_BASE_DAMAGE: int = 20
+const FATIGUE_BASE_DAMAGE: int = 15
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
 const MAX_HAND_SIZE: int = 8
@@ -25,6 +25,12 @@ const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
 const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 20
 const ENEMY_SUPPORT_BONUS_PER_SEQUENCE: int = 20
+const ENEMY_HP_SCALE_DEPTH_ONE: float = 0.85
+const ENEMY_HP_SCALE_DEPTH_THREE: float = 1.12
+const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = -10
+const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
+const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -10
+const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
 const CARDINAL_DIRECTIONS: Array[Vector2i] = [
@@ -1141,19 +1147,22 @@ func _actor_targets(state: Dictionary) -> Array[Dictionary]:
 		})
 	return targets
 
-func _closest_enemy_target(state: Dictionary, enemy: Dictionary) -> Dictionary:
-	var best_target: Dictionary = {}
+func _closest_enemy_target(state: Dictionary, enemy: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
+	var best_targets: Array = []
 	var best_distance: int = 9999
 	for target: Dictionary in _actor_targets(state):
 		var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
 		var distance: int = _enemy_distance_to_tile(enemy, target_pos)
 		if distance < best_distance:
 			best_distance = distance
-			best_target = target
-	return best_target
+			best_targets.clear()
+			best_targets.append(target)
+		elif distance == best_distance:
+			best_targets.append(target)
+	return _choose_actor_target_candidate(best_targets, rng)
 
-func _closest_enemy_target_for_action(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Dictionary:
-	var best_target: Dictionary = {}
+func _closest_enemy_target_for_action(state: Dictionary, enemy: Dictionary, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
+	var best_targets: Array = []
 	var best_distance: int = 9999
 	for target: Dictionary in _actor_targets(state):
 		if not _enemy_action_reaches_target(state, enemy, action, target):
@@ -1162,8 +1171,21 @@ func _closest_enemy_target_for_action(state: Dictionary, enemy: Dictionary, acti
 		var distance: int = _enemy_distance_to_tile(enemy, target_pos)
 		if distance < best_distance:
 			best_distance = distance
-			best_target = target
-	return best_target
+			best_targets.clear()
+			best_targets.append(target)
+		elif distance == best_distance:
+			best_targets.append(target)
+	return _choose_actor_target_candidate(best_targets, rng)
+
+func _choose_actor_target_candidate(candidates: Array, rng: RandomNumberGenerator = null) -> Dictionary:
+	if candidates.is_empty():
+		return {}
+	var index: int = 0
+	if candidates.size() > 1 and rng != null:
+		index = rng.randi_range(0, candidates.size() - 1)
+	if typeof(candidates[index]) != TYPE_DICTIONARY:
+		return {}
+	return (candidates[index] as Dictionary).duplicate(true)
 
 func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -1316,7 +1338,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
-	var target: Dictionary = _closest_enemy_target(next_state, enemy)
+	var target: Dictionary = _closest_enemy_target(next_state, enemy, rng)
 	var target_pos: Vector2i = target.get("pos", player_pos)
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
@@ -1352,17 +1374,17 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				int(action.get("amount", 0))
 			])
 		"melee":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits")
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng)
 		"ranged":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires")
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires", rng)
 		"aoe":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area")
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area", rng)
 		"lightning_strikes":
 			next_state = _enemy_lightning_strikes(next_state, enemy_index, action)
 		"push":
-			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true, rng)
 		"pull":
-			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng)
 		"summon_minions":
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
 	return next_state
@@ -2217,7 +2239,7 @@ func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dict
 			best_index = index
 	return best_index
 
-func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String) -> Dictionary:
+func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -2229,7 +2251,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
-	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action)
+	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
 	var damage: int = int(action.get("damage", 0))
@@ -2256,7 +2278,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	return next_state
 
-func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool) -> Dictionary:
+func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -2267,7 +2289,7 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
-	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action)
+	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
 	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
@@ -3712,7 +3734,6 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 	var encounter_depth: int = _encounter_depth_for_room_depth(room_depth)
 	var full_power: bool = encounter_depth >= 3
 	var medium_power: bool = encounter_depth >= 2
-	var shallow_power: bool = not medium_power
 	match room_element:
 		ElementData.FIRE:
 			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
@@ -3722,9 +3743,10 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 						action["pattern"] = DEFAULT_AOE_PATTERN.duplicate(true)
 					action["rotate"] = bool(action.get("rotate", true))
 				action["damage"] = int(action.get("damage", 0)) + GameData.fixed_point_amount(2 if medium_power else 1)
+				var fire_burn_amount: int = GameData.fixed_point_amount(2 if full_power else 1)
 				action["burn"] = maxi(
-					GameData.fixed_point_amount(1 if shallow_power else 2),
-					int(action.get("burn", 0)) + GameData.fixed_point_amount(2 if full_power else 1)
+					fire_burn_amount,
+					int(action.get("burn", 0)) + fire_burn_amount
 				)
 				if full_power and int(action.get("damage", 0)) >= GameData.fixed_point_amount(6):
 					action["self_damage"] = maxi(GameData.fixed_point_amount(1), int(action.get("self_damage", 0)))
@@ -3783,12 +3805,10 @@ func _elementalize_enemy_action(base_action: Dictionary, room_element: String, r
 				action.erase("rotate")
 				action["damage"] = int(action.get("damage", 0)) + GameData.fixed_point_amount(1 if medium_power else 0)
 				var poison_bonus: int = 1
-				if medium_power:
-					poison_bonus = 2
 				if full_power:
-					poison_bonus = 3
+					poison_bonus = 2
 				action["poison"] = maxi(
-					GameData.fixed_point_amount(1 if shallow_power else 2),
+					GameData.fixed_point_amount(2 if full_power else 1),
 					int(action.get("poison", 0)) + GameData.fixed_point_amount(poison_bonus)
 				)
 	return action
@@ -3801,18 +3821,29 @@ func _depth_sequence_index(room_depth: int) -> int:
 
 func _scaled_enemy_max_hp(enemy_type: String, room_depth: int) -> int:
 	var base_hp: int = int(GameData.enemy_def(enemy_type).get("max_hp", 1))
+	var local_scale: float = _local_enemy_hp_scale(room_depth)
+	var scaled_hp: int = ceili(float(base_hp) * local_scale)
 	var sequence_index: int = _depth_sequence_index(room_depth)
 	if sequence_index <= 0:
-		return base_hp
-	var scaled_hp: int = ceili(float(base_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
+		return scaled_hp
+	scaled_hp = ceili(float(scaled_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
 	return scaled_hp + ENEMY_HP_FLAT_BONUS_PER_SEQUENCE * sequence_index
 
 func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dictionary:
-	var sequence_index: int = _depth_sequence_index(room_depth)
-	if sequence_index <= 0:
-		return action
 	var scaled: Dictionary = action.duplicate(true)
 	var action_type: String = str(scaled.get("type", ""))
+	var damage_delta: int = _local_enemy_damage_delta(room_depth)
+	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes") and scaled.has("damage"):
+		scaled["damage"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("damage", 0)) + damage_delta)
+	var support_delta: int = _local_enemy_support_delta(room_depth)
+	if support_delta != 0:
+		if action_type == "block" or action_type == "stoneskin":
+			scaled["amount"] = maxi(0, int(scaled.get("amount", 0)) + support_delta)
+		elif action_type == "heal_self":
+			scaled["amount"] = maxi(0, int(scaled.get("amount", 0)) + support_delta)
+	var sequence_index: int = _depth_sequence_index(room_depth)
+	if sequence_index <= 0:
+		return scaled
 	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes":
 		if scaled.has("damage"):
 			scaled["damage"] = int(scaled.get("damage", 0)) + ENEMY_DAMAGE_BONUS_PER_SEQUENCE * sequence_index
@@ -3821,6 +3852,33 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	elif action_type == "heal_self":
 		scaled["amount"] = int(scaled.get("amount", 0)) + GameData.fixed_point_amount(sequence_index)
 	return scaled
+
+func _local_enemy_hp_scale(room_depth: int) -> float:
+	match _encounter_depth_for_room_depth(room_depth):
+		1:
+			return ENEMY_HP_SCALE_DEPTH_ONE
+		3:
+			return ENEMY_HP_SCALE_DEPTH_THREE
+		_:
+			return 1.0
+
+func _local_enemy_damage_delta(room_depth: int) -> int:
+	match _encounter_depth_for_room_depth(room_depth):
+		1:
+			return ENEMY_DAMAGE_DELTA_DEPTH_ONE
+		3:
+			return ENEMY_DAMAGE_DELTA_DEPTH_THREE
+		_:
+			return 0
+
+func _local_enemy_support_delta(room_depth: int) -> int:
+	match _encounter_depth_for_room_depth(room_depth):
+		1:
+			return ENEMY_SUPPORT_DELTA_DEPTH_ONE
+		3:
+			return ENEMY_SUPPORT_DELTA_DEPTH_THREE
+		_:
+			return 0
 
 func _apply_revealed_intent_blocks(state: Dictionary) -> Dictionary:
 	# Intent can preview a future guard, but block only becomes real when that

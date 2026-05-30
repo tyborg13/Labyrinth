@@ -12,6 +12,8 @@ const ENEMY_SPAWN_SAFE_RADIUS: int = 2
 const ENEMY_SPAWN_PICK_WINDOW: int = 6
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
+const ENEMY_HP_SCALE_DEPTH_ONE: float = 0.85
+const ENEMY_HP_SCALE_DEPTH_THREE: float = 1.12
 const HEALING_POTION_AMOUNT: int = 40
 const RUSTY_SHIELD_BLOCK: int = 40
 const TERRAIN_HP: int = 30
@@ -432,11 +434,22 @@ func _depth_sequence_index(depth: int) -> int:
 
 func _scaled_enemy_max_hp(enemy_type: String, depth: int) -> int:
 	var base_hp: int = int(GameData.enemy_def(enemy_type).get("max_hp", 1))
+	var local_scale: float = _local_enemy_hp_scale(depth)
+	var scaled_hp: int = ceili(float(base_hp) * local_scale)
 	var sequence_index: int = _depth_sequence_index(depth)
 	if sequence_index <= 0:
-		return base_hp
-	var scaled_hp: int = ceili(float(base_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
+		return scaled_hp
+	scaled_hp = ceili(float(scaled_hp) * (1.0 + ENEMY_HP_SCALE_PER_SEQUENCE * float(sequence_index)))
 	return scaled_hp + ENEMY_HP_FLAT_BONUS_PER_SEQUENCE * sequence_index
+
+func _local_enemy_hp_scale(depth: int) -> float:
+	match _encounter_depth_for_global_depth(depth):
+		1:
+			return ENEMY_HP_SCALE_DEPTH_ONE
+		3:
+			return ENEMY_HP_SCALE_DEPTH_THREE
+		_:
+			return 1.0
 
 func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator) -> Array:
 	if room_type == "start" or room_type == "campfire" or room_type == "treasure":
@@ -837,11 +850,11 @@ func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Diction
 		"id": "trap_%d_%d" % [tile.x, tile.y],
 		"pos": tile,
 		"element": room_element,
-		"damage": GameData.fixed_point_amount(clampi(1 + depth, 2, 4))
+		"damage": GameData.fixed_point_amount(clampi(depth, 1, 4))
 	}
 	match room_element:
 		ElementData.FIRE:
-			trap["burn"] = GameData.fixed_point_amount(1 if depth <= 1 else 2 if depth == 2 else 3)
+			trap["burn"] = GameData.fixed_point_amount(1 if depth <= 2 else 2)
 		ElementData.ICE:
 			trap["freeze"] = 1
 		ElementData.LIGHTNING:
@@ -849,7 +862,7 @@ func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Diction
 		ElementData.AIR:
 			pass
 		ElementData.EARTH:
-			trap["poison"] = GameData.fixed_point_amount(2 if depth <= 2 else 3)
+			trap["poison"] = GameData.fixed_point_amount(1 if depth <= 2 else 2)
 	return trap
 
 func _floor_tiles(grid: Array) -> Array[Vector2i]:

@@ -62,7 +62,7 @@ Fields that scale by `10x`:
 | Attack damage | `9` damage | `90` damage |
 | Block/stoneskin/heal | `8` block | `80` block |
 | Health costs | `1` health | `10` health |
-| Fatigue damage | `2` fatigue | `20` fatigue |
+| Fatigue damage | `1.5` fatigue | `15` fatigue |
 | Burn and poison damage | `burn 2` | `burn 20` |
 | Potion and shield pickups | `4` heal/block | `40` heal/block |
 
