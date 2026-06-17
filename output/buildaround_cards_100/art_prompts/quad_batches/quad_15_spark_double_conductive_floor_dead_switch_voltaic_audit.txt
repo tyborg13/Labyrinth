@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: Labyrinth of Ash card art production sheet
+Primary request: Create one clean 2x2 contact sheet containing four separate Labyrinth of Ash card-art illustrations.
+Style/medium: match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact 16-bit pixel-art-inspired painted style, painterly pixel texture, high contrast, readable at tiny card size.
+Composition/framing: each quadrant is one independent wide 16:9 illustration with a strong central silhouette and generous safe padding; no labels, no panel titles, no numbers, no card frame, no UI, no watermark.
+Output layout: exact 2x2 grid. Top-left is card A, top-right is card B, bottom-left is card C, bottom-right is card D. Keep each quadrant visually self-contained.
+Constraints: no text anywhere in the image; no playing-card UI frame; do not crop important subjects at quadrant edges.
+
+Cards:
+- A top-left: Spark Double (spark_double), Lightning palette, accent #cfb347. Scene: a duplicate made of sparks collapsing into an enemy.
+- B top-right: Conductive Floor (conductive_floor), Lightning palette, accent #cfb347. Scene: dungeon floor tiles etched with glowing conductive grooves.
+- C bottom-left: Dead Switch (dead_switch), Lightning palette, accent #cfb347. Scene: a cracked switch strapped to a heart with lightning wire.
+- D bottom-right: Voltaic Audit (voltaic_audit), Lightning palette, accent #cfb347. Scene: an electric ledger counting every third card with gold sparks.

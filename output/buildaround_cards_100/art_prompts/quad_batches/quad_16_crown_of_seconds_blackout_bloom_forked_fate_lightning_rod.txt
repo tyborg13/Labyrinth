@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: Labyrinth of Ash card art production sheet
+Primary request: Create one clean 2x2 contact sheet containing four separate Labyrinth of Ash card-art illustrations.
+Style/medium: match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact 16-bit pixel-art-inspired painted style, painterly pixel texture, high contrast, readable at tiny card size.
+Composition/framing: each quadrant is one independent wide 16:9 illustration with a strong central silhouette and generous safe padding; no labels, no panel titles, no numbers, no card frame, no UI, no watermark.
+Output layout: exact 2x2 grid. Top-left is card A, top-right is card B, bottom-left is card C, bottom-right is card D. Keep each quadrant visually self-contained.
+Constraints: no text anywhere in the image; no playing-card UI frame; do not crop important subjects at quadrant edges.
+
+Cards:
+- A top-left: Crown of Seconds (crown_of_seconds), Lightning palette, accent #cfb347. Scene: a crown of clock hands struck by yellow lightning.
+- B top-right: Blackout Bloom (blackout_bloom), Lightning palette, accent #cfb347. Scene: a black flower opening in a burst of silent lightning.
+- C bottom-left: Forked Fate (forked_fate), Lightning palette, accent #cfb347. Scene: two enemy shadows tied by a forked lightning thread.
+- D bottom-right: Lightning Rod (lightning_rod), Lightning palette, accent #cfb347. Scene: a metal decoy rod drawing all arcs into its raised hand.

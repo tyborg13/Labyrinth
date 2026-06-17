@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: Labyrinth of Ash card art production sheet
+Primary request: Create one clean 2x2 contact sheet containing four separate Labyrinth of Ash card-art illustrations.
+Style/medium: match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact 16-bit pixel-art-inspired painted style, painterly pixel texture, high contrast, readable at tiny card size.
+Composition/framing: each quadrant is one independent wide 16:9 illustration with a strong central silhouette and generous safe padding; no labels, no panel titles, no numbers, no card frame, no UI, no watermark.
+Output layout: exact 2x2 grid. Top-left is card A, top-right is card B, bottom-left is card C, bottom-right is card D. Keep each quadrant visually self-contained.
+Constraints: no text anywhere in the image; no playing-card UI frame; do not crop important subjects at quadrant edges.
+
+Cards:
+- A top-left: Silence Underfoot (silence_underfoot), Ice palette, accent #5fa7d8. Scene: soft snow covering a row of hidden spike traps.
+- B top-right: Ice Nine (ice_nine), Ice palette, accent #5fa7d8. Scene: nine angular ice crystals trapping green and red fumes.
+- C bottom-left: Pale Refrain (pale_refrain), Ice palette, accent #5fa7d8. Scene: a pale bell echoing a frozen card back into a hand.
+- D bottom-right: Glacier Debt (glacier_debt), Ice palette, accent #5fa7d8. Scene: a towering ice debt-marker carved into a stone shield.

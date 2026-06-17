@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: Labyrinth of Ash card art production sheet
+Primary request: Create one clean 2x2 contact sheet containing four separate Labyrinth of Ash card-art illustrations.
+Style/medium: match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact 16-bit pixel-art-inspired painted style, painterly pixel texture, high contrast, readable at tiny card size.
+Composition/framing: each quadrant is one independent wide 16:9 illustration with a strong central silhouette and generous safe padding; no labels, no panel titles, no numbers, no card frame, no UI, no watermark.
+Output layout: exact 2x2 grid. Top-left is card A, top-right is card B, bottom-left is card C, bottom-right is card D. Keep each quadrant visually self-contained.
+Constraints: no text anywhere in the image; no playing-card UI frame; do not crop important subjects at quadrant edges.
+
+Cards:
+- A top-left: Battery Acid (battery_acid), Lightning palette, accent #cfb347. Scene: yellow acid dripping from a cracked storm battery.
+- B top-right: Relay Race (relay_race), Lightning palette, accent #cfb347. Scene: runners passing a spark baton across dungeon tiles.
+- C bottom-left: Eye of Zekarion (eye_of_zekarion), Lightning palette, accent #cfb347. Scene: a golden storm eye staring from an armored mask.
+- D bottom-right: Thunder Mortgage (thunder_mortgage), Lightning palette, accent #cfb347. Scene: a contract nailed to a storm cloud with three bright seals.

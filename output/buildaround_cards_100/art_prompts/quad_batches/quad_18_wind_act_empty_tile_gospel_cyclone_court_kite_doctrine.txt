@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: Labyrinth of Ash card art production sheet
+Primary request: Create one clean 2x2 contact sheet containing four separate Labyrinth of Ash card-art illustrations.
+Style/medium: match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact 16-bit pixel-art-inspired painted style, painterly pixel texture, high contrast, readable at tiny card size.
+Composition/framing: each quadrant is one independent wide 16:9 illustration with a strong central silhouette and generous safe padding; no labels, no panel titles, no numbers, no card frame, no UI, no watermark.
+Output layout: exact 2x2 grid. Top-left is card A, top-right is card B, bottom-left is card C, bottom-right is card D. Keep each quadrant visually self-contained.
+Constraints: no text anywhere in the image; no playing-card UI frame; do not crop important subjects at quadrant edges.
+
+Cards:
+- A top-left: Wind Act (wind_act), Air palette, accent #72bea5. Scene: a legal decree unfurling as a green wind spiral.
+- B top-right: Empty Tile Gospel (empty_tile_gospel), Air palette, accent #72bea5. Scene: a glowing footprint on an untouched slate tile.
+- C bottom-left: Cyclone Court (cyclone_court), Air palette, accent #72bea5. Scene: a circular courtroom of wind hurling enemies outward.
+- D bottom-right: Kite Doctrine (kite_doctrine), Air palette, accent #72bea5. Scene: a paper war kite dragging a glowing arrow-tail.

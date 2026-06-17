@@ -1,0 +1,279 @@
+{
+  "imports": [
+    {
+      "quad": 1,
+      "ids": [
+        "chrono_forge",
+        "turnstile_rite",
+        "empty_hand_oath",
+        "vow_of_one"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a656a2bb88195a4b03a8890543942.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_01.png"
+    },
+    {
+      "quad": 2,
+      "ids": [
+        "common_cause",
+        "black_archive",
+        "mirror_doctrine",
+        "debt_ledger"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a66cf709081959a6a00d346195d44.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_02.png"
+    },
+    {
+      "quad": 3,
+      "ids": [
+        "last_bad_bargain",
+        "courier_law",
+        "reliquary_of_hands",
+        "tempo_thief"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a673bb8548195bccbeb4acf057532.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_03.png"
+    },
+    {
+      "quad": 4,
+      "ids": [
+        "maw_of_the_deck",
+        "parliament_of_echoes",
+        "undertakers_map",
+        "rare_disease"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a67a71b4c81959c3da9deffc9070f.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_04.png"
+    },
+    {
+      "quad": 5,
+      "ids": [
+        "skeleton_key",
+        "blood_alphabet",
+        "oath_of_ash",
+        "silent_majority"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a680c2b588195b11f8623952ff867.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_05.png"
+    },
+    {
+      "quad": 6,
+      "ids": [
+        "ash_tax",
+        "furnace_choir",
+        "red_thread",
+        "cinder_bank"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a68918f488195bf104bbe36f57b6f.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_06.png"
+    },
+    {
+      "quad": 7,
+      "ids": [
+        "bonfire_pact",
+        "kindling_engine",
+        "smoke_debt",
+        "wildfire_crown"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a690256e8819597f276ff0a4f9e49.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_07.png"
+    },
+    {
+      "quad": 8,
+      "ids": [
+        "molten_calendar",
+        "soot_mirror",
+        "ignition_point",
+        "ember_tithe"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a697431f081958e802c6859056f4b.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_08.png"
+    },
+    {
+      "quad": 9,
+      "ids": [
+        "firebreak_clause",
+        "sunken_kiln",
+        "ashen_encore",
+        "dragons_due"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a6c089eb48195ba1ff7df7e144b96.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_09.png"
+    },
+    {
+      "quad": 10,
+      "ids": [
+        "absolute_zero",
+        "glass_library",
+        "hoarfrost_contract",
+        "shatter_bank"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a6c9e70a88195a66c7868d2876d21.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_10.png"
+    },
+    {
+      "quad": 11,
+      "ids": [
+        "crystal_prison",
+        "snowblind_map",
+        "slow_moon",
+        "cold_read"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a6d272ed88195ba3c57957635270e.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_11.png"
+    },
+    {
+      "quad": 12,
+      "ids": [
+        "silence_underfoot",
+        "ice_nine",
+        "pale_refrain",
+        "glacier_debt"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a6daa8e248195a71a6cdd47d85421.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_12.png"
+    },
+    {
+      "quad": 13,
+      "ids": [
+        "frost_dividend",
+        "white_trial",
+        "rime_escrow",
+        "frozen_minute"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a6eb8c72c8195bb1da764a59ba21b.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_13.png"
+    },
+    {
+      "quad": 14,
+      "ids": [
+        "capacitor_heart",
+        "chain_legislature",
+        "static_market",
+        "storm_battery"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a6f6fcd0c81958d4fce03a80bc767.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_14.png"
+    },
+    {
+      "quad": 15,
+      "ids": [
+        "spark_double",
+        "conductive_floor",
+        "dead_switch",
+        "voltaic_audit"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a702147ac8195b61e68058efaf543.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_15.png"
+    },
+    {
+      "quad": 16,
+      "ids": [
+        "crown_of_seconds",
+        "blackout_bloom",
+        "forked_fate",
+        "lightning_rod"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a70c4d4748195b20f0574117343ab.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_16.png"
+    },
+    {
+      "quad": 17,
+      "ids": [
+        "battery_acid",
+        "relay_race",
+        "eye_of_zekarion",
+        "thunder_mortgage"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a7153fcf48195a64ecc5e2c095852.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_17.png"
+    },
+    {
+      "quad": 18,
+      "ids": [
+        "wind_act",
+        "empty_tile_gospel",
+        "cyclone_court",
+        "kite_doctrine"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a7228f5508195b5bddae6ffb00254.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_18.png"
+    },
+    {
+      "quad": 19,
+      "ids": [
+        "borrowed_door",
+        "slipstream_engine",
+        "gale_receipts",
+        "draft_market"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a72cb6e8c8195a16bf3500ca1e272.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_19.png"
+    },
+    {
+      "quad": 20,
+      "ids": [
+        "sky_tax",
+        "feather_debt",
+        "echoing_step",
+        "airborne_archive"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a7367df748195ad47d9759ac901ff.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_20.png"
+    },
+    {
+      "quad": 21,
+      "ids": [
+        "crosswind_script",
+        "eye_of_stillness",
+        "vacuum_bloom",
+        "sky_written_warrant"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a742dbc588195a81ccda4d534a7c7.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_21.png"
+    },
+    {
+      "quad": 22,
+      "ids": [
+        "root_constitution",
+        "garden_of_wounds",
+        "stone_interest",
+        "spore_ledger"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a752a44848195a4948858033a4b63.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_22.png"
+    },
+    {
+      "quad": 23,
+      "ids": [
+        "iron_orchard",
+        "grave_treaty",
+        "deep_battery",
+        "moss_that_remembers"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a75eed85c8195871dde5109e5c2ed.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_23.png"
+    },
+    {
+      "quad": 24,
+      "ids": [
+        "buried_names",
+        "mountain_clause",
+        "earthen_jury",
+        "henge_engine"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a76ae641c8195967fd19f9514162f.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_24.png"
+    },
+    {
+      "quad": 25,
+      "ids": [
+        "fossil_clock",
+        "widow_seeds",
+        "silt_cathedral",
+        "tremor_writ"
+      ],
+      "source": "/Users/borgerding/.codex/generated_images/019e76f7-f2d6-79b0-ad1d-3488d7a5af10/ig_0711f19a20d2cebe016a1a778145408195a86d7fbc338a42c7.png",
+      "copied_to": "/Users/borgerding/workspace/Labyrinth/output/buildaround_cards_100/source_art/quad_25.png"
+    }
+  ]
+}

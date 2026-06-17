@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-29T21:18:15Z",
+  "updated_at": "2026-05-30T06:06:08Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -3547,6 +3547,28 @@
       "source": {
         "branch": "master",
         "commit": "0d8389f"
+      }
+    },
+    {
+      "id": "mnt_20260530T060608Z_4cd841e6",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Text build-around card pack uses staged text_rule actions",
+      "details": "The design-only pack under output/buildaround_cards_100 keeps cards out of data/cards.json but uses proposed_cards_game_ready.json entries with a novel text_rule action plus presentation.mode=text_rule. Current CardWidget can only be coerced for previews with renderer-only overrides; selected build-around cards will need a real text-summary/card presentation mode so costs and rules text coexist before merging into the live pool.",
+      "status": "active",
+      "created_at": "2026-05-30T06:06:08Z",
+      "updated_at": "2026-05-30T06:06:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "e2171de"
       }
     }
   ]

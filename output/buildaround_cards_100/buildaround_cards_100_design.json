@@ -1,0 +1,5482 @@
+[
+  {
+    "number": 1,
+    "id": "chrono_forge",
+    "name": "Chrono Forge",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "common",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, the first card you play each turn costs -2 time. Cards with printed time 7+ also draw 1.",
+    "iconography": [
+      "TIME",
+      "DRAW",
+      "LAW"
+    ],
+    "hooks": "high-time payoffs, draw, slow rares",
+    "kind": "LAW",
+    "art_direction": "a brass forge hammering deck cards into clock gears",
+    "proposed_data": {
+      "name": "Chrono Forge",
+      "rarity": "common",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, the first card you play each turn costs -2 time. Cards with printed time 7+ also draw 1.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/chrono_forge.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "chrono_forge",
+          "text": "For this combat, the first card you play each turn costs -2 time. Cards with printed time 7+ also draw 1.",
+          "kind": "law",
+          "hooks": "high-time payoffs, draw, slow rares",
+          "iconography": [
+            "TIME",
+            "DRAW",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first card you play each turn costs -2 time. Cards with printed time 7+ also draw 1.",
+        "iconography": [
+          "TIME",
+          "DRAW",
+          "LAW"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 2,
+    "id": "turnstile_rite",
+    "name": "Turnstile Rite",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "common",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "Each turn: your first card costs 0 time, your second costs +3 time, your third costs -3 time.",
+    "iconography": [
+      "TIME",
+      "ORDER",
+      "LAW"
+    ],
+    "hooks": "card-play sequencing, low-cost fillers",
+    "kind": "LAW",
+    "art_direction": "a rotating dungeon turnstile with three glowing tally marks",
+    "proposed_data": {
+      "name": "Turnstile Rite",
+      "rarity": "common",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "Each turn: your first card costs 0 time, your second costs +3 time, your third costs -3 time.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/turnstile_rite.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "turnstile_rite",
+          "text": "Each turn: your first card costs 0 time, your second costs +3 time, your third costs -3 time.",
+          "kind": "law",
+          "hooks": "card-play sequencing, low-cost fillers",
+          "iconography": [
+            "TIME",
+            "ORDER",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Each turn: your first card costs 0 time, your second costs +3 time, your third costs -3 time.",
+        "iconography": [
+          "TIME",
+          "ORDER",
+          "LAW"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 3,
+    "id": "empty_hand_oath",
+    "name": "Empty Hand Oath",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "common",
+    "time": 3,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, if your hand is empty at end of turn, draw 2 and gain 1 card play next turn.",
+    "iconography": [
+      "DRAW",
+      "PLAY",
+      "HAND"
+    ],
+    "hooks": "cheap cards, card plays, hand dumps",
+    "kind": "ENGINE",
+    "art_direction": "an open ash-stained palm over a blank parchment deck",
+    "proposed_data": {
+      "name": "Empty Hand Oath",
+      "rarity": "common",
+      "time": 3,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, if your hand is empty at end of turn, draw 2 and gain 1 card play next turn.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/empty_hand_oath.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "empty_hand_oath",
+          "text": "For this combat, if your hand is empty at end of turn, draw 2 and gain 1 card play next turn.",
+          "kind": "engine",
+          "hooks": "cheap cards, card plays, hand dumps",
+          "iconography": [
+            "DRAW",
+            "PLAY",
+            "HAND"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, if your hand is empty at end of turn, draw 2 and gain 1 card play next turn.",
+        "iconography": [
+          "DRAW",
+          "PLAY",
+          "HAND"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 4,
+    "id": "vow_of_one",
+    "name": "Vow of One",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "common",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, you may play only one card each turn. That card costs -4 time and its numeric values are doubled.",
+    "iconography": [
+      "TIME",
+      "X2",
+      "PACT"
+    ],
+    "hooks": "single-card turns, big attacks, big block",
+    "kind": "PACT",
+    "art_direction": "a lone sword standing in a circle of extinguished candles",
+    "proposed_data": {
+      "name": "Vow of One",
+      "rarity": "common",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, you may play only one card each turn. That card costs -4 time and its numeric values are doubled.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/vow_of_one.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "vow_of_one",
+          "text": "For this combat, you may play only one card each turn. That card costs -4 time and its numeric values are doubled.",
+          "kind": "pact",
+          "hooks": "single-card turns, big attacks, big block",
+          "iconography": [
+            "TIME",
+            "X2",
+            "PACT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, you may play only one card each turn. That card costs -4 time and its numeric values are doubled.",
+        "iconography": [
+          "TIME",
+          "X2",
+          "PACT"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 5,
+    "id": "common_cause",
+    "name": "Common Cause",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "common",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, common cards gain +2 damage or +2 block. When a common card Exhausts, draw 1.",
+    "iconography": [
+      "COMMON",
+      "DRAW",
+      "EXH"
+    ],
+    "hooks": "common-heavy decks, Exhaust, starters",
+    "kind": "ENGINE",
+    "art_direction": "a bundle of plain iron tools tied with a gold thread",
+    "proposed_data": {
+      "name": "Common Cause",
+      "rarity": "common",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, common cards gain +2 damage or +2 block. When a common card Exhausts, draw 1.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/common_cause.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "common_cause",
+          "text": "For this combat, common cards gain +2 damage or +2 block. When a common card Exhausts, draw 1.",
+          "kind": "engine",
+          "hooks": "common-heavy decks, Exhaust, starters",
+          "iconography": [
+            "COMMON",
+            "DRAW",
+            "EXH"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, common cards gain +2 damage or +2 block. When a common card Exhausts, draw 1.",
+        "iconography": [
+          "COMMON",
+          "DRAW",
+          "EXH"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 6,
+    "id": "black_archive",
+    "name": "Black Archive",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Return your Exhausted cards to the draw pile. For this combat, whenever a card Exhausts, deal 2 to all enemies.",
+    "iconography": [
+      "EXH",
+      "AOE",
+      "DRAW"
+    ],
+    "hooks": "Exhaust loops, rare spikes, AOE chip",
+    "kind": "ENGINE",
+    "art_direction": "a charred library shelf releasing glowing card-ash pages",
+    "proposed_data": {
+      "name": "Black Archive",
+      "rarity": "uncommon",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Return your Exhausted cards to the draw pile. For this combat, whenever a card Exhausts, deal 2 to all enemies.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/black_archive.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "black_archive",
+          "text": "Return your Exhausted cards to the draw pile. For this combat, whenever a card Exhausts, deal 2 to all enemies.",
+          "kind": "engine",
+          "hooks": "Exhaust loops, rare spikes, AOE chip",
+          "iconography": [
+            "EXH",
+            "AOE",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Return your Exhausted cards to the draw pile. For this combat, whenever a card Exhausts, deal 2 to all enemies.",
+        "iconography": [
+          "EXH",
+          "AOE",
+          "DRAW"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 7,
+    "id": "mirror_doctrine",
+    "name": "Mirror Doctrine",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, your illusions copy the first status you apply each turn to the nearest enemy at 50% value.",
+    "iconography": [
+      "ILLUS",
+      "STATUS",
+      "COPY"
+    ],
+    "hooks": "illusions, burn, poison, freeze, shock",
+    "kind": "LAW",
+    "art_direction": "two hooded reflections in a cracked obsidian mirror",
+    "proposed_data": {
+      "name": "Mirror Doctrine",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, your illusions copy the first status you apply each turn to the nearest enemy at 50% value.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/mirror_doctrine.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "mirror_doctrine",
+          "text": "For this combat, your illusions copy the first status you apply each turn to the nearest enemy at 50% value.",
+          "kind": "law",
+          "hooks": "illusions, burn, poison, freeze, shock",
+          "iconography": [
+            "ILLUS",
+            "STATUS",
+            "COPY"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, your illusions copy the first status you apply each turn to the nearest enemy at 50% value.",
+        "iconography": [
+          "ILLUS",
+          "STATUS",
+          "COPY"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 8,
+    "id": "debt_ledger",
+    "name": "Debt Ledger",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 1,
+    "description": "For this combat, whenever you pay health, draw that many cards and gain that much block. Healing cannot repay this debt.",
+    "iconography": [
+      "HP",
+      "DRAW",
+      "BLOCK"
+    ],
+    "hooks": "health costs, draw, block engines",
+    "kind": "PACT",
+    "art_direction": "a blood-marked account book chained to a coin scale",
+    "proposed_data": {
+      "name": "Debt Ledger",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 1,
+      "description": "For this combat, whenever you pay health, draw that many cards and gain that much block. Healing cannot repay this debt.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/debt_ledger.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "debt_ledger",
+          "text": "For this combat, whenever you pay health, draw that many cards and gain that much block. Healing cannot repay this debt.",
+          "kind": "pact",
+          "hooks": "health costs, draw, block engines",
+          "iconography": [
+            "HP",
+            "DRAW",
+            "BLOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever you pay health, draw that many cards and gain that much block. Healing cannot repay this debt.",
+        "iconography": [
+          "HP",
+          "DRAW",
+          "BLOCK"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 9,
+    "id": "last_bad_bargain",
+    "name": "Last Bad Bargain",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "rare",
+    "time": 9,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Set your health to 1. Gain 40 block. For this combat, your attacks gain +6 damage and pierce.",
+    "iconography": [
+      "HP",
+      "BLOCK",
+      "PIERCE"
+    ],
+    "hooks": "glass-cannon decks, block, pierce",
+    "kind": "PACT",
+    "art_direction": "a desperate pact sealed with one red candle and a cracked shield",
+    "proposed_data": {
+      "name": "Last Bad Bargain",
+      "rarity": "rare",
+      "time": 9,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Set your health to 1. Gain 40 block. For this combat, your attacks gain +6 damage and pierce.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/last_bad_bargain.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "last_bad_bargain",
+          "text": "Set your health to 1. Gain 40 block. For this combat, your attacks gain +6 damage and pierce.",
+          "kind": "pact",
+          "hooks": "glass-cannon decks, block, pierce",
+          "iconography": [
+            "HP",
+            "BLOCK",
+            "PIERCE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Set your health to 1. Gain 40 block. For this combat, your attacks gain +6 damage and pierce.",
+        "iconography": [
+          "HP",
+          "BLOCK",
+          "PIERCE"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 10,
+    "id": "courier_law",
+    "name": "Courier Law",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, after you move 5+ tiles in a turn, your next ranged or AOE card ignores line of sight and gains +2 range.",
+    "iconography": [
+      "MOVE",
+      "RANGE",
+      "LOS"
+    ],
+    "hooks": "move, ranged, AOE, trap paths",
+    "kind": "LAW",
+    "art_direction": "a masked runner carrying a sealed letter through broken doorways",
+    "proposed_data": {
+      "name": "Courier Law",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, after you move 5+ tiles in a turn, your next ranged or AOE card ignores line of sight and gains +2 range.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/courier_law.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "courier_law",
+          "text": "For this combat, after you move 5+ tiles in a turn, your next ranged or AOE card ignores line of sight and gains +2 range.",
+          "kind": "law",
+          "hooks": "move, ranged, AOE, trap paths",
+          "iconography": [
+            "MOVE",
+            "RANGE",
+            "LOS"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, after you move 5+ tiles in a turn, your next ranged or AOE card ignores line of sight and gains +2 range.",
+        "iconography": [
+          "MOVE",
+          "RANGE",
+          "LOS"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 11,
+    "id": "reliquary_of_hands",
+    "name": "Reliquary of Hands",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, whenever you gain card plays, draw that many cards. Once each turn, drawing 3+ cards gives 1 card play.",
+    "iconography": [
+      "DRAW",
+      "PLAY",
+      "ENGINE"
+    ],
+    "hooks": "draw engines, card-play engines",
+    "kind": "ENGINE",
+    "art_direction": "a reliquary filled with many small skeletal hands holding cards",
+    "proposed_data": {
+      "name": "Reliquary of Hands",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, whenever you gain card plays, draw that many cards. Once each turn, drawing 3+ cards gives 1 card play.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/reliquary_of_hands.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "reliquary_of_hands",
+          "text": "For this combat, whenever you gain card plays, draw that many cards. Once each turn, drawing 3+ cards gives 1 card play.",
+          "kind": "engine",
+          "hooks": "draw engines, card-play engines",
+          "iconography": [
+            "DRAW",
+            "PLAY",
+            "ENGINE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever you gain card plays, draw that many cards. Once each turn, drawing 3+ cards gives 1 card play.",
+        "iconography": [
+          "DRAW",
+          "PLAY",
+          "ENGINE"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 12,
+    "id": "tempo_thief",
+    "name": "Tempo Thief",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Delay all enemies by 3 time. For this combat, each 1-2 time card you play delays the nearest enemy by 1.",
+    "iconography": [
+      "TIME",
+      "FAST",
+      "DELAY"
+    ],
+    "hooks": "fast cards, initiative control",
+    "kind": "BURST",
+    "art_direction": "a cloaked thief stealing clock hands from enemy shadows",
+    "proposed_data": {
+      "name": "Tempo Thief",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Delay all enemies by 3 time. For this combat, each 1-2 time card you play delays the nearest enemy by 1.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/tempo_thief.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "tempo_thief",
+          "text": "Delay all enemies by 3 time. For this combat, each 1-2 time card you play delays the nearest enemy by 1.",
+          "kind": "burst",
+          "hooks": "fast cards, initiative control",
+          "iconography": [
+            "TIME",
+            "FAST",
+            "DELAY"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Delay all enemies by 3 time. For this combat, each 1-2 time card you play delays the nearest enemy by 1.",
+        "iconography": [
+          "TIME",
+          "FAST",
+          "DELAY"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 13,
+    "id": "maw_of_the_deck",
+    "name": "Maw of the Deck",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, each card drawn past 5 in hand is fed to the Maw. At 3 fed cards, deal 12 to all enemies and draw 1.",
+    "iconography": [
+      "DRAW",
+      "AOE",
+      "COUNT"
+    ],
+    "hooks": "big draw, overflow, AOE payoff",
+    "kind": "ENGINE",
+    "art_direction": "a toothy wooden deck box swallowing glowing cards",
+    "proposed_data": {
+      "name": "Maw of the Deck",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, each card drawn past 5 in hand is fed to the Maw. At 3 fed cards, deal 12 to all enemies and draw 1.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/maw_of_the_deck.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "maw_of_the_deck",
+          "text": "For this combat, each card drawn past 5 in hand is fed to the Maw. At 3 fed cards, deal 12 to all enemies and draw 1.",
+          "kind": "engine",
+          "hooks": "big draw, overflow, AOE payoff",
+          "iconography": [
+            "DRAW",
+            "AOE",
+            "COUNT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, each card drawn past 5 in hand is fed to the Maw. At 3 fed cards, deal 12 to all enemies and draw 1.",
+        "iconography": [
+          "DRAW",
+          "AOE",
+          "COUNT"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 14,
+    "id": "parliament_of_echoes",
+    "name": "Parliament of Echoes",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "rare",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, the first card you play each turn echoes: repeat its non-movement text at 50% values.",
+    "iconography": [
+      "ECHO",
+      "TEXT",
+      "X2"
+    ],
+    "hooks": "big text cards, status payoffs",
+    "kind": "LAW",
+    "art_direction": "a council of pale masks repeating one burning sentence",
+    "proposed_data": {
+      "name": "Parliament of Echoes",
+      "rarity": "rare",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, the first card you play each turn echoes: repeat its non-movement text at 50% values.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/parliament_of_echoes.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "parliament_of_echoes",
+          "text": "For this combat, the first card you play each turn echoes: repeat its non-movement text at 50% values.",
+          "kind": "law",
+          "hooks": "big text cards, status payoffs",
+          "iconography": [
+            "ECHO",
+            "TEXT",
+            "X2"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first card you play each turn echoes: repeat its non-movement text at 50% values.",
+        "iconography": [
+          "ECHO",
+          "TEXT",
+          "X2"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 15,
+    "id": "undertakers_map",
+    "name": "Undertaker's Map",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Mark all enemies. First time a Marked enemy dies, blink to its tile, draw 1, and move the Mark to the nearest enemy.",
+    "iconography": [
+      "MARK",
+      "BLINK",
+      "DRAW"
+    ],
+    "hooks": "kills, blink, target routing",
+    "kind": "FIELD",
+    "art_direction": "a burial map with pins joined by ghostly thread",
+    "proposed_data": {
+      "name": "Undertaker's Map",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Mark all enemies. First time a Marked enemy dies, blink to its tile, draw 1, and move the Mark to the nearest enemy.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/undertakers_map.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "undertakers_map",
+          "text": "Mark all enemies. First time a Marked enemy dies, blink to its tile, draw 1, and move the Mark to the nearest enemy.",
+          "kind": "field",
+          "hooks": "kills, blink, target routing",
+          "iconography": [
+            "MARK",
+            "BLINK",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Mark all enemies. First time a Marked enemy dies, blink to its tile, draw 1, and move the Mark to the nearest enemy.",
+        "iconography": [
+          "MARK",
+          "BLINK",
+          "DRAW"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 16,
+    "id": "rare_disease",
+    "name": "Rare Disease",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, rare cards cost -3 time and Exhaust. Whenever a rare card Exhausts, deal 5 to all enemies.",
+    "iconography": [
+      "RARE",
+      "TIME",
+      "EXH"
+    ],
+    "hooks": "rare-heavy decks, Exhaust, tempo",
+    "kind": "PACT",
+    "art_direction": "a violet gem infecting ornate card frames with black veins",
+    "proposed_data": {
+      "name": "Rare Disease",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, rare cards cost -3 time and Exhaust. Whenever a rare card Exhausts, deal 5 to all enemies.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/rare_disease.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "rare_disease",
+          "text": "For this combat, rare cards cost -3 time and Exhaust. Whenever a rare card Exhausts, deal 5 to all enemies.",
+          "kind": "pact",
+          "hooks": "rare-heavy decks, Exhaust, tempo",
+          "iconography": [
+            "RARE",
+            "TIME",
+            "EXH"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, rare cards cost -3 time and Exhaust. Whenever a rare card Exhausts, deal 5 to all enemies.",
+        "iconography": [
+          "RARE",
+          "TIME",
+          "EXH"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 17,
+    "id": "skeleton_key",
+    "name": "Skeleton Key",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, your cards have +2 range. Blink cards also create a 1-health illusion at your old tile.",
+    "iconography": [
+      "RANGE",
+      "BLINK",
+      "ILLUS"
+    ],
+    "hooks": "range, blink, illusions",
+    "kind": "LAW",
+    "art_direction": "a bone key opening several impossible dungeon doors at once",
+    "proposed_data": {
+      "name": "Skeleton Key",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, your cards have +2 range. Blink cards also create a 1-health illusion at your old tile.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/skeleton_key.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "skeleton_key",
+          "text": "For this combat, your cards have +2 range. Blink cards also create a 1-health illusion at your old tile.",
+          "kind": "law",
+          "hooks": "range, blink, illusions",
+          "iconography": [
+            "RANGE",
+            "BLINK",
+            "ILLUS"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, your cards have +2 range. Blink cards also create a 1-health illusion at your old tile.",
+        "iconography": [
+          "RANGE",
+          "BLINK",
+          "ILLUS"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 18,
+    "id": "blood_alphabet",
+    "name": "Blood Alphabet",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 2,
+    "description": "For this combat, losing health writes a Letter. At 3 Letters, clear them, draw 2, and your attacks gain +3 this turn.",
+    "iconography": [
+      "HP",
+      "DRAW",
+      "DMG"
+    ],
+    "hooks": "self-damage, draw, burst turns",
+    "kind": "ENGINE",
+    "art_direction": "red runic letters crawling across a vellum card",
+    "proposed_data": {
+      "name": "Blood Alphabet",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 2,
+      "description": "For this combat, losing health writes a Letter. At 3 Letters, clear them, draw 2, and your attacks gain +3 this turn.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/blood_alphabet.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "blood_alphabet",
+          "text": "For this combat, losing health writes a Letter. At 3 Letters, clear them, draw 2, and your attacks gain +3 this turn.",
+          "kind": "engine",
+          "hooks": "self-damage, draw, burst turns",
+          "iconography": [
+            "HP",
+            "DRAW",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, losing health writes a Letter. At 3 Letters, clear them, draw 2, and your attacks gain +3 this turn.",
+        "iconography": [
+          "HP",
+          "DRAW",
+          "DMG"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 19,
+    "id": "oath_of_ash",
+    "name": "Oath of Ash",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
+    "iconography": [
+      "NEUT",
+      "INT",
+      "LAW"
+    ],
+    "hooks": "neutral cards, elemental intensity",
+    "kind": "LAW",
+    "art_direction": "a grey oath stone split by five colored embers",
+    "proposed_data": {
+      "name": "Oath of Ash",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/oath_of_ash.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "oath_of_ash",
+          "text": "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
+          "kind": "law",
+          "hooks": "neutral cards, elemental intensity",
+          "iconography": [
+            "NEUT",
+            "INT",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
+        "iconography": [
+          "NEUT",
+          "INT",
+          "LAW"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 20,
+    "id": "silent_majority",
+    "name": "Silent Majority",
+    "element": null,
+    "element_label": "Neutral",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, neutral cards cost -1 time. Each third neutral card you play creates a 2-health illusion.",
+    "iconography": [
+      "NEUT",
+      "TIME",
+      "ILLUS"
+    ],
+    "hooks": "neutral decks, illusions, tempo",
+    "kind": "ENGINE",
+    "art_direction": "a crowd of blank masks standing behind a single lit card",
+    "proposed_data": {
+      "name": "Silent Majority",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, neutral cards cost -1 time. Each third neutral card you play creates a 2-health illusion.",
+      "accent": "#8a6d49",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/silent_majority.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "silent_majority",
+          "text": "For this combat, neutral cards cost -1 time. Each third neutral card you play creates a 2-health illusion.",
+          "kind": "engine",
+          "hooks": "neutral decks, illusions, tempo",
+          "iconography": [
+            "NEUT",
+            "TIME",
+            "ILLUS"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, neutral cards cost -1 time. Each third neutral card you play creates a 2-health illusion.",
+        "iconography": [
+          "NEUT",
+          "TIME",
+          "ILLUS"
+        ]
+      }
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 21,
+    "id": "ash_tax",
+    "name": "Ash Tax",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
+    "iconography": [
+      "BURN",
+      "INT",
+      "LAW"
+    ],
+    "hooks": "burn stacking, Fire intensity",
+    "kind": "LAW",
+    "art_direction": "tax coins melting into a basin of red ash",
+    "proposed_data": {
+      "name": "Ash Tax",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/ash_tax.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "ash_tax",
+          "text": "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
+          "kind": "law",
+          "hooks": "burn stacking, Fire intensity",
+          "iconography": [
+            "BURN",
+            "INT",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
+        "iconography": [
+          "BURN",
+          "INT",
+          "LAW"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 22,
+    "id": "furnace_choir",
+    "name": "Furnace Choir",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "common",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Apply 8 burn to all enemies. For this combat, when burn expires on an enemy, spread 4 burn to the nearest enemy.",
+    "iconography": [
+      "BURN",
+      "AOE",
+      "SPREAD"
+    ],
+    "hooks": "AOE burn, spread, crowd fights",
+    "kind": "BURST",
+    "art_direction": "robed furnace mouths singing sparks into a dark hall",
+    "proposed_data": {
+      "name": "Furnace Choir",
+      "rarity": "common",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Apply 8 burn to all enemies. For this combat, when burn expires on an enemy, spread 4 burn to the nearest enemy.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/furnace_choir.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "furnace_choir",
+          "text": "Apply 8 burn to all enemies. For this combat, when burn expires on an enemy, spread 4 burn to the nearest enemy.",
+          "kind": "burst",
+          "hooks": "AOE burn, spread, crowd fights",
+          "iconography": [
+            "BURN",
+            "AOE",
+            "SPREAD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Apply 8 burn to all enemies. For this combat, when burn expires on an enemy, spread 4 burn to the nearest enemy.",
+        "iconography": [
+          "BURN",
+          "AOE",
+          "SPREAD"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 23,
+    "id": "red_thread",
+    "name": "Red Thread",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, the first time you damage a burning enemy each turn, repeat that damage on every other burning enemy.",
+    "iconography": [
+      "BURN",
+      "COPY",
+      "AOE"
+    ],
+    "hooks": "burn setup, AOE conversion",
+    "kind": "ENGINE",
+    "art_direction": "a glowing red thread stitching several burning targets together",
+    "proposed_data": {
+      "name": "Red Thread",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, the first time you damage a burning enemy each turn, repeat that damage on every other burning enemy.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/red_thread.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "red_thread",
+          "text": "For this combat, the first time you damage a burning enemy each turn, repeat that damage on every other burning enemy.",
+          "kind": "engine",
+          "hooks": "burn setup, AOE conversion",
+          "iconography": [
+            "BURN",
+            "COPY",
+            "AOE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first time you damage a burning enemy each turn, repeat that damage on every other burning enemy.",
+        "iconography": [
+          "BURN",
+          "COPY",
+          "AOE"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 24,
+    "id": "cinder_bank",
+    "name": "Cinder Bank",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, overkill from burn is banked. Your next attack spends the bank as bonus fire damage.",
+    "iconography": [
+      "BURN",
+      "BANK",
+      "DMG"
+    ],
+    "hooks": "burn kills, overkill, big hits",
+    "kind": "ENGINE",
+    "art_direction": "a small iron vault packed with orange-hot cinders",
+    "proposed_data": {
+      "name": "Cinder Bank",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, overkill from burn is banked. Your next attack spends the bank as bonus fire damage.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/cinder_bank.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "cinder_bank",
+          "text": "For this combat, overkill from burn is banked. Your next attack spends the bank as bonus fire damage.",
+          "kind": "engine",
+          "hooks": "burn kills, overkill, big hits",
+          "iconography": [
+            "BURN",
+            "BANK",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, overkill from burn is banked. Your next attack spends the bank as bonus fire damage.",
+        "iconography": [
+          "BURN",
+          "BANK",
+          "DMG"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 25,
+    "id": "bonfire_pact",
+    "name": "Bonfire Pact",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Exhaust 2 cards from your hand. For this combat, your attacks apply burn equal to cards Exhausted this combat.",
+    "iconography": [
+      "EXH",
+      "BURN",
+      "PACT"
+    ],
+    "hooks": "Exhaust decks, attacks, burn",
+    "kind": "PACT",
+    "art_direction": "two cards burning upright in a ritual bonfire",
+    "proposed_data": {
+      "name": "Bonfire Pact",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Exhaust 2 cards from your hand. For this combat, your attacks apply burn equal to cards Exhausted this combat.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/bonfire_pact.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "bonfire_pact",
+          "text": "Exhaust 2 cards from your hand. For this combat, your attacks apply burn equal to cards Exhausted this combat.",
+          "kind": "pact",
+          "hooks": "Exhaust decks, attacks, burn",
+          "iconography": [
+            "EXH",
+            "BURN",
+            "PACT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Exhaust 2 cards from your hand. For this combat, your attacks apply burn equal to cards Exhausted this combat.",
+        "iconography": [
+          "EXH",
+          "BURN",
+          "PACT"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 26,
+    "id": "kindling_engine",
+    "name": "Kindling Engine",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, whenever any card Exhausts, apply 3 burn to all enemies and raise Fire intensity by 1.",
+    "iconography": [
+      "EXH",
+      "BURN",
+      "INT"
+    ],
+    "hooks": "Exhaust, Fire intensity, AOE burn",
+    "kind": "ENGINE",
+    "art_direction": "a crank engine feeding torn cards into a furnace heart",
+    "proposed_data": {
+      "name": "Kindling Engine",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, whenever any card Exhausts, apply 3 burn to all enemies and raise Fire intensity by 1.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/kindling_engine.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "kindling_engine",
+          "text": "For this combat, whenever any card Exhausts, apply 3 burn to all enemies and raise Fire intensity by 1.",
+          "kind": "engine",
+          "hooks": "Exhaust, Fire intensity, AOE burn",
+          "iconography": [
+            "EXH",
+            "BURN",
+            "INT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever any card Exhausts, apply 3 burn to all enemies and raise Fire intensity by 1.",
+        "iconography": [
+          "EXH",
+          "BURN",
+          "INT"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 27,
+    "id": "smoke_debt",
+    "name": "Smoke Debt",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, burning enemies deal -1 damage per 5 burn on them. When their burn decays, gain that much block.",
+    "iconography": [
+      "BURN",
+      "BLOCK",
+      "LAW"
+    ],
+    "hooks": "defensive burn, block, attrition",
+    "kind": "LAW",
+    "art_direction": "a shield made of debt notes dissolving into black smoke",
+    "proposed_data": {
+      "name": "Smoke Debt",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, burning enemies deal -1 damage per 5 burn on them. When their burn decays, gain that much block.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/smoke_debt.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "smoke_debt",
+          "text": "For this combat, burning enemies deal -1 damage per 5 burn on them. When their burn decays, gain that much block.",
+          "kind": "law",
+          "hooks": "defensive burn, block, attrition",
+          "iconography": [
+            "BURN",
+            "BLOCK",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, burning enemies deal -1 damage per 5 burn on them. When their burn decays, gain that much block.",
+        "iconography": [
+          "BURN",
+          "BLOCK",
+          "LAW"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 28,
+    "id": "wildfire_crown",
+    "name": "Wildfire Crown",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "rare",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, when burn kills an enemy, draw 2, gain 1 card play, and transfer its remaining burn to all enemies.",
+    "iconography": [
+      "BURN",
+      "DRAW",
+      "PLAY"
+    ],
+    "hooks": "burn kills, draw, card plays",
+    "kind": "ENGINE",
+    "art_direction": "a crown of fire throwing sparks from one skull to many",
+    "proposed_data": {
+      "name": "Wildfire Crown",
+      "rarity": "rare",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, when burn kills an enemy, draw 2, gain 1 card play, and transfer its remaining burn to all enemies.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/wildfire_crown.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "wildfire_crown",
+          "text": "For this combat, when burn kills an enemy, draw 2, gain 1 card play, and transfer its remaining burn to all enemies.",
+          "kind": "engine",
+          "hooks": "burn kills, draw, card plays",
+          "iconography": [
+            "BURN",
+            "DRAW",
+            "PLAY"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, when burn kills an enemy, draw 2, gain 1 card play, and transfer its remaining burn to all enemies.",
+        "iconography": [
+          "BURN",
+          "DRAW",
+          "PLAY"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 29,
+    "id": "molten_calendar",
+    "name": "Molten Calendar",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, after every third player turn, apply 18 burn to all enemies. Fire cards advance the calendar one step.",
+    "iconography": [
+      "BURN",
+      "COUNT",
+      "FIELD"
+    ],
+    "hooks": "long fights, Fire card density",
+    "kind": "FIELD",
+    "art_direction": "a lava calendar with three glowing dates cracked open",
+    "proposed_data": {
+      "name": "Molten Calendar",
+      "rarity": "uncommon",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, after every third player turn, apply 18 burn to all enemies. Fire cards advance the calendar one step.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/molten_calendar.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "molten_calendar",
+          "text": "For this combat, after every third player turn, apply 18 burn to all enemies. Fire cards advance the calendar one step.",
+          "kind": "field",
+          "hooks": "long fights, Fire card density",
+          "iconography": [
+            "BURN",
+            "COUNT",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, after every third player turn, apply 18 burn to all enemies. Fire cards advance the calendar one step.",
+        "iconography": [
+          "BURN",
+          "COUNT",
+          "FIELD"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 30,
+    "id": "soot_mirror",
+    "name": "Soot Mirror",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, burn on you also ticks on all enemies. At end of turn, move half your burn to the healthiest enemy.",
+    "iconography": [
+      "BURN",
+      "HP",
+      "COPY"
+    ],
+    "hooks": "self-burn, enemy swarms, risk",
+    "kind": "PACT",
+    "art_direction": "a smoky mirror reflecting the hero as a burning silhouette",
+    "proposed_data": {
+      "name": "Soot Mirror",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, burn on you also ticks on all enemies. At end of turn, move half your burn to the healthiest enemy.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/soot_mirror.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "soot_mirror",
+          "text": "For this combat, burn on you also ticks on all enemies. At end of turn, move half your burn to the healthiest enemy.",
+          "kind": "pact",
+          "hooks": "self-burn, enemy swarms, risk",
+          "iconography": [
+            "BURN",
+            "HP",
+            "COPY"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, burn on you also ticks on all enemies. At end of turn, move half your burn to the healthiest enemy.",
+        "iconography": [
+          "BURN",
+          "HP",
+          "COPY"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 31,
+    "id": "ignition_point",
+    "name": "Ignition Point",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, applying burn to an already burning enemy deals damage equal to the smaller burn value to it and adjacent enemies.",
+    "iconography": [
+      "BURN",
+      "AOE",
+      "STACK"
+    ],
+    "hooks": "stacking burn, adjacency, AOE",
+    "kind": "ENGINE",
+    "art_direction": "two sparks colliding into a flower-shaped explosion",
+    "proposed_data": {
+      "name": "Ignition Point",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, applying burn to an already burning enemy deals damage equal to the smaller burn value to it and adjacent enemies.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/ignition_point.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "ignition_point",
+          "text": "For this combat, applying burn to an already burning enemy deals damage equal to the smaller burn value to it and adjacent enemies.",
+          "kind": "engine",
+          "hooks": "stacking burn, adjacency, AOE",
+          "iconography": [
+            "BURN",
+            "AOE",
+            "STACK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, applying burn to an already burning enemy deals damage equal to the smaller burn value to it and adjacent enemies.",
+        "iconography": [
+          "BURN",
+          "AOE",
+          "STACK"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 32,
+    "id": "ember_tithe",
+    "name": "Ember Tithe",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "rare",
+    "time": 5,
+    "burn": true,
+    "health_cost": 1,
+    "description": "For this combat, the first attack damage you deal each turn costs 1 health and applies burn equal to half that damage.",
+    "iconography": [
+      "HP",
+      "DMG",
+      "BURN"
+    ],
+    "hooks": "self-damage, big attacks, burn",
+    "kind": "PACT",
+    "art_direction": "a red tithe bowl receiving blood and returning embers",
+    "proposed_data": {
+      "name": "Ember Tithe",
+      "rarity": "rare",
+      "time": 5,
+      "burn": true,
+      "health_cost": 1,
+      "description": "For this combat, the first attack damage you deal each turn costs 1 health and applies burn equal to half that damage.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/ember_tithe.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "ember_tithe",
+          "text": "For this combat, the first attack damage you deal each turn costs 1 health and applies burn equal to half that damage.",
+          "kind": "pact",
+          "hooks": "self-damage, big attacks, burn",
+          "iconography": [
+            "HP",
+            "DMG",
+            "BURN"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first attack damage you deal each turn costs 1 health and applies burn equal to half that damage.",
+        "iconography": [
+          "HP",
+          "DMG",
+          "BURN"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 33,
+    "id": "firebreak_clause",
+    "name": "Firebreak Clause",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "Convert all burn on you into block. For this combat, each 3 block you gain applies 1 burn to the nearest enemy.",
+    "iconography": [
+      "BLOCK",
+      "BURN",
+      "LAW"
+    ],
+    "hooks": "block engines, self-burn cleanup",
+    "kind": "LAW",
+    "art_direction": "a legal scroll used as a shield against a wall of flame",
+    "proposed_data": {
+      "name": "Firebreak Clause",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "Convert all burn on you into block. For this combat, each 3 block you gain applies 1 burn to the nearest enemy.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/firebreak_clause.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "firebreak_clause",
+          "text": "Convert all burn on you into block. For this combat, each 3 block you gain applies 1 burn to the nearest enemy.",
+          "kind": "law",
+          "hooks": "block engines, self-burn cleanup",
+          "iconography": [
+            "BLOCK",
+            "BURN",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Convert all burn on you into block. For this combat, each 3 block you gain applies 1 burn to the nearest enemy.",
+        "iconography": [
+          "BLOCK",
+          "BURN",
+          "LAW"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 34,
+    "id": "sunken_kiln",
+    "name": "Sunken Kiln",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "rare",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Set Fire intensity to 3. For this combat, Fire intensity cannot fall below 3, but non-Fire cards cost +1 time.",
+    "iconography": [
+      "FIRE",
+      "INT",
+      "TIME"
+    ],
+    "hooks": "mono-Fire decks, intensity scaling",
+    "kind": "FIELD",
+    "art_direction": "a submerged furnace glowing beneath black water",
+    "proposed_data": {
+      "name": "Sunken Kiln",
+      "rarity": "rare",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Set Fire intensity to 3. For this combat, Fire intensity cannot fall below 3, but non-Fire cards cost +1 time.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/sunken_kiln.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "sunken_kiln",
+          "text": "Set Fire intensity to 3. For this combat, Fire intensity cannot fall below 3, but non-Fire cards cost +1 time.",
+          "kind": "field",
+          "hooks": "mono-Fire decks, intensity scaling",
+          "iconography": [
+            "FIRE",
+            "INT",
+            "TIME"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Set Fire intensity to 3. For this combat, Fire intensity cannot fall below 3, but non-Fire cards cost +1 time.",
+        "iconography": [
+          "FIRE",
+          "INT",
+          "TIME"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 35,
+    "id": "ashen_encore",
+    "name": "Ashen Encore",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
+    "iconography": [
+      "FIRE",
+      "EXH",
+      "ECHO"
+    ],
+    "hooks": "Fire Exhaust, burst repeats",
+    "kind": "ENGINE",
+    "art_direction": "a singer made of ash bowing as a card reignites",
+    "proposed_data": {
+      "name": "Ashen Encore",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/ashen_encore.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "ashen_encore",
+          "text": "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
+          "kind": "engine",
+          "hooks": "Fire Exhaust, burst repeats",
+          "iconography": [
+            "FIRE",
+            "EXH",
+            "ECHO"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
+        "iconography": [
+          "FIRE",
+          "EXH",
+          "ECHO"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 36,
+    "id": "dragons_due",
+    "name": "Dragon's Due",
+    "element": "fire",
+    "element_label": "Fire",
+    "rarity": "rare",
+    "time": 10,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Apply 40 burn to all enemies. Until an enemy dies, your cards cost +2 time.",
+    "iconography": [
+      "BURN",
+      "AOE",
+      "TIME"
+    ],
+    "hooks": "huge burn, kill race, tempo risk",
+    "kind": "BURST",
+    "art_direction": "a dragon-shaped debt mark branded over a battlefield",
+    "proposed_data": {
+      "name": "Dragon's Due",
+      "rarity": "rare",
+      "time": 10,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Apply 40 burn to all enemies. Until an enemy dies, your cards cost +2 time.",
+      "accent": "#d9623f",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/dragons_due.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "dragons_due",
+          "text": "Apply 40 burn to all enemies. Until an enemy dies, your cards cost +2 time.",
+          "kind": "burst",
+          "hooks": "huge burn, kill race, tempo risk",
+          "iconography": [
+            "BURN",
+            "AOE",
+            "TIME"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Apply 40 burn to all enemies. Until an enemy dies, your cards cost +2 time.",
+        "iconography": [
+          "BURN",
+          "AOE",
+          "TIME"
+        ]
+      },
+      "element": "fire"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 37,
+    "id": "absolute_zero",
+    "name": "Absolute Zero",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "common",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Freeze all enemies. For this combat, frozen enemies keep burn and poison from decaying.",
+    "iconography": [
+      "FREEZE",
+      "BURN",
+      "POISON"
+    ],
+    "hooks": "freeze, burn, poison",
+    "kind": "BURST",
+    "art_direction": "a black-blue eclipse freezing a room in a single ring",
+    "proposed_data": {
+      "name": "Absolute Zero",
+      "rarity": "common",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Freeze all enemies. For this combat, frozen enemies keep burn and poison from decaying.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/absolute_zero.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "absolute_zero",
+          "text": "Freeze all enemies. For this combat, frozen enemies keep burn and poison from decaying.",
+          "kind": "burst",
+          "hooks": "freeze, burn, poison",
+          "iconography": [
+            "FREEZE",
+            "BURN",
+            "POISON"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Freeze all enemies. For this combat, frozen enemies keep burn and poison from decaying.",
+        "iconography": [
+          "FREEZE",
+          "BURN",
+          "POISON"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 38,
+    "id": "glass_library",
+    "name": "Glass Library",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, whenever a frozen enemy takes damage, store half. When freeze ends, deal the stored damage again.",
+    "iconography": [
+      "FREEZE",
+      "BANK",
+      "DMG"
+    ],
+    "hooks": "freeze setup, delayed burst",
+    "kind": "ENGINE",
+    "art_direction": "shelves of transparent books cracking with trapped impacts",
+    "proposed_data": {
+      "name": "Glass Library",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, whenever a frozen enemy takes damage, store half. When freeze ends, deal the stored damage again.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/glass_library.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "glass_library",
+          "text": "For this combat, whenever a frozen enemy takes damage, store half. When freeze ends, deal the stored damage again.",
+          "kind": "engine",
+          "hooks": "freeze setup, delayed burst",
+          "iconography": [
+            "FREEZE",
+            "BANK",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever a frozen enemy takes damage, store half. When freeze ends, deal the stored damage again.",
+        "iconography": [
+          "FREEZE",
+          "BANK",
+          "DMG"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 39,
+    "id": "hoarfrost_contract",
+    "name": "Hoarfrost Contract",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "common",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, the first time each enemy would act, if Ice is 2+, spend 1 Ice to freeze it instead.",
+    "iconography": [
+      "ICE",
+      "FREEZE",
+      "LAW"
+    ],
+    "hooks": "Ice intensity, turn denial",
+    "kind": "LAW",
+    "art_direction": "a frost-covered contract signed by a claw of ice",
+    "proposed_data": {
+      "name": "Hoarfrost Contract",
+      "rarity": "common",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, the first time each enemy would act, if Ice is 2+, spend 1 Ice to freeze it instead.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/hoarfrost_contract.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "hoarfrost_contract",
+          "text": "For this combat, the first time each enemy would act, if Ice is 2+, spend 1 Ice to freeze it instead.",
+          "kind": "law",
+          "hooks": "Ice intensity, turn denial",
+          "iconography": [
+            "ICE",
+            "FREEZE",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first time each enemy would act, if Ice is 2+, spend 1 Ice to freeze it instead.",
+        "iconography": [
+          "ICE",
+          "FREEZE",
+          "LAW"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 40,
+    "id": "shatter_bank",
+    "name": "Shatter Bank",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, overkill against frozen enemies becomes Shards. Your next attack spends Shards as bonus damage.",
+    "iconography": [
+      "FREEZE",
+      "BANK",
+      "DMG"
+    ],
+    "hooks": "freeze kills, overkill, burst",
+    "kind": "ENGINE",
+    "art_direction": "a crystal bank filled with coin-like shards of frozen damage",
+    "proposed_data": {
+      "name": "Shatter Bank",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, overkill against frozen enemies becomes Shards. Your next attack spends Shards as bonus damage.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/shatter_bank.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "shatter_bank",
+          "text": "For this combat, overkill against frozen enemies becomes Shards. Your next attack spends Shards as bonus damage.",
+          "kind": "engine",
+          "hooks": "freeze kills, overkill, burst",
+          "iconography": [
+            "FREEZE",
+            "BANK",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, overkill against frozen enemies becomes Shards. Your next attack spends Shards as bonus damage.",
+        "iconography": [
+          "FREEZE",
+          "BANK",
+          "DMG"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 41,
+    "id": "crystal_prison",
+    "name": "Crystal Prison",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Create two 4-health ice illusions. For this combat, enemies that hit your illusions become frozen.",
+    "iconography": [
+      "ILLUS",
+      "FREEZE",
+      "FIELD"
+    ],
+    "hooks": "illusions, freeze, enemy targeting",
+    "kind": "FIELD",
+    "art_direction": "two glass decoys inside a jagged crystal cage",
+    "proposed_data": {
+      "name": "Crystal Prison",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Create two 4-health ice illusions. For this combat, enemies that hit your illusions become frozen.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/crystal_prison.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "crystal_prison",
+          "text": "Create two 4-health ice illusions. For this combat, enemies that hit your illusions become frozen.",
+          "kind": "field",
+          "hooks": "illusions, freeze, enemy targeting",
+          "iconography": [
+            "ILLUS",
+            "FREEZE",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Create two 4-health ice illusions. For this combat, enemies that hit your illusions become frozen.",
+        "iconography": [
+          "ILLUS",
+          "FREEZE",
+          "FIELD"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 42,
+    "id": "snowblind_map",
+    "name": "Snowblind Map",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, enemies farther than 3 tiles treat you as invisible unless you damaged them this turn.",
+    "iconography": [
+      "RANGE",
+      "MOVE",
+      "LAW"
+    ],
+    "hooks": "kiting, range, movement",
+    "kind": "LAW",
+    "art_direction": "a dungeon map erased by white wind except for three black tiles",
+    "proposed_data": {
+      "name": "Snowblind Map",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, enemies farther than 3 tiles treat you as invisible unless you damaged them this turn.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/snowblind_map.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "snowblind_map",
+          "text": "For this combat, enemies farther than 3 tiles treat you as invisible unless you damaged them this turn.",
+          "kind": "law",
+          "hooks": "kiting, range, movement",
+          "iconography": [
+            "RANGE",
+            "MOVE",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, enemies farther than 3 tiles treat you as invisible unless you damaged them this turn.",
+        "iconography": [
+          "RANGE",
+          "MOVE",
+          "LAW"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 43,
+    "id": "slow_moon",
+    "name": "Slow Moon",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Delay all enemies by 4 time. For this combat, enemy delays are 50% stronger, but your first card each turn costs +1 time.",
+    "iconography": [
+      "TIME",
+      "DELAY",
+      "FIELD"
+    ],
+    "hooks": "initiative control, freeze, push time",
+    "kind": "FIELD",
+    "art_direction": "a pale moon hanging low over frozen clockwork",
+    "proposed_data": {
+      "name": "Slow Moon",
+      "rarity": "uncommon",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Delay all enemies by 4 time. For this combat, enemy delays are 50% stronger, but your first card each turn costs +1 time.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/slow_moon.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "slow_moon",
+          "text": "Delay all enemies by 4 time. For this combat, enemy delays are 50% stronger, but your first card each turn costs +1 time.",
+          "kind": "field",
+          "hooks": "initiative control, freeze, push time",
+          "iconography": [
+            "TIME",
+            "DELAY",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Delay all enemies by 4 time. For this combat, enemy delays are 50% stronger, but your first card each turn costs +1 time.",
+        "iconography": [
+          "TIME",
+          "DELAY",
+          "FIELD"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 44,
+    "id": "cold_read",
+    "name": "Cold Read",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, before each enemy acts, draw 1. If that enemy is frozen or shocked, draw 2 instead.",
+    "iconography": [
+      "DRAW",
+      "FREEZE",
+      "SHOCK"
+    ],
+    "hooks": "freeze/shock, draw, enemy pacing",
+    "kind": "ENGINE",
+    "art_direction": "a blue candle illuminating enemy intent cards under ice",
+    "proposed_data": {
+      "name": "Cold Read",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, before each enemy acts, draw 1. If that enemy is frozen or shocked, draw 2 instead.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/cold_read.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "cold_read",
+          "text": "For this combat, before each enemy acts, draw 1. If that enemy is frozen or shocked, draw 2 instead.",
+          "kind": "engine",
+          "hooks": "freeze/shock, draw, enemy pacing",
+          "iconography": [
+            "DRAW",
+            "FREEZE",
+            "SHOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, before each enemy acts, draw 1. If that enemy is frozen or shocked, draw 2 instead.",
+        "iconography": [
+          "DRAW",
+          "FREEZE",
+          "SHOCK"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 45,
+    "id": "silence_underfoot",
+    "name": "Silence Underfoot",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, moving through traps prevents their trigger. Your next attack after moving freezes if Ice is 2+.",
+    "iconography": [
+      "MOVE",
+      "TRAP",
+      "FREEZE"
+    ],
+    "hooks": "movement, traps, Ice intensity",
+    "kind": "LAW",
+    "art_direction": "soft snow covering a row of hidden spike traps",
+    "proposed_data": {
+      "name": "Silence Underfoot",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, moving through traps prevents their trigger. Your next attack after moving freezes if Ice is 2+.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/silence_underfoot.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "silence_underfoot",
+          "text": "For this combat, moving through traps prevents their trigger. Your next attack after moving freezes if Ice is 2+.",
+          "kind": "law",
+          "hooks": "movement, traps, Ice intensity",
+          "iconography": [
+            "MOVE",
+            "TRAP",
+            "FREEZE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, moving through traps prevents their trigger. Your next attack after moving freezes if Ice is 2+.",
+        "iconography": [
+          "MOVE",
+          "TRAP",
+          "FREEZE"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 46,
+    "id": "ice_nine",
+    "name": "Ice Nine",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "rare",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, burn and poison on frozen enemies do not decay. When freeze ends, those statuses tick once immediately.",
+    "iconography": [
+      "FREEZE",
+      "STATUS",
+      "TICK"
+    ],
+    "hooks": "status stacking, freeze windows",
+    "kind": "LAW",
+    "art_direction": "nine angular ice crystals trapping green and red fumes",
+    "proposed_data": {
+      "name": "Ice Nine",
+      "rarity": "rare",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, burn and poison on frozen enemies do not decay. When freeze ends, those statuses tick once immediately.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/ice_nine.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "ice_nine",
+          "text": "For this combat, burn and poison on frozen enemies do not decay. When freeze ends, those statuses tick once immediately.",
+          "kind": "law",
+          "hooks": "status stacking, freeze windows",
+          "iconography": [
+            "FREEZE",
+            "STATUS",
+            "TICK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, burn and poison on frozen enemies do not decay. When freeze ends, those statuses tick once immediately.",
+        "iconography": [
+          "FREEZE",
+          "STATUS",
+          "TICK"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 47,
+    "id": "pale_refrain",
+    "name": "Pale Refrain",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, the first card each turn that freezes an enemy returns to hand with +2 time.",
+    "iconography": [
+      "FREEZE",
+      "ECHO",
+      "TIME"
+    ],
+    "hooks": "freeze density, replay, time tax",
+    "kind": "ENGINE",
+    "art_direction": "a pale bell echoing a frozen card back into a hand",
+    "proposed_data": {
+      "name": "Pale Refrain",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, the first card each turn that freezes an enemy returns to hand with +2 time.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/pale_refrain.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "pale_refrain",
+          "text": "For this combat, the first card each turn that freezes an enemy returns to hand with +2 time.",
+          "kind": "engine",
+          "hooks": "freeze density, replay, time tax",
+          "iconography": [
+            "FREEZE",
+            "ECHO",
+            "TIME"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first card each turn that freezes an enemy returns to hand with +2 time.",
+        "iconography": [
+          "FREEZE",
+          "ECHO",
+          "TIME"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 48,
+    "id": "glacier_debt",
+    "name": "Glacier Debt",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Gain 12 stoneskin. For this combat, whenever stoneskin absorbs damage, freeze the attacker and lose 2 stoneskin.",
+    "iconography": [
+      "STONE",
+      "FREEZE",
+      "PACT"
+    ],
+    "hooks": "stoneskin, freeze, tank builds",
+    "kind": "PACT",
+    "art_direction": "a towering ice debt-marker carved into a stone shield",
+    "proposed_data": {
+      "name": "Glacier Debt",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Gain 12 stoneskin. For this combat, whenever stoneskin absorbs damage, freeze the attacker and lose 2 stoneskin.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/glacier_debt.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "glacier_debt",
+          "text": "Gain 12 stoneskin. For this combat, whenever stoneskin absorbs damage, freeze the attacker and lose 2 stoneskin.",
+          "kind": "pact",
+          "hooks": "stoneskin, freeze, tank builds",
+          "iconography": [
+            "STONE",
+            "FREEZE",
+            "PACT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Gain 12 stoneskin. For this combat, whenever stoneskin absorbs damage, freeze the attacker and lose 2 stoneskin.",
+        "iconography": [
+          "STONE",
+          "FREEZE",
+          "PACT"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 49,
+    "id": "frost_dividend",
+    "name": "Frost Dividend",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, whenever an enemy skips action from freeze or shock, draw 2 and gain 4 block.",
+    "iconography": [
+      "FREEZE",
+      "SHOCK",
+      "DRAW"
+    ],
+    "hooks": "freeze, shock, defense draw",
+    "kind": "ENGINE",
+    "art_direction": "frosted coins falling from a sleeping enemy silhouette",
+    "proposed_data": {
+      "name": "Frost Dividend",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, whenever an enemy skips action from freeze or shock, draw 2 and gain 4 block.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/frost_dividend.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "frost_dividend",
+          "text": "For this combat, whenever an enemy skips action from freeze or shock, draw 2 and gain 4 block.",
+          "kind": "engine",
+          "hooks": "freeze, shock, defense draw",
+          "iconography": [
+            "FREEZE",
+            "SHOCK",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever an enemy skips action from freeze or shock, draw 2 and gain 4 block.",
+        "iconography": [
+          "FREEZE",
+          "SHOCK",
+          "DRAW"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 50,
+    "id": "white_trial",
+    "name": "White Trial",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "rare",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Freeze the healthiest enemy. For this combat, damage dealt to it is mirrored at 50% to all frozen enemies.",
+    "iconography": [
+      "FREEZE",
+      "COPY",
+      "DMG"
+    ],
+    "hooks": "boss focus, freeze swarms",
+    "kind": "FIELD",
+    "art_direction": "a white tribunal mirror judging one large frozen foe",
+    "proposed_data": {
+      "name": "White Trial",
+      "rarity": "rare",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Freeze the healthiest enemy. For this combat, damage dealt to it is mirrored at 50% to all frozen enemies.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/white_trial.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "white_trial",
+          "text": "Freeze the healthiest enemy. For this combat, damage dealt to it is mirrored at 50% to all frozen enemies.",
+          "kind": "field",
+          "hooks": "boss focus, freeze swarms",
+          "iconography": [
+            "FREEZE",
+            "COPY",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Freeze the healthiest enemy. For this combat, damage dealt to it is mirrored at 50% to all frozen enemies.",
+        "iconography": [
+          "FREEZE",
+          "COPY",
+          "DMG"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 51,
+    "id": "rime_escrow",
+    "name": "Rime Escrow",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, the first 10 damage you would deal each turn is stored. At turn end, deal it to a frozen enemy and draw 1.",
+    "iconography": [
+      "BANK",
+      "FREEZE",
+      "DRAW"
+    ],
+    "hooks": "damage timing, freeze targets",
+    "kind": "ENGINE",
+    "art_direction": "a locked ice chest holding a red damage glyph",
+    "proposed_data": {
+      "name": "Rime Escrow",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, the first 10 damage you would deal each turn is stored. At turn end, deal it to a frozen enemy and draw 1.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/rime_escrow.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "rime_escrow",
+          "text": "For this combat, the first 10 damage you would deal each turn is stored. At turn end, deal it to a frozen enemy and draw 1.",
+          "kind": "engine",
+          "hooks": "damage timing, freeze targets",
+          "iconography": [
+            "BANK",
+            "FREEZE",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, the first 10 damage you would deal each turn is stored. At turn end, deal it to a frozen enemy and draw 1.",
+        "iconography": [
+          "BANK",
+          "FREEZE",
+          "DRAW"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 52,
+    "id": "frozen_minute",
+    "name": "Frozen Minute",
+    "element": "ice",
+    "element_label": "Ice",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, your first card each turn costs +2 time but plays twice if it targets a frozen enemy.",
+    "iconography": [
+      "TIME",
+      "FREEZE",
+      "X2"
+    ],
+    "hooks": "freeze payoff, big first cards",
+    "kind": "LAW",
+    "art_direction": "a minute hand trapped between two mirrored ice cards",
+    "proposed_data": {
+      "name": "Frozen Minute",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, your first card each turn costs +2 time but plays twice if it targets a frozen enemy.",
+      "accent": "#5fa7d8",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/frozen_minute.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "frozen_minute",
+          "text": "For this combat, your first card each turn costs +2 time but plays twice if it targets a frozen enemy.",
+          "kind": "law",
+          "hooks": "freeze payoff, big first cards",
+          "iconography": [
+            "TIME",
+            "FREEZE",
+            "X2"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, your first card each turn costs +2 time but plays twice if it targets a frozen enemy.",
+        "iconography": [
+          "TIME",
+          "FREEZE",
+          "X2"
+        ]
+      },
+      "element": "ice"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 53,
+    "id": "capacitor_heart",
+    "name": "Capacitor Heart",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "common",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, unspent card plays at end of turn become Lightning intensity. At Lightning 4+, draw 1 at turn start.",
+    "iconography": [
+      "PLAY",
+      "INT",
+      "DRAW"
+    ],
+    "hooks": "card plays, Lightning intensity",
+    "kind": "ENGINE",
+    "art_direction": "a brass heart battery with card-play sparks inside",
+    "proposed_data": {
+      "name": "Capacitor Heart",
+      "rarity": "common",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, unspent card plays at end of turn become Lightning intensity. At Lightning 4+, draw 1 at turn start.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/capacitor_heart.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "capacitor_heart",
+          "text": "For this combat, unspent card plays at end of turn become Lightning intensity. At Lightning 4+, draw 1 at turn start.",
+          "kind": "engine",
+          "hooks": "card plays, Lightning intensity",
+          "iconography": [
+            "PLAY",
+            "INT",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, unspent card plays at end of turn become Lightning intensity. At Lightning 4+, draw 1 at turn start.",
+        "iconography": [
+          "PLAY",
+          "INT",
+          "DRAW"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 54,
+    "id": "chain_legislature",
+    "name": "Chain Legislature",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, single-target ranged attacks gain chain 1. Chain jumps shock if Lightning is 3+.",
+    "iconography": [
+      "RANGE",
+      "CHAIN",
+      "SHOCK"
+    ],
+    "hooks": "ranged decks, chain, shock",
+    "kind": "LAW",
+    "art_direction": "a row of lightning-robed judges connected by bright arcs",
+    "proposed_data": {
+      "name": "Chain Legislature",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, single-target ranged attacks gain chain 1. Chain jumps shock if Lightning is 3+.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/chain_legislature.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "chain_legislature",
+          "text": "For this combat, single-target ranged attacks gain chain 1. Chain jumps shock if Lightning is 3+.",
+          "kind": "law",
+          "hooks": "ranged decks, chain, shock",
+          "iconography": [
+            "RANGE",
+            "CHAIN",
+            "SHOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, single-target ranged attacks gain chain 1. Chain jumps shock if Lightning is 3+.",
+        "iconography": [
+          "RANGE",
+          "CHAIN",
+          "SHOCK"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 55,
+    "id": "static_market",
+    "name": "Static Market",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, your cards cost -1 time for each shocked enemy, to a minimum of 1.",
+    "iconography": [
+      "SHOCK",
+      "TIME",
+      "ENGINE"
+    ],
+    "hooks": "shock spread, fast turns",
+    "kind": "ENGINE",
+    "art_direction": "a market stall trading clocks for crackling blue sparks",
+    "proposed_data": {
+      "name": "Static Market",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, your cards cost -1 time for each shocked enemy, to a minimum of 1.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/static_market.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "static_market",
+          "text": "For this combat, your cards cost -1 time for each shocked enemy, to a minimum of 1.",
+          "kind": "engine",
+          "hooks": "shock spread, fast turns",
+          "iconography": [
+            "SHOCK",
+            "TIME",
+            "ENGINE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, your cards cost -1 time for each shocked enemy, to a minimum of 1.",
+        "iconography": [
+          "SHOCK",
+          "TIME",
+          "ENGINE"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 56,
+    "id": "storm_battery",
+    "name": "Storm Battery",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, whenever you draw 2+ cards at once, gain 1 Charge. At 3 Charges, shock all enemies and clear Charges.",
+    "iconography": [
+      "DRAW",
+      "SHOCK",
+      "COUNT"
+    ],
+    "hooks": "draw bursts, shock AOE",
+    "kind": "ENGINE",
+    "art_direction": "a glass battery jar storing three jagged storm bolts",
+    "proposed_data": {
+      "name": "Storm Battery",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, whenever you draw 2+ cards at once, gain 1 Charge. At 3 Charges, shock all enemies and clear Charges.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/storm_battery.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "storm_battery",
+          "text": "For this combat, whenever you draw 2+ cards at once, gain 1 Charge. At 3 Charges, shock all enemies and clear Charges.",
+          "kind": "engine",
+          "hooks": "draw bursts, shock AOE",
+          "iconography": [
+            "DRAW",
+            "SHOCK",
+            "COUNT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever you draw 2+ cards at once, gain 1 Charge. At 3 Charges, shock all enemies and clear Charges.",
+        "iconography": [
+          "DRAW",
+          "SHOCK",
+          "COUNT"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 57,
+    "id": "spark_double",
+    "name": "Spark Double",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, when an illusion is destroyed, shock the nearest enemy, deal 6, and draw 1.",
+    "iconography": [
+      "ILLUS",
+      "SHOCK",
+      "DRAW"
+    ],
+    "hooks": "illusions, enemy targeting, shock",
+    "kind": "ENGINE",
+    "art_direction": "a duplicate made of sparks collapsing into an enemy",
+    "proposed_data": {
+      "name": "Spark Double",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, when an illusion is destroyed, shock the nearest enemy, deal 6, and draw 1.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/spark_double.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "spark_double",
+          "text": "For this combat, when an illusion is destroyed, shock the nearest enemy, deal 6, and draw 1.",
+          "kind": "engine",
+          "hooks": "illusions, enemy targeting, shock",
+          "iconography": [
+            "ILLUS",
+            "SHOCK",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, when an illusion is destroyed, shock the nearest enemy, deal 6, and draw 1.",
+        "iconography": [
+          "ILLUS",
+          "SHOCK",
+          "DRAW"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 58,
+    "id": "conductive_floor",
+    "name": "Conductive Floor",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, enemies moved by push or pull leave a lightning trail. Chain jumps through trails deal +4.",
+    "iconography": [
+      "MOVE",
+      "CHAIN",
+      "FIELD"
+    ],
+    "hooks": "push/pull, chain routing",
+    "kind": "FIELD",
+    "art_direction": "dungeon floor tiles etched with glowing conductive grooves",
+    "proposed_data": {
+      "name": "Conductive Floor",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, enemies moved by push or pull leave a lightning trail. Chain jumps through trails deal +4.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/conductive_floor.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "conductive_floor",
+          "text": "For this combat, enemies moved by push or pull leave a lightning trail. Chain jumps through trails deal +4.",
+          "kind": "field",
+          "hooks": "push/pull, chain routing",
+          "iconography": [
+            "MOVE",
+            "CHAIN",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, enemies moved by push or pull leave a lightning trail. Chain jumps through trails deal +4.",
+        "iconography": [
+          "MOVE",
+          "CHAIN",
+          "FIELD"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 59,
+    "id": "dead_switch",
+    "name": "Dead Switch",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, whenever you take unblocked damage, shocked enemies take the same damage and lose shock.",
+    "iconography": [
+      "HP",
+      "SHOCK",
+      "COPY"
+    ],
+    "hooks": "shock, self-risk, retaliation",
+    "kind": "PACT",
+    "art_direction": "a cracked switch strapped to a heart with lightning wire",
+    "proposed_data": {
+      "name": "Dead Switch",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, whenever you take unblocked damage, shocked enemies take the same damage and lose shock.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/dead_switch.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "dead_switch",
+          "text": "For this combat, whenever you take unblocked damage, shocked enemies take the same damage and lose shock.",
+          "kind": "pact",
+          "hooks": "shock, self-risk, retaliation",
+          "iconography": [
+            "HP",
+            "SHOCK",
+            "COPY"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever you take unblocked damage, shocked enemies take the same damage and lose shock.",
+        "iconography": [
+          "HP",
+          "SHOCK",
+          "COPY"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 60,
+    "id": "voltaic_audit",
+    "name": "Voltaic Audit",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, every third card you play repeats its damage against the nearest shocked enemy.",
+    "iconography": [
+      "COUNT",
+      "SHOCK",
+      "DMG"
+    ],
+    "hooks": "multi-card turns, shock payoff",
+    "kind": "ENGINE",
+    "art_direction": "an electric ledger counting every third card with gold sparks",
+    "proposed_data": {
+      "name": "Voltaic Audit",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, every third card you play repeats its damage against the nearest shocked enemy.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/voltaic_audit.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "voltaic_audit",
+          "text": "For this combat, every third card you play repeats its damage against the nearest shocked enemy.",
+          "kind": "engine",
+          "hooks": "multi-card turns, shock payoff",
+          "iconography": [
+            "COUNT",
+            "SHOCK",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, every third card you play repeats its damage against the nearest shocked enemy.",
+        "iconography": [
+          "COUNT",
+          "SHOCK",
+          "DMG"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 61,
+    "id": "crown_of_seconds",
+    "name": "Crown of Seconds",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, cards with time 6+ resolve as time 5, then their first attack gains +4 damage and chain 1.",
+    "iconography": [
+      "TIME",
+      "CHAIN",
+      "DMG"
+    ],
+    "hooks": "slow attacks, chain, tempo",
+    "kind": "LAW",
+    "art_direction": "a crown of clock hands struck by yellow lightning",
+    "proposed_data": {
+      "name": "Crown of Seconds",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, cards with time 6+ resolve as time 5, then their first attack gains +4 damage and chain 1.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/crown_of_seconds.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "crown_of_seconds",
+          "text": "For this combat, cards with time 6+ resolve as time 5, then their first attack gains +4 damage and chain 1.",
+          "kind": "law",
+          "hooks": "slow attacks, chain, tempo",
+          "iconography": [
+            "TIME",
+            "CHAIN",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, cards with time 6+ resolve as time 5, then their first attack gains +4 damage and chain 1.",
+        "iconography": [
+          "TIME",
+          "CHAIN",
+          "DMG"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 62,
+    "id": "blackout_bloom",
+    "name": "Blackout Bloom",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, shocked enemies cannot gain block or stoneskin and take +2 from every chain jump.",
+    "iconography": [
+      "SHOCK",
+      "CHAIN",
+      "BLOCK"
+    ],
+    "hooks": "shock control, chain damage",
+    "kind": "FIELD",
+    "art_direction": "a black flower opening in a burst of silent lightning",
+    "proposed_data": {
+      "name": "Blackout Bloom",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, shocked enemies cannot gain block or stoneskin and take +2 from every chain jump.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/blackout_bloom.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "blackout_bloom",
+          "text": "For this combat, shocked enemies cannot gain block or stoneskin and take +2 from every chain jump.",
+          "kind": "field",
+          "hooks": "shock control, chain damage",
+          "iconography": [
+            "SHOCK",
+            "CHAIN",
+            "BLOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, shocked enemies cannot gain block or stoneskin and take +2 from every chain jump.",
+        "iconography": [
+          "SHOCK",
+          "CHAIN",
+          "BLOCK"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 63,
+    "id": "forked_fate",
+    "name": "Forked Fate",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Bind the two closest enemies. For this combat, status applied to one is copied at 50% value to the other.",
+    "iconography": [
+      "STATUS",
+      "COPY",
+      "PAIR"
+    ],
+    "hooks": "status decks, two-target fights",
+    "kind": "LAW",
+    "art_direction": "two enemy shadows tied by a forked lightning thread",
+    "proposed_data": {
+      "name": "Forked Fate",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Bind the two closest enemies. For this combat, status applied to one is copied at 50% value to the other.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/forked_fate.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "forked_fate",
+          "text": "Bind the two closest enemies. For this combat, status applied to one is copied at 50% value to the other.",
+          "kind": "law",
+          "hooks": "status decks, two-target fights",
+          "iconography": [
+            "STATUS",
+            "COPY",
+            "PAIR"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Bind the two closest enemies. For this combat, status applied to one is copied at 50% value to the other.",
+        "iconography": [
+          "STATUS",
+          "COPY",
+          "PAIR"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 64,
+    "id": "lightning_rod",
+    "name": "Lightning Rod",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Create a 5-health rod illusion. For this combat, chain effects jump through it and shocked enemies prefer targeting it.",
+    "iconography": [
+      "ILLUS",
+      "CHAIN",
+      "SHOCK"
+    ],
+    "hooks": "illusions, chain routing, defense",
+    "kind": "FIELD",
+    "art_direction": "a metal decoy rod drawing all arcs into its raised hand",
+    "proposed_data": {
+      "name": "Lightning Rod",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Create a 5-health rod illusion. For this combat, chain effects jump through it and shocked enemies prefer targeting it.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/lightning_rod.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "lightning_rod",
+          "text": "Create a 5-health rod illusion. For this combat, chain effects jump through it and shocked enemies prefer targeting it.",
+          "kind": "field",
+          "hooks": "illusions, chain routing, defense",
+          "iconography": [
+            "ILLUS",
+            "CHAIN",
+            "SHOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Create a 5-health rod illusion. For this combat, chain effects jump through it and shocked enemies prefer targeting it.",
+        "iconography": [
+          "ILLUS",
+          "CHAIN",
+          "SHOCK"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 65,
+    "id": "battery_acid",
+    "name": "Battery Acid",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, when shock ends on an enemy, apply poison equal to twice your Lightning intensity.",
+    "iconography": [
+      "SHOCK",
+      "POISON",
+      "INT"
+    ],
+    "hooks": "shock, poison, cross-element",
+    "kind": "ENGINE",
+    "art_direction": "yellow acid dripping from a cracked storm battery",
+    "proposed_data": {
+      "name": "Battery Acid",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, when shock ends on an enemy, apply poison equal to twice your Lightning intensity.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/battery_acid.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "battery_acid",
+          "text": "For this combat, when shock ends on an enemy, apply poison equal to twice your Lightning intensity.",
+          "kind": "engine",
+          "hooks": "shock, poison, cross-element",
+          "iconography": [
+            "SHOCK",
+            "POISON",
+            "INT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, when shock ends on an enemy, apply poison equal to twice your Lightning intensity.",
+        "iconography": [
+          "SHOCK",
+          "POISON",
+          "INT"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 66,
+    "id": "relay_race",
+    "name": "Relay Race",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "rare",
+    "time": 6,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, every 3 tiles you move reduces next card time by 1 and gives its first attack chain 1.",
+    "iconography": [
+      "MOVE",
+      "TIME",
+      "CHAIN"
+    ],
+    "hooks": "movement, chain, tempo",
+    "kind": "ENGINE",
+    "art_direction": "runners passing a spark baton across dungeon tiles",
+    "proposed_data": {
+      "name": "Relay Race",
+      "rarity": "rare",
+      "time": 6,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, every 3 tiles you move reduces next card time by 1 and gives its first attack chain 1.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/relay_race.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "relay_race",
+          "text": "For this combat, every 3 tiles you move reduces next card time by 1 and gives its first attack chain 1.",
+          "kind": "engine",
+          "hooks": "movement, chain, tempo",
+          "iconography": [
+            "MOVE",
+            "TIME",
+            "CHAIN"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, every 3 tiles you move reduces next card time by 1 and gives its first attack chain 1.",
+        "iconography": [
+          "MOVE",
+          "TIME",
+          "CHAIN"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 67,
+    "id": "eye_of_zekarion",
+    "name": "Eye of Zekarion",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "rare",
+    "time": 8,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, shock-immune enemies take +6 from Lightning cards and count as shocked for your bonuses.",
+    "iconography": [
+      "BOSS",
+      "SHOCK",
+      "DMG"
+    ],
+    "hooks": "boss tech, shock payoffs",
+    "kind": "LAW",
+    "art_direction": "a golden storm eye staring from an armored mask",
+    "proposed_data": {
+      "name": "Eye of Zekarion",
+      "rarity": "rare",
+      "time": 8,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, shock-immune enemies take +6 from Lightning cards and count as shocked for your bonuses.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/eye_of_zekarion.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "eye_of_zekarion",
+          "text": "For this combat, shock-immune enemies take +6 from Lightning cards and count as shocked for your bonuses.",
+          "kind": "law",
+          "hooks": "boss tech, shock payoffs",
+          "iconography": [
+            "BOSS",
+            "SHOCK",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, shock-immune enemies take +6 from Lightning cards and count as shocked for your bonuses.",
+        "iconography": [
+          "BOSS",
+          "SHOCK",
+          "DMG"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 68,
+    "id": "thunder_mortgage",
+    "name": "Thunder Mortgage",
+    "element": "lightning",
+    "element_label": "Lightning",
+    "rarity": "rare",
+    "time": 3,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Gain 3 card plays now. For this combat, each card after the second each turn adds +2 time debt to your next turn.",
+    "iconography": [
+      "PLAY",
+      "TIME",
+      "PACT"
+    ],
+    "hooks": "explosive turns, delayed penalty",
+    "kind": "PACT",
+    "art_direction": "a contract nailed to a storm cloud with three bright seals",
+    "proposed_data": {
+      "name": "Thunder Mortgage",
+      "rarity": "rare",
+      "time": 3,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Gain 3 card plays now. For this combat, each card after the second each turn adds +2 time debt to your next turn.",
+      "accent": "#cfb347",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/thunder_mortgage.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "thunder_mortgage",
+          "text": "Gain 3 card plays now. For this combat, each card after the second each turn adds +2 time debt to your next turn.",
+          "kind": "pact",
+          "hooks": "explosive turns, delayed penalty",
+          "iconography": [
+            "PLAY",
+            "TIME",
+            "PACT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Gain 3 card plays now. For this combat, each card after the second each turn adds +2 time debt to your next turn.",
+        "iconography": [
+          "PLAY",
+          "TIME",
+          "PACT"
+        ]
+      },
+      "element": "lightning"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 69,
+    "id": "wind_act",
+    "name": "Wind Act",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, move and blink cards cost 0 time. Attacks played before you move each turn cost +2 time.",
+    "iconography": [
+      "MOVE",
+      "BLINK",
+      "TIME"
+    ],
+    "hooks": "movement-first decks, tempo",
+    "kind": "LAW",
+    "art_direction": "a legal decree unfurling as a green wind spiral",
+    "proposed_data": {
+      "name": "Wind Act",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, move and blink cards cost 0 time. Attacks played before you move each turn cost +2 time.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/wind_act.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "wind_act",
+          "text": "For this combat, move and blink cards cost 0 time. Attacks played before you move each turn cost +2 time.",
+          "kind": "law",
+          "hooks": "movement-first decks, tempo",
+          "iconography": [
+            "MOVE",
+            "BLINK",
+            "TIME"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, move and blink cards cost 0 time. Attacks played before you move each turn cost +2 time.",
+        "iconography": [
+          "MOVE",
+          "BLINK",
+          "TIME"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 70,
+    "id": "empty_tile_gospel",
+    "name": "Empty Tile Gospel",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "common",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, first time each turn you end movement on a tile you have not occupied, draw 1 and gain 1 block.",
+    "iconography": [
+      "MOVE",
+      "DRAW",
+      "BLOCK"
+    ],
+    "hooks": "pathing, draw, kiting",
+    "kind": "ENGINE",
+    "art_direction": "a glowing footprint on an untouched slate tile",
+    "proposed_data": {
+      "name": "Empty Tile Gospel",
+      "rarity": "common",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, first time each turn you end movement on a tile you have not occupied, draw 1 and gain 1 block.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/empty_tile_gospel.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "empty_tile_gospel",
+          "text": "For this combat, first time each turn you end movement on a tile you have not occupied, draw 1 and gain 1 block.",
+          "kind": "engine",
+          "hooks": "pathing, draw, kiting",
+          "iconography": [
+            "MOVE",
+            "DRAW",
+            "BLOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, first time each turn you end movement on a tile you have not occupied, draw 1 and gain 1 block.",
+        "iconography": [
+          "MOVE",
+          "DRAW",
+          "BLOCK"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 71,
+    "id": "cyclone_court",
+    "name": "Cyclone Court",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "common",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, at end of your turn, push all enemies 1 away from you. If they hit walls, deal 4.",
+    "iconography": [
+      "PUSH",
+      "AOE",
+      "FIELD"
+    ],
+    "hooks": "positioning, wall damage",
+    "kind": "FIELD",
+    "art_direction": "a circular courtroom of wind hurling enemies outward",
+    "proposed_data": {
+      "name": "Cyclone Court",
+      "rarity": "common",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, at end of your turn, push all enemies 1 away from you. If they hit walls, deal 4.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/cyclone_court.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "cyclone_court",
+          "text": "For this combat, at end of your turn, push all enemies 1 away from you. If they hit walls, deal 4.",
+          "kind": "field",
+          "hooks": "positioning, wall damage",
+          "iconography": [
+            "PUSH",
+            "AOE",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, at end of your turn, push all enemies 1 away from you. If they hit walls, deal 4.",
+        "iconography": [
+          "PUSH",
+          "AOE",
+          "FIELD"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 72,
+    "id": "kite_doctrine",
+    "name": "Kite Doctrine",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, ranged attacks gain +1 damage for each tile you moved this turn, max +8.",
+    "iconography": [
+      "MOVE",
+      "RANGE",
+      "DMG"
+    ],
+    "hooks": "move, ranged, burst setup",
+    "kind": "ENGINE",
+    "art_direction": "a paper war kite dragging a glowing arrow-tail",
+    "proposed_data": {
+      "name": "Kite Doctrine",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, ranged attacks gain +1 damage for each tile you moved this turn, max +8.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/kite_doctrine.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "kite_doctrine",
+          "text": "For this combat, ranged attacks gain +1 damage for each tile you moved this turn, max +8.",
+          "kind": "engine",
+          "hooks": "move, ranged, burst setup",
+          "iconography": [
+            "MOVE",
+            "RANGE",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, ranged attacks gain +1 damage for each tile you moved this turn, max +8.",
+        "iconography": [
+          "MOVE",
+          "RANGE",
+          "DMG"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 73,
+    "id": "borrowed_door",
+    "name": "Borrowed Door",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Blink 6. For this combat, your first blink each turn leaves a door; your next move may start from any door.",
+    "iconography": [
+      "BLINK",
+      "MOVE",
+      "FIELD"
+    ],
+    "hooks": "blink, map control, escape routes",
+    "kind": "FIELD",
+    "art_direction": "a teal door floating sideways in an impossible corridor",
+    "proposed_data": {
+      "name": "Borrowed Door",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Blink 6. For this combat, your first blink each turn leaves a door; your next move may start from any door.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/borrowed_door.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "borrowed_door",
+          "text": "Blink 6. For this combat, your first blink each turn leaves a door; your next move may start from any door.",
+          "kind": "field",
+          "hooks": "blink, map control, escape routes",
+          "iconography": [
+            "BLINK",
+            "MOVE",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Blink 6. For this combat, your first blink each turn leaves a door; your next move may start from any door.",
+        "iconography": [
+          "BLINK",
+          "MOVE",
+          "FIELD"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 74,
+    "id": "slipstream_engine",
+    "name": "Slipstream Engine",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, whenever an enemy is pushed or pulled, gain 1 card play, once per card.",
+    "iconography": [
+      "PUSH",
+      "PULL",
+      "PLAY"
+    ],
+    "hooks": "push, pull, combo turns",
+    "kind": "ENGINE",
+    "art_direction": "a compact turbine made of cards and green current",
+    "proposed_data": {
+      "name": "Slipstream Engine",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, whenever an enemy is pushed or pulled, gain 1 card play, once per card.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/slipstream_engine.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "slipstream_engine",
+          "text": "For this combat, whenever an enemy is pushed or pulled, gain 1 card play, once per card.",
+          "kind": "engine",
+          "hooks": "push, pull, combo turns",
+          "iconography": [
+            "PUSH",
+            "PULL",
+            "PLAY"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever an enemy is pushed or pulled, gain 1 card play, once per card.",
+        "iconography": [
+          "PUSH",
+          "PULL",
+          "PLAY"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 75,
+    "id": "gale_receipts",
+    "name": "Gale Receipts",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, forced movement blocked by wall, unit, or pit deals 3 damage per blocked tile.",
+    "iconography": [
+      "PUSH",
+      "PULL",
+      "DMG"
+    ],
+    "hooks": "push/pull, wall traps",
+    "kind": "LAW",
+    "art_direction": "a pile of stamped receipts whipped against stone walls",
+    "proposed_data": {
+      "name": "Gale Receipts",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, forced movement blocked by wall, unit, or pit deals 3 damage per blocked tile.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/gale_receipts.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "gale_receipts",
+          "text": "For this combat, forced movement blocked by wall, unit, or pit deals 3 damage per blocked tile.",
+          "kind": "law",
+          "hooks": "push/pull, wall traps",
+          "iconography": [
+            "PUSH",
+            "PULL",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, forced movement blocked by wall, unit, or pit deals 3 damage per blocked tile.",
+        "iconography": [
+          "PUSH",
+          "PULL",
+          "DMG"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 76,
+    "id": "draft_market",
+    "name": "Draft Market",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Draw 3. For this combat, cards drawn after you move cost -2 time this turn.",
+    "iconography": [
+      "DRAW",
+      "MOVE",
+      "TIME"
+    ],
+    "hooks": "movement, draw, tempo bursts",
+    "kind": "ENGINE",
+    "art_direction": "a wind market where cards flutter from hanging stalls",
+    "proposed_data": {
+      "name": "Draft Market",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Draw 3. For this combat, cards drawn after you move cost -2 time this turn.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/draft_market.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "draft_market",
+          "text": "Draw 3. For this combat, cards drawn after you move cost -2 time this turn.",
+          "kind": "engine",
+          "hooks": "movement, draw, tempo bursts",
+          "iconography": [
+            "DRAW",
+            "MOVE",
+            "TIME"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Draw 3. For this combat, cards drawn after you move cost -2 time this turn.",
+        "iconography": [
+          "DRAW",
+          "MOVE",
+          "TIME"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 77,
+    "id": "sky_tax",
+    "name": "Sky Tax",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, whenever an enemy moves voluntarily, it takes 2 damage per tile and loses 1 block.",
+    "iconography": [
+      "MOVE",
+      "DMG",
+      "BLOCK"
+    ],
+    "hooks": "anti-melee, kiting, movement traps",
+    "kind": "LAW",
+    "art_direction": "airborne coins cutting across an enemy's path",
+    "proposed_data": {
+      "name": "Sky Tax",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, whenever an enemy moves voluntarily, it takes 2 damage per tile and loses 1 block.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/sky_tax.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "sky_tax",
+          "text": "For this combat, whenever an enemy moves voluntarily, it takes 2 damage per tile and loses 1 block.",
+          "kind": "law",
+          "hooks": "anti-melee, kiting, movement traps",
+          "iconography": [
+            "MOVE",
+            "DMG",
+            "BLOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, whenever an enemy moves voluntarily, it takes 2 damage per tile and loses 1 block.",
+        "iconography": [
+          "MOVE",
+          "DMG",
+          "BLOCK"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 78,
+    "id": "feather_debt",
+    "name": "Feather Debt",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "rare",
+    "time": 3,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Gain 3 card plays. For this combat, every card after the third each turn Exhausts after resolving.",
+    "iconography": [
+      "PLAY",
+      "EXH",
+      "PACT"
+    ],
+    "hooks": "big turns, Exhaust synergies",
+    "kind": "PACT",
+    "art_direction": "three white feathers pinned to a debt slip",
+    "proposed_data": {
+      "name": "Feather Debt",
+      "rarity": "rare",
+      "time": 3,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Gain 3 card plays. For this combat, every card after the third each turn Exhausts after resolving.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/feather_debt.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "feather_debt",
+          "text": "Gain 3 card plays. For this combat, every card after the third each turn Exhausts after resolving.",
+          "kind": "pact",
+          "hooks": "big turns, Exhaust synergies",
+          "iconography": [
+            "PLAY",
+            "EXH",
+            "PACT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Gain 3 card plays. For this combat, every card after the third each turn Exhausts after resolving.",
+        "iconography": [
+          "PLAY",
+          "EXH",
+          "PACT"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 79,
+    "id": "echoing_step",
+    "name": "Echoing Step",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "rare",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, your first move each turn repeats at turn end if the path is clear; otherwise gain 6 block.",
+    "iconography": [
+      "MOVE",
+      "ECHO",
+      "BLOCK"
+    ],
+    "hooks": "movement loops, positioning",
+    "kind": "ENGINE",
+    "art_direction": "a translucent second footprint following the first through mist",
+    "proposed_data": {
+      "name": "Echoing Step",
+      "rarity": "rare",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, your first move each turn repeats at turn end if the path is clear; otherwise gain 6 block.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/echoing_step.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "echoing_step",
+          "text": "For this combat, your first move each turn repeats at turn end if the path is clear; otherwise gain 6 block.",
+          "kind": "engine",
+          "hooks": "movement loops, positioning",
+          "iconography": [
+            "MOVE",
+            "ECHO",
+            "BLOCK"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, your first move each turn repeats at turn end if the path is clear; otherwise gain 6 block.",
+        "iconography": [
+          "MOVE",
+          "ECHO",
+          "BLOCK"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 80,
+    "id": "airborne_archive",
+    "name": "Airborne Archive",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, illusions drift with you after each move and pull adjacent enemies 1.",
+    "iconography": [
+      "ILLUS",
+      "MOVE",
+      "PULL"
+    ],
+    "hooks": "illusions, movement, pull",
+    "kind": "FIELD",
+    "art_direction": "floating shelves of paper decoys drifting in a green gale",
+    "proposed_data": {
+      "name": "Airborne Archive",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, illusions drift with you after each move and pull adjacent enemies 1.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/airborne_archive.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "airborne_archive",
+          "text": "For this combat, illusions drift with you after each move and pull adjacent enemies 1.",
+          "kind": "field",
+          "hooks": "illusions, movement, pull",
+          "iconography": [
+            "ILLUS",
+            "MOVE",
+            "PULL"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, illusions drift with you after each move and pull adjacent enemies 1.",
+        "iconography": [
+          "ILLUS",
+          "MOVE",
+          "PULL"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 81,
+    "id": "crosswind_script",
+    "name": "Crosswind Script",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "uncommon",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, after you push or pull an enemy, your next ranged or AOE card ignores line of sight.",
+    "iconography": [
+      "PUSH",
+      "RANGE",
+      "LOS"
+    ],
+    "hooks": "forced movement, ranged, AOE",
+    "kind": "LAW",
+    "art_direction": "a teal script ribbon bending an arrow around a wall",
+    "proposed_data": {
+      "name": "Crosswind Script",
+      "rarity": "uncommon",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, after you push or pull an enemy, your next ranged or AOE card ignores line of sight.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/crosswind_script.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "crosswind_script",
+          "text": "For this combat, after you push or pull an enemy, your next ranged or AOE card ignores line of sight.",
+          "kind": "law",
+          "hooks": "forced movement, ranged, AOE",
+          "iconography": [
+            "PUSH",
+            "RANGE",
+            "LOS"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, after you push or pull an enemy, your next ranged or AOE card ignores line of sight.",
+        "iconography": [
+          "PUSH",
+          "RANGE",
+          "LOS"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 82,
+    "id": "eye_of_stillness",
+    "name": "Eye of Stillness",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, if you did not move last turn, your next move gains +6 range and draws 3.",
+    "iconography": [
+      "MOVE",
+      "DRAW",
+      "RANGE"
+    ],
+    "hooks": "wait turns, explosive reposition",
+    "kind": "ENGINE",
+    "art_direction": "a still teal eye at the center of a frozen wind ring",
+    "proposed_data": {
+      "name": "Eye of Stillness",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, if you did not move last turn, your next move gains +6 range and draws 3.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/eye_of_stillness.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "eye_of_stillness",
+          "text": "For this combat, if you did not move last turn, your next move gains +6 range and draws 3.",
+          "kind": "engine",
+          "hooks": "wait turns, explosive reposition",
+          "iconography": [
+            "MOVE",
+            "DRAW",
+            "RANGE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, if you did not move last turn, your next move gains +6 range and draws 3.",
+        "iconography": [
+          "MOVE",
+          "DRAW",
+          "RANGE"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 83,
+    "id": "vacuum_bloom",
+    "name": "Vacuum Bloom",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, pull effects also apply poison 2 and burn 2 to enemies pulled adjacent to you.",
+    "iconography": [
+      "PULL",
+      "POISON",
+      "BURN"
+    ],
+    "hooks": "pull, poison, burn, close range",
+    "kind": "FIELD",
+    "art_direction": "a flower-shaped vacuum pulling green smoke and red sparks inward",
+    "proposed_data": {
+      "name": "Vacuum Bloom",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, pull effects also apply poison 2 and burn 2 to enemies pulled adjacent to you.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/vacuum_bloom.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "vacuum_bloom",
+          "text": "For this combat, pull effects also apply poison 2 and burn 2 to enemies pulled adjacent to you.",
+          "kind": "field",
+          "hooks": "pull, poison, burn, close range",
+          "iconography": [
+            "PULL",
+            "POISON",
+            "BURN"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, pull effects also apply poison 2 and burn 2 to enemies pulled adjacent to you.",
+        "iconography": [
+          "PULL",
+          "POISON",
+          "BURN"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 84,
+    "id": "sky_written_warrant",
+    "name": "Sky-Written Warrant",
+    "element": "air",
+    "element_label": "Air",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "Mark the farthest enemy. For this combat, whenever it moves closer, draw 1; when it reaches you, push all enemies 3.",
+    "iconography": [
+      "MARK",
+      "DRAW",
+      "PUSH"
+    ],
+    "hooks": "kiting, mark, push payoff",
+    "kind": "FIELD",
+    "art_direction": "a glowing warrant written in clouds above a distant target",
+    "proposed_data": {
+      "name": "Sky-Written Warrant",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "Mark the farthest enemy. For this combat, whenever it moves closer, draw 1; when it reaches you, push all enemies 3.",
+      "accent": "#72bea5",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/sky_written_warrant.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "sky_written_warrant",
+          "text": "Mark the farthest enemy. For this combat, whenever it moves closer, draw 1; when it reaches you, push all enemies 3.",
+          "kind": "field",
+          "hooks": "kiting, mark, push payoff",
+          "iconography": [
+            "MARK",
+            "DRAW",
+            "PUSH"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "Mark the farthest enemy. For this combat, whenever it moves closer, draw 1; when it reaches you, push all enemies 3.",
+        "iconography": [
+          "MARK",
+          "DRAW",
+          "PUSH"
+        ]
+      },
+      "element": "air"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 85,
+    "id": "root_constitution",
+    "name": "Root Constitution",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, units cannot be pushed or pulled unless poisoned. Poisoned units take +3 forced-movement damage.",
+    "iconography": [
+      "POISON",
+      "PUSH",
+      "PULL"
+    ],
+    "hooks": "poison, push/pull, control",
+    "kind": "LAW",
+    "art_direction": "tree roots wrapped around an old stone law tablet",
+    "proposed_data": {
+      "name": "Root Constitution",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, units cannot be pushed or pulled unless poisoned. Poisoned units take +3 forced-movement damage.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/root_constitution.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "root_constitution",
+          "text": "For this combat, units cannot be pushed or pulled unless poisoned. Poisoned units take +3 forced-movement damage.",
+          "kind": "law",
+          "hooks": "poison, push/pull, control",
+          "iconography": [
+            "POISON",
+            "PUSH",
+            "PULL"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, units cannot be pushed or pulled unless poisoned. Poisoned units take +3 forced-movement damage.",
+        "iconography": [
+          "POISON",
+          "PUSH",
+          "PULL"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 86,
+    "id": "garden_of_wounds",
+    "name": "Garden of Wounds",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "common",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, poison ticks heal you for 1 and grow 1 stoneskin, once per poisoned enemy each turn.",
+    "iconography": [
+      "POISON",
+      "HEAL",
+      "STONE"
+    ],
+    "hooks": "poison, sustain, stoneskin",
+    "kind": "ENGINE",
+    "art_direction": "green flowers growing from cracks in a bloodied shield",
+    "proposed_data": {
+      "name": "Garden of Wounds",
+      "rarity": "common",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, poison ticks heal you for 1 and grow 1 stoneskin, once per poisoned enemy each turn.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/garden_of_wounds.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "garden_of_wounds",
+          "text": "For this combat, poison ticks heal you for 1 and grow 1 stoneskin, once per poisoned enemy each turn.",
+          "kind": "engine",
+          "hooks": "poison, sustain, stoneskin",
+          "iconography": [
+            "POISON",
+            "HEAL",
+            "STONE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, poison ticks heal you for 1 and grow 1 stoneskin, once per poisoned enemy each turn.",
+        "iconography": [
+          "POISON",
+          "HEAL",
+          "STONE"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 87,
+    "id": "stone_interest",
+    "name": "Stone Interest",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "common",
+    "time": 4,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, when your stoneskin rises above 10, deal the excess as damage to all adjacent enemies.",
+    "iconography": [
+      "STONE",
+      "AOE",
+      "DMG"
+    ],
+    "hooks": "stoneskin stacking, melee range",
+    "kind": "ENGINE",
+    "art_direction": "a stone banker weighing armor plates against enemy skulls",
+    "proposed_data": {
+      "name": "Stone Interest",
+      "rarity": "common",
+      "time": 4,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, when your stoneskin rises above 10, deal the excess as damage to all adjacent enemies.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/stone_interest.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "stone_interest",
+          "text": "For this combat, when your stoneskin rises above 10, deal the excess as damage to all adjacent enemies.",
+          "kind": "engine",
+          "hooks": "stoneskin stacking, melee range",
+          "iconography": [
+            "STONE",
+            "AOE",
+            "DMG"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, when your stoneskin rises above 10, deal the excess as damage to all adjacent enemies.",
+        "iconography": [
+          "STONE",
+          "AOE",
+          "DMG"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 88,
+    "id": "spore_ledger",
+    "name": "Spore Ledger",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, when a poisoned enemy dies, spread half its poison to all enemies.",
+    "iconography": [
+      "POISON",
+      "SPREAD",
+      "AOE"
+    ],
+    "hooks": "poison kills, AOE spread",
+    "kind": "ENGINE",
+    "art_direction": "a mossy ledger releasing green spores from a torn page",
+    "proposed_data": {
+      "name": "Spore Ledger",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, when a poisoned enemy dies, spread half its poison to all enemies.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/spore_ledger.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "spore_ledger",
+          "text": "For this combat, when a poisoned enemy dies, spread half its poison to all enemies.",
+          "kind": "engine",
+          "hooks": "poison kills, AOE spread",
+          "iconography": [
+            "POISON",
+            "SPREAD",
+            "AOE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, when a poisoned enemy dies, spread half its poison to all enemies.",
+        "iconography": [
+          "POISON",
+          "SPREAD",
+          "AOE"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 89,
+    "id": "iron_orchard",
+    "name": "Iron Orchard",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "At end of your turn, gain 1 stoneskin per card in discard, max 8. If you have 15+ stoneskin, draw 1.",
+    "iconography": [
+      "STONE",
+      "DISCARD",
+      "DRAW"
+    ],
+    "hooks": "discard size, stoneskin, draw",
+    "kind": "ENGINE",
+    "art_direction": "metal trees growing shields instead of fruit",
+    "proposed_data": {
+      "name": "Iron Orchard",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "At end of your turn, gain 1 stoneskin per card in discard, max 8. If you have 15+ stoneskin, draw 1.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/iron_orchard.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "iron_orchard",
+          "text": "At end of your turn, gain 1 stoneskin per card in discard, max 8. If you have 15+ stoneskin, draw 1.",
+          "kind": "engine",
+          "hooks": "discard size, stoneskin, draw",
+          "iconography": [
+            "STONE",
+            "DISCARD",
+            "DRAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "At end of your turn, gain 1 stoneskin per card in discard, max 8. If you have 15+ stoneskin, draw 1.",
+        "iconography": [
+          "STONE",
+          "DISCARD",
+          "DRAW"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 90,
+    "id": "grave_treaty",
+    "name": "Grave Treaty",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, your illusions leave brambles when destroyed: adjacent enemies take poison 5 and immobilize.",
+    "iconography": [
+      "ILLUS",
+      "POISON",
+      "IMMOB"
+    ],
+    "hooks": "illusions, poison, immobilize",
+    "kind": "FIELD",
+    "art_direction": "a stone pact marker surrounded by thorny grave growth",
+    "proposed_data": {
+      "name": "Grave Treaty",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, your illusions leave brambles when destroyed: adjacent enemies take poison 5 and immobilize.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/grave_treaty.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "grave_treaty",
+          "text": "For this combat, your illusions leave brambles when destroyed: adjacent enemies take poison 5 and immobilize.",
+          "kind": "field",
+          "hooks": "illusions, poison, immobilize",
+          "iconography": [
+            "ILLUS",
+            "POISON",
+            "IMMOB"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, your illusions leave brambles when destroyed: adjacent enemies take poison 5 and immobilize.",
+        "iconography": [
+          "ILLUS",
+          "POISON",
+          "IMMOB"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 91,
+    "id": "deep_battery",
+    "name": "Deep Battery",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, first time each turn you gain stoneskin, reduce next card time by that amount, max -4.",
+    "iconography": [
+      "STONE",
+      "TIME",
+      "ENGINE"
+    ],
+    "hooks": "stoneskin, tempo, defense engines",
+    "kind": "ENGINE",
+    "art_direction": "a buried green battery wired into a stone gauntlet",
+    "proposed_data": {
+      "name": "Deep Battery",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, first time each turn you gain stoneskin, reduce next card time by that amount, max -4.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/deep_battery.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "deep_battery",
+          "text": "For this combat, first time each turn you gain stoneskin, reduce next card time by that amount, max -4.",
+          "kind": "engine",
+          "hooks": "stoneskin, tempo, defense engines",
+          "iconography": [
+            "STONE",
+            "TIME",
+            "ENGINE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, first time each turn you gain stoneskin, reduce next card time by that amount, max -4.",
+        "iconography": [
+          "STONE",
+          "TIME",
+          "ENGINE"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 92,
+    "id": "moss_that_remembers",
+    "name": "Moss That Remembers",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "uncommon",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, tiles you leave become moss. Enemies entering moss take poison 2 and are delayed by 1 time.",
+    "iconography": [
+      "MOVE",
+      "POISON",
+      "FIELD"
+    ],
+    "hooks": "movement paths, poison terrain",
+    "kind": "FIELD",
+    "art_direction": "glowing moss preserving a trail of old footprints",
+    "proposed_data": {
+      "name": "Moss That Remembers",
+      "rarity": "uncommon",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, tiles you leave become moss. Enemies entering moss take poison 2 and are delayed by 1 time.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/moss_that_remembers.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "moss_that_remembers",
+          "text": "For this combat, tiles you leave become moss. Enemies entering moss take poison 2 and are delayed by 1 time.",
+          "kind": "field",
+          "hooks": "movement paths, poison terrain",
+          "iconography": [
+            "MOVE",
+            "POISON",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, tiles you leave become moss. Enemies entering moss take poison 2 and are delayed by 1 time.",
+        "iconography": [
+          "MOVE",
+          "POISON",
+          "FIELD"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 93,
+    "id": "buried_names",
+    "name": "Buried Names",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "uncommon",
+    "time": 5,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, each Exhausted card becomes a Root. Your attacks apply poison equal to your Roots.",
+    "iconography": [
+      "EXH",
+      "POISON",
+      "ROOT"
+    ],
+    "hooks": "Exhaust, poison scaling",
+    "kind": "ENGINE",
+    "art_direction": "names carved into roots beneath a half-buried card",
+    "proposed_data": {
+      "name": "Buried Names",
+      "rarity": "uncommon",
+      "time": 5,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, each Exhausted card becomes a Root. Your attacks apply poison equal to your Roots.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/buried_names.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "buried_names",
+          "text": "For this combat, each Exhausted card becomes a Root. Your attacks apply poison equal to your Roots.",
+          "kind": "engine",
+          "hooks": "Exhaust, poison scaling",
+          "iconography": [
+            "EXH",
+            "POISON",
+            "ROOT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, each Exhausted card becomes a Root. Your attacks apply poison equal to your Roots.",
+        "iconography": [
+          "EXH",
+          "POISON",
+          "ROOT"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 94,
+    "id": "mountain_clause",
+    "name": "Mountain Clause",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, if you play no move or blink this turn, double block and stoneskin gained this turn.",
+    "iconography": [
+      "BLOCK",
+      "STONE",
+      "LAW"
+    ],
+    "hooks": "stationary defense, block, stoneskin",
+    "kind": "LAW",
+    "art_direction": "a mountain-shaped clause stamped into a heavy shield",
+    "proposed_data": {
+      "name": "Mountain Clause",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, if you play no move or blink this turn, double block and stoneskin gained this turn.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/mountain_clause.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "mountain_clause",
+          "text": "For this combat, if you play no move or blink this turn, double block and stoneskin gained this turn.",
+          "kind": "law",
+          "hooks": "stationary defense, block, stoneskin",
+          "iconography": [
+            "BLOCK",
+            "STONE",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, if you play no move or blink this turn, double block and stoneskin gained this turn.",
+        "iconography": [
+          "BLOCK",
+          "STONE",
+          "LAW"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 95,
+    "id": "earthen_jury",
+    "name": "Earthen Jury",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, poison added to any enemy also enters a shared poison pool. Pool ticks split across all enemies.",
+    "iconography": [
+      "POISON",
+      "POOL",
+      "AOE"
+    ],
+    "hooks": "poison scaling, swarm damage",
+    "kind": "LAW",
+    "art_direction": "twelve stone faces judging a green poison basin",
+    "proposed_data": {
+      "name": "Earthen Jury",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, poison added to any enemy also enters a shared poison pool. Pool ticks split across all enemies.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/earthen_jury.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "earthen_jury",
+          "text": "For this combat, poison added to any enemy also enters a shared poison pool. Pool ticks split across all enemies.",
+          "kind": "law",
+          "hooks": "poison scaling, swarm damage",
+          "iconography": [
+            "POISON",
+            "POOL",
+            "AOE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, poison added to any enemy also enters a shared poison pool. Pool ticks split across all enemies.",
+        "iconography": [
+          "POISON",
+          "POOL",
+          "AOE"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 96,
+    "id": "henge_engine",
+    "name": "Henge Engine",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 6,
+    "burn": false,
+    "health_cost": 0,
+    "description": "For this combat, every fourth card you play creates a 4-health stone illusion with 4 stoneskin.",
+    "iconography": [
+      "COUNT",
+      "ILLUS",
+      "STONE"
+    ],
+    "hooks": "multi-card turns, illusions, defense",
+    "kind": "ENGINE",
+    "art_direction": "a ring of standing stones assembling a small decoy",
+    "proposed_data": {
+      "name": "Henge Engine",
+      "rarity": "rare",
+      "time": 6,
+      "burn": false,
+      "health_cost": 0,
+      "description": "For this combat, every fourth card you play creates a 4-health stone illusion with 4 stoneskin.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/henge_engine.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "henge_engine",
+          "text": "For this combat, every fourth card you play creates a 4-health stone illusion with 4 stoneskin.",
+          "kind": "engine",
+          "hooks": "multi-card turns, illusions, defense",
+          "iconography": [
+            "COUNT",
+            "ILLUS",
+            "STONE"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, every fourth card you play creates a 4-health stone illusion with 4 stoneskin.",
+        "iconography": [
+          "COUNT",
+          "ILLUS",
+          "STONE"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 97,
+    "id": "fossil_clock",
+    "name": "Fossil Clock",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, while you have 10+ stoneskin, your card time costs cannot exceed 5.",
+    "iconography": [
+      "STONE",
+      "TIME",
+      "LAW"
+    ],
+    "hooks": "stoneskin, high-time cards",
+    "kind": "LAW",
+    "art_direction": "a clock fossil embedded in a mossy stone shield",
+    "proposed_data": {
+      "name": "Fossil Clock",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, while you have 10+ stoneskin, your card time costs cannot exceed 5.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/fossil_clock.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "fossil_clock",
+          "text": "For this combat, while you have 10+ stoneskin, your card time costs cannot exceed 5.",
+          "kind": "law",
+          "hooks": "stoneskin, high-time cards",
+          "iconography": [
+            "STONE",
+            "TIME",
+            "LAW"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, while you have 10+ stoneskin, your card time costs cannot exceed 5.",
+        "iconography": [
+          "STONE",
+          "TIME",
+          "LAW"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 98,
+    "id": "widow_seeds",
+    "name": "Widow Seeds",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 5,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, poison cannot kill enemies. Your attacks consume target poison as bonus damage.",
+    "iconography": [
+      "POISON",
+      "DMG",
+      "PACT"
+    ],
+    "hooks": "poison banking, finisher attacks",
+    "kind": "PACT",
+    "art_direction": "black seeds sprouting green venom around a spear point",
+    "proposed_data": {
+      "name": "Widow Seeds",
+      "rarity": "rare",
+      "time": 5,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, poison cannot kill enemies. Your attacks consume target poison as bonus damage.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/widow_seeds.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "widow_seeds",
+          "text": "For this combat, poison cannot kill enemies. Your attacks consume target poison as bonus damage.",
+          "kind": "pact",
+          "hooks": "poison banking, finisher attacks",
+          "iconography": [
+            "POISON",
+            "DMG",
+            "PACT"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, poison cannot kill enemies. Your attacks consume target poison as bonus damage.",
+        "iconography": [
+          "POISON",
+          "DMG",
+          "PACT"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 99,
+    "id": "silt_cathedral",
+    "name": "Silt Cathedral",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 7,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, block you gain becomes stoneskin instead. Healing is halved.",
+    "iconography": [
+      "BLOCK",
+      "STONE",
+      "FIELD"
+    ],
+    "hooks": "block cards, stoneskin, tank builds",
+    "kind": "FIELD",
+    "art_direction": "a cathedral of mud and stone rising around a shield altar",
+    "proposed_data": {
+      "name": "Silt Cathedral",
+      "rarity": "rare",
+      "time": 7,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, block you gain becomes stoneskin instead. Healing is halved.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/silt_cathedral.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "silt_cathedral",
+          "text": "For this combat, block you gain becomes stoneskin instead. Healing is halved.",
+          "kind": "field",
+          "hooks": "block cards, stoneskin, tank builds",
+          "iconography": [
+            "BLOCK",
+            "STONE",
+            "FIELD"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, block you gain becomes stoneskin instead. Healing is halved.",
+        "iconography": [
+          "BLOCK",
+          "STONE",
+          "FIELD"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  },
+  {
+    "number": 100,
+    "id": "tremor_writ",
+    "name": "Tremor Writ",
+    "element": "earth",
+    "element_label": "Earth",
+    "rarity": "rare",
+    "time": 6,
+    "burn": true,
+    "health_cost": 0,
+    "description": "For this combat, at end of each enemy turn, if it did not move, deal 8 damage and apply poison 3.",
+    "iconography": [
+      "IMMOB",
+      "DMG",
+      "POISON"
+    ],
+    "hooks": "immobilize, enemy control, poison",
+    "kind": "LAW",
+    "art_direction": "a cracked legal writ causing the floor beneath an enemy to shake",
+    "proposed_data": {
+      "name": "Tremor Writ",
+      "rarity": "rare",
+      "time": 6,
+      "burn": true,
+      "health_cost": 0,
+      "description": "For this combat, at end of each enemy turn, if it did not move, deal 8 damage and apply poison 3.",
+      "accent": "#89a15b",
+      "art_path": "res://output/buildaround_cards_100/assets/art/cards/tremor_writ.png",
+      "actions": [
+        {
+          "type": "text_rule",
+          "effect_id": "tremor_writ",
+          "text": "For this combat, at end of each enemy turn, if it did not move, deal 8 damage and apply poison 3.",
+          "kind": "law",
+          "hooks": "immobilize, enemy control, poison",
+          "iconography": [
+            "IMMOB",
+            "DMG",
+            "POISON"
+          ]
+        }
+      ],
+      "presentation": {
+        "mode": "text_rule",
+        "rule_text": "For this combat, at end of each enemy turn, if it did not move, deal 8 damage and apply poison 3.",
+        "iconography": [
+          "IMMOB",
+          "DMG",
+          "POISON"
+        ]
+      },
+      "element": "earth"
+    },
+    "implementation_note": "Text-rule build-around. Card data/art can be staged now; combat rule and any non-card presentation need implementation before merging."
+  }
+]
