@@ -21,7 +21,9 @@ const UNCLEARED_SHADE: float = 0.02
 const COMPACT_EDGE_BUFFER: float = 26.0
 const EXPANDED_EDGE_BUFFER: float = 56.0
 const COMPACT_GRID_SPACING: float = 34.0
-const EXPANDED_GRID_SPACING: float = 72.0
+const EXPANDED_GRID_SPACING: float = 132.0
+const COMPACT_NODE_MAX_SIZE: float = 24.0
+const EXPANDED_NODE_MAX_SIZE: float = 64.0
 const LEGEND_GAP: float = 18.0
 const LEGEND_WIDTH: float = 142.0
 const LEGEND_PADDING: float = 12.0
@@ -355,7 +357,7 @@ func _room_key(coord: Vector2i) -> String:
 
 func _base_node_size() -> float:
 	var base: float = _grid_spacing() * 0.56
-	return clampf(base, 14.0 if not interactive else 20.0, 24.0 if not interactive else 48.0)
+	return clampf(base, 14.0 if not interactive else 20.0, COMPACT_NODE_MAX_SIZE if not interactive else EXPANDED_NODE_MAX_SIZE)
 
 func _grid_spacing() -> float:
 	var map_rect: Rect2 = _map_rect()

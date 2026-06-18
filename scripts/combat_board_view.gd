@@ -2665,7 +2665,7 @@ func _draw_effect_overlay() -> void:
 				return
 			_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
-			return
+			_draw_aoe_effect(effect, progress, from_point, center_point)
 		"lightning_strikes":
 			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 			var bolt_alpha: float = 0.24 + progress * 0.34
@@ -2689,6 +2689,106 @@ func _draw_effect_overlay() -> void:
 			draw_line(heal_center + Vector2(-10.0, 0.0), heal_center + Vector2(10.0, 0.0), Color("9ee27e"), 4.0, true)
 			draw_line(heal_center + Vector2(0.0, -10.0), heal_center + Vector2(0.0, 10.0), Color("9ee27e"), 4.0, true)
 
+func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, center_point: Vector2) -> void:
+	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
+	if tiles.is_empty():
+		return
+	var preview: bool = bool(effect.get("preview", false))
+	var accent: Color = _aoe_effect_accent(effect)
+	var secondary: Color = _aoe_effect_secondary(effect)
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * (1.55 if preview else 1.05))
+	var reveal: float = 1.0 if preview else clampf(progress / 0.42, 0.0, 1.0)
+	var base_alpha: float = (0.76 + pulse * 0.18) if preview else (0.42 + reveal * 0.42)
+	for tile: Vector2i in tiles:
+		var ring_scale: float = 0.74 + 0.06 * pulse if preview else 0.76 + 0.08 * reveal
+		_draw_tile_ring(tile, Color(accent.r, accent.g, accent.b, base_alpha), 3.0 + 1.0 * reveal, ring_scale)
+		draw_circle(_tile_center(tile), _tile_width() * 0.065, Color(secondary.r, secondary.g, secondary.b, 0.22 + 0.14 * pulse))
+	if center_point != Vector2.ZERO:
+		var reticle_radius: float = _tile_width() * (0.16 + 0.025 * pulse)
+		_draw_target_reticle(center_point + Vector2(0.0, -_tile_height() * 0.42), Color(accent.r, accent.g, accent.b, 0.84 + 0.14 * pulse), reticle_radius)
+	var line_tiles: Array[Vector2i] = _ordered_aoe_line_tiles_for_effect(effect)
+	if line_tiles.size() >= 2:
+		_draw_aoe_line_effect(line_tiles, accent, secondary, base_alpha, preview)
+	if preview and from_point != Vector2.ZERO and center_point != Vector2.ZERO:
+		var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * 0.72)
+		var end: Vector2 = center_point + Vector2(0.0, -_tile_height() * 0.50)
+		var control: Vector2 = _arc_control_point(start, end)
+		_draw_bezier_glow(start, control, end, Color(secondary.r, secondary.g, secondary.b, 0.18 + 0.08 * pulse), 1.4)
+
+func _draw_aoe_line_effect(line_tiles: Array[Vector2i], accent: Color, secondary: Color, alpha: float, preview: bool) -> void:
+	var points := PackedVector2Array()
+	for tile: Vector2i in line_tiles:
+		points.append(_tile_center(tile) + Vector2(0.0, -_tile_height() * 0.62))
+	if points.size() < 2:
+		return
+	var core_width: float = 4.0 if preview else 4.6
+	draw_polyline(points, Color(0.0, 0.0, 0.0, alpha * 0.26), core_width + 9.0, true)
+	draw_polyline(points, Color(secondary.r, secondary.g, secondary.b, alpha * 0.44), core_width + 4.8, true)
+	draw_polyline(points, Color(accent.r, accent.g, accent.b, alpha), core_width, true)
+	for index: int in range(points.size() - 1):
+		_draw_aoe_bolt_segment(points[index], points[index + 1], accent, secondary, alpha)
+	for point: Vector2 in points:
+		draw_circle(point, 6.0, Color(1.0, 0.96, 0.72, alpha * 0.62))
+
+func _draw_aoe_bolt_segment(start: Vector2, finish: Vector2, accent: Color, secondary: Color, alpha: float) -> void:
+	var delta: Vector2 = finish - start
+	if delta.length_squared() <= 1.0:
+		return
+	var perpendicular: Vector2 = Vector2(-delta.y, delta.x).normalized()
+	var mid: Vector2 = start.lerp(finish, 0.5) + perpendicular * 7.0
+	draw_line(start, mid, Color(0.0, 0.0, 0.0, alpha * 0.24), 7.0, true)
+	draw_line(mid, finish, Color(0.0, 0.0, 0.0, alpha * 0.24), 7.0, true)
+	draw_line(start, mid, Color(secondary.r, secondary.g, secondary.b, alpha * 0.78), 3.4, true)
+	draw_line(mid, finish, Color(secondary.r, secondary.g, secondary.b, alpha * 0.78), 3.4, true)
+	draw_line(start, mid, Color(accent.r, accent.g, accent.b, alpha), 1.6, true)
+	draw_line(mid, finish, Color(accent.r, accent.g, accent.b, alpha), 1.6, true)
+
+func _ordered_aoe_line_tiles_for_effect(effect: Dictionary) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
+	if tiles.size() < 2:
+		return _vector2i_array([])
+	var same_x: bool = true
+	var same_y: bool = true
+	var first_tile: Vector2i = tiles[0]
+	for tile: Vector2i in tiles:
+		if tile.x != first_tile.x:
+			same_x = false
+		if tile.y != first_tile.y:
+			same_y = false
+	if not same_x and not same_y:
+		return _vector2i_array([])
+	tiles.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return a.y < b.y if same_x else a.x < b.x
+	)
+	return tiles
+
+func _aoe_effect_accent(effect: Dictionary) -> Color:
+	var element_id: String = _effect_element(effect)
+	if ElementData.is_elemental(element_id):
+		if element_id == ElementData.LIGHTNING:
+			return Color(1.0, 0.91, 0.34, 1.0)
+		return ElementData.accent(element_id).lightened(0.22)
+	return Color(1.0, 0.76, 0.42, 1.0)
+
+func _aoe_effect_secondary(effect: Dictionary) -> Color:
+	match _effect_element(effect):
+		ElementData.FIRE:
+			return Color(1.0, 0.38, 0.18, 1.0)
+		ElementData.ICE:
+			return Color(0.62, 0.90, 1.0, 1.0)
+		ElementData.LIGHTNING:
+			return Color(0.58, 0.78, 1.0, 1.0)
+		ElementData.AIR:
+			return Color(0.70, 1.0, 0.90, 1.0)
+		ElementData.EARTH:
+			return Color(0.80, 0.94, 0.48, 1.0)
+		_:
+			return Color(1.0, 0.92, 0.64, 1.0)
+
+func _effect_element(effect: Dictionary) -> String:
+	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
+
 func _draw_floating_texts() -> void:
 	var font: Font = get_theme_default_font()
 	if font == null:
@@ -2705,7 +2805,7 @@ func _draw_floating_texts() -> void:
 		var label_width: float = float(entry.get("width", 48.0))
 		var font_size: int = int(entry.get("font_size", 16))
 		var text: String = str(entry.get("text", ""))
-		var outline_size: int = int(entry.get("outline_size", 0))
+		var outline_size: int = int(entry.get("outline_size", 2))
 		if outline_size > 0:
 			var outline_color: Color = entry.get("outline_color", Color("200806"))
 			outline_color.a *= color.a

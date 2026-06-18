@@ -4,8 +4,12 @@ const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
+const DOOR_OPENING_PROBE_DIR: String = "user://probes/door_opening"
+const DOOR_OPENING_PROBE_FRAMES: int = 8
+
 func _initialize() -> void:
-	DirAccess.make_dir_recursive_absolute("user://probes")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://probes"))
+	_clear_probe_output("user://probes")
 	ProgressionStore.set_storage_path("user://labyrinth_progression_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_probe.save")
 	ProgressionStore.clear_saved_run()
@@ -35,15 +39,26 @@ func _capture_run_states() -> void:
 	await process_frame
 	await process_frame
 	await _save_root_screenshot("user://probes/run_start.png")
+	await _capture_and_clear_start_dialogue(instance)
+	var combat_coord: Vector2i = _first_available_room_coord_of_type(instance, "combat")
+	if combat_coord != Vector2i.ZERO:
+		await _capture_door_opening_probe(instance, combat_coord)
 
-	var run_state: Dictionary = instance.get("_run_state")
-	var run_engine = instance.get("_run_engine")
-	var combat_coord: Vector2i = Vector2i.ZERO
-	for coord: Vector2i in run_engine.available_moves(run_state):
-		var room: Dictionary = run_engine.room_metadata(run_state, coord)
-		if str(room.get("type", "")) == "combat":
-			combat_coord = coord
-			break
+	instance.call("_open_large_map")
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_large_map.png")
+	instance.call("_close_large_map")
+	await process_frame
+	await process_frame
+
+	instance.call("_open_character_stats_overlay")
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_character_overlay.png")
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+	await process_frame
 
 	if combat_coord != Vector2i.ZERO:
 		instance.call("_on_map_view_room_selected", combat_coord)
@@ -116,11 +131,8 @@ func _capture_run_states() -> void:
 		await process_frame
 		await _save_root_screenshot("user://probes/run_menu.png")
 		instance.call("_close_menu_overlay")
-		instance.call("_open_pile_view", "draw")
-		await process_frame
-		await process_frame
-		await _save_root_screenshot("user://probes/run_draw_pile.png")
-		instance.call("_close_pile_view")
+		await _capture_pile_overlay_snapshot(instance, "draw", ["bloody_lunge", "guarded_step", "hamstring_shot", "patch_up", "sidestep_slash"], "user://probes/run_draw_pile.png")
+		await _capture_pile_overlay_snapshot(instance, "discard", [], "user://probes/run_discard_pile_empty.png")
 		instance.call("_on_card_drag_started", 0)
 		await process_frame
 		await process_frame
@@ -165,16 +177,12 @@ func _capture_run_states() -> void:
 			await process_frame
 			await process_frame
 			await _save_root_screenshot("user://probes/run_combat_after_play.png")
-			instance.call("_open_pile_view", "discard")
-			await process_frame
-			await process_frame
-			await _save_root_screenshot("user://probes/run_discard_pile.png")
-			instance.call("_close_pile_view")
+		await _capture_pile_overlay_snapshot(instance, "discard", ["quick_stab"], "user://probes/run_discard_pile.png")
 
 	var reward_run_state: Dictionary = instance.get("_run_state")
 	reward_run_state["mode"] = "reward"
 	reward_run_state["pending_reward"] = {
-		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
+		"cards": ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"],
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
@@ -186,8 +194,141 @@ func _capture_run_states() -> void:
 	await process_frame
 	await _save_root_screenshot("user://probes/run_reward.png")
 
+	await _capture_special_room_states(instance, probe_run_engine)
+
 	instance.queue_free()
 	await process_frame
+
+func _capture_and_clear_start_dialogue(instance: Node) -> void:
+	for frame_index: int in range(4):
+		if bool(instance.get("_dialogue_active")):
+			break
+		await process_frame
+	if bool(instance.get("_dialogue_active")):
+		instance.call("_complete_current_dialogue_line")
+		await process_frame
+		await process_frame
+		await _save_root_screenshot("user://probes/run_start_dialogue_full.png")
+	for attempt: int in range(4):
+		if not bool(instance.get("_dialogue_active")):
+			break
+		instance.call("_close_dialogue")
+		await process_frame
+	await process_frame
+
+func _capture_special_room_states(instance: Node, probe_run_engine: RunEngine) -> void:
+	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), 180)
+	var base_state: Dictionary = probe_run_engine.create_new_run(321, progression)
+	var campfire_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, Vector2i(2, 0), "campfire", Vector2i(1, 0))
+	campfire_state["player_hp"] = 120
+	campfire_state["player_max_hp"] = 360
+	instance.call("_load_run_state", campfire_state)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_campfire.png")
+
+	instance.call("_open_level_up_overlay")
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_level_up_overlay.png")
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+	await process_frame
+
+	var treasure_coord: Vector2i = _first_room_coord_of_type(probe_run_engine, base_state, "treasure")
+	var treasure_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, treasure_coord, "treasure", Vector2i(1, 0))
+	treasure_state["pending_relics"] = ["iron_lung", "ember_lens", "pilgrim_boots"]
+	instance.call("_load_run_state", treasure_state)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_treasure.png")
+
+	var victory_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, Vector2i(8, 0), "victory", Vector2i(1, 0))
+	victory_state["victory"] = true
+	victory_state["held_embers"] = 42
+	instance.call("_load_run_state", victory_state)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_victory.png")
+
+	var defeat_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, Vector2i(1, 0), "defeat", Vector2i(1, 0))
+	defeat_state["player_hp"] = 0
+	defeat_state["held_embers"] = 23
+	instance.call("_load_run_state", defeat_state)
+	await create_timer(3.45).timeout
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("user://probes/run_defeat.png")
+
+func _first_available_room_coord_of_type(instance: Node, room_type: String) -> Vector2i:
+	var run_state: Dictionary = instance.get("_run_state")
+	var run_engine = instance.get("_run_engine")
+	for coord: Vector2i in run_engine.available_moves(run_state):
+		var room: Dictionary = run_engine.room_metadata(run_state, coord)
+		if str(room.get("type", "")) == room_type:
+			return coord
+	return Vector2i.ZERO
+
+func _capture_door_opening_probe(instance: Node, destination_coord: Vector2i) -> void:
+	var door_tile: Vector2i = instance.call("_door_tile_for_destination", destination_coord)
+	if door_tile.x < 0:
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(DOOR_OPENING_PROBE_DIR))
+	_clear_probe_output(DOOR_OPENING_PROBE_DIR)
+	var previous_lock: bool = bool(instance.get("_animation_lock"))
+	var previous_hover: Vector2i = instance.get("_hovered_board_tile")
+	var previous_presentation: Dictionary = (instance.get("_board_presentation") as Dictionary).duplicate(true)
+	instance.set("_animation_lock", true)
+	instance.set("_hovered_board_tile", door_tile)
+	for frame: int in range(DOOR_OPENING_PROBE_FRAMES):
+		var progress: float = 1.0 if DOOR_OPENING_PROBE_FRAMES <= 1 else float(frame) / float(DOOR_OPENING_PROBE_FRAMES - 1)
+		instance.set("_board_presentation", {
+			"door_opening": {
+				"tile": door_tile,
+				"frame": frame,
+				"progress": progress
+			}
+		})
+		instance.call("_refresh_stage_view")
+		await process_frame
+		await process_frame
+		await _save_root_screenshot("%s/frame_%02d.png" % [DOOR_OPENING_PROBE_DIR, frame])
+	instance.set("_board_presentation", previous_presentation)
+	instance.set("_hovered_board_tile", previous_hover)
+	instance.set("_animation_lock", previous_lock)
+	instance.call("_refresh_stage_view")
+	await process_frame
+
+func _run_state_for_room(probe_run_engine: RunEngine, source_state: Dictionary, coord: Vector2i, mode: String, travel_dir: Vector2i) -> Dictionary:
+	var state: Dictionary = source_state.duplicate(true)
+	var room: Dictionary = probe_run_engine.room_metadata(state, coord).duplicate(true)
+	room["revealed"] = true
+	room["visited"] = true
+	room["cleared"] = mode == "room"
+	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+	rooms[_room_key(coord)] = room
+	state["rooms"] = rooms
+	state["current_room"] = coord
+	state["current_room_layout"] = probe_run_engine.call("_display_layout_for_room", int(state.get("seed", 0)), room, travel_dir)
+	state["mode"] = mode
+	state["combat_state"] = {}
+	state["pending_reward"] = {}
+	state["pending_relics"] = []
+	return state
+
+func _first_room_coord_of_type(probe_run_engine: RunEngine, state: Dictionary, room_type: String) -> Vector2i:
+	for radius: int in range(1, 9):
+		for x: int in range(-radius, radius + 1):
+			for y: int in range(-radius, radius + 1):
+				var coord := Vector2i(x, y)
+				if maxi(absi(x), absi(y)) != radius:
+					continue
+				if str(probe_run_engine.room_metadata(state, coord).get("type", "")) == room_type:
+					return coord
+	return Vector2i.ZERO
+
+func _room_key(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
 
 func _capture_turn_order_probe(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -228,8 +369,16 @@ func _capture_turn_order_probe(instance: Node) -> void:
 	await _save_root_screenshot("user://probes/run_turn_order_after_pass_full.png")
 
 func _capture_orientation_previews(instance: Node) -> void:
+	instance.call("_reset_card_resolution")
+	instance.set("_animation_lock", false)
+	instance.set("_card_play_count_override", -1)
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	combat_state.erase("player_turn_restrictions")
 	combat_state["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 14, "max_hp": 14, "block": 0},
 		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 10, "max_hp": 10, "block": 0},
@@ -270,6 +419,11 @@ func _capture_orientation_previews(instance: Node) -> void:
 
 	combat_state = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	combat_state.erase("player_turn_restrictions")
 	combat_state["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 100, "max_hp": 100, "block": 0}
 	]
@@ -302,6 +456,49 @@ func _capture_orientation_previews(instance: Node) -> void:
 func _save_root_screenshot(output_path: String) -> void:
 	var image: Image = root.get_viewport().get_texture().get_image()
 	image.save_png(output_path)
+
+func _clear_probe_output(output_dir: String) -> void:
+	var absolute_dir: String = ProjectSettings.globalize_path(output_dir)
+	_clear_probe_output_absolute(absolute_dir)
+
+func _clear_probe_output_absolute(absolute_dir: String) -> void:
+	var dir := DirAccess.open(absolute_dir)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	while true:
+		var entry: String = dir.get_next()
+		if entry.is_empty():
+			break
+		if entry in [".", ".."]:
+			continue
+		var child_path: String = absolute_dir.path_join(entry)
+		if dir.current_is_dir():
+			_clear_probe_output_absolute(child_path)
+			DirAccess.remove_absolute(child_path)
+		else:
+			DirAccess.remove_absolute(child_path)
+	dir.list_dir_end()
+
+func _capture_pile_overlay_snapshot(instance: Node, pile_kind: String, forced_cards: Array, output_path: String) -> void:
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck[pile_kind] = forced_cards.duplicate()
+	combat_state["deck"] = deck
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	instance.call("_open_pile_view", pile_kind)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot(output_path)
+	instance.call("_close_pile_view")
+	await process_frame
 
 func _targeted_card_index(instance: Node) -> int:
 	var combat_state: Dictionary = instance.get("_combat_state")

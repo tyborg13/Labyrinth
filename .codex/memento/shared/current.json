@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-05-30T06:06:08Z",
+  "updated_at": "2026-06-18T18:15:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -3569,6 +3569,270 @@
       "source": {
         "branch": "master",
         "commit": "e2171de"
+      }
+    },
+    {
+      "id": "mnt_20260617T152802Z_f6391b13",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Card FX coroutines must stop on mode changes",
+      "details": "Draw-card/card-proxy animations can continue after RunScene loads a non-combat state in probes or fast transitions. Guard FX loops with the current mode and layer liveness, and hide/drop top_level on proxy subtrees before queue_free so stale cards do not reappear over reward, campfire, or terminal overlays.",
+      "status": "active",
+      "created_at": "2026-06-17T15:28:02Z",
+      "updated_at": "2026-06-17T15:28:02Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T135928Z_2bdec64a",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/hand_fan_container.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/hand_fan_container.gd",
+      "summary": "Hand fan measured width includes asymmetric right overflow",
+      "details": "The combat hand uses rotated rightmost cards with left-to-right z-order, so the visual edge can extend past the fan container's nominal card bounds even when card sizes fit. Keep an asymmetric right-overflow allowance in HandFanContainer's minimum/content width so CenterContainer shifts the fan slightly left and prevents edge cards from clipping at the viewport.",
+      "status": "active",
+      "created_at": "2026-06-18T13:59:28Z",
+      "updated_at": "2026-06-18T13:59:28Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T142927Z_80d0ccbd",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/motion_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/motion_probe.gd",
+      "summary": "Motion probes should sample isolated animation helpers",
+      "details": "Calling RunScene._animate_enemy_phase_steps from a visual probe can overlap turn-order rebuild coroutines and produce freed Control casts that do not reflect normal gameplay. For motion screenshots, prefer deterministic direct helpers such as _animate_move_step with a duplicated combat state, then restore the board before sampling later effects.",
+      "status": "active",
+      "created_at": "2026-06-18T14:29:27Z",
+      "updated_at": "2026-06-18T14:29:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T150118Z_bd51db7b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_player_damage_floating_texts"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_player_damage_floating_texts",
+      "summary": "Enemy damage floaters must clear the HUD stack.",
+      "details": "Enemy name/intent/HP labels occupy the tile center above units, especially near the lower board edge. Place enemy HP/block/stoneskin floaters in an above-HUD lane and keep renderer outlines enabled so impact feedback stays readable over floors and unit sprites.",
+      "status": "active",
+      "created_at": "2026-06-18T15:01:18Z",
+      "updated_at": "2026-06-18T15:01:18Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T154039Z_473b69cb",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Idle hand refreshes must clear stale CardFxLayer proxies once animations unlock.",
+      "details": "Top-level card FX controls can survive a draw/play animation and later appear as ghost hand cards during selection; keep cleanup gated by _animation_lock so active tweens are preserved but idle refreshes scrub leftovers.",
+      "status": "active",
+      "created_at": "2026-06-18T15:40:39Z",
+      "updated_at": "2026-06-18T15:40:39Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T163051Z_2e4e6136",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/ui_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/ui_probe.gd",
+      "summary": "UI probe output must clear nested artifact folders.",
+      "details": "tests/ui_probe.gd now recursively clears user://probes and owns fresh door_opening frame captures. Old nested folders such as door_opening or targeting can otherwise be copied into new visual-polish pass folders and make stale screenshots look authoritative.",
+      "status": "active",
+      "created_at": "2026-06-18T16:30:51Z",
+      "updated_at": "2026-06-18T16:30:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T164801Z_6dd51e9b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Card combat numbers intentionally display fixed-point scale.",
+      "details": "Player-facing card action values use the universal 10x combat scale: Quick Stab should display 90 damage, not 9. Treat the trailing zero on fixed-point-scaled damage/heal/block/status values as intentional unless the design changes explicitly.",
+      "status": "active",
+      "created_at": "2026-06-18T16:48:01Z",
+      "updated_at": "2026-06-18T16:48:01Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T171117Z_04993851",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Large map modal backdrop should be fully opaque.",
+      "details": "A nearly opaque ColorRect scrim still allowed the high-contrast room header to ghost through above the large-map dialog margin in screenshots. Keep LargeMapScrim alpha at 1.0 unless the modal design changes to intentionally reveal the room behind it.",
+      "status": "active",
+      "created_at": "2026-06-18T17:11:17Z",
+      "updated_at": "2026-06-18T17:11:17Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T171136Z_d424f235",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/hand_fan_container.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/hand_fan_container.gd",
+      "summary": "Hand fan bottom sink stays tiny to keep card frames readable.",
+      "details": "A 36px bottom overflow allowance let hovered/selected combat cards sit low enough for the viewport edge to clip their lower frame. Keep the default bottom overflow allowance around 6px and tests should guard that outer-card sink remains only slight while preserving the fan shape.",
+      "status": "active",
+      "created_at": "2026-06-18T17:11:36Z",
+      "updated_at": "2026-06-18T17:11:36Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T173733Z_3b8e94da",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Level-up progression overlay uses a shorter dialog than the character sheet.",
+      "details": "The campfire Draw Strength overlay includes a confirm/cancel action row and opened low enough in 1920x1080 captures that the 660px character-sheet height clipped the action row. Keep the level_up progression dialog around 560px tall and let the stat list scroll so the action row remains visible.",
+      "status": "active",
+      "created_at": "2026-06-18T17:37:33Z",
+      "updated_at": "2026-06-18T17:37:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T181508Z_316655ae",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/ui_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/ui_probe.gd",
+      "summary": "Card-selection visual probes must reset player-turn state after pass-turn captures.",
+      "details": "The broad ui_probe sequence captures turn-order/pass-turn frames before Thunderline orientation frames. Without resetting RunScene card resolution plus combat_state current_actor/cards_played_this_turn/death_bonus_card_plays_this_turn/card_play_bonus_this_turn/player_turn_restrictions, _on_card_pressed can no-op and save stale non-selected screenshots even though the renderer works. Reset those fields before selected-card visual probes.",
+      "status": "active",
+      "created_at": "2026-06-18T18:15:08Z",
+      "updated_at": "2026-06-18T18:15:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T181532Z_afa675f8",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/motion_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/motion_probe.gd",
+      "summary": "AOE motion probes should avoid lethal fixtures unless sampling death rewards.",
+      "details": "A Thunderline motion sample with low-HP targets killed an enemy, started death/ember reward coroutines, and later motion samples hit a freed mote. For isolated attack-effect frames, use high-HP targets or wait for the full reward sequence; keep lethal fixtures only for explicit death/reward visual QA.",
+      "status": "active",
+      "created_at": "2026-06-18T18:15:32Z",
+      "updated_at": "2026-06-18T18:15:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "d7b1dd7"
       }
     }
   ]

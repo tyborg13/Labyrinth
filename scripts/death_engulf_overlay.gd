@@ -13,7 +13,8 @@ const ENGULF_SECONDS: float = 1.85
 const TITLE_REVEAL_SECONDS: float = 1.05
 const BUTTON_FADE_SECONDS: float = 0.30
 const BUTTON_DELAY_SECONDS: float = 0.14
-const CONTINUE_BUTTON_HEIGHT: float = 54.0
+const CONTINUE_BUTTON_HEIGHT: float = 72.0
+const CONTINUE_BUTTON_MIN_WIDTH: float = 360.0
 const BLACK: Color = Color(0.0, 0.0, 0.0, 1.0)
 const BLOOD_RED: Color = Color("9a0712")
 
@@ -114,14 +115,14 @@ func _build_children() -> void:
 	add_child(_title_label)
 
 	_continue_button = Button.new()
-	_continue_button.text = "Begin again"
+	_continue_button.text = "Begin Again"
 	_continue_button.visible = false
 	_continue_button.disabled = true
 	_continue_button.add_theme_font_override("font", REGULAR_FONT)
 	_ui_skin.apply_button_stylebox_overrides(_continue_button)
 	_ui_skin.apply_button_text_overrides(_continue_button, Color("f4d8d8"), Color("170304"), 2)
-	UiTypography.set_button_size(_continue_button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(_continue_button, CONTINUE_BUTTON_HEIGHT)
+	UiTypography.set_button_size(_continue_button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(_continue_button, CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH)
 	_continue_button.pressed.connect(func() -> void:
 		if not _continue_button.disabled:
 			continue_pressed.emit()
@@ -151,8 +152,8 @@ func _update_child_layout() -> void:
 		0.0,
 		1.0
 	)
-	_continue_button.size = _ui_skin.button_native_size(CONTINUE_BUTTON_HEIGHT)
-	_continue_button.position = Vector2((size.x - _continue_button.size.x) * 0.5, title_y + title_size.y + 18.0)
+	_continue_button.size = _ui_skin.button_native_size(CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH)
+	_continue_button.position = Vector2((size.x - _continue_button.size.x) * 0.5, title_y + title_size.y + 24.0)
 	_continue_button.visible = button_alpha > 0.0
 	_continue_button.disabled = button_alpha < 0.98
 	_continue_button.modulate = Color(1.0, 1.0, 1.0, _ease_out_cubic(button_alpha))

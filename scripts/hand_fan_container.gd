@@ -3,7 +3,8 @@ class_name HandFanContainer
 
 const DEFAULT_ARCH_HEIGHT: float = 65.0
 const DEFAULT_MAX_ROTATION_DEGREES: float = 14.0
-const DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE: float = 36.0
+const DEFAULT_BOTTOM_OVERFLOW_ALLOWANCE: float = 6.0
+const DEFAULT_RIGHT_OVERFLOW_ALLOWANCE: float = 92.0
 
 var _card_gap: float = 0.0
 var _fan_enabled: bool = false
@@ -51,6 +52,8 @@ func _get_minimum_size() -> Vector2:
 		var child_size: Vector2 = _child_layout_size(child)
 		max_child_height = maxf(max_child_height, child_size.y)
 		bounds = bounds.merge(card_rect_for_layout(index, children.size(), child_size, _card_gap, _fan_enabled, _arch_height))
+	if _fan_enabled and children.size() > 1:
+		bounds.size.x += DEFAULT_RIGHT_OVERFLOW_ALLOWANCE
 	bounds.size.y = maxf(max_child_height, bounds.size.y - bottom_overflow_allowance_for_layout(children.size(), _fan_enabled, _arch_height, _bottom_overflow_allowance))
 	return bounds.size
 
@@ -73,6 +76,8 @@ static func content_size_for_layout(total: int, card_size: Vector2, card_gap: fl
 	if total <= 0:
 		return Vector2.ZERO
 	var width: float = card_size.x + maxf(0.0, float(total - 1)) * (card_size.x + card_gap)
+	if fan_enabled and total > 1:
+		width += DEFAULT_RIGHT_OVERFLOW_ALLOWANCE
 	var full_height: float = card_size.y + (arch_height if fan_enabled and total > 1 else 0.0)
 	var height: float = maxf(card_size.y, full_height - bottom_overflow_allowance_for_layout(total, fan_enabled, arch_height, bottom_overflow_allowance))
 	return Vector2(width, height)

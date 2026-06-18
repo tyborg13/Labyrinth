@@ -140,6 +140,11 @@ const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 const HAND_CARD_OVERLAP: float = -28.0
 const HAND_CARD_GAP: float = 14.0
 const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 314.0)
+const PILE_DIALOG_CARD_SIZE: Vector2 = Vector2(196.0, 280.0)
+const PILE_DIALOG_FULL_SIZE: Vector2 = Vector2(1220.0, 620.0)
+const PILE_DIALOG_ROW_SIZE: Vector2 = Vector2(1220.0, 438.0)
+const PILE_DIALOG_EMPTY_SIZE: Vector2 = Vector2(520.0, 238.0)
+const PILE_DIALOG_MIN_CARD_WIDTH: float = 620.0
 const PILE_CARD_SCALE: float = 0.80
 const PILE_STACK_OFFSET: Vector2 = Vector2(8.0, 10.0)
 const PILE_STACK_LAYERS: int = 3
@@ -147,7 +152,9 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
+const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
+const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
 const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
@@ -183,6 +190,13 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
+const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
+const DIALOGUE_DIALOG_WIDTH: float = 1060.0
+const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
+const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
+const DIALOGUE_TEXT_HINT_MIN_HEIGHT: float = 46.0
+const DIALOGUE_TEXT_OPTION_MIN_HEIGHT: float = 78.0
+const DIALOGUE_HINT_FOOTER_HEIGHT: float = 34.0
 const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
 const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
@@ -269,6 +283,7 @@ var _menu_dialog: PanelContainer
 var _pile_scrim: ColorRect
 var _pile_dialog: PanelContainer
 var _pile_dialog_title: Label
+var _pile_dialog_scroll: ScrollContainer
 var _pile_dialog_cards: HFlowContainer
 var _pile_dialog_empty: Label
 var _pile_content_hosts: Dictionary = {}
@@ -295,6 +310,11 @@ var _relic_choice_overlay: Control
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _terminal_overlay: Control
+var _terminal_panel: PanelContainer
+var _terminal_title_label: Label
+var _terminal_status_label: Label
+var _terminal_reward_label: Label
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
@@ -320,6 +340,7 @@ var _dialogue_overlay: Control
 var _dialogue_dialog: PanelContainer
 var _dialogue_name_label: Label
 var _dialogue_text_label: RichTextLabel
+var _dialogue_footer: HBoxContainer
 var _dialogue_hint_label: Label
 var _dialogue_choice_bar: HBoxContainer
 var _upgrade_scrim: ColorRect
@@ -419,6 +440,7 @@ func _notification(what: int) -> void:
 		_layout_mini_map_overlay()
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
+		_layout_terminal_overlay()
 		_layout_choice_button_overlay()
 		_layout_header_hud()
 		_layout_elemental_intensity_bar()
@@ -596,7 +618,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_large_map_scrim.z_index = 940
 	_large_map_scrim.z_as_relative = false
-	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 0.62)
+	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 1.0)
 	_large_map_scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_large_map_scrim.anchor_right = 1.0
 	_large_map_scrim.anchor_bottom = 1.0
@@ -618,7 +640,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
 	_large_map_dialog.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_large_map_dialog.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var dialog_style := _ui_skin.make_plain_card_style(Color(0.10, 0.075, 0.055, 0.38), Color(0.92, 0.80, 0.60, 0.70), 16.0)
+	var dialog_style := _ui_skin.make_plain_card_style(Color(0.09, 0.065, 0.048, 0.96), Color(0.92, 0.80, 0.60, 0.86), 16.0)
 	dialog_style.corner_radius_top_left = 10
 	dialog_style.corner_radius_top_right = 10
 	dialog_style.corner_radius_bottom_right = 10
@@ -739,6 +761,7 @@ func _build_context_choice_overlay() -> void:
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
 	_build_relic_choice_overlay(stage_root)
+	_build_terminal_overlay(stage_root)
 
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
@@ -819,6 +842,122 @@ func _layout_relic_choice_overlay() -> void:
 		_relic_choice_host.set_anchors_preset(Control.PRESET_TOP_LEFT)
 		_relic_choice_host.position = Vector2(left, top)
 		_relic_choice_host.size = Vector2(width, height)
+
+func _build_terminal_overlay(stage_root: Control) -> void:
+	_terminal_overlay = Control.new()
+	_terminal_overlay.name = "TerminalOverlay"
+	_terminal_overlay.visible = false
+	_terminal_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_terminal_overlay.z_index = 88
+	stage_root.add_child(_terminal_overlay)
+
+	_terminal_panel = PanelContainer.new()
+	_terminal_panel.name = "TerminalPanel"
+	_terminal_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_terminal_panel.add_theme_stylebox_override("panel", _terminal_panel_style())
+	_terminal_overlay.add_child(_terminal_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 24)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_terminal_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 10)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	_terminal_title_label = Label.new()
+	_terminal_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_terminal_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(_terminal_title_label, UiTypography.SIZE_HERO)
+	_terminal_title_label.add_theme_color_override("font_color", Color("ffe4a5"))
+	_terminal_title_label.add_theme_color_override("font_outline_color", Color("24150d"))
+	_terminal_title_label.add_theme_constant_override("outline_size", 5)
+	vbox.add_child(_terminal_title_label)
+
+	_terminal_status_label = Label.new()
+	_terminal_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_terminal_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(_terminal_status_label, UiTypography.SIZE_SECTION)
+	_terminal_status_label.add_theme_color_override("font_color", Color("f7ecd3"))
+	_terminal_status_label.add_theme_color_override("font_outline_color", Color("21150e"))
+	_terminal_status_label.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(_terminal_status_label)
+
+	_terminal_reward_label = Label.new()
+	_terminal_reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_terminal_reward_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(_terminal_reward_label, UiTypography.SIZE_BODY_LARGE)
+	_terminal_reward_label.add_theme_color_override("font_color", Color("f0c56f"))
+	_terminal_reward_label.add_theme_color_override("font_outline_color", Color("2a1a0e"))
+	_terminal_reward_label.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(_terminal_reward_label)
+
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0.0, 6.0)
+	vbox.add_child(spacer)
+
+	var button_row := HBoxContainer.new()
+	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	button_row.add_theme_constant_override("separation", 18)
+	button_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(button_row)
+
+	button_row.add_child(_terminal_button("Again", _on_restart_pressed))
+	button_row.add_child(_terminal_button("Menu", _on_back_to_menu_pressed))
+	_layout_terminal_overlay()
+
+func _terminal_button(text: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = text
+	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 210.0)
+	button.pressed.connect(callback)
+	return button
+
+func _terminal_panel_style() -> StyleBoxFlat:
+	var style := _ui_skin.make_plain_card_style(Color(0.10, 0.065, 0.045, 0.96), Color("c08a4a"), 20.0)
+	style.border_width_left = 4
+	style.border_width_top = 4
+	style.border_width_right = 4
+	style.border_width_bottom = 4
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_right = 12
+	style.corner_radius_bottom_left = 12
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	style.shadow_size = 18
+	return style
+
+func _layout_terminal_overlay() -> void:
+	if _terminal_overlay == null:
+		return
+	var stage_root: Control = board_view.get_parent()
+	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
+	_terminal_overlay.anchor_left = 0.0
+	_terminal_overlay.anchor_top = 0.0
+	_terminal_overlay.anchor_right = 1.0
+	_terminal_overlay.anchor_bottom = 1.0
+	_terminal_overlay.offset_left = 0.0
+	_terminal_overlay.offset_top = 0.0
+	_terminal_overlay.offset_right = 0.0
+	_terminal_overlay.offset_bottom = 0.0
+	if _terminal_panel == null:
+		return
+	var width: float = clampf(stage_size.x * 0.46, 420.0, TERMINAL_OVERLAY_SIZE.x)
+	var height: float = TERMINAL_OVERLAY_SIZE.y
+	var left: float = (stage_size.x - width) * 0.5
+	var top: float = (stage_size.y - height) * 0.5
+	_terminal_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_terminal_panel.position = Vector2(left, top)
+	_terminal_panel.size = Vector2(width, height)
 
 func _build_card_fx_layer() -> void:
 	_card_fx_layer = Control.new()
@@ -957,7 +1096,8 @@ func _build_dialogue_overlay() -> void:
 	anchor.add_child(bottom)
 
 	_dialogue_dialog = PanelContainer.new()
-	_dialogue_dialog.custom_minimum_size = Vector2(0.0, 214.0)
+	_dialogue_dialog.custom_minimum_size = Vector2(DIALOGUE_DIALOG_WIDTH, DIALOGUE_DIALOG_HINT_MIN_HEIGHT)
+	_dialogue_dialog.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_dialogue_dialog.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var dialogue_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.96), Color("b8aa90"), 18.0)
 	dialogue_style.corner_radius_top_left = 14
@@ -994,20 +1134,20 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_dialogue_text_label.visible_characters = 0
 	_dialogue_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_dialogue_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_dialogue_text_label.custom_minimum_size = Vector2(0.0, 104.0)
-	_dialogue_text_label.fit_content = false
+	_dialogue_text_label.size_flags_vertical = Control.SIZE_FILL
+	_dialogue_text_label.custom_minimum_size = Vector2(0.0, DIALOGUE_TEXT_HINT_MIN_HEIGHT)
+	_dialogue_text_label.fit_content = true
 	_dialogue_text_label.scroll_active = false
 	UiTypography.set_rich_text_size(_dialogue_text_label, UiTypography.SIZE_SECTION)
 	_dialogue_text_label.add_theme_color_override("default_color", Color("f5ebd8"))
 	_dialogue_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_dialogue_text_label)
 
-	var footer := HBoxContainer.new()
-	footer.custom_minimum_size = Vector2(0.0, DIALOGUE_OPTION_BUTTON_HEIGHT)
-	footer.add_theme_constant_override("separation", 12)
-	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(footer)
+	_dialogue_footer = HBoxContainer.new()
+	_dialogue_footer.custom_minimum_size = Vector2(0.0, DIALOGUE_HINT_FOOTER_HEIGHT)
+	_dialogue_footer.add_theme_constant_override("separation", 12)
+	_dialogue_footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_dialogue_footer)
 
 	_dialogue_hint_label = Label.new()
 	_dialogue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1015,14 +1155,15 @@ func _build_dialogue_overlay() -> void:
 	UiTypography.set_label_size(_dialogue_hint_label, UiTypography.SIZE_BODY)
 	_dialogue_hint_label.add_theme_color_override("font_color", Color("cab697"))
 	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	footer.add_child(_dialogue_hint_label)
+	_dialogue_footer.add_child(_dialogue_hint_label)
 
 	_dialogue_choice_bar = HBoxContainer.new()
-	_dialogue_choice_bar.custom_minimum_size = Vector2(0.0, DIALOGUE_OPTION_BUTTON_HEIGHT)
+	_dialogue_choice_bar.custom_minimum_size = Vector2.ZERO
 	_dialogue_choice_bar.alignment = BoxContainer.ALIGNMENT_END
 	_dialogue_choice_bar.add_theme_constant_override("separation", 10)
 	_dialogue_choice_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	footer.add_child(_dialogue_choice_bar)
+	_dialogue_choice_bar.visible = false
+	_dialogue_footer.add_child(_dialogue_choice_bar)
 
 func _build_pile_overlay() -> void:
 	_pile_scrim = ColorRect.new()
@@ -1044,7 +1185,7 @@ func _build_pile_overlay() -> void:
 	_pile_scrim.add_child(center)
 
 	_pile_dialog = PanelContainer.new()
-	_pile_dialog.custom_minimum_size = Vector2(1220.0, 620.0)
+	_pile_dialog.custom_minimum_size = PILE_DIALOG_FULL_SIZE
 	var dialog_style := _ui_skin.make_plain_card_style(Color(0.11, 0.08, 0.06, 0.98), Color("9d7a50"), 16.0)
 	dialog_style.corner_radius_top_left = 14
 	dialog_style.corner_radius_top_right = 14
@@ -1080,31 +1221,45 @@ func _build_pile_overlay() -> void:
 	top_row.add_child(_pile_dialog_title)
 
 	var close_button := Button.new()
+	close_button.name = "CloseButton"
 	close_button.text = "X"
-	_ui_skin.apply_button_stylebox_overrides(close_button)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(close_button, 36.0)
+	close_button.add_theme_stylebox_override("normal", _large_map_close_button_style(Color(0.18, 0.13, 0.09, 0.84), Color(0.88, 0.76, 0.56, 0.72)))
+	close_button.add_theme_stylebox_override("hover", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
+	close_button.add_theme_stylebox_override("pressed", _large_map_close_button_style(Color(0.12, 0.09, 0.07, 0.92), Color(0.72, 0.58, 0.40, 0.90)))
+	close_button.add_theme_stylebox_override("focus", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
+	close_button.custom_minimum_size = Vector2(40.0, 40.0)
+	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	close_button.pressed.connect(_close_pile_view)
 	top_row.add_child(close_button)
 
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
+	_pile_dialog_scroll = ScrollContainer.new()
+	_pile_dialog_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pile_dialog_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_pile_dialog_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(_pile_dialog_scroll)
 
 	_pile_dialog_cards = HFlowContainer.new()
 	_pile_dialog_cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_pile_dialog_cards.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_pile_dialog_cards.alignment = FlowContainer.ALIGNMENT_CENTER
 	_pile_dialog_cards.add_theme_constant_override("h_separation", 12)
 	_pile_dialog_cards.add_theme_constant_override("v_separation", 12)
-	scroll.add_child(_pile_dialog_cards)
+	_pile_dialog_scroll.add_child(_pile_dialog_cards)
 
 	_pile_dialog_empty = Label.new()
-	_pile_dialog_empty.text = "Nothing here."
+	_pile_dialog_empty.text = "No cards in this pile."
+	_pile_dialog_empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_pile_dialog_empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_pile_dialog_empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pile_dialog_empty.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_pile_dialog_empty.custom_minimum_size = Vector2(0.0, 96.0)
 	UiTypography.set_label_size(_pile_dialog_empty, UiTypography.SIZE_BODY)
 	_pile_dialog_empty.add_theme_color_override("font_color", Color("d2c2a7"))
+	_pile_dialog_empty.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	_pile_dialog_empty.add_theme_constant_override("outline_size", 1)
 	_pile_dialog_empty.visible = false
 	vbox.add_child(_pile_dialog_empty)
 
@@ -1362,7 +1517,13 @@ func _show_dialogue_line(index: int) -> void:
 	_apply_dialogue_accent(accent_text)
 	_dialogue_name_label.text = speaker
 	_dialogue_text_label.text = _dialogue_line_markup(line)
-	_dialogue_text_label.visible_characters = 0
+	_sync_dialogue_layout()
+	var visible_text_length: int = _dialogue_visible_text().length()
+	if visible_text_length > 0:
+		_dialogue_char_progress = 1.0
+		_dialogue_text_label.visible_characters = 1
+	else:
+		_dialogue_text_label.visible_characters = 0
 	_update_dialogue_footer()
 	if _dialogue_visible_text().is_empty():
 		_complete_current_dialogue_line()
@@ -1447,12 +1608,30 @@ func _dialogue_visible_text() -> String:
 func _has_current_dialogue_options() -> bool:
 	return (_current_dialogue_line().get("options", []) as Array).size() > 0 and _dialogue_text_complete
 
+func _sync_dialogue_layout() -> void:
+	if _dialogue_dialog == null or _dialogue_text_label == null or _dialogue_footer == null:
+		return
+	var options: Array = _current_dialogue_line().get("options", [])
+	var has_options: bool = not options.is_empty()
+	var dialog_height: float = DIALOGUE_DIALOG_OPTION_MIN_HEIGHT if has_options else DIALOGUE_DIALOG_HINT_MIN_HEIGHT
+	var text_height: float = DIALOGUE_TEXT_OPTION_MIN_HEIGHT if has_options else DIALOGUE_TEXT_HINT_MIN_HEIGHT
+	var footer_height: float = DIALOGUE_OPTION_BUTTON_HEIGHT if has_options else DIALOGUE_HINT_FOOTER_HEIGHT
+	_dialogue_dialog.custom_minimum_size = Vector2(DIALOGUE_DIALOG_WIDTH, dialog_height)
+	_dialogue_text_label.custom_minimum_size = Vector2(0.0, text_height)
+	_dialogue_footer.custom_minimum_size = Vector2(0.0, footer_height)
+	if _dialogue_choice_bar != null:
+		_dialogue_choice_bar.custom_minimum_size = Vector2(0.0, DIALOGUE_OPTION_BUTTON_HEIGHT if has_options else 0.0)
+		_dialogue_choice_bar.visible = has_options
+
 func _update_dialogue_footer() -> void:
 	_clear_dialogue_choices()
 	if _dialogue_hint_label == null:
 		return
 	_dialogue_hint_label.text = ""
-	if not _dialogue_active or not _dialogue_text_complete:
+	if not _dialogue_active:
+		return
+	if not _dialogue_text_complete:
+		_dialogue_hint_label.text = "Click to reveal"
 		return
 	var options: Array = _current_dialogue_line().get("options", [])
 	if options.is_empty():
@@ -1506,7 +1685,7 @@ func _cancel_drag_play() -> void:
 	if _drag_overlay != null:
 		_drag_overlay.visible = false
 	if _drag_card_proxy != null:
-		_drag_card_proxy.queue_free()
+		_queue_free_node_now(_drag_card_proxy)
 		_drag_card_proxy = null
 	_drag_card_index = -1
 	_drag_card_options.clear()
@@ -2848,6 +3027,8 @@ func _refresh_visibility() -> void:
 	if mode != "combat":
 		_cancel_drag_play()
 		_close_pile_view()
+	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
+		_clear_children_now(_card_fx_layer)
 	if mode != "room":
 		_close_card_upgrade_overlay()
 	if mode == "defeat":
@@ -2879,6 +3060,7 @@ func _refresh_choice_bar() -> void:
 		_choice_button_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
+	_clear_terminal_overlay()
 	var mode: String = str(_run_state.get("mode", "room"))
 	choice_bar.custom_minimum_size = Vector2.ZERO
 	if mode == "combat" and _selected_card_index >= 0:
@@ -2923,8 +3105,7 @@ func _refresh_choice_bar() -> void:
 				var relic: Dictionary = GameData.relic_def(relic_id)
 				_add_relic_choice(relic_id, relic)
 		"victory":
-			_add_choice_button("Menu", _on_back_to_menu_pressed)
-			_add_choice_button("Again", _on_restart_pressed)
+			_show_victory_overlay()
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
 	if has_overlay_choices:
 		choice_bar.custom_minimum_size = _combat_choice_placeholder_size()
@@ -2995,6 +3176,26 @@ func _clear_relic_choice_overlay() -> void:
 		_relic_choice_title.text = ""
 	if _relic_choice_overlay != null:
 		_relic_choice_overlay.visible = false
+
+func _clear_terminal_overlay() -> void:
+	if _terminal_overlay != null:
+		_terminal_overlay.visible = false
+
+func _show_victory_overlay() -> void:
+	if _terminal_overlay == null:
+		return
+	var carried_embers: int = _victory_carry_amount
+	if carried_embers <= 0:
+		carried_embers = _run_engine.held_embers(_run_state)
+	if _terminal_title_label != null:
+		_terminal_title_label.text = "VICTORY"
+	if _terminal_status_label != null:
+		_terminal_status_label.text = "Run complete"
+	if _terminal_reward_label != null:
+		_terminal_reward_label.text = "Embers carried %d" % carried_embers
+	_terminal_overlay.visible = true
+	_layout_terminal_overlay()
+	call_deferred("_layout_terminal_overlay")
 
 func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
@@ -3207,7 +3408,8 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void
 			_open_level_up_overlay()
 
 func _refresh_hand_panel() -> void:
-	_clear_children(hand_box)
+	_clear_idle_card_fx_layer()
+	_clear_children_now(hand_box)
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "combat":
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -3271,20 +3473,140 @@ func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return slot
 
 func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
-	var slot := CenterContainer.new()
+	var slot := Control.new()
+	slot.name = "RewardHealChoiceSlot"
 	slot.custom_minimum_size = slot_size
 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var button := Button.new()
-	button.text = "+%d HP" % heal_amount
-	button.tooltip_text = "Recover instead"
-	_ui_skin.apply_button_stylebox_overrides(button)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-	var button_height: float = minf(UiSkin.BUTTON_HEIGHT_ACTION, maxf(UiSkin.BUTTON_HEIGHT_STANDARD, slot_size.x / UiSkin.BUTTON_TEXTURE_ASPECT))
-	_ui_skin.apply_button_native_size(button, button_height)
-	button.pressed.connect(_on_skip_reward_pressed)
-	slot.add_child(button)
+	var panel := PanelContainer.new()
+	panel.name = "RewardHealChoice"
+	panel.custom_minimum_size = slot_size
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.tooltip_text = "Recover instead"
+	panel.set_meta("reward_heal_amount", heal_amount)
+	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(false))
+	panel.gui_input.connect(_on_reward_heal_choice_gui_input)
+	panel.mouse_entered.connect(_set_reward_heal_choice_hovered.bind(panel, true))
+	panel.mouse_exited.connect(_set_reward_heal_choice_hovered.bind(panel, false))
+	slot.add_child(panel)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 9)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	var art_panel := PanelContainer.new()
+	art_panel.name = "RewardHealArt"
+	art_panel.custom_minimum_size = Vector2(0.0, clampf(slot_size.y * 0.38, 104.0, 132.0))
+	art_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	art_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art_panel.add_theme_stylebox_override("panel", _reward_heal_art_style())
+	vbox.add_child(art_panel)
+
+	var art_center := CenterContainer.new()
+	art_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art_panel.add_child(art_center)
+
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(86.0, 86.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(HEALTH_ICON_PATH)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art_center.add_child(icon)
+
+	var title := Label.new()
+	title.text = "Recover"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(title, UiTypography.SIZE_BODY)
+	title.add_theme_color_override("font_color", Color("fff1d5"))
+	title.add_theme_color_override("font_outline_color", Color("26180f"))
+	title.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(title)
+
+	var amount := Label.new()
+	amount.text = "+%d HP" % heal_amount
+	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	amount.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(amount, UiTypography.SIZE_SECTION)
+	amount.add_theme_color_override("font_color", Color("b9ef86"))
+	amount.add_theme_color_override("font_outline_color", Color("1f170f"))
+	amount.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(amount)
+
+	var detail := Label.new()
+	detail.text = "Skip card"
+	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(detail, UiTypography.SIZE_CAPTION)
+	detail.add_theme_color_override("font_color", Color("dec9a7"))
+	detail.add_theme_color_override("font_outline_color", Color("21150e"))
+	detail.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(detail)
 	return slot
+
+func _clear_idle_card_fx_layer() -> void:
+	if _animation_lock or _card_fx_layer == null or _card_fx_layer.get_child_count() <= 0:
+		return
+	_clear_children_now(_card_fx_layer)
+
+func _on_reward_heal_choice_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_on_skip_reward_pressed()
+
+func _set_reward_heal_choice_hovered(panel: PanelContainer, hovered: bool) -> void:
+	if panel == null:
+		return
+	panel.z_index = 40 if hovered else 30
+	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(hovered))
+
+func _reward_heal_choice_style(hovered: bool) -> StyleBoxFlat:
+	var accent := Color("a9d16e")
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.13, 0.085, 0.055, 0.96).lightened(0.06) if hovered else Color(0.13, 0.085, 0.055, 0.92)
+	style.border_color = accent.lightened(0.16) if hovered else Color("8e9f63")
+	style.border_width_left = 4
+	style.border_width_top = 4
+	style.border_width_right = 4
+	style.border_width_bottom = 4
+	style.corner_radius_top_left = 9
+	style.corner_radius_top_right = 9
+	style.corner_radius_bottom_right = 9
+	style.corner_radius_bottom_left = 9
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
+	style.shadow_size = 22 if hovered else 16
+	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
+	return style
+
+func _reward_heal_art_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.040, 0.030, 0.88)
+	style.border_color = Color("74664a")
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	return style
 
 func _refresh_stage_view() -> void:
 	_exit_destinations_by_tile = _exit_tile_lookup()
@@ -3830,6 +4152,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
+				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"force_tiles": force_tiles,
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
 			}
@@ -3841,6 +4164,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 				"center": target_tile,
 				"tiles": _aoe_tiles_for_action(state, action, target_tile),
 				"preview": true,
+				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
 			}
 		_:
@@ -4476,6 +4800,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animation_lock = true
 	_begin_card_play_meter_spend_preview()
 	_refresh_ui()
+	await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_player_card_resolution(_combat_state.duplicate(true), card_id, actions, selected_targets)
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -4492,6 +4817,8 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_sync_combat_state_from_run()
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
+	if outcome == "":
+		await _animate_card_to_pile_fx(card_id, pile_kind, card_size)
 	_animation_lock = false
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
@@ -4505,10 +4832,43 @@ func _card_destination_pile(card_id: String) -> String:
 	return "burn" if bool(_card_def(card_id, _combat_state).get("burn", false)) else "discard"
 
 func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vector2) -> void:
-	return
+	if _card_fx_layer == null or card_id.is_empty() or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		return
+	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+	proxy.z_index = 1500
+	proxy.modulate = Color(1.0, 1.0, 1.0, 0.96)
+	_card_fx_layer.add_child(proxy)
+	var target_rect: Rect2 = _stage_card_rect(size_hint * 0.88)
+	await _animate_card_proxy_to_rect(proxy, target_rect, CARD_PLAY_SECONDS)
+	if not _node_is_alive(proxy):
+		return
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.07)
+	await tween.finished
+	_queue_free_node_now(proxy)
 
 func _animate_card_to_pile_fx(card_id: String, pile_kind: String, size_hint: Vector2) -> void:
-	return
+	if _card_fx_layer == null or card_id.is_empty():
+		return
+	var pile_rect: Rect2 = _pile_global_rect(pile_kind)
+	if pile_rect.size.x <= 0.0 or pile_rect.size.y <= 0.0:
+		return
+	var start_rect: Rect2 = _stage_card_rect(size_hint * 0.58)
+	var target_size: Vector2 = Vector2(
+		minf(96.0, size_hint.x * 0.42),
+		minf(136.0, size_hint.y * 0.42)
+	)
+	var target_rect: Rect2 = _rect_from_center(pile_rect.get_center(), target_size)
+	var proxy: Control = _spawn_card_proxy(card_id, start_rect)
+	proxy.z_index = 1490
+	proxy.modulate = Color(1.0, 1.0, 1.0, 0.76)
+	_card_fx_layer.add_child(proxy)
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(proxy, "position", target_rect.position, CARD_PILE_SECONDS)
+	tween.parallel().tween_property(proxy, "size", target_rect.size, CARD_PILE_SECONDS)
+	tween.parallel().tween_property(proxy, "modulate", Color(1.0, 1.0, 1.0, 0.18), CARD_PILE_SECONDS)
+	await tween.finished
+	_queue_free_node_now(proxy)
 
 func _animate_draw_cards_fx(draw_entries: Array) -> void:
 	if _card_fx_layer == null or draw_entries.is_empty():
@@ -4520,6 +4880,8 @@ func _animate_draw_cards_fx(draw_entries: Array) -> void:
 	var size_hint: Vector2 = _hand_card_size(maxi(5, final_total), false)
 	var source_rect: Rect2 = _rect_from_center(_pile_global_rect("draw").get_center(), size_hint * 0.86)
 	for draw_index: int in range(draw_entries.size()):
+		if not _card_fx_can_continue_combat():
+			return
 		var entry: Variant = draw_entries[draw_index]
 		var card_id: String = ""
 		var target_index: int = draw_index
@@ -4531,11 +4893,19 @@ func _animate_draw_cards_fx(draw_entries: Array) -> void:
 			target_total = int(draw_entry.get("total", final_total))
 		else:
 			card_id = str(entry)
+		if card_id.is_empty() or not _card_fx_can_continue_combat():
+			return
 		var proxy: Control = _spawn_card_proxy(card_id, source_rect)
 		_card_fx_layer.add_child(proxy)
 		await _animate_card_proxy_to_rect(proxy, _hand_receive_rect(target_index, target_total, size_hint * 0.94), DRAW_FRAME_SECONDS)
-		proxy.queue_free()
+		if not _card_fx_can_continue_combat():
+			_queue_free_node_now(proxy)
+			return
+		_queue_free_node_now(proxy)
 		await get_tree().create_timer(0.05).timeout
+
+func _card_fx_can_continue_combat() -> bool:
+	return _node_is_alive(_card_fx_layer) and str(_run_state.get("mode", "room")) == "combat"
 
 func _draw_entries_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_counts: Dictionary = {}
@@ -4935,6 +5305,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"to": effect_target_tile,
 				"center": effect_target_tile,
 				"tiles": focus_tiles,
+				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"force_tiles": _combat_engine.forced_movement_tiles_for_player_action(before_state, action, target_tile)
 			}
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -5811,21 +6182,27 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d" % hp_loss,
 				"color": Color("f39779"),
-				"offset": -10.0
+				"offset": -60.0,
+				"x_offset": -24.0,
+				"width": 72.0
 			})
 		if block_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d B" % block_loss,
 				"color": Color("90d9ff"),
-				"offset": 10.0
+				"offset": -40.0,
+				"x_offset": -24.0,
+				"width": 72.0
 			})
 		if stoneskin_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"text": "-%d S" % stoneskin_loss,
 				"color": ElementData.accent(ElementData.EARTH),
-				"offset": 22.0
+				"offset": -20.0,
+				"x_offset": -24.0,
+				"width": 72.0
 			})
 	return floats
 
@@ -6056,17 +6433,30 @@ func _open_pile_view(pile_kind: String) -> void:
 	_cancel_drag_play()
 	_close_card_upgrade_overlay()
 	var cards: Array = _cards_for_pile(pile_kind)
+	var pile_empty: bool = cards.is_empty()
+	_pile_dialog.custom_minimum_size = _pile_dialog_size_for_count(cards.size())
 	_active_pile_kind = pile_kind
 	_pile_dialog_title.text = "%s Pile" % _pile_display_name(pile_kind)
-	_clear_children(_pile_dialog_cards)
+	_clear_children_now(_pile_dialog_cards)
 	for card_id_var: Variant in cards:
 		var widget = CardWidgetScene.instantiate()
-		widget.custom_minimum_size = PILE_CARD_SIZE
+		widget.custom_minimum_size = PILE_DIALOG_CARD_SIZE
 		widget.configure(str(card_id_var), false, false, true, false, false, true, _card_def(str(card_id_var)))
 		widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_pile_dialog_cards.add_child(widget)
-	_pile_dialog_empty.visible = cards.is_empty()
+	if _pile_dialog_scroll != null:
+		_pile_dialog_scroll.visible = not pile_empty
+	_pile_dialog_empty.text = "No cards in this pile." if pile_empty else ""
+	_pile_dialog_empty.visible = pile_empty
 	_pile_scrim.visible = true
+
+func _pile_dialog_size_for_count(card_count: int) -> Vector2:
+	if card_count <= 0:
+		return PILE_DIALOG_EMPTY_SIZE
+	var visible_cards: int = mini(card_count, 5)
+	var content_width: float = PILE_DIALOG_CARD_SIZE.x * float(visible_cards) + 12.0 * float(maxi(visible_cards - 1, 0)) + 88.0
+	var target_size: Vector2 = PILE_DIALOG_ROW_SIZE if card_count <= 5 else PILE_DIALOG_FULL_SIZE
+	return Vector2(clampf(content_width, PILE_DIALOG_MIN_CARD_WIDTH, target_size.x), target_size.y)
 
 func _close_pile_view() -> void:
 	if _pile_scrim != null:
@@ -6112,7 +6502,8 @@ func _rebuild_progression_overlay() -> void:
 		return
 	_sync_progression_from_run()
 	_clear_children_now(_upgrade_dialog)
-	_upgrade_dialog.custom_minimum_size = Vector2(1040.0, 660.0)
+	var dialog_height: float = 560.0 if _progression_overlay_mode == "level_up" else 660.0
+	_upgrade_dialog.custom_minimum_size = Vector2(1040.0, dialog_height)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 22)
 	margin.add_theme_constant_override("margin_top", 18)
@@ -6215,8 +6606,11 @@ func _build_progression_status_panel() -> Control:
 	margin.add_theme_constant_override("margin_bottom", 14)
 	panel.add_child(margin)
 	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_theme_constant_override("separation", 10)
 	margin.add_child(vbox)
+	vbox.add_child(_build_progression_character_panel())
 	for row_text: String in _progression_status_rows():
 		var label := Label.new()
 		label.text = row_text
@@ -6226,6 +6620,58 @@ func _build_progression_status_panel() -> Control:
 		label.add_theme_color_override("font_outline_color", Color("241912"))
 		label.add_theme_constant_override("outline_size", 1)
 		vbox.add_child(label)
+	return panel
+
+func _build_progression_character_panel() -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(0.0, 252.0 if _progression_overlay_mode == "stats" else 210.0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.042, 0.034, 0.86)
+	style.border_color = Color("5f4a35")
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	panel.add_theme_stylebox_override("panel", style)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+
+	var stack := VBoxContainer.new()
+	stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.add_theme_constant_override("separation", 6)
+	margin.add_child(stack)
+
+	var art := TextureRect.new()
+	art.name = "ProgressionCharacterArt"
+	art.texture = AssetLoader.load_texture(PLAYER_UNIT_TEXTURE_PATH)
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.custom_minimum_size = Vector2(0.0, 176.0 if _progression_overlay_mode == "stats" else 136.0)
+	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
+	stack.add_child(art)
+
+	var name_label := Label.new()
+	name_label.text = "The Reaver"
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
+	name_label.add_theme_color_override("font_color", Color("f5ead4"))
+	name_label.add_theme_color_override("font_outline_color", Color("241912"))
+	name_label.add_theme_constant_override("outline_size", 1)
+	stack.add_child(name_label)
 	return panel
 
 func _progression_status_rows() -> Array[String]:
@@ -6687,7 +7133,7 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var card_gap: float = HAND_CARD_GAP if reward_mode else HAND_CARD_OVERLAP
 	var gaps: float = float(maxi(0, card_count - 1)) * card_gap
 	var target_width: float = (available_width - gaps) / float(maxi(1, card_count))
-	var max_width: float = 236.0 if reward_mode else 232.0
+	var max_width: float = 224.0 if reward_mode else 204.0
 	var min_width: float = 188.0 if reward_mode else 184.0
 	var width: float = clampf(target_width, min_width, max_width)
 	return Vector2(width, width * 1.42)
@@ -6725,8 +7171,32 @@ func _clear_children(node: Node) -> void:
 
 func _clear_children_now(node: Node) -> void:
 	for child: Node in node.get_children():
+		_prepare_node_for_immediate_free(child)
 		node.remove_child(child)
-		child.queue_free()
+		if _node_is_alive(child):
+			child.queue_free()
+
+func _node_is_alive(node) -> bool:
+	return node != null and is_instance_valid(node) and node is Node and not (node as Node).is_queued_for_deletion()
+
+func _queue_free_node_now(node) -> void:
+	if not _node_is_alive(node):
+		return
+	_prepare_node_for_immediate_free(node)
+	(node as Node).queue_free()
+
+func _prepare_node_for_immediate_free(node) -> void:
+	if not _node_is_alive(node):
+		return
+	if node is CanvasItem:
+		var item: CanvasItem = node as CanvasItem
+		item.visible = false
+		item.top_level = false
+	if node is Control:
+		var control: Control = node as Control
+		control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child: Node in node.get_children():
+		_prepare_node_for_immediate_free(child)
 
 func _set_mouse_filter_recursive(node: Node, filter: int) -> void:
 	if node is Control:

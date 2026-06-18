@@ -81,6 +81,7 @@ func _initialize() -> void:
 	_test_aoe_hits_multiple_targets()
 	_test_close_aoe_hits_adjacent_targets()
 	_test_rotated_line_aoe_uses_selected_orientation()
+	_test_combat_board_orders_line_aoe_preview_tiles()
 	_test_forced_movement_uses_selected_straight_line()
 	_test_enemy_phase_preserves_preview_cycle()
 	_test_elemental_room_rewards_follow_affinity(default_progression)
@@ -186,6 +187,7 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
+	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
@@ -388,6 +390,7 @@ func _test_hand_fan_layout_lifts_center_cards() -> void:
 	_assert(HandFanContainer.card_rotation_for_layout(0, 5, true) < 0.0, "Hand fan should tilt left-side cards outward")
 	_assert(HandFanContainer.card_rotation_for_layout(4, 5, true) > 0.0, "Hand fan should tilt right-side cards outward")
 	_assert(content_size.y < right_rect.end.y, "Hand fan should reserve a little less than the full arch height so the outer cards can sink slightly offscreen")
+	_assert(right_rect.end.y - content_size.y <= 8.0, "Hand fan should not let outer cards sink far enough to clip their bottom frames")
 	_assert(HandFanContainer.card_z_index_for_layout(0, 5) < HandFanContainer.card_z_index_for_layout(4, 5), "Hand fan should stack cards left-to-right so the rightmost card stays uncovered")
 
 func _test_room_generation_uses_perimeter_walls_only() -> void:
@@ -2140,6 +2143,22 @@ func _test_rotated_line_aoe_uses_selected_orientation() -> void:
 	var east_enemies: Array = east_state.get("enemies", [])
 	_assert(int((east_enemies[1] as Dictionary).get("hp", 0)) == 20, "East-oriented line should not hit the northern enemy")
 	_assert(int((east_enemies[2] as Dictionary).get("hp", 0)) == 15, "East-oriented line should hit the eastern enemy")
+
+func _test_combat_board_orders_line_aoe_preview_tiles() -> void:
+	var board := CombatBoardView.new()
+	var east_tiles: Array = board.call("_ordered_aoe_line_tiles_for_effect", {
+		"tiles": [Vector2i(5, 4), Vector2i(4, 4), Vector2i(6, 4)]
+	})
+	_assert(east_tiles == [Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)], "Combat board should order horizontal AOE line tiles for the late-drawn guide")
+	var north_tiles: Array = board.call("_ordered_aoe_line_tiles_for_effect", {
+		"tiles": [Vector2i(4, 3), Vector2i(4, 2), Vector2i(4, 4)]
+	})
+	_assert(north_tiles == [Vector2i(4, 2), Vector2i(4, 3), Vector2i(4, 4)], "Combat board should order vertical AOE line tiles for the late-drawn guide")
+	var corner_tiles: Array = board.call("_ordered_aoe_line_tiles_for_effect", {
+		"tiles": [Vector2i(4, 4), Vector2i(5, 4), Vector2i(4, 5)]
+	})
+	_assert(corner_tiles.is_empty(), "Combat board should not connect non-line AOE patterns with a line guide")
+	board.free()
 
 func _test_forced_movement_uses_selected_straight_line() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4380,7 +4399,8 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	var full_left_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
 	var full_right_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
 	var full_spacing: float = float(map_view.call("_grid_spacing"))
-	_assert(full_spacing <= 72.0 and full_spacing > compact_spacing, "Full map should use a larger fixed grid without stretching sparse rooms to the frame edges")
+	_assert(full_spacing <= 132.0 and full_spacing >= compact_spacing * 3.0, "Full map should use a generous fixed grid without stretching sparse rooms to the frame edges")
+	_assert(float(map_view.call("_base_node_size")) >= 56.0, "Full map nodes should read as deliberate large-map controls instead of compact minimap icons")
 	_assert(is_equal_approx(absf(full_right_position.x - full_left_position.x), full_spacing), "Full map adjacent rooms should stay evenly spaced on the same grid")
 	_assert(absf(full_right_position.x - full_left_position.x) < map_view.size.x * 0.25, "Full map should allow dead space instead of stretching early rooms apart")
 	var map_rect: Rect2 = map_view.call("_map_rect")
@@ -4963,6 +4983,8 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	await process_frame
 	var large_map_scrim: ColorRect = instance.get("_large_map_scrim") as ColorRect
 	_assert(large_map_scrim != null and large_map_scrim.visible, "Clicking the minimap should open the large map overlay")
+	if large_map_scrim != null:
+		_assert(large_map_scrim.color.a >= 0.99, "Large map backdrop should hide underlying room header text")
 	var large_map_view: Control = instance.get("_large_map_view") as Control
 	_assert(large_map_view != null and not bool(large_map_view.get("draw_background")), "Large map view should let the translucent panel show through behind map rooms")
 	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
@@ -5154,6 +5176,30 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for card FX ghost cleanup coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var card_fx_layer: Control = instance.get("_card_fx_layer") as Control
+	_assert(card_fx_layer != null, "Run scene should build a card FX layer")
+	if card_fx_layer != null:
+		var active_ghost := Control.new()
+		active_ghost.name = "ActiveCardFxGhost"
+		active_ghost.top_level = true
+		card_fx_layer.add_child(active_ghost)
+		instance.set("_animation_lock", true)
+		instance.call("_refresh_hand_panel")
+		_assert(card_fx_layer.get_child_count() == 1, "Hand refresh should not clear card FX while animations are locked")
+		instance.set("_animation_lock", false)
+		instance.call("_refresh_hand_panel")
+		_assert(card_fx_layer.get_child_count() == 0, "Idle hand refresh should clear leftover card FX proxies before later selections")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -5176,12 +5222,16 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	await process_frame
 	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var heal_button: Button = _button_with_text(hand_box, "+%d HP" % RunEngine.REWARD_HEAL)
 	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward heal choice should not appear in the combat choice bar")
-	_assert(heal_button != null, "Reward heal choice should render as a button beside the offered cards")
-	if heal_button != null:
-		_assert_button_uses_native_ratio(heal_button, UiSkin.BUTTON_HEIGHT_STANDARD, "Reward heal choice should use a native-ratio button frame")
-		var heal_slot: Node = heal_button.get_parent()
+	var heal_slot: Node = hand_box.get_child(3) if hand_box.get_child_count() >= 4 else null
+	var heal_choice: PanelContainer = null
+	if heal_slot != null:
+		heal_choice = heal_slot.find_child("RewardHealChoice", true, false) as PanelContainer
+	_assert(heal_choice != null, "Reward heal choice should render as a card-like tile beside the offered cards")
+	if heal_choice != null:
+		_assert(int(heal_choice.get_meta("reward_heal_amount", 0)) == RunEngine.REWARD_HEAL, "Reward heal tile should keep the offered heal amount")
+		_assert(heal_choice.mouse_filter == Control.MOUSE_FILTER_STOP, "Reward heal tile should receive clicks directly")
+		_assert(_button_with_text(hand_box, "+%d HP" % RunEngine.REWARD_HEAL) == null, "Reward heal choice should not render as a floating button over the cards")
 		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
 		_assert(hand_box.get_child_count() == 4 and hand_box.get_child(3) == heal_slot, "Reward heal choice should sit immediately to the right of the offered cards")
 	instance.queue_free()
@@ -6101,6 +6151,15 @@ func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_pile_visuals")
+	instance.call("_open_pile_view", "discard")
+	await process_frame
+	var pile_dialog: PanelContainer = instance.get("_pile_dialog")
+	var pile_empty_label: Label = instance.get("_pile_dialog_empty")
+	_assert(pile_dialog != null and pile_dialog.custom_minimum_size.x <= 540.0 and pile_dialog.custom_minimum_size.y <= 260.0, "The empty discard pile dialog should stay compact")
+	var pile_close_button: Button = pile_dialog.find_child("CloseButton", true, false) as Button if pile_dialog != null else null
+	_assert(pile_close_button != null and absf(pile_close_button.custom_minimum_size.x - pile_close_button.custom_minimum_size.y) <= 1.0, "The pile dialog close control should be a compact square button")
+	_assert(pile_empty_label != null and pile_empty_label.visible and pile_empty_label.text == "No cards in this pile.", "The empty discard pile dialog should use final centered empty copy")
+	instance.call("_close_pile_view")
 	var hosts: Dictionary = instance.get("_pile_visual_hosts")
 	var discard_host: Control = hosts.get("discard", null)
 	_assert(discard_host != null and discard_host.get_child_count() == 1, "The empty discard pile should render as one card-sized empty frame")
@@ -6116,6 +6175,10 @@ func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	combat_state["deck"] = deck
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_pile_visuals")
+	instance.call("_open_pile_view", "discard")
+	await process_frame
+	_assert(pile_dialog != null and pile_dialog.custom_minimum_size.x < 760.0 and pile_dialog.custom_minimum_size.y <= 450.0, "A one-card discard pile dialog should stay compact around its card")
+	instance.call("_close_pile_view")
 	discard_host = hosts.get("discard", null)
 	var discard_top: Node = discard_host.get_child(discard_host.get_child_count() - 1) if discard_host != null and discard_host.get_child_count() > 0 else null
 	_assert(discard_top is CardWidget and (discard_top as CardWidget).card_id == "quick_stab", "A non-empty discard pile should render the top card with the real card widget")
@@ -6244,9 +6307,14 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	var dialogue_active: bool = bool(instance.get("_dialogue_active"))
 	var speaker_label: Label = instance.get("_dialogue_name_label")
 	var text_label: RichTextLabel = instance.get("_dialogue_text_label")
+	var dialogue_dialog: PanelContainer = instance.get("_dialogue_dialog")
+	var dialogue_footer: HBoxContainer = instance.get("_dialogue_footer")
 	_assert(dialogue_active, "Starting in the waypoint should auto-trigger the friendly NPC dialogue")
 	_assert(speaker_label != null and speaker_label.text == "Emaciated Man", "The start-room dialogue should identify the Emaciated Man as the speaker")
 	_assert(text_label != null and text_label.text == "Hehehe. You're back...so soon.", "The opening NPC line should match the scripted default dialogue")
+	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.x <= 1200.0, "The opening NPC dialogue should stay narrower than the full viewport")
+	_assert(dialogue_dialog != null and dialogue_dialog.custom_minimum_size.y <= 160.0, "The opening NPC dialogue should use a compact spoken-line panel")
+	_assert(dialogue_footer != null and dialogue_footer.custom_minimum_size.y <= 40.0, "The opening NPC dialogue should not reserve choice-button height for a hint-only footer")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
 	_assert(int(instance.get("_dialogue_line_index")) == 1, "Advancing after the first line should move to the second line")
@@ -6286,10 +6354,14 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
 	_assert(_label_with_text(upgrade_scrim, "Level 1") != null, "The character overlay should show current level")
 	_assert(_label_with_text(upgrade_scrim, "Held embers 180") != null, "The character overlay should show held embers")
+	var character_art: TextureRect = upgrade_scrim.find_child("ProgressionCharacterArt", true, false) as TextureRect
+	_assert(character_art != null and character_art.texture != null, "The character overlay should anchor the status panel with protagonist art")
 	_assert(_label_with_text(upgrade_scrim, "Might") != null, "The character overlay should list physical stats")
 	_assert(_label_with_text(upgrade_scrim, "Fire Magick") != null, "The character overlay should list elemental magick stats")
 	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_level_up_overlay")
+	var upgrade_dialog: PanelContainer = instance.get("_upgrade_dialog")
+	_assert(upgrade_dialog != null and upgrade_dialog.custom_minimum_size.y <= 560.0, "The campfire level-up overlay should stay short enough to keep its action row visible")
 	_assert(_label_with_text(upgrade_scrim, "Draw Strength") != null, "The campfire level-up overlay should use the Draw Strength title")
 	_assert(_label_with_text(upgrade_scrim, "Choose 2 different stats.") != null, "The level-up overlay should explain the two-stat pick")
 	_assert(_button_with_text(upgrade_scrim, "+") != null, "The level-up overlay should use plus buttons instead of set buttons")
@@ -6387,7 +6459,9 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	root.add_child(instance)
 	await process_frame
 	var continue_button: Button = instance.get_node("Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/ContinueButton")
+	var boss_button: Button = instance.get_node("Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/BossButton")
 	_assert(continue_button.visible, "Main menu should expose Continue when a saved run exists")
+	_assert(not boss_button.visible, "Main menu should keep the debug boss shortcut hidden by default")
 	instance.queue_free()
 	ProgressionStore.clear_saved_run()
 	await process_frame
