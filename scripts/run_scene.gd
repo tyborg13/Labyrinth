@@ -30,6 +30,67 @@ class TooltipPanelContainer:
 			return null
 		return UiTooltipPanelScript.make_text(for_text)
 
+class EquipmentTooltipPanelContainer:
+	extends TooltipPanelContainer
+
+	var equipment_id: String = ""
+	var host: Node = null
+
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if host == null or equipment_id.is_empty():
+			return super._make_custom_tooltip(for_text)
+		return host.call("_build_equipment_tooltip_panel", equipment_id)
+
+class EquipmentInventoryTile:
+	extends EquipmentTooltipPanelContainer
+
+	func _get_drag_data(_at_position: Vector2) -> Variant:
+		if host == null or equipment_id.is_empty():
+			return null
+		if not bool(host.call("_equipment_overlay_can_change")):
+			return null
+		var preview: Control = host.call("_build_equipment_drag_preview", equipment_id)
+		if preview != null:
+			set_drag_preview(preview)
+		return {
+			"kind": "equipment",
+			"equipment_id": equipment_id
+		}
+
+	func _gui_input(event: InputEvent) -> void:
+		if host == null or equipment_id.is_empty():
+			return
+		if event is InputEventMouseButton:
+			var mouse_event: InputEventMouseButton = event
+			if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.double_click and mouse_event.pressed:
+				host.call("_equip_equipment_from_overlay", equipment_id)
+				accept_event()
+
+class EquipmentSlotDrop:
+	extends EquipmentTooltipPanelContainer
+
+	var slot_id: String = ""
+
+	func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+		return host != null and bool(host.call("_can_drop_equipment_data", slot_id, data))
+
+	func _drop_data(_at_position: Vector2, data: Variant) -> void:
+		if not _can_drop_data(Vector2.ZERO, data):
+			return
+		var payload: Dictionary = data as Dictionary
+		host.call("_equip_equipment_from_overlay", str(payload.get("equipment_id", "")))
+
+class EquipmentCardBadge:
+	extends TooltipPanelContainer
+
+	var card_id: String = ""
+	var host: Node = null
+
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if host == null or card_id.is_empty():
+			return super._make_custom_tooltip(for_text)
+		return host.call("_build_card_tooltip_panel", card_id)
+
 class FatigueEdgeOverlay:
 	extends Control
 
@@ -131,6 +192,8 @@ const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
 const FALLBACK_MOVE_RANGE: int = 2
+const CARD_WIDGET_BASE_SIZE: Vector2 = Vector2(250.0, 352.0)
+const CARD_ASPECT_RATIO: float = 352.0 / 250.0
 const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, -1),
 	Vector2i(1, 0),
@@ -139,8 +202,8 @@ const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 ]
 const HAND_CARD_OVERLAP: float = -28.0
 const HAND_CARD_GAP: float = 14.0
-const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 314.0)
-const PILE_DIALOG_CARD_SIZE: Vector2 = Vector2(196.0, 280.0)
+const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 220.0 * CARD_ASPECT_RATIO)
+const PILE_DIALOG_CARD_SIZE: Vector2 = Vector2(196.0, 196.0 * CARD_ASPECT_RATIO)
 const PILE_DIALOG_FULL_SIZE: Vector2 = Vector2(1220.0, 620.0)
 const PILE_DIALOG_ROW_SIZE: Vector2 = Vector2(1220.0, 438.0)
 const PILE_DIALOG_EMPTY_SIZE: Vector2 = Vector2(520.0, 238.0)
@@ -148,7 +211,7 @@ const PILE_DIALOG_MIN_CARD_WIDTH: float = 620.0
 const PILE_CARD_SCALE: float = 0.80
 const PILE_STACK_OFFSET: Vector2 = Vector2(8.0, 10.0)
 const PILE_STACK_LAYERS: int = 3
-const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 266.0)
+const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
@@ -201,6 +264,14 @@ const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
 const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
+const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1160.0, 790.0)
+const CHARACTER_BODY_HEIGHT: float = 600.0
+const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(178.0, 92.0)
+const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 72.0)
+const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(42.0, 42.0)
+const EQUIPMENT_DECK_BADGE_SIZE: Vector2 = Vector2(164.0, 34.0)
+const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(150.0, 150.0 * CARD_ASPECT_RATIO)
+const CARD_TOOLTIP_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
 const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(840.0, 104.0)
 const TURN_ORDER_PANEL_MIN_WIDTH: float = 520.0
 const TURN_ORDER_LABEL_WIDTH: float = 118.0
@@ -1743,23 +1814,34 @@ func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 	_drag_card_proxy.position = mouse_position - _drag_card_grab_offset
 
 func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
+	var proxy := Control.new()
+	proxy.name = "CardProxy"
+	proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	proxy.top_level = true
+	proxy.position = rect.position
+	proxy.custom_minimum_size = CARD_WIDGET_BASE_SIZE
+	proxy.size = CARD_WIDGET_BASE_SIZE
+	proxy.scale = Vector2.ONE * _card_widget_scale_for_size(_normalized_card_size(rect.size))
+	proxy.set_meta("scaled_card_proxy", true)
 	var widget = CardWidgetScene.instantiate()
 	widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	widget.top_level = true
-	widget.custom_minimum_size = rect.size
-	widget.size = rect.size
-	widget.position = rect.position
+	_prepare_native_card_widget(widget)
+	proxy.add_child(widget)
+	widget.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id, _combat_state))
 	var display: Dictionary = _card_widget_display(card_id, _combat_state)
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
-	return widget
+	return proxy
 
 func _animate_card_proxy_to_rect(proxy: Control, target_rect: Rect2, duration: float) -> void:
 	if proxy == null:
 		return
 	var tween: Tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(proxy, "position", target_rect.position, duration)
-	tween.parallel().tween_property(proxy, "size", target_rect.size, duration)
+	if bool(proxy.get_meta("scaled_card_proxy", false)):
+		tween.parallel().tween_property(proxy, "scale", Vector2.ONE * _card_widget_scale_for_size(_normalized_card_size(target_rect.size)), duration)
+	else:
+		tween.parallel().tween_property(proxy, "size", _normalized_card_size(target_rect.size), duration)
 	await tween.finished
 
 func _hand_card_global_rect(index: int) -> Rect2:
@@ -2209,16 +2291,14 @@ func _populate_discard_pile(host: Control, cards: Array, card_size: Vector2) -> 
 		_add_card_back_layer(host, card_size, stack_index, 0.58)
 	var top_card_id: String = str(cards[cards.size() - 1])
 	var display: Dictionary = _card_widget_display(top_card_id, _combat_state)
-	var widget = CardWidgetScene.instantiate()
-	widget.custom_minimum_size = card_size
-	widget.position = Vector2.ZERO
-	widget.size = card_size
+	var widget := CardWidgetScene.instantiate() as CardWidget
 	widget.configure(top_card_id, false, false, true, false, false, true, _card_def(top_card_id, _combat_state))
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
-	host.add_child(widget)
-	widget.position = Vector2.ZERO
-	widget.size = card_size
-	_set_mouse_filter_recursive(widget, Control.MOUSE_FILTER_IGNORE)
+	var slot: Control = _scaled_card_slot(widget, card_size)
+	host.add_child(slot)
+	slot.position = Vector2.ZERO
+	slot.size = _normalized_card_size(card_size)
+	_set_mouse_filter_recursive(slot, Control.MOUSE_FILTER_IGNORE)
 
 func _add_card_back_layer(host: Control, card_size: Vector2, stack_index: int, alpha: float) -> void:
 	var card_back := TextureRect.new()
@@ -3465,12 +3545,41 @@ func _refresh_hand_panel() -> void:
 		hand_box.configure_layout(HAND_CARD_GAP, false)
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
+	return _scaled_card_slot(widget, card_size)
+
+func _scaled_card_slot(widget: Control, card_size: Vector2) -> Control:
+	card_size = _normalized_card_size(card_size)
 	var slot := Control.new()
 	slot.custom_minimum_size = card_size
+	slot.size = card_size
+	slot.clip_contents = false
 	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slot.add_child(widget)
+	var scaler := Control.new()
+	scaler.name = "CardScaleFrame"
+	scaler.custom_minimum_size = CARD_WIDGET_BASE_SIZE
+	scaler.size = CARD_WIDGET_BASE_SIZE
+	scaler.scale = Vector2.ONE * _card_widget_scale_for_size(card_size)
+	scaler.position = (card_size - CARD_WIDGET_BASE_SIZE * scaler.scale.x) * 0.5
+	scaler.clip_contents = false
+	scaler.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(scaler)
+	_prepare_native_card_widget(widget)
+	scaler.add_child(widget)
 	widget.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return slot
+
+func _prepare_native_card_widget(widget: Control) -> void:
+	if widget == null:
+		return
+	widget.custom_minimum_size = CARD_WIDGET_BASE_SIZE
+	widget.size = CARD_WIDGET_BASE_SIZE
+	widget.position = Vector2.ZERO
+	widget.scale = Vector2.ONE
+
+func _card_widget_scale_for_size(card_size: Vector2) -> float:
+	if card_size.x <= 0.0 or card_size.y <= 0.0:
+		return 1.0
+	return minf(card_size.x / CARD_WIDGET_BASE_SIZE.x, card_size.y / CARD_WIDGET_BASE_SIZE.y)
 
 func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
 	var slot := Control.new()
@@ -3677,6 +3786,7 @@ func _refresh_stage_view() -> void:
 		]
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
+	presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -4858,6 +4968,7 @@ func _animate_card_to_pile_fx(card_id: String, pile_kind: String, size_hint: Vec
 		minf(96.0, size_hint.x * 0.42),
 		minf(136.0, size_hint.y * 0.42)
 	)
+	target_size = _normalized_card_size(target_size)
 	var target_rect: Rect2 = _rect_from_center(pile_rect.get_center(), target_size)
 	var proxy: Control = _spawn_card_proxy(card_id, start_rect)
 	proxy.z_index = 1490
@@ -4865,7 +4976,10 @@ func _animate_card_to_pile_fx(card_id: String, pile_kind: String, size_hint: Vec
 	_card_fx_layer.add_child(proxy)
 	var tween: Tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(proxy, "position", target_rect.position, CARD_PILE_SECONDS)
-	tween.parallel().tween_property(proxy, "size", target_rect.size, CARD_PILE_SECONDS)
+	if bool(proxy.get_meta("scaled_card_proxy", false)):
+		tween.parallel().tween_property(proxy, "scale", Vector2.ONE * _card_widget_scale_for_size(target_rect.size), CARD_PILE_SECONDS)
+	else:
+		tween.parallel().tween_property(proxy, "size", target_rect.size, CARD_PILE_SECONDS)
 	tween.parallel().tween_property(proxy, "modulate", Color(1.0, 1.0, 1.0, 0.18), CARD_PILE_SECONDS)
 	await tween.finished
 	_queue_free_node_now(proxy)
@@ -5664,6 +5778,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 	var rendered_presentation: Dictionary = presentation.duplicate(true)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
+	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	board_view.set_combat_state(
 		display_state,
 		[],
@@ -5675,6 +5790,9 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		{},
 		rendered_presentation
 	)
+
+func _equipped_equipment_for_board() -> Dictionary:
+	return (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
 	match str(step.get("kind", "")):
@@ -6439,11 +6557,10 @@ func _open_pile_view(pile_kind: String) -> void:
 	_pile_dialog_title.text = "%s Pile" % _pile_display_name(pile_kind)
 	_clear_children_now(_pile_dialog_cards)
 	for card_id_var: Variant in cards:
-		var widget = CardWidgetScene.instantiate()
-		widget.custom_minimum_size = PILE_DIALOG_CARD_SIZE
+		var widget := CardWidgetScene.instantiate() as CardWidget
 		widget.configure(str(card_id_var), false, false, true, false, false, true, _card_def(str(card_id_var)))
 		widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_pile_dialog_cards.add_child(widget)
+		_pile_dialog_cards.add_child(_scaled_card_slot(widget, PILE_DIALOG_CARD_SIZE))
 	if _pile_dialog_scroll != null:
 		_pile_dialog_scroll.visible = not pile_empty
 	_pile_dialog_empty.text = "No cards in this pile." if pile_empty else ""
@@ -6464,18 +6581,21 @@ func _close_pile_view() -> void:
 	_active_pile_kind = ""
 
 func _open_card_upgrade_overlay() -> void:
-	_open_character_stats_overlay()
+	_open_character_overlay("stats")
 
 func _on_character_stats_pressed() -> void:
-	_open_character_stats_overlay()
+	_open_character_overlay("equipment")
 
 func _open_character_stats_overlay() -> void:
+	_open_character_overlay("stats")
+
+func _open_character_overlay(mode: String = "equipment") -> void:
 	if _upgrade_scrim == null:
 		return
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_menu_overlay()
-	_progression_overlay_mode = "stats"
+	_progression_overlay_mode = mode if mode in ["equipment", "stats"] else "equipment"
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
@@ -6502,8 +6622,9 @@ func _rebuild_progression_overlay() -> void:
 		return
 	_sync_progression_from_run()
 	_clear_children_now(_upgrade_dialog)
-	var dialog_height: float = 560.0 if _progression_overlay_mode == "level_up" else 660.0
-	_upgrade_dialog.custom_minimum_size = Vector2(1040.0, dialog_height)
+	var dialog_size: Vector2 = Vector2(1040.0, 560.0) if _progression_overlay_mode == "level_up" else CHARACTER_DIALOG_SIZE
+	_upgrade_dialog.custom_minimum_size = dialog_size
+	_upgrade_dialog.size = dialog_size
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 22)
 	margin.add_theme_constant_override("margin_top", 18)
@@ -6548,14 +6669,21 @@ func _rebuild_progression_overlay() -> void:
 	close_button.pressed.connect(_close_card_upgrade_overlay)
 	top_row.add_child(close_button)
 
-	var body := HBoxContainer.new()
-	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 16)
-	vbox.add_child(body)
+	if _progression_overlay_mode != "level_up":
+		vbox.add_child(_build_character_overlay_tabs())
 
-	body.add_child(_build_progression_status_panel())
-	body.add_child(_build_progression_stat_list())
+	if _progression_overlay_mode == "equipment":
+		vbox.add_child(_build_equipment_overlay_body())
+	else:
+		var body := HBoxContainer.new()
+		body.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
+		body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		body.add_theme_constant_override("separation", 16)
+		vbox.add_child(body)
+
+		body.add_child(_build_progression_status_panel())
+		body.add_child(_build_progression_stat_list())
 
 	if _progression_overlay_mode == "level_up":
 		var confirm_row := HBoxContainer.new()
@@ -6592,7 +6720,691 @@ func _progression_overlay_summary_text() -> String:
 	var embers: int = int(_progression.get("embers", 0))
 	if _progression_overlay_mode == "level_up":
 		return "LV %d -> %d   COST %d   EMBERS %d" % [level, mini(level + 1, GameData.max_progression_level()), ProgressionStore.next_level_cost(_progression), embers]
+	if _progression_overlay_mode == "equipment":
+		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
+		var inventory_size: int = int((_run_state.get("equipment_inventory", []) as Array).size())
+		return "LV %d   DECK %d   GEAR %d" % [level, deck_size, inventory_size]
 	return "LV %d   EMBERS %d" % [level, embers]
+
+func _build_character_overlay_tabs() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	for entry: Dictionary in [
+		{"mode": "equipment", "text": "Gear"},
+		{"mode": "stats", "text": "Stats"}
+	]:
+		var button := Button.new()
+		var mode: String = str(entry.get("mode", ""))
+		button.text = str(entry.get("text", ""))
+		button.toggle_mode = true
+		button.button_pressed = _progression_overlay_mode == mode
+		button.custom_minimum_size = Vector2(132.0, 42.0)
+		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		_apply_character_tab_style(button, button.button_pressed)
+		if _progression_overlay_mode != mode:
+			button.pressed.connect(_switch_character_overlay_mode.bind(mode))
+		row.add_child(button)
+	return row
+
+func _switch_character_overlay_mode(mode: String) -> void:
+	if not (mode in ["equipment", "stats"]):
+		return
+	_progression_overlay_mode = mode
+	_progression_pending_stats.clear()
+	_rebuild_progression_overlay()
+
+func _apply_character_tab_style(button: Button, active: bool) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.20, 0.13, 0.08, 0.95) if active else Color(0.10, 0.07, 0.05, 0.90)
+	normal.border_color = Color("d7a85d") if active else Color("6d5a46")
+	normal.border_width_left = 2
+	normal.border_width_top = 2
+	normal.border_width_right = 2
+	normal.border_width_bottom = 2
+	normal.corner_radius_top_left = 6
+	normal.corner_radius_top_right = 6
+	normal.corner_radius_bottom_right = 6
+	normal.corner_radius_bottom_left = 6
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = normal.bg_color.lightened(0.08)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", normal)
+	button.add_theme_stylebox_override("focus", hover)
+	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
+
+func _build_equipment_overlay_body() -> Control:
+	var body := HBoxContainer.new()
+	body.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 14)
+	body.add_child(_build_equipment_character_column())
+	body.add_child(_build_equipment_inventory_column())
+	body.add_child(_build_equipment_deck_column())
+	return body
+
+func _build_equipment_character_column() -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(326.0, 0.0)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "Loadout"
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f5ead4"))
+	title.add_theme_color_override("font_outline_color", Color("241912"))
+	title.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(title)
+	vbox.add_child(_build_equipment_portrait_panel())
+
+	var slots := VBoxContainer.new()
+	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slots.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	slots.add_theme_constant_override("separation", 8)
+	vbox.add_child(slots)
+	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	for slot: String in GameData.equipment_slots():
+		slots.add_child(_build_equipment_slot_panel(slot, str(equipped.get(slot, ""))))
+	return panel
+
+func _build_equipment_portrait_panel() -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(0.0, 144.0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(_equipped_equipment_accent(), true))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 8)
+	margin.add_child(row)
+
+	var art := TextureRect.new()
+	art.name = "EquipmentCharacterArt"
+	art.texture = AssetLoader.load_texture(PLAYER_UNIT_TEXTURE_PATH)
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.custom_minimum_size = Vector2(150.0, 124.0)
+	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.modulate = _equipment_player_art_tint()
+	row.add_child(art)
+
+	var icons := HFlowContainer.new()
+	icons.custom_minimum_size = Vector2(92.0, 0.0)
+	icons.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	icons.alignment = FlowContainer.ALIGNMENT_CENTER
+	icons.add_theme_constant_override("h_separation", 6)
+	icons.add_theme_constant_override("v_separation", 6)
+	row.add_child(icons)
+	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	for slot: String in GameData.equipment_slots():
+		var equipment_id: String = str(equipped.get(slot, ""))
+		if equipment_id.is_empty():
+			continue
+		icons.add_child(_build_equipment_icon_chip(equipment_id, Vector2(38.0, 38.0)))
+	return panel
+
+func _build_equipment_slot_panel(slot: String, equipment_id: String) -> Control:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var accent: Color = Color(GameData.equipment_accent(equipment_id)) if not equipment_id.is_empty() else Color("6d5a46")
+	var panel := EquipmentSlotDrop.new()
+	panel.slot_id = slot
+	panel.host = self
+	panel.equipment_id = equipment_id
+	panel.custom_minimum_size = EQUIPMENT_SLOT_SIZE
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.tooltip_text = "equipment:%s" % equipment_id if not equipment_id.is_empty() else _equipment_slot_label(slot)
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	margin.add_child(row)
+	if not equipment_id.is_empty():
+		row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE))
+	else:
+		var empty_icon := Control.new()
+		empty_icon.custom_minimum_size = EQUIPMENT_ICON_SIZE
+		row.add_child(empty_icon)
+	var text_box := VBoxContainer.new()
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	text_box.add_theme_constant_override("separation", 2)
+	row.add_child(text_box)
+	var slot_label := Label.new()
+	slot_label.text = _equipment_slot_label(slot)
+	slot_label.clip_text = true
+	UiTypography.set_label_size(slot_label, UiTypography.SIZE_SMALL)
+	slot_label.add_theme_color_override("font_color", Color("dcc9a9"))
+	slot_label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	slot_label.add_theme_constant_override("outline_size", 1)
+	text_box.add_child(slot_label)
+	var name_label := Label.new()
+	name_label.text = str(item.get("name", "Empty")) if not item.is_empty() else "Empty"
+	name_label.clip_text = true
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY_LARGE)
+	name_label.add_theme_color_override("font_color", Color("fff0ce"))
+	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	name_label.add_theme_constant_override("outline_size", 1)
+	text_box.add_child(name_label)
+	if not _equipment_overlay_can_change():
+		panel.modulate = Color(0.78, 0.78, 0.78, 1.0)
+	return panel
+
+func _build_equipment_inventory_column() -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(374.0, 0.0)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(title_row)
+	var title := Label.new()
+	title.text = "Inventory"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f5ead4"))
+	title.add_theme_color_override("font_outline_color", Color("241912"))
+	title.add_theme_constant_override("outline_size", 1)
+	title_row.add_child(title)
+	var count := Label.new()
+	count.text = str((_run_state.get("equipment_inventory", []) as Array).size())
+	UiTypography.set_label_size(count, UiTypography.SIZE_SMALL)
+	count.add_theme_color_override("font_color", Color("f0c978"))
+	title_row.add_child(count)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+	var grid := HFlowContainer.new()
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.alignment = FlowContainer.ALIGNMENT_BEGIN
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
+	scroll.add_child(grid)
+	var inventory_ids: Array = _equipment_inventory_ids()
+	if inventory_ids.is_empty():
+		var empty := Label.new()
+		empty.text = "No spare gear"
+		empty.custom_minimum_size = Vector2(0.0, 80.0)
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiTypography.set_label_size(empty, UiTypography.SIZE_SMALL)
+		empty.add_theme_color_override("font_color", Color("cdbca2"))
+		grid.add_child(empty)
+	else:
+		for equipment_id_var: Variant in inventory_ids:
+			grid.add_child(_build_equipment_inventory_tile(str(equipment_id_var)))
+	return panel
+
+func _build_equipment_deck_column() -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(344.0, 0.0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	var title := Label.new()
+	title.text = "Deck"
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f5ead4"))
+	title.add_theme_color_override("font_outline_color", Color("241912"))
+	title.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(title)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 8)
+	scroll.add_child(list)
+	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	for slot: String in GameData.equipment_slots():
+		var equipment_id: String = str(equipped.get(slot, ""))
+		if equipment_id.is_empty():
+			continue
+		list.add_child(_build_equipment_deck_group(equipment_id, _equipment_slot_label(slot)))
+	var reward_cards: Array = (_run_state.get("reward_cards", []) as Array).duplicate()
+	if not reward_cards.is_empty():
+		list.add_child(_build_reward_deck_group(reward_cards))
+	return panel
+
+func _build_equipment_inventory_tile(equipment_id: String) -> Control:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var accent := Color(GameData.equipment_accent(equipment_id))
+	var tile := EquipmentInventoryTile.new()
+	tile.equipment_id = equipment_id
+	tile.host = self
+	tile.custom_minimum_size = EQUIPMENT_TILE_SIZE
+	tile.tooltip_text = "equipment:%s" % equipment_id
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _equipment_overlay_can_change() else Control.CURSOR_ARROW
+	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	tile.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	margin.add_child(row)
+	row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE))
+	var text_box := VBoxContainer.new()
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.add_theme_constant_override("separation", 1)
+	row.add_child(text_box)
+	var name_label := Label.new()
+	name_label.text = str(item.get("name", equipment_id))
+	name_label.clip_text = true
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
+	name_label.add_theme_color_override("font_color", Color("fff0ce"))
+	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	name_label.add_theme_constant_override("outline_size", 1)
+	text_box.add_child(name_label)
+	var meta_label := Label.new()
+	meta_label.text = "%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
+	meta_label.clip_text = true
+	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
+	meta_label.add_theme_color_override("font_color", Color("cdbca2"))
+	text_box.add_child(meta_label)
+	var card_label := Label.new()
+	card_label.text = _equipment_card_summary(equipment_id)
+	card_label.clip_text = true
+	UiTypography.set_label_size(card_label, UiTypography.SIZE_CAPTION)
+	card_label.add_theme_color_override("font_color", Color("d7c6aa"))
+	text_box.add_child(card_label)
+	if not _equipment_overlay_can_change():
+		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
+	return tile
+
+func _build_equipment_deck_group(equipment_id: String, heading: String) -> Control:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 4)
+	var label := Label.new()
+	label.text = "%s - %s" % [heading, str(item.get("name", equipment_id))]
+	label.clip_text = true
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("f0c978"))
+	label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	label.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(label)
+	var row := HFlowContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("h_separation", 6)
+	row.add_theme_constant_override("v_separation", 6)
+	vbox.add_child(row)
+	var accent := Color(GameData.equipment_accent(equipment_id))
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+		row.add_child(_build_equipment_card_badge(str(card_id_var), accent))
+	return vbox
+
+func _build_reward_deck_group(card_ids: Array) -> Control:
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 4)
+	var label := Label.new()
+	label.text = "Rewards"
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("f0c978"))
+	label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	label.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(label)
+	var row := HFlowContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("h_separation", 6)
+	row.add_theme_constant_override("v_separation", 6)
+	vbox.add_child(row)
+	for card_id_var: Variant in card_ids:
+		var card_id: String = str(card_id_var)
+		row.add_child(_build_equipment_card_badge(card_id, ElementData.accent(GameData.card_element(card_id))))
+	return vbox
+
+func _build_equipment_card_badge(card_id: String, accent: Color) -> Control:
+	var card: Dictionary = GameData.card_def(card_id)
+	var badge := EquipmentCardBadge.new()
+	badge.card_id = card_id
+	badge.host = self
+	badge.custom_minimum_size = EQUIPMENT_DECK_BADGE_SIZE
+	badge.tooltip_text = "card:%s" % card_id
+	badge.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	var label := Label.new()
+	label.text = str(card.get("name", card_id))
+	label.clip_text = true
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("fff0ce"))
+	label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	return badge
+
+func _build_equipment_icon_chip(equipment_id: String, chip_size: Vector2) -> Control:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var chip := EquipmentTooltipPanelContainer.new()
+	chip.equipment_id = equipment_id
+	chip.host = self
+	chip.custom_minimum_size = chip_size
+	chip.tooltip_text = "equipment:%s" % equipment_id
+	chip.add_theme_stylebox_override("panel", _equipment_icon_style(Color(GameData.equipment_accent(equipment_id))))
+	var icon := TextureRect.new()
+	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	chip.add_child(icon)
+	return chip
+
+func _build_equipment_drag_preview(equipment_id: String) -> Control:
+	var preview := PanelContainer.new()
+	preview.custom_minimum_size = Vector2(150.0, 54.0)
+	preview.modulate = Color(1.0, 1.0, 1.0, 0.88)
+	preview.add_theme_stylebox_override("panel", _equipment_panel_style(Color(GameData.equipment_accent(equipment_id)), true))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	preview.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	margin.add_child(row)
+	row.add_child(_build_equipment_icon_chip(equipment_id, Vector2(34.0, 34.0)))
+	var label := Label.new()
+	label.text = str(GameData.equipment_def(equipment_id).get("name", equipment_id))
+	label.clip_text = true
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("fff0ce"))
+	row.add_child(label)
+	return preview
+
+func _build_card_tooltip_panel(card_id: String) -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = CARD_TOOLTIP_SIZE + Vector2(18.0, 18.0)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(ElementData.accent(GameData.card_element(card_id)), true))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 9)
+	margin.add_theme_constant_override("margin_top", 9)
+	margin.add_theme_constant_override("margin_right", 9)
+	margin.add_theme_constant_override("margin_bottom", 9)
+	panel.add_child(margin)
+	margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE))
+	return panel
+
+func _build_equipment_tooltip_panel(equipment_id: String) -> Control:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var accent := Color(GameData.equipment_accent(equipment_id))
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, true))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 9)
+	margin.add_child(vbox)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 9)
+	vbox.add_child(header)
+	var icon := TextureRect.new()
+	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = Vector2(42.0, 42.0)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(icon)
+	var title_box := VBoxContainer.new()
+	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_box.add_theme_constant_override("separation", 0)
+	header.add_child(title_box)
+	var name_label := Label.new()
+	name_label.text = str(item.get("name", equipment_id))
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
+	name_label.add_theme_color_override("font_color", Color("fff0ce"))
+	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
+	name_label.add_theme_constant_override("outline_size", 1)
+	title_box.add_child(name_label)
+	var meta_label := Label.new()
+	meta_label.text = "%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
+	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
+	meta_label.add_theme_color_override("font_color", Color("d7c6aa"))
+	title_box.add_child(meta_label)
+
+	var card_row := HBoxContainer.new()
+	card_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(card_row)
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+		card_row.add_child(_build_card_preview_widget(str(card_id_var), EQUIPMENT_TOOLTIP_CARD_SIZE))
+	if not _equipment_overlay_can_change():
+		var locked_label := Label.new()
+		locked_label.text = "Locked in combat"
+		UiTypography.set_label_size(locked_label, UiTypography.SIZE_CAPTION)
+		locked_label.add_theme_color_override("font_color", Color("d8a06a"))
+		vbox.add_child(locked_label)
+	return panel
+
+func _build_card_preview_widget(card_id: String, card_size: Vector2) -> Control:
+	card_size = _normalized_card_size(card_size)
+	var widget := CardWidgetScene.instantiate() as CardWidget
+	widget.disabled = true
+	widget.focus_mode = Control.FOCUS_NONE
+	widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id))
+	return _scaled_card_slot(widget, card_size)
+
+func _equipment_inventory_ids() -> Array:
+	var inventory: Array = (_run_state.get("equipment_inventory", []) as Array).duplicate()
+	var sorted_ids: Array = []
+	for slot: String in GameData.equipment_slots():
+		var slot_ids: Array = []
+		for equipment_id_var: Variant in inventory:
+			var equipment_id: String = str(equipment_id_var)
+			if GameData.equipment_slot(equipment_id) == slot:
+				slot_ids.append(equipment_id)
+		slot_ids.sort()
+		sorted_ids.append_array(slot_ids)
+	return sorted_ids
+
+func _equipment_overlay_can_change() -> bool:
+	return _run_engine.can_change_equipment(_run_state)
+
+func _can_drop_equipment_data(slot: String, data: Variant) -> bool:
+	if not _equipment_overlay_can_change() or typeof(data) != TYPE_DICTIONARY:
+		return false
+	var payload: Dictionary = data as Dictionary
+	if str(payload.get("kind", "")) != "equipment":
+		return false
+	var equipment_id: String = str(payload.get("equipment_id", ""))
+	return GameData.equipment_slot(equipment_id) == slot
+
+func _equip_equipment_from_overlay(equipment_id: String) -> void:
+	if equipment_id.is_empty() or not _equipment_overlay_can_change():
+		return
+	var slot: String = GameData.equipment_slot(equipment_id)
+	if slot.is_empty():
+		return
+	var before_equipped: Dictionary = (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	var before_id: String = str(before_equipped.get(slot, ""))
+	_run_state = _run_engine.equip_equipment(_run_state, equipment_id)
+	var after_equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	if str(after_equipped.get(slot, "")) == before_id:
+		return
+	ProgressionStore.save_run_state(_committed_run_state())
+	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
+	_refresh_ui()
+	_progression_overlay_mode = "equipment"
+	_rebuild_progression_overlay()
+
+func _equipment_tooltip(equipment_id: String) -> String:
+	if equipment_id.is_empty():
+		return ""
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var lines: Array = [
+		str(item.get("name", equipment_id)),
+		"%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
+	]
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+		var card: Dictionary = GameData.card_def(str(card_id_var))
+		lines.append(str(card.get("name", card_id_var)))
+	if not _equipment_overlay_can_change():
+		lines.append("Locked in combat")
+	return "\n".join(lines)
+
+func _equipment_card_summary(equipment_id: String) -> String:
+	if equipment_id.is_empty():
+		return ""
+	var names: Array = []
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+		names.append(str(GameData.card_def(str(card_id_var)).get("name", card_id_var)))
+	if names.size() <= 1:
+		return str(names[0]) if not names.is_empty() else ""
+	return "%s, +%d" % [str(names[0]), names.size() - 1]
+
+func _equipment_slot_label(slot: String) -> String:
+	match slot:
+		"weapon":
+			return "Weapon"
+		"offhand":
+			return "Offhand"
+		"armor":
+			return "Armor"
+		"boots":
+			return "Boots"
+		"trinket":
+			return "Trinket"
+	return slot.capitalize()
+
+func _equipment_rarity_label(rarity: String) -> String:
+	if rarity == "legendary":
+		return "Legend"
+	return rarity.capitalize()
+
+func _equipped_equipment_accent() -> Color:
+	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	var best_id: String = ""
+	var best_rank: int = -1
+	for equipment_id_var: Variant in equipped.values():
+		var equipment_id: String = str(equipment_id_var)
+		var rank: int = _equipment_rarity_rank(GameData.equipment_rarity(equipment_id))
+		if rank > best_rank:
+			best_rank = rank
+			best_id = equipment_id
+	if best_id.is_empty():
+		return Color("8f6f46")
+	return Color(GameData.equipment_accent(best_id))
+
+func _equipment_player_art_tint() -> Color:
+	var accent: Color = _equipped_equipment_accent().lightened(0.18)
+	return Color(1.0, 0.96, 0.88, 1.0).lerp(accent, 0.16)
+
+func _equipment_rarity_rank(rarity: String) -> int:
+	match rarity:
+		"legendary":
+			return 3
+		"epic":
+			return 2
+		"rare":
+			return 1
+	return 0
+
+func _equipment_panel_style(accent: Color, active: bool = false) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.085, 0.060, 0.045, 0.96).lightened(0.06 if active else 0.0)
+	style.border_color = accent.lightened(0.22 if active else 0.04)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	return style
+
+func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.045, 0.036, 0.032, 0.92)
+	style.border_color = accent.lightened(0.18)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.content_margin_left = 4
+	style.content_margin_top = 4
+	style.content_margin_right = 4
+	style.content_margin_bottom = 4
+	return style
 
 func _build_progression_status_panel() -> Control:
 	var panel := PanelContainer.new()
@@ -6967,11 +7779,10 @@ func _upgrade_refresh_options() -> void:
 	if _upgrade_selected_card_id.is_empty():
 		return
 	var current_card: Dictionary = GameData.card_def_for_progression(_upgrade_selected_card_id, _progression)
-	var current_widget = CardWidgetScene.instantiate()
-	current_widget.custom_minimum_size = UPGRADE_CARD_SIZE
+	var current_widget := CardWidgetScene.instantiate() as CardWidget
 	current_widget.configure(_upgrade_selected_card_id, false, false, true, false, false, true, current_card)
 	current_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_upgrade_preview_box.add_child(current_widget)
+	_upgrade_preview_box.add_child(_scaled_card_slot(current_widget, UPGRADE_CARD_SIZE))
 	var element: Dictionary = _selected_upgrade_element()
 	if element.is_empty():
 		return
@@ -6992,11 +7803,10 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 12)
 	var preview_card: Dictionary = GameData.preview_card_with_mod(_upgrade_selected_card_id, option, _progression)
-	var preview_widget = CardWidgetScene.instantiate()
-	preview_widget.custom_minimum_size = UPGRADE_CARD_SIZE
+	var preview_widget := CardWidgetScene.instantiate() as CardWidget
 	preview_widget.configure(_upgrade_selected_card_id, false, false, true, false, false, true, preview_card)
 	preview_widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(preview_widget)
+	row.add_child(_scaled_card_slot(preview_widget, UPGRADE_CARD_SIZE))
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -7136,7 +7946,22 @@ func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
 	var max_width: float = 224.0 if reward_mode else 204.0
 	var min_width: float = 188.0 if reward_mode else 184.0
 	var width: float = clampf(target_width, min_width, max_width)
-	return Vector2(width, width * 1.42)
+	return _card_size_from_width(width)
+
+func _card_size_from_width(width: float) -> Vector2:
+	return Vector2(width, width * CARD_ASPECT_RATIO)
+
+func _normalized_card_size(card_size: Vector2) -> Vector2:
+	if card_size.x <= 0.0 and card_size.y <= 0.0:
+		return _card_size_from_width(200.0)
+	if card_size.x <= 0.0:
+		return Vector2(card_size.y / CARD_ASPECT_RATIO, card_size.y)
+	if card_size.y <= 0.0:
+		return _card_size_from_width(card_size.x)
+	var aspect_height: float = card_size.x * CARD_ASPECT_RATIO
+	if aspect_height <= card_size.y:
+		return Vector2(card_size.x, aspect_height)
+	return Vector2(card_size.y / CARD_ASPECT_RATIO, card_size.y)
 
 func _card_id_for_hand_index(index: int) -> String:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -7262,6 +8087,19 @@ func _combat_recovery_marker_amount(combat_state: Dictionary) -> int:
 			return maxi(0, int(loot.get("amount", 0)))
 	return 0
 
+func _analytics_equipment_loot_ids(combat_state: Dictionary) -> Array:
+	var ids: Array = []
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)) or str(loot.get("kind", "")) != "equipment":
+			continue
+		var equipment_id: String = str(loot.get("equipment_id", ""))
+		if not equipment_id.is_empty():
+			ids.append(equipment_id)
+	return ids
+
 func _analytics_log_run_started() -> void:
 	var recovery_marker: Dictionary = ProgressionStore.recovery_marker(_progression)
 	_analytics_store.write_event("run_started", _analytics_context_from_states(_run_state, _combat_state), {
@@ -7270,6 +8108,10 @@ func _analytics_log_run_started() -> void:
 		"player_start_hp": int(_run_state.get("player_hp", 0)),
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
 		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
+		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
+		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"collected_equipment": (_run_state.get("collected_equipment", []) as Array).duplicate(true),
 		"recovery_marker_active": not recovery_marker.is_empty(),
 		"recovery_marker_amount": int(recovery_marker.get("amount", 0)),
 		"recovery_marker_coord": ProgressionStore.recovery_coord(_progression) if not recovery_marker.is_empty() else Vector2i(-999, -999)
@@ -7325,6 +8167,16 @@ func _analytics_log_reward_choice(choice_kind: String, reward_state: Dictionary,
 		"player_hp_after": player_hp_after
 	})
 
+func _analytics_log_equipment_equipped(slot: String, previous_equipment_id: String, equipment_id: String) -> void:
+	_analytics_store.write_event("equipment_equipped", _analytics_context_from_states(_run_state, _combat_state), {
+		"slot": slot,
+		"previous_equipment_id": previous_equipment_id,
+		"equipment_id": equipment_id,
+		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
+		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
+	})
+
 func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary = {}) -> void:
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
@@ -7359,6 +8211,10 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"recovery_marker_amount": _combat_recovery_marker_amount(_combat_state),
 		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
+		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
+		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"equipment_drops": _analytics_equipment_loot_ids(_combat_state),
 		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
 	})
 	_analytics_log_card_draws({}, _combat_state, {}, _analytics_snapshot_combat_tracker(), "opening_hand")
@@ -7371,6 +8227,7 @@ func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> vo
 		"turn": int(combat_state.get("turn", 0)),
 		"room_embers": int(combat_state.get("room_embers", 0)),
 		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
+		"collected_equipment": (combat_state.get("collected_equipment", []) as Array).duplicate(true),
 		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	})
 

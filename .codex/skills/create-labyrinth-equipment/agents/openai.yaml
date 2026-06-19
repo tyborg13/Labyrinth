@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Equipment Creator"
+  short_description: "Create and rebalance Labyrinth gear"
+  default_prompt: "Use $create-labyrinth-equipment to design, implement, test, and visually QA Labyrinth equipment and equipment cards."

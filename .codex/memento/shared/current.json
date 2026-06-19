@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-18T18:15:32Z",
+  "updated_at": "2026-06-19T17:29:05Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -3833,6 +3833,162 @@
       "source": {
         "branch": "master",
         "commit": "d7b1dd7"
+      }
+    },
+    {
+      "id": "mnt_20260618T211632Z_313e62cf",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Equipment compiles deck_cards from gear plus reward_cards",
+      "details": "Run state stores equipped_equipment, equipment_inventory, collected_equipment, and reward_cards. deck_cards is derived from equipped gear cards plus reward_cards and should be rebuilt through RunEngine after claims or equipment swaps. Equipment cards should set reward_pool:false so normal combat rewards remain elemental-only; equipment swaps are only allowed from room/campfire state.",
+      "status": "active",
+      "created_at": "2026-06-18T21:16:32Z",
+      "updated_at": "2026-06-18T21:16:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
+      }
+    },
+    {
+      "id": "mnt_20260618T214210Z_3ff2f69f",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Player equipment visuals render as board presentation overlays",
+      "details": "Equipped gear is passed from RunScene into CombatBoardView presentation.equipped_equipment and drawn as slot-anchored, rarity-ringed icon overlays on the player unit. This keeps gear visuals data-driven without regenerating or re-rigging the player idle sprite sheets; future sprite work should preserve the presentation payload or intentionally replace this overlay path.",
+      "status": "active",
+      "created_at": "2026-06-18T21:42:10Z",
+      "updated_at": "2026-06-18T21:42:10Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
+      }
+    },
+    {
+      "id": "mnt_20260618T224831Z_2567e17e",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tmp/equipment_gallery_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tmp/equipment_gallery_probe.gd",
+      "summary": "Equipment gallery proofs should render through a sized SubViewport.",
+      "details": "OS window captures on macOS can cap the viewport height and silently clip lower equipment rows. The gallery proof script renders each slot into an offscreen SubViewport sized from the equipment count before saving, so all rows appear regardless of display height or high-DPI scaling.",
+      "status": "active",
+      "created_at": "2026-06-18T22:48:31Z",
+      "updated_at": "2026-06-18T22:48:31Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
+      }
+    },
+    {
+      "id": "mnt_20260619T033928Z_83468a84",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Equipment cards should be unique and equipment-themed",
+      "details": "Equipment should not share granted card IDs across items. Each equipment card should read as something that specific item would enable mechanically and visually: swords grant sword attacks, shields grant blocks/bashes/guards, armor grants bracing/protection/repair, boots grant movement/footwork/trips, and trinkets grant small artifact effects. Avoid mechanically odd pairings such as adjacent melee attacks that pull targets, and keep equipment icons readable as tangible gear in the relic-like object style.",
+      "status": "active",
+      "created_at": "2026-06-19T03:39:28Z",
+      "updated_at": "2026-06-19T03:39:28Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
+      }
+    },
+    {
+      "id": "mnt_20260619T154306Z_90d9cb5c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Resized card surfaces should scale native CardWidgets as one object",
+      "details": "For non-default card surfaces, RunScene wraps a native 250x352 CardWidget in a scaled parent instead of directly resizing the CardWidget. This keeps the frame border, rarity gem, art window, title, time badge, and action rows in the same proportions for hand cards, draw/discard piles, pile dialogs, equipment/card tooltips, upgrade previews, and drag/animation proxies. Direct CardWidget resizing can still distort nine-slice frame details.",
+      "status": "active",
+      "created_at": "2026-06-19T15:43:06Z",
+      "updated_at": "2026-06-19T15:43:06Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260619T153708Z_9d42ea1e"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
+      }
+    },
+    {
+      "id": "mnt_20260619T171853Z_3395b1e0",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "Equipment drops use pity protection",
+      "details": "Equipment room drops remain seed/coordinate deterministic for normal rolls, but RunEngine tracks equipment_drop_misses and forces a weighted equipment drop after two eligible combat rooms without one. Loaded saves missing this counter migrate to the pity threshold so older in-progress runs are not stranded with no equipment after the feature lands.",
+      "status": "active",
+      "created_at": "2026-06-19T17:18:53Z",
+      "updated_at": "2026-06-19T17:18:53Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
+      }
+    },
+    {
+      "id": "mnt_20260619T172905Z_64611c34",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Equipment tile loot uses icon-only pickup rendering",
+      "details": "User rejected the hand-drawn marker/plate/circle treatment for equipment pickups. Equipment loot should render as the actual equipment icon with the normal loot ground shadow and the same bottom-anchored tile footprint as potion and shield pickups; visibility should be solved by reliable drop placement/rates, not extra board shapes.",
+      "status": "active",
+      "created_at": "2026-06-19T17:29:05Z",
+      "updated_at": "2026-06-19T17:29:05Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "69497fe"
       }
     }
   ]

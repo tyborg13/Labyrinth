@@ -9,6 +9,7 @@
     "description": "Strike an adjacent enemy for 9.",
     "accent": "#b74d3d",
     "art_path": "res://assets/art/cards/quick_stab.png",
+    "reward_pool": false,
     "actions": [
       { "type": "melee", "damage": 9, "range": 1 }
     ]
@@ -23,6 +24,7 @@
     "description": "Move 2, gain 3 block, and gain 1 card play.",
     "accent": "#547f90",
     "art_path": "res://assets/art/cards/guarded_step.png",
+    "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
       { "type": "block", "amount": 3 },
@@ -39,6 +41,7 @@
     "description": "Create a 2-health illusion at range 3, then blink 4.",
     "accent": "#53607e",
     "art_path": "res://assets/art/cards/shadow_step.png",
+    "reward_pool": false,
     "actions": [
       { "type": "illusion", "health": 2, "range": 3 },
       { "type": "blink", "range": 4 }
@@ -67,6 +70,7 @@
     "description": "Move 3, then strike for 5.",
     "accent": "#b9844c",
     "art_path": "res://assets/art/cards/sidestep_slash.png",
+    "reward_pool": false,
     "actions": [
       { "type": "move", "range": 3 },
       { "type": "melee", "damage": 5, "range": 1 }
@@ -82,6 +86,7 @@
     "description": "Strike all adjacent tiles for 8.",
     "accent": "#b8694a",
     "art_path": "res://assets/art/cards/whirlwind_slash.png",
+    "reward_pool": false,
     "actions": [
       { "type": "aoe", "damage": 8, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
     ]
@@ -96,6 +101,7 @@
     "description": "Exhaust. Heal 3 and gain 2 block.",
     "accent": "#698353",
     "art_path": "res://assets/art/cards/patch_up.png",
+    "reward_pool": false,
     "actions": [
       { "type": "heal", "amount": 3 },
       { "type": "block", "amount": 2 }
@@ -111,6 +117,7 @@
     "description": "Lose 1 health. Move 3, then strike for 12.",
     "accent": "#8e2f2f",
     "art_path": "res://assets/art/cards/bloody_lunge.png",
+    "reward_pool": false,
     "actions": [
       { "type": "move", "range": 3 },
       { "type": "melee", "damage": 12, "range": 1 }
@@ -126,6 +133,7 @@
     "description": "Gain 8 block.",
     "accent": "#4f6f69",
     "art_path": "res://assets/art/cards/brace.png",
+    "reward_pool": false,
     "actions": [
       { "type": "block", "amount": 8 }
     ]
@@ -155,6 +163,7 @@
     "description": "Deal 4 at range 6, then draw 1.",
     "accent": "#d49b42",
     "art_path": "res://assets/art/cards/lantern_shot.png",
+    "reward_pool": false,
     "actions": [
       { "type": "ranged", "damage": 4, "range": 6 },
       { "type": "draw", "amount": 1 }
@@ -189,17 +198,17 @@
     ]
   },
   "needle_flurry": {
-    "name": "Needle Flurry",
+    "name": "Cleaver Sweep",
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
-    "description": "Pierce an adjacent enemy for 6, then draw 1.",
-    "accent": "#8f7356",
+    "time": 5,
+    "description": "Strike all adjacent tiles for 6.",
+    "accent": "#8f9499",
     "art_path": "res://assets/art/cards/needle_flurry.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 6, "range": 1, "pierce": true },
-      { "type": "draw", "amount": 1 }
+      { "type": "aoe", "damage": 6, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
     ]
   },
   "warded_advance": {
@@ -208,11 +217,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 3, then gain 7 block.",
-    "accent": "#45727d",
+    "description": "Move 2, then gain 7 block.",
+    "accent": "#8f9499",
     "art_path": "res://assets/art/cards/warded_advance.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 3 },
+      { "type": "move", "range": 2 },
       { "type": "block", "amount": 7 }
     ]
   },
@@ -231,31 +241,33 @@
     ]
   },
   "rallying_breath": {
-    "name": "Rallying Breath",
+    "name": "Cinch Straps",
     "rarity": "common",
-    "burn": true,
+    "burn": false,
     "health_cost": 0,
-    "time": 2,
-    "description": "Exhaust. Heal 4, then draw 1.",
-    "accent": "#6f8c5e",
+    "time": 4,
+    "description": "Gain 7 block, then draw 1.",
+    "accent": "#8f9499",
     "art_path": "res://assets/art/cards/rallying_breath.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 4 },
+      { "type": "block", "amount": 7 },
       { "type": "draw", "amount": 1 }
     ]
   },
   "battle_rhythm": {
-    "name": "Battle Rhythm",
+    "name": "Parry Rhythm",
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 2,
-    "description": "Gain 5 block and gain 1 card play.",
-    "accent": "#8b7855",
+    "time": 4,
+    "description": "Gain 5 block, then draw 1.",
+    "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/battle_rhythm.png",
+    "reward_pool": false,
     "actions": [
       { "type": "block", "amount": 5 },
-      { "type": "card_play", "amount": 1 }
+      { "type": "draw", "amount": 1 }
     ]
   },
   "cinderburst": {
@@ -289,14 +301,14 @@
     "name": "Blood Price",
     "rarity": "uncommon",
     "burn": false,
-    "health_cost": 3,
-    "time": 8,
-    "description": "Lose 3 health. Move 2, then strike for 15.",
-    "accent": "#8a1e1e",
+    "health_cost": 1,
+    "time": 6,
+    "description": "Spend 1 health. Strike an adjacent enemy for 16.",
+    "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/blood_price.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 2 },
-      { "type": "melee", "damage": 15, "range": 1 }
+      { "type": "melee", "damage": 16, "range": 1 }
     ]
   },
   "trapdoor": {
@@ -314,45 +326,48 @@
     ]
   },
   "bodkin_arrow": {
-    "name": "Bodkin Arrow",
+    "name": "Needle Thrust",
     "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
-    "time": 6,
-    "description": "Pierce for 7 at range 5 and gain 1 card play.",
-    "accent": "#9c8259",
+    "time": 4,
+    "description": "Pierce an adjacent enemy for 7.",
+    "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/bodkin_arrow.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 7, "range": 5, "pierce": true },
-      { "type": "card_play", "amount": 1 }
+      { "type": "melee", "damage": 7, "range": 1, "pierce": true }
     ]
   },
   "hamstring_shot": {
-    "name": "Hamstring Shot",
+    "name": "Low Sweep",
     "rarity": "starter",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
+    "time": 5,
     "starter": true,
-    "description": "Deal 5 at range 4 and immobilize.",
-    "accent": "#9b7e58",
+    "description": "Move 2, then sweep an adjacent enemy for 3 and immobilize.",
+    "accent": "#8f9499",
     "art_path": "res://assets/art/cards/hamstring_shot.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 5, "range": 4, "immobilize": true }
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 3, "range": 1, "immobilize": true }
     ]
   },
   "hamstring_slice": {
-    "name": "Hamstring Slice",
-    "rarity": "common",
+    "name": "Spur Trip",
+    "rarity": "uncommon",
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Strike for 7 and immobilize, then move 3.",
-    "accent": "#9b7e58",
+    "description": "Move 2, then strike an adjacent enemy for 5 and immobilize.",
+    "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/hamstring_slice.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 7, "range": 1, "immobilize": true },
-      { "type": "move", "range": 3 }
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 5, "range": 1, "immobilize": true }
     ]
   },
   "ember_rain": {
@@ -369,17 +384,18 @@
     ]
   },
   "shadow_gate": {
-    "name": "Shadow Gate",
+    "name": "Gravewind Gate",
     "rarity": "rare",
-    "burn": true,
+    "burn": false,
     "health_cost": 0,
-    "time": 7,
-    "description": "Exhaust. Blink 5, then strike for 10.",
-    "accent": "#5f4b94",
+    "time": 6,
+    "description": "Blink 5, then gain 5 block.",
+    "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/shadow_gate.png",
+    "reward_pool": false,
     "actions": [
       { "type": "blink", "range": 5 },
-      { "type": "melee", "damage": 10, "range": 1 }
+      { "type": "block", "amount": 5 }
     ]
   },
   "cyclone_seal": {
@@ -396,32 +412,33 @@
     ]
   },
   "last_light": {
-    "name": "Last Light",
-    "rarity": "rare",
-    "burn": true,
+    "name": "Glass Mending",
+    "rarity": "uncommon",
+    "burn": false,
     "health_cost": 0,
-    "time": 4,
-    "description": "Exhaust. Heal 6 and gain 4 block.",
-    "accent": "#d1b361",
+    "time": 5,
+    "description": "Heal 3 and gain 2 stoneskin.",
+    "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/last_light.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "heal", "amount": 6 },
-      { "type": "block", "amount": 4 }
+      { "type": "heal", "amount": 3 },
+      { "type": "stoneskin", "amount": 2 }
     ]
   },
   "grave_sprint": {
-    "name": "Grave Sprint",
-    "rarity": "rare",
-    "burn": true,
-    "health_cost": 1,
-    "time": 7,
-    "description": "Exhaust. Lose 1 health. Move 6, then draw 3 and gain 4 block.",
-    "accent": "#60706d",
+    "name": "Coffin Brace",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 8,
+    "description": "Gain 12 block and heal 2.",
+    "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/grave_sprint.png",
+    "reward_pool": false,
     "actions": [
-      { "type": "move", "range": 6 },
-      { "type": "draw", "amount": 3 },
-      { "type": "block", "amount": 4 }
+      { "type": "block", "amount": 12 },
+      { "type": "heal", "amount": 2 }
     ]
   },
   "gate_gambit": {
@@ -1018,6 +1035,303 @@
     "actions": [
       { "type": "move", "range": 1 },
       { "type": "melee", "damage": 10, "range": 1, "poison": 2, "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 5, "poison": 5 } }
+    ]
+  },
+  "cleaver_hook": {
+    "name": "Cleaver Hook",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Hack an adjacent enemy for 6 and shove 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/cleaver_hook.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "push", "damage": 6, "range": 1, "amount": 1 }
+    ]
+  },
+  "riposte_lunge": {
+    "name": "Riposte Lunge",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Move 2, strike an adjacent enemy for 5, then gain 4 block.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/riposte_lunge.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 5, "range": 1 },
+      { "type": "block", "amount": 4 }
+    ]
+  },
+  "grave_cleave": {
+    "name": "Grave Cleave",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Strike all adjacent tiles for 8 and poison 2.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/grave_cleave.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "aoe", "damage": 8, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "poison": 2 }
+    ]
+  },
+  "kite_bash": {
+    "name": "Kite Bash",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain 6 block, then bash an adjacent enemy for 3 and push 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/kite_bash.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 6 },
+      { "type": "push", "damage": 3, "range": 1, "amount": 1 }
+    ]
+  },
+  "chain_catch": {
+    "name": "Chain Catch",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Hook a target at range 4 for 2, pull 2, then gain 5 block.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/chain_catch.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "pull", "damage": 2, "range": 4, "amount": 2 },
+      { "type": "block", "amount": 5 }
+    ]
+  },
+  "mirror_feint": {
+    "name": "Mirror Feint",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Create a 3-health illusion at range 3, then gain 5 block.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/mirror_feint.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "illusion", "health": 3, "range": 3 },
+      { "type": "block", "amount": 5 }
+    ]
+  },
+  "leather_roll": {
+    "name": "Leather Roll",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Move 2, then gain 6 block.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/leather_roll.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "block", "amount": 6 }
+    ]
+  },
+  "glassbone_guard": {
+    "name": "Glassbone Guard",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 1,
+    "time": 5,
+    "description": "Spend 1 health. Gain 4 stoneskin and draw 1.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/glassbone_guard.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "stoneskin", "amount": 4 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "undertaker_stand": {
+    "name": "Undertaker Stand",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Gain 10 block and 2 stoneskin.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/undertaker_stand.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 10 },
+      { "type": "stoneskin", "amount": 2 }
+    ]
+  },
+  "dust_skip": {
+    "name": "Dust Skip",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Blink 3, then draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/dust_skip.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "blink", "range": 3 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "spur_vault": {
+    "name": "Spur Vault",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Move 4, then kick an adjacent enemy for 4 and push 1.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/spur_vault.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 4 },
+      { "type": "push", "damage": 4, "range": 1, "amount": 1 }
+    ]
+  },
+  "gravewind_step": {
+    "name": "Gravewind Step",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Blink 4, then create a 3-health illusion at range 3.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/gravewind_step.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "blink", "range": 4 },
+      { "type": "illusion", "health": 3, "range": 3 }
+    ]
+  },
+  "ember_tithe": {
+    "name": "Ember Tithe",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Deal 3 at range 4 and burn 1, then heal 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/ember_tithe.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 3, "range": 4, "burn": 1 },
+      { "type": "heal", "amount": 1 }
+    ]
+  },
+  "clockwork_mark": {
+    "name": "Clockwork Mark",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Deal 5 at range 6, then draw 1.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/clockwork_mark.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 5, "range": 6 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "unsealed_gale": {
+    "name": "Unsealed Gale",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Exhaust. Move 2, then deal 7 in a cross pattern at range 4 and push 1.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/unsealed_gale.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "aoe", "damage": 7, "range": 4, "amount": 1, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "push": 1 }
+    ]
+  },
+  "butcher_chop": {
+    "name": "Butcher Chop",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Strike an adjacent enemy for 12.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/butcher_chop.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "melee", "damage": 12, "range": 1 }
+    ]
+  },
+  "tombsplitter": {
+    "name": "Tombsplitter",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 8,
+    "description": "Strike all adjacent tiles for 10.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/tombsplitter.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "aoe", "damage": 10, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+    ]
+  },
+  "chain_lock": {
+    "name": "Chain Lock",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Snare a target at range 3 for 3 and immobilize, then gain 4 block.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/chain_lock.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 3, "range": 3, "immobilize": true },
+      { "type": "block", "amount": 4 }
+    ]
+  },
+  "mirror_flash": {
+    "name": "Mirror Flash",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Create a 2-health illusion at range 2, then gain 4 block.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/mirror_flash.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "illusion", "health": 2, "range": 2 },
+      { "type": "block", "amount": 4 }
+    ]
+  },
+  "dust_glide": {
+    "name": "Dust Glide",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Move 4, then gain 3 block.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/dust_glide.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 4 },
+      { "type": "block", "amount": 3 }
     ]
   }
 }

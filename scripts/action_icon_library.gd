@@ -362,17 +362,17 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
 		"push":
+			_append_optional_hit_token(tokens, action, options)
+			if int(action.get("range", 0)) > 1:
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
+			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0))))
-			_append_optional_hit_token(tokens, action, options)
-			if int(action.get("range", 0)) > 1:
-				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
-			_append_keyword_tokens(tokens, action)
 		"pull":
-			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
+			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
 		"block":
 			tokens.append(_token_for_action_field(action, "block", "amount", int(action.get("amount", 0))))
 		"stoneskin":
@@ -601,12 +601,12 @@ static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 		tokens.append(_token_for_action_field(action, "immobilize", "immobilize"))
 	if int(action.get("chain", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "chain", "chain", int(action.get("chain", 0))))
+	if int(action.get("poison", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "poison", "poison", int(action.get("poison", 0))))
 	if int(action.get("push", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "push", "push", int(action.get("push", 0))))
 	if int(action.get("pull", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "pull", "pull", int(action.get("pull", 0))))
-	if int(action.get("poison", 0)) > 0:
-		tokens.append(_token_for_action_field(action, "poison", "poison", int(action.get("poison", 0))))
 
 static func _action_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))

@@ -39,10 +39,13 @@ available:
 - `card_played`
 - `enemy_status_tick`
 - `progression_level_up`
+- `equipment_equipped`
 
-`run_started` includes recovery marker fields when a previous death dropped
-embers for the new run: `recovery_marker_active`, `recovery_marker_amount`, and
-`recovery_marker_coord`.
+`run_started` includes the compiled starting deck plus the equipment model used
+to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and
+`collected_equipment`. It also includes recovery marker fields when a previous
+death dropped embers for the new run: `recovery_marker_active`,
+`recovery_marker_amount`, and `recovery_marker_coord`.
 
 ## Card Metrics Supported
 
@@ -50,6 +53,8 @@ The current event stream is enough to derive:
 
 - pick rate via `reward_offered` + `reward_choice`
 - combats-in-deck via `combat_started.payload.deck_cards`
+- equipment build context via `combat_started.payload.equipped_equipment`,
+  `reward_cards`, `equipment_inventory`, and `equipment_drops`
 - elemental intensity at combat start via `combat_started.payload.elemental_intensity`
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
@@ -92,8 +97,15 @@ own initiative activation starts. It is useful for later value-model work, but
 it is not yet card-source attributed.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
-`recovery_marker_amount`. `combat_ended` includes `recovered_embers`, the total
-embers reclaimed from dropped piles during that combat.
+`recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
+`equipment_drops`. `combat_ended` includes `recovered_embers`, the total embers
+reclaimed from dropped piles during that combat, and `collected_equipment`, the
+equipment ids picked up during that combat.
+
+`equipment_equipped` fires when the character overlay equips an owned item
+outside combat. Its payload records `slot`, `previous_equipment_id`,
+`equipment_id`, the full `equipped_equipment` map, current
+`equipment_inventory`, and rebuilt `deck_cards`.
 
 Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory
@@ -121,6 +133,7 @@ If this gets uploaded later, keep the event contract compatible with object stor
 Update analytics instrumentation when changes affect:
 
 - reward offering or reward selection flow
+- equipment ownership, drops, equip rules, or deck compilation
 - ember carry, loss, extraction, or campfire level-up flow
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes

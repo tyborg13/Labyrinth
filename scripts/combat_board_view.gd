@@ -55,6 +55,7 @@ const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
+const LOOT_DRAW_WIDTH: float = 58.0
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
@@ -1065,7 +1066,7 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 		var loot: Dictionary = loot_var
 		if bool(loot.get("claimed", false)):
 			continue
-		var loot_texture: Texture2D = _loot_textures.get(str(loot.get("kind", "")), null)
+		var loot_texture: Texture2D = _loot_texture(loot)
 		if loot_texture == null:
 			continue
 		var loot_tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
@@ -1073,7 +1074,7 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 			continue
 		entries.append({
 			"tile": loot_tile,
-			"rect": _loot_rect_for_tile(loot_tile, loot_texture)
+			"rect": _loot_rect_for_tile(loot_tile, loot_texture, loot)
 		})
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
@@ -1182,10 +1183,10 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			continue
 		if loot.get("pos", Vector2i(-1, -1)) != tile:
 			continue
-		var loot_texture: Texture2D = _loot_textures.get(str(loot.get("kind", "")), null)
+		var loot_texture: Texture2D = _loot_texture(loot)
 		if loot_texture == null:
 			continue
-		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture)
+		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
 		_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
 		draw_texture_rect(loot_texture, loot_rect, false)
 		_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
@@ -1510,9 +1511,9 @@ func _door_is_visible(tile: Vector2i) -> bool:
 	var locked_doors: Dictionary = presentation.get("locked_door_tiles", {})
 	return bool(locked_doors.get(tile, false))
 
-func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null) -> Rect2:
-	var draw_width: float = 58.0
-	var draw_height: float = 58.0
+func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, _loot: Dictionary = {}) -> Rect2:
+	var draw_width: float = LOOT_DRAW_WIDTH
+	var draw_height: float = draw_width
 	if texture != null and texture.get_size().x > 0.0:
 		draw_height = draw_width * texture.get_size().y / texture.get_size().x
 	var center: Vector2 = _tile_center(tile)
@@ -1527,7 +1528,19 @@ func _loot_tooltip_text(loot: Dictionary) -> String:
 			return "Rusty shield: Gain %d block" % int(loot.get("amount", 0))
 		"dropped_embers":
 			return "Dropped embers: Reclaim %d" % int(loot.get("amount", 0))
+		"equipment":
+			var equipment_id: String = str(loot.get("equipment_id", ""))
+			var item: Dictionary = GameData.equipment_def(equipment_id)
+			var item_name: String = str(item.get("name", equipment_id))
+			var slot: String = str(item.get("slot", ""))
+			return "%s: %s" % [item_name, slot.capitalize()]
 	return ""
+
+func _loot_texture(loot: Dictionary) -> Texture2D:
+	if str(loot.get("kind", "")) == "equipment":
+		var item: Dictionary = GameData.equipment_def(str(loot.get("equipment_id", "")))
+		return AssetLoader.load_texture(str(item.get("icon_path", "")))
+	return _loot_textures.get(str(loot.get("kind", "")), null)
 
 func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) -> void:
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))

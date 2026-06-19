@@ -17,6 +17,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
+const CardWidgetScript = preload("res://scripts/card_widget.gd")
 
 var _failures: Array[String] = []
 
@@ -30,9 +31,11 @@ func _initialize() -> void:
 	_assert(GameData.enemies().size() >= 5, "Enemy data should load")
 	_assert(GameData.npcs().size() >= 1, "NPC data should load")
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
+	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_relic_data_rarity_and_offer_weights()
+	_test_equipment_data_rarity_and_starter_deck()
 	_test_room_generation_is_deterministic()
 	_test_room_generation_keeps_spawn_reachable()
 	_test_room_generation_enemy_spawns_keep_player_halo()
@@ -56,6 +59,8 @@ func _initialize() -> void:
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
+	_test_equipment_run_state_and_reward_cards(default_progression)
+	_test_equipment_collection_to_equip_deck_flow(default_progression)
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
 	_test_elemental_intensity_icons_surface_card_requirements()
@@ -130,6 +135,7 @@ func _initialize() -> void:
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_unit_shadow_uses_alpha_silhouette()
 	_test_player_uses_original_anime_art()
+	_test_combat_board_keeps_equipment_data_off_player_sprite()
 	_test_combat_board_surfaces_illusion_units()
 	_test_combat_board_surfaces_illusion_preview_units()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
@@ -299,6 +305,62 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
+
+func _test_equipment_data_rarity_and_starter_deck() -> void:
+	var valid_rarities: Dictionary = {
+		"common": true,
+		"rare": true,
+		"epic": true,
+		"legendary": true
+	}
+	var slot_counts: Dictionary = {}
+	for slot: String in GameData.equipment_slots():
+		slot_counts[slot] = 0
+	var starter_ids: Array = GameData.starter_equipment_ids()
+	_assert(starter_ids.size() == GameData.equipment_slots().size(), "Starter equipment should fill every equipment slot")
+	_assert(GameData.equipment().size() >= 20, "Equipment pool should have enough breadth for room drops")
+	for equipment_id_var: Variant in GameData.equipment_ids():
+		var equipment_id: String = str(equipment_id_var)
+		var item: Dictionary = GameData.equipment_def(equipment_id)
+		var slot: String = str(item.get("slot", ""))
+		var rarity: String = str(item.get("rarity", ""))
+		_assert(GameData.equipment_slots().has(slot), "%s should use a valid equipment slot" % equipment_id)
+		slot_counts[slot] = int(slot_counts.get(slot, 0)) + 1
+		_assert(valid_rarities.has(rarity), "%s should use the relic rarity set" % equipment_id)
+		_assert(str(item.get("accent", "")) == GameData.equipment_rarity_accent(rarity), "%s border accent should match equipment rarity" % equipment_id)
+		var icon_path: String = str(item.get("icon_path", ""))
+		_assert(FileAccess.file_exists(icon_path), "%s equipment icon should exist" % equipment_id)
+		var icon_image := Image.new()
+		var icon_load_error: Error = icon_image.load(icon_path)
+		_assert(icon_load_error == OK and icon_image.get_width() == 96 and icon_image.get_height() == 96, "%s equipment icon should be a 96x96 project asset" % equipment_id)
+		var card_ids: Array = GameData.equipment_cards(equipment_id)
+		_assert(not card_ids.is_empty(), "%s should contribute at least one card" % equipment_id)
+		for card_id_var: Variant in card_ids:
+			var card_id: String = str(card_id_var)
+			_assert(not GameData.card_def(card_id).is_empty(), "%s should reference an existing card" % equipment_id)
+		if bool(item.get("starter", false)):
+			_assert(starter_ids.has(equipment_id), "%s should be registered as a starter equipment item" % equipment_id)
+			_assert(icon_path.begins_with("res://assets/art/equipment/"), "%s starter equipment should use custom equipment art, not reused relic art" % equipment_id)
+	for slot: String in GameData.equipment_slots():
+		_assert(int(slot_counts.get(slot, 0)) >= 3, "%s slot should have multiple equipment options" % slot.capitalize())
+	var equipped: Dictionary = GameData.starting_equipped_equipment()
+	for slot: String in GameData.equipment_slots():
+		_assert(not str(equipped.get(slot, "")).is_empty(), "Starting equipment should define %s" % slot)
+	var starting_deck: Array = GameData.starting_deck()
+	_assert(starting_deck.size() == 10, "Starter equipment should compile to the ten-card starting deck")
+	for card_id: String in [
+		"quick_stab",
+		"guarded_step",
+		"shadow_step",
+		"hamstring_shot",
+		"sidestep_slash",
+		"whirlwind_slash",
+		"patch_up",
+		"bloody_lunge",
+		"brace",
+		"lantern_shot"
+	]:
+		_assert(starting_deck.has(card_id), "Starter equipment should preserve %s in the starting deck" % card_id)
 
 func _test_room_generation_is_deterministic() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -604,6 +666,24 @@ func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 		else:
 			_assert(loot_by_kind.is_empty(), "%s rooms should not place battlefield pickups" % room_type.capitalize())
 		_assert(not loot_by_kind.has("ember_cache"), "Generated tile loot should no longer spawn random ember caches")
+	var equipment_room: Dictionary = generator.generate_room(412, {
+		"coord": Vector2i(2, 2),
+		"depth": 2,
+		"type": "combat",
+		"element": ElementData.FIRE,
+		"equipment_drop": "iron_cleaver"
+	}, Vector2i(0, -1))
+	var equipment_loot: Dictionary = {}
+	for loot_var: Variant in equipment_room.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if str(loot.get("kind", "")) == "equipment":
+			equipment_loot = loot
+			break
+	_assert(not equipment_loot.is_empty(), "Combat rooms with an equipment drop should place it as tile loot")
+	_assert(str(equipment_loot.get("equipment_id", "")) == "iron_cleaver", "Equipment tile loot should preserve the selected equipment id")
+	_assert(PathUtils.is_passable(equipment_room.get("grid", []), equipment_loot.get("pos", Vector2i(-1, -1))), "Equipment tile loot should sit on passable floor tiles")
 	var combat_room: Dictionary = generator.generate_room(413, {
 		"coord": Vector2i(3, 1),
 		"depth": 2,
@@ -768,19 +848,19 @@ func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
 	var state: Dictionary = combat.create_combat(11, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["shadow_gate", "quick_stab"],
+			"deck_cards": ["patch_up", "quick_stab"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = state.get("deck", {}).duplicate(true)
-	deck["hand"] = ["shadow_gate"]
+	deck["hand"] = ["patch_up"]
 	deck["draw"] = []
 	deck["discard"] = ["quick_stab"]
 	state["deck"] = deck
 	var hp_before: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
 	state = combat.finish_player_card(state, 0)
-	_assert((state.get("deck", {}) as Dictionary).get("burned", []).has("shadow_gate"), "Burn cards should move to the burned pile")
+	_assert((state.get("deck", {}) as Dictionary).get("burned", []).has("patch_up"), "Burn cards should move to the burned pile")
 	state = combat.prepare_next_player_turn(state)
 	var hp_after: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
 	_assert(hp_after == hp_before - 15, "Cycling the deck should deal fatigue damage")
@@ -1086,7 +1166,7 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
-	var starting_deck: Array[String] = GameData.starting_deck()
+	var starting_deck: Array = GameData.starting_deck()
 	_assert(starting_deck.has("hamstring_shot"), "Hamstring Shot should replace the plain ranged starter in the starting deck")
 	_assert(not starting_deck.has("bone_dart"), "Bone Dart should stay out of the starting deck while retired")
 	_assert(bool(GameData.card_def("hamstring_shot").get("starter", false)), "Hamstring Shot should be marked as a starter card")
@@ -1096,6 +1176,135 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 		var cards: Array = reward_pool.get(rarity, [])
 		_assert(not cards.has("bone_dart"), "Bone Dart should stay out of reward offers while retired")
 		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
+
+func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary) -> void:
+	var engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = engine.create_new_run(45, default_progression)
+	_assert((run_state.get("deck_cards", []) as Array) == GameData.starting_deck(), "Fresh runs should compile their deck from starter equipment")
+	_assert((run_state.get("reward_cards", []) as Array).is_empty(), "Fresh runs should track elemental reward cards separately from equipment")
+	_assert((run_state.get("equipment_inventory", []) as Array).is_empty(), "Fresh runs should not duplicate equipped starter gear into inventory")
+	_assert(int(run_state.get("equipment_drop_misses", -1)) == 0, "Fresh runs should start equipment pity from zero misses")
+	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
+	for slot: String in GameData.equipment_slots():
+		_assert(not str(equipped.get(slot, "")).is_empty(), "Fresh runs should equip a starter %s" % slot)
+	for starter_id_var: Variant in GameData.starter_equipment_ids():
+		_assert((run_state.get("collected_equipment", []) as Array).has(str(starter_id_var)), "Fresh runs should mark starter equipment as collected")
+
+	var reward_state: Dictionary = engine.claim_card_reward(run_state, "spark_dart")
+	_assert((reward_state.get("reward_cards", []) as Array) == ["spark_dart"], "Claimed card rewards should append to reward_cards")
+	_assert((reward_state.get("deck_cards", []) as Array).has("spark_dart"), "Claimed card rewards should remain in the active deck")
+	_assert((reward_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size() + 1, "Reward cards should add to the equipment deck")
+
+	var legacy_state: Dictionary = run_state.duplicate(true)
+	legacy_state.erase("reward_cards")
+	legacy_state.erase("equipment_inventory")
+	legacy_state.erase("equipped_equipment")
+	legacy_state.erase("collected_equipment")
+	legacy_state.erase("equipment_drop_misses")
+	var legacy_deck: Array = (legacy_state.get("deck_cards", []) as Array).duplicate()
+	legacy_deck.append("spark_dart")
+	legacy_state["deck_cards"] = legacy_deck
+	var repaired_state: Dictionary = engine.repair_loaded_run_state(legacy_state)
+	_assert((repaired_state.get("reward_cards", []) as Array) == ["spark_dart"], "Legacy decks should migrate non-equipment cards into reward_cards")
+	_assert((repaired_state.get("deck_cards", []) as Array).has("spark_dart"), "Legacy reward migration should preserve collected cards in the active deck")
+	_assert(int(repaired_state.get("equipment_drop_misses", -1)) == RunEngine.EQUIPMENT_DROP_PITY_MISSES, "Loaded runs without equipment pity state should guarantee the next eligible equipment drop")
+
+	var dry_room: Dictionary = {
+		"coord": Vector2i(1, 0),
+		"depth": 1,
+		"type": "combat",
+		"element": ElementData.FIRE,
+		"cleared": false
+	}
+	var no_pity_state: Dictionary = run_state.duplicate(true)
+	no_pity_state["equipment_drop_misses"] = 0
+	_assert(str(engine.call("_equipment_drop_for_room", no_pity_state, dry_room)).is_empty(), "Dry equipment rolls should still miss before pity")
+	var pity_state: Dictionary = run_state.duplicate(true)
+	pity_state["equipment_drop_misses"] = RunEngine.EQUIPMENT_DROP_PITY_MISSES
+	_assert(not str(engine.call("_equipment_drop_for_room", pity_state, dry_room)).is_empty(), "Equipment pity should force a drop after consecutive misses")
+	var reset_pity_state: Dictionary = engine.call("_record_equipment_drop_attempt", pity_state, {
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3)}]
+	})
+	_assert(int(reset_pity_state.get("equipment_drop_misses", -1)) == 0, "Placed equipment drops should reset equipment pity")
+	var missed_pity_state: Dictionary = engine.call("_record_equipment_drop_attempt", no_pity_state, {"loot": []})
+	_assert(int(missed_pity_state.get("equipment_drop_misses", -1)) == 1, "Eligible rooms without equipment should advance equipment pity")
+
+	var collected: Array = (run_state.get("collected_equipment", []) as Array).duplicate()
+	collected.append("iron_cleaver")
+	run_state["equipment_inventory"] = ["iron_cleaver"]
+	run_state["collected_equipment"] = collected
+	var swapped_state: Dictionary = engine.equip_equipment(run_state, "iron_cleaver")
+	var swapped_equipped: Dictionary = swapped_state.get("equipped_equipment", {}) as Dictionary
+	var swapped_inventory: Array = swapped_state.get("equipment_inventory", []) as Array
+	var swapped_deck: Array = swapped_state.get("deck_cards", []) as Array
+	_assert(str(swapped_equipped.get("weapon", "")) == "iron_cleaver", "Equipping a weapon should update the active slot")
+	_assert(swapped_inventory.has("training_sword"), "The replaced equipment should move back into inventory")
+	_assert(not swapped_inventory.has("iron_cleaver"), "The newly equipped item should leave inventory")
+	_assert(swapped_deck.has("cleaver_hook") and swapped_deck.has("needle_flurry") and swapped_deck.has("butcher_chop"), "Equipping an item should add its cards to the active deck")
+	_assert(not swapped_deck.has("whirlwind_slash") and not swapped_deck.has("bloody_lunge"), "Equipping an item should remove the previous slot's unique cards")
+
+	var combat_state: Dictionary = swapped_state.duplicate(true)
+	combat_state["mode"] = "combat"
+	var combat_inventory: Array = swapped_inventory.duplicate()
+	combat_inventory.append("ward_kite")
+	combat_state["equipment_inventory"] = combat_inventory
+	var combat_collected: Array = (combat_state.get("collected_equipment", []) as Array).duplicate()
+	combat_collected.append("ward_kite")
+	combat_state["collected_equipment"] = combat_collected
+	var blocked_state: Dictionary = engine.equip_equipment(combat_state, "ward_kite")
+	_assert(str((blocked_state.get("equipped_equipment", {}) as Dictionary).get("offhand", "")) == str(swapped_equipped.get("offhand", "")), "Equipment should not change during combat")
+	_assert((blocked_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Blocked equipment changes should leave inventory intact")
+
+	var available_before: Array = engine.call("_available_equipment_drop_ids", run_state)
+	_assert(available_before.has("ward_kite"), "Uncollected equipment should be eligible for future drops")
+	var collected_state: Dictionary = run_state.duplicate(true)
+	collected_state["collected_equipment"] = GameData.starter_equipment_ids() + ["ward_kite"]
+	var available_after: Array = engine.call("_available_equipment_drop_ids", collected_state)
+	_assert(not available_after.has("ward_kite"), "Collected equipment should not appear in future drop pools")
+
+func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictionary) -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var combat_engine: CombatEngine = CombatEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(74, default_progression)
+	var layout: Dictionary = _simple_room_layout()
+	var equipment_tile := Vector2i(3, 4)
+	layout["loot"] = [{
+		"kind": "equipment",
+		"equipment_id": "ward_kite",
+		"pos": equipment_tile
+	}]
+	var combat_state: Dictionary = combat_engine.create_combat(74, layout, {
+		"hp": int(run_state.get("player_hp", 1)),
+		"max_hp": int(run_state.get("player_max_hp", 1)),
+		"deck_cards": (run_state.get("deck_cards", []) as Array).duplicate(),
+		"relics": [],
+		"hand_size": int(run_state.get("hand_size", 5)),
+		"heal_bonus": int(run_state.get("heal_bonus", 0)),
+		"cards_per_turn": 2,
+		"draw_per_turn": 2,
+		"card_upgrades": {},
+		"card_mods": {}
+	})
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	combat_state = combat_engine.apply_player_action(combat_state, {"type": "blink", "range": 99}, equipment_tile)
+	_assert((combat_state.get("collected_equipment", []) as Array).has("ward_kite"), "Walking onto equipment loot should record the picked-up equipment in combat state")
+	var claimed_loot: Dictionary = _first_loot_of_kind(combat_state, "equipment")
+	_assert(bool(claimed_loot.get("claimed", false)), "Equipment loot should be marked claimed after pickup")
+	run_state = run_engine.set_combat_state(run_state, combat_state)
+	_assert((run_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Collected combat equipment should merge into run inventory")
+	_assert((run_state.get("collected_equipment", []) as Array).has("ward_kite"), "Collected combat equipment should be remembered for duplicate-drop exclusion")
+	var pre_equip_deck: Array = run_state.get("deck_cards", []) as Array
+	_assert(pre_equip_deck.has("brace") and pre_equip_deck.has("guarded_step"), "Picking up equipment should not rebuild the deck until it is equipped")
+	_assert(not pre_equip_deck.has("kite_bash"), "Picked-up equipment cards should stay inactive while the item is only in inventory")
+	run_state["mode"] = "room"
+	run_state = run_engine.equip_equipment(run_state, "ward_kite")
+	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
+	var post_equip_deck: Array = run_state.get("deck_cards", []) as Array
+	_assert(str(equipped.get("offhand", "")) == "ward_kite", "Equipping collected equipment should update the matching slot")
+	_assert((run_state.get("equipment_inventory", []) as Array).has("splintered_shield"), "Equipping collected gear should move the replaced starter item into inventory")
+	_assert(post_equip_deck.has("kite_bash") and post_equip_deck.has("warded_advance"), "Equipping collected gear should add its cards to the active deck")
+	_assert(not post_equip_deck.has("brace") and not post_equip_deck.has("guarded_step"), "Equipping collected gear should remove the previous slot's cards from the active deck")
 
 func _test_elemental_intensity_starts_from_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1705,7 +1914,9 @@ func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	var stacked_updraft: Dictionary = GameData.card_def_for_progression("updraft", {"relics": ["tailwind_fletching", "anchor_chain"]})
 	var stacked_action: Dictionary = (stacked_updraft.get("actions", []) as Array)[1]
 	_assert(int(stacked_action.get("amount", 0)) == 4, "Multiple relics should stack on the same forced-movement number")
-	var stacked_push_token: Dictionary = (ActionIcons.tokens_for_action(stacked_action)[0] as Dictionary)
+	var stacked_tokens: Array = ActionIcons.tokens_for_action(stacked_action)
+	var stacked_push_token: Dictionary = (stacked_tokens[stacked_tokens.size() - 1] as Dictionary)
+	_assert(str(stacked_push_token.get("icon", "")) == "push", "Forced movement cards should render push after the hit")
 	var stacked_tooltip: String = ActionIcons.token_tooltip(stacked_push_token)
 	_assert(ActionIcons.token_is_modified(stacked_push_token), "Relic-modified forced movement should carry a dynamic token marker")
 	_assert(stacked_tooltip.contains("Tailwind Fletching") and stacked_tooltip.contains("Anchor Chain"), "A token modified by multiple relics should list every source")
@@ -1865,13 +2076,17 @@ func _test_immobilize_cards_stay_in_allowed_elements() -> void:
 		_assert(bool(allowed_elements.get(card_element, false)), "Immobilize cards should currently stay neutral, ice, or earth: %s" % card_id)
 
 func _test_healing_cards_are_burned_and_downweighted() -> void:
-	for card_id: String in ["patch_up", "rallying_breath", "last_light"]:
-		var card: Dictionary = GameData.card_def(card_id)
-		_assert(bool(card.get("burn", false)), "Healing cards should burn so recovery is a shorter-term tactical choice")
-	_assert(int((GameData.card_def("patch_up").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 30, "Patch Up should heal less than the original starter version")
-	_assert(int((GameData.card_def("rallying_breath").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 40, "Rallying Breath should heal less than the original common version")
-	_assert(int((GameData.card_def("last_light").get("actions", [])[0] as Dictionary).get("amount", 0)) <= 60, "Last Light should heal less than the original rare version")
-	_assert(GameData.reward_offer_weight("rallying_breath") < GameData.reward_offer_weight("iron_wheel"), "Healing cards should be rarer reward offers than standard non-heal cards")
+	var patch_up: Dictionary = GameData.card_def("patch_up")
+	_assert(bool(patch_up.get("burn", false)), "Starter recovery should burn so recovery is a shorter-term tactical choice")
+	_assert(int((patch_up.get("actions", [])[0] as Dictionary).get("amount", 0)) <= 30, "Patch Up should heal less than the original starter version")
+	var cinch_straps: Dictionary = GameData.card_def("rallying_breath")
+	_assert(str(cinch_straps.get("name", "")) == "Cinch Straps", "Boiled Leather should own a defensive strap-tightening card instead of generic healing")
+	_assert(not bool(cinch_straps.get("reward_pool", true)), "Equipment-owned neutral utility should stay out of normal reward offers")
+	_assert(str(((cinch_straps.get("actions", []) as Array)[0] as Dictionary).get("type", "")) == "block", "Cinch Straps should be armor defense, not a healing reward")
+	var glass_mending: Dictionary = GameData.card_def("last_light")
+	_assert(str(glass_mending.get("name", "")) == "Glass Mending", "Glassbone Cuirass should own a thematic mending card")
+	_assert(not bool(glass_mending.get("reward_pool", true)), "Equipment-owned mending should stay out of normal reward offers")
+	_assert(int(((glass_mending.get("actions", []) as Array)[0] as Dictionary).get("amount", 0)) <= 30, "Glass Mending should be modest equipment recovery")
 
 func _test_low_movement_enemies_advance_without_outpacing_crawlers() -> void:
 	var crawler_weighted_average: float = _weighted_average_enemy_toward_move("crawler")
@@ -2235,10 +2450,11 @@ func _test_elemental_room_rewards_follow_affinity(default_progression: Dictionar
 		var card_element: String = GameData.card_element(str(card_id_var))
 		if card_element == room_element:
 			elemental_count += 1
-		elif card_element == "none":
+		if card_element == "none":
 			neutral_count += 1
-	_assert(elemental_count == 2, "Elemental combat rewards should offer two cards from the room's element")
-	_assert(neutral_count == 1, "Elemental combat rewards should keep one neutral choice")
+		_assert(ElementData.is_elemental(card_element), "Combat card rewards should stay elemental while equipment owns neutral utility")
+	_assert(elemental_count >= 2, "Elemental combat rewards should favor at least two cards from the room's element")
+	_assert(neutral_count == 0, "Elemental combat rewards should not offer neutral cards")
 
 func _test_chain_hits_clustered_enemies() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -3337,6 +3553,8 @@ func _test_air_trap_tooltip_is_damage_only() -> void:
 
 func _test_pickup_tooltips_describe_effects() -> void:
 	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.combat_state = {"grid": _simple_grid()}
 	_assert(
 		str(board.call("_loot_tooltip_text", {"kind": "healing_vial", "amount": 4})) == "Healing potion: Heal 4",
 		"Potion tooltips should describe the exact healing effect"
@@ -3349,6 +3567,14 @@ func _test_pickup_tooltips_describe_effects() -> void:
 		str(board.call("_loot_tooltip_text", {"kind": "dropped_embers", "amount": 23})) == "Dropped embers: Reclaim 23",
 		"Dropped ember tooltips should show the exact recoverable amount"
 	)
+	_assert(
+		str(board.call("_loot_tooltip_text", {"kind": "equipment", "equipment_id": "iron_cleaver"})) == "Iron Cleaver: Weapon",
+		"Equipment pickup tooltips should identify the item and slot"
+	)
+	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
+	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
+	_assert(equipment_rect.size == potion_rect.size, "Equipment pickups should use the same grounded tile footprint as ordinary pickups")
+	_assert(is_equal_approx(equipment_rect.end.y, potion_rect.end.y), "Equipment pickups should share the consumable pickup baseline")
 	var terrain_tooltip: String = str(board.call("_terrain_tooltip_text", {
 		"kind": "wooden_crate",
 		"hp": 2,
@@ -3711,6 +3937,29 @@ func _test_player_uses_original_anime_art() -> void:
 	var player_texture: Texture2D = board.call("_texture_for_unit", player_unit)
 	_assert(idle_frames.size() == 8, "Original anime player art should still load its matching idle sheet")
 	_assert(player_texture != null, "Original anime player art should load for board rendering")
+	board.free()
+
+func _test_combat_board_keeps_equipment_data_off_player_sprite() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.set_combat_state({
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(3, 3), "hp": 20, "max_hp": 20},
+		"enemies": []
+	}, [], [], Vector2i(-1, -1), "", "", {}, {}, {
+		"equipped_equipment": {
+			"weapon": "iron_cleaver",
+			"offhand": "ward_kite",
+			"armor": "boiled_leather",
+			"boots": "dust_tabi",
+			"trinket": "ember_pendant"
+		}
+	})
+	var presentation: Dictionary = board.get("presentation")
+	_assert(str((presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Combat board presentation may preserve equipment data for future sprite art")
+	_assert(not board.has_method("_draw_player_equipment_overlays"), "Combat board should not render equipment icon overlays on the player sprite")
+	board.free()
 
 func _test_combat_board_surfaces_illusion_units() -> void:
 	var board := CombatBoardView.new()
@@ -4303,6 +4552,14 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var immobilize_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 3, "range": 5, "immobilize": true})
 	_assert(str((immobilize_row[2] as Dictionary).get("icon", "")) == "immobilize", "Immobilize should use its shared status icon token")
 	_assert(ActionIcons.tooltip("immobilize").contains("movement"), "Immobilize tooltip should explain the movement lock")
+	var shove_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "poison": 2, "push": 1})
+	_assert(str((shove_row[shove_row.size() - 1] as Dictionary).get("icon", "")) == "push", "Push riders should render after hit, range, and status tokens")
+	var direct_push_row: Array = ActionIcons.tokens_for_action({"type": "push", "damage": 5, "range": 4, "amount": 2})
+	_assert(str((direct_push_row[0] as Dictionary).get("icon", "")) == "melee", "Push action rows should show the hit before forced movement")
+	_assert(str((direct_push_row[direct_push_row.size() - 1] as Dictionary).get("icon", "")) == "push", "Push action rows should end with forced movement")
+	var direct_pull_row: Array = ActionIcons.tokens_for_action({"type": "pull", "damage": 5, "range": 4, "amount": 2})
+	_assert(str((direct_pull_row[0] as Dictionary).get("icon", "")) == "melee", "Pull action rows should show the hit before forced movement")
+	_assert(str((direct_pull_row[direct_pull_row.size() - 1] as Dictionary).get("icon", "")) == "pull", "Pull action rows should end with forced movement")
 	var pierce_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 6, "range": 5, "pierce": true})
 	_assert(pierce_row.size() == 2, "Pierce should replace the ranged damage icon instead of adding another keyword token")
 	_assert(str((pierce_row[0] as Dictionary).get("icon", "")) == "pierce", "Pierce attacks should use the pierce damage icon")
@@ -4318,7 +4575,7 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
 	_assert(ActionIcons.tooltip("illusion").contains("stationary copy"), "Illusion tooltip should explain the decoy")
-	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("grave_sprint"))
+	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("gate_gambit"))
 	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
 	var cost_row: Array = cost_rows[0] as Array
 	_assert(str((cost_row[0] as Dictionary).get("icon", "")) == "exhaust", "Exhausting cards should use the exhaust cost icon")
@@ -6181,7 +6438,10 @@ func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	instance.call("_close_pile_view")
 	discard_host = hosts.get("discard", null)
 	var discard_top: Node = discard_host.get_child(discard_host.get_child_count() - 1) if discard_host != null and discard_host.get_child_count() > 0 else null
-	_assert(discard_top is CardWidget and (discard_top as CardWidget).card_id == "quick_stab", "A non-empty discard pile should render the top card with the real card widget")
+	var discard_widgets: Array[CardWidget] = _card_widgets_under(discard_top)
+	_assert(discard_widgets.size() == 1 and discard_widgets[0].card_id == "quick_stab", "A non-empty discard pile should render the top card with the real card widget")
+	var discard_card_size: Vector2 = (discard_top as Control).size if discard_top is Control else Vector2.ZERO
+	_assert(discard_card_size.x > 0.0 and absf((discard_card_size.y / discard_card_size.x) - (352.0 / 250.0)) < 0.01, "Discard pile CardWidget should preserve the real card aspect ratio")
 	instance.queue_free()
 	await process_frame
 
@@ -6348,7 +6608,11 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.set("_progression", progression)
 	instance.call("_close_dialogue")
 	instance.call("_open_card_upgrade_overlay")
+	await process_frame
 	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")
+	var character_dialog: PanelContainer = instance.get("_upgrade_dialog")
+	var stats_dialog_size: Vector2 = character_dialog.custom_minimum_size if character_dialog != null else Vector2.ZERO
+	var stats_dialog_actual_size: Vector2 = character_dialog.size if character_dialog != null else Vector2.ZERO
 	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the character stats overlay")
 	_assert(upgrade_scrim.z_index >= 1200 and not upgrade_scrim.z_as_relative, "The character overlay should render above combat hand cards")
 	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
@@ -6358,6 +6622,56 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(character_art != null and character_art.texture != null, "The character overlay should anchor the status panel with protagonist art")
 	_assert(_label_with_text(upgrade_scrim, "Might") != null, "The character overlay should list physical stats")
 	_assert(_label_with_text(upgrade_scrim, "Fire Magick") != null, "The character overlay should list elemental magick stats")
+	instance.call("_on_character_stats_pressed")
+	await process_frame
+	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Stats to Gear should keep the character dialog size stable")
+	_assert(_button_with_text(upgrade_scrim, "Gear") != null, "The character menu should expose a Gear tab")
+	_assert(_button_with_text(upgrade_scrim, "Stats") != null, "The character menu should keep the Stats tab available")
+	_assert(_label_with_text(upgrade_scrim, "Loadout") != null, "The gear overlay should show equipped slots")
+	_assert(_label_with_text(upgrade_scrim, "Inventory") != null, "The gear overlay should show inventory")
+	_assert(_label_with_text(upgrade_scrim, "Deck") != null, "The gear overlay should show deck cards")
+	var equipment_art: TextureRect = upgrade_scrim.find_child("EquipmentCharacterArt", true, false) as TextureRect
+	_assert(equipment_art != null and equipment_art.texture != null, "The gear overlay should keep protagonist art visible")
+	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Stats to Gear should keep the visible character dialog size stable")
+	_assert(_label_with_text(upgrade_scrim, "Quick Stab, +2") == null, "Equipped loadout slots should not show a granted-card summary subline")
+	var gear_run_state: Dictionary = instance.get("_run_state")
+	var collected_equipment: Array = (gear_run_state.get("collected_equipment", []) as Array).duplicate()
+	if not collected_equipment.has("iron_cleaver"):
+		collected_equipment.append("iron_cleaver")
+	gear_run_state["equipment_inventory"] = ["iron_cleaver"]
+	gear_run_state["collected_equipment"] = collected_equipment
+	instance.set("_run_state", gear_run_state)
+	instance.call("_rebuild_progression_overlay")
+	_assert(_label_with_text(upgrade_scrim, "Iron Cleaver") != null, "The gear overlay should render carried equipment")
+	var equipment_tooltip: Control = instance.call("_build_equipment_tooltip_panel", "iron_cleaver") as Control
+	root.add_child(equipment_tooltip)
+	await process_frame
+	_assert(_card_widget_count_under(equipment_tooltip) == GameData.equipment_cards("iron_cleaver").size(), "Equipment hover should show real CardWidget previews for every granted card")
+	for widget: CardWidget in _card_widgets_under(equipment_tooltip):
+		_assert(widget.size.x > 0.0 and absf((widget.size.y / widget.size.x) - (352.0 / 250.0)) < 0.01, "Equipment tooltip card previews should preserve the real card aspect ratio")
+	equipment_tooltip.queue_free()
+	var card_tooltip: Control = instance.call("_build_card_tooltip_panel", "cleaver_hook") as Control
+	root.add_child(card_tooltip)
+	await process_frame
+	_assert(_card_widget_count_under(card_tooltip) == 1, "Deck card hover should show a real CardWidget preview")
+	for widget: CardWidget in _card_widgets_under(card_tooltip):
+		_assert(widget.size.x > 0.0 and absf((widget.size.y / widget.size.x) - (352.0 / 250.0)) < 0.01, "Card tooltip previews should preserve the real card aspect ratio")
+	card_tooltip.queue_free()
+	instance.call("_equip_equipment_from_overlay", "iron_cleaver")
+	await process_frame
+	var equipped_state: Dictionary = instance.get("_run_state")
+	_assert(str((equipped_state.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Equipping from the gear overlay should update the weapon slot")
+	_assert((equipped_state.get("equipment_inventory", []) as Array).has("training_sword"), "Equipping from the gear overlay should return the old weapon to inventory")
+	var equipped_deck: Array = equipped_state.get("deck_cards", []) as Array
+	_assert(equipped_deck.has("cleaver_hook") and equipped_deck.has("needle_flurry") and equipped_deck.has("butcher_chop"), "Equipping from the gear overlay should add the new weapon cards")
+	_assert(not equipped_deck.has("whirlwind_slash") and not equipped_deck.has("bloody_lunge"), "Equipping from the gear overlay should remove the previous weapon cards")
+	var board_view: CombatBoardView = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as CombatBoardView
+	var board_presentation: Dictionary = board_view.get("presentation") if board_view != null else {}
+	_assert(str((board_presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Equipping gear should refresh board presentation for future player equipment art")
+	instance.call("_switch_character_overlay_mode", "stats")
+	await process_frame
+	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear back to Stats should keep the character dialog size stable")
+	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear back to Stats should keep the visible character dialog size stable")
 	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_level_up_overlay")
 	var upgrade_dialog: PanelContainer = instance.get("_upgrade_dialog")
@@ -6779,6 +7093,24 @@ func _texture_rects_under(node: Node) -> Array[TextureRect]:
 	for child: Node in node.get_children():
 		texture_rects.append_array(_texture_rects_under(child))
 	return texture_rects
+
+func _card_widget_count_under(node: Node) -> int:
+	if node == null:
+		return 0
+	var count: int = 1 if node.get_script() == CardWidgetScript else 0
+	for child: Node in node.get_children():
+		count += _card_widget_count_under(child)
+	return count
+
+func _card_widgets_under(node: Node) -> Array[CardWidget]:
+	var widgets: Array[CardWidget] = []
+	if node == null:
+		return widgets
+	if node.get_script() == CardWidgetScript:
+		widgets.append(node as CardWidget)
+	for child: Node in node.get_children():
+		widgets.append_array(_card_widgets_under(child))
+	return widgets
 
 func _run_scene_choice_button_host(instance: Node) -> Node:
 	var overlay: Node = instance.get("_choice_button_overlay") as Node

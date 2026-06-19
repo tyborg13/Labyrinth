@@ -5,6 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"
+const EQUIPMENT_PATH: String = "res://data/equipment.json"
 const NPCS_PATH: String = "res://data/npcs.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
@@ -52,6 +53,14 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 	"epic": 3,
 	"legendary": 1
 }
+const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
+const STARTING_EQUIPMENT_BY_SLOT := {
+	"weapon": "training_sword",
+	"offhand": "splintered_shield",
+	"armor": "patched_cloak",
+	"boots": "skirmisher_boots",
+	"trinket": "cracked_lantern"
+}
 
 static var _cache: Dictionary = {}
 
@@ -60,6 +69,9 @@ static func cards() -> Dictionary:
 
 static func enemies() -> Dictionary:
 	return _load_json_dict(ENEMIES_PATH)
+
+static func equipment() -> Dictionary:
+	return _load_json_dict(EQUIPMENT_PATH)
 
 static func npcs() -> Dictionary:
 	return _load_json_dict(NPCS_PATH)
@@ -164,21 +176,10 @@ static func _raw_card_def_for_progression(card_id: String, progression: Dictiona
 		return upgraded if not upgraded.is_empty() else _raw_card_def(card_id)
 	return _raw_card_def(card_id)
 
-static func starting_deck() -> Array[String]:
-	return [
-		"quick_stab",
-		"guarded_step",
-		"shadow_step",
-		"whirlwind_slash",
-		"hamstring_shot",
-		"sidestep_slash",
-		"patch_up",
-		"bloody_lunge",
-		"brace",
-		"lantern_shot"
-	]
+static func starting_deck() -> Array:
+	return compile_deck_cards(starting_equipped_equipment(), [])
 
-static func reward_card_pool_by_rarity(element_filter: String = "") -> Dictionary:
+static func reward_card_pool_by_rarity(element_filter: String = "", elemental_only: bool = false) -> Dictionary:
 	var result: Dictionary = {
 		"common": [],
 		"uncommon": [],
@@ -186,10 +187,14 @@ static func reward_card_pool_by_rarity(element_filter: String = "") -> Dictionar
 	}
 	for card_id: String in cards().keys():
 		var card: Dictionary = cards()[card_id]
+		if not bool(card.get("reward_pool", true)):
+			continue
 		var rarity: String = str(card.get("rarity", "common"))
 		if rarity == "starter":
 			continue
 		var card_element: String = card_element_from_def(card)
+		if elemental_only and not ElementData.is_elemental(card_element):
+			continue
 		if not element_filter.is_empty() and card_element != element_filter:
 			continue
 		if not result.has(rarity):
@@ -214,6 +219,76 @@ static func card_has_action_type(card_id: String, action_type: String) -> bool:
 
 static func reward_offer_weight(card_id: String) -> int:
 	return 1 if card_has_action_type(card_id, "heal") else 3
+
+static func equipment_slots() -> Array[String]:
+	return EQUIPMENT_SLOTS.duplicate()
+
+static func equipment_ids() -> Array:
+	return equipment().keys()
+
+static func equipment_def(equipment_id: String) -> Dictionary:
+	return _duplicate_dict(equipment().get(equipment_id, {}))
+
+static func equipment_slot(equipment_id: String) -> String:
+	var slot: String = str(equipment_def(equipment_id).get("slot", ""))
+	return slot if EQUIPMENT_SLOTS.has(slot) else ""
+
+static func equipment_rarity(equipment_id: String) -> String:
+	var rarity: String = str(equipment_def(equipment_id).get("rarity", "common"))
+	return rarity if RELIC_RARITY_ACCENTS.has(rarity) else "common"
+
+static func equipment_rarity_accent(rarity: String) -> String:
+	return relic_rarity_accent(rarity)
+
+static func equipment_accent(equipment_id: String) -> String:
+	var item: Dictionary = equipment_def(equipment_id)
+	return str(item.get("accent", equipment_rarity_accent(equipment_rarity(equipment_id))))
+
+static func equipment_offer_weight(equipment_id: String) -> int:
+	return int(RELIC_RARITY_OFFER_WEIGHTS.get(equipment_rarity(equipment_id), RELIC_RARITY_OFFER_WEIGHTS["common"]))
+
+static func starting_equipped_equipment() -> Dictionary:
+	return STARTING_EQUIPMENT_BY_SLOT.duplicate(true)
+
+static func starter_equipment_ids() -> Array:
+	var result: Array = []
+	for slot: String in EQUIPMENT_SLOTS:
+		var equipment_id: String = str(STARTING_EQUIPMENT_BY_SLOT.get(slot, ""))
+		if not equipment_id.is_empty():
+			result.append(equipment_id)
+	return result
+
+static func equipment_cards(equipment_id: String) -> Array:
+	var item: Dictionary = equipment_def(equipment_id)
+	var result: Array = []
+	var raw_cards: Array = item.get("cards", [])
+	for entry_var: Variant in raw_cards:
+		if typeof(entry_var) == TYPE_STRING:
+			result.append(str(entry_var))
+			continue
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var card_id: String = str(entry.get("id", entry.get("card_id", "")))
+		if card_id.is_empty():
+			continue
+		var count: int = maxi(1, int(entry.get("count", 1)))
+		for _copy_index: int in range(count):
+			result.append(card_id)
+	return result
+
+static func compile_deck_cards(equipped_equipment: Dictionary, reward_cards: Array) -> Array:
+	var result: Array = []
+	for slot: String in EQUIPMENT_SLOTS:
+		var equipment_id: String = str(equipped_equipment.get(slot, ""))
+		if equipment_id.is_empty():
+			continue
+		result.append_array(equipment_cards(equipment_id))
+	for card_id_var: Variant in reward_cards:
+		var card_id: String = str(card_id_var)
+		if not card_id.is_empty():
+			result.append(card_id)
+	return result
 
 static func relic_ids() -> Array:
 	return relics().keys()

@@ -1,0 +1,227 @@
+{
+  "training_sword": {
+    "name": "Training Sword",
+    "slot": "weapon",
+    "rarity": "common",
+    "starter": true,
+    "icon_path": "res://assets/art/equipment/training_sword.png",
+    "accent": "#8f9499",
+    "cards": [
+      "quick_stab",
+      "whirlwind_slash",
+      "bloody_lunge"
+    ]
+  },
+  "iron_cleaver": {
+    "name": "Iron Cleaver",
+    "slot": "weapon",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/iron_cleaver.png",
+    "accent": "#8f9499",
+    "cards": [
+      "cleaver_hook",
+      "needle_flurry",
+      "butcher_chop"
+    ]
+  },
+  "duelist_rapier": {
+    "name": "Duelist Rapier",
+    "slot": "weapon",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/duelist_rapier.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "riposte_lunge",
+      "battle_rhythm",
+      "bodkin_arrow"
+    ]
+  },
+  "grave_greatsword": {
+    "name": "Grave Greatsword",
+    "slot": "weapon",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/grave_greatsword.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "grave_cleave",
+      "blood_price",
+      "tombsplitter"
+    ]
+  },
+  "splintered_shield": {
+    "name": "Splintered Shield",
+    "slot": "offhand",
+    "rarity": "common",
+    "starter": true,
+    "icon_path": "res://assets/art/equipment/splintered_shield.png",
+    "accent": "#8f9499",
+    "cards": [
+      "brace",
+      "guarded_step"
+    ]
+  },
+  "ward_kite": {
+    "name": "Ward-Kite",
+    "slot": "offhand",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/ward_kite.png",
+    "accent": "#8f9499",
+    "cards": [
+      "kite_bash",
+      "warded_advance"
+    ]
+  },
+  "chain_guard": {
+    "name": "Chain Guard",
+    "slot": "offhand",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/chain_guard.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "chain_catch",
+      "chain_lock"
+    ]
+  },
+  "mirror_guard": {
+    "name": "Mirror Guard",
+    "slot": "offhand",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/mirror_guard.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "mirror_feint",
+      "mirror_flash"
+    ]
+  },
+  "patched_cloak": {
+    "name": "Patched Cloak",
+    "slot": "armor",
+    "rarity": "common",
+    "starter": true,
+    "icon_path": "res://assets/art/equipment/patched_cloak.png",
+    "accent": "#8f9499",
+    "cards": [
+      "patch_up",
+      "shadow_step"
+    ]
+  },
+  "boiled_leather": {
+    "name": "Boiled Leather",
+    "slot": "armor",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/boiled_leather.png",
+    "accent": "#8f9499",
+    "cards": [
+      "leather_roll",
+      "rallying_breath"
+    ]
+  },
+  "glassbone_cuirass": {
+    "name": "Glassbone Cuirass",
+    "slot": "armor",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/glassbone_cuirass.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "glassbone_guard",
+      "last_light"
+    ]
+  },
+  "undertaker_plate": {
+    "name": "Undertaker Plate",
+    "slot": "armor",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/undertaker_plate.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "undertaker_stand",
+      "grave_sprint"
+    ]
+  },
+  "skirmisher_boots": {
+    "name": "Skirmisher Boots",
+    "slot": "boots",
+    "rarity": "common",
+    "starter": true,
+    "icon_path": "res://assets/art/equipment/skirmisher_boots.png",
+    "accent": "#8f9499",
+    "cards": [
+      "sidestep_slash",
+      "hamstring_shot"
+    ]
+  },
+  "dust_tabi": {
+    "name": "Dust Tabi",
+    "slot": "boots",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/dust_tabi.png",
+    "accent": "#8f9499",
+    "cards": [
+      "dust_skip",
+      "dust_glide"
+    ]
+  },
+  "trapdoor_spurs": {
+    "name": "Trapdoor Spurs",
+    "slot": "boots",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/trapdoor_spurs.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "spur_vault",
+      "hamstring_slice"
+    ]
+  },
+  "gravewind_soles": {
+    "name": "Gravewind Soles",
+    "slot": "boots",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/gravewind_soles.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "gravewind_step",
+      "shadow_gate"
+    ]
+  },
+  "cracked_lantern": {
+    "name": "Cracked Lantern",
+    "slot": "trinket",
+    "rarity": "common",
+    "starter": true,
+    "icon_path": "res://assets/art/equipment/cracked_lantern.png",
+    "accent": "#8f9499",
+    "cards": [
+      "lantern_shot"
+    ]
+  },
+  "ember_pendant": {
+    "name": "Ember Pendant",
+    "slot": "trinket",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/ember_pendant.png",
+    "accent": "#8f9499",
+    "cards": [
+      "ember_tithe"
+    ]
+  },
+  "clockwork_arrowhead": {
+    "name": "Clockwork Arrowhead",
+    "slot": "trinket",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/clockwork_arrowhead.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "clockwork_mark"
+    ]
+  },
+  "sealed_cyclone": {
+    "name": "Sealed Cyclone",
+    "slot": "trinket",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/sealed_cyclone.png",
+    "accent": "#d9862f",
+    "cards": [
+      "unsealed_gale"
+    ]
+  }
+}

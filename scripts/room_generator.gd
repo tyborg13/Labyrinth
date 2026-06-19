@@ -140,7 +140,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, encounter_depth, player_start, rng, occupied)
 	for trap: Dictionary in traps:
 		occupied[trap.get("pos", Vector2i(-1, -1))] = true
-	var loot: Array[Dictionary] = _generate_loot(grid, room_type, rng, occupied)
+	var loot: Array[Dictionary] = _generate_loot(grid, room, rng, occupied)
 	for loot_entry: Dictionary in loot:
 		occupied[loot_entry.get("pos", Vector2i(-1, -1))] = true
 	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied)
@@ -656,8 +656,9 @@ func _fallback_npc_position(grid: Array, player_start: Vector2i, occupied: Dicti
 			best_tile = tile
 	return best_tile
 
-func _generate_loot(grid: Array, room_type: String, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+func _generate_loot(grid: Array, room: Dictionary, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
 	var loot: Array[Dictionary] = []
+	var room_type: String = str(room.get("type", "combat"))
 	if room_type not in ["combat", "boss"]:
 		return loot
 	var candidates: Array[Vector2i] = []
@@ -677,12 +678,23 @@ func _generate_loot(grid: Array, room_type: String, rng: RandomNumberGenerator, 
 		})
 	var shield_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
 	if shield_tile.x >= 0:
+		occupied_pickups[shield_tile] = true
 		loot.append({
 			"id": "loot_shield_%d_%d" % [shield_tile.x, shield_tile.y],
 			"kind": "rusty_shield",
 			"amount": RUSTY_SHIELD_BLOCK,
 			"pos": shield_tile
 		})
+	var equipment_id: String = str(room.get("equipment_drop", ""))
+	if room_type == "combat" and not equipment_id.is_empty():
+		var equipment_tile: Vector2i = _pick_pickup_tile(candidates, occupied_pickups, rng)
+		if equipment_tile.x >= 0:
+			loot.append({
+				"id": "loot_equipment_%s_%d_%d" % [equipment_id, equipment_tile.x, equipment_tile.y],
+				"kind": "equipment",
+				"equipment_id": equipment_id,
+				"pos": equipment_tile
+			})
 	return loot
 
 func _pick_pickup_tile(candidates: Array[Vector2i], occupied: Dictionary, rng: RandomNumberGenerator) -> Vector2i:

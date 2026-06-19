@@ -26,6 +26,7 @@ const CARD_FRAME_STARTER_PATH: String = "res://assets/art/ui/card_frame_rarity_s
 const CARD_FRAME_COMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_common.png"
 const CARD_FRAME_UNCOMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_uncommon.png"
 const CARD_FRAME_RARE_PATH: String = "res://assets/art/ui/card_frame_rarity_rare.png"
+const BASE_CARD_SIZE: Vector2 = Vector2(250.0, 352.0)
 const CARD_FRAME_MARGIN: float = 34.0
 const COMPACT_CARD_WIDTH: float = 190.0
 const CARD_VERTICAL_CHROME: float = 82.0
@@ -498,19 +499,23 @@ func _apply_configuration() -> void:
 	_update_pose(true)
 
 func _update_layout_metrics() -> void:
+	_apply_scaled_node_metrics()
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	var height: float = size.y if size.y > 0.0 else custom_minimum_size.y
+	var layout_scale: float = _card_layout_scale()
 	var compact: bool = width <= COMPACT_CARD_WIDTH
-	var detail_size: int = 13 if compact else 15
+	var detail_size: int = _scaled_card_font_size(13 if compact else 15, 8)
 	_fit_title_label(_base_title_size())
 	UiTypography.set_rich_text_size(desc_label, detail_size)
 	UiTypography.set_label_size(footer_label, detail_size)
-	var height: float = size.y if size.y > 0.0 else custom_minimum_size.y
-	var art_min_height: float = 68.0 if compact else ART_MIN_HEIGHT
-	var details_min_height: float = 104.0 if compact else DETAILS_MIN_HEIGHT
+	var art_min_height: float = _scaled_card_value(68.0 if compact else ART_MIN_HEIGHT, 36.0)
+	var art_max_height: float = _scaled_card_value(ART_MAX_HEIGHT, art_min_height)
+	var details_min_height: float = _scaled_card_value(104.0 if compact else DETAILS_MIN_HEIGHT, 48.0)
+	var details_max_height: float = _scaled_card_value(DETAILS_MAX_HEIGHT, details_min_height)
 	var details_target: float = width * (0.62 if compact else 0.56)
-	var art_height: float = clampf(width * 0.46, art_min_height, ART_MAX_HEIGHT)
-	var details_height: float = clampf(details_target, details_min_height, DETAILS_MAX_HEIGHT)
-	var available_body_height: float = maxf(148.0, height - CARD_VERTICAL_CHROME)
+	var art_height: float = clampf(width * 0.46, art_min_height, art_max_height)
+	var details_height: float = clampf(details_target, details_min_height, details_max_height)
+	var available_body_height: float = maxf(112.0 * layout_scale, height - _scaled_card_value(CARD_VERTICAL_CHROME, 42.0))
 	var body_overflow: float = art_height + details_height - available_body_height
 	if body_overflow > 0.0:
 		var art_reduction: float = minf(body_overflow, art_height - art_min_height)
@@ -526,6 +531,50 @@ func _update_layout_metrics() -> void:
 		_summary_icon_box.custom_minimum_size = Vector2(0.0, details_height)
 	_position_time_badge()
 	pivot_offset = size * 0.5
+
+func _apply_scaled_node_metrics() -> void:
+	var margin: MarginContainer = $Margin as MarginContainer
+	if margin != null:
+		margin.add_theme_constant_override("margin_left", _scaled_card_int(16, 6))
+		margin.add_theme_constant_override("margin_top", _scaled_card_int(14, 5))
+		margin.add_theme_constant_override("margin_right", _scaled_card_int(16, 6))
+		margin.add_theme_constant_override("margin_bottom", _scaled_card_int(14, 5))
+	vbox.add_theme_constant_override("separation", _scaled_card_int(7, 2))
+	title_label.custom_minimum_size = Vector2(0.0, _scaled_card_value(40.0, 22.0))
+	var art_bleed: MarginContainer = $Margin/VBox/ArtBleed as MarginContainer
+	if art_bleed != null:
+		art_bleed.add_theme_constant_override("margin_left", -_scaled_card_int(5, 1))
+		art_bleed.add_theme_constant_override("margin_top", -_scaled_card_int(2, 1))
+		art_bleed.add_theme_constant_override("margin_right", -_scaled_card_int(5, 1))
+		art_bleed.add_theme_constant_override("margin_bottom", -_scaled_card_int(1, 1))
+	var details_margin: MarginContainer = $Margin/VBox/DetailsPanel/DetailsMargin as MarginContainer
+	if details_margin != null:
+		details_margin.add_theme_constant_override("margin_left", _scaled_card_int(7, 2))
+		details_margin.add_theme_constant_override("margin_top", _scaled_card_int(3, 1))
+		details_margin.add_theme_constant_override("margin_right", _scaled_card_int(7, 2))
+		details_margin.add_theme_constant_override("margin_bottom", _scaled_card_int(3, 1))
+	details_vbox.add_theme_constant_override("separation", _scaled_card_int(5, 1))
+	if _summary_icon_box != null:
+		_summary_icon_box.add_theme_constant_override("separation", _scaled_card_int(5, 1))
+
+func _card_layout_scale() -> float:
+	var card_size: Vector2 = size
+	if card_size.x <= 0.0:
+		card_size.x = custom_minimum_size.x
+	if card_size.y <= 0.0:
+		card_size.y = custom_minimum_size.y
+	if card_size.x <= 0.0 or card_size.y <= 0.0:
+		return 1.0
+	return clampf(minf(card_size.x / BASE_CARD_SIZE.x, card_size.y / BASE_CARD_SIZE.y), 0.44, 1.20)
+
+func _scaled_card_value(value: float, minimum: float = 0.0) -> float:
+	return maxf(minimum, value * _card_layout_scale())
+
+func _scaled_card_int(value: int, minimum: int = 1) -> int:
+	return maxi(minimum, int(round(float(value) * _card_layout_scale())))
+
+func _scaled_card_font_size(value: int, minimum: int = 7) -> int:
+	return maxi(minimum, int(round(float(value) * _card_layout_scale())))
 
 func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color, rarity: String, element_id: String) -> void:
 	var normal: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
@@ -543,10 +592,11 @@ func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previ
 func _card_frame_style(expand: float = 0.0, rarity: String = "", element_id: String = ElementData.NONE) -> StyleBoxTexture:
 	var style := StyleBoxTexture.new()
 	style.texture = _card_frame_texture(rarity, element_id)
-	style.texture_margin_left = CARD_FRAME_MARGIN
-	style.texture_margin_top = CARD_FRAME_MARGIN
-	style.texture_margin_right = CARD_FRAME_MARGIN
-	style.texture_margin_bottom = CARD_FRAME_MARGIN
+	var frame_margin: float = _scaled_card_value(CARD_FRAME_MARGIN, 12.0)
+	style.texture_margin_left = frame_margin
+	style.texture_margin_top = frame_margin
+	style.texture_margin_right = frame_margin
+	style.texture_margin_bottom = frame_margin
 	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	style.expand_margin_left = expand
@@ -681,10 +731,10 @@ func _position_time_badge() -> void:
 	if _time_badge == null:
 		return
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
-	var badge_size: float = clampf(width * 0.198, 38.0, 50.0)
+	var badge_size: float = clampf(width * 0.198, _scaled_card_value(38.0, 22.0), _scaled_card_value(50.0, 30.0))
 	_time_badge.custom_minimum_size = Vector2(badge_size, badge_size)
 	_time_badge.size = Vector2(badge_size, badge_size)
-	var overhang: float = clampf(width * 0.020, 3.5, 5.0)
+	var overhang: float = clampf(width * 0.020, _scaled_card_value(3.5, 1.5), _scaled_card_value(5.0, 3.0))
 	_time_badge.position = Vector2(width - badge_size + overhang, -overhang)
 	_time_badge.z_index = 12
 
@@ -876,7 +926,7 @@ func _add_token_modifier_marker(row: HBoxContainer, tooltip: String, label_size:
 	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	marker.tooltip_text = tooltip
 	marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(marker, maxi(10, label_size - 1))
+	UiTypography.set_label_size(marker, maxi(_scaled_card_font_size(10, 7), label_size - 1))
 	marker.add_theme_color_override("font_color", Color(DAMAGE_BONUS_COLOR))
 	marker.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
 	marker.add_theme_constant_override("outline_size", 2 if conditional else 1)
@@ -884,7 +934,7 @@ func _add_token_modifier_marker(row: HBoxContainer, tooltip: String, label_size:
 
 func _summary_icon_size() -> float:
 	var width: float = _card_visual_width()
-	return 22.0 if width <= COMPACT_CARD_WIDTH else 26.0
+	return _scaled_card_value(22.0 if width <= COMPACT_CARD_WIDTH else 26.0, 10.0)
 
 func _aoe_pattern_scale(icon_size: float) -> float:
 	var width: float = _card_visual_width()
@@ -896,13 +946,17 @@ func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 	var width: float = _card_visual_width()
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
-	var available_height: float = maxf(56.0, details_height - SUMMARY_VERTICAL_PADDING)
-	var available_width: float = maxf(52.0, width - CARD_FRAME_MARGIN - 12.0)
-	var icon_candidates: Array = [28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
+	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
+	var available_width: float = maxf(_scaled_card_value(52.0, 28.0), width - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0))
+	var base_candidates: Array = [28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
+	var icon_candidates: Array = []
+	for candidate_var: Variant in base_candidates:
+		icon_candidates.append(_scaled_card_value(float(candidate_var), 10.0))
 	var row_count: int = maxi(1, rendered_rows.size())
+	var minimum_label_size: int = _summary_min_label_size()
 	for candidate_var: Variant in icon_candidates:
 		var icon_size: float = float(candidate_var)
-		var label_size: int = maxi(12, int(round(icon_size * 0.58)))
+		var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
 		var row_gap: int = _summary_row_gap(icon_size, row_count)
 		if _summary_height_estimate(row_count, icon_size, label_size, row_gap) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_width:
 			return {
@@ -913,17 +967,21 @@ func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 	var fallback_icon: float = float(icon_candidates[icon_candidates.size() - 1])
 	return {
 		"icon_size": fallback_icon,
-		"label_size": maxi(12, int(round(fallback_icon * 0.58))),
+		"label_size": maxi(minimum_label_size, int(round(fallback_icon * 0.58))),
 		"row_gap": _summary_row_gap(fallback_icon, row_count)
 	}
 
 func _summary_row_gap(icon_size: float, row_count: int) -> int:
-	var gap: int = 4 if icon_size <= 22.0 else 5 if icon_size <= 26.0 else 6
+	var base_gap: int = 4 if icon_size <= _scaled_card_value(22.0, 10.0) else 5 if icon_size <= _scaled_card_value(26.0, 12.0) else 6
+	var gap: int = _scaled_card_int(base_gap, 1)
 	if row_count >= 3:
 		gap -= 1
 	if row_count >= 4:
 		gap -= 1
-	return maxi(2, gap)
+	return maxi(1, gap)
+
+func _summary_min_label_size() -> int:
+	return _scaled_card_font_size(12, 7)
 
 func _summary_height_estimate(row_count: int, icon_size: float, label_size: int, row_gap: int) -> float:
 	var font: Font = UiTypography.default_font(self)
@@ -950,7 +1008,7 @@ func _summary_segment_width_estimate(segment: Array, icon_size: float, label_siz
 			continue
 		var token: Dictionary = token_var
 		if str(token.get("kind", "")) == "aoe_pattern":
-			child_width += maxf(34.0, icon_size * 1.5)
+			child_width += maxf(_scaled_card_value(34.0, 18.0), icon_size * 1.5)
 			child_count += 1
 			continue
 		child_width += icon_size
@@ -1029,10 +1087,10 @@ func _display_card_def() -> Dictionary:
 func _base_title_size() -> int:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
 	if width <= COMPACT_CARD_WIDTH:
-		return 17
+		return _scaled_card_font_size(17, 8)
 	if width <= HAND_TITLE_WIDTH_MAX:
-		return 18
-	return 19
+		return _scaled_card_font_size(18, 9)
+	return _scaled_card_font_size(19, 9)
 
 func _queue_title_refit() -> void:
 	if is_node_ready():
@@ -1046,21 +1104,29 @@ func _fit_title_label(base_size: int) -> void:
 		UiTypography.set_label_size(title_label, _relieved_title_size(base_size))
 		return
 	var available_width: float = _title_nameplate_width()
-	var available_height: float = maxf(28.0, title_label.custom_minimum_size.y)
-	for candidate: int in range(base_size, TITLE_MIN_SIZE - 1, -1):
+	var available_height: float = maxf(_scaled_card_value(28.0, 16.0), title_label.custom_minimum_size.y)
+	var min_title_size: int = _title_min_size()
+	for candidate: int in range(base_size, min_title_size - 1, -1):
 		var render_size: int = _relieved_title_size(candidate)
 		var scaled_size: int = UiTypography.scaled_size(title_label, render_size)
 		if _title_fits(font, title_label.text, scaled_size, available_width, available_height):
 			UiTypography.set_label_size(title_label, render_size)
 			return
-	UiTypography.set_label_size(title_label, TITLE_MIN_SIZE)
+	UiTypography.set_label_size(title_label, min_title_size)
 
 func _relieved_title_size(candidate: int) -> int:
-	return mini(TITLE_MAX_RENDER_SIZE, maxi(TITLE_MIN_SIZE, candidate - TITLE_FIT_RELIEF))
+	var relief: int = _scaled_card_int(TITLE_FIT_RELIEF, 1)
+	return mini(_title_max_render_size(), maxi(_title_min_size(), candidate - relief))
+
+func _title_min_size() -> int:
+	return _scaled_card_font_size(TITLE_MIN_SIZE, 7)
+
+func _title_max_render_size() -> int:
+	return _scaled_card_font_size(TITLE_MAX_RENDER_SIZE, 8)
 
 func _title_available_width() -> float:
 	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
-	var card_inner_width: float = maxf(80.0, width - 32.0)
+	var card_inner_width: float = maxf(_scaled_card_value(80.0, 42.0), width - _scaled_card_value(32.0, 12.0))
 	if title_label.size.x > 0.0:
 		return minf(title_label.size.x, card_inner_width)
 	var top_row: Control = title_label.get_parent() as Control

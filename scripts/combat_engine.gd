@@ -3262,6 +3262,15 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 				state["recovered_embers_total"] = int(state.get("recovered_embers_total", 0)) + amount
 				state["recovery_marker_claimed"] = true
 				_log(state, "Recovered %d embers." % amount)
+			"equipment":
+				var equipment_id: String = str(loot.get("equipment_id", ""))
+				if not equipment_id.is_empty():
+					var collected: Array = state.get("collected_equipment", []).duplicate()
+					if not collected.has(equipment_id):
+						collected.append(equipment_id)
+					state["collected_equipment"] = collected
+					var item_name: String = str(GameData.equipment_def(equipment_id).get("name", equipment_id))
+					_log(state, "Found %s." % item_name)
 
 func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = {}

@@ -20,6 +20,8 @@ const BOSS_VICTORY_EMBERS: int = 30
 const DEBUG_BOSS_SEED: int = 90429
 const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
 const RELIC_ROOM_CANDIDATE_PERCENT: int = 47
+const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
+const EQUIPMENT_DROP_PITY_MISSES: int = 2
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -36,6 +38,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	start_room["cleared"] = true
 	rooms[_room_key(Vector2i.ZERO)] = start_room
 	var start_layout: Dictionary = _display_layout_for_room(seed, start_room, Vector2i.ZERO)
+	var equipped_equipment: Dictionary = GameData.starting_equipped_equipment()
+	var reward_cards: Array = []
 	var run_state: Dictionary = {
 		"seed": seed,
 		"run_index": int(progression.get("run_counter", 0)),
@@ -43,7 +47,12 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"current_room": Vector2i.ZERO,
 		"current_room_layout": start_layout,
 		"rooms": rooms,
-		"deck_cards": GameData.starting_deck(),
+		"deck_cards": GameData.compile_deck_cards(equipped_equipment, reward_cards),
+		"reward_cards": reward_cards,
+		"equipment_inventory": [],
+		"equipped_equipment": equipped_equipment,
+		"collected_equipment": GameData.starter_equipment_ids(),
+		"equipment_drop_misses": 0,
 		"relics": [],
 		"player_hp": max_hp,
 		"player_max_hp": max_hp,
@@ -92,6 +101,8 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 	var relics: Array[String] = []
 	for relic_id: String in ["iron_lung", "ember_lens", "pilgrim_boots"]:
 		relics.append(relic_id)
+	var debug_equipped: Dictionary = GameData.starting_equipped_equipment()
+	var debug_reward_cards: Array = _migrated_reward_cards_from_deck(deck_cards, debug_equipped)
 	var boss_room: Dictionary = _build_room_metadata(DEBUG_BOSS_SEED, DEBUG_BOSS_COORD)
 	boss_room["revealed"] = true
 	boss_room["visited"] = true
@@ -121,6 +132,11 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"current_room_layout": layout,
 		"rooms": rooms,
 		"deck_cards": deck_cards,
+		"reward_cards": debug_reward_cards,
+		"equipment_inventory": [],
+		"equipped_equipment": debug_equipped,
+		"collected_equipment": GameData.starter_equipment_ids(),
+		"equipment_drop_misses": 0,
 		"relics": relics,
 		"player_hp": current_hp,
 		"player_max_hp": max_hp,
@@ -148,6 +164,9 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
+	next_state = _repair_equipment_state(next_state)
+	if not next_state.has("equipment_drop_misses"):
+		next_state["equipment_drop_misses"] = EQUIPMENT_DROP_PITY_MISSES
 	_stage_recovery_marker(next_state)
 	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(next_state, current_coord)
@@ -265,6 +284,8 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 				next_state["combat_state"] = {}
 				return next_state
 			var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
+			if _equipment_drop_can_attempt(next_state, room):
+				next_state = _record_equipment_drop_attempt(next_state, layout)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
@@ -274,7 +295,9 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	var next_state: Dictionary = run_state.duplicate(true)
 	next_state["combat_state"] = combat_state.duplicate(true)
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
-	return _apply_recovered_embers_from_combat(next_state, combat_state)
+	next_state = _apply_recovered_embers_from_combat(next_state, combat_state)
+	next_state = _apply_collected_equipment_from_combat(next_state, combat_state)
+	return next_state
 
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = set_combat_state(run_state, combat_state)
@@ -324,13 +347,39 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	return next_state
 
 func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
-	var next_state: Dictionary = run_state.duplicate(true)
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not card_id.is_empty():
-		var deck_cards: Array = next_state.get("deck_cards", []).duplicate()
-		deck_cards.append(card_id)
-		next_state["deck_cards"] = deck_cards
+		var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
+		reward_cards.append(card_id)
+		next_state["reward_cards"] = reward_cards
+		next_state = _rebuild_deck_cards(next_state)
 	next_state["pending_reward"] = {}
 	next_state["mode"] = "room"
+	return next_state
+
+func can_change_equipment(run_state: Dictionary) -> bool:
+	return str(run_state.get("mode", "room")) in ["room", "campfire"]
+
+func equip_equipment(run_state: Dictionary, equipment_id: String) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if not can_change_equipment(next_state):
+		return next_state
+	var slot: String = GameData.equipment_slot(equipment_id)
+	if slot.is_empty() or not _run_has_equipment(next_state, equipment_id):
+		return next_state
+	var equipped: Dictionary = (next_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	var current_id: String = str(equipped.get(slot, ""))
+	if current_id == equipment_id:
+		return next_state
+	var inventory: Array = next_state.get("equipment_inventory", []).duplicate()
+	inventory.erase(equipment_id)
+	if not current_id.is_empty() and not inventory.has(current_id):
+		inventory.append(current_id)
+	equipped[slot] = equipment_id
+	next_state["equipment_inventory"] = inventory
+	next_state["equipped_equipment"] = equipped
+	next_state = _rebuild_deck_cards(next_state)
+	next_state["notice"] = "Equipped %s." % str(GameData.equipment_def(equipment_id).get("name", equipment_id))
 	return next_state
 
 func skip_reward_for_heal(run_state: Dictionary) -> Dictionary:
@@ -429,6 +478,65 @@ func exit_options(run_state: Dictionary) -> Array[Dictionary]:
 		})
 	return results
 
+func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var equipped: Dictionary = (next_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	if equipped.is_empty():
+		equipped = GameData.starting_equipped_equipment()
+	for slot: String in GameData.equipment_slots():
+		if str(equipped.get(slot, "")).is_empty():
+			equipped[slot] = str(GameData.starting_equipped_equipment().get(slot, ""))
+	next_state["equipped_equipment"] = equipped
+	if not next_state.has("equipment_inventory"):
+		next_state["equipment_inventory"] = []
+	if not next_state.has("collected_equipment"):
+		var collected: Array = []
+		for slot: String in GameData.equipment_slots():
+			var equipped_id: String = str(equipped.get(slot, ""))
+			if not equipped_id.is_empty() and not collected.has(equipped_id):
+				collected.append(equipped_id)
+		for equipment_var: Variant in next_state.get("equipment_inventory", []):
+			var inventory_id: String = str(equipment_var)
+			if not inventory_id.is_empty() and not collected.has(inventory_id):
+				collected.append(inventory_id)
+		next_state["collected_equipment"] = collected
+	if not next_state.has("reward_cards"):
+		next_state["reward_cards"] = _migrated_reward_cards_from_deck(next_state.get("deck_cards", []), equipped)
+	return _rebuild_deck_cards(next_state)
+
+func _migrated_reward_cards_from_deck(deck_cards: Array, equipped: Dictionary) -> Array:
+	var equipment_counts: Dictionary = {}
+	for card_id: String in GameData.compile_deck_cards(equipped, []):
+		equipment_counts[card_id] = int(equipment_counts.get(card_id, 0)) + 1
+	var migrated: Array = []
+	for card_var: Variant in deck_cards:
+		var card_id: String = str(card_var)
+		var remaining_count: int = int(equipment_counts.get(card_id, 0))
+		if remaining_count > 0:
+			equipment_counts[card_id] = remaining_count - 1
+		else:
+			migrated.append(card_id)
+	return migrated
+
+func _rebuild_deck_cards(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	next_state["deck_cards"] = GameData.compile_deck_cards(
+		next_state.get("equipped_equipment", {}) as Dictionary,
+		next_state.get("reward_cards", []) as Array
+	)
+	return next_state
+
+func _run_has_equipment(run_state: Dictionary, equipment_id: String) -> bool:
+	if equipment_id.is_empty():
+		return false
+	for equipment_var: Variant in run_state.get("equipment_inventory", []):
+		if str(equipment_var) == equipment_id:
+			return true
+	for equipped_var: Variant in (run_state.get("equipped_equipment", {}) as Dictionary).values():
+		if str(equipped_var) == equipment_id:
+			return true
+	return false
+
 func _player_snapshot(run_state: Dictionary) -> Dictionary:
 	return {
 		"hp": int(run_state.get("player_hp", 1)),
@@ -476,6 +584,9 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		layout_room["type"] = "combat"
 		if not ElementData.is_elemental(str(layout_room.get("element", ElementData.NONE))):
 			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")
+	var equipment_drop: String = _equipment_drop_for_room(run_state, layout_room)
+	if not equipment_drop.is_empty():
+		layout_room["equipment_drop"] = equipment_drop
 	var layout: Dictionary = _room_generator.generate_room(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	return _layout_with_recovery_loot(layout, room, run_state)
 
@@ -586,13 +697,13 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[Str
 	var room_element: String = str(room.get("element", ElementData.NONE))
 	if ElementData.is_elemental(room_element):
 		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, choices))
-	choices.append_array(_draw_reward_cards_for_element(rng, ElementData.NONE, 1, choices))
+	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, choices))
 	if choices.size() < 3:
 		choices.append_array(_draw_reward_cards_for_element(rng, "", 3 - choices.size(), choices))
 	return choices
 
 func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String]) -> Array[String]:
-	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity(element_filter)
+	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity(element_filter, true)
 	var choices: Array[String] = []
 	var attempts: int = 0
 	while choices.size() < count and attempts < 72:
@@ -617,6 +728,71 @@ func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: 
 			continue
 		choices.append(str(weighted_pool[rng.randi_range(0, weighted_pool.size() - 1)]))
 	return choices
+
+func _equipment_drop_for_room(run_state: Dictionary, room: Dictionary) -> String:
+	if str(room.get("type", "")) != "combat" or bool(room.get("cleared", false)):
+		return ""
+	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+	var available: Array = _available_equipment_drop_ids(run_state)
+	if available.is_empty():
+		return ""
+	var forced_drop: bool = int(run_state.get("equipment_drop_misses", 0)) >= EQUIPMENT_DROP_PITY_MISSES
+	if not forced_drop and (_coord_hash(int(run_state.get("seed", 0)), coord, 1201) % 100) >= EQUIPMENT_ROOM_DROP_PERCENT:
+		return ""
+	return _weighted_equipment_drop_for_room(run_state, coord, available)
+
+func _weighted_equipment_drop_for_room(run_state: Dictionary, coord: Vector2i, available: Array) -> String:
+	var total_weight: int = 0
+	for equipment_id: String in available:
+		total_weight += maxi(1, GameData.equipment_offer_weight(equipment_id))
+	var roll: int = (_coord_hash(int(run_state.get("seed", 0)), coord, 1207) % maxi(1, total_weight)) + 1
+	var cursor: int = 0
+	for equipment_id: String in available:
+		cursor += maxi(1, GameData.equipment_offer_weight(equipment_id))
+		if roll <= cursor:
+			return equipment_id
+	return available[0]
+
+func _equipment_drop_can_attempt(run_state: Dictionary, room: Dictionary) -> bool:
+	return str(room.get("type", "")) == "combat" and not bool(room.get("cleared", false)) and not _available_equipment_drop_ids(run_state).is_empty()
+
+func _record_equipment_drop_attempt(run_state: Dictionary, layout: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if _layout_has_equipment_drop(layout):
+		next_state["equipment_drop_misses"] = 0
+	else:
+		next_state["equipment_drop_misses"] = int(next_state.get("equipment_drop_misses", 0)) + 1
+	return next_state
+
+func _layout_has_equipment_drop(layout: Dictionary) -> bool:
+	for loot_var: Variant in layout.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if not bool(loot.get("claimed", false)) and str(loot.get("kind", "")) == "equipment":
+			return true
+	return false
+
+func _available_equipment_drop_ids(run_state: Dictionary) -> Array:
+	var owned: Dictionary = {}
+	for equipment_var: Variant in run_state.get("collected_equipment", []):
+		owned[str(equipment_var)] = true
+	for equipment_var: Variant in run_state.get("equipment_inventory", []):
+		owned[str(equipment_var)] = true
+	for equipment_var: Variant in (run_state.get("equipped_equipment", {}) as Dictionary).values():
+		owned[str(equipment_var)] = true
+	for starter_id: String in GameData.starter_equipment_ids():
+		owned[starter_id] = true
+	var result: Array = []
+	for equipment_id_var: Variant in GameData.equipment_ids():
+		var equipment_id: String = str(equipment_id_var)
+		if owned.has(equipment_id):
+			continue
+		if GameData.equipment_slot(equipment_id).is_empty():
+			continue
+		result.append(equipment_id)
+	result.sort()
+	return result
 
 func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[String]:
 	var owned: Array = run_state.get("relics", []).duplicate()
@@ -1015,6 +1191,25 @@ func _apply_recovered_embers_from_combat(run_state: Dictionary, combat_state: Di
 	next_state["progression"] = ProgressionStore.clear_recovery_marker(progression)
 	next_state["notice"] = "Recovered %d embers." % delta
 	_clear_recovery_marker_on_current_room(next_state)
+	return next_state
+
+func _apply_collected_equipment_from_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state)
+	var added_names: Array = []
+	for equipment_var: Variant in combat_state.get("collected_equipment", []):
+		var equipment_id: String = str(equipment_var)
+		if equipment_id.is_empty() or _run_has_equipment(next_state, equipment_id):
+			continue
+		var inventory: Array = next_state.get("equipment_inventory", []).duplicate()
+		inventory.append(equipment_id)
+		next_state["equipment_inventory"] = inventory
+		var collected: Array = next_state.get("collected_equipment", []).duplicate()
+		if not collected.has(equipment_id):
+			collected.append(equipment_id)
+		next_state["collected_equipment"] = collected
+		added_names.append(str(GameData.equipment_def(equipment_id).get("name", equipment_id)))
+	if not added_names.is_empty():
+		next_state["notice"] = "Found %s." % ", ".join(added_names)
 	return next_state
 
 func _clear_recovery_marker_on_current_room(run_state: Dictionary) -> void:
