@@ -6643,6 +6643,22 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.set("_run_state", gear_run_state)
 	instance.call("_rebuild_progression_overlay")
 	_assert(_label_with_text(upgrade_scrim, "Iron Cleaver") != null, "The gear overlay should render carried equipment")
+	var source_rect: Rect2 = instance.call("_equipment_inventory_icon_rect", "iron_cleaver")
+	var tile_map: Dictionary = instance.get("_equipment_inventory_tiles")
+	var source_tile: Control = tile_map.get("iron_cleaver", null) as Control
+	_assert(source_tile != null and _control_descendants_ignore_mouse(source_tile), "Equipment inventory tile children should be passive so icon and text share one hover/drag target")
+	instance.call("_begin_equipment_overlay_drag", "iron_cleaver", source_rect, source_tile, source_rect.get_center())
+	await process_frame
+	var equipment_fx_layer: Control = instance.get("_equipment_fx_layer")
+	var held_proxy: Control = null
+	if equipment_fx_layer != null:
+		held_proxy = equipment_fx_layer.find_child("EquipmentHeldProxy", true, false) as Control
+	_assert(held_proxy != null and held_proxy.find_child("EquipmentGhostTexture", true, false) is TextureRect, "Equipment drag should show a lifted in-scene gear icon")
+	_assert(held_proxy != null and held_proxy.modulate.a < 0.9, "Equipment drag icon should be translucent enough to read as held")
+	_assert(source_tile == null or source_tile.modulate.a < 0.5, "Equipment drag should dim the source inventory tile")
+	_assert(held_proxy != null and _label_with_text(held_proxy, "Iron Cleaver") == null, "Equipment held drag should be icon-first instead of a text plaque")
+	instance.call("_cancel_equipment_overlay_drag", false)
+	await process_frame
 	var equipment_tooltip: Control = instance.call("_build_equipment_tooltip_panel", "iron_cleaver") as Control
 	root.add_child(equipment_tooltip)
 	await process_frame
@@ -7093,6 +7109,14 @@ func _texture_rects_under(node: Node) -> Array[TextureRect]:
 	for child: Node in node.get_children():
 		texture_rects.append_array(_texture_rects_under(child))
 	return texture_rects
+
+func _control_descendants_ignore_mouse(node: Node) -> bool:
+	for child: Node in node.get_children():
+		if child is Control and (child as Control).mouse_filter != Control.MOUSE_FILTER_IGNORE:
+			return false
+		if not _control_descendants_ignore_mouse(child):
+			return false
+	return true
 
 func _card_widget_count_under(node: Node) -> int:
 	if node == null:

@@ -44,41 +44,39 @@ class EquipmentTooltipPanelContainer:
 class EquipmentInventoryTile:
 	extends EquipmentTooltipPanelContainer
 
-	func _get_drag_data(_at_position: Vector2) -> Variant:
-		if host == null or equipment_id.is_empty():
-			return null
-		if not bool(host.call("_equipment_overlay_can_change")):
-			return null
-		var preview: Control = host.call("_build_equipment_drag_preview", equipment_id)
-		if preview != null:
-			set_drag_preview(preview)
-		return {
-			"kind": "equipment",
-			"equipment_id": equipment_id
-		}
+	var _left_pressed: bool = false
 
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or equipment_id.is_empty():
 			return
 		if event is InputEventMouseButton:
 			var mouse_event: InputEventMouseButton = event
-			if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.double_click and mouse_event.pressed:
-				host.call("_equip_equipment_from_overlay", equipment_id)
+			if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+				return
+			if mouse_event.pressed:
+				if mouse_event.double_click:
+					_left_pressed = false
+					host.call("_equip_equipment_from_overlay", equipment_id)
+					accept_event()
+					return
+				if bool(host.call("_equipment_overlay_can_change")):
+					_left_pressed = true
+					host.call("_begin_equipment_overlay_drag", equipment_id, host.call("_equipment_icon_rect_for_control", self), self, get_viewport().get_mouse_position())
+					accept_event()
+					return
+			elif _left_pressed:
+				_left_pressed = false
+				host.call("_release_equipment_overlay_drag", get_viewport().get_mouse_position())
 				accept_event()
+				return
+		elif event is InputEventMouseMotion and _left_pressed:
+			host.call("_update_equipment_overlay_drag", get_viewport().get_mouse_position())
+			accept_event()
 
 class EquipmentSlotDrop:
 	extends EquipmentTooltipPanelContainer
 
 	var slot_id: String = ""
-
-	func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-		return host != null and bool(host.call("_can_drop_equipment_data", slot_id, data))
-
-	func _drop_data(_at_position: Vector2, data: Variant) -> void:
-		if not _can_drop_data(Vector2.ZERO, data):
-			return
-		var payload: Dictionary = data as Dictionary
-		host.call("_equip_equipment_from_overlay", str(payload.get("equipment_id", "")))
 
 class EquipmentCardBadge:
 	extends TooltipPanelContainer
@@ -269,6 +267,10 @@ const CHARACTER_BODY_HEIGHT: float = 600.0
 const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(178.0, 92.0)
 const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 72.0)
 const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(42.0, 42.0)
+const EQUIPMENT_DRAG_GHOST_SIZE: Vector2 = Vector2(78.0, 78.0)
+const EQUIPMENT_DRAG_CURSOR_OFFSET: Vector2 = Vector2(18.0, 20.0)
+const EQUIPMENT_SWAP_SNAP_SECONDS: float = 0.22
+const EQUIPMENT_SWAP_RETURN_SECONDS: float = 0.24
 const EQUIPMENT_DECK_BADGE_SIZE: Vector2 = Vector2(164.0, 34.0)
 const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(150.0, 150.0 * CARD_ASPECT_RATIO)
 const CARD_TOOLTIP_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
@@ -397,6 +399,7 @@ var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
 var _card_fx_layer: Control
+var _equipment_fx_layer: Control
 var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _death_overlay: DeathEngulfOverlay
 var _death_sequence_started: bool = false
@@ -425,6 +428,13 @@ var _upgrade_selected_card_id: String = ""
 var _upgrade_selected_element_key: String = ""
 var _progression_overlay_mode: String = ""
 var _progression_pending_stats: Dictionary = {}
+var _equipment_slot_panels: Dictionary = {}
+var _equipment_inventory_tiles: Dictionary = {}
+var _equipment_drag_id: String = ""
+var _equipment_drag_source_rect: Rect2 = Rect2()
+var _equipment_drag_source_control: Control
+var _equipment_held_proxy: Control
+var _equipment_swap_animation_active: bool = false
 var _dialogue_active: bool = false
 var _dialogue_script: Dictionary = {}
 var _dialogue_line_index: int = -1
@@ -466,6 +476,19 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
+		if not _equipment_drag_id.is_empty():
+			if event is InputEventMouseMotion:
+				_update_equipment_overlay_drag(_current_mouse_position())
+				get_viewport().set_input_as_handled()
+				return
+			if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+				await _release_equipment_overlay_drag(_current_mouse_position())
+				get_viewport().set_input_as_handled()
+				return
+			if event.is_action_pressed("ui_cancel"):
+				await _cancel_equipment_overlay_drag(true)
+				get_viewport().set_input_as_handled()
+				return
 		if event.is_action_pressed("ui_cancel"):
 			_close_card_upgrade_overlay()
 			get_viewport().set_input_as_handled()
@@ -618,6 +641,7 @@ func _apply_tooltip_wrapper_style() -> void:
 
 func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
+	_build_equipment_fx_layer()
 	_build_fatigue_edge_overlay()
 	_build_choice_button_overlay()
 	_build_dialogue_overlay()
@@ -1038,6 +1062,17 @@ func _build_card_fx_layer() -> void:
 	_card_fx_layer.anchor_right = 1.0
 	_card_fx_layer.anchor_bottom = 1.0
 	add_child(_card_fx_layer)
+
+func _build_equipment_fx_layer() -> void:
+	_equipment_fx_layer = Control.new()
+	_equipment_fx_layer.name = "EquipmentFxLayer"
+	_equipment_fx_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_equipment_fx_layer.anchors_preset = Control.PRESET_FULL_RECT
+	_equipment_fx_layer.anchor_right = 1.0
+	_equipment_fx_layer.anchor_bottom = 1.0
+	_equipment_fx_layer.z_index = 1300
+	_equipment_fx_layer.z_as_relative = false
+	add_child(_equipment_fx_layer)
 
 func _build_fatigue_edge_overlay() -> void:
 	_fatigue_edge_overlay = FatigueEdgeOverlay.new()
@@ -6616,6 +6651,7 @@ func _close_card_upgrade_overlay() -> void:
 		_upgrade_scrim.visible = false
 	_progression_overlay_mode = ""
 	_progression_pending_stats.clear()
+	_clear_equipment_drag_state(true)
 
 func _rebuild_progression_overlay() -> void:
 	if _upgrade_dialog == null:
@@ -6774,6 +6810,8 @@ func _apply_character_tab_style(button: Button, active: bool) -> void:
 	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
 
 func _build_equipment_overlay_body() -> Control:
+	_equipment_slot_panels.clear()
+	_equipment_inventory_tiles.clear()
 	var body := HBoxContainer.new()
 	body.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -6875,7 +6913,12 @@ func _build_equipment_slot_panel(slot: String, equipment_id: String) -> Control:
 	panel.custom_minimum_size = EQUIPMENT_SLOT_SIZE
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.tooltip_text = "equipment:%s" % equipment_id if not equipment_id.is_empty() else _equipment_slot_label(slot)
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	var drag_target_slot: String = GameData.equipment_slot(_equipment_drag_id)
+	var is_drag_target: bool = not _equipment_drag_id.is_empty() and drag_target_slot == slot
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_target))
+	if not _equipment_drag_id.is_empty() and drag_target_slot != slot:
+		panel.modulate = Color(0.68, 0.68, 0.68, 1.0)
+	_equipment_slot_panels[slot] = panel
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
 	margin.add_theme_constant_override("margin_top", 8)
@@ -7032,6 +7075,9 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	tile.tooltip_text = "equipment:%s" % equipment_id
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _equipment_overlay_can_change() else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	if _equipment_drag_id == equipment_id:
+		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
+	_equipment_inventory_tiles[equipment_id] = tile
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_top", 8)
@@ -7066,6 +7112,7 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	UiTypography.set_label_size(card_label, UiTypography.SIZE_CAPTION)
 	card_label.add_theme_color_override("font_color", Color("d7c6aa"))
 	text_box.add_child(card_label)
+	_make_equipment_tile_content_passive(margin)
 	if not _equipment_overlay_can_change():
 		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
 	return tile
@@ -7139,6 +7186,7 @@ func _build_equipment_card_badge(card_id: String, accent: Color) -> Control:
 func _build_equipment_icon_chip(equipment_id: String, chip_size: Vector2) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
 	var chip := EquipmentTooltipPanelContainer.new()
+	chip.name = "EquipmentIconChip"
 	chip.equipment_id = equipment_id
 	chip.host = self
 	chip.custom_minimum_size = chip_size
@@ -7155,29 +7203,251 @@ func _build_equipment_icon_chip(equipment_id: String, chip_size: Vector2) -> Con
 	chip.add_child(icon)
 	return chip
 
-func _build_equipment_drag_preview(equipment_id: String) -> Control:
-	var preview := PanelContainer.new()
-	preview.custom_minimum_size = Vector2(150.0, 54.0)
-	preview.modulate = Color(1.0, 1.0, 1.0, 0.88)
-	preview.add_theme_stylebox_override("panel", _equipment_panel_style(Color(GameData.equipment_accent(equipment_id)), true))
+func _build_equipment_icon_proxy_panel(equipment_id: String, icon_size: Vector2) -> PanelContainer:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = icon_size
+	panel.size = icon_size
+	panel.add_theme_stylebox_override("panel", _equipment_drag_ghost_style(Color(GameData.equipment_accent(equipment_id))))
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_left", 6)
 	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_right", 6)
 	margin.add_theme_constant_override("margin_bottom", 6)
-	preview.add_child(margin)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	margin.add_child(row)
-	row.add_child(_build_equipment_icon_chip(equipment_id, Vector2(34.0, 34.0)))
-	var label := Label.new()
-	label.text = str(GameData.equipment_def(equipment_id).get("name", equipment_id))
-	label.clip_text = true
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("fff0ce"))
-	row.add_child(label)
-	return preview
+	panel.add_child(margin)
+	var texture := TextureRect.new()
+	texture.name = "EquipmentGhostTexture"
+	texture.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
+	texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texture.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(texture)
+	return panel
+
+func _make_equipment_tile_content_passive(node: Node) -> void:
+	if node is Control:
+		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child: Node in node.get_children():
+		_make_equipment_tile_content_passive(child)
+
+func _begin_equipment_overlay_drag(equipment_id: String, source_rect: Rect2, source_control: Control = null, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	if equipment_id.is_empty():
+		return
+	if not _equipment_drag_id.is_empty():
+		_clear_equipment_drag_state(true)
+	_equipment_drag_id = equipment_id
+	_equipment_drag_source_rect = source_rect
+	_equipment_drag_source_control = source_control
+	if _node_is_alive(_equipment_drag_source_control):
+		_equipment_drag_source_control.modulate = Color(1.0, 1.0, 1.0, 0.34)
+	_spawn_equipment_held_proxy(equipment_id, mouse_position)
+	_apply_equipment_drag_highlights()
+
+func _end_equipment_overlay_drag() -> void:
+	if _equipment_swap_animation_active:
+		return
+	_clear_equipment_drag_state(true)
+
+func _spawn_equipment_held_proxy(equipment_id: String, mouse_position: Vector2) -> void:
+	if _equipment_fx_layer == null:
+		return
+	if _node_is_alive(_equipment_held_proxy):
+		_queue_free_node_now(_equipment_held_proxy)
+	_equipment_held_proxy = _build_equipment_icon_proxy_panel(equipment_id, EQUIPMENT_DRAG_GHOST_SIZE)
+	_equipment_held_proxy.name = "EquipmentHeldProxy"
+	_equipment_held_proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_equipment_held_proxy.size = EQUIPMENT_DRAG_GHOST_SIZE
+	_equipment_held_proxy.pivot_offset = EQUIPMENT_DRAG_GHOST_SIZE * 0.5
+	_equipment_held_proxy.modulate = Color(1.0, 1.0, 1.0, 0.82)
+	_equipment_held_proxy.z_index = 20
+	_equipment_fx_layer.add_child(_equipment_held_proxy)
+	_update_equipment_overlay_drag(mouse_position)
+
+func _update_equipment_overlay_drag(mouse_position: Vector2) -> void:
+	if _equipment_drag_id.is_empty() or not _node_is_alive(_equipment_held_proxy):
+		return
+	var local_mouse: Vector2 = mouse_position
+	if local_mouse.x < 0.0 or local_mouse.y < 0.0:
+		local_mouse = _current_mouse_position()
+	_equipment_held_proxy.position = local_mouse + EQUIPMENT_DRAG_CURSOR_OFFSET - EQUIPMENT_DRAG_GHOST_SIZE * 0.5 - _equipment_fx_layer.global_position
+
+func _release_equipment_overlay_drag(mouse_position: Vector2) -> void:
+	if _equipment_drag_id.is_empty():
+		return
+	_update_equipment_overlay_drag(mouse_position)
+	var equipment_id: String = _equipment_drag_id
+	var slot: String = _equipment_slot_at(mouse_position)
+	if not slot.is_empty() and GameData.equipment_slot(equipment_id) == slot:
+		var held_rect: Rect2 = _equipment_held_proxy_global_rect()
+		if held_rect.size.x > 0.0 and held_rect.size.y > 0.0:
+			_equipment_drag_source_rect = held_rect
+		if _node_is_alive(_equipment_held_proxy):
+			_queue_free_node_now(_equipment_held_proxy)
+			_equipment_held_proxy = null
+		await _equip_equipment_from_overlay(equipment_id, slot, _equipment_slot_icon_rect(slot))
+		return
+	await _cancel_equipment_overlay_drag(true)
+
+func _cancel_equipment_overlay_drag(animate: bool = true) -> void:
+	if _equipment_drag_id.is_empty():
+		return
+	var proxy: Control = _equipment_held_proxy
+	if animate and _node_is_alive(proxy) and _equipment_drag_source_rect.size.x > 0.0 and _equipment_drag_source_rect.size.y > 0.0:
+		var tween: Tween = create_tween().set_parallel(true)
+		_animate_equipment_proxy_to_rect(tween, proxy, _equipment_drag_source_rect, 0.14)
+		tween.tween_property(proxy, "modulate:a", 0.46, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		await tween.finished
+	_clear_equipment_drag_state(true)
+
+func _clear_equipment_drag_state(restore_source: bool) -> void:
+	if restore_source and _node_is_alive(_equipment_drag_source_control):
+		_equipment_drag_source_control.modulate = Color.WHITE
+	if _node_is_alive(_equipment_held_proxy):
+		_queue_free_node_now(_equipment_held_proxy)
+	_equipment_held_proxy = null
+	_equipment_drag_id = ""
+	_equipment_drag_source_rect = Rect2()
+	_equipment_drag_source_control = null
+	_apply_equipment_drag_highlights()
+
+func _apply_equipment_drag_highlights() -> void:
+	var target_slot: String = GameData.equipment_slot(_equipment_drag_id)
+	for slot_var: Variant in _equipment_slot_panels.keys():
+		var slot: String = str(slot_var)
+		var panel_var: Variant = _equipment_slot_panels.get(slot, null)
+		if typeof(panel_var) != TYPE_OBJECT or not is_instance_valid(panel_var) or not (panel_var is PanelContainer):
+			continue
+		var panel: PanelContainer = panel_var as PanelContainer
+		var equipment_id: String = str(panel.get("equipment_id"))
+		var accent: Color = Color(GameData.equipment_accent(equipment_id)) if not equipment_id.is_empty() else Color("6d5a46")
+		var is_drag_target: bool = not _equipment_drag_id.is_empty() and target_slot == slot
+		panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_target))
+		panel.modulate = Color.WHITE
+		if not _equipment_drag_id.is_empty() and not is_drag_target:
+			panel.modulate = Color(0.68, 0.68, 0.68, 1.0)
+
+func _equipment_slot_at(mouse_position: Vector2) -> String:
+	for slot_var: Variant in _equipment_slot_panels.keys():
+		var slot: String = str(slot_var)
+		var panel_var: Variant = _equipment_slot_panels.get(slot, null)
+		if typeof(panel_var) != TYPE_OBJECT or not is_instance_valid(panel_var) or not (panel_var is Control):
+			continue
+		var panel: Control = panel_var as Control
+		if panel.get_global_rect().has_point(mouse_position):
+			return slot
+	return ""
+
+func _equipment_held_proxy_global_rect() -> Rect2:
+	if not _node_is_alive(_equipment_held_proxy):
+		return Rect2()
+	return _equipment_held_proxy.get_global_rect()
+
+func _equipment_icon_rect_for_control(control: Control) -> Rect2:
+	if control == null or not control.is_inside_tree():
+		return Rect2()
+	var icon_node: Node = control.find_child("EquipmentIconChip", true, false)
+	if icon_node is Control:
+		var icon_control: Control = icon_node as Control
+		var icon_rect: Rect2 = icon_control.get_global_rect()
+		if icon_rect.size.x > 0.0 and icon_rect.size.y > 0.0:
+			return icon_rect
+	var rect: Rect2 = control.get_global_rect()
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return Rect2()
+	return _rect_from_center(rect.get_center(), EQUIPMENT_ICON_SIZE)
+
+func _equipment_inventory_icon_rect(equipment_id: String) -> Rect2:
+	var tile_var: Variant = _equipment_inventory_tiles.get(equipment_id, null)
+	if typeof(tile_var) != TYPE_OBJECT or not is_instance_valid(tile_var) or not (tile_var is Control):
+		return Rect2()
+	var tile: Control = tile_var as Control
+	return _equipment_icon_rect_for_control(tile)
+
+func _equipment_slot_icon_rect(slot: String) -> Rect2:
+	var panel_var: Variant = _equipment_slot_panels.get(slot, null)
+	if typeof(panel_var) != TYPE_OBJECT or not is_instance_valid(panel_var) or not (panel_var is Control):
+		return Rect2()
+	var panel: Control = panel_var as Control
+	return _equipment_icon_rect_for_control(panel)
+
+func _equipment_fx_local_rect(global_rect: Rect2) -> Rect2:
+	if _equipment_fx_layer == null:
+		return global_rect
+	return Rect2(global_rect.position - _equipment_fx_layer.global_position, global_rect.size)
+
+func _spawn_equipment_icon_proxy(equipment_id: String, global_rect: Rect2, alpha: float = 0.94) -> Control:
+	if _equipment_fx_layer == null or equipment_id.is_empty() or global_rect.size.x <= 0.0 or global_rect.size.y <= 0.0:
+		return null
+	var local_rect: Rect2 = _equipment_fx_local_rect(global_rect)
+	var proxy: PanelContainer = _build_equipment_icon_proxy_panel(equipment_id, local_rect.size)
+	proxy.name = "EquipmentSwapProxy"
+	proxy.position = local_rect.position
+	proxy.size = local_rect.size
+	proxy.pivot_offset = local_rect.size * 0.5
+	proxy.modulate = Color(1.0, 1.0, 1.0, alpha)
+	proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	proxy.z_index = 10
+	_equipment_fx_layer.add_child(proxy)
+	return proxy
+
+func _animate_equipment_proxy_to_rect(tween: Tween, proxy: Control, global_target_rect: Rect2, duration: float, delay: float = 0.0) -> void:
+	if proxy == null or global_target_rect.size.x <= 0.0 or global_target_rect.size.y <= 0.0:
+		return
+	var target_rect: Rect2 = _equipment_fx_local_rect(global_target_rect)
+	tween.tween_property(proxy, "position", target_rect.position, duration).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy, "size", target_rect.size, duration).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy, "modulate:a", 1.0, duration * 0.72).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(proxy, "scale", Vector2.ONE, duration).set_delay(delay).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _animate_equipment_swap_fx(equipment_id: String, previous_equipment_id: String, slot: String, source_rect: Rect2, previous_slot_rect: Rect2) -> void:
+	if _equipment_fx_layer == null:
+		_equipment_swap_animation_active = false
+		_clear_equipment_drag_state(false)
+		return
+	var target_slot_rect: Rect2 = _equipment_slot_icon_rect(slot)
+	if target_slot_rect.size.x <= 0.0 or target_slot_rect.size.y <= 0.0:
+		target_slot_rect = previous_slot_rect
+	var new_start_rect: Rect2 = source_rect
+	if new_start_rect.size.x <= 0.0 or new_start_rect.size.y <= 0.0:
+		new_start_rect = target_slot_rect
+	var new_proxy: Control = _spawn_equipment_icon_proxy(equipment_id, new_start_rect, 0.86)
+	if new_proxy != null:
+		new_proxy.scale = Vector2(1.10, 1.10)
+	var old_proxy: Control = null
+	var old_target_rect: Rect2 = Rect2()
+	if not previous_equipment_id.is_empty():
+		old_target_rect = _equipment_inventory_icon_rect(previous_equipment_id)
+		if old_target_rect.size.x > 0.0 and old_target_rect.size.y > 0.0:
+			old_proxy = _spawn_equipment_icon_proxy(previous_equipment_id, previous_slot_rect, 0.76)
+		if old_proxy != null:
+			old_proxy.scale = Vector2(0.96, 0.96)
+	if new_proxy == null and old_proxy == null:
+		_equipment_swap_animation_active = false
+		_clear_equipment_drag_state(false)
+		return
+	_equipment_swap_animation_active = true
+	var tween: Tween = create_tween().set_parallel(true)
+	_animate_equipment_proxy_to_rect(tween, new_proxy, target_slot_rect, EQUIPMENT_SWAP_SNAP_SECONDS)
+	_animate_equipment_proxy_to_rect(tween, old_proxy, old_target_rect, EQUIPMENT_SWAP_RETURN_SECONDS, 0.04)
+	await tween.finished
+	_queue_free_node_now(new_proxy)
+	_queue_free_node_now(old_proxy)
+	_equipment_swap_animation_active = false
+	_clear_equipment_drag_state(false)
+	_pulse_equipment_slot(slot)
+
+func _pulse_equipment_slot(slot: String) -> void:
+	var panel_var: Variant = _equipment_slot_panels.get(slot, null)
+	if typeof(panel_var) != TYPE_OBJECT or not is_instance_valid(panel_var) or not (panel_var is Control):
+		return
+	var panel: Control = panel_var as Control
+	panel.pivot_offset = panel.size * 0.5
+	var tween: Tween = create_tween()
+	tween.tween_property(panel, "scale", Vector2(1.035, 1.035), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _build_card_tooltip_panel(card_id: String) -> Control:
 	var panel := PanelContainer.new()
@@ -7284,23 +7554,36 @@ func _can_drop_equipment_data(slot: String, data: Variant) -> bool:
 	var equipment_id: String = str(payload.get("equipment_id", ""))
 	return GameData.equipment_slot(equipment_id) == slot
 
-func _equip_equipment_from_overlay(equipment_id: String) -> void:
+func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "", drop_rect: Rect2 = Rect2()) -> void:
 	if equipment_id.is_empty() or not _equipment_overlay_can_change():
 		return
 	var slot: String = GameData.equipment_slot(equipment_id)
 	if slot.is_empty():
 		return
+	if not drop_slot.is_empty() and drop_slot != slot:
+		return
 	var before_equipped: Dictionary = (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
 	var before_id: String = str(before_equipped.get(slot, ""))
+	var source_rect: Rect2 = _equipment_drag_source_rect
+	if source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		source_rect = _equipment_inventory_icon_rect(equipment_id)
+	var previous_slot_rect: Rect2 = _equipment_slot_icon_rect(slot)
+	if previous_slot_rect.size.x <= 0.0 or previous_slot_rect.size.y <= 0.0:
+		previous_slot_rect = drop_rect
 	_run_state = _run_engine.equip_equipment(_run_state, equipment_id)
 	var after_equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
 	if str(after_equipped.get(slot, "")) == before_id:
+		_clear_equipment_drag_state(true)
 		return
+	_equipment_swap_animation_active = true
 	ProgressionStore.save_run_state(_committed_run_state())
 	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
 	_refresh_ui()
 	_progression_overlay_mode = "equipment"
 	_rebuild_progression_overlay()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await _animate_equipment_swap_fx(equipment_id, before_id, slot, source_rect, previous_slot_rect)
 
 func _equipment_tooltip(equipment_id: String) -> String:
 	if equipment_id.is_empty():
@@ -7404,6 +7687,26 @@ func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
 	style.content_margin_top = 4
 	style.content_margin_right = 4
 	style.content_margin_bottom = 4
+	return style
+
+func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.044, 0.038, 0.72)
+	style.border_color = accent.lightened(0.34)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
+	style.shadow_size = 12
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
 	return style
 
 func _build_progression_status_panel() -> Control:
