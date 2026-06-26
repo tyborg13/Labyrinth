@@ -1,0 +1,40 @@
+{
+  "id": "short-specific-task-id",
+  "priority": 3,
+  "proposal": {
+    "acceptance_criteria": [
+      "The visible behavior or data change is implemented.",
+      "Existing affected workflows still work."
+    ],
+    "estimated_size": "small|medium|large",
+    "impact": "Who or what benefits from this task.",
+    "problem": "The concrete problem or opportunity.",
+    "proposed_change": "The smallest coherent change that addresses the problem.",
+    "rejection_conditions": [
+      "Reject if the task cannot be proven without broad manual judgment.",
+      "Reject if it overlaps heavily with already active work."
+    ],
+    "required_proof": [
+      "Relevant automated test command.",
+      "Relevant visual probe, screenshot, or textual inspection evidence."
+    ],
+    "risk": "Primary regression or complexity risk.",
+    "why_now": "Why this should be prioritized now."
+  },
+  "parallel_safety": {
+    "avoid_parallel_with": [],
+    "likely_touched_files": [
+      "scripts/example.gd",
+      "tests/example_probe.gd"
+    ],
+    "notes": "Concrete collision notes; avoid broad categories.",
+    "safe_parallel_neighbors": [
+      "Tasks touching unrelated data files or separate UI panels."
+    ],
+    "shared_state_risks": [
+      "Any global singleton, data file, generated asset path, or test fixture likely to collide."
+    ]
+  },
+  "status": "proposed",
+  "title": "Short human-readable task title"
+}

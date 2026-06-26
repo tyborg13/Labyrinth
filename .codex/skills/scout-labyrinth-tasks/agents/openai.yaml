@@ -1,0 +1,3 @@
+interface:
+  display_name: "Labyrinth Task Scout"
+  short_description: "Find and reviewer-gate high-value Labyrinth tasks"

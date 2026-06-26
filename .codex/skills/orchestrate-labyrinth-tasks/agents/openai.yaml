@@ -1,0 +1,3 @@
+interface:
+  display_name: "Labyrinth Task Orchestrator"
+  short_description: "Queue and launch isolated app-visible Labyrinth worker threads"

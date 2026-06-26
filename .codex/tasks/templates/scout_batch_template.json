@@ -1,0 +1,37 @@
+{
+  "tasks": [
+    {
+      "id": "example-reviewed-task",
+      "priority": 4,
+      "proposal": {
+        "acceptance_criteria": [
+          "The task has a precise user-visible or maintainability outcome.",
+          "The implementation can be reviewed and verified in isolation."
+        ],
+        "estimated_size": "small",
+        "impact": "The task improves a known workflow, bug, balance issue, or development loop.",
+        "problem": "A specific issue discovered by the scout.",
+        "proposed_change": "A focused change that should fit in one worker thread.",
+        "rejection_conditions": [
+          "Reject if acceptance criteria are vague.",
+          "Reject if likely touched files collide with higher-priority active work."
+        ],
+        "required_proof": [
+          "Run the smallest relevant automated test.",
+          "Provide screenshots or visual probe artifacts for visual/UI changes."
+        ],
+        "risk": "The highest-risk behavior or shared file touched.",
+        "why_now": "Why this is worth spending an autonomous worker on."
+      },
+      "parallel_safety": {
+        "avoid_parallel_with": [],
+        "likely_touched_files": [],
+        "notes": "",
+        "safe_parallel_neighbors": [],
+        "shared_state_risks": []
+      },
+      "status": "proposed",
+      "title": "Example reviewed task"
+    }
+  ]
+}

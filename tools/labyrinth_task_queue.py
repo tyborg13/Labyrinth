@@ -1,0 +1,679 @@
+#!/usr/bin/env python3
+"""Manage the Labyrinth autonomous task queue."""
+
+from __future__ import annotations
+
+import argparse
+import datetime as _dt
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+from typing import Any
+
+
+STATUSES = {
+    "proposed",
+    "needs_revision",
+    "ready",
+    "leased",
+    "in_progress",
+    "implementation_review",
+    "ready_for_user",
+    "approved_to_land",
+    "done",
+    "rejected",
+    "abandoned",
+    "blocked",
+}
+ACTIVE_STATUSES = {
+    "leased",
+    "in_progress",
+    "implementation_review",
+    "ready_for_user",
+    "approved_to_land",
+}
+SCOUT_REVIEW_RESULTS = {
+    "approved": "ready",
+    "request_changes": "needs_revision",
+    "rejected": "rejected",
+}
+DEFAULT_QUEUE_ROOT_ENV = "LABYRINTH_TASK_QUEUE_ROOT"
+
+
+class QueueError(RuntimeError):
+    pass
+
+
+def utc_now() -> str:
+    return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip().lower())
+    slug = re.sub(r"-{2,}", "-", slug).strip("-._")
+    return (slug or "task")[:72]
+
+
+def run_git(repo: Path, args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if check and result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise QueueError("git %s failed: %s" % (" ".join(args), detail))
+    return result
+
+
+def repo_root(path: Path) -> Path:
+    result = run_git(path, ["rev-parse", "--show-toplevel"], check=False)
+    if result.returncode != 0:
+        return path.resolve()
+    return Path(result.stdout.strip()).resolve()
+
+
+def primary_worktree(repo: Path) -> Path:
+    result = run_git(repo, ["worktree", "list", "--porcelain"], check=False)
+    if result.returncode != 0:
+        return repo
+    for line in result.stdout.splitlines():
+        if line.startswith("worktree "):
+            return Path(line.removeprefix("worktree ")).resolve()
+    return repo
+
+
+def default_queue_root(repo: Path) -> Path:
+    override = os.environ.get(DEFAULT_QUEUE_ROOT_ENV, "").strip()
+    if override:
+        return Path(override).expanduser().resolve()
+    return primary_worktree(repo_root(repo)) / ".codex" / "tasks"
+
+
+def queue_dirs(queue_root: Path) -> tuple[Path, Path]:
+    return queue_root / "queue", queue_root / "archive"
+
+
+def ensure_queue(queue_root: Path) -> None:
+    queue_dir, archive_dir = queue_dirs(queue_root)
+    queue_dir.mkdir(parents=True, exist_ok=True)
+    archive_dir.mkdir(parents=True, exist_ok=True)
+
+
+def task_path(queue_root: Path, task_id: str) -> Path:
+    return queue_root / "queue" / ("%s.json" % task_id)
+
+
+def archive_path(queue_root: Path, task_id: str) -> Path:
+    return queue_root / "archive" / ("%s.json" % task_id)
+
+
+def load_json(path: Path) -> Any:
+    try:
+        return json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        raise QueueError("%s is not valid JSON: %s" % (path, exc)) from exc
+
+
+def write_json(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    tmp_path.replace(path)
+
+
+def iter_task_files(queue_root: Path, *, include_archive: bool = False) -> list[Path]:
+    queue_dir, archive_dir = queue_dirs(queue_root)
+    paths = sorted(queue_dir.glob("*.json")) if queue_dir.exists() else []
+    if include_archive and archive_dir.exists():
+        paths.extend(sorted(archive_dir.glob("*.json")))
+    return paths
+
+
+def load_task(queue_root: Path, task_id: str, *, include_archive: bool = False) -> dict[str, Any]:
+    paths = [task_path(queue_root, task_id)]
+    if include_archive:
+        paths.append(archive_path(queue_root, task_id))
+    for path in paths:
+        if path.exists():
+            payload = load_json(path)
+            if not isinstance(payload, dict):
+                raise QueueError("%s must contain a JSON object" % path)
+            return payload
+    raise QueueError("No queued task found for id %r" % task_id)
+
+
+def load_tasks(queue_root: Path, *, include_archive: bool = False) -> list[dict[str, Any]]:
+    tasks: list[dict[str, Any]] = []
+    for path in iter_task_files(queue_root, include_archive=include_archive):
+        payload = load_json(path)
+        if not isinstance(payload, dict):
+            raise QueueError("%s must contain a JSON object" % path)
+        tasks.append(payload)
+    return tasks
+
+
+def as_list(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def text_list(value: Any) -> list[str]:
+    return [str(item).strip() for item in as_list(value) if str(item).strip()]
+
+
+def normalize_path(value: str) -> str:
+    path = value.strip().replace("\\", "/")
+    while path.startswith("./"):
+        path = path[2:]
+    return path.strip("/")
+
+
+def normalize_paths(value: Any) -> list[str]:
+    seen: set[str] = set()
+    paths: list[str] = []
+    for raw in text_list(value):
+        path = normalize_path(raw)
+        if path and path not in seen:
+            paths.append(path)
+            seen.add(path)
+    return paths
+
+
+def normalize_parallel_safety(value: Any) -> dict[str, Any]:
+    raw = value if isinstance(value, dict) else {}
+    return {
+        "likely_touched_files": normalize_paths(raw.get("likely_touched_files")),
+        "shared_state_risks": text_list(raw.get("shared_state_risks")),
+        "safe_parallel_neighbors": text_list(raw.get("safe_parallel_neighbors")),
+        "avoid_parallel_with": text_list(raw.get("avoid_parallel_with")),
+        "notes": str(raw.get("notes", "")).strip(),
+    }
+
+
+def normalize_proposal(value: Any) -> dict[str, Any]:
+    raw = value if isinstance(value, dict) else {}
+    return {
+        "problem": str(raw.get("problem", "")).strip(),
+        "why_now": str(raw.get("why_now", "")).strip(),
+        "proposed_change": str(raw.get("proposed_change", "")).strip(),
+        "impact": str(raw.get("impact", "")).strip(),
+        "risk": str(raw.get("risk", "")).strip(),
+        "estimated_size": str(raw.get("estimated_size", "")).strip(),
+        "acceptance_criteria": text_list(raw.get("acceptance_criteria")),
+        "required_proof": text_list(raw.get("required_proof")),
+        "rejection_conditions": text_list(raw.get("rejection_conditions")),
+    }
+
+
+def existing_ids(queue_root: Path) -> set[str]:
+    ids: set[str] = set()
+    for path in iter_task_files(queue_root, include_archive=True):
+        ids.add(path.stem)
+    return ids
+
+
+def unique_task_id(queue_root: Path, preferred: str) -> str:
+    used = existing_ids(queue_root)
+    base = slugify(preferred)
+    task_id = base
+    suffix = 2
+    while task_id in used:
+        task_id = "%s-%d" % (base, suffix)
+        suffix += 1
+    return task_id
+
+
+def normalize_task(raw: dict[str, Any], queue_root: Path, *, default_status: str, reviewer: str, review_summary: str) -> dict[str, Any]:
+    proposal = normalize_proposal(raw.get("proposal"))
+    title = str(raw.get("title") or raw.get("name") or proposal.get("problem") or "Untitled task").strip()
+    task_id = str(raw.get("id") or raw.get("task_id") or "").strip()
+    if task_id:
+        task_id = slugify(task_id)
+        if task_path(queue_root, task_id).exists() or archive_path(queue_root, task_id).exists():
+            raise QueueError("Task id %r already exists" % task_id)
+    else:
+        task_id = unique_task_id(queue_root, title)
+    status = str(default_status or raw.get("status") or "proposed").strip()
+    if status not in STATUSES:
+        raise QueueError("Unknown task status %r for %s" % (status, task_id))
+    now = utc_now()
+    task: dict[str, Any] = {
+        "schema_version": 1,
+        "id": task_id,
+        "title": title,
+        "status": status,
+        "priority": int(raw.get("priority", 3)),
+        "created_at_utc": str(raw.get("created_at_utc") or now),
+        "updated_at_utc": now,
+        "proposal": proposal,
+        "parallel_safety": normalize_parallel_safety(raw.get("parallel_safety")),
+        "scout_review": raw.get("scout_review") if isinstance(raw.get("scout_review"), dict) else {},
+        "worker": raw.get("worker") if isinstance(raw.get("worker"), dict) else {},
+        "implementation_review": raw.get("implementation_review") if isinstance(raw.get("implementation_review"), dict) else {},
+        "history": as_list(raw.get("history")),
+    }
+    if status == "ready" and task["scout_review"].get("status") != "approved":
+        if not reviewer:
+            raise QueueError("Ready task %s needs an approved scout_review or --reviewer" % task_id)
+        task["scout_review"] = {
+            "status": "approved",
+            "reviewer": reviewer,
+            "reviewed_at_utc": now,
+            "summary": review_summary,
+        }
+    task["history"].append({"at_utc": now, "actor": "queue-import", "status": status, "note": "imported"})
+    validate_task(task)
+    return task
+
+
+def validate_task(task: dict[str, Any]) -> None:
+    for key in ("schema_version", "id", "title", "status", "priority", "proposal", "parallel_safety", "history"):
+        if key not in task:
+            raise QueueError("Task missing required field: %s" % key)
+    if task["schema_version"] != 1:
+        raise QueueError("Unsupported schema_version for %s: %r" % (task.get("id"), task.get("schema_version")))
+    if task["status"] not in STATUSES:
+        raise QueueError("Unknown status for %s: %r" % (task["id"], task["status"]))
+    if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{0,71}", str(task["id"])):
+        raise QueueError("Invalid task id: %r" % task["id"])
+    if not str(task["title"]).strip():
+        raise QueueError("Task %s needs a title" % task["id"])
+    proposal = task["proposal"]
+    if not isinstance(proposal, dict):
+        raise QueueError("Task %s proposal must be an object" % task["id"])
+    for key in ("acceptance_criteria", "required_proof", "rejection_conditions"):
+        if not isinstance(proposal.get(key), list):
+            raise QueueError("Task %s proposal.%s must be a list" % (task["id"], key))
+    safety = task["parallel_safety"]
+    if not isinstance(safety, dict):
+        raise QueueError("Task %s parallel_safety must be an object" % task["id"])
+    for key in ("likely_touched_files", "shared_state_risks", "safe_parallel_neighbors", "avoid_parallel_with"):
+        if not isinstance(safety.get(key), list):
+            raise QueueError("Task %s parallel_safety.%s must be a list" % (task["id"], key))
+    if task["status"] == "ready" and task.get("scout_review", {}).get("status") != "approved":
+        raise QueueError("Task %s is ready without approved scout_review" % task["id"])
+
+
+def append_history(task: dict[str, Any], *, actor: str, status: str, note: str) -> None:
+    task.setdefault("history", [])
+    task["history"].append({"at_utc": utc_now(), "actor": actor, "status": status, "note": note})
+    task["updated_at_utc"] = utc_now()
+
+
+def path_conflicts(left: str, right: str) -> bool:
+    a = normalize_path(left)
+    b = normalize_path(right)
+    if not a or not b:
+        return False
+    return a == b or a.startswith(b + "/") or b.startswith(a + "/")
+
+
+def conflict_report(candidate: dict[str, Any], active_tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    candidate_paths = candidate.get("parallel_safety", {}).get("likely_touched_files", [])
+    avoid_ids = set(candidate.get("parallel_safety", {}).get("avoid_parallel_with", []))
+    conflicts: list[dict[str, Any]] = []
+    score = 0
+    for active in active_tasks:
+        active_id = str(active.get("id", ""))
+        active_paths = active.get("parallel_safety", {}).get("likely_touched_files", [])
+        overlaps = [
+            {"candidate_path": left, "active_path": right}
+            for left in candidate_paths
+            for right in active_paths
+            if path_conflicts(left, right)
+        ]
+        explicit_avoid = active_id in avoid_ids
+        if overlaps or explicit_avoid:
+            weight = len(overlaps) * 10 + (25 if explicit_avoid else 0)
+            score += weight
+            conflicts.append(
+                {
+                    "active_task": active_id,
+                    "active_status": active.get("status", ""),
+                    "weight": weight,
+                    "explicit_avoid": explicit_avoid,
+                    "path_overlaps": overlaps,
+                }
+            )
+    return {"conflict_score": score, "conflicts": conflicts}
+
+
+def command_init(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    ensure_queue(queue_root)
+    print("Initialized Labyrinth task queue at %s" % queue_root)
+    return 0
+
+
+def raw_tasks_from_file(path: Path) -> list[dict[str, Any]]:
+    payload = load_json(path)
+    if isinstance(payload, dict) and isinstance(payload.get("tasks"), list):
+        raw_tasks = payload["tasks"]
+    elif isinstance(payload, list):
+        raw_tasks = payload
+    elif isinstance(payload, dict):
+        raw_tasks = [payload]
+    else:
+        raise QueueError("Import payload must be an object, list, or object with tasks")
+    tasks: list[dict[str, Any]] = []
+    for raw in raw_tasks:
+        if not isinstance(raw, dict):
+            raise QueueError("Each imported task must be a JSON object")
+        tasks.append(raw)
+    return tasks
+
+
+def command_import(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    ensure_queue(queue_root)
+    raw_tasks = raw_tasks_from_file(Path(args.file).resolve())
+    written: list[dict[str, Any]] = []
+    for raw in raw_tasks:
+        task = normalize_task(
+            raw,
+            queue_root,
+            default_status=args.status,
+            reviewer=args.reviewer,
+            review_summary=args.review_summary,
+        )
+        write_json(task_path(queue_root, task["id"]), task)
+        written.append(task)
+    if args.json:
+        print(json.dumps(written, indent=2, sort_keys=True))
+    else:
+        for task in written:
+            print("Imported %s [%s] %s" % (task["id"], task["status"], task["title"]))
+    return 0
+
+
+def command_validate(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    paths = [Path(path).resolve() for path in args.files]
+    if not paths:
+        paths = iter_task_files(queue_root, include_archive=args.include_archive)
+    for path in paths:
+        payload = load_json(path)
+        if isinstance(payload, dict) and isinstance(payload.get("tasks"), list):
+            for raw in payload["tasks"]:
+                normalize_task(raw, queue_root, default_status="proposed", reviewer="", review_summary="")
+        elif isinstance(payload, list):
+            for raw in payload:
+                normalize_task(raw, queue_root, default_status="proposed", reviewer="", review_summary="")
+        elif isinstance(payload, dict) and "schema_version" in payload:
+            validate_task(payload)
+        elif isinstance(payload, dict):
+            normalize_task(payload, queue_root, default_status="proposed", reviewer="", review_summary="")
+        else:
+            raise QueueError("%s is not a task payload" % path)
+        print("OK %s" % path)
+    return 0
+
+
+def command_list(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    tasks = load_tasks(queue_root, include_archive=args.include_archive)
+    if args.status:
+        allowed = set(args.status)
+        tasks = [task for task in tasks if task.get("status") in allowed]
+    tasks.sort(key=lambda task: (str(task.get("status")), -int(task.get("priority", 0)), str(task.get("id"))))
+    if args.json:
+        print(json.dumps(tasks, indent=2, sort_keys=True))
+    else:
+        for task in tasks:
+            print("%-22s %-21s p%s  %s" % (task.get("id", ""), task.get("status", ""), task.get("priority", ""), task.get("title", "")))
+    return 0
+
+
+def command_show(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id, include_archive=args.include_archive)
+    print(json.dumps(task, indent=2, sort_keys=True))
+    return 0
+
+
+def command_select(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    tasks = load_tasks(queue_root)
+    active = [task for task in tasks if task.get("status") in ACTIVE_STATUSES]
+    ready = [task for task in tasks if task.get("status") == "ready"]
+    ranked: list[dict[str, Any]] = []
+    for task in ready:
+        report = conflict_report(task, active)
+        item = {
+            "id": task["id"],
+            "title": task["title"],
+            "priority": task.get("priority", 0),
+            "likely_touched_files": task.get("parallel_safety", {}).get("likely_touched_files", []),
+            **report,
+        }
+        ranked.append(item)
+    ranked.sort(key=lambda item: (int(item["conflict_score"]), -int(item["priority"]), str(item["id"])))
+    if args.limit:
+        ranked = ranked[: args.limit]
+    if args.json:
+        print(json.dumps(ranked, indent=2, sort_keys=True))
+    else:
+        for item in ranked:
+            label = "clear" if item["conflict_score"] == 0 else "conflicts=%s" % item["conflict_score"]
+            print("%-22s p%s  %-12s %s" % (item["id"], item["priority"], label, item["title"]))
+    return 0
+
+
+def command_scout_review(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id)
+    result = args.result
+    next_status = SCOUT_REVIEW_RESULTS[result]
+    task["scout_review"] = {
+        "status": result,
+        "reviewer": args.reviewer,
+        "reviewed_at_utc": utc_now(),
+        "summary": args.summary,
+    }
+    task["status"] = next_status
+    append_history(task, actor=args.reviewer, status=next_status, note="scout review: %s" % args.summary)
+    validate_task(task)
+    write_json(task_path(queue_root, task["id"]), task)
+    print("%s -> %s" % (task["id"], next_status))
+    return 0
+
+
+def command_lease(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id)
+    if task.get("status") != "ready" and not args.force:
+        raise QueueError("Task %s is %s, not ready. Pass --force to lease anyway." % (args.task_id, task.get("status")))
+    now = utc_now()
+    task["status"] = "leased"
+    task["worker"] = {
+        "thread_id": args.thread_id,
+        "branch": args.branch,
+        "worktree_path": args.worktree,
+        "leased_by": args.worker,
+        "leased_at_utc": now,
+        "heartbeat_at_utc": now,
+    }
+    append_history(task, actor=args.worker, status="leased", note=args.note or "leased to worker")
+    validate_task(task)
+    write_json(task_path(queue_root, task["id"]), task)
+    print("%s leased to %s" % (task["id"], args.thread_id or args.worker))
+    return 0
+
+
+def command_heartbeat(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id)
+    task.setdefault("worker", {})
+    task["worker"]["heartbeat_at_utc"] = utc_now()
+    append_history(task, actor=args.actor, status=str(task.get("status")), note=args.note or "heartbeat")
+    validate_task(task)
+    write_json(task_path(queue_root, task["id"]), task)
+    print("%s heartbeat" % task["id"])
+    return 0
+
+
+def command_mark(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id)
+    task["status"] = args.status
+    append_history(task, actor=args.actor, status=args.status, note=args.note)
+    validate_task(task)
+    write_json(task_path(queue_root, task["id"]), task)
+    print("%s -> %s" % (task["id"], args.status))
+    return 0
+
+
+def command_complete(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id)
+    task["status"] = "ready_for_user"
+    task["implementation_review"] = {
+        "status": "signoff",
+        "reviewer": args.reviewer,
+        "reviewed_at_utc": utc_now(),
+        "signoff_summary": args.signoff,
+        "proof_summary": args.proof,
+        "head_commit": args.commit,
+    }
+    append_history(task, actor=args.actor, status="ready_for_user", note="implementation reviewed and ready for user")
+    validate_task(task)
+    write_json(task_path(queue_root, task["id"]), task)
+    print("%s ready_for_user" % task["id"])
+    return 0
+
+
+def command_landed(args: argparse.Namespace) -> int:
+    queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
+    task = load_task(queue_root, args.task_id)
+    task["status"] = "done"
+    task["landed"] = {
+        "branch": "master",
+        "commit": args.commit,
+        "pushed_at_utc": utc_now(),
+        "pushed_by": args.actor,
+    }
+    append_history(task, actor=args.actor, status="done", note=args.note or "landed on master")
+    validate_task(task)
+    src = task_path(queue_root, task["id"])
+    if args.archive:
+        write_json(archive_path(queue_root, task["id"]), task)
+        src.unlink(missing_ok=True)
+        print("%s done and archived" % task["id"])
+    else:
+        write_json(src, task)
+        print("%s done" % task["id"])
+    return 0
+
+
+def add_common(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--repo", default=".", help="Repository/worktree path used to locate the default queue.")
+    parser.add_argument("--queue-root", default="", help="Queue root. Defaults to primary worktree .codex/tasks.")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_common(parser)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    init = sub.add_parser("init", help="Create queue directories.")
+    init.set_defaults(func=command_init)
+
+    import_parser = sub.add_parser("import", help="Import reviewed task JSON.")
+    import_parser.add_argument("--file", required=True)
+    import_parser.add_argument("--status", choices=sorted(STATUSES), default="ready")
+    import_parser.add_argument("--reviewer", default="", help="Scout reviewer name when importing ready tasks.")
+    import_parser.add_argument("--review-summary", default="")
+    import_parser.add_argument("--json", action="store_true")
+    import_parser.set_defaults(func=command_import)
+
+    validate = sub.add_parser("validate", help="Validate queued tasks or task payload files.")
+    validate.add_argument("files", nargs="*")
+    validate.add_argument("--include-archive", action="store_true")
+    validate.set_defaults(func=command_validate)
+
+    list_parser = sub.add_parser("list", help="List tasks.")
+    list_parser.add_argument("--status", action="append", choices=sorted(STATUSES))
+    list_parser.add_argument("--include-archive", action="store_true")
+    list_parser.add_argument("--json", action="store_true")
+    list_parser.set_defaults(func=command_list)
+
+    show = sub.add_parser("show", help="Print one task as JSON.")
+    show.add_argument("task_id")
+    show.add_argument("--include-archive", action="store_true")
+    show.set_defaults(func=command_show)
+
+    select = sub.add_parser("select", help="Rank ready tasks while surfacing likely collisions.")
+    select.add_argument("--limit", type=int, default=0)
+    select.add_argument("--json", action="store_true")
+    select.set_defaults(func=command_select)
+
+    scout_review = sub.add_parser("scout-review", help="Record scout-reviewer approval or rejection.")
+    scout_review.add_argument("task_id")
+    scout_review.add_argument("--result", required=True, choices=sorted(SCOUT_REVIEW_RESULTS))
+    scout_review.add_argument("--reviewer", required=True)
+    scout_review.add_argument("--summary", required=True)
+    scout_review.set_defaults(func=command_scout_review)
+
+    lease = sub.add_parser("lease", help="Lease a ready task to a worker thread.")
+    lease.add_argument("task_id")
+    lease.add_argument("--thread-id", default="")
+    lease.add_argument("--branch", default="")
+    lease.add_argument("--worktree", default="")
+    lease.add_argument("--worker", default="orchestrator")
+    lease.add_argument("--note", default="")
+    lease.add_argument("--force", action="store_true")
+    lease.set_defaults(func=command_lease)
+
+    heartbeat = sub.add_parser("heartbeat", help="Update worker heartbeat timestamp.")
+    heartbeat.add_argument("task_id")
+    heartbeat.add_argument("--actor", default="orchestrator")
+    heartbeat.add_argument("--note", default="")
+    heartbeat.set_defaults(func=command_heartbeat)
+
+    mark = sub.add_parser("mark", help="Set an arbitrary queue status.")
+    mark.add_argument("task_id")
+    mark.add_argument("status", choices=sorted(STATUSES))
+    mark.add_argument("--actor", default="orchestrator")
+    mark.add_argument("--note", required=True)
+    mark.set_defaults(func=command_mark)
+
+    complete = sub.add_parser("complete", help="Mark an implementation-reviewed task ready for user inspection.")
+    complete.add_argument("task_id")
+    complete.add_argument("--actor", default="orchestrator")
+    complete.add_argument("--reviewer", required=True)
+    complete.add_argument("--signoff", required=True)
+    complete.add_argument("--proof", required=True)
+    complete.add_argument("--commit", required=True)
+    complete.set_defaults(func=command_complete)
+
+    landed = sub.add_parser("landed", help="Mark an approved task as landed on master.")
+    landed.add_argument("task_id")
+    landed.add_argument("--actor", default="orchestrator")
+    landed.add_argument("--commit", required=True)
+    landed.add_argument("--note", default="")
+    landed.add_argument("--archive", action="store_true")
+    landed.set_defaults(func=command_landed)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        return int(args.func(args) or 0)
+    except QueueError as exc:
+        print("error: %s" % exc, file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

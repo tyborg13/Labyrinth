@@ -235,6 +235,38 @@ def require_task_branch(root: Path) -> str:
     return branch
 
 
+def ref_commit(repo: Path, ref: str) -> str:
+    result = run_git(repo, ["rev-parse", "--verify", "%s^{commit}" % ref], check=False)
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def is_ancestor(repo: Path, ancestor_ref: str, descendant_ref: str) -> bool:
+    return run_git(repo, ["merge-base", "--is-ancestor", ancestor_ref, descendant_ref], check=False).returncode == 0
+
+
+def first_landed_ref(repo: Path, branch: str, refs: list[str]) -> str:
+    for ref in refs:
+        if ref_commit(repo, ref) and is_ancestor(repo, branch, ref):
+            return ref
+    return ""
+
+
+def try_update_local_master(repo: Path, branch: str) -> str:
+    primary = primary_worktree(repo)
+    if current_branch(primary) != "master":
+        return "Skipped local master update: primary worktree is on %s." % current_branch(primary)
+    status = run_git(primary, ["status", "--short"]).stdout.strip()
+    if status:
+        return "Skipped local master update: primary worktree has local changes."
+    result = run_git(primary, ["merge", "--ff-only", branch], check=False)
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip()
+        return "Skipped local master update: %s" % detail
+    return "Updated local master to %s." % ref_commit(primary, "master")[:12]
+
+
 def command_commit(args: argparse.Namespace) -> int:
     root = repo_root(Path(args.repo).resolve())
     branch = require_task_branch(root)
@@ -256,8 +288,27 @@ def command_commit(args: argparse.Namespace) -> int:
 def command_push(args: argparse.Namespace) -> int:
     root = repo_root(Path(args.repo).resolve())
     branch = require_task_branch(root)
-    run_git(root, ["push", "-u", args.remote, branch])
-    print("Pushed %s to %s" % (branch, args.remote))
+    status = run_git(root, ["status", "--short"]).stdout.strip()
+    if status:
+        raise CommandError("Refusing to land dirty worktree %s. Commit or clean changes first." % root)
+    if args.fetch:
+        run_git(root, ["fetch", args.remote, "master"])
+    required_master = args.master_ref or ("%s/master" % args.remote if args.fetch else "master")
+    master_commit = ref_commit(root, required_master)
+    if not master_commit:
+        raise CommandError("Could not resolve master ref %r" % required_master)
+    branch_commit = ref_commit(root, branch)
+    if not is_ancestor(root, required_master, branch):
+        raise CommandError(
+            "Refusing to push %s to master because %s (%s) is not contained in the task branch. "
+            "Integrate master into the task branch, rerun relevant proof, repeat peer review, then push again."
+            % (branch, required_master, master_commit[:12])
+        )
+    run_git(root, ["push", args.remote, "%s:master" % branch])
+    run_git(root, ["update-ref", "refs/remotes/%s/master" % args.remote, branch_commit], check=False)
+    print("Pushed %s (%s) to %s/master" % (branch, branch_commit[:12], args.remote))
+    if args.update_local_master:
+        print(try_update_local_master(root, branch))
     return 0
 
 
@@ -269,12 +320,14 @@ def command_cleanup(args: argparse.Namespace) -> int:
     if status and not args.force:
         raise CommandError("Refusing to remove dirty worktree %s. Commit, clean, or pass --force." % root)
     if args.require_pushed:
-        upstream = run_git(root, ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"], check=False)
-        if upstream.returncode != 0:
-            raise CommandError("Refusing cleanup before %s has an upstream. Push first or pass --no-require-pushed." % branch)
-        ahead = run_git(root, ["rev-list", "--count", "%s..HEAD" % upstream.stdout.strip()]).stdout.strip()
-        if int(ahead or "0") > 0:
-            raise CommandError("Refusing cleanup: %s has %s unpushed commits." % (branch, ahead))
+        landed_refs = args.landed_ref or ["origin/master", "master"]
+        landed_ref = first_landed_ref(root, branch, landed_refs)
+        if not landed_ref:
+            raise CommandError(
+                "Refusing cleanup before %s is reachable from master. "
+                "Land it with `python3 tools/parallel_task.py push` first or pass --no-require-pushed."
+                % branch
+            )
     parent = root.parent
     os.chdir(str(parent if parent.exists() else Path.home()))
     remove_args = ["worktree", "remove", str(root)]
@@ -338,14 +391,20 @@ def build_parser() -> argparse.ArgumentParser:
     commit.add_argument("--allow-empty", action="store_true")
     commit.set_defaults(func=command_commit)
 
-    push = sub.add_parser("push", help="Push the task branch.")
+    push = sub.add_parser("push", help="Land the approved task branch on remote master.")
     push.add_argument("--remote", default="origin")
+    push.add_argument("--master-ref", default="", help="Ref that must be contained in the task branch. Defaults to remote/master after fetch.")
+    push.add_argument("--fetch", dest="fetch", action="store_true", default=True, help="Fetch remote master before landing.")
+    push.add_argument("--no-fetch", dest="fetch", action="store_false", help="Do not fetch before landing.")
+    push.add_argument("--update-local-master", dest="update_local_master", action="store_true", default=True, help="Fast-forward the primary local master checkout when it is clean.")
+    push.add_argument("--no-update-local-master", dest="update_local_master", action="store_false", help="Do not update the primary local master checkout after pushing.")
     push.set_defaults(func=command_push)
 
     cleanup = sub.add_parser("cleanup", help="Remove a completed task worktree.")
     cleanup.add_argument("--force", action="store_true")
-    cleanup.add_argument("--require-pushed", dest="require_pushed", action="store_true", default=True)
-    cleanup.add_argument("--no-require-pushed", dest="require_pushed", action="store_false")
+    cleanup.add_argument("--require-pushed", dest="require_pushed", action="store_true", default=True, help="Require the task branch to be reachable from master before cleanup.")
+    cleanup.add_argument("--no-require-pushed", dest="require_pushed", action="store_false", help="Allow cleanup before the task branch is reachable from master.")
+    cleanup.add_argument("--landed-ref", action="append", default=[], help="Ref that may prove the task is landed; repeatable. Defaults to origin/master and master.")
     cleanup.add_argument("--delete-branch", action="store_true")
     cleanup.add_argument("--repo-for-branch", default="", help="Repository to use when deleting the local branch.")
     cleanup.set_defaults(func=command_cleanup)

@@ -1,0 +1,8 @@
+queue/*.json
+archive/*.json
+leases/*.json
+*.lock
+
+!queue/.gitkeep
+!archive/.gitkeep
+!templates/**

@@ -14,8 +14,8 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - Keep Godot runtime state parallel-safe by setting `LABYRINTH_TASK_ID` or using `tools/visual_probe_runner.py`.
 - Commit finished work, get explicit signoff from a peer-review sub-agent, then stop for user inspection.
 - Do not present work as ready for user inspection until peer review has signed off; if review cannot be obtained, report a blocker instead of a done handoff.
-- Do not push or clean up until the user explicitly approves that committed task branch.
-- After approval, push the task branch and remove the task worktree.
+- Do not push, land, or clean up until the user explicitly approves that committed task branch.
+- After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
 
 ## Starting A Task
 
@@ -139,13 +139,15 @@ If the reviewer returns `REQUEST_CHANGES`, the acting agent must address the fin
 
 If the acting agent disagrees with a reviewer finding, it may respond with evidence and ask the reviewer to reconsider, but it must not suppress the finding or present the work as ready without reviewer signoff.
 
-## Approval, Push, Cleanup
+## Approval, Push To Master, Cleanup
 
-Only after explicit user approval to publish:
+Only after explicit user approval to publish, land the approved task branch on `master`:
 
 ```bash
 python3 tools/parallel_task.py push
 ```
+
+`push` publishes to `origin/master`; it does not publish a remote task branch. It fetches remote `master` first and refuses to land if that `master` is not contained in the task branch. If that happens, integrate `master` into the task branch, rerun relevant proof, repeat the peer-review gate if the reviewed diff changed materially, and ask the user for approval again.
 
 Then remove the task worktree:
 
@@ -153,7 +155,7 @@ Then remove the task worktree:
 python3 tools/parallel_task.py cleanup
 ```
 
-If cleanup refuses because there are unpushed commits or local changes, resolve that state instead of forcing by default. Use `--force` only when the user explicitly accepts discarding local worktree state.
+If cleanup refuses because the branch is not reachable from `master` or because there are local changes, resolve that state instead of forcing by default. Use `--force` or `--no-require-pushed` only when the user explicitly accepts discarding or cleaning up unlanded local worktree state.
 
 ## Current Thread Exception
 
