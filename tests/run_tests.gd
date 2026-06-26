@@ -3,6 +3,7 @@ extends SceneTree
 const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -22,6 +23,7 @@ const CardWidgetScript = preload("res://scripts/card_widget.gd")
 var _failures: Array[String] = []
 
 func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	AnalyticsStore.set_storage_dir("user://labyrinth_analytics_test")

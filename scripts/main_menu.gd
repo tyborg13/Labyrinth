@@ -2,6 +2,7 @@ extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -31,6 +32,7 @@ var _ui_skin: UiSkin = UiSkin.new()
 var _progression: Dictionary = {}
 
 func _ready() -> void:
+	ParallelRuntime.apply_from_environment()
 	_apply_style()
 	_reload_progression()
 

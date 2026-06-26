@@ -10,6 +10,13 @@ This repo uses `memento` for code-scoped project memory.
 - Memento state lives under `.codex/memento/`.
 <!-- /memento:managed -->
 
+## Parallel Codex Tasks
+
+- For substantive Labyrinth coding tasks, use `$parallel-labyrinth-task` so work happens in an isolated `codex/<task-id>` worktree based on `master`.
+- If a thread is already running inside an isolated task worktree, continue there; otherwise create or move into one before editing game/source/content files.
+- Keep development commands parallel-safe. Use `python3 tools/godot_task_runner.py --task-id <task-id> -- godot ...` for Godot commands, and use `python3 tools/visual_probe_runner.py <probe.gd> --task-id <task-id>` instead of invoking visual probes directly.
+- When task work is done, commit the task branch and wait for user inspection. Do not push or clean up the worktree until the user explicitly approves publication.
+
 ## GDScript Typed Arrays
 
 - Godot on Windows has caught typed-array assignments that may pass on macOS. When assigning to `Array[T]`, do not rely on bare array literals or conditional-expression branches like `[value] if condition else typed_array`; build the value through a typed helper such as `_vector2i_array(...)` or an explicitly typed temporary first.

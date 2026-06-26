@@ -2,6 +2,7 @@ extends Control
 
 const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -19,6 +20,7 @@ var _title: Label
 var _timeline_done: bool = false
 
 func _ready() -> void:
+	ParallelRuntime.apply_from_environment()
 	get_window().size = Vector2i(1920, 1080)
 	ProgressionStore.set_storage_path("user://trailer_progression.json")
 	ProgressionStore.set_run_storage_path("user://trailer_current_run.save")

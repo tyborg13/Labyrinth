@@ -1,6 +1,7 @@
 extends SceneTree
 
 const GameData = preload("res://scripts/game_data.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
@@ -8,6 +9,7 @@ const DOOR_OPENING_PROBE_DIR: String = "user://probes/door_opening"
 const DOOR_OPENING_PROBE_FRAMES: int = 8
 
 func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://probes"))
 	_clear_probe_output("user://probes")
 	ProgressionStore.set_storage_path("user://labyrinth_progression_probe.json")

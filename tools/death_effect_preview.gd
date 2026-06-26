@@ -1,6 +1,7 @@
 extends SceneTree
 
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
@@ -9,6 +10,7 @@ const FRAME_COUNT: int = 105
 const FPS: float = 30.0
 
 func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://death_effect_preview_progression.json")
 	ProgressionStore.set_run_storage_path("user://death_effect_preview_run.save")
 	AnalyticsStore.set_storage_dir("user://death_effect_preview_analytics")

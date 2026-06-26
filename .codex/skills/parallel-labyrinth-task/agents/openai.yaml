@@ -1,0 +1,4 @@
+interface:
+  display_name: "Parallel Labyrinth Task"
+  short_description: "Run Labyrinth tasks in isolated worktrees"
+  default_prompt: "Use $parallel-labyrinth-task to implement this Labyrinth change in an isolated worktree."

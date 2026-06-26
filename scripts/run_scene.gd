@@ -11,6 +11,7 @@ const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
@@ -567,6 +568,7 @@ var _dialogue_text_complete: bool = false
 var _last_auto_dialogue_key: String = ""
 
 func _ready() -> void:
+	ParallelRuntime.apply_from_environment()
 	set_process(true)
 	_apply_style()
 	_layout_mini_map_overlay()

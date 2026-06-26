@@ -1,10 +1,12 @@
 extends SceneTree
 
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 func _initialize() -> void:
 	print("turn order probe: start")
+	ParallelRuntime.apply_from_environment()
 	DirAccess.make_dir_recursive_absolute("user://probes")
 	ProgressionStore.set_storage_path("user://labyrinth_progression_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_probe.save")

@@ -1,8 +1,10 @@
 extends SceneTree
 
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
 	DirAccess.make_dir_recursive_absolute("user://probes")
 	var background := ColorRect.new()
 	background.color = Color("20170f")
