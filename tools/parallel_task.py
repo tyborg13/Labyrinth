@@ -107,7 +107,7 @@ def command_start(args: argparse.Namespace) -> int:
 
     if args.fetch:
         run_git(root, ["fetch", "origin", "master"])
-    base_ref = args.base or ("origin/master" if args.fetch else "master")
+    base_ref = args.base or "master"
     base_commit = run_git(root, ["rev-parse", "--verify", "%s^{commit}" % base_ref]).stdout.strip()
 
     payload = {
@@ -155,7 +155,7 @@ def command_adopt(args: argparse.Namespace) -> int:
 
     if args.fetch:
         run_git(root, ["fetch", "origin", "master"])
-    base_ref = args.base or ("origin/master" if args.fetch else "master")
+    base_ref = args.base or "master"
     base_commit = run_git(root, ["rev-parse", "--verify", "%s^{commit}" % base_ref]).stdout.strip()
     head_commit = run_git(root, ["rev-parse", "--verify", "HEAD"]).stdout.strip()
     payload = {
@@ -308,9 +308,9 @@ def build_parser() -> argparse.ArgumentParser:
     start.add_argument("--branch", default="", help="Explicit branch name; must start with codex/.")
     start.add_argument("--worktree-root", default="", help="Directory that contains task worktrees.")
     start.add_argument("--path", default="", help="Explicit worktree path.")
-    start.add_argument("--base", default="", help="Base ref. Defaults to origin/master after fetch, otherwise master.")
-    start.add_argument("--fetch", dest="fetch", action="store_true", default=True, help="Fetch origin master before creating the worktree.")
-    start.add_argument("--no-fetch", dest="fetch", action="store_false", help="Use the local master/base ref without fetching.")
+    start.add_argument("--base", default="", help="Base ref. Defaults to local master. Use --base origin/master for remote master.")
+    start.add_argument("--fetch", dest="fetch", action="store_true", default=False, help="Fetch origin master before resolving the base ref.")
+    start.add_argument("--no-fetch", dest="fetch", action="store_false", help="Do not fetch before creating the worktree.")
     start.add_argument("--dry-run", action="store_true", help="Print planned worktree details without changing git state.")
     start.set_defaults(func=command_start)
 
@@ -318,9 +318,9 @@ def build_parser() -> argparse.ArgumentParser:
     adopt.add_argument("--task", default="", help="Human task description used to derive an id.")
     adopt.add_argument("--task-id", default="", help="Stable task id.")
     adopt.add_argument("--branch", default="", help="Explicit branch name; must start with codex/.")
-    adopt.add_argument("--base", default="", help="Base ref. Defaults to origin/master after fetch, otherwise master.")
-    adopt.add_argument("--fetch", dest="fetch", action="store_true", default=True, help="Fetch origin master and fast-forward before adopting.")
-    adopt.add_argument("--no-fetch", dest="fetch", action="store_false", help="Use local master/base ref without fetching.")
+    adopt.add_argument("--base", default="", help="Base ref. Defaults to local master. Use --base origin/master for remote master.")
+    adopt.add_argument("--fetch", dest="fetch", action="store_true", default=False, help="Fetch origin master before resolving the base ref.")
+    adopt.add_argument("--no-fetch", dest="fetch", action="store_false", help="Do not fetch before adopting.")
     adopt.add_argument("--allow-primary", action="store_true", help="Allow adopting the primary checkout; normally refused.")
     adopt.add_argument("--dry-run", action="store_true")
     adopt.set_defaults(func=command_adopt)

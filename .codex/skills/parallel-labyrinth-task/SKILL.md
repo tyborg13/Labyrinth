@@ -24,7 +24,7 @@ If the Codex app thread is being created for this task, prefer the app's project
 python3 tools/parallel_task.py adopt --task "<short task description>"
 ```
 
-`adopt` fetches `origin master`, fast-forwards the current clean worktree to that tip, renames the branch to `codex/<task-id>` when needed, and writes private task metadata.
+`adopt` fast-forwards the current clean worktree to the local `master` tip, renames the branch to `codex/<task-id>` when needed, and writes private task metadata. To use the remote tracking branch explicitly, pass `--fetch --base origin/master`.
 
 If you are already inside a shared checkout and need to create the isolated task yourself, run:
 
@@ -32,12 +32,12 @@ If you are already inside a shared checkout and need to create the isolated task
 python3 tools/parallel_task.py start --task "<short task description>"
 ```
 
-That command fetches `origin master`, creates a `codex/<task-id>` worktree under the sibling `Labyrinth.worktrees` directory, and prints the new path plus `LABYRINTH_TASK_ID`.
+That command creates a `codex/<task-id>` worktree from the local `master` tip under the sibling `Labyrinth.worktrees` directory and prints the new path plus `LABYRINTH_TASK_ID`. To use the remote tracking branch explicitly, pass `--fetch --base origin/master`.
 
-If network is unavailable and the user accepts local `master`, use:
+If you need a specific base ref, use:
 
 ```bash
-python3 tools/parallel_task.py start --no-fetch --task "<short task description>"
+python3 tools/parallel_task.py start --base <ref> --task "<short task description>"
 ```
 
 After the worktree exists, move all implementation, tests, probes, and commits into that worktree. Do not edit the original shared checkout for the task.
