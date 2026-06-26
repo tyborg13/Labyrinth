@@ -1,4 +1,4 @@
 interface:
   display_name: "Labyrinth Task Reviewer"
   short_description: "Review Labyrinth task branches before user handoff"
-  default_prompt: "Use $parallel-labyrinth-task as a high-bar peer reviewer. Check correctness, instruction fidelity, and proof sufficiency. Return SIGNOFF only when the committed task branch is ready for user inspection; otherwise return REQUEST_CHANGES with specific findings."
+  default_prompt: "Use $parallel-labyrinth-task as a high-bar peer reviewer. Check correctness, instruction fidelity, and proof sufficiency. Show your work with requirement coverage, files/diff reviewed, proof reviewed, residual risks, and a final SIGNOFF only when the committed task branch is ready for user inspection; otherwise return REQUEST_CHANGES with specific findings."

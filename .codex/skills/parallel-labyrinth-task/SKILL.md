@@ -122,10 +122,17 @@ Check all of these areas:
 3. Proof sufficiency: Are the tests, visual probes, screenshots, command outputs, and explanations enough to convince you the change works and is complete? If proof is too narrow, stale, missing, or disconnected from the requirement, request more proof.
 
 Return one of:
-- SIGNOFF, with a concise explanation of what you reviewed and why the proof is sufficient.
+- SIGNOFF, only after showing your review work in the format below.
 - REQUEST_CHANGES, with specific findings ordered by severity, including file/line references or exact missing proof where applicable.
 
-Do not sign off if you have unresolved correctness concerns, instruction-fidelity concerns, or proof gaps.
+SIGNOFF responses must include all of these sections:
+- Requirements checked: restate each material user requirement or clarification and say how the branch satisfies it.
+- Files/diff reviewed: list the changed files or major diff areas you inspected, with any relevant line references.
+- Proof reviewed: list the tests, probes, screenshots, command outputs, or explanations you relied on, and explain why that proof is sufficient for the change.
+- Residual risks: name any remaining risks, assumptions, or skipped checks; write "none found" only if you actually found none.
+- Verdict: `SIGNOFF`.
+
+Do not give a bare signoff or one-paragraph approval. Do not sign off if you have unresolved correctness concerns, instruction-fidelity concerns, or proof gaps.
 ```
 
 If the reviewer returns `REQUEST_CHANGES`, the acting agent must address the findings in the same task worktree, commit the follow-up, rerun relevant verification, and send the updated branch/proof back to a reviewer. This loop continues until the reviewer returns `SIGNOFF`.
