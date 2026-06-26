@@ -20,6 +20,7 @@ const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 class TooltipPanelContainer:

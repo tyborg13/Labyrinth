@@ -5,6 +5,7 @@ const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 const PLANNED_DEPTH_SEQUENCES: int = 4

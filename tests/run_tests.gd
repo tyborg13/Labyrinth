@@ -256,7 +256,7 @@ func _test_music_library_routes_elemental_combat_tracks() -> void:
 		var path: String = str(entry.get("path", ""))
 		_assert(str(entry.get("id", "")) == expected_track_id, "%s combat rooms should use their element music track" % ElementData.name(element_id))
 		_assert(FileAccess.file_exists(path), "%s music asset should exist" % expected_track_id)
-		_assert(load(path) is AudioStream, "%s music asset should load as audio" % expected_track_id)
+		_assert(_audio_asset_loads(path), "%s music asset should load as audio" % expected_track_id)
 	var room_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 		"type": "combat",
 		"element": ElementData.FIRE
@@ -284,6 +284,11 @@ func _test_music_library_routes_elemental_combat_tracks() -> void:
 		"element": ElementData.LIGHTNING
 	})
 	_assert(str(generic_boss_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Boss fallback should not use non-boss elemental combat music")
+
+func _audio_asset_loads(path: String) -> bool:
+	if path.get_extension().to_lower() == "wav":
+		return AudioStreamWAV.load_from_file(path) != null
+	return load(path) is AudioStream
 
 func _test_relic_data_rarity_and_offer_weights() -> void:
 	var valid_rarities: Dictionary = {
