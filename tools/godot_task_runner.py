@@ -12,6 +12,14 @@ import sys
 import time
 
 
+FAILURE_MARKERS = (
+    "SCRIPT ERROR:",
+    "Parse Error:",
+    "ERROR: Failed to load script",
+    "TEST RESULT: FAIL",
+)
+
+
 def slugify(value: str) -> str:
     slug = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip().lower())
     slug = re.sub(r"-{2,}", "-", slug).strip("-._")
@@ -63,7 +71,27 @@ def command_run(args: argparse.Namespace) -> int:
     print("  run: %s" % run_id)
     print("  HOME: %s" % home_dir)
     print("  command: %s" % " ".join(shell_quote(part) for part in command))
-    return subprocess.run(command, cwd=str(project), env=env).returncode
+    result = subprocess.run(
+        command,
+        cwd=str(project),
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.stdout:
+        print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
+    if result.stderr:
+        print(result.stderr, file=sys.stderr, end="" if result.stderr.endswith("\n") else "\n")
+    combined_output = result.stdout + "\n" + result.stderr
+    if result.returncode == 0 and godot_output_has_failure(combined_output):
+        print("error: Godot reported script or test failures despite exit code 0.", file=sys.stderr)
+        return 1
+    return result.returncode
+
+
+def godot_output_has_failure(output: str) -> bool:
+    return any(marker in output for marker in FAILURE_MARKERS)
 
 
 def build_parser() -> argparse.ArgumentParser:

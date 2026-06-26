@@ -18,6 +18,12 @@ import zlib
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 BRANCH_PREFIX = "codex/"
+FAILURE_MARKERS = (
+    "SCRIPT ERROR:",
+    "Parse Error:",
+    "ERROR: Failed to load script",
+    "TEST RESULT: FAIL",
+)
 
 
 class ProbeError(RuntimeError):
@@ -280,6 +286,8 @@ def command_run(args: argparse.Namespace) -> int:
             try:
                 if result.returncode != 0:
                     raise ProbeError("Godot exited with code %d" % result.returncode)
+                if godot_output_has_failure(combined_output):
+                    raise ProbeError("Godot reported script or test failures despite exit code 0.")
                 stats = validate_pngs(pngs, args.min_images)
             except ProbeError as exc:
                 last_error = str(exc)
@@ -290,6 +298,10 @@ def command_run(args: argparse.Namespace) -> int:
                 print("  {path} {width}x{height} luma={luma_mean:.1f} range={luma_range:.1f} stdev={luma_stdev:.1f}".format(**item))
             return 0
     raise ProbeError(last_error or "visual probe failed")
+
+
+def godot_output_has_failure(output: str) -> bool:
+    return any(marker in output for marker in FAILURE_MARKERS)
 
 
 def build_parser() -> argparse.ArgumentParser:

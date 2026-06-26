@@ -1,6 +1,7 @@
 extends SceneTree
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 func _initialize() -> void:

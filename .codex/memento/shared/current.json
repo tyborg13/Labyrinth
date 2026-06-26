@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-26T20:26:12Z",
+  "updated_at": "2026-06-26T20:46:45Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4169,6 +4169,28 @@
       "source": {
         "branch": "master",
         "commit": "aa50a12"
+      }
+    },
+    {
+      "id": "mnt_20260626T204645Z_6eac1f98",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Fresh Godot worktrees lack generated global-class cache",
+      "details": "New git worktrees do not have .godot/global_script_class_cache.cfg, so headless --script runs can report missing class_name types while exiting 0. Built-in tests/probes that must run in fresh worktrees should preload typed classes directly, and Godot wrappers should scan output for SCRIPT ERROR, Parse Error, Failed to load script, or TEST RESULT: FAIL instead of trusting exit code alone.",
+      "status": "active",
+      "created_at": "2026-06-26T20:46:45Z",
+      "updated_at": "2026-06-26T20:46:45Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "19bf2ec"
       }
     }
   ]

@@ -12,13 +12,15 @@ const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
-const CardWidgetScript = preload("res://scripts/card_widget.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
+const CardWidgetScript = CardWidget
 
 var _failures: Array[String] = []
 
