@@ -26,6 +26,11 @@ def slugify(value: str) -> str:
     return (slug or "task")[:80]
 
 
+def make_unique_run_id(task_id: str) -> str:
+    task_part = task_id[:40].strip("-._") or "task"
+    return slugify("%s-%d-%d" % (task_part, time.time_ns(), os.getpid()))
+
+
 def infer_task_id(project: Path) -> str:
     env_task = os.environ.get("LABYRINTH_TASK_ID", "").strip()
     if env_task:
@@ -53,7 +58,7 @@ def command_run(args: argparse.Namespace) -> int:
         raise SystemExit("error: provide a command after --")
     project = Path(args.project).resolve()
     task_id = slugify(args.task_id or infer_task_id(project))
-    run_id = slugify(args.run_id or "%s-%d" % (task_id, int(time.time())))
+    run_id = slugify(args.run_id) if args.run_id else make_unique_run_id(task_id)
     home_dir = Path(args.godot_home_root).expanduser().resolve() / run_id
     home_dir.mkdir(parents=True, exist_ok=True)
 

@@ -36,6 +36,13 @@ def slugify(value: str) -> str:
     return (slug or "probe")[:80]
 
 
+def make_probe_namespace(task_id: str, script_stem: str, attempt: int) -> str:
+    task_part = task_id[:36].strip("-._") or "task"
+    script_part = script_stem[:24].strip("-._") or "probe"
+    unique = "%d-%d" % (time.time_ns(), os.getpid())
+    return "%s-%s-%s-%d" % (task_part, unique, script_part, attempt)
+
+
 def infer_task_id(project: Path) -> str:
     env_task = os.environ.get("LABYRINTH_TASK_ID", "").strip()
     if env_task:
@@ -273,7 +280,7 @@ def command_run(args: argparse.Namespace) -> int:
     last_error = ""
     for driver in drivers:
         for attempt in range(1, args.attempts + 1):
-            namespace = "%s-%s-%d-%d" % (task_id, script_stem, int(time.time()), attempt)
+            namespace = make_probe_namespace(task_id, script_stem, attempt)
             try:
                 result, home_dir = run_probe(args, namespace, driver)
             except subprocess.TimeoutExpired:

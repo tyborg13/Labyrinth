@@ -114,19 +114,19 @@ func _capture_run_states() -> void:
 		var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 		if hand_box.get_child_count() > 0:
 			var slot: Node = hand_box.get_child(0)
-			var widget: Control = slot as Control
-			if slot.get_child_count() > 0 and slot.get_child(0) is Control:
-				widget = slot.get_child(0) as Control
-			var tooltip: Variant = widget.call("_make_custom_tooltip", "modifiers")
-			if tooltip != null and tooltip is Control:
-				var tooltip_control: Control = tooltip
-				tooltip_control.position = widget.global_position + Vector2(widget.size.x + 12.0, 8.0)
-				root.add_child(tooltip_control)
-				await process_frame
-				await process_frame
-				await _save_root_screenshot("user://probes/run_combat_damage_tooltip.png")
-				tooltip_control.queue_free()
-				await process_frame
+			var widget_node: Node = _first_node_with_method(slot, "_make_custom_tooltip")
+			var widget: Control = widget_node as Control
+			if widget != null:
+				var tooltip: Variant = widget.call("_make_custom_tooltip", "modifiers")
+				if tooltip != null and tooltip is Control:
+					var tooltip_control: Control = tooltip
+					tooltip_control.position = widget.global_position + Vector2(widget.size.x + 12.0, 8.0)
+					root.add_child(tooltip_control)
+					await process_frame
+					await process_frame
+					await _save_root_screenshot("user://probes/run_combat_damage_tooltip.png")
+					tooltip_control.queue_free()
+					await process_frame
 		await _capture_orientation_previews(instance)
 		instance.call("_open_menu_overlay")
 		await process_frame
@@ -200,6 +200,15 @@ func _capture_run_states() -> void:
 
 	instance.queue_free()
 	await process_frame
+
+func _first_node_with_method(node: Node, method_name: String) -> Node:
+	if node.has_method(method_name):
+		return node
+	for child: Node in node.get_children():
+		var found: Node = _first_node_with_method(child, method_name)
+		if found != null:
+			return found
+	return null
 
 func _capture_and_clear_start_dialogue(instance: Node) -> void:
 	for frame_index: int in range(4):

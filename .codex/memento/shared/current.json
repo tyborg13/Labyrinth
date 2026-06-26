@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-26T20:46:45Z",
+  "updated_at": "2026-06-26T21:10:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4150,28 +4150,6 @@
       }
     },
     {
-      "id": "mnt_20260626T202612Z_b1a3d271",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "project",
-        "path": ".",
-        "symbol": null
-      },
-      "scope_key": "project:.",
-      "summary": "Parallel Codex task workflow uses isolated worktrees and temp-HOME Godot runs",
-      "details": "Labyrinth parallel task infrastructure lives in .codex/skills/parallel-labyrinth-task plus tools/parallel_task.py, tools/godot_task_runner.py, and tools/visual_probe_runner.py. Godot commands should run through the wrappers so each process gets a task-local HOME under /private/tmp/labyrinth-godot-home, a safe --log-file, and LABYRINTH_TASK_ID; setting LABYRINTH_TASK_ID without a temp HOME/log file can crash or fail under the sandbox when Godot rotates user:// logs before the runtime hook can create directories.",
-      "status": "active",
-      "created_at": "2026-06-26T20:26:12Z",
-      "updated_at": "2026-06-26T20:26:12Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "aa50a12"
-      }
-    },
-    {
       "id": "mnt_20260626T204645Z_6eac1f98",
       "layer": "shared",
       "kind": "pitfall",
@@ -4191,6 +4169,30 @@
       "source": {
         "branch": "master",
         "commit": "19bf2ec"
+      }
+    },
+    {
+      "id": "mnt_20260626T210908Z_80656a0b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Parallel Godot wrappers use process-unique run namespaces",
+      "details": "tools/godot_task_runner.py and tools/visual_probe_runner.py generate default run/user-dir namespaces with nanosecond time plus process id, with the unique fragment early in the name so Godot custom_user_dir truncation cannot erase it. Same-task visual probes may run concurrently through the wrapper; avoid hand-picked identical --run-id values unless intentionally sharing state.",
+      "status": "active",
+      "created_at": "2026-06-26T21:09:08Z",
+      "updated_at": "2026-06-26T21:09:08Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260626T202612Z_b1a3d271"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "8081649"
       }
     }
   ]
