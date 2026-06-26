@@ -33,6 +33,8 @@ const ILLUSION_BAR_FILL: Color = Color("7bd8ee")
 const ENEMY_BAR_FILL: Color = Color("d06752")
 const TERRAIN_BAR_FILL: Color = Color("d9b84f")
 const STATUS_BURN: Color = Color("f28a42")
+const STATUS_BLEED: Color = Color("b84646")
+const STATUS_EXPOSE: Color = Color("d9b36a")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_IMMOBILIZE: Color = Color("b8c48f")
@@ -4008,6 +4010,20 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_BURN,
 			"border": STATUS_BURN.lightened(0.24)
 		})
+	if int(unit.get("bleed", 0)) > 0:
+		badges.append({
+			"icon": "bleed",
+			"count": int(unit.get("bleed", 0)),
+			"fill": STATUS_BLEED,
+			"border": STATUS_BLEED.lightened(0.22)
+		})
+	if int(unit.get("expose", 0)) > 0:
+		badges.append({
+			"icon": "expose",
+			"count": int(unit.get("expose", 0)),
+			"fill": STATUS_EXPOSE,
+			"border": STATUS_EXPOSE.lightened(0.18)
+		})
 	if int(unit.get("freeze", 0)) > 0:
 		badges.append({
 			"icon": "freeze",
@@ -4042,6 +4058,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:
 	return {
 		"burn": int(player.get("burn", 0)),
+		"bleed": int(player.get("bleed", 0)),
+		"expose": int(player.get("expose", 0)),
 		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
 		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0),
 		"immobilize": bool(player.get("immobilize", false)) or bool(restrictions.get("immobilized", false))

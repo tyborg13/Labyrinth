@@ -1378,5 +1378,701 @@
       { "type": "move", "range": 4 },
       { "type": "block", "amount": 3 }
     ]
+  },
+  "sawtooth_flurry": {
+    "name": "Sawtooth Flurry",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Fast adjacent cut for 5 and bleed 2.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/sawtooth_flurry.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "melee", "damage": 5, "range": 1, "bleed": 2 }
+    ]
+  },
+  "serrated_slip": {
+    "name": "Serrated Slip",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Move 2, then nick for 3 and expose 3.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/serrated_slip.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 3, "range": 1, "expose": 3 }
+    ]
+  },
+  "backhand_nick": {
+    "name": "Backhand Nick",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Strike for 4, bleed 1, then draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/backhand_nick.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "melee", "damage": 4, "range": 1, "bleed": 1 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "stormstring_shot": {
+    "name": "Stormstring Shot",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Lightning intensity by 1. Deal 4 at range 7 with chain 1. Lightning 3+: shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/stormstring_shot.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "lightning", "amount": 1 },
+      { "type": "ranged", "damage": 4, "range": 7, "chain": 1, "intensity_bonus": { "element": "lightning", "threshold": 3, "shock": 1 } }
+    ]
+  },
+  "forked_nock": {
+    "name": "Forked Nock",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Deal 3 at range 6 with chain 2 and expose 2. Lightning 2+: +2 damage.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/forked_nock.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 3, "range": 6, "chain": 2, "expose": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 2 } }
+    ]
+  },
+  "far_draw": {
+    "name": "Far Draw",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Raise Lightning intensity by 1 and draw 1.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/far_draw.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "lightning", "amount": 1 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "hookspine_reap": {
+    "name": "Hookspine Reap",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Hook for 6 at range 2, pull 1, and bleed 1.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/hookspine_reap.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "pull", "damage": 6, "range": 2, "amount": 1, "bleed": 1 }
+    ]
+  },
+  "sweeping_haft": {
+    "name": "Sweeping Haft",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Sweep adjacent tiles for 5, push 1, and sunder 3.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/sweeping_haft.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "push": 1, "sunder": 3 }
+    ]
+  },
+  "hook_and_hold": {
+    "name": "Hook and Hold",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Reach 2 for 4, immobilize, and expose 4.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/hook_and_hold.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "melee", "damage": 4, "range": 2, "immobilize": true, "expose": 4 }
+    ]
+  },
+  "phoenix_cleave": {
+    "name": "Phoenix Cleave",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 1,
+    "time": 7,
+    "description": "Exhaust. Lose 1 health. Raise Fire intensity by 1. Cleave adjacent tiles for 7 and burn 1. Fire 3+: +3 damage and burn 2.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/phoenix_cleave.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "fire", "amount": 1 },
+      { "type": "aoe", "damage": 7, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "burn": 1, "intensity_bonus": { "element": "fire", "threshold": 3, "damage": 3, "burn": 2 } }
+    ]
+  },
+  "ember_guard": {
+    "name": "Ember Guard",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Fire intensity by 1, gain 7 block, and draw 1.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/ember_guard.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "fire", "amount": 1 },
+      { "type": "block", "amount": 7 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "rekindle_edge": {
+    "name": "Rekindle Edge",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Strike for 6 and burn 2. Fire 2+: gain 1 card play.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/rekindle_edge.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "melee", "damage": 6, "range": 1, "burn": 2 },
+      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "fire", "amount": 2 } }
+    ]
+  },
+  "nail_parry": {
+    "name": "Nail Parry",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 5 block, then pierce an adjacent enemy for 3 and sunder 2.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/nail_parry.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 5 },
+      { "type": "melee", "damage": 3, "range": 1, "pierce": true, "sunder": 2 }
+    ]
+  },
+  "spike_check": {
+    "name": "Spike Check",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain 4 block, then bash for 3, push 1, and bleed 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/spike_check.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 4 },
+      { "type": "push", "damage": 3, "range": 1, "amount": 1, "bleed": 1 }
+    ]
+  },
+  "lodestone_reversal": {
+    "name": "Lodestone Reversal",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Lightning intensity by 1. Pull 2 at range 5 for 3, then gain 5 block. Lightning 2+: shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/lodestone_reversal.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "lightning", "amount": 1 },
+      { "type": "pull", "damage": 3, "range": 5, "amount": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "shock": 1 } },
+      { "type": "block", "amount": 5 }
+    ]
+  },
+  "polar_guard": {
+    "name": "Polar Guard",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain 6 block. Lightning 2+: gain 1 card play.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/polar_guard.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 6 },
+      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "lightning", "amount": 2 } }
+    ]
+  },
+  "witchglass_double": {
+    "name": "Witchglass Double",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Create a 3-health illusion at range 3, gain 4 block, then draw 1.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/witchglass_double.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "illusion", "health": 3, "range": 3 },
+      { "type": "block", "amount": 4 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "reflected_threat": {
+    "name": "Reflected Threat",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Create a 2-health illusion, then mark at range 5 for 2 and expose 5.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/reflected_threat.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "illusion", "health": 2, "range": 3 },
+      { "type": "ranged", "damage": 2, "range": 5, "expose": 5 }
+    ]
+  },
+  "anchor_slam": {
+    "name": "Anchor Slam",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Gain 3 stoneskin, then pull 3 at range 4 for 5, sunder 4, and immobilize.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/anchor_slam.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "stoneskin", "amount": 3 },
+      { "type": "pull", "damage": 5, "range": 4, "amount": 3, "sunder": 4, "immobilize": true }
+    ]
+  },
+  "undertow_guard": {
+    "name": "Undertow Guard",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Gain 9 block, then pull 2 at range 3 for 2 and expose 4.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/undertow_guard.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 9 },
+      { "type": "pull", "damage": 2, "range": 3, "amount": 2, "expose": 4 }
+    ]
+  },
+  "field_suture": {
+    "name": "Field Suture",
+    "rarity": "common",
+    "burn": true,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Exhaust. Heal 2 and gain 5 block.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/field_suture.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "heal", "amount": 2 },
+      { "type": "block", "amount": 5 }
+    ]
+  },
+  "threadbare_guard": {
+    "name": "Threadbare Guard",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain 6 block and draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/threadbare_guard.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "block", "amount": 6 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "ashweave_guard": {
+    "name": "Ashweave Guard",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Fire intensity by 1, gain 6 block, and scorch adjacent tiles for 3 and burn 1.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/ashweave_guard.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "fire", "amount": 1 },
+      { "type": "block", "amount": 6 },
+      { "type": "aoe", "damage": 3, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "burn": 1 }
+    ]
+  },
+  "cinder_patch": {
+    "name": "Cinder Patch",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": true,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Exhaust. Heal 2, gain 4 block, and raise Fire intensity by 1.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/cinder_patch.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "heal", "amount": 2 },
+      { "type": "block", "amount": 4 },
+      { "type": "intensity", "element": "fire", "amount": 1 }
+    ]
+  },
+  "rimeplate_lock": {
+    "name": "Rimeplate Lock",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Gain 4 stoneskin and 3 block, then pin at range 4 for 2 and immobilize.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/rimeplate_lock.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "stoneskin", "amount": 4 },
+      { "type": "block", "amount": 3 },
+      { "type": "ranged", "damage": 2, "range": 4, "immobilize": true }
+    ]
+  },
+  "hoarfrost_shell": {
+    "name": "Hoarfrost Shell",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Ice intensity by 1 and gain 6 block. Ice 2+: gain 3 stoneskin.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/hoarfrost_shell.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "ice", "amount": 1 },
+      { "type": "block", "amount": 6 },
+      { "type": "stoneskin", "amount": 3, "requires_intensity": { "element": "ice", "amount": 2 } }
+    ]
+  },
+  "voidsilk_molt": {
+    "name": "Voidsilk Molt",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Exhaust. Create a 5-health illusion at range 4, blink 4, then draw 1.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/voidsilk_molt.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "illusion", "health": 5, "range": 4 },
+      { "type": "blink", "range": 4 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "empty_husk": {
+    "name": "Empty Husk",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Create a 4-health illusion at range 4 and gain 5 block.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/empty_husk.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "illusion", "health": 4, "range": 4 },
+      { "type": "block", "amount": 5 }
+    ]
+  },
+  "hobnail_drive": {
+    "name": "Hobnail Drive",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Move 3, then kick an adjacent enemy for 3 and push 2.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/hobnail_drive.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "push", "damage": 3, "range": 1, "amount": 2 }
+    ]
+  },
+  "heel_hook": {
+    "name": "Heel Hook",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Move 2, then trip for 4, immobilize, and expose 2.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/heel_hook.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "melee", "damage": 4, "range": 1, "immobilize": true, "expose": 2 }
+    ]
+  },
+  "static_pivot": {
+    "name": "Static Pivot",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Lightning intensity by 1. Move 4, then deal 3 at range 4. Lightning 2+: shock.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/static_pivot.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "lightning", "amount": 1 },
+      { "type": "move", "range": 4 },
+      { "type": "ranged", "damage": 3, "range": 4, "intensity_bonus": { "element": "lightning", "threshold": 2, "shock": 1 } }
+    ]
+  },
+  "spur_spark": {
+    "name": "Spur Spark",
+    "element": "lightning",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Move 2, raise Lightning intensity by 1, and gain 1 card play.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/spur_spark.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "intensity", "element": "lightning", "amount": 1 },
+      { "type": "card_play", "amount": 1 }
+    ]
+  },
+  "cloudstep_loop": {
+    "name": "Cloudstep Loop",
+    "element": "air",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Air intensity by 1, blink 3, draw 1, and gain 1 card play.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/cloudstep_loop.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "air", "amount": 1 },
+      { "type": "blink", "range": 3 },
+      { "type": "draw", "amount": 1 },
+      { "type": "card_play", "amount": 1 }
+    ]
+  },
+  "zephyr_feint": {
+    "name": "Zephyr Feint",
+    "element": "air",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Move 3, create a 2-health illusion, then draw 1. Air 2+: gain 1 card play.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/zephyr_feint.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "illusion", "health": 2, "range": 3 },
+      { "type": "draw", "amount": 1 },
+      { "type": "card_play", "amount": 1, "requires_intensity": { "element": "air", "amount": 2 } }
+    ]
+  },
+  "worldroot_stride": {
+    "name": "Worldroot Stride",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Raise Earth intensity by 1. Move 2, gain 4 stoneskin, and lash for 3 at range 4. Earth 2+: immobilize and poison 2.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/worldroot_stride.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "earth", "amount": 1 },
+      { "type": "move", "range": 2 },
+      { "type": "stoneskin", "amount": 4 },
+      { "type": "ranged", "damage": 3, "range": 4, "intensity_bonus": { "element": "earth", "threshold": 2, "immobilize": true, "poison": 2 } }
+    ]
+  },
+  "rooted_kick": {
+    "name": "Rooted Kick",
+    "element": "earth",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Move 2, then kick for 5, push 1, sunder 3, and poison 1.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/rooted_kick.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "move", "range": 2 },
+      { "type": "push", "damage": 5, "range": 1, "amount": 1, "sunder": 3, "poison": 1 }
+    ]
+  },
+  "loaded_toss": {
+    "name": "Loaded Toss",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 2 at range 6, draw 1, and gain 1 card play.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/loaded_toss.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 2, "range": 6 },
+      { "type": "draw", "amount": 1 },
+      { "type": "card_play", "amount": 1 }
+    ]
+  },
+  "snake_eyes": {
+    "name": "Snake Eyes",
+    "rarity": "common",
+    "burn": true,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Exhaust. Mark at range 6 for 1 and expose 6, then draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/snake_eyes.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 1, "range": 6, "expose": 6 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "locket_chill": {
+    "name": "Locket Chill",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Ice intensity by 1. Deal 2 at range 6. Ice 3+: freeze.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/locket_chill.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "ice", "amount": 1 },
+      { "type": "ranged", "damage": 2, "range": 6, "intensity_bonus": { "element": "ice", "threshold": 3, "freeze": 1 } }
+    ]
+  },
+  "kept_breath": {
+    "name": "Kept Breath",
+    "element": "ice",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Raise Ice intensity by 1, gain 5 block, and draw 1.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/kept_breath.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "ice", "amount": 1 },
+      { "type": "block", "amount": 5 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "borrowed_spark": {
+    "name": "Borrowed Spark",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": true,
+    "health_cost": 1,
+    "time": 5,
+    "description": "Exhaust. Lose 1 health. Raise Fire intensity by 2, draw 2, and gain 1 card play.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/borrowed_spark.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "fire", "amount": 2 },
+      { "type": "draw", "amount": 2 },
+      { "type": "card_play", "amount": 1 }
+    ]
+  },
+  "cinder_second": {
+    "name": "Cinder Second",
+    "element": "fire",
+    "rarity": "uncommon",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Raise Fire intensity by 1 and gain 1 card play. Fire 2+: draw 1.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/cinder_second.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "intensity", "element": "fire", "amount": 1 },
+      { "type": "card_play", "amount": 1 },
+      { "type": "draw", "amount": 1, "requires_intensity": { "element": "fire", "amount": 2 } }
+    ]
+  },
+  "thorn_crown_pact": {
+    "name": "Thorn Crown Pact",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 1,
+    "time": 7,
+    "description": "Lose 1 health. Gain 5 stoneskin, then pierce for 6 at range 5, bleed 2, and poison 3.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/thorn_crown_pact.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "stoneskin", "amount": 5 },
+      { "type": "ranged", "damage": 6, "range": 5, "pierce": true, "bleed": 2, "poison": 3 }
+    ]
+  },
+  "royal_bramble": {
+    "name": "Royal Bramble",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 1,
+    "time": 6,
+    "description": "Lose 1 health. Pull 2 at range 5 for 4, bleed 2, expose 4, and sunder 4.",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/cards/royal_bramble.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "pull", "damage": 4, "range": 5, "amount": 2, "bleed": 2, "expose": 4, "sunder": 4 }
+    ]
   }
 }

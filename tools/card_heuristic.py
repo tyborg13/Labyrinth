@@ -75,6 +75,9 @@ class HeuristicWeights:
     aoe_rotatable_orientation_bonus: float = 0.05
     chain_extra_targets: float = 0.45
     pierce_value: float = 0.75
+    bleed_damage_value: float = 0.40
+    expose_value_per_point: float = 0.32
+    sunder_value_per_point: float = 0.20
     freeze_value: float = 3.8
     shock_value: float = 2.5
     immobilize_value: float = 1.7
@@ -295,9 +298,23 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if bool(action.get("pierce", False)) and damage > 0:
                 breakdown.offense += weights.pierce_value * playability * targets * action_scale
 
+            sunder = int(action.get("sunder", 0))
+            if sunder > 0:
+                breakdown.control += sunder * weights.sunder_value_per_point * playability * targets * action_scale
+
             burn = int(action.get("burn", 0))
             if burn > 0:
                 breakdown.control += burn_effective_damage(burn) * weights.damage_per_point * playability * targets * action_scale
+                has_status = True
+
+            bleed = int(action.get("bleed", 0))
+            if bleed > 0:
+                breakdown.control += bleed * weights.bleed_damage_value * playability * targets * action_scale
+                has_status = True
+
+            expose = int(action.get("expose", 0))
+            if expose > 0:
+                breakdown.control += expose * weights.expose_value_per_point * playability * targets * action_scale
                 has_status = True
 
             poison = int(action.get("poison", 0))
@@ -349,9 +366,23 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 if bool(intensity_bonus.get("pierce", False)) and damage + bonus_damage > 0:
                     breakdown.offense += weights.pierce_value * playability * targets * bonus_scale
 
+                bonus_sunder = int(intensity_bonus.get("sunder", 0))
+                if bonus_sunder > 0:
+                    breakdown.control += bonus_sunder * weights.sunder_value_per_point * playability * targets * bonus_scale
+
                 bonus_burn = int(intensity_bonus.get("burn", 0))
                 if bonus_burn > 0:
                     breakdown.control += burn_effective_damage(bonus_burn) * weights.damage_per_point * playability * targets * bonus_scale
+                    has_status = True
+
+                bonus_bleed = int(intensity_bonus.get("bleed", 0))
+                if bonus_bleed > 0:
+                    breakdown.control += bonus_bleed * weights.bleed_damage_value * playability * targets * bonus_scale
+                    has_status = True
+
+                bonus_expose = int(intensity_bonus.get("expose", 0))
+                if bonus_expose > 0:
+                    breakdown.control += bonus_expose * weights.expose_value_per_point * playability * targets * bonus_scale
                     has_status = True
 
                 bonus_poison = int(intensity_bonus.get("poison", 0))

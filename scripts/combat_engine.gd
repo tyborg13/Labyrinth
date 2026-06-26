@@ -39,7 +39,7 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
 ]
-const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "chain", "push", "pull"]
+const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "bleed", "expose", "sunder", "chain", "push", "pull"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const DEFAULT_AOE_PATTERN: Array = [
@@ -1417,11 +1417,14 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
+	next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
 	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
 	if damage > 0 or _action_has_keyword_effect(resolved_action):
 		if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		if damage > 0:
+			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
 		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage)
 		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
@@ -1444,9 +1447,12 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		_mark_first_attack_used(next_state)
 	var last_damage: int = 0
 	for enemy_index: int in affected:
+		next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
 		var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
 		last_damage = damage
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		if damage > 0:
+			next_state = _consume_enemy_expose(next_state, enemy_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
 	for terrain_index: int in affected_terrain:
 		var terrain_damage: int = final_damage_for_player_action(next_state, action)
@@ -1488,6 +1494,38 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
 		next_state = _trigger_enemy_death_relics(next_state, enemy)
 		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+	return next_state
+
+func _sunder_enemy_defense(state: Dictionary, enemy_index: int, amount: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if amount <= 0:
+		return next_state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var remaining: int = amount
+	var block_removed: int = mini(int(enemy.get("block", 0)), remaining)
+	enemy["block"] = int(enemy.get("block", 0)) - block_removed
+	remaining -= block_removed
+	if remaining > 0:
+		var stoneskin_removed: int = mini(int(enemy.get("stoneskin", 0)), remaining)
+		enemy["stoneskin"] = int(enemy.get("stoneskin", 0)) - stoneskin_removed
+	enemies[enemy_index] = enemy
+	next_state["enemies"] = enemies
+	return next_state
+
+func _consume_enemy_expose(state: Dictionary, enemy_index: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if int(enemy.get("expose", 0)) <= 0:
+		return next_state
+	enemy["expose"] = 0
+	enemies[enemy_index] = enemy
+	next_state["enemies"] = enemies
 	return next_state
 
 func _record_death_reward(state: Dictionary, enemy: Dictionary, embers: int, card_plays: int) -> void:
@@ -1626,6 +1664,8 @@ func _normalized_unit(unit_value: Variant) -> Dictionary:
 	unit["block"] = int(unit.get("block", 0))
 	unit["stoneskin"] = int(unit.get("stoneskin", 0))
 	unit["burn"] = int(unit.get("burn", 0))
+	unit["bleed"] = int(unit.get("bleed", 0))
+	unit["expose"] = int(unit.get("expose", 0))
 	unit["freeze"] = int(unit.get("freeze", 0))
 	unit["shock"] = int(unit.get("shock", 0))
 	unit["immobilize"] = bool(unit.get("immobilize", false))
@@ -1936,6 +1976,9 @@ func _enemy_is_immune_to_status(enemy: Dictionary, status_id: String) -> bool:
 func _action_has_keyword_effect(action: Dictionary) -> bool:
 	return (
 		int(action.get("burn", 0)) > 0
+		or int(action.get("bleed", 0)) > 0
+		or int(action.get("expose", 0)) > 0
+		or int(action.get("sunder", 0)) > 0
 		or int(action.get("freeze", 0)) > 0
 		or int(action.get("shock", 0)) > 0
 		or _action_applies_immobilize(action)
@@ -2139,6 +2182,12 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	if int(action.get("burn", 0)) > 0:
 		enemy["burn"] = int(enemy.get("burn", 0)) + int(action.get("burn", 0))
 		triggered_statuses.append("burn")
+	if int(action.get("bleed", 0)) > 0:
+		enemy["bleed"] = int(enemy.get("bleed", 0)) + int(action.get("bleed", 0))
+		triggered_statuses.append("bleed")
+	if int(action.get("expose", 0)) > 0:
+		enemy["expose"] = maxi(int(enemy.get("expose", 0)), int(action.get("expose", 0)))
+		triggered_statuses.append("expose")
 	if int(action.get("freeze", 0)) > 0:
 		var before_freeze: int = int(enemy.get("freeze", 0))
 		enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), int(action.get("freeze", 0)))
@@ -2184,6 +2233,10 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	if int(action.get("burn", 0)) > 0:
 		player["burn"] = int(player.get("burn", 0)) + int(action.get("burn", 0))
+	if int(action.get("bleed", 0)) > 0:
+		player["bleed"] = int(player.get("bleed", 0)) + int(action.get("bleed", 0))
+	if int(action.get("expose", 0)) > 0:
+		player["expose"] = maxi(int(player.get("expose", 0)), int(action.get("expose", 0)))
 	if int(action.get("freeze", 0)) > 0:
 		player["freeze"] = maxi(int(player.get("freeze", 0)), int(action.get("freeze", 0)))
 	if int(action.get("shock", 0)) > 0:
@@ -2216,7 +2269,10 @@ func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action
 		if next_index < 0:
 			break
 		visited[next_index] = true
+		next_state = _sunder_enemy_defense(next_state, next_index, int(action.get("sunder", 0)))
 		next_state = _damage_enemy(next_state, next_index, damage, true, _action_pierces_defense(action))
+		if damage > 0:
+			next_state = _consume_enemy_expose(next_state, next_index)
 		next_state = _apply_action_keywords_to_enemy(next_state, next_index, action, current_enemy.get("pos", Vector2i.ZERO))
 		current_index = next_index
 	return next_state
@@ -2420,11 +2476,13 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
+	next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
 	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
 	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
 	if damage > 0:
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
+		next_state = _consume_enemy_expose(next_state, enemy_index)
 	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 		return next_state
 	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
@@ -2917,6 +2975,26 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		})
 		if int(enemy.get("hp", 0)) <= 0:
 			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false}
+	if int(enemy.get("bleed", 0)) > 0:
+		var bleed_amount: int = int(enemy.get("bleed", 0))
+		var before_bleed_enemy: Dictionary = enemy.duplicate(true)
+		next_state = _damage_enemy(next_state, enemy_index, bleed_amount)
+		enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
+		enemy["bleed"] = maxi(0, int(enemy.get("bleed", 0)) - 1)
+		var bleed_enemies: Array = next_state.get("enemies", [])
+		bleed_enemies[enemy_index] = enemy
+		next_state["enemies"] = bleed_enemies
+		steps.append({
+			"kind": "status_damage",
+			"actor_key": _enemy_key(enemy),
+			"actor_name": actor_name,
+			"tile": enemy.get("pos", Vector2i.ZERO),
+			"amount": int(before_bleed_enemy.get("hp", 0)) - int(enemy.get("hp", 0)),
+			"label": "Bleed",
+			"text": "Bleed %d" % bleed_amount
+		})
+		if int(enemy.get("hp", 0)) <= 0:
+			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false}
 	if _poison_damage(enemy) > 0:
 		var poison_before: Dictionary = enemy.duplicate(true)
 		enemy = _advance_poison(enemy)
@@ -3004,6 +3082,15 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 		player["burn"] = maxi(0, int(player.get("burn", 0)) - GameData.status_tick_reduction("burn"))
 		next_state["player"] = player
 		_log(next_state, "Burn deals %d." % burn_amount)
+		if combat_outcome(next_state) != "":
+			return next_state
+	if int(player.get("bleed", 0)) > 0:
+		var bleed_amount: int = int(player.get("bleed", 0))
+		next_state = _damage_player(next_state, bleed_amount, false)
+		player = _normalized_player(next_state.get("player", {}))
+		player["bleed"] = maxi(0, int(player.get("bleed", 0)) - 1)
+		next_state["player"] = player
+		_log(next_state, "Bleed deals %d." % bleed_amount)
 		if combat_outcome(next_state) != "":
 			return next_state
 	if _poison_damage(player) > 0:
@@ -4054,6 +4141,7 @@ func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return damage
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	damage += int(enemy.get("expose", 0))
 	for effect: Dictionary in _relic_effects(state):
 		if str(effect.get("type", "")) != "damage_vs_status":
 			continue

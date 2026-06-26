@@ -46,6 +46,10 @@ These assumptions are baked into the current coefficients:
 - Shock lets the enemy keep movement, but strips non-movement actions for that
   turn.
 - Burn ticks at enemy start of turn and decays by `1`.
+- Bleed ticks at enemy start of turn and decays by `1`. It is physical
+  pressure rather than elemental setup.
+- Expose adds damage to the next hit against the target, then clears.
+- Sunder removes block and stoneskin before damage lands.
 - Poison lands after a two-turn delay.
 - Stoneskin is persistent defense and is valued above temporary block.
 - Illusions are stationary, have only health, and redirect enemies that are
@@ -142,6 +146,9 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Rotatable asymmetric AOE orientation bonus: `0.05`
 - Chain extra target bonus: `0.45`
 - Pierce defense bypass: `0.75`
+- Bleed delayed physical damage: `0.40` per stack
+- Expose next-hit setup: `0.32` per point
+- Sunder defense removal: `0.20` per point
 - Freeze: `3.8`
 - Shock: `2.5`
 - Immobilize one-turn movement lock: `1.7`

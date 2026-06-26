@@ -69,7 +69,8 @@ The current event stream is enough to derive:
 
 - enemy HP, realized block, and stoneskin removed; future guard intents do not
   count as removable block until that enemy resolves the block action
-- pierce actions resolved and enemy defense bypassed by observed HP damage
+- pierce actions resolved, sunder actions resolved, and enemy defense bypassed
+  by observed HP damage
 - terrain HP damage, terrain destroyed, traps triggered, and battlefield pickups
   collected, including dropped ember piles reclaimed through `embers_recovered`
 - kills secured
@@ -85,8 +86,8 @@ The current event stream is enough to derive:
 - elemental intensity before/after resolution, gross positive per-element
   intensity gained by the played card, and intensity spent by relic payoffs
 - illusions created and their total created health
-- immediate status application deltas for burn, freeze, shock, immobilize, and
-  poison
+- immediate status application deltas for burn, bleed, expose, freeze, shock,
+  immobilize, and poison
 - actual resolved action list and chosen targets
 
 AOE card actions are logged in that action list with their explicit `pattern`

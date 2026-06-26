@@ -9396,6 +9396,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_stoneskin_removed: int = 0
 	var kills_secured: int = 0
 	var enemy_burn_applied: int = 0
+	var enemy_bleed_applied: int = 0
+	var enemy_expose_applied: int = 0
 	var enemy_freeze_applied: int = 0
 	var enemy_shock_applied: int = 0
 	var enemy_immobilize_applied: int = 0
@@ -9413,6 +9415,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		if int(before_enemy.get("hp", 0)) > 0 and int(after_enemy.get("hp", 0)) <= 0:
 			kills_secured += 1
 		enemy_burn_applied += maxi(0, int(after_enemy.get("burn", 0)) - int(before_enemy.get("burn", 0)))
+		enemy_bleed_applied += maxi(0, int(after_enemy.get("bleed", 0)) - int(before_enemy.get("bleed", 0)))
+		enemy_expose_applied += maxi(0, int(after_enemy.get("expose", 0)) - int(before_enemy.get("expose", 0)))
 		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
 		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
 		if bool(after_enemy.get("immobilize", false)) and not bool(before_enemy.get("immobilize", false)):
@@ -9439,6 +9443,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		if terrain_loss > 0 and int(after_terrain.get("hp", 0)) <= 0:
 			terrain_destroyed += 1
 	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
+	var player_bleed_applied: int = maxi(0, int(after_player.get("bleed", 0)) - int(before_player.get("bleed", 0)))
+	var player_expose_applied: int = maxi(0, int(after_player.get("expose", 0)) - int(before_player.get("expose", 0)))
 	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
 	var player_immobilize_applied: int = 1 if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)) else 0
@@ -9509,10 +9515,13 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"elemental_intensity_gained": intensity_gained,
 		"elemental_intensity_spent": intensity_spent,
 		"pierce_actions": _analytics_pierce_action_count(actions),
+		"sunder_actions": _analytics_attack_keyword_action_count(actions, "sunder"),
 		"illusions_created": illusions_created,
 		"illusion_health_created": illusion_health_created,
 		"enemy_status_applied": {
 			"burn": enemy_burn_applied,
+			"bleed": enemy_bleed_applied,
+			"expose": enemy_expose_applied,
 			"freeze": enemy_freeze_applied,
 			"shock": enemy_shock_applied,
 			"immobilize": enemy_immobilize_applied,
@@ -9520,6 +9529,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		},
 		"player_status_applied": {
 			"burn": player_burn_applied,
+			"bleed": player_bleed_applied,
+			"expose": player_expose_applied,
 			"freeze": player_freeze_applied,
 			"shock": player_shock_applied,
 			"immobilize": player_immobilize_applied,
@@ -9567,12 +9578,17 @@ func _card_play_capacity_value(state: Dictionary) -> int:
 	)
 
 func _analytics_pierce_action_count(actions: Array) -> int:
+	return _analytics_attack_keyword_action_count(actions, "pierce")
+
+func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> int:
 	var count: int = 0
 	for action_var: Variant in actions:
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = action_var
-		if not bool(action.get("pierce", false)):
+		if keyword == "pierce" and not bool(action.get(keyword, false)):
+			continue
+		if keyword != "pierce" and int(action.get(keyword, 0)) <= 0:
 			continue
 		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
 			count += 1

@@ -223,5 +223,229 @@
     "cards": [
       "unsealed_gale"
     ]
+  },
+  "sawtooth_knife": {
+    "name": "Sawtooth Knife",
+    "slot": "weapon",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/sawtooth_knife.png",
+    "accent": "#8f9499",
+    "cards": [
+      "sawtooth_flurry",
+      "serrated_slip",
+      "backhand_nick"
+    ]
+  },
+  "stormstring_bow": {
+    "name": "Stormstring Bow",
+    "slot": "weapon",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/stormstring_bow.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "stormstring_shot",
+      "forked_nock",
+      "far_draw"
+    ]
+  },
+  "hookspine_halberd": {
+    "name": "Hookspine Halberd",
+    "slot": "weapon",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/hookspine_halberd.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "hookspine_reap",
+      "sweeping_haft",
+      "hook_and_hold"
+    ]
+  },
+  "phoenix_brand": {
+    "name": "Phoenix Brand",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/phoenix_brand.png",
+    "accent": "#d9862f",
+    "cards": [
+      "phoenix_cleave",
+      "ember_guard",
+      "rekindle_edge"
+    ]
+  },
+  "buckler_of_nails": {
+    "name": "Buckler of Nails",
+    "slot": "offhand",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/buckler_of_nails.png",
+    "accent": "#8f9499",
+    "cards": [
+      "nail_parry",
+      "spike_check"
+    ]
+  },
+  "lodestone_buckler": {
+    "name": "Lodestone Buckler",
+    "slot": "offhand",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/lodestone_buckler.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "lodestone_reversal",
+      "polar_guard"
+    ]
+  },
+  "witchglass_aegis": {
+    "name": "Witchglass Aegis",
+    "slot": "offhand",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/witchglass_aegis.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "witchglass_double",
+      "reflected_threat"
+    ]
+  },
+  "sunken_anchor": {
+    "name": "Sunken Anchor",
+    "slot": "offhand",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/sunken_anchor.png",
+    "accent": "#d9862f",
+    "cards": [
+      "anchor_slam",
+      "undertow_guard"
+    ]
+  },
+  "stitcher_apron": {
+    "name": "Stitcher Apron",
+    "slot": "armor",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/stitcher_apron.png",
+    "accent": "#8f9499",
+    "cards": [
+      "field_suture",
+      "threadbare_guard"
+    ]
+  },
+  "ashweave_mail": {
+    "name": "Ashweave Mail",
+    "slot": "armor",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/ashweave_mail.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "ashweave_guard",
+      "cinder_patch"
+    ]
+  },
+  "rimeplate_harness": {
+    "name": "Rimeplate Harness",
+    "slot": "armor",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/rimeplate_harness.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "rimeplate_lock",
+      "hoarfrost_shell"
+    ]
+  },
+  "voidsilk_carapace": {
+    "name": "Voidsilk Carapace",
+    "slot": "armor",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/voidsilk_carapace.png",
+    "accent": "#d9862f",
+    "cards": [
+      "voidsilk_molt",
+      "empty_husk"
+    ]
+  },
+  "hobnail_grips": {
+    "name": "Hobnail Grips",
+    "slot": "boots",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/hobnail_grips.png",
+    "accent": "#8f9499",
+    "cards": [
+      "hobnail_drive",
+      "heel_hook"
+    ]
+  },
+  "static_spurs": {
+    "name": "Static Spurs",
+    "slot": "boots",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/static_spurs.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "static_pivot",
+      "spur_spark"
+    ]
+  },
+  "cloudstep_sandals": {
+    "name": "Cloudstep Sandals",
+    "slot": "boots",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/cloudstep_sandals.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "cloudstep_loop",
+      "zephyr_feint"
+    ]
+  },
+  "worldroot_greaves": {
+    "name": "Worldroot Greaves",
+    "slot": "boots",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/worldroot_greaves.png",
+    "accent": "#d9862f",
+    "cards": [
+      "worldroot_stride",
+      "rooted_kick"
+    ]
+  },
+  "bone_dice": {
+    "name": "Bone Dice",
+    "slot": "trinket",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/bone_dice.png",
+    "accent": "#8f9499",
+    "cards": [
+      "loaded_toss",
+      "snake_eyes"
+    ]
+  },
+  "rime_locket": {
+    "name": "Rime Locket",
+    "slot": "trinket",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/rime_locket.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "locket_chill",
+      "kept_breath"
+    ]
+  },
+  "ember_hourglass": {
+    "name": "Ember Hourglass",
+    "slot": "trinket",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/ember_hourglass.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "borrowed_spark",
+      "cinder_second"
+    ]
+  },
+  "crown_of_thorns": {
+    "name": "Crown of Thorns",
+    "slot": "trinket",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/crown_of_thorns.png",
+    "accent": "#d9862f",
+    "cards": [
+      "thorn_crown_pact",
+      "royal_bramble"
+    ]
   }
 }

@@ -82,6 +82,21 @@ const KEYWORDS: Dictionary = {
 		"description": "Fire damage over time. Ticks at the start of turn, then decays.",
 		"path": "%s/burn.png" % ICON_ROOT
 	},
+	"bleed": {
+		"label": "Bleed",
+		"description": "Physical damage over time. Ticks at the start of turn, then decays.",
+		"path": "%s/bleed.png" % ICON_ROOT
+	},
+	"expose": {
+		"label": "Expose",
+		"description": "The next hit against this target deals extra damage.",
+		"path": "%s/expose.png" % ICON_ROOT
+	},
+	"sunder": {
+		"label": "Sunder",
+		"description": "Breaks block and stoneskin before damage lands.",
+		"path": "%s/sunder.png" % ICON_ROOT
+	},
 	"exhaust": {
 		"label": "Exhaust",
 		"description": "Removes this card from the deck for the rest of combat.",
@@ -448,7 +463,7 @@ static func tokens_for_intensity_bonus(action: Dictionary) -> Array:
 			int(bonus.get("amount", 0)),
 			"Extra forced movement when %s intensity is high enough." % ElementData.name(element_id)
 		))
-	for status_key: String in ["burn", "freeze", "shock", "poison", "chain", "push", "pull"]:
+	for status_key: String in ["burn", "bleed", "expose", "sunder", "freeze", "shock", "poison", "chain", "push", "pull"]:
 		if int(bonus.get(status_key, 0)) <= 0:
 			continue
 		tokens.append(_bonus_token(
@@ -593,6 +608,12 @@ static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
 static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 	if int(action.get("burn", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "burn", "burn", int(action.get("burn", 0))))
+	if int(action.get("bleed", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "bleed", "bleed", int(action.get("bleed", 0))))
+	if int(action.get("expose", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "expose", "expose", int(action.get("expose", 0))))
+	if int(action.get("sunder", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "sunder", "sunder", int(action.get("sunder", 0))))
 	if int(action.get("freeze", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "freeze", "freeze", int(action.get("freeze", 0))))
 	if int(action.get("shock", 0)) > 0:

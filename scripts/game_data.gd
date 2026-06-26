@@ -604,10 +604,10 @@ static func fixed_point_amount(amount: int) -> int:
 	return amount * FIXED_POINT_SCALE
 
 static func status_tick_reduction(status_id: String) -> int:
-	return FIXED_POINT_SCALE if status_id in ["burn", "poison"] else 1
+	return FIXED_POINT_SCALE if status_id in ["burn", "bleed", "poison"] else 1
 
 static func action_field_uses_fixed_point(action_type: String, field: String) -> bool:
-	if field in ["damage", "self_damage", "burn", "poison"]:
+	if field in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison"]:
 		return action_type in FIXED_POINT_ATTACK_ACTION_TYPES or action_type in ["trap", "all_enemies_damage", "all_enemies_status"]
 	if field == "amount":
 		return action_type in ["block", "stoneskin", "heal", "heal_self"]
@@ -831,12 +831,12 @@ static func _scale_enemy_fixed_point(enemy: Dictionary) -> Dictionary:
 static func _scale_action_fixed_point(action: Dictionary) -> Dictionary:
 	var next_action: Dictionary = action.duplicate(true)
 	var action_type: String = str(next_action.get("type", ""))
-	for field: String in ["damage", "self_damage", "burn", "poison", "amount", "health"]:
+	for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
 		if next_action.has(field) and action_field_uses_fixed_point(action_type, field):
 			next_action[field] = int(next_action.get(field, 0)) * FIXED_POINT_SCALE
 	if typeof(next_action.get("intensity_bonus", {})) == TYPE_DICTIONARY:
 		var bonus: Dictionary = (next_action.get("intensity_bonus", {}) as Dictionary).duplicate(true)
-		for field: String in ["damage", "self_damage", "burn", "poison", "amount", "health"]:
+		for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
 			if bonus.has(field) and action_field_uses_fixed_point(action_type, field):
 				bonus[field] = int(bonus.get(field, 0)) * FIXED_POINT_SCALE
 		next_action["intensity_bonus"] = bonus
@@ -1442,6 +1442,9 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("health", action.get("amount", 0)))) * 0.95
 			value += float(int(action.get("range", 0))) * 0.28
 	value += float(int(action.get("burn", 0))) * 1.15
+	value += float(int(action.get("bleed", 0))) * 1.05
+	value += float(int(action.get("expose", 0))) * 0.95
+	value += float(int(action.get("sunder", 0))) * 0.70
 	value += float(int(action.get("poison", 0))) * 0.95
 	value += float(int(action.get("freeze", 0))) * 3.2
 	value += float(int(action.get("shock", 0))) * 2.4
@@ -1473,6 +1476,9 @@ static func _intensity_bonus_value(action: Dictionary, action_type: String) -> f
 				damage_multiplier = 0.9
 		value += float(int(bonus.get("damage", 0))) * damage_multiplier
 	value += float(int(bonus.get("burn", 0))) * 1.15
+	value += float(int(bonus.get("bleed", 0))) * 1.05
+	value += float(int(bonus.get("expose", 0))) * 0.95
+	value += float(int(bonus.get("sunder", 0))) * 0.70
 	value += float(int(bonus.get("poison", 0))) * 0.95
 	value += float(int(bonus.get("freeze", 0))) * 3.2
 	value += float(int(bonus.get("shock", 0))) * 2.4

@@ -75,6 +75,7 @@ func _initialize() -> void:
 	_test_relic_effect_hooks()
 	_test_tailwind_fletching_modifies_existing_forced_movement()
 	_test_pierce_ignores_defenses()
+	_test_bleed_expose_and_sunder_keywords()
 	_test_enemy_pierce_intents_surface_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
 	_test_immobilize_cards_stay_in_allowed_elements()
@@ -2032,6 +2033,48 @@ func _test_pierce_ignores_defenses() -> void:
 	_assert(int(pierced_player.get("hp", 0)) == 19, "Enemy pierce attacks should damage player HP through defenses")
 	_assert(int(pierced_player.get("block", 0)) == 6, "Enemy pierce attacks should leave player block intact")
 	_assert(int(pierced_player.get("stoneskin", 0)) == 4, "Enemy pierce attacks should leave player stoneskin intact")
+
+func _test_bleed_expose_and_sunder_keywords() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(1711, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 4,
+		"stoneskin": 3,
+		"intent": {}
+	}]
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 0, "range": 1, "bleed": 3, "expose": 4}, Vector2i(3, 4))
+	var marked_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(int(marked_enemy.get("bleed", 0)) == 3, "Bleed attacks should store a physical damage-over-time stack")
+	_assert(int(marked_enemy.get("expose", 0)) == 4, "Expose attacks should store a next-hit damage bonus")
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 5, "range": 1, "sunder": 6}, Vector2i(3, 4))
+	var sundered_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(int(sundered_enemy.get("block", 0)) == 0, "Sunder should remove block before damage")
+	_assert(int(sundered_enemy.get("stoneskin", 0)) == 0, "Sunder plus follow-up damage should clear the remaining stoneskin")
+	_assert(int(sundered_enemy.get("hp", 0)) == 12, "Expose should add to the next hit before clearing")
+	_assert(int(sundered_enemy.get("expose", 0)) == 0, "Expose should clear after it boosts a hit")
+	var turn_result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
+	var bleed_state: Dictionary = turn_result.get("state", state)
+	var bleeding_enemy: Dictionary = (bleed_state.get("enemies", []) as Array)[0]
+	_assert(int(bleeding_enemy.get("hp", 0)) == 9, "Bleed should deal its stack at enemy start of turn")
+	_assert(int(bleeding_enemy.get("bleed", 0)) == 2, "Bleed should decay by one after ticking")
+	var saw_bleed_step: bool = false
+	for step_var: Variant in turn_result.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("label", "")) == "Bleed":
+			saw_bleed_step = true
+	_assert(saw_bleed_step, "Bleed ticks should surface status-damage steps")
 
 func _test_enemy_pierce_intents_surface_icons() -> void:
 	var board := CombatBoardView.new()
@@ -4604,6 +4647,13 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(pierce_row.size() == 2, "Pierce should replace the ranged damage icon instead of adding another keyword token")
 	_assert(str((pierce_row[0] as Dictionary).get("icon", "")) == "pierce", "Pierce attacks should use the pierce damage icon")
 	_assert(ActionIcons.tooltip("pierce").contains("block"), "Pierce tooltip should explain defense bypass")
+	var blood_row: Array = ActionIcons.tokens_for_action({"type": "melee", "damage": 3, "range": 1, "bleed": 2, "expose": 4, "sunder": 3})
+	_assert(str((blood_row[1] as Dictionary).get("icon", "")) == "bleed", "Bleed should render as an attack keyword token")
+	_assert(str((blood_row[2] as Dictionary).get("icon", "")) == "expose", "Expose should render as an attack keyword token")
+	_assert(str((blood_row[3] as Dictionary).get("icon", "")) == "sunder", "Sunder should render as an attack keyword token")
+	_assert(ActionIcons.tooltip("bleed").contains("Physical damage"), "Bleed tooltip should explain the physical tick")
+	_assert(ActionIcons.tooltip("expose").contains("next hit"), "Expose tooltip should explain the follow-up damage")
+	_assert(ActionIcons.tooltip("sunder").contains("stoneskin"), "Sunder tooltip should explain defense breaking")
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
