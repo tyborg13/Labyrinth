@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-22T15:17:30Z",
+  "updated_at": "2026-06-25T18:22:38Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4013,6 +4013,140 @@
       "source": {
         "branch": "master",
         "commit": "dd419f2"
+      }
+    },
+    {
+      "id": "mnt_20260622T182903Z_7ca5dd46",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Magic rewards now use capped attunement",
+      "details": "Run state keeps reward_cards as collected reward-card history, while attuned_magic_cards is the six-slot active magic loadout that compiles into deck_cards alongside equipment. magic_inventory holds inactive reserve/default magic cards. Card rewards are claimed into reserve and require an out-of-combat character-sheet swap to become active.",
+      "status": "active",
+      "created_at": "2026-06-22T18:29:03Z",
+      "updated_at": "2026-06-22T18:29:03Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fba1a6"
+      }
+    },
+    {
+      "id": "mnt_20260622T190227Z_595aec05",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Magic swaps live in a dedicated Magic tab",
+      "details": "The character sheet keeps Gear focused on equipment and a read-only current deck. Magic management lives in its own tab with six attuned spell slots, a learned/reserve spell panel, and the same read-only deck column; reserve/default magic tiles should not be created as drag targets on Gear.",
+      "status": "active",
+      "created_at": "2026-06-22T19:02:27Z",
+      "updated_at": "2026-06-22T19:02:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fba1a6"
+      }
+    },
+    {
+      "id": "mnt_20260622T191932Z_ce105ab4",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Magic drag release can land on the destination tile",
+      "details": "Magic loadout swaps must let any MagicCardTile complete an active drag on left-button release, not only the tile that began the drag. Godot can deliver the release to the hovered destination spell tile, so target tiles need to call _release_magic_overlay_drag when _magic_overlay_drag_active is true.",
+      "status": "active",
+      "created_at": "2026-06-22T19:19:32Z",
+      "updated_at": "2026-06-22T19:19:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fba1a6"
+      }
+    },
+    {
+      "id": "mnt_20260622T192951Z_a13011a9",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Magic drops should resolve by visible held-card overlap",
+      "details": "For character-sheet Magic swaps, resolving only the cursor point is too strict because players position the translucent held spell over a slot/panel. The drop resolver should prefer exact tile hits, then held-card overlap, then the nearest opposite-side tile when the held card or cursor is inside the attuned/learned panel.",
+      "status": "active",
+      "created_at": "2026-06-22T19:29:51Z",
+      "updated_at": "2026-06-22T19:29:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fba1a6"
+      }
+    },
+    {
+      "id": "mnt_20260622T194121Z_ad0925ee",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Async magic drag releases must be single-shot",
+      "details": "The Magic tab can receive the same mouse-up through both RunScene._input and MagicCardTile._gui_input while _release_magic_overlay_drag awaits the snap animation. Without a release-in-progress guard or marking input handled before awaits, the first release swaps the spells and the second release can swap them right back, appearing as a brief successful text change followed by a snapback.",
+      "status": "active",
+      "created_at": "2026-06-22T19:41:21Z",
+      "updated_at": "2026-06-22T19:41:21Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "2fba1a6"
+      }
+    },
+    {
+      "id": "mnt_20260622T203754Z_794e7640",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Character menu badge fills should blend without visible bands",
+      "details": "Gear/Magic deck badges and magic tiles should avoid hard horizontal shadow cuts or obvious backing/underpaint seams. The backing uses per-strip gradients, the wash uses soft vertical and side shadow ramps, and the dim overscanned art fill stays low-opacity so it supports transparent art edges without reading as a separate layer.",
+      "status": "active",
+      "created_at": "2026-06-22T20:37:54Z",
+      "updated_at": "2026-06-22T20:37:54Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260622T202550Z_d5aae8dd"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "2fba1a6"
       }
     }
   ]

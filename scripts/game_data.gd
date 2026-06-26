@@ -54,6 +54,15 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 	"legendary": 1
 }
 const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
+const MAGIC_LOADOUT_LIMIT: int = 6
+const STARTING_MAGIC_CARDS: Array[String] = [
+	"pale_spark",
+	"pale_spark",
+	"dull_bolt",
+	"dull_bolt",
+	"waning_pulse",
+	"waning_pulse"
+]
 const STARTING_EQUIPMENT_BY_SLOT := {
 	"weapon": "training_sword",
 	"offhand": "splintered_shield",
@@ -177,7 +186,13 @@ static func _raw_card_def_for_progression(card_id: String, progression: Dictiona
 	return _raw_card_def(card_id)
 
 static func starting_deck() -> Array:
-	return compile_deck_cards(starting_equipped_equipment(), [])
+	return compile_deck_cards(starting_equipped_equipment(), starting_magic_cards())
+
+static func magic_loadout_limit() -> int:
+	return MAGIC_LOADOUT_LIMIT
+
+static func starting_magic_cards() -> Array:
+	return STARTING_MAGIC_CARDS.duplicate()
 
 static func reward_card_pool_by_rarity(element_filter: String = "", elemental_only: bool = false) -> Dictionary:
 	var result: Dictionary = {
@@ -277,14 +292,14 @@ static func equipment_cards(equipment_id: String) -> Array:
 			result.append(card_id)
 	return result
 
-static func compile_deck_cards(equipped_equipment: Dictionary, reward_cards: Array) -> Array:
+static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Array) -> Array:
 	var result: Array = []
 	for slot: String in EQUIPMENT_SLOTS:
 		var equipment_id: String = str(equipped_equipment.get(slot, ""))
 		if equipment_id.is_empty():
 			continue
 		result.append_array(equipment_cards(equipment_id))
-	for card_id_var: Variant in reward_cards:
+	for card_id_var: Variant in magic_cards:
 		var card_id: String = str(card_id_var)
 		if not card_id.is_empty():
 			result.append(card_id)

@@ -89,6 +89,115 @@ class EquipmentCardBadge:
 			return super._make_custom_tooltip(for_text)
 		return host.call("_build_card_tooltip_panel", card_id)
 
+class MagicCardTile:
+	extends EquipmentCardBadge
+
+	var source_kind: String = ""
+	var magic_index: int = -1
+	var _left_pressed: bool = false
+
+	func _gui_input(event: InputEvent) -> void:
+		if host == null or card_id.is_empty():
+			return
+		if event is InputEventMouseButton:
+			var mouse_event: InputEventMouseButton = event
+			var mouse_position: Vector2 = mouse_event.global_position
+			if mouse_position == Vector2.ZERO:
+				mouse_position = get_viewport().get_mouse_position()
+			if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+				return
+			if mouse_event.pressed:
+				if bool(host.call("_magic_overlay_can_change")):
+					_left_pressed = true
+					host.call("_begin_magic_overlay_drag", source_kind, magic_index, card_id, get_global_rect(), self, mouse_position)
+					accept_event()
+					return
+			elif _left_pressed or bool(host.call("_magic_overlay_drag_active")):
+				_left_pressed = false
+				host.call("_release_magic_overlay_drag", mouse_position)
+				accept_event()
+				return
+		elif event is InputEventMouseMotion:
+			var motion_event: InputEventMouseMotion = event
+			var motion_position: Vector2 = motion_event.global_position
+			if motion_position == Vector2.ZERO:
+				motion_position = get_viewport().get_mouse_position()
+			if _left_pressed or bool(host.call("_magic_overlay_drag_active")):
+				host.call("_update_magic_overlay_drag", motion_position)
+				accept_event()
+
+class CardArtBadgeWash:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var wash_alpha: float = 0.36
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _draw() -> void:
+		var rect := Rect2(Vector2.ZERO, size)
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+			return
+		draw_rect(rect, Color(accent.r, accent.g, accent.b, 0.06), true)
+		draw_rect(rect, Color(0.025, 0.018, 0.014, wash_alpha), true)
+		var vertical_steps: int = max(12, int(rect.size.y))
+		for index: int in range(vertical_steps):
+			var t: float = float(index) / float(max(1, vertical_steps - 1))
+			var eased_bottom: float = _badge_smoothstep(0.22, 1.0, t)
+			var eased_top: float = 1.0 - _badge_smoothstep(0.0, 0.34, t)
+			var alpha: float = 0.16 * eased_bottom + 0.05 * eased_top
+			var y0: float = rect.size.y * float(index) / float(vertical_steps)
+			var y1: float = rect.size.y * float(index + 1) / float(vertical_steps)
+			draw_rect(Rect2(0.0, y0, rect.size.x, y1 - y0 + 1.0), Color(0.0, 0.0, 0.0, alpha), true)
+		var side_width: float = minf(34.0, rect.size.x * 0.18)
+		var side_steps: int = max(8, int(side_width))
+		for index: int in range(side_steps):
+			var edge_t: float = float(index) / float(max(1, side_steps - 1))
+			var alpha: float = 0.12 * pow(1.0 - edge_t, 1.7)
+			var x0: float = side_width * float(index) / float(side_steps)
+			var x1: float = side_width * float(index + 1) / float(side_steps)
+			var strip_width: float = x1 - x0 + 1.0
+			draw_rect(Rect2(x0, 0.0, strip_width, rect.size.y), Color(0.0, 0.0, 0.0, alpha), true)
+			draw_rect(Rect2(rect.size.x - x1, 0.0, strip_width, rect.size.y), Color(0.0, 0.0, 0.0, alpha), true)
+
+	func _badge_smoothstep(edge0: float, edge1: float, value: float) -> float:
+		var t: float = clampf((value - edge0) / maxf(edge1 - edge0, 0.0001), 0.0, 1.0)
+		return t * t * (3.0 - 2.0 * t)
+
+class CardArtBadgeBacking:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var base_color: Color = Color("51463f")
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _draw() -> void:
+		var rect := Rect2(Vector2.ZERO, size)
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+			return
+		var ground: Color = base_color.darkened(0.24).lerp(accent.darkened(0.34), 0.10)
+		var glow: Color = base_color.lightened(0.08).lerp(accent, 0.14)
+		var bottom: Color = base_color.darkened(0.42).lerp(accent.darkened(0.42), 0.08)
+		var steps: int = max(12, int(rect.size.y))
+		for index: int in range(steps):
+			var t: float = float(index) / float(max(1, steps - 1))
+			var eased: float = _badge_smoothstep(0.0, 1.0, t)
+			var color: Color = ground.lerp(bottom, eased)
+			var glow_alpha: float = 0.12 * (1.0 - minf(absf(t - 0.42) / 0.58, 1.0))
+			var y0: float = rect.size.y * float(index) / float(steps)
+			var y1: float = rect.size.y * float(index + 1) / float(steps)
+			draw_rect(Rect2(0.0, y0, rect.size.x, y1 - y0 + 1.0), Color(color.r, color.g, color.b, 1.0), true)
+			draw_rect(Rect2(0.0, y0, rect.size.x, y1 - y0 + 1.0), Color(glow.r, glow.g, glow.b, glow_alpha), true)
+
+	func _badge_smoothstep(edge0: float, edge1: float, value: float) -> float:
+		var t: float = clampf((value - edge0) / maxf(edge1 - edge0, 0.0001), 0.0, 1.0)
+		return t * t * (3.0 - 2.0 * t)
+
 class FatigueEdgeOverlay:
 	extends Control
 
@@ -272,6 +381,9 @@ const EQUIPMENT_DRAG_CURSOR_OFFSET: Vector2 = Vector2(18.0, 20.0)
 const EQUIPMENT_SWAP_SNAP_SECONDS: float = 0.22
 const EQUIPMENT_SWAP_RETURN_SECONDS: float = 0.24
 const EQUIPMENT_DECK_BADGE_SIZE: Vector2 = Vector2(164.0, 34.0)
+const MAGIC_ATTUNED_TILE_SIZE: Vector2 = Vector2(292.0, 46.0)
+const MAGIC_INVENTORY_TILE_SIZE: Vector2 = Vector2(164.0, 38.0)
+const MAGIC_DRAG_CURSOR_OFFSET: Vector2 = Vector2(14.0, 18.0)
 const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(150.0, 150.0 * CARD_ASPECT_RATIO)
 const CARD_TOOLTIP_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
 const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(840.0, 104.0)
@@ -435,6 +547,18 @@ var _equipment_drag_source_rect: Rect2 = Rect2()
 var _equipment_drag_source_control: Control
 var _equipment_held_proxy: Control
 var _equipment_swap_animation_active: bool = false
+var _magic_attuned_tiles: Dictionary = {}
+var _magic_inventory_tiles: Dictionary = {}
+var _magic_drag_source_kind: String = ""
+var _magic_drag_index: int = -1
+var _magic_drag_card_id: String = ""
+var _magic_drag_source_rect: Rect2 = Rect2()
+var _magic_drag_source_control: Control
+var _magic_held_proxy: Control
+var _magic_drag_release_in_progress: bool = false
+var _magic_drag_last_mouse_position: Vector2 = Vector2(-1.0, -1.0)
+var _magic_attuned_drop_panel: Control
+var _magic_inventory_drop_panel: Control
 var _dialogue_active: bool = false
 var _dialogue_script: Dictionary = {}
 var _dialogue_line_index: int = -1
@@ -482,12 +606,25 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 			if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-				await _release_equipment_overlay_drag(_current_mouse_position())
 				get_viewport().set_input_as_handled()
+				await _release_equipment_overlay_drag(_current_mouse_position())
 				return
 			if event.is_action_pressed("ui_cancel"):
-				await _cancel_equipment_overlay_drag(true)
 				get_viewport().set_input_as_handled()
+				await _cancel_equipment_overlay_drag(true)
+				return
+		if not _magic_drag_card_id.is_empty():
+			if event is InputEventMouseMotion:
+				_update_magic_overlay_drag(_mouse_event_position(event))
+				get_viewport().set_input_as_handled()
+				return
+			if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+				get_viewport().set_input_as_handled()
+				await _release_magic_overlay_drag(_mouse_event_position(event))
+				return
+			if event.is_action_pressed("ui_cancel"):
+				get_viewport().set_input_as_handled()
+				await _cancel_magic_overlay_drag(true)
 				return
 		if event.is_action_pressed("ui_cancel"):
 			_close_card_upgrade_overlay()
@@ -1842,6 +1979,15 @@ func _drag_zone_at(mouse_position: Vector2) -> String:
 
 func _current_mouse_position() -> Vector2:
 	return get_viewport().get_mouse_position()
+
+func _mouse_event_position(event: InputEvent) -> Vector2:
+	if event is InputEventMouseButton:
+		var mouse_button: InputEventMouseButton = event
+		return mouse_button.position
+	if event is InputEventMouseMotion:
+		var mouse_motion: InputEventMouseMotion = event
+		return mouse_motion.position
+	return _current_mouse_position()
 
 func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 	if _drag_card_proxy == null:
@@ -6630,7 +6776,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_menu_overlay()
-	_progression_overlay_mode = mode if mode in ["equipment", "stats"] else "equipment"
+	_progression_overlay_mode = mode if mode in ["equipment", "magic", "stats"] else "equipment"
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
@@ -6652,6 +6798,7 @@ func _close_card_upgrade_overlay() -> void:
 	_progression_overlay_mode = ""
 	_progression_pending_stats.clear()
 	_clear_equipment_drag_state(true)
+	_clear_magic_drag_state(true)
 
 func _rebuild_progression_overlay() -> void:
 	if _upgrade_dialog == null:
@@ -6710,6 +6857,8 @@ func _rebuild_progression_overlay() -> void:
 
 	if _progression_overlay_mode == "equipment":
 		vbox.add_child(_build_equipment_overlay_body())
+	elif _progression_overlay_mode == "magic":
+		vbox.add_child(_build_magic_overlay_body())
 	else:
 		var body := HBoxContainer.new()
 		body.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
@@ -6760,6 +6909,11 @@ func _progression_overlay_summary_text() -> String:
 		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
 		var inventory_size: int = int((_run_state.get("equipment_inventory", []) as Array).size())
 		return "LV %d   DECK %d   GEAR %d" % [level, deck_size, inventory_size]
+	if _progression_overlay_mode == "magic":
+		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
+		var attuned_size: int = int((_run_state.get("attuned_magic_cards", []) as Array).size())
+		var learned_size: int = int((_run_state.get("magic_inventory", []) as Array).size())
+		return "LV %d   DECK %d   MAGIC %d/%d   LEARNED %d" % [level, deck_size, mini(attuned_size, GameData.magic_loadout_limit()), GameData.magic_loadout_limit(), learned_size]
 	return "LV %d   EMBERS %d" % [level, embers]
 
 func _build_character_overlay_tabs() -> Control:
@@ -6767,6 +6921,7 @@ func _build_character_overlay_tabs() -> Control:
 	row.add_theme_constant_override("separation", 8)
 	for entry: Dictionary in [
 		{"mode": "equipment", "text": "Gear"},
+		{"mode": "magic", "text": "Magic"},
 		{"mode": "stats", "text": "Stats"}
 	]:
 		var button := Button.new()
@@ -6783,7 +6938,7 @@ func _build_character_overlay_tabs() -> Control:
 	return row
 
 func _switch_character_overlay_mode(mode: String) -> void:
-	if not (mode in ["equipment", "stats"]):
+	if not (mode in ["equipment", "magic", "stats"]):
 		return
 	_progression_overlay_mode = mode
 	_progression_pending_stats.clear()
@@ -6812,6 +6967,10 @@ func _apply_character_tab_style(button: Button, active: bool) -> void:
 func _build_equipment_overlay_body() -> Control:
 	_equipment_slot_panels.clear()
 	_equipment_inventory_tiles.clear()
+	_magic_attuned_tiles.clear()
+	_magic_inventory_tiles.clear()
+	_magic_attuned_drop_panel = null
+	_magic_inventory_drop_panel = null
 	var body := HBoxContainer.new()
 	body.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -6819,7 +6978,24 @@ func _build_equipment_overlay_body() -> Control:
 	body.add_theme_constant_override("separation", 14)
 	body.add_child(_build_equipment_character_column())
 	body.add_child(_build_equipment_inventory_column())
-	body.add_child(_build_equipment_deck_column())
+	body.add_child(_build_current_deck_column())
+	return body
+
+func _build_magic_overlay_body() -> Control:
+	_equipment_slot_panels.clear()
+	_equipment_inventory_tiles.clear()
+	_magic_attuned_tiles.clear()
+	_magic_inventory_tiles.clear()
+	_magic_attuned_drop_panel = null
+	_magic_inventory_drop_panel = null
+	var body := HBoxContainer.new()
+	body.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 14)
+	body.add_child(_build_magic_attuned_column())
+	body.add_child(_build_magic_inventory_column())
+	body.add_child(_build_current_deck_column())
 	return body
 
 func _build_equipment_character_column() -> Control:
@@ -7021,7 +7197,121 @@ func _build_equipment_inventory_column() -> Control:
 			grid.add_child(_build_equipment_inventory_tile(str(equipment_id_var)))
 	return panel
 
-func _build_equipment_deck_column() -> Control:
+func _build_magic_attuned_column() -> Control:
+	var panel := PanelContainer.new()
+	_magic_attuned_drop_panel = panel
+	panel.custom_minimum_size = Vector2(326.0, 0.0)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(title_row)
+	var title := Label.new()
+	title.text = "Attuned Magic"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f5ead4"))
+	title.add_theme_color_override("font_outline_color", Color("241912"))
+	title.add_theme_constant_override("outline_size", 1)
+	title_row.add_child(title)
+	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
+	var count := Label.new()
+	count.text = "%d/%d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()]
+	UiTypography.set_label_size(count, UiTypography.SIZE_SMALL)
+	count.add_theme_color_override("font_color", Color("f0c978"))
+	title_row.add_child(count)
+
+	var slots := VBoxContainer.new()
+	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slots.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	slots.add_theme_constant_override("separation", 8)
+	vbox.add_child(slots)
+	for index: int in range(GameData.magic_loadout_limit()):
+		var card_id: String = str(attuned[index]) if index < attuned.size() else ""
+		slots.add_child(_build_magic_card_tile(card_id, "attuned", index, MAGIC_ATTUNED_TILE_SIZE))
+	if not _magic_overlay_can_change():
+		var locked := Label.new()
+		locked.text = "Locked in combat"
+		UiTypography.set_label_size(locked, UiTypography.SIZE_CAPTION)
+		locked.add_theme_color_override("font_color", Color("d8a06a"))
+		vbox.add_child(locked)
+	return panel
+
+func _build_magic_inventory_column() -> Control:
+	var panel := PanelContainer.new()
+	_magic_inventory_drop_panel = panel
+	panel.custom_minimum_size = Vector2(374.0, 0.0)
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(title_row)
+	var title := Label.new()
+	title.text = "Learned Magic"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	title.add_theme_color_override("font_color", Color("f5ead4"))
+	title.add_theme_color_override("font_outline_color", Color("241912"))
+	title.add_theme_constant_override("outline_size", 1)
+	title_row.add_child(title)
+	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
+	var count := Label.new()
+	count.text = str(reserve.size())
+	UiTypography.set_label_size(count, UiTypography.SIZE_SMALL)
+	count.add_theme_color_override("font_color", Color("f0c978"))
+	title_row.add_child(count)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+	var grid := HFlowContainer.new()
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.alignment = FlowContainer.ALIGNMENT_BEGIN
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
+	scroll.add_child(grid)
+	if reserve.is_empty():
+		var empty := Label.new()
+		empty.text = "No learned magic"
+		empty.custom_minimum_size = Vector2(0.0, 80.0)
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiTypography.set_label_size(empty, UiTypography.SIZE_SMALL)
+		empty.add_theme_color_override("font_color", Color("cdbca2"))
+		grid.add_child(empty)
+	else:
+		for index: int in range(reserve.size()):
+			var card_id: String = str(reserve[index])
+			grid.add_child(_build_magic_card_tile(card_id, "inventory", index, MAGIC_INVENTORY_TILE_SIZE))
+	return panel
+
+func _build_current_deck_column() -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(344.0, 0.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -7054,15 +7344,14 @@ func _build_equipment_deck_column() -> Control:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 8)
 	scroll.add_child(list)
+	var attuned_magic: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
+	list.add_child(_build_attuned_magic_deck_group(attuned_magic))
 	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
 	for slot: String in GameData.equipment_slots():
 		var equipment_id: String = str(equipped.get(slot, ""))
 		if equipment_id.is_empty():
 			continue
 		list.add_child(_build_equipment_deck_group(equipment_id, _equipment_slot_label(slot)))
-	var reward_cards: Array = (_run_state.get("reward_cards", []) as Array).duplicate()
-	if not reward_cards.is_empty():
-		list.add_child(_build_reward_deck_group(reward_cards))
 	return panel
 
 func _build_equipment_inventory_tile(equipment_id: String) -> Control:
@@ -7072,6 +7361,7 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	tile.equipment_id = equipment_id
 	tile.host = self
 	tile.custom_minimum_size = EQUIPMENT_TILE_SIZE
+	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.tooltip_text = "equipment:%s" % equipment_id
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _equipment_overlay_can_change() else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
@@ -7087,7 +7377,7 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	margin.add_child(row)
-	row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE))
+	row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE, false))
 	var text_box := VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_box.add_theme_constant_override("separation", 1)
@@ -7140,26 +7430,59 @@ func _build_equipment_deck_group(equipment_id: String, heading: String) -> Contr
 		row.add_child(_build_equipment_card_badge(str(card_id_var), accent))
 	return vbox
 
-func _build_reward_deck_group(card_ids: Array) -> Control:
+func _build_attuned_magic_deck_group(attuned_card_ids: Array) -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", 6)
 	var label := Label.new()
-	label.text = "Rewards"
+	label.text = "Attuned Magic %d/%d" % [mini(attuned_card_ids.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()]
 	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
 	label.add_theme_color_override("font_color", Color("f0c978"))
 	label.add_theme_color_override("font_outline_color", Color("1d1510"))
 	label.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(label)
-	var row := HFlowContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("h_separation", 6)
-	row.add_theme_constant_override("v_separation", 6)
-	vbox.add_child(row)
-	for card_id_var: Variant in card_ids:
-		var card_id: String = str(card_id_var)
-		row.add_child(_build_equipment_card_badge(card_id, ElementData.accent(GameData.card_element(card_id))))
+	var attuned_row := HFlowContainer.new()
+	attuned_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	attuned_row.add_theme_constant_override("h_separation", 6)
+	attuned_row.add_theme_constant_override("v_separation", 6)
+	vbox.add_child(attuned_row)
+	for index: int in range(GameData.magic_loadout_limit()):
+		var card_id: String = str(attuned_card_ids[index]) if index < attuned_card_ids.size() else ""
+		if card_id.is_empty():
+			continue
+		attuned_row.add_child(_build_equipment_card_badge(card_id, ElementData.accent(GameData.card_element(card_id))))
 	return vbox
+
+func _build_magic_card_tile(card_id: String, source_kind: String, index: int, tile_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE) -> Control:
+	if card_id.is_empty():
+		var empty := PanelContainer.new()
+		empty.custom_minimum_size = tile_size
+		empty.add_theme_stylebox_override("panel", _equipment_panel_style(Color("4f453b"), false))
+		return empty
+	var card: Dictionary = GameData.card_def(card_id)
+	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	var tile := MagicCardTile.new()
+	tile.card_id = card_id
+	tile.host = self
+	tile.source_kind = source_kind
+	tile.magic_index = index
+	tile.custom_minimum_size = tile_size
+	if tile_size.x > EQUIPMENT_DECK_BADGE_SIZE.x:
+		tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _magic_overlay_can_change() else Control.CURSOR_ARROW
+	tile.tooltip_text = "card:%s" % card_id
+	tile.clip_contents = true
+	var is_drag_source: bool = _magic_drag_source_kind == source_kind and _magic_drag_index == index
+	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_source))
+	if is_drag_source:
+		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
+	if source_kind == "attuned":
+		_magic_attuned_tiles[index] = tile
+	elif source_kind == "inventory":
+		_magic_inventory_tiles[index] = tile
+	tile.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
+	return tile
 
 func _build_equipment_card_badge(card_id: String, accent: Color) -> Control:
 	var card: Dictionary = GameData.card_def(card_id)
@@ -7168,29 +7491,107 @@ func _build_equipment_card_badge(card_id: String, accent: Color) -> Control:
 	badge.host = self
 	badge.custom_minimum_size = EQUIPMENT_DECK_BADGE_SIZE
 	badge.tooltip_text = "card:%s" % card_id
+	badge.clip_contents = true
 	badge.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
-	var label := Label.new()
-	label.text = str(card.get("name", card_id))
-	label.clip_text = true
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("fff0ce"))
-	label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	label.add_theme_constant_override("outline_size", 1)
-	badge.add_child(label)
+	badge.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
 	return badge
 
-func _build_equipment_icon_chip(equipment_id: String, chip_size: Vector2) -> Control:
+func _build_card_art_badge_content(card: Dictionary, accent: Color, label_text: String) -> Control:
+	var margin := MarginContainer.new()
+	margin.name = "CardArtBadgeContent"
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_left", 3)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_right", 3)
+	margin.add_theme_constant_override("margin_bottom", 3)
+
+	var stack := Control.new()
+	stack.name = "CardArtBadgeStack"
+	stack.clip_contents = true
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(stack)
+
+	var element_id: String = GameData.card_element_from_def(card)
+	var art_texture: Texture2D = AssetLoader.load_texture(str(card.get("art_path", "")))
+	var backing := CardArtBadgeBacking.new()
+	backing.name = "CardBadgeBacking"
+	backing.base_color = ElementData.card_art_background(element_id)
+	backing.accent = accent
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backing.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stack.add_child(backing)
+
+	var underpaint := TextureRect.new()
+	underpaint.name = "CardBadgeArtFill"
+	underpaint.texture = art_texture
+	underpaint.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	underpaint.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	underpaint.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	underpaint.modulate = Color(1.0, 1.0, 1.0, 0.22)
+	underpaint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	underpaint.set_anchors_preset(Control.PRESET_FULL_RECT)
+	underpaint.offset_left = -48.0
+	underpaint.offset_top = -14.0
+	underpaint.offset_right = 48.0
+	underpaint.offset_bottom = 14.0
+	stack.add_child(underpaint)
+
+	var art := TextureRect.new()
+	art.name = "CardBadgeArt"
+	art.texture = art_texture
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.modulate = Color.WHITE
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stack.add_child(art)
+
+	var wash := CardArtBadgeWash.new()
+	wash.name = "CardBadgeWash"
+	wash.accent = accent
+	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stack.add_child(wash)
+
+	var label := Label.new()
+	label.name = "CardBadgeName"
+	label.text = label_text
+	label.clip_text = true
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("fff6d8"))
+	label.add_theme_color_override("font_outline_color", Color("100a07"))
+	label.add_theme_constant_override("outline_size", 2)
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 6.0
+	label.offset_right = -6.0
+	stack.add_child(label)
+	return margin
+
+func _build_equipment_icon_chip(equipment_id: String, chip_size: Vector2, owns_tooltip: bool = true) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var chip := EquipmentTooltipPanelContainer.new()
+	var chip: PanelContainer
+	if owns_tooltip:
+		var tooltip_chip := EquipmentTooltipPanelContainer.new()
+		tooltip_chip.equipment_id = equipment_id
+		tooltip_chip.host = self
+		tooltip_chip.tooltip_text = "equipment:%s" % equipment_id
+		chip = tooltip_chip
+	else:
+		chip = PanelContainer.new()
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	chip.name = "EquipmentIconChip"
-	chip.equipment_id = equipment_id
-	chip.host = self
 	chip.custom_minimum_size = chip_size
-	chip.tooltip_text = "equipment:%s" % equipment_id
+	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.add_theme_stylebox_override("panel", _equipment_icon_style(Color(GameData.equipment_accent(equipment_id))))
 	var icon := TextureRect.new()
 	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
@@ -7449,6 +7850,260 @@ func _pulse_equipment_slot(slot: String) -> void:
 	tween.tween_property(panel, "scale", Vector2(1.035, 1.035), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(panel, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
+func _begin_magic_overlay_drag(source_kind: String, index: int, card_id: String, source_rect: Rect2, source_control: Control = null, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	if card_id.is_empty() or not _magic_overlay_can_change():
+		return
+	if not (source_kind in ["attuned", "inventory"]):
+		return
+	if not _magic_drag_card_id.is_empty():
+		_clear_magic_drag_state(true)
+	_magic_drag_source_kind = source_kind
+	_magic_drag_index = index
+	_magic_drag_card_id = card_id
+	_magic_drag_source_rect = source_rect
+	_magic_drag_source_control = source_control
+	_magic_drag_last_mouse_position = mouse_position
+	if _node_is_alive(_magic_drag_source_control):
+		_magic_drag_source_control.modulate = Color(1.0, 1.0, 1.0, 0.34)
+	_spawn_magic_held_proxy(card_id, mouse_position)
+	_apply_magic_drag_highlights()
+
+func _spawn_magic_held_proxy(card_id: String, mouse_position: Vector2) -> void:
+	if _equipment_fx_layer == null:
+		return
+	if _node_is_alive(_magic_held_proxy):
+		_queue_free_node_now(_magic_held_proxy)
+	var proxy_size: Vector2 = _magic_drag_source_rect.size if _magic_drag_source_rect.size.x > 0.0 and _magic_drag_source_rect.size.y > 0.0 else EQUIPMENT_DECK_BADGE_SIZE
+	_magic_held_proxy = _build_magic_card_proxy_panel(card_id, proxy_size)
+	_magic_held_proxy.name = "MagicHeldProxy"
+	_magic_held_proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_magic_held_proxy.size = proxy_size
+	_magic_held_proxy.pivot_offset = proxy_size * 0.5
+	_magic_held_proxy.modulate = Color(1.0, 1.0, 1.0, 0.84)
+	_magic_held_proxy.z_index = 22
+	_equipment_fx_layer.add_child(_magic_held_proxy)
+	_update_magic_overlay_drag(mouse_position)
+
+func _build_magic_card_proxy_panel(card_id: String, proxy_size: Vector2) -> PanelContainer:
+	var card: Dictionary = GameData.card_def(card_id)
+	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = proxy_size
+	panel.size = proxy_size
+	panel.clip_contents = true
+	panel.add_theme_stylebox_override("panel", _equipment_drag_ghost_style(accent))
+	panel.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
+	return panel
+
+func _update_magic_overlay_drag(mouse_position: Vector2) -> void:
+	if _magic_drag_card_id.is_empty() or not _node_is_alive(_magic_held_proxy):
+		return
+	var local_mouse: Vector2 = mouse_position
+	if local_mouse.x < 0.0 or local_mouse.y < 0.0:
+		local_mouse = _current_mouse_position()
+	_magic_drag_last_mouse_position = local_mouse
+	_magic_held_proxy.position = local_mouse + MAGIC_DRAG_CURSOR_OFFSET - _magic_held_proxy.size * 0.5 - _equipment_fx_layer.global_position
+
+func _release_magic_overlay_drag(mouse_position: Vector2) -> void:
+	if _magic_drag_card_id.is_empty() or _magic_drag_release_in_progress:
+		return
+	_magic_drag_release_in_progress = true
+	_update_magic_overlay_drag(mouse_position)
+	var target: Dictionary = _magic_drop_target_for_release(mouse_position)
+	if not target.is_empty() and _magic_drag_can_swap_with(target):
+		var inventory_index: int = int(target.get("index", -1)) if str(target.get("source_kind", "")) == "inventory" else _magic_drag_index
+		var attuned_index: int = int(target.get("index", -1)) if str(target.get("source_kind", "")) == "attuned" else _magic_drag_index
+		var target_rect: Rect2 = _magic_tile_rect(str(target.get("source_kind", "")), int(target.get("index", -1)))
+		if _node_is_alive(_magic_held_proxy) and target_rect.size.x > 0.0 and target_rect.size.y > 0.0:
+			await _animate_magic_proxy_to_rect(_magic_held_proxy, target_rect, 0.10)
+		await _swap_magic_from_overlay(inventory_index, attuned_index)
+		return
+	await _cancel_magic_overlay_drag(true)
+
+func _cancel_magic_overlay_drag(animate: bool = true) -> void:
+	if _magic_drag_card_id.is_empty():
+		return
+	var proxy: Control = _magic_held_proxy
+	if animate and _node_is_alive(proxy) and _magic_drag_source_rect.size.x > 0.0 and _magic_drag_source_rect.size.y > 0.0:
+		await _animate_magic_proxy_to_rect(proxy, _magic_drag_source_rect, 0.12)
+	_clear_magic_drag_state(true)
+
+func _clear_magic_drag_state(restore_source: bool) -> void:
+	_magic_drag_release_in_progress = false
+	if restore_source and _node_is_alive(_magic_drag_source_control):
+		_magic_drag_source_control.modulate = Color.WHITE
+	if _node_is_alive(_magic_held_proxy):
+		_queue_free_node_now(_magic_held_proxy)
+	_magic_held_proxy = null
+	_magic_drag_source_kind = ""
+	_magic_drag_index = -1
+	_magic_drag_card_id = ""
+	_magic_drag_source_rect = Rect2()
+	_magic_drag_source_control = null
+	_magic_drag_last_mouse_position = Vector2(-1.0, -1.0)
+	_apply_magic_drag_highlights()
+
+func _animate_magic_proxy_to_rect(proxy: Control, global_target_rect: Rect2, duration: float) -> void:
+	if proxy == null or global_target_rect.size.x <= 0.0 or global_target_rect.size.y <= 0.0:
+		return
+	var tween: Tween = create_tween().set_parallel(true)
+	_animate_equipment_proxy_to_rect(tween, proxy, global_target_rect, duration)
+	await tween.finished
+
+func _magic_drag_can_swap_with(target: Dictionary) -> bool:
+	var target_kind: String = str(target.get("source_kind", ""))
+	var target_index: int = int(target.get("index", -1))
+	if _magic_drag_source_kind.is_empty() or target_kind.is_empty() or target_index < 0:
+		return false
+	if _magic_drag_source_kind == target_kind:
+		return false
+	return (_magic_drag_source_kind == "inventory" and target_kind == "attuned") or (_magic_drag_source_kind == "attuned" and target_kind == "inventory")
+
+func _magic_tile_at(mouse_position: Vector2) -> Dictionary:
+	for index_var: Variant in _magic_attuned_tiles.keys():
+		var index: int = int(index_var)
+		var tile: Control = _magic_tile_control("attuned", index)
+		if tile != null and tile.get_global_rect().has_point(mouse_position):
+			return {"source_kind": "attuned", "index": index}
+	for index_var: Variant in _magic_inventory_tiles.keys():
+		var index: int = int(index_var)
+		var tile: Control = _magic_tile_control("inventory", index)
+		if tile != null and tile.get_global_rect().has_point(mouse_position):
+			return {"source_kind": "inventory", "index": index}
+	return {}
+
+func _magic_drop_target_for_release(mouse_position: Vector2) -> Dictionary:
+	var target: Dictionary = _magic_tile_at(mouse_position)
+	if not target.is_empty():
+		return target
+	if _magic_drag_last_mouse_position.x >= 0.0 and _magic_drag_last_mouse_position.y >= 0.0:
+		target = _magic_tile_at(_magic_drag_last_mouse_position)
+		if not target.is_empty():
+			return target
+	if not _node_is_alive(_magic_held_proxy):
+		return {}
+	var proxy_rect: Rect2 = _magic_held_proxy.get_global_rect()
+	var best_target: Dictionary = {}
+	var best_overlap: float = 0.0
+	for source_kind: String in ["attuned", "inventory"]:
+		var tiles: Dictionary = _magic_attuned_tiles if source_kind == "attuned" else _magic_inventory_tiles
+		for index_var: Variant in tiles.keys():
+			var index: int = int(index_var)
+			var candidate: Dictionary = {"source_kind": source_kind, "index": index}
+			if not _magic_drag_can_swap_with(candidate):
+				continue
+			var tile: Control = _magic_tile_control(source_kind, index)
+			if tile == null:
+				continue
+			var overlap: float = _rect_overlap_area(proxy_rect, tile.get_global_rect())
+			if overlap > best_overlap:
+				best_overlap = overlap
+				best_target = candidate
+	if not best_target.is_empty():
+		return best_target
+	return _magic_panel_fallback_target(mouse_position, proxy_rect)
+
+func _magic_panel_fallback_target(mouse_position: Vector2, proxy_rect: Rect2) -> Dictionary:
+	var target_kind: String = "attuned" if _magic_drag_source_kind == "inventory" else "inventory"
+	var panel: Control = _magic_attuned_drop_panel if target_kind == "attuned" else _magic_inventory_drop_panel
+	if panel == null or not is_instance_valid(panel):
+		return {}
+	var panel_rect: Rect2 = panel.get_global_rect()
+	var overlaps_panel: bool = panel_rect.has_point(mouse_position) or _rect_overlap_area(proxy_rect, panel_rect) > 0.0
+	if not overlaps_panel:
+		return {}
+	return _nearest_magic_tile_target(target_kind, proxy_rect.get_center())
+
+func _nearest_magic_tile_target(source_kind: String, point: Vector2) -> Dictionary:
+	var tiles: Dictionary = _magic_attuned_tiles if source_kind == "attuned" else _magic_inventory_tiles
+	var best_target: Dictionary = {}
+	var best_distance: float = 1.0e20
+	for index_var: Variant in tiles.keys():
+		var index: int = int(index_var)
+		var candidate: Dictionary = {"source_kind": source_kind, "index": index}
+		if not _magic_drag_can_swap_with(candidate):
+			continue
+		var tile: Control = _magic_tile_control(source_kind, index)
+		if tile == null:
+			continue
+		var distance: float = point.distance_squared_to(tile.get_global_rect().get_center())
+		if distance < best_distance:
+			best_distance = distance
+			best_target = candidate
+	return best_target
+
+func _rect_overlap_area(a: Rect2, b: Rect2) -> float:
+	var left: float = maxf(a.position.x, b.position.x)
+	var top: float = maxf(a.position.y, b.position.y)
+	var right: float = minf(a.position.x + a.size.x, b.position.x + b.size.x)
+	var bottom: float = minf(a.position.y + a.size.y, b.position.y + b.size.y)
+	if right <= left or bottom <= top:
+		return 0.0
+	return (right - left) * (bottom - top)
+
+func _magic_tile_rect(source_kind: String, index: int) -> Rect2:
+	var tile: Control = _magic_tile_control(source_kind, index)
+	return tile.get_global_rect() if tile != null else Rect2()
+
+func _magic_tile_control(source_kind: String, index: int) -> Control:
+	var tile_var: Variant = null
+	if source_kind == "attuned":
+		tile_var = _magic_attuned_tiles.get(index, null)
+	else:
+		tile_var = _magic_inventory_tiles.get(index, null)
+	if typeof(tile_var) != TYPE_OBJECT or not is_instance_valid(tile_var) or not (tile_var is Control):
+		return null
+	return tile_var as Control
+
+func _apply_magic_drag_highlights() -> void:
+	for source_kind: String in ["attuned", "inventory"]:
+		var tiles: Dictionary = _magic_attuned_tiles if source_kind == "attuned" else _magic_inventory_tiles
+		for index_var: Variant in tiles.keys():
+			var index: int = int(index_var)
+			var tile: Control = _magic_tile_control(source_kind, index)
+			if tile == null:
+				continue
+			var card_id: String = str(tile.get("card_id"))
+			var accent: Color = ElementData.accent(GameData.card_element(card_id))
+			var can_receive: bool = not _magic_drag_card_id.is_empty() and _magic_drag_source_kind != source_kind
+			tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, can_receive))
+			if _magic_drag_source_kind == source_kind and _magic_drag_index == index:
+				tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
+			else:
+				tile.modulate = Color.WHITE if can_receive or _magic_drag_card_id.is_empty() else Color(0.72, 0.72, 0.72, 1.0)
+
+func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
+	if not _magic_overlay_can_change():
+		_clear_magic_drag_state(true)
+		return
+	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
+	if inventory_index < 0 or inventory_index >= reserve.size():
+		_clear_magic_drag_state(true)
+		return
+	var incoming_card_id: String = str(reserve[inventory_index])
+	_run_state = _run_engine.swap_magic_card(_run_state, inventory_index, attuned_index)
+	var attuned: Array = _run_state.get("attuned_magic_cards", []) as Array
+	if attuned_index < 0 or attuned_index >= attuned.size() or str(attuned[attuned_index]) != incoming_card_id:
+		_clear_magic_drag_state(true)
+		return
+	ProgressionStore.save_run_state(_committed_run_state())
+	_analytics_log_magic_attuned(inventory_index, attuned_index, incoming_card_id)
+	_clear_magic_drag_state(false)
+	_refresh_ui()
+	_progression_overlay_mode = "magic"
+	_rebuild_progression_overlay()
+	await get_tree().process_frame
+	_pulse_magic_tile("attuned", attuned_index)
+
+func _pulse_magic_tile(source_kind: String, index: int) -> void:
+	var tile: Control = _magic_tile_control(source_kind, index)
+	if tile == null:
+		return
+	tile.pivot_offset = tile.size * 0.5
+	var tween: Tween = create_tween()
+	tween.tween_property(tile, "scale", Vector2(1.05, 1.05), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(tile, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
 func _build_card_tooltip_panel(card_id: String) -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = CARD_TOOLTIP_SIZE + Vector2(18.0, 18.0)
@@ -7544,6 +8199,12 @@ func _equipment_inventory_ids() -> Array:
 
 func _equipment_overlay_can_change() -> bool:
 	return _run_engine.can_change_equipment(_run_state)
+
+func _magic_overlay_can_change() -> bool:
+	return _progression_overlay_mode == "magic" and _run_engine.can_change_magic(_run_state)
+
+func _magic_overlay_drag_active() -> bool:
+	return not _magic_drag_card_id.is_empty()
 
 func _can_drop_equipment_data(slot: String, data: Variant) -> bool:
 	if not _equipment_overlay_can_change() or typeof(data) != TYPE_DICTIONARY:
@@ -8412,6 +9073,8 @@ func _analytics_log_run_started() -> void:
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
 		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
+		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
+		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
 		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
 		"collected_equipment": (_run_state.get("collected_equipment", []) as Array).duplicate(true),
@@ -8480,6 +9143,17 @@ func _analytics_log_equipment_equipped(slot: String, previous_equipment_id: Stri
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
 	})
 
+func _analytics_log_magic_attuned(inventory_index: int, attuned_index: int, card_id: String) -> void:
+	_analytics_store.write_event("magic_attuned", _analytics_context_from_states(_run_state, _combat_state, card_id), {
+		"inventory_index": inventory_index,
+		"attuned_index": attuned_index,
+		"card_id": card_id,
+		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
+		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
+		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
+		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
+	})
+
 func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: String, transition_combat_state: Dictionary = {}) -> void:
 	var previous_mode: String = str(previous_run_state.get("mode", "room"))
 	var next_mode: String = str(_run_state.get("mode", "room"))
@@ -8515,6 +9189,8 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
+		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
+		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
 		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
 		"equipment_drops": _analytics_equipment_loot_ids(_combat_state),

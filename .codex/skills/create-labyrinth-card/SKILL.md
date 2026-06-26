@@ -29,7 +29,8 @@ description: Create, implement, rebalance, or review cards for Labyrinth of Ash.
    godot --headless --path . --script tests/run_tests.gd
    ```
 7. Always create a `CardWidget` preview image for new or visually changed cards, including card art, icon, name, frame, rarity, or summary-row changes. Render the widget at an actual game card size: use the scene default `250 x 352` for standalone proof sheets, or the relevant live size from `RunScene._hand_card_size`, pile, reward, or upgrade surfaces when validating a specific UI context. Do not enlarge the `CardWidget` to make a prettier proof; if a larger preview is needed, render at the true card size first and scale the final bitmap uniformly.
-8. When showing visual proof screenshots, always save them with a fresh timestamped or versioned filename. Do not overwrite and relink a previously shown screenshot path, because Codex image previews may cache stale bitmap content.
+8. For new or visually changed card art, also verify the character-menu badge read. The Gear/Magic deck badges and Magic loadout tiles automatically use the card's `art_path` as a cropped horizontal background with a dark wash; do not create separate badge assets. Confirm the card still has a recognizable central cue and readable name in at least the compact deck badge or a full badge contact sheet.
+9. When showing visual proof screenshots, always save them with a fresh timestamped or versioned filename. Do not overwrite and relink a previously shown screenshot path, because Codex image previews may cache stale bitmap content.
 
 ## Data Rules
 
@@ -57,5 +58,6 @@ When finishing card work, explicitly report:
 - Any deliberate curve deviation.
 - The generated or edited art path.
 - The fresh `CardWidget` preview image path and the card size/context used to render it.
+- The fresh character-menu badge preview path when card art was added or changed.
 - Tests and heuristic commands run.
 - Any analytics, heuristic, or spec updates required by changed mechanics.

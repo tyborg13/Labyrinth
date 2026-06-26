@@ -40,12 +40,15 @@ available:
 - `enemy_status_tick`
 - `progression_level_up`
 - `equipment_equipped`
+- `magic_attuned`
 
 `run_started` includes the compiled starting deck plus the equipment model used
 to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and
 `collected_equipment`. It also includes recovery marker fields when a previous
 death dropped embers for the new run: `recovery_marker_active`,
 `recovery_marker_amount`, and `recovery_marker_coord`.
+It also includes the active magic loadout fields `attuned_magic_cards` and
+`magic_inventory`; `reward_cards` remains the collected reward-card history.
 
 ## Card Metrics Supported
 
@@ -53,8 +56,9 @@ The current event stream is enough to derive:
 
 - pick rate via `reward_offered` + `reward_choice`
 - combats-in-deck via `combat_started.payload.deck_cards`
-- equipment build context via `combat_started.payload.equipped_equipment`,
-  `reward_cards`, `equipment_inventory`, and `equipment_drops`
+- equipment and magic build context via `combat_started.payload.equipped_equipment`,
+  `reward_cards`, `attuned_magic_cards`, `magic_inventory`,
+  `equipment_inventory`, and `equipment_drops`
 - elemental intensity at combat start via `combat_started.payload.elemental_intensity`
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
@@ -106,6 +110,11 @@ equipment ids picked up during that combat.
 outside combat. Its payload records `slot`, `previous_equipment_id`,
 `equipment_id`, the full `equipped_equipment` map, current
 `equipment_inventory`, and rebuilt `deck_cards`.
+
+`magic_attuned` fires when the character overlay swaps a reserve magic card into
+one of the six attuned slots outside combat. Its payload records the reserve and
+attuned indices, the attuned `card_id`, full `attuned_magic_cards`,
+`magic_inventory`, `reward_cards`, and rebuilt `deck_cards`.
 
 Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory

@@ -23,6 +23,13 @@ Action and element icons are `64 x 64` PNG RGBA in `assets/art/icons`. Card fram
 
 CardWidget loads `art_path` into a `TextureRect` with `STRETCH_KEEP_ASPECT_COVERED`, clips the art frame, and dynamically sizes the art band between roughly 68 and 118 px tall depending on card size. At normal card size the rendered art slot is wider than `256 x 144`, so Godot crops a little vertical content. Keep focal subjects inset from the top and bottom, and do not rely on full-bleed edge detail.
 
+The character menu reuses the same `art_path` for compact card identity badges:
+
+- Gear/Magic deck badges and Magic loadout tiles do not have separate art files.
+- `RunScene` fills the badge with a muted card-art-background gradient, adds a dim overscanned copy of the same art behind the sharp crop, overlays blended shadow/tint ramps, then renders the card name on top. Do not add separate hard left/bottom accent strips or visible horizontal bands; the badge border carries the explicit accent color.
+- Keep a recognizable silhouette, motion streak, elemental cue, or material texture in the central horizontal band of the card art. A good practical safe zone is roughly source `y=48..96`; tiny badge crops often show only this middle slice.
+- Avoid placing the only readable subject detail solely at the top, bottom, or far corner of the `256 x 144` art. The full `CardWidget` can still look good while the character-menu badge reads as blank if the center band is empty.
+
 ## Visual Asset Rule
 
 Final card art, action icons, element icons, and other card-facing raster visuals must be produced through the `imagegen` skill using existing Labyrinth assets as style references. Do not ship hand-drawn, code-drawn, SVG, canvas, PIL-generated, or placeholder graphics for these assets unless the user explicitly asks for temporary placeholder art.
@@ -172,4 +179,5 @@ Check:
 - Icon rows communicate the card without relying on long fallback text.
 - Elemental frame and rarity frame are produced by data fields, not painted into art.
 - Actual `CardWidget` screenshots show normal icon scale, unstretched rarity sockets/gems, and art fitting inside the frame with the intended ragged alpha edge visible.
+- Character-menu badge screenshots show the same card art reading as a cropped horizontal background with a contained border, readable name, no art spilling over the border, and no blank/featureless center crop. For broad UI changes, render a full badge contact sheet from `RunScene._build_equipment_card_badge` and `_build_magic_card_tile`.
 - Visual proof screenshots use fresh timestamped or versioned filenames; do not overwrite a previously shown path because Codex may display stale cached images.

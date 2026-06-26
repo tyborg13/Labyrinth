@@ -40,6 +40,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	var start_layout: Dictionary = _display_layout_for_room(seed, start_room, Vector2i.ZERO)
 	var equipped_equipment: Dictionary = GameData.starting_equipped_equipment()
 	var reward_cards: Array = []
+	var attuned_magic_cards: Array = GameData.starting_magic_cards()
+	var magic_inventory: Array = []
 	var run_state: Dictionary = {
 		"seed": seed,
 		"run_index": int(progression.get("run_counter", 0)),
@@ -47,8 +49,10 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"current_room": Vector2i.ZERO,
 		"current_room_layout": start_layout,
 		"rooms": rooms,
-		"deck_cards": GameData.compile_deck_cards(equipped_equipment, reward_cards),
+		"deck_cards": GameData.compile_deck_cards(equipped_equipment, attuned_magic_cards),
 		"reward_cards": reward_cards,
+		"attuned_magic_cards": attuned_magic_cards,
+		"magic_inventory": magic_inventory,
 		"equipment_inventory": [],
 		"equipped_equipment": equipped_equipment,
 		"collected_equipment": GameData.starter_equipment_ids(),
@@ -76,7 +80,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 	var max_hp: int = 420
 	var current_hp: int = 340
-	var deck_cards: Array[String] = []
+	var deck_cards: Array = []
 	for card_id: String in [
 		"quick_stab",
 		"guarded_step",
@@ -103,6 +107,10 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		relics.append(relic_id)
 	var debug_equipped: Dictionary = GameData.starting_equipped_equipment()
 	var debug_reward_cards: Array = _migrated_reward_cards_from_deck(deck_cards, debug_equipped)
+	var debug_magic_state: Dictionary = _magic_loadout_from_collected_rewards(debug_reward_cards)
+	var debug_attuned_magic: Array = debug_magic_state.get("attuned_magic_cards", []) as Array
+	var debug_magic_inventory: Array = debug_magic_state.get("magic_inventory", []) as Array
+	deck_cards = GameData.compile_deck_cards(debug_equipped, debug_attuned_magic)
 	var boss_room: Dictionary = _build_room_metadata(DEBUG_BOSS_SEED, DEBUG_BOSS_COORD)
 	boss_room["revealed"] = true
 	boss_room["visited"] = true
@@ -133,6 +141,8 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"rooms": rooms,
 		"deck_cards": deck_cards,
 		"reward_cards": debug_reward_cards,
+		"attuned_magic_cards": debug_attuned_magic,
+		"magic_inventory": debug_magic_inventory,
 		"equipment_inventory": [],
 		"equipped_equipment": debug_equipped,
 		"collected_equipment": GameData.starter_equipment_ids(),
@@ -352,13 +362,20 @@ func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
 		var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
 		reward_cards.append(card_id)
 		next_state["reward_cards"] = reward_cards
+		var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
+		magic_inventory.append(card_id)
+		next_state["magic_inventory"] = magic_inventory
 		next_state = _rebuild_deck_cards(next_state)
+		next_state["notice"] = "Added %s to reserve magic." % str(GameData.card_def(card_id).get("name", card_id))
 	next_state["pending_reward"] = {}
 	next_state["mode"] = "room"
 	return next_state
 
 func can_change_equipment(run_state: Dictionary) -> bool:
 	return str(run_state.get("mode", "room")) in ["room", "campfire"]
+
+func can_change_magic(run_state: Dictionary) -> bool:
+	return can_change_equipment(run_state)
 
 func equip_equipment(run_state: Dictionary, equipment_id: String) -> Dictionary:
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
@@ -380,6 +397,28 @@ func equip_equipment(run_state: Dictionary, equipment_id: String) -> Dictionary:
 	next_state["equipped_equipment"] = equipped
 	next_state = _rebuild_deck_cards(next_state)
 	next_state["notice"] = "Equipped %s." % str(GameData.equipment_def(equipment_id).get("name", equipment_id))
+	return next_state
+
+func swap_magic_card(run_state: Dictionary, inventory_index: int, attuned_index: int) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if not can_change_magic(next_state):
+		return next_state
+	var inventory: Array = next_state.get("magic_inventory", []).duplicate()
+	var attuned: Array = next_state.get("attuned_magic_cards", []).duplicate()
+	if inventory_index < 0 or inventory_index >= inventory.size():
+		return next_state
+	if attuned_index < 0 or attuned_index >= attuned.size():
+		return next_state
+	var incoming_card_id: String = str(inventory[inventory_index])
+	var outgoing_card_id: String = str(attuned[attuned_index])
+	if incoming_card_id.is_empty() or outgoing_card_id.is_empty():
+		return next_state
+	inventory[inventory_index] = outgoing_card_id
+	attuned[attuned_index] = incoming_card_id
+	next_state["magic_inventory"] = inventory
+	next_state["attuned_magic_cards"] = attuned
+	next_state = _rebuild_deck_cards(next_state)
+	next_state["notice"] = "Attuned %s." % str(GameData.card_def(incoming_card_id).get("name", incoming_card_id))
 	return next_state
 
 func skip_reward_for_heal(run_state: Dictionary) -> Dictionary:
@@ -502,7 +541,67 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 		next_state["collected_equipment"] = collected
 	if not next_state.has("reward_cards"):
 		next_state["reward_cards"] = _migrated_reward_cards_from_deck(next_state.get("deck_cards", []), equipped)
+	next_state = _repair_magic_state(next_state)
 	return _rebuild_deck_cards(next_state)
+
+func _repair_magic_state(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var reward_cards: Array = _string_array(next_state.get("reward_cards", []))
+	next_state["reward_cards"] = reward_cards
+	if not next_state.has("attuned_magic_cards") and not next_state.has("magic_inventory"):
+		var migrated_magic: Dictionary = _magic_loadout_from_collected_rewards(reward_cards)
+		next_state["attuned_magic_cards"] = migrated_magic.get("attuned_magic_cards", [])
+		next_state["magic_inventory"] = migrated_magic.get("magic_inventory", [])
+		return next_state
+	var attuned: Array = _string_array(next_state.get("attuned_magic_cards", []))
+	var inventory: Array = _string_array(next_state.get("magic_inventory", []))
+	var limit: int = GameData.magic_loadout_limit()
+	if attuned.size() > limit:
+		for index: int in range(limit, attuned.size()):
+			inventory.append(str(attuned[index]))
+		while attuned.size() > limit:
+			attuned.pop_back()
+	attuned = _filled_attuned_magic(attuned)
+	next_state["attuned_magic_cards"] = attuned
+	next_state["magic_inventory"] = inventory
+	return next_state
+
+func _magic_loadout_from_collected_rewards(reward_cards: Array) -> Dictionary:
+	var attuned: Array = []
+	var inventory: Array = []
+	var limit: int = GameData.magic_loadout_limit()
+	for card_id_var: Variant in reward_cards:
+		var card_id: String = str(card_id_var)
+		if card_id.is_empty():
+			continue
+		if attuned.size() < limit:
+			attuned.append(card_id)
+		else:
+			inventory.append(card_id)
+	attuned = _filled_attuned_magic(attuned)
+	return {
+		"attuned_magic_cards": attuned,
+		"magic_inventory": inventory
+	}
+
+func _filled_attuned_magic(attuned_cards: Array) -> Array:
+	var result: Array = _string_array(attuned_cards)
+	var defaults: Array = GameData.starting_magic_cards()
+	var default_index: int = 0
+	while result.size() < GameData.magic_loadout_limit() and not defaults.is_empty():
+		result.append(str(defaults[default_index % defaults.size()]))
+		default_index += 1
+	return result
+
+func _string_array(values: Variant) -> Array:
+	var result: Array = []
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value_var: Variant in values:
+		var value: String = str(value_var)
+		if not value.is_empty():
+			result.append(value)
+	return result
 
 func _migrated_reward_cards_from_deck(deck_cards: Array, equipped: Dictionary) -> Array:
 	var equipment_counts: Dictionary = {}
@@ -522,7 +621,7 @@ func _rebuild_deck_cards(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	next_state["deck_cards"] = GameData.compile_deck_cards(
 		next_state.get("equipped_equipment", {}) as Dictionary,
-		next_state.get("reward_cards", []) as Array
+		next_state.get("attuned_magic_cards", []) as Array
 	)
 	return next_state
 

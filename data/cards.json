@@ -60,6 +60,51 @@
       { "type": "ranged", "damage": 5, "range": 4 }
     ]
   },
+  "pale_spark": {
+    "name": "Pale Spark",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "starter": true,
+    "description": "Deal 3 at range 5.",
+    "accent": "#b8ad9a",
+    "art_path": "res://assets/art/cards/pale_spark.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 3, "range": 5 }
+    ]
+  },
+  "dull_bolt": {
+    "name": "Dull Bolt",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "starter": true,
+    "description": "Deal 4 at range 5.",
+    "accent": "#a99f8d",
+    "art_path": "res://assets/art/cards/dull_bolt.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "ranged", "damage": 4, "range": 5 }
+    ]
+  },
+  "waning_pulse": {
+    "name": "Waning Pulse",
+    "rarity": "starter",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "starter": true,
+    "description": "Pulse for 4 on adjacent tiles.",
+    "accent": "#9c9385",
+    "art_path": "res://assets/art/cards/waning_pulse.png",
+    "reward_pool": false,
+    "actions": [
+      { "type": "aoe", "damage": 4, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+    ]
+  },
   "sidestep_slash": {
     "name": "Sidestep Slash",
     "rarity": "starter",
