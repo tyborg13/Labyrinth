@@ -5873,11 +5873,11 @@ func _play_sfx(entry: Dictionary) -> void:
 	var path: String = str(entry.get("path", ""))
 	if path.is_empty():
 		return
-	var resource: Resource = load(path)
-	if not (resource is AudioStream):
+	var resource: AudioStream = AssetLoader.load_audio_stream(path)
+	if resource == null:
 		return
 	var player := AudioStreamPlayer.new()
-	player.stream = resource as AudioStream
+	player.stream = resource
 	player.volume_db = float(entry.get("volume_db", 0.0))
 	add_child(player)
 	player.play()
@@ -5905,11 +5905,11 @@ func _play_music(entry: Dictionary) -> void:
 		_fade_out_music()
 		return
 	var path: String = str(entry.get("path", ""))
-	var resource: Resource = load(path)
-	if not (resource is AudioStream):
+	var resource: AudioStream = AssetLoader.load_audio_stream(path)
+	if resource == null:
 		_fade_out_music()
 		return
-	_music_player.stream = resource as AudioStream
+	_music_player.stream = resource
 	_active_music_id = track_id
 	_stop_music_tween()
 	_music_player.volume_db = MUSIC_SILENCE_DB

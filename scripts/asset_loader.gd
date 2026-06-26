@@ -3,6 +3,7 @@ class_name AssetLoader
 
 const TEXTURE_EXTENSIONS: PackedStringArray = ["svg", "png", "webp", "jpg"]
 const PNG_FIRST_TEXTURE_EXTENSIONS: PackedStringArray = ["png", "svg", "webp", "jpg"]
+const AUDIO_EXTENSIONS: PackedStringArray = ["wav"]
 const DEFAULT_ALPHA_POLYGON_THRESHOLD: float = 0.08
 const DEFAULT_ALPHA_POLYGON_SIMPLIFY_EPSILON: float = 3.0
 const DEFAULT_ALPHA_POLYGON_MIN_AREA: float = 8.0
@@ -17,6 +18,7 @@ static var _castle_control_texture_cache: Dictionary = {}
 static var _flipped_texture_cache: Dictionary = {}
 static var _outline_clean_texture_cache: Dictionary = {}
 static var _scaled_texture_cache: Dictionary = {}
+static var _audio_cache: Dictionary = {}
 static var _texture_cache: Dictionary = {}
 
 static func load_texture(path: String) -> Texture2D:
@@ -24,20 +26,61 @@ static func load_texture(path: String) -> Texture2D:
 		return null
 	if _texture_cache.has(path):
 		return _texture_cache.get(path, null)
+	if _should_prefer_source_file(path, TEXTURE_EXTENSIONS):
+		var source_texture: Texture2D = _load_texture_from_file(path)
+		if source_texture != null:
+			_texture_cache[path] = source_texture
+			return source_texture
 	if ResourceLoader.exists(path):
 		var loaded: Resource = load(path)
 		if loaded is Texture2D:
+			_texture_cache[path] = loaded
 			return loaded
+	var texture: Texture2D = _load_texture_from_file(path)
+	_texture_cache[path] = texture
+	return texture
+
+static func load_audio_stream(path: String) -> AudioStream:
+	if path.is_empty():
+		return null
+	if _audio_cache.has(path):
+		return _audio_cache.get(path, null)
+	if _should_prefer_source_file(path, AUDIO_EXTENSIONS):
+		var source_stream: AudioStream = _load_audio_stream_from_file(path)
+		if source_stream != null:
+			_audio_cache[path] = source_stream
+			return source_stream
+	if ResourceLoader.exists(path):
+		var loaded: Resource = load(path)
+		if loaded is AudioStream:
+			_audio_cache[path] = loaded
+			return loaded
+	var stream: AudioStream = _load_audio_stream_from_file(path)
+	_audio_cache[path] = stream
+	return stream
+
+static func _load_texture_from_file(path: String) -> Texture2D:
 	if not FileAccess.file_exists(path):
-		_texture_cache[path] = null
 		return null
 	var image: Image = Image.load_from_file(path)
 	if image == null or image.is_empty():
-		_texture_cache[path] = null
 		return null
-	var texture: Texture2D = ImageTexture.create_from_image(image)
-	_texture_cache[path] = texture
-	return texture
+	return ImageTexture.create_from_image(image)
+
+static func _load_audio_stream_from_file(path: String) -> AudioStream:
+	if not FileAccess.file_exists(path):
+		return null
+	match path.get_extension().to_lower():
+		"wav":
+			return AudioStreamWAV.load_from_file(path)
+	return null
+
+static func _should_prefer_source_file(path: String, extensions: PackedStringArray) -> bool:
+	if not OS.has_feature("editor"):
+		return false
+	if not extensions.has(path.get_extension().to_lower()):
+		return false
+	return not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path("res://.godot/imported"))
 
 static func load_texture_region(path: String, region: Rect2i) -> Texture2D:
 	var texture: Texture2D = load_texture(path)
