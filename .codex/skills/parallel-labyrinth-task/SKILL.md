@@ -12,7 +12,8 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - Start each fresh substantive task from the tip of `master` in its own worktree/branch.
 - Work only inside that task worktree after it exists.
 - Keep Godot runtime state parallel-safe by setting `LABYRINTH_TASK_ID` or using `tools/visual_probe_runner.py`.
-- Commit finished work, then stop for user inspection.
+- Commit finished work, get explicit signoff from a peer-review sub-agent, then stop for user inspection.
+- Do not present work as ready for user inspection until peer review has signed off; if review cannot be obtained, report a blocker instead of a done handoff.
 - Do not push or clean up until the user explicitly approves that committed task branch.
 - After approval, push the task branch and remove the task worktree.
 
@@ -92,7 +93,44 @@ When implementation and verification are complete:
 python3 tools/parallel_task.py commit -m "<concise task summary>"
 ```
 
-Then report the commit hash, branch, worktree path, tests/probes run, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree and create follow-up commits.
+4. Run the peer review gate below.
+
+After reviewer signoff, report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, and repeat peer review before handing it back again.
+
+## Peer Review Gate
+
+Every completed task branch needs a reviewer sub-agent before user handoff. The reviewer must be a separate agent from the one that implemented the change. Spawn the reviewer after the acting agent believes the work is complete and the task branch has a stable commit or follow-up commit to review.
+
+Reviewer handoff must include:
+
+- The user's original task request and any later clarifications.
+- The task branch, worktree path, base commit/ref, and current head commit.
+- The intended behavior change and changed files.
+- The verification evidence: tests, visual probes, screenshots/artifacts, command outputs, and any explanation needed to connect proof to the requirement.
+- Known risks, skipped checks, or assumptions.
+
+Use these reviewer instructions, verbatim or equivalently:
+
+```text
+You are the required peer reviewer for a Labyrinth task branch. Hold a high bar.
+
+Review the change in totality against the user's actual request, not merely against the implementer's summary. You are not here to be agreeable; you are here to protect correctness and completeness before the user sees the work.
+
+Check all of these areas:
+1. Correctness: Does the implementation work, avoid regressions, respect repo patterns, and avoid unsafe or unnecessary changes?
+2. Instruction fidelity: Does it do exactly what the user asked for, including all clarifications and implied workflow constraints?
+3. Proof sufficiency: Are the tests, visual probes, screenshots, command outputs, and explanations enough to convince you the change works and is complete? If proof is too narrow, stale, missing, or disconnected from the requirement, request more proof.
+
+Return one of:
+- SIGNOFF, with a concise explanation of what you reviewed and why the proof is sufficient.
+- REQUEST_CHANGES, with specific findings ordered by severity, including file/line references or exact missing proof where applicable.
+
+Do not sign off if you have unresolved correctness concerns, instruction-fidelity concerns, or proof gaps.
+```
+
+If the reviewer returns `REQUEST_CHANGES`, the acting agent must address the findings in the same task worktree, commit the follow-up, rerun relevant verification, and send the updated branch/proof back to a reviewer. This loop continues until the reviewer returns `SIGNOFF`.
+
+If the acting agent disagrees with a reviewer finding, it may respond with evidence and ask the reviewer to reconsider, but it must not suppress the finding or present the work as ready without reviewer signoff.
 
 ## Approval, Push, Cleanup
 
