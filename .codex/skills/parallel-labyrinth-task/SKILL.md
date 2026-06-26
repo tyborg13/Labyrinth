@@ -18,7 +18,15 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 
 ## Starting A Task
 
-If the Codex app thread is being created for this task, prefer the app's project `worktree` environment starting from the default branch. If you are already inside a shared checkout and need to create the isolated task yourself, run:
+If the Codex app thread is being created for this task, prefer the app's project `worktree` environment starting from the default branch. In that new clean app worktree, adopt the checkout before editing:
+
+```bash
+python3 tools/parallel_task.py adopt --task "<short task description>"
+```
+
+`adopt` fetches `origin master`, fast-forwards the current clean worktree to that tip, renames the branch to `codex/<task-id>` when needed, and writes private task metadata.
+
+If you are already inside a shared checkout and need to create the isolated task yourself, run:
 
 ```bash
 python3 tools/parallel_task.py start --task "<short task description>"

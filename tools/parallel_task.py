@@ -138,6 +138,61 @@ def command_start(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_adopt(args: argparse.Namespace) -> int:
+    root = repo_root(Path(args.repo).resolve())
+    primary = primary_worktree(root)
+    branch = current_branch(root)
+    if root == primary and branch == "master" and not args.allow_primary:
+        raise CommandError("Refusing to adopt the primary master checkout. Create a task worktree first.")
+    status = run_git(root, ["status", "--short"]).stdout.strip()
+    if status:
+        raise CommandError("Refusing to adopt dirty worktree %s. Adopt before editing." % root)
+
+    task_id = slugify(args.task_id or args.task or branch or root.name)
+    target_branch = args.branch or (branch if branch.startswith(BRANCH_PREFIX) else unique_branch(root, task_id))
+    if not target_branch.startswith(BRANCH_PREFIX):
+        raise CommandError("Task branches must use %s*: %s" % (BRANCH_PREFIX, target_branch))
+
+    if args.fetch:
+        run_git(root, ["fetch", "origin", "master"])
+    base_ref = args.base or ("origin/master" if args.fetch else "master")
+    base_commit = run_git(root, ["rev-parse", "--verify", "%s^{commit}" % base_ref]).stdout.strip()
+    head_commit = run_git(root, ["rev-parse", "--verify", "HEAD"]).stdout.strip()
+    payload = {
+        "task_id": task_id,
+        "branch": target_branch,
+        "base_ref": base_ref,
+        "base_commit": base_commit,
+        "worktree_path": str(root),
+        "adopted_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    }
+    if args.dry_run:
+        payload["current_branch"] = branch
+        payload["current_head"] = head_commit
+        payload["would_fast_forward"] = head_commit != base_commit
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    if head_commit != base_commit:
+        run_git(root, ["merge", "--ff-only", base_ref])
+        head_commit = run_git(root, ["rev-parse", "--verify", "HEAD"]).stdout.strip()
+    if head_commit != base_commit:
+        raise CommandError("Could not align %s to %s" % (root, base_ref))
+
+    if branch != target_branch:
+        run_git(root, ["branch", "-m", target_branch])
+        branch = target_branch
+        payload["branch"] = branch
+
+    write_metadata(root, payload)
+    print("Adopted Labyrinth task worktree")
+    print("  branch: %s" % branch)
+    print("  path: %s" % root)
+    print("  base: %s (%s)" % (base_ref, base_commit[:12]))
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def command_status(args: argparse.Namespace) -> int:
     root = repo_root(Path(args.repo).resolve())
     metadata = metadata_for(root)
@@ -208,7 +263,7 @@ def command_push(args: argparse.Namespace) -> int:
 
 def command_cleanup(args: argparse.Namespace) -> int:
     root = repo_root(Path(args.repo).resolve())
-    branch = current_branch(root)
+    branch = require_task_branch(root)
     primary = primary_worktree(root)
     status = run_git(root, ["status", "--short"]).stdout.strip()
     if status and not args.force:
@@ -258,6 +313,17 @@ def build_parser() -> argparse.ArgumentParser:
     start.add_argument("--no-fetch", dest="fetch", action="store_false", help="Use the local master/base ref without fetching.")
     start.add_argument("--dry-run", action="store_true", help="Print planned worktree details without changing git state.")
     start.set_defaults(func=command_start)
+
+    adopt = sub.add_parser("adopt", help="Adopt the current clean worktree as a task worktree.")
+    adopt.add_argument("--task", default="", help="Human task description used to derive an id.")
+    adopt.add_argument("--task-id", default="", help="Stable task id.")
+    adopt.add_argument("--branch", default="", help="Explicit branch name; must start with codex/.")
+    adopt.add_argument("--base", default="", help="Base ref. Defaults to origin/master after fetch, otherwise master.")
+    adopt.add_argument("--fetch", dest="fetch", action="store_true", default=True, help="Fetch origin master and fast-forward before adopting.")
+    adopt.add_argument("--no-fetch", dest="fetch", action="store_false", help="Use local master/base ref without fetching.")
+    adopt.add_argument("--allow-primary", action="store_true", help="Allow adopting the primary checkout; normally refused.")
+    adopt.add_argument("--dry-run", action="store_true")
+    adopt.set_defaults(func=command_adopt)
 
     status = sub.add_parser("status", help="Report task/worktree status.")
     status.set_defaults(func=command_status)
