@@ -16,7 +16,7 @@ This repo uses `memento` for code-scoped project memory.
 - The default task base is the current local `master` tip; use `--fetch --base origin/master` only when explicitly choosing the remote tracking branch.
 - If a thread is already running inside a clean app-created worktree, run `python3 tools/parallel_task.py adopt --task "<short task description>"` before editing. If it is in the shared checkout, create or move into an isolated task worktree before editing game/source/content files.
 - Keep development commands parallel-safe. Use `python3 tools/godot_task_runner.py --task-id <task-id> -- godot ...` for Godot commands, and use `python3 tools/visual_probe_runner.py <probe.gd> --task-id <task-id>` instead of invoking visual probes directly.
-- When task work is done, commit the task branch and wait for user inspection. Do not push or clean up the worktree until the user explicitly approves publication.
+- When task work is done, commit the task branch, get explicit signoff from a peer-review sub-agent, then wait for user inspection. Do not push or clean up the worktree until the user explicitly approves publication.
 
 ## GDScript Typed Arrays
 
