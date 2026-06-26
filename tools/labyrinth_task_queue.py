@@ -316,31 +316,46 @@ def path_conflicts(left: str, right: str) -> bool:
     return a == b or a.startswith(b + "/") or b.startswith(a + "/")
 
 
+def normalized_text_set(value: Any) -> set[str]:
+    return {str(item).strip().lower() for item in as_list(value) if str(item).strip()}
+
+
 def conflict_report(candidate: dict[str, Any], active_tasks: list[dict[str, Any]]) -> dict[str, Any]:
     candidate_paths = candidate.get("parallel_safety", {}).get("likely_touched_files", [])
-    avoid_ids = set(candidate.get("parallel_safety", {}).get("avoid_parallel_with", []))
+    candidate_id = str(candidate.get("id", ""))
+    candidate_risks = normalized_text_set(candidate.get("parallel_safety", {}).get("shared_state_risks", []))
+    candidate_avoid_ids = set(candidate.get("parallel_safety", {}).get("avoid_parallel_with", []))
     conflicts: list[dict[str, Any]] = []
     score = 0
     for active in active_tasks:
         active_id = str(active.get("id", ""))
-        active_paths = active.get("parallel_safety", {}).get("likely_touched_files", [])
+        active_safety = active.get("parallel_safety", {})
+        active_paths = active_safety.get("likely_touched_files", [])
+        active_risks = normalized_text_set(active_safety.get("shared_state_risks", []))
+        active_avoid_ids = set(active_safety.get("avoid_parallel_with", []))
         overlaps = [
             {"candidate_path": left, "active_path": right}
             for left in candidate_paths
             for right in active_paths
             if path_conflicts(left, right)
         ]
-        explicit_avoid = active_id in avoid_ids
-        if overlaps or explicit_avoid:
-            weight = len(overlaps) * 10 + (25 if explicit_avoid else 0)
+        shared_risks = sorted(candidate_risks & active_risks)
+        candidate_avoids_active = active_id in candidate_avoid_ids
+        active_avoids_candidate = candidate_id in active_avoid_ids
+        explicit_avoid = candidate_avoids_active or active_avoids_candidate
+        if overlaps or shared_risks or explicit_avoid:
+            weight = len(overlaps) * 10 + len(shared_risks) * 8 + (25 if explicit_avoid else 0)
             score += weight
             conflicts.append(
                 {
                     "active_task": active_id,
                     "active_status": active.get("status", ""),
                     "weight": weight,
+                    "candidate_avoids_active": candidate_avoids_active,
+                    "active_avoids_candidate": active_avoids_candidate,
                     "explicit_avoid": explicit_avoid,
                     "path_overlaps": overlaps,
+                    "shared_state_overlaps": shared_risks,
                 }
             )
     return {"conflict_score": score, "conflicts": conflicts}
