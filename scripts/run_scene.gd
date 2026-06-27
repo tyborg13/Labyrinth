@@ -2805,6 +2805,10 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.tooltip_text = _turn_order_tooltip(entry, index)
 	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
 	frame.set_meta("turn_order_size", slot_size)
+	frame.set_meta("turn_order_projected", bool(entry.get("projected", false)))
+	frame.set_meta("turn_order_projection_card_name", str(entry.get("projected_card_name", "")))
+	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
+	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -2829,9 +2833,11 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	portrait.texture = AssetLoader.load_texture(_turn_order_portrait_path(entry))
-	portrait.modulate = Color(1.0, 1.0, 1.0, 0.74) if bool(entry.get("projected", false)) and not active else Color.WHITE
+	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(portrait)
+	if _turn_order_is_card_preview_projection(entry):
+		frame.add_child(_turn_order_projection_badge(entry))
 	var badge_text: String = _turn_order_clock_badge_text(entry)
 	frame.set_meta("turn_order_badge_text", badge_text)
 	frame.add_child(_turn_order_number_badge(badge_text, entry, active))
@@ -2844,6 +2850,70 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 
 func _turn_order_clock_badge_text(entry: Dictionary) -> String:
 	return str(_turn_order_relative_time(entry))
+
+func _turn_order_is_card_preview_projection(entry: Dictionary) -> bool:
+	return (
+		bool(entry.get("projected", false))
+		and str(entry.get("kind", "")) == "player"
+		and int(entry.get("projected_time_cost", 0)) > 0
+	)
+
+func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
+	if active:
+		return Color.WHITE
+	if _turn_order_is_card_preview_projection(entry):
+		return Color(1.0, 1.0, 1.0, 0.98)
+	if bool(entry.get("projected", false)):
+		return Color(1.0, 1.0, 1.0, 0.74)
+	return Color.WHITE
+
+func _turn_order_projection_badge(entry: Dictionary) -> Control:
+	var badge := PanelContainer.new()
+	badge.name = "ProjectionPreviewBadge"
+	badge.custom_minimum_size = Vector2(TURN_ORDER_PORTRAIT_SIZE.x - 8.0, 22.0)
+	badge.size = badge.custom_minimum_size
+	badge.position = Vector2(4.0, TURN_ORDER_PORTRAIT_SIZE.y - 26.0)
+	badge.tooltip_text = _turn_order_tooltip(entry, 0)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.z_index = 8
+	badge.add_theme_stylebox_override("panel", _turn_order_projection_badge_style())
+	var label := Label.new()
+	label.text = _turn_order_projection_badge_text(entry)
+	label.clip_text = true
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 9)
+	label.add_theme_color_override("font_color", Color("fff6ce"))
+	label.add_theme_color_override("font_outline_color", Color("120b07"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	return badge
+
+func _turn_order_projection_badge_text(entry: Dictionary) -> String:
+	var preview_time: int = int(entry.get("projected_time_cost", 0))
+	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
+	if card_name.is_empty():
+		return "+%d time" % preview_time
+	return "%s +%d" % [card_name, preview_time]
+
+func _turn_order_projection_badge_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.085, 0.035, 0.92)
+	style.border_color = Color("f4c968")
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = 7
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool) -> Control:
 	var badge := PanelContainer.new()
@@ -2892,10 +2962,16 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 			accent = Color(str(enemy_def.get("accent", "#d36a55")))
 	var style := StyleBoxFlat.new()
 	var projected: bool = bool(entry.get("projected", false)) and not active
+	var card_preview_projected: bool = _turn_order_is_card_preview_projection(entry) and not active
 	style.bg_color = Color(0.075, 0.050, 0.036, 0.94 if not projected else 0.78)
 	style.border_color = accent.lightened(0.30 if active else 0.06)
 	style.border_color.a = 0.95 if active else 0.74 if not projected else 0.52
 	var border_width: int = 5 if active else 3 if not projected else 2
+	if card_preview_projected:
+		style.bg_color = Color(0.075, 0.105, 0.125, 0.96)
+		style.border_color = Color("f4c968")
+		style.border_color.a = 0.98
+		border_width = 4
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
@@ -2907,6 +2983,10 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34 if active else 0.26)
 	style.shadow_size = 14 if active else 9
 	style.shadow_offset = Vector2(0.0, 4.0)
+	if card_preview_projected:
+		style.shadow_color = Color(0.10, 0.32, 0.45, 0.48)
+		style.shadow_size = 18
+		style.shadow_offset = Vector2(0.0, 5.0)
 	return style
 
 func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
@@ -2915,6 +2995,9 @@ func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBox
 	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
 	style.bg_color = Color(0.05, 0.03, 0.02, 0.88)
 	style.border_color = accent.lightened(0.18 if active else 0.02)
+	if _turn_order_is_card_preview_projection(entry) and not active:
+		style.bg_color = Color(0.055, 0.075, 0.090, 0.94)
+		style.border_color = Color("f4c968")
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -2953,10 +3036,12 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		var spent: int = int(entry.get("turn_time_spent", 0))
 		var preview_time: int = int(entry.get("projected_time_cost", 0))
 		if preview_time > 0:
-			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
-			var card_name: String = str(entry.get("projected_card_name", ""))
+			var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 			if not card_name.is_empty():
-				lines.append(card_name)
+				lines.append("Preview: %s (+%d time)" % [card_name, preview_time])
+			else:
+				lines.append("Preview: +%d time" % preview_time)
+			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
 		elif spent > 0:
 			lines.append("Base %d + played %d" % [base, spent])
 		elif base > 0:
