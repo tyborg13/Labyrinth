@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-27T23:07:36Z",
+  "updated_at": "2026-06-27T23:50:16Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4283,6 +4283,28 @@
       "source": {
         "branch": "codex/fix-turn-animation-state-rewind",
         "commit": "c32c6a8"
+      }
+    },
+    {
+      "id": "mnt_20260627T235015Z_8a8ae5fc",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Animation-locked board display must ignore resolved card previews",
+      "details": "Player card resolution can leave _preview_combat_state at the fully resolved position while _play_player_card sets _animation_lock and refreshes UI before _animate_player_card_resolution. During animation lock, _board_display_state should prefer authoritative _combat_state and let explicit _render_board_state calls provide in-flight frames; otherwise the player can flash at the destination, rewind, then animate there.",
+      "status": "active",
+      "created_at": "2026-06-27T23:50:15Z",
+      "updated_at": "2026-06-27T23:50:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-player-move-animation-snapback",
+        "commit": "fe74287"
       }
     }
   ]

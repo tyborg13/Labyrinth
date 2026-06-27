@@ -6690,6 +6690,16 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	instance.call("_render_board_state", animated_state, moving_presentation)
 	instance.call("_on_turn_order_enemy_unhovered", Vector2i(5, 2), "enemy_1")
 	_assert_board_kept_animating_enemy(board_view, destination_tile, "Turn order unhover during animation lock")
+	var preview_state: Dictionary = combat_state.duplicate(true)
+	var preview_player: Dictionary = (preview_state.get("player", {}) as Dictionary).duplicate(true)
+	var preview_destination_tile := Vector2i(3, 4)
+	preview_player["pos"] = preview_destination_tile
+	preview_state["player"] = preview_player
+	instance.set("_preview_combat_state", preview_state)
+	instance.call("_refresh_stage_view")
+	var rendered_state: Dictionary = board_view.get("combat_state")
+	var rendered_player: Dictionary = rendered_state.get("player", {})
+	_assert(rendered_player.get("pos", Vector2i.ZERO) == (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "Animation-locked stage refresh should not draw the resolved player preview before the move animation starts")
 	instance.queue_free()
 	await process_frame
 
