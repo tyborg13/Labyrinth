@@ -57,10 +57,10 @@ python3 tools/parallel_task.py env
 For normal Godot or test commands, use the task-local Godot runner:
 
 ```bash
-python3 tools/godot_task_runner.py --task-id <task-id> -- godot --headless --path . --script tests/run_tests.gd
+python3 tools/godot_task_runner.py --task-id <task-id> --timeout 180 --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`, and a unique `LABYRINTH_TASK_ID` so default `user://` state does not collide across parallel tasks.
+The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`, and a unique `LABYRINTH_TASK_ID` so default `user://` state does not collide across parallel tasks. It terminates commands after 300 seconds by default, accepts `--timeout <seconds>` to tune that limit, accepts `--timeout 0` for intentionally unbounded local runs, and `--stream` tees output live while preserving captured output for Godot failure-marker scanning.
 
 For visual probes, use the validated runner instead of invoking probe scripts directly:
 
