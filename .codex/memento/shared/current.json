@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-26T21:10:28Z",
+  "updated_at": "2026-06-27T21:46:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4193,6 +4193,28 @@
       "source": {
         "branch": "master",
         "commit": "8081649"
+      }
+    },
+    {
+      "id": "mnt_20260627T214612Z_2f1f8ac9",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Animation-locked hover callbacks must not refresh the board",
+      "details": "Enemy and player action animations can render an animated display_state that intentionally differs from _combat_state, with unit_world_positions/unit_draw_tiles carrying the in-flight sprite position. Hover signals from the board, hand, or rebuilt turn-order slots may still fire while _animation_lock is true; those callbacks may update hover bookkeeping but must not call _refresh_stage_view until the lock is released, or they can redraw stale _combat_state over the active animation and cause a visible rewind/snap.",
+      "status": "active",
+      "created_at": "2026-06-27T21:46:12Z",
+      "updated_at": "2026-06-27T21:46:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-turn-animation-state-rewind",
+        "commit": "c32c6a8"
       }
     }
   ]

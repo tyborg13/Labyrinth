@@ -219,6 +219,7 @@ func _initialize() -> void:
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
 	await _test_run_scene_move_previews_avoid_traps_when_possible()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
+	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
 	await _test_run_scene_discard_pile_is_face_up_without_count()
 	await _test_run_scene_displays_owned_relic_icons()
 	await _test_run_scene_relic_header_keeps_relics_and_intensity_tight()
@@ -6480,6 +6481,67 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for animation-lock hover coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(104, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	combat_state["enemies"] = [
+		{
+			"id": 1,
+			"type": "harrier",
+			"pos": Vector2i(5, 2),
+			"hp": 10,
+			"max_hp": 10,
+			"block": 0
+		}
+	]
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.set("_animation_lock", true)
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var animated_state: Dictionary = combat_state.duplicate(true)
+	var animated_enemies: Array = (animated_state.get("enemies", []) as Array).duplicate(true)
+	var animated_enemy: Dictionary = (animated_enemies[0] as Dictionary).duplicate(true)
+	var destination_tile := Vector2i(4, 2)
+	animated_enemy["pos"] = destination_tile
+	animated_enemies[0] = animated_enemy
+	animated_state["enemies"] = animated_enemies
+	var moving_presentation: Dictionary = {
+		"unit_world_positions": {"enemy_1": board_view.call("world_position_for_tile", Vector2i(4, 1))},
+		"unit_draw_tiles": {"enemy_1": destination_tile}
+	}
+	instance.call("_render_board_state", animated_state, moving_presentation)
+	instance.call("_on_board_tile_hovered", Vector2i(3, 3))
+	_assert_board_kept_animating_enemy(board_view, destination_tile, "Board hover during animation lock")
+	instance.call("_render_board_state", animated_state, moving_presentation)
+	instance.call("_on_turn_order_enemy_hovered", Vector2i(5, 2), "enemy_1")
+	_assert_board_kept_animating_enemy(board_view, destination_tile, "Turn order hover during animation lock")
+	instance.call("_render_board_state", animated_state, moving_presentation)
+	instance.set("_hovered_card_index", 0)
+	instance.call("_on_card_hover_ended", 0)
+	_assert_board_kept_animating_enemy(board_view, destination_tile, "Card hover exit during animation lock")
+	instance.call("_render_board_state", animated_state, moving_presentation)
+	instance.call("_on_turn_order_enemy_unhovered", Vector2i(5, 2), "enemy_1")
+	_assert_board_kept_animating_enemy(board_view, destination_tile, "Turn order unhover during animation lock")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -7395,6 +7457,18 @@ func _assert_button_uses_native_ratio(button: Button, min_height: float, message
 		return
 	var ratio: float = minimum_size.x / minimum_size.y
 	_assert(is_equal_approx(ratio, UiSkin.BUTTON_TEXTURE_ASPECT), "%s should preserve the button art ratio" % message)
+
+func _assert_board_kept_animating_enemy(board_view: Node, expected_tile: Vector2i, context: String) -> void:
+	var rendered_state: Dictionary = board_view.get("combat_state")
+	var enemies: Array = rendered_state.get("enemies", [])
+	if enemies.is_empty():
+		_failures.append("%s should keep a rendered enemy on the board" % context)
+		return
+	var enemy: Dictionary = enemies[0]
+	_assert(enemy.get("pos", Vector2i.ZERO) == expected_tile, "%s should not redraw stale combat state over the active animation" % context)
+	var presentation: Dictionary = board_view.get("presentation")
+	_assert((presentation.get("unit_world_positions", {}) as Dictionary).has("enemy_1"), "%s should preserve moving unit presentation" % context)
+	_assert((presentation.get("unit_draw_tiles", {}) as Dictionary).has("enemy_1"), "%s should preserve moving unit draw tile" % context)
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

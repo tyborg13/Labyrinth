@@ -2977,13 +2977,21 @@ func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
 		return
 	_turn_order_hovered_enemy_key = actor_key
 	_hovered_board_tile = tile
+	if _animation_lock:
+		return
 	_refresh_stage_view()
 
 func _on_turn_order_enemy_unhovered(tile: Vector2i, actor_key: String) -> void:
+	var hover_changed: bool = false
 	if _turn_order_hovered_enemy_key == actor_key:
 		_turn_order_hovered_enemy_key = ""
+		hover_changed = true
 	if _hovered_board_tile == tile:
 		_hovered_board_tile = Vector2i(-1, -1)
+		hover_changed = true
+	if _animation_lock:
+		return
+	if hover_changed:
 		_refresh_stage_view()
 
 func _turn_order_entries_from_state(state: Dictionary) -> Array[Dictionary]:
@@ -4882,6 +4890,8 @@ func _on_card_hover_ended(index: int) -> void:
 		return
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
+		if _animation_lock:
+			return
 		_refresh_stage_view()
 		_refresh_turn_order_bar()
 
@@ -4889,6 +4899,8 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 	if _dialogue_active or _drag_card_index >= 0:
 		return
 	_hovered_board_tile = tile
+	if _animation_lock:
+		return
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		_refresh_stage_view()
 
