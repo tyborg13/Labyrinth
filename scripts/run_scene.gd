@@ -1683,29 +1683,29 @@ func _build_drag_overlay() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.custom_minimum_size = Vector2(560.0, 240.0)
-	vbox.add_theme_constant_override("separation", 14)
+	vbox.custom_minimum_size = Vector2(760.0, 330.0)
+	vbox.add_theme_constant_override("separation", 18)
 	center.add_child(vbox)
 
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
-	_drag_zone_panels["play"] = _build_drag_zone("Printed Play", "Card Action", UiTypography.SIZE_SECTION, Vector2(560.0, 118.0), Color("c5a26a"), Color("2f241c"))
+	_drag_zone_panels["play"] = _build_drag_zone("Play Card", "Card Action", UiTypography.SIZE_SECTION, Vector2(760.0, 160.0), Color("c5a26a"), Color("2f241c"))
 	vbox.add_child(_drag_zone_panels["play"])
 	_drag_zone_labels["play"] = _drag_zone_panels["play"].get_meta("label")
 	_drag_zone_detail_labels["play"] = _drag_zone_panels["play"].get_meta("detail_label")
 
 	var bottom_row := HBoxContainer.new()
 	bottom_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bottom_row.add_theme_constant_override("separation", 14)
+	bottom_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(bottom_row)
 
-	_drag_zone_panels["attack"] = _build_drag_zone("Fallback Attack", _fallback_label("attack"), UiTypography.SIZE_BODY_LARGE, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
+	_drag_zone_panels["attack"] = _build_drag_zone("Default Attack", _fallback_label("attack"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("cf7657"), Color("2f1d18"))
 	bottom_row.add_child(_drag_zone_panels["attack"])
 	_drag_zone_labels["attack"] = _drag_zone_panels["attack"].get_meta("label")
 	_drag_zone_detail_labels["attack"] = _drag_zone_panels["attack"].get_meta("detail_label")
 
-	_drag_zone_panels["move"] = _build_drag_zone("Fallback Move", _fallback_label("move"), UiTypography.SIZE_BODY_LARGE, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
+	_drag_zone_panels["move"] = _build_drag_zone("Default Move", _fallback_label("move"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("5b8ea2"), Color("18262f"))
 	bottom_row.add_child(_drag_zone_panels["move"])
 	_drag_zone_labels["move"] = _drag_zone_panels["move"].get_meta("label")
 	_drag_zone_detail_labels["move"] = _drag_zone_panels["move"].get_meta("detail_label")

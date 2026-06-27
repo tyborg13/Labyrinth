@@ -5584,6 +5584,20 @@ func _test_run_scene_drag_overlay_snapback_and_click_selection() -> void:
 	await process_frame
 	var overlay: Control = instance.get("_drag_overlay") as Control
 	_assert(overlay != null and overlay.visible, "Starting a fallback-only drag should show the drop-zone overlay")
+	var zone_panels: Dictionary = instance.get("_drag_zone_panels")
+	var zone_labels: Dictionary = instance.get("_drag_zone_labels")
+	var play_panel: PanelContainer = zone_panels.get("play", null) as PanelContainer
+	var attack_panel: PanelContainer = zone_panels.get("attack", null) as PanelContainer
+	var move_panel: PanelContainer = zone_panels.get("move", null) as PanelContainer
+	var play_label: Label = zone_labels.get("play", null) as Label
+	var attack_label: Label = zone_labels.get("attack", null) as Label
+	var move_label: Label = zone_labels.get("move", null) as Label
+	_assert(play_label != null and play_label.text == "PLAY CARD", "Printed drag zone should use the requested Play Card primary text")
+	_assert(attack_label != null and attack_label.text == "DEFAULT ATTACK", "Attack drag zone should use the requested Default Attack primary text")
+	_assert(move_label != null and move_label.text == "DEFAULT MOVE", "Move drag zone should use the requested Default Move primary text")
+	_assert(play_panel != null and play_panel.custom_minimum_size.x >= 760.0 and play_panel.custom_minimum_size.y >= 160.0, "Printed drag zone should be larger and easier to hit")
+	_assert(attack_panel != null and attack_panel.custom_minimum_size.x >= 372.0 and attack_panel.custom_minimum_size.y >= 140.0, "Attack drag zone should be larger and easier to hit")
+	_assert(move_panel != null and move_panel.custom_minimum_size.x >= 372.0 and move_panel.custom_minimum_size.y >= 140.0, "Move drag zone should be larger and easier to hit")
 	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
 	var play_detail: Label = detail_labels.get("play", null) as Label
 	var move_detail: Label = detail_labels.get("move", null) as Label
