@@ -5,16 +5,30 @@ description: Run the reviewed Labyrinth task queue by selecting low-collision wo
 
 # Orchestrate Labyrinth Tasks
 
-Use this skill to turn reviewed queue items into parallel Codex work. The orchestrator chooses tasks, creates app-visible worker threads, tracks their branches/worktrees, and only lands completed work to `master` after the user approves.
+Use this skill to turn reviewed queue items into parallel Codex work. Invoking this skill, or otherwise asking to run queued work in parallel, is explicit authorization for the orchestrator to create one user-visible Codex app/background thread per selected worker task. The orchestrator chooses tasks, creates app-visible worker threads, tracks their branches/worktrees, and only lands completed work to `master` after the user approves.
 
 ## Core Rules
 
 - Use reviewed `ready` tasks from `.codex/tasks`, not raw scout ideas.
-- Launch implementation work in separate Codex app threads whenever possible, so the user can see each task in the sidebar.
+- Launch implementation work in separate Codex app threads so the user can see each task in the sidebar.
+- Treat the user's request to use `$orchestrate-labyrinth-tasks`, run queued work, launch workers, start background tasks, or parallelize the queue as sufficient permission to create those app-visible background threads. Do not require the user to separately say "create background threads" in the same prompt.
+- App-visible thread tools are a hard requirement for implementation workers. Before leasing or launching any task, verify that tool discovery exposes callable equivalents for all three operations: `create_thread`, `read_thread`, and `send_message_to_thread`.
+- If app-thread tools are missing, stop orchestration before leasing tasks, report exactly which required operations are unavailable, and ask the user to start/enable a Codex session with app thread management exposed. Do not silently fall back to hidden sub-agents, pre-created worktrees, terminal-only workers, or manual user-created threads.
 - Each worker thread must use `$parallel-labyrinth-task` and its isolated worktree workflow.
 - Worker branches are temporary isolation branches. After user approval, finished work lands on `master` and pushes `master`; do not publish remote task branches as the final result.
 - Do not use hidden sub-agents as implementation workers. Hidden sub-agents are appropriate for scout review and implementation peer review.
 - Do not push, land, or clean up completed task work until the user explicitly approves.
+
+## Host Tool Requirements
+
+A valid worker launch requires all of these host-provided capabilities:
+
+- A callable app-thread creation tool that creates a user-visible Codex thread.
+- A callable app-thread read tool that lets the orchestrator monitor that thread.
+- A callable app-thread send-message tool that can deliver the worker prompt.
+- A returned thread id and a usable clean project worktree path, or enough thread metadata to identify both before queue leasing.
+
+The repository cannot install or grant these host tools. They must be exposed by the Codex app/session before this skill runs. If `tool_search` cannot find them, the correct result is a visible blocker, not an alternate implementation-worker mechanism.
 
 ## Queue States
 
@@ -44,13 +58,14 @@ python3 tools/labyrinth_task_queue.py select --limit <N> --json
    - It is acceptable to run multiple tasks in the same broad area when their likely touched files and shared state risks are distinct.
    - Avoid launching two tasks that both expect to change the same singleton, shared JSON file, generated asset path, visual probe output, or test harness behavior.
 
-3. Create one Codex app thread per selected task.
-   - Use the Codex app thread tools, starting with project discovery if needed.
-   - If thread tools are not already loaded, use tool discovery for `create_thread`, `read_thread`, and `send_message_to_thread`.
-   - Create user-visible threads rather than sub-agent-only workers.
-   - Once the user has asked to run parallel queued work, do not ask the user to create worker threads manually; create the worker threads directly.
+3. Verify and create one Codex app thread per selected task.
+   - First use tool discovery for `create_thread`, `read_thread`, and `send_message_to_thread`, or current host tools whose descriptions explicitly provide those same Codex app-thread operations.
+   - Confirm the discovered tools are callable in the current session before changing queue state.
+   - If any of the three required operations are missing, do not lease tasks, do not create worktrees, and do not spawn sub-agents as implementation workers. Report a blocker with the missing operations and the exact user-side requirement: restart or enable a Codex app/session that exposes app thread management tools.
+   - Create user-visible app threads directly rather than asking the user to create worker threads manually. The skill invocation/request to run the queue is the needed instruction to create these background threads.
    - Give each thread the task JSON, queue id, acceptance criteria, proof requirements, and the instruction to use `$parallel-labyrinth-task`.
-   - Tell the worker to adopt the app-created worktree with `python3 tools/parallel_task.py adopt --task-id <task-id> --task "<title>"` before editing.
+   - Tell the worker to adopt the app-created clean worktree with `python3 tools/parallel_task.py adopt --task-id <task-id> --task "<title>"` before editing.
+   - Record the returned app thread id and worktree path. If either is unavailable, stop and report the blocker before leasing.
 
 4. Lease the task after the thread exists.
 

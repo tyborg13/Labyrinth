@@ -21,7 +21,8 @@ This repo uses `memento` for code-scoped project memory.
 ## Autonomous Task Queue
 
 - Use `$scout-labyrinth-tasks` when asked to find good autonomous changes. Scout output must pass a separate scout-reviewer gate before entering the queue as `ready`.
-- Use `$orchestrate-labyrinth-tasks` when asked to run queued work in parallel. The orchestrator should select reviewed tasks with concrete path/shared-state collision checks, create app-visible worker threads, and track status with `python3 tools/labyrinth_task_queue.py`.
+- Use `$orchestrate-labyrinth-tasks` when asked to run queued work in parallel. Treat that request as explicit permission to create app-visible Codex background/app threads for the selected worker tasks; the user should not need to separately say "create background threads" every time. The orchestrator should select reviewed tasks with concrete path/shared-state collision checks, create app-visible worker threads, and track status with `python3 tools/labyrinth_task_queue.py`.
+- App-visible Codex thread tools are mandatory for implementation workers. Before leasing or launching any queued implementation task, the orchestrator must verify that tool discovery exposes callable app-thread equivalents for `create_thread`, `read_thread`, and `send_message_to_thread`. If those tools are unavailable, stop and report the missing host tools; do not fall back to hidden sub-agents or pre-created worktrees as implementation workers without explicit user approval in that turn.
 - Avoid fixed broad collision groups. Prefer comparing likely touched files, generated paths, singleton/shared state, and specific task ids that should not run together.
 
 ## GDScript Typed Arrays

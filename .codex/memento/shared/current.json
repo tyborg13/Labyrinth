@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-27T21:46:12Z",
+  "updated_at": "2026-06-27T23:07:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4193,6 +4193,74 @@
       "source": {
         "branch": "master",
         "commit": "8081649"
+      }
+    },
+    {
+      "id": "mnt_20260627T003545Z_706d2da5",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Autonomous implementation workers must be app-visible threads",
+      "details": "For Labyrinth queue orchestration, implementation workers must run as user-visible Codex app threads with callable create_thread, read_thread, and send_message_to_thread equivalents exposed by the host session. If those tools are missing, stop before leasing/launching and report a blocker; do not silently fall back to hidden sub-agents, pre-created worktrees, terminal-only workers, or manual user-created threads without explicit same-turn user approval.",
+      "status": "active",
+      "created_at": "2026-06-27T00:35:45Z",
+      "updated_at": "2026-06-27T00:35:45Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "c32c6a8"
+      }
+    },
+    {
+      "id": "mnt_20260627T004351Z_d1440a8a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Orchestration requests authorize visible background threads",
+      "details": "For Labyrinth queue orchestration, a request to use $orchestrate-labyrinth-tasks, run queued work, launch workers, start background tasks, or parallelize the queue is enough permission to create user-visible Codex app/background threads. Do not make the user separately say \"create background threads\" each time; still stop if the host session does not expose create/read/send app-thread tools.",
+      "status": "active",
+      "created_at": "2026-06-27T00:43:51Z",
+      "updated_at": "2026-06-27T00:43:51Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260627T004208Z_740dc358"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "c32c6a8"
+      }
+    },
+    {
+      "id": "mnt_20260627T033918Z_4b615ad3",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Do not gate Labyrinth task orchestration on collisions",
+      "details": "User explicitly said to forget the collision concept for autonomous Labyrinth task orchestration and rely on normal git merge resolution. Keep queue schema fields valid if required, but do not block launching reviewed work because tasks may touch the same large files such as scripts/run_scene.gd.",
+      "status": "active",
+      "created_at": "2026-06-27T03:39:18Z",
+      "updated_at": "2026-06-27T03:39:18Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "master",
+        "commit": "c32c6a8"
       }
     },
     {

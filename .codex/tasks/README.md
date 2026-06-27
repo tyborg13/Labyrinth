@@ -32,3 +32,5 @@ python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Conti
 ```
 
 The command writes `progression.json` and `current_run.save` inside a stable task-local Godot user directory and prints the launch command the user can run from the task worktree. Pass those details to `tools/labyrinth_task_queue.py complete` with `--inspection-scenario`, `--inspection-run-id`, `--inspection-summary`, and `--inspection-launch`. For tooling/data-only changes, use `--inspection-not-applicable "<reason>"`.
+
+Implementation workers require host-exposed Codex app thread tools. Before leasing tasks, the orchestrator must have callable equivalents for `create_thread`, `read_thread`, and `send_message_to_thread`. If those tools are missing from the current Codex session, orchestration should stop with a blocker instead of using hidden sub-agents as implementation workers.
