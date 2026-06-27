@@ -198,6 +198,7 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
+	await _test_run_scene_drag_overlay_snapback_and_click_selection()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
 	await _test_run_scene_selection_prompts_clear_after_pick()
@@ -5535,6 +5536,141 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_drag_overlay_snapback_and_click_selection() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for drag overlay coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var far_layout: Dictionary = _simple_room_layout()
+	far_layout["player_start"] = Vector2i(2, 5)
+	far_layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(6, 5),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0
+	}]
+	var combat_state: Dictionary = combat.create_combat(9204, far_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var options: Dictionary = instance.call("_card_play_options_for_index", 0)
+	_assert(not bool(options.get("printed_playable", false)), "Far melee cards should show printed play as disabled while dragging")
+	_assert(not bool(options.get("attack_playable", false)), "Far melee cards should disable fallback attack when no enemy is adjacent")
+	_assert(bool(options.get("move_playable", false)), "Far melee cards should keep fallback move available")
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	var overlay: Control = instance.get("_drag_overlay") as Control
+	_assert(overlay != null and overlay.visible, "Starting a fallback-only drag should show the drop-zone overlay")
+	var zone_panels: Dictionary = instance.get("_drag_zone_panels")
+	var zone_labels: Dictionary = instance.get("_drag_zone_labels")
+	var play_panel: PanelContainer = zone_panels.get("play", null) as PanelContainer
+	var attack_panel: PanelContainer = zone_panels.get("attack", null) as PanelContainer
+	var move_panel: PanelContainer = zone_panels.get("move", null) as PanelContainer
+	var play_label: Label = zone_labels.get("play", null) as Label
+	var attack_label: Label = zone_labels.get("attack", null) as Label
+	var move_label: Label = zone_labels.get("move", null) as Label
+	_assert(play_label != null and play_label.text == "PLAY CARD", "Printed drag zone should use the requested Play Card primary text")
+	_assert(attack_label != null and attack_label.text == "DEFAULT ATTACK", "Attack drag zone should use the requested Default Attack primary text")
+	_assert(move_label != null and move_label.text == "DEFAULT MOVE", "Move drag zone should use the requested Default Move primary text")
+	_assert(play_panel != null and play_panel.custom_minimum_size.x >= 760.0 and play_panel.custom_minimum_size.y >= 160.0, "Printed drag zone should be larger and easier to hit")
+	_assert(attack_panel != null and attack_panel.custom_minimum_size.x >= 372.0 and attack_panel.custom_minimum_size.y >= 140.0, "Attack drag zone should be larger and easier to hit")
+	_assert(move_panel != null and move_panel.custom_minimum_size.x >= 372.0 and move_panel.custom_minimum_size.y >= 140.0, "Move drag zone should be larger and easier to hit")
+	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
+	var play_detail: Label = detail_labels.get("play", null) as Label
+	var move_detail: Label = detail_labels.get("move", null) as Label
+	_assert(play_detail != null and play_detail.text == "UNAVAILABLE", "Disabled printed drag zones should carry an explicit unavailable state")
+	_assert(move_detail != null and move_detail.text == str(instance.call("_fallback_label", "move")).to_upper(), "Available fallback move zones should keep their concise movement label")
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hidden_source: Control = null
+	if hand_box.get_child_count() > 0:
+		hidden_source = hand_box.get_child(0) as Control
+	_assert(hidden_source != null and not hidden_source.visible, "Card drag should hide the source card while the proxy is held")
+	await instance.call("_commit_drag_drop", "play")
+	await process_frame
+	_assert(int(instance.get("_drag_card_index")) == -1, "Disabled drag drops should clear drag state")
+	_assert(int(instance.get("_selected_card_index")) == -1, "Disabled drag drops should not start card selection")
+	overlay = instance.get("_drag_overlay") as Control
+	_assert(overlay != null and not overlay.visible, "Disabled drag drops should hide the overlay after snapback")
+	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var restored_source: Control = null
+	if hand_box.get_child_count() > 0:
+		restored_source = hand_box.get_child(0) as Control
+	_assert(restored_source != null and restored_source.visible, "Disabled drag drops should restore the source card instead of leaving it hidden")
+
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	await instance.call("_commit_drag_drop", "")
+	await process_frame
+	_assert(int(instance.get("_drag_card_index")) == -1, "Dropping outside every drag zone should also snap back and clear drag state")
+	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	restored_source = null
+	if hand_box.get_child_count() > 0:
+		restored_source = hand_box.get_child(0) as Control
+	_assert(restored_source != null and restored_source.visible, "Out-of-zone drag drops should restore the source card")
+
+	var adjacent_layout: Dictionary = _simple_room_layout()
+	adjacent_layout["player_start"] = Vector2i(2, 5)
+	adjacent_layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 5),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0
+	}]
+	combat_state = combat.create_combat(9205, adjacent_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	deck = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	run_state = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await instance.call("_on_card_pressed", 0)
+	_assert(int(instance.get("_selected_card_index")) == 0, "Click-to-select should continue to select a normal playable card after drag cancellation")
+	_assert(int(instance.get("_drag_card_index")) == -1, "Click-to-select should not leave drag state active")
+	var click_preview: Dictionary = instance.call("_active_card_preview")
+	_assert(not (click_preview.get("target_tiles", []) as Array).is_empty(), "Click selection should still expose printed card targets independently of drag flow")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -5727,9 +5863,17 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
 	_assert(_label_with_text(relic_overlay, "Draw strength from the flame") != null, "Campfire overlay should label the level-up option")
-	_assert(_label_with_text(relic_overlay, "Heal 100 and continue onward") != null, "Campfire linger choice should describe the heal")
-	_assert(_label_with_text(relic_overlay, "Carry held embers into the next run") != null, "Campfire abandon choice should describe ember carry-forward")
+	_assert(_label_with_text(relic_overlay, "+100 HP") != null, "Campfire linger choice should show a compact heal chip")
+	_assert(_label_with_text(relic_overlay, "CONTINUE") == null, "Campfire linger choice should not duplicate continue text in a chip")
+	_assert(_label_with_text(relic_overlay, "BANK HELD") == null, "Campfire abandon choice should not duplicate bank text in a chip")
+	_assert(_label_with_text(relic_overlay, "END RUN") == null, "Campfire abandon choice should not duplicate end-run text in a chip")
+	_assert(_label_with_text(relic_overlay, "NEED 180") != null, "Campfire level-up choice should show the missing ember chip")
+	_assert(_label_with_text(relic_overlay, "HELD 0") != null, "Campfire level-up choice should show current held embers when disabled")
 	_assert(_label_with_text(relic_overlay, "Need 180 embers") != null, "Campfire level-up choice should be disabled when held embers are short")
+	var disabled_strength_panel: Control = null
+	if relic_bar != null and relic_bar.get_child_count() > 2:
+		disabled_strength_panel = relic_bar.get_child(2) as Control
+	_assert(disabled_strength_panel != null and not bool(disabled_strength_panel.get_meta("choice_enabled", true)), "Campfire level-up panel should be marked disabled when held embers are short")
 	var loaded_icon_count: int = 0
 	for texture_rect: TextureRect in _texture_rects_under(relic_overlay):
 		if texture_rect.texture != null:
@@ -5743,7 +5887,14 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	instance.set("_progression", run_state.get("progression", {}))
 	instance.call("_refresh_choice_bar")
 	relic_overlay = instance.get("_relic_choice_overlay") as Control
-	_assert(_label_with_text(relic_overlay, "Spend embers to become permanently stronger (180 embers)") != null, "Campfire level-up choice should reveal its cost when affordable")
+	relic_bar = instance.get("_relic_choice_bar") as HBoxContainer
+	_assert(_label_with_text(relic_overlay, "180 EMBERS") != null, "Campfire level-up choice should reveal its cost chip when affordable")
+	_assert(_label_with_text(relic_overlay, "LV +1") != null, "Campfire level-up choice should reveal its benefit chip when affordable")
+	_assert(_label_with_text(relic_overlay, "Spend embers, continue") != null, "Campfire level-up choice should keep a terse affordable state")
+	var enabled_strength_panel: Control = null
+	if relic_bar != null and relic_bar.get_child_count() > 2:
+		enabled_strength_panel = relic_bar.get_child(2) as Control
+	_assert(enabled_strength_panel != null and bool(enabled_strength_panel.get_meta("choice_enabled", false)), "Campfire level-up panel should be enabled when held embers meet the cost")
 	instance.queue_free()
 	await process_frame
 

@@ -343,9 +343,10 @@ const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire
 const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
 const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw strength from the flame"
-const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal 100 and continue onward"
-const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Carry held embers into the next run"
-const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers to become permanently stronger"
+const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
+const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
+const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, continue"
+const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const PROGRESSION_STEPPER_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_stepper_normal.png"
 const PROGRESSION_STEPPER_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_stepper_hover.png"
 const PROGRESSION_STEPPER_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_stepper_pressed.png"
@@ -509,6 +510,7 @@ var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
 var _drag_zone_labels: Dictionary = {}
+var _drag_zone_detail_labels: Dictionary = {}
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
@@ -1682,49 +1684,69 @@ func _build_drag_overlay() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.custom_minimum_size = Vector2(560.0, 240.0)
-	vbox.add_theme_constant_override("separation", 14)
+	vbox.custom_minimum_size = Vector2(760.0, 330.0)
+	vbox.add_theme_constant_override("separation", 18)
 	center.add_child(vbox)
 
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
-	_drag_zone_panels["play"] = _build_drag_zone("Play", UiTypography.SIZE_SECTION, Vector2(560.0, 118.0), Color("c5a26a"), Color("2f241c"))
+	_drag_zone_detail_labels.clear()
+	_drag_zone_panels["play"] = _build_drag_zone("Play Card", "Card Action", UiTypography.SIZE_SECTION, Vector2(760.0, 160.0), Color("c5a26a"), Color("2f241c"))
 	vbox.add_child(_drag_zone_panels["play"])
 	_drag_zone_labels["play"] = _drag_zone_panels["play"].get_meta("label")
+	_drag_zone_detail_labels["play"] = _drag_zone_panels["play"].get_meta("detail_label")
 
 	var bottom_row := HBoxContainer.new()
 	bottom_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bottom_row.add_theme_constant_override("separation", 14)
+	bottom_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(bottom_row)
 
-	_drag_zone_panels["attack"] = _build_drag_zone(_fallback_label("attack"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
+	_drag_zone_panels["attack"] = _build_drag_zone("Default Attack", _fallback_label("attack"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("cf7657"), Color("2f1d18"))
 	bottom_row.add_child(_drag_zone_panels["attack"])
 	_drag_zone_labels["attack"] = _drag_zone_panels["attack"].get_meta("label")
+	_drag_zone_detail_labels["attack"] = _drag_zone_panels["attack"].get_meta("detail_label")
 
-	_drag_zone_panels["move"] = _build_drag_zone(_fallback_label("move"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
+	_drag_zone_panels["move"] = _build_drag_zone("Default Move", _fallback_label("move"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("5b8ea2"), Color("18262f"))
 	bottom_row.add_child(_drag_zone_panels["move"])
 	_drag_zone_labels["move"] = _drag_zone_panels["move"].get_meta("label")
+	_drag_zone_detail_labels["move"] = _drag_zone_panels["move"].get_meta("detail_label")
 
-func _build_drag_zone(text: String, font_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
+func _build_drag_zone(title_text: String, detail_text: String, title_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.custom_minimum_size = minimum_size
 	panel.set_meta("accent", accent)
 	panel.set_meta("fill", fill)
+	panel.set_meta("detail_text", detail_text)
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(center)
 	var label := Label.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.text = text.to_upper()
+	label.text = title_text.to_upper()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, font_size)
+	UiTypography.set_label_size(label, title_size)
 	label.add_theme_color_override("font_color", Color("f4ead5"))
 	label.add_theme_color_override("font_outline_color", Color("241912"))
 	label.add_theme_constant_override("outline_size", 2)
-	center.add_child(label)
+	var vbox := VBoxContainer.new()
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_theme_constant_override("separation", 4)
+	center.add_child(vbox)
+	vbox.add_child(label)
+	var detail_label := Label.new()
+	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_label.text = detail_text.to_upper()
+	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
+	detail_label.add_theme_color_override("font_color", accent.lightened(0.28))
+	detail_label.add_theme_color_override("font_outline_color", Color("241912"))
+	detail_label.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(detail_label)
 	panel.set_meta("label", label)
+	panel.set_meta("detail_label", detail_label)
 	panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, false, true))
 	return panel
 
@@ -1926,6 +1948,7 @@ func _show_drag_overlay() -> void:
 		return
 	_close_pile_view()
 	_drag_overlay.visible = true
+	_drag_overlay.move_to_front()
 
 func _cancel_drag_play() -> void:
 	if _drag_overlay != null:
@@ -1949,6 +1972,9 @@ func _animate_drag_cancel_to_source() -> void:
 func _commit_drag_drop(zone: String) -> void:
 	if _drag_card_index < 0:
 		return
+	if not _drag_option_valid(zone):
+		await _animate_drag_cancel_to_source()
+		return
 	var hand_index: int = _drag_card_index
 	var options: Dictionary = _drag_card_options.duplicate(true)
 	var preview: Dictionary = {}
@@ -1965,6 +1991,9 @@ func _commit_drag_drop(zone: String) -> void:
 		_:
 			await _animate_drag_cancel_to_source()
 			return
+	if not bool(preview.get("playable", false)):
+		await _animate_drag_cancel_to_source()
+		return
 	if _drag_card_proxy != null:
 		var zone_rect: Rect2 = _drag_zone_panels.get(zone, null).get_global_rect()
 		await _animate_card_proxy_to_rect(_drag_card_proxy, _rect_from_center(zone_rect.get_center(), _drag_card_source_rect.size), 0.10)
@@ -2077,35 +2106,55 @@ func _update_drag_overlay_hover(zone: String) -> void:
 	for zone_name: String in ["play", "attack", "move"]:
 		var panel: PanelContainer = _drag_zone_panels.get(zone_name, null)
 		var label: Label = _drag_zone_labels.get(zone_name, null)
-		if panel == null or label == null:
+		var detail_label: Label = _drag_zone_detail_labels.get(zone_name, null)
+		if panel == null or label == null or detail_label == null:
 			continue
 		var accent: Color = panel.get_meta("accent", Color("9d7a50"))
 		var fill: Color = panel.get_meta("fill", Color("241912"))
 		var valid: bool = _drag_option_valid(zone_name)
 		panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, zone == zone_name and valid, valid))
-		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.42)
+		label.add_theme_color_override("font_color", Color("fff1d0") if valid else Color("a69a8d"))
+		detail_label.text = _drag_zone_detail_text(zone_name, valid).to_upper()
+		detail_label.add_theme_color_override("font_color", accent.lightened(0.32) if valid else Color("8c8277"))
+		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.52)
+		detail_label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.64)
+
+func _drag_zone_detail_text(zone: String, valid: bool) -> String:
+	if not valid:
+		return "Unavailable"
+	match zone:
+		"play":
+			return "Card Action"
+		"attack":
+			return _fallback_label("attack")
+		"move":
+			return _fallback_label("move")
+		_:
+			return ""
 
 func _drag_zone_style(fill: Color, accent: Color, hovered: bool, valid: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = fill.lightened(0.12) if hovered else fill
-	style.border_color = accent.lightened(0.24) if hovered else accent if valid else Color("625244")
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	if valid:
+		style.bg_color = fill.lightened(0.20) if hovered else fill.lightened(0.04)
+		style.border_color = accent.lightened(0.38) if hovered else accent.lightened(0.08)
+	else:
+		style.bg_color = fill.darkened(0.34).lerp(Color("17120f"), 0.28)
+		style.border_color = Color("6f6256")
+	var border_width: int = 5 if hovered else 4 if valid else 2
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
 	style.corner_radius_top_left = 14
 	style.corner_radius_top_right = 14
 	style.corner_radius_bottom_right = 14
 	style.corner_radius_bottom_left = 14
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.18)
-	style.shadow_size = 10 if hovered else 6
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.24) if hovered else Color(0.0, 0.0, 0.0, 0.18)
+	style.shadow_size = 18 if hovered else 8 if valid else 0
 	style.content_margin_left = 8.0
 	style.content_margin_top = 8.0
 	style.content_margin_right = 8.0
 	style.content_margin_bottom = 8.0
-	if not valid:
-		style.bg_color = fill.darkened(0.12)
-		style.shadow_size = 0
 	return style
 
 func _drag_option_valid(zone: String) -> bool:
@@ -2805,6 +2854,10 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.tooltip_text = _turn_order_tooltip(entry, index)
 	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
 	frame.set_meta("turn_order_size", slot_size)
+	frame.set_meta("turn_order_projected", bool(entry.get("projected", false)))
+	frame.set_meta("turn_order_projection_card_name", str(entry.get("projected_card_name", "")))
+	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
+	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -2829,9 +2882,11 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	portrait.texture = AssetLoader.load_texture(_turn_order_portrait_path(entry))
-	portrait.modulate = Color(1.0, 1.0, 1.0, 0.74) if bool(entry.get("projected", false)) and not active else Color.WHITE
+	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(portrait)
+	if _turn_order_is_card_preview_projection(entry):
+		frame.add_child(_turn_order_projection_badge(entry))
 	var badge_text: String = _turn_order_clock_badge_text(entry)
 	frame.set_meta("turn_order_badge_text", badge_text)
 	frame.add_child(_turn_order_number_badge(badge_text, entry, active))
@@ -2844,6 +2899,70 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 
 func _turn_order_clock_badge_text(entry: Dictionary) -> String:
 	return str(_turn_order_relative_time(entry))
+
+func _turn_order_is_card_preview_projection(entry: Dictionary) -> bool:
+	return (
+		bool(entry.get("projected", false))
+		and str(entry.get("kind", "")) == "player"
+		and int(entry.get("projected_time_cost", 0)) > 0
+	)
+
+func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
+	if active:
+		return Color.WHITE
+	if _turn_order_is_card_preview_projection(entry):
+		return Color(1.0, 1.0, 1.0, 0.98)
+	if bool(entry.get("projected", false)):
+		return Color(1.0, 1.0, 1.0, 0.74)
+	return Color.WHITE
+
+func _turn_order_projection_badge(entry: Dictionary) -> Control:
+	var badge := PanelContainer.new()
+	badge.name = "ProjectionPreviewBadge"
+	badge.custom_minimum_size = Vector2(TURN_ORDER_PORTRAIT_SIZE.x - 8.0, 22.0)
+	badge.size = badge.custom_minimum_size
+	badge.position = Vector2(4.0, TURN_ORDER_PORTRAIT_SIZE.y - 26.0)
+	badge.tooltip_text = _turn_order_tooltip(entry, 0)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.z_index = 8
+	badge.add_theme_stylebox_override("panel", _turn_order_projection_badge_style())
+	var label := Label.new()
+	label.text = _turn_order_projection_badge_text(entry)
+	label.clip_text = true
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 9)
+	label.add_theme_color_override("font_color", Color("fff6ce"))
+	label.add_theme_color_override("font_outline_color", Color("120b07"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	return badge
+
+func _turn_order_projection_badge_text(entry: Dictionary) -> String:
+	var preview_time: int = int(entry.get("projected_time_cost", 0))
+	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
+	if card_name.is_empty():
+		return "+%d time" % preview_time
+	return "%s +%d" % [card_name, preview_time]
+
+func _turn_order_projection_badge_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.085, 0.035, 0.92)
+	style.border_color = Color("f4c968")
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = 7
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool) -> Control:
 	var badge := PanelContainer.new()
@@ -2892,10 +3011,16 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 			accent = Color(str(enemy_def.get("accent", "#d36a55")))
 	var style := StyleBoxFlat.new()
 	var projected: bool = bool(entry.get("projected", false)) and not active
+	var card_preview_projected: bool = _turn_order_is_card_preview_projection(entry) and not active
 	style.bg_color = Color(0.075, 0.050, 0.036, 0.94 if not projected else 0.78)
 	style.border_color = accent.lightened(0.30 if active else 0.06)
 	style.border_color.a = 0.95 if active else 0.74 if not projected else 0.52
 	var border_width: int = 5 if active else 3 if not projected else 2
+	if card_preview_projected:
+		style.bg_color = Color(0.075, 0.105, 0.125, 0.96)
+		style.border_color = Color("f4c968")
+		style.border_color.a = 0.98
+		border_width = 4
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
@@ -2907,6 +3032,10 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34 if active else 0.26)
 	style.shadow_size = 14 if active else 9
 	style.shadow_offset = Vector2(0.0, 4.0)
+	if card_preview_projected:
+		style.shadow_color = Color(0.10, 0.32, 0.45, 0.48)
+		style.shadow_size = 18
+		style.shadow_offset = Vector2(0.0, 5.0)
 	return style
 
 func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
@@ -2915,6 +3044,9 @@ func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBox
 	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
 	style.bg_color = Color(0.05, 0.03, 0.02, 0.88)
 	style.border_color = accent.lightened(0.18 if active else 0.02)
+	if _turn_order_is_card_preview_projection(entry) and not active:
+		style.bg_color = Color(0.055, 0.075, 0.090, 0.94)
+		style.border_color = Color("f4c968")
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -2953,10 +3085,12 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		var spent: int = int(entry.get("turn_time_spent", 0))
 		var preview_time: int = int(entry.get("projected_time_cost", 0))
 		if preview_time > 0:
-			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
-			var card_name: String = str(entry.get("projected_card_name", ""))
+			var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 			if not card_name.is_empty():
-				lines.append(card_name)
+				lines.append("Preview: %s (+%d time)" % [card_name, preview_time])
+			else:
+				lines.append("Preview: +%d time" % preview_time)
+			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
 		elif spent > 0:
 			lines.append("Base %d + played %d" % [base, spent])
 		elif base > 0:
@@ -3549,67 +3683,155 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 		return
 	var panel := TooltipPanelContainer.new()
 	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	panel.clip_contents = false
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
 	panel.set_meta("choice_enabled", enabled)
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent if enabled else Color("5c5046"), false))
-	panel.modulate = Color(1.0, 1.0, 1.0, 1.0) if enabled else Color(0.58, 0.55, 0.50, 0.82)
+	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, false, enabled))
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
+
+	_add_campfire_choice_background(panel, icon_path, enabled)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
 	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_top", 18)
 	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 14)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 7)
+	vbox.add_theme_constant_override("separation", 8)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
-
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(76.0, 76.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(icon_path)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(icon)
 
 	var label := Label.new()
 	label.text = title
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 58.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("b8aa94"))
-	label.add_theme_color_override("font_outline_color", Color("26180f"))
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
+	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("d0bea2"))
+	label.add_theme_color_override("font_outline_color", Color("150c08"))
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
+
+	var chips: Array = _campfire_choice_chips(choice_id, enabled)
+	if not chips.is_empty():
+		var chip_row := HFlowContainer.new()
+		chip_row.alignment = FlowContainer.ALIGNMENT_CENTER
+		chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 38.0)
+		chip_row.add_theme_constant_override("h_separation", 6)
+		chip_row.add_theme_constant_override("v_separation", 4)
+		chip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for chip: Dictionary in chips:
+			_add_campfire_choice_chip(chip_row, chip, accent, enabled)
+		vbox.add_child(chip_row)
 
 	var description := Label.new()
 	description.text = detail
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
+	description.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	description.autowrap_mode = TextServer.AUTOWRAP_OFF
+	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 28.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
-	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("948572"))
-	description.add_theme_color_override("font_outline_color", Color("21150e"))
-	description.add_theme_constant_override("outline_size", 1)
+	UiTypography.set_label_size(description, UiTypography.SIZE_BODY)
+	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("d98f78"))
+	description.add_theme_color_override("font_outline_color", Color("150c08"))
+	description.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(description)
+
+func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, enabled: bool) -> void:
+	var clip := Control.new()
+	clip.name = "CampfireChoiceBackgroundClip"
+	clip.clip_contents = true
+	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	clip.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(clip)
+
+	var art := TextureRect.new()
+	art.name = "CampfireChoiceBackground"
+	art.texture = AssetLoader.load_texture(icon_path)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.modulate = Color(1.0, 1.0, 1.0, 0.68 if enabled else 0.50)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.offset_left = -8.0
+	art.offset_top = -8.0
+	art.offset_right = 8.0
+	art.offset_bottom = 8.0
+	clip.add_child(art)
+
+	var wash := ColorRect.new()
+	wash.name = "CampfireChoiceWash"
+	wash.color = Color(0.055, 0.033, 0.022, 0.40 if enabled else 0.55)
+	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	clip.add_child(wash)
+
+func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
+	var chips: Array = []
+	match choice_id:
+		"linger":
+			chips.append({"text": "+%d HP" % CAMPFIRE_LINGER_HEAL_AMOUNT, "tone": "benefit"})
+		"strength":
+			_sync_progression_from_run()
+			var cost: int = ProgressionStore.next_level_cost(_progression)
+			if ProgressionStore.is_max_level(_progression):
+				chips.append({"text": "MAX LEVEL", "tone": "locked"})
+				chips.append({"text": "CAPPED", "tone": "disabled"})
+			elif enabled:
+				chips.append({"text": "%d EMBERS" % cost, "tone": "cost"})
+				chips.append({"text": "LV +1", "tone": "benefit"})
+			else:
+				chips.append({"text": "NEED %d" % cost, "tone": "locked"})
+				chips.append({"text": "HELD %d" % int(_progression.get("embers", 0)), "tone": "disabled"})
+	return chips
+
+func _add_campfire_choice_chip(chip_row: HFlowContainer, chip_def: Dictionary, accent: Color, choice_enabled: bool) -> void:
+	var chip := PanelContainer.new()
+	chip.name = "CampfireChoiceChip"
+	chip.custom_minimum_size = CAMPFIRE_CHOICE_CHIP_SIZE
+	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tone: String = str(chip_def.get("tone", "neutral"))
+	chip.add_theme_stylebox_override("panel", _campfire_choice_chip_style(tone, accent, choice_enabled))
+	chip_row.add_child(chip)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 2)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 2)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(margin)
+
+	var label := Label.new()
+	label.text = str(chip_def.get("text", ""))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
+	label.add_theme_color_override("font_color", _campfire_choice_chip_text_color(tone, choice_enabled))
+	label.add_theme_color_override("font_outline_color", Color("1a100b"))
+	label.add_theme_constant_override("outline_size", 2)
+	margin.add_child(label)
 
 func _can_level_at_campfire() -> bool:
 	_sync_progression_from_run()
@@ -3623,7 +3845,7 @@ func _campfire_strength_description() -> String:
 	if cost <= 0:
 		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
 	if ProgressionStore.can_level_up(_progression):
-		return "%s (%d embers)" % [CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION, cost]
+		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
 	return "Need %d embers" % cost
 
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
@@ -3636,10 +3858,81 @@ func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
 		return
-	if not bool(panel.get_meta("choice_enabled", true)):
-		return
 	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent, hovered))
+	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, bool(panel.get_meta("choice_enabled", true))))
+
+func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	if enabled:
+		style.bg_color = Color(0.15, 0.09, 0.055, 0.96) if hovered else Color(0.10, 0.065, 0.045, 0.91)
+		style.border_color = accent.lightened(0.32) if hovered else Color(accent.r, accent.g, accent.b, 0.84)
+	else:
+		style.bg_color = Color(0.075, 0.065, 0.055, 0.96)
+		style.border_color = Color("b9664f") if hovered else Color("8f5e4d")
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.content_margin_left = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_bottom = 0.0
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.52 if hovered else 0.40)
+	style.shadow_size = 22 if hovered else 16
+	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
+	style.expand_margin_left = 8.0
+	style.expand_margin_top = 8.0
+	style.expand_margin_right = 8.0
+	style.expand_margin_bottom = 14.0
+	return style
+
+func _campfire_choice_chip_style(tone: String, accent: Color, choice_enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var bg := Color(0.14, 0.11, 0.08, 0.96)
+	var border := Color(accent.r, accent.g, accent.b, 0.82)
+	match tone:
+		"benefit":
+			bg = Color("15321d")
+			border = Color("83d088")
+		"cost":
+			bg = Color("342415")
+			border = Color("e1a158")
+		"locked":
+			bg = Color("3c211b")
+			border = Color("dc745d")
+		"disabled":
+			bg = Color("25221f")
+			border = Color("8b7b66")
+	if not choice_enabled and tone != "locked":
+		bg = bg.darkened(0.10)
+		border = border.darkened(0.12)
+	style.bg_color = bg
+	style.border_color = border
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 7
+	style.corner_radius_top_right = 7
+	style.corner_radius_bottom_right = 7
+	style.corner_radius_bottom_left = 7
+	return style
+
+func _campfire_choice_chip_text_color(tone: String, choice_enabled: bool) -> Color:
+	match tone:
+		"benefit":
+			return Color("d9ffd6") if choice_enabled else Color("a7c9a4")
+		"cost":
+			return Color("ffe1ad") if choice_enabled else Color("c9ad85")
+		"locked":
+			return Color("ffd0bd")
+		"disabled":
+			return Color("d1c1a8")
+	return Color("fff1d5") if choice_enabled else Color("c8b69b")
 
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

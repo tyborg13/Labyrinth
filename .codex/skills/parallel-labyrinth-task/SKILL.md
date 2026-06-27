@@ -12,8 +12,8 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - Start each fresh substantive task from the tip of `master` in its own worktree/branch.
 - Work only inside that task worktree after it exists.
 - Keep Godot runtime state parallel-safe by setting `LABYRINTH_TASK_ID` or using `tools/visual_probe_runner.py`.
-- Commit finished work, get explicit signoff from a peer-review sub-agent, then stop for user inspection.
-- Do not present work as ready for user inspection until peer review has signed off; if review cannot be obtained, report a blocker instead of a done handoff.
+- Commit finished work, get explicit signoff from a peer-review sub-agent, create a user-inspection fixture or document why none applies, then stop for user inspection.
+- Do not present work as ready for user inspection until peer review has signed off and the inspection-fixture step is complete; if review cannot be obtained, report a blocker instead of a done handoff.
 - Do not push, land, or clean up until the user explicitly approves that committed task branch.
 - After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
 
@@ -57,10 +57,10 @@ python3 tools/parallel_task.py env
 For normal Godot or test commands, use the task-local Godot runner:
 
 ```bash
-python3 tools/godot_task_runner.py --task-id <task-id> -- godot --headless --path . --script tests/run_tests.gd
+python3 tools/godot_task_runner.py --task-id <task-id> --timeout 180 --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`, and a unique `LABYRINTH_TASK_ID` so default `user://` state does not collide across parallel tasks.
+The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`, and a unique `LABYRINTH_TASK_ID` so default `user://` state does not collide across parallel tasks. It terminates commands after 300 seconds by default, accepts `--timeout <seconds>` to tune that limit, accepts `--timeout 0` for intentionally unbounded local runs, and `--stream` tees output live while preserving captured output for Godot failure-marker scanning.
 
 For visual probes, use the validated runner instead of invoking probe scripts directly:
 
@@ -95,7 +95,15 @@ python3 tools/parallel_task.py commit -m "<concise task summary>"
 
 4. Run the peer review gate below.
 
-After reviewer signoff, report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, and repeat peer review before handing it back again.
+After reviewer signoff, prepare the user-inspection fixture:
+
+```bash
+python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Continue opens>" <fixture-options>
+```
+
+Use the fixture whenever a playable state can make the change easier to inspect. Common scenarios are `combat`, `reward`, `campfire`, `treasure`, `character`, `boss`, `start`, `victory`, and `defeat`. Add focused options such as `--hand`, `--reward-cards`, `--relics`, `--attuned-magic`, `--magic-inventory`, `--equip`, `--equipment-inventory`, `--player-hp`, or `--room-coord` so the Continue button lands near the changed behavior. If the task is tooling-only, analytics-only, data-only with no meaningful playable state, or otherwise not inspectable in-game, record a concise not-applicable reason instead of forcing a fake fixture.
+
+Report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, inspection fixture scenario and launch command or not-applicable reason, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, repeat peer review, and refresh the inspection fixture before handing it back again.
 
 ## Peer Review Gate
 
