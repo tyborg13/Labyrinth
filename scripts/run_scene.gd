@@ -346,7 +346,7 @@ const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw strength from the flame"
 const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
 const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
 const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, continue"
-const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(104.0, 28.0)
+const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const PROGRESSION_STEPPER_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_stepper_normal.png"
 const PROGRESSION_STEPPER_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_stepper_hover.png"
 const PROGRESSION_STEPPER_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_stepper_pressed.png"
@@ -3555,41 +3555,35 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
 
+	_add_campfire_choice_background(panel, icon_path, enabled)
+
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
 	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_top", 18)
 	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 8)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
-
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(58.0, 58.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(icon_path)
-	icon.modulate = Color.WHITE if enabled else Color(0.72, 0.66, 0.58, 0.84)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(icon)
 
 	var label := Label.new()
 	label.text = title
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 40.0)
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 58.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
 	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("d0bea2"))
-	label.add_theme_color_override("font_outline_color", Color("26180f"))
+	label.add_theme_color_override("font_outline_color", Color("150c08"))
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
 
@@ -3597,7 +3591,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	if not chips.is_empty():
 		var chip_row := HFlowContainer.new()
 		chip_row.alignment = FlowContainer.ALIGNMENT_CENTER
-		chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+		chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 38.0)
 		chip_row.add_theme_constant_override("h_separation", 6)
 		chip_row.add_theme_constant_override("v_separation", 4)
 		chip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -3610,13 +3604,32 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	description.autowrap_mode = TextServer.AUTOWRAP_OFF
-	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 24.0)
+	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 28.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(description, UiTypography.SIZE_BODY)
 	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("d98f78"))
-	description.add_theme_color_override("font_outline_color", Color("21150e"))
-	description.add_theme_constant_override("outline_size", 1)
+	description.add_theme_color_override("font_outline_color", Color("150c08"))
+	description.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(description)
+
+func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, enabled: bool) -> void:
+	var art := TextureRect.new()
+	art.name = "CampfireChoiceBackground"
+	art.texture = AssetLoader.load_texture(icon_path)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.modulate = Color(1.0, 1.0, 1.0, 0.42 if enabled else 0.26)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(art)
+
+	var wash := ColorRect.new()
+	wash.name = "CampfireChoiceWash"
+	wash.color = Color(0.055, 0.033, 0.022, 0.55 if enabled else 0.70)
+	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(wash)
 
 func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	var chips: Array = []
@@ -3662,10 +3675,10 @@ func _add_campfire_choice_chip(chip_row: HFlowContainer, chip_def: Dictionary, a
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
 	label.add_theme_color_override("font_color", _campfire_choice_chip_text_color(tone, choice_enabled))
 	label.add_theme_color_override("font_outline_color", Color("1a100b"))
-	label.add_theme_constant_override("outline_size", 1)
+	label.add_theme_constant_override("outline_size", 2)
 	margin.add_child(label)
 
 func _can_level_at_campfire() -> bool:
