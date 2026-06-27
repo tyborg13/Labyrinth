@@ -509,6 +509,7 @@ var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
 var _drag_zone_labels: Dictionary = {}
+var _drag_zone_detail_labels: Dictionary = {}
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
@@ -1688,43 +1689,63 @@ func _build_drag_overlay() -> void:
 
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
-	_drag_zone_panels["play"] = _build_drag_zone("Play", UiTypography.SIZE_SECTION, Vector2(560.0, 118.0), Color("c5a26a"), Color("2f241c"))
+	_drag_zone_detail_labels.clear()
+	_drag_zone_panels["play"] = _build_drag_zone("Printed Play", "Card Action", UiTypography.SIZE_SECTION, Vector2(560.0, 118.0), Color("c5a26a"), Color("2f241c"))
 	vbox.add_child(_drag_zone_panels["play"])
 	_drag_zone_labels["play"] = _drag_zone_panels["play"].get_meta("label")
+	_drag_zone_detail_labels["play"] = _drag_zone_panels["play"].get_meta("detail_label")
 
 	var bottom_row := HBoxContainer.new()
 	bottom_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom_row.add_theme_constant_override("separation", 14)
 	vbox.add_child(bottom_row)
 
-	_drag_zone_panels["attack"] = _build_drag_zone(_fallback_label("attack"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
+	_drag_zone_panels["attack"] = _build_drag_zone("Fallback Attack", _fallback_label("attack"), UiTypography.SIZE_BODY_LARGE, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
 	bottom_row.add_child(_drag_zone_panels["attack"])
 	_drag_zone_labels["attack"] = _drag_zone_panels["attack"].get_meta("label")
+	_drag_zone_detail_labels["attack"] = _drag_zone_panels["attack"].get_meta("detail_label")
 
-	_drag_zone_panels["move"] = _build_drag_zone(_fallback_label("move"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
+	_drag_zone_panels["move"] = _build_drag_zone("Fallback Move", _fallback_label("move"), UiTypography.SIZE_BODY_LARGE, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
 	bottom_row.add_child(_drag_zone_panels["move"])
 	_drag_zone_labels["move"] = _drag_zone_panels["move"].get_meta("label")
+	_drag_zone_detail_labels["move"] = _drag_zone_panels["move"].get_meta("detail_label")
 
-func _build_drag_zone(text: String, font_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
+func _build_drag_zone(title_text: String, detail_text: String, title_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.custom_minimum_size = minimum_size
 	panel.set_meta("accent", accent)
 	panel.set_meta("fill", fill)
+	panel.set_meta("detail_text", detail_text)
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(center)
 	var label := Label.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.text = text.to_upper()
+	label.text = title_text.to_upper()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, font_size)
+	UiTypography.set_label_size(label, title_size)
 	label.add_theme_color_override("font_color", Color("f4ead5"))
 	label.add_theme_color_override("font_outline_color", Color("241912"))
 	label.add_theme_constant_override("outline_size", 2)
-	center.add_child(label)
+	var vbox := VBoxContainer.new()
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_theme_constant_override("separation", 4)
+	center.add_child(vbox)
+	vbox.add_child(label)
+	var detail_label := Label.new()
+	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_label.text = detail_text.to_upper()
+	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
+	detail_label.add_theme_color_override("font_color", accent.lightened(0.28))
+	detail_label.add_theme_color_override("font_outline_color", Color("241912"))
+	detail_label.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(detail_label)
 	panel.set_meta("label", label)
+	panel.set_meta("detail_label", detail_label)
 	panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, false, true))
 	return panel
 
@@ -1926,6 +1947,7 @@ func _show_drag_overlay() -> void:
 		return
 	_close_pile_view()
 	_drag_overlay.visible = true
+	_drag_overlay.move_to_front()
 
 func _cancel_drag_play() -> void:
 	if _drag_overlay != null:
@@ -1949,6 +1971,9 @@ func _animate_drag_cancel_to_source() -> void:
 func _commit_drag_drop(zone: String) -> void:
 	if _drag_card_index < 0:
 		return
+	if not _drag_option_valid(zone):
+		await _animate_drag_cancel_to_source()
+		return
 	var hand_index: int = _drag_card_index
 	var options: Dictionary = _drag_card_options.duplicate(true)
 	var preview: Dictionary = {}
@@ -1965,6 +1990,9 @@ func _commit_drag_drop(zone: String) -> void:
 		_:
 			await _animate_drag_cancel_to_source()
 			return
+	if not bool(preview.get("playable", false)):
+		await _animate_drag_cancel_to_source()
+		return
 	if _drag_card_proxy != null:
 		var zone_rect: Rect2 = _drag_zone_panels.get(zone, null).get_global_rect()
 		await _animate_card_proxy_to_rect(_drag_card_proxy, _rect_from_center(zone_rect.get_center(), _drag_card_source_rect.size), 0.10)
@@ -2077,35 +2105,55 @@ func _update_drag_overlay_hover(zone: String) -> void:
 	for zone_name: String in ["play", "attack", "move"]:
 		var panel: PanelContainer = _drag_zone_panels.get(zone_name, null)
 		var label: Label = _drag_zone_labels.get(zone_name, null)
-		if panel == null or label == null:
+		var detail_label: Label = _drag_zone_detail_labels.get(zone_name, null)
+		if panel == null or label == null or detail_label == null:
 			continue
 		var accent: Color = panel.get_meta("accent", Color("9d7a50"))
 		var fill: Color = panel.get_meta("fill", Color("241912"))
 		var valid: bool = _drag_option_valid(zone_name)
 		panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, zone == zone_name and valid, valid))
-		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.42)
+		label.add_theme_color_override("font_color", Color("fff1d0") if valid else Color("a69a8d"))
+		detail_label.text = _drag_zone_detail_text(zone_name, valid).to_upper()
+		detail_label.add_theme_color_override("font_color", accent.lightened(0.32) if valid else Color("8c8277"))
+		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.52)
+		detail_label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.64)
+
+func _drag_zone_detail_text(zone: String, valid: bool) -> String:
+	if not valid:
+		return "Unavailable"
+	match zone:
+		"play":
+			return "Card Action"
+		"attack":
+			return _fallback_label("attack")
+		"move":
+			return _fallback_label("move")
+		_:
+			return ""
 
 func _drag_zone_style(fill: Color, accent: Color, hovered: bool, valid: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = fill.lightened(0.12) if hovered else fill
-	style.border_color = accent.lightened(0.24) if hovered else accent if valid else Color("625244")
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	if valid:
+		style.bg_color = fill.lightened(0.20) if hovered else fill.lightened(0.04)
+		style.border_color = accent.lightened(0.38) if hovered else accent.lightened(0.08)
+	else:
+		style.bg_color = fill.darkened(0.34).lerp(Color("17120f"), 0.28)
+		style.border_color = Color("6f6256")
+	var border_width: int = 5 if hovered else 4 if valid else 2
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
 	style.corner_radius_top_left = 14
 	style.corner_radius_top_right = 14
 	style.corner_radius_bottom_right = 14
 	style.corner_radius_bottom_left = 14
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.18)
-	style.shadow_size = 10 if hovered else 6
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.24) if hovered else Color(0.0, 0.0, 0.0, 0.18)
+	style.shadow_size = 18 if hovered else 8 if valid else 0
 	style.content_margin_left = 8.0
 	style.content_margin_top = 8.0
 	style.content_margin_right = 8.0
 	style.content_margin_bottom = 8.0
-	if not valid:
-		style.bg_color = fill.darkened(0.12)
-		style.shadow_size = 0
 	return style
 
 func _drag_option_valid(zone: String) -> bool:

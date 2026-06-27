@@ -198,6 +198,7 @@ func _initialize() -> void:
 	await _test_run_scene_offers_pass_when_hand_dead()
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
+	await _test_run_scene_drag_overlay_snapback_and_click_selection()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
 	await _test_run_scene_selection_prompts_clear_after_pick()
@@ -5531,6 +5532,127 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	var targeting_action_width: float = left_action_stack.size.x
 	_assert(absf(targeting_hand_x - pass_hand_x) <= 1.0, "Move targeting Skip/Cancel controls should not shift the hand area")
 	_assert(absf(targeting_action_width - pass_action_width) <= 1.0, "Combat action controls should reserve a stable column width")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_drag_overlay_snapback_and_click_selection() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for drag overlay coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var far_layout: Dictionary = _simple_room_layout()
+	far_layout["player_start"] = Vector2i(2, 5)
+	far_layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(6, 5),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0
+	}]
+	var combat_state: Dictionary = combat.create_combat(9204, far_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var options: Dictionary = instance.call("_card_play_options_for_index", 0)
+	_assert(not bool(options.get("printed_playable", false)), "Far melee cards should show printed play as disabled while dragging")
+	_assert(not bool(options.get("attack_playable", false)), "Far melee cards should disable fallback attack when no enemy is adjacent")
+	_assert(bool(options.get("move_playable", false)), "Far melee cards should keep fallback move available")
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	var overlay: Control = instance.get("_drag_overlay") as Control
+	_assert(overlay != null and overlay.visible, "Starting a fallback-only drag should show the drop-zone overlay")
+	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
+	var play_detail: Label = detail_labels.get("play", null) as Label
+	var move_detail: Label = detail_labels.get("move", null) as Label
+	_assert(play_detail != null and play_detail.text == "UNAVAILABLE", "Disabled printed drag zones should carry an explicit unavailable state")
+	_assert(move_detail != null and move_detail.text == str(instance.call("_fallback_label", "move")).to_upper(), "Available fallback move zones should keep their concise movement label")
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hidden_source: Control = null
+	if hand_box.get_child_count() > 0:
+		hidden_source = hand_box.get_child(0) as Control
+	_assert(hidden_source != null and not hidden_source.visible, "Card drag should hide the source card while the proxy is held")
+	await instance.call("_commit_drag_drop", "play")
+	await process_frame
+	_assert(int(instance.get("_drag_card_index")) == -1, "Disabled drag drops should clear drag state")
+	_assert(int(instance.get("_selected_card_index")) == -1, "Disabled drag drops should not start card selection")
+	overlay = instance.get("_drag_overlay") as Control
+	_assert(overlay != null and not overlay.visible, "Disabled drag drops should hide the overlay after snapback")
+	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var restored_source: Control = null
+	if hand_box.get_child_count() > 0:
+		restored_source = hand_box.get_child(0) as Control
+	_assert(restored_source != null and restored_source.visible, "Disabled drag drops should restore the source card instead of leaving it hidden")
+
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	await instance.call("_commit_drag_drop", "")
+	await process_frame
+	_assert(int(instance.get("_drag_card_index")) == -1, "Dropping outside every drag zone should also snap back and clear drag state")
+	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	restored_source = null
+	if hand_box.get_child_count() > 0:
+		restored_source = hand_box.get_child(0) as Control
+	_assert(restored_source != null and restored_source.visible, "Out-of-zone drag drops should restore the source card")
+
+	var adjacent_layout: Dictionary = _simple_room_layout()
+	adjacent_layout["player_start"] = Vector2i(2, 5)
+	adjacent_layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 5),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0
+	}]
+	combat_state = combat.create_combat(9205, adjacent_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	deck = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	run_state = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await instance.call("_on_card_pressed", 0)
+	_assert(int(instance.get("_selected_card_index")) == 0, "Click-to-select should continue to select a normal playable card after drag cancellation")
+	_assert(int(instance.get("_drag_card_index")) == -1, "Click-to-select should not leave drag state active")
+	var click_preview: Dictionary = instance.call("_active_card_preview")
+	_assert(not (click_preview.get("target_tiles", []) as Array).is_empty(), "Click selection should still expose printed card targets independently of drag flow")
 	instance.queue_free()
 	await process_frame
 
