@@ -549,6 +549,26 @@ def command_mark(args: argparse.Namespace) -> int:
 def command_complete(args: argparse.Namespace) -> int:
     queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
     task = load_task(queue_root, args.task_id)
+    inspection_recorded_at = utc_now()
+    if args.inspection_not_applicable:
+        inspection_fixture = {
+            "applicable": False,
+            "recorded_at_utc": inspection_recorded_at,
+            "reason": args.inspection_not_applicable,
+        }
+    else:
+        if not args.inspection_summary.strip():
+            raise QueueError("Ready-for-user handoff needs --inspection-summary, or --inspection-not-applicable with a reason.")
+        if not args.inspection_launch.strip():
+            raise QueueError("Ready-for-user handoff needs --inspection-launch, or --inspection-not-applicable with a reason.")
+        inspection_fixture = {
+            "applicable": True,
+            "recorded_at_utc": inspection_recorded_at,
+            "scenario": args.inspection_scenario,
+            "run_id": args.inspection_run_id,
+            "summary": args.inspection_summary,
+            "launch_command": args.inspection_launch,
+        }
     task["status"] = "ready_for_user"
     task["implementation_review"] = {
         "status": "signoff",
@@ -558,6 +578,7 @@ def command_complete(args: argparse.Namespace) -> int:
         "proof_summary": args.proof,
         "head_commit": args.commit,
     }
+    task["inspection_fixture"] = inspection_fixture
     append_history(task, actor=args.actor, status="ready_for_user", note="implementation reviewed and ready for user")
     validate_task(task)
     write_json(task_path(queue_root, task["id"]), task)
@@ -667,6 +688,11 @@ def build_parser() -> argparse.ArgumentParser:
     complete.add_argument("--signoff", required=True)
     complete.add_argument("--proof", required=True)
     complete.add_argument("--commit", required=True)
+    complete.add_argument("--inspection-scenario", default="")
+    complete.add_argument("--inspection-run-id", default="")
+    complete.add_argument("--inspection-summary", default="")
+    complete.add_argument("--inspection-launch", default="")
+    complete.add_argument("--inspection-not-applicable", default="", help="Reason no playable inspection fixture applies.")
     complete.set_defaults(func=command_complete)
 
     landed = sub.add_parser("landed", help="Mark an approved task as landed on master.")
