@@ -18,7 +18,8 @@
         ],
         "required_proof": [
           "Run the smallest relevant automated test.",
-          "Provide screenshots or visual probe artifacts for visual/UI changes."
+          "Provide screenshots or visual probe artifacts for visual/UI changes.",
+          "Provide a user-inspection fixture scenario and launch command, or a clear not-applicable reason."
         ],
         "risk": "The highest-risk behavior or shared file touched.",
         "why_now": "Why this is worth spending an autonomous worker on."

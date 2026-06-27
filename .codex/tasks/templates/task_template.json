@@ -16,7 +16,8 @@
     ],
     "required_proof": [
       "Relevant automated test command.",
-      "Relevant visual probe, screenshot, or textual inspection evidence."
+      "Relevant visual probe, screenshot, or textual inspection evidence.",
+      "User-inspection fixture scenario and launch command, or a clear not-applicable reason."
     ],
     "risk": "Primary regression or complexity risk.",
     "why_now": "Why this should be prioritized now."

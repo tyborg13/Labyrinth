@@ -39,6 +39,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
+DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
 
 DEPTHS_PER_SEQUENCE = 4
 ENEMY_HP_SCALE_PER_SEQUENCE = 0.45
@@ -46,6 +47,14 @@ ENEMY_HP_FLAT_BONUS_PER_SEQUENCE = 4
 ENEMY_DAMAGE_BONUS_PER_SEQUENCE = 2
 ENEMY_SUPPORT_BONUS_PER_SEQUENCE = 2
 ELEMENTS = {"fire", "ice", "lightning", "air", "earth"}
+SOURCE_FILTERS = (
+    "all",
+    "reward-pool",
+    "elemental-reward",
+    "neutral-reward",
+    "equipment",
+    "starter",
+)
 
 
 @dataclass(frozen=True)
@@ -536,10 +545,71 @@ def load_cards(cards_path: Path) -> dict[str, Any]:
     return data
 
 
-def scored_rows(cards: dict[str, Any], weights: HeuristicWeights) -> list[dict[str, Any]]:
+def equipment_card_sources(equipment_path: Path) -> dict[str, list[str]]:
+    with equipment_path.open("r", encoding="utf-8") as handle:
+        equipment = json.load(handle)
+    if not isinstance(equipment, dict):
+        raise ValueError(f"Expected dictionary JSON in {equipment_path}")
+
+    sources: dict[str, list[str]] = {}
+    for equipment_id, item in equipment.items():
+        if not isinstance(item, dict):
+            continue
+        cards = item.get("cards", [])
+        if not isinstance(cards, list):
+            continue
+        for card_id in cards:
+            sources.setdefault(str(card_id), []).append(str(equipment_id))
+    for equipment_ids in sources.values():
+        equipment_ids.sort()
+    return sources
+
+
+def card_source_metadata(card_id: str, card: dict[str, Any], equipment_sources: dict[str, list[str]]) -> dict[str, Any]:
+    equipment_ids = equipment_sources.get(card_id, [])
+    is_equipment_granted = len(equipment_ids) > 0
+    is_starter = bool(card.get("starter", False)) or str(card.get("rarity", "")) == "starter"
+    is_equipment = is_equipment_granted and not is_starter
+    is_reward_pool = bool(card.get("reward_pool", True)) and not is_equipment_granted and not is_starter
+    element = str(card.get("element", "none"))
+    is_elemental_reward = is_reward_pool and element in ELEMENTS
+    is_neutral_reward = is_reward_pool and not is_elemental_reward
+
+    source_tags: list[str] = []
+    if is_reward_pool:
+        source_tags.append("reward-pool")
+    if is_elemental_reward:
+        source_tags.append("elemental-reward")
+    if is_neutral_reward:
+        source_tags.append("neutral-reward")
+    if is_equipment:
+        source_tags.append("equipment")
+    if is_starter:
+        source_tags.append("starter")
+    if not source_tags:
+        source_tags.append("off-pool")
+
+    return {
+        "source_tags": source_tags,
+        "is_reward_pool": is_reward_pool,
+        "is_elemental_reward": is_elemental_reward,
+        "is_neutral_reward": is_neutral_reward,
+        "is_equipment": is_equipment,
+        "is_equipment_granted": is_equipment_granted,
+        "is_starter": is_starter,
+        "equipment_ids": list(equipment_ids),
+    }
+
+
+def scored_rows(
+    cards: dict[str, Any],
+    weights: HeuristicWeights,
+    equipment_sources: dict[str, list[str]],
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for card_id, card in cards.items():
         breakdown = score_card(card_id, card, weights)
+        source_metadata = card_source_metadata(card_id, card, equipment_sources)
         rows.append(
             {
                 "card_id": card_id,
@@ -552,6 +622,7 @@ def scored_rows(cards: dict[str, Any], weights: HeuristicWeights) -> list[dict[s
                 "description": card.get("description", ""),
                 "score": breakdown.total,
                 "breakdown": asdict(breakdown),
+                **source_metadata,
             }
         )
     rows.sort(key=lambda row: (-row["score"], row["name"], row["card_id"]))
@@ -565,6 +636,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=DEFAULT_CARDS_PATH,
         help="Path to a cards JSON file. Defaults to data/cards.json.",
+    )
+    parser.add_argument(
+        "--equipment-path",
+        type=Path,
+        default=DEFAULT_EQUIPMENT_PATH,
+        help="Path to equipment JSON for card source annotation. Defaults to data/equipment.json.",
     )
     parser.add_argument(
         "--card-id",
@@ -586,24 +663,83 @@ def build_parser() -> argparse.ArgumentParser:
         default=0,
         help="Limit the number of returned cards after sorting. 0 means all cards.",
     )
+    parser.add_argument(
+        "--show-source",
+        action="store_true",
+        help="Include card source tags in text output. Source tags are always present in JSON output.",
+    )
+    source_group = parser.add_mutually_exclusive_group()
+    source_group.add_argument(
+        "--source",
+        dest="source_filter",
+        choices=SOURCE_FILTERS,
+        help="Filter cards by source view.",
+    )
+    source_group.add_argument(
+        "--reward-pool",
+        "--normal-rewards",
+        dest="source_filter",
+        action="store_const",
+        const="reward-pool",
+        help="Only normal card rewards: reward_pool cards excluding equipment and starters.",
+    )
+    source_group.add_argument(
+        "--elemental-rewards",
+        "--elemental-reward",
+        dest="source_filter",
+        action="store_const",
+        const="elemental-reward",
+        help="Only elemental cards from the normal reward pool.",
+    )
+    source_group.add_argument(
+        "--neutral-rewards",
+        "--neutral-reward",
+        dest="source_filter",
+        action="store_const",
+        const="neutral-reward",
+        help="Only neutral cards from the normal reward pool.",
+    )
+    source_group.add_argument(
+        "--equipment",
+        dest="source_filter",
+        action="store_const",
+        const="equipment",
+        help="Only equipment-only cards, excluding starters granted by starting gear.",
+    )
+    source_group.add_argument(
+        "--starters",
+        "--starter",
+        dest="source_filter",
+        action="store_const",
+        const="starter",
+        help="Only starter cards, using starter metadata or starter rarity.",
+    )
+    parser.set_defaults(source_filter="all")
     return parser
 
 
 def select_rows(rows: list[dict[str, Any]], args: argparse.Namespace) -> list[dict[str, Any]]:
     selected = rows
+    source_filter = str(args.source_filter)
+    if source_filter != "all":
+        selected = [row for row in selected if bool(row[f"is_{source_filter.replace('-', '_')}"])]
     if args.card_id:
         selected = [row for row in rows if row["card_id"] == args.card_id]
+        if source_filter != "all":
+            selected = [row for row in selected if bool(row[f"is_{source_filter.replace('-', '_')}"])]
     if args.limit > 0:
         selected = selected[: args.limit]
     return selected
 
 
-def print_text(rows: list[dict[str, Any]], show_breakdown: bool) -> None:
+def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bool) -> None:
     for index, row in enumerate(rows, start=1):
         tag_bits = []
         if row["element"] != "none":
             tag_bits.append(str(row["element"]))
         tag_bits.append(str(row["rarity"]))
+        if show_source:
+            tag_bits.append("source=" + "/".join(str(tag) for tag in row["source_tags"]))
         if row["burn"]:
             tag_bits.append("exhaust-card")
         if row["health_cost"] > 0:
@@ -636,16 +772,18 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool) -> None:
 def main() -> int:
     args = build_parser().parse_args()
     cards = load_cards(args.cards_path)
+    equipment_sources = equipment_card_sources(args.equipment_path)
     weights = HeuristicWeights()
-    rows = select_rows(scored_rows(cards, weights), args)
+    all_rows = scored_rows(cards, weights, equipment_sources)
+    rows = select_rows(all_rows, args)
 
-    if args.card_id and not rows:
+    if args.card_id and not any(row["card_id"] == args.card_id for row in all_rows):
         raise SystemExit(f"Unknown card id: {args.card_id}")
 
     if args.json:
         print(json.dumps(rows, indent=2))
     else:
-        print_text(rows, args.show_breakdown)
+        print_text(rows, args.show_breakdown, args.show_source or args.source_filter != "all")
     return 0
 
 
