@@ -9,6 +9,14 @@ This directory holds the repo-local scaffolding for autonomous Labyrinth work.
 
 The queue is deliberately plain JSON so scouts, orchestrators, and worker threads can inspect and repair state without a background service.
 
+Worker Godot commands should go through the task-local wrapper so parallel runs do not share `user://` state:
+
+```bash
+python3 tools/godot_task_runner.py --task-id <task-id> --timeout 180 --stream -- godot --headless --path . --script tests/run_tests.gd
+```
+
+`--timeout` is in seconds and defaults to 300; pass `--timeout 0` only for an intentionally unbounded local run. `--stream` tees command output live while preserving captured output for the wrapper's Godot failure-marker scan.
+
 Reviewed tasks move through this shape:
 
 ```text
@@ -16,3 +24,11 @@ proposed -> ready -> leased -> in_progress -> implementation_review -> ready_for
 ```
 
 Scouts should use `$scout-labyrinth-tasks` to generate and reviewer-gate tasks. Orchestrators should use `$orchestrate-labyrinth-tasks` to pick low-collision `ready` tasks, create app-visible worker threads, and land user-approved work on `master`.
+
+Before a task is marked `ready_for_user`, the worker must complete the normal implementation review gate, then create a task-local inspection fixture or explain why no playable fixture applies. Use:
+
+```bash
+python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Continue opens>" <fixture-options>
+```
+
+The command writes `progression.json` and `current_run.save` inside a stable task-local Godot user directory and prints the launch command the user can run from the task worktree. Pass those details to `tools/labyrinth_task_queue.py complete` with `--inspection-scenario`, `--inspection-run-id`, `--inspection-summary`, and `--inspection-launch`. For tooling/data-only changes, use `--inspection-not-applicable "<reason>"`.
