@@ -9,6 +9,14 @@ This directory holds the repo-local scaffolding for autonomous Labyrinth work.
 
 The queue is deliberately plain JSON so scouts, orchestrators, and worker threads can inspect and repair state without a background service.
 
+Worker Godot commands should go through the task-local wrapper so parallel runs do not share `user://` state:
+
+```bash
+python3 tools/godot_task_runner.py --task-id <task-id> --timeout 180 --stream -- godot --headless --path . --script tests/run_tests.gd
+```
+
+`--timeout` is in seconds and defaults to 300; pass `--timeout 0` only for an intentionally unbounded local run. `--stream` tees command output live while preserving captured output for the wrapper's Godot failure-marker scan.
+
 Reviewed tasks move through this shape:
 
 ```text
