@@ -3593,15 +3593,17 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
 
-	var chip_row := HFlowContainer.new()
-	chip_row.alignment = FlowContainer.ALIGNMENT_CENTER
-	chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
-	chip_row.add_theme_constant_override("h_separation", 6)
-	chip_row.add_theme_constant_override("v_separation", 4)
-	chip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for chip: Dictionary in _campfire_choice_chips(choice_id, enabled):
-		_add_campfire_choice_chip(chip_row, chip, accent, enabled)
-	vbox.add_child(chip_row)
+	var chips: Array = _campfire_choice_chips(choice_id, enabled)
+	if not chips.is_empty():
+		var chip_row := HFlowContainer.new()
+		chip_row.alignment = FlowContainer.ALIGNMENT_CENTER
+		chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+		chip_row.add_theme_constant_override("h_separation", 6)
+		chip_row.add_theme_constant_override("v_separation", 4)
+		chip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for chip: Dictionary in chips:
+			_add_campfire_choice_chip(chip_row, chip, accent, enabled)
+		vbox.add_child(chip_row)
 
 	var description := Label.new()
 	description.text = detail
@@ -3621,10 +3623,6 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	match choice_id:
 		"linger":
 			chips.append({"text": "+%d HP" % CAMPFIRE_LINGER_HEAL_AMOUNT, "tone": "benefit"})
-			chips.append({"text": "CONTINUE", "tone": "neutral"})
-		"embrace":
-			chips.append({"text": "BANK HELD", "tone": "benefit"})
-			chips.append({"text": "END RUN", "tone": "cost"})
 		"strength":
 			_sync_progression_from_run()
 			var cost: int = ProgressionStore.next_level_cost(_progression)
