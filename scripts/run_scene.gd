@@ -3619,14 +3619,14 @@ func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, e
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	art.modulate = Color(1.0, 1.0, 1.0, 0.42 if enabled else 0.26)
+	art.modulate = Color(1.0, 1.0, 1.0, 0.62 if enabled else 0.46)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.add_child(art)
 
 	var wash := ColorRect.new()
 	wash.name = "CampfireChoiceWash"
-	wash.color = Color(0.055, 0.033, 0.022, 0.55 if enabled else 0.70)
+	wash.color = Color(0.055, 0.033, 0.022, 0.43 if enabled else 0.58)
 	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.add_child(wash)
