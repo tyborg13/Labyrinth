@@ -3613,23 +3613,34 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	vbox.add_child(description)
 
 func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, enabled: bool) -> void:
+	var clip := Control.new()
+	clip.name = "CampfireChoiceBackgroundClip"
+	clip.clip_contents = true
+	clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	clip.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(clip)
+
 	var art := TextureRect.new()
 	art.name = "CampfireChoiceBackground"
 	art.texture = AssetLoader.load_texture(icon_path)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	art.modulate = Color(1.0, 1.0, 1.0, 0.62 if enabled else 0.46)
+	art.modulate = Color(1.0, 1.0, 1.0, 0.68 if enabled else 0.50)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.add_child(art)
+	art.offset_left = -8.0
+	art.offset_top = -8.0
+	art.offset_right = 8.0
+	art.offset_bottom = 8.0
+	clip.add_child(art)
 
 	var wash := ColorRect.new()
 	wash.name = "CampfireChoiceWash"
-	wash.color = Color(0.055, 0.033, 0.022, 0.43 if enabled else 0.58)
+	wash.color = Color(0.055, 0.033, 0.022, 0.40 if enabled else 0.55)
 	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.add_child(wash)
+	clip.add_child(wash)
 
 func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	var chips: Array = []
@@ -3721,6 +3732,10 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	style.border_width_top = 3
 	style.border_width_right = 3
 	style.border_width_bottom = 3
+	style.content_margin_left = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_bottom = 0.0
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
