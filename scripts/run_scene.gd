@@ -343,9 +343,10 @@ const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire
 const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
 const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw strength from the flame"
-const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal 100 and continue onward"
-const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Carry held embers into the next run"
-const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers to become permanently stronger"
+const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
+const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
+const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, continue"
+const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(104.0, 28.0)
 const PROGRESSION_STEPPER_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_stepper_normal.png"
 const PROGRESSION_STEPPER_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_stepper_hover.png"
 const PROGRESSION_STEPPER_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_stepper_pressed.png"
@@ -3541,13 +3542,14 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 		return
 	var panel := TooltipPanelContainer.new()
 	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	panel.clip_contents = false
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
 	panel.set_meta("choice_enabled", enabled)
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent if enabled else Color("5c5046"), false))
-	panel.modulate = Color(1.0, 1.0, 1.0, 1.0) if enabled else Color(0.58, 0.55, 0.50, 0.82)
+	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, false, enabled))
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
@@ -3558,22 +3560,23 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
 	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_top", 10)
 	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 14)
+	margin.add_theme_constant_override("margin_bottom", 10)
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 7)
+	vbox.add_theme_constant_override("separation", 6)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(76.0, 76.0)
+	icon.custom_minimum_size = Vector2(58.0, 58.0)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = AssetLoader.load_texture(icon_path)
+	icon.modulate = Color.WHITE if enabled else Color(0.72, 0.66, 0.58, 0.84)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(icon)
 
@@ -3582,26 +3585,90 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 40.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
-	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("b8aa94"))
+	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("d0bea2"))
 	label.add_theme_color_override("font_outline_color", Color("26180f"))
 	label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(label)
 
+	var chip_row := HFlowContainer.new()
+	chip_row.alignment = FlowContainer.ALIGNMENT_CENTER
+	chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 32.0)
+	chip_row.add_theme_constant_override("h_separation", 6)
+	chip_row.add_theme_constant_override("v_separation", 4)
+	chip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for chip: Dictionary in _campfire_choice_chips(choice_id, enabled):
+		_add_campfire_choice_chip(chip_row, chip, accent, enabled)
+	vbox.add_child(chip_row)
+
 	var description := Label.new()
 	description.text = detail
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 76.0)
+	description.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	description.autowrap_mode = TextServer.AUTOWRAP_OFF
+	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 24.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(description, UiTypography.SIZE_SMALL)
-	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("948572"))
+	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("d98f78"))
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
+
+func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
+	var chips: Array = []
+	match choice_id:
+		"linger":
+			chips.append({"text": "+%d HP" % CAMPFIRE_LINGER_HEAL_AMOUNT, "tone": "benefit"})
+			chips.append({"text": "CONTINUE", "tone": "neutral"})
+		"embrace":
+			chips.append({"text": "BANK HELD", "tone": "benefit"})
+			chips.append({"text": "END RUN", "tone": "cost"})
+		"strength":
+			_sync_progression_from_run()
+			var cost: int = ProgressionStore.next_level_cost(_progression)
+			if ProgressionStore.is_max_level(_progression):
+				chips.append({"text": "MAX LEVEL", "tone": "locked"})
+				chips.append({"text": "CAPPED", "tone": "disabled"})
+			elif enabled:
+				chips.append({"text": "%d EMBERS" % cost, "tone": "cost"})
+				chips.append({"text": "LV +1", "tone": "benefit"})
+			else:
+				chips.append({"text": "NEED %d" % cost, "tone": "locked"})
+				chips.append({"text": "HELD %d" % int(_progression.get("embers", 0)), "tone": "disabled"})
+	return chips
+
+func _add_campfire_choice_chip(chip_row: HFlowContainer, chip_def: Dictionary, accent: Color, choice_enabled: bool) -> void:
+	var chip := PanelContainer.new()
+	chip.name = "CampfireChoiceChip"
+	chip.custom_minimum_size = CAMPFIRE_CHOICE_CHIP_SIZE
+	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tone: String = str(chip_def.get("tone", "neutral"))
+	chip.add_theme_stylebox_override("panel", _campfire_choice_chip_style(tone, accent, choice_enabled))
+	chip_row.add_child(chip)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 2)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 2)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(margin)
+
+	var label := Label.new()
+	label.text = str(chip_def.get("text", ""))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", _campfire_choice_chip_text_color(tone, choice_enabled))
+	label.add_theme_color_override("font_outline_color", Color("1a100b"))
+	label.add_theme_constant_override("outline_size", 1)
+	margin.add_child(label)
 
 func _can_level_at_campfire() -> bool:
 	_sync_progression_from_run()
@@ -3615,7 +3682,7 @@ func _campfire_strength_description() -> String:
 	if cost <= 0:
 		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
 	if ProgressionStore.can_level_up(_progression):
-		return "%s (%d embers)" % [CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION, cost]
+		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
 	return "Need %d embers" % cost
 
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
@@ -3628,10 +3695,77 @@ func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
 		return
-	if not bool(panel.get_meta("choice_enabled", true)):
-		return
 	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _relic_choice_style(accent, hovered))
+	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, bool(panel.get_meta("choice_enabled", true))))
+
+func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	if enabled:
+		style.bg_color = Color(0.15, 0.09, 0.055, 0.96) if hovered else Color(0.10, 0.065, 0.045, 0.91)
+		style.border_color = accent.lightened(0.32) if hovered else Color(accent.r, accent.g, accent.b, 0.84)
+	else:
+		style.bg_color = Color(0.075, 0.065, 0.055, 0.96)
+		style.border_color = Color("b9664f") if hovered else Color("8f5e4d")
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.52 if hovered else 0.40)
+	style.shadow_size = 22 if hovered else 16
+	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
+	style.expand_margin_left = 8.0
+	style.expand_margin_top = 8.0
+	style.expand_margin_right = 8.0
+	style.expand_margin_bottom = 14.0
+	return style
+
+func _campfire_choice_chip_style(tone: String, accent: Color, choice_enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var bg := Color(0.14, 0.11, 0.08, 0.96)
+	var border := Color(accent.r, accent.g, accent.b, 0.82)
+	match tone:
+		"benefit":
+			bg = Color("15321d")
+			border = Color("83d088")
+		"cost":
+			bg = Color("342415")
+			border = Color("e1a158")
+		"locked":
+			bg = Color("3c211b")
+			border = Color("dc745d")
+		"disabled":
+			bg = Color("25221f")
+			border = Color("8b7b66")
+	if not choice_enabled and tone != "locked":
+		bg = bg.darkened(0.10)
+		border = border.darkened(0.12)
+	style.bg_color = bg
+	style.border_color = border
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 7
+	style.corner_radius_top_right = 7
+	style.corner_radius_bottom_right = 7
+	style.corner_radius_bottom_left = 7
+	return style
+
+func _campfire_choice_chip_text_color(tone: String, choice_enabled: bool) -> Color:
+	match tone:
+		"benefit":
+			return Color("d9ffd6") if choice_enabled else Color("a7c9a4")
+		"cost":
+			return Color("ffe1ad") if choice_enabled else Color("c9ad85")
+		"locked":
+			return Color("ffd0bd")
+		"disabled":
+			return Color("d1c1a8")
+	return Color("fff1d5") if choice_enabled else Color("c8b69b")
 
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

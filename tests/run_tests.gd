@@ -5726,9 +5726,17 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
 	_assert(_label_with_text(relic_overlay, "Draw strength from the flame") != null, "Campfire overlay should label the level-up option")
-	_assert(_label_with_text(relic_overlay, "Heal 100 and continue onward") != null, "Campfire linger choice should describe the heal")
-	_assert(_label_with_text(relic_overlay, "Carry held embers into the next run") != null, "Campfire abandon choice should describe ember carry-forward")
+	_assert(_label_with_text(relic_overlay, "+100 HP") != null, "Campfire linger choice should show a compact heal chip")
+	_assert(_label_with_text(relic_overlay, "CONTINUE") != null, "Campfire linger choice should show a compact continue chip")
+	_assert(_label_with_text(relic_overlay, "BANK HELD") != null, "Campfire abandon choice should show a compact bank chip")
+	_assert(_label_with_text(relic_overlay, "END RUN") != null, "Campfire abandon choice should show a compact end-run chip")
+	_assert(_label_with_text(relic_overlay, "NEED 180") != null, "Campfire level-up choice should show the missing ember chip")
+	_assert(_label_with_text(relic_overlay, "HELD 0") != null, "Campfire level-up choice should show current held embers when disabled")
 	_assert(_label_with_text(relic_overlay, "Need 180 embers") != null, "Campfire level-up choice should be disabled when held embers are short")
+	var disabled_strength_panel: Control = null
+	if relic_bar != null and relic_bar.get_child_count() > 2:
+		disabled_strength_panel = relic_bar.get_child(2) as Control
+	_assert(disabled_strength_panel != null and not bool(disabled_strength_panel.get_meta("choice_enabled", true)), "Campfire level-up panel should be marked disabled when held embers are short")
 	var loaded_icon_count: int = 0
 	for texture_rect: TextureRect in _texture_rects_under(relic_overlay):
 		if texture_rect.texture != null:
@@ -5742,7 +5750,14 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	instance.set("_progression", run_state.get("progression", {}))
 	instance.call("_refresh_choice_bar")
 	relic_overlay = instance.get("_relic_choice_overlay") as Control
-	_assert(_label_with_text(relic_overlay, "Spend embers to become permanently stronger (180 embers)") != null, "Campfire level-up choice should reveal its cost when affordable")
+	relic_bar = instance.get("_relic_choice_bar") as HBoxContainer
+	_assert(_label_with_text(relic_overlay, "180 EMBERS") != null, "Campfire level-up choice should reveal its cost chip when affordable")
+	_assert(_label_with_text(relic_overlay, "LV +1") != null, "Campfire level-up choice should reveal its benefit chip when affordable")
+	_assert(_label_with_text(relic_overlay, "Spend embers, continue") != null, "Campfire level-up choice should keep a terse affordable state")
+	var enabled_strength_panel: Control = null
+	if relic_bar != null and relic_bar.get_child_count() > 2:
+		enabled_strength_panel = relic_bar.get_child(2) as Control
+	_assert(enabled_strength_panel != null and bool(enabled_strength_panel.get_meta("choice_enabled", false)), "Campfire level-up panel should be enabled when held embers meet the cost")
 	instance.queue_free()
 	await process_frame
 
