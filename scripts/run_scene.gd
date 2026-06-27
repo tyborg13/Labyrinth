@@ -510,6 +510,7 @@ var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
 var _drag_zone_labels: Dictionary = {}
+var _drag_zone_detail_labels: Dictionary = {}
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
@@ -1683,49 +1684,69 @@ func _build_drag_overlay() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.custom_minimum_size = Vector2(560.0, 240.0)
-	vbox.add_theme_constant_override("separation", 14)
+	vbox.custom_minimum_size = Vector2(760.0, 330.0)
+	vbox.add_theme_constant_override("separation", 18)
 	center.add_child(vbox)
 
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
-	_drag_zone_panels["play"] = _build_drag_zone("Play", UiTypography.SIZE_SECTION, Vector2(560.0, 118.0), Color("c5a26a"), Color("2f241c"))
+	_drag_zone_detail_labels.clear()
+	_drag_zone_panels["play"] = _build_drag_zone("Play Card", "Card Action", UiTypography.SIZE_SECTION, Vector2(760.0, 160.0), Color("c5a26a"), Color("2f241c"))
 	vbox.add_child(_drag_zone_panels["play"])
 	_drag_zone_labels["play"] = _drag_zone_panels["play"].get_meta("label")
+	_drag_zone_detail_labels["play"] = _drag_zone_panels["play"].get_meta("detail_label")
 
 	var bottom_row := HBoxContainer.new()
 	bottom_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bottom_row.add_theme_constant_override("separation", 14)
+	bottom_row.add_theme_constant_override("separation", 16)
 	vbox.add_child(bottom_row)
 
-	_drag_zone_panels["attack"] = _build_drag_zone(_fallback_label("attack"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("cf7657"), Color("2f1d18"))
+	_drag_zone_panels["attack"] = _build_drag_zone("Default Attack", _fallback_label("attack"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("cf7657"), Color("2f1d18"))
 	bottom_row.add_child(_drag_zone_panels["attack"])
 	_drag_zone_labels["attack"] = _drag_zone_panels["attack"].get_meta("label")
+	_drag_zone_detail_labels["attack"] = _drag_zone_panels["attack"].get_meta("detail_label")
 
-	_drag_zone_panels["move"] = _build_drag_zone(_fallback_label("move"), UiTypography.SIZE_SMALL, Vector2(273.0, 96.0), Color("5b8ea2"), Color("18262f"))
+	_drag_zone_panels["move"] = _build_drag_zone("Default Move", _fallback_label("move"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("5b8ea2"), Color("18262f"))
 	bottom_row.add_child(_drag_zone_panels["move"])
 	_drag_zone_labels["move"] = _drag_zone_panels["move"].get_meta("label")
+	_drag_zone_detail_labels["move"] = _drag_zone_panels["move"].get_meta("detail_label")
 
-func _build_drag_zone(text: String, font_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
+func _build_drag_zone(title_text: String, detail_text: String, title_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.custom_minimum_size = minimum_size
 	panel.set_meta("accent", accent)
 	panel.set_meta("fill", fill)
+	panel.set_meta("detail_text", detail_text)
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(center)
 	var label := Label.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.text = text.to_upper()
+	label.text = title_text.to_upper()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, font_size)
+	UiTypography.set_label_size(label, title_size)
 	label.add_theme_color_override("font_color", Color("f4ead5"))
 	label.add_theme_color_override("font_outline_color", Color("241912"))
 	label.add_theme_constant_override("outline_size", 2)
-	center.add_child(label)
+	var vbox := VBoxContainer.new()
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_theme_constant_override("separation", 4)
+	center.add_child(vbox)
+	vbox.add_child(label)
+	var detail_label := Label.new()
+	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_label.text = detail_text.to_upper()
+	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
+	detail_label.add_theme_color_override("font_color", accent.lightened(0.28))
+	detail_label.add_theme_color_override("font_outline_color", Color("241912"))
+	detail_label.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(detail_label)
 	panel.set_meta("label", label)
+	panel.set_meta("detail_label", detail_label)
 	panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, false, true))
 	return panel
 
@@ -1927,6 +1948,7 @@ func _show_drag_overlay() -> void:
 		return
 	_close_pile_view()
 	_drag_overlay.visible = true
+	_drag_overlay.move_to_front()
 
 func _cancel_drag_play() -> void:
 	if _drag_overlay != null:
@@ -1950,6 +1972,9 @@ func _animate_drag_cancel_to_source() -> void:
 func _commit_drag_drop(zone: String) -> void:
 	if _drag_card_index < 0:
 		return
+	if not _drag_option_valid(zone):
+		await _animate_drag_cancel_to_source()
+		return
 	var hand_index: int = _drag_card_index
 	var options: Dictionary = _drag_card_options.duplicate(true)
 	var preview: Dictionary = {}
@@ -1966,6 +1991,9 @@ func _commit_drag_drop(zone: String) -> void:
 		_:
 			await _animate_drag_cancel_to_source()
 			return
+	if not bool(preview.get("playable", false)):
+		await _animate_drag_cancel_to_source()
+		return
 	if _drag_card_proxy != null:
 		var zone_rect: Rect2 = _drag_zone_panels.get(zone, null).get_global_rect()
 		await _animate_card_proxy_to_rect(_drag_card_proxy, _rect_from_center(zone_rect.get_center(), _drag_card_source_rect.size), 0.10)
@@ -2078,35 +2106,55 @@ func _update_drag_overlay_hover(zone: String) -> void:
 	for zone_name: String in ["play", "attack", "move"]:
 		var panel: PanelContainer = _drag_zone_panels.get(zone_name, null)
 		var label: Label = _drag_zone_labels.get(zone_name, null)
-		if panel == null or label == null:
+		var detail_label: Label = _drag_zone_detail_labels.get(zone_name, null)
+		if panel == null or label == null or detail_label == null:
 			continue
 		var accent: Color = panel.get_meta("accent", Color("9d7a50"))
 		var fill: Color = panel.get_meta("fill", Color("241912"))
 		var valid: bool = _drag_option_valid(zone_name)
 		panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, zone == zone_name and valid, valid))
-		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.42)
+		label.add_theme_color_override("font_color", Color("fff1d0") if valid else Color("a69a8d"))
+		detail_label.text = _drag_zone_detail_text(zone_name, valid).to_upper()
+		detail_label.add_theme_color_override("font_color", accent.lightened(0.32) if valid else Color("8c8277"))
+		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.52)
+		detail_label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.64)
+
+func _drag_zone_detail_text(zone: String, valid: bool) -> String:
+	if not valid:
+		return "Unavailable"
+	match zone:
+		"play":
+			return "Card Action"
+		"attack":
+			return _fallback_label("attack")
+		"move":
+			return _fallback_label("move")
+		_:
+			return ""
 
 func _drag_zone_style(fill: Color, accent: Color, hovered: bool, valid: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = fill.lightened(0.12) if hovered else fill
-	style.border_color = accent.lightened(0.24) if hovered else accent if valid else Color("625244")
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	if valid:
+		style.bg_color = fill.lightened(0.20) if hovered else fill.lightened(0.04)
+		style.border_color = accent.lightened(0.38) if hovered else accent.lightened(0.08)
+	else:
+		style.bg_color = fill.darkened(0.34).lerp(Color("17120f"), 0.28)
+		style.border_color = Color("6f6256")
+	var border_width: int = 5 if hovered else 4 if valid else 2
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
 	style.corner_radius_top_left = 14
 	style.corner_radius_top_right = 14
 	style.corner_radius_bottom_right = 14
 	style.corner_radius_bottom_left = 14
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.18)
-	style.shadow_size = 10 if hovered else 6
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.24) if hovered else Color(0.0, 0.0, 0.0, 0.18)
+	style.shadow_size = 18 if hovered else 8 if valid else 0
 	style.content_margin_left = 8.0
 	style.content_margin_top = 8.0
 	style.content_margin_right = 8.0
 	style.content_margin_bottom = 8.0
-	if not valid:
-		style.bg_color = fill.darkened(0.12)
-		style.shadow_size = 0
 	return style
 
 func _drag_option_valid(zone: String) -> bool:
@@ -2806,6 +2854,10 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.tooltip_text = _turn_order_tooltip(entry, index)
 	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
 	frame.set_meta("turn_order_size", slot_size)
+	frame.set_meta("turn_order_projected", bool(entry.get("projected", false)))
+	frame.set_meta("turn_order_projection_card_name", str(entry.get("projected_card_name", "")))
+	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
+	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -2830,9 +2882,11 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	portrait.texture = AssetLoader.load_texture(_turn_order_portrait_path(entry))
-	portrait.modulate = Color(1.0, 1.0, 1.0, 0.74) if bool(entry.get("projected", false)) and not active else Color.WHITE
+	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(portrait)
+	if _turn_order_is_card_preview_projection(entry):
+		frame.add_child(_turn_order_projection_badge(entry))
 	var badge_text: String = _turn_order_clock_badge_text(entry)
 	frame.set_meta("turn_order_badge_text", badge_text)
 	frame.add_child(_turn_order_number_badge(badge_text, entry, active))
@@ -2845,6 +2899,70 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 
 func _turn_order_clock_badge_text(entry: Dictionary) -> String:
 	return str(_turn_order_relative_time(entry))
+
+func _turn_order_is_card_preview_projection(entry: Dictionary) -> bool:
+	return (
+		bool(entry.get("projected", false))
+		and str(entry.get("kind", "")) == "player"
+		and int(entry.get("projected_time_cost", 0)) > 0
+	)
+
+func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
+	if active:
+		return Color.WHITE
+	if _turn_order_is_card_preview_projection(entry):
+		return Color(1.0, 1.0, 1.0, 0.98)
+	if bool(entry.get("projected", false)):
+		return Color(1.0, 1.0, 1.0, 0.74)
+	return Color.WHITE
+
+func _turn_order_projection_badge(entry: Dictionary) -> Control:
+	var badge := PanelContainer.new()
+	badge.name = "ProjectionPreviewBadge"
+	badge.custom_minimum_size = Vector2(TURN_ORDER_PORTRAIT_SIZE.x - 8.0, 22.0)
+	badge.size = badge.custom_minimum_size
+	badge.position = Vector2(4.0, TURN_ORDER_PORTRAIT_SIZE.y - 26.0)
+	badge.tooltip_text = _turn_order_tooltip(entry, 0)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.z_index = 8
+	badge.add_theme_stylebox_override("panel", _turn_order_projection_badge_style())
+	var label := Label.new()
+	label.text = _turn_order_projection_badge_text(entry)
+	label.clip_text = true
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 9)
+	label.add_theme_color_override("font_color", Color("fff6ce"))
+	label.add_theme_color_override("font_outline_color", Color("120b07"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	return badge
+
+func _turn_order_projection_badge_text(entry: Dictionary) -> String:
+	var preview_time: int = int(entry.get("projected_time_cost", 0))
+	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
+	if card_name.is_empty():
+		return "+%d time" % preview_time
+	return "%s +%d" % [card_name, preview_time]
+
+func _turn_order_projection_badge_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.085, 0.035, 0.92)
+	style.border_color = Color("f4c968")
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = 7
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool) -> Control:
 	var badge := PanelContainer.new()
@@ -2893,10 +3011,16 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 			accent = Color(str(enemy_def.get("accent", "#d36a55")))
 	var style := StyleBoxFlat.new()
 	var projected: bool = bool(entry.get("projected", false)) and not active
+	var card_preview_projected: bool = _turn_order_is_card_preview_projection(entry) and not active
 	style.bg_color = Color(0.075, 0.050, 0.036, 0.94 if not projected else 0.78)
 	style.border_color = accent.lightened(0.30 if active else 0.06)
 	style.border_color.a = 0.95 if active else 0.74 if not projected else 0.52
 	var border_width: int = 5 if active else 3 if not projected else 2
+	if card_preview_projected:
+		style.bg_color = Color(0.075, 0.105, 0.125, 0.96)
+		style.border_color = Color("f4c968")
+		style.border_color.a = 0.98
+		border_width = 4
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
@@ -2908,6 +3032,10 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34 if active else 0.26)
 	style.shadow_size = 14 if active else 9
 	style.shadow_offset = Vector2(0.0, 4.0)
+	if card_preview_projected:
+		style.shadow_color = Color(0.10, 0.32, 0.45, 0.48)
+		style.shadow_size = 18
+		style.shadow_offset = Vector2(0.0, 5.0)
 	return style
 
 func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
@@ -2916,6 +3044,9 @@ func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBox
 	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
 	style.bg_color = Color(0.05, 0.03, 0.02, 0.88)
 	style.border_color = accent.lightened(0.18 if active else 0.02)
+	if _turn_order_is_card_preview_projection(entry) and not active:
+		style.bg_color = Color(0.055, 0.075, 0.090, 0.94)
+		style.border_color = Color("f4c968")
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -2954,10 +3085,12 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		var spent: int = int(entry.get("turn_time_spent", 0))
 		var preview_time: int = int(entry.get("projected_time_cost", 0))
 		if preview_time > 0:
-			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
-			var card_name: String = str(entry.get("projected_card_name", ""))
+			var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 			if not card_name.is_empty():
-				lines.append(card_name)
+				lines.append("Preview: %s (+%d time)" % [card_name, preview_time])
+			else:
+				lines.append("Preview: +%d time" % preview_time)
+			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
 		elif spent > 0:
 			lines.append("Base %d + played %d" % [base, spent])
 		elif base > 0:

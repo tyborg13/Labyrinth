@@ -24,7 +24,7 @@ Use this skill to turn reviewed queue items into parallel Codex work. The orches
 - `leased`: assigned to a worker thread but not yet confirmed in progress.
 - `in_progress`: worker has adopted or created its isolated worktree.
 - `implementation_review`: worker claims complete and is in the mandatory peer-review loop.
-- `ready_for_user`: implementation reviewer signed off; waiting for user inspection.
+- `ready_for_user`: implementation reviewer signed off and the worker supplied an inspection fixture or explicit not-applicable reason; waiting for user inspection.
 - `approved_to_land`: user approved landing to `master`.
 - `done`: landed on `master` and optionally archived.
 - `blocked`, `rejected`, `abandoned`: explicit terminal or pause states with notes.
@@ -66,14 +66,21 @@ python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-
 6. Require implementation peer review before user handoff.
    - The worker's `$parallel-labyrinth-task` flow requires a reviewer sub-agent.
    - The worker must resolve reviewer findings and only report back after reviewer `SIGNOFF`.
-   - Mark the queue item `ready_for_user` only when the worker provides the signed-off branch, commit, proof summary, and residual risks.
+   - After reviewer `SIGNOFF`, the worker must run `tools/inspection_fixture.py` for a playable inspection state, or provide a clear not-applicable reason for tooling/data-only changes.
+   - Mark the queue item `ready_for_user` only when the worker provides the signed-off branch, commit, proof summary, residual risks, and inspection fixture metadata.
 
 ```bash
-python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit>
+python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-scenario "<scenario>" --inspection-run-id "<run-id>" --inspection-summary "<what Continue opens>" --inspection-launch "<launch command>"
+```
+
+For changes without a useful playable inspection state:
+
+```bash
+python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-not-applicable "<reason>"
 ```
 
 7. Wait for user approval.
-   - Present branch, worktree, commit, reviewer signoff, proof, and residual risks.
+   - Present branch, worktree, commit, reviewer signoff, proof, inspection fixture launch command or not-applicable reason, and residual risks.
    - Do not land or push until the user explicitly says to push, land, publish, merge, or otherwise gives approval.
 
 8. Land approved work to `master`.
@@ -107,7 +114,7 @@ Parallel-safety notes:
 Before editing, adopt the app-created clean worktree:
 python3 tools/parallel_task.py adopt --task-id <task-id> --task "<title>"
 
-Implement only this task's scope. Commit the finished branch, run the mandatory peer-review gate from $parallel-labyrinth-task, resolve any reviewer feedback, and stop for user inspection after reviewer SIGNOFF. Provide branch, worktree path, head commit, proof run, screenshots/artifacts if relevant, residual risks, and the reviewer signoff summary.
+Implement only this task's scope. Commit the finished branch, run the mandatory peer-review gate from $parallel-labyrinth-task, resolve any reviewer feedback, then create a user-inspection fixture with `python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Continue opens>" ...` or explain why no playable fixture applies. Stop for user inspection after reviewer SIGNOFF and the inspection-fixture step. Provide branch, worktree path, head commit, proof run, screenshots/artifacts if relevant, inspection fixture launch command or not-applicable reason, residual risks, and the reviewer signoff summary.
 
 Do not push or clean up. After user approval, the work must land on master, not a remote task branch.
 ```
@@ -117,6 +124,6 @@ Do not push or clean up. After user approval, the work must land on master, not 
 When reporting to the user, group tasks by state:
 
 - Running: task id, title, thread, branch, current status, last heartbeat.
-- Ready for user: task id, branch, commit, reviewer, proof summary.
+- Ready for user: task id, branch, commit, reviewer, proof summary, inspection fixture launch command or not-applicable reason.
 - Blocked: blocker, recommended next action.
 - Queue health: ready backlog, likely collision risks, and whether more scouting is needed.

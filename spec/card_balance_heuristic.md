@@ -305,10 +305,42 @@ To get machine-readable output:
 python3 tools/card_heuristic.py --json
 ```
 
+### Source-Aware Views
+
+The default command still scores every card in `data/cards.json`, which is useful
+for a global sanity check but mixes cards from different acquisition paths. Use a
+source filter when comparing cards against peers:
+
+```bash
+python3 tools/card_heuristic.py --reward-pool
+python3 tools/card_heuristic.py --elemental-rewards
+python3 tools/card_heuristic.py --equipment
+python3 tools/card_heuristic.py --starters
+```
+
+`--reward-pool` is the normal card-reward view: cards with reward-pool metadata
+after excluding equipment-granted cards and starters. `--elemental-rewards` is
+the elemental subset of that normal reward pool. `--equipment` is the
+equipment-only view, excluding starter cards granted by starting gear.
+`--neutral-rewards` isolates neutral normal rewards, which is useful when
+checking whether old neutral reward metadata is still intentional.
+
+Equipment cards are identified from `data/equipment.json`, not only from card
+metadata. Starter cards are identified by either `starter: true` or
+`rarity: "starter"` so older starter cards do not leak into reward-pool or
+equipment-only balance reviews just because they lack explicit
+`reward_pool: false`.
+
+Source tags are shown automatically in filtered text output, can be added to any
+text view with `--show-source`, and are always included in `--json` output.
+
 When reviewing or adding cards:
 
 1. Run the tool for the changed card and the full pool.
-2. Compare the score against similar cards, not just the global ranking.
-3. Decide whether any intentional over- or under-rate is justified by build,
+2. Run the source view that matches how the card enters a deck: `--equipment`
+   for gear cards, `--starters` for starting-deck cards, and `--reward-pool` or
+   `--elemental-rewards` for magic rewards.
+3. Compare the score against similar cards, not just the global ranking.
+4. Decide whether any intentional over- or under-rate is justified by build,
    rarity, or encounter role.
-4. If the underlying combat assumptions changed, update the heuristic first.
+5. If the underlying combat assumptions changed, update the heuristic first.
