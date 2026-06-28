@@ -121,6 +121,7 @@ const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
+const RELIC_CHEST_SPARKLE_COLOR: Color = Color("f0c978")
 const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
 const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
 const COLUMN_TORCH_LEFT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_left_idle.png"
@@ -280,6 +281,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
 		return true
+	if _scene_prop_sparkle_active():
+		return true
 	if presentation.is_empty():
 		return false
 	if not (presentation.get("damage_preview", {}) as Dictionary).is_empty():
@@ -290,6 +293,12 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	var effect: Dictionary = presentation.get("effect", {})
 	return bool(effect.get("preview", false))
+
+func _scene_prop_sparkle_active() -> bool:
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) == TYPE_DICTIONARY and bool((prop_var as Dictionary).get("sparkle", false)):
+			return true
+	return false
 
 func _any_idle_animation_active() -> bool:
 	if not visible or combat_state.is_empty():
@@ -1008,6 +1017,44 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 		draw_texture_rect(texture, draw_rect, false, tint)
+		if str(prop.get("kind", "")) == "relic_chest" and bool(prop.get("sparkle", false)):
+			_draw_relic_chest_sparkle(draw_rect, prop, tint)
+
+func _draw_relic_chest_sparkle(draw_rect: Rect2, prop: Dictionary, tint: Color) -> void:
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return
+	var accent: Color = prop.get("sparkle_accent", RELIC_CHEST_SPARKLE_COLOR)
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var phase: float = time_seconds * 1.35
+	var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
+	var chest_center := Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.48)
+	var radius: float = minf(draw_rect.size.x, draw_rect.size.y) * 0.36
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * 2.7)
+	draw_circle(chest_center, radius * 1.18, Color(accent.r, accent.g, accent.b, (0.045 + 0.025 * pulse) * tint_alpha))
+	draw_arc(chest_center, radius, phase, phase + PI * 1.52, 32, Color(accent.r, accent.g, accent.b, 0.30 * tint_alpha), 2.0, true)
+	draw_arc(chest_center, radius * 0.64, -phase * 1.18 + PI * 0.24, -phase * 1.18 + PI * 1.28, 24, Color(1.0, 0.95, 0.66, 0.22 * tint_alpha), 1.4, true)
+	for index: int in range(5):
+		var angle: float = phase * 0.45 + float(index) * TAU / 5.0
+		var point: Vector2 = chest_center + Vector2(cos(angle), sin(angle)) * radius * 0.78
+		var next_point: Vector2 = chest_center + Vector2(cos(angle + 0.34), sin(angle + 0.34)) * radius * 0.90
+		draw_line(point, next_point, Color(accent.r, accent.g, accent.b, 0.18 * tint_alpha), 1.2, true)
+	var glints: Array = [
+		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.31, draw_rect.size.y * 0.32), "delay": 0.0},
+		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.69, draw_rect.size.y * 0.38), "delay": 0.46},
+		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.52, draw_rect.size.y * 0.23), "delay": 0.78}
+	]
+	for glint_var: Variant in glints:
+		var glint: Dictionary = glint_var
+		var glint_pulse: float = 0.5 + 0.5 * sin(time_seconds * 4.1 + float(glint.get("delay", 0.0)) * TAU)
+		_draw_relic_chest_glint(glint.get("pos", chest_center), 4.5 + 3.5 * glint_pulse, (0.12 + 0.42 * glint_pulse) * tint_alpha, accent)
+
+func _draw_relic_chest_glint(center: Vector2, radius: float, alpha: float, accent: Color) -> void:
+	var glow := Color(accent.r, accent.g, accent.b, alpha * 0.42)
+	var hot := Color(1.0, 0.96, 0.70, alpha)
+	draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), glow, 4.0, true)
+	draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), glow, 4.0, true)
+	draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), hot, 1.2, true)
+	draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), hot, 1.2, true)
 
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))

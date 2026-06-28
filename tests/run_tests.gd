@@ -5766,10 +5766,18 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	instance.call("_refresh_choice_bar")
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Relic selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "CLAIM YOUR TREASURE", "Relic selection should keep the treasure prompt")
-	run_state = instance.get("_run_state")
-	var run_engine: RunEngine = instance.get("_run_engine") as RunEngine
-	instance.set("_run_state", run_engine.claim_relic(run_state, "iron_lung"))
-	instance.call("_refresh_choice_bar")
+	var relic_choice_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	var first_relic_choice: Control = null
+	if relic_choice_bar != null and relic_choice_bar.get_child_count() > 0:
+		first_relic_choice = relic_choice_bar.get_child(0) as Control
+	var sparkle_layer: Control = null
+	if first_relic_choice != null:
+		sparkle_layer = first_relic_choice.find_child("RelicChoiceSparkle", true, false) as Control
+	_assert(sparkle_layer != null and sparkle_layer.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Relic choice sparkle should not intercept relic choice clicks")
+	var source_rect: Rect2 = Rect2()
+	if first_relic_choice != null:
+		source_rect = first_relic_choice.get_global_rect()
+	await instance.call("_on_relic_pressed", "iron_lung", source_rect)
 	await process_frame
 	_assert(prompt_overlay != null and not prompt_overlay.visible, "Relic prompt should clear after picking a relic")
 	_assert(prompt_title != null and not prompt_title.visible, "Relic title should hide after picking a relic")

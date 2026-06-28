@@ -275,6 +275,117 @@ class FatigueEdgeOverlay:
 		draw_polyline(points, glow_color, 4.0, true)
 		draw_polyline(points, line_color, 1.2, true)
 
+class RelicChoiceSparkleLayer:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var phase: float = 0.0
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_process(true)
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _process(delta: float) -> void:
+		phase = wrapf(phase + delta, 0.0, 3600.0)
+		queue_redraw()
+
+	func _draw() -> void:
+		if size.x <= 0.0 or size.y <= 0.0:
+			return
+		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.4)
+		var icon_center := Vector2(size.x * 0.5, size.y * 0.30)
+		var rune_radius: float = minf(size.x, size.y) * 0.24
+		draw_circle(icon_center, rune_radius * 1.18, Color(accent.r, accent.g, accent.b, 0.035 + 0.018 * shimmer))
+		draw_arc(icon_center, rune_radius, phase * 0.28, phase * 0.28 + PI * 1.55, 36, Color(accent.r, accent.g, accent.b, 0.20), 1.5, true)
+		draw_arc(icon_center, rune_radius * 0.72, -phase * 0.21 + PI * 0.34, -phase * 0.21 + PI * 1.62, 28, Color(1.0, 0.93, 0.66, 0.11 + 0.05 * shimmer), 1.2, true)
+		for index: int in range(8):
+			var angle: float = phase * 0.16 + float(index) * TAU / 8.0
+			var inner: Vector2 = icon_center + Vector2(cos(angle), sin(angle)) * rune_radius * 0.78
+			var outer: Vector2 = icon_center + Vector2(cos(angle), sin(angle)) * rune_radius * 0.93
+			draw_line(inner, outer, Color(accent.r, accent.g, accent.b, 0.12), 1.0, true)
+		var corners: Array = [
+			{"pos": Vector2(28.0, 26.0), "delay": 0.0},
+			{"pos": Vector2(size.x - 30.0, 30.0), "delay": 0.34},
+			{"pos": Vector2(34.0, size.y - 34.0), "delay": 0.68},
+			{"pos": Vector2(size.x - 36.0, size.y - 38.0), "delay": 1.02}
+		]
+		for corner_var: Variant in corners:
+			var corner: Dictionary = corner_var
+			var pulse: float = 0.5 + 0.5 * sin(phase * 3.1 + float(corner.get("delay", 0.0)) * TAU)
+			_draw_glint(corner.get("pos", Vector2.ZERO), 5.0 + 3.0 * pulse, 0.09 + 0.22 * pulse)
+
+	func _draw_glint(center: Vector2, radius: float, alpha: float) -> void:
+		var glow_color := Color(accent.r, accent.g, accent.b, alpha * 0.42)
+		var hot_color := Color(1.0, 0.96, 0.70, alpha)
+		draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), glow_color, 4.0, true)
+		draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), glow_color, 4.0, true)
+		draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), hot_color, 1.2, true)
+		draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), hot_color, 1.2, true)
+
+class RelicAcquisitionBeam:
+	extends Control
+
+	var start: Vector2 = Vector2.ZERO:
+		set(value):
+			start = value
+			queue_redraw()
+	var target: Vector2 = Vector2.ZERO:
+		set(value):
+			target = value
+			queue_redraw()
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			queue_redraw()
+	var progress: float = 0.0:
+		set(value):
+			progress = clampf(value, 0.0, 1.0)
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _draw() -> void:
+		if progress <= 0.0:
+			return
+		var t: float = clampf(progress, 0.0, 1.0)
+		var lead: Vector2 = start.lerp(target, t)
+		var alpha: float = sin(t * PI)
+		var line_color := Color(accent.r, accent.g, accent.b, 0.40 * alpha)
+		var core_color := Color(1.0, 0.96, 0.72, 0.75 * alpha)
+		draw_line(start, lead, Color(line_color.r, line_color.g, line_color.b, line_color.a * 0.55), 9.0, true)
+		draw_line(start, lead, line_color, 4.0, true)
+		draw_line(start, lead, core_color, 1.5, true)
+		draw_circle(lead, 11.0 + 4.0 * alpha, Color(accent.r, accent.g, accent.b, 0.14 * alpha))
+		draw_circle(lead, 4.0 + 2.0 * alpha, Color(1.0, 0.96, 0.72, 0.65 * alpha))
+
+class RelicAcquisitionMote:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _draw() -> void:
+		var center: Vector2 = size * 0.5
+		var radius: float = minf(size.x, size.y) * 0.36
+		draw_circle(center, radius, Color(accent.r, accent.g, accent.b, 0.20))
+		draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), Color(1.0, 0.96, 0.72, 0.85), 1.3, true)
+		draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), Color(1.0, 0.96, 0.72, 0.85), 1.3, true)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -363,6 +474,8 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
+const RELIC_ACQUISITION_SECONDS: float = 0.38
+const RELIC_ACQUISITION_MOTES: int = 8
 const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
@@ -498,6 +611,7 @@ var _relic_choice_overlay: Control
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _relic_claim_in_progress: bool = false
 var _terminal_overlay: Control
 var _terminal_panel: PanelContainer
 var _terminal_title_label: Label
@@ -3622,16 +3736,20 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.set_meta("relic_id", relic_id)
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
-	panel.gui_input.connect(_on_relic_choice_gui_input.bind(relic_id))
+	panel.gui_input.connect(_on_relic_choice_gui_input.bind(panel, relic_id))
 	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
 	panel.mouse_exited.connect(_set_relic_choice_hovered.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
+
+	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
+	margin.z_index = 2
 	margin.add_theme_constant_override("margin_left", 18)
 	margin.add_theme_constant_override("margin_top", 14)
 	margin.add_theme_constant_override("margin_right", 18)
@@ -3677,6 +3795,18 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
+
+func _add_relic_choice_sparkles(panel: PanelContainer, accent: Color) -> void:
+	if panel == null:
+		return
+	var sparkle := RelicChoiceSparkleLayer.new()
+	sparkle.name = "RelicChoiceSparkle"
+	sparkle.accent = accent
+	sparkle.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sparkle.anchor_right = 1.0
+	sparkle.anchor_bottom = 1.0
+	sparkle.z_index = 1
+	panel.add_child(sparkle)
 
 func _add_campfire_choice(choice_id: String, title: String, detail: String, icon_path: String, accent: Color, enabled: bool = true) -> void:
 	if _relic_choice_bar == null:
@@ -3955,9 +4085,12 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.expand_margin_bottom = 14.0
 	return style
 
-func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
+func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_id: String) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		await _on_relic_pressed(relic_id)
+		var source_rect: Rect2 = Rect2()
+		if panel != null:
+			source_rect = panel.get_global_rect()
+		await _on_relic_pressed(relic_id, source_rect)
 
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
@@ -4261,12 +4394,15 @@ func _refresh_stage_view() -> void:
 			}
 		]
 	elif str(current_room.get("type", "")) == "treasure":
+		var relic_choices_pending: bool = str(_run_state.get("mode", "room")) == "treasure" and not (_run_state.get("pending_relics", []) as Array).is_empty()
 		presentation["scene_props"] = [
 			{
 				"kind": "relic_chest",
 				"tile": Vector2i(4, 4),
 				"width_scale": 0.68,
-				"baseline_scale": 0.44
+				"baseline_scale": 0.44,
+				"sparkle": relic_choices_pending,
+				"sparkle_accent": Color("f0c978")
 			}
 		]
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
@@ -6901,12 +7037,87 @@ func _on_campfire_leave_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state)
 	_refresh_ui()
 
-func _on_relic_pressed(relic_id: String) -> void:
+func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
+	if _relic_claim_in_progress:
+		return
+	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+	if not pending_relics.has(relic_id):
+		return
+	_relic_claim_in_progress = true
+	var accent := Color(GameData.relic_accent(relic_id))
 	_run_state = _run_engine.claim_relic(_run_state, relic_id)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_refresh_ui()
+	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
+	_relic_claim_in_progress = false
+
+func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
+	if _card_fx_layer == null:
+		return
+	await get_tree().process_frame
+	if not _node_is_alive(_card_fx_layer):
+		return
+	var frame: Control = _relic_frame_for_id(relic_id)
+	var target: Vector2 = _relic_bar_target_global_position(frame)
+	var source: Vector2 = _relic_acquisition_source_global_position(source_rect)
+	var local_start: Vector2 = source - _card_fx_layer.global_position
+	var local_target: Vector2 = target - _card_fx_layer.global_position
+	var beam := RelicAcquisitionBeam.new()
+	beam.name = "RelicAcquisitionBeam"
+	beam.accent = accent
+	beam.start = local_start
+	beam.target = local_target
+	beam.set_anchors_preset(Control.PRESET_FULL_RECT)
+	beam.anchor_right = 1.0
+	beam.anchor_bottom = 1.0
+	beam.z_index = 1600
+	_card_fx_layer.add_child(beam)
+	var beam_tween: Tween = create_tween().set_parallel(true)
+	beam_tween.tween_property(beam, "progress", 1.0, RELIC_ACQUISITION_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(RELIC_ACQUISITION_SECONDS * 0.72)
+	for mote_index: int in range(RELIC_ACQUISITION_MOTES):
+		_spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
+	await get_tree().create_timer(RELIC_ACQUISITION_SECONDS + 0.04).timeout
+	_queue_free_node_now(beam)
+
+func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
+	if _card_fx_layer == null:
+		return
+	var mote := RelicAcquisitionMote.new()
+	mote.name = "RelicAcquisitionMote"
+	mote.accent = accent
+	var mote_size: float = 18.0 + float(mote_index % 3) * 3.0
+	mote.size = Vector2(mote_size, mote_size)
+	mote.pivot_offset = mote.size * 0.5
+	var start_angle: float = -0.85 + 1.7 * (float(mote_index) / float(maxi(1, RELIC_ACQUISITION_MOTES - 1)))
+	var start_spread: Vector2 = Vector2(cos(start_angle), sin(start_angle)) * (10.0 + float((mote_index * 7) % 13))
+	var end_jitter := Vector2(float((mote_index % 5) - 2) * 4.0, float((mote_index % 3) - 1) * 3.0)
+	mote.position = local_start + start_spread - mote.size * 0.5
+	mote.scale = Vector2.ONE * (0.74 + float(mote_index % 4) * 0.06)
+	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	mote.z_index = 1601
+	_card_fx_layer.add_child(mote)
+	var delay: float = float(mote_index) * 0.018
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(mote, "scale", Vector2.ONE * 0.32, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(mote, "modulate:a", 1.0, 0.06).set_delay(delay)
+	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + RELIC_ACQUISITION_SECONDS * 0.62)
+	tween.finished.connect(_queue_free_node_now.bind(mote))
+
+func _relic_acquisition_source_global_position(source_rect: Rect2) -> Vector2:
+	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
+		return source_rect.get_center()
+	return _board_global_position_for_tile(Vector2i(4, 4))
+
+func _relic_bar_target_global_position(frame: Control) -> Vector2:
+	if frame != null:
+		return frame.get_global_rect().get_center()
+	if relic_bar != null and relic_bar.visible:
+		return relic_bar.get_global_rect().get_center()
+	return room_title.get_global_rect().get_center()
 
 func _animate_relic_acquired(relic_id: String) -> void:
 	await get_tree().process_frame
