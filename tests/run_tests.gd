@@ -1218,6 +1218,19 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
 		for magic_card_id: String in ["pale_spark", "dull_bolt", "waning_pulse"]:
 			_assert(not cards.has(magic_card_id), "Default attuned magic should stay out of combat reward offers")
+	var elemental_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity("", true)
+	var elemental_reward_ids: Array = []
+	for rarity: String in ["common", "uncommon", "rare"]:
+		for card_id_var: Variant in elemental_reward_pool.get(rarity, []):
+			elemental_reward_ids.append(str(card_id_var))
+	_assert(elemental_reward_ids.has("threaded_path"), "Threaded Path should be a live elemental speed reward")
+	_assert(GameData.card_element("threaded_path") == ElementData.AIR, "Threaded Path should be an Air reward card")
+	var elemental_reward_times: Dictionary = {}
+	for card_id_var: Variant in elemental_reward_ids:
+		var card_id: String = str(card_id_var)
+		elemental_reward_times[int(GameData.card_def(card_id).get("time", 5))] = true
+	for required_time: int in [1, 2, 3, 9, 10]:
+		_assert(bool(elemental_reward_times.get(required_time, false)), "Elemental reward pool should include a time-%d card" % required_time)
 
 func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary) -> void:
 	var engine: RunEngine = RunEngine.new()

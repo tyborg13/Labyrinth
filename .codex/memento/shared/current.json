@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-28T01:04:43Z",
+  "updated_at": "2026-06-28T01:16:05Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4262,7 +4262,7 @@
       }
     },
     {
-      "id": "mnt_20260628T010443Z_34f87720",
+      "id": "mnt_20260628T011605Z_ba2ba9c4",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -4271,18 +4271,18 @@
         "symbol": null
       },
       "scope_key": "project:.",
-      "summary": "Initiative balance now uses intent-aware first enemy timing and a wider fast-card pool",
-      "details": "Initial enemy queue slots now use enemy base initiative plus revealed intent time, with only an enemy-index stagger for readability; repeats already used the same base+intent cycle. Player base initiative remains 9 with Agility floor 5. The June 2026 speed rebalance broadened card times so the starting deck averages about 3.56 time, the full card pool has 32 cards at time 1-3, and reward-eligible cards include time-2 Threaded Path, time-3 Stone Plate, and eleven time-4 options. Practical pacing target: two fast cards return around initiative 13 and can lap slower enemies, two medium cards return around 18 without fast enemy double-ups, and two slow cards around 23 can let wisps/crawlers threaten doubles.",
+      "summary": "Initiative balance now uses intent-aware first enemy timing and live fast elemental rewards",
+      "details": "Initial enemy queue slots use enemy base initiative plus revealed intent time, with only an enemy-index stagger for readability; repeats use the same base+intent cycle. Player base initiative remains 9 with Agility floor 5. The June 2026 speed rebalance broadened card times so the starting deck averages about 3.56 time and normal elemental combat rewards span the full 1-10 range: Threaded Path is a time-1 Air movement/draw reward, Thorn Skewer is time 2, Firebrand Volley/Rime Shard/Spark Focus/Stone Plate are time 3, White Silence is time 9, and Wildfire Halo remains time 10. Practical pacing target: two fast cards return around initiative 13 and can lap slower enemies, two medium cards return around 18 without fast enemy double-ups, and two slow cards around 23 can let wisps/crawlers threaten doubles.",
       "status": "active",
-      "created_at": "2026-06-28T01:04:43Z",
-      "updated_at": "2026-06-28T01:04:43Z",
+      "created_at": "2026-06-28T01:16:05Z",
+      "updated_at": "2026-06-28T01:16:05Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260526T035942Z_1f773fbe"
+        "mnt_20260628T010443Z_34f87720"
       ],
       "source": {
         "branch": "codex/rebalance-card-speed-and-turn-timing",
-        "commit": "fe74287"
+        "commit": "dd17f03"
       }
     }
   ]
