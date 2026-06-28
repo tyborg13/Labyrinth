@@ -204,6 +204,7 @@ func _initialize() -> void:
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
 	await _test_run_scene_campfire_choices_use_relic_overlay()
+	await _test_run_scene_campfire_choice_press_is_single_shot()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
@@ -5901,6 +5902,44 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		enabled_strength_panel = relic_bar.get_child(2) as Control
 	_assert(enabled_strength_panel != null and bool(enabled_strength_panel.get_meta("choice_enabled", false)), "Campfire level-up panel should be enabled when held embers meet the cost")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for campfire input coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "campfire"
+	run_state["progression"] = ProgressionStore.default_data()
+	run_state["held_embers"] = 0
+	run_state["unbanked_embers"] = 0
+	run_state["player_hp"] = 100
+	run_state["player_max_hp"] = 360
+	instance.set("_run_state", run_state)
+	instance.set("_progression", ProgressionStore.default_data())
+	instance.call("_refresh_choice_bar")
+	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
+	_assert(linger_panel != null, "Campfire single-shot test should expose the linger panel")
+	if linger_panel == null:
+		instance.queue_free()
+		await process_frame
+		return
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	instance.call("_on_campfire_choice_gui_input", click, "linger", linger_panel, Color("efb35f"))
+	instance.call("_on_campfire_choice_gui_input", click, "linger", linger_panel, Color("efb35f"))
+	await create_timer(0.14).timeout
+	await process_frame
+	var next_state: Dictionary = instance.get("_run_state")
+	_assert(str(next_state.get("mode", "")) == "room", "Campfire linger press should still leave campfire mode")
+	_assert(int(next_state.get("player_hp", 0)) == 200, "Rapid duplicate linger presses should heal only once")
 	instance.queue_free()
 	await process_frame
 

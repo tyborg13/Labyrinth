@@ -498,6 +498,7 @@ var _relic_choice_overlay: Control
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _campfire_choice_action_pending: bool = false
 var _terminal_overlay: Control
 var _terminal_panel: PanelContainer
 var _terminal_title_label: Label
@@ -4012,10 +4013,16 @@ func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
 		return
+	if _campfire_choice_action_pending or str(_run_state.get("mode", "room")) != "campfire":
+		return
 	if choice_id == "strength" and not _can_level_at_campfire():
 		return
+	_set_campfire_choice_action_pending(true)
 	_show_campfire_choice_feedback_pulse(panel, accent)
 	await get_tree().create_timer(0.08).timeout
+	if str(_run_state.get("mode", "room")) != "campfire":
+		_set_campfire_choice_action_pending(false)
+		return
 	match choice_id:
 		"linger":
 			_on_campfire_linger_pressed()
@@ -4023,6 +4030,18 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: 
 			_on_campfire_embrace_pressed()
 		"strength":
 			_open_level_up_overlay()
+	_set_campfire_choice_action_pending(false)
+
+func _set_campfire_choice_action_pending(pending: bool) -> void:
+	_campfire_choice_action_pending = pending
+	if _relic_choice_bar == null:
+		return
+	for child: Node in _relic_choice_bar.get_children():
+		var panel: PanelContainer = child as PanelContainer
+		if panel == null:
+			continue
+		var choice_enabled: bool = bool(panel.get_meta("choice_enabled", true))
+		panel.mouse_default_cursor_shape = Control.CURSOR_ARROW if pending or not choice_enabled else Control.CURSOR_POINTING_HAND
 
 func _show_campfire_choice_feedback_pulse(panel: PanelContainer, accent: Color) -> void:
 	if panel == null or not panel.is_inside_tree():
