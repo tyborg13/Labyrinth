@@ -4615,10 +4615,10 @@ func _test_combat_board_loads_defense_heal_cast_frames() -> void:
 	board.call("_load_assets")
 	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
 	var frames: Array = effect_frames.get("defense_heal_casts", [])
-	_assert(frames.size() == 4, "Defense/heal cast sheet should load four effect frames")
+	_assert(frames.size() == 12, "Defense/heal cast sheet should load twelve effect frames")
 	for frame_var: Variant in frames:
 		var frame: Texture2D = frame_var as Texture2D
-		_assert(frame != null and frame.get_width() == 32 and frame.get_height() == 32, "Defense/heal cast frames should be 32px sprites")
+		_assert(frame != null and frame.get_width() == 128 and frame.get_height() == 128, "Defense/heal cast frames should be 128px sprites")
 	board.free()
 
 func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
