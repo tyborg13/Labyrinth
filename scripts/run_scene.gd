@@ -280,111 +280,211 @@ class RelicChoiceSparkleLayer:
 
 	var accent: Color = Color("f0c978")
 	var phase: float = 0.0
+	var halo_texture: Texture2D = null:
+		set(value):
+			halo_texture = value
+			if _halo != null:
+				_halo.texture = halo_texture
+	var glint_texture: Texture2D = null:
+		set(value):
+			glint_texture = value
+			for glint_var: Variant in _glints:
+				var glint: TextureRect = glint_var
+				glint.texture = glint_texture
+			for dust_var: Variant in _dust:
+				var dust: TextureRect = dust_var
+				dust.texture = glint_texture
+
+	var _halo: TextureRect = null
+	var _glints: Array = []
+	var _dust: Array = []
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		set_process(true)
 
+	func _ready() -> void:
+		_ensure_texture_nodes()
+		_layout_texture_nodes()
+		_animate_texture_nodes()
+
 	func _notification(what: int) -> void:
 		if what == NOTIFICATION_RESIZED:
-			queue_redraw()
+			_layout_texture_nodes()
 
 	func _process(delta: float) -> void:
 		phase = wrapf(phase + delta, 0.0, 3600.0)
-		queue_redraw()
+		_animate_texture_nodes()
 
-	func _draw() -> void:
+	func _ensure_texture_nodes() -> void:
+		if _halo == null:
+			_halo = TextureRect.new()
+			_halo.name = "RelicChoiceRuneHalo"
+			_configure_texture_rect(_halo)
+			_halo.texture = halo_texture
+			_halo.z_index = 0
+			add_child(_halo)
+		while _glints.size() < 4:
+			var glint := TextureRect.new()
+			glint.name = "RelicChoiceGlint%d" % _glints.size()
+			_configure_texture_rect(glint)
+			glint.texture = glint_texture
+			glint.z_index = 1
+			_glints.append(glint)
+			add_child(glint)
+		while _dust.size() < 6:
+			var dust := TextureRect.new()
+			dust.name = "RelicChoiceDust%d" % _dust.size()
+			_configure_texture_rect(dust)
+			dust.texture = glint_texture
+			dust.z_index = 1
+			_dust.append(dust)
+			add_child(dust)
+
+	func _configure_texture_rect(rect: TextureRect) -> void:
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_SCALE
+
+	func _layout_texture_nodes() -> void:
+		_ensure_texture_nodes()
 		if size.x <= 0.0 or size.y <= 0.0:
 			return
-		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.4)
 		var icon_center := Vector2(size.x * 0.5, size.y * 0.30)
-		var rune_radius: float = minf(size.x, size.y) * 0.24
-		draw_circle(icon_center, rune_radius * 1.18, Color(accent.r, accent.g, accent.b, 0.035 + 0.018 * shimmer))
-		draw_arc(icon_center, rune_radius, phase * 0.28, phase * 0.28 + PI * 1.55, 36, Color(accent.r, accent.g, accent.b, 0.20), 1.5, true)
-		draw_arc(icon_center, rune_radius * 0.72, -phase * 0.21 + PI * 0.34, -phase * 0.21 + PI * 1.62, 28, Color(1.0, 0.93, 0.66, 0.11 + 0.05 * shimmer), 1.2, true)
-		for index: int in range(8):
-			var angle: float = phase * 0.16 + float(index) * TAU / 8.0
-			var inner: Vector2 = icon_center + Vector2(cos(angle), sin(angle)) * rune_radius * 0.78
-			var outer: Vector2 = icon_center + Vector2(cos(angle), sin(angle)) * rune_radius * 0.93
-			draw_line(inner, outer, Color(accent.r, accent.g, accent.b, 0.12), 1.0, true)
-		var corners: Array = [
-			{"pos": Vector2(28.0, 26.0), "delay": 0.0},
-			{"pos": Vector2(size.x - 30.0, 30.0), "delay": 0.34},
-			{"pos": Vector2(34.0, size.y - 34.0), "delay": 0.68},
-			{"pos": Vector2(size.x - 36.0, size.y - 38.0), "delay": 1.02}
-		]
-		for corner_var: Variant in corners:
-			var corner: Dictionary = corner_var
-			var pulse: float = 0.5 + 0.5 * sin(phase * 3.1 + float(corner.get("delay", 0.0)) * TAU)
-			_draw_glint(corner.get("pos", Vector2.ZERO), 5.0 + 3.0 * pulse, 0.09 + 0.22 * pulse)
+		var halo_size := Vector2.ONE * minf(size.x * 0.74, size.y * 0.68)
+		_halo.size = halo_size
+		_halo.position = icon_center - halo_size * 0.5
+		_halo.pivot_offset = halo_size * 0.5
+		_halo.visible = halo_texture != null
 
-	func _draw_glint(center: Vector2, radius: float, alpha: float) -> void:
-		var glow_color := Color(accent.r, accent.g, accent.b, alpha * 0.42)
-		var hot_color := Color(1.0, 0.96, 0.70, alpha)
-		draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), glow_color, 4.0, true)
-		draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), glow_color, 4.0, true)
-		draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), hot_color, 1.2, true)
-		draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), hot_color, 1.2, true)
+		var glint_layout: Array = [
+			{"pos": Vector2(25.0, 24.0), "size": 42.0},
+			{"pos": Vector2(size.x - 28.0, 30.0), "size": 38.0},
+			{"pos": Vector2(35.0, size.y - 36.0), "size": 36.0},
+			{"pos": Vector2(size.x - 38.0, size.y - 40.0), "size": 46.0}
+		]
+		for index: int in range(_glints.size()):
+			var glint: TextureRect = _glints[index]
+			var entry: Dictionary = glint_layout[index]
+			var glint_size := Vector2.ONE * float(entry.get("size", 40.0))
+			glint.size = glint_size
+			glint.position = (entry.get("pos", Vector2.ZERO) as Vector2) - glint_size * 0.5
+			glint.pivot_offset = glint_size * 0.5
+			glint.visible = glint_texture != null
+
+		for index: int in range(_dust.size()):
+			var dust: TextureRect = _dust[index]
+			var dust_size: float = 16.0 + float(index % 3) * 3.0
+			dust.size = Vector2.ONE * dust_size
+			dust.pivot_offset = dust.size * 0.5
+			dust.visible = glint_texture != null
+
+	func _animate_texture_nodes() -> void:
+		_ensure_texture_nodes()
+		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.25)
+		_halo.rotation = sin(phase * 0.34) * 0.035
+		_halo.scale = Vector2.ONE * (0.96 + 0.05 * shimmer)
+		_halo.modulate = _accent_modulate(0.42 + 0.14 * shimmer)
+		var glint_delays := [0.0, 0.31, 0.64, 0.88]
+		for index: int in range(_glints.size()):
+			var glint: TextureRect = _glints[index]
+			var pulse: float = 0.5 + 0.5 * sin(phase * 3.0 + float(glint_delays[index]) * TAU)
+			glint.rotation = sin(phase * 0.6 + float(index)) * 0.18
+			glint.scale = Vector2.ONE * (0.82 + 0.52 * pulse)
+			glint.modulate = _accent_modulate(0.14 + 0.48 * pow(pulse, 2.0))
+		var center := Vector2(size.x * 0.5, size.y * 0.30)
+		for index: int in range(_dust.size()):
+			var dust: TextureRect = _dust[index]
+			var angle: float = phase * (0.18 + float(index % 3) * 0.035) + float(index) * TAU / float(_dust.size())
+			var radius := Vector2(size.x * (0.29 + 0.025 * float(index % 2)), size.y * (0.20 + 0.018 * float((index + 1) % 2)))
+			var offset := Vector2(cos(angle) * radius.x, sin(angle * 0.92) * radius.y)
+			var drift: float = 0.5 + 0.5 * sin(phase * 1.8 + float(index) * 1.7)
+			dust.position = center + offset - dust.size * 0.5
+			dust.rotation = angle
+			dust.scale = Vector2.ONE * (0.40 + 0.34 * drift)
+			dust.modulate = _accent_modulate(0.07 + 0.20 * drift)
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(0.92 + accent.r * 0.10, 0.0, 1.0),
+			clampf(0.82 + accent.g * 0.14, 0.0, 1.0),
+			clampf(0.56 + accent.b * 0.16, 0.0, 1.0),
+			alpha
+		)
 
 class RelicAcquisitionBeam:
-	extends Control
+	extends TextureRect
 
 	var start: Vector2 = Vector2.ZERO:
 		set(value):
 			start = value
-			queue_redraw()
+			_sync_layout()
 	var target: Vector2 = Vector2.ZERO:
 		set(value):
 			target = value
-			queue_redraw()
+			_sync_layout()
 	var accent: Color = Color("f0c978"):
 		set(value):
 			accent = value
-			queue_redraw()
+			self_modulate = _accent_modulate(1.0)
 	var progress: float = 0.0:
 		set(value):
 			progress = clampf(value, 0.0, 1.0)
-			queue_redraw()
+			_sync_layout()
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_SCALE
+		self_modulate = _accent_modulate(1.0)
 
-	func _notification(what: int) -> void:
-		if what == NOTIFICATION_RESIZED:
-			queue_redraw()
-
-	func _draw() -> void:
+	func _sync_layout() -> void:
 		if progress <= 0.0:
+			visible = false
 			return
 		var t: float = clampf(progress, 0.0, 1.0)
 		var lead: Vector2 = start.lerp(target, t)
-		var alpha: float = sin(t * PI)
-		var line_color := Color(accent.r, accent.g, accent.b, 0.40 * alpha)
-		var core_color := Color(1.0, 0.96, 0.72, 0.75 * alpha)
-		draw_line(start, lead, Color(line_color.r, line_color.g, line_color.b, line_color.a * 0.55), 9.0, true)
-		draw_line(start, lead, line_color, 4.0, true)
-		draw_line(start, lead, core_color, 1.5, true)
-		draw_circle(lead, 11.0 + 4.0 * alpha, Color(accent.r, accent.g, accent.b, 0.14 * alpha))
-		draw_circle(lead, 4.0 + 2.0 * alpha, Color(1.0, 0.96, 0.72, 0.65 * alpha))
+		var delta: Vector2 = lead - start
+		var length: float = delta.length()
+		if length <= 2.0:
+			visible = false
+			return
+		var beam_height: float = 24.0 + 8.0 * sin(t * PI)
+		size = Vector2(length, beam_height)
+		pivot_offset = Vector2(0.0, beam_height * 0.5)
+		position = start - pivot_offset
+		rotation = delta.angle()
+		visible = texture != null
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(accent.r * 1.10, 0.0, 1.0),
+			clampf(accent.g * 1.06, 0.0, 1.0),
+			clampf(accent.b * 1.02, 0.0, 1.0),
+			alpha
+		)
 
 class RelicAcquisitionMote:
-	extends Control
+	extends TextureRect
 
-	var accent: Color = Color("f0c978")
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			self_modulate = _accent_modulate(1.0)
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		self_modulate = _accent_modulate(1.0)
 
-	func _notification(what: int) -> void:
-		if what == NOTIFICATION_RESIZED:
-			queue_redraw()
-
-	func _draw() -> void:
-		var center: Vector2 = size * 0.5
-		var radius: float = minf(size.x, size.y) * 0.36
-		draw_circle(center, radius, Color(accent.r, accent.g, accent.b, 0.20))
-		draw_line(center + Vector2(-radius, 0.0), center + Vector2(radius, 0.0), Color(1.0, 0.96, 0.72, 0.85), 1.3, true)
-		draw_line(center + Vector2(0.0, -radius), center + Vector2(0.0, radius), Color(1.0, 0.96, 0.72, 0.85), 1.3, true)
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(accent.r * 1.14, 0.0, 1.0),
+			clampf(accent.g * 1.10, 0.0, 1.0),
+			clampf(accent.b * 1.04, 0.0, 1.0),
+			alpha
+		)
 
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
@@ -474,6 +574,10 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
+const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
+const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
+const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
+const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
 const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
@@ -3802,6 +3906,8 @@ func _add_relic_choice_sparkles(panel: PanelContainer, accent: Color) -> void:
 	var sparkle := RelicChoiceSparkleLayer.new()
 	sparkle.name = "RelicChoiceSparkle"
 	sparkle.accent = accent
+	sparkle.halo_texture = AssetLoader.load_texture(RELIC_CHOICE_RUNE_HALO_PATH)
+	sparkle.glint_texture = AssetLoader.load_texture(RELIC_CHOICE_GLINT_PATH)
 	sparkle.set_anchors_preset(Control.PRESET_FULL_RECT)
 	sparkle.anchor_right = 1.0
 	sparkle.anchor_bottom = 1.0
@@ -7066,12 +7172,11 @@ func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, a
 	var local_target: Vector2 = target - _card_fx_layer.global_position
 	var beam := RelicAcquisitionBeam.new()
 	beam.name = "RelicAcquisitionBeam"
+	beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
 	beam.accent = accent
 	beam.start = local_start
 	beam.target = local_target
-	beam.set_anchors_preset(Control.PRESET_FULL_RECT)
-	beam.anchor_right = 1.0
-	beam.anchor_bottom = 1.0
+	beam.modulate = Color(1.0, 1.0, 1.0, 0.70)
 	beam.z_index = 1600
 	_card_fx_layer.add_child(beam)
 	var beam_tween: Tween = create_tween().set_parallel(true)
@@ -7087,6 +7192,7 @@ func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, 
 		return
 	var mote := RelicAcquisitionMote.new()
 	mote.name = "RelicAcquisitionMote"
+	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
 	mote.accent = accent
 	var mote_size: float = 18.0 + float(mote_index % 3) * 3.0
 	mote.size = Vector2(mote_size, mote_size)
