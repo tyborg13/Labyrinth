@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-28T01:16:05Z",
+  "updated_at": "2026-06-28T17:34:35Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -511,28 +511,6 @@
       "source": {
         "branch": "master",
         "commit": "79d893f"
-      }
-    },
-    {
-      "id": "mnt_20260409T132734Z_d5203e49",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "The reaver idle sheet is exported column-major (top-to-bottom, then left-to-right), so CombatBoardView must reorder frames instead of using the default row-major atlas order.",
-      "details": null,
-      "status": "active",
-      "created_at": "2026-04-09T13:27:34Z",
-      "updated_at": "2026-04-09T13:27:34Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "236aad5"
       }
     },
     {
@@ -3167,30 +3145,6 @@
       "expires_at": null,
       "supersedes": [
         "mnt_20260524T172947Z_71a59cf6"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "1fc350a"
-      }
-    },
-    {
-      "id": "mnt_20260526T035942Z_1f773fbe",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "project",
-        "path": ".",
-        "symbol": null
-      },
-      "scope_key": "project:.",
-      "summary": "Initiative balance now favors standard early player returns",
-      "details": "Player base initiative is 9 with Agility reducing it to a floor of 5. Starter card times now average about 4.1; Whirlwind Slash is normal-speed at 5 and Bloody Lunge is the heavy starter at 8. First-sequence weighted repeat cycles are about wisp 11, crawler 13, harrier 13.4, acolyte 16.25, warden 20.25, and Zekarion 19.25, so normal two-card starter turns should usually return before the same fast enemy follows up while heavy+normal turns can let fast enemies double-up.",
-      "status": "active",
-      "created_at": "2026-05-26T03:59:42Z",
-      "updated_at": "2026-05-26T03:59:42Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260524T143337Z_6213710a"
       ],
       "source": {
         "branch": "master",
