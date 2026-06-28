@@ -4298,7 +4298,10 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 
 func _board_display_state() -> Dictionary:
 	if str(_run_state.get("mode", "room")) == "combat":
-		if not _preview_combat_state.is_empty():
+		if _animation_lock:
+			if not _combat_state.is_empty():
+				return _combat_state.duplicate(true)
+		elif not _preview_combat_state.is_empty():
 			return _preview_combat_state.duplicate(true)
 		if not _combat_state.is_empty():
 			return _combat_state.duplicate(true)

@@ -3174,6 +3174,30 @@
       }
     },
     {
+      "id": "mnt_20260526T035942Z_1f773fbe",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Initiative balance now favors standard early player returns",
+      "details": "Player base initiative is 9 with Agility reducing it to a floor of 5. Starter card times now average about 4.1; Whirlwind Slash is normal-speed at 5 and Bloody Lunge is the heavy starter at 8. First-sequence weighted repeat cycles are about wisp 11, crawler 13, harrier 13.4, acolyte 16.25, warden 20.25, and Zekarion 19.25, so normal two-card starter turns should usually return before the same fast enemy follows up while heavy+normal turns can let fast enemies double-up.",
+      "status": "active",
+      "created_at": "2026-05-26T03:59:42Z",
+      "updated_at": "2026-05-26T03:59:42Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260524T143337Z_6213710a"
+      ],
+      "source": {
+        "branch": "master",
+        "commit": "1fc350a"
+      }
+    },
+    {
       "id": "mnt_20260528T033631Z_97a7ab46",
       "layer": "shared",
       "kind": "user_preference",
@@ -4259,6 +4283,28 @@
       "source": {
         "branch": "codex/fix-turn-animation-state-rewind",
         "commit": "c32c6a8"
+      }
+    },
+    {
+      "id": "mnt_20260627T235015Z_8a8ae5fc",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Animation-locked board display must ignore resolved card previews",
+      "details": "Player card resolution can leave _preview_combat_state at the fully resolved position while _play_player_card sets _animation_lock and refreshes UI before _animate_player_card_resolution. During animation lock, _board_display_state should prefer authoritative _combat_state and let explicit _render_board_state calls provide in-flight frames; otherwise the player can flash at the destination, rewind, then animate there.",
+      "status": "active",
+      "created_at": "2026-06-27T23:50:15Z",
+      "updated_at": "2026-06-27T23:50:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-player-move-animation-snapback",
+        "commit": "fe74287"
       }
     },
     {
