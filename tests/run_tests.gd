@@ -5874,6 +5874,12 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		disabled_strength_panel = relic_bar.get_child(2) as Control
 	_assert(disabled_strength_panel != null and not bool(disabled_strength_panel.get_meta("choice_enabled", true)), "Campfire level-up panel should be marked disabled when held embers are short")
+	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
+	_assert(linger_panel != null and linger_panel.find_child("CampfireChoiceInnerGlow", true, false) is PanelContainer, "Campfire choices should include a subtle inner firelight glow")
+	if linger_panel != null:
+		instance.call("_show_campfire_choice_feedback_pulse", linger_panel, Color("efb35f"))
+		await process_frame
+		_assert(linger_panel.find_child("CampfireChoicePressPulse", true, false) is PanelContainer, "Campfire choices should show a press feedback pulse")
 	var loaded_icon_count: int = 0
 	for texture_rect: TextureRect in _texture_rects_under(relic_overlay):
 		if texture_rect.texture != null:
@@ -5924,6 +5930,7 @@ func _test_run_scene_campfire_bonfire_persists_after_leave() -> void:
 			found_bonfire = true
 			break
 	_assert(found_bonfire, "Campfire bonfire should stay on the board after leaving the campfire choice mode")
+	_assert(bool(board_view.call("_campfire_atmosphere_active")), "Campfire bonfire should enable board firelight atmosphere")
 	var idle_frames: Array = board_view.call("_scene_prop_idle_frames_for_kind", "campfire_bonfire")
 	_assert(idle_frames.size() == 16, "Campfire bonfire should load the full 4x4 idle animation sheet")
 	var first_frame: AtlasTexture = null

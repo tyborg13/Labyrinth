@@ -3690,13 +3690,15 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
 	panel.set_meta("choice_enabled", enabled)
+	panel.set_meta("choice_accent", accent)
 	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, false, enabled))
-	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id))
+	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id, panel, accent))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
 
 	_add_campfire_choice_background(panel, icon_path, enabled)
+	_add_campfire_choice_inner_glow(panel, accent, enabled)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -3783,6 +3785,14 @@ func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, e
 	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	clip.add_child(wash)
 
+func _add_campfire_choice_inner_glow(panel: PanelContainer, accent: Color, enabled: bool) -> void:
+	var glow := PanelContainer.new()
+	glow.name = "CampfireChoiceInnerGlow"
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glow.add_theme_stylebox_override("panel", _campfire_choice_inner_glow_style(accent, false, enabled))
+	panel.add_child(glow)
+
 func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	var chips: Array = []
 	match choice_id:
@@ -3858,8 +3868,12 @@ func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
 		return
+	var enabled: bool = bool(panel.get_meta("choice_enabled", true))
 	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, bool(panel.get_meta("choice_enabled", true))))
+	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, enabled))
+	var glow: PanelContainer = panel.get_node_or_null("CampfireChoiceInnerGlow") as PanelContainer
+	if glow != null:
+		glow.add_theme_stylebox_override("panel", _campfire_choice_inner_glow_style(accent, hovered, enabled))
 
 func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -3888,6 +3902,42 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	style.expand_margin_top = 8.0
 	style.expand_margin_right = 8.0
 	style.expand_margin_bottom = 14.0
+	return style
+
+func _campfire_choice_inner_glow_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var alpha: float = 0.060 if hovered else 0.030
+	var border_alpha: float = 0.24 if hovered else 0.12
+	if not enabled:
+		alpha *= 0.45
+		border_alpha *= 0.55
+	style.bg_color = Color(accent.r, accent.g, accent.b, alpha)
+	style.border_color = Color(1.0, 0.74, 0.34, border_alpha)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	return style
+
+func _campfire_choice_feedback_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(accent.r, accent.g, accent.b, 0.085)
+	style.border_color = accent.lightened(0.34)
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.30)
+	style.shadow_size = 18
+	style.shadow_offset = Vector2.ZERO
 	return style
 
 func _campfire_choice_chip_style(tone: String, accent: Color, choice_enabled: bool) -> StyleBoxFlat:
@@ -3959,11 +4009,13 @@ func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		await _on_relic_pressed(relic_id)
 
-func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void:
+func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
 		return
 	if choice_id == "strength" and not _can_level_at_campfire():
 		return
+	_show_campfire_choice_feedback_pulse(panel, accent)
+	await get_tree().create_timer(0.08).timeout
 	match choice_id:
 		"linger":
 			_on_campfire_linger_pressed()
@@ -3971,6 +4023,25 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void
 			_on_campfire_embrace_pressed()
 		"strength":
 			_open_level_up_overlay()
+
+func _show_campfire_choice_feedback_pulse(panel: PanelContainer, accent: Color) -> void:
+	if panel == null or not panel.is_inside_tree():
+		return
+	var pulse := PanelContainer.new()
+	pulse.name = "CampfireChoicePressPulse"
+	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pulse.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pulse.pivot_offset = panel.size * 0.5
+	pulse.scale = Vector2(0.985, 0.985)
+	pulse.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	pulse.z_index = 80
+	pulse.add_theme_stylebox_override("panel", _campfire_choice_feedback_style(accent))
+	panel.add_child(pulse)
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(pulse, "modulate:a", 1.0, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pulse, "scale", Vector2(1.035, 1.035), 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pulse, "modulate:a", 0.0, 0.16).set_delay(0.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.finished.connect(_queue_free_node_now.bind(pulse))
 
 func _refresh_hand_panel() -> void:
 	_clear_idle_card_fx_layer()
