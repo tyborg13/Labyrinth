@@ -152,6 +152,9 @@ const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_she
 const MELEE_SLASH_SHEET_COLUMNS: int = 6
 const MELEE_SLASH_SHEET_ROWS: int = 1
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
+const DEFENSE_HEAL_CASTS_PATH: String = "res://assets/art/effects/defense_heal_casts.png"
+const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
+const DEFENSE_HEAL_CASTS_ROWS: int = 1
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
@@ -2695,14 +2698,119 @@ func _draw_effect_overlay() -> void:
 			var block_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if block_tile.x < 0:
 				return
-			draw_arc(_tile_center(block_tile) + Vector2(0.0, -22.0), _tile_width() * 0.22, 0.0, TAU, 22, Color("6dd0ff"), 4.0)
+			_draw_block_cast_effect(block_tile, progress)
 		"heal":
 			var heal_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if heal_tile.x < 0:
 				return
-			var heal_center: Vector2 = _tile_center(heal_tile) + Vector2(0.0, -28.0)
-			draw_line(heal_center + Vector2(-10.0, 0.0), heal_center + Vector2(10.0, 0.0), Color("9ee27e"), 4.0, true)
-			draw_line(heal_center + Vector2(0.0, -10.0), heal_center + Vector2(0.0, 10.0), Color("9ee27e"), 4.0, true)
+			_draw_heal_cast_effect(heal_tile, progress)
+		"stoneskin":
+			var stoneskin_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
+			if stoneskin_tile.x < 0:
+				return
+			_draw_stoneskin_cast_effect(stoneskin_tile, progress)
+
+func _draw_block_cast_effect(tile: Vector2i, progress: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -tile_width * 0.40)
+	var reveal: float = clampf(progress / 0.28, 0.0, 1.0)
+	var fade: float = clampf((1.0 - progress) / 0.26, 0.0, 1.0)
+	var flare: float = clampf(sin(progress * PI) * 1.12, 0.0, 1.0)
+	var alpha: float = maxf(reveal * fade, flare * 0.72)
+	var shield_size := Vector2(tile_width * (0.52 + 0.10 * flare), tile_height * (1.12 + 0.10 * flare))
+	var shield_points := PackedVector2Array([
+		center + Vector2(0.0, -shield_size.y * 0.54),
+		center + Vector2(shield_size.x * 0.50, -shield_size.y * 0.16),
+		center + Vector2(shield_size.x * 0.34, shield_size.y * 0.30),
+		center + Vector2(0.0, shield_size.y * 0.56),
+		center + Vector2(-shield_size.x * 0.34, shield_size.y * 0.30),
+		center + Vector2(-shield_size.x * 0.50, -shield_size.y * 0.16),
+		center + Vector2(0.0, -shield_size.y * 0.54)
+	])
+	draw_colored_polygon(shield_points, Color(0.10, 0.28, 0.40, 0.10 + 0.15 * alpha))
+	_draw_cast_effect_sprite(0, center, shield_size * Vector2(1.20, 1.18), alpha * 0.58, Color(0.58, 0.94, 1.0, 1.0))
+	draw_polyline(shield_points, Color(0.02, 0.04, 0.05, 0.30 * alpha), 7.0, true)
+	draw_polyline(shield_points, Color(0.42, 0.88, 1.0, 0.88 * alpha), 3.0 + 1.4 * flare, true)
+	draw_arc(center + Vector2(0.0, shield_size.y * 0.08), shield_size.x * 0.64, deg_to_rad(204.0), deg_to_rad(336.0), 22, Color(0.86, 0.98, 1.0, 0.42 * alpha), 2.2, true)
+	for side: int in [-1, 1]:
+		var spark_start: Vector2 = center + Vector2(float(side) * shield_size.x * 0.22, -shield_size.y * 0.24)
+		var spark_end: Vector2 = spark_start + Vector2(float(side) * tile_width * (0.10 + 0.08 * flare), -tile_height * 0.18)
+		draw_line(spark_start, spark_end, Color(0.80, 0.97, 1.0, 0.66 * alpha), 2.0, true)
+
+func _draw_heal_cast_effect(tile: Vector2i, progress: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var base: Vector2 = _tile_center(tile)
+	var glow: float = clampf(sin(progress * PI) * 1.08, 0.0, 1.0)
+	var ring_alpha: float = 0.30 + glow * 0.44
+	_draw_tile_ring(tile, Color(0.56, 0.95, 0.47, ring_alpha), 2.8 + glow * 1.2, 0.62 + 0.10 * progress)
+	var heart_center: Vector2 = base + Vector2(0.0, -tile_width * 0.43)
+	draw_circle(heart_center, tile_width * (0.16 + 0.10 * glow), Color(0.60, 0.98, 0.52, 0.12 + 0.14 * glow))
+	draw_arc(heart_center, tile_width * (0.20 + 0.04 * glow), deg_to_rad(28.0), deg_to_rad(300.0), 28, Color(1.0, 0.85, 0.34, 0.42 * glow), 2.2, true)
+	for index: int in range(9):
+		var mote_t: float = clampf(progress * 1.18 - float(index) * 0.035, 0.0, 1.0)
+		if mote_t <= 0.0:
+			continue
+		var mote_fade: float = sin(mote_t * PI)
+		var angle: float = TAU * float(index) / 9.0 + progress * 1.70
+		var radius: float = tile_width * lerpf(0.34, 0.14, mote_t)
+		var point := base + Vector2(
+			cos(angle) * radius,
+			-tile_height * (0.28 + mote_t * 1.02) + sin(angle) * tile_height * 0.12
+		)
+		point.y = maxf(point.y, base.y - tile_width * 0.74)
+		var size: float = tile_width * lerpf(0.082, 0.135, mote_fade)
+		var tint: Color = Color(0.74, 1.0, 0.48, 1.0).lerp(Color(1.0, 0.86, 0.36, 1.0), 0.38 + 0.34 * sin(float(index)))
+		_draw_cast_effect_sprite(1 if index % 3 != 0 else 3, point, Vector2.ONE * size, mote_fade * 0.98, tint, angle)
+		draw_circle(point, size * 0.24, Color(tint.r, tint.g, tint.b, 0.54 * mote_fade))
+
+func _draw_stoneskin_cast_effect(tile: Vector2i, progress: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var base: Vector2 = _tile_center(tile)
+	var reveal: float = clampf(progress / 0.32, 0.0, 1.0)
+	var fade: float = clampf((1.0 - progress) / 0.30, 0.0, 1.0)
+	var pulse: float = clampf(sin(progress * PI) * 1.15, 0.0, 1.0)
+	var alpha: float = maxf(reveal * fade, pulse * 0.86)
+	_draw_tile_ring(tile, Color(0.74, 0.83, 0.36, 0.42 + alpha * 0.34), 3.4 + pulse * 1.6, 0.70 + reveal * 0.10)
+	draw_circle(base + Vector2(0.0, -tile_height * 0.20), tile_width * (0.22 + 0.12 * pulse), Color(0.35, 0.30, 0.16, 0.14 * alpha))
+	var armor_center: Vector2 = base + Vector2(0.0, -tile_width * 0.39)
+	draw_arc(armor_center, tile_width * 0.34, deg_to_rad(198.0), deg_to_rad(342.0), 28, Color(0.96, 0.86, 0.44, 0.62 * alpha), 3.0, true)
+	draw_arc(armor_center + Vector2(0.0, tile_height * 0.10), tile_width * 0.28, deg_to_rad(202.0), deg_to_rad(338.0), 24, Color(0.45, 0.36, 0.18, 0.46 * alpha), 2.4, true)
+	for index: int in range(7):
+		var shard_t: float = clampf(progress * 1.18 - float(index) * 0.035, 0.0, 1.0)
+		if shard_t <= 0.0:
+			continue
+		var shard_alpha: float = sin(shard_t * PI) * (0.88 + 0.20 * pulse)
+		var angle: float = TAU * float(index) / 7.0 + 0.38
+		var side := Vector2(cos(angle) * tile_width * 0.34, sin(angle) * tile_height * 0.34)
+		var point: Vector2 = base + Vector2(side.x, -tile_height * (0.54 + 0.22 * shard_t) + side.y * 0.35)
+		point.y += lerpf(12.0, -4.0, shard_t)
+		point.y = maxf(point.y, base.y - tile_width * 0.70)
+		var shard_size := Vector2(tile_width * (0.095 + 0.030 * shard_t), tile_width * (0.20 + 0.050 * shard_t))
+		var tint: Color = Color(0.65, 0.56, 0.34, 1.0).lerp(ElementData.accent(ElementData.EARTH), 0.42 + 0.22 * shard_t)
+		_draw_cast_effect_sprite(2, point, shard_size, alpha * shard_alpha, tint, angle + PI * 0.5)
+		var chip_points := PackedVector2Array([
+			point + Vector2(0.0, -shard_size.y * 0.48),
+			point + Vector2(shard_size.x * 0.34, shard_size.y * 0.05),
+			point + Vector2(0.0, shard_size.y * 0.45),
+			point + Vector2(-shard_size.x * 0.32, shard_size.y * 0.08),
+			point + Vector2(0.0, -shard_size.y * 0.48)
+		])
+		draw_polyline(chip_points, Color(0.95, 0.88, 0.58, 0.25 * alpha * shard_alpha), 1.2, true)
+
+func _draw_cast_effect_sprite(frame_index: int, point: Vector2, draw_size: Vector2, alpha: float, tint: Color, rotation: float = 0.0) -> void:
+	var texture: Texture2D = _defense_heal_cast_frame(frame_index)
+	if texture == null:
+		return
+	_draw_ambient_particle_sprite(texture, point, draw_size, rotation, clampf(alpha, 0.0, 1.0), tint)
+
+func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
+	var frames: Array = _effect_frames.get("defense_heal_casts", [])
+	if frame_index < 0 or frame_index >= frames.size():
+		return null
+	return frames[frame_index] as Texture2D
 
 func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, center_point: Vector2) -> void:
 	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
@@ -3225,6 +3333,11 @@ func _load_assets() -> void:
 			MELEE_SLASH_SHEET_PATH,
 			MELEE_SLASH_SHEET_COLUMNS,
 			MELEE_SLASH_SHEET_ROWS
+		),
+		"defense_heal_casts": _load_sprite_sheet_frames(
+			DEFENSE_HEAL_CASTS_PATH,
+			DEFENSE_HEAL_CASTS_COLUMNS,
+			DEFENSE_HEAL_CASTS_ROWS
 		)
 	}
 	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)

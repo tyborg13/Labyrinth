@@ -50,6 +50,7 @@ func _capture_motion_states() -> void:
 	await _capture_draw_fx(instance)
 	await _capture_player_attack_fx(instance)
 	await _capture_player_aoe_fx(instance)
+	await _capture_defense_heal_cast_fx(instance)
 	await _capture_enemy_phase_fx(instance)
 	await _capture_ember_fx(instance)
 	await _capture_fatigue_fx(instance)
@@ -191,6 +192,98 @@ func _capture_player_aoe_fx(instance: Node) -> void:
 	await process_frame
 	await _save_root_screenshot("user://motion_probes/motion_27_player_aoe_impact.png")
 	await create_timer(0.72).timeout
+	await process_frame
+	instance.call("_refresh_ui")
+	await process_frame
+
+func _capture_defense_heal_cast_fx(instance: Node) -> void:
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 16, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	combat_state.erase("player_turn_restrictions")
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 80, "max_hp": 80, "block": 0, "stoneskin": 0}
+	]
+	combat_state["traps"] = []
+	combat_state["terrain"] = []
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["guarded_step", "patch_up", "stone_plate"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	_apply_probe_combat_state(instance, combat_state)
+	await process_frame
+	await process_frame
+
+	var block_before: Dictionary = combat_state.duplicate(true)
+	var block_after: Dictionary = block_before.duplicate(true)
+	var block_player: Dictionary = (block_after.get("player", {}) as Dictionary).duplicate(true)
+	block_player["block"] = 6
+	block_after["player"] = block_player
+	instance.call("_animate_player_action_step", block_before, block_after, "guarded_step", {"type": "block", "amount": 6}, Vector2i(-1, -1))
+	await create_timer(0.11).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_28_player_block_flare.png")
+	await create_timer(0.34).timeout
+	await process_frame
+
+	var heal_before: Dictionary = combat_state.duplicate(true)
+	var heal_player: Dictionary = (heal_before.get("player", {}) as Dictionary).duplicate(true)
+	heal_player["hp"] = 14
+	heal_player["block"] = 0
+	heal_before["player"] = heal_player
+	_apply_probe_combat_state(instance, heal_before)
+	await process_frame
+	var heal_after: Dictionary = heal_before.duplicate(true)
+	var healed_player: Dictionary = (heal_after.get("player", {}) as Dictionary).duplicate(true)
+	healed_player["hp"] = 19
+	heal_after["player"] = healed_player
+	instance.call("_animate_player_action_step", heal_before, heal_after, "patch_up", {"type": "heal", "amount": 5}, Vector2i(-1, -1))
+	await create_timer(0.13).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_29_player_heal_motes.png")
+	await create_timer(0.34).timeout
+	await process_frame
+
+	var skin_before: Dictionary = combat_state.duplicate(true)
+	var skin_player: Dictionary = (skin_before.get("player", {}) as Dictionary).duplicate(true)
+	skin_player["hp"] = 18
+	skin_player["block"] = 0
+	skin_player["stoneskin"] = 0
+	skin_before["player"] = skin_player
+	_apply_probe_combat_state(instance, skin_before)
+	await process_frame
+	var skin_after: Dictionary = skin_before.duplicate(true)
+	var armored_player: Dictionary = (skin_after.get("player", {}) as Dictionary).duplicate(true)
+	armored_player["stoneskin"] = 5
+	skin_after["player"] = armored_player
+	instance.call("_animate_player_action_step", skin_before, skin_after, "stone_plate", {"type": "stoneskin", "amount": 5}, Vector2i(-1, -1))
+	await create_timer(0.13).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_32_player_stoneskin_shards.png")
+	await create_timer(0.34).timeout
+	await process_frame
+
+	var enemy_before: Dictionary = combat_state.duplicate(true)
+	_apply_probe_combat_state(instance, enemy_before)
+	await process_frame
+	var enemy_step := {
+		"kind": "stoneskin",
+		"actor_key": "enemy_1",
+		"actor_name": "Crawler",
+		"label": "Stone Shell",
+		"tile": Vector2i(5, 4),
+		"amount": 4
+	}
+	instance.call("_animate_enemy_phase_steps", enemy_before, [enemy_step])
+	await create_timer(0.13).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_33_enemy_stoneskin_ring.png")
+	await create_timer(0.34).timeout
 	await process_frame
 	instance.call("_refresh_ui")
 	await process_frame
@@ -340,6 +433,17 @@ func _probe_unit_tiles(unit: Dictionary) -> Array[Vector2i]:
 		for x: int in range(maxi(1, footprint.x)):
 			tiles.append(anchor + Vector2i(x, y))
 	return tiles
+
+func _apply_probe_combat_state(instance: Node, combat_state: Dictionary) -> void:
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_reset_card_resolution")
+	instance.set("_animation_lock", false)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_refresh_ui")
 
 func _save_root_screenshot(output_path: String) -> void:
 	var image: Image = root.get_viewport().get_texture().get_image()

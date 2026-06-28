@@ -5675,7 +5675,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = t
-		if not (presentation.get("trap_effects", []) as Array).is_empty() and not presentation.has("effect_progress"):
+		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
@@ -5964,6 +5964,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"effect": {"kind": "stoneskin", "tile": player_after_tile},
 				"floating_texts": [{
 					"tile": player_after_tile,
 					"text": "+%d S" % skin_gain,
