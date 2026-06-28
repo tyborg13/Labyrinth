@@ -33,6 +33,10 @@ These assumptions are baked into the current coefficients:
 - Printed cards carry a `time` cost on a `1-10` scale. The current baseline
   card is `5` time; fast cards are meant to be a real initiative advantage,
   while heavy cards can let enemies lap the player if overplayed.
+- Enemies reveal an intent before entering the queue. Initial enemy slots and
+  repeat enemy slots both use `enemy base initiative + revealed intent time`;
+  initial slots add a small enemy-index stagger so simultaneous spawns stay
+  readable.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
 - Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
@@ -70,10 +74,10 @@ Encounter calibration is also important:
   Enemy base initiative
   is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
   harriers are quick, acolytes are baseline, and wardens are slow. At depth `1`,
-  weighted repeat cycles are roughly `11` for wisps, `13` for crawlers, `13.4`
-  for harriers, `16.25` for acolytes, and `20.25` for wardens; Zekarion cycles
-  around `19.25` before summon forcing. Depth reduces enemy base initiative by
-  up to `4` over time.
+  weighted first/repeat cycles before the initial spawn stagger are roughly
+  `11` for wisps, `13` for crawlers, `13.4` for harriers, `16.25` for
+  acolytes, and `20.25` for wardens; Zekarion cycles around `19.25` before
+  summon forcing. Depth reduces enemy base initiative by up to `4` over time.
 - Later sequences keep the same local density and elemental-control curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.

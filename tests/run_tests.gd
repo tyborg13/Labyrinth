@@ -972,37 +972,29 @@ func _test_initiative_advances_enemy_turns_until_player_reacts() -> void:
 	var state: Dictionary = combat.create_combat(15131, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["quick_stab", "brace", "patch_up"],
+		"deck_cards": ["whirlwind_slash", "dull_bolt", "patch_up"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab", "brace"]
+	deck["hand"] = ["whirlwind_slash", "dull_bolt"]
 	deck["draw"] = ["patch_up"]
 	deck["discard"] = []
 	state["deck"] = deck
-	var enemies: Array = state.get("enemies", [])
-	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
-	enemy["intent"] = {
-		"name": "Guard",
-		"time": 2,
-		"actions": [{"type": "block", "amount": 10}]
-	}
-	enemies[0] = enemy
-	state["enemies"] = enemies
 	state = combat.finish_player_card(state, 0)
-	_assert(int(state.get("player_turn_time_spent", 0)) == 2, "Played cards should add their time cost to the current player turn")
+	state = combat.finish_player_card(state, 0)
+	_assert(int(state.get("player_turn_time_spent", 0)) == 9, "Played cards should add their time costs to the current player turn")
 	var scheduled_state: Dictionary = combat.finish_player_activation(state)
 	var scheduled_order: Array[Dictionary] = combat.current_turn_order(scheduled_state, 3)
 	_assert(str(scheduled_order[0].get("kind", "")) == "enemy", "Passing should hand control to the next queued enemy before the player returns")
 	_assert(not bool(scheduled_order[0].get("active", false)), "The player should no longer remain highlighted after their activation is scheduled out")
 	_assert(str(scheduled_order[1].get("kind", "")) == "player", "The player's next slot should be scheduled from base initiative plus card time")
-	_assert(int(scheduled_order[1].get("time", 0)) == 11, "Quick, two-time cards should schedule the next player turn at initiative 11")
+	_assert(int(scheduled_order[1].get("time", 0)) == 18, "A normal two-card turn should schedule the next player turn at initiative 18")
 	var phase: Dictionary = combat.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_state: Dictionary = phase.get("state", {})
 	_assert(combat.is_player_turn(after_state), "Initiative advancement should stop once the next player turn becomes active")
-	_assert(int(after_state.get("initiative_clock", 0)) == 11, "The initiative clock should advance to the player's scheduled return")
+	_assert(int(after_state.get("initiative_clock", 0)) == 18, "The initiative clock should advance to the player's scheduled return")
 	_assert((phase.get("steps", []) as Array).size() >= 1, "Enemy turns resolved before the player should still emit animation steps")
 	var saw_turn_order_step: bool = false
 	for step_var: Variant in phase.get("steps", []):
@@ -1039,7 +1031,37 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(int(GameData.card_def("brace").get("time", 0)) == 1, "Brace should anchor the fast end of the card time scale")
 	_assert(str(fast_order[0].get("kind", "")) == "player", "A one-time card should let the player jump ahead of slow enemies")
 
-	var heavy_state: Dictionary = combat.create_combat(15135, layout, {
+	var fast_pair_layout: Dictionary = _simple_room_layout()
+	fast_pair_layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "acolyte",
+			"pos": Vector2i(5, 2),
+			"hp": 12,
+			"max_hp": 12,
+			"block": 0
+		}
+	]
+	var fast_pair_state: Dictionary = combat.create_combat(15138, fast_pair_layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "patch_up"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var fast_pair_deck: Dictionary = (fast_pair_state.get("deck", {}) as Dictionary).duplicate(true)
+	fast_pair_deck["hand"] = ["quick_stab", "patch_up"]
+	fast_pair_deck["draw"] = []
+	fast_pair_deck["discard"] = []
+	fast_pair_state["deck"] = fast_pair_deck
+	fast_pair_state = combat.finish_player_card(fast_pair_state, 0)
+	fast_pair_state = combat.finish_player_card(fast_pair_state, 0)
+	var fast_pair_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(fast_pair_state), 3)
+	_assert(int(fast_pair_state.get("player_turn_time_spent", 0)) == 4, "Two fast cards should spend a clearly low amount of time")
+	_assert(str(fast_pair_order[0].get("kind", "")) == "player", "Two fast cards should let the player lap slower enemies before they act")
+
+	var heavy_state: Dictionary = combat.create_combat(15135, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
 		"deck_cards": ["bloody_lunge"],
@@ -1050,26 +1072,21 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	heavy_state = combat.finish_player_card(heavy_state, 0)
 	var heavy_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(heavy_state), 3)
 	_assert(int(GameData.card_def("bloody_lunge").get("time", 0)) == 8, "Bloody Lunge should anchor the heavy end of the starter card time scale")
-	_assert(str(heavy_order[0].get("kind", "")) == "enemy", "A heavy starter card should let the slow enemy act before the player returns")
+	_assert(str(heavy_order[0].get("kind", "")) == "enemy", "A heavy starter card should let fast enemies act before the player returns")
 
 	var standard_state: Dictionary = combat.create_combat(15136, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["whirlwind_slash", "lantern_shot"],
+		"deck_cards": ["whirlwind_slash", "dull_bolt"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var standard_deck: Dictionary = (standard_state.get("deck", {}) as Dictionary).duplicate(true)
-	standard_deck["hand"] = ["whirlwind_slash", "lantern_shot"]
+	standard_deck["hand"] = ["whirlwind_slash", "dull_bolt"]
 	standard_deck["draw"] = []
 	standard_deck["discard"] = []
 	standard_state["deck"] = standard_deck
-	var standard_enemies: Array = standard_state.get("enemies", [])
-	var standard_enemy: Dictionary = (standard_enemies[0] as Dictionary).duplicate(true)
-	standard_enemy["intent"] = {"name": "Measured Claw", "time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]}
-	standard_enemies[0] = standard_enemy
-	standard_state["enemies"] = standard_enemies
 	standard_state = combat.finish_player_card(standard_state, 0)
 	standard_state = combat.finish_player_card(standard_state, 0)
 	var standard_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(standard_state), 4)
@@ -1078,30 +1095,36 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(str(standard_order[1].get("kind", "")) == "player", "A normal two-card starter turn should return before the same fast enemy laps the player")
 	_assert(str(standard_order[2].get("kind", "")) == "enemy" and bool(standard_order[2].get("projected", false)), "The fast enemy's projected follow-up should remain visible after the player's standard return")
 
-	var slow_state: Dictionary = combat.create_combat(15137, _simple_room_layout(), {
+	var slow_layout: Dictionary = _simple_room_layout()
+	slow_layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "lightning_wisp",
+			"pos": Vector2i(5, 2),
+			"hp": 6,
+			"max_hp": 6,
+			"block": 0
+		}
+	]
+	var slow_state: Dictionary = combat.create_combat(15137, slow_layout, {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["bloody_lunge", "whirlwind_slash"],
+		"deck_cards": ["bloody_lunge", "grave_sprint"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var slow_deck: Dictionary = (slow_state.get("deck", {}) as Dictionary).duplicate(true)
-	slow_deck["hand"] = ["bloody_lunge", "whirlwind_slash"]
+	slow_deck["hand"] = ["bloody_lunge", "grave_sprint"]
 	slow_deck["draw"] = []
 	slow_deck["discard"] = []
 	slow_state["deck"] = slow_deck
-	var slow_enemies: Array = slow_state.get("enemies", [])
-	var slow_enemy: Dictionary = (slow_enemies[0] as Dictionary).duplicate(true)
-	slow_enemy["intent"] = {"name": "Measured Claw", "time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]}
-	slow_enemies[0] = slow_enemy
-	slow_state["enemies"] = slow_enemies
 	slow_state = combat.finish_player_card(slow_state, 0)
 	slow_state = combat.finish_player_card(slow_state, 0)
 	var slow_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(slow_state), 4)
-	_assert(int(slow_state.get("player_turn_time_spent", 0)) == 13, "Stacking a heavy card with a normal card should create a slow turn")
+	_assert(int(slow_state.get("player_turn_time_spent", 0)) == 14, "Stacking two slow cards should create a slow turn")
 	_assert(str(slow_order[0].get("kind", "")) == "enemy", "The fast enemy should act before a slow player return")
-	_assert(str(slow_order[1].get("kind", "")) == "enemy" and bool(slow_order[1].get("projected", false)), "Slow starter turns should let fast enemies threaten a double-up")
+	_assert(str(slow_order[1].get("kind", "")) == "enemy" and bool(slow_order[1].get("projected", false)), "Slow turns should let fast enemies threaten a double-up")
 	_assert(str(slow_order[2].get("kind", "")) == "player", "The player should return after the fast enemy's projected follow-up on slow turns")
 
 func _test_agility_reduces_player_base_initiative() -> void:
@@ -1196,6 +1219,19 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
 		for magic_card_id: String in ["pale_spark", "dull_bolt", "waning_pulse"]:
 			_assert(not cards.has(magic_card_id), "Default attuned magic should stay out of combat reward offers")
+	var elemental_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity("", true)
+	var elemental_reward_ids: Array = []
+	for rarity: String in ["common", "uncommon", "rare"]:
+		for card_id_var: Variant in elemental_reward_pool.get(rarity, []):
+			elemental_reward_ids.append(str(card_id_var))
+	_assert(elemental_reward_ids.has("threaded_path"), "Threaded Path should be a live elemental speed reward")
+	_assert(GameData.card_element("threaded_path") == ElementData.AIR, "Threaded Path should be an Air reward card")
+	var elemental_reward_times: Dictionary = {}
+	for card_id_var: Variant in elemental_reward_ids:
+		var card_id: String = str(card_id_var)
+		elemental_reward_times[int(GameData.card_def(card_id).get("time", 5))] = true
+	for required_time: int in [1, 2, 3, 9, 10]:
+		_assert(bool(elemental_reward_times.get(required_time, false)), "Elemental reward pool should include a time-%d card" % required_time)
 
 func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary) -> void:
 	var engine: RunEngine = RunEngine.new()
@@ -6712,6 +6748,16 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	instance.call("_render_board_state", animated_state, moving_presentation)
 	instance.call("_on_turn_order_enemy_unhovered", Vector2i(5, 2), "enemy_1")
 	_assert_board_kept_animating_enemy(board_view, destination_tile, "Turn order unhover during animation lock")
+	var preview_state: Dictionary = combat_state.duplicate(true)
+	var preview_player: Dictionary = (preview_state.get("player", {}) as Dictionary).duplicate(true)
+	var preview_destination_tile := Vector2i(3, 4)
+	preview_player["pos"] = preview_destination_tile
+	preview_state["player"] = preview_player
+	instance.set("_preview_combat_state", preview_state)
+	instance.call("_refresh_stage_view")
+	var rendered_state: Dictionary = board_view.get("combat_state")
+	var rendered_player: Dictionary = rendered_state.get("player", {})
+	_assert(rendered_player.get("pos", Vector2i.ZERO) == (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "Animation-locked stage refresh should not draw the resolved player preview before the move animation starts")
 	instance.queue_free()
 	await process_frame
 
