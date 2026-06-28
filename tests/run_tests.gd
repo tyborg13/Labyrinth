@@ -165,6 +165,7 @@ func _initialize() -> void:
 	_test_door_opening_sheet_loads_as_directional_frames()
 	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
 	_test_combat_board_assigns_deterministic_floor_variants()
+	_test_combat_board_loads_elemental_projectile_atlas()
 	_test_combat_board_ambient_particles_follow_room_element()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
@@ -4576,6 +4577,27 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 		or shifted_lookup.get(Vector2i(5, 4), -1) != first_lookup.get(Vector2i(5, 4), -1),
 		"Different room coordinates should reshuffle the deterministic floor-variant mix"
 	)
+	board.free()
+
+func _test_combat_board_loads_elemental_projectile_atlas() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var neutral_frame: AtlasTexture = board.call("_projectile_texture", ElementData.NONE) as AtlasTexture
+	_assert(neutral_frame != null, "Combat board should load a neutral projectile atlas frame")
+	var fallback_frame: AtlasTexture = board.call("_projectile_texture", "unknown") as AtlasTexture
+	_assert(fallback_frame != null, "Unknown projectile elements should use the neutral atlas frame")
+	if neutral_frame != null and fallback_frame != null:
+		_assert(
+			is_equal_approx(fallback_frame.region.position.y, neutral_frame.region.position.y),
+			"Unknown projectile elements should fall back to the neutral atlas row"
+		)
+	var seen_rows: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		var frame: AtlasTexture = board.call("_projectile_texture", element_id) as AtlasTexture
+		_assert(frame != null, "Combat board should load projectile atlas frame for %s" % element_id)
+		if frame != null:
+			seen_rows[int(round(frame.region.position.y))] = true
+	_assert(seen_rows.size() == ElementData.all_elements().size(), "Elemental projectile atlas should provide distinct rows for every element")
 	board.free()
 
 func _test_combat_board_ambient_particles_follow_room_element() -> void:
