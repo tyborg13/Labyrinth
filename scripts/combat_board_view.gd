@@ -121,7 +121,6 @@ const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
-const RELIC_CHEST_SPARKLE_COLOR: Color = Color("f0c978")
 const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
 const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
 const COLUMN_TORCH_LEFT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_left_idle.png"
@@ -153,8 +152,6 @@ const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_she
 const MELEE_SLASH_SHEET_COLUMNS: int = 6
 const MELEE_SLASH_SHEET_ROWS: int = 1
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
-const RELIC_CHEST_SPARKLE_EFFECT_PATH: String = "res://assets/art/effects/relic_chest_cache_sparkle.png"
-const RELIC_CHOICE_GLINT_EFFECT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
@@ -283,8 +280,6 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
 		return true
-	if _scene_prop_sparkle_active():
-		return true
 	if presentation.is_empty():
 		return false
 	if not (presentation.get("damage_preview", {}) as Dictionary).is_empty():
@@ -295,12 +290,6 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	var effect: Dictionary = presentation.get("effect", {})
 	return bool(effect.get("preview", false))
-
-func _scene_prop_sparkle_active() -> bool:
-	for prop_var: Variant in presentation.get("scene_props", []):
-		if typeof(prop_var) == TYPE_DICTIONARY and bool((prop_var as Dictionary).get("sparkle", false)):
-			return true
-	return false
 
 func _any_idle_animation_active() -> bool:
 	if not visible or combat_state.is_empty():
@@ -1019,64 +1008,6 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 		draw_texture_rect(texture, draw_rect, false, tint)
-		if str(prop.get("kind", "")) == "relic_chest" and bool(prop.get("sparkle", false)):
-			_draw_relic_chest_sparkle(draw_rect, prop, tint)
-
-func _draw_relic_chest_sparkle(draw_rect: Rect2, prop: Dictionary, tint: Color) -> void:
-	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
-		return
-	var sparkle_texture: Texture2D = _effect_textures.get("relic_chest_sparkle", null)
-	var glint_texture: Texture2D = _effect_textures.get("relic_choice_glint", null)
-	if sparkle_texture == null:
-		return
-	var accent: Color = prop.get("sparkle_accent", RELIC_CHEST_SPARKLE_COLOR)
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
-	var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
-	var chest_center := Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.48)
-	var pulse: float = 0.5 + 0.5 * sin(time_seconds * 2.7)
-	var texture_size := Vector2(draw_rect.size.x * 2.26, draw_rect.size.y * 1.72)
-	var texture_center := chest_center + Vector2(0.0, -draw_rect.size.y * 0.06)
-	_draw_effect_texture_centered(
-		sparkle_texture,
-		texture_center,
-		texture_size * (0.98 + 0.04 * pulse),
-		sin(time_seconds * 0.48) * 0.035,
-		_relic_sparkle_modulate(accent, (0.78 + 0.22 * pulse) * tint_alpha)
-	)
-	var glints: Array = [
-		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.32, draw_rect.size.y * 0.32), "delay": 0.0, "size": 0.52},
-		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.69, draw_rect.size.y * 0.39), "delay": 0.46, "size": 0.46},
-		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.52, draw_rect.size.y * 0.24), "delay": 0.78, "size": 0.36},
-		{"pos": draw_rect.position + Vector2(draw_rect.size.x * 0.50, draw_rect.size.y * 0.58), "delay": 0.22, "size": 0.32}
-	]
-	for glint_var: Variant in glints:
-		if glint_texture == null:
-			continue
-		var glint: Dictionary = glint_var
-		var glint_pulse: float = 0.5 + 0.5 * sin(time_seconds * 4.1 + float(glint.get("delay", 0.0)) * TAU)
-		var glint_size := Vector2.ONE * draw_rect.size.x * float(glint.get("size", 0.28)) * (0.78 + 0.42 * glint_pulse)
-		_draw_effect_texture_centered(
-			glint_texture,
-			glint.get("pos", chest_center),
-			glint_size,
-			sin(time_seconds * 0.7 + float(glint.get("delay", 0.0))) * 0.2,
-			_relic_sparkle_modulate(accent, (0.22 + 0.78 * pow(glint_pulse, 2.0)) * tint_alpha)
-		)
-
-func _draw_effect_texture_centered(texture: Texture2D, center: Vector2, draw_size: Vector2, rotation: float, color: Color) -> void:
-	if texture == null or draw_size.x <= 0.0 or draw_size.y <= 0.0:
-		return
-	draw_set_transform(center, rotation, Vector2.ONE)
-	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, color)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-func _relic_sparkle_modulate(accent: Color, alpha: float) -> Color:
-	return Color(
-		clampf(0.94 + accent.r * 0.08, 0.0, 1.0),
-		clampf(0.82 + accent.g * 0.14, 0.0, 1.0),
-		clampf(0.54 + accent.b * 0.16, 0.0, 1.0),
-		alpha
-	)
 
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
@@ -3287,9 +3218,7 @@ func _load_assets() -> void:
 		)
 	}
 	_effect_textures = {
-		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH),
-		"relic_chest_sparkle": AssetLoader.load_texture(RELIC_CHEST_SPARKLE_EFFECT_PATH),
-		"relic_choice_glint": AssetLoader.load_texture(RELIC_CHOICE_GLINT_EFFECT_PATH)
+		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
 	}
 	_effect_frames = {
 		"melee_slash": _load_sprite_sheet_frames(

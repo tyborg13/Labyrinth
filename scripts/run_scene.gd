@@ -324,7 +324,7 @@ class RelicChoiceSparkleLayer:
 			_halo.texture = halo_texture
 			_halo.z_index = 0
 			add_child(_halo)
-		while _glints.size() < 4:
+		while _glints.size() < 7:
 			var glint := TextureRect.new()
 			glint.name = "RelicChoiceGlint%d" % _glints.size()
 			_configure_texture_rect(glint)
@@ -332,7 +332,7 @@ class RelicChoiceSparkleLayer:
 			glint.z_index = 1
 			_glints.append(glint)
 			add_child(glint)
-		while _dust.size() < 6:
+		while _dust.size() < 10:
 			var dust := TextureRect.new()
 			dust.name = "RelicChoiceDust%d" % _dust.size()
 			_configure_texture_rect(dust)
@@ -350,18 +350,21 @@ class RelicChoiceSparkleLayer:
 		_ensure_texture_nodes()
 		if size.x <= 0.0 or size.y <= 0.0:
 			return
-		var icon_center := Vector2(size.x * 0.5, size.y * 0.30)
-		var halo_size := Vector2.ONE * minf(size.x * 0.74, size.y * 0.68)
+		var icon_center := Vector2(size.x * 0.5, size.y * 0.34)
+		var halo_size := Vector2(size.x * 0.96, size.y * 0.86)
 		_halo.size = halo_size
-		_halo.position = icon_center - halo_size * 0.5
+		_halo.position = Vector2(size.x * 0.5, size.y * 0.46) - halo_size * 0.5
 		_halo.pivot_offset = halo_size * 0.5
 		_halo.visible = halo_texture != null
 
 		var glint_layout: Array = [
-			{"pos": Vector2(25.0, 24.0), "size": 42.0},
-			{"pos": Vector2(size.x - 28.0, 30.0), "size": 38.0},
-			{"pos": Vector2(35.0, size.y - 36.0), "size": 36.0},
-			{"pos": Vector2(size.x - 38.0, size.y - 40.0), "size": 46.0}
+			{"pos": Vector2(27.0, 26.0), "size": 34.0},
+			{"pos": Vector2(size.x - 30.0, 29.0), "size": 32.0},
+			{"pos": Vector2(size.x * 0.50, 22.0), "size": 28.0},
+			{"pos": Vector2(size.x * 0.25, 88.0), "size": 27.0},
+			{"pos": Vector2(size.x * 0.76, 86.0), "size": 30.0},
+			{"pos": Vector2(37.0, size.y - 40.0), "size": 26.0},
+			{"pos": Vector2(size.x - 40.0, size.y - 42.0), "size": 30.0}
 		]
 		for index: int in range(_glints.size()):
 			var glint: TextureRect = _glints[index]
@@ -374,7 +377,7 @@ class RelicChoiceSparkleLayer:
 
 		for index: int in range(_dust.size()):
 			var dust: TextureRect = _dust[index]
-			var dust_size: float = 16.0 + float(index % 3) * 3.0
+			var dust_size: float = 12.0 + float(index % 4) * 2.5
 			dust.size = Vector2.ONE * dust_size
 			dust.pivot_offset = dust.size * 0.5
 			dust.visible = glint_texture != null
@@ -383,26 +386,26 @@ class RelicChoiceSparkleLayer:
 		_ensure_texture_nodes()
 		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.25)
 		_halo.rotation = sin(phase * 0.34) * 0.035
-		_halo.scale = Vector2.ONE * (0.96 + 0.05 * shimmer)
-		_halo.modulate = _accent_modulate(0.42 + 0.14 * shimmer)
-		var glint_delays := [0.0, 0.31, 0.64, 0.88]
+		_halo.scale = Vector2.ONE * (0.98 + 0.035 * shimmer)
+		_halo.modulate = _accent_modulate(0.76 + 0.18 * shimmer)
+		var glint_delays := [0.0, 0.18, 0.34, 0.51, 0.67, 0.82, 0.94]
 		for index: int in range(_glints.size()):
 			var glint: TextureRect = _glints[index]
 			var pulse: float = 0.5 + 0.5 * sin(phase * 3.0 + float(glint_delays[index]) * TAU)
-			glint.rotation = sin(phase * 0.6 + float(index)) * 0.18
-			glint.scale = Vector2.ONE * (0.82 + 0.52 * pulse)
-			glint.modulate = _accent_modulate(0.14 + 0.48 * pow(pulse, 2.0))
-		var center := Vector2(size.x * 0.5, size.y * 0.30)
+			glint.rotation = sin(phase * 0.72 + float(index)) * 0.22
+			glint.scale = Vector2.ONE * (0.72 + 0.58 * pulse)
+			glint.modulate = _accent_modulate(0.22 + 0.70 * pow(pulse, 2.0))
+		var center := Vector2(size.x * 0.5, size.y * 0.44)
 		for index: int in range(_dust.size()):
 			var dust: TextureRect = _dust[index]
-			var angle: float = phase * (0.18 + float(index % 3) * 0.035) + float(index) * TAU / float(_dust.size())
-			var radius := Vector2(size.x * (0.29 + 0.025 * float(index % 2)), size.y * (0.20 + 0.018 * float((index + 1) % 2)))
-			var offset := Vector2(cos(angle) * radius.x, sin(angle * 0.92) * radius.y)
-			var drift: float = 0.5 + 0.5 * sin(phase * 1.8 + float(index) * 1.7)
+			var angle: float = phase * (0.13 + float(index % 4) * 0.028) + float(index) * TAU / float(_dust.size())
+			var radius := Vector2(size.x * (0.37 + 0.022 * float(index % 2)), size.y * (0.30 + 0.016 * float((index + 1) % 2)))
+			var offset := Vector2(cos(angle) * radius.x, sin(angle * 0.86) * radius.y)
+			var drift: float = 0.5 + 0.5 * sin(phase * 1.55 + float(index) * 1.7)
 			dust.position = center + offset - dust.size * 0.5
 			dust.rotation = angle
-			dust.scale = Vector2.ONE * (0.40 + 0.34 * drift)
-			dust.modulate = _accent_modulate(0.07 + 0.20 * drift)
+			dust.scale = Vector2.ONE * (0.48 + 0.42 * drift)
+			dust.modulate = _accent_modulate(0.12 + 0.30 * drift)
 
 	func _accent_modulate(alpha: float) -> Color:
 		return Color(
@@ -4500,15 +4503,12 @@ func _refresh_stage_view() -> void:
 			}
 		]
 	elif str(current_room.get("type", "")) == "treasure":
-		var relic_choices_pending: bool = str(_run_state.get("mode", "room")) == "treasure" and not (_run_state.get("pending_relics", []) as Array).is_empty()
 		presentation["scene_props"] = [
 			{
 				"kind": "relic_chest",
 				"tile": Vector2i(4, 4),
 				"width_scale": 0.68,
-				"baseline_scale": 0.44,
-				"sparkle": relic_choices_pending,
-				"sparkle_accent": Color("f0c978")
+				"baseline_scale": 0.44
 			}
 		]
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
