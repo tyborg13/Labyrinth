@@ -99,11 +99,27 @@ func _capture_blink_sequence(instance: Node, combat_state: Dictionary, label: St
 	await _save_root_screenshot("%s/blink_rift_%s_mid.png" % [OUTPUT_DIR, label])
 	await create_timer(0.20).timeout
 	await process_frame
+	instance.call("_render_board_state", after_state, _settled_blink_presentation(working_state, after_state))
+	await process_frame
 	await _save_root_screenshot("%s/blink_rift_%s_settled.png" % [OUTPUT_DIR, label])
 	await create_timer(0.26).timeout
 	await process_frame
 	instance.call("_refresh_ui")
 	await process_frame
+
+func _settled_blink_presentation(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var before_tile: Vector2i = before_player.get("pos", Vector2i.ZERO)
+	var after_tile: Vector2i = after_player.get("pos", before_tile)
+	return {
+		"focus_actor_keys": ["player"],
+		"focus_actor_color": Color(0.53, 0.48, 0.92, 0.90),
+		"focus_tiles": [after_tile],
+		"focus_color": Color(0.53, 0.48, 0.92, 0.24),
+		"effect": {"kind": "blink", "from": before_tile, "to": after_tile},
+		"effect_progress": 1.0
+	}
 
 func _blink_probe_target(combat_state: Dictionary, valid_targets: Array[Vector2i], min_distance: int) -> Vector2i:
 	var player: Dictionary = combat_state.get("player", {})
