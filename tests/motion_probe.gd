@@ -48,6 +48,7 @@ func _capture_motion_states() -> void:
 
 	await _capture_card_fx(instance)
 	await _capture_draw_fx(instance)
+	await _capture_player_melee_fx(instance)
 	await _capture_player_attack_fx(instance)
 	await _capture_player_aoe_fx(instance)
 	await _capture_enemy_phase_fx(instance)
@@ -117,24 +118,55 @@ func _capture_draw_fx(instance: Node) -> void:
 	await create_timer(0.42).timeout
 	await process_frame
 
-func _capture_player_attack_fx(instance: Node) -> void:
-	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+func _capture_player_melee_fx(instance: Node) -> void:
+	var combat_state: Dictionary = await _prepare_impact_probe_state(
+		instance,
+		Vector2i(3, 4),
+		[
+			{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 100, "max_hp": 100, "block": 0}
+		],
+		["hearth_rush"]
+	)
 	var combat_engine = instance.get("_combat_engine")
-	var action: Dictionary = {"type": "ranged", "damage": 5, "range": 8}
+	var action: Dictionary = {"type": "melee", "damage": 5, "range": 1, "_card_element": "fire"}
+	var target_tile := Vector2i(4, 4)
+	var after_state: Dictionary = combat_engine.apply_player_action(combat_state.duplicate(true), action, target_tile)
+	instance.call("_animate_player_action_step", combat_state.duplicate(true), after_state, "hearth_rush", action, target_tile)
+	await create_timer(0.31).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_22_player_melee_fire_impact.png")
+	await create_timer(0.34).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_22b_player_melee_fire_faded.png")
+	instance.call("_refresh_ui")
+	await process_frame
+
+func _capture_player_attack_fx(instance: Node) -> void:
+	var combat_state: Dictionary = await _prepare_impact_probe_state(
+		instance,
+		Vector2i(2, 4),
+		[
+			{"id": 1, "type": "harrier", "pos": Vector2i(5, 4), "hp": 100, "max_hp": 100, "block": 0}
+		],
+		["frostbolt"]
+	)
+	var combat_engine = instance.get("_combat_engine")
+	var action: Dictionary = {"type": "ranged", "damage": 5, "range": 8, "_card_element": "ice"}
 	var valid_targets: Array[Vector2i] = combat_engine.valid_targets_for_player_action(combat_state, action)
 	var target_tile: Vector2i = _first_enemy_target_tile(combat_state, valid_targets)
 	if target_tile.x < 0:
 		return
 	var after_state: Dictionary = combat_engine.apply_player_action(combat_state.duplicate(true), action, target_tile)
-	instance.call("_animate_player_action_step", combat_state.duplicate(true), after_state, "bone_dart", action, target_tile)
+	instance.call("_animate_player_action_step", combat_state.duplicate(true), after_state, "frostbolt", action, target_tile)
 	await create_timer(0.12).timeout
 	await process_frame
 	await _save_root_screenshot("user://motion_probes/motion_23_player_ranged_travel.png")
-	await create_timer(0.38).timeout
+	await create_timer(0.20).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_24_player_ranged_impact.png")
-	await create_timer(0.60).timeout
+	await _save_root_screenshot("user://motion_probes/motion_24_player_ranged_ice_impact.png")
+	await create_timer(0.34).timeout
 	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_24b_player_ranged_ice_faded.png")
 	instance.call("_refresh_ui")
 	await process_frame
 
@@ -148,7 +180,7 @@ func _capture_player_aoe_fx(instance: Node) -> void:
 	combat_state.erase("player_turn_restrictions")
 	combat_state["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 100, "max_hp": 100, "block": 0},
-		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 100, "max_hp": 100, "block": 0},
+		{"id": 2, "type": "harrier", "pos": Vector2i(5, 4), "hp": 100, "max_hp": 100, "block": 0},
 		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 100, "max_hp": 100, "block": 0}
 	]
 	combat_state["traps"] = []
@@ -181,7 +213,7 @@ func _capture_player_aoe_fx(instance: Node) -> void:
 		"_card_element": "lightning",
 		"orientation": Vector2i(1, 0)
 	}
-	var target_tile := Vector2i(5, 4)
+	var target_tile := Vector2i(4, 4)
 	var after_state: Dictionary = combat_engine.apply_player_action(combat_state.duplicate(true), action, target_tile)
 	instance.call("_animate_player_action_step", combat_state.duplicate(true), after_state, "thunderline", action, target_tile)
 	await create_timer(0.10).timeout
@@ -190,10 +222,41 @@ func _capture_player_aoe_fx(instance: Node) -> void:
 	await create_timer(0.24).timeout
 	await process_frame
 	await _save_root_screenshot("user://motion_probes/motion_27_player_aoe_impact.png")
-	await create_timer(0.72).timeout
+	await create_timer(0.34).timeout
 	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_27b_player_aoe_faded.png")
 	instance.call("_refresh_ui")
 	await process_frame
+
+func _prepare_impact_probe_state(instance: Node, player_tile: Vector2i, enemies: Array, hand: Array) -> Dictionary:
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	combat_state["player"] = {"pos": player_tile, "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	combat_state.erase("player_turn_restrictions")
+	combat_state["enemies"] = enemies.duplicate(true)
+	combat_state["traps"] = []
+	combat_state["terrain"] = []
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = hand.duplicate()
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_reset_card_resolution")
+	instance.set("_animation_lock", false)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	return combat_state
 
 func _capture_enemy_phase_fx(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
