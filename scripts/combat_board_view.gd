@@ -2650,10 +2650,7 @@ func _draw_effect_overlay() -> void:
 		"blink":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			var blink_point: Vector2 = from_point.lerp(to_point, progress)
-			draw_line(from_point + Vector2(0.0, -10.0), blink_point + Vector2(0.0, -10.0), Color("bdb5ff"), 3.0, true)
-			draw_arc(from_point, _tile_width() * 0.16, 0.0, TAU, 16, Color("c6bdff"), 2.0)
-			draw_arc(blink_point, _tile_width() * 0.16, 0.0, TAU, 16, Color("c6bdff"), 2.0)
+			_draw_blink_rift_effect(from_tile, to_tile, progress, bool(effect.get("preview", false)))
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -2703,6 +2700,140 @@ func _draw_effect_overlay() -> void:
 			var heal_center: Vector2 = _tile_center(heal_tile) + Vector2(0.0, -28.0)
 			draw_line(heal_center + Vector2(-10.0, 0.0), heal_center + Vector2(10.0, 0.0), Color("9ee27e"), 4.0, true)
 			draw_line(heal_center + Vector2(0.0, -10.0), heal_center + Vector2(0.0, 10.0), Color("9ee27e"), 4.0, true)
+
+func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: float, preview: bool = false) -> void:
+	var from_point: Vector2 = _tile_center(from_tile)
+	var to_point: Vector2 = _tile_center(to_tile)
+	var path: Vector2 = to_point - from_point
+	var path_length: float = path.length()
+	var direction: Vector2 = path / path_length if path_length > 0.001 else Vector2.RIGHT
+	var normal := Vector2(-direction.y, direction.x)
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	var eased_progress: float = _blink_rift_ease(clamped_progress)
+	var distance_tiles: float = maxf(1.0, path_length / maxf(1.0, tile_width * 0.56))
+	var preview_scale: float = 0.62 if preview else 1.0
+	var band_width: float = clampf(tile_width * (0.15 + distance_tiles * 0.012), 8.0, 19.0) * preview_scale
+	var path_lift := Vector2(0.0, -tile_height * 0.28)
+	var from_lifted: Vector2 = from_point + path_lift
+	var to_lifted: Vector2 = to_point + path_lift
+	var current_point: Vector2 = from_point.lerp(to_point, eased_progress)
+
+	draw_line(from_lifted, to_lifted, Color(0.02, 0.015, 0.035, 0.18 * preview_scale), band_width * 1.85, true)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, 1.0, band_width * 0.72, Color(0.09, 0.06, 0.14, 0.13 * preview_scale), clamped_progress * TAU)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, eased_progress, band_width, Color(0.18, 0.12, 0.27, 0.45 * preview_scale), clamped_progress * TAU * 1.35)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, clampf(eased_progress + 0.12, 0.0, 1.0), band_width * 0.42, Color(0.55, 0.49, 0.78, 0.30 * preview_scale), clamped_progress * TAU * 1.75)
+
+	var source_alpha: float = lerpf(0.68, 0.20, eased_progress) * preview_scale
+	var destination_alpha: float = lerpf(0.18, 0.74, eased_progress) * preview_scale
+	_draw_tile_ring(from_tile, Color(0.20, 0.13, 0.28, source_alpha), 2.4 * preview_scale, lerpf(0.82, 1.02, eased_progress))
+	_draw_tile_ring(to_tile, Color(0.52, 0.46, 0.74, destination_alpha), 2.5 * preview_scale, lerpf(0.78, 0.98, eased_progress))
+	_draw_blink_rift_mouth(from_point, source_alpha, clamped_progress, 0.08)
+	_draw_blink_rift_mouth(to_point, destination_alpha, clamped_progress, 0.58)
+
+	var settle_fade: float = 1.0 - clampf((clamped_progress - 0.86) / 0.14, 0.0, 1.0)
+	for puff_index: int in range(4):
+		var trail_t: float = clampf(eased_progress - float(puff_index) * 0.17, 0.0, 1.0)
+		if trail_t <= 0.0 and clamped_progress < 0.16:
+			continue
+		var puff_alpha: float = (0.20 - float(puff_index) * 0.035) * (0.55 + 0.45 * clamped_progress) * preview_scale * settle_fade
+		if puff_alpha <= 0.01:
+			continue
+		var wave_offset: Vector2 = normal * sin(trail_t * TAU * 1.7 + float(puff_index) * 0.9) * tile_width * 0.065
+		var puff_center: Vector2 = from_point.lerp(to_point, trail_t) + path_lift * 0.84 + wave_offset
+		var puff_radius: float = clampf(tile_width * (0.10 + float(puff_index) * 0.025), 6.0, 15.0)
+		draw_circle(puff_center, puff_radius, Color(0.025, 0.018, 0.045, puff_alpha))
+		draw_circle(puff_center + normal * tile_width * 0.03, puff_radius * 0.55, Color(0.18, 0.12, 0.26, puff_alpha * 0.48))
+
+	if preview:
+		return
+
+	var ghost_fade: float = 1.0 - clampf((clamped_progress - 0.80) / 0.20, 0.0, 1.0)
+	_draw_blink_afterimage_ghost(from_point, maxf(0.0, 0.20 * (1.0 - eased_progress)) * ghost_fade, 0.96)
+	for ghost_index: int in range(4):
+		var ghost_t: float = clampf(eased_progress - float(ghost_index) * 0.13, 0.0, 1.0)
+		if ghost_t <= 0.02:
+			continue
+		var ghost_center: Vector2 = from_point.lerp(to_point, ghost_t)
+		ghost_center += normal * sin(ghost_t * TAU * 1.25 + float(ghost_index) * 0.65) * tile_width * 0.035
+		var ghost_alpha: float = (0.28 - float(ghost_index) * 0.045) * (0.38 + 0.62 * clamped_progress) * ghost_fade
+		_draw_blink_afterimage_ghost(ghost_center, ghost_alpha, 0.98 - float(ghost_index) * 0.045)
+	_draw_blink_afterimage_ghost(current_point, (0.14 + 0.18 * clamped_progress) * ghost_fade, 1.04)
+
+func _blink_rift_ease(progress: float) -> float:
+	var t: float = clampf(progress, 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
+
+func _draw_blink_smoke_band(from_point: Vector2, to_point: Vector2, normal: Vector2, progress: float, width: float, color: Color, phase: float) -> void:
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	if clamped_progress <= 0.0 or width <= 0.0:
+		return
+	var segment_count: int = 12
+	var visible_segments: int = maxi(2, int(ceil(float(segment_count) * clamped_progress)))
+	var previous_point := Vector2.ZERO
+	for point_index: int in range(visible_segments + 1):
+		var t: float = clamped_progress * float(point_index) / float(visible_segments)
+		var wave: float = sin(t * TAU * 1.7 + phase) * width * 0.42
+		wave += sin(t * TAU * 3.4 + phase * 0.55) * width * 0.18
+		var sag: float = sin(t * PI) * width * 0.12
+		var point: Vector2 = from_point.lerp(to_point, t) + normal * wave + Vector2(0.0, sag)
+		if point_index > 0:
+			var segment_t: float = float(point_index) / float(visible_segments)
+			var alpha: float = color.a * (0.48 + 0.52 * segment_t)
+			draw_line(previous_point, point, Color(color.r, color.g, color.b, alpha), width * (0.76 + 0.24 * segment_t), true)
+		previous_point = point
+
+func _draw_blink_rift_mouth(center: Vector2, alpha: float, progress: float, phase: float) -> void:
+	if alpha <= 0.0:
+		return
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var mouth_center: Vector2 = center + Vector2(0.0, -tile_height * 0.20)
+	var pulse: float = 0.5 + 0.5 * sin((progress + phase) * TAU)
+	draw_circle(mouth_center, tile_width * (0.10 + 0.04 * pulse), Color(0.015, 0.010, 0.030, alpha * 0.46))
+	for ring_index: int in range(3):
+		var radius: float = tile_width * (0.13 + float(ring_index) * 0.052 + pulse * 0.018)
+		var start_angle: float = phase * TAU + progress * TAU * (0.62 + float(ring_index) * 0.16) + float(ring_index) * 0.74
+		var end_angle: float = start_angle + PI * (1.04 + float(ring_index) * 0.15)
+		var ring_alpha: float = alpha * (0.62 - float(ring_index) * 0.13)
+		draw_arc(mouth_center, radius, start_angle, end_angle, 18, Color(0.18, 0.12, 0.28, ring_alpha), 1.6)
+		draw_arc(mouth_center, radius + 1.8, end_angle - PI * 0.28, end_angle, 8, Color(0.58, 0.52, 0.78, ring_alpha * 0.38), 1.2)
+
+func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -> void:
+	if alpha <= 0.0:
+		return
+	var unit: Dictionary = _blink_player_unit_snapshot()
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null:
+		draw_circle(center + Vector2(0.0, -_tile_height() * 0.18), _tile_width() * 0.12, Color(0.36, 0.30, 0.52, alpha))
+		return
+	var base_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	var ghost_rect: Rect2 = _scaled_unit_rect(base_rect, scale)
+	ghost_rect.position += Vector2(0.0, -_tile_height() * 0.06)
+	_draw_iso_ground_shadow(center + Vector2(0.0, _tile_height() * 0.14), _tile_width() * 0.36 * scale, _tile_height() * 0.18, _tile_width() * 0.04, alpha * 0.34)
+	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(-2.0, -2.0), ghost_rect.size), false, Color(0.018, 0.012, 0.035, alpha * 0.72))
+	draw_texture_rect(texture, ghost_rect, false, Color(0.48, 0.40, 0.68, alpha))
+	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(2.0, 1.0), ghost_rect.size), false, Color(0.08, 0.04, 0.12, alpha * 0.30))
+
+func _blink_player_unit_snapshot() -> Dictionary:
+	var player: Dictionary = combat_state.get("player", {})
+	return {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"name": "Player",
+		"pos": player.get("pos", Vector2i.ZERO),
+		"hp": int(player.get("hp", 1)),
+		"max_hp": int(player.get("max_hp", maxi(1, int(player.get("hp", 1))))),
+		"block": int(player.get("block", 0)),
+		"stoneskin": int(player.get("stoneskin", 0)),
+		"burn": int(player.get("burn", 0)),
+		"freeze": int(player.get("freeze", 0)),
+		"shock": int(player.get("shock", 0)),
+		"immobilize": bool(player.get("immobilize", false)),
+		"poison": player.get("poison", {}).duplicate(true)
+	}
 
 func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, center_point: Vector2) -> void:
 	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
