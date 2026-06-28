@@ -6,6 +6,8 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 
+const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
+
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	DirAccess.make_dir_recursive_absolute("user://motion_probes")
@@ -119,6 +121,7 @@ func _capture_draw_fx(instance: Node) -> void:
 	await process_frame
 
 func _capture_player_attack_fx(instance: Node) -> void:
+	await _capture_projectile_preview_loop(instance)
 	await _capture_projectile_variant(
 		instance,
 		"bone_dart",
@@ -140,6 +143,43 @@ func _capture_player_attack_fx(instance: Node) -> void:
 		Vector2i(5, 4),
 		"user://motion_probes/motion_25_projectile_lightning_pull_travel.png"
 	)
+
+func _capture_projectile_preview_loop(instance: Node) -> void:
+	var target_tile := Vector2i(5, 4)
+	var combat_state: Dictionary = _projectile_probe_state(instance, target_tile)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_reset_card_resolution")
+	instance.set("_animation_lock", false)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var presentation: Dictionary = {
+		"focus_tiles": [target_tile],
+		"focus_color": Color(0.95, 0.62, 0.37, 0.22),
+		"effect": {
+			"kind": "ranged",
+			"from": Vector2i(2, 4),
+			"to": target_tile,
+			"preview": true,
+			"element": ElementData.FIRE
+		},
+		"effect_progress": 1.0
+	}
+	await _wait_for_projectile_preview_phase(0.24, 0.34)
+	instance.call("_render_board_state", combat_state, presentation)
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_22_projectile_preview_loop_a.png")
+	await _wait_for_projectile_preview_phase(0.58, 0.68)
+	instance.call("_render_board_state", combat_state, presentation)
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_22_projectile_preview_loop_b.png")
+	instance.call("_refresh_ui")
+	await process_frame
 
 func _capture_projectile_variant(instance: Node, card_id: String, action: Dictionary, preferred_target: Vector2i, output_path: String) -> void:
 	var combat_state: Dictionary = _projectile_probe_state(instance, preferred_target)
@@ -191,6 +231,13 @@ func _projectile_probe_state(instance: Node, target_tile: Vector2i) -> Dictionar
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	return combat_state
+
+func _wait_for_projectile_preview_phase(min_phase: float, max_phase: float) -> void:
+	for _index: int in range(180):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		if phase >= min_phase and phase <= max_phase:
+			return
+		await create_timer(0.02).timeout
 
 func _capture_player_aoe_fx(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)

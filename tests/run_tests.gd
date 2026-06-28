@@ -4584,20 +4584,35 @@ func _test_combat_board_loads_elemental_projectile_atlas() -> void:
 	board.call("_load_assets")
 	var neutral_frame: AtlasTexture = board.call("_projectile_texture", ElementData.NONE) as AtlasTexture
 	_assert(neutral_frame != null, "Combat board should load a neutral projectile atlas frame")
+	var neutral_target_frame: AtlasTexture = board.call("_projectile_target_texture", ElementData.NONE) as AtlasTexture
+	_assert(neutral_target_frame != null, "Combat board should load a neutral projectile target atlas frame")
 	var fallback_frame: AtlasTexture = board.call("_projectile_texture", "unknown") as AtlasTexture
 	_assert(fallback_frame != null, "Unknown projectile elements should use the neutral atlas frame")
+	var fallback_target_frame: AtlasTexture = board.call("_projectile_target_texture", "unknown") as AtlasTexture
+	_assert(fallback_target_frame != null, "Unknown projectile target elements should use the neutral atlas frame")
 	if neutral_frame != null and fallback_frame != null:
 		_assert(
 			is_equal_approx(fallback_frame.region.position.y, neutral_frame.region.position.y),
 			"Unknown projectile elements should fall back to the neutral atlas row"
 		)
+	if neutral_target_frame != null and fallback_target_frame != null:
+		_assert(
+			is_equal_approx(fallback_target_frame.region.position.y, neutral_target_frame.region.position.y),
+			"Unknown projectile target elements should fall back to the neutral atlas row"
+		)
 	var seen_rows: Dictionary = {}
+	var seen_target_rows: Dictionary = {}
 	for element_id: String in ElementData.all_elements():
 		var frame: AtlasTexture = board.call("_projectile_texture", element_id) as AtlasTexture
 		_assert(frame != null, "Combat board should load projectile atlas frame for %s" % element_id)
 		if frame != null:
 			seen_rows[int(round(frame.region.position.y))] = true
+		var target_frame: AtlasTexture = board.call("_projectile_target_texture", element_id) as AtlasTexture
+		_assert(target_frame != null, "Combat board should load projectile target atlas frame for %s" % element_id)
+		if target_frame != null:
+			seen_target_rows[int(round(target_frame.region.position.y))] = true
 	_assert(seen_rows.size() == ElementData.all_elements().size(), "Elemental projectile atlas should provide distinct rows for every element")
+	_assert(seen_target_rows.size() == ElementData.all_elements().size(), "Elemental projectile target atlas should provide distinct rows for every element")
 	board.free()
 
 func _test_combat_board_ambient_particles_follow_room_element() -> void:

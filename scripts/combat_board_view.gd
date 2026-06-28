@@ -152,10 +152,15 @@ const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_she
 const MELEE_SLASH_SHEET_COLUMNS: int = 6
 const MELEE_SLASH_SHEET_ROWS: int = 1
 const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
+const ELEMENTAL_PROJECTILE_TARGET_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectile_targets.png"
 const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
 const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
 const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
 const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
+const PROJECTILE_TARGET_DRAW_TILE_SCALE: float = 0.58
+const PROJECTILE_TARGET_DRAW_MIN_SIZE: float = 48.0
+const PROJECTILE_TARGET_DRAW_MAX_SIZE: float = 76.0
+const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
@@ -209,6 +214,8 @@ var _effect_textures: Dictionary = {}
 var _effect_frames: Dictionary = {}
 var _projectile_atlas: Texture2D = null
 var _projectile_textures: Dictionary = {}
+var _projectile_target_atlas: Texture2D = null
+var _projectile_target_textures: Dictionary = {}
 var _ambient_particle_atlas: Texture2D = null
 var _ambient_particle_glow_atlas: Texture2D = null
 var _ambient_fire_soft_atlas: Texture2D = null
@@ -2700,23 +2707,28 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
+	var preview: bool = bool(effect.get("preview", false))
+	var preview_phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+	var preview_pulse: float = 0.5 + 0.5 * sin(preview_phase * TAU)
 	var start: Vector2 = from_point + Vector2(0.0, -24.0)
 	var end: Vector2 = to_point + Vector2(0.0, -24.0)
 	var control: Vector2 = _arc_control_point(start, end)
-	var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
-	var pulse_radius: float = lerpf(9.0, 17.0, warmup_progress)
-	draw_circle(end, pulse_radius, Color(accent.r, accent.g, accent.b, 0.07 + 0.06 * warmup_progress))
-	_draw_target_reticle(end, Color(secondary.r, secondary.g, secondary.b, 0.58 + 0.26 * warmup_progress), pulse_radius)
-	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, 0.13 + 0.09 * warmup_progress), 1.5)
-	var travel_progress: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+	var warmup_progress: float = 1.0 if preview else clampf(progress / 0.34, 0.0, 1.0)
+	_draw_projectile_target_marker(end, element_id, warmup_progress, preview_phase, preview)
+	var arc_alpha: float = 0.11 + 0.08 * warmup_progress + (0.05 * preview_pulse if preview else 0.0)
+	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, arc_alpha), 1.5)
+	var travel_progress: float = lerpf(0.05, 0.96, preview_phase) if preview else clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+	var loop_fade: float = 1.0
+	if preview:
+		loop_fade = clampf(minf(preview_phase / 0.16, (1.0 - preview_phase) / 0.16), 0.0, 1.0)
 	if travel_progress > 0.0:
-		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary)
+		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary, 0.72 * loop_fade if preview else 1.0)
 		var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
 		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
-		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
+		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress, 0.84 * loop_fade if preview else 1.0)
 		draw_circle(start, 5.0, Color(secondary.r, secondary.g, secondary.b, 0.13))
-	if progress >= 0.98:
+	if not preview and progress >= 0.98:
 		draw_circle(to_point, 12.0, Color(accent.r, accent.g, accent.b, 0.18))
 
 func _draw_elemental_projectile_trail(
@@ -2726,7 +2738,8 @@ func _draw_elemental_projectile_trail(
 	travel_progress: float,
 	element_id: String,
 	accent: Color,
-	secondary: Color
+	secondary: Color,
+	alpha_multiplier: float = 1.0
 ) -> void:
 	var points: Array[Vector2] = _sample_quadratic_points(start, control, end, 16)
 	if points.size() < 2:
@@ -2736,12 +2749,12 @@ func _draw_elemental_projectile_trail(
 	var segment_total: int = maxi(1, last_index - first_index)
 	for index: int in range(first_index, last_index):
 		var local_t: float = float(index - first_index + 1) / float(segment_total)
-		var alpha: float = (0.16 + 0.62 * local_t) * clampf(travel_progress * 1.25, 0.0, 1.0)
+		var alpha: float = (0.16 + 0.62 * local_t) * clampf(travel_progress * 1.25, 0.0, 1.0) * alpha_multiplier
 		var width: float = lerpf(1.4, _projectile_trail_width(element_id), local_t)
 		draw_line(points[index], points[index + 1], Color(0.0, 0.0, 0.0, alpha * 0.18), width + 4.5, true)
 		draw_line(points[index], points[index + 1], Color(secondary.r, secondary.g, secondary.b, alpha * 0.62), width + 1.8, true)
 		draw_line(points[index], points[index + 1], Color(accent.r, accent.g, accent.b, alpha), width, true)
-	_draw_projectile_trail_flair(points, first_index, last_index, element_id, accent, secondary)
+	_draw_projectile_trail_flair(points, first_index, last_index, element_id, accent, secondary, alpha_multiplier)
 
 func _draw_projectile_trail_flair(
 	points: Array[Vector2],
@@ -2749,43 +2762,44 @@ func _draw_projectile_trail_flair(
 	last_index: int,
 	element_id: String,
 	accent: Color,
-	secondary: Color
+	secondary: Color,
+	alpha_multiplier: float = 1.0
 ) -> void:
 	match element_id:
 		ElementData.FIRE:
 			for index: int in range(first_index, last_index + 1, 2):
 				var drift := Vector2(float(posmod(index * 5, 7)) - 3.0, float(posmod(index * 3, 5)) - 2.0)
-				draw_circle(points[index] + drift, 2.4, Color(0.95, 0.36, 0.15, 0.34))
-				draw_circle(points[index] + drift * 0.6, 1.2, Color(1.0, 0.74, 0.36, 0.42))
+				draw_circle(points[index] + drift, 2.4, Color(0.95, 0.36, 0.15, 0.34 * alpha_multiplier))
+				draw_circle(points[index] + drift * 0.6, 1.2, Color(1.0, 0.74, 0.36, 0.42 * alpha_multiplier))
 		ElementData.ICE:
 			for index: int in range(maxi(first_index + 1, last_index - 4), last_index + 1):
 				var dir: Vector2 = _projectile_segment_direction(points, index)
 				var perp := Vector2(-dir.y, dir.x)
 				var shard_size: float = 4.0 + float(posmod(index, 3))
-				draw_line(points[index] - perp * shard_size, points[index] + perp * shard_size, Color(secondary.r, secondary.g, secondary.b, 0.54), 1.2, true)
+				draw_line(points[index] - perp * shard_size, points[index] + perp * shard_size, Color(secondary.r, secondary.g, secondary.b, 0.54 * alpha_multiplier), 1.2, true)
 		ElementData.LIGHTNING:
 			for index: int in range(maxi(first_index + 1, last_index - 4), last_index + 1):
 				var dir: Vector2 = _projectile_segment_direction(points, index)
 				var perp := Vector2(-dir.y, dir.x)
 				var side: float = -1.0 if index % 2 == 0 else 1.0
 				var branch_end: Vector2 = points[index] + perp * side * (6.0 + float(posmod(index, 4)))
-				draw_line(points[index], branch_end, Color(0.58, 0.76, 0.94, 0.56), 1.8, true)
-				draw_line(points[index], branch_end.lerp(points[index], 0.34), Color(0.94, 0.83, 0.42, 0.78), 1.0, true)
+				draw_line(points[index], branch_end, Color(0.58, 0.76, 0.94, 0.56 * alpha_multiplier), 1.8, true)
+				draw_line(points[index], branch_end.lerp(points[index], 0.34), Color(0.94, 0.83, 0.42, 0.78 * alpha_multiplier), 1.0, true)
 		ElementData.AIR:
 			for index: int in range(first_index, last_index + 1, 2):
 				var dir: Vector2 = _projectile_segment_direction(points, index)
 				var perp := Vector2(-dir.y, dir.x)
-				draw_line(points[index] - dir * 5.0 - perp * 3.0, points[index] + dir * 5.0 + perp * 2.0, Color(secondary.r, secondary.g, secondary.b, 0.30), 1.4, true)
-				draw_line(points[index] - dir * 3.0 + perp * 3.5, points[index] + dir * 4.0 + perp * 5.5, Color(accent.r, accent.g, accent.b, 0.24), 1.2, true)
+				draw_line(points[index] - dir * 5.0 - perp * 3.0, points[index] + dir * 5.0 + perp * 2.0, Color(secondary.r, secondary.g, secondary.b, 0.30 * alpha_multiplier), 1.4, true)
+				draw_line(points[index] - dir * 3.0 + perp * 3.5, points[index] + dir * 4.0 + perp * 5.5, Color(accent.r, accent.g, accent.b, 0.24 * alpha_multiplier), 1.2, true)
 		ElementData.EARTH:
 			for index: int in range(first_index, last_index + 1, 2):
 				var chip_offset := Vector2(float(posmod(index * 7, 9)) - 4.0, float(posmod(index * 11, 7)) - 3.0)
-				draw_circle(points[index] + chip_offset, 2.2, Color(0.40, 0.32, 0.21, 0.50))
-				draw_circle(points[index] + chip_offset * 0.8, 1.1, Color(accent.r, accent.g, accent.b, 0.38))
+				draw_circle(points[index] + chip_offset, 2.2, Color(0.40, 0.32, 0.21, 0.50 * alpha_multiplier))
+				draw_circle(points[index] + chip_offset * 0.8, 1.1, Color(accent.r, accent.g, accent.b, 0.38 * alpha_multiplier))
 		_:
 			for index: int in range(first_index, last_index + 1, 3):
 				var mote_offset := Vector2(float(posmod(index * 3, 7)) - 3.0, float(posmod(index * 5, 5)) - 2.0)
-				draw_circle(points[index] + mote_offset, 1.8, Color(secondary.r, secondary.g, secondary.b, 0.28))
+				draw_circle(points[index] + mote_offset, 1.8, Color(secondary.r, secondary.g, secondary.b, 0.28 * alpha_multiplier))
 
 func _projectile_segment_direction(points: Array[Vector2], index: int) -> Vector2:
 	var previous_index: int = maxi(0, index - 1)
@@ -2795,11 +2809,11 @@ func _projectile_segment_direction(points: Array[Vector2], index: int) -> Vector
 		return Vector2.RIGHT
 	return direction.normalized()
 
-func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: String, travel_progress: float) -> void:
+func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: String, travel_progress: float, alpha_multiplier: float = 1.0) -> void:
 	var dir: Vector2 = direction.normalized() if direction.length_squared() > 0.01 else Vector2.RIGHT
 	var texture: Texture2D = _projectile_texture(element_id)
 	var draw_size: float = clampf(_tile_width() * PROJECTILE_DRAW_TILE_SCALE, PROJECTILE_DRAW_MIN_SIZE, PROJECTILE_DRAW_MAX_SIZE)
-	var alpha: float = clampf(0.68 + sin(travel_progress * PI) * 0.30, 0.0, 1.0)
+	var alpha: float = clampf((0.68 + sin(travel_progress * PI) * 0.30) * alpha_multiplier, 0.0, 1.0)
 	if texture == null:
 		var fallback_color: Color = _projectile_secondary(element_id)
 		fallback_color.a = alpha
@@ -2809,6 +2823,20 @@ func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: St
 	draw_set_transform(center, dir.angle(), Vector2.ONE)
 	draw_texture_rect(texture, Rect2(-sprite_size * 0.5, sprite_size), false, Color(1.0, 1.0, 1.0, alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_projectile_target_marker(center: Vector2, element_id: String, warmup_progress: float, loop_phase: float, preview: bool) -> void:
+	var texture: Texture2D = _projectile_target_texture(element_id)
+	var pulse: float = 0.5 + 0.5 * sin(loop_phase * TAU)
+	var draw_size: float = clampf(_tile_width() * PROJECTILE_TARGET_DRAW_TILE_SCALE, PROJECTILE_TARGET_DRAW_MIN_SIZE, PROJECTILE_TARGET_DRAW_MAX_SIZE)
+	var scale: float = 0.86 + 0.12 * warmup_progress + (0.05 * pulse if preview else 0.0)
+	var alpha: float = clampf(0.38 + 0.34 * warmup_progress + (0.14 * pulse if preview else 0.0), 0.0, 0.92)
+	var sprite_size := Vector2(draw_size, draw_size) * scale
+	draw_circle(center + Vector2(0.0, sprite_size.y * 0.08), sprite_size.x * 0.36, Color(0.0, 0.0, 0.0, 0.12 * alpha))
+	if texture == null:
+		var fallback_color: Color = _projectile_secondary(element_id)
+		draw_circle(center, sprite_size.x * 0.28, Color(fallback_color.r, fallback_color.g, fallback_color.b, 0.20 * alpha))
+		return
+	draw_texture_rect(texture, Rect2(center - sprite_size * 0.5, sprite_size), false, Color(1.0, 1.0, 1.0, alpha))
 
 func _projectile_texture(element_id: String) -> Texture2D:
 	if _projectile_atlas == null:
@@ -2823,6 +2851,21 @@ func _projectile_texture(element_id: String) -> Texture2D:
 	atlas_texture.atlas = _projectile_atlas
 	atlas_texture.region = Rect2(Vector2(0.0, cell_size.y * float(row)), cell_size)
 	_projectile_textures[cache_key] = atlas_texture
+	return atlas_texture
+
+func _projectile_target_texture(element_id: String) -> Texture2D:
+	if _projectile_target_atlas == null:
+		return null
+	var row: int = _projectile_atlas_row(element_id)
+	var cache_key: String = str(row)
+	if _projectile_target_textures.has(cache_key):
+		return _projectile_target_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _projectile_target_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x, atlas_size.y / float(ELEMENTAL_PROJECTILE_ATLAS_ROWS))
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _projectile_target_atlas
+	atlas_texture.region = Rect2(Vector2(0.0, cell_size.y * float(row)), cell_size)
+	_projectile_target_textures[cache_key] = atlas_texture
 	return atlas_texture
 
 func _projectile_atlas_row(element_id: String) -> int:
@@ -3424,6 +3467,8 @@ func _load_assets() -> void:
 	}
 	_projectile_atlas = AssetLoader.load_texture(ELEMENTAL_PROJECTILE_ATLAS_PATH)
 	_projectile_textures.clear()
+	_projectile_target_atlas = AssetLoader.load_texture(ELEMENTAL_PROJECTILE_TARGET_ATLAS_PATH)
+	_projectile_target_textures.clear()
 	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)
 	_ambient_particle_glow_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_GLOW_ATLAS_PATH)
 	_ambient_fire_soft_atlas = AssetLoader.load_texture(AMBIENT_FIRE_SOFT_ATLAS_PATH)
