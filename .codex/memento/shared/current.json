@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-27T23:07:36Z",
+  "updated_at": "2026-06-29T14:30:11Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4283,6 +4283,28 @@
       "source": {
         "branch": "codex/fix-turn-animation-state-rewind",
         "commit": "c32c6a8"
+      }
+    },
+    {
+      "id": "mnt_20260629T143011Z_1a930ff5",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Campfire firelight should avoid banded halos",
+      "details": "For campfire room polish, do not render the bonfire glow as visible tile rings, hard circles, or an orange wash. Use blended soft light and visible ember motes that reuse the fire elemental room particle language so the effect reads organic and professional.",
+      "status": "active",
+      "created_at": "2026-06-29T14:30:11Z",
+      "updated_at": "2026-06-29T14:30:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/campfire-bonfire-room-polish",
+        "commit": "ff92ea8"
       }
     }
   ]

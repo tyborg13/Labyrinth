@@ -118,10 +118,11 @@ const CAMPFIRE_BONFIRE_IDLE_ROWS: int = 4
 const CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS: float = 0.10
 const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
-const CAMPFIRE_FIRELIGHT_RADIUS_TILES: float = 3.45
-const CAMPFIRE_FIRELIGHT_TILE_ALPHA: float = 0.135
-const CAMPFIRE_FIRELIGHT_CORE_ALPHA: float = 0.115
-const CAMPFIRE_EMBER_MOTE_COUNT: int = 22
+const CAMPFIRE_FIRELIGHT_BLOOM_ALPHA: float = 0.42
+const CAMPFIRE_FIRELIGHT_CORE_ALPHA: float = 0.34
+const CAMPFIRE_EMBER_MOTE_COUNT: int = 56
+const CAMPFIRE_EMBER_MOTE_ALPHA: float = 1.42
+const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.86
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
@@ -393,12 +394,12 @@ func _draw() -> void:
 		_draw_floor_tile(grid, tile)
 	_draw_campfire_room_firelight(tiles)
 	_draw_ambient_particles(tiles)
-	_draw_campfire_ember_motes()
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
 	_draw_path_preview()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
 	_draw_effect_overlay()
 	_draw_status_text()
@@ -431,32 +432,69 @@ func _draw_campfire_room_firelight(tiles: Array[Vector2i]) -> void:
 	for prop_var: Variant in props:
 		var prop: Dictionary = prop_var
 		var source_tile: Vector2i = prop.get("tile", Vector2i(4, 4))
-		var source_point: Vector2 = _tile_center(source_tile) + Vector2(0.0, -_tile_height() * 0.12)
 		var source_seed: int = _campfire_atmosphere_seed(source_tile)
-		var core_flicker: float = 0.84 + 0.16 * sin(time_seconds * 6.7 + _ambient_hash01(source_seed + 5) * TAU)
-		draw_circle(
-			source_point,
-			_tile_width() * (1.22 + 0.08 * core_flicker),
-			Color(1.0, 0.47, 0.17, CAMPFIRE_FIRELIGHT_CORE_ALPHA * core_flicker)
+		var floor_point: Vector2 = _campfire_floor_light_point(prop)
+		var flame_point: Vector2 = _campfire_flame_point(prop)
+		_draw_campfire_soft_floor_bloom(floor_point, flame_point, source_seed, time_seconds)
+
+func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2, source_seed: int, time_seconds: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", 0)
+	var flicker: float = 0.88 + 0.12 * sin(time_seconds * 6.9 + _ambient_hash01(source_seed + 5) * TAU)
+	var slow_breath: float = 0.5 + 0.5 * sin(time_seconds * 1.55 + _ambient_hash01(source_seed + 7) * TAU)
+	var drift := Vector2(
+		sin(time_seconds * 0.74 + _ambient_hash01(source_seed + 11) * TAU) * tile_width * 0.045,
+		sin(time_seconds * 0.58 + _ambient_hash01(source_seed + 13) * TAU) * tile_height * 0.08
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point + drift + Vector2(0.0, tile_height * 0.12),
+		tile_width * (1.78 + slow_breath * 0.08),
+		Vector2(1.78, 0.78),
+		-0.04,
+		Color(1.0, 0.40, 0.12, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.62 * flicker),
+		24
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point - drift * 0.50 + Vector2(-tile_width * 0.15, tile_height * 0.03),
+		tile_width * 1.28,
+		Vector2(1.58, 0.72),
+		0.16,
+		Color(1.0, 0.61, 0.23, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.38 * flicker),
+		18
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point + drift * 0.62 + Vector2(tile_width * 0.12, -tile_height * 0.08),
+		tile_width * 0.74,
+		Vector2(1.32, 0.66),
+		-0.20,
+		Color(1.0, 0.80, 0.38, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.36 * flicker),
+		14
+	)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			flame_point + Vector2(0.0, tile_height * 0.24),
+			Vector2(tile_width * 1.92, tile_height * 2.02),
+			0.0,
+			CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.22 * flicker,
+			Color(1.0, 0.50, 0.14, 1.0)
 		)
-		draw_circle(
-			source_point + Vector2(0.0, -_tile_height() * 0.16),
-			_tile_width() * (0.56 + 0.05 * core_flicker),
-			Color(1.0, 0.78, 0.34, 0.105 * core_flicker)
-		)
-		for tile: Vector2i in tiles:
-			var distance: float = Vector2(float(tile.x - source_tile.x), float(tile.y - source_tile.y)).length()
-			if distance > CAMPFIRE_FIRELIGHT_RADIUS_TILES:
-				continue
-			var falloff: float = pow(clampf(1.0 - distance / CAMPFIRE_FIRELIGHT_RADIUS_TILES, 0.0, 1.0), 1.35)
-			var tile_seed: int = source_seed + tile.x * 193 + tile.y * 389
-			var tile_flicker: float = lerpf(0.82, 1.10, _ambient_hash01(tile_seed + int(time_seconds * 7.0)))
-			var amber_alpha: float = CAMPFIRE_FIRELIGHT_TILE_ALPHA * falloff * tile_flicker
-			var gold_alpha: float = 0.050 * falloff * core_flicker
-			draw_colored_polygon(_tile_polygon(tile), Color(0.98, 0.38, 0.13, amber_alpha))
-			draw_colored_polygon(_tile_polygon(tile), Color(1.0, 0.73, 0.28, gold_alpha))
-			if distance <= 1.55:
-				_draw_tile_ring(tile, Color(1.0, 0.76, 0.36, 0.13 * falloff * core_flicker), 1.1, 0.88)
+		return
+	draw_circle(floor_point, tile_width * 1.65, Color(1.0, 0.48, 0.18, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.22 * flicker))
+	draw_circle(flame_point, tile_width * 0.74, Color(1.0, 0.78, 0.34, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.20 * flicker))
+
+func _draw_campfire_soft_ellipse(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
+	if layer_count <= 0 or color.a <= 0.0:
+		return
+	for layer_index: int in range(layer_count, 0, -1):
+		var t: float = float(layer_index) / float(layer_count)
+		var inner_weight: float = pow(1.0 - t, 0.84)
+		var layer_alpha: float = color.a * (0.022 + inner_weight * 0.056)
+		var layer_radius: float = radius * (0.10 + t * 0.90)
+		draw_set_transform(center, rotation, ellipse_scale)
+		draw_circle(Vector2.ZERO, layer_radius, Color(color.r, color.g, color.b, layer_alpha))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_campfire_ember_motes() -> void:
 	var props: Array = _campfire_scene_props()
@@ -467,32 +505,64 @@ func _draw_campfire_ember_motes() -> void:
 		var prop: Dictionary = prop_var
 		var source_tile: Vector2i = prop.get("tile", Vector2i(4, 4))
 		var source_seed: int = _campfire_atmosphere_seed(source_tile)
-		var source_point: Vector2 = _tile_center(source_tile) + Vector2(0.0, -_tile_height() * 0.18)
+		var source_point: Vector2 = _campfire_flame_point(prop) + Vector2(0.0, _tile_height() * 0.08)
 		for index: int in range(CAMPFIRE_EMBER_MOTE_COUNT):
 			var seed: int = source_seed + index * 1759
-			var speed: float = lerpf(0.10, 0.22, _ambient_hash01(seed + 13))
+			var speed: float = lerpf(0.18, 0.34, _ambient_hash01(seed + 13))
 			var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
-			var alpha: float = sin(cycle * PI)
-			if alpha <= 0.05:
+			var alpha: float = pow(clampf(sin(cycle * PI), 0.0, 1.0), 0.68) * CAMPFIRE_EMBER_MOTE_ALPHA
+			if alpha <= 0.04:
 				continue
-			var lateral: float = lerpf(-1.10, 1.10, _ambient_hash01(seed + 23)) * _tile_width()
-			var sway: float = sin(time_seconds * lerpf(1.1, 2.4, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * _tile_width() * 0.10
-			var lift: float = lerpf(0.06, 1.34, cycle) * _tile_width()
-			var point: Vector2 = source_point + Vector2(lateral + sway, _tile_height() * 0.34 - lift)
-			var draw_width: float = _tile_width() * lerpf(0.030, 0.066, _ambient_hash01(seed + 37))
-			var texture: Texture2D = _ambient_fire_soft_texture(index)
-			if texture == null:
-				texture = _ambient_particle_texture("fire", index)
-			var mote_alpha: float = alpha * lerpf(0.18, 0.44, _ambient_hash01(seed + 41))
-			if texture == null:
-				draw_circle(point, draw_width * 0.5, Color(1.0, 0.66, 0.28, mote_alpha))
+			var point: Vector2 = _campfire_ember_mote_point(source_point, seed, cycle, time_seconds)
+			var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta("fire"), 0.0, 1.0)
+			var previous_point: Vector2 = _campfire_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.12)
+			var velocity: Vector2 = point - previous_point
+			var draw_width: float = _tile_width() * lerpf(0.060, 0.122, _ambient_hash01(seed + 37))
+			var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
+			var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+			var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+			var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+			if texture == null and soft_texture == null:
+				draw_circle(point, draw_width * 0.45, Color(1.0, 0.66, 0.28, minf(alpha * 0.46, 0.74)))
 				continue
+			if texture == null:
+				texture = soft_texture
+			var mote_alpha: float = alpha * lerpf(0.28, 0.58, _ambient_hash01(seed + 41))
 			var texture_size: Vector2 = texture.get_size()
 			var draw_size := Vector2(draw_width, draw_width)
 			if texture_size.x > 0.0:
 				draw_size.y = draw_width * texture_size.y / texture_size.x
-			var rotation: float = lerpf(-0.28, 0.28, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.65 + _ambient_hash01(seed + 47) * TAU) * 0.08
-			_draw_ambient_particle_sprite(texture, point, draw_size, rotation, mote_alpha, Color(1.0, 0.76, 0.36, 1.0))
+			var rotation: float = lerpf(-0.34, 0.34, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.72 + _ambient_hash01(seed + 47) * TAU) * 0.11
+			_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
+			draw_circle(point, maxf(1.6, draw_width * 0.14), Color(1.0, 0.84, 0.38, minf(mote_alpha * 0.66, 0.72)))
+
+func _campfire_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float) -> Vector2:
+	var tile_width: float = _tile_width()
+	var spread: float = lerpf(0.08, 0.52, pow(cycle, 0.76)) * tile_width
+	var lateral: float = lerpf(-1.0, 1.0, _ambient_hash01(seed + 23)) * spread
+	var sway: float = sin(time_seconds * lerpf(1.1, 2.5, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.025, 0.145, cycle)
+	var rise: float = pow(cycle, 0.72) * tile_width * CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE
+	var chimney_pull: float = sin(cycle * TAU + _ambient_hash01(seed + 33) * TAU) * tile_width * 0.035
+	return source_point + Vector2(lateral + sway + chimney_pull, _tile_height() * 0.18 - rise)
+
+func _campfire_prop_draw_rect(prop: Dictionary) -> Rect2:
+	var texture: Texture2D = _texture_for_scene_prop(prop)
+	if texture != null:
+		return _scene_prop_rect(texture, prop)
+	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+	return Rect2(_tile_center(tile), Vector2.ZERO)
+
+func _campfire_flame_point(prop: Dictionary) -> Vector2:
+	var draw_rect: Rect2 = _campfire_prop_draw_rect(prop)
+	if draw_rect.size == Vector2.ZERO:
+		return draw_rect.position + Vector2(0.0, -_tile_height() * 0.18)
+	return Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.45)
+
+func _campfire_floor_light_point(prop: Dictionary) -> Vector2:
+	var draw_rect: Rect2 = _campfire_prop_draw_rect(prop)
+	if draw_rect.size == Vector2.ZERO:
+		return draw_rect.position
+	return Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.62)
 
 func _campfire_atmosphere_seed(source_tile: Vector2i) -> int:
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -1112,21 +1182,36 @@ func _draw_campfire_prop_glow(tile: Vector2i, draw_rect: Rect2) -> void:
 	var seed: int = _campfire_atmosphere_seed(tile)
 	var flicker: float = 0.80 + 0.20 * sin(time_seconds * 7.9 + _ambient_hash01(seed + 61) * TAU)
 	var flame_point: Vector2 = Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.45)
-	draw_circle(
-		flame_point,
-		_tile_width() * (0.68 + 0.06 * flicker),
-		Color(1.0, 0.45, 0.16, 0.16 * flicker)
-	)
-	draw_circle(
-		flame_point + Vector2(0.0, -_tile_height() * 0.18),
-		_tile_width() * (0.34 + 0.03 * flicker),
-		Color(1.0, 0.88, 0.48, 0.14 * flicker)
-	)
-	draw_circle(
-		flame_point + Vector2(0.0, _tile_height() * 0.20),
-		_tile_width() * 0.92,
-		Color(0.52, 0.18, 0.10, 0.055 * flicker)
-	)
+	var soft_texture: Texture2D = _ambient_fire_soft_texture(1)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", 1)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			flame_point + Vector2(0.0, _tile_height() * 0.10),
+			Vector2(_tile_width() * 1.60, _tile_height() * 2.10),
+			0.0,
+			0.18 * flicker,
+			Color(1.0, 0.43, 0.14, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			flame_point + Vector2(0.0, -_tile_height() * 0.05),
+			Vector2(_tile_width() * 1.10, _tile_height() * 1.64),
+			sin(time_seconds * 1.1 + _ambient_hash01(seed + 67) * TAU) * 0.08,
+			0.44 * flicker,
+			Color(1.0, 0.72, 0.28, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			flame_point + Vector2(0.0, -_tile_height() * 0.22),
+			Vector2(_tile_width() * 0.56, _tile_height() * 0.94),
+			-sin(time_seconds * 1.4 + _ambient_hash01(seed + 71) * TAU) * 0.10,
+			0.34 * flicker,
+			Color(1.0, 0.93, 0.58, 1.0)
+		)
+		return
+	draw_circle(flame_point, _tile_width() * 0.68, Color(1.0, 0.45, 0.16, 0.15 * flicker))
 
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))

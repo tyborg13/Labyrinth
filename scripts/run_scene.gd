@@ -3907,8 +3907,8 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 
 func _campfire_choice_inner_glow_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	var alpha: float = 0.060 if hovered else 0.030
-	var border_alpha: float = 0.24 if hovered else 0.12
+	var alpha: float = 0.085 if hovered else 0.042
+	var border_alpha: float = 0.32 if hovered else 0.16
 	if not enabled:
 		alpha *= 0.45
 		border_alpha *= 0.55
@@ -3926,8 +3926,8 @@ func _campfire_choice_inner_glow_style(accent: Color, hovered: bool, enabled: bo
 
 func _campfire_choice_feedback_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(accent.r, accent.g, accent.b, 0.085)
-	style.border_color = accent.lightened(0.34)
+	style.bg_color = Color(accent.r, accent.g, accent.b, 0.12)
+	style.border_color = accent.lightened(0.42)
 	style.border_width_left = 3
 	style.border_width_top = 3
 	style.border_width_right = 3
@@ -3936,8 +3936,8 @@ func _campfire_choice_feedback_style(accent: Color) -> StyleBoxFlat:
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.30)
-	style.shadow_size = 18
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.46)
+	style.shadow_size = 26
 	style.shadow_offset = Vector2.ZERO
 	return style
 
@@ -4058,8 +4058,8 @@ func _show_campfire_choice_feedback_pulse(panel: PanelContainer, accent: Color) 
 	panel.add_child(pulse)
 	var tween: Tween = create_tween().set_parallel(true)
 	tween.tween_property(pulse, "modulate:a", 1.0, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(pulse, "scale", Vector2(1.035, 1.035), 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(pulse, "modulate:a", 0.0, 0.16).set_delay(0.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_property(pulse, "scale", Vector2(1.055, 1.055), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pulse, "modulate:a", 0.0, 0.19).set_delay(0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.finished.connect(_queue_free_node_now.bind(pulse))
 
 func _refresh_hand_panel() -> void:

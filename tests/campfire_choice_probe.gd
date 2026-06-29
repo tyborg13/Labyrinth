@@ -35,23 +35,23 @@ func _capture_campfire_choice_states() -> void:
 		probe_run_engine,
 		0,
 		120,
-		"%s/campfire_strength_unaffordable.png" % OUTPUT_DIR
+		"%s/campfire_firelight_polished_strength_unaffordable.png" % OUTPUT_DIR
 	)
 	await _capture_choice_state(
 		instance,
 		probe_run_engine,
 		180,
 		120,
-		"%s/campfire_strength_affordable.png" % OUTPUT_DIR
+		"%s/campfire_firelight_polished_strength_affordable.png" % OUTPUT_DIR
 	)
-	await _capture_affordable_hover_state(instance, "%s/campfire_strength_affordable_hover.png" % OUTPUT_DIR)
-	await _capture_linger_feedback_state(instance, "%s/campfire_linger_feedback_pulse.png" % OUTPUT_DIR)
+	await _capture_affordable_hover_state(instance, "%s/campfire_firelight_polished_strength_hover.png" % OUTPUT_DIR)
+	await _capture_linger_feedback_state(instance, "%s/campfire_firelight_polished_linger_pulse.png" % OUTPUT_DIR)
 	await _capture_choice_state(
 		instance,
 		probe_run_engine,
 		180,
 		36,
-		"%s/campfire_low_hp.png" % OUTPUT_DIR
+		"%s/campfire_firelight_polished_low_hp.png" % OUTPUT_DIR
 	)
 
 	instance.queue_free()
@@ -71,8 +71,7 @@ func _capture_choice_state(instance: Node, probe_run_engine: RunEngine, held_emb
 	campfire_state["unbanked_embers"] = held_embers
 	campfire_state["progression"] = progression
 	instance.call("_load_run_state", campfire_state)
-	await process_frame
-	await process_frame
+	await _settle_campfire_visuals()
 	await _save_root_screenshot(output_path)
 
 func _capture_affordable_hover_state(instance: Node, output_path: String) -> void:
@@ -82,8 +81,7 @@ func _capture_affordable_hover_state(instance: Node, output_path: String) -> voi
 		_fail("Affordable campfire choices should expose a strength panel")
 		return
 	instance.call("_set_campfire_choice_hovered", strength_panel, Color("d79a4d"), true)
-	await process_frame
-	await process_frame
+	await _settle_campfire_visuals()
 	var after_rects: Array = _choice_panel_rects(instance)
 	if not _rect_lists_match(before_rects, after_rects):
 		_fail("Campfire choice hover should not move or resize the choice panels")
@@ -100,6 +98,12 @@ func _capture_linger_feedback_state(instance: Node, output_path: String) -> void
 	await process_frame
 	await process_frame
 	await _save_root_screenshot(output_path)
+
+func _settle_campfire_visuals() -> void:
+	await process_frame
+	await process_frame
+	await create_timer(0.18).timeout
+	await process_frame
 
 func _choice_panel_rects(instance: Node) -> Array:
 	var rects: Array = []
