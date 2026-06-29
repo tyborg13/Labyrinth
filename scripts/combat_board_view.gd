@@ -2713,24 +2713,32 @@ func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: f
 	var clamped_progress: float = clampf(progress, 0.0, 1.0)
 	var eased_progress: float = _blink_rift_ease(clamped_progress)
 	var distance_tiles: float = maxf(1.0, path_length / maxf(1.0, tile_width * 0.56))
-	var preview_scale: float = 0.62 if preview else 1.0
+	var preview_scale: float = 0.78 if preview else 1.0
+	var rift_alpha_scale: float = 0.96 if preview else 1.0
 	var band_width: float = clampf(tile_width * (0.15 + distance_tiles * 0.012), 8.0, 19.0) * preview_scale
 	var path_lift := Vector2(0.0, -tile_height * 0.28)
 	var from_lifted: Vector2 = from_point + path_lift
 	var to_lifted: Vector2 = to_point + path_lift
 	var current_point: Vector2 = from_point.lerp(to_point, eased_progress)
+	var wash_reveal: float = 1.0 if preview else clampf(eased_progress + 0.22, 0.0, 1.0)
 
-	draw_line(from_lifted, to_lifted, Color(0.02, 0.015, 0.035, 0.18 * preview_scale), band_width * 1.85, true)
-	_draw_blink_smoke_band(from_lifted, to_lifted, normal, 1.0, band_width * 0.72, Color(0.09, 0.06, 0.14, 0.13 * preview_scale), clamped_progress * TAU)
-	_draw_blink_smoke_band(from_lifted, to_lifted, normal, eased_progress, band_width, Color(0.18, 0.12, 0.27, 0.45 * preview_scale), clamped_progress * TAU * 1.35)
-	_draw_blink_smoke_band(from_lifted, to_lifted, normal, clampf(eased_progress + 0.12, 0.0, 1.0), band_width * 0.42, Color(0.55, 0.49, 0.78, 0.30 * preview_scale), clamped_progress * TAU * 1.75)
+	_draw_blink_smoke_wash(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, preview)
+	draw_line(from_lifted, to_lifted, Color(0.018, 0.012, 0.034, (0.08 if preview else 0.15) * rift_alpha_scale), band_width * (1.22 if preview else 1.75), true)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, 1.0 if preview else wash_reveal, band_width * 0.70, Color(0.08, 0.055, 0.13, (0.15 if preview else 0.13) * rift_alpha_scale), clamped_progress * TAU)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, 1.0 if preview else eased_progress, band_width, Color(0.18, 0.12, 0.27, (0.42 if preview else 0.45) * rift_alpha_scale), clamped_progress * TAU * 1.35)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, 1.0 if preview else clampf(eased_progress + 0.12, 0.0, 1.0), band_width * 0.42, Color(0.55, 0.49, 0.78, (0.25 if preview else 0.30) * rift_alpha_scale), clamped_progress * TAU * 1.75)
+	_draw_blink_rift_edge_strokes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, preview)
+	_draw_blink_rift_motes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, preview)
 
 	var source_alpha: float = lerpf(0.68, 0.20, eased_progress) * preview_scale
 	var destination_alpha: float = lerpf(0.18, 0.74, eased_progress) * preview_scale
-	_draw_tile_ring(from_tile, Color(0.20, 0.13, 0.28, source_alpha), 2.4 * preview_scale, lerpf(0.82, 1.02, eased_progress))
-	_draw_tile_ring(to_tile, Color(0.52, 0.46, 0.74, destination_alpha), 2.5 * preview_scale, lerpf(0.78, 0.98, eased_progress))
-	_draw_blink_rift_mouth(from_point, source_alpha, clamped_progress, 0.08)
-	_draw_blink_rift_mouth(to_point, destination_alpha, clamped_progress, 0.58)
+	if preview:
+		source_alpha = 0.32
+		destination_alpha = 0.44
+	_draw_tile_ring(from_tile, Color(0.20, 0.13, 0.28, source_alpha), (1.8 if preview else 2.4) * preview_scale, lerpf(0.82, 1.02, eased_progress))
+	_draw_tile_ring(to_tile, Color(0.52, 0.46, 0.74, destination_alpha), (1.9 if preview else 2.5) * preview_scale, lerpf(0.78, 0.98, eased_progress))
+	_draw_blink_rift_mouth(from_point, source_alpha, clamped_progress, 0.08, preview)
+	_draw_blink_rift_mouth(to_point, destination_alpha, clamped_progress, 0.58, preview)
 
 	var settle_fade: float = 1.0 - clampf((clamped_progress - 0.86) / 0.14, 0.0, 1.0)
 	for puff_index: int in range(4):
@@ -2765,11 +2773,38 @@ func _blink_rift_ease(progress: float) -> float:
 	var t: float = clampf(progress, 0.0, 1.0)
 	return t * t * (3.0 - 2.0 * t)
 
+func _draw_blink_smoke_wash(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var lobe_count: int = mini(18, maxi(6, int(ceil(path_length / maxf(width * 0.85, 1.0)))))
+	if preview:
+		lobe_count = mini(14, maxi(5, int(ceil(path_length / maxf(width * 1.28, 1.0)))))
+	var base_alpha: float = 0.180 if preview else 0.088
+	for lobe_index: int in range(lobe_count):
+		var t: float = (float(lobe_index) + 0.5) / float(lobe_count)
+		if t > clamped_reveal:
+			continue
+		var reveal_fade: float = clampf((clamped_reveal - t) * float(lobe_count), 0.0, 1.0)
+		var center_fade: float = 0.38 + 0.62 * sin(t * PI)
+		var drift: float = sin(t * TAU * 2.15 + phase * 0.58) * width * 0.78
+		drift += sin(t * TAU * 5.0 + phase * 0.21) * width * 0.22
+		var pull: float = cos(t * TAU * 1.4 + phase * 0.35) * width * 0.24
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * drift + direction * pull
+		center += Vector2(0.0, sin(t * PI) * width * 0.13)
+		var rough: float = 0.84 + 0.16 * sin(t * TAU * 6.0 + phase)
+		var radius: float = width * ((1.48 if preview else 1.18) + 0.44 * sin(t * TAU * 2.8 + phase * 0.42)) * rough
+		var alpha: float = base_alpha * alpha_scale * center_fade * reveal_fade
+		draw_circle(center + normal * width * 0.18, radius * 1.36, Color(0.010, 0.008, 0.025, alpha * 0.46))
+		draw_circle(center, radius, Color(0.055, 0.035, 0.085, alpha))
+		draw_circle(center + direction * width * 0.24 - normal * width * 0.10, radius * 0.56, Color(0.20, 0.145, 0.29, alpha * 0.52))
+
 func _draw_blink_smoke_band(from_point: Vector2, to_point: Vector2, normal: Vector2, progress: float, width: float, color: Color, phase: float) -> void:
 	var clamped_progress: float = clampf(progress, 0.0, 1.0)
 	if clamped_progress <= 0.0 or width <= 0.0:
 		return
-	var segment_count: int = 12
+	var segment_count: int = 16
 	var visible_segments: int = maxi(2, int(ceil(float(segment_count) * clamped_progress)))
 	var previous_point := Vector2.ZERO
 	for point_index: int in range(visible_segments + 1):
@@ -2780,25 +2815,74 @@ func _draw_blink_smoke_band(from_point: Vector2, to_point: Vector2, normal: Vect
 		var point: Vector2 = from_point.lerp(to_point, t) + normal * wave + Vector2(0.0, sag)
 		if point_index > 0:
 			var segment_t: float = float(point_index) / float(visible_segments)
-			var alpha: float = color.a * (0.48 + 0.52 * segment_t)
-			draw_line(previous_point, point, Color(color.r, color.g, color.b, alpha), width * (0.76 + 0.24 * segment_t), true)
+			var center_fade: float = 0.34 + 0.66 * sin(t * PI)
+			var rough: float = 0.78 + 0.22 * sin(t * TAU * 5.6 + phase * 0.37)
+			var alpha: float = color.a * (0.38 + 0.62 * segment_t) * center_fade * rough
+			var segment_width: float = width * (0.55 + 0.35 * center_fade + 0.10 * rough)
+			draw_line(previous_point, point, Color(color.r, color.g, color.b, alpha), segment_width, true)
 		previous_point = point
 
-func _draw_blink_rift_mouth(center: Vector2, alpha: float, progress: float, phase: float) -> void:
+func _draw_blink_rift_edge_strokes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var stroke_count: int = mini(22, maxi(8, int(ceil(path_length / maxf(width * 0.58, 1.0)))))
+	var base_alpha: float = 0.31 if preview else 0.22
+	for stroke_index: int in range(stroke_count):
+		var t: float = (float(stroke_index) + 0.36) / float(stroke_count)
+		if t > clamped_reveal:
+			continue
+		var side: float = -1.0 if stroke_index % 2 == 0 else 1.0
+		var edge_offset: float = width * (0.70 + 0.34 * sin(t * TAU * 3.1 + phase)) * side
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * edge_offset
+		center += direction * sin(t * TAU * 4.4 + phase * 0.33) * width * 0.20
+		var tangent_length: float = width * (0.34 + 0.18 * sin(t * TAU * 5.3 + phase * 0.44))
+		var curl: Vector2 = normal * side * width * 0.20 * sin(t * TAU * 2.2 + phase)
+		var stroke_alpha: float = base_alpha * alpha_scale * (0.48 + 0.52 * sin(t * PI))
+		var start_point: Vector2 = center - direction * tangent_length + curl
+		var end_point: Vector2 = center + direction * tangent_length - curl * 0.36
+		draw_line(start_point, end_point, Color(0.020, 0.014, 0.040, stroke_alpha * 0.88), 1.45 if preview else 1.9, true)
+		draw_line(start_point.lerp(end_point, 0.34), end_point, Color(0.48, 0.42, 0.66, stroke_alpha * 0.38), 0.75 if preview else 1.05, true)
+
+func _draw_blink_rift_motes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var mote_count: int = mini(28, maxi(9, int(ceil(path_length / maxf(width * 0.42, 1.0)))))
+	var base_alpha: float = 0.22 if preview else 0.18
+	for mote_index: int in range(mote_count):
+		var t: float = (float(mote_index) + 0.24) / float(mote_count)
+		if t > clamped_reveal:
+			continue
+		var offset: float = sin(t * TAU * 7.0 + phase * 0.49) * width * 1.28
+		var lift: float = cos(t * TAU * 4.0 + phase * 0.31) * width * 0.26
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * offset + direction * lift
+		var center_fade: float = 0.28 + 0.72 * sin(t * PI)
+		var alpha: float = base_alpha * alpha_scale * center_fade * (0.56 + 0.44 * sin(t * TAU * 5.5 + phase))
+		var radius: float = 0.75 + 1.15 * (0.5 + 0.5 * sin(t * TAU * 6.3 + phase * 0.62))
+		draw_circle(center, radius, Color(0.58, 0.52, 0.76, alpha))
+		draw_circle(center + Vector2(0.0, 0.8), radius * 1.7, Color(0.025, 0.018, 0.045, alpha * 0.22))
+
+func _draw_blink_rift_mouth(center: Vector2, alpha: float, progress: float, phase: float, preview: bool = false) -> void:
 	if alpha <= 0.0:
 		return
 	var tile_width: float = _tile_width()
 	var tile_height: float = _tile_height()
 	var mouth_center: Vector2 = center + Vector2(0.0, -tile_height * 0.20)
 	var pulse: float = 0.5 + 0.5 * sin((progress + phase) * TAU)
-	draw_circle(mouth_center, tile_width * (0.10 + 0.04 * pulse), Color(0.015, 0.010, 0.030, alpha * 0.46))
-	for ring_index: int in range(3):
-		var radius: float = tile_width * (0.13 + float(ring_index) * 0.052 + pulse * 0.018)
+	var mouth_scale: float = 0.88 if preview else 1.0
+	draw_circle(mouth_center + Vector2(0.0, tile_height * 0.04), tile_width * (0.18 + 0.03 * pulse) * mouth_scale, Color(0.010, 0.008, 0.024, alpha * 0.16))
+	draw_circle(mouth_center, tile_width * (0.10 + 0.04 * pulse) * mouth_scale, Color(0.015, 0.010, 0.030, alpha * 0.46))
+	draw_circle(mouth_center + Vector2(tile_width * 0.018, -tile_height * 0.018), tile_width * (0.058 + 0.018 * pulse) * mouth_scale, Color(0.20, 0.14, 0.30, alpha * 0.28))
+	for ring_index: int in range(4):
+		var radius: float = tile_width * (0.12 + float(ring_index) * 0.044 + pulse * 0.016) * mouth_scale
 		var start_angle: float = phase * TAU + progress * TAU * (0.62 + float(ring_index) * 0.16) + float(ring_index) * 0.74
-		var end_angle: float = start_angle + PI * (1.04 + float(ring_index) * 0.15)
-		var ring_alpha: float = alpha * (0.62 - float(ring_index) * 0.13)
-		draw_arc(mouth_center, radius, start_angle, end_angle, 18, Color(0.18, 0.12, 0.28, ring_alpha), 1.6)
-		draw_arc(mouth_center, radius + 1.8, end_angle - PI * 0.28, end_angle, 8, Color(0.58, 0.52, 0.78, ring_alpha * 0.38), 1.2)
+		var end_angle: float = start_angle + PI * (0.74 + float(ring_index) * 0.13)
+		var ring_alpha: float = alpha * (0.56 - float(ring_index) * 0.09)
+		draw_arc(mouth_center, radius, start_angle, end_angle, 14, Color(0.18, 0.12, 0.28, ring_alpha), 1.25 if preview else 1.6)
+		draw_arc(mouth_center, radius + 1.8, end_angle - PI * 0.22, end_angle, 7, Color(0.58, 0.52, 0.78, ring_alpha * 0.34), 0.9 if preview else 1.2)
 
 func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -> void:
 	if alpha <= 0.0:

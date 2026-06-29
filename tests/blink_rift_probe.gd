@@ -92,6 +92,7 @@ func _capture_blink_sequence(instance: Node, combat_state: Dictionary, label: St
 	var target_tile: Vector2i = _blink_probe_target(working_state, valid_targets, min_distance)
 	if target_tile.x < 0:
 		return
+	await _capture_blink_preview(instance, working_state, target_tile, label)
 	var after_state: Dictionary = combat_engine.apply_player_action(working_state.duplicate(true), action, target_tile)
 	instance.call("_animate_player_action_step", working_state.duplicate(true), after_state, card_id, action, target_tile)
 	await create_timer(0.12).timeout
@@ -106,6 +107,24 @@ func _capture_blink_sequence(instance: Node, combat_state: Dictionary, label: St
 	await process_frame
 	instance.call("_refresh_ui")
 	await process_frame
+
+func _capture_blink_preview(instance: Node, combat_state: Dictionary, target_tile: Vector2i, label: String) -> void:
+	instance.call("_render_board_state", combat_state, _preview_blink_presentation(combat_state, target_tile))
+	await process_frame
+	await _save_root_screenshot("%s/blink_rift_%s_preview.png" % [OUTPUT_DIR, label])
+	await process_frame
+
+func _preview_blink_presentation(combat_state: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var player: Dictionary = combat_state.get("player", {})
+	var player_tile: Vector2i = player.get("pos", Vector2i.ZERO)
+	return {
+		"focus_actor_keys": ["player"],
+		"focus_actor_color": Color(0.53, 0.48, 0.92, 0.82),
+		"focus_tiles": [player_tile, target_tile],
+		"focus_color": Color(0.53, 0.48, 0.92, 0.20),
+		"effect": {"kind": "blink", "from": player_tile, "to": target_tile, "preview": true},
+		"effect_progress": 1.0
+	}
 
 func _settled_blink_presentation(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
 	var before_player: Dictionary = before_state.get("player", {})
