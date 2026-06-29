@@ -118,6 +118,11 @@ const CAMPFIRE_BONFIRE_IDLE_ROWS: int = 4
 const CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS: float = 0.10
 const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
+const CAMPFIRE_FIRELIGHT_BLOOM_ALPHA: float = 0.42
+const CAMPFIRE_FIRELIGHT_CORE_ALPHA: float = 0.34
+const CAMPFIRE_EMBER_MOTE_COUNT: int = 46
+const CAMPFIRE_EMBER_MOTE_ALPHA: float = 1.30
+const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.78
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
@@ -151,14 +156,27 @@ const AMBIENT_AIR_WISP_VARIANTS: int = 4
 const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_sheet.png"
 const MELEE_SLASH_SHEET_COLUMNS: int = 6
 const MELEE_SLASH_SHEET_ROWS: int = 1
+const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
+const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
+const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
+const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
+const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
+const PROJECTILE_SPRITE_PATH_ANCHOR_X: float = 0.78
+const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
 const BLINK_RIFT_PREVIEW_TEXTURE_PATH: String = "res://assets/art/effects/blink_rift_preview.png"
+const DEFENSE_HEAL_CASTS_PATH: String = "res://assets/art/effects/defense_heal_casts.png"
+const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
+const DEFENSE_HEAL_CASTS_ROWS: int = 3
+const DEFENSE_HEAL_CASTS_FRAMES_PER_KIND: int = 4
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
 const TRAP_DRAW_HEIGHT_SCALE: float = 1.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_BLAST_DRAW_WIDTH_SCALE: float = 0.76
 const TRAP_BLAST_DRAW_HEIGHT_SCALE: float = 1.18
 const TRAP_BLAST_BASELINE_SCALE: float = 0.32
+const IMPACT_DECAL_FADE_PROGRESS: float = 0.72
+const IMPACT_DECAL_MAX_ALPHA: float = 0.72
 const DROPPED_EMBERS_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
 const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
@@ -203,6 +221,8 @@ var _scene_prop_idle_frames: Dictionary = {}
 var _pillar_torch_idle_frames: Dictionary = {}
 var _effect_textures: Dictionary = {}
 var _effect_frames: Dictionary = {}
+var _projectile_atlas: Texture2D = null
+var _projectile_textures: Dictionary = {}
 var _ambient_particle_atlas: Texture2D = null
 var _ambient_particle_glow_atlas: Texture2D = null
 var _ambient_fire_soft_atlas: Texture2D = null
@@ -277,6 +297,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return false
 	if _ambient_particles_active():
 		return true
+	if _campfire_atmosphere_active():
+		return true
 	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
@@ -286,6 +308,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if not (presentation.get("damage_preview", {}) as Dictionary).is_empty():
 		return true
 	if not (presentation.get("impact_actor_keys", []) as Array).is_empty():
+		return true
+	if not (presentation.get("impact_decals", []) as Array).is_empty():
 		return true
 	if not (presentation.get("preview_units", []) as Array).is_empty():
 		return true
@@ -386,12 +410,15 @@ func _draw() -> void:
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	for tile: Vector2i in tiles:
 		_draw_floor_tile(grid, tile)
+	_draw_campfire_room_firelight(tiles)
 	_draw_ambient_particles(tiles)
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
 	_draw_path_preview()
+	_draw_impact_decals()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
 	_draw_effect_overlay()
 	_draw_status_text()
@@ -402,6 +429,178 @@ func _draw_empty_state() -> void:
 	if font == null:
 		return
 	draw_string(font, Vector2(34, 52), "No active combat.", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f0e5cf"))
+
+func _campfire_atmosphere_active() -> bool:
+	return not _campfire_scene_props().is_empty()
+
+func _campfire_scene_props() -> Array:
+	var props: Array = []
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		if str(prop.get("kind", "")) == "campfire_bonfire":
+			props.append(prop)
+	return props
+
+func _draw_campfire_room_firelight(tiles: Array[Vector2i]) -> void:
+	var props: Array = _campfire_scene_props()
+	if props.is_empty() or tiles.is_empty():
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for prop_var: Variant in props:
+		var prop: Dictionary = prop_var
+		var source_tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+		var source_seed: int = _campfire_atmosphere_seed(source_tile)
+		var floor_point: Vector2 = _campfire_floor_light_point(prop)
+		var flame_point: Vector2 = _campfire_flame_point(prop)
+		_draw_campfire_soft_floor_bloom(floor_point, flame_point, source_seed, time_seconds)
+
+func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2, source_seed: int, time_seconds: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", 0)
+	var flicker: float = 0.88 + 0.12 * sin(time_seconds * 6.9 + _ambient_hash01(source_seed + 5) * TAU)
+	var slow_breath: float = 0.5 + 0.5 * sin(time_seconds * 1.55 + _ambient_hash01(source_seed + 7) * TAU)
+	var drift := Vector2(
+		sin(time_seconds * 0.74 + _ambient_hash01(source_seed + 11) * TAU) * tile_width * 0.045,
+		sin(time_seconds * 0.58 + _ambient_hash01(source_seed + 13) * TAU) * tile_height * 0.08
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point + drift + Vector2(0.0, tile_height * 0.12),
+		tile_width * (1.78 + slow_breath * 0.08),
+		Vector2(1.78, 0.78),
+		-0.04,
+		Color(1.0, 0.40, 0.12, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.62 * flicker),
+		24
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point - drift * 0.50 + Vector2(-tile_width * 0.15, tile_height * 0.03),
+		tile_width * 1.28,
+		Vector2(1.58, 0.72),
+		0.16,
+		Color(1.0, 0.61, 0.23, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.38 * flicker),
+		18
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point + drift * 0.62 + Vector2(tile_width * 0.12, -tile_height * 0.08),
+		tile_width * 0.74,
+		Vector2(1.32, 0.66),
+		-0.20,
+		Color(1.0, 0.80, 0.38, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.36 * flicker),
+		14
+	)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			flame_point + Vector2(0.0, tile_height * 0.24),
+			Vector2(tile_width * 1.92, tile_height * 2.02),
+			0.0,
+			CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.22 * flicker,
+			Color(1.0, 0.50, 0.14, 1.0)
+		)
+		return
+	draw_circle(floor_point, tile_width * 1.65, Color(1.0, 0.48, 0.18, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.22 * flicker))
+	draw_circle(flame_point, tile_width * 0.74, Color(1.0, 0.78, 0.34, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.20 * flicker))
+
+func _draw_campfire_soft_ellipse(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
+	if layer_count <= 0 or color.a <= 0.0:
+		return
+	for layer_index: int in range(layer_count, 0, -1):
+		var t: float = float(layer_index) / float(layer_count)
+		var inner_weight: float = pow(1.0 - t, 0.84)
+		var layer_alpha: float = color.a * (0.022 + inner_weight * 0.056)
+		var layer_radius: float = radius * (0.10 + t * 0.90)
+		draw_set_transform(center, rotation, ellipse_scale)
+		draw_circle(Vector2.ZERO, layer_radius, Color(color.r, color.g, color.b, layer_alpha))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_campfire_ember_motes() -> void:
+	var props: Array = _campfire_scene_props()
+	if props.is_empty():
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for prop_var: Variant in props:
+		var prop: Dictionary = prop_var
+		var source_tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+		var source_seed: int = _campfire_atmosphere_seed(source_tile)
+		var source_point: Vector2 = _campfire_flame_point(prop) + Vector2(0.0, _tile_height() * 0.08)
+		for index: int in range(CAMPFIRE_EMBER_MOTE_COUNT):
+			var seed: int = source_seed + index * 1759
+			var speed: float = lerpf(0.18, 0.34, _ambient_hash01(seed + 13))
+			var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
+			var center_bias: float = _campfire_ember_center_bias(seed)
+			var edge_lifetime: float = lerpf(0.54, 1.0, pow(center_bias, 0.72))
+			if cycle > edge_lifetime:
+				continue
+			var lifetime_cycle: float = cycle / edge_lifetime
+			var alpha: float = pow(clampf(sin(lifetime_cycle * PI), 0.0, 1.0), 0.72) * CAMPFIRE_EMBER_MOTE_ALPHA
+			alpha *= lerpf(0.62, 1.0, center_bias)
+			if alpha <= 0.04:
+				continue
+			var point: Vector2 = _campfire_ember_mote_point(source_point, seed, cycle, time_seconds)
+			var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire"))
+			var previous_point: Vector2 = _campfire_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.12)
+			var velocity: Vector2 = point - previous_point
+			var draw_width: float = _tile_width() * lerpf(0.060, 0.122, _ambient_hash01(seed + 37))
+			var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
+			var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+			var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+			var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+			if texture == null and soft_texture == null:
+				draw_circle(point, draw_width * 0.45, Color(1.0, 0.66, 0.28, minf(alpha * 0.46, 0.74)))
+				continue
+			if texture == null:
+				texture = soft_texture
+			var mote_alpha: float = alpha * lerpf(0.28, 0.58, _ambient_hash01(seed + 41))
+			var texture_size: Vector2 = texture.get_size()
+			var draw_size := Vector2(draw_width, draw_width)
+			if texture_size.x > 0.0:
+				draw_size.y = draw_width * texture_size.y / texture_size.x
+			var rotation: float = lerpf(-0.34, 0.34, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.72 + _ambient_hash01(seed + 47) * TAU) * 0.11
+			_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
+			draw_circle(point, maxf(1.6, draw_width * 0.14), Color(1.0, 0.84, 0.38, minf(mote_alpha * 0.66, 0.72)))
+
+func _campfire_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float) -> Vector2:
+	var tile_width: float = _tile_width()
+	var base_lateral: float = _campfire_ember_base_lateral(seed)
+	var center_bias: float = 1.0 - absf(base_lateral)
+	var plume_width: float = lerpf(0.52, 0.10, pow(cycle, 0.62)) * tile_width
+	var lateral: float = base_lateral * plume_width
+	var sway: float = sin(time_seconds * lerpf(1.1, 2.5, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.020, 0.105, cycle)
+	var height_scale: float = lerpf(0.50, 1.08, pow(center_bias, 0.70))
+	var rise: float = pow(cycle, 0.72) * tile_width * CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE * height_scale
+	var chimney_pull: float = sin(cycle * TAU + _ambient_hash01(seed + 33) * TAU) * tile_width * 0.035
+	return source_point + Vector2(lateral + sway + chimney_pull, _tile_height() * 0.18 - rise)
+
+func _campfire_ember_base_lateral(seed: int) -> float:
+	return lerpf(-1.0, 1.0, _ambient_hash01(seed + 23))
+
+func _campfire_ember_center_bias(seed: int) -> float:
+	return 1.0 - absf(_campfire_ember_base_lateral(seed))
+
+func _campfire_prop_draw_rect(prop: Dictionary) -> Rect2:
+	var texture: Texture2D = _texture_for_scene_prop(prop)
+	if texture != null:
+		return _scene_prop_rect(texture, prop)
+	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+	return Rect2(_tile_center(tile), Vector2.ZERO)
+
+func _campfire_flame_point(prop: Dictionary) -> Vector2:
+	var draw_rect: Rect2 = _campfire_prop_draw_rect(prop)
+	if draw_rect.size == Vector2.ZERO:
+		return draw_rect.position + Vector2(0.0, -_tile_height() * 0.18)
+	return Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.45)
+
+func _campfire_floor_light_point(prop: Dictionary) -> Vector2:
+	var draw_rect: Rect2 = _campfire_prop_draw_rect(prop)
+	if draw_rect.size == Vector2.ZERO:
+		return draw_rect.position
+	return Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.62)
+
+func _campfire_atmosphere_seed(source_tile: Vector2i) -> int:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	return room_coord.x * 81283 + room_coord.y * 52639 + source_tile.x * 947 + source_tile.y * 1223 + 71
 
 func _ambient_particles_active() -> bool:
 	if combat_state.is_empty():
@@ -1007,8 +1206,46 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 			continue
 		var draw_rect: Rect2 = _scene_prop_rect(texture, prop)
 		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
+		if str(prop.get("kind", "")) == "campfire_bonfire":
+			_draw_campfire_prop_glow(tile, draw_rect)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 		draw_texture_rect(texture, draw_rect, false, tint)
+
+func _draw_campfire_prop_glow(tile: Vector2i, draw_rect: Rect2) -> void:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var seed: int = _campfire_atmosphere_seed(tile)
+	var flicker: float = 0.80 + 0.20 * sin(time_seconds * 7.9 + _ambient_hash01(seed + 61) * TAU)
+	var flame_point: Vector2 = Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.45)
+	var soft_texture: Texture2D = _ambient_fire_soft_texture(1)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", 1)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			flame_point + Vector2(0.0, _tile_height() * 0.10),
+			Vector2(_tile_width() * 1.60, _tile_height() * 2.10),
+			0.0,
+			0.18 * flicker,
+			Color(1.0, 0.43, 0.14, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			flame_point + Vector2(0.0, -_tile_height() * 0.05),
+			Vector2(_tile_width() * 1.10, _tile_height() * 1.64),
+			sin(time_seconds * 1.1 + _ambient_hash01(seed + 67) * TAU) * 0.08,
+			0.44 * flicker,
+			Color(1.0, 0.72, 0.28, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			flame_point + Vector2(0.0, -_tile_height() * 0.22),
+			Vector2(_tile_width() * 0.56, _tile_height() * 0.94),
+			-sin(time_seconds * 1.4 + _ambient_hash01(seed + 71) * TAU) * 0.10,
+			0.34 * flicker,
+			Color(1.0, 0.93, 0.58, 1.0)
+		)
+		return
+	draw_circle(flame_point, _tile_width() * 0.68, Color(1.0, 0.45, 0.16, 0.15 * flicker))
 
 func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
@@ -2630,6 +2867,157 @@ func _arc_control_point(from_point: Vector2, to_point: Vector2) -> Vector2:
 	var height: float = 34.0 + absf(to_point.x - from_point.x) * 0.18
 	return midpoint + Vector2(0.0, -height)
 
+func _draw_impact_decals() -> void:
+	var decals: Array = presentation.get("impact_decals", [])
+	if decals.is_empty():
+		return
+	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
+	for decal_var: Variant in decals:
+		if typeof(decal_var) != TYPE_DICTIONARY:
+			continue
+		var decal: Dictionary = decal_var
+		var tile: Vector2i = decal.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var element_id: String = str(decal.get("element", ElementData.NONE))
+		var kind: String = str(decal.get("kind", ""))
+		var seed: int = int(decal.get("seed", _impact_decal_seed(tile, element_id, kind)))
+		_draw_impact_decal(tile, element_id, kind, seed, progress)
+
+func _draw_impact_decal(tile: Vector2i, element_id: String, kind: String, seed: int, progress: float) -> void:
+	var fade: float = clampf(1.0 - progress / IMPACT_DECAL_FADE_PROGRESS, 0.0, 1.0)
+	if fade <= 0.0:
+		return
+	var pop: float = clampf(progress / 0.16, 0.0, 1.0)
+	var alpha: float = fade * lerpf(0.78, 1.0, pop) * IMPACT_DECAL_MAX_ALPHA
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.07)
+	var scale: float = 1.12 if kind in ["aoe", "lightning_strikes"] else 0.96
+	match element_id:
+		ElementData.FIRE:
+			_draw_fire_impact_decal(center, seed, scale, alpha)
+		ElementData.ICE:
+			_draw_ice_impact_decal(center, seed, scale, alpha)
+		ElementData.LIGHTNING:
+			_draw_lightning_impact_decal(center, seed, scale, alpha)
+		ElementData.AIR:
+			_draw_air_impact_decal(center, seed, scale, alpha)
+		ElementData.EARTH:
+			_draw_earth_impact_decal(center, seed, scale, alpha)
+		_:
+			_draw_neutral_impact_decal(center, seed, scale, alpha)
+
+func _draw_fire_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.46 * scale, tile_height * 0.56 * scale, tile_width * 0.08, Color(0.07, 0.035, 0.020, 0.46 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.54 * scale, tile_height * 0.64 * scale, tile_width * 0.10, Color(0.98, 0.34, 0.13, 0.30 * alpha), 1.8)
+	_draw_impact_radial_marks(center, seed, 6, Color(1.0, 0.48, 0.18, 0.66 * alpha), tile_width * 0.08 * scale, tile_width * 0.25 * scale, 0.48, 2.0)
+	for idx: int in range(3):
+		var ember_point: Vector2 = center + _impact_offset(seed + idx * 17, tile_width * 0.18 * scale, tile_height * 0.22 * scale)
+		draw_circle(ember_point, tile_width * (0.014 + 0.006 * _ambient_hash01(seed + idx + 40)), Color(1.0, 0.62, 0.22, 0.72 * alpha))
+
+func _draw_ice_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.50 * scale, tile_height * 0.58 * scale, -tile_width * 0.04, Color(0.52, 0.86, 1.0, 0.18 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.56 * scale, tile_height * 0.64 * scale, -tile_width * 0.05, Color(0.78, 0.96, 1.0, 0.42 * alpha), 1.6)
+	_draw_impact_crack_marks(center, seed, 7, Color(0.82, 0.98, 1.0, 0.72 * alpha), tile_width * 0.07 * scale, tile_width * 0.27 * scale, 0.42, 1.7)
+	for idx: int in range(4):
+		var shard_center: Vector2 = center + _impact_offset(seed + idx * 23, tile_width * 0.21 * scale, tile_height * 0.22 * scale)
+		draw_line(shard_center + Vector2(-2.0, 1.0), shard_center + Vector2(3.0, -5.0), Color(0.92, 1.0, 1.0, 0.72 * alpha), 1.3, true)
+
+func _draw_lightning_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.44 * scale, tile_height * 0.52 * scale, tile_width * 0.03, Color(0.08, 0.07, 0.16, 0.36 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.58 * scale, tile_height * 0.68 * scale, tile_width * 0.06, Color(0.96, 0.86, 0.26, 0.52 * alpha), 1.7)
+	_draw_impact_crack_marks(center, seed, 5, Color(0.52, 0.82, 1.0, 0.66 * alpha), tile_width * 0.06 * scale, tile_width * 0.28 * scale, 0.44, 1.8)
+	_draw_impact_radial_marks(center, seed + 53, 4, Color(1.0, 0.94, 0.42, 0.82 * alpha), tile_width * 0.05 * scale, tile_width * 0.22 * scale, 0.40, 2.1)
+
+func _draw_air_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	_draw_impact_ellipse(center, tile_width * 0.52 * scale, _tile_height() * 0.58 * scale, -tile_width * 0.05, Color(0.46, 0.88, 0.72, 0.12 * alpha))
+	for idx: int in range(3):
+		var radius: float = tile_width * (0.12 + float(idx) * 0.055) * scale
+		var start_angle: float = _ambient_hash01(seed + idx * 31) * TAU
+		draw_arc(center, radius, start_angle, start_angle + PI * 0.86, 18, Color(0.72, 1.0, 0.86, (0.48 - float(idx) * 0.09) * alpha), 1.6, true)
+	_draw_impact_radial_marks(center, seed + 71, 5, Color(0.82, 0.70, 0.48, 0.32 * alpha), tile_width * 0.12 * scale, tile_width * 0.30 * scale, 0.40, 1.5)
+
+func _draw_earth_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	_draw_impact_ellipse(center, tile_width * 0.46 * scale, _tile_height() * 0.54 * scale, tile_width * 0.05, Color(0.10, 0.07, 0.035, 0.38 * alpha))
+	_draw_impact_crack_marks(center, seed, 8, Color(0.74, 0.62, 0.36, 0.66 * alpha), tile_width * 0.05 * scale, tile_width * 0.30 * scale, 0.46, 2.0)
+	for idx: int in range(5):
+		var chip_point: Vector2 = center + _impact_offset(seed + idx * 19, tile_width * 0.24 * scale, _tile_height() * 0.26 * scale)
+		draw_circle(chip_point, tile_width * 0.013, Color(0.58, 0.44, 0.24, 0.54 * alpha))
+
+func _draw_neutral_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.44 * scale, tile_height * 0.52 * scale, tile_width * 0.04, Color(0.09, 0.07, 0.05, 0.34 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.54 * scale, tile_height * 0.62 * scale, tile_width * 0.05, Color(0.72, 0.56, 0.35, 0.34 * alpha), 1.5)
+	_draw_impact_radial_marks(center, seed, 7, Color(0.78, 0.62, 0.42, 0.46 * alpha), tile_width * 0.07 * scale, tile_width * 0.25 * scale, 0.44, 1.7)
+
+func _draw_impact_ellipse(center: Vector2, width: float, height: float, skew: float, color: Color) -> void:
+	draw_colored_polygon(_impact_ellipse_points(center, width, height, skew), color)
+
+func _draw_impact_ellipse_outline(center: Vector2, width: float, height: float, skew: float, color: Color, line_width: float) -> void:
+	draw_polyline(_impact_ellipse_points(center, width, height, skew), color, line_width, true)
+
+func _impact_ellipse_points(center: Vector2, width: float, height: float, skew: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	var segments: int = 28
+	for idx: int in range(segments + 1):
+		var angle: float = TAU * float(idx) / float(segments)
+		var unit_y: float = sin(angle)
+		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
+	return points
+
+func _draw_impact_radial_marks(center: Vector2, seed: int, count: int, color: Color, inner_radius: float, outer_radius: float, y_scale: float, line_width: float) -> void:
+	for idx: int in range(count):
+		var angle: float = _ambient_hash01(seed + idx * 13) * TAU
+		var direction := Vector2(cos(angle), sin(angle) * y_scale)
+		if direction.length_squared() <= 0.001:
+			continue
+		direction = direction.normalized()
+		draw_line(center + direction * inner_radius, center + direction * outer_radius, color, line_width, true)
+
+func _draw_impact_crack_marks(center: Vector2, seed: int, count: int, color: Color, inner_radius: float, outer_radius: float, y_scale: float, line_width: float) -> void:
+	for idx: int in range(count):
+		var angle: float = _ambient_hash01(seed + idx * 29) * TAU
+		var direction := Vector2(cos(angle), sin(angle) * y_scale)
+		if direction.length_squared() <= 0.001:
+			continue
+		direction = direction.normalized()
+		var start: Vector2 = center + direction * inner_radius
+		var finish: Vector2 = center + direction * outer_radius
+		var perpendicular := Vector2(-direction.y, direction.x)
+		var kink: Vector2 = start.lerp(finish, 0.54) + perpendicular * lerpf(-5.0, 5.0, _ambient_hash01(seed + idx * 29 + 7))
+		draw_line(start, kink, color, line_width, true)
+		draw_line(kink, finish, color, maxf(1.0, line_width - 0.35), true)
+
+func _impact_offset(seed: int, radius_x: float, radius_y: float) -> Vector2:
+	var angle: float = _ambient_hash01(seed) * TAU
+	return Vector2(cos(angle) * radius_x, sin(angle) * radius_y)
+
+func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
+	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197
+
+func _impact_element_seed(element_id: String) -> int:
+	match element_id:
+		ElementData.FIRE:
+			return 11
+		ElementData.ICE:
+			return 23
+		ElementData.LIGHTNING:
+			return 37
+		ElementData.AIR:
+			return 41
+		ElementData.EARTH:
+			return 53
+		_:
+			return 7
+
 func _draw_effect_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
@@ -2655,22 +3043,7 @@ func _draw_effect_overlay() -> void:
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			var start: Vector2 = from_point + Vector2(0.0, -24.0)
-			var end: Vector2 = to_point + Vector2(0.0, -24.0)
-			var control: Vector2 = _arc_control_point(start, end)
-			var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
-			var pulse_radius: float = lerpf(9.0, 17.0, warmup_progress)
-			draw_circle(end, pulse_radius, Color(1.0, 0.60, 0.34, 0.08 + 0.05 * warmup_progress))
-			_draw_target_reticle(end, Color(1.0, 0.86, 0.66, 0.62 + 0.28 * warmup_progress), pulse_radius)
-			_draw_bezier_glow(start, control, end, Color(1.0, 0.74, 0.37, 0.16 + 0.10 * warmup_progress), 1.6)
-			var travel_progress: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
-			if travel_progress > 0.0:
-				_draw_partial_bezier_glow(start, control, end, Color(1.0, 0.74, 0.37, 0.94), 3.0, travel_progress)
-				var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
-				_draw_projectile_diamond(projectile_point, control - start, Color(1.0, 0.92, 0.70, 0.98), 5.2)
-				draw_circle(start, 5.0, Color(1.0, 0.88, 0.68, 0.16))
-			if progress >= 0.98:
-				draw_circle(to_point, 12.0, Color(0.94, 0.47, 0.30, 0.20))
+			_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
 			for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
 				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
 		"melee":
@@ -2693,14 +3066,260 @@ func _draw_effect_overlay() -> void:
 			var block_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if block_tile.x < 0:
 				return
-			draw_arc(_tile_center(block_tile) + Vector2(0.0, -22.0), _tile_width() * 0.22, 0.0, TAU, 22, Color("6dd0ff"), 4.0)
+			_draw_block_cast_effect(block_tile, progress)
 		"heal":
 			var heal_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
 			if heal_tile.x < 0:
 				return
-			var heal_center: Vector2 = _tile_center(heal_tile) + Vector2(0.0, -28.0)
-			draw_line(heal_center + Vector2(-10.0, 0.0), heal_center + Vector2(10.0, 0.0), Color("9ee27e"), 4.0, true)
-			draw_line(heal_center + Vector2(0.0, -10.0), heal_center + Vector2(0.0, 10.0), Color("9ee27e"), 4.0, true)
+			_draw_heal_cast_effect(heal_tile, progress)
+		"stoneskin":
+			var stoneskin_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
+			if stoneskin_tile.x < 0:
+				return
+			_draw_stoneskin_cast_effect(stoneskin_tile, progress)
+
+func _draw_block_cast_effect(tile: Vector2i, progress: float) -> void:
+	_draw_cast_icon_effect("block", tile, progress, -0.30, 0.50)
+
+func _draw_heal_cast_effect(tile: Vector2i, progress: float) -> void:
+	var normalized_progress: float = clampf(progress, 0.0, 1.0)
+	var tile_width: float = _tile_width()
+	var base: Vector2 = _tile_center(tile) + Vector2(0.0, -tile_width * 0.08)
+	var plus_offsets := [
+		Vector2(-0.18, 0.02),
+		Vector2(0.14, -0.02),
+		Vector2(-0.03, 0.08),
+		Vector2(0.24, 0.05),
+		Vector2(-0.26, 0.09)
+	]
+	for index: int in range(plus_offsets.size()):
+		var local_progress: float = clampf(normalized_progress * 1.30 - float(index) * 0.12, 0.0, 1.0)
+		if local_progress <= 0.0 or local_progress >= 1.0:
+			continue
+		var texture: Texture2D = _defense_heal_cast_frame(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + (index % DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))
+		if texture == null:
+			continue
+		var fade: float = clampf(sin(local_progress * PI) * 1.08, 0.0, 1.0)
+		var rise: float = tile_width * lerpf(0.03, 0.34, local_progress)
+		var drift: Vector2 = plus_offsets[index]
+		var point: Vector2 = base + Vector2(tile_width * drift.x, tile_width * drift.y - rise)
+		var size: float = tile_width * (0.20 + 0.025 * sin(float(index) * 1.7))
+		_draw_ambient_particle_sprite(texture, point, Vector2.ONE * size, 0.0, fade)
+
+func _draw_stoneskin_cast_effect(tile: Vector2i, progress: float) -> void:
+	_draw_cast_icon_effect("stoneskin", tile, progress, -0.26, 0.56)
+
+func _draw_cast_icon_effect(effect_id: String, tile: Vector2i, progress: float, y_offset_scale: float, size_scale: float) -> void:
+	var frame_index: int = _cast_effect_frame_index(effect_id, progress)
+	var texture: Texture2D = _defense_heal_cast_frame(frame_index)
+	if texture == null:
+		return
+	var normalized_progress: float = clampf(progress, 0.0, 1.0)
+	var fade_in: float = clampf(normalized_progress / 0.18, 0.0, 1.0)
+	var fade_out: float = clampf((1.0 - normalized_progress) / 0.24, 0.0, 1.0)
+	var alpha: float = minf(fade_in, fade_out)
+	var pop: float = 1.0 - pow(1.0 - fade_in, 2.0)
+	var settle: float = 1.0 + 0.06 * sin(normalized_progress * PI)
+	var tile_width: float = _tile_width()
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, tile_width * y_offset_scale)
+	var draw_size: Vector2 = Vector2.ONE * tile_width * size_scale * lerpf(0.72, 1.0, pop) * settle
+	_draw_ambient_particle_sprite(texture, center, draw_size, 0.0, alpha)
+
+func _cast_effect_frame_index(effect_id: String, progress: float) -> int:
+	var row: int = 0
+	match effect_id:
+		"heal":
+			row = 1
+		"stoneskin":
+			row = 2
+		_:
+			row = 0
+	var local_progress: float = clampf(progress, 0.0, 0.999)
+	var column: int = clampi(int(floor(local_progress * float(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))), 0, DEFENSE_HEAL_CASTS_FRAMES_PER_KIND - 1)
+	return row * DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + column
+
+func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
+	var frames: Array = _effect_frames.get("defense_heal_casts", [])
+	if frame_index < 0 or frame_index >= frames.size():
+		return null
+	return frames[frame_index] as Texture2D
+
+func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = _projectile_accent(element_id)
+	var secondary: Color = _projectile_secondary(element_id)
+	var preview: bool = bool(effect.get("preview", false))
+	var preview_phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+	var preview_pulse: float = 0.5 + 0.5 * sin(preview_phase * TAU)
+	var start: Vector2 = from_point + Vector2(0.0, -24.0)
+	var end: Vector2 = to_point + Vector2(0.0, -24.0)
+	var control: Vector2 = _arc_control_point(start, end)
+	var warmup_progress: float = 1.0 if preview else clampf(progress / 0.34, 0.0, 1.0)
+	var arc_alpha: float = 0.11 + 0.08 * warmup_progress + (0.05 * preview_pulse if preview else 0.0)
+	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, arc_alpha), 1.5)
+	var travel_progress: float = lerpf(0.05, 0.96, preview_phase) if preview else clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+	var loop_fade: float = 1.0
+	if preview:
+		loop_fade = clampf(minf(preview_phase / 0.16, (1.0 - preview_phase) / 0.16), 0.0, 1.0)
+	if travel_progress > 0.0:
+		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary, 0.72 * loop_fade if preview else 1.0)
+		var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
+		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
+		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
+		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress, 0.84 * loop_fade if preview else 1.0)
+
+func _draw_elemental_projectile_trail(
+	start: Vector2,
+	control: Vector2,
+	end: Vector2,
+	travel_progress: float,
+	element_id: String,
+	accent: Color,
+	secondary: Color,
+	alpha_multiplier: float = 1.0
+) -> void:
+	var points: Array[Vector2] = _sample_quadratic_points(start, control, end, 16)
+	if points.size() < 2:
+		return
+	var last_index: int = clampi(int(floor(float(points.size() - 1) * travel_progress)), 1, points.size() - 1)
+	var first_index: int = maxi(0, last_index - _projectile_trail_segment_count(element_id))
+	var segment_total: int = maxi(1, last_index - first_index)
+	for index: int in range(first_index, last_index):
+		var local_t: float = float(index - first_index + 1) / float(segment_total)
+		var alpha: float = (0.16 + 0.62 * local_t) * clampf(travel_progress * 1.25, 0.0, 1.0) * alpha_multiplier
+		var width: float = lerpf(1.4, _projectile_trail_width(element_id), local_t)
+		draw_line(points[index], points[index + 1], Color(0.0, 0.0, 0.0, alpha * 0.18), width + 4.5, true)
+		draw_line(points[index], points[index + 1], Color(secondary.r, secondary.g, secondary.b, alpha * 0.62), width + 1.8, true)
+		draw_line(points[index], points[index + 1], Color(accent.r, accent.g, accent.b, alpha), width, true)
+
+func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: String, travel_progress: float, alpha_multiplier: float = 1.0) -> void:
+	var dir: Vector2 = direction.normalized() if direction.length_squared() > 0.01 else Vector2.RIGHT
+	var texture: Texture2D = _projectile_texture(element_id)
+	var draw_size: float = clampf(_tile_width() * PROJECTILE_DRAW_TILE_SCALE, PROJECTILE_DRAW_MIN_SIZE, PROJECTILE_DRAW_MAX_SIZE)
+	var alpha: float = clampf((0.68 + sin(travel_progress * PI) * 0.30) * alpha_multiplier, 0.0, 1.0)
+	if texture == null:
+		var fallback_color: Color = _projectile_secondary(element_id)
+		fallback_color.a = alpha
+		_draw_projectile_diamond(center, dir, fallback_color, draw_size * 0.18)
+		return
+	var shadow_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.28)
+	var glow_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.14)
+	var sprite_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.0)
+	draw_set_transform(center + Vector2(2.5, 4.0), dir.angle(), Vector2.ONE)
+	draw_texture_rect(texture, shadow_rect, false, Color(0.0, 0.0, 0.0, 0.28 * alpha))
+	draw_set_transform(center, dir.angle(), Vector2.ONE)
+	var glow_color: Color = _projectile_secondary(element_id)
+	draw_texture_rect(texture, glow_rect, false, Color(glow_color.r, glow_color.g, glow_color.b, 0.26 * alpha))
+	draw_texture_rect(texture, sprite_rect, false, Color(1.0, 1.0, 1.0, alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _projectile_sprite_rect(draw_size: float, element_id: String, scale: float = 1.0) -> Rect2:
+	var sprite_size := Vector2(draw_size, draw_size) * scale
+	var anchor: Vector2 = _projectile_sprite_anchor(element_id)
+	return Rect2(
+		Vector2(-sprite_size.x * anchor.x, -sprite_size.y * anchor.y),
+		sprite_size
+	)
+
+func _projectile_sprite_anchor(element_id: String) -> Vector2:
+	match _projectile_element_id(element_id):
+		ElementData.LIGHTNING:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.38)
+		ElementData.AIR:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.34)
+		ElementData.EARTH:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.46)
+		_:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.50)
+
+func _projectile_texture(element_id: String) -> Texture2D:
+	if _projectile_atlas == null:
+		return null
+	var row: int = _projectile_atlas_row(element_id)
+	var cache_key: String = str(row)
+	if _projectile_textures.has(cache_key):
+		return _projectile_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _projectile_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x, atlas_size.y / float(ELEMENTAL_PROJECTILE_ATLAS_ROWS))
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _projectile_atlas
+	atlas_texture.region = Rect2(Vector2(0.0, cell_size.y * float(row)), cell_size)
+	_projectile_textures[cache_key] = atlas_texture
+	return atlas_texture
+
+func _projectile_atlas_row(element_id: String) -> int:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return 1
+		ElementData.ICE:
+			return 2
+		ElementData.LIGHTNING:
+			return 3
+		ElementData.AIR:
+			return 4
+		ElementData.EARTH:
+			return 5
+		_:
+			return 0
+
+func _projectile_element_id(element_id: String) -> String:
+	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
+
+func _projectile_accent(element_id: String) -> Color:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return Color("d66a38")
+		ElementData.ICE:
+			return Color("79bddd")
+		ElementData.LIGHTNING:
+			return Color("d8bd48")
+		ElementData.AIR:
+			return Color("78b99f")
+		ElementData.EARTH:
+			return Color("8a9a5a")
+		_:
+			return Color("b99c72")
+
+func _projectile_secondary(element_id: String) -> Color:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return Color("f0a65b")
+		ElementData.ICE:
+			return Color("c8ebf4")
+		ElementData.LIGHTNING:
+			return Color("8da4d6")
+		ElementData.AIR:
+			return Color("c4e6d4")
+		ElementData.EARTH:
+			return Color("c0ad72")
+		_:
+			return Color("dcc59c")
+
+func _projectile_trail_segment_count(element_id: String) -> int:
+	match _projectile_element_id(element_id):
+		ElementData.AIR:
+			return 7
+		ElementData.LIGHTNING:
+			return 4
+		ElementData.EARTH:
+			return 3
+		_:
+			return 5
+
+func _projectile_trail_width(element_id: String) -> float:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return 4.1
+		ElementData.ICE:
+			return 3.2
+		ElementData.LIGHTNING:
+			return 2.6
+		ElementData.AIR:
+			return 2.8
+		ElementData.EARTH:
+			return 4.4
+		_:
+			return 3.0
 
 func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: float, preview: bool = false) -> void:
 	var from_point: Vector2 = _tile_center(from_tile)
@@ -3531,8 +4150,15 @@ func _load_assets() -> void:
 			MELEE_SLASH_SHEET_PATH,
 			MELEE_SLASH_SHEET_COLUMNS,
 			MELEE_SLASH_SHEET_ROWS
+		),
+		"defense_heal_casts": _load_sprite_sheet_frames(
+			DEFENSE_HEAL_CASTS_PATH,
+			DEFENSE_HEAL_CASTS_COLUMNS,
+			DEFENSE_HEAL_CASTS_ROWS
 		)
 	}
+	_projectile_atlas = AssetLoader.load_texture(ELEMENTAL_PROJECTILE_ATLAS_PATH)
+	_projectile_textures.clear()
 	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)
 	_ambient_particle_glow_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_GLOW_ATLAS_PATH)
 	_ambient_fire_soft_atlas = AssetLoader.load_texture(AMBIENT_FIRE_SOFT_ATLAS_PATH)

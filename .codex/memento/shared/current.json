@@ -514,28 +514,6 @@
       }
     },
     {
-      "id": "mnt_20260409T132734Z_d5203e49",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "The reaver idle sheet is exported column-major (top-to-bottom, then left-to-right), so CombatBoardView must reorder frames instead of using the default row-major atlas order.",
-      "details": null,
-      "status": "active",
-      "created_at": "2026-04-09T13:27:34Z",
-      "updated_at": "2026-04-09T13:27:34Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "236aad5"
-      }
-    },
-    {
       "id": "mnt_20260409T140156Z_452ad1a7",
       "layer": "shared",
       "kind": "pitfall",
@@ -3174,30 +3152,6 @@
       }
     },
     {
-      "id": "mnt_20260526T035942Z_1f773fbe",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "project",
-        "path": ".",
-        "symbol": null
-      },
-      "scope_key": "project:.",
-      "summary": "Initiative balance now favors standard early player returns",
-      "details": "Player base initiative is 9 with Agility reducing it to a floor of 5. Starter card times now average about 4.1; Whirlwind Slash is normal-speed at 5 and Bloody Lunge is the heavy starter at 8. First-sequence weighted repeat cycles are about wisp 11, crawler 13, harrier 13.4, acolyte 16.25, warden 20.25, and Zekarion 19.25, so normal two-card starter turns should usually return before the same fast enemy follows up while heavy+normal turns can let fast enemies double-up.",
-      "status": "active",
-      "created_at": "2026-05-26T03:59:42Z",
-      "updated_at": "2026-05-26T03:59:42Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260524T143337Z_6213710a"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "1fc350a"
-      }
-    },
-    {
       "id": "mnt_20260528T033631Z_97a7ab46",
       "layer": "shared",
       "kind": "user_preference",
@@ -4283,6 +4237,96 @@
       "source": {
         "branch": "codex/fix-turn-animation-state-rewind",
         "commit": "c32c6a8"
+      }
+    },
+    {
+      "id": "mnt_20260627T235015Z_8a8ae5fc",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Animation-locked board display must ignore resolved card previews",
+      "details": "Player card resolution can leave _preview_combat_state at the fully resolved position while _play_player_card sets _animation_lock and refreshes UI before _animate_player_card_resolution. During animation lock, _board_display_state should prefer authoritative _combat_state and let explicit _render_board_state calls provide in-flight frames; otherwise the player can flash at the destination, rewind, then animate there.",
+      "status": "active",
+      "created_at": "2026-06-27T23:50:15Z",
+      "updated_at": "2026-06-27T23:50:15Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-player-move-animation-snapback",
+        "commit": "fe74287"
+      }
+    },
+    {
+      "id": "mnt_20260628T011605Z_ba2ba9c4",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Initiative balance now uses intent-aware first enemy timing and live fast elemental rewards",
+      "details": "Initial enemy queue slots use enemy base initiative plus revealed intent time, with only an enemy-index stagger for readability; repeats use the same base+intent cycle. Player base initiative remains 9 with Agility floor 5. The June 2026 speed rebalance broadened card times so the starting deck averages about 3.56 time and normal elemental combat rewards span the full 1-10 range: Threaded Path is a time-1 Air movement/draw reward, Thorn Skewer is time 2, Firebrand Volley/Rime Shard/Spark Focus/Stone Plate are time 3, White Silence is time 9, and Wildfire Halo remains time 10. Practical pacing target: two fast cards return around initiative 13 and can lap slower enemies, two medium cards return around 18 without fast enemy double-ups, and two slow cards around 23 can let wisps/crawlers threaten doubles.",
+      "status": "active",
+      "created_at": "2026-06-28T01:16:05Z",
+      "updated_at": "2026-06-28T01:16:05Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260628T010443Z_34f87720"
+      ],
+      "source": {
+        "branch": "codex/rebalance-card-speed-and-turn-timing",
+        "commit": "dd17f03"
+      }
+    },
+    {
+      "id": "mnt_20260629T143011Z_1a930ff5",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Campfire firelight should avoid banded halos",
+      "details": "For campfire room polish, do not render the bonfire glow as visible tile rings, hard circles, or an orange wash. Use blended soft light and visible ember motes that reuse the fire elemental room particle language so the effect reads organic and professional.",
+      "status": "active",
+      "created_at": "2026-06-29T14:30:11Z",
+      "updated_at": "2026-06-29T14:30:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/campfire-bonfire-room-polish",
+        "commit": "ff92ea8"
+      }
+    },
+    {
+      "id": "mnt_20260629T145329Z_5204e26d",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Campfire motes should taper upward from the fire bed",
+      "details": "For campfire ember motes, avoid an inverted-triangle plume where every spark starts at one center point and spreads outward. Prefer a slightly wider source across the bonfire sprite, with edge sparks fading sooner and central sparks rising a bit higher so the plume reads as a subtle right-side-up taper without becoming exaggerated.",
+      "status": "active",
+      "created_at": "2026-06-29T14:53:29Z",
+      "updated_at": "2026-06-29T14:53:29Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/campfire-bonfire-room-polish",
+        "commit": "befe0c7"
       }
     },
     {

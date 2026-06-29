@@ -165,7 +165,9 @@ func _initialize() -> void:
 	_test_door_opening_sheet_loads_as_directional_frames()
 	_test_combat_board_hides_outer_walls_without_hiding_visible_doors()
 	_test_combat_board_assigns_deterministic_floor_variants()
+	_test_combat_board_loads_elemental_projectile_atlas()
 	_test_combat_board_ambient_particles_follow_room_element()
+	_test_combat_board_loads_defense_heal_cast_frames()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_room_icon_library_covers_door_room_types()
@@ -204,6 +206,7 @@ func _initialize() -> void:
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
 	await _test_run_scene_campfire_choices_use_relic_overlay()
+	await _test_run_scene_campfire_choice_press_is_single_shot()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
@@ -971,37 +974,29 @@ func _test_initiative_advances_enemy_turns_until_player_reacts() -> void:
 	var state: Dictionary = combat.create_combat(15131, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["quick_stab", "brace", "patch_up"],
+		"deck_cards": ["whirlwind_slash", "dull_bolt", "patch_up"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab", "brace"]
+	deck["hand"] = ["whirlwind_slash", "dull_bolt"]
 	deck["draw"] = ["patch_up"]
 	deck["discard"] = []
 	state["deck"] = deck
-	var enemies: Array = state.get("enemies", [])
-	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
-	enemy["intent"] = {
-		"name": "Guard",
-		"time": 2,
-		"actions": [{"type": "block", "amount": 10}]
-	}
-	enemies[0] = enemy
-	state["enemies"] = enemies
 	state = combat.finish_player_card(state, 0)
-	_assert(int(state.get("player_turn_time_spent", 0)) == 2, "Played cards should add their time cost to the current player turn")
+	state = combat.finish_player_card(state, 0)
+	_assert(int(state.get("player_turn_time_spent", 0)) == 9, "Played cards should add their time costs to the current player turn")
 	var scheduled_state: Dictionary = combat.finish_player_activation(state)
 	var scheduled_order: Array[Dictionary] = combat.current_turn_order(scheduled_state, 3)
 	_assert(str(scheduled_order[0].get("kind", "")) == "enemy", "Passing should hand control to the next queued enemy before the player returns")
 	_assert(not bool(scheduled_order[0].get("active", false)), "The player should no longer remain highlighted after their activation is scheduled out")
 	_assert(str(scheduled_order[1].get("kind", "")) == "player", "The player's next slot should be scheduled from base initiative plus card time")
-	_assert(int(scheduled_order[1].get("time", 0)) == 11, "Quick, two-time cards should schedule the next player turn at initiative 11")
+	_assert(int(scheduled_order[1].get("time", 0)) == 18, "A normal two-card turn should schedule the next player turn at initiative 18")
 	var phase: Dictionary = combat.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_state: Dictionary = phase.get("state", {})
 	_assert(combat.is_player_turn(after_state), "Initiative advancement should stop once the next player turn becomes active")
-	_assert(int(after_state.get("initiative_clock", 0)) == 11, "The initiative clock should advance to the player's scheduled return")
+	_assert(int(after_state.get("initiative_clock", 0)) == 18, "The initiative clock should advance to the player's scheduled return")
 	_assert((phase.get("steps", []) as Array).size() >= 1, "Enemy turns resolved before the player should still emit animation steps")
 	var saw_turn_order_step: bool = false
 	for step_var: Variant in phase.get("steps", []):
@@ -1038,7 +1033,37 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(int(GameData.card_def("brace").get("time", 0)) == 1, "Brace should anchor the fast end of the card time scale")
 	_assert(str(fast_order[0].get("kind", "")) == "player", "A one-time card should let the player jump ahead of slow enemies")
 
-	var heavy_state: Dictionary = combat.create_combat(15135, layout, {
+	var fast_pair_layout: Dictionary = _simple_room_layout()
+	fast_pair_layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "acolyte",
+			"pos": Vector2i(5, 2),
+			"hp": 12,
+			"max_hp": 12,
+			"block": 0
+		}
+	]
+	var fast_pair_state: Dictionary = combat.create_combat(15138, fast_pair_layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab", "patch_up"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var fast_pair_deck: Dictionary = (fast_pair_state.get("deck", {}) as Dictionary).duplicate(true)
+	fast_pair_deck["hand"] = ["quick_stab", "patch_up"]
+	fast_pair_deck["draw"] = []
+	fast_pair_deck["discard"] = []
+	fast_pair_state["deck"] = fast_pair_deck
+	fast_pair_state = combat.finish_player_card(fast_pair_state, 0)
+	fast_pair_state = combat.finish_player_card(fast_pair_state, 0)
+	var fast_pair_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(fast_pair_state), 3)
+	_assert(int(fast_pair_state.get("player_turn_time_spent", 0)) == 4, "Two fast cards should spend a clearly low amount of time")
+	_assert(str(fast_pair_order[0].get("kind", "")) == "player", "Two fast cards should let the player lap slower enemies before they act")
+
+	var heavy_state: Dictionary = combat.create_combat(15135, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
 		"deck_cards": ["bloody_lunge"],
@@ -1049,26 +1074,21 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	heavy_state = combat.finish_player_card(heavy_state, 0)
 	var heavy_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(heavy_state), 3)
 	_assert(int(GameData.card_def("bloody_lunge").get("time", 0)) == 8, "Bloody Lunge should anchor the heavy end of the starter card time scale")
-	_assert(str(heavy_order[0].get("kind", "")) == "enemy", "A heavy starter card should let the slow enemy act before the player returns")
+	_assert(str(heavy_order[0].get("kind", "")) == "enemy", "A heavy starter card should let fast enemies act before the player returns")
 
 	var standard_state: Dictionary = combat.create_combat(15136, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["whirlwind_slash", "lantern_shot"],
+		"deck_cards": ["whirlwind_slash", "dull_bolt"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var standard_deck: Dictionary = (standard_state.get("deck", {}) as Dictionary).duplicate(true)
-	standard_deck["hand"] = ["whirlwind_slash", "lantern_shot"]
+	standard_deck["hand"] = ["whirlwind_slash", "dull_bolt"]
 	standard_deck["draw"] = []
 	standard_deck["discard"] = []
 	standard_state["deck"] = standard_deck
-	var standard_enemies: Array = standard_state.get("enemies", [])
-	var standard_enemy: Dictionary = (standard_enemies[0] as Dictionary).duplicate(true)
-	standard_enemy["intent"] = {"name": "Measured Claw", "time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]}
-	standard_enemies[0] = standard_enemy
-	standard_state["enemies"] = standard_enemies
 	standard_state = combat.finish_player_card(standard_state, 0)
 	standard_state = combat.finish_player_card(standard_state, 0)
 	var standard_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(standard_state), 4)
@@ -1077,30 +1097,36 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(str(standard_order[1].get("kind", "")) == "player", "A normal two-card starter turn should return before the same fast enemy laps the player")
 	_assert(str(standard_order[2].get("kind", "")) == "enemy" and bool(standard_order[2].get("projected", false)), "The fast enemy's projected follow-up should remain visible after the player's standard return")
 
-	var slow_state: Dictionary = combat.create_combat(15137, _simple_room_layout(), {
+	var slow_layout: Dictionary = _simple_room_layout()
+	slow_layout["enemies"] = [
+		{
+			"id": 1,
+			"type": "lightning_wisp",
+			"pos": Vector2i(5, 2),
+			"hp": 6,
+			"max_hp": 6,
+			"block": 0
+		}
+	]
+	var slow_state: Dictionary = combat.create_combat(15137, slow_layout, {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["bloody_lunge", "whirlwind_slash"],
+		"deck_cards": ["bloody_lunge", "grave_sprint"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var slow_deck: Dictionary = (slow_state.get("deck", {}) as Dictionary).duplicate(true)
-	slow_deck["hand"] = ["bloody_lunge", "whirlwind_slash"]
+	slow_deck["hand"] = ["bloody_lunge", "grave_sprint"]
 	slow_deck["draw"] = []
 	slow_deck["discard"] = []
 	slow_state["deck"] = slow_deck
-	var slow_enemies: Array = slow_state.get("enemies", [])
-	var slow_enemy: Dictionary = (slow_enemies[0] as Dictionary).duplicate(true)
-	slow_enemy["intent"] = {"name": "Measured Claw", "time": 4, "actions": [{"type": "melee", "damage": 3, "range": 1}]}
-	slow_enemies[0] = slow_enemy
-	slow_state["enemies"] = slow_enemies
 	slow_state = combat.finish_player_card(slow_state, 0)
 	slow_state = combat.finish_player_card(slow_state, 0)
 	var slow_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(slow_state), 4)
-	_assert(int(slow_state.get("player_turn_time_spent", 0)) == 13, "Stacking a heavy card with a normal card should create a slow turn")
+	_assert(int(slow_state.get("player_turn_time_spent", 0)) == 14, "Stacking two slow cards should create a slow turn")
 	_assert(str(slow_order[0].get("kind", "")) == "enemy", "The fast enemy should act before a slow player return")
-	_assert(str(slow_order[1].get("kind", "")) == "enemy" and bool(slow_order[1].get("projected", false)), "Slow starter turns should let fast enemies threaten a double-up")
+	_assert(str(slow_order[1].get("kind", "")) == "enemy" and bool(slow_order[1].get("projected", false)), "Slow turns should let fast enemies threaten a double-up")
 	_assert(str(slow_order[2].get("kind", "")) == "player", "The player should return after the fast enemy's projected follow-up on slow turns")
 
 func _test_agility_reduces_player_base_initiative() -> void:
@@ -1195,6 +1221,19 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
 		for magic_card_id: String in ["pale_spark", "dull_bolt", "waning_pulse"]:
 			_assert(not cards.has(magic_card_id), "Default attuned magic should stay out of combat reward offers")
+	var elemental_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity("", true)
+	var elemental_reward_ids: Array = []
+	for rarity: String in ["common", "uncommon", "rare"]:
+		for card_id_var: Variant in elemental_reward_pool.get(rarity, []):
+			elemental_reward_ids.append(str(card_id_var))
+	_assert(elemental_reward_ids.has("threaded_path"), "Threaded Path should be a live elemental speed reward")
+	_assert(GameData.card_element("threaded_path") == ElementData.AIR, "Threaded Path should be an Air reward card")
+	var elemental_reward_times: Dictionary = {}
+	for card_id_var: Variant in elemental_reward_ids:
+		var card_id: String = str(card_id_var)
+		elemental_reward_times[int(GameData.card_def(card_id).get("time", 5))] = true
+	for required_time: int in [1, 2, 3, 9, 10]:
+		_assert(bool(elemental_reward_times.get(required_time, false)), "Elemental reward pool should include a time-%d card" % required_time)
 
 func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary) -> void:
 	var engine: RunEngine = RunEngine.new()
@@ -4578,6 +4617,27 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 	)
 	board.free()
 
+func _test_combat_board_loads_elemental_projectile_atlas() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var neutral_frame: AtlasTexture = board.call("_projectile_texture", ElementData.NONE) as AtlasTexture
+	_assert(neutral_frame != null, "Combat board should load a neutral projectile atlas frame")
+	var fallback_frame: AtlasTexture = board.call("_projectile_texture", "unknown") as AtlasTexture
+	_assert(fallback_frame != null, "Unknown projectile elements should use the neutral atlas frame")
+	if neutral_frame != null and fallback_frame != null:
+		_assert(
+			is_equal_approx(fallback_frame.region.position.y, neutral_frame.region.position.y),
+			"Unknown projectile elements should fall back to the neutral atlas row"
+		)
+	var seen_rows: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		var frame: AtlasTexture = board.call("_projectile_texture", element_id) as AtlasTexture
+		_assert(frame != null, "Combat board should load projectile atlas frame for %s" % element_id)
+		if frame != null:
+			seen_rows[int(round(frame.region.position.y))] = true
+	_assert(seen_rows.size() == ElementData.all_elements().size(), "Elemental projectile atlas should provide distinct rows for every element")
+	board.free()
+
 func _test_combat_board_ambient_particles_follow_room_element() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
@@ -4607,6 +4667,17 @@ func _test_combat_board_ambient_particles_follow_room_element() -> void:
 	_assert(int(board.call("_ambient_room_seed", "fire")) != first_seed, "Ambient particle seeds should vary across rooms")
 	_assert(int(board.call("_ambient_particle_count", "ice", 72)) > int(board.call("_ambient_particle_count", "earth", 72)), "Snow rooms should carry more particles than heavier earth motes")
 	_assert(int(board.call("_ambient_particle_count", "lightning", 72)) < int(board.call("_ambient_particle_count", "fire", 72)), "Lightning rooms should stay sparser than fire after density tuning")
+	board.free()
+
+func _test_combat_board_loads_defense_heal_cast_frames() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var effect_frames: Dictionary = board.get("_effect_frames") as Dictionary
+	var frames: Array = effect_frames.get("defense_heal_casts", [])
+	_assert(frames.size() == 12, "Defense/heal cast sheet should load twelve effect frames")
+	for frame_var: Variant in frames:
+		var frame: Texture2D = frame_var as Texture2D
+		_assert(frame != null and frame.get_width() == 128 and frame.get_height() == 128, "Defense/heal cast frames should be 128px sprites")
 	board.free()
 
 func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
@@ -5766,10 +5837,18 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	instance.call("_refresh_choice_bar")
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Relic selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "CLAIM YOUR TREASURE", "Relic selection should keep the treasure prompt")
-	run_state = instance.get("_run_state")
-	var run_engine: RunEngine = instance.get("_run_engine") as RunEngine
-	instance.set("_run_state", run_engine.claim_relic(run_state, "iron_lung"))
-	instance.call("_refresh_choice_bar")
+	var relic_choice_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	var first_relic_choice: Control = null
+	if relic_choice_bar != null and relic_choice_bar.get_child_count() > 0:
+		first_relic_choice = relic_choice_bar.get_child(0) as Control
+	var sparkle_layer: Control = null
+	if first_relic_choice != null:
+		sparkle_layer = first_relic_choice.find_child("RelicChoiceSparkle", true, false) as Control
+	_assert(sparkle_layer != null and sparkle_layer.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Relic choice sparkle should not intercept relic choice clicks")
+	var source_rect: Rect2 = Rect2()
+	if first_relic_choice != null:
+		source_rect = first_relic_choice.get_global_rect()
+	await instance.call("_on_relic_pressed", "iron_lung", source_rect)
 	await process_frame
 	_assert(prompt_overlay != null and not prompt_overlay.visible, "Relic prompt should clear after picking a relic")
 	_assert(prompt_title != null and not prompt_title.visible, "Relic title should hide after picking a relic")
@@ -5874,6 +5953,12 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		disabled_strength_panel = relic_bar.get_child(2) as Control
 	_assert(disabled_strength_panel != null and not bool(disabled_strength_panel.get_meta("choice_enabled", true)), "Campfire level-up panel should be marked disabled when held embers are short")
+	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
+	_assert(linger_panel != null and linger_panel.find_child("CampfireChoiceInnerGlow", true, false) is PanelContainer, "Campfire choices should include a subtle inner firelight glow")
+	if linger_panel != null:
+		instance.call("_show_campfire_choice_feedback_pulse", linger_panel, Color("efb35f"))
+		await process_frame
+		_assert(linger_panel.find_child("CampfireChoicePressPulse", true, false) is PanelContainer, "Campfire choices should show a press feedback pulse")
 	var loaded_icon_count: int = 0
 	for texture_rect: TextureRect in _texture_rects_under(relic_overlay):
 		if texture_rect.texture != null:
@@ -5895,6 +5980,44 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		enabled_strength_panel = relic_bar.get_child(2) as Control
 	_assert(enabled_strength_panel != null and bool(enabled_strength_panel.get_meta("choice_enabled", false)), "Campfire level-up panel should be enabled when held embers meet the cost")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for campfire input coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "campfire"
+	run_state["progression"] = ProgressionStore.default_data()
+	run_state["held_embers"] = 0
+	run_state["unbanked_embers"] = 0
+	run_state["player_hp"] = 100
+	run_state["player_max_hp"] = 360
+	instance.set("_run_state", run_state)
+	instance.set("_progression", ProgressionStore.default_data())
+	instance.call("_refresh_choice_bar")
+	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
+	_assert(linger_panel != null, "Campfire single-shot test should expose the linger panel")
+	if linger_panel == null:
+		instance.queue_free()
+		await process_frame
+		return
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	instance.call("_on_campfire_choice_gui_input", click, "linger", linger_panel, Color("efb35f"))
+	instance.call("_on_campfire_choice_gui_input", click, "linger", linger_panel, Color("efb35f"))
+	await create_timer(0.14).timeout
+	await process_frame
+	var next_state: Dictionary = instance.get("_run_state")
+	_assert(str(next_state.get("mode", "")) == "room", "Campfire linger press should still leave campfire mode")
+	_assert(int(next_state.get("player_hp", 0)) == 200, "Rapid duplicate linger presses should heal only once")
 	instance.queue_free()
 	await process_frame
 
@@ -5924,6 +6047,7 @@ func _test_run_scene_campfire_bonfire_persists_after_leave() -> void:
 			found_bonfire = true
 			break
 	_assert(found_bonfire, "Campfire bonfire should stay on the board after leaving the campfire choice mode")
+	_assert(bool(board_view.call("_campfire_atmosphere_active")), "Campfire bonfire should enable board firelight atmosphere")
 	var idle_frames: Array = board_view.call("_scene_prop_idle_frames_for_kind", "campfire_bonfire")
 	_assert(idle_frames.size() == 16, "Campfire bonfire should load the full 4x4 idle animation sheet")
 	var first_frame: AtlasTexture = null
@@ -6690,6 +6814,16 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	instance.call("_render_board_state", animated_state, moving_presentation)
 	instance.call("_on_turn_order_enemy_unhovered", Vector2i(5, 2), "enemy_1")
 	_assert_board_kept_animating_enemy(board_view, destination_tile, "Turn order unhover during animation lock")
+	var preview_state: Dictionary = combat_state.duplicate(true)
+	var preview_player: Dictionary = (preview_state.get("player", {}) as Dictionary).duplicate(true)
+	var preview_destination_tile := Vector2i(3, 4)
+	preview_player["pos"] = preview_destination_tile
+	preview_state["player"] = preview_player
+	instance.set("_preview_combat_state", preview_state)
+	instance.call("_refresh_stage_view")
+	var rendered_state: Dictionary = board_view.get("combat_state")
+	var rendered_player: Dictionary = rendered_state.get("player", {})
+	_assert(rendered_player.get("pos", Vector2i.ZERO) == (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "Animation-locked stage refresh should not draw the resolved player preview before the move animation starts")
 	instance.queue_free()
 	await process_frame
 

@@ -105,7 +105,7 @@ class HeuristicWeights:
     illusion_move_synergy: float = 0.30
     illusion_before_move_synergy: float = 0.25
     baseline_card_time: float = 5.0
-    # Calibrated against early enemy repeat cycles of roughly 11-20 initiative.
+    # Calibrated against early enemy first/repeat cycles of roughly 11-20 initiative.
     time_delta_value: float = 0.45
 
 
