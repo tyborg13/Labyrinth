@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-29T14:30:11Z",
+  "updated_at": "2026-06-29T14:53:29Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4305,6 +4305,28 @@
       "source": {
         "branch": "codex/campfire-bonfire-room-polish",
         "commit": "ff92ea8"
+      }
+    },
+    {
+      "id": "mnt_20260629T145329Z_5204e26d",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Campfire motes should taper upward from the fire bed",
+      "details": "For campfire ember motes, avoid an inverted-triangle plume where every spark starts at one center point and spreads outward. Prefer a slightly wider source across the bonfire sprite, with edge sparks fading sooner and central sparks rising a bit higher so the plume reads as a subtle right-side-up taper without becoming exaggerated.",
+      "status": "active",
+      "created_at": "2026-06-29T14:53:29Z",
+      "updated_at": "2026-06-29T14:53:29Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/campfire-bonfire-room-polish",
+        "commit": "befe0c7"
       }
     }
   ]

@@ -120,9 +120,9 @@ const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
 const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
 const CAMPFIRE_FIRELIGHT_BLOOM_ALPHA: float = 0.42
 const CAMPFIRE_FIRELIGHT_CORE_ALPHA: float = 0.34
-const CAMPFIRE_EMBER_MOTE_COUNT: int = 56
-const CAMPFIRE_EMBER_MOTE_ALPHA: float = 1.42
-const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.86
+const CAMPFIRE_EMBER_MOTE_COUNT: int = 46
+const CAMPFIRE_EMBER_MOTE_ALPHA: float = 1.30
+const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.78
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
@@ -510,11 +510,17 @@ func _draw_campfire_ember_motes() -> void:
 			var seed: int = source_seed + index * 1759
 			var speed: float = lerpf(0.18, 0.34, _ambient_hash01(seed + 13))
 			var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
-			var alpha: float = pow(clampf(sin(cycle * PI), 0.0, 1.0), 0.68) * CAMPFIRE_EMBER_MOTE_ALPHA
+			var center_bias: float = _campfire_ember_center_bias(seed)
+			var edge_lifetime: float = lerpf(0.54, 1.0, pow(center_bias, 0.72))
+			if cycle > edge_lifetime:
+				continue
+			var lifetime_cycle: float = cycle / edge_lifetime
+			var alpha: float = pow(clampf(sin(lifetime_cycle * PI), 0.0, 1.0), 0.72) * CAMPFIRE_EMBER_MOTE_ALPHA
+			alpha *= lerpf(0.62, 1.0, center_bias)
 			if alpha <= 0.04:
 				continue
 			var point: Vector2 = _campfire_ember_mote_point(source_point, seed, cycle, time_seconds)
-			var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta("fire"), 0.0, 1.0)
+			var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire"))
 			var previous_point: Vector2 = _campfire_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.12)
 			var velocity: Vector2 = point - previous_point
 			var draw_width: float = _tile_width() * lerpf(0.060, 0.122, _ambient_hash01(seed + 37))
@@ -538,12 +544,21 @@ func _draw_campfire_ember_motes() -> void:
 
 func _campfire_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float) -> Vector2:
 	var tile_width: float = _tile_width()
-	var spread: float = lerpf(0.08, 0.52, pow(cycle, 0.76)) * tile_width
-	var lateral: float = lerpf(-1.0, 1.0, _ambient_hash01(seed + 23)) * spread
-	var sway: float = sin(time_seconds * lerpf(1.1, 2.5, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.025, 0.145, cycle)
-	var rise: float = pow(cycle, 0.72) * tile_width * CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE
+	var base_lateral: float = _campfire_ember_base_lateral(seed)
+	var center_bias: float = 1.0 - absf(base_lateral)
+	var plume_width: float = lerpf(0.52, 0.10, pow(cycle, 0.62)) * tile_width
+	var lateral: float = base_lateral * plume_width
+	var sway: float = sin(time_seconds * lerpf(1.1, 2.5, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.020, 0.105, cycle)
+	var height_scale: float = lerpf(0.50, 1.08, pow(center_bias, 0.70))
+	var rise: float = pow(cycle, 0.72) * tile_width * CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE * height_scale
 	var chimney_pull: float = sin(cycle * TAU + _ambient_hash01(seed + 33) * TAU) * tile_width * 0.035
 	return source_point + Vector2(lateral + sway + chimney_pull, _tile_height() * 0.18 - rise)
+
+func _campfire_ember_base_lateral(seed: int) -> float:
+	return lerpf(-1.0, 1.0, _ambient_hash01(seed + 23))
+
+func _campfire_ember_center_bias(seed: int) -> float:
+	return 1.0 - absf(_campfire_ember_base_lateral(seed))
 
 func _campfire_prop_draw_rect(prop: Dictionary) -> Rect2:
 	var texture: Texture2D = _texture_for_scene_prop(prop)
