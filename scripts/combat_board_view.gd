@@ -2712,25 +2712,50 @@ func _draw_effect_overlay() -> void:
 			_draw_stoneskin_cast_effect(stoneskin_tile, progress)
 
 func _draw_block_cast_effect(tile: Vector2i, progress: float) -> void:
-	_draw_cast_effect_sequence("block", tile, progress, -0.36, 1.06)
+	_draw_cast_icon_effect("block", tile, progress, -0.30, 0.50)
 
 func _draw_heal_cast_effect(tile: Vector2i, progress: float) -> void:
-	_draw_cast_effect_sequence("heal", tile, progress, -0.32, 1.08)
+	var normalized_progress: float = clampf(progress, 0.0, 1.0)
+	var tile_width: float = _tile_width()
+	var base: Vector2 = _tile_center(tile) + Vector2(0.0, -tile_width * 0.08)
+	var plus_offsets := [
+		Vector2(-0.18, 0.02),
+		Vector2(0.14, -0.02),
+		Vector2(-0.03, 0.08),
+		Vector2(0.24, 0.05),
+		Vector2(-0.26, 0.09)
+	]
+	for index: int in range(plus_offsets.size()):
+		var local_progress: float = clampf(normalized_progress * 1.30 - float(index) * 0.12, 0.0, 1.0)
+		if local_progress <= 0.0 or local_progress >= 1.0:
+			continue
+		var texture: Texture2D = _defense_heal_cast_frame(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + (index % DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))
+		if texture == null:
+			continue
+		var fade: float = clampf(sin(local_progress * PI) * 1.08, 0.0, 1.0)
+		var rise: float = tile_width * lerpf(0.03, 0.34, local_progress)
+		var drift: Vector2 = plus_offsets[index]
+		var point: Vector2 = base + Vector2(tile_width * drift.x, tile_width * drift.y - rise)
+		var size: float = tile_width * (0.20 + 0.025 * sin(float(index) * 1.7))
+		_draw_ambient_particle_sprite(texture, point, Vector2.ONE * size, 0.0, fade)
 
 func _draw_stoneskin_cast_effect(tile: Vector2i, progress: float) -> void:
-	_draw_cast_effect_sequence("stoneskin", tile, progress, -0.24, 1.10)
+	_draw_cast_icon_effect("stoneskin", tile, progress, -0.26, 0.56)
 
-func _draw_cast_effect_sequence(effect_id: String, tile: Vector2i, progress: float, y_offset_scale: float, size_scale: float) -> void:
+func _draw_cast_icon_effect(effect_id: String, tile: Vector2i, progress: float, y_offset_scale: float, size_scale: float) -> void:
 	var frame_index: int = _cast_effect_frame_index(effect_id, progress)
 	var texture: Texture2D = _defense_heal_cast_frame(frame_index)
 	if texture == null:
 		return
 	var normalized_progress: float = clampf(progress, 0.0, 1.0)
-	var ease: float = clampf(sin(normalized_progress * PI), 0.0, 1.0)
-	var alpha: float = clampf(0.16 + ease * 0.94, 0.0, 1.0)
+	var fade_in: float = clampf(normalized_progress / 0.18, 0.0, 1.0)
+	var fade_out: float = clampf((1.0 - normalized_progress) / 0.24, 0.0, 1.0)
+	var alpha: float = minf(fade_in, fade_out)
+	var pop: float = 1.0 - pow(1.0 - fade_in, 2.0)
+	var settle: float = 1.0 + 0.06 * sin(normalized_progress * PI)
 	var tile_width: float = _tile_width()
 	var center: Vector2 = _tile_center(tile) + Vector2(0.0, tile_width * y_offset_scale)
-	var draw_size: Vector2 = Vector2.ONE * tile_width * size_scale * (0.96 + ease * 0.08)
+	var draw_size: Vector2 = Vector2.ONE * tile_width * size_scale * lerpf(0.72, 1.0, pop) * settle
 	_draw_ambient_particle_sprite(texture, center, draw_size, 0.0, alpha)
 
 func _cast_effect_frame_index(effect_id: String, progress: float) -> int:
