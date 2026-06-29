@@ -301,6 +301,7 @@ class RelicChoiceSparkleLayer:
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_contents = true
 		set_process(true)
 
 	func _ready() -> void:
@@ -351,9 +352,10 @@ class RelicChoiceSparkleLayer:
 		if size.x <= 0.0 or size.y <= 0.0:
 			return
 		var icon_center := Vector2(size.x * 0.5, size.y * 0.34)
-		var halo_size := Vector2(size.x * 0.96, size.y * 0.86)
+		var halo_inset := Vector2(12.0, 12.0)
+		var halo_size := size + halo_inset * 2.0
 		_halo.size = halo_size
-		_halo.position = Vector2(size.x * 0.5, size.y * 0.46) - halo_size * 0.5
+		_halo.position = -halo_inset
 		_halo.pivot_offset = halo_size * 0.5
 		_halo.visible = halo_texture != null
 
@@ -386,7 +388,7 @@ class RelicChoiceSparkleLayer:
 		_ensure_texture_nodes()
 		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.25)
 		_halo.rotation = sin(phase * 0.34) * 0.035
-		_halo.scale = Vector2.ONE * (0.98 + 0.035 * shimmer)
+		_halo.scale = Vector2.ONE * (1.0 + 0.018 * shimmer)
 		_halo.modulate = _accent_modulate(0.76 + 0.18 * shimmer)
 		var glint_delays := [0.0, 0.18, 0.34, 0.51, 0.67, 0.82, 0.94]
 		for index: int in range(_glints.size()):
