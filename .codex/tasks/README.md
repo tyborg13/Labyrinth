@@ -9,6 +9,14 @@ This directory holds the repo-local scaffolding for autonomous Labyrinth work.
 
 The queue is deliberately plain JSON so scouts, orchestrators, and worker threads can inspect and repair state without a background service.
 
+For a local Jira-style visual board of live queue state, run:
+
+```bash
+python3 tools/labyrinth_task_queue.py board
+```
+
+The board reads the same primary-worktree queue root as the CLI, includes archived terminal tasks by default, and auto-refreshes while the server is running. Use `--once-json` for a quick machine-readable snapshot without starting the browser server.
+
 Worker Godot commands should go through the task-local wrapper so parallel runs do not share `user://` state:
 
 ```bash

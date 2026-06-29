@@ -609,6 +609,12 @@ def command_landed(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_board(args: argparse.Namespace) -> int:
+    import labyrinth_queue_board
+
+    return labyrinth_queue_board.serve(args)
+
+
 def add_common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--repo", default=".", help="Repository/worktree path used to locate the default queue.")
     parser.add_argument("--queue-root", default="", help="Queue root. Defaults to primary worktree .codex/tasks.")
@@ -702,6 +708,14 @@ def build_parser() -> argparse.ArgumentParser:
     landed.add_argument("--note", default="")
     landed.add_argument("--archive", action="store_true")
     landed.set_defaults(func=command_landed)
+
+    board = sub.add_parser("board", help="Serve a local browser board for the queue.")
+    board.add_argument("--host", default="127.0.0.1", help="Host interface for the local board.")
+    board.add_argument("--port", type=int, default=8765, help="Port for the local board. Use 0 for an ephemeral port.")
+    board.add_argument("--stale-hours", type=float, default=12.0, help="Active task heartbeat age considered stale.")
+    board.add_argument("--no-archive", action="store_true", help="Hide archived terminal task files.")
+    board.add_argument("--once-json", action="store_true", help="Print the board snapshot JSON and exit.")
+    board.set_defaults(func=command_board)
 
     return parser
 
