@@ -5429,6 +5429,11 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	var preview_units: Array = _preview_units_for_action(preview)
 	if not preview_units.is_empty():
 		result["preview_units"] = preview_units
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		var movement_risk_chips: Array = _shortcut_movement_risk_chips(shortcut_plan)
+		if not movement_risk_chips.is_empty():
+			result["movement_risk_chips"] = movement_risk_chips
 	return result
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
@@ -5636,7 +5641,8 @@ func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
 		var after_move_state: Dictionary = _combat_engine.apply_player_action(preview_state, action, move_target)
 		var path_tiles: Array[Vector2i] = _vector2i_array([move_target]) if action_type == "blink" else _combat_engine.path_for_player_action(preview_state, action, move_target)
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles)
+		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles, movement_risk_chips)
 	if bool(preview.get("skip_allowed", false)):
 		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [])
 	var tiles: Array[Vector2i] = []
@@ -5648,7 +5654,7 @@ func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
 		"tiles": tiles
 	}
 
-func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i]) -> void:
+func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i], movement_risk_chips: Array = []) -> void:
 	var followup: Dictionary = _next_shortcut_attack_step(base_state, actions, action_index + 1)
 	if followup.is_empty():
 		return
@@ -5674,9 +5680,143 @@ func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions:
 			"move_tile": move_tile,
 			"move_distance": move_distance,
 			"path_tiles": path_tiles.duplicate(),
+			"movement_risk_chips": movement_risk_chips.duplicate(true),
 			"action_index": followup_index,
 			"action": followup_action.duplicate(true)
 		}
+
+func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
+	var chips: Array = []
+	for chip_var: Variant in shortcut_plan.get("movement_risk_chips", []):
+		if typeof(chip_var) == TYPE_DICTIONARY:
+			chips.append((chip_var as Dictionary).duplicate(true))
+	return chips
+
+func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+	var chips: Array = []
+	var triggered_traps: Array = _movement_triggered_traps_between(before_state, after_state)
+	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
+	var risk_tile: Vector2i = _movement_risk_chip_tile(path_tiles, triggered_traps)
+	if not triggered_traps.is_empty():
+		chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
+	for loot: Dictionary in picked_loot:
+		var pickup_chip: Dictionary = _movement_pickup_chip(loot)
+		if not pickup_chip.is_empty():
+			chips.append(pickup_chip)
+	return chips
+
+func _movement_player_delta_chips(before_state: Dictionary, after_state: Dictionary, tile: Vector2i) -> Array:
+	var chips: Array = []
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var hp_loss: int = maxi(0, int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)))
+	if hp_loss > 0:
+		chips.append({"tile": tile, "label": "-%d HP" % hp_loss, "kind": "danger"})
+	var block_loss: int = maxi(0, int(before_player.get("block", 0)) - int(after_player.get("block", 0)))
+	if block_loss > 0:
+		chips.append({"tile": tile, "label": "-%d Block" % block_loss, "kind": "danger"})
+	var stoneskin_loss: int = maxi(0, int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)))
+	if stoneskin_loss > 0:
+		chips.append({"tile": tile, "label": "-%d Guard" % stoneskin_loss, "kind": "danger"})
+	for label: String in _movement_status_delta_labels(before_state, after_state):
+		chips.append({"tile": tile, "label": label, "kind": "status"})
+	return chips
+
+func _movement_status_delta_labels(before_state: Dictionary, after_state: Dictionary) -> PackedStringArray:
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var labels := PackedStringArray()
+	var seen: Dictionary = {}
+	for key: String in ["burn", "freeze", "shock"]:
+		if int(after_player.get(key, 0)) > int(before_player.get(key, 0)):
+			var label: String = key.capitalize()
+			labels.append(label)
+			seen[label] = true
+	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
+		labels.append("Immobilize")
+		seen["Immobilize"] = true
+	var before_poison: Dictionary = before_player.get("poison", {})
+	var after_poison: Dictionary = after_player.get("poison", {})
+	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
+		labels.append("Poison")
+		seen["Poison"] = true
+	var pending_label: String = str(after_state.get("pending_player_trap_restriction", "")).capitalize()
+	if not pending_label.is_empty() and str(after_state.get("pending_player_trap_restriction", "")) != str(before_state.get("pending_player_trap_restriction", "")) and not seen.has(pending_label):
+		labels.append(pending_label)
+	return labels
+
+func _movement_pickup_chip(loot: Dictionary) -> Dictionary:
+	var tile: Vector2i = loot.get("pos", INVALID_TARGET_TILE)
+	if tile.x < 0:
+		return {}
+	var amount: int = int(loot.get("amount", 0))
+	var label: String = "Pickup"
+	match str(loot.get("kind", "")):
+		"healing_vial":
+			label = "+%d HP" % amount
+		"rusty_shield":
+			label = "+%d Block" % amount
+		"dropped_embers":
+			label = "+%d Embers" % amount
+		"equipment":
+			label = "Gear"
+	return {"tile": tile, "label": label, "kind": "pickup"}
+
+func _movement_risk_chip_tile(path_tiles: Array[Vector2i], triggered_traps: Array) -> Vector2i:
+	for trap: Dictionary in triggered_traps:
+		var trap_tile: Vector2i = trap.get("pos", INVALID_TARGET_TILE)
+		if trap_tile.x >= 0:
+			return trap_tile
+	if not path_tiles.is_empty():
+		return path_tiles[path_tiles.size() - 1]
+	return INVALID_TARGET_TILE
+
+func _movement_triggered_traps_between(before_state: Dictionary, after_state: Dictionary) -> Array:
+	var after_traps: Dictionary = {}
+	for trap_var: Variant in after_state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY:
+			after_traps[_movement_trap_key(trap_var as Dictionary)] = true
+	var triggered: Array = []
+	for trap_var: Variant in before_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if not after_traps.has(_movement_trap_key(trap)):
+			triggered.append(trap.duplicate(true))
+	return triggered
+
+func _movement_picked_loot_between(before_state: Dictionary, after_state: Dictionary) -> Array:
+	var after_claimed: Dictionary = {}
+	for loot_var: Variant in after_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var after_loot: Dictionary = loot_var
+		if bool(after_loot.get("claimed", false)):
+			after_claimed[_movement_loot_key(after_loot)] = true
+	var picked: Array = []
+	for loot_var: Variant in before_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var before_loot: Dictionary = loot_var
+		if bool(before_loot.get("claimed", false)):
+			continue
+		if after_claimed.has(_movement_loot_key(before_loot)):
+			picked.append(before_loot.duplicate(true))
+	return picked
+
+func _movement_trap_key(trap: Dictionary) -> String:
+	var trap_id: String = str(trap.get("id", ""))
+	if not trap_id.is_empty():
+		return trap_id
+	var pos: Vector2i = trap.get("pos", Vector2i.ZERO)
+	return "%s:%d:%d" % [str(trap.get("element", "")), pos.x, pos.y]
+
+func _movement_loot_key(loot: Dictionary) -> String:
+	var loot_id: String = str(loot.get("id", ""))
+	if not loot_id.is_empty():
+		return loot_id
+	var pos: Vector2i = loot.get("pos", Vector2i.ZERO)
+	return "%s:%d:%d" % [str(loot.get("kind", "")), pos.x, pos.y]
 
 func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index: int) -> Dictionary:
 	var working_state: Dictionary = state.duplicate(true)
