@@ -160,6 +160,13 @@ def read_tasks(queue_root: Path, *, include_archive: bool) -> tuple[list[dict[st
     return tasks, errors
 
 
+def include_archive_from_query(query: dict[str, list[str]], *, default: bool) -> bool:
+    raw = query.get("include_archive")
+    if not raw:
+        return default
+    return raw[0] not in {"0", "false", "False"}
+
+
 def lane_for_status(status: Any) -> str:
     return LANE_BY_STATUS.get(str(status or ""), "backlog")
 
@@ -918,7 +925,7 @@ BOARD_HTML = """<!doctype html>
     };
 
     const terminalStatuses = new Set(["done", "blocked", "rejected", "abandoned"]);
-    const activeStatuses = new Set(["leased", "in_progress", "implementation_review", "ready_for_user", "approved_to_land"]);
+    const activeStatuses = new Set(["leased", "in_progress"]);
     const reviewStatuses = new Set(["implementation_review", "ready_for_user", "approved_to_land"]);
 
     function el(tag, className, text) {
@@ -1156,7 +1163,7 @@ class QueueBoardHandler(BaseHTTPRequestHandler):
             return
         if parsed.path in {"/api/queue", "/api/tasks"}:
             query = parse_qs(parsed.query)
-            include_archive = query.get("include_archive", ["1"])[0] not in {"0", "false", "False"}
+            include_archive = include_archive_from_query(query, default=self.server.include_archive)
             snapshot = build_board_snapshot(
                 repo=self.server.repo,
                 queue_root=self.server.queue_root,
@@ -1193,14 +1200,32 @@ class QueueBoardHandler(BaseHTTPRequestHandler):
 class QueueBoardServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
-    def __init__(self, server_address: tuple[str, int], handler_class: type[BaseHTTPRequestHandler], *, repo: Path, queue_root: Path | None, stale_hours: float) -> None:
+    def __init__(
+        self,
+        server_address: tuple[str, int],
+        handler_class: type[BaseHTTPRequestHandler],
+        *,
+        repo: Path,
+        queue_root: Path | None,
+        include_archive: bool,
+        stale_hours: float,
+    ) -> None:
         super().__init__(server_address, handler_class)
         self.repo = repo
         self.queue_root = queue_root
+        self.include_archive = include_archive
         self.stale_hours = stale_hours
 
 
-def create_server(*, host: str, port: int, repo: Path, queue_root: Path | None, stale_hours: float) -> QueueBoardServer:
+def create_server(
+    *,
+    host: str,
+    port: int,
+    repo: Path,
+    queue_root: Path | None,
+    include_archive: bool,
+    stale_hours: float,
+) -> QueueBoardServer:
     ports = [port] if port == 0 else list(range(port, port + 20))
     last_error: OSError | None = None
     for candidate in ports:
@@ -1210,6 +1235,7 @@ def create_server(*, host: str, port: int, repo: Path, queue_root: Path | None, 
                 QueueBoardHandler,
                 repo=repo,
                 queue_root=queue_root,
+                include_archive=include_archive,
                 stale_hours=stale_hours,
             )
         except OSError as exc:
@@ -1238,6 +1264,7 @@ def serve(args: argparse.Namespace) -> int:
         port=args.port,
         repo=repo,
         queue_root=queue_root,
+        include_archive=not args.no_archive,
         stale_hours=args.stale_hours,
     )
     host, port = server.server_address[:2]

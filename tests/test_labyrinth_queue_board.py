@@ -117,6 +117,27 @@ class LabyrinthQueueBoardTests(unittest.TestCase):
         self.assertEqual(len(snapshot["errors"]), 1)
         self.assertIn("bad.json", snapshot["errors"][0]["path"])
 
+    def test_archive_inclusion_can_be_disabled(self) -> None:
+        self.write_task("queue", make_task("ready-work", "ready"))
+        self.write_task("archive", make_task("done-work", "done"))
+
+        snapshot = queue_board.build_board_snapshot(
+            repo=ROOT,
+            queue_root=self.queue_root,
+            include_archive=False,
+        )
+
+        lanes = {lane["id"]: lane for lane in snapshot["lanes"]}
+        self.assertEqual(snapshot["counts"]["total"], 1)
+        self.assertEqual(snapshot["counts"]["archived"], 0)
+        self.assertEqual(lanes["terminal"]["tasks"], [])
+
+    def test_api_archive_query_uses_server_default(self) -> None:
+        self.assertFalse(queue_board.include_archive_from_query({}, default=False))
+        self.assertTrue(queue_board.include_archive_from_query({}, default=True))
+        self.assertFalse(queue_board.include_archive_from_query({"include_archive": ["0"]}, default=True))
+        self.assertTrue(queue_board.include_archive_from_query({"include_archive": ["1"]}, default=False))
+
 
 if __name__ == "__main__":
     unittest.main()
