@@ -275,6 +275,224 @@ class FatigueEdgeOverlay:
 		draw_polyline(points, glow_color, 4.0, true)
 		draw_polyline(points, line_color, 1.2, true)
 
+class RelicChoiceSparkleLayer:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var phase: float = 0.0
+	var halo_texture: Texture2D = null:
+		set(value):
+			halo_texture = value
+			if _halo != null:
+				_halo.texture = halo_texture
+	var glint_texture: Texture2D = null:
+		set(value):
+			glint_texture = value
+			for glint_var: Variant in _glints:
+				var glint: TextureRect = glint_var
+				glint.texture = glint_texture
+			for dust_var: Variant in _dust:
+				var dust: TextureRect = dust_var
+				dust.texture = glint_texture
+
+	var _halo: TextureRect = null
+	var _glints: Array = []
+	var _dust: Array = []
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_contents = true
+		set_process(true)
+
+	func _ready() -> void:
+		_ensure_texture_nodes()
+		_layout_texture_nodes()
+		_animate_texture_nodes()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			_layout_texture_nodes()
+
+	func _process(delta: float) -> void:
+		phase = wrapf(phase + delta, 0.0, 3600.0)
+		_animate_texture_nodes()
+
+	func _ensure_texture_nodes() -> void:
+		if _halo == null:
+			_halo = TextureRect.new()
+			_halo.name = "RelicChoiceRuneHalo"
+			_configure_texture_rect(_halo)
+			_halo.texture = halo_texture
+			_halo.z_index = 0
+			add_child(_halo)
+		while _glints.size() < 9:
+			var glint := TextureRect.new()
+			glint.name = "RelicChoiceGlint%d" % _glints.size()
+			_configure_texture_rect(glint)
+			glint.texture = glint_texture
+			glint.z_index = 1
+			_glints.append(glint)
+			add_child(glint)
+		while _dust.size() < 16:
+			var dust := TextureRect.new()
+			dust.name = "RelicChoiceDust%d" % _dust.size()
+			_configure_texture_rect(dust)
+			dust.texture = glint_texture
+			dust.z_index = 1
+			_dust.append(dust)
+			add_child(dust)
+
+	func _configure_texture_rect(rect: TextureRect) -> void:
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_SCALE
+
+	func _layout_texture_nodes() -> void:
+		_ensure_texture_nodes()
+		if size.x <= 0.0 or size.y <= 0.0:
+			return
+		var icon_center := Vector2(size.x * 0.5, size.y * 0.34)
+		var halo_inset := Vector2(12.0, 12.0)
+		var halo_size := size + halo_inset * 2.0
+		_halo.size = halo_size
+		_halo.position = -halo_inset
+		_halo.pivot_offset = halo_size * 0.5
+		_halo.visible = halo_texture != null
+
+		var glint_layout: Array = [
+			{"pos": Vector2(27.0, 26.0), "size": 34.0},
+			{"pos": Vector2(size.x - 30.0, 29.0), "size": 32.0},
+			{"pos": Vector2(size.x * 0.50, 22.0), "size": 28.0},
+			{"pos": Vector2(size.x * 0.25, 88.0), "size": 27.0},
+			{"pos": Vector2(size.x * 0.76, 86.0), "size": 30.0},
+			{"pos": Vector2(37.0, size.y - 40.0), "size": 26.0},
+			{"pos": Vector2(size.x - 40.0, size.y - 42.0), "size": 30.0},
+			{"pos": Vector2(size.x * 0.50, size.y - 24.0), "size": 24.0},
+			{"pos": Vector2(size.x * 0.82, size.y - 76.0), "size": 22.0}
+		]
+		for index: int in range(_glints.size()):
+			var glint: TextureRect = _glints[index]
+			var entry: Dictionary = glint_layout[index]
+			var glint_size := Vector2.ONE * float(entry.get("size", 40.0))
+			glint.size = glint_size
+			glint.position = (entry.get("pos", Vector2.ZERO) as Vector2) - glint_size * 0.5
+			glint.pivot_offset = glint_size * 0.5
+			glint.visible = glint_texture != null
+
+		for index: int in range(_dust.size()):
+			var dust: TextureRect = _dust[index]
+			var dust_size: float = 12.0 + float(index % 4) * 2.5
+			dust.size = Vector2.ONE * dust_size
+			dust.pivot_offset = dust.size * 0.5
+			dust.visible = glint_texture != null
+
+	func _animate_texture_nodes() -> void:
+		_ensure_texture_nodes()
+		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.25)
+		_halo.rotation = sin(phase * 0.34) * 0.035
+		_halo.scale = Vector2.ONE * (1.0 + 0.018 * shimmer)
+		_halo.modulate = _accent_modulate(0.76 + 0.18 * shimmer)
+		var glint_delays := [0.0, 0.18, 0.34, 0.51, 0.67, 0.82, 0.94, 0.27, 0.73]
+		for index: int in range(_glints.size()):
+			var glint: TextureRect = _glints[index]
+			var pulse: float = 0.5 + 0.5 * sin(phase * 3.0 + float(glint_delays[index]) * TAU)
+			glint.rotation = sin(phase * 0.72 + float(index)) * 0.22
+			glint.scale = Vector2.ONE * (0.72 + 0.58 * pulse)
+			glint.modulate = _accent_modulate(0.22 + 0.70 * pow(pulse, 2.0))
+		var center := Vector2(size.x * 0.5, size.y * 0.50)
+		for index: int in range(_dust.size()):
+			var dust: TextureRect = _dust[index]
+			var angle: float = phase * (0.13 + float(index % 4) * 0.028) + float(index) * TAU / float(_dust.size())
+			var radius := Vector2(size.x * (0.40 + 0.025 * float(index % 2)), size.y * (0.41 + 0.018 * float((index + 1) % 2)))
+			var offset := Vector2(cos(angle) * radius.x, sin(angle * 0.86) * radius.y)
+			var drift: float = 0.5 + 0.5 * sin(phase * 1.55 + float(index) * 1.7)
+			dust.position = center + offset - dust.size * 0.5
+			dust.rotation = angle
+			dust.scale = Vector2.ONE * (0.48 + 0.42 * drift)
+			dust.modulate = _accent_modulate(0.12 + 0.30 * drift)
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(0.92 + accent.r * 0.10, 0.0, 1.0),
+			clampf(0.82 + accent.g * 0.14, 0.0, 1.0),
+			clampf(0.56 + accent.b * 0.16, 0.0, 1.0),
+			alpha
+		)
+
+class RelicAcquisitionBeam:
+	extends TextureRect
+
+	var start: Vector2 = Vector2.ZERO:
+		set(value):
+			start = value
+			_sync_layout()
+	var target: Vector2 = Vector2.ZERO:
+		set(value):
+			target = value
+			_sync_layout()
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			self_modulate = _accent_modulate(1.0)
+	var progress: float = 0.0:
+		set(value):
+			progress = clampf(value, 0.0, 1.0)
+			_sync_layout()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_SCALE
+		self_modulate = _accent_modulate(1.0)
+
+	func _sync_layout() -> void:
+		if progress <= 0.0:
+			visible = false
+			return
+		var t: float = clampf(progress, 0.0, 1.0)
+		var lead: Vector2 = start.lerp(target, t)
+		var delta: Vector2 = lead - start
+		var length: float = delta.length()
+		if length <= 2.0:
+			visible = false
+			return
+		var beam_height: float = 24.0 + 8.0 * sin(t * PI)
+		size = Vector2(length, beam_height)
+		pivot_offset = Vector2(0.0, beam_height * 0.5)
+		position = start - pivot_offset
+		rotation = delta.angle()
+		visible = texture != null
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(accent.r * 1.10, 0.0, 1.0),
+			clampf(accent.g * 1.06, 0.0, 1.0),
+			clampf(accent.b * 1.02, 0.0, 1.0),
+			alpha
+		)
+
+class RelicAcquisitionMote:
+	extends TextureRect
+
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			self_modulate = _accent_modulate(1.0)
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		self_modulate = _accent_modulate(1.0)
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(accent.r * 1.14, 0.0, 1.0),
+			clampf(accent.g * 1.10, 0.0, 1.0),
+			clampf(accent.b * 1.04, 0.0, 1.0),
+			alpha
+		)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -289,6 +507,7 @@ const DOOR_OPENING_FRAME_SECONDS: float = 0.075
 const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
 const FLOAT_TEXT_FRAMES: int = 7
 const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
+const IMPACT_DECAL_MAX_TILES: int = 7
 const FATIGUE_EFFECT_FRAMES: int = 9
 const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
 const FATIGUE_EDGE_LINGER_FRAMES: int = 3
@@ -363,6 +582,12 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
+const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
+const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
+const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
+const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
+const RELIC_ACQUISITION_SECONDS: float = 0.38
+const RELIC_ACQUISITION_MOTES: int = 8
 const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
@@ -499,6 +724,7 @@ var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
 var _campfire_choice_action_pending: bool = false
+var _relic_claim_in_progress: bool = false
 var _terminal_overlay: Control
 var _terminal_panel: PanelContainer
 var _terminal_title_label: Label
@@ -3623,16 +3849,20 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.set_meta("relic_id", relic_id)
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
-	panel.gui_input.connect(_on_relic_choice_gui_input.bind(relic_id))
+	panel.gui_input.connect(_on_relic_choice_gui_input.bind(panel, relic_id))
 	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
 	panel.mouse_exited.connect(_set_relic_choice_hovered.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
+
+	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
+	margin.z_index = 2
 	margin.add_theme_constant_override("margin_left", 18)
 	margin.add_theme_constant_override("margin_top", 14)
 	margin.add_theme_constant_override("margin_right", 18)
@@ -3678,6 +3908,20 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
+
+func _add_relic_choice_sparkles(panel: PanelContainer, accent: Color) -> void:
+	if panel == null:
+		return
+	var sparkle := RelicChoiceSparkleLayer.new()
+	sparkle.name = "RelicChoiceSparkle"
+	sparkle.accent = accent
+	sparkle.halo_texture = AssetLoader.load_texture(RELIC_CHOICE_RUNE_HALO_PATH)
+	sparkle.glint_texture = AssetLoader.load_texture(RELIC_CHOICE_GLINT_PATH)
+	sparkle.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sparkle.anchor_right = 1.0
+	sparkle.anchor_bottom = 1.0
+	sparkle.z_index = 1
+	panel.add_child(sparkle)
 
 func _add_campfire_choice(choice_id: String, title: String, detail: String, icon_path: String, accent: Color, enabled: bool = true) -> void:
 	if _relic_choice_bar == null:
@@ -3993,6 +4237,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.border_width_top = 3
 	style.border_width_right = 3
 	style.border_width_bottom = 3
+	style.content_margin_left = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_bottom = 0.0
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
@@ -4000,15 +4248,18 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
 	style.shadow_size = 22 if hovered else 16
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
-	style.expand_margin_left = 8.0
-	style.expand_margin_top = 8.0
-	style.expand_margin_right = 8.0
-	style.expand_margin_bottom = 14.0
+	style.expand_margin_left = 0.0
+	style.expand_margin_top = 0.0
+	style.expand_margin_right = 0.0
+	style.expand_margin_bottom = 0.0
 	return style
 
-func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
+func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_id: String) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		await _on_relic_pressed(relic_id)
+		var source_rect: Rect2 = Rect2()
+		if panel != null:
+			source_rect = panel.get_global_rect()
+		await _on_relic_pressed(relic_id, source_rect)
 
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
@@ -4388,7 +4639,10 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 
 func _board_display_state() -> Dictionary:
 	if str(_run_state.get("mode", "room")) == "combat":
-		if not _preview_combat_state.is_empty():
+		if _animation_lock:
+			if not _combat_state.is_empty():
+				return _combat_state.duplicate(true)
+		elif not _preview_combat_state.is_empty():
 			return _preview_combat_state.duplicate(true)
 		if not _combat_state.is_empty():
 			return _combat_state.duplicate(true)
@@ -5756,7 +6010,9 @@ func _ember_counter_target_global_position() -> Vector2:
 
 func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
-	if base_texts.is_empty():
+	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
+	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
+	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(frame_seconds * float(maxi(1, frames))).timeout
 		return
@@ -5765,7 +6021,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = t
-		if not (presentation.get("trap_effects", []) as Array).is_empty() and not presentation.has("effect_progress"):
+		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
@@ -5889,9 +6145,81 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 
 func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	var impact_presentation: Dictionary = base_presentation.duplicate(true)
+	var effect: Dictionary = impact_presentation.get("effect", {})
+	var floating_texts: Array = impact_presentation.get("floating_texts", [])
+	var decals: Array[Dictionary] = _impact_decals_for_effect(effect, floating_texts)
+	if decals.is_empty():
+		impact_presentation.erase("impact_decals")
+	else:
+		impact_presentation["impact_decals"] = decals
 	impact_presentation.erase("effect")
 	impact_presentation.erase("effect_progress")
 	return impact_presentation
+
+func _impact_decals_for_effect(effect: Dictionary, floating_texts: Array) -> Array[Dictionary]:
+	var decals: Array[Dictionary] = []
+	if effect.is_empty():
+		return decals
+	var kind: String = str(effect.get("kind", ""))
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+		return decals
+	var element_id: String = str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
+	var tiles: Array[Vector2i] = _impact_decal_tiles(effect, floating_texts)
+	var count: int = mini(tiles.size(), IMPACT_DECAL_MAX_TILES)
+	for index: int in range(count):
+		var tile: Vector2i = tiles[index]
+		decals.append({
+			"tile": tile,
+			"element": element_id,
+			"kind": kind,
+			"seed": _impact_decal_seed(tile, element_id, kind)
+		})
+	return decals
+
+func _impact_decal_tiles(effect: Dictionary, floating_texts: Array) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for text_var: Variant in floating_texts:
+		if typeof(text_var) != TYPE_DICTIONARY:
+			continue
+		var text_entry: Dictionary = text_var
+		var text_tile_var: Variant = text_entry.get("tile", INVALID_TARGET_TILE)
+		if typeof(text_tile_var) == TYPE_VECTOR2I:
+			_append_impact_decal_tile(tiles, text_tile_var)
+	if not tiles.is_empty():
+		return tiles
+	var kind: String = str(effect.get("kind", ""))
+	if kind in ["aoe", "lightning_strikes"]:
+		for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
+			_append_impact_decal_tile(tiles, tile)
+	else:
+		var target_tile_var: Variant = effect.get("to", effect.get("center", INVALID_TARGET_TILE))
+		if typeof(target_tile_var) == TYPE_VECTOR2I:
+			_append_impact_decal_tile(tiles, target_tile_var)
+	return tiles
+
+func _append_impact_decal_tile(tiles: Array[Vector2i], tile: Vector2i) -> void:
+	if tile.x < 0:
+		return
+	if not tiles.has(tile):
+		tiles.append(tile)
+
+func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
+	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197
+
+func _impact_element_seed(element_id: String) -> int:
+	match element_id:
+		ElementData.FIRE:
+			return 11
+		ElementData.ICE:
+			return 23
+		ElementData.LIGHTNING:
+			return 37
+		ElementData.AIR:
+			return 41
+		ElementData.EARTH:
+			return 53
+		_:
+			return 7
 
 func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
 	if trap_effects.is_empty():
@@ -6054,6 +6382,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"effect": {"kind": "stoneskin", "tile": player_after_tile},
 				"floating_texts": [{
 					"tile": player_after_tile,
 					"text": "+%d S" % skin_gain,
@@ -6991,12 +7320,87 @@ func _on_campfire_leave_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state)
 	_refresh_ui()
 
-func _on_relic_pressed(relic_id: String) -> void:
+func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
+	if _relic_claim_in_progress:
+		return
+	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+	if not pending_relics.has(relic_id):
+		return
+	_relic_claim_in_progress = true
+	var accent := Color(GameData.relic_accent(relic_id))
 	_run_state = _run_engine.claim_relic(_run_state, relic_id)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_refresh_ui()
+	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
+	_relic_claim_in_progress = false
+
+func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
+	if _card_fx_layer == null:
+		return
+	await get_tree().process_frame
+	if not _node_is_alive(_card_fx_layer):
+		return
+	var frame: Control = _relic_frame_for_id(relic_id)
+	var target: Vector2 = _relic_bar_target_global_position(frame)
+	var source: Vector2 = _relic_acquisition_source_global_position(source_rect)
+	var local_start: Vector2 = source - _card_fx_layer.global_position
+	var local_target: Vector2 = target - _card_fx_layer.global_position
+	var beam := RelicAcquisitionBeam.new()
+	beam.name = "RelicAcquisitionBeam"
+	beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
+	beam.accent = accent
+	beam.start = local_start
+	beam.target = local_target
+	beam.modulate = Color(1.0, 1.0, 1.0, 0.70)
+	beam.z_index = 1600
+	_card_fx_layer.add_child(beam)
+	var beam_tween: Tween = create_tween().set_parallel(true)
+	beam_tween.tween_property(beam, "progress", 1.0, RELIC_ACQUISITION_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(RELIC_ACQUISITION_SECONDS * 0.72)
+	for mote_index: int in range(RELIC_ACQUISITION_MOTES):
+		_spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
+	await get_tree().create_timer(RELIC_ACQUISITION_SECONDS + 0.04).timeout
+	_queue_free_node_now(beam)
+
+func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
+	if _card_fx_layer == null:
+		return
+	var mote := RelicAcquisitionMote.new()
+	mote.name = "RelicAcquisitionMote"
+	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
+	mote.accent = accent
+	var mote_size: float = 18.0 + float(mote_index % 3) * 3.0
+	mote.size = Vector2(mote_size, mote_size)
+	mote.pivot_offset = mote.size * 0.5
+	var start_angle: float = -0.85 + 1.7 * (float(mote_index) / float(maxi(1, RELIC_ACQUISITION_MOTES - 1)))
+	var start_spread: Vector2 = Vector2(cos(start_angle), sin(start_angle)) * (10.0 + float((mote_index * 7) % 13))
+	var end_jitter := Vector2(float((mote_index % 5) - 2) * 4.0, float((mote_index % 3) - 1) * 3.0)
+	mote.position = local_start + start_spread - mote.size * 0.5
+	mote.scale = Vector2.ONE * (0.74 + float(mote_index % 4) * 0.06)
+	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	mote.z_index = 1601
+	_card_fx_layer.add_child(mote)
+	var delay: float = float(mote_index) * 0.018
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(mote, "scale", Vector2.ONE * 0.32, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(mote, "modulate:a", 1.0, 0.06).set_delay(delay)
+	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + RELIC_ACQUISITION_SECONDS * 0.62)
+	tween.finished.connect(_queue_free_node_now.bind(mote))
+
+func _relic_acquisition_source_global_position(source_rect: Rect2) -> Vector2:
+	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
+		return source_rect.get_center()
+	return _board_global_position_for_tile(Vector2i(4, 4))
+
+func _relic_bar_target_global_position(frame: Control) -> Vector2:
+	if frame != null:
+		return frame.get_global_rect().get_center()
+	if relic_bar != null and relic_bar.visible:
+		return relic_bar.get_global_rect().get_center()
+	return room_title.get_global_rect().get_center()
 
 func _animate_relic_acquired(relic_id: String) -> void:
 	await get_tree().process_frame
