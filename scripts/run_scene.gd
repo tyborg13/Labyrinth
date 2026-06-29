@@ -401,6 +401,7 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
+const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(284.0, 58.0)
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -3473,8 +3474,10 @@ func _refresh_choice_bar() -> void:
 		if _current_action_can_skip():
 			_add_choice_button("Skip", _on_skip_action_pressed)
 		_add_choice_button("Cancel", _on_cancel_requested)
+		_add_pass_preview_chip()
 	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state):
-		_add_choice_button("Pass", _on_pass_turn_pressed)
+		_add_choice_button("Pass", _on_pass_turn_pressed, _pass_preview_button_tooltip())
+		_add_pass_preview_chip()
 	match mode:
 		"campfire":
 			_add_campfire_choice(
@@ -3546,6 +3549,239 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 		_choice_button_overlay.add_child(button)
 	else:
 		choice_bar.add_child(button)
+
+func _add_pass_preview_chip() -> void:
+	var summary: Dictionary = _pass_preview_summary()
+	if summary.is_empty():
+		return
+	var chip := TooltipPanelContainer.new()
+	chip.name = "PassPreviewChip"
+	chip.custom_minimum_size = PASS_PREVIEW_CHIP_SIZE
+	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.mouse_filter = Control.MOUSE_FILTER_STOP
+	chip.mouse_default_cursor_shape = Control.CURSOR_HELP
+	chip.tooltip_text = _pass_preview_tooltip(summary)
+	chip.add_theme_stylebox_override("panel", _pass_preview_chip_style(summary))
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	chip.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 1)
+	margin.add_child(vbox)
+
+	var main_label := Label.new()
+	main_label.name = "PassPreviewMain"
+	main_label.text = str(summary.get("main", "Pass preview"))
+	main_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	main_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	main_label.clip_text = true
+	main_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	main_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(main_label, UiTypography.SIZE_BODY_LARGE)
+	main_label.add_theme_color_override("font_color", Color("fff0d0"))
+	main_label.add_theme_color_override("font_outline_color", Color("241710"))
+	main_label.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(main_label)
+
+	var detail_label := Label.new()
+	detail_label.name = "PassPreviewDetail"
+	detail_label.text = str(summary.get("detail", ""))
+	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	detail_label.clip_text = true
+	detail_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
+	detail_label.add_theme_color_override("font_color", Color("d9cdb4"))
+	detail_label.add_theme_color_override("font_outline_color", Color("241710"))
+	detail_label.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(detail_label)
+
+	if _choice_buttons_use_overlay():
+		_choice_button_overlay.add_child(chip)
+	else:
+		choice_bar.add_child(chip)
+
+func _pass_preview_button_tooltip() -> String:
+	var summary: Dictionary = _pass_preview_summary()
+	return "" if summary.is_empty() else _pass_preview_tooltip(summary)
+
+func _pass_preview_source_state() -> Dictionary:
+	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
+		return _preview_combat_state.duplicate(true)
+	if not _combat_state.is_empty():
+		return _combat_state.duplicate(true)
+	return {}
+
+func _pass_preview_summary() -> Dictionary:
+	var source_state: Dictionary = _pass_preview_source_state()
+	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
+		return {}
+	var source_player: Dictionary = (source_state.get("player", {}) as Dictionary).duplicate(true)
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
+	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var after_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	if after_state.is_empty():
+		return {}
+	var after_player: Dictionary = (after_state.get("player", {}) as Dictionary).duplicate(true)
+	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
+	var hp_delta: int = int(after_player.get("hp", 0)) - int(source_player.get("hp", 0))
+	var block_delta: int = int(after_player.get("block", 0)) - int(source_player.get("block", 0))
+	var stoneskin_delta: int = int(after_player.get("stoneskin", 0)) - int(source_player.get("stoneskin", 0))
+	var fatigue_damage: int = _pass_preview_fatigue_damage(before_draw_state, after_state)
+	var drawn_cards: int = _draw_entries_between_states(before_draw_state, after_state).size() if not before_draw_state.is_empty() else 0
+	var status_tags: PackedStringArray = _pass_preview_status_tags(source_player, after_player, after_state, phase_result.get("steps", []) as Array)
+	var outcome: String = _combat_engine.combat_outcome(after_state)
+	var cards_played: int = int(source_state.get("cards_played_this_turn", 0))
+	var card_capacity: int = _pass_preview_card_capacity(source_state)
+	var cards_remaining: int = _combat_engine.cards_remaining_this_turn(source_state)
+	var main_text: String = _pass_preview_main_text(outcome, hp_delta, block_delta, status_tags)
+	var detail_parts: PackedStringArray = _pass_preview_detail_parts(
+		cards_played,
+		card_capacity,
+		cards_remaining,
+		drawn_cards,
+		block_delta,
+		stoneskin_delta,
+		fatigue_damage,
+		status_tags,
+		outcome
+	)
+	var tone: String = "safe"
+	if outcome == "defeat" or hp_delta < 0 or fatigue_damage > 0:
+		tone = "danger"
+	elif not status_tags.is_empty() or block_delta < 0 or stoneskin_delta < 0:
+		tone = "warning"
+	return {
+		"main": main_text,
+		"detail": " | ".join(detail_parts),
+		"tooltip_detail": "\n".join(detail_parts),
+		"tone": tone,
+		"hp_delta": hp_delta,
+		"block_delta": block_delta,
+		"stoneskin_delta": stoneskin_delta,
+		"drawn_cards": drawn_cards,
+		"fatigue_damage": fatigue_damage,
+		"status_tags": status_tags,
+		"outcome": outcome
+	}
+
+func _pass_preview_card_capacity(state: Dictionary) -> int:
+	return (
+		int(state.get("cards_per_turn", CombatEngineScript.BASE_CARDS_PER_TURN))
+		+ int(state.get("death_bonus_card_plays_this_turn", 0))
+		+ int(state.get("card_play_bonus_this_turn", 0))
+	)
+
+func _pass_preview_fatigue_damage(before_draw_state: Dictionary, after_state: Dictionary) -> int:
+	if before_draw_state.is_empty() or after_state.is_empty():
+		return 0
+	var total: int = 0
+	for event_var: Variant in _fatigue_damage_events_between_states(before_draw_state, after_state):
+		if typeof(event_var) == TYPE_DICTIONARY:
+			total += maxi(0, int((event_var as Dictionary).get("amount", 0)))
+	return total
+
+func _pass_preview_status_tags(before_player: Dictionary, after_player: Dictionary, after_state: Dictionary, steps: Array) -> PackedStringArray:
+	var tags := PackedStringArray()
+	var restrictions: Dictionary = (after_state.get("player_turn_restrictions", {}) as Dictionary)
+	if int(after_player.get("burn", 0)) > int(before_player.get("burn", 0)):
+		tags.append("Burn")
+	if int(after_player.get("bleed", 0)) > int(before_player.get("bleed", 0)):
+		tags.append("Bleed")
+	if int(after_player.get("freeze", 0)) > int(before_player.get("freeze", 0)) or bool(restrictions.get("frozen", false)):
+		tags.append("Freeze")
+	if int(after_player.get("shock", 0)) > int(before_player.get("shock", 0)) or bool(restrictions.get("shocked", false)):
+		tags.append("Shock")
+	if (bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false))) or bool(restrictions.get("immobilized", false)):
+		tags.append("Immobilize")
+	var before_poison: Dictionary = (before_player.get("poison", {}) as Dictionary)
+	var after_poison: Dictionary = (after_player.get("poison", {}) as Dictionary)
+	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
+		tags.append("Poison")
+	for step_var: Variant in steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var status_text: String = str((step_var as Dictionary).get("status_text", ""))
+		for tag_var: Variant in ["Burn", "Bleed", "Freeze", "Shock", "Immobilize", "Poison"]:
+			var tag: String = str(tag_var)
+			if status_text.contains(tag) and not tags.has(tag):
+				tags.append(tag)
+	return tags
+
+func _pass_preview_main_text(outcome: String, hp_delta: int, block_delta: int, status_tags: PackedStringArray) -> String:
+	if outcome == "defeat":
+		return "Pass: Defeat"
+	if hp_delta < 0:
+		return "Pass: %d HP" % hp_delta
+	if not status_tags.is_empty():
+		return "Pass: %s" % status_tags[0]
+	if block_delta < 0:
+		return "Pass: Block holds"
+	return "Pass: No direct hit"
+
+func _pass_preview_detail_parts(cards_played: int, card_capacity: int, cards_remaining: int, drawn_cards: int, block_delta: int, stoneskin_delta: int, fatigue_damage: int, status_tags: PackedStringArray, outcome: String) -> PackedStringArray:
+	var parts := PackedStringArray()
+	parts.append("%d/%d played" % [cards_played, card_capacity])
+	parts.append("%d left" % cards_remaining)
+	if outcome == "":
+		parts.append("Draw +%d" % drawn_cards if drawn_cards > 0 else "No draw")
+	else:
+		parts.append(outcome.capitalize())
+	if block_delta < 0:
+		parts.append("Block %d" % block_delta)
+	elif block_delta > 0:
+		parts.append("Block +%d" % block_delta)
+	if stoneskin_delta < 0:
+		parts.append("Skin %d" % stoneskin_delta)
+	elif stoneskin_delta > 0:
+		parts.append("Skin +%d" % stoneskin_delta)
+	if fatigue_damage > 0:
+		parts.append("Fatigue -%d" % fatigue_damage)
+	if not status_tags.is_empty():
+		parts.append(", ".join(status_tags))
+	return parts
+
+func _pass_preview_tooltip(summary: Dictionary) -> String:
+	var detail: String = str(summary.get("tooltip_detail", summary.get("detail", "")))
+	return "%s\n%s" % [str(summary.get("main", "Pass preview")), detail]
+
+func _pass_preview_chip_style(summary: Dictionary) -> StyleBoxFlat:
+	var tone: String = str(summary.get("tone", "safe"))
+	var accent: Color = Color("8fcf7d")
+	if tone == "danger":
+		accent = Color("d86654")
+	elif tone == "warning":
+		accent = Color("d7a95d")
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.105, 0.075, 0.055, 0.95)
+	style.border_color = accent.lightened(0.10)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.18)
+	style.shadow_size = 7
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
 
 func _choice_buttons_use_overlay() -> bool:
 	return str(_run_state.get("mode", "room")) == "combat" and _choice_button_overlay != null

@@ -196,6 +196,7 @@ func _initialize() -> void:
 	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
+	await _test_run_scene_pass_preview_chip_updates()
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
 	await _test_run_scene_drag_overlay_snapback_and_click_selection()
@@ -5465,6 +5466,59 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_pass_preview_chip_updates() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for pass-preview chip coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+
+	var danger_state: Dictionary = _pass_preview_chip_state("danger")
+	_install_pass_preview_chip_state(instance, danger_state)
+	await process_frame
+	await process_frame
+	var choice_host: Node = _run_scene_choice_button_host(instance)
+	var pass_button: Button = _button_with_text(choice_host, "Pass")
+	_assert(pass_button != null, "Pass preview should keep the Pass button available")
+	if pass_button != null:
+		_assert(pass_button.tooltip_text.contains("Pass: -5 HP"), "Pass button tooltip should summarize dangerous pass damage")
+	_assert_pass_preview_chip(instance, "Pass: -5 HP", ["0/2 played", "2 left", "Draw +2"], "danger pass")
+	var summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(str(summary.get("main", "")) == "Pass: -5 HP", "Pass preview helper should return dangerous damage without using the rendered labels")
+	var live_state: Dictionary = instance.get("_combat_state")
+	_assert(int((live_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Pass preview summary should not damage the live player")
+	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Pass preview summary should not spend live card plays")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, "Pass: No direct hit", ["0/2 played", "2 left", "Draw +2"], "safe pass")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("status"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, "Pass: Shock", ["Shock"], "status pass")
+
+	_install_pass_preview_chip_state(instance, danger_state)
+	await process_frame
+	await process_frame
+	var before_selected_detail: String = _pass_preview_chip_detail_text(instance)
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == 0, "Selecting Nail Parry should keep the card targeted instead of playing it immediately")
+	var selected_detail: String = _pass_preview_chip_detail_text(instance)
+	_assert(selected_detail != before_selected_detail, "Pass preview chip should update when selected-card preview state changes")
+	_assert(selected_detail.contains("Block -"), "Selected-card pass preview should include block loss from the previewed block state")
+	live_state = instance.get("_combat_state")
+	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected-card pass preview should not commit the selected card")
+	_assert(((live_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2, "Selected-card pass preview should not remove a live hand card")
+
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_action_selection_buttons_are_large() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -7545,6 +7599,125 @@ func _button_with_text(node: Node, text: String) -> Button:
 		if button.text == text:
 			return button
 	return null
+
+func _pass_preview_chip_state(kind: String) -> Dictionary:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(7826, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["nail_parry", "quick_stab", "patch_up", "bone_dart"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var enemy_pos: Vector2i = Vector2i(3, 4)
+	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
+	if kind == "safe":
+		enemy_pos = Vector2i(6, 4)
+	elif kind == "status":
+		enemy_intent = {"name": "Static Jab", "time": 1, "actions": [{"type": "melee", "damage": 0, "range": 1, "shock": 1}]}
+	state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 0,
+		"stoneskin": 0,
+		"burn": 0,
+		"bleed": 0,
+		"expose": 0,
+		"freeze": 0,
+		"shock": 0,
+		"immobilize": false,
+		"poison": {"damage": 0, "trigger": 0, "stacks": []}
+	}
+	state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": enemy_pos,
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0,
+		"burn": 0,
+		"bleed": 0,
+		"expose": 0,
+		"freeze": 0,
+		"shock": 0,
+		"immobilize": false,
+		"poison": {"damage": 0, "trigger": 0, "stacks": []},
+		"intent": enemy_intent
+	}]
+	state["illusions"] = []
+	state["traps"] = []
+	state["terrain"] = []
+	state["deck"] = {
+		"hand": ["nail_parry", "quick_stab"],
+		"draw": ["patch_up", "bone_dart"],
+		"discard": ["sidestep_slash"],
+		"burned": [],
+		"cycles": 0,
+		"fatigue_base": 15
+	}
+	state["cards_per_turn"] = 2
+	state["draw_per_turn"] = 2
+	state["cards_played_this_turn"] = 0
+	state["death_bonus_card_plays_this_turn"] = 0
+	state["card_play_bonus_this_turn"] = 0
+	state["player_turn_time_spent"] = 0
+	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
+	state["pending_player_trap_restriction"] = ""
+	state["turn_flags"] = {"first_attack_bonus_used": false, "first_move_bonus_used": false}
+	state["initiative_clock"] = 0
+	state["activation_seq"] = 1
+	state["current_actor"] = {
+		"kind": "player",
+		"actor_key": "player",
+		"name": "Reaver",
+		"type": "player",
+		"team": "player",
+		"time": 0,
+		"seq": 0
+	}
+	state["turn_queue"] = [{
+		"kind": "enemy",
+		"actor_key": "enemy_1",
+		"enemy_id": 1,
+		"type": "crawler",
+		"name": "Tunnel Crawler",
+		"team": "enemy",
+		"time": 1,
+		"seq": 1,
+		"pos": enemy_pos
+	}]
+	return state
+
+func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) -> void:
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state.duplicate(true)
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state.duplicate(true))
+	instance.set("_animation_lock", false)
+	instance.set("_drag_card_index", -1)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+
+func _assert_pass_preview_chip(instance: Node, expected_main: String, expected_detail_parts: Array, context: String) -> void:
+	var main_label: Label = instance.find_child("PassPreviewMain", true, false) as Label
+	var detail_label: Label = instance.find_child("PassPreviewDetail", true, false) as Label
+	_assert(main_label != null, "%s should render the pass preview main label" % context)
+	_assert(detail_label != null, "%s should render the pass preview detail label" % context)
+	if main_label != null:
+		_assert(main_label.text == expected_main, "%s should summarize as '%s'" % [context, expected_main])
+	if detail_label != null:
+		for part_var: Variant in expected_detail_parts:
+			var part: String = str(part_var)
+			_assert(detail_label.text.contains(part), "%s pass preview detail should contain '%s'" % [context, part])
+
+func _pass_preview_chip_detail_text(instance: Node) -> String:
+	var detail_label: Label = instance.find_child("PassPreviewDetail", true, false) as Label
+	return detail_label.text if detail_label != null else ""
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []
