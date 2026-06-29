@@ -206,6 +206,7 @@ func _initialize() -> void:
 	await _test_run_scene_campfire_choices_use_relic_overlay()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
+	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
@@ -5975,6 +5976,108 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	_assert(bool(next_preview.get("complete", false)), "The follow-up attack should auto-skip when it has no valid target")
 	instance.queue_free()
 	await process_frame
+
+func _test_run_scene_action_step_tracker_states() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for action step tracker coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+
+	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(5, 4)])
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Move-attack selection should show current movement and remaining attack")
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["done", "current"], "Choosing the move target should advance the tracker to the attack")
+
+	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)])
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	await instance.call("_on_skip_action_pressed")
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Manual skip should keep a skipped movement placeholder")
+
+	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)], true)
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Auto-skipped immobilized movement should be visible before the attack")
+
+	_load_action_step_tracker_fixture(instance, "guarded_step", Vector2i(2, 4), [Vector2i(5, 5)])
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Targetless follow-up actions should remain visible after the current move step")
+
+	_load_action_step_tracker_fixture(instance, "quick_stab", Vector2i(2, 4), [Vector2i(3, 4)])
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	var tracker: Control = instance.get_node_or_null("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ActionStepTracker") as Control
+	_assert(tracker != null and not tracker.visible, "Single-action cards should not show the step tracker")
+
+	instance.queue_free()
+	await process_frame
+
+func _load_action_step_tracker_fixture(instance: Node, card_id: String, player_pos: Vector2i, enemy_positions: Array, immobilized: bool = false) -> void:
+	instance.call("_reset_card_resolution")
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = player_pos
+	var enemies: Array = []
+	for index: int in range(enemy_positions.size()):
+		enemies.append({
+			"id": index + 1,
+			"type": "crawler",
+			"pos": enemy_positions[index],
+			"hp": 140,
+			"max_hp": 140,
+			"block": 0
+		})
+	layout["enemies"] = enemies
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(9300 + enemy_positions.size(), layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": [card_id],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = [card_id]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	var restrictions: Dictionary = (combat_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+	restrictions["immobilized"] = immobilized
+	restrictions["frozen"] = false
+	restrictions["shocked"] = false
+	combat_state["player_turn_restrictions"] = restrictions
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["current_room_layout"] = layout
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+
+func _assert_action_step_tracker_statuses(instance: Node, expected: Array, message: String) -> void:
+	var tracker: Control = instance.get_node_or_null("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ActionStepTracker") as Control
+	_assert(tracker != null and tracker.visible, message)
+	if tracker == null:
+		return
+	var statuses: Array = tracker.get_meta("step_statuses", [])
+	_assert(statuses.size() == expected.size(), "%s: expected %d steps but got %d" % [message, expected.size(), statuses.size()])
+	if statuses.size() != expected.size():
+		return
+	for index: int in range(expected.size()):
+		_assert(str(statuses[index]) == str(expected[index]), "%s: expected %s but got %s" % [message, str(expected), str(statuses)])
 
 func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

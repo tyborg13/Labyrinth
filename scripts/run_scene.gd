@@ -324,6 +324,9 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
+const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(342.0, 92.0)
+const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(46.0, 46.0)
+const ACTION_STEP_ICON_INSET: float = 9.0
 const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
@@ -481,6 +484,9 @@ var _active_pile_kind: String = ""
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
+var _action_step_tracker: PanelContainer
+var _action_step_tracker_title: Label
+var _action_step_tracker_steps: HBoxContainer
 var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
 var _turn_order_bar: Control
@@ -578,6 +584,7 @@ func _ready() -> void:
 	_build_overlay_ui()
 	_build_context_choice_overlay()
 	_setup_pile_widgets()
+	_setup_action_step_tracker()
 	_setup_play_meter()
 	_setup_elemental_intensity_bar()
 	_connect_header_layout_signals()
@@ -2180,6 +2187,55 @@ func _setup_pile_widgets() -> void:
 		var spec: Dictionary = spec_var
 		_build_pile_widget(spec)
 
+func _setup_action_step_tracker() -> void:
+	_action_step_tracker = PanelContainer.new()
+	_action_step_tracker.name = "ActionStepTracker"
+	_action_step_tracker.visible = false
+	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_MIN_SIZE
+	_action_step_tracker.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_action_step_tracker.size_flags_vertical = Control.SIZE_SHRINK_END
+	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
+	left_action_stack.add_child(_action_step_tracker)
+	left_action_stack.move_child(_action_step_tracker, 0)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	_action_step_tracker.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 6)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	_action_step_tracker_title = Label.new()
+	_action_step_tracker_title.name = "ActionStepTitle"
+	_action_step_tracker_title.custom_minimum_size = Vector2(ACTION_STEP_TRACKER_MIN_SIZE.x - 24.0, 22.0)
+	_action_step_tracker_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_action_step_tracker_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_action_step_tracker_title.clip_text = true
+	_action_step_tracker_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_action_step_tracker_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_action_step_tracker_title, UiTypography.SIZE_SMALL)
+	_action_step_tracker_title.add_theme_color_override("font_color", Color("fff1d5"))
+	_action_step_tracker_title.add_theme_color_override("font_outline_color", Color("20140d"))
+	_action_step_tracker_title.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(_action_step_tracker_title)
+
+	_action_step_tracker_steps = HBoxContainer.new()
+	_action_step_tracker_steps.name = "ActionStepChips"
+	_action_step_tracker_steps.alignment = BoxContainer.ALIGNMENT_CENTER
+	_action_step_tracker_steps.add_theme_constant_override("separation", 6)
+	_action_step_tracker_steps.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_action_step_tracker_steps)
+
 func _setup_play_meter() -> void:
 	_play_meter = PanelContainer.new()
 	_play_meter.name = "CardPlayMeter"
@@ -2650,6 +2706,7 @@ func _refresh_ui() -> void:
 		_large_map_view.call("set_run_state", _run_state)
 	_refresh_pile_counts()
 	_refresh_card_play_meter()
+	_refresh_action_step_tracker()
 	_refresh_pile_visuals()
 	_refresh_choice_bar()
 	_refresh_stage_view()
@@ -3330,6 +3387,307 @@ func _refresh_card_play_meter() -> void:
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
 
+func _refresh_action_step_tracker() -> void:
+	if _action_step_tracker == null or _action_step_tracker_steps == null:
+		return
+	_clear_children_now(_action_step_tracker_steps)
+	_action_step_tracker.set_meta("step_statuses", [])
+	_action_step_tracker.set_meta("step_action_types", [])
+	var mode: String = str(_run_state.get("mode", "room"))
+	var active: bool = (
+		mode == "combat"
+		and not _animation_lock
+		and _selected_card_index >= 0
+		and _pending_actions.size() > 1
+		and _pending_action_index < _pending_actions.size()
+	)
+	_action_step_tracker.visible = active
+	if not active:
+		if _action_step_tracker_title != null:
+			_action_step_tracker_title.text = ""
+		return
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
+	var current_number: int = clampi(_pending_action_index + 1, 1, _pending_actions.size())
+	if _action_step_tracker_title != null:
+		_action_step_tracker_title.text = "%s  %d/%d" % [
+			str(card.get("name", card_id)),
+			current_number,
+			_pending_actions.size()
+		]
+	var skipped_indices: Dictionary = _action_step_skipped_target_indices()
+	var statuses: Array = []
+	var action_types: Array = []
+	for index: int in range(_pending_actions.size()):
+		var action: Dictionary = {}
+		if typeof(_pending_actions[index]) == TYPE_DICTIONARY:
+			action = _pending_actions[index] as Dictionary
+		var status: String = _action_step_status_for_index(index, skipped_indices)
+		statuses.append(status)
+		action_types.append(str(action.get("type", "")))
+		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status))
+	_action_step_tracker.set_meta("step_statuses", statuses)
+	_action_step_tracker.set_meta("step_action_types", action_types)
+
+func _action_step_skipped_target_indices() -> Dictionary:
+	var skipped: Dictionary = {}
+	var target_cursor: int = 0
+	for index: int in range(_pending_actions.size()):
+		var action: Dictionary = {}
+		if typeof(_pending_actions[index]) == TYPE_DICTIONARY:
+			action = _pending_actions[index] as Dictionary
+		if not _combat_engine.player_action_needs_target(action):
+			continue
+		if index < _pending_action_index and target_cursor < _pending_selected_targets.size():
+			var selected_tile: Vector2i = _pending_selected_targets[target_cursor]
+			if selected_tile.x < 0:
+				skipped[index] = true
+		target_cursor += 1
+	return skipped
+
+func _action_step_status_for_index(index: int, skipped_indices: Dictionary) -> String:
+	if bool(skipped_indices.get(index, false)):
+		return "skipped"
+	if index < _pending_action_index:
+		return "done"
+	if index == _pending_action_index:
+		return "current"
+	return "remaining"
+
+func _build_action_step_chip(index: int, action: Dictionary, status: String) -> Control:
+	var chip := PanelContainer.new()
+	chip.name = "ActionStepChip%d" % (index + 1)
+	chip.custom_minimum_size = ACTION_STEP_CHIP_SIZE
+	chip.size = ACTION_STEP_CHIP_SIZE
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.set_meta("step_index", index)
+	chip.set_meta("step_status", status)
+	chip.set_meta("action_type", str(action.get("type", "")))
+	chip.tooltip_text = _action_step_tooltip(index, action, status)
+	chip.add_theme_stylebox_override("panel", _action_step_chip_style(status))
+
+	var content := Control.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.anchor_right = 1.0
+	content.anchor_bottom = 1.0
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(content)
+
+	var icon_key: String = _action_step_icon_key(action)
+	var icon := TextureRect.new()
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.anchor_right = 1.0
+	icon.anchor_bottom = 1.0
+	icon.offset_left = ACTION_STEP_ICON_INSET
+	icon.offset_top = ACTION_STEP_ICON_INSET
+	icon.offset_right = -ACTION_STEP_ICON_INSET
+	icon.offset_bottom = -ACTION_STEP_ICON_INSET
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(ActionIcons.icon_path(icon_key))
+	icon.modulate = _action_step_icon_tint(status)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(icon)
+
+	var number := Label.new()
+	number.name = "StepNumber"
+	number.text = str(index + 1)
+	number.position = Vector2(3.0, 2.0)
+	number.custom_minimum_size = Vector2(16.0, 15.0)
+	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	number.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	number.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(number, 9)
+	number.add_theme_color_override("font_color", _action_step_number_color(status))
+	number.add_theme_color_override("font_outline_color", Color("100b08"))
+	number.add_theme_constant_override("outline_size", 1)
+	content.add_child(number)
+
+	if status == "skipped":
+		var skipped := Label.new()
+		skipped.name = "SkippedLabel"
+		skipped.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skipped.anchor_right = 1.0
+		skipped.anchor_bottom = 1.0
+		skipped.text = "SKIP"
+		skipped.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		skipped.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		skipped.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(skipped, 9)
+		skipped.add_theme_color_override("font_color", Color("ffd6c6"))
+		skipped.add_theme_color_override("font_outline_color", Color("1a0b07"))
+		skipped.add_theme_constant_override("outline_size", 2)
+		content.add_child(skipped)
+	return chip
+
+func _action_step_tooltip(index: int, action: Dictionary, status: String) -> String:
+	var state_text: String = status.capitalize()
+	if status == "done":
+		state_text = "Done"
+	var action_name: String = _action_step_action_name(action)
+	return "%d. %s\n%s" % [index + 1, action_name, state_text]
+
+func _action_step_action_name(action: Dictionary) -> String:
+	var action_type: String = str(action.get("type", ""))
+	match action_type:
+		"aoe":
+			return "Area"
+		"move", "move_toward":
+			return "Move"
+		"move_away":
+			return "Retreat"
+		"blink":
+			return "Blink"
+		"melee":
+			return "Melee"
+		"ranged":
+			return "Ranged"
+		"push":
+			return "Push"
+		"pull":
+			return "Pull"
+		"card_play":
+			return "Card Play"
+		"health_cost":
+			return "Health Cost"
+		"heal", "heal_self":
+			return "Heal"
+		"lightning_strikes":
+			return "Lightning"
+		"summon_minions":
+			return "Summon"
+	var icon_key: String = _action_step_icon_key(action)
+	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
+
+func _action_step_icon_key(action: Dictionary) -> String:
+	var action_type: String = str(action.get("type", ""))
+	match action_type:
+		"move", "move_toward":
+			return "move"
+		"move_away":
+			return "retreat"
+		"blink":
+			return "blink"
+		"melee":
+			return "melee"
+		"ranged", "aoe", "lightning_strikes":
+			return "ranged"
+		"push":
+			return "push"
+		"pull":
+			return "pull"
+		"block":
+			return "block"
+		"stoneskin":
+			return "stoneskin"
+		"heal", "heal_self":
+			return "heal"
+		"draw":
+			return "draw"
+		"card_play":
+			return "card_play"
+		"intensity":
+			return ActionIcons.element_icon_key(str(action.get("element", ElementData.NONE)))
+		"illusion":
+			return "illusion"
+		"health_cost":
+			return "health_cost"
+		"summon_minions":
+			return "shock"
+	for token_var: Variant in ActionIcons.tokens_for_action(action):
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		var token: Dictionary = token_var as Dictionary
+		if str(token.get("kind", "")) == "intensity_requirement":
+			continue
+		return str(token.get("icon", ""))
+	return ""
+
+func _action_step_tracker_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.044, 0.038, 0.90)
+	style.border_color = Color(0.76, 0.62, 0.42, 0.72)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
+	style.shadow_size = 10
+	style.shadow_offset = Vector2(0.0, 4.0)
+	return style
+
+func _action_step_chip_style(status: String) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	match status:
+		"current":
+			style.bg_color = Color(0.075, 0.115, 0.115, 0.98)
+			style.border_color = Color("f4c968")
+			style.border_width_left = 3
+			style.border_width_top = 3
+			style.border_width_right = 3
+			style.border_width_bottom = 3
+			style.shadow_color = Color(0.12, 0.33, 0.34, 0.46)
+			style.shadow_size = 10
+		"done":
+			style.bg_color = Color(0.060, 0.105, 0.070, 0.90)
+			style.border_color = Color("87c879")
+			style.border_width_left = 2
+			style.border_width_top = 2
+			style.border_width_right = 2
+			style.border_width_bottom = 2
+			style.shadow_color = Color(0.0, 0.0, 0.0, 0.24)
+			style.shadow_size = 5
+		"skipped":
+			style.bg_color = Color(0.150, 0.060, 0.045, 0.94)
+			style.border_color = Color("df8065")
+			style.border_width_left = 2
+			style.border_width_top = 2
+			style.border_width_right = 2
+			style.border_width_bottom = 2
+			style.shadow_color = Color(0.18, 0.02, 0.01, 0.34)
+			style.shadow_size = 7
+		_:
+			style.bg_color = Color(0.075, 0.066, 0.058, 0.72)
+			style.border_color = Color(0.62, 0.55, 0.47, 0.42)
+			style.border_width_left = 1
+			style.border_width_top = 1
+			style.border_width_right = 1
+			style.border_width_bottom = 1
+			style.shadow_color = Color(0.0, 0.0, 0.0, 0.16)
+			style.shadow_size = 3
+	style.corner_radius_top_left = 7
+	style.corner_radius_top_right = 7
+	style.corner_radius_bottom_right = 7
+	style.corner_radius_bottom_left = 7
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style
+
+func _action_step_icon_tint(status: String) -> Color:
+	match status:
+		"current":
+			return Color("fff3cf")
+		"done":
+			return Color("d9ffd6")
+		"skipped":
+			return Color(1.0, 1.0, 1.0, 0.28)
+		_:
+			return Color(1.0, 1.0, 1.0, 0.44)
+
+func _action_step_number_color(status: String) -> Color:
+	match status:
+		"current":
+			return Color("fff6ce")
+		"done":
+			return Color("c5f2bc")
+		"skipped":
+			return Color("ffbca6")
+		_:
+			return Color("c9b9a3")
+
 func _displayed_card_play_count() -> int:
 	if _card_play_count_override >= 0:
 		return _card_play_count_override
@@ -3423,7 +3781,8 @@ func _refresh_visibility() -> void:
 	hand_row.visible = mode in ["combat", "reward"]
 	piles_bar.visible = mode == "combat"
 	hand_scroll.visible = mode in ["combat", "reward"]
-	left_action_stack.visible = choice_bar.visible or piles_bar.visible
+	var action_step_tracker_visible: bool = _action_step_tracker != null and _action_step_tracker.visible
+	left_action_stack.visible = action_step_tracker_visible or choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 	if mode != "combat" and _choice_button_overlay != null:
 		_choice_button_overlay.visible = false
