@@ -507,6 +507,7 @@ const DOOR_OPENING_FRAME_SECONDS: float = 0.075
 const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
 const FLOAT_TEXT_FRAMES: int = 7
 const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
+const IMPACT_DECAL_MAX_TILES: int = 7
 const FATIGUE_EFFECT_FRAMES: int = 9
 const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
 const FATIGUE_EDGE_LINGER_FRAMES: int = 3
@@ -4548,7 +4549,10 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 
 func _board_display_state() -> Dictionary:
 	if str(_run_state.get("mode", "room")) == "combat":
-		if not _preview_combat_state.is_empty():
+		if _animation_lock:
+			if not _combat_state.is_empty():
+				return _combat_state.duplicate(true)
+		elif not _preview_combat_state.is_empty():
 			return _preview_combat_state.duplicate(true)
 		if not _combat_state.is_empty():
 			return _combat_state.duplicate(true)
@@ -5916,7 +5920,9 @@ func _ember_counter_target_global_position() -> Vector2:
 
 func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
-	if base_texts.is_empty():
+	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
+	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
+	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(frame_seconds * float(maxi(1, frames))).timeout
 		return
@@ -5925,7 +5931,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = t
-		if not (presentation.get("trap_effects", []) as Array).is_empty() and not presentation.has("effect_progress"):
+		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
@@ -6049,9 +6055,81 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 
 func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	var impact_presentation: Dictionary = base_presentation.duplicate(true)
+	var effect: Dictionary = impact_presentation.get("effect", {})
+	var floating_texts: Array = impact_presentation.get("floating_texts", [])
+	var decals: Array[Dictionary] = _impact_decals_for_effect(effect, floating_texts)
+	if decals.is_empty():
+		impact_presentation.erase("impact_decals")
+	else:
+		impact_presentation["impact_decals"] = decals
 	impact_presentation.erase("effect")
 	impact_presentation.erase("effect_progress")
 	return impact_presentation
+
+func _impact_decals_for_effect(effect: Dictionary, floating_texts: Array) -> Array[Dictionary]:
+	var decals: Array[Dictionary] = []
+	if effect.is_empty():
+		return decals
+	var kind: String = str(effect.get("kind", ""))
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+		return decals
+	var element_id: String = str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
+	var tiles: Array[Vector2i] = _impact_decal_tiles(effect, floating_texts)
+	var count: int = mini(tiles.size(), IMPACT_DECAL_MAX_TILES)
+	for index: int in range(count):
+		var tile: Vector2i = tiles[index]
+		decals.append({
+			"tile": tile,
+			"element": element_id,
+			"kind": kind,
+			"seed": _impact_decal_seed(tile, element_id, kind)
+		})
+	return decals
+
+func _impact_decal_tiles(effect: Dictionary, floating_texts: Array) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for text_var: Variant in floating_texts:
+		if typeof(text_var) != TYPE_DICTIONARY:
+			continue
+		var text_entry: Dictionary = text_var
+		var text_tile_var: Variant = text_entry.get("tile", INVALID_TARGET_TILE)
+		if typeof(text_tile_var) == TYPE_VECTOR2I:
+			_append_impact_decal_tile(tiles, text_tile_var)
+	if not tiles.is_empty():
+		return tiles
+	var kind: String = str(effect.get("kind", ""))
+	if kind in ["aoe", "lightning_strikes"]:
+		for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
+			_append_impact_decal_tile(tiles, tile)
+	else:
+		var target_tile_var: Variant = effect.get("to", effect.get("center", INVALID_TARGET_TILE))
+		if typeof(target_tile_var) == TYPE_VECTOR2I:
+			_append_impact_decal_tile(tiles, target_tile_var)
+	return tiles
+
+func _append_impact_decal_tile(tiles: Array[Vector2i], tile: Vector2i) -> void:
+	if tile.x < 0:
+		return
+	if not tiles.has(tile):
+		tiles.append(tile)
+
+func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
+	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197
+
+func _impact_element_seed(element_id: String) -> int:
+	match element_id:
+		ElementData.FIRE:
+			return 11
+		ElementData.ICE:
+			return 23
+		ElementData.LIGHTNING:
+			return 37
+		ElementData.AIR:
+			return 41
+		ElementData.EARTH:
+			return 53
+		_:
+			return 7
 
 func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
 	if trap_effects.is_empty():
@@ -6214,6 +6292,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"effect": {"kind": "stoneskin", "tile": player_after_tile},
 				"floating_texts": [{
 					"tile": player_after_tile,
 					"text": "+%d S" % skin_gain,
