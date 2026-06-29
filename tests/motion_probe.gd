@@ -4,6 +4,9 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const ElementData = preload("res://scripts/element_data.gd")
+
+const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -50,6 +53,7 @@ func _capture_motion_states() -> void:
 	await _capture_draw_fx(instance)
 	await _capture_player_melee_fx(instance)
 	await _capture_player_attack_fx(instance)
+	await _capture_player_ranged_impact_fx(instance)
 	await _capture_player_aoe_fx(instance)
 	await _capture_enemy_phase_fx(instance)
 	await _capture_ember_fx(instance)
@@ -142,6 +146,96 @@ func _capture_player_melee_fx(instance: Node) -> void:
 	await process_frame
 
 func _capture_player_attack_fx(instance: Node) -> void:
+	await _capture_projectile_preview_loop(instance)
+	await _capture_projectile_variant(
+		instance,
+		"bone_dart",
+		{"type": "ranged", "damage": 5, "range": 4},
+		Vector2i(5, 4),
+		"user://motion_probes/motion_23_projectile_neutral_travel.png"
+	)
+	await _capture_projectile_variant(
+		instance,
+		"firebrand_volley",
+		{"type": "ranged", "damage": 4, "range": 5, "_card_element": ElementData.FIRE},
+		Vector2i(5, 4),
+		"user://motion_probes/motion_24_projectile_fire_travel.png"
+	)
+	await _capture_projectile_variant(
+		instance,
+		"lodestone_reversal",
+		{"type": "pull", "damage": 3, "range": 5, "amount": 2, "_card_element": ElementData.LIGHTNING},
+		Vector2i(5, 4),
+		"user://motion_probes/motion_25_projectile_lightning_pull_travel.png"
+	)
+
+func _capture_projectile_preview_loop(instance: Node) -> void:
+	var target_tile := Vector2i(5, 4)
+	var combat_state: Dictionary = _projectile_probe_state(instance, target_tile)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_reset_card_resolution")
+	instance.set("_animation_lock", false)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var presentation: Dictionary = {
+		"focus_tiles": [target_tile],
+		"focus_color": Color(0.95, 0.62, 0.37, 0.22),
+		"effect": {
+			"kind": "ranged",
+			"from": Vector2i(2, 4),
+			"to": target_tile,
+			"preview": true,
+			"element": ElementData.FIRE
+		},
+		"effect_progress": 1.0
+	}
+	await _wait_for_projectile_preview_phase(0.24, 0.34)
+	instance.call("_render_board_state", combat_state, presentation)
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_22_projectile_preview_loop_a.png")
+	await _wait_for_projectile_preview_phase(0.58, 0.68)
+	instance.call("_render_board_state", combat_state, presentation)
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_22_projectile_preview_loop_b.png")
+	instance.call("_refresh_ui")
+	await process_frame
+
+func _capture_projectile_variant(instance: Node, card_id: String, action: Dictionary, preferred_target: Vector2i, output_path: String) -> void:
+	var combat_state: Dictionary = _projectile_probe_state(instance, preferred_target)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_reset_card_resolution")
+	instance.set("_animation_lock", false)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+
+	var combat_engine = instance.get("_combat_engine")
+	var valid_targets: Array[Vector2i] = combat_engine.valid_targets_for_player_action(combat_state, action)
+	var target_tile: Vector2i = preferred_target if valid_targets.has(preferred_target) else _first_enemy_target_tile(combat_state, valid_targets)
+	if target_tile.x < 0:
+		return
+	var after_state: Dictionary = combat_engine.apply_player_action(combat_state.duplicate(true), action, target_tile)
+	instance.call("_animate_player_action_step", combat_state.duplicate(true), after_state, card_id, action, target_tile)
+	await create_timer(0.12).timeout
+	await process_frame
+	await _save_root_screenshot(output_path)
+	await create_timer(0.78).timeout
+	await process_frame
+	instance.call("_refresh_ui")
+	await process_frame
+
+func _capture_player_ranged_impact_fx(instance: Node) -> void:
 	var combat_state: Dictionary = await _prepare_impact_probe_state(
 		instance,
 		Vector2i(2, 4),
@@ -151,24 +245,54 @@ func _capture_player_attack_fx(instance: Node) -> void:
 		["frostbolt"]
 	)
 	var combat_engine = instance.get("_combat_engine")
-	var action: Dictionary = {"type": "ranged", "damage": 5, "range": 8, "_card_element": "ice"}
+	var action: Dictionary = {"type": "ranged", "damage": 5, "range": 8, "_card_element": ElementData.ICE}
+	var preferred_target := Vector2i(5, 4)
 	var valid_targets: Array[Vector2i] = combat_engine.valid_targets_for_player_action(combat_state, action)
-	var target_tile: Vector2i = _first_enemy_target_tile(combat_state, valid_targets)
+	var target_tile: Vector2i = preferred_target if valid_targets.has(preferred_target) else _first_enemy_target_tile(combat_state, valid_targets)
 	if target_tile.x < 0:
 		return
 	var after_state: Dictionary = combat_engine.apply_player_action(combat_state.duplicate(true), action, target_tile)
 	instance.call("_animate_player_action_step", combat_state.duplicate(true), after_state, "frostbolt", action, target_tile)
 	await create_timer(0.12).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_23_player_ranged_travel.png")
+	await _save_root_screenshot("user://motion_probes/motion_24b_player_ranged_ice_travel.png")
 	await create_timer(0.20).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_24_player_ranged_ice_impact.png")
+	await _save_root_screenshot("user://motion_probes/motion_24c_player_ranged_ice_impact.png")
 	await create_timer(0.34).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_24b_player_ranged_ice_faded.png")
+	await _save_root_screenshot("user://motion_probes/motion_24d_player_ranged_ice_faded.png")
 	instance.call("_refresh_ui")
 	await process_frame
+
+func _projectile_probe_state(instance: Node, target_tile: Vector2i) -> Dictionary:
+	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	combat_state.erase("player_turn_restrictions")
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": target_tile, "hp": 100, "max_hp": 100, "block": 0}
+	]
+	combat_state["traps"] = []
+	combat_state["terrain"] = []
+	combat_state["illusions"] = []
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["bone_dart", "firebrand_volley", "lodestone_reversal"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	return combat_state
+
+func _wait_for_projectile_preview_phase(min_phase: float, max_phase: float) -> void:
+	for _index: int in range(180):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		if phase >= min_phase and phase <= max_phase:
+			return
+		await create_timer(0.02).timeout
 
 func _capture_player_aoe_fx(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
