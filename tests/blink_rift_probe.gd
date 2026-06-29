@@ -122,6 +122,7 @@ func _preview_blink_presentation(combat_state: Dictionary, target_tile: Vector2i
 		"focus_actor_color": Color(0.53, 0.48, 0.92, 0.82),
 		"focus_tiles": [player_tile, target_tile],
 		"focus_color": Color(0.53, 0.48, 0.92, 0.20),
+		"path_tiles": [target_tile],
 		"effect": {"kind": "blink", "from": player_tile, "to": target_tile, "preview": true},
 		"effect_progress": 1.0
 	}
