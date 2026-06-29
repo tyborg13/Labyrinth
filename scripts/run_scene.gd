@@ -325,7 +325,7 @@ class RelicChoiceSparkleLayer:
 			_halo.texture = halo_texture
 			_halo.z_index = 0
 			add_child(_halo)
-		while _glints.size() < 7:
+		while _glints.size() < 9:
 			var glint := TextureRect.new()
 			glint.name = "RelicChoiceGlint%d" % _glints.size()
 			_configure_texture_rect(glint)
@@ -333,7 +333,7 @@ class RelicChoiceSparkleLayer:
 			glint.z_index = 1
 			_glints.append(glint)
 			add_child(glint)
-		while _dust.size() < 10:
+		while _dust.size() < 16:
 			var dust := TextureRect.new()
 			dust.name = "RelicChoiceDust%d" % _dust.size()
 			_configure_texture_rect(dust)
@@ -366,7 +366,9 @@ class RelicChoiceSparkleLayer:
 			{"pos": Vector2(size.x * 0.25, 88.0), "size": 27.0},
 			{"pos": Vector2(size.x * 0.76, 86.0), "size": 30.0},
 			{"pos": Vector2(37.0, size.y - 40.0), "size": 26.0},
-			{"pos": Vector2(size.x - 40.0, size.y - 42.0), "size": 30.0}
+			{"pos": Vector2(size.x - 40.0, size.y - 42.0), "size": 30.0},
+			{"pos": Vector2(size.x * 0.50, size.y - 24.0), "size": 24.0},
+			{"pos": Vector2(size.x * 0.82, size.y - 76.0), "size": 22.0}
 		]
 		for index: int in range(_glints.size()):
 			var glint: TextureRect = _glints[index]
@@ -390,18 +392,18 @@ class RelicChoiceSparkleLayer:
 		_halo.rotation = sin(phase * 0.34) * 0.035
 		_halo.scale = Vector2.ONE * (1.0 + 0.018 * shimmer)
 		_halo.modulate = _accent_modulate(0.76 + 0.18 * shimmer)
-		var glint_delays := [0.0, 0.18, 0.34, 0.51, 0.67, 0.82, 0.94]
+		var glint_delays := [0.0, 0.18, 0.34, 0.51, 0.67, 0.82, 0.94, 0.27, 0.73]
 		for index: int in range(_glints.size()):
 			var glint: TextureRect = _glints[index]
 			var pulse: float = 0.5 + 0.5 * sin(phase * 3.0 + float(glint_delays[index]) * TAU)
 			glint.rotation = sin(phase * 0.72 + float(index)) * 0.22
 			glint.scale = Vector2.ONE * (0.72 + 0.58 * pulse)
 			glint.modulate = _accent_modulate(0.22 + 0.70 * pow(pulse, 2.0))
-		var center := Vector2(size.x * 0.5, size.y * 0.44)
+		var center := Vector2(size.x * 0.5, size.y * 0.50)
 		for index: int in range(_dust.size()):
 			var dust: TextureRect = _dust[index]
 			var angle: float = phase * (0.13 + float(index % 4) * 0.028) + float(index) * TAU / float(_dust.size())
-			var radius := Vector2(size.x * (0.37 + 0.022 * float(index % 2)), size.y * (0.30 + 0.016 * float((index + 1) % 2)))
+			var radius := Vector2(size.x * (0.40 + 0.025 * float(index % 2)), size.y * (0.41 + 0.018 * float((index + 1) % 2)))
 			var offset := Vector2(cos(angle) * radius.x, sin(angle * 0.86) * radius.y)
 			var drift: float = 0.5 + 0.5 * sin(phase * 1.55 + float(index) * 1.7)
 			dust.position = center + offset - dust.size * 0.5
@@ -4183,6 +4185,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.border_width_top = 3
 	style.border_width_right = 3
 	style.border_width_bottom = 3
+	style.content_margin_left = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_bottom = 0.0
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
@@ -4190,10 +4196,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
 	style.shadow_size = 22 if hovered else 16
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
-	style.expand_margin_left = 8.0
-	style.expand_margin_top = 8.0
-	style.expand_margin_right = 8.0
-	style.expand_margin_bottom = 14.0
+	style.expand_margin_left = 0.0
+	style.expand_margin_top = 0.0
+	style.expand_margin_right = 0.0
+	style.expand_margin_bottom = 0.0
 	return style
 
 func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_id: String) -> void:
