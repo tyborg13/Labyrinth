@@ -4330,6 +4330,28 @@
       }
     },
     {
+      "id": "mnt_20260629T154512Z_162a7557",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Blink preview rift uses one textured smoke strip",
+      "details": "Blink preview suppresses generic path_tiles markers and draws assets/art/effects/blink_rift_preview.png as a single transformed rift mark, with vector ribbon only as a load-failure fallback. Preserve this direction for future polish so the preview does not expose circles, arcs, fray strokes, or other obvious construction primitives.",
+      "status": "active",
+      "created_at": "2026-06-29T15:45:12Z",
+      "updated_at": "2026-06-29T15:45:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/blink-rift-afterimage",
+        "commit": "94f4846"
+      }
+    },
+    {
       "id": "mnt_20260630T152610Z_2172a6f3",
       "layer": "shared",
       "kind": "decision",

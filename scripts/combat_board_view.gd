@@ -164,6 +164,7 @@ const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
 const PROJECTILE_SPRITE_PATH_ANCHOR_X: float = 0.78
 const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
 const LETHAL_SKULL_EFFECT_PATH: String = "res://assets/art/effects/lethal_skull.png"
+const BLINK_RIFT_PREVIEW_TEXTURE_PATH: String = "res://assets/art/effects/blink_rift_preview.png"
 const DEFENSE_HEAL_CASTS_PATH: String = "res://assets/art/effects/defense_heal_casts.png"
 const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
 const DEFENSE_HEAL_CASTS_ROWS: int = 3
@@ -3038,10 +3039,7 @@ func _draw_effect_overlay() -> void:
 		"blink":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
-			var blink_point: Vector2 = from_point.lerp(to_point, progress)
-			draw_line(from_point + Vector2(0.0, -10.0), blink_point + Vector2(0.0, -10.0), Color("bdb5ff"), 3.0, true)
-			draw_arc(from_point, _tile_width() * 0.16, 0.0, TAU, 16, Color("c6bdff"), 2.0)
-			draw_arc(blink_point, _tile_width() * 0.16, 0.0, TAU, 16, Color("c6bdff"), 2.0)
+			_draw_blink_rift_effect(from_tile, to_tile, progress, bool(effect.get("preview", false)))
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -3323,6 +3321,307 @@ func _projectile_trail_width(element_id: String) -> float:
 		_:
 			return 3.0
 
+func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: float, preview: bool = false) -> void:
+	var from_point: Vector2 = _tile_center(from_tile)
+	var to_point: Vector2 = _tile_center(to_tile)
+	var path: Vector2 = to_point - from_point
+	var path_length: float = path.length()
+	var direction: Vector2 = path / path_length if path_length > 0.001 else Vector2.RIGHT
+	var normal := Vector2(-direction.y, direction.x)
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	var eased_progress: float = _blink_rift_ease(clamped_progress)
+	var distance_tiles: float = maxf(1.0, path_length / maxf(1.0, tile_width * 0.56))
+	var preview_scale: float = 0.78 if preview else 1.0
+	var rift_alpha_scale: float = 0.96 if preview else 1.0
+	var band_width: float = clampf(tile_width * (0.15 + distance_tiles * 0.012), 8.0, 19.0) * preview_scale
+	var path_lift := Vector2(0.0, -tile_height * 0.28)
+	var from_lifted: Vector2 = from_point + path_lift
+	var to_lifted: Vector2 = to_point + path_lift
+	var current_point: Vector2 = from_point.lerp(to_point, eased_progress)
+	var wash_reveal: float = 1.0 if preview else clampf(eased_progress + 0.22, 0.0, 1.0)
+
+	if preview:
+		_draw_blink_preview_integrated_rift(from_lifted, to_lifted, direction, normal, band_width, rift_alpha_scale, clamped_progress * TAU)
+		return
+
+	_draw_blink_smoke_wash(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
+	draw_line(from_lifted, to_lifted, Color(0.018, 0.012, 0.034, 0.15 * rift_alpha_scale), band_width * 1.75, true)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, wash_reveal, band_width * 0.70, Color(0.08, 0.055, 0.13, 0.13 * rift_alpha_scale), clamped_progress * TAU)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, eased_progress, band_width, Color(0.18, 0.12, 0.27, 0.45 * rift_alpha_scale), clamped_progress * TAU * 1.35)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, clampf(eased_progress + 0.12, 0.0, 1.0), band_width * 0.42, Color(0.55, 0.49, 0.78, 0.30 * rift_alpha_scale), clamped_progress * TAU * 1.75)
+	_draw_blink_rift_edge_strokes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
+	_draw_blink_rift_motes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
+
+	var source_alpha: float = lerpf(0.68, 0.20, eased_progress) * preview_scale
+	var destination_alpha: float = lerpf(0.18, 0.74, eased_progress) * preview_scale
+	_draw_tile_ring(from_tile, Color(0.20, 0.13, 0.28, source_alpha), 2.4 * preview_scale, lerpf(0.82, 1.02, eased_progress))
+	_draw_tile_ring(to_tile, Color(0.52, 0.46, 0.74, destination_alpha), 2.5 * preview_scale, lerpf(0.78, 0.98, eased_progress))
+	_draw_blink_rift_mouth(from_point, source_alpha, clamped_progress, 0.08, preview)
+	_draw_blink_rift_mouth(to_point, destination_alpha, clamped_progress, 0.58, preview)
+
+	var settle_fade: float = 1.0 - clampf((clamped_progress - 0.86) / 0.14, 0.0, 1.0)
+	for puff_index: int in range(4):
+		var trail_t: float = clampf(eased_progress - float(puff_index) * 0.17, 0.0, 1.0)
+		if trail_t <= 0.0 and clamped_progress < 0.16:
+			continue
+		var puff_alpha: float = (0.20 - float(puff_index) * 0.035) * (0.55 + 0.45 * clamped_progress) * preview_scale * settle_fade
+		if puff_alpha <= 0.01:
+			continue
+		var wave_offset: Vector2 = normal * sin(trail_t * TAU * 1.7 + float(puff_index) * 0.9) * tile_width * 0.065
+		var puff_center: Vector2 = from_point.lerp(to_point, trail_t) + path_lift * 0.84 + wave_offset
+		var puff_radius: float = clampf(tile_width * (0.10 + float(puff_index) * 0.025), 6.0, 15.0)
+		draw_circle(puff_center, puff_radius, Color(0.025, 0.018, 0.045, puff_alpha))
+		draw_circle(puff_center + normal * tile_width * 0.03, puff_radius * 0.55, Color(0.18, 0.12, 0.26, puff_alpha * 0.48))
+
+	var ghost_fade: float = 1.0 - clampf((clamped_progress - 0.80) / 0.20, 0.0, 1.0)
+	_draw_blink_afterimage_ghost(from_point, maxf(0.0, 0.20 * (1.0 - eased_progress)) * ghost_fade, 0.96)
+	for ghost_index: int in range(4):
+		var ghost_t: float = clampf(eased_progress - float(ghost_index) * 0.13, 0.0, 1.0)
+		if ghost_t <= 0.02:
+			continue
+		var ghost_center: Vector2 = from_point.lerp(to_point, ghost_t)
+		ghost_center += normal * sin(ghost_t * TAU * 1.25 + float(ghost_index) * 0.65) * tile_width * 0.035
+		var ghost_alpha: float = (0.28 - float(ghost_index) * 0.045) * (0.38 + 0.62 * clamped_progress) * ghost_fade
+		_draw_blink_afterimage_ghost(ghost_center, ghost_alpha, 0.98 - float(ghost_index) * 0.045)
+	_draw_blink_afterimage_ghost(current_point, (0.14 + 0.18 * clamped_progress) * ghost_fade, 1.04)
+
+func _blink_rift_ease(progress: float) -> float:
+	var t: float = clampf(progress, 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
+
+func _draw_blink_preview_integrated_rift(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, width: float, alpha_scale: float, phase: float) -> void:
+	var texture: Texture2D = _effect_textures.get("blink_rift_preview", null)
+	if texture != null:
+		_draw_blink_preview_rift_texture(texture, from_point, to_point, width, alpha_scale)
+		return
+	_draw_blink_preview_rift_ribbon(from_point, to_point, direction, normal, 1.0, width, alpha_scale, phase)
+	_draw_blink_preview_endpoint_smudge(from_point, direction, normal, width * 1.08, Color(0.010, 0.008, 0.026, 0.17 * alpha_scale), phase + 0.40)
+	_draw_blink_preview_endpoint_smudge(from_point + direction * width * 0.42 - normal * width * 0.12, direction, normal, width * 0.72, Color(0.105, 0.070, 0.150, 0.11 * alpha_scale), phase + 1.60)
+	_draw_blink_preview_endpoint_smudge(to_point, direction * -1.0, normal, width * 1.22, Color(0.030, 0.020, 0.060, 0.21 * alpha_scale), phase + 2.10)
+	_draw_blink_preview_endpoint_smudge(to_point - direction * width * 0.36 + normal * width * 0.10, direction * -1.0, normal, width * 0.78, Color(0.36, 0.29, 0.52, 0.085 * alpha_scale), phase + 3.20)
+
+func _draw_blink_preview_rift_texture(texture: Texture2D, from_point: Vector2, to_point: Vector2, width: float, alpha_scale: float) -> void:
+	var path: Vector2 = to_point - from_point
+	var path_length: float = path.length()
+	if path_length <= 0.001:
+		return
+	var draw_size := Vector2(
+		path_length + width * 8.4,
+		clampf(width * 8.6, 74.0, 136.0)
+	)
+	var center: Vector2 = from_point.lerp(to_point, 0.5)
+	draw_set_transform(center, path.angle(), Vector2.ONE)
+	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(1.0, 1.0, 1.0, 0.88 * alpha_scale))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_blink_preview_endpoint_smudge(center: Vector2, direction: Vector2, normal: Vector2, width: float, color: Color, phase: float) -> void:
+	var points := PackedVector2Array()
+	var point_count: int = 17
+	for point_index: int in range(point_count):
+		var angle: float = TAU * float(point_index) / float(point_count)
+		var forward: float = cos(angle)
+		var sideways: float = sin(angle)
+		var contour: float = 0.88 + 0.13 * sin(angle * 3.0 + phase)
+		contour += 0.07 * sin(angle * 7.0 + phase * 0.63)
+		var taper: float = 1.0 + maxf(forward, 0.0) * 0.34
+		var point: Vector2 = center
+		point += direction * forward * width * 0.78 * contour * taper
+		point += normal * sideways * width * 0.50 * contour
+		point += direction * sin(angle * 5.0 + phase * 0.41) * width * 0.055
+		points.append(point)
+	if points.size() >= 3:
+		draw_colored_polygon(points, color)
+
+func _draw_blink_smoke_wash(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	if preview:
+		_draw_blink_preview_rift_ribbon(from_point, to_point, direction, normal, clamped_reveal, width, alpha_scale, phase)
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var lobe_count: int = mini(18, maxi(6, int(ceil(path_length / maxf(width * 0.85, 1.0)))))
+	var base_alpha: float = 0.088
+	for lobe_index: int in range(lobe_count):
+		var t: float = (float(lobe_index) + 0.5) / float(lobe_count)
+		if t > clamped_reveal:
+			continue
+		var reveal_fade: float = clampf((clamped_reveal - t) * float(lobe_count), 0.0, 1.0)
+		var center_fade: float = 0.38 + 0.62 * sin(t * PI)
+		var drift: float = sin(t * TAU * 2.15 + phase * 0.58) * width * 0.78
+		drift += sin(t * TAU * 5.0 + phase * 0.21) * width * 0.22
+		var pull: float = cos(t * TAU * 1.4 + phase * 0.35) * width * 0.24
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * drift + direction * pull
+		center += Vector2(0.0, sin(t * PI) * width * 0.13)
+		var rough: float = 0.84 + 0.16 * sin(t * TAU * 6.0 + phase)
+		var radius: float = width * ((1.48 if preview else 1.18) + 0.44 * sin(t * TAU * 2.8 + phase * 0.42)) * rough
+		var alpha: float = base_alpha * alpha_scale * center_fade * reveal_fade
+		draw_circle(center + normal * width * 0.18, radius * 1.36, Color(0.010, 0.008, 0.025, alpha * 0.46))
+		draw_circle(center, radius, Color(0.055, 0.035, 0.085, alpha))
+		draw_circle(center + direction * width * 0.24 - normal * width * 0.10, radius * 0.56, Color(0.20, 0.145, 0.29, alpha * 0.52))
+
+func _draw_blink_preview_rift_ribbon(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var segment_count: int = mini(18, maxi(7, int(ceil(path_length / maxf(width * 0.88, 1.0)))))
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 2.75, segment_count, Color(0.006, 0.005, 0.018, 0.135 * alpha_scale), phase + 0.20, Vector2(0.0, width * 0.18))
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 2.05, segment_count, Color(0.035, 0.023, 0.070, 0.175 * alpha_scale), phase + 1.00, normal * width * 0.05)
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 1.22, segment_count, Color(0.120, 0.080, 0.180, 0.135 * alpha_scale), phase + 2.20, -normal * width * 0.06)
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 0.54, segment_count, Color(0.46, 0.38, 0.64, 0.055 * alpha_scale), phase + 3.50, direction * width * 0.06)
+
+func _draw_blink_preview_ribbon_layer(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, segment_count: int, color: Color, phase: float, offset: Vector2) -> void:
+	var left_points: Array[Vector2] = []
+	var right_points: Array[Vector2] = []
+	var safe_segments: int = maxi(2, segment_count)
+	for point_index: int in range(safe_segments + 1):
+		var t: float = reveal * float(point_index) / float(safe_segments)
+		var center_fade: float = pow(sin(t * PI), 0.62)
+		var wave: float = sin(t * TAU * 1.70 + phase) * width * 0.10
+		wave += sin(t * TAU * 3.85 + phase * 0.43) * width * 0.045
+		var center: Vector2 = from_point.lerp(to_point, t) + offset + normal * wave
+		center += Vector2(0.0, sin(t * PI) * width * 0.030)
+		var edge_noise: float = 0.74 + 0.18 * sin(t * TAU * 5.10 + phase * 0.80)
+		edge_noise += 0.08 * sin(t * TAU * 9.30 + phase * 1.70)
+		var half_width: float = width * (0.18 + 0.44 * center_fade) * edge_noise
+		var ragged_shift: Vector2 = direction * sin(t * TAU * 6.50 + phase * 0.37) * width * 0.035
+		left_points.append(center + normal * half_width + ragged_shift)
+		right_points.push_front(center - normal * half_width - ragged_shift * 0.72)
+	var polygon := PackedVector2Array()
+	for point: Vector2 in left_points:
+		polygon.append(point)
+	for point: Vector2 in right_points:
+		polygon.append(point)
+	if polygon.size() >= 3:
+		draw_colored_polygon(polygon, color)
+
+func _draw_blink_smoke_band(from_point: Vector2, to_point: Vector2, normal: Vector2, progress: float, width: float, color: Color, phase: float) -> void:
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	if clamped_progress <= 0.0 or width <= 0.0:
+		return
+	var segment_count: int = 16
+	var visible_segments: int = maxi(2, int(ceil(float(segment_count) * clamped_progress)))
+	var previous_point := Vector2.ZERO
+	for point_index: int in range(visible_segments + 1):
+		var t: float = clamped_progress * float(point_index) / float(visible_segments)
+		var wave: float = sin(t * TAU * 1.7 + phase) * width * 0.42
+		wave += sin(t * TAU * 3.4 + phase * 0.55) * width * 0.18
+		var sag: float = sin(t * PI) * width * 0.12
+		var point: Vector2 = from_point.lerp(to_point, t) + normal * wave + Vector2(0.0, sag)
+		if point_index > 0:
+			var segment_t: float = float(point_index) / float(visible_segments)
+			var center_fade: float = 0.34 + 0.66 * sin(t * PI)
+			var rough: float = 0.78 + 0.22 * sin(t * TAU * 5.6 + phase * 0.37)
+			var alpha: float = color.a * (0.38 + 0.62 * segment_t) * center_fade * rough
+			var segment_width: float = width * (0.55 + 0.35 * center_fade + 0.10 * rough)
+			draw_line(previous_point, point, Color(color.r, color.g, color.b, alpha), segment_width, true)
+		previous_point = point
+
+func _draw_blink_rift_edge_strokes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var stroke_count: int = mini(22, maxi(8, int(ceil(path_length / maxf(width * 0.58, 1.0)))))
+	var base_alpha: float = 0.31 if preview else 0.22
+	for stroke_index: int in range(stroke_count):
+		var t: float = (float(stroke_index) + 0.36) / float(stroke_count)
+		if t > clamped_reveal:
+			continue
+		var side: float = -1.0 if stroke_index % 2 == 0 else 1.0
+		var edge_offset: float = width * (0.70 + 0.34 * sin(t * TAU * 3.1 + phase)) * side
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * edge_offset
+		center += direction * sin(t * TAU * 4.4 + phase * 0.33) * width * 0.20
+		var tangent_length: float = width * (0.34 + 0.18 * sin(t * TAU * 5.3 + phase * 0.44))
+		var curl: Vector2 = normal * side * width * 0.20 * sin(t * TAU * 2.2 + phase)
+		var stroke_alpha: float = base_alpha * alpha_scale * (0.48 + 0.52 * sin(t * PI))
+		var start_point: Vector2 = center - direction * tangent_length + curl
+		var end_point: Vector2 = center + direction * tangent_length - curl * 0.36
+		draw_line(start_point, end_point, Color(0.020, 0.014, 0.040, stroke_alpha * 0.88), 1.45 if preview else 1.9, true)
+		draw_line(start_point.lerp(end_point, 0.34), end_point, Color(0.48, 0.42, 0.66, stroke_alpha * 0.38), 0.75 if preview else 1.05, true)
+
+func _draw_blink_rift_motes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var mote_count: int = mini(28, maxi(9, int(ceil(path_length / maxf(width * 0.42, 1.0)))))
+	var base_alpha: float = 0.22 if preview else 0.18
+	for mote_index: int in range(mote_count):
+		var t: float = (float(mote_index) + 0.24) / float(mote_count)
+		if t > clamped_reveal:
+			continue
+		var offset: float = sin(t * TAU * 7.0 + phase * 0.49) * width * 1.28
+		var lift: float = cos(t * TAU * 4.0 + phase * 0.31) * width * 0.26
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * offset + direction * lift
+		var center_fade: float = 0.28 + 0.72 * sin(t * PI)
+		var alpha: float = base_alpha * alpha_scale * center_fade * (0.56 + 0.44 * sin(t * TAU * 5.5 + phase))
+		var radius: float = 0.75 + 1.15 * (0.5 + 0.5 * sin(t * TAU * 6.3 + phase * 0.62))
+		if preview:
+			var mote_direction: Vector2 = direction * radius * 1.55 + normal * sin(t * TAU * 3.4 + phase) * radius * 0.70
+			draw_line(center - mote_direction * 0.35, center + mote_direction, Color(0.58, 0.52, 0.76, alpha * 0.74), 0.85, true)
+			draw_line(center + Vector2(0.0, 0.8), center + mote_direction * 0.72 + Vector2(0.0, 0.8), Color(0.025, 0.018, 0.045, alpha * 0.18), 1.2, true)
+		else:
+			draw_circle(center, radius, Color(0.58, 0.52, 0.76, alpha))
+			draw_circle(center + Vector2(0.0, 0.8), radius * 1.7, Color(0.025, 0.018, 0.045, alpha * 0.22))
+
+func _draw_blink_rift_mouth(center: Vector2, alpha: float, progress: float, phase: float, preview: bool = false) -> void:
+	if alpha <= 0.0:
+		return
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var mouth_center: Vector2 = center + Vector2(0.0, -tile_height * 0.20)
+	var pulse: float = 0.5 + 0.5 * sin((progress + phase) * TAU)
+	var mouth_scale: float = 0.88 if preview else 1.0
+	draw_circle(mouth_center + Vector2(0.0, tile_height * 0.04), tile_width * (0.18 + 0.03 * pulse) * mouth_scale, Color(0.010, 0.008, 0.024, alpha * 0.16))
+	draw_circle(mouth_center, tile_width * (0.10 + 0.04 * pulse) * mouth_scale, Color(0.015, 0.010, 0.030, alpha * 0.46))
+	draw_circle(mouth_center + Vector2(tile_width * 0.018, -tile_height * 0.018), tile_width * (0.058 + 0.018 * pulse) * mouth_scale, Color(0.20, 0.14, 0.30, alpha * 0.28))
+	for ring_index: int in range(4):
+		var radius: float = tile_width * (0.12 + float(ring_index) * 0.044 + pulse * 0.016) * mouth_scale
+		var start_angle: float = phase * TAU + progress * TAU * (0.62 + float(ring_index) * 0.16) + float(ring_index) * 0.74
+		var end_angle: float = start_angle + PI * (0.74 + float(ring_index) * 0.13)
+		var ring_alpha: float = alpha * (0.56 - float(ring_index) * 0.09)
+		draw_arc(mouth_center, radius, start_angle, end_angle, 14, Color(0.18, 0.12, 0.28, ring_alpha), 1.25 if preview else 1.6)
+		draw_arc(mouth_center, radius + 1.8, end_angle - PI * 0.22, end_angle, 7, Color(0.58, 0.52, 0.78, ring_alpha * 0.34), 0.9 if preview else 1.2)
+
+func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -> void:
+	if alpha <= 0.0:
+		return
+	var unit: Dictionary = _blink_player_unit_snapshot()
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null:
+		draw_circle(center + Vector2(0.0, -_tile_height() * 0.18), _tile_width() * 0.12, Color(0.36, 0.30, 0.52, alpha))
+		return
+	var base_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	var ghost_rect: Rect2 = _scaled_unit_rect(base_rect, scale)
+	ghost_rect.position += Vector2(0.0, -_tile_height() * 0.06)
+	_draw_iso_ground_shadow(center + Vector2(0.0, _tile_height() * 0.14), _tile_width() * 0.36 * scale, _tile_height() * 0.18, _tile_width() * 0.04, alpha * 0.34)
+	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(-2.0, -2.0), ghost_rect.size), false, Color(0.018, 0.012, 0.035, alpha * 0.72))
+	draw_texture_rect(texture, ghost_rect, false, Color(0.48, 0.40, 0.68, alpha))
+	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(2.0, 1.0), ghost_rect.size), false, Color(0.08, 0.04, 0.12, alpha * 0.30))
+
+func _blink_player_unit_snapshot() -> Dictionary:
+	var player: Dictionary = combat_state.get("player", {})
+	return {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"name": "Player",
+		"pos": player.get("pos", Vector2i.ZERO),
+		"hp": int(player.get("hp", 1)),
+		"max_hp": int(player.get("max_hp", maxi(1, int(player.get("hp", 1))))),
+		"block": int(player.get("block", 0)),
+		"stoneskin": int(player.get("stoneskin", 0)),
+		"burn": int(player.get("burn", 0)),
+		"freeze": int(player.get("freeze", 0)),
+		"shock": int(player.get("shock", 0)),
+		"immobilize": bool(player.get("immobilize", false)),
+		"poison": player.get("poison", {}).duplicate(true)
+	}
+
 func _draw_aoe_effect(effect: Dictionary, progress: float, from_point: Vector2, center_point: Vector2) -> void:
 	var tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 	if tiles.is_empty():
@@ -3485,6 +3784,8 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_path_preview() -> void:
+	if _blink_preview_effect_active():
+		return
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
 	if path_tiles.is_empty():
 		return
@@ -3506,6 +3807,10 @@ func _draw_path_preview() -> void:
 		var center: Vector2 = _tile_center(tile) + point_offset
 		draw_circle(center, 5.8, Color(0.05, 0.05, 0.04, 0.78))
 		draw_circle(center, 3.3, color)
+
+func _blink_preview_effect_active() -> bool:
+	var effect: Dictionary = presentation.get("effect", {})
+	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
 
 func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color) -> void:
 	var dir: Vector2 = (to_point - from_point).normalized()
@@ -3837,7 +4142,8 @@ func _load_assets() -> void:
 		)
 	}
 	_effect_textures = {
-		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH)
+		"lethal_skull": AssetLoader.load_texture(LETHAL_SKULL_EFFECT_PATH),
+		"blink_rift_preview": AssetLoader.load_texture(BLINK_RIFT_PREVIEW_TEXTURE_PATH)
 	}
 	_effect_frames = {
 		"melee_slash": _load_sprite_sheet_frames(

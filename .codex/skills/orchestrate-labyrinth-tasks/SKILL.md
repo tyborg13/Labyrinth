@@ -18,6 +18,7 @@ Use this skill to turn reviewed queue items into parallel Codex work. Invoking t
 - Worker branches are temporary isolation branches. After user approval, finished work lands on `master` and pushes `master`; do not publish remote task branches as the final result.
 - Do not use hidden sub-agents as implementation workers. Hidden sub-agents are appropriate for scout review and implementation peer review.
 - Do not push, land, or clean up completed task work until the user explicitly approves.
+- Keep queue state current as part of orchestration, not as a later audit. When a worker reports reviewer signoff and inspection handoff, run `tools/labyrinth_task_queue.py complete`; when the user abandons or blocks work, run `mark abandoned` or `mark blocked`; when approved work lands on `master`, run `landed` before cleanup/reporting. If permissions prevent a queue update, report the exact command still needed.
 
 ## Host Tool Requirements
 
@@ -77,6 +78,7 @@ python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-
    - Read worker threads periodically.
    - Use queue `heartbeat` or `mark` when a worker reports meaningful state changes.
    - If a worker stalls or collides with newer work, mark `blocked` with a note rather than silently relaunching duplicate work.
+   - Do not leave a task in `leased` after a worker has clearly finished, been abandoned, or landed. Reconcile the queue in the same turn you observe the state transition.
 
 6. Require implementation peer review before user handoff.
    - The worker's `$parallel-labyrinth-task` flow requires a reviewer sub-agent.
@@ -97,6 +99,11 @@ python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>"
 7. Wait for user approval.
    - Present branch, worktree, commit, reviewer signoff, proof, inspection fixture launch command or not-applicable reason, and residual risks.
    - Do not land or push until the user explicitly says to push, land, publish, merge, or otherwise gives approval.
+   - If the user abandons the task, mark it immediately:
+
+```bash
+python3 tools/labyrinth_task_queue.py mark <task-id> abandoned --note "<user-facing reason>"
+```
 
 8. Land approved work to `master`.
    - Ask the worker thread that owns the worktree to run the approved publish step, or run it yourself in that worktree if the worker is unavailable.
