@@ -5429,11 +5429,9 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	var preview_units: Array = _preview_units_for_action(preview)
 	if not preview_units.is_empty():
 		result["preview_units"] = preview_units
-	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
-	if not shortcut_plan.is_empty():
-		var movement_risk_chips: Array = _shortcut_movement_risk_chips(shortcut_plan)
-		if not movement_risk_chips.is_empty():
-			result["movement_risk_chips"] = movement_risk_chips
+	var movement_risk_chips: Array = _movement_risk_chips_for_preview(preview, path_tiles)
+	if not movement_risk_chips.is_empty():
+		result["movement_risk_chips"] = movement_risk_chips
 	return result
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
@@ -5691,6 +5689,25 @@ func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
 		if typeof(chip_var) == TYPE_DICTIONARY:
 			chips.append((chip_var as Dictionary).duplicate(true))
 	return chips
+
+func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		return _shortcut_movement_risk_chips(shortcut_plan)
+	if _hovered_board_tile.x < 0 or path_tiles.is_empty():
+		return []
+	var action: Dictionary = preview.get("action", {})
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["move", "blink"]:
+		return []
+	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
+	if not valid_targets.has(_hovered_board_tile):
+		return []
+	var before_state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
+	if before_state.is_empty():
+		return []
+	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, _hovered_board_tile)
+	return _movement_risk_chips_for_states(before_state, after_state, path_tiles)
 
 func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i]) -> Array:
 	var chips: Array = []

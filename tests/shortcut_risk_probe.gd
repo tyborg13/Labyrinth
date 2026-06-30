@@ -3,6 +3,7 @@ extends SceneTree
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const INVALID_TARGET_TILE: Vector2i = Vector2i(-999999, -999999)
 
 var _failed: bool = false
 
@@ -21,13 +22,13 @@ func _initialize() -> void:
 	root.add_child(instance)
 	await process_frame
 	await process_frame
-	await _capture_shortcut_risk_preview(instance)
+	await _capture_movement_risk_previews(instance)
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path("user://probes"))
 	quit(1 if _failed else 0)
 
-func _capture_shortcut_risk_preview(instance: Node) -> void:
+func _capture_movement_risk_previews(instance: Node) -> void:
 	instance.call("_reset_card_resolution")
 	instance.set("_animation_lock", false)
 	var combat := CombatEngine.new()
@@ -64,13 +65,13 @@ func _capture_shortcut_risk_preview(instance: Node) -> void:
 	var combat_state: Dictionary = combat.create_combat(2231, layout, {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["sidestep_slash"],
+		"deck_cards": ["guarded_step", "sidestep_slash"],
 		"relics": [],
-		"hand_size": 1,
+		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["sidestep_slash"]
+	deck["hand"] = ["guarded_step", "sidestep_slash"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -88,26 +89,63 @@ func _capture_shortcut_risk_preview(instance: Node) -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	await _assert_plain_movement_risk_preview(instance, board_view)
+	if _failed:
+		return
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	await _assert_shortcut_risk_preview(instance, board_view)
+
+func _assert_plain_movement_risk_preview(instance: Node, board_view: Node) -> void:
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
-	_require(bool(preview.get("playable", false)), "Shortcut risk probe card should be playable.")
+	_require(bool(preview.get("playable", false)), "Plain movement risk probe card should be playable.")
 	if _failed:
 		return
 	await instance.call("_begin_card_preview", 0, preview)
+	await process_frame
+	await process_frame
+	var move_tile := Vector2i(4, 4)
+	instance.call("_on_board_tile_hovered", move_tile)
+	await process_frame
+	await process_frame
+	var presentation: Dictionary = board_view.get("presentation")
+	var path_tiles: Array = presentation.get("path_tiles", [])
+	_require(path_tiles.has(Vector2i(3, 4)) and path_tiles.has(Vector2i(4, 4)), "Plain movement hover should show the chosen movement path before commit.")
+	var movement_risk_chips: Array = presentation.get("movement_risk_chips", [])
+	var chip_labels: Array = _chip_labels(movement_risk_chips)
+	_require(chip_labels.has("-4 HP"), "Plain movement hover should preview trap HP loss before commit.")
+	_require(chip_labels.has("Shock"), "Plain movement hover should preview trap status before commit.")
+	_require(chip_labels.has("+5 Block"), "Plain movement hover should preview pickup gain before commit.")
+	var effect: Dictionary = presentation.get("effect", {})
+	_require(str(effect.get("kind", "")) == "move", "Plain movement risk hover should remain a move preview.")
+	if _failed:
+		return
+	_save_shortcut_risk_proof("user://probes/run_plain_movement_risk_preview.png", path_tiles, movement_risk_chips, INVALID_TARGET_TILE)
+	var label_text := PackedStringArray()
+	for label_var: Variant in chip_labels:
+		label_text.append(str(label_var))
+	print("Plain movement risk preview labels: %s" % ", ".join(label_text))
+
+func _assert_shortcut_risk_preview(instance: Node, board_view: Node) -> void:
+	var preview: Dictionary = instance.call("_card_preview_for_index", 1)
+	_require(bool(preview.get("playable", false)), "Shortcut risk probe card should be playable.")
+	if _failed:
+		return
+	await instance.call("_begin_card_preview", 1, preview)
 	await process_frame
 	await process_frame
 	var enemy_tile := Vector2i(5, 4)
 	instance.call("_on_board_tile_hovered", enemy_tile)
 	await process_frame
 	await process_frame
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var path_tiles: Array = presentation.get("path_tiles", [])
 	_require(path_tiles.has(Vector2i(3, 4)) and path_tiles.has(Vector2i(4, 4)), "Shortcut hover should show the movement path to the attack position.")
 	var movement_risk_chips: Array = presentation.get("movement_risk_chips", [])
-	var chip_labels: Array = []
-	for chip_var: Variant in movement_risk_chips:
-		if typeof(chip_var) == TYPE_DICTIONARY:
-			chip_labels.append(str((chip_var as Dictionary).get("label", "")))
+	var chip_labels: Array = _chip_labels(movement_risk_chips)
 	_require(chip_labels.has("-4 HP"), "Shortcut hover should preview trap HP loss before commit.")
 	_require(chip_labels.has("Shock"), "Shortcut hover should preview trap status before commit.")
 	_require(chip_labels.has("+5 Block"), "Shortcut hover should preview pickup gain before commit.")
@@ -120,6 +158,13 @@ func _capture_shortcut_risk_preview(instance: Node) -> void:
 	for label_var: Variant in chip_labels:
 		label_text.append(str(label_var))
 	print("Shortcut risk preview labels: %s" % ", ".join(label_text))
+
+func _chip_labels(movement_risk_chips: Array) -> Array:
+	var labels: Array = []
+	for chip_var: Variant in movement_risk_chips:
+		if typeof(chip_var) == TYPE_DICTIONARY:
+			labels.append(str((chip_var as Dictionary).get("label", "")))
+	return labels
 
 func _save_shortcut_risk_proof(output_path: String, path_tiles: Array, movement_risk_chips: Array, enemy_tile: Vector2i) -> void:
 	var image: Image = Image.create(720, 420, false, Image.FORMAT_RGBA8)
@@ -136,7 +181,8 @@ func _save_shortcut_risk_proof(output_path: String, path_tiles: Array, movement_
 	_fill_diamond(image, _proof_tile_center(Vector2i(2, 4)), 23, 12, Color("f1d18b"))
 	_fill_diamond(image, _proof_tile_center(Vector2i(3, 4)), 23, 12, Color("d85f54"))
 	_fill_diamond(image, _proof_tile_center(Vector2i(4, 4)), 23, 12, Color("83d088"))
-	_fill_diamond(image, _proof_tile_center(enemy_tile), 24, 13, Color("f08c53"))
+	if enemy_tile.x >= 0:
+		_fill_diamond(image, _proof_tile_center(enemy_tile), 24, 13, Color("f08c53"))
 	var chip_slot_by_tile: Dictionary = {}
 	for chip_var: Variant in movement_risk_chips:
 		if typeof(chip_var) != TYPE_DICTIONARY:
