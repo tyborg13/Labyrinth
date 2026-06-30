@@ -107,6 +107,23 @@ func _capture_pass_preview_states() -> void:
 		_log_pass_preview_text(instance, "selected_move_hover")
 		await _save_root_screenshot("%s/selected_move_hover.png" % OUTPUT_DIR)
 
+	var attack_hover_state: Dictionary = _pass_preview_probe_state(base_state, "danger")
+	_weaken_first_enemy_for_pass_preview_probe(attack_hover_state, 8)
+	_install_pass_preview_probe_state(instance, attack_hover_state)
+	await process_frame
+	await process_frame
+	await instance.call("_on_card_pressed", 1)
+	await process_frame
+	await process_frame
+	var attack_target := Vector2i(3, 4)
+	if (instance.get("_pending_target_tiles") as Array).has(attack_target):
+		instance.call("_on_board_tile_hovered", attack_target)
+		await process_frame
+		await process_frame
+		_require_pass_preview_chip(instance, "selected attack hover")
+		_log_pass_preview_text(instance, "selected_attack_hover")
+		await _save_root_screenshot("%s/selected_attack_hover.png" % OUTPUT_DIR)
+
 	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
 	_install_pass_preview_probe_state(instance, after_card_state)
 	await process_frame
@@ -257,6 +274,16 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		"pos": enemy_pos
 	}]
 	return state
+
+func _weaken_first_enemy_for_pass_preview_probe(state: Dictionary, hp: int) -> void:
+	var enemies: Array = state.get("enemies", [])
+	if enemies.is_empty():
+		return
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["hp"] = hp
+	enemy["max_hp"] = hp
+	enemies[0] = enemy
+	state["enemies"] = enemies
 
 func _pass_preview_probe_simple_grid() -> Array:
 	var grid: Array = []

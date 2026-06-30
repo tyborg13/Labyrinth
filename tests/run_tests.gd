@@ -5624,6 +5624,40 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert((live_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Selected-card move hover should not move the live player")
 	_assert(((live_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2, "Selected-card pass preview should not remove a live hand card")
 
+	var attack_hover_state: Dictionary = _pass_preview_chip_state("danger")
+	var attack_enemies: Array = attack_hover_state.get("enemies", [])
+	if not attack_enemies.is_empty():
+		var attack_enemy: Dictionary = (attack_enemies[0] as Dictionary).duplicate(true)
+		attack_enemy["hp"] = 8
+		attack_enemy["max_hp"] = 8
+		attack_enemies[0] = attack_enemy
+		attack_hover_state["enemies"] = attack_enemies
+	_install_pass_preview_chip_state(instance, attack_hover_state)
+	await process_frame
+	await process_frame
+	await instance.call("_on_card_pressed", 1)
+	await process_frame
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == 1, "Selecting Quick Stab should keep the attack target pending")
+	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected attack before hover")
+	var attack_target := Vector2i(3, 4)
+	_assert((instance.get("_pending_target_tiles") as Array).has(attack_target), "Pass preview attack-hover coverage should find the adjacent enemy target")
+	instance.call("_on_board_tile_hovered", attack_target)
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["SAFE"], false, false, "selected attack hover")
+	var attack_hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
+	_assert(int(attack_hover_source_state.get("cards_played_this_turn", 0)) == 1, "Attack hover source should include the selected card commit")
+	_assert(int(attack_hover_source_state.get("player_turn_time_spent", 0)) == 2, "Attack hover source should include Quick Stab time before forecasting turn order")
+	_assert(int(((attack_hover_source_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) <= 0, "Attack hover source should include the confirmed attack effect")
+	instance.call("_on_board_tile_hovered", Vector2i(0, 0))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected attack hover cleared")
+	live_state = instance.get("_combat_state")
+	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected attack pass preview should not commit the selected card")
+	_assert(int(((live_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 8, "Selected attack hover should not damage the live enemy")
+
 	instance.queue_free()
 	await process_frame
 

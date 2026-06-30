@@ -4451,6 +4451,8 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 		return {}
 	if _hovered_board_tile.x < 0:
 		return {}
+	if _orientation_pending():
+		return _pass_preview_confirmed_orientation_state(_hovered_board_tile)
 	var preview: Dictionary = _active_card_preview()
 	if preview.is_empty():
 		return {}
@@ -4465,6 +4467,21 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if not _pending_target_tiles.has(_hovered_board_tile):
 		return {}
 	var resolved_state: Dictionary = _combat_engine.apply_player_action(_preview_combat_state.duplicate(true), action, _hovered_board_tile)
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, _pending_actions, _pending_action_index + 1)
+	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _pass_preview_confirmed_orientation_state(click_tile: Vector2i) -> Dictionary:
+	if _pending_orientation_target_tile.x < 0:
+		return {}
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	var direction: Vector2i = _force_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
+	if direction == Vector2i.ZERO:
+		return {}
+	var oriented_action: Dictionary = _action_with_pending_orientation(action, direction)
+	if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, oriented_action).has(_pending_orientation_target_tile):
+		return {}
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(_preview_combat_state.duplicate(true), oriented_action, _pending_orientation_target_tile)
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, _pending_actions, _pending_action_index + 1)
 	return _pass_preview_state_after_pending_preview(next_preview)
@@ -6386,8 +6403,15 @@ func _pass_preview_hover_can_change() -> bool:
 		return false
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
-	var action: Dictionary = _pending_actions[_pending_action_index]
-	return str(action.get("type", "")) in ["move", "blink"] and not _pending_target_tiles.is_empty()
+	if _orientation_pending():
+		return _pending_orientation_target_tile.x >= 0
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return false
+	var action: Dictionary = preview.get("action", {})
+	if not _combat_engine.player_action_needs_target(action):
+		return false
+	return not _vector2i_array(preview.get("target_tiles", [])).is_empty()
 
 func _on_board_tile_dragged(start_tile: Vector2i, current_tile: Vector2i) -> void:
 	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
