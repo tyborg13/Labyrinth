@@ -492,8 +492,8 @@ var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
-var _choice_button_overlay: VBoxContainer
-var _choice_button_row: HBoxContainer
+var _choice_button_overlay: HBoxContainer
+var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
@@ -797,7 +797,7 @@ func _build_overlay_ui() -> void:
 	_build_death_overlay()
 
 func _build_choice_button_overlay() -> void:
-	_choice_button_overlay = VBoxContainer.new()
+	_choice_button_overlay = HBoxContainer.new()
 	_choice_button_overlay.name = "ChoiceButtonOverlay"
 	_choice_button_overlay.visible = false
 	_choice_button_overlay.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -805,20 +805,38 @@ func _build_choice_button_overlay() -> void:
 	_choice_button_overlay.z_index = 120
 	_choice_button_overlay.z_as_relative = false
 	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_CENTER
-	_choice_button_overlay.add_theme_constant_override("separation", 3)
+	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
 	add_child(_choice_button_overlay)
+	_pass_preview_overlay = CenterContainer.new()
+	_pass_preview_overlay.name = "PassPreviewOverlay"
+	_pass_preview_overlay.visible = false
+	_pass_preview_overlay.mouse_filter = Control.MOUSE_FILTER_PASS
+	_pass_preview_overlay.clip_contents = false
+	_pass_preview_overlay.z_index = 121
+	_pass_preview_overlay.z_as_relative = false
+	add_child(_pass_preview_overlay)
 
 func _combat_choice_placeholder_size() -> Vector2:
 	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION)
 
 func _layout_choice_button_overlay() -> void:
-	if _choice_button_overlay == null or not _choice_button_overlay.visible:
+	if _choice_button_overlay == null:
 		return
 	if not choice_bar.is_inside_tree() or not choice_bar.visible:
 		return
-	var overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
-	_choice_button_overlay.global_position = _choice_button_overlay_anchor_position(overlay_size)
-	_choice_button_overlay.size = overlay_size
+	var button_overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
+	var button_overlay_position: Vector2 = _choice_button_overlay_anchor_position(button_overlay_size)
+	if _choice_button_overlay.visible:
+		_choice_button_overlay.global_position = button_overlay_position
+		_choice_button_overlay.size = button_overlay_size
+	if _pass_preview_overlay == null or not _pass_preview_overlay.visible:
+		return
+	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
+	_pass_preview_overlay.global_position = Vector2(
+		button_overlay_position.x + (button_overlay_size.x - preview_size.x) * 0.5,
+		button_overlay_position.y - preview_size.y - 3.0
+	)
+	_pass_preview_overlay.size = preview_size
 
 func _connect_choice_overlay_layout_signals() -> void:
 	for control_var: Variant in [choice_bar, piles_bar, left_action_stack, bottom_stack, hand_row]:
@@ -834,22 +852,14 @@ func _queue_choice_button_overlay_layout() -> void:
 func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 	var choice_rect: Rect2 = choice_bar.get_global_rect()
 	if _choice_bar_anchor_is_ready(choice_rect):
-		var row_height: float = _choice_button_row_height()
 		var x_offset: float = (choice_rect.size.x - overlay_size.x) * 0.5
-		return Vector2(choice_rect.position.x + x_offset, choice_rect.position.y - maxf(0.0, overlay_size.y - row_height))
+		return Vector2(choice_rect.position.x + x_offset, choice_rect.position.y)
 	if piles_bar != null and piles_bar.is_inside_tree():
 		var piles_rect: Rect2 = piles_bar.get_global_rect()
 		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
 			var separation: float = float(left_action_stack.get_theme_constant("separation")) if left_action_stack != null else 0.0
 			return Vector2(piles_rect.position.x, piles_rect.position.y - overlay_size.y - separation)
 	return choice_rect.position
-
-func _choice_button_row_height() -> float:
-	if _choice_button_row != null:
-		var row_size: Vector2 = _choice_button_row.get_combined_minimum_size()
-		if row_size.y > 0.0:
-			return row_size.y
-	return _combat_choice_placeholder_size().y
 
 func _choice_bar_anchor_is_ready(choice_rect: Rect2) -> bool:
 	if choice_rect.size.x <= 0.0 or choice_rect.size.y <= 0.0:
@@ -3475,8 +3485,10 @@ func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
 	if _choice_button_overlay != null:
 		_clear_children_now(_choice_button_overlay)
-		_choice_button_row = null
 		_choice_button_overlay.visible = false
+	if _pass_preview_overlay != null:
+		_clear_children_now(_pass_preview_overlay)
+		_pass_preview_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
 	_clear_terminal_overlay()
@@ -3528,11 +3540,15 @@ func _refresh_choice_bar() -> void:
 		"victory":
 			_show_victory_overlay()
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
+	var has_pass_preview: bool = _pass_preview_overlay != null and _pass_preview_overlay.get_child_count() > 0 and has_overlay_choices
 	if has_overlay_choices:
 		choice_bar.custom_minimum_size = _combat_choice_placeholder_size()
 	choice_bar.visible = choice_bar.get_child_count() > 0 or has_overlay_choices
 	if _choice_button_overlay != null:
 		_choice_button_overlay.visible = has_overlay_choices
+	if _pass_preview_overlay != null:
+		_pass_preview_overlay.visible = has_pass_preview
+	if _choice_button_overlay != null or _pass_preview_overlay != null:
 		_layout_choice_button_overlay()
 		call_deferred("_layout_choice_button_overlay")
 	if _context_choice_overlay != null:
@@ -3558,20 +3574,9 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD)
 	button.pressed.connect(callback)
 	if _choice_buttons_use_overlay():
-		_choice_button_row_container().add_child(button)
+		_choice_button_overlay.add_child(button)
 	else:
 		choice_bar.add_child(button)
-
-func _choice_button_row_container() -> HBoxContainer:
-	if _choice_button_row == null:
-		_choice_button_row = HBoxContainer.new()
-		_choice_button_row.name = "ChoiceButtonRow"
-		_choice_button_row.mouse_filter = Control.MOUSE_FILTER_PASS
-		_choice_button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		_choice_button_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		_choice_button_row.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
-		_choice_button_overlay.add_child(_choice_button_row)
-	return _choice_button_row
 
 func _add_pass_preview_chip() -> void:
 	var summary: Dictionary = _pass_preview_summary()
@@ -3579,7 +3584,10 @@ func _add_pass_preview_chip() -> void:
 		return
 	var chip := TooltipPanelContainer.new()
 	chip.name = "PassPreviewChip"
-	chip.custom_minimum_size = PASS_PREVIEW_CHIP_SIZE
+	var chip_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
+	if bool(summary.get("unrevealed_before_player", false)):
+		chip_size.y = 62.0
+	chip.custom_minimum_size = chip_size
 	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -3592,6 +3600,8 @@ func _add_pass_preview_chip() -> void:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_top", 4)
 	margin.add_theme_constant_override("margin_right", 8)
@@ -3607,6 +3617,7 @@ func _add_pass_preview_chip() -> void:
 
 	var damage_row := HBoxContainer.new()
 	damage_row.name = "PassPreviewDamageRow"
+	damage_row.custom_minimum_size = Vector2(chip_size.x - 16.0, 28.0)
 	damage_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	damage_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -3630,6 +3641,7 @@ func _add_pass_preview_chip() -> void:
 		var danger_label := Label.new()
 		danger_label.name = "PassPreviewDanger"
 		danger_label.text = "DANGER!"
+		danger_label.custom_minimum_size = Vector2(chip_size.x - 16.0, 20.0)
 		danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		danger_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		danger_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -3640,8 +3652,7 @@ func _add_pass_preview_chip() -> void:
 		vbox.add_child(danger_label)
 
 	if _choice_buttons_use_overlay():
-		_choice_button_overlay.add_child(chip)
-		_choice_button_overlay.move_child(chip, 0)
+		_pass_preview_overlay.add_child(chip)
 	else:
 		choice_bar.add_child(chip)
 
@@ -3649,10 +3660,11 @@ func _pass_preview_damage_label(text: String, node_name: String, color: Color, l
 	var label := Label.new()
 	label.name = node_name
 	label.text = text
+	label.custom_minimum_size = Vector2(maxf(32.0, 12.0 + float(text.length()) * (12.0 if large else 10.0)), 28.0 if large else 24.0)
+	label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.clip_text = true
-	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.clip_text = false
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE if large else UiTypography.SIZE_BODY)
 	label.add_theme_color_override("font_color", color)

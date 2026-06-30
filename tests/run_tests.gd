@@ -5416,6 +5416,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
+	await process_frame
 	var choice_host: Node = _run_scene_choice_button_host(instance)
 	var pass_button: Button = _button_with_text(choice_host, "Pass")
 	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
@@ -5426,6 +5427,14 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
 	if overlay != null and piles_bar != null:
 		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat Pass overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
+	if pass_button != null and piles_bar != null:
+		var pass_rect: Rect2 = pass_button.get_global_rect()
+		_assert(pass_rect.position.y + pass_rect.size.y <= piles_bar.global_position.y + 1.0, "Combat Pass button should remain above the pile widgets")
+	var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
+	if preview_overlay != null and preview_overlay.visible and pass_button != null:
+		var preview_rect: Rect2 = preview_overlay.get_global_rect()
+		var preview_pass_rect: Rect2 = pass_button.get_global_rect()
+		_assert(preview_rect.position.y + preview_rect.size.y <= preview_pass_rect.position.y + 1.0, "Pass preview should sit above the Pass button instead of pushing it down")
 	instance.queue_free()
 	await process_frame
 
@@ -7733,6 +7742,9 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 	var row: Node = instance.find_child("PassPreviewDamageRow", true, false)
 	_assert(chip != null, "%s should render the pass preview chip" % context)
 	_assert(row != null, "%s should render the pass preview damage row" % context)
+	if chip != null:
+		var chip_rect: Rect2 = chip.get_global_rect()
+		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
 	if row == null:
 		return
 	var actual_texts: PackedStringArray = _pass_preview_chip_damage_texts(row)
@@ -7741,6 +7753,10 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		if index >= actual_texts.size():
 			break
 		_assert(actual_texts[index] == str(expected_texts[index]), "%s pass preview value %d should be %s, got %s" % [context, index, str(expected_texts[index]), actual_texts[index]])
+	for child: Node in row.get_children():
+		if child is Label:
+			var label_rect: Rect2 = (child as Label).get_global_rect()
+			_assert(label_rect.size.x > 8.0 and label_rect.size.y > 8.0, "%s pass preview label '%s' should have visible dimensions" % [context, (child as Label).text])
 	var defeat_label: Label = instance.find_child("PassPreviewDefeat", true, false) as Label
 	_assert((defeat_label != null) == expect_defeat, "%s defeat label presence should be %s" % [context, str(expect_defeat)])
 	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
