@@ -630,7 +630,13 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
-const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(196.0, 48.0)
+const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 50.0)
+const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 68.0
+const PASS_PREVIEW_STACK_GAP: float = 4.0
+const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(40.0, 26.0)
+const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
+const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
+const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -1062,21 +1068,31 @@ func _combat_choice_placeholder_size() -> Vector2:
 func _layout_choice_button_overlay() -> void:
 	if _choice_button_overlay == null:
 		return
-	if not choice_bar.is_inside_tree() or not choice_bar.visible:
+	if not choice_bar.is_inside_tree():
+		return
+	if not choice_bar.visible and not (_choice_button_overlay.visible or (_pass_preview_overlay != null and _pass_preview_overlay.visible)):
 		return
 	var button_overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
 	var button_overlay_position: Vector2 = _choice_button_overlay_anchor_position(button_overlay_size)
+	var viewport_size: Vector2 = get_viewport_rect().size
+	button_overlay_position.x = clampf(
+		button_overlay_position.x,
+		8.0,
+		maxf(8.0, viewport_size.x - button_overlay_size.x - 8.0)
+	)
 	if _choice_button_overlay.visible:
 		_choice_button_overlay.global_position = button_overlay_position
 		_choice_button_overlay.size = button_overlay_size
 	if _pass_preview_overlay == null or not _pass_preview_overlay.visible:
+		_layout_action_step_tracker()
 		return
 	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
 	_pass_preview_overlay.global_position = Vector2(
 		button_overlay_position.x + (button_overlay_size.x - preview_size.x) * 0.5,
-		button_overlay_position.y - preview_size.y - 3.0
+		button_overlay_position.y - preview_size.y - PASS_PREVIEW_STACK_GAP
 	)
 	_pass_preview_overlay.size = preview_size
+	_layout_action_step_tracker()
 
 func _connect_choice_overlay_layout_signals() -> void:
 	for control_var: Variant in [choice_bar, piles_bar, left_action_stack, bottom_stack, hand_row]:
@@ -1096,14 +1112,25 @@ func _queue_action_step_tracker_layout() -> void:
 
 func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 	var choice_rect: Rect2 = choice_bar.get_global_rect()
-	if _choice_bar_anchor_is_ready(choice_rect):
-		var x_offset: float = (choice_rect.size.x - overlay_size.x) * 0.5
-		return Vector2(choice_rect.position.x + x_offset, choice_rect.position.y)
+	var piles_position := Vector2.ZERO
+	var has_piles_position: bool = false
 	if piles_bar != null and piles_bar.is_inside_tree():
 		var piles_rect: Rect2 = piles_bar.get_global_rect()
 		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
 			var separation: float = float(left_action_stack.get_theme_constant("separation")) if left_action_stack != null else 0.0
-			return Vector2(piles_rect.position.x, piles_rect.position.y - overlay_size.y - separation)
+			piles_position = Vector2(
+				piles_rect.position.x + (piles_rect.size.x - overlay_size.x) * 0.5,
+				piles_rect.position.y - overlay_size.y - separation
+			)
+			has_piles_position = true
+	if _choice_bar_anchor_is_ready(choice_rect):
+		var x_offset: float = (choice_rect.size.x - overlay_size.x) * 0.5
+		var choice_position: Vector2 = Vector2(choice_rect.position.x + x_offset, choice_rect.position.y)
+		if has_piles_position:
+			return Vector2(choice_position.x, piles_position.y)
+		return choice_position
+	if has_piles_position:
+		return piles_position
 	return choice_rect.position
 
 func _choice_bar_anchor_is_ready(choice_rect: Rect2) -> bool:
@@ -3753,6 +3780,14 @@ func _layout_action_step_tracker() -> void:
 	_action_step_tracker.global_position = Vector2(target_x, target_y)
 
 func _action_step_tracker_anchor_rect() -> Rect2:
+	if _pass_preview_overlay != null and _pass_preview_overlay.visible:
+		var preview_rect: Rect2 = _pass_preview_overlay.get_global_rect()
+		if preview_rect.size.x > 0.0 and preview_rect.size.y > 0.0 and preview_rect.position.y > 0.0:
+			return preview_rect
+	if _choice_button_overlay != null and _choice_button_overlay.visible:
+		var overlay_rect: Rect2 = _choice_button_overlay.get_global_rect()
+		if overlay_rect.size.x > 0.0 and overlay_rect.size.y > 0.0 and overlay_rect.position.y > 0.0:
+			return overlay_rect
 	if choice_bar != null and choice_bar.visible:
 		var choice_rect: Rect2 = choice_bar.get_global_rect()
 		if _choice_bar_anchor_is_ready(choice_rect):
@@ -4257,7 +4292,7 @@ func _add_pass_preview_chip() -> void:
 	chip.name = "PassPreviewChip"
 	var chip_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
 	if bool(summary.get("unrevealed_before_player", false)):
-		chip_size.y = 62.0
+		chip_size.y = PASS_PREVIEW_DANGER_CHIP_HEIGHT
 	chip.custom_minimum_size = chip_size
 	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -4273,9 +4308,9 @@ func _add_pass_preview_chip() -> void:
 	margin.anchor_bottom = 1.0
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_left", 10)
 	margin.add_theme_constant_override("margin_top", 4)
-	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_right", 10)
 	margin.add_theme_constant_override("margin_bottom", 4)
 	chip.add_child(margin)
 
@@ -4288,12 +4323,13 @@ func _add_pass_preview_chip() -> void:
 
 	var damage_row := HBoxContainer.new()
 	damage_row.name = "PassPreviewDamageRow"
-	damage_row.custom_minimum_size = Vector2(chip_size.x - 16.0, 28.0)
+	damage_row.custom_minimum_size = Vector2(chip_size.x - 20.0, 30.0)
 	damage_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	damage_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	damage_row.add_theme_constant_override("separation", 7)
+	damage_row.add_theme_constant_override("separation", 5)
 	vbox.add_child(damage_row)
+	damage_row.add_child(_pass_preview_title_label())
 	if bool(summary.get("defeat", false)):
 		damage_row.add_child(_pass_preview_damage_label("DEFEAT", "PassPreviewDefeat", Color("f39779"), true))
 	else:
@@ -4306,13 +4342,18 @@ func _add_pass_preview_chip() -> void:
 					continue
 				var entry: Dictionary = entry_var
 				var entry_color: Color = entry.get("color", Color("d9cdb4"))
-				damage_row.add_child(_pass_preview_damage_label(str(entry.get("text", "")), str(entry.get("name", "PassPreviewLoss")), entry_color, false))
+				damage_row.add_child(_pass_preview_damage_item(
+					str(entry.get("text", "")),
+					str(entry.get("name", "PassPreviewLoss")),
+					entry_color,
+					str(entry.get("icon_path", ""))
+				))
 
 	if bool(summary.get("unrevealed_before_player", false)):
 		var danger_label := Label.new()
 		danger_label.name = "PassPreviewDanger"
 		danger_label.text = "DANGER!"
-		danger_label.custom_minimum_size = Vector2(chip_size.x - 16.0, 20.0)
+		danger_label.custom_minimum_size = Vector2(chip_size.x - 20.0, 22.0)
 		danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		danger_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		danger_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -4326,6 +4367,57 @@ func _add_pass_preview_chip() -> void:
 		_pass_preview_overlay.add_child(chip)
 	else:
 		choice_bar.add_child(chip)
+
+func _pass_preview_title_label() -> Label:
+	var label := Label.new()
+	label.name = "PassPreviewTitle"
+	label.text = "On Turn End:"
+	label.custom_minimum_size = Vector2(104.0, 26.0)
+	label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.clip_text = false
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", Color("d9cdb4"))
+	label.add_theme_color_override("font_outline_color", Color("21150e"))
+	label.add_theme_constant_override("outline_size", 1)
+	return label
+
+func _pass_preview_damage_item(text: String, node_name: String, color: Color, icon_path: String) -> Control:
+	var item := Control.new()
+	item.name = "%sItem" % node_name
+	item.custom_minimum_size = PASS_PREVIEW_VALUE_SIZE
+	item.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	item.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	item.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if not icon_path.is_empty():
+		var icon := TextureRect.new()
+		icon.name = "%sIcon" % node_name
+		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon.anchor_right = 1.0
+		icon.anchor_bottom = 1.0
+		icon.offset_left = 5.0
+		icon.offset_top = 1.0
+		icon.offset_right = -5.0
+		icon.offset_bottom = -1.0
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture = AssetLoader.load_texture(icon_path)
+		icon.modulate = Color(color.r, color.g, color.b, 0.22)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		item.add_child(icon)
+	var label: Label = _pass_preview_damage_label(text, node_name, color, false)
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.anchor_right = 1.0
+	label.anchor_bottom = 1.0
+	label.offset_left = 0.0
+	label.offset_top = 0.0
+	label.offset_right = 0.0
+	label.offset_bottom = 0.0
+	label.custom_minimum_size = PASS_PREVIEW_VALUE_SIZE
+	item.add_child(label)
+	return item
 
 func _pass_preview_damage_label(text: String, node_name: String, color: Color, large: bool) -> Label:
 	var label := Label.new()
@@ -4433,19 +4525,22 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 		entries.append({
 			"name": "PassPreviewStoneSkinLoss",
 			"text": "-%d" % stoneskin_loss,
-			"color": ElementData.accent(ElementData.EARTH)
+			"color": ElementData.accent(ElementData.EARTH),
+			"icon_path": PASS_PREVIEW_STONESKIN_ICON_PATH
 		})
 	if block_loss > 0:
 		entries.append({
 			"name": "PassPreviewBlockLoss",
 			"text": "-%d" % block_loss,
-			"color": Color("90d9ff")
+			"color": Color("90d9ff"),
+			"icon_path": PASS_PREVIEW_BLOCK_ICON_PATH
 		})
 	if hp_loss > 0:
 		entries.append({
 			"name": "PassPreviewHpLoss",
 			"text": "-%d" % hp_loss,
-			"color": Color("f39779")
+			"color": Color("f39779"),
+			"icon_path": PASS_PREVIEW_HEALTH_ICON_PATH
 		})
 	return entries
 

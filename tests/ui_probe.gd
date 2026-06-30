@@ -583,10 +583,26 @@ func _pass_preview_probe_damage_text(row: Node) -> String:
 	if row == null:
 		return ""
 	var parts := PackedStringArray()
-	for child: Node in row.get_children():
-		if child is Label:
-			parts.append((child as Label).text)
+	for label: Label in _pass_preview_probe_damage_labels(row):
+		parts.append(label.text)
 	return " ".join(parts)
+
+func _pass_preview_probe_damage_labels(node: Node) -> Array[Label]:
+	var labels: Array[Label] = []
+	if node is Label and _pass_preview_probe_is_damage_value(node as Label):
+		labels.append(node as Label)
+	for child: Node in node.get_children():
+		labels.append_array(_pass_preview_probe_damage_labels(child))
+	return labels
+
+func _pass_preview_probe_is_damage_value(label: Label) -> bool:
+	return [
+		"PassPreviewStoneSkinLoss",
+		"PassPreviewBlockLoss",
+		"PassPreviewHpLoss",
+		"PassPreviewZero",
+		"PassPreviewDefeat"
+	].has(str(label.name))
 
 func _first_node_named(node: Node, node_name: String) -> Node:
 	if node.name == node_name:

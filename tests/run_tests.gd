@@ -8023,6 +8023,20 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 	if chip != null:
 		var chip_rect: Rect2 = chip.get_global_rect()
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
+		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
+		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
+		var piles_bar: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
+		var action_step_tracker: Control = instance.find_child(ACTION_STEP_TRACKER_PATH, true, false) as Control
+		if preview_overlay != null and preview_overlay.visible and choice_host != null and piles_bar != null:
+			var choice_rect: Rect2 = choice_host.get_global_rect()
+			var piles_rect: Rect2 = piles_bar.get_global_rect()
+			var viewport_width: float = instance.get_viewport().get_visible_rect().size.x
+			_assert(chip_rect.position.y + chip_rect.size.y <= choice_rect.position.y + 1.0, "%s pass preview should stack above the action buttons" % context)
+			_assert(choice_rect.position.y + choice_rect.size.y <= piles_rect.position.y + 1.0, "%s action buttons should stay above the pile widgets" % context)
+			_assert(choice_rect.position.x >= -1.0 and choice_rect.position.x + choice_rect.size.x <= viewport_width + 1.0, "%s action buttons should stay inside the viewport" % context)
+		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
+			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
+			_assert(tracker_rect.position.y + tracker_rect.size.y <= chip_rect.position.y + 1.0, "%s action-step tracker should stack above the pass preview" % context)
 	if row == null:
 		return
 	var actual_texts: PackedStringArray = _pass_preview_chip_damage_texts(row)
@@ -8031,10 +8045,16 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		if index >= actual_texts.size():
 			break
 		_assert(actual_texts[index] == str(expected_texts[index]), "%s pass preview value %d should be %s, got %s" % [context, index, str(expected_texts[index]), actual_texts[index]])
-	for child: Node in row.get_children():
-		if child is Label:
-			var label_rect: Rect2 = (child as Label).get_global_rect()
-			_assert(label_rect.size.x > 8.0 and label_rect.size.y > 8.0, "%s pass preview label '%s' should have visible dimensions" % [context, (child as Label).text])
+	var title_label: Label = instance.find_child("PassPreviewTitle", true, false) as Label
+	_assert(title_label != null and title_label.text == "On Turn End:", "%s pass preview should label the numbers as turn-end damage" % context)
+	for label: Label in _pass_preview_chip_damage_labels(row):
+		var label_rect: Rect2 = label.get_global_rect()
+		_assert(label_rect.size.x > 8.0 and label_rect.size.y > 8.0, "%s pass preview label '%s' should have visible dimensions" % [context, label.text])
+		if _pass_preview_chip_label_uses_icon(label):
+			var icon: TextureRect = instance.find_child("%sIcon" % str(label.name), true, false) as TextureRect
+			_assert(icon != null and icon.texture != null, "%s pass preview value '%s' should carry a faded context icon" % [context, label.text])
+			if icon != null:
+				_assert(icon.modulate.a > 0.0 and icon.modulate.a < 0.5, "%s pass preview value icon should stay faded behind the number" % context)
 	var defeat_label: Label = instance.find_child("PassPreviewDefeat", true, false) as Label
 	_assert((defeat_label != null) == expect_defeat, "%s defeat label presence should be %s" % [context, str(expect_defeat)])
 	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
@@ -8042,10 +8062,32 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 
 func _pass_preview_chip_damage_texts(row: Node) -> PackedStringArray:
 	var texts := PackedStringArray()
-	for child: Node in row.get_children():
-		if child is Label:
-			texts.append((child as Label).text)
+	for label: Label in _pass_preview_chip_damage_labels(row):
+		texts.append(label.text)
 	return texts
+
+func _pass_preview_chip_damage_labels(row: Node) -> Array[Label]:
+	var labels: Array[Label] = []
+	for label: Label in _labels_under(row):
+		if _pass_preview_chip_label_is_value(label):
+			labels.append(label)
+	return labels
+
+func _pass_preview_chip_label_is_value(label: Label) -> bool:
+	return [
+		"PassPreviewStoneSkinLoss",
+		"PassPreviewBlockLoss",
+		"PassPreviewHpLoss",
+		"PassPreviewZero",
+		"PassPreviewDefeat"
+	].has(str(label.name))
+
+func _pass_preview_chip_label_uses_icon(label: Label) -> bool:
+	return [
+		"PassPreviewStoneSkinLoss",
+		"PassPreviewBlockLoss",
+		"PassPreviewHpLoss"
+	].has(str(label.name))
 
 func _pass_preview_chip_move_target(target_tiles: Array, enemy_pos: Vector2i) -> Vector2i:
 	var best_tile: Vector2i = Vector2i(-1, -1)
