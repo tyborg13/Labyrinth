@@ -532,6 +532,10 @@ BOARD_HTML = """<!doctype html>
       background: #2e3329;
     }
 
+    .button.compact {
+      min-width: 86px;
+    }
+
     .meta-strip {
       display: flex;
       align-items: center;
@@ -734,6 +738,14 @@ BOARD_HTML = """<!doctype html>
       overflow-wrap: anywhere;
     }
 
+    .task-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 7px;
+      flex: 0 0 auto;
+    }
+
     .badge-row {
       display: flex;
       flex-wrap: wrap;
@@ -757,6 +769,44 @@ BOARD_HTML = """<!doctype html>
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .card-toggle {
+      min-width: 76px;
+      min-height: 28px;
+      border: 1px solid #cdbfaa;
+      border-radius: 7px;
+      background: #fff9ee;
+      color: #4a4033;
+      font-size: 12px;
+      font-weight: 820;
+    }
+
+    .card-toggle:hover {
+      background: #efe4d2;
+    }
+
+    .card-toggle:focus-visible {
+      outline: 3px solid rgba(212, 155, 53, 0.28);
+      outline-offset: 2px;
+    }
+
+    .task-peek {
+      margin-top: 8px;
+      color: var(--muted-ink);
+      font-size: 12px;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-details {
+      display: block;
+    }
+
+    .task-card.is-collapsed .task-details {
+      display: none;
     }
 
     .badge.status-ready { border-color: rgba(71, 163, 124, 0.55); color: #1d694d; }
@@ -904,6 +954,8 @@ BOARD_HTML = """<!doctype html>
           <option value="terminal">Terminal</option>
           <option value="stale">Stale active</option>
         </select>
+        <button class="button compact" id="expandAll" type="button" title="Expand all visible task cards">Expand all</button>
+        <button class="button compact" id="collapseAll" type="button" title="Collapse all task cards">Collapse all</button>
         <button class="button" id="refresh" type="button" title="Reload queue data">Refresh</button>
       </div>
     </header>
@@ -921,7 +973,8 @@ BOARD_HTML = """<!doctype html>
     const state = {
       snapshot: null,
       query: "",
-      focus: "all"
+      focus: "all",
+      expandedTasks: new Set()
     };
 
     const terminalStatuses = new Set(["done", "blocked", "rejected", "abandoned"]);
@@ -1010,26 +1063,73 @@ BOARD_HTML = """<!doctype html>
       card.append(pathWrap);
     }
 
+    function taskPeek(task) {
+      const parts = [];
+      if (task.updated_label) parts.push(`Updated ${task.updated_label}`);
+      if (task.worker && task.worker.leased_by) parts.push(task.worker.leased_by);
+      if (task.implementation_review && task.implementation_review.reviewer) {
+        parts.push(`Reviewer ${task.implementation_review.reviewer}`);
+      }
+      if (task.is_stale) parts.push("stale");
+      return parts.join(" · ");
+    }
+
+    function visibleTaskIds() {
+      if (!state.snapshot) return [];
+      const ids = [];
+      for (const lane of state.snapshot.lanes) {
+        for (const task of lane.tasks) {
+          if (visibleTask(task)) ids.push(task.id);
+        }
+      }
+      return ids;
+    }
+
+    function setTaskExpanded(taskId, expanded) {
+      if (!taskId) return;
+      if (expanded) {
+        state.expandedTasks.add(taskId);
+      } else {
+        state.expandedTasks.delete(taskId);
+      }
+      render();
+    }
+
     function renderTask(task) {
       const card = el("article", "task-card");
       card.dataset.status = task.status || "";
       if (task.is_stale) card.classList.add("is-stale");
+      const taskId = task.id || "";
+      const expanded = state.expandedTasks.has(taskId);
+      card.classList.toggle("is-collapsed", !expanded);
 
       const inner = el("div", "task-inner");
       const top = el("div", "task-top");
       const titleBlock = el("div", "");
       titleBlock.append(el("h2", "task-title", task.title || "Untitled task"));
-      titleBlock.append(el("div", "task-id", task.id || ""));
+      titleBlock.append(el("div", "task-id", taskId));
       top.append(titleBlock);
 
+      const controls = el("div", "task-controls");
       const badges = el("div", "badge-row");
       badges.append(el("span", `badge status-${task.status}`, task.status_label || task.status));
       badges.append(el("span", "badge", `p${task.priority}`));
       if (task.is_archived) badges.append(el("span", "badge", "archive"));
-      top.append(badges);
+      controls.append(badges);
+      const toggle = el("button", "card-toggle", expanded ? "Collapse" : "Expand");
+      toggle.type = "button";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${task.title || taskId}`);
+      toggle.addEventListener("click", () => setTaskExpanded(taskId, !expanded));
+      controls.append(toggle);
+      top.append(controls);
       inner.append(top);
 
-      if (task.summary) inner.append(el("p", "task-summary", task.summary));
+      const peek = taskPeek(task);
+      if (peek) inner.append(el("div", "task-peek", peek));
+
+      const details = el("div", "task-details");
+      if (task.summary) details.append(el("p", "task-summary", task.summary));
 
       const facts = el("div", "facts");
       appendFact(facts, "Updated", task.updated_label);
@@ -1050,10 +1150,11 @@ BOARD_HTML = """<!doctype html>
       if (task.inspection_fixture && task.inspection_fixture.summary) {
         appendFact(facts, "Inspection", task.inspection_fixture.summary);
       }
-      if (facts.children.length) inner.append(facts);
+      if (facts.children.length) details.append(facts);
 
-      renderPaths(inner, task);
-      if (task.latest_history_note) inner.append(el("div", "history-note", task.latest_history_note));
+      renderPaths(details, task);
+      if (task.latest_history_note) details.append(el("div", "history-note", task.latest_history_note));
+      inner.append(details);
 
       card.append(inner);
       const stale = el("div", "stale-ribbon", `Stale active: no heartbeat for ${task.last_activity_label}`);
@@ -1134,6 +1235,14 @@ BOARD_HTML = """<!doctype html>
         alerts.classList.add("visible");
         alerts.textContent = error.message;
       });
+    });
+    document.getElementById("expandAll").addEventListener("click", () => {
+      for (const id of visibleTaskIds()) state.expandedTasks.add(id);
+      render();
+    });
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      state.expandedTasks.clear();
+      render();
     });
 
     loadBoard().catch((error) => {
