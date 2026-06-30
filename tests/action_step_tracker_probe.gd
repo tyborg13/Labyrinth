@@ -3,9 +3,12 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const GameData = preload("res://scripts/game_data.gd")
 
 const OUTPUT_DIR: String = "user://probes/action_step_tracker"
-const TRACKER_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ActionStepTracker"
+const TRACKER_PATH: String = "ActionStepTracker"
+const CHOICE_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
+const PILES_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
 var _last_statuses: Array = []
 
@@ -28,9 +31,11 @@ func _capture_action_step_tracker_frames() -> void:
 	await process_frame
 
 	await _load_combat_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(5, 4)], 9711)
+	var piles_y_before: float = _control_rect(instance, PILES_PATH).position.y
 	instance.call("_on_card_pressed", 0)
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["current", "remaining"], "move-attack selection")
+	_assert_tracker_layout(instance, "move-attack selection", piles_y_before)
 	await _save_root_screenshot("%s/move_attack_selected.png" % OUTPUT_DIR)
 
 	instance.call("_on_board_tile_clicked", Vector2i(4, 4))
@@ -53,10 +58,31 @@ func _capture_action_step_tracker_frames() -> void:
 	await _save_root_screenshot("%s/auto_skip_current_attack.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, "guarded_step", Vector2i(2, 4), [Vector2i(5, 5)], 9714)
+	piles_y_before = _control_rect(instance, PILES_PATH).position.y
 	instance.call("_on_card_pressed", 0)
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["current", "remaining", "remaining"], "targetless follow-up selection")
+	_assert_tracker_layout(instance, "targetless follow-up selection", piles_y_before)
 	await _save_root_screenshot("%s/targetless_followups_selected.png" % OUTPUT_DIR)
+
+	instance.set("_animation_lock", true)
+	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)])
+	await _settle_ui()
+	_assert_tracker_statuses(instance, ["current", "remaining", "remaining"], "execution move step")
+	_assert_tracker_layout(instance, "execution move step", piles_y_before)
+	await _save_root_screenshot("%s/execution_move_current.png" % OUTPUT_DIR)
+	instance.call("_set_action_step_resolution_index", 1)
+	await _settle_ui()
+	_assert_tracker_statuses(instance, ["done", "current", "remaining"], "execution block step")
+	_assert_tracker_layout(instance, "execution block step", piles_y_before)
+	await _save_root_screenshot("%s/execution_block_current.png" % OUTPUT_DIR)
+	instance.call("_set_action_step_resolution_index", 2)
+	await _settle_ui()
+	_assert_tracker_statuses(instance, ["done", "done", "current"], "execution card-play step")
+	_assert_tracker_layout(instance, "execution card-play step", piles_y_before)
+	await _save_root_screenshot("%s/execution_card_play_current.png" % OUTPUT_DIR)
+	instance.call("_clear_action_step_resolution_tracker")
+	instance.set("_animation_lock", false)
 
 	instance.queue_free()
 	await process_frame
@@ -154,6 +180,27 @@ func _assert_tracker_statuses(instance: Node, expected: Array, label: String) ->
 		if str(statuses[index]) != str(expected[index]):
 			_fail("%s expected statuses %s, got %s" % [label, str(expected), str(statuses)])
 			return
+
+func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: float) -> void:
+	var tracker: Control = instance.get_node_or_null(TRACKER_PATH) as Control
+	var choice: Control = instance.get_node_or_null(CHOICE_PATH) as Control
+	var piles: Control = instance.get_node_or_null(PILES_PATH) as Control
+	if tracker == null or choice == null or piles == null:
+		_fail("Missing controls for tracker layout check: %s" % label)
+		return
+	if absf(piles.global_position.y - expected_piles_y) > 1.0:
+		_fail("%s moved piles from %.1f to %.1f" % [label, expected_piles_y, piles.global_position.y])
+		return
+	var anchor_y: float = choice.global_position.y if choice.visible and choice.size.y > 0.0 else piles.global_position.y
+	if tracker.global_position.y + tracker.size.y > anchor_y + 1.0:
+		_fail("%s tracker overlaps controls: tracker bottom %.1f, anchor %.1f" % [label, tracker.global_position.y + tracker.size.y, anchor_y])
+		return
+
+func _control_rect(instance: Node, path: String) -> Rect2:
+	var control: Control = instance.get_node_or_null(path) as Control
+	if control == null:
+		return Rect2()
+	return Rect2(control.global_position, control.size)
 
 func _settle_ui() -> void:
 	await process_frame

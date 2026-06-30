@@ -327,6 +327,7 @@ const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
 const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(342.0, 92.0)
 const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(46.0, 46.0)
 const ACTION_STEP_ICON_INSET: float = 9.0
+const ACTION_STEP_TRACKER_GAP: float = 8.0
 const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
@@ -487,6 +488,11 @@ var _play_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
 var _action_step_tracker_title: Label
 var _action_step_tracker_steps: HBoxContainer
+var _action_step_resolution_active: bool = false
+var _action_step_resolution_card_id: String = ""
+var _action_step_resolution_actions: Array = []
+var _action_step_resolution_index: int = 0
+var _action_step_resolution_targets: Array[Vector2i] = []
 var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
 var _turn_order_bar: Control
@@ -831,9 +837,14 @@ func _connect_choice_overlay_layout_signals() -> void:
 			continue
 		if not control.resized.is_connected(_queue_choice_button_overlay_layout):
 			control.resized.connect(_queue_choice_button_overlay_layout)
+		if not control.resized.is_connected(_queue_action_step_tracker_layout):
+			control.resized.connect(_queue_action_step_tracker_layout)
 
 func _queue_choice_button_overlay_layout() -> void:
 	call_deferred("_layout_choice_button_overlay")
+
+func _queue_action_step_tracker_layout() -> void:
+	call_deferred("_layout_action_step_tracker")
 
 func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 	var choice_rect: Rect2 = choice_bar.get_global_rect()
@@ -2192,12 +2203,12 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker.name = "ActionStepTracker"
 	_action_step_tracker.visible = false
 	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_MIN_SIZE
-	_action_step_tracker.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	_action_step_tracker.size_flags_vertical = Control.SIZE_SHRINK_END
+	_action_step_tracker.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_action_step_tracker.z_index = 118
+	_action_step_tracker.z_as_relative = false
 	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
-	left_action_stack.add_child(_action_step_tracker)
-	left_action_stack.move_child(_action_step_tracker, 0)
+	add_child(_action_step_tracker)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -2712,6 +2723,8 @@ func _refresh_ui() -> void:
 	_refresh_stage_view()
 	_refresh_hand_panel()
 	_refresh_visibility()
+	_layout_action_step_tracker()
+	call_deferred("_layout_action_step_tracker")
 	_refresh_death_overlay()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
@@ -3393,66 +3406,138 @@ func _refresh_action_step_tracker() -> void:
 	_clear_children_now(_action_step_tracker_steps)
 	_action_step_tracker.set_meta("step_statuses", [])
 	_action_step_tracker.set_meta("step_action_types", [])
-	var mode: String = str(_run_state.get("mode", "room"))
-	var active: bool = (
-		mode == "combat"
-		and not _animation_lock
-		and _selected_card_index >= 0
-		and _pending_actions.size() > 1
-		and _pending_action_index < _pending_actions.size()
-	)
+	var tracker_state: Dictionary = _action_step_tracker_state()
+	var active: bool = bool(tracker_state.get("active", false))
 	_action_step_tracker.visible = active
 	if not active:
 		if _action_step_tracker_title != null:
 			_action_step_tracker_title.text = ""
 		return
-	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var card_id: String = str(tracker_state.get("card_id", ""))
+	var actions: Array = tracker_state.get("actions", [])
+	var current_index: int = int(tracker_state.get("action_index", 0))
+	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
 	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
-	var current_number: int = clampi(_pending_action_index + 1, 1, _pending_actions.size())
+	var current_number: int = clampi(current_index + 1, 1, actions.size())
 	if _action_step_tracker_title != null:
 		_action_step_tracker_title.text = "%s  %d/%d" % [
 			str(card.get("name", card_id)),
 			current_number,
-			_pending_actions.size()
+			actions.size()
 		]
-	var skipped_indices: Dictionary = _action_step_skipped_target_indices()
+	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
 	var statuses: Array = []
 	var action_types: Array = []
-	for index: int in range(_pending_actions.size()):
+	for index: int in range(actions.size()):
 		var action: Dictionary = {}
-		if typeof(_pending_actions[index]) == TYPE_DICTIONARY:
-			action = _pending_actions[index] as Dictionary
-		var status: String = _action_step_status_for_index(index, skipped_indices)
+		if typeof(actions[index]) == TYPE_DICTIONARY:
+			action = actions[index] as Dictionary
+		var status: String = _action_step_status_for_index(index, current_index, skipped_indices)
 		statuses.append(status)
 		action_types.append(str(action.get("type", "")))
 		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status))
 	_action_step_tracker.set_meta("step_statuses", statuses)
 	_action_step_tracker.set_meta("step_action_types", action_types)
+	_layout_action_step_tracker()
+	call_deferred("_layout_action_step_tracker")
 
-func _action_step_skipped_target_indices() -> Dictionary:
+func _action_step_tracker_state() -> Dictionary:
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode != "combat":
+		return {}
+	if _action_step_resolution_active and _action_step_resolution_actions.size() > 1:
+		return {
+			"active": true,
+			"card_id": _action_step_resolution_card_id,
+			"actions": _action_step_resolution_actions,
+			"action_index": clampi(_action_step_resolution_index, 0, _action_step_resolution_actions.size()),
+			"selected_targets": _action_step_resolution_targets
+		}
+	if _selected_card_index < 0 or _pending_actions.size() <= 1 or _pending_action_index >= _pending_actions.size():
+		return {}
+	return {
+		"active": true,
+		"card_id": _card_id_for_hand_index(_selected_card_index),
+		"actions": _pending_actions,
+		"action_index": _pending_action_index,
+		"selected_targets": _pending_selected_targets
+	}
+
+func _action_step_skipped_target_indices_for(actions: Array, selected_targets: Array[Vector2i]) -> Dictionary:
 	var skipped: Dictionary = {}
 	var target_cursor: int = 0
-	for index: int in range(_pending_actions.size()):
+	for index: int in range(actions.size()):
 		var action: Dictionary = {}
-		if typeof(_pending_actions[index]) == TYPE_DICTIONARY:
-			action = _pending_actions[index] as Dictionary
+		if typeof(actions[index]) == TYPE_DICTIONARY:
+			action = actions[index] as Dictionary
 		if not _combat_engine.player_action_needs_target(action):
 			continue
-		if index < _pending_action_index and target_cursor < _pending_selected_targets.size():
-			var selected_tile: Vector2i = _pending_selected_targets[target_cursor]
+		if target_cursor < selected_targets.size():
+			var selected_tile: Vector2i = selected_targets[target_cursor]
 			if selected_tile.x < 0:
 				skipped[index] = true
 		target_cursor += 1
 	return skipped
 
-func _action_step_status_for_index(index: int, skipped_indices: Dictionary) -> String:
+func _action_step_status_for_index(index: int, current_index: int, skipped_indices: Dictionary) -> String:
 	if bool(skipped_indices.get(index, false)):
 		return "skipped"
-	if index < _pending_action_index:
+	if index < current_index:
 		return "done"
-	if index == _pending_action_index:
+	if index == current_index:
 		return "current"
 	return "remaining"
+
+func _layout_action_step_tracker() -> void:
+	if _action_step_tracker == null or not _action_step_tracker.visible:
+		return
+	var tracker_size: Vector2 = _action_step_tracker.get_combined_minimum_size()
+	if tracker_size.x <= 0.0 or tracker_size.y <= 0.0:
+		tracker_size = ACTION_STEP_TRACKER_MIN_SIZE
+	_action_step_tracker.size = tracker_size
+	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
+	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var target_x: float = clampf(anchor_rect.position.x, 8.0, maxf(8.0, viewport_size.x - tracker_size.x - 8.0))
+	var target_y: float = maxf(8.0, anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP)
+	_action_step_tracker.global_position = Vector2(target_x, target_y)
+
+func _action_step_tracker_anchor_rect() -> Rect2:
+	if choice_bar != null and choice_bar.visible:
+		var choice_rect: Rect2 = choice_bar.get_global_rect()
+		if _choice_bar_anchor_is_ready(choice_rect):
+			return choice_rect
+	if piles_bar != null and piles_bar.visible:
+		var piles_rect: Rect2 = piles_bar.get_global_rect()
+		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
+			return piles_rect
+	if left_action_stack != null and left_action_stack.is_inside_tree():
+		return left_action_stack.get_global_rect()
+	return Rect2()
+
+func _begin_action_step_resolution_tracker(card_id: String, actions: Array, selected_targets: Array) -> void:
+	_action_step_resolution_card_id = card_id
+	_action_step_resolution_actions = actions.duplicate(true)
+	_action_step_resolution_targets = _vector2i_array(selected_targets)
+	_action_step_resolution_index = 0
+	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
+	_refresh_action_step_tracker()
+
+func _set_action_step_resolution_index(index: int) -> void:
+	if not _action_step_resolution_active:
+		return
+	_action_step_resolution_index = clampi(index, 0, _action_step_resolution_actions.size())
+	_refresh_action_step_tracker()
+
+func _clear_action_step_resolution_tracker() -> void:
+	_action_step_resolution_active = false
+	_action_step_resolution_card_id = ""
+	_action_step_resolution_actions.clear()
+	_action_step_resolution_index = 0
+	_action_step_resolution_targets.clear()
+	if _action_step_tracker != null:
+		_action_step_tracker.visible = false
 
 func _build_action_step_chip(index: int, action: Dictionary, status: String) -> Control:
 	var chip := PanelContainer.new()
@@ -5755,6 +5840,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
 	_animating_hand_card_index = hand_index
+	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true
 	_begin_card_play_meter_spend_preview()
 	_refresh_ui()
@@ -6140,10 +6226,13 @@ func _set_fatigue_edge_progress(progress: float) -> void:
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var target_index: int = 0
-	for action_var: Variant in actions:
+	for action_index: int in range(actions.size()):
+		var action_var: Variant = actions[action_index]
 		var action: Dictionary = action_var
 		if not _combat_engine.player_action_can_resolve(animated_state, action):
+			_set_action_step_resolution_index(action_index + 1)
 			continue
+		_set_action_step_resolution_index(action_index)
 		var target_tile: Vector2i = INVALID_TARGET_TILE
 		if _combat_engine.player_action_needs_target(action):
 			if target_index < selected_targets.size():
@@ -6153,6 +6242,7 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		var after_state: Dictionary = _combat_engine.apply_player_action(animated_state, action, target_tile)
 		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile)
 		animated_state = after_state
+	_set_action_step_resolution_index(actions.size())
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
@@ -9608,6 +9698,7 @@ func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 	return GameData.card_def(card_id)
 
 func _reset_card_resolution() -> void:
+	_clear_action_step_resolution_tracker()
 	_selected_card_index = -1
 	_selected_card_label_override = ""
 	_hovered_card_index = -1

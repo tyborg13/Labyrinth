@@ -21,6 +21,9 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScript = CardWidget
+const ACTION_STEP_TRACKER_PATH: String = "ActionStepTracker"
+const ACTION_STEP_CHOICE_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
+const ACTION_STEP_PILES_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
 var _failures: Array[String] = []
 
@@ -5987,9 +5990,12 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	await process_frame
 
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(5, 4)])
+	await process_frame
+	var piles_y_before: float = _control_global_rect(instance, ACTION_STEP_PILES_PATH).position.y
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Move-attack selection should show current movement and remaining attack")
+	_assert_action_step_tracker_layout(instance, piles_y_before, "Move-attack tracker should not shift piles or controls")
 	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["done", "current"], "Choosing the move target should advance the tracker to the attack")
@@ -6007,14 +6013,32 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Auto-skipped immobilized movement should be visible before the attack")
 
 	_load_action_step_tracker_fixture(instance, "guarded_step", Vector2i(2, 4), [Vector2i(5, 5)])
+	await process_frame
+	piles_y_before = _control_global_rect(instance, ACTION_STEP_PILES_PATH).position.y
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Targetless follow-up actions should remain visible after the current move step")
+	_assert_action_step_tracker_layout(instance, piles_y_before, "Targetless follow-up tracker should occupy overlay space above controls")
+	instance.set("_animation_lock", true)
+	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)])
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Execution should keep tracker visible during the move animation step")
+	instance.call("_set_action_step_resolution_index", 1)
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["done", "current", "remaining"], "Execution should advance tracker to targetless block step")
+	instance.call("_set_action_step_resolution_index", 2)
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["done", "done", "current"], "Execution should advance tracker to targetless card-play step")
+	instance.call("_set_action_step_resolution_index", 3)
+	await process_frame
+	_assert_action_step_tracker_statuses(instance, ["done", "done", "done"], "Execution should show all steps done through final card resolution")
+	instance.call("_clear_action_step_resolution_tracker")
+	instance.set("_animation_lock", false)
 
 	_load_action_step_tracker_fixture(instance, "quick_stab", Vector2i(2, 4), [Vector2i(3, 4)])
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
-	var tracker: Control = instance.get_node_or_null("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ActionStepTracker") as Control
+	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
 	_assert(tracker != null and not tracker.visible, "Single-action cards should not show the step tracker")
 
 	instance.queue_free()
@@ -6068,7 +6092,7 @@ func _load_action_step_tracker_fixture(instance: Node, card_id: String, player_p
 	instance.call("_refresh_ui")
 
 func _assert_action_step_tracker_statuses(instance: Node, expected: Array, message: String) -> void:
-	var tracker: Control = instance.get_node_or_null("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ActionStepTracker") as Control
+	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
 	_assert(tracker != null and tracker.visible, message)
 	if tracker == null:
 		return
@@ -6078,6 +6102,23 @@ func _assert_action_step_tracker_statuses(instance: Node, expected: Array, messa
 		return
 	for index: int in range(expected.size()):
 		_assert(str(statuses[index]) == str(expected[index]), "%s: expected %s but got %s" % [message, str(expected), str(statuses)])
+
+func _assert_action_step_tracker_layout(instance: Node, expected_piles_y: float, message: String) -> void:
+	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
+	var choice: Control = instance.get_node_or_null(ACTION_STEP_CHOICE_PATH) as Control
+	var piles: Control = instance.get_node_or_null(ACTION_STEP_PILES_PATH) as Control
+	_assert(tracker != null and choice != null and piles != null, "%s: tracker controls should exist" % message)
+	if tracker == null or choice == null or piles == null:
+		return
+	_assert(absf(piles.global_position.y - expected_piles_y) <= 1.0, "%s: pile row moved from %.1f to %.1f" % [message, expected_piles_y, piles.global_position.y])
+	var anchor_y: float = choice.global_position.y if choice.visible and choice.size.y > 0.0 else piles.global_position.y
+	_assert(tracker.global_position.y + tracker.size.y <= anchor_y + 1.0, "%s: tracker should sit above controls" % message)
+
+func _control_global_rect(instance: Node, path: String) -> Rect2:
+	var control: Control = instance.get_node_or_null(path) as Control
+	if control == null:
+		return Rect2()
+	return Rect2(control.global_position, control.size)
 
 func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
