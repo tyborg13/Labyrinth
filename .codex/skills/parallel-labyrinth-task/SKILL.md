@@ -16,6 +16,7 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - Do not present work as ready for user inspection until peer review has signed off and the inspection-fixture step is complete; if review cannot be obtained, report a blocker instead of a done handoff.
 - Do not push, land, or clean up until the user explicitly approves that committed task branch.
 - After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
+- Any user-facing task runner, visual probe, inspection launch, or other worktree-local command must be a single copy-paste command that starts with `cd <task-worktree> && ...`.
 
 ## Starting A Task
 
@@ -57,7 +58,7 @@ python3 tools/parallel_task.py env
 For normal Godot or test commands, use the task-local Godot runner:
 
 ```bash
-python3 tools/godot_task_runner.py --task-id <task-id> --timeout 180 --stream -- godot --headless --path . --script tests/run_tests.gd
+cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --timeout 180 --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
 The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`, and a unique `LABYRINTH_TASK_ID` so default `user://` state does not collide across parallel tasks. It terminates commands after 300 seconds by default, accepts `--timeout <seconds>` to tune that limit, accepts `--timeout 0` for intentionally unbounded local runs, and `--stream` tees output live while preserving captured output for Godot failure-marker scanning.
@@ -65,20 +66,20 @@ The runner gives each Godot process an isolated temp `HOME`, a safe `--log-file`
 For visual probes, use the validated runner instead of invoking probe scripts directly:
 
 ```bash
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/ui_probe.gd --task-id <task-id>
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/motion_probe.gd --task-id <task-id>
+cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/ui_probe.gd --task-id <task-id>
+cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/motion_probe.gd --task-id <task-id>
 ```
 
 The visual runner uses the same temp-home isolation, assigns a unique `user://` namespace per process, validates emitted PNGs, and retries blank or near-blank screenshots. If a probe still fails under the default renderer, retry with an explicit backend such as:
 
 ```bash
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --rendering-driver opengl3_angle tests/ui_probe.gd --task-id <task-id>
+cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --rendering-driver opengl3_angle tests/ui_probe.gd --task-id <task-id>
 ```
 
 For headless playtests, always use unique output directories:
 
 ```bash
-godot --headless --path . --script tools/headless_playtest.gd -- --seed <seed> --output-dir res://playtest/<task-id>/<run-id>
+cd <task-worktree> && godot --headless --path . --script tools/headless_playtest.gd -- --seed <seed> --output-dir res://playtest/<task-id>/<run-id>
 ```
 
 ## Done For Inspection
@@ -104,6 +105,12 @@ python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Conti
 Use the fixture whenever a playable state can make the change easier to inspect. Common scenarios are `combat`, `reward`, `campfire`, `treasure`, `character`, `boss`, `start`, `victory`, and `defeat`. Add focused options such as `--hand`, `--reward-cards`, `--relics`, `--attuned-magic`, `--magic-inventory`, `--equip`, `--equipment-inventory`, `--player-hp`, or `--room-coord` so the Continue button lands near the changed behavior. If the task is tooling-only, analytics-only, data-only with no meaningful playable state, or otherwise not inspectable in-game, record a concise not-applicable reason instead of forcing a fake fixture.
 
 Report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, inspection fixture scenario and launch command or not-applicable reason, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, repeat peer review, and refresh the inspection fixture before handing it back again.
+
+When reporting an inspection launch command, include the worktree change-directory prefix, for example:
+
+```bash
+cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --run-id <run-id> --godot-home-root /private/tmp/labyrinth-godot-home -- godot --path .
+```
 
 ## Peer Review Gate
 
