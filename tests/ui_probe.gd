@@ -600,7 +600,7 @@ func _pass_preview_probe_is_damage_value(label: Label) -> bool:
 		"PassPreviewStoneSkinLoss",
 		"PassPreviewBlockLoss",
 		"PassPreviewHpLoss",
-		"PassPreviewZero",
+		"PassPreviewSafe",
 		"PassPreviewDefeat"
 	].has(str(label.name))
 

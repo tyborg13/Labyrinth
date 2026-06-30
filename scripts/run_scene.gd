@@ -630,10 +630,10 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
-const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(270.0, 50.0)
-const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 68.0
-const PASS_PREVIEW_STACK_GAP: float = 4.0
-const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(40.0, 26.0)
+const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(340.0, 64.0)
+const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 88.0
+const PASS_PREVIEW_STACK_GAP: float = 6.0
+const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(54.0, 34.0)
 const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
@@ -1050,7 +1050,7 @@ func _build_choice_button_overlay() -> void:
 	_choice_button_overlay.clip_contents = false
 	_choice_button_overlay.z_index = 120
 	_choice_button_overlay.z_as_relative = false
-	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_CENTER
+	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
 	add_child(_choice_button_overlay)
 	_pass_preview_overlay = CenterContainer.new()
@@ -1088,7 +1088,7 @@ func _layout_choice_button_overlay() -> void:
 		return
 	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
 	_pass_preview_overlay.global_position = Vector2(
-		button_overlay_position.x + (button_overlay_size.x - preview_size.x) * 0.5,
+		button_overlay_position.x,
 		button_overlay_position.y - preview_size.y - PASS_PREVIEW_STACK_GAP
 	)
 	_pass_preview_overlay.size = preview_size
@@ -1119,13 +1119,12 @@ func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
 			var separation: float = float(left_action_stack.get_theme_constant("separation")) if left_action_stack != null else 0.0
 			piles_position = Vector2(
-				piles_rect.position.x + (piles_rect.size.x - overlay_size.x) * 0.5,
+				piles_rect.position.x,
 				piles_rect.position.y - overlay_size.y - separation
 			)
 			has_piles_position = true
 	if _choice_bar_anchor_is_ready(choice_rect):
-		var x_offset: float = (choice_rect.size.x - overlay_size.x) * 0.5
-		var choice_position: Vector2 = Vector2(choice_rect.position.x + x_offset, choice_rect.position.y)
+		var choice_position: Vector2 = Vector2(choice_rect.position.x, choice_rect.position.y)
 		if has_piles_position:
 			return Vector2(choice_position.x, piles_position.y)
 		return choice_position
@@ -4247,9 +4246,7 @@ func _refresh_choice_bar() -> void:
 			_show_victory_overlay()
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
 	var has_pass_preview: bool = _pass_preview_overlay != null and _pass_preview_overlay.get_child_count() > 0 and has_overlay_choices
-	if has_overlay_choices:
-		choice_bar.custom_minimum_size = _combat_choice_placeholder_size()
-	choice_bar.visible = choice_bar.get_child_count() > 0 or has_overlay_choices
+	choice_bar.visible = choice_bar.get_child_count() > 0
 	if _choice_button_overlay != null:
 		_choice_button_overlay.visible = has_overlay_choices
 	if _pass_preview_overlay != null:
@@ -4308,10 +4305,10 @@ func _add_pass_preview_chip() -> void:
 	margin.anchor_bottom = 1.0
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 4)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 4)
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 7)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 7)
 	chip.add_child(margin)
 
 	var vbox := VBoxContainer.new()
@@ -4323,11 +4320,11 @@ func _add_pass_preview_chip() -> void:
 
 	var damage_row := HBoxContainer.new()
 	damage_row.name = "PassPreviewDamageRow"
-	damage_row.custom_minimum_size = Vector2(chip_size.x - 20.0, 30.0)
-	damage_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	damage_row.custom_minimum_size = Vector2(chip_size.x - 28.0, 40.0)
+	damage_row.alignment = BoxContainer.ALIGNMENT_BEGIN
 	damage_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	damage_row.add_theme_constant_override("separation", 5)
+	damage_row.add_theme_constant_override("separation", 8)
 	vbox.add_child(damage_row)
 	damage_row.add_child(_pass_preview_title_label())
 	if bool(summary.get("defeat", false)):
@@ -4335,7 +4332,7 @@ func _add_pass_preview_chip() -> void:
 	else:
 		var entries: Array = summary.get("entries", [])
 		if entries.is_empty():
-			damage_row.add_child(_pass_preview_damage_label("0", "PassPreviewZero", Color("d9cdb4"), false))
+			damage_row.add_child(_pass_preview_damage_label("SAFE", "PassPreviewSafe", Color("8fcf7d"), true))
 		else:
 			for entry_var: Variant in entries:
 				if typeof(entry_var) != TYPE_DICTIONARY:
@@ -4353,11 +4350,11 @@ func _add_pass_preview_chip() -> void:
 		var danger_label := Label.new()
 		danger_label.name = "PassPreviewDanger"
 		danger_label.text = "DANGER!"
-		danger_label.custom_minimum_size = Vector2(chip_size.x - 20.0, 22.0)
+		danger_label.custom_minimum_size = Vector2(chip_size.x - 28.0, 30.0)
 		danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		danger_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		danger_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.set_label_size(danger_label, UiTypography.SIZE_SMALL)
+		UiTypography.set_label_size(danger_label, UiTypography.SIZE_BODY_LARGE)
 		danger_label.add_theme_color_override("font_color", Color("f39779"))
 		danger_label.add_theme_color_override("font_outline_color", Color("200806"))
 		danger_label.add_theme_constant_override("outline_size", 2)
@@ -4372,13 +4369,13 @@ func _pass_preview_title_label() -> Label:
 	var label := Label.new()
 	label.name = "PassPreviewTitle"
 	label.text = "On Turn End:"
-	label.custom_minimum_size = Vector2(104.0, 26.0)
+	label.custom_minimum_size = Vector2(132.0, 34.0)
 	label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.clip_text = false
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE)
 	label.add_theme_color_override("font_color", Color("d9cdb4"))
 	label.add_theme_color_override("font_outline_color", Color("21150e"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -4397,10 +4394,10 @@ func _pass_preview_damage_item(text: String, node_name: String, color: Color, ic
 		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 		icon.anchor_right = 1.0
 		icon.anchor_bottom = 1.0
-		icon.offset_left = 5.0
-		icon.offset_top = 1.0
-		icon.offset_right = -5.0
-		icon.offset_bottom = -1.0
+		icon.offset_left = 6.0
+		icon.offset_top = 2.0
+		icon.offset_right = -6.0
+		icon.offset_bottom = -2.0
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture = AssetLoader.load_texture(icon_path)
@@ -4423,16 +4420,16 @@ func _pass_preview_damage_label(text: String, node_name: String, color: Color, l
 	var label := Label.new()
 	label.name = node_name
 	label.text = text
-	label.custom_minimum_size = Vector2(maxf(32.0, 12.0 + float(text.length()) * (12.0 if large else 10.0)), 28.0 if large else 24.0)
+	label.custom_minimum_size = Vector2(maxf(48.0, 16.0 + float(text.length()) * (15.0 if large else 13.0)), 36.0 if large else 34.0)
 	label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.clip_text = false
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE if large else UiTypography.SIZE_BODY)
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION if large else UiTypography.SIZE_BODY_LARGE)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color("200806"))
-	label.add_theme_constant_override("outline_size", 3 if large else 2)
+	label.add_theme_constant_override("outline_size", 3)
 	return label
 
 func _pass_preview_button_tooltip() -> String:

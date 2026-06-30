@@ -5578,7 +5578,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["0"], false, false, "safe pass")
+	_assert_pass_preview_chip(instance, ["SAFE"], false, false, "safe pass")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("layered"))
 	await process_frame
@@ -5593,7 +5593,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("unrevealed"))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["0"], false, true, "unrevealed pass")
+	_assert_pass_preview_chip(instance, ["SAFE"], false, true, "unrevealed pass")
 	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
 	_assert(danger_label != null and danger_label.text == "DANGER!", "Unrevealed follow-up preview should render DANGER!")
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
@@ -5613,7 +5613,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 		instance.call("_on_board_tile_hovered", move_target)
 		await process_frame
 		await process_frame
-		_assert_pass_preview_chip(instance, ["0"], false, false, "selected move hover")
+		_assert_pass_preview_chip(instance, ["SAFE"], false, false, "selected move hover")
 		var hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
 		_assert((hover_source_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == move_target, "Pass preview hover source should use the hovered move target")
 	live_state = instance.get("_combat_state")
@@ -8034,6 +8034,8 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 			_assert(chip_rect.position.y + chip_rect.size.y <= choice_rect.position.y + 1.0, "%s pass preview should stack above the action buttons" % context)
 			_assert(choice_rect.position.y + choice_rect.size.y <= piles_rect.position.y + 1.0, "%s action buttons should stay above the pile widgets" % context)
 			_assert(choice_rect.position.x >= -1.0 and choice_rect.position.x + choice_rect.size.x <= viewport_width + 1.0, "%s action buttons should stay inside the viewport" % context)
+			_assert(absf(chip_rect.position.x - choice_rect.position.x) <= 1.0, "%s pass preview should be left-aligned with the action buttons" % context)
+			_assert(absf(choice_rect.position.x - piles_rect.position.x) <= 1.0, "%s action buttons should be left-aligned with the pile column" % context)
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
 			_assert(tracker_rect.position.y + tracker_rect.size.y <= chip_rect.position.y + 1.0, "%s action-step tracker should stack above the pass preview" % context)
@@ -8078,7 +8080,7 @@ func _pass_preview_chip_label_is_value(label: Label) -> bool:
 		"PassPreviewStoneSkinLoss",
 		"PassPreviewBlockLoss",
 		"PassPreviewHpLoss",
-		"PassPreviewZero",
+		"PassPreviewSafe",
 		"PassPreviewDefeat"
 	].has(str(label.name))
 
