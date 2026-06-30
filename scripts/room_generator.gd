@@ -19,7 +19,8 @@ const RUSTY_SHIELD_BLOCK: int = 40
 const TERRAIN_HP: int = 30
 const TERRAIN_TARGET_COUNT_MIN: int = 5
 const TERRAIN_TARGET_COUNT_MAX: int = 7
-const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = [6, 7, 8, 9]
+# Boss-depth traps stay below first-boss wisp HP while still beating weak ranged pokes.
+const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = [6, 7, 8, 5]
 const TRAP_DAMAGE_PER_SEQUENCE: int = 2
 
 const TILE_ASH: String = "ash"
