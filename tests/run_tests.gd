@@ -156,6 +156,7 @@ func _initialize() -> void:
 	_test_pillar_art_fits_bottom_center_without_stretching()
 	_test_pillar_torch_fixtures_mount_on_both_visible_faces()
 	_test_column_torch_idle_sheets_load_and_are_clean()
+	_test_campfire_bonfire_assets_keep_clean_alpha_edges()
 	_test_pillar_moss_overlay_is_anchored_to_pillar_cap()
 	_test_wall_and_pillar_assets_stay_distinct()
 	_test_boundary_prop_art_uses_single_tile_footprint()
@@ -4357,6 +4358,46 @@ func _assert_torch_sheet_has_no_chroma_speckles(path: String) -> void:
 			elif color.r > 0.28 and color.b > 0.24 and color.r > color.g * 1.18 and color.b > color.g * 1.18:
 				chroma_pixels += 1
 	_assert(chroma_pixels == 0, "%s should not keep visible green or purple chroma-key speckles" % path)
+
+func _test_campfire_bonfire_assets_keep_clean_alpha_edges() -> void:
+	_assert_campfire_asset_alpha_samples(
+		"res://assets/art/tiles/campfire_bonfire.png",
+		Vector2i(360, 240),
+		[
+			Vector2i(184, 30)
+		]
+	)
+	_assert_campfire_asset_alpha_samples(
+		"res://assets/art/tiles/campfire_bonfire_idle.png",
+		Vector2i(992, 640),
+		[
+			Vector2i(508, 56),
+			Vector2i(1486, 58),
+			Vector2i(2477, 706),
+			Vector2i(3478, 702),
+			Vector2i(494, 1338),
+			Vector2i(499, 1986),
+			Vector2i(1490, 1984)
+		]
+	)
+
+func _assert_campfire_asset_alpha_samples(path: String, frame_size: Vector2i, interior_samples: Array) -> void:
+	var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
+	_assert(image != null and not image.is_empty(), "%s should expose image data for alpha validation" % path)
+	if image == null or image.is_empty():
+		return
+	for sample_var: Variant in interior_samples:
+		var sample: Vector2i = sample_var
+		_assert(
+			image.get_pixel(sample.x, sample.y).a > 0.06,
+			"%s should keep interior flame/smoke pixels opaque after alpha cleanup" % path
+		)
+	for y: int in range(0, image.get_height(), frame_size.y):
+		for x: int in range(0, image.get_width(), frame_size.x):
+			_assert(
+				image.get_pixel(x, y).a <= 0.06,
+				"%s should keep exterior frame corners transparent after alpha cleanup" % path
+			)
 
 func _test_pillar_moss_overlay_is_anchored_to_pillar_cap() -> void:
 	var board := CombatBoardView.new()
