@@ -720,6 +720,7 @@ var _action_step_resolution_index: int = 0
 var _action_step_resolution_targets: Array[Vector2i] = []
 var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
+var _turn_order_anchor: CenterContainer
 var _turn_order_bar: Control
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
@@ -920,6 +921,7 @@ func _notification(what: int) -> void:
 		_layout_choice_button_overlay()
 		_layout_header_hud()
 		_layout_elemental_intensity_bar()
+		_layout_turn_order_anchor()
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
@@ -2600,6 +2602,7 @@ func _connect_header_layout_signals() -> void:
 func _queue_elemental_intensity_layout() -> void:
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
+	call_deferred("_layout_turn_order_anchor")
 
 func _intensity_bar_size() -> Vector2:
 	return Vector2(INTENSITY_BADGE_SIZE.x * 3.0 + 9.0 * 2.0, INTENSITY_BADGE_SIZE.y * 2.0 + 7.0)
@@ -2680,6 +2683,24 @@ func _layout_elemental_intensity_bar() -> void:
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
+
+func _layout_turn_order_anchor() -> void:
+	if _turn_order_anchor == null:
+		return
+	var header_y: float = 0.0
+	var header_height: float = TURN_ORDER_PANEL_MIN_SIZE.y
+	if top_bar != null:
+		var top_bar_rect: Rect2 = top_bar.get_global_rect()
+		header_y = top_bar_rect.position.y - get_global_rect().position.y
+		header_height = maxf(header_height, top_bar_rect.size.y)
+	_turn_order_anchor.anchor_left = 0.0
+	_turn_order_anchor.anchor_top = 0.0
+	_turn_order_anchor.anchor_right = 1.0
+	_turn_order_anchor.anchor_bottom = 0.0
+	_turn_order_anchor.offset_left = 0.0
+	_turn_order_anchor.offset_top = header_y
+	_turn_order_anchor.offset_right = 0.0
+	_turn_order_anchor.offset_bottom = header_y + header_height
 
 func _relic_bar_visible_bottom_y() -> float:
 	if relic_bar == null:
@@ -3032,6 +3053,13 @@ func _refresh_relic_bar() -> void:
 func _setup_turn_order_bar() -> void:
 	if _turn_order_panel != null:
 		return
+	_turn_order_anchor = CenterContainer.new()
+	_turn_order_anchor.name = "TurnOrderAnchor"
+	_turn_order_anchor.visible = false
+	_turn_order_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_anchor.z_index = 35
+	add_child(_turn_order_anchor)
+	_layout_turn_order_anchor()
 	_turn_order_panel = PanelContainer.new()
 	_turn_order_panel.name = "TurnOrderPanel"
 	_turn_order_panel.visible = false
@@ -3069,8 +3097,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_turn_order_bar.custom_minimum_size = TURN_ORDER_PORTRAIT_SIZE
 	row.add_child(_turn_order_bar)
-	top_bar.add_child(_turn_order_panel)
-	top_bar.move_child(_turn_order_panel, header_spacer.get_index())
+	_turn_order_anchor.add_child(_turn_order_panel)
 
 func _refresh_turn_order_bar() -> void:
 	if _turn_order_bar == null:
@@ -3081,8 +3108,7 @@ func _refresh_turn_order_bar() -> void:
 	if mode != "combat" or _combat_state.is_empty():
 		_clear_children(_turn_order_bar)
 		_turn_order_panel_locked_width = -1.0
-		if _turn_order_panel != null:
-			_turn_order_panel.visible = false
+		_set_turn_order_visible(false)
 		return
 	var entries: Array[Dictionary] = _combat_engine.current_turn_order(_turn_order_display_state(), TURN_ORDER_MAX_SLOTS)
 	_set_turn_order_bar_entries(entries)
@@ -3122,11 +3148,19 @@ func _set_turn_order_bar_entries(entries: Array[Dictionary]) -> void:
 	if _turn_order_panel != null:
 		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
 		_turn_order_panel.custom_minimum_size = Vector2(panel_width, TURN_ORDER_PANEL_MIN_SIZE.y)
-		_turn_order_panel.visible = not entries.is_empty()
+		_set_turn_order_visible(not entries.is_empty())
 	for index: int in range(entries.size()):
 		var slot: Control = _build_turn_order_slot(entries[index], index)
 		slot.position = _turn_order_slot_position(index)
 		_turn_order_bar.add_child(slot)
+
+func _set_turn_order_visible(visible: bool) -> void:
+	if _turn_order_panel != null:
+		_turn_order_panel.visible = visible
+	if _turn_order_anchor != null:
+		_turn_order_anchor.visible = visible
+	if visible:
+		_layout_turn_order_anchor()
 
 func _turn_order_entries_width(count: int) -> float:
 	if count <= 0:
