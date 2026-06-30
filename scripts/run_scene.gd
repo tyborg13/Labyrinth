@@ -955,7 +955,7 @@ func _apply_style() -> void:
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		pile_panel.clip_contents = true
-	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE)
+	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE + 3)
 	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
@@ -10277,18 +10277,7 @@ func _room_title_text(room: Dictionary) -> String:
 	return str(room.get("name", "Chamber"))
 
 func _room_subtitle_text(room: Dictionary) -> String:
-	var element_text: String = ElementData.short_label(str(room.get("element", ElementData.NONE)))
-	var depth_text: String = "Depth %d" % int(room.get("depth", 0))
-	if not element_text.is_empty():
-		depth_text = "%s  %s" % [element_text, depth_text]
-	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
-		return "%s  TURN %d  %d/%d" % [
-			depth_text,
-			int(_combat_state.get("turn", 1)),
-			int(_combat_state.get("cards_played_this_turn", 0)),
-			int(_combat_state.get("cards_per_turn", 2))
-		]
-	return depth_text
+	return "Depth %d" % int(room.get("depth", 0))
 
 func _maybe_auto_trigger_room_dialogue() -> void:
 	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
