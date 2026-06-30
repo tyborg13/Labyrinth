@@ -10282,6 +10282,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
 	if JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
+	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
 		"play_mode": play_mode,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -10291,7 +10292,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"enemy_defense_bypassed": _analytics_enemy_defense_bypassed(before_state, resolved_state, actions),
 		"terrain_hp_damage": terrain_hp_damage,
 		"terrain_destroyed": terrain_destroyed,
-		"traps_triggered": _triggered_traps_between(before_state, resolved_state).size(),
+		"traps_triggered": triggered_traps.size(),
+		"triggered_trap_damage": _triggered_trap_damage(triggered_traps),
 		"pickups_collected": _analytics_picked_loot_count(before_state, resolved_state),
 		"embers_recovered": maxi(0, int(resolved_state.get("recovered_embers_total", 0)) - int(before_state.get("recovered_embers_total", 0))),
 		"kills_secured": kills_secured,
@@ -10395,6 +10397,12 @@ func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> 
 		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
 			count += 1
 	return count
+
+func _triggered_trap_damage(triggered_traps: Array[Dictionary]) -> int:
+	var total: int = 0
+	for trap: Dictionary in triggered_traps:
+		total += maxi(0, int(trap.get("damage", 0)))
+	return total
 
 func _analytics_picked_loot_count(before_state: Dictionary, after_state: Dictionary) -> int:
 	var after_claimed: Dictionary = {}

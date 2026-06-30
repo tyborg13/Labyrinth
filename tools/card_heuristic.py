@@ -18,12 +18,14 @@ larger, so Tempest Breath is capped at range 3 after its one-tile advance to
 preserve safe boss-room repositioning. Elemental combat rooms seed 2-3 traps
 across eligible passable floor tiles, including the playable edge band, and
 those traps blast adjacent tiles when stepped on or attacked. First-sequence
-trap damage is 1/2/3 player-scale damage at depths 1/2/3, while depth 1-2 fire
-rooms use shallow burn on enemy attacks and fire traps before depth-3 fire/earth
-trap statuses cap at 2. Every room places a 4 HP potion and 4
-block shield, and combat rooms scatter 5-7 low-HP boxes/crates across eligible
-passable floor tiles, including edge-band tiles when connectivity stays intact.
-Those crates block movement without blocking line of sight.
+trap damage is 6/7/8 player-scale damage at depths 1/2/3, boss-depth traps hit
+for 9, and later sequences add 2 player-scale damage per completed sequence,
+while depth 1-2 fire rooms use shallow burn on enemy attacks and fire traps
+before depth-3 fire/earth trap statuses cap at 2. Every room places a 4 HP
+potion and 4 block shield, and combat rooms scatter 5-7 low-HP boxes/crates
+across eligible passable floor tiles, including edge-band tiles when
+connectivity stays intact. Those crates block movement without blocking line of
+sight.
 Enemies killed by a card add a bonus card play for the turn, so large damage and
 broad damage get a small execute-tempo premium.
 """

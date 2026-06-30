@@ -19,6 +19,8 @@ const RUSTY_SHIELD_BLOCK: int = 40
 const TERRAIN_HP: int = 30
 const TERRAIN_TARGET_COUNT_MIN: int = 5
 const TERRAIN_TARGET_COUNT_MAX: int = 7
+const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = [6, 7, 8, 9]
+const TRAP_DAMAGE_PER_SEQUENCE: int = 2
 
 const TILE_ASH: String = "ash"
 const TILE_EMBER: String = "ember"
@@ -137,7 +139,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var npcs: Array[Dictionary] = _build_room_npcs(grid, player_start, npc_specs, rng, occupied)
 	for npc: Dictionary in npcs:
 		occupied[npc.get("pos", Vector2i(-1, -1))] = true
-	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, encounter_depth, player_start, rng, occupied)
+	var traps: Array[Dictionary] = _generate_traps(grid, room_type, room_element, encounter_depth, _depth_sequence_index(depth), player_start, rng, occupied)
 	for trap: Dictionary in traps:
 		occupied[trap.get("pos", Vector2i(-1, -1))] = true
 	var loot: Array[Dictionary] = _generate_loot(grid, room, rng, occupied)
@@ -811,7 +813,7 @@ func _reachable_floor_count_with_blocked(grid: Array, start: Vector2i, blocked: 
 			queue.append(next_tile)
 	return visited.size()
 
-func _generate_traps(grid: Array, room_type: String, room_element: String, depth: int, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
+func _generate_traps(grid: Array, room_type: String, room_element: String, encounter_depth: int, sequence_index: int, player_start: Vector2i, rng: RandomNumberGenerator, occupied: Dictionary) -> Array[Dictionary]:
 	var traps: Array[Dictionary] = []
 	if room_type not in ["combat", "boss"]:
 		return traps
@@ -840,7 +842,7 @@ func _generate_traps(grid: Array, room_type: String, room_element: String, depth
 		var trap_tile: Vector2i = candidates[best_index]
 		candidates.remove_at(best_index)
 		chosen.append(trap_tile)
-		traps.append(_trap_for_tile(trap_tile, room_element, depth))
+		traps.append(_trap_for_tile(trap_tile, room_element, encounter_depth, sequence_index))
 	return traps
 
 func _trap_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vector2i], rng: RandomNumberGenerator) -> float:
@@ -857,16 +859,16 @@ func _trap_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vec
 			score -= absf(float(nearest_distance - 3)) * 0.28
 	return score
 
-func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Dictionary:
+func _trap_for_tile(tile: Vector2i, room_element: String, encounter_depth: int, sequence_index: int = 0) -> Dictionary:
 	var trap: Dictionary = {
 		"id": "trap_%d_%d" % [tile.x, tile.y],
 		"pos": tile,
 		"element": room_element,
-		"damage": GameData.fixed_point_amount(clampi(depth, 1, 4))
+		"damage": GameData.fixed_point_amount(_trap_damage_scale(encounter_depth, sequence_index))
 	}
 	match room_element:
 		ElementData.FIRE:
-			trap["burn"] = GameData.fixed_point_amount(1 if depth <= 2 else 2)
+			trap["burn"] = GameData.fixed_point_amount(1 if encounter_depth <= 2 else 2)
 		ElementData.ICE:
 			trap["freeze"] = 1
 		ElementData.LIGHTNING:
@@ -874,8 +876,12 @@ func _trap_for_tile(tile: Vector2i, room_element: String, depth: int) -> Diction
 		ElementData.AIR:
 			pass
 		ElementData.EARTH:
-			trap["poison"] = GameData.fixed_point_amount(1 if depth <= 2 else 2)
+			trap["poison"] = GameData.fixed_point_amount(1 if encounter_depth <= 2 else 2)
 	return trap
+
+func _trap_damage_scale(encounter_depth: int, sequence_index: int) -> int:
+	var depth_index: int = clampi(encounter_depth, 1, TRAP_DAMAGE_BY_ENCOUNTER_DEPTH.size()) - 1
+	return TRAP_DAMAGE_BY_ENCOUNTER_DEPTH[depth_index] + maxi(0, sequence_index) * TRAP_DAMAGE_PER_SEQUENCE
 
 func _floor_tiles(grid: Array) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []
