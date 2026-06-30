@@ -401,7 +401,7 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
-const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(284.0, 58.0)
+const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(196.0, 48.0)
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -492,7 +492,8 @@ var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
-var _choice_button_overlay: HBoxContainer
+var _choice_button_overlay: VBoxContainer
+var _choice_button_row: HBoxContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
@@ -796,14 +797,15 @@ func _build_overlay_ui() -> void:
 	_build_death_overlay()
 
 func _build_choice_button_overlay() -> void:
-	_choice_button_overlay = HBoxContainer.new()
+	_choice_button_overlay = VBoxContainer.new()
 	_choice_button_overlay.name = "ChoiceButtonOverlay"
 	_choice_button_overlay.visible = false
 	_choice_button_overlay.mouse_filter = Control.MOUSE_FILTER_PASS
 	_choice_button_overlay.clip_contents = false
 	_choice_button_overlay.z_index = 120
 	_choice_button_overlay.z_as_relative = false
-	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
+	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_CENTER
+	_choice_button_overlay.add_theme_constant_override("separation", 3)
 	add_child(_choice_button_overlay)
 
 func _combat_choice_placeholder_size() -> Vector2:
@@ -832,13 +834,22 @@ func _queue_choice_button_overlay_layout() -> void:
 func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 	var choice_rect: Rect2 = choice_bar.get_global_rect()
 	if _choice_bar_anchor_is_ready(choice_rect):
-		return choice_rect.position
+		var row_height: float = _choice_button_row_height()
+		var x_offset: float = (choice_rect.size.x - overlay_size.x) * 0.5
+		return Vector2(choice_rect.position.x + x_offset, choice_rect.position.y - maxf(0.0, overlay_size.y - row_height))
 	if piles_bar != null and piles_bar.is_inside_tree():
 		var piles_rect: Rect2 = piles_bar.get_global_rect()
 		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
 			var separation: float = float(left_action_stack.get_theme_constant("separation")) if left_action_stack != null else 0.0
 			return Vector2(piles_rect.position.x, piles_rect.position.y - overlay_size.y - separation)
 	return choice_rect.position
+
+func _choice_button_row_height() -> float:
+	if _choice_button_row != null:
+		var row_size: Vector2 = _choice_button_row.get_combined_minimum_size()
+		if row_size.y > 0.0:
+			return row_size.y
+	return _combat_choice_placeholder_size().y
 
 func _choice_bar_anchor_is_ready(choice_rect: Rect2) -> bool:
 	if choice_rect.size.x <= 0.0 or choice_rect.size.y <= 0.0:
@@ -3463,7 +3474,8 @@ func _refresh_death_overlay() -> void:
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
 	if _choice_button_overlay != null:
-		_clear_children(_choice_button_overlay)
+		_clear_children_now(_choice_button_overlay)
+		_choice_button_row = null
 		_choice_button_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
@@ -3546,9 +3558,20 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD)
 	button.pressed.connect(callback)
 	if _choice_buttons_use_overlay():
-		_choice_button_overlay.add_child(button)
+		_choice_button_row_container().add_child(button)
 	else:
 		choice_bar.add_child(button)
+
+func _choice_button_row_container() -> HBoxContainer:
+	if _choice_button_row == null:
+		_choice_button_row = HBoxContainer.new()
+		_choice_button_row.name = "ChoiceButtonRow"
+		_choice_button_row.mouse_filter = Control.MOUSE_FILTER_PASS
+		_choice_button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		_choice_button_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		_choice_button_row.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
+		_choice_button_overlay.add_child(_choice_button_row)
+	return _choice_button_row
 
 func _add_pass_preview_chip() -> void:
 	var summary: Dictionary = _pass_preview_summary()
@@ -3560,58 +3583,82 @@ func _add_pass_preview_chip() -> void:
 	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.mouse_filter = Control.MOUSE_FILTER_STOP
-	chip.mouse_default_cursor_shape = Control.CURSOR_HELP
-	chip.tooltip_text = _pass_preview_tooltip(summary)
+	var tooltip_text: String = _pass_preview_tooltip(summary)
+	chip.mouse_default_cursor_shape = Control.CURSOR_HELP if not tooltip_text.is_empty() else Control.CURSOR_ARROW
+	chip.tooltip_text = tooltip_text
 	chip.add_theme_stylebox_override("panel", _pass_preview_chip_style(summary))
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 6)
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 4)
 	chip.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 1)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 0)
 	margin.add_child(vbox)
 
-	var main_label := Label.new()
-	main_label.name = "PassPreviewMain"
-	main_label.text = str(summary.get("main", "Pass preview"))
-	main_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	main_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	main_label.clip_text = true
-	main_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	main_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(main_label, UiTypography.SIZE_BODY_LARGE)
-	main_label.add_theme_color_override("font_color", Color("fff0d0"))
-	main_label.add_theme_color_override("font_outline_color", Color("241710"))
-	main_label.add_theme_constant_override("outline_size", 2)
-	vbox.add_child(main_label)
+	var damage_row := HBoxContainer.new()
+	damage_row.name = "PassPreviewDamageRow"
+	damage_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	damage_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	damage_row.add_theme_constant_override("separation", 7)
+	vbox.add_child(damage_row)
+	if bool(summary.get("defeat", false)):
+		damage_row.add_child(_pass_preview_damage_label("DEFEAT", "PassPreviewDefeat", Color("f39779"), true))
+	else:
+		var entries: Array = summary.get("entries", [])
+		if entries.is_empty():
+			damage_row.add_child(_pass_preview_damage_label("0", "PassPreviewZero", Color("d9cdb4"), false))
+		else:
+			for entry_var: Variant in entries:
+				if typeof(entry_var) != TYPE_DICTIONARY:
+					continue
+				var entry: Dictionary = entry_var
+				var entry_color: Color = entry.get("color", Color("d9cdb4"))
+				damage_row.add_child(_pass_preview_damage_label(str(entry.get("text", "")), str(entry.get("name", "PassPreviewLoss")), entry_color, false))
 
-	var detail_label := Label.new()
-	detail_label.name = "PassPreviewDetail"
-	detail_label.text = str(summary.get("detail", ""))
-	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	detail_label.clip_text = true
-	detail_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	detail_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
-	detail_label.add_theme_color_override("font_color", Color("d9cdb4"))
-	detail_label.add_theme_color_override("font_outline_color", Color("241710"))
-	detail_label.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(detail_label)
+	if bool(summary.get("unrevealed_before_player", false)):
+		var danger_label := Label.new()
+		danger_label.name = "PassPreviewDanger"
+		danger_label.text = "DANGER!"
+		danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		danger_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		danger_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(danger_label, UiTypography.SIZE_SMALL)
+		danger_label.add_theme_color_override("font_color", Color("f39779"))
+		danger_label.add_theme_color_override("font_outline_color", Color("200806"))
+		danger_label.add_theme_constant_override("outline_size", 2)
+		vbox.add_child(danger_label)
 
 	if _choice_buttons_use_overlay():
 		_choice_button_overlay.add_child(chip)
+		_choice_button_overlay.move_child(chip, 0)
 	else:
 		choice_bar.add_child(chip)
+
+func _pass_preview_damage_label(text: String, node_name: String, color: Color, large: bool) -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.clip_text = true
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE if large else UiTypography.SIZE_BODY)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color("200806"))
+	label.add_theme_constant_override("outline_size", 3 if large else 2)
+	return label
 
 func _pass_preview_button_tooltip() -> String:
 	var summary: Dictionary = _pass_preview_summary()
@@ -3619,143 +3666,110 @@ func _pass_preview_button_tooltip() -> String:
 
 func _pass_preview_source_state() -> Dictionary:
 	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
+		var hovered_state: Dictionary = _pass_preview_hovered_action_state(_preview_combat_state)
+		if not hovered_state.is_empty():
+			return hovered_state
 		return _preview_combat_state.duplicate(true)
 	if not _combat_state.is_empty():
 		return _combat_state.duplicate(true)
 	return {}
 
+func _pass_preview_hovered_action_state(base_state: Dictionary) -> Dictionary:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return {}
+	if _hovered_board_tile.x < 0:
+		return {}
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	if str(action.get("type", "")) not in ["move", "blink"]:
+		return {}
+	if not _pending_target_tiles.has(_hovered_board_tile):
+		return {}
+	return _combat_engine.apply_player_action(base_state.duplicate(true), action, _hovered_board_tile)
+
 func _pass_preview_summary() -> Dictionary:
 	var source_state: Dictionary = _pass_preview_source_state()
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		return {}
-	var source_player: Dictionary = (source_state.get("player", {}) as Dictionary).duplicate(true)
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
-	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state)
 	var after_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
 	if after_state.is_empty():
 		return {}
-	var after_player: Dictionary = (after_state.get("player", {}) as Dictionary).duplicate(true)
-	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
-	var hp_delta: int = int(after_player.get("hp", 0)) - int(source_player.get("hp", 0))
-	var block_delta: int = int(after_player.get("block", 0)) - int(source_player.get("block", 0))
-	var stoneskin_delta: int = int(after_player.get("stoneskin", 0)) - int(source_player.get("stoneskin", 0))
-	var fatigue_damage: int = _pass_preview_fatigue_damage(before_draw_state, after_state)
-	var drawn_cards: int = _draw_entries_between_states(before_draw_state, after_state).size() if not before_draw_state.is_empty() else 0
-	var status_tags: PackedStringArray = _pass_preview_status_tags(source_player, after_player, after_state, phase_result.get("steps", []) as Array)
+	var losses: Dictionary = _pass_preview_player_damage_losses(phase_result.get("steps", []) as Array)
 	var outcome: String = _combat_engine.combat_outcome(after_state)
-	var cards_played: int = int(source_state.get("cards_played_this_turn", 0))
-	var card_capacity: int = _pass_preview_card_capacity(source_state)
-	var cards_remaining: int = _combat_engine.cards_remaining_this_turn(source_state)
-	var main_text: String = _pass_preview_main_text(outcome, hp_delta, block_delta, status_tags)
-	var detail_parts: PackedStringArray = _pass_preview_detail_parts(
-		cards_played,
-		card_capacity,
-		cards_remaining,
-		drawn_cards,
-		block_delta,
-		stoneskin_delta,
-		fatigue_damage,
-		status_tags,
-		outcome
-	)
+	var source_player: Dictionary = (source_state.get("player", {}) as Dictionary)
+	var defeat: bool = outcome == "defeat" or int(source_player.get("hp", 0)) - int(losses.get("hp", 0)) <= 0
+	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
+	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
 	var tone: String = "safe"
-	if outcome == "defeat" or hp_delta < 0 or fatigue_damage > 0:
+	if defeat or int(losses.get("hp", 0)) > 0:
 		tone = "danger"
-	elif not status_tags.is_empty() or block_delta < 0 or stoneskin_delta < 0:
+	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player:
 		tone = "warning"
 	return {
-		"main": main_text,
-		"detail": " | ".join(detail_parts),
-		"tooltip_detail": "\n".join(detail_parts),
 		"tone": tone,
-		"hp_delta": hp_delta,
-		"block_delta": block_delta,
-		"stoneskin_delta": stoneskin_delta,
-		"drawn_cards": drawn_cards,
-		"fatigue_damage": fatigue_damage,
-		"status_tags": status_tags,
+		"entries": entries,
+		"defeat": defeat,
+		"hp_loss": int(losses.get("hp", 0)),
+		"block_loss": int(losses.get("block", 0)),
+		"stoneskin_loss": int(losses.get("stoneskin", 0)),
+		"unrevealed_before_player": unrevealed_before_player,
 		"outcome": outcome
 	}
 
-func _pass_preview_card_capacity(state: Dictionary) -> int:
-	return (
-		int(state.get("cards_per_turn", CombatEngineScript.BASE_CARDS_PER_TURN))
-		+ int(state.get("death_bonus_card_plays_this_turn", 0))
-		+ int(state.get("card_play_bonus_this_turn", 0))
-	)
-
-func _pass_preview_fatigue_damage(before_draw_state: Dictionary, after_state: Dictionary) -> int:
-	if before_draw_state.is_empty() or after_state.is_empty():
-		return 0
-	var total: int = 0
-	for event_var: Variant in _fatigue_damage_events_between_states(before_draw_state, after_state):
-		if typeof(event_var) == TYPE_DICTIONARY:
-			total += maxi(0, int((event_var as Dictionary).get("amount", 0)))
-	return total
-
-func _pass_preview_status_tags(before_player: Dictionary, after_player: Dictionary, after_state: Dictionary, steps: Array) -> PackedStringArray:
-	var tags := PackedStringArray()
-	var restrictions: Dictionary = (after_state.get("player_turn_restrictions", {}) as Dictionary)
-	if int(after_player.get("burn", 0)) > int(before_player.get("burn", 0)):
-		tags.append("Burn")
-	if int(after_player.get("bleed", 0)) > int(before_player.get("bleed", 0)):
-		tags.append("Bleed")
-	if int(after_player.get("freeze", 0)) > int(before_player.get("freeze", 0)) or bool(restrictions.get("frozen", false)):
-		tags.append("Freeze")
-	if int(after_player.get("shock", 0)) > int(before_player.get("shock", 0)) or bool(restrictions.get("shocked", false)):
-		tags.append("Shock")
-	if (bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false))) or bool(restrictions.get("immobilized", false)):
-		tags.append("Immobilize")
-	var before_poison: Dictionary = (before_player.get("poison", {}) as Dictionary)
-	var after_poison: Dictionary = (after_player.get("poison", {}) as Dictionary)
-	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
-		tags.append("Poison")
+func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
+	var losses: Dictionary = {"hp": 0, "block": 0, "stoneskin": 0}
 	for step_var: Variant in steps:
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
-		var status_text: String = str((step_var as Dictionary).get("status_text", ""))
-		for tag_var: Variant in ["Burn", "Bleed", "Freeze", "Shock", "Immobilize", "Poison"]:
-			var tag: String = str(tag_var)
-			if status_text.contains(tag) and not tags.has(tag):
-				tags.append(tag)
-	return tags
+		var step: Dictionary = step_var
+		var target_losses: Array = step.get("target_losses", [])
+		if target_losses.is_empty():
+			if int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0:
+				losses["hp"] = int(losses.get("hp", 0)) + maxi(0, int(step.get("hp_loss", 0)))
+				losses["block"] = int(losses.get("block", 0)) + maxi(0, int(step.get("block_loss", 0)))
+				losses["stoneskin"] = int(losses.get("stoneskin", 0)) + maxi(0, int(step.get("stoneskin_loss", 0)))
+			continue
+		for loss_var: Variant in target_losses:
+			if typeof(loss_var) != TYPE_DICTIONARY:
+				continue
+			var loss: Dictionary = loss_var
+			if str(loss.get("key", "")) != "player" and str(loss.get("kind", "")) != "player":
+				continue
+			losses["hp"] = int(losses.get("hp", 0)) + maxi(0, int(loss.get("hp_loss", 0)))
+			losses["block"] = int(losses.get("block", 0)) + maxi(0, int(loss.get("block_loss", 0)))
+			losses["stoneskin"] = int(losses.get("stoneskin", 0)) + maxi(0, int(loss.get("stoneskin_loss", 0)))
+	return losses
 
-func _pass_preview_main_text(outcome: String, hp_delta: int, block_delta: int, status_tags: PackedStringArray) -> String:
-	if outcome == "defeat":
-		return "Pass: Defeat"
-	if hp_delta < 0:
-		return "Pass: %d HP" % hp_delta
-	if not status_tags.is_empty():
-		return "Pass: %s" % status_tags[0]
-	if block_delta < 0:
-		return "Pass: Block holds"
-	return "Pass: No direct hit"
-
-func _pass_preview_detail_parts(cards_played: int, card_capacity: int, cards_remaining: int, drawn_cards: int, block_delta: int, stoneskin_delta: int, fatigue_damage: int, status_tags: PackedStringArray, outcome: String) -> PackedStringArray:
-	var parts := PackedStringArray()
-	parts.append("%d/%d played" % [cards_played, card_capacity])
-	parts.append("%d left" % cards_remaining)
-	if outcome == "":
-		parts.append("Draw +%d" % drawn_cards if drawn_cards > 0 else "No draw")
-	else:
-		parts.append(outcome.capitalize())
-	if block_delta < 0:
-		parts.append("Block %d" % block_delta)
-	elif block_delta > 0:
-		parts.append("Block +%d" % block_delta)
-	if stoneskin_delta < 0:
-		parts.append("Skin %d" % stoneskin_delta)
-	elif stoneskin_delta > 0:
-		parts.append("Skin +%d" % stoneskin_delta)
-	if fatigue_damage > 0:
-		parts.append("Fatigue -%d" % fatigue_damage)
-	if not status_tags.is_empty():
-		parts.append(", ".join(status_tags))
-	return parts
+func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var stoneskin_loss: int = int(losses.get("stoneskin", 0))
+	var block_loss: int = int(losses.get("block", 0))
+	var hp_loss: int = int(losses.get("hp", 0))
+	if stoneskin_loss > 0:
+		entries.append({
+			"name": "PassPreviewStoneSkinLoss",
+			"text": "-%d" % stoneskin_loss,
+			"color": ElementData.accent(ElementData.EARTH)
+		})
+	if block_loss > 0:
+		entries.append({
+			"name": "PassPreviewBlockLoss",
+			"text": "-%d" % block_loss,
+			"color": Color("90d9ff")
+		})
+	if hp_loss > 0:
+		entries.append({
+			"name": "PassPreviewHpLoss",
+			"text": "-%d" % hp_loss,
+			"color": Color("f39779")
+		})
+	return entries
 
 func _pass_preview_tooltip(summary: Dictionary) -> String:
-	var detail: String = str(summary.get("tooltip_detail", summary.get("detail", "")))
-	return "%s\n%s" % [str(summary.get("main", "Pass preview")), detail]
+	if bool(summary.get("unrevealed_before_player", false)):
+		return "Enemies have unrevealed actions before your next turn, you may take additional damage."
+	return ""
 
 func _pass_preview_chip_style(summary: Dictionary) -> StyleBoxFlat:
 	var tone: String = str(summary.get("tone", "safe"))
@@ -5432,6 +5446,16 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		return
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		_refresh_stage_view()
+		if _pass_preview_hover_can_change():
+			_refresh_choice_bar()
+
+func _pass_preview_hover_can_change() -> bool:
+	if str(_run_state.get("mode", "room")) != "combat":
+		return false
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return false
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	return str(action.get("type", "")) in ["move", "blink"] and not _pending_target_tiles.is_empty()
 
 func _on_board_tile_dragged(start_tile: Vector2i, current_tile: Vector2i) -> void:
 	if _dialogue_active or _animation_lock or _drag_card_index >= 0:

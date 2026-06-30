@@ -397,6 +397,14 @@ func _capture_pass_preview_probe(instance: Node) -> void:
 	_require_pass_preview_chip(instance, "selected card")
 	await _save_root_screenshot("user://probes/run_pass_preview_selected_card.png")
 
+	var move_target: Vector2i = _pass_preview_probe_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
+	if move_target.x >= 0:
+		instance.call("_on_board_tile_hovered", move_target)
+		await process_frame
+		await process_frame
+		_require_pass_preview_chip(instance, "selected move hover")
+		await _save_root_screenshot("user://probes/run_pass_preview_selected_move_hover.png")
+
 	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
 	_install_pass_preview_probe_state(instance, after_card_state)
 	await process_frame
@@ -411,12 +419,19 @@ func _capture_pass_preview_probe(instance: Node) -> void:
 	_require_pass_preview_chip(instance, "safe")
 	await _save_root_screenshot("user://probes/run_pass_preview_safe.png")
 
-	var status_state: Dictionary = _pass_preview_probe_state(base_state, "status")
-	_install_pass_preview_probe_state(instance, status_state)
+	var layered_state: Dictionary = _pass_preview_probe_state(base_state, "layered")
+	_install_pass_preview_probe_state(instance, layered_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "status")
-	await _save_root_screenshot("user://probes/run_pass_preview_status.png")
+	_require_pass_preview_chip(instance, "layered")
+	await _save_root_screenshot("user://probes/run_pass_preview_layered.png")
+
+	var unrevealed_state: Dictionary = _pass_preview_probe_state(base_state, "unrevealed")
+	_install_pass_preview_probe_state(instance, unrevealed_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "unrevealed")
+	await _save_root_screenshot("user://probes/run_pass_preview_unrevealed.png")
 
 	_install_pass_preview_probe_state(instance, safe_state)
 	await process_frame
@@ -440,14 +455,16 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	if kind == "safe":
 		enemy_pos = Vector2i(6, 4)
 		enemy_intent = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
-	elif kind == "status":
-		enemy_intent = {"name": "Static Jab", "time": 1, "actions": [{"type": "melee", "damage": 0, "range": 1, "shock": 1}]}
+	elif kind == "layered":
+		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 12, "range": 1}]}
+	elif kind == "unrevealed":
+		enemy_pos = Vector2i(6, 4)
 	state["player"] = {
 		"pos": Vector2i(2, 4),
 		"hp": 24,
 		"max_hp": 24,
-		"block": 0,
-		"stoneskin": 0,
+		"block": 3 if kind == "layered" else 0,
+		"stoneskin": 4 if kind == "layered" else 0,
 		"burn": 0,
 		"bleed": 0,
 		"expose": 0,
@@ -476,6 +493,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	state["illusions"] = []
 	state["traps"] = []
 	state["terrain"] = []
+	state["grid"] = _pass_preview_probe_simple_grid()
 	state["deck"] = {
 		"hand": ["guarded_step", "quick_stab"],
 		"draw": ["patch_up", "bone_dart"],
@@ -489,7 +507,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	state["cards_played_this_turn"] = 0
 	state["death_bonus_card_plays_this_turn"] = 0
 	state["card_play_bonus_this_turn"] = 0
-	state["player_turn_time_spent"] = 0
+	state["player_turn_time_spent"] = 20 if kind == "unrevealed" else 0
 	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
 	state["pending_player_trap_restriction"] = ""
 	state["turn_flags"] = {"first_attack_bonus_used": false, "first_move_bonus_used": false}
@@ -516,6 +534,15 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		"pos": enemy_pos
 	}]
 	return state
+
+func _pass_preview_probe_simple_grid() -> Array:
+	var grid: Array = []
+	for y: int in range(8):
+		var row: Array[String] = []
+		for x: int in range(8):
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "ash")
+		grid.append(row)
+	return grid
 
 func _pass_preview_probe_move_target(target_tiles: Array, enemy_pos: Vector2i) -> Vector2i:
 	var best_tile: Vector2i = Vector2i(-1, -1)
@@ -548,10 +575,18 @@ func _pass_preview_probe_after_guarded_step(instance: Node, source_state: Dictio
 	return combat_engine.finish_player_card(state, 0)
 
 func _require_pass_preview_chip(instance: Node, label: String) -> void:
-	var main_label: Label = _first_node_named(instance, "PassPreviewMain") as Label
-	var detail_label: Label = _first_node_named(instance, "PassPreviewDetail") as Label
-	if main_label == null or detail_label == null:
-		push_error("Missing pass preview chip labels during %s pass preview probe" % label)
+	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
+	if row == null or _pass_preview_probe_damage_text(row).is_empty():
+		push_error("Missing pass preview damage values during %s pass preview probe" % label)
+
+func _pass_preview_probe_damage_text(row: Node) -> String:
+	if row == null:
+		return ""
+	var parts := PackedStringArray()
+	for child: Node in row.get_children():
+		if child is Label:
+			parts.append((child as Label).text)
+	return " ".join(parts)
 
 func _first_node_named(node: Node, node_name: String) -> Node:
 	if node.name == node_name:

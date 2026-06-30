@@ -51,6 +51,7 @@ const PIXEL_GLYPHS: Dictionary = {
 	"|": ["00100", "00100", "00100", "00100", "00100", "00100", "00100"],
 	",": ["00000", "00000", "00000", "00000", "00100", "00100", "01000"],
 	".": ["00000", "00000", "00000", "00000", "00000", "01100", "01100"],
+	"!": ["00100", "00100", "00100", "00100", "00100", "00000", "00100"],
 	"?": ["01110", "10001", "00001", "00010", "00100", "00000", "00100"]
 }
 
@@ -97,6 +98,15 @@ func _capture_pass_preview_states() -> void:
 	_log_pass_preview_text(instance, "selected")
 	await _save_root_screenshot("%s/selected_card.png" % OUTPUT_DIR)
 
+	var move_target: Vector2i = _pass_preview_probe_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
+	if move_target.x >= 0:
+		instance.call("_on_board_tile_hovered", move_target)
+		await process_frame
+		await process_frame
+		_require_pass_preview_chip(instance, "selected move hover")
+		_log_pass_preview_text(instance, "selected_move_hover")
+		await _save_root_screenshot("%s/selected_move_hover.png" % OUTPUT_DIR)
+
 	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
 	_install_pass_preview_probe_state(instance, after_card_state)
 	await process_frame
@@ -113,13 +123,29 @@ func _capture_pass_preview_states() -> void:
 	_log_pass_preview_text(instance, "safe")
 	await _save_root_screenshot("%s/safe.png" % OUTPUT_DIR)
 
-	var status_state: Dictionary = _pass_preview_probe_state(base_state, "status")
-	_install_pass_preview_probe_state(instance, status_state)
+	var layered_state: Dictionary = _pass_preview_probe_state(base_state, "layered")
+	_install_pass_preview_probe_state(instance, layered_state)
 	await process_frame
 	await process_frame
-	_require_pass_preview_chip(instance, "status")
-	_log_pass_preview_text(instance, "status")
-	await _save_root_screenshot("%s/status.png" % OUTPUT_DIR)
+	_require_pass_preview_chip(instance, "layered")
+	_log_pass_preview_text(instance, "layered")
+	await _save_root_screenshot("%s/layered.png" % OUTPUT_DIR)
+
+	var unrevealed_state: Dictionary = _pass_preview_probe_state(base_state, "unrevealed")
+	_install_pass_preview_probe_state(instance, unrevealed_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "unrevealed")
+	_log_pass_preview_text(instance, "unrevealed")
+	await _save_root_screenshot("%s/unrevealed.png" % OUTPUT_DIR)
+
+	var lethal_state: Dictionary = _pass_preview_probe_state(base_state, "lethal")
+	_install_pass_preview_probe_state(instance, lethal_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "lethal")
+	_log_pass_preview_text(instance, "lethal")
+	await _save_root_screenshot("%s/lethal.png" % OUTPUT_DIR)
 
 	instance.queue_free()
 	await process_frame
@@ -150,14 +176,18 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	if kind == "safe":
 		enemy_pos = Vector2i(6, 4)
 		enemy_intent = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
-	elif kind == "status":
-		enemy_intent = {"name": "Static Jab", "time": 1, "actions": [{"type": "melee", "damage": 0, "range": 1, "shock": 1}]}
+	elif kind == "layered":
+		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 12, "range": 1}]}
+	elif kind == "lethal":
+		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 30, "range": 1}]}
+	elif kind == "unrevealed":
+		enemy_pos = Vector2i(6, 4)
 	state["player"] = {
 		"pos": Vector2i(2, 4),
 		"hp": 24,
 		"max_hp": 24,
-		"block": 0,
-		"stoneskin": 0,
+		"block": 3 if kind == "layered" else 0,
+		"stoneskin": 4 if kind == "layered" else 0,
 		"burn": 0,
 		"bleed": 0,
 		"expose": 0,
@@ -186,6 +216,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	state["illusions"] = []
 	state["traps"] = []
 	state["terrain"] = []
+	state["grid"] = _pass_preview_probe_simple_grid()
 	state["deck"] = {
 		"hand": ["guarded_step", "quick_stab"],
 		"draw": ["patch_up", "bone_dart"],
@@ -199,7 +230,7 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 	state["cards_played_this_turn"] = 0
 	state["death_bonus_card_plays_this_turn"] = 0
 	state["card_play_bonus_this_turn"] = 0
-	state["player_turn_time_spent"] = 0
+	state["player_turn_time_spent"] = 20 if kind == "unrevealed" else 0
 	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
 	state["pending_player_trap_restriction"] = ""
 	state["turn_flags"] = {"first_attack_bonus_used": false, "first_move_bonus_used": false}
@@ -226,6 +257,15 @@ func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictiona
 		"pos": enemy_pos
 	}]
 	return state
+
+func _pass_preview_probe_simple_grid() -> Array:
+	var grid: Array = []
+	for y: int in range(8):
+		var row: Array[String] = []
+		for x: int in range(8):
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "ash")
+		grid.append(row)
+	return grid
 
 func _pass_preview_probe_after_guarded_step(instance: Node, source_state: Dictionary) -> Dictionary:
 	var combat_engine = instance.get("_combat_engine")
@@ -258,17 +298,25 @@ func _pass_preview_probe_move_target(target_tiles: Array, enemy_pos: Vector2i) -
 	return best_tile
 
 func _require_pass_preview_chip(instance: Node, label: String) -> void:
-	var main_label: Label = _first_node_named(instance, "PassPreviewMain") as Label
-	var detail_label: Label = _first_node_named(instance, "PassPreviewDetail") as Label
-	if main_label == null or detail_label == null:
-		push_error("Missing pass preview chip labels during %s pass preview probe" % label)
+	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
+	if row == null or _pass_preview_probe_damage_text(row).is_empty():
+		push_error("Missing pass preview damage values during %s pass preview probe" % label)
 
 func _log_pass_preview_text(instance: Node, label: String) -> void:
-	var main_label: Label = _first_node_named(instance, "PassPreviewMain") as Label
-	var detail_label: Label = _first_node_named(instance, "PassPreviewDetail") as Label
-	var main_text: String = main_label.text if main_label != null else ""
-	var detail_text: String = detail_label.text if detail_label != null else ""
-	print("%s: %s / %s" % [label, main_text, detail_text])
+	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
+	var damage_text: String = _pass_preview_probe_damage_text(row)
+	var danger_label: Label = _first_node_named(instance, "PassPreviewDanger") as Label
+	var danger_text: String = danger_label.text if danger_label != null else ""
+	print("%s: %s %s" % [label, damage_text, danger_text])
+
+func _pass_preview_probe_damage_text(row: Node) -> String:
+	if row == null:
+		return ""
+	var parts := PackedStringArray()
+	for child: Node in row.get_children():
+		if child is Label:
+			parts.append((child as Label).text)
+	return " ".join(parts)
 
 func _first_node_named(node: Node, node_name: String) -> Node:
 	if node.name == node_name:
@@ -291,10 +339,12 @@ func _save_root_screenshot(output_path: String) -> void:
 	_save_pass_preview_chip_proof(output_path)
 
 func _save_pass_preview_chip_proof(output_path: String) -> void:
-	var main_label: Label = _first_node_named(root, "PassPreviewMain") as Label
-	var detail_label: Label = _first_node_named(root, "PassPreviewDetail") as Label
-	var main_text: String = main_label.text if main_label != null else "Pass preview"
-	var detail_text: String = detail_label.text if detail_label != null else ""
+	var row: Node = _first_node_named(root, "PassPreviewDamageRow")
+	var main_text: String = _pass_preview_probe_damage_text(row)
+	if main_text.is_empty():
+		main_text = "0"
+	var danger_label: Label = _first_node_named(root, "PassPreviewDanger") as Label
+	var detail_text: String = danger_label.text if danger_label != null else ""
 	var image := Image.create(PROOF_IMAGE_SIZE.x, PROOF_IMAGE_SIZE.y, false, Image.FORMAT_RGBA8)
 	image.fill(Color("160f0d"))
 	var accent: Color = _pass_preview_proof_accent(main_text, detail_text)
@@ -308,10 +358,8 @@ func _save_pass_preview_chip_proof(output_path: String) -> void:
 	print("headless chip proof: %s" % ProjectSettings.globalize_path(output_path))
 
 func _pass_preview_proof_accent(main_text: String, detail_text: String) -> Color:
-	if main_text.contains("-") and main_text.contains("HP"):
+	if main_text.contains("DEFEAT") or detail_text.contains("DANGER") or main_text.contains("-"):
 		return Color("d86654")
-	if detail_text.contains("Shock") or detail_text.contains("Block -") or main_text.contains("Block"):
-		return Color("d7a95d")
 	return Color("8fcf7d")
 
 func _draw_proof_rect_outline(image: Image, rect: Rect2i, color: Color) -> void:

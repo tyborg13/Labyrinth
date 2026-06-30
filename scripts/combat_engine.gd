@@ -548,6 +548,73 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 		"player_turn_before_state": player_turn_before_state
 	}
 
+func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var steps: Array[Dictionary] = []
+	var player_turn_before_state: Dictionary = {}
+	var initially_visible_enemy_ids: Dictionary = {}
+	var revealed_enemy_ids: Dictionary = {}
+	var unrevealed_before_player: bool = false
+	for enemy_var: Variant in next_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var initial_enemy: Dictionary = _normalized_enemy(enemy_var as Dictionary)
+		if int(initial_enemy.get("hp", 0)) <= 0:
+			continue
+		if (initial_enemy.get("intent", {}) as Dictionary).is_empty():
+			continue
+		initially_visible_enemy_ids[int(initial_enemy.get("id", -1))] = true
+	var safety: int = 0
+	while combat_outcome(next_state) == "" and safety < 100:
+		safety += 1
+		var before_pop_state: Dictionary = next_state.duplicate(true)
+		var popped: Dictionary = _pop_next_actor(next_state)
+		next_state = (popped.get("state", next_state) as Dictionary).duplicate(true)
+		var entry: Dictionary = popped.get("entry", {})
+		if entry.is_empty():
+			next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
+			player_turn_before_state = next_state.duplicate(true)
+			break
+		match str(entry.get("kind", "")):
+			"player":
+				player_turn_before_state = next_state.duplicate(true)
+				break
+			"enemy":
+				var enemy_id: int = int(entry.get("enemy_id", -1))
+				var enemy_index: int = _enemy_index_for_id(next_state, enemy_id)
+				if enemy_index < 0:
+					continue
+				var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+				var intent: Dictionary = enemy.get("intent", {})
+				if not initially_visible_enemy_ids.has(enemy_id) or revealed_enemy_ids.has(enemy_id) or intent.is_empty():
+					unrevealed_before_player = true
+					next_state = before_pop_state.duplicate(true)
+					break
+				revealed_enemy_ids[enemy_id] = true
+				var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index)
+				next_state = (turn_result.get("state", next_state) as Dictionary).duplicate(true)
+				for step_var: Variant in turn_result.get("steps", []):
+					if typeof(step_var) == TYPE_DICTIONARY:
+						steps.append(step_var)
+				if combat_outcome(next_state) != "":
+					break
+				enemy_index = _enemy_index_for_id(next_state, enemy_id)
+				if enemy_index >= 0:
+					enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+					if int(enemy.get("hp", 0)) > 0:
+						_schedule_enemy_after_turn(next_state, enemy, int(turn_result.get("time_cost", 0)))
+				next_state["current_actor"] = {}
+			_:
+				continue
+	if safety >= 100:
+		_log(next_state, "The initiative clock stalls.")
+	return {
+		"state": next_state,
+		"steps": steps,
+		"player_turn_before_state": player_turn_before_state,
+		"unrevealed_before_player": unrevealed_before_player
+	}
+
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)
 
