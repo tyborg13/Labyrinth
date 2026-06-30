@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-29T15:45:12Z",
+  "updated_at": "2026-06-30T21:04:08Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4349,6 +4349,28 @@
       "source": {
         "branch": "codex/blink-rift-afterimage",
         "commit": "94f4846"
+      }
+    },
+    {
+      "id": "mnt_20260630T210408Z_cb32ab61",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pass preview hover must include selected-card commit when confirmation completes the card.",
+      "details": "For selected card hover previews, apply the hovered target through _card_preview_from_state and call finish_player_card when that preview is complete before forecasting pass damage. Otherwise card time/hand removal/card-play counters are omitted and turn order can look safer than the click-confirmed result.",
+      "status": "active",
+      "created_at": "2026-06-30T21:04:08Z",
+      "updated_at": "2026-06-30T21:04:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/pass-preview-summary-chip",
+        "commit": "0dac70c"
       }
     }
   ]

@@ -4438,7 +4438,7 @@ func _pass_preview_button_tooltip() -> String:
 
 func _pass_preview_source_state() -> Dictionary:
 	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
-		var hovered_state: Dictionary = _pass_preview_hovered_action_state(_preview_combat_state)
+		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state()
 		if not hovered_state.is_empty():
 			return hovered_state
 		return _preview_combat_state.duplicate(true)
@@ -4446,17 +4446,54 @@ func _pass_preview_source_state() -> Dictionary:
 		return _combat_state.duplicate(true)
 	return {}
 
-func _pass_preview_hovered_action_state(base_state: Dictionary) -> Dictionary:
+func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return {}
 	if _hovered_board_tile.x < 0:
 		return {}
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return {}
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		return _pass_preview_confirmed_shortcut_state(preview, shortcut_plan, _hovered_board_tile)
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	if str(action.get("type", "")) not in ["move", "blink"]:
+	if str(action.get("type", "")) == "aoe":
+		action = _action_with_aoe_aim_orientation(action)
+	elif _target_needs_force_orientation(action, _hovered_board_tile):
 		return {}
 	if not _pending_target_tiles.has(_hovered_board_tile):
 		return {}
-	return _combat_engine.apply_player_action(base_state.duplicate(true), action, _hovered_board_tile)
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(_preview_combat_state.duplicate(true), action, _hovered_board_tile)
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, _pending_actions, _pending_action_index + 1)
+	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _pass_preview_confirmed_shortcut_state(preview: Dictionary, shortcut_plan: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var actions: Array = preview.get("actions", [])
+	var action_index: int = int(shortcut_plan.get("action_index", -1))
+	if action_index < 0 or action_index >= actions.size():
+		return {}
+	var action: Dictionary = shortcut_plan.get("action", {})
+	var action_state: Dictionary = (shortcut_plan.get("state", {}) as Dictionary).duplicate(true)
+	if action_state.is_empty():
+		return {}
+	if _target_needs_force_orientation_in_state(action_state, action, target_tile):
+		return action_state
+	if not _combat_engine.valid_targets_for_player_action(action_state, action).has(target_tile):
+		return {}
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(action_state, action, target_tile)
+	var card_id: String = str(preview.get("card_id", _card_id_for_hand_index(_selected_card_index)))
+	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, actions, action_index + 1)
+	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionary:
+	var resolved_state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
+	if resolved_state.is_empty():
+		return {}
+	if bool(preview.get("complete", false)):
+		return _combat_engine.finish_player_card(resolved_state, _selected_card_index)
+	return resolved_state
 
 func _pass_preview_summary() -> Dictionary:
 	var source_state: Dictionary = _pass_preview_source_state()
@@ -6186,11 +6223,14 @@ func _action_with_pending_orientation(action: Dictionary, direction: Vector2i) -
 	return oriented
 
 func _target_needs_force_orientation(action: Dictionary, target_tile: Vector2i) -> bool:
+	return _target_needs_force_orientation_in_state(_preview_combat_state, action, target_tile)
+
+func _target_needs_force_orientation_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
 	if str(action.get("type", "")) == "aoe":
 		return false
 	if not _combat_engine.player_action_needs_orientation(action):
 		return false
-	return not _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile).is_empty()
+	return not _combat_engine.force_directions_for_player_action(state, action, target_tile).is_empty()
 
 func _pending_oriented_action() -> Dictionary:
 	if not _orientation_pending():

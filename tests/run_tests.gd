@@ -5613,9 +5613,12 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 		instance.call("_on_board_tile_hovered", move_target)
 		await process_frame
 		await process_frame
-		_assert_pass_preview_chip(instance, ["SAFE"], false, false, "selected move hover")
+		_assert_pass_preview_chip(instance, ["SAFE"], false, true, "selected move hover")
 		var hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
 		_assert((hover_source_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == move_target, "Pass preview hover source should use the hovered move target")
+		_assert(int(hover_source_state.get("cards_played_this_turn", 0)) == 1, "Pass preview hover source should include the selected card commit")
+		_assert(int(hover_source_state.get("player_turn_time_spent", 0)) == 3, "Pass preview hover source should include selected card time before forecasting turn order")
+		_assert(((hover_source_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Pass preview hover source should remove the hypothetically committed card")
 	live_state = instance.get("_combat_state")
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected-card pass preview should not commit the selected card")
 	_assert((live_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Selected-card move hover should not move the live player")
