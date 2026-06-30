@@ -275,6 +275,224 @@ class FatigueEdgeOverlay:
 		draw_polyline(points, glow_color, 4.0, true)
 		draw_polyline(points, line_color, 1.2, true)
 
+class RelicChoiceSparkleLayer:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var phase: float = 0.0
+	var halo_texture: Texture2D = null:
+		set(value):
+			halo_texture = value
+			if _halo != null:
+				_halo.texture = halo_texture
+	var glint_texture: Texture2D = null:
+		set(value):
+			glint_texture = value
+			for glint_var: Variant in _glints:
+				var glint: TextureRect = glint_var
+				glint.texture = glint_texture
+			for dust_var: Variant in _dust:
+				var dust: TextureRect = dust_var
+				dust.texture = glint_texture
+
+	var _halo: TextureRect = null
+	var _glints: Array = []
+	var _dust: Array = []
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_contents = true
+		set_process(true)
+
+	func _ready() -> void:
+		_ensure_texture_nodes()
+		_layout_texture_nodes()
+		_animate_texture_nodes()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			_layout_texture_nodes()
+
+	func _process(delta: float) -> void:
+		phase = wrapf(phase + delta, 0.0, 3600.0)
+		_animate_texture_nodes()
+
+	func _ensure_texture_nodes() -> void:
+		if _halo == null:
+			_halo = TextureRect.new()
+			_halo.name = "RelicChoiceRuneHalo"
+			_configure_texture_rect(_halo)
+			_halo.texture = halo_texture
+			_halo.z_index = 0
+			add_child(_halo)
+		while _glints.size() < 9:
+			var glint := TextureRect.new()
+			glint.name = "RelicChoiceGlint%d" % _glints.size()
+			_configure_texture_rect(glint)
+			glint.texture = glint_texture
+			glint.z_index = 1
+			_glints.append(glint)
+			add_child(glint)
+		while _dust.size() < 16:
+			var dust := TextureRect.new()
+			dust.name = "RelicChoiceDust%d" % _dust.size()
+			_configure_texture_rect(dust)
+			dust.texture = glint_texture
+			dust.z_index = 1
+			_dust.append(dust)
+			add_child(dust)
+
+	func _configure_texture_rect(rect: TextureRect) -> void:
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_SCALE
+
+	func _layout_texture_nodes() -> void:
+		_ensure_texture_nodes()
+		if size.x <= 0.0 or size.y <= 0.0:
+			return
+		var icon_center := Vector2(size.x * 0.5, size.y * 0.34)
+		var halo_inset := Vector2(12.0, 12.0)
+		var halo_size := size + halo_inset * 2.0
+		_halo.size = halo_size
+		_halo.position = -halo_inset
+		_halo.pivot_offset = halo_size * 0.5
+		_halo.visible = halo_texture != null
+
+		var glint_layout: Array = [
+			{"pos": Vector2(27.0, 26.0), "size": 34.0},
+			{"pos": Vector2(size.x - 30.0, 29.0), "size": 32.0},
+			{"pos": Vector2(size.x * 0.50, 22.0), "size": 28.0},
+			{"pos": Vector2(size.x * 0.25, 88.0), "size": 27.0},
+			{"pos": Vector2(size.x * 0.76, 86.0), "size": 30.0},
+			{"pos": Vector2(37.0, size.y - 40.0), "size": 26.0},
+			{"pos": Vector2(size.x - 40.0, size.y - 42.0), "size": 30.0},
+			{"pos": Vector2(size.x * 0.50, size.y - 24.0), "size": 24.0},
+			{"pos": Vector2(size.x * 0.82, size.y - 76.0), "size": 22.0}
+		]
+		for index: int in range(_glints.size()):
+			var glint: TextureRect = _glints[index]
+			var entry: Dictionary = glint_layout[index]
+			var glint_size := Vector2.ONE * float(entry.get("size", 40.0))
+			glint.size = glint_size
+			glint.position = (entry.get("pos", Vector2.ZERO) as Vector2) - glint_size * 0.5
+			glint.pivot_offset = glint_size * 0.5
+			glint.visible = glint_texture != null
+
+		for index: int in range(_dust.size()):
+			var dust: TextureRect = _dust[index]
+			var dust_size: float = 12.0 + float(index % 4) * 2.5
+			dust.size = Vector2.ONE * dust_size
+			dust.pivot_offset = dust.size * 0.5
+			dust.visible = glint_texture != null
+
+	func _animate_texture_nodes() -> void:
+		_ensure_texture_nodes()
+		var shimmer: float = 0.5 + 0.5 * sin(phase * 2.25)
+		_halo.rotation = sin(phase * 0.34) * 0.035
+		_halo.scale = Vector2.ONE * (1.0 + 0.018 * shimmer)
+		_halo.modulate = _accent_modulate(0.76 + 0.18 * shimmer)
+		var glint_delays := [0.0, 0.18, 0.34, 0.51, 0.67, 0.82, 0.94, 0.27, 0.73]
+		for index: int in range(_glints.size()):
+			var glint: TextureRect = _glints[index]
+			var pulse: float = 0.5 + 0.5 * sin(phase * 3.0 + float(glint_delays[index]) * TAU)
+			glint.rotation = sin(phase * 0.72 + float(index)) * 0.22
+			glint.scale = Vector2.ONE * (0.72 + 0.58 * pulse)
+			glint.modulate = _accent_modulate(0.22 + 0.70 * pow(pulse, 2.0))
+		var center := Vector2(size.x * 0.5, size.y * 0.50)
+		for index: int in range(_dust.size()):
+			var dust: TextureRect = _dust[index]
+			var angle: float = phase * (0.13 + float(index % 4) * 0.028) + float(index) * TAU / float(_dust.size())
+			var radius := Vector2(size.x * (0.40 + 0.025 * float(index % 2)), size.y * (0.41 + 0.018 * float((index + 1) % 2)))
+			var offset := Vector2(cos(angle) * radius.x, sin(angle * 0.86) * radius.y)
+			var drift: float = 0.5 + 0.5 * sin(phase * 1.55 + float(index) * 1.7)
+			dust.position = center + offset - dust.size * 0.5
+			dust.rotation = angle
+			dust.scale = Vector2.ONE * (0.48 + 0.42 * drift)
+			dust.modulate = _accent_modulate(0.12 + 0.30 * drift)
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(0.92 + accent.r * 0.10, 0.0, 1.0),
+			clampf(0.82 + accent.g * 0.14, 0.0, 1.0),
+			clampf(0.56 + accent.b * 0.16, 0.0, 1.0),
+			alpha
+		)
+
+class RelicAcquisitionBeam:
+	extends TextureRect
+
+	var start: Vector2 = Vector2.ZERO:
+		set(value):
+			start = value
+			_sync_layout()
+	var target: Vector2 = Vector2.ZERO:
+		set(value):
+			target = value
+			_sync_layout()
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			self_modulate = _accent_modulate(1.0)
+	var progress: float = 0.0:
+		set(value):
+			progress = clampf(value, 0.0, 1.0)
+			_sync_layout()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_SCALE
+		self_modulate = _accent_modulate(1.0)
+
+	func _sync_layout() -> void:
+		if progress <= 0.0:
+			visible = false
+			return
+		var t: float = clampf(progress, 0.0, 1.0)
+		var lead: Vector2 = start.lerp(target, t)
+		var delta: Vector2 = lead - start
+		var length: float = delta.length()
+		if length <= 2.0:
+			visible = false
+			return
+		var beam_height: float = 24.0 + 8.0 * sin(t * PI)
+		size = Vector2(length, beam_height)
+		pivot_offset = Vector2(0.0, beam_height * 0.5)
+		position = start - pivot_offset
+		rotation = delta.angle()
+		visible = texture != null
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(accent.r * 1.10, 0.0, 1.0),
+			clampf(accent.g * 1.06, 0.0, 1.0),
+			clampf(accent.b * 1.02, 0.0, 1.0),
+			alpha
+		)
+
+class RelicAcquisitionMote:
+	extends TextureRect
+
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			self_modulate = _accent_modulate(1.0)
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		self_modulate = _accent_modulate(1.0)
+
+	func _accent_modulate(alpha: float) -> Color:
+		return Color(
+			clampf(accent.r * 1.14, 0.0, 1.0),
+			clampf(accent.g * 1.10, 0.0, 1.0),
+			clampf(accent.b * 1.04, 0.0, 1.0),
+			alpha
+		)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -289,6 +507,7 @@ const DOOR_OPENING_FRAME_SECONDS: float = 0.075
 const DOOR_OPENING_SETTLE_SECONDS: float = 0.04
 const FLOAT_TEXT_FRAMES: int = 7
 const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
+const IMPACT_DECAL_MAX_TILES: int = 7
 const FATIGUE_EFFECT_FRAMES: int = 9
 const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
 const FATIGUE_EDGE_LINGER_FRAMES: int = 3
@@ -324,6 +543,10 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
+const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(342.0, 92.0)
+const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(46.0, 46.0)
+const ACTION_STEP_ICON_INSET: float = 9.0
+const ACTION_STEP_TRACKER_GAP: float = 8.0
 const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
@@ -363,6 +586,12 @@ const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
 const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
+const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
+const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
+const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
+const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
+const RELIC_ACQUISITION_SECONDS: float = 0.38
+const RELIC_ACQUISITION_MOTES: int = 8
 const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
@@ -482,6 +711,14 @@ var _active_pile_kind: String = ""
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
+var _action_step_tracker: PanelContainer
+var _action_step_tracker_title: Label
+var _action_step_tracker_steps: HBoxContainer
+var _action_step_resolution_active: bool = false
+var _action_step_resolution_card_id: String = ""
+var _action_step_resolution_actions: Array = []
+var _action_step_resolution_index: int = 0
+var _action_step_resolution_targets: Array[Vector2i] = []
 var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
 var _turn_order_bar: Control
@@ -500,6 +737,8 @@ var _relic_choice_overlay: Control
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _campfire_choice_action_pending: bool = false
+var _relic_claim_in_progress: bool = false
 var _terminal_overlay: Control
 var _terminal_panel: PanelContainer
 var _terminal_title_label: Label
@@ -580,6 +819,7 @@ func _ready() -> void:
 	_build_overlay_ui()
 	_build_context_choice_overlay()
 	_setup_pile_widgets()
+	_setup_action_step_tracker()
 	_setup_play_meter()
 	_setup_elemental_intensity_bar()
 	_connect_header_layout_signals()
@@ -845,9 +1085,14 @@ func _connect_choice_overlay_layout_signals() -> void:
 			continue
 		if not control.resized.is_connected(_queue_choice_button_overlay_layout):
 			control.resized.connect(_queue_choice_button_overlay_layout)
+		if not control.resized.is_connected(_queue_action_step_tracker_layout):
+			control.resized.connect(_queue_action_step_tracker_layout)
 
 func _queue_choice_button_overlay_layout() -> void:
 	call_deferred("_layout_choice_button_overlay")
+
+func _queue_action_step_tracker_layout() -> void:
+	call_deferred("_layout_action_step_tracker")
 
 func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 	var choice_rect: Rect2 = choice_bar.get_global_rect()
@@ -2202,6 +2447,55 @@ func _setup_pile_widgets() -> void:
 		var spec: Dictionary = spec_var
 		_build_pile_widget(spec)
 
+func _setup_action_step_tracker() -> void:
+	_action_step_tracker = PanelContainer.new()
+	_action_step_tracker.name = "ActionStepTracker"
+	_action_step_tracker.visible = false
+	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_MIN_SIZE
+	_action_step_tracker.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_action_step_tracker.z_index = 118
+	_action_step_tracker.z_as_relative = false
+	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
+	add_child(_action_step_tracker)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	_action_step_tracker.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 6)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+
+	_action_step_tracker_title = Label.new()
+	_action_step_tracker_title.name = "ActionStepTitle"
+	_action_step_tracker_title.custom_minimum_size = Vector2(ACTION_STEP_TRACKER_MIN_SIZE.x - 24.0, 22.0)
+	_action_step_tracker_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_action_step_tracker_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_action_step_tracker_title.clip_text = true
+	_action_step_tracker_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_action_step_tracker_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_action_step_tracker_title, UiTypography.SIZE_SMALL)
+	_action_step_tracker_title.add_theme_color_override("font_color", Color("fff1d5"))
+	_action_step_tracker_title.add_theme_color_override("font_outline_color", Color("20140d"))
+	_action_step_tracker_title.add_theme_constant_override("outline_size", 2)
+	vbox.add_child(_action_step_tracker_title)
+
+	_action_step_tracker_steps = HBoxContainer.new()
+	_action_step_tracker_steps.name = "ActionStepChips"
+	_action_step_tracker_steps.alignment = BoxContainer.ALIGNMENT_CENTER
+	_action_step_tracker_steps.add_theme_constant_override("separation", 6)
+	_action_step_tracker_steps.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(_action_step_tracker_steps)
+
 func _setup_play_meter() -> void:
 	_play_meter = PanelContainer.new()
 	_play_meter.name = "CardPlayMeter"
@@ -2672,11 +2966,14 @@ func _refresh_ui() -> void:
 		_large_map_view.call("set_run_state", _run_state)
 	_refresh_pile_counts()
 	_refresh_card_play_meter()
+	_refresh_action_step_tracker()
 	_refresh_pile_visuals()
 	_refresh_choice_bar()
 	_refresh_stage_view()
 	_refresh_hand_panel()
 	_refresh_visibility()
+	_layout_action_step_tracker()
+	call_deferred("_layout_action_step_tracker")
 	_refresh_death_overlay()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
@@ -3352,6 +3649,379 @@ func _refresh_card_play_meter() -> void:
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
 
+func _refresh_action_step_tracker() -> void:
+	if _action_step_tracker == null or _action_step_tracker_steps == null:
+		return
+	_clear_children_now(_action_step_tracker_steps)
+	_action_step_tracker.set_meta("step_statuses", [])
+	_action_step_tracker.set_meta("step_action_types", [])
+	var tracker_state: Dictionary = _action_step_tracker_state()
+	var active: bool = bool(tracker_state.get("active", false))
+	_action_step_tracker.visible = active
+	if not active:
+		if _action_step_tracker_title != null:
+			_action_step_tracker_title.text = ""
+		return
+	var card_id: String = str(tracker_state.get("card_id", ""))
+	var actions: Array = tracker_state.get("actions", [])
+	var current_index: int = int(tracker_state.get("action_index", 0))
+	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
+	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
+	var current_number: int = clampi(current_index + 1, 1, actions.size())
+	if _action_step_tracker_title != null:
+		_action_step_tracker_title.text = "%s  %d/%d" % [
+			str(card.get("name", card_id)),
+			current_number,
+			actions.size()
+		]
+	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
+	var statuses: Array = []
+	var action_types: Array = []
+	for index: int in range(actions.size()):
+		var action: Dictionary = {}
+		if typeof(actions[index]) == TYPE_DICTIONARY:
+			action = actions[index] as Dictionary
+		var status: String = _action_step_status_for_index(index, current_index, skipped_indices)
+		statuses.append(status)
+		action_types.append(str(action.get("type", "")))
+		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status))
+	_action_step_tracker.set_meta("step_statuses", statuses)
+	_action_step_tracker.set_meta("step_action_types", action_types)
+	_layout_action_step_tracker()
+	call_deferred("_layout_action_step_tracker")
+
+func _action_step_tracker_state() -> Dictionary:
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode != "combat":
+		return {}
+	if _action_step_resolution_active and _action_step_resolution_actions.size() > 1:
+		return {
+			"active": true,
+			"card_id": _action_step_resolution_card_id,
+			"actions": _action_step_resolution_actions,
+			"action_index": clampi(_action_step_resolution_index, 0, _action_step_resolution_actions.size()),
+			"selected_targets": _action_step_resolution_targets
+		}
+	if _selected_card_index < 0 or _pending_actions.size() <= 1 or _pending_action_index >= _pending_actions.size():
+		return {}
+	return {
+		"active": true,
+		"card_id": _card_id_for_hand_index(_selected_card_index),
+		"actions": _pending_actions,
+		"action_index": _pending_action_index,
+		"selected_targets": _pending_selected_targets
+	}
+
+func _action_step_skipped_target_indices_for(actions: Array, selected_targets: Array[Vector2i]) -> Dictionary:
+	var skipped: Dictionary = {}
+	var target_cursor: int = 0
+	for index: int in range(actions.size()):
+		var action: Dictionary = {}
+		if typeof(actions[index]) == TYPE_DICTIONARY:
+			action = actions[index] as Dictionary
+		if not _combat_engine.player_action_needs_target(action):
+			continue
+		if target_cursor < selected_targets.size():
+			var selected_tile: Vector2i = selected_targets[target_cursor]
+			if selected_tile.x < 0:
+				skipped[index] = true
+		target_cursor += 1
+	return skipped
+
+func _action_step_status_for_index(index: int, current_index: int, skipped_indices: Dictionary) -> String:
+	if bool(skipped_indices.get(index, false)):
+		return "skipped"
+	if index < current_index:
+		return "done"
+	if index == current_index:
+		return "current"
+	return "remaining"
+
+func _layout_action_step_tracker() -> void:
+	if _action_step_tracker == null or not _action_step_tracker.visible:
+		return
+	var tracker_size: Vector2 = _action_step_tracker.get_combined_minimum_size()
+	if tracker_size.x <= 0.0 or tracker_size.y <= 0.0:
+		tracker_size = ACTION_STEP_TRACKER_MIN_SIZE
+	_action_step_tracker.size = tracker_size
+	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
+	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var target_x: float = clampf(anchor_rect.position.x, 8.0, maxf(8.0, viewport_size.x - tracker_size.x - 8.0))
+	var target_y: float = maxf(8.0, anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP)
+	_action_step_tracker.global_position = Vector2(target_x, target_y)
+
+func _action_step_tracker_anchor_rect() -> Rect2:
+	if choice_bar != null and choice_bar.visible:
+		var choice_rect: Rect2 = choice_bar.get_global_rect()
+		if _choice_bar_anchor_is_ready(choice_rect):
+			return choice_rect
+	if piles_bar != null and piles_bar.visible:
+		var piles_rect: Rect2 = piles_bar.get_global_rect()
+		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
+			return piles_rect
+	if left_action_stack != null and left_action_stack.is_inside_tree():
+		return left_action_stack.get_global_rect()
+	return Rect2()
+
+func _begin_action_step_resolution_tracker(card_id: String, actions: Array, selected_targets: Array) -> void:
+	_action_step_resolution_card_id = card_id
+	_action_step_resolution_actions = actions.duplicate(true)
+	_action_step_resolution_targets = _vector2i_array(selected_targets)
+	_action_step_resolution_index = 0
+	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
+	_refresh_action_step_tracker()
+
+func _set_action_step_resolution_index(index: int) -> void:
+	if not _action_step_resolution_active:
+		return
+	_action_step_resolution_index = clampi(index, 0, _action_step_resolution_actions.size())
+	_refresh_action_step_tracker()
+
+func _clear_action_step_resolution_tracker() -> void:
+	_action_step_resolution_active = false
+	_action_step_resolution_card_id = ""
+	_action_step_resolution_actions.clear()
+	_action_step_resolution_index = 0
+	_action_step_resolution_targets.clear()
+	if _action_step_tracker != null:
+		_action_step_tracker.visible = false
+
+func _build_action_step_chip(index: int, action: Dictionary, status: String) -> Control:
+	var chip := PanelContainer.new()
+	chip.name = "ActionStepChip%d" % (index + 1)
+	chip.custom_minimum_size = ACTION_STEP_CHIP_SIZE
+	chip.size = ACTION_STEP_CHIP_SIZE
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.set_meta("step_index", index)
+	chip.set_meta("step_status", status)
+	chip.set_meta("action_type", str(action.get("type", "")))
+	chip.tooltip_text = _action_step_tooltip(index, action, status)
+	chip.add_theme_stylebox_override("panel", _action_step_chip_style(status))
+
+	var content := Control.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.anchor_right = 1.0
+	content.anchor_bottom = 1.0
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(content)
+
+	var icon_key: String = _action_step_icon_key(action)
+	var icon := TextureRect.new()
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.anchor_right = 1.0
+	icon.anchor_bottom = 1.0
+	icon.offset_left = ACTION_STEP_ICON_INSET
+	icon.offset_top = ACTION_STEP_ICON_INSET
+	icon.offset_right = -ACTION_STEP_ICON_INSET
+	icon.offset_bottom = -ACTION_STEP_ICON_INSET
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture(ActionIcons.icon_path(icon_key))
+	icon.modulate = _action_step_icon_tint(status)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(icon)
+
+	var number := Label.new()
+	number.name = "StepNumber"
+	number.text = str(index + 1)
+	number.position = Vector2(3.0, 2.0)
+	number.custom_minimum_size = Vector2(16.0, 15.0)
+	number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	number.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	number.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(number, 9)
+	number.add_theme_color_override("font_color", _action_step_number_color(status))
+	number.add_theme_color_override("font_outline_color", Color("100b08"))
+	number.add_theme_constant_override("outline_size", 1)
+	content.add_child(number)
+
+	if status == "skipped":
+		var skipped := Label.new()
+		skipped.name = "SkippedLabel"
+		skipped.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skipped.anchor_right = 1.0
+		skipped.anchor_bottom = 1.0
+		skipped.text = "SKIP"
+		skipped.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		skipped.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		skipped.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(skipped, 9)
+		skipped.add_theme_color_override("font_color", Color("ffd6c6"))
+		skipped.add_theme_color_override("font_outline_color", Color("1a0b07"))
+		skipped.add_theme_constant_override("outline_size", 2)
+		content.add_child(skipped)
+	return chip
+
+func _action_step_tooltip(index: int, action: Dictionary, status: String) -> String:
+	var state_text: String = status.capitalize()
+	if status == "done":
+		state_text = "Done"
+	var action_name: String = _action_step_action_name(action)
+	return "%d. %s\n%s" % [index + 1, action_name, state_text]
+
+func _action_step_action_name(action: Dictionary) -> String:
+	var action_type: String = str(action.get("type", ""))
+	match action_type:
+		"aoe":
+			return "Area"
+		"move", "move_toward":
+			return "Move"
+		"move_away":
+			return "Retreat"
+		"blink":
+			return "Blink"
+		"melee":
+			return "Melee"
+		"ranged":
+			return "Ranged"
+		"push":
+			return "Push"
+		"pull":
+			return "Pull"
+		"card_play":
+			return "Card Play"
+		"health_cost":
+			return "Health Cost"
+		"heal", "heal_self":
+			return "Heal"
+		"lightning_strikes":
+			return "Lightning"
+		"summon_minions":
+			return "Summon"
+	var icon_key: String = _action_step_icon_key(action)
+	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
+
+func _action_step_icon_key(action: Dictionary) -> String:
+	var action_type: String = str(action.get("type", ""))
+	match action_type:
+		"move", "move_toward":
+			return "move"
+		"move_away":
+			return "retreat"
+		"blink":
+			return "blink"
+		"melee":
+			return "melee"
+		"ranged", "aoe", "lightning_strikes":
+			return "ranged"
+		"push":
+			return "push"
+		"pull":
+			return "pull"
+		"block":
+			return "block"
+		"stoneskin":
+			return "stoneskin"
+		"heal", "heal_self":
+			return "heal"
+		"draw":
+			return "draw"
+		"card_play":
+			return "card_play"
+		"intensity":
+			return ActionIcons.element_icon_key(str(action.get("element", ElementData.NONE)))
+		"illusion":
+			return "illusion"
+		"health_cost":
+			return "health_cost"
+		"summon_minions":
+			return "shock"
+	for token_var: Variant in ActionIcons.tokens_for_action(action):
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		var token: Dictionary = token_var as Dictionary
+		if str(token.get("kind", "")) == "intensity_requirement":
+			continue
+		return str(token.get("icon", ""))
+	return ""
+
+func _action_step_tracker_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.044, 0.038, 0.90)
+	style.border_color = Color(0.76, 0.62, 0.42, 0.72)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
+	style.shadow_size = 10
+	style.shadow_offset = Vector2(0.0, 4.0)
+	return style
+
+func _action_step_chip_style(status: String) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	match status:
+		"current":
+			style.bg_color = Color(0.075, 0.115, 0.115, 0.98)
+			style.border_color = Color("f4c968")
+			style.border_width_left = 3
+			style.border_width_top = 3
+			style.border_width_right = 3
+			style.border_width_bottom = 3
+			style.shadow_color = Color(0.12, 0.33, 0.34, 0.46)
+			style.shadow_size = 10
+		"done":
+			style.bg_color = Color(0.060, 0.105, 0.070, 0.90)
+			style.border_color = Color("87c879")
+			style.border_width_left = 2
+			style.border_width_top = 2
+			style.border_width_right = 2
+			style.border_width_bottom = 2
+			style.shadow_color = Color(0.0, 0.0, 0.0, 0.24)
+			style.shadow_size = 5
+		"skipped":
+			style.bg_color = Color(0.150, 0.060, 0.045, 0.94)
+			style.border_color = Color("df8065")
+			style.border_width_left = 2
+			style.border_width_top = 2
+			style.border_width_right = 2
+			style.border_width_bottom = 2
+			style.shadow_color = Color(0.18, 0.02, 0.01, 0.34)
+			style.shadow_size = 7
+		_:
+			style.bg_color = Color(0.075, 0.066, 0.058, 0.72)
+			style.border_color = Color(0.62, 0.55, 0.47, 0.42)
+			style.border_width_left = 1
+			style.border_width_top = 1
+			style.border_width_right = 1
+			style.border_width_bottom = 1
+			style.shadow_color = Color(0.0, 0.0, 0.0, 0.16)
+			style.shadow_size = 3
+	style.corner_radius_top_left = 7
+	style.corner_radius_top_right = 7
+	style.corner_radius_bottom_right = 7
+	style.corner_radius_bottom_left = 7
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style
+
+func _action_step_icon_tint(status: String) -> Color:
+	match status:
+		"current":
+			return Color("fff3cf")
+		"done":
+			return Color("d9ffd6")
+		"skipped":
+			return Color(1.0, 1.0, 1.0, 0.28)
+		_:
+			return Color(1.0, 1.0, 1.0, 0.44)
+
+func _action_step_number_color(status: String) -> Color:
+	match status:
+		"current":
+			return Color("fff6ce")
+		"done":
+			return Color("c5f2bc")
+		"skipped":
+			return Color("ffbca6")
+		_:
+			return Color("c9b9a3")
+
 func _displayed_card_play_count() -> int:
 	if _card_play_count_override >= 0:
 		return _card_play_count_override
@@ -3445,7 +4115,8 @@ func _refresh_visibility() -> void:
 	hand_row.visible = mode in ["combat", "reward"]
 	piles_bar.visible = mode == "combat"
 	hand_scroll.visible = mode in ["combat", "reward"]
-	left_action_stack.visible = choice_bar.visible or piles_bar.visible
+	var action_step_tracker_visible: bool = _action_step_tracker != null and _action_step_tracker.visible
+	left_action_stack.visible = action_step_tracker_visible or choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 	if mode != "combat" and _choice_button_overlay != null:
 		_choice_button_overlay.visible = false
@@ -3884,16 +4555,20 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.z_index = 30
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.set_meta("relic_id", relic_id)
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
-	panel.gui_input.connect(_on_relic_choice_gui_input.bind(relic_id))
+	panel.gui_input.connect(_on_relic_choice_gui_input.bind(panel, relic_id))
 	panel.mouse_entered.connect(_set_relic_choice_hovered.bind(panel, relic, true))
 	panel.mouse_exited.connect(_set_relic_choice_hovered.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
+
+	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
+	margin.z_index = 2
 	margin.add_theme_constant_override("margin_left", 18)
 	margin.add_theme_constant_override("margin_top", 14)
 	margin.add_theme_constant_override("margin_right", 18)
@@ -3940,6 +4615,20 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(description)
 
+func _add_relic_choice_sparkles(panel: PanelContainer, accent: Color) -> void:
+	if panel == null:
+		return
+	var sparkle := RelicChoiceSparkleLayer.new()
+	sparkle.name = "RelicChoiceSparkle"
+	sparkle.accent = accent
+	sparkle.halo_texture = AssetLoader.load_texture(RELIC_CHOICE_RUNE_HALO_PATH)
+	sparkle.glint_texture = AssetLoader.load_texture(RELIC_CHOICE_GLINT_PATH)
+	sparkle.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sparkle.anchor_right = 1.0
+	sparkle.anchor_bottom = 1.0
+	sparkle.z_index = 1
+	panel.add_child(sparkle)
+
 func _add_campfire_choice(choice_id: String, title: String, detail: String, icon_path: String, accent: Color, enabled: bool = true) -> void:
 	if _relic_choice_bar == null:
 		return
@@ -3952,13 +4641,15 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
 	panel.set_meta("choice_enabled", enabled)
+	panel.set_meta("choice_accent", accent)
 	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, false, enabled))
-	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id))
+	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id, panel, accent))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
 
 	_add_campfire_choice_background(panel, icon_path, enabled)
+	_add_campfire_choice_inner_glow(panel, accent, enabled)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -4045,6 +4736,14 @@ func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, e
 	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	clip.add_child(wash)
 
+func _add_campfire_choice_inner_glow(panel: PanelContainer, accent: Color, enabled: bool) -> void:
+	var glow := PanelContainer.new()
+	glow.name = "CampfireChoiceInnerGlow"
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glow.add_theme_stylebox_override("panel", _campfire_choice_inner_glow_style(accent, false, enabled))
+	panel.add_child(glow)
+
 func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	var chips: Array = []
 	match choice_id:
@@ -4120,8 +4819,12 @@ func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
 		return
+	var enabled: bool = bool(panel.get_meta("choice_enabled", true))
 	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, bool(panel.get_meta("choice_enabled", true))))
+	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, enabled))
+	var glow: PanelContainer = panel.get_node_or_null("CampfireChoiceInnerGlow") as PanelContainer
+	if glow != null:
+		glow.add_theme_stylebox_override("panel", _campfire_choice_inner_glow_style(accent, hovered, enabled))
 
 func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -4150,6 +4853,42 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	style.expand_margin_top = 8.0
 	style.expand_margin_right = 8.0
 	style.expand_margin_bottom = 14.0
+	return style
+
+func _campfire_choice_inner_glow_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var alpha: float = 0.085 if hovered else 0.042
+	var border_alpha: float = 0.32 if hovered else 0.16
+	if not enabled:
+		alpha *= 0.45
+		border_alpha *= 0.55
+	style.bg_color = Color(accent.r, accent.g, accent.b, alpha)
+	style.border_color = Color(1.0, 0.74, 0.34, border_alpha)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	return style
+
+func _campfire_choice_feedback_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(accent.r, accent.g, accent.b, 0.12)
+	style.border_color = accent.lightened(0.42)
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.46)
+	style.shadow_size = 26
+	style.shadow_offset = Vector2.ZERO
 	return style
 
 func _campfire_choice_chip_style(tone: String, accent: Color, choice_enabled: bool) -> StyleBoxFlat:
@@ -4204,6 +4943,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.border_width_top = 3
 	style.border_width_right = 3
 	style.border_width_bottom = 3
+	style.content_margin_left = 0.0
+	style.content_margin_top = 0.0
+	style.content_margin_right = 0.0
+	style.content_margin_bottom = 0.0
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
@@ -4211,20 +4954,31 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
 	style.shadow_size = 22 if hovered else 16
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
-	style.expand_margin_left = 8.0
-	style.expand_margin_top = 8.0
-	style.expand_margin_right = 8.0
-	style.expand_margin_bottom = 14.0
+	style.expand_margin_left = 0.0
+	style.expand_margin_top = 0.0
+	style.expand_margin_right = 0.0
+	style.expand_margin_bottom = 0.0
 	return style
 
-func _on_relic_choice_gui_input(event: InputEvent, relic_id: String) -> void:
+func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_id: String) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		await _on_relic_pressed(relic_id)
+		var source_rect: Rect2 = Rect2()
+		if panel != null:
+			source_rect = panel.get_global_rect()
+		await _on_relic_pressed(relic_id, source_rect)
 
-func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void:
+func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
 		return
+	if _campfire_choice_action_pending or str(_run_state.get("mode", "room")) != "campfire":
+		return
 	if choice_id == "strength" and not _can_level_at_campfire():
+		return
+	_set_campfire_choice_action_pending(true)
+	_show_campfire_choice_feedback_pulse(panel, accent)
+	await get_tree().create_timer(0.08).timeout
+	if str(_run_state.get("mode", "room")) != "campfire":
+		_set_campfire_choice_action_pending(false)
 		return
 	match choice_id:
 		"linger":
@@ -4233,6 +4987,37 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String) -> void
 			_on_campfire_embrace_pressed()
 		"strength":
 			_open_level_up_overlay()
+	_set_campfire_choice_action_pending(false)
+
+func _set_campfire_choice_action_pending(pending: bool) -> void:
+	_campfire_choice_action_pending = pending
+	if _relic_choice_bar == null:
+		return
+	for child: Node in _relic_choice_bar.get_children():
+		var panel: PanelContainer = child as PanelContainer
+		if panel == null:
+			continue
+		var choice_enabled: bool = bool(panel.get_meta("choice_enabled", true))
+		panel.mouse_default_cursor_shape = Control.CURSOR_ARROW if pending or not choice_enabled else Control.CURSOR_POINTING_HAND
+
+func _show_campfire_choice_feedback_pulse(panel: PanelContainer, accent: Color) -> void:
+	if panel == null or not panel.is_inside_tree():
+		return
+	var pulse := PanelContainer.new()
+	pulse.name = "CampfireChoicePressPulse"
+	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pulse.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pulse.pivot_offset = panel.size * 0.5
+	pulse.scale = Vector2(0.985, 0.985)
+	pulse.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	pulse.z_index = 80
+	pulse.add_theme_stylebox_override("panel", _campfire_choice_feedback_style(accent))
+	panel.add_child(pulse)
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(pulse, "modulate:a", 1.0, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pulse, "scale", Vector2(1.055, 1.055), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pulse, "modulate:a", 0.0, 0.19).set_delay(0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.finished.connect(_queue_free_node_now.bind(pulse))
 
 func _refresh_hand_panel() -> void:
 	_clear_idle_card_fx_layer()
@@ -4560,7 +5345,10 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 
 func _board_display_state() -> Dictionary:
 	if str(_run_state.get("mode", "room")) == "combat":
-		if not _preview_combat_state.is_empty():
+		if _animation_lock:
+			if not _combat_state.is_empty():
+				return _combat_state.duplicate(true)
+		elif not _preview_combat_state.is_empty():
 			return _preview_combat_state.duplicate(true)
 		if not _combat_state.is_empty():
 			return _combat_state.duplicate(true)
@@ -5668,6 +6456,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
 	_animating_hand_card_index = hand_index
+	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true
 	_begin_card_play_meter_spend_preview()
 	_refresh_ui()
@@ -5938,7 +6727,9 @@ func _ember_counter_target_global_position() -> Vector2:
 
 func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
-	if base_texts.is_empty():
+	var base_decals: Array = (base_presentation.get("impact_decals", []) as Array).duplicate(true)
+	var trap_effects: Array = (base_presentation.get("trap_effects", []) as Array).duplicate(true)
+	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(frame_seconds * float(maxi(1, frames))).timeout
 		return
@@ -5947,7 +6738,7 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		var t: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		presentation["impact_progress"] = t
-		if not (presentation.get("trap_effects", []) as Array).is_empty() and not presentation.has("effect_progress"):
+		if (presentation.has("effect") or not (presentation.get("trap_effects", []) as Array).is_empty()) and not presentation.has("effect_progress"):
 			presentation["effect_progress"] = t
 		var animated_texts: Array[Dictionary] = []
 		for text_var: Variant in base_texts:
@@ -6053,10 +6844,13 @@ func _set_fatigue_edge_progress(progress: float) -> void:
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	var target_index: int = 0
-	for action_var: Variant in actions:
+	for action_index: int in range(actions.size()):
+		var action_var: Variant = actions[action_index]
 		var action: Dictionary = action_var
 		if not _combat_engine.player_action_can_resolve(animated_state, action):
+			_set_action_step_resolution_index(action_index + 1)
 			continue
+		_set_action_step_resolution_index(action_index)
 		var target_tile: Vector2i = INVALID_TARGET_TILE
 		if _combat_engine.player_action_needs_target(action):
 			if target_index < selected_targets.size():
@@ -6066,14 +6860,87 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		var after_state: Dictionary = _combat_engine.apply_player_action(animated_state, action, target_tile)
 		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile)
 		animated_state = after_state
+	_set_action_step_resolution_index(actions.size())
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
 func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	var impact_presentation: Dictionary = base_presentation.duplicate(true)
+	var effect: Dictionary = impact_presentation.get("effect", {})
+	var floating_texts: Array = impact_presentation.get("floating_texts", [])
+	var decals: Array[Dictionary] = _impact_decals_for_effect(effect, floating_texts)
+	if decals.is_empty():
+		impact_presentation.erase("impact_decals")
+	else:
+		impact_presentation["impact_decals"] = decals
 	impact_presentation.erase("effect")
 	impact_presentation.erase("effect_progress")
 	return impact_presentation
+
+func _impact_decals_for_effect(effect: Dictionary, floating_texts: Array) -> Array[Dictionary]:
+	var decals: Array[Dictionary] = []
+	if effect.is_empty():
+		return decals
+	var kind: String = str(effect.get("kind", ""))
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+		return decals
+	var element_id: String = str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
+	var tiles: Array[Vector2i] = _impact_decal_tiles(effect, floating_texts)
+	var count: int = mini(tiles.size(), IMPACT_DECAL_MAX_TILES)
+	for index: int in range(count):
+		var tile: Vector2i = tiles[index]
+		decals.append({
+			"tile": tile,
+			"element": element_id,
+			"kind": kind,
+			"seed": _impact_decal_seed(tile, element_id, kind)
+		})
+	return decals
+
+func _impact_decal_tiles(effect: Dictionary, floating_texts: Array) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for text_var: Variant in floating_texts:
+		if typeof(text_var) != TYPE_DICTIONARY:
+			continue
+		var text_entry: Dictionary = text_var
+		var text_tile_var: Variant = text_entry.get("tile", INVALID_TARGET_TILE)
+		if typeof(text_tile_var) == TYPE_VECTOR2I:
+			_append_impact_decal_tile(tiles, text_tile_var)
+	if not tiles.is_empty():
+		return tiles
+	var kind: String = str(effect.get("kind", ""))
+	if kind in ["aoe", "lightning_strikes"]:
+		for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
+			_append_impact_decal_tile(tiles, tile)
+	else:
+		var target_tile_var: Variant = effect.get("to", effect.get("center", INVALID_TARGET_TILE))
+		if typeof(target_tile_var) == TYPE_VECTOR2I:
+			_append_impact_decal_tile(tiles, target_tile_var)
+	return tiles
+
+func _append_impact_decal_tile(tiles: Array[Vector2i], tile: Vector2i) -> void:
+	if tile.x < 0:
+		return
+	if not tiles.has(tile):
+		tiles.append(tile)
+
+func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
+	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197
+
+func _impact_element_seed(element_id: String) -> int:
+	match element_id:
+		ElementData.FIRE:
+			return 11
+		ElementData.ICE:
+			return 23
+		ElementData.LIGHTNING:
+			return 37
+		ElementData.AIR:
+			return 41
+		ElementData.EARTH:
+			return 53
+		_:
+			return 7
 
 func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
 	if trap_effects.is_empty():
@@ -6236,6 +7103,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_floating_text_presentation(after_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"effect": {"kind": "stoneskin", "tile": player_after_tile},
 				"floating_texts": [{
 					"tile": player_after_tile,
 					"text": "+%d S" % skin_gain,
@@ -7173,12 +8041,87 @@ func _on_campfire_leave_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state)
 	_refresh_ui()
 
-func _on_relic_pressed(relic_id: String) -> void:
+func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
+	if _relic_claim_in_progress:
+		return
+	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+	if not pending_relics.has(relic_id):
+		return
+	_relic_claim_in_progress = true
+	var accent := Color(GameData.relic_accent(relic_id))
 	_run_state = _run_engine.claim_relic(_run_state, relic_id)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_refresh_ui()
+	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
+	_relic_claim_in_progress = false
+
+func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
+	if _card_fx_layer == null:
+		return
+	await get_tree().process_frame
+	if not _node_is_alive(_card_fx_layer):
+		return
+	var frame: Control = _relic_frame_for_id(relic_id)
+	var target: Vector2 = _relic_bar_target_global_position(frame)
+	var source: Vector2 = _relic_acquisition_source_global_position(source_rect)
+	var local_start: Vector2 = source - _card_fx_layer.global_position
+	var local_target: Vector2 = target - _card_fx_layer.global_position
+	var beam := RelicAcquisitionBeam.new()
+	beam.name = "RelicAcquisitionBeam"
+	beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
+	beam.accent = accent
+	beam.start = local_start
+	beam.target = local_target
+	beam.modulate = Color(1.0, 1.0, 1.0, 0.70)
+	beam.z_index = 1600
+	_card_fx_layer.add_child(beam)
+	var beam_tween: Tween = create_tween().set_parallel(true)
+	beam_tween.tween_property(beam, "progress", 1.0, RELIC_ACQUISITION_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(RELIC_ACQUISITION_SECONDS * 0.72)
+	for mote_index: int in range(RELIC_ACQUISITION_MOTES):
+		_spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
+	await get_tree().create_timer(RELIC_ACQUISITION_SECONDS + 0.04).timeout
+	_queue_free_node_now(beam)
+
+func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
+	if _card_fx_layer == null:
+		return
+	var mote := RelicAcquisitionMote.new()
+	mote.name = "RelicAcquisitionMote"
+	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
+	mote.accent = accent
+	var mote_size: float = 18.0 + float(mote_index % 3) * 3.0
+	mote.size = Vector2(mote_size, mote_size)
+	mote.pivot_offset = mote.size * 0.5
+	var start_angle: float = -0.85 + 1.7 * (float(mote_index) / float(maxi(1, RELIC_ACQUISITION_MOTES - 1)))
+	var start_spread: Vector2 = Vector2(cos(start_angle), sin(start_angle)) * (10.0 + float((mote_index * 7) % 13))
+	var end_jitter := Vector2(float((mote_index % 5) - 2) * 4.0, float((mote_index % 3) - 1) * 3.0)
+	mote.position = local_start + start_spread - mote.size * 0.5
+	mote.scale = Vector2.ONE * (0.74 + float(mote_index % 4) * 0.06)
+	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	mote.z_index = 1601
+	_card_fx_layer.add_child(mote)
+	var delay: float = float(mote_index) * 0.018
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(mote, "scale", Vector2.ONE * 0.32, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(mote, "modulate:a", 1.0, 0.06).set_delay(delay)
+	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + RELIC_ACQUISITION_SECONDS * 0.62)
+	tween.finished.connect(_queue_free_node_now.bind(mote))
+
+func _relic_acquisition_source_global_position(source_rect: Rect2) -> Vector2:
+	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
+		return source_rect.get_center()
+	return _board_global_position_for_tile(Vector2i(4, 4))
+
+func _relic_bar_target_global_position(frame: Control) -> Vector2:
+	if frame != null:
+		return frame.get_global_rect().get_center()
+	if relic_bar != null and relic_bar.visible:
+		return relic_bar.get_global_rect().get_center()
+	return room_title.get_global_rect().get_center()
 
 func _animate_relic_acquired(relic_id: String) -> void:
 	await get_tree().process_frame
@@ -9521,6 +10464,7 @@ func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 	return GameData.card_def(card_id)
 
 func _reset_card_resolution() -> void:
+	_clear_action_step_resolution_tracker()
 	_selected_card_index = -1
 	_selected_card_label_override = ""
 	_hovered_card_index = -1

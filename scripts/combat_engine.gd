@@ -1760,8 +1760,11 @@ func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		var first_time: int = _enemy_base_initiative(next_state, enemy) + enemy_index
-		queue.append(_enemy_actor_entry(next_state, enemy, first_time, _claim_activation_seq(next_state)))
+		var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
+		var first_delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(next_state, enemy) + maxi(0, intent_time_cost))
+		var entry: Dictionary = _enemy_actor_entry(next_state, enemy, first_delay + enemy_index, _claim_activation_seq(next_state))
+		entry["intent_time_cost"] = intent_time_cost
+		queue.append(entry)
 	next_state["turn_queue"] = _sorted_turn_queue(queue)
 	return next_state
 
