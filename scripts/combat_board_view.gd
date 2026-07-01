@@ -25,6 +25,9 @@ const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
 const MOVE_PATH_SHADOW: Color = Color(0.02, 0.03, 0.03, 0.35)
+const MOVE_RISK_CHIP_FONT_SIZE: int = 10
+const MOVE_RISK_CHIP_HEIGHT: float = 18.0
+const MOVE_RISK_CHIP_GAP: float = 3.0
 const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
@@ -421,6 +424,7 @@ func _draw() -> void:
 	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
 	_draw_effect_overlay()
+	_draw_movement_risk_chips()
 	_draw_status_text()
 	_draw_floating_texts()
 
@@ -3826,6 +3830,57 @@ func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color) 
 	])
 	draw_colored_polygon(points, Color(0.02, 0.03, 0.03, 0.45))
 	draw_colored_polygon(points, Color(color.r, color.g, color.b, 0.86))
+
+func _draw_movement_risk_chips() -> void:
+	var chips: Array = presentation.get("movement_risk_chips", [])
+	if chips.is_empty():
+		return
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var slots_by_tile: Dictionary = {}
+	for chip_var: Variant in chips:
+		if typeof(chip_var) != TYPE_DICTIONARY:
+			continue
+		var chip: Dictionary = chip_var
+		var tile: Vector2i = chip.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var label: String = str(chip.get("label", "")).strip_edges()
+		if label.is_empty():
+			continue
+		var slot: int = int(slots_by_tile.get(tile, 0))
+		slots_by_tile[tile] = slot + 1
+		var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.92 - float(slot) * (MOVE_RISK_CHIP_HEIGHT + MOVE_RISK_CHIP_GAP))
+		_draw_movement_risk_chip(font, center, label, str(chip.get("kind", "")))
+
+func _draw_movement_risk_chip(font: Font, center: Vector2, label: String, kind: String) -> void:
+	var colors: Dictionary = _movement_risk_chip_colors(kind)
+	var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, MOVE_RISK_CHIP_FONT_SIZE).x
+	var chip_width: float = clampf(text_width + 14.0, 38.0, 104.0)
+	var rect := Rect2(center - Vector2(chip_width * 0.5, MOVE_RISK_CHIP_HEIGHT * 0.5), Vector2(chip_width, MOVE_RISK_CHIP_HEIGHT))
+	draw_rect(rect.grow(1.5), Color(0.0, 0.0, 0.0, 0.34), true)
+	draw_rect(rect, colors.get("fill", Color("241914")), true)
+	draw_rect(rect, colors.get("border", Color("d8b96f")), false, 1.4)
+	draw_string(
+		font,
+		rect.position + Vector2(0.0, 12.5),
+		label,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		rect.size.x,
+		MOVE_RISK_CHIP_FONT_SIZE,
+		colors.get("text", Color("fff4dc"))
+	)
+
+func _movement_risk_chip_colors(kind: String) -> Dictionary:
+	match kind:
+		"danger":
+			return {"fill": Color(0.27, 0.08, 0.055, 0.94), "border": Color("ef8b62"), "text": Color("ffe5cf")}
+		"status":
+			return {"fill": Color(0.18, 0.15, 0.07, 0.94), "border": Color("f3d762"), "text": Color("fff0b7")}
+		"pickup":
+			return {"fill": Color(0.08, 0.20, 0.13, 0.94), "border": Color("83d088"), "text": Color("ddffd7")}
+	return {"fill": Color(0.12, 0.10, 0.08, 0.94), "border": Color("d8b96f"), "text": Color("fff4dc")}
 
 func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
 	var focus_keys: Array = presentation.get("focus_actor_keys", [])

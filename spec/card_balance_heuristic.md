@@ -95,9 +95,12 @@ Encounter calibration is also important:
   player's entry halo. Traps blast adjacent tiles when stepped on or attacked,
   so forced movement and area targeting can create higher positional upside and
   risk than the old single-tile trap model.
-- First-sequence trap damage now follows the local room depth directly:
-  `1/2/3` player-scale damage at depths `1/2/3`, with boss-depth traps at `4`.
-  Depth-3 fire and earth trap statuses are capped at `2`.
+- Generated trap damage uses a stronger positional payoff curve:
+  `6/7/8` player-scale damage in local standard depths `1/2/3`. First-sequence
+  boss-depth traps hit for `5` so they beat weak ranged attacks without
+  one-shotting full-health lightning wisps; all generated traps gain `+2`
+  player-scale damage per completed depth sequence. Depth-3 fire and earth
+  trap statuses are capped at `2`.
 - Fire burn ramps gently in the first sequence: depth `1-2` fire enemy attacks
   and traps apply shallow burn pressure, then deeper standard fire rooms restore
   the heavier burn payload.

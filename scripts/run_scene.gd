@@ -727,6 +727,7 @@ var _action_step_resolution_index: int = 0
 var _action_step_resolution_targets: Array[Vector2i] = []
 var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
+var _turn_order_anchor: CenterContainer
 var _turn_order_bar: Control
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
@@ -928,6 +929,7 @@ func _notification(what: int) -> void:
 		_layout_choice_button_overlay()
 		_layout_header_hud()
 		_layout_elemental_intensity_bar()
+		_layout_turn_order_anchor()
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
@@ -963,7 +965,7 @@ func _apply_style() -> void:
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		pile_panel.clip_contents = true
-	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE)
+	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE + 3)
 	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
@@ -2648,6 +2650,7 @@ func _connect_header_layout_signals() -> void:
 func _queue_elemental_intensity_layout() -> void:
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
+	call_deferred("_layout_turn_order_anchor")
 
 func _intensity_bar_size() -> Vector2:
 	return Vector2(INTENSITY_BADGE_SIZE.x * 3.0 + 9.0 * 2.0, INTENSITY_BADGE_SIZE.y * 2.0 + 7.0)
@@ -2728,6 +2731,24 @@ func _layout_elemental_intensity_bar() -> void:
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
+
+func _layout_turn_order_anchor() -> void:
+	if _turn_order_anchor == null:
+		return
+	var header_y: float = 0.0
+	var header_height: float = TURN_ORDER_PANEL_MIN_SIZE.y
+	if top_bar != null:
+		var top_bar_rect: Rect2 = top_bar.get_global_rect()
+		header_y = top_bar_rect.position.y - get_global_rect().position.y
+		header_height = maxf(header_height, top_bar_rect.size.y)
+	_turn_order_anchor.anchor_left = 0.0
+	_turn_order_anchor.anchor_top = 0.0
+	_turn_order_anchor.anchor_right = 1.0
+	_turn_order_anchor.anchor_bottom = 0.0
+	_turn_order_anchor.offset_left = 0.0
+	_turn_order_anchor.offset_top = header_y
+	_turn_order_anchor.offset_right = 0.0
+	_turn_order_anchor.offset_bottom = header_y + header_height
 
 func _relic_bar_visible_bottom_y() -> float:
 	if relic_bar == null:
@@ -3080,6 +3101,13 @@ func _refresh_relic_bar() -> void:
 func _setup_turn_order_bar() -> void:
 	if _turn_order_panel != null:
 		return
+	_turn_order_anchor = CenterContainer.new()
+	_turn_order_anchor.name = "TurnOrderAnchor"
+	_turn_order_anchor.visible = false
+	_turn_order_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_anchor.z_index = 35
+	add_child(_turn_order_anchor)
+	_layout_turn_order_anchor()
 	_turn_order_panel = PanelContainer.new()
 	_turn_order_panel.name = "TurnOrderPanel"
 	_turn_order_panel.visible = false
@@ -3117,8 +3145,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_turn_order_bar.custom_minimum_size = TURN_ORDER_PORTRAIT_SIZE
 	row.add_child(_turn_order_bar)
-	top_bar.add_child(_turn_order_panel)
-	top_bar.move_child(_turn_order_panel, header_spacer.get_index())
+	_turn_order_anchor.add_child(_turn_order_panel)
 
 func _refresh_turn_order_bar() -> void:
 	if _turn_order_bar == null:
@@ -3129,8 +3156,7 @@ func _refresh_turn_order_bar() -> void:
 	if mode != "combat" or _combat_state.is_empty():
 		_clear_children(_turn_order_bar)
 		_turn_order_panel_locked_width = -1.0
-		if _turn_order_panel != null:
-			_turn_order_panel.visible = false
+		_set_turn_order_visible(false)
 		return
 	var entries: Array[Dictionary] = _combat_engine.current_turn_order(_turn_order_display_state(), TURN_ORDER_MAX_SLOTS)
 	_set_turn_order_bar_entries(entries)
@@ -3170,11 +3196,19 @@ func _set_turn_order_bar_entries(entries: Array[Dictionary]) -> void:
 	if _turn_order_panel != null:
 		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
 		_turn_order_panel.custom_minimum_size = Vector2(panel_width, TURN_ORDER_PANEL_MIN_SIZE.y)
-		_turn_order_panel.visible = not entries.is_empty()
+		_set_turn_order_visible(not entries.is_empty())
 	for index: int in range(entries.size()):
 		var slot: Control = _build_turn_order_slot(entries[index], index)
 		slot.position = _turn_order_slot_position(index)
 		_turn_order_bar.add_child(slot)
+
+func _set_turn_order_visible(visible: bool) -> void:
+	if _turn_order_panel != null:
+		_turn_order_panel.visible = visible
+	if _turn_order_anchor != null:
+		_turn_order_anchor.visible = visible
+	if visible:
+		_layout_turn_order_anchor()
 
 func _turn_order_entries_width(count: int) -> float:
 	if count <= 0:
@@ -5837,6 +5871,9 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	var preview_units: Array = _preview_units_for_action(preview)
 	if not preview_units.is_empty():
 		result["preview_units"] = preview_units
+	var movement_risk_chips: Array = _movement_risk_chips_for_preview(preview, path_tiles)
+	if not movement_risk_chips.is_empty():
+		result["movement_risk_chips"] = movement_risk_chips
 	return result
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
@@ -6044,7 +6081,8 @@ func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
 		var after_move_state: Dictionary = _combat_engine.apply_player_action(preview_state, action, move_target)
 		var path_tiles: Array[Vector2i] = _vector2i_array([move_target]) if action_type == "blink" else _combat_engine.path_for_player_action(preview_state, action, move_target)
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles)
+		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, after_move_state, move_target, move_target, move_distance, path_tiles, movement_risk_chips)
 	if bool(preview.get("skip_allowed", false)):
 		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [])
 	var tiles: Array[Vector2i] = []
@@ -6056,7 +6094,7 @@ func _preview_shortcuts_for_current_action(preview: Dictionary) -> Dictionary:
 		"tiles": tiles
 	}
 
-func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i]) -> void:
+func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions: Array, action_index: int, base_state: Dictionary, move_target: Vector2i, move_tile: Vector2i, move_distance: int, path_tiles: Array[Vector2i], movement_risk_chips: Array = []) -> void:
 	var followup: Dictionary = _next_shortcut_attack_step(base_state, actions, action_index + 1)
 	if followup.is_empty():
 		return
@@ -6082,9 +6120,162 @@ func _collect_shortcut_attack_plans(plans: Dictionary, card_id: String, actions:
 			"move_tile": move_tile,
 			"move_distance": move_distance,
 			"path_tiles": path_tiles.duplicate(),
+			"movement_risk_chips": movement_risk_chips.duplicate(true),
 			"action_index": followup_index,
 			"action": followup_action.duplicate(true)
 		}
+
+func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
+	var chips: Array = []
+	for chip_var: Variant in shortcut_plan.get("movement_risk_chips", []):
+		if typeof(chip_var) == TYPE_DICTIONARY:
+			chips.append((chip_var as Dictionary).duplicate(true))
+	return chips
+
+func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		return _shortcut_movement_risk_chips(shortcut_plan)
+	if _hovered_board_tile.x < 0 or path_tiles.is_empty():
+		return []
+	var action: Dictionary = preview.get("action", {})
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["move", "blink"]:
+		return []
+	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
+	if not valid_targets.has(_hovered_board_tile):
+		return []
+	var before_state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
+	if before_state.is_empty():
+		return []
+	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, _hovered_board_tile)
+	return _movement_risk_chips_for_states(before_state, after_state, path_tiles)
+
+func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+	var chips: Array = []
+	var triggered_traps: Array = _movement_triggered_traps_between(before_state, after_state)
+	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
+	var risk_tile: Vector2i = _movement_risk_chip_tile(path_tiles, triggered_traps)
+	if not triggered_traps.is_empty():
+		chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
+	for loot: Dictionary in picked_loot:
+		var pickup_chip: Dictionary = _movement_pickup_chip(loot)
+		if not pickup_chip.is_empty():
+			chips.append(pickup_chip)
+	return chips
+
+func _movement_player_delta_chips(before_state: Dictionary, after_state: Dictionary, tile: Vector2i) -> Array:
+	var chips: Array = []
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var hp_loss: int = maxi(0, int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)))
+	if hp_loss > 0:
+		chips.append({"tile": tile, "label": "-%d HP" % hp_loss, "kind": "danger"})
+	var block_loss: int = maxi(0, int(before_player.get("block", 0)) - int(after_player.get("block", 0)))
+	if block_loss > 0:
+		chips.append({"tile": tile, "label": "-%d Block" % block_loss, "kind": "danger"})
+	var stoneskin_loss: int = maxi(0, int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)))
+	if stoneskin_loss > 0:
+		chips.append({"tile": tile, "label": "-%d Guard" % stoneskin_loss, "kind": "danger"})
+	for label: String in _movement_status_delta_labels(before_state, after_state):
+		chips.append({"tile": tile, "label": label, "kind": "status"})
+	return chips
+
+func _movement_status_delta_labels(before_state: Dictionary, after_state: Dictionary) -> PackedStringArray:
+	var before_player: Dictionary = before_state.get("player", {})
+	var after_player: Dictionary = after_state.get("player", {})
+	var labels := PackedStringArray()
+	var seen: Dictionary = {}
+	for key: String in ["burn", "freeze", "shock"]:
+		if int(after_player.get(key, 0)) > int(before_player.get(key, 0)):
+			var label: String = key.capitalize()
+			labels.append(label)
+			seen[label] = true
+	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
+		labels.append("Immobilize")
+		seen["Immobilize"] = true
+	var before_poison: Dictionary = before_player.get("poison", {})
+	var after_poison: Dictionary = after_player.get("poison", {})
+	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
+		labels.append("Poison")
+		seen["Poison"] = true
+	var pending_label: String = str(after_state.get("pending_player_trap_restriction", "")).capitalize()
+	if not pending_label.is_empty() and str(after_state.get("pending_player_trap_restriction", "")) != str(before_state.get("pending_player_trap_restriction", "")) and not seen.has(pending_label):
+		labels.append(pending_label)
+	return labels
+
+func _movement_pickup_chip(loot: Dictionary) -> Dictionary:
+	var tile: Vector2i = loot.get("pos", INVALID_TARGET_TILE)
+	if tile.x < 0:
+		return {}
+	var amount: int = int(loot.get("amount", 0))
+	var label: String = "Pickup"
+	match str(loot.get("kind", "")):
+		"healing_vial":
+			label = "+%d HP" % amount
+		"rusty_shield":
+			label = "+%d Block" % amount
+		"dropped_embers":
+			label = "+%d Embers" % amount
+		"equipment":
+			label = "Gear"
+	return {"tile": tile, "label": label, "kind": "pickup"}
+
+func _movement_risk_chip_tile(path_tiles: Array[Vector2i], triggered_traps: Array) -> Vector2i:
+	for trap: Dictionary in triggered_traps:
+		var trap_tile: Vector2i = trap.get("pos", INVALID_TARGET_TILE)
+		if trap_tile.x >= 0:
+			return trap_tile
+	if not path_tiles.is_empty():
+		return path_tiles[path_tiles.size() - 1]
+	return INVALID_TARGET_TILE
+
+func _movement_triggered_traps_between(before_state: Dictionary, after_state: Dictionary) -> Array:
+	var after_traps: Dictionary = {}
+	for trap_var: Variant in after_state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY:
+			after_traps[_movement_trap_key(trap_var as Dictionary)] = true
+	var triggered: Array = []
+	for trap_var: Variant in before_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if not after_traps.has(_movement_trap_key(trap)):
+			triggered.append(trap.duplicate(true))
+	return triggered
+
+func _movement_picked_loot_between(before_state: Dictionary, after_state: Dictionary) -> Array:
+	var after_claimed: Dictionary = {}
+	for loot_var: Variant in after_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var after_loot: Dictionary = loot_var
+		if bool(after_loot.get("claimed", false)):
+			after_claimed[_movement_loot_key(after_loot)] = true
+	var picked: Array = []
+	for loot_var: Variant in before_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var before_loot: Dictionary = loot_var
+		if bool(before_loot.get("claimed", false)):
+			continue
+		if after_claimed.has(_movement_loot_key(before_loot)):
+			picked.append(before_loot.duplicate(true))
+	return picked
+
+func _movement_trap_key(trap: Dictionary) -> String:
+	var trap_id: String = str(trap.get("id", ""))
+	if not trap_id.is_empty():
+		return trap_id
+	var pos: Vector2i = trap.get("pos", Vector2i.ZERO)
+	return "%s:%d:%d" % [str(trap.get("element", "")), pos.x, pos.y]
+
+func _movement_loot_key(loot: Dictionary) -> String:
+	var loot_id: String = str(loot.get("id", ""))
+	if not loot_id.is_empty():
+		return loot_id
+	var pos: Vector2i = loot.get("pos", Vector2i.ZERO)
+	return "%s:%d:%d" % [str(loot.get("kind", "")), pos.x, pos.y]
 
 func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index: int) -> Dictionary:
 	var working_state: Dictionary = state.duplicate(true)
@@ -10548,18 +10739,7 @@ func _room_title_text(room: Dictionary) -> String:
 	return str(room.get("name", "Chamber"))
 
 func _room_subtitle_text(room: Dictionary) -> String:
-	var element_text: String = ElementData.short_label(str(room.get("element", ElementData.NONE)))
-	var depth_text: String = "Depth %d" % int(room.get("depth", 0))
-	if not element_text.is_empty():
-		depth_text = "%s  %s" % [element_text, depth_text]
-	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
-		return "%s  TURN %d  %d/%d" % [
-			depth_text,
-			int(_combat_state.get("turn", 1)),
-			int(_combat_state.get("cards_played_this_turn", 0)),
-			int(_combat_state.get("cards_per_turn", 2))
-		]
-	return depth_text
+	return "Depth %d" % int(room.get("depth", 0))
 
 func _maybe_auto_trigger_room_dialogue() -> void:
 	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
@@ -11160,6 +11340,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
 	if JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
+	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
 		"play_mode": play_mode,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -11169,7 +11350,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"enemy_defense_bypassed": _analytics_enemy_defense_bypassed(before_state, resolved_state, actions),
 		"terrain_hp_damage": terrain_hp_damage,
 		"terrain_destroyed": terrain_destroyed,
-		"traps_triggered": _triggered_traps_between(before_state, resolved_state).size(),
+		"traps_triggered": triggered_traps.size(),
+		"triggered_trap_damage": _triggered_trap_damage(triggered_traps),
 		"pickups_collected": _analytics_picked_loot_count(before_state, resolved_state),
 		"embers_recovered": maxi(0, int(resolved_state.get("recovered_embers_total", 0)) - int(before_state.get("recovered_embers_total", 0))),
 		"kills_secured": kills_secured,
@@ -11273,6 +11455,12 @@ func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> 
 		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
 			count += 1
 	return count
+
+func _triggered_trap_damage(triggered_traps: Array[Dictionary]) -> int:
+	var total: int = 0
+	for trap: Dictionary in triggered_traps:
+		total += maxi(0, int(trap.get("damage", 0)))
+	return total
 
 func _analytics_picked_loot_count(before_state: Dictionary, after_state: Dictionary) -> int:
 	var after_claimed: Dictionary = {}

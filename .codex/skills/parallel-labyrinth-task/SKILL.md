@@ -17,6 +17,7 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - Do not push, land, or clean up until the user explicitly approves that committed task branch.
 - After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
 - Any user-facing task runner, visual probe, inspection launch, or other worktree-local command must be a single copy-paste command that starts with `cd <task-worktree> && ...`.
+- If the task came from `.codex/tasks` with a queue id, keep the queue record in sync before ending each lifecycle turn. Use `tools/labyrinth_task_queue.py complete` for ready-for-user handoff, `tools/labyrinth_task_queue.py landed` after approved publish to `master`, and `tools/labyrinth_task_queue.py mark <task-id> abandoned|blocked|rejected` when work is stopped. If the worker cannot update the queue because of permissions or missing host access, report the exact command the orchestrator must run.
 
 ## Starting A Task
 
@@ -114,6 +115,18 @@ When reporting an inspection launch command, include the worktree change-directo
 cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --run-id <run-id> --godot-home-root /private/tmp/labyrinth-godot-home -- godot --path .
 ```
 
+For queued tasks, run the queue handoff before reporting ready-for-user when access permits:
+
+```bash
+python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-scenario "<scenario>" --inspection-run-id "<run-id>" --inspection-summary "<what Continue opens>" --inspection-launch "<launch command>"
+```
+
+For changes without a playable inspection fixture, use:
+
+```bash
+python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-not-applicable "<reason>"
+```
+
 ## Peer Review Gate
 
 Every completed task branch needs a reviewer sub-agent before user handoff. The reviewer must be a separate agent from the one that implemented the change. Spawn the reviewer after the acting agent believes the work is complete and the task branch has a stable commit or follow-up commit to review.
@@ -170,6 +183,12 @@ Then remove the task worktree:
 
 ```bash
 python3 tools/parallel_task.py cleanup
+```
+
+For queued tasks, update the queue after the publish succeeds and before cleanup/reporting:
+
+```bash
+python3 tools/labyrinth_task_queue.py landed <task-id> --commit <master-commit>
 ```
 
 If cleanup refuses because the branch is not reachable from `master` or because there are local changes, resolve that state instead of forcing by default. Use `--force` or `--no-require-pushed` only when the user explicitly accepts discarding or cleaning up unlanded local worktree state.

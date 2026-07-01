@@ -4,6 +4,7 @@ const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
@@ -1687,6 +1688,7 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var play_mode: String = "printed"
 	if JSON.stringify(actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_attack_actions()) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_move_actions()) else "custom"
+	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
 		"play_mode": play_mode,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -1695,7 +1697,8 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"enemy_stoneskin_removed": _enemy_stoneskin_removed_between(before_state, resolved_state),
 		"terrain_hp_damage": _terrain_damage_between(before_state, resolved_state),
 		"terrain_destroyed": _terrain_destroyed_between(before_state, resolved_state),
-		"traps_triggered": _triggered_traps_between(before_state, resolved_state).size(),
+		"traps_triggered": triggered_traps.size(),
+		"triggered_trap_damage": _triggered_trap_damage(triggered_traps),
 		"pickups_collected": _picked_loot_between(before_state, resolved_state).size(),
 		"kills_secured": _kills_between(before_state, resolved_state),
 		"player_hp_delta": int(after_player.get("hp", 0)) - int(before_player.get("hp", 0)),
@@ -2623,6 +2626,12 @@ func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary)
 			continue
 		triggered.append(before_trap)
 	return triggered
+
+func _triggered_trap_damage(triggered_traps: Array[Dictionary]) -> int:
+	var total: int = 0
+	for trap: Dictionary in triggered_traps:
+		total += maxi(0, int(trap.get("damage", 0)))
+	return total
 
 func _picked_loot_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var after_claimed: Dictionary = {}

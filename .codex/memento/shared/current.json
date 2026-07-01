@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-06-30T21:04:08Z",
+  "updated_at": "2026-07-01T14:06:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4352,6 +4352,30 @@
       }
     },
     {
+      "id": "mnt_20260630T152610Z_2172a6f3",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/room_generator.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/room_generator.gd",
+      "summary": "Generated traps are a high-value positional payoff",
+      "details": "Trap damage is intentionally tuned above weak direct ranged attacks: first-sequence standard depths deal 6/7/8 player-scale damage, first-sequence boss-depth traps deal 5 to avoid one-shotting full-health lightning wisps, and later sequences add 2 per completed sequence. Status payloads still use local encounter depth so early fire/poison traps keep shallow pressure.",
+      "status": "active",
+      "created_at": "2026-06-30T15:26:10Z",
+      "updated_at": "2026-06-30T15:26:10Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260630T151524Z_9cab5cf5"
+      ],
+      "source": {
+        "branch": "codex/rebalance-trap-damage",
+        "commit": "e5b21ca"
+      }
+    },
+    {
       "id": "mnt_20260630T210408Z_cb32ab61",
       "layer": "shared",
       "kind": "pitfall",
@@ -4371,6 +4395,28 @@
       "source": {
         "branch": "codex/pass-preview-summary-chip",
         "commit": "0dac70c"
+      }
+    },
+    {
+      "id": "mnt_20260630T214601Z_fd26de37",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Top-left room header should stay terse",
+      "details": "The run HUD's top-left TitleBox should show the room name prominently with only a Depth N subtitle below it. Do not reintroduce element labels, turn number, card-play counts, or other combat metadata into that corner unless the design is explicitly revisited.",
+      "status": "active",
+      "created_at": "2026-06-30T21:46:01Z",
+      "updated_at": "2026-06-30T21:46:01Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/simplify-top-left-room-header",
+        "commit": "7e93133"
       }
     }
   ]
