@@ -4549,6 +4549,15 @@ func _test_cinder_enemies_use_final_raster_art() -> void:
 		_assert(texture != null, "%s enemy sprite should load for board rendering" % enemy_type)
 		if texture != null:
 			_assert(texture.get_size() == Vector2(255, 255), "%s enemy sprite should use the static 255px unit canvas" % enemy_type)
+			if enemy_type == "cinder_droplet":
+				var center := Vector2(320.0, 240.0)
+				var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", {"type": enemy_type, "pos": Vector2i.ZERO}, center)
+				var used_rect: Rect2i = texture.get_image().get_used_rect()
+				var visible_center_x: float = draw_rect.position.x + draw_rect.size.x * float(used_rect.position.x + used_rect.size.x * 0.5) / float(texture.get_width())
+				var visible_bottom_y: float = draw_rect.position.y + draw_rect.size.y * float(used_rect.position.y + used_rect.size.y) / float(texture.get_height())
+				var tile_height: float = float(board.call("_tile_height"))
+				_assert(absf(visible_center_x - center.x) <= 1.0, "Cinder Droplet art should stay horizontally centered on its tile")
+				_assert(visible_bottom_y <= center.y + tile_height * 0.35, "Cinder Droplet art should not hang below its tile anchor")
 	board.free()
 
 func _test_emaciated_man_uses_matching_idle_sheet() -> void:

@@ -233,7 +233,6 @@
     "accent": "#f08a3a",
     "art_path": "res://assets/art/enemies/cinder_droplet.png",
     "art_scale": 0.56,
-    "art_offset_y": 18,
     "intents": [
       {
         "id": "spatter",
