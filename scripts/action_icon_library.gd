@@ -227,6 +227,16 @@ static func token_for(icon_key: String, value: Variant = null, tone: String = "n
 			token["base_value"] = base_value
 	return token
 
+static func text_token(text: String, tone: String = "neutral", tooltip_override: String = "") -> Dictionary:
+	var token: Dictionary = {
+		"kind": "text",
+		"value": text,
+		"tone": tone
+	}
+	if not tooltip_override.is_empty():
+		token["tooltip"] = tooltip_override
+	return token
+
 static func element_icon_key(element_id: String) -> String:
 	return "element_%s" % str(element_id)
 
@@ -388,11 +398,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
-		"block":
+		"block", "guard_ally":
 			tokens.append(_token_for_action_field(action, "block", "amount", int(action.get("amount", 0))))
 		"stoneskin":
 			tokens.append(_token_for_action_field(action, "stoneskin", "amount", int(action.get("amount", 0))))
-		"heal", "heal_self":
+		"heal", "heal_self", "heal_ally":
 			tokens.append(_token_for_action_field(action, "heal", "amount", int(action.get("amount", 0))))
 		"draw":
 			tokens.append(_token_for_action_field(action, "draw", "amount", int(action.get("amount", 0))))
@@ -545,6 +555,9 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 			continue
 		if str(token.get("kind", "")) == "intensity_requirement":
 			parts.append("%s %s" % [ElementData.name(str(token.get("element", ElementData.NONE))), token_value_text(token)])
+			continue
+		if str(token.get("kind", "")) == "text":
+			parts.append(token_value_text(token))
 			continue
 		var value_text: String = token_value_text(token)
 		if value_text.is_empty():

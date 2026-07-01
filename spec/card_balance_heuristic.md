@@ -77,9 +77,12 @@ Encounter calibration is also important:
   control anchors, and wardens are slow. At depth `1`,
   weighted first/repeat cycles before the initial spawn stagger are roughly
   `11` for wisps, `13` for crawlers, `13.4` for harriers, `16.25` for
-  acolytes, `17.8` for gaolers, and `20.25` for wardens; Zekarion cycles
-  around `19.25` before summon forcing. Depth reduces enemy base initiative by
-  up to `4` over time.
+  acolytes, `16` for grave surgeons, `17.8` for gaolers, and `20.25` for
+  wardens; Zekarion cycles around `19.25` before summon forcing. Grave surgeons
+  contribute low direct damage but can heal or guard the most injured/threatened
+  nearby enemy, so their support amounts follow the same depth/sequence support
+  curve as enemy block and healing. Depth reduces enemy base initiative by up to
+  `4` over time.
 - Later sequences keep the same local density and elemental-control curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.

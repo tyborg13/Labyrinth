@@ -1966,6 +1966,7 @@ func _visible_units() -> Array[Dictionary]:
 		units_to_draw.append({
 			"key": "enemy_%d" % int(enemy.get("id", -1)),
 			"role": "enemy",
+			"id": int(enemy.get("id", -1)),
 			"type": str(enemy.get("type", "")),
 			"name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
 			"boss_bar": bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)),
@@ -2387,6 +2388,24 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			_register_tooltip(pattern_rect, ActionIcons.token_tooltip(token))
 			cursor_x += pattern_size.x + 5.0
 			continue
+		if str(token.get("kind", "")) == "text":
+			var text_value: String = ActionIcons.token_value_text(token)
+			if text_value.is_empty() or font == null:
+				continue
+			var text_width: float = maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
+			var text_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(text_width, icon_size))
+			draw_string(
+				font,
+				Vector2(cursor_x, origin.y + icon_size - 2.0),
+				text_value,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				text_width,
+				font_size,
+				_token_value_color(token, text_color)
+			)
+			_register_tooltip(text_rect, ActionIcons.token_tooltip(token))
+			cursor_x += text_width + 6.0
+			continue
 		var icon_key: String = str(token.get("icon", ""))
 		var tooltip: String = ActionIcons.token_tooltip(token)
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
@@ -2436,6 +2455,11 @@ func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Fon
 			continue
 		if str((token_var as Dictionary).get("kind", "")) == "aoe_pattern":
 			width += _aoe_token_size(token_var as Dictionary, icon_size).x + 5.0
+			continue
+		if str((token_var as Dictionary).get("kind", "")) == "text":
+			var text_value: String = ActionIcons.token_value_text(token_var as Dictionary)
+			if not text_value.is_empty() and font != null:
+				width += maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0) + 6.0
 			continue
 		width += icon_size + 3.0
 		var value_text: String = ActionIcons.token_value_text(token_var as Dictionary)
@@ -2576,7 +2600,7 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 	if not intent.is_empty():
 		rows = _enemy_intent_rows_for_display(unit, intent)
 		intent_name = _intent_display_name(intent)
-		var expanded_rows: Array = _intent_rows(intent)
+		var expanded_rows: Array = _intent_rows_for_unit(unit, intent)
 		var expanded_line_count: int = expanded_rows.size() + (1 if not intent_name.is_empty() else 0)
 		var visible_line_count: int = rows.size() + (1 if not intent_name.is_empty() else 0)
 		if font != null and expanded_line_count > 0 and visible_line_count > 0:
@@ -2610,7 +2634,7 @@ func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Arra
 
 func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Array:
 	if _enemy_intent_expanded(unit):
-		return _intent_rows(intent)
+		return _intent_rows_for_unit(unit, intent)
 	return []
 
 func _enemy_intent_expanded(unit: Dictionary) -> bool:
@@ -4952,10 +4976,16 @@ func _prop_size() -> Vector2:
 	return Vector2(tile_width * 0.92, tile_width * 1.14)
 
 func _intent_rows(intent: Dictionary) -> Array:
+	return _intent_rows_for_unit({}, intent)
+
+func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
 		var row: Array = ActionIcons.tokens_for_action(action)
+		var support_token: Dictionary = _support_target_token_for_action(unit, action)
+		if not support_token.is_empty():
+			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
 	return rows
@@ -4986,11 +5016,145 @@ func _intent_color(intent: Dictionary) -> Color:
 			return Color("d56a55")
 		if action_type == "stoneskin":
 			return ElementData.accent(ElementData.EARTH)
-		if action_type == "block":
+		if action_type == "block" or action_type == "guard_ally":
 			return Color("7eb9d5")
-		if action_type == "heal_self":
+		if action_type == "heal_self" or action_type == "heal_ally":
 			return Color("90c86d")
 	return Color("d8b96f")
+
+func _support_target_token_for_action(unit: Dictionary, action: Dictionary) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["heal_ally", "guard_ally"]:
+		return {}
+	var source_enemy: Dictionary = _support_source_enemy(unit)
+	if source_enemy.is_empty():
+		return {}
+	var target_enemy: Dictionary = _support_target_enemy(source_enemy, action)
+	var value_text: String = "None"
+	var tooltip_text: String = "No valid support target."
+	if not target_enemy.is_empty():
+		var source_id: int = int(source_enemy.get("id", -1))
+		var target_id: int = int(target_enemy.get("id", -1))
+		value_text = "-> Self" if target_id == source_id else "-> %s" % _short_enemy_name(target_enemy)
+		tooltip_text = "Support target: %s." % str(target_enemy.get("name", "Enemy"))
+	return ActionIcons.text_token(value_text, "neutral", tooltip_text)
+
+func _support_source_enemy(unit: Dictionary) -> Dictionary:
+	var source_id: int = int(unit.get("id", -1))
+	if source_id < 0:
+		var key: String = str(unit.get("key", ""))
+		if key.begins_with("enemy_"):
+			var id_text: String = key.substr(6)
+			if id_text.is_valid_int():
+				source_id = int(id_text)
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = _support_enemy_unit(enemy_var as Dictionary)
+		if int(enemy.get("id", -1)) == source_id:
+			return enemy
+	return {}
+
+func _support_target_enemy(source_enemy: Dictionary, action: Dictionary) -> Dictionary:
+	var allow_self: bool = bool(action.get("allow_self", true))
+	var max_range: int = int(action.get("range", 99)) if action.has("range") else 99
+	var best_enemy: Dictionary = {}
+	var player: Dictionary = combat_state.get("player", {}) as Dictionary
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = _support_enemy_unit(enemy_var as Dictionary)
+		if int(candidate.get("hp", 0)) <= 0:
+			continue
+		if int(candidate.get("id", -1)) == int(source_enemy.get("id", -1)) and not allow_self:
+			continue
+		if not _support_action_can_affect(candidate, action):
+			continue
+		if _support_unit_distance_between(source_enemy, candidate) > max_range:
+			continue
+		if best_enemy.is_empty() or _support_candidate_precedes(str(action.get("type", "")), source_enemy, candidate, best_enemy, player):
+			best_enemy = candidate
+	return best_enemy
+
+func _support_enemy_unit(enemy: Dictionary) -> Dictionary:
+	var unit: Dictionary = enemy.duplicate(true)
+	unit["id"] = int(unit.get("id", -1))
+	unit["name"] = str(GameData.enemy_def(str(unit.get("type", ""))).get("name", "Enemy"))
+	unit["hp"] = int(unit.get("hp", 0))
+	unit["max_hp"] = maxi(1, int(unit.get("max_hp", 1)))
+	unit["block"] = int(unit.get("block", 0))
+	unit["stoneskin"] = int(unit.get("stoneskin", 0))
+	if not unit.has("footprint"):
+		var footprint_value: Variant = GameData.enemy_def(str(unit.get("type", ""))).get("footprint", [])
+		if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
+			unit["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	unit["footprint"] = Vector2i(maxi(1, footprint.x), maxi(1, footprint.y))
+	return unit
+
+func _support_action_can_affect(candidate: Dictionary, action: Dictionary) -> bool:
+	if int(action.get("amount", 0)) <= 0:
+		return false
+	match str(action.get("type", "")):
+		"heal_ally":
+			return int(candidate.get("hp", 0)) < int(candidate.get("max_hp", 1))
+		"guard_ally":
+			return true
+		_:
+			return false
+
+func _support_candidate_precedes(action_type: String, source_enemy: Dictionary, candidate: Dictionary, incumbent: Dictionary, player: Dictionary) -> bool:
+	match action_type:
+		"heal_ally":
+			var candidate_missing: int = maxi(0, int(candidate.get("max_hp", 1)) - int(candidate.get("hp", 0)))
+			var incumbent_missing: int = maxi(0, int(incumbent.get("max_hp", 1)) - int(incumbent.get("hp", 0)))
+			if candidate_missing != incumbent_missing:
+				return candidate_missing > incumbent_missing
+			var candidate_support_distance: int = _support_unit_distance_between(source_enemy, candidate)
+			var incumbent_support_distance: int = _support_unit_distance_between(source_enemy, incumbent)
+			if candidate_support_distance != incumbent_support_distance:
+				return candidate_support_distance < incumbent_support_distance
+			if int(candidate.get("hp", 0)) != int(incumbent.get("hp", 0)):
+				return int(candidate.get("hp", 0)) < int(incumbent.get("hp", 0))
+		"guard_ally":
+			var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+			var candidate_threat_distance: int = _support_unit_distance_to_tile(candidate, player_pos)
+			var incumbent_threat_distance: int = _support_unit_distance_to_tile(incumbent, player_pos)
+			if candidate_threat_distance != incumbent_threat_distance:
+				return candidate_threat_distance < incumbent_threat_distance
+			var candidate_defense: int = int(candidate.get("block", 0)) + int(candidate.get("stoneskin", 0))
+			var incumbent_defense: int = int(incumbent.get("block", 0)) + int(incumbent.get("stoneskin", 0))
+			if candidate_defense != incumbent_defense:
+				return candidate_defense < incumbent_defense
+			var candidate_ratio: int = int(candidate.get("hp", 0)) * int(incumbent.get("max_hp", 1))
+			var incumbent_ratio: int = int(incumbent.get("hp", 0)) * int(candidate.get("max_hp", 1))
+			if candidate_ratio != incumbent_ratio:
+				return candidate_ratio < incumbent_ratio
+			var candidate_guard_distance: int = _support_unit_distance_between(source_enemy, candidate)
+			var incumbent_guard_distance: int = _support_unit_distance_between(source_enemy, incumbent)
+			if candidate_guard_distance != incumbent_guard_distance:
+				return candidate_guard_distance < incumbent_guard_distance
+	return int(candidate.get("id", 0)) < int(incumbent.get("id", 0))
+
+func _support_unit_distance_between(first_unit: Dictionary, second_unit: Dictionary) -> int:
+	var best_distance: int = 9999
+	for first_tile: Vector2i in _unit_footprint_tiles(first_unit):
+		for second_tile: Vector2i in _unit_footprint_tiles(second_unit):
+			best_distance = mini(best_distance, absi(first_tile.x - second_tile.x) + absi(first_tile.y - second_tile.y))
+	return best_distance
+
+func _support_unit_distance_to_tile(unit: Dictionary, tile: Vector2i) -> int:
+	var best_distance: int = 9999
+	for unit_tile: Vector2i in _unit_footprint_tiles(unit):
+		best_distance = mini(best_distance, absi(unit_tile.x - tile.x) + absi(unit_tile.y - tile.y))
+	return best_distance
+
+func _short_enemy_name(enemy: Dictionary) -> String:
+	var display_name: String = str(enemy.get("name", "Enemy"))
+	for prefix: String in ["Tunnel ", "Ash ", "Bone ", "Lightning ", "Grave "]:
+		if display_name.begins_with(prefix):
+			return display_name.substr(prefix.length())
+	return display_name
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = []
