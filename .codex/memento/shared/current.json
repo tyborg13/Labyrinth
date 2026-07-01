@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-01T17:22:00Z",
+  "updated_at": "2026-07-01T14:06:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4376,27 +4376,71 @@
       }
     },
     {
-      "id": "mnt_20260701T172200Z_db3323d3",
+      "id": "mnt_20260630T210408Z_cb32ab61",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "pitfall",
       "scope": {
         "level": "file",
-        "path": "scripts/run_engine.gd",
+        "path": "scripts/run_scene.gd",
         "symbol": null
       },
-      "scope_key": "file:scripts/run_engine.gd",
-      "summary": "Merchant room trade state is visit-local room metadata.",
-      "details": "Merchant buy offers are stored on the current room under merchant_stock, merchant_sold_items, merchant_purchased_items, and merchant_refill_count. Buying records the purchased id so it enters inventory but is hidden from this visit's Sell list, then refills only the purchased buy slot from the remaining unsold/unowned pool. Selling records the sold id and must not reroll offers.",
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pass preview hover must include selected-card commit when confirmation completes the card.",
+      "details": "For selected card hover previews, apply the hovered target through _card_preview_from_state and call finish_player_card when that preview is complete before forecasting pass damage. Otherwise card time/hand removal/card-play counters are omitted and turn order can look safer than the click-confirmed result.",
       "status": "active",
-      "created_at": "2026-07-01T17:22:00Z",
-      "updated_at": "2026-07-01T17:22:00Z",
+      "created_at": "2026-06-30T21:04:08Z",
+      "updated_at": "2026-06-30T21:04:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/pass-preview-summary-chip",
+        "commit": "0dac70c"
+      }
+    },
+    {
+      "id": "mnt_20260630T214601Z_fd26de37",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Top-left room header should stay terse",
+      "details": "The run HUD's top-left TitleBox should show the room name prominently with only a Depth N subtitle below it. Do not reintroduce element labels, turn number, card-play counts, or other combat metadata into that corner unless the design is explicitly revisited.",
+      "status": "active",
+      "created_at": "2026-06-30T21:46:01Z",
+      "updated_at": "2026-06-30T21:46:01Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/simplify-top-left-room-header",
+        "commit": "7e93133"
+      }
+    },
+    {
+      "id": "mnt_20260701T135948Z_0d044fb5",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/tiles",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/tiles",
+      "summary": "Campfire bonfire assets come from the redownloaded transparent sheet",
+      "details": "campfire_bonfire_idle.png is rebuilt from the user-redownloaded 4096x3840 transparent source sheet by cropping each 1024x960 cell to its shared 992x640 alpha bbox, then filling only enclosed low-alpha islands inside the flame/smoke. campfire_bonfire.png uses the first rebuilt frame as the static fallback. Do not run broad alpha cleanup across the stone-circle interior; preserve border-connected transparency and only repair enclosed transparent holes.",
+      "status": "active",
+      "created_at": "2026-07-01T13:59:48Z",
+      "updated_at": "2026-07-01T13:59:48Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260701T164645Z_041c21ea"
+        "mnt_20260630T220200Z_6cc7070c"
       ],
       "source": {
-        "branch": "codex/npc-merchant-rooms",
-        "commit": "00d0099"
+        "branch": "codex/fix-campfire-alpha-cleanup",
+        "commit": "a6b0407"
       }
     }
   ]

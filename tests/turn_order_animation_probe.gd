@@ -43,6 +43,7 @@ func _initialize() -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	_assert_turn_order_slot_count(instance, 10)
 	_assert_turn_order_label(instance)
+	_assert_turn_order_panel_centered(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
 	await _save_root_screenshot("user://probes/turn_order_anim_00_before.png")
 	var combat_engine = instance.get("_combat_engine")
@@ -63,6 +64,7 @@ func _initialize() -> void:
 	await create_timer(0.35).timeout
 	await process_frame
 	_assert_turn_order_slot_count(instance, 10)
+	_assert_turn_order_panel_centered(instance)
 	_assert_turn_order_badges_match_relative_clocks(instance, scheduled_state)
 	await _save_root_screenshot("user://probes/turn_order_anim_04_final.png")
 	print("turn order probe: done")
@@ -131,6 +133,18 @@ func _assert_turn_order_label(instance: Node) -> void:
 			return
 	push_error("Turn order panel should be labeled TURN CLOCK.")
 	quit(1)
+
+func _assert_turn_order_panel_centered(instance: Node) -> void:
+	var panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
+	if panel == null:
+		push_error("Turn order panel missing during center probe.")
+		quit(1)
+		return
+	var panel_center_x: float = panel.get_global_rect().get_center().x
+	var viewport_center_x: float = panel.get_viewport_rect().size.x * 0.5
+	if absf(panel_center_x - viewport_center_x) > 1.5:
+		push_error("Turn order panel center %.1f did not match viewport center %.1f." % [panel_center_x, viewport_center_x])
+		quit(1)
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []

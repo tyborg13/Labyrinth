@@ -46,6 +46,10 @@ def command_text(command: list[str]) -> str:
     return " ".join(shell_quote(part) for part in command)
 
 
+def worktree_command(project: Path, command: list[str]) -> str:
+    return "cd %s && %s" % (shell_quote(str(project)), command_text(command))
+
+
 def value_after(args: list[str], flag: str, default: str = "") -> str:
     for index, value in enumerate(args):
         if value == flag and index + 1 < len(args):
@@ -118,21 +122,23 @@ def main(argv: list[str] | None = None) -> int:
     ]
     scenario = value_after(fixture_args, "--scenario", "combat")
     summary = value_after(fixture_args, "--summary", "")
+    generator_command_text = worktree_command(project, generator_command)
+    launch_command_text = worktree_command(project, launch_command)
 
     print("Inspection fixture generator:")
     print("  task: %s" % task_id)
     print("  run: %s" % run_id)
     print("  scenario: %s" % scenario)
-    print("  command: %s" % command_text(generator_command))
+    print("  command: %s" % generator_command_text)
     print("")
-    print("Inspection launch command from the task worktree:")
-    print("  %s" % command_text(launch_command))
+    print("Inspection launch command:")
+    print("  %s" % launch_command_text)
     print("")
     print("Queue complete flags:")
     print("  --inspection-scenario %s" % shell_quote(scenario))
     print("  --inspection-run-id %s" % shell_quote(run_id))
     print("  --inspection-summary %s" % shell_quote(summary or ("Continue opens the %s inspection fixture." % scenario)))
-    print("  --inspection-launch %s" % shell_quote(command_text(launch_command)))
+    print("  --inspection-launch %s" % shell_quote(launch_command_text))
     print("")
 
     if args.dry_run:
