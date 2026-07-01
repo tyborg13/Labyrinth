@@ -751,6 +751,9 @@ var _terminal_reward_label: Label
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
+var _pinned_tooltip_scrim: ColorRect
+var _pinned_tooltip_host: CenterContainer
+var _pinned_tooltip_panel: Control
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -815,6 +818,8 @@ var _dialogue_char_progress: float = 0.0
 var _dialogue_text_complete: bool = false
 var _dialogue_suppresses_choices: bool = false
 var _last_auto_dialogue_key: String = ""
+var _merchant_hovered_kind: String = ""
+var _merchant_hovered_item_id: String = ""
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -850,6 +855,15 @@ func _input(event: InputEvent) -> void:
 		if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
 			_advance_dialogue()
 			get_viewport().set_input_as_handled()
+		return
+	if _pinned_tooltip_scrim != null and _pinned_tooltip_scrim.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_close_pinned_tooltip()
+			get_viewport().set_input_as_handled()
+			return
+	elif _is_merchant_tooltip_pin_event(event):
+		_open_pinned_merchant_tooltip(_merchant_hovered_kind, _merchant_hovered_item_id)
+		get_viewport().set_input_as_handled()
 		return
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
 		if not _equipment_drag_id.is_empty():
@@ -1034,6 +1048,7 @@ func _build_overlay_ui() -> void:
 	_build_fatigue_edge_overlay()
 	_build_choice_button_overlay()
 	_build_dialogue_overlay()
+	_build_pinned_tooltip_overlay()
 	_build_menu_overlay()
 	_build_pile_overlay()
 	_build_card_upgrade_overlay()
@@ -1051,6 +1066,64 @@ func _build_choice_button_overlay() -> void:
 	_choice_button_overlay.z_as_relative = false
 	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
 	add_child(_choice_button_overlay)
+
+func _build_pinned_tooltip_overlay() -> void:
+	_pinned_tooltip_scrim = ColorRect.new()
+	_pinned_tooltip_scrim.name = "PinnedTooltipScrim"
+	_pinned_tooltip_scrim.visible = false
+	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.18)
+	_pinned_tooltip_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pinned_tooltip_scrim.z_index = 1240
+	_pinned_tooltip_scrim.z_as_relative = false
+	_pinned_tooltip_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pinned_tooltip_scrim.gui_input.connect(_on_pinned_tooltip_scrim_gui_input)
+	add_child(_pinned_tooltip_scrim)
+
+	_pinned_tooltip_host = CenterContainer.new()
+	_pinned_tooltip_host.name = "PinnedTooltipHost"
+	_pinned_tooltip_host.mouse_filter = Control.MOUSE_FILTER_PASS
+	_pinned_tooltip_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pinned_tooltip_scrim.add_child(_pinned_tooltip_host)
+
+func _is_merchant_tooltip_pin_event(event: InputEvent) -> bool:
+	if _merchant_hovered_kind.is_empty() or _merchant_hovered_item_id.is_empty():
+		return false
+	if event is InputEventKey:
+		var key_event: InputEventKey = event
+		return key_event.pressed and not key_event.echo and (key_event.keycode == KEY_SHIFT or key_event.physical_keycode == KEY_SHIFT)
+	return false
+
+func _open_pinned_merchant_tooltip(merchant_kind: String, item_id: String) -> void:
+	if _pinned_tooltip_scrim == null or _pinned_tooltip_host == null:
+		return
+	if merchant_kind.is_empty() or item_id.is_empty():
+		return
+	for child: Node in _pinned_tooltip_host.get_children():
+		child.queue_free()
+	_pinned_tooltip_panel = _build_merchant_item_tooltip_panel(merchant_kind, item_id, true)
+	if _pinned_tooltip_panel == null:
+		return
+	_pinned_tooltip_panel.name = "PinnedMerchantTooltip"
+	_pinned_tooltip_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pinned_tooltip_host.add_child(_pinned_tooltip_panel)
+	_pinned_tooltip_scrim.visible = true
+
+func _close_pinned_tooltip() -> void:
+	if _pinned_tooltip_scrim != null:
+		_pinned_tooltip_scrim.visible = false
+	if _pinned_tooltip_host != null:
+		for child: Node in _pinned_tooltip_host.get_children():
+			child.queue_free()
+	_pinned_tooltip_panel = null
+
+func _on_pinned_tooltip_scrim_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse_event: InputEventMouseButton = event
+		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if _pinned_tooltip_panel != null and _pinned_tooltip_panel.get_global_rect().has_point(mouse_event.global_position):
+				return
+			_close_pinned_tooltip()
+			_pinned_tooltip_scrim.accept_event()
 
 func _combat_choice_placeholder_size() -> Vector2:
 	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION)
@@ -4618,12 +4691,17 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 		equipment_row.tooltip_text = "equipment:%s" % item_id
 		row = equipment_row
 	else:
-		row = TooltipPanelContainer.new()
-		row.tooltip_text = _merchant_item_tooltip(merchant_kind, item_id)
+		var card_row := EquipmentCardBadge.new()
+		card_row.card_id = item_id
+		card_row.host = self
+		card_row.tooltip_text = "card:%s" % item_id
+		row = card_row
 	row.custom_minimum_size = Vector2(0.0, MERCHANT_ROW_HEIGHT)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
 	row.add_theme_stylebox_override("panel", _merchant_row_style(item_accent, false, affordable))
+	row.mouse_entered.connect(_on_merchant_row_mouse_entered.bind(merchant_kind, item_id))
+	row.mouse_exited.connect(_on_merchant_row_mouse_exited.bind(merchant_kind, item_id))
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
@@ -4692,6 +4770,15 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 		button.pressed.connect(_on_merchant_buy_pressed.bind(merchant_kind, item_id))
 	hbox.add_child(button)
 	return row
+
+func _on_merchant_row_mouse_entered(merchant_kind: String, item_id: String) -> void:
+	_merchant_hovered_kind = merchant_kind
+	_merchant_hovered_item_id = item_id
+
+func _on_merchant_row_mouse_exited(merchant_kind: String, item_id: String) -> void:
+	if _merchant_hovered_kind == merchant_kind and _merchant_hovered_item_id == item_id:
+		_merchant_hovered_kind = ""
+		_merchant_hovered_item_id = ""
 
 func _merchant_price_chip(text: String, accent: Color, selling: bool, enabled: bool) -> Control:
 	var chip := PanelContainer.new()
@@ -5200,13 +5287,13 @@ func _refresh_hand_panel() -> void:
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)
 
-func _scaled_card_slot(widget: Control, card_size: Vector2) -> Control:
+func _scaled_card_slot(widget: Control, card_size: Vector2, interactive: bool = false) -> Control:
 	card_size = _normalized_card_size(card_size)
 	var slot := Control.new()
 	slot.custom_minimum_size = card_size
 	slot.size = card_size
 	slot.clip_contents = false
-	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	var scaler := Control.new()
 	scaler.name = "CardScaleFrame"
 	scaler.custom_minimum_size = CARD_WIDGET_BASE_SIZE
@@ -5214,7 +5301,7 @@ func _scaled_card_slot(widget: Control, card_size: Vector2) -> Control:
 	scaler.scale = Vector2.ONE * _card_widget_scale_for_size(card_size)
 	scaler.position = (card_size - CARD_WIDGET_BASE_SIZE * scaler.scale.x) * 0.5
 	scaler.clip_contents = false
-	scaler.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	scaler.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	slot.add_child(scaler)
 	_prepare_native_card_widget(widget)
 	scaler.add_child(widget)
@@ -9947,27 +10034,34 @@ func _pulse_magic_tile(source_kind: String, index: int) -> void:
 	tween.tween_property(tile, "scale", Vector2(1.05, 1.05), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(tile, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-func _build_card_tooltip_panel(card_id: String) -> Control:
+func _build_merchant_item_tooltip_panel(merchant_kind: String, item_id: String, interactive: bool = false) -> Control:
+	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+		return _build_equipment_tooltip_panel(item_id, interactive)
+	return _build_card_tooltip_panel(item_id, interactive)
+
+func _build_card_tooltip_panel(card_id: String, interactive: bool = false) -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = CARD_TOOLTIP_SIZE + Vector2(18.0, 18.0)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(ElementData.accent(GameData.card_element(card_id)), true))
 	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 9)
 	margin.add_theme_constant_override("margin_top", 9)
 	margin.add_theme_constant_override("margin_right", 9)
 	margin.add_theme_constant_override("margin_bottom", 9)
 	panel.add_child(margin)
-	margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE))
+	margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
 	return panel
 
-func _build_equipment_tooltip_panel(equipment_id: String) -> Control:
+func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = false) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
 	var accent := Color(GameData.equipment_accent(equipment_id))
 	var panel := PanelContainer.new()
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, true))
 	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 12)
 	margin.add_theme_constant_override("margin_top", 10)
 	margin.add_theme_constant_override("margin_right", 12)
@@ -10007,9 +10101,10 @@ func _build_equipment_tooltip_panel(equipment_id: String) -> Control:
 
 	var card_row := HBoxContainer.new()
 	card_row.add_theme_constant_override("separation", 8)
+	card_row.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(card_row)
 	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
-		card_row.add_child(_build_card_preview_widget(str(card_id_var), EQUIPMENT_TOOLTIP_CARD_SIZE))
+		card_row.add_child(_build_card_preview_widget(str(card_id_var), EQUIPMENT_TOOLTIP_CARD_SIZE, interactive))
 	if not _equipment_overlay_can_change():
 		var locked_label := Label.new()
 		locked_label.text = "Locked in combat"
@@ -10018,14 +10113,13 @@ func _build_equipment_tooltip_panel(equipment_id: String) -> Control:
 		vbox.add_child(locked_label)
 	return panel
 
-func _build_card_preview_widget(card_id: String, card_size: Vector2) -> Control:
+func _build_card_preview_widget(card_id: String, card_size: Vector2, interactive: bool = false) -> Control:
 	card_size = _normalized_card_size(card_size)
 	var widget := CardWidgetScene.instantiate() as CardWidget
-	widget.disabled = true
 	widget.focus_mode = Control.FOCUS_NONE
-	widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	widget.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id))
-	return _scaled_card_slot(widget, card_size)
+	return _scaled_card_slot(widget, card_size, interactive)
 
 func _equipment_inventory_ids() -> Array:
 	var inventory: Array = (_run_state.get("equipment_inventory", []) as Array).duplicate()

@@ -1465,18 +1465,39 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	_assert(run_engine.merchant_kind_for_current_room(blacksmith_state) == RunEngine.MERCHANT_BLACKSMITH, "Blacksmith room metadata should identify the equipment merchant")
 	var blacksmith_offers: Array = run_engine.merchant_offer_ids(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH)
 	_assert(blacksmith_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Blacksmiths should stock a compact set of equipment")
-	var equipment_id: String = str(blacksmith_offers[0])
+	var equipment_slot_index: int = 0
+	var equipment_id: String = str(blacksmith_offers[equipment_slot_index])
 	var equipment_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, equipment_id)
 	var bought_equipment_state: Dictionary = run_engine.buy_merchant_item(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
 	_assert(int(bought_equipment_state.get("held_embers", 0)) == 200 - equipment_cost, "Buying equipment should spend held embers")
 	_assert((bought_equipment_state.get("equipment_inventory", []) as Array).has(equipment_id), "Bought equipment should enter equipment inventory")
 	_assert((bought_equipment_state.get("collected_equipment", []) as Array).has(equipment_id), "Bought equipment should count as collected while owned")
-	_assert(not run_engine.merchant_offer_ids(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH).has(equipment_id), "Owned equipment should leave merchant stock")
+	var post_buy_blacksmith_offers: Array = run_engine.merchant_offer_ids(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH)
+	_assert(post_buy_blacksmith_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Buying equipment should refill only the purchased blacksmith slot")
+	_assert(not post_buy_blacksmith_offers.has(equipment_id), "Owned equipment should leave merchant stock")
+	for index: int in range(blacksmith_offers.size()):
+		if index == equipment_slot_index:
+			_assert(str(post_buy_blacksmith_offers[index]) != equipment_id, "Purchased blacksmith slot should receive a replacement offer")
+		else:
+			_assert(str(post_buy_blacksmith_offers[index]) == str(blacksmith_offers[index]), "Buying equipment should preserve the other blacksmith offer slots")
 	var equipment_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_BLACKSMITH, equipment_id)
 	var sold_equipment_state: Dictionary = run_engine.sell_merchant_item(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
 	_assert(not (sold_equipment_state.get("equipment_inventory", []) as Array).has(equipment_id), "Sold equipment should leave inventory")
 	_assert(not (sold_equipment_state.get("collected_equipment", []) as Array).has(equipment_id), "Sold equipment should leave duplicate-exclusion ownership")
 	_assert(int(sold_equipment_state.get("held_embers", 0)) == 200 - equipment_cost + equipment_sale_value, "Selling equipment should add the sell value to held embers")
+	_assert(run_engine.merchant_offer_ids(sold_equipment_state, RunEngine.MERCHANT_BLACKSMITH) == post_buy_blacksmith_offers, "Selling equipment should not reroll blacksmith offers")
+	var blacksmith_sell_first_state: Dictionary = blacksmith_state.duplicate(true)
+	blacksmith_sell_first_state = run_engine.set_held_embers(blacksmith_sell_first_state, 200)
+	blacksmith_sell_first_state["equipment_inventory"] = ["ward_kite"]
+	var collected_before_sale: Array = (blacksmith_sell_first_state.get("collected_equipment", []) as Array).duplicate()
+	if not collected_before_sale.has("ward_kite"):
+		collected_before_sale.append("ward_kite")
+	blacksmith_sell_first_state["collected_equipment"] = collected_before_sale
+	var blacksmith_sell_first_offers: Array = run_engine.merchant_offer_ids(blacksmith_sell_first_state, RunEngine.MERCHANT_BLACKSMITH)
+	var blacksmith_after_sell_first: Dictionary = run_engine.sell_merchant_item(blacksmith_sell_first_state, RunEngine.MERCHANT_BLACKSMITH, "ward_kite")
+	_assert(run_engine.merchant_offer_ids(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH) == blacksmith_sell_first_offers, "Selling spare equipment should leave blacksmith offers unchanged")
+	var blacksmith_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH, str(blacksmith_sell_first_offers[0]))
+	_assert(not run_engine.merchant_offer_ids(blacksmith_after_sell_first_buy, RunEngine.MERCHANT_BLACKSMITH).has("ward_kite"), "Sold equipment should not be introduced by a later blacksmith restock")
 
 	arcanist_state["current_room"] = arcanist_coord
 	arcanist_state["mode"] = "room"
@@ -1484,7 +1505,8 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	_assert(run_engine.merchant_kind_for_current_room(arcanist_state) == RunEngine.MERCHANT_ARCANIST, "Arcanist room metadata should identify the magic merchant")
 	var arcanist_offers: Array = run_engine.merchant_offer_ids(arcanist_state, RunEngine.MERCHANT_ARCANIST)
 	_assert(arcanist_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Arcanists should stock a compact set of magic cards")
-	var card_id: String = str(arcanist_offers[0])
+	var magic_slot_index: int = 0
+	var card_id: String = str(arcanist_offers[magic_slot_index])
 	var magic_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, card_id)
 	var pre_magic_deck: Array = (arcanist_state.get("deck_cards", []) as Array).duplicate()
 	var bought_magic_state: Dictionary = run_engine.buy_merchant_item(arcanist_state, RunEngine.MERCHANT_ARCANIST, card_id)
@@ -1492,11 +1514,29 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	_assert((bought_magic_state.get("reward_cards", []) as Array).has(card_id), "Bought magic should enter reward-card history")
 	_assert((bought_magic_state.get("magic_inventory", []) as Array).has(card_id), "Bought magic should enter reserve magic")
 	_assert((bought_magic_state.get("deck_cards", []) as Array) == pre_magic_deck, "Bought magic should stay inactive until attuned")
+	var post_buy_arcanist_offers: Array = run_engine.merchant_offer_ids(bought_magic_state, RunEngine.MERCHANT_ARCANIST)
+	_assert(post_buy_arcanist_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Buying magic should refill only the purchased arcanist slot")
+	_assert(not post_buy_arcanist_offers.has(card_id), "Bought magic should leave arcanist stock")
+	for index: int in range(arcanist_offers.size()):
+		if index == magic_slot_index:
+			_assert(str(post_buy_arcanist_offers[index]) != card_id, "Purchased arcanist slot should receive a replacement offer")
+		else:
+			_assert(str(post_buy_arcanist_offers[index]) == str(arcanist_offers[index]), "Buying magic should preserve the other arcanist offer slots")
 	var magic_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_ARCANIST, card_id)
 	var sold_magic_state: Dictionary = run_engine.sell_merchant_item(bought_magic_state, RunEngine.MERCHANT_ARCANIST, card_id)
 	_assert(not (sold_magic_state.get("magic_inventory", []) as Array).has(card_id), "Sold reserve magic should leave reserve inventory")
 	_assert(not (sold_magic_state.get("reward_cards", []) as Array).has(card_id), "Sold reserve magic should leave reward-card history")
 	_assert(int(sold_magic_state.get("held_embers", 0)) == 160 - magic_cost + magic_sale_value, "Selling magic should add the sell value to held embers")
+	_assert(run_engine.merchant_offer_ids(sold_magic_state, RunEngine.MERCHANT_ARCANIST) == post_buy_arcanist_offers, "Selling magic should not reroll arcanist offers")
+	var arcanist_sell_first_state: Dictionary = arcanist_state.duplicate(true)
+	arcanist_sell_first_state = run_engine.set_held_embers(arcanist_sell_first_state, 160)
+	arcanist_sell_first_state["magic_inventory"] = ["spark_dart"]
+	arcanist_sell_first_state["reward_cards"] = ["spark_dart"]
+	var arcanist_sell_first_offers: Array = run_engine.merchant_offer_ids(arcanist_sell_first_state, RunEngine.MERCHANT_ARCANIST)
+	var arcanist_after_sell_first: Dictionary = run_engine.sell_merchant_item(arcanist_sell_first_state, RunEngine.MERCHANT_ARCANIST, "spark_dart")
+	_assert(run_engine.merchant_offer_ids(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST) == arcanist_sell_first_offers, "Selling reserve magic should leave arcanist offers unchanged")
+	var arcanist_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST, str(arcanist_sell_first_offers[0]))
+	_assert(not run_engine.merchant_offer_ids(arcanist_after_sell_first_buy, RunEngine.MERCHANT_ARCANIST).has("spark_dart"), "Sold magic should not be introduced by a later arcanist restock")
 
 func _test_elemental_intensity_starts_from_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -7586,6 +7626,39 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		merchant_equipment_tooltip.queue_free()
 	if merchant_equipment_row != null:
 		merchant_equipment_row.queue_free()
+	var merchant_magic_row: Control = instance.call("_build_merchant_item_row", "arcanist", "spark_dart", false) as Control
+	if merchant_magic_row != null:
+		root.add_child(merchant_magic_row)
+	await process_frame
+	_assert(merchant_magic_row != null and merchant_magic_row.tooltip_text == "card:spark_dart", "Arcanist merchant rows should reuse the card tooltip trigger")
+	var merchant_magic_tooltip: Control = merchant_magic_row.call("_make_custom_tooltip", merchant_magic_row.tooltip_text) as Control if merchant_magic_row != null else null
+	if merchant_magic_tooltip != null:
+		root.add_child(merchant_magic_tooltip)
+		await process_frame
+		_assert(_card_widget_count_under(merchant_magic_tooltip) == 1, "Arcanist merchant hover should show a real CardWidget preview")
+	else:
+		_failures.append("Arcanist merchant hover should show a real CardWidget preview")
+	if merchant_magic_tooltip != null:
+		merchant_magic_tooltip.queue_free()
+	if merchant_magic_row != null:
+		instance.call("_on_merchant_row_mouse_entered", "arcanist", "spark_dart")
+		var shift_event := InputEventKey.new()
+		shift_event.keycode = KEY_SHIFT
+		shift_event.physical_keycode = KEY_SHIFT
+		shift_event.pressed = true
+		instance.call("_input", shift_event)
+		await process_frame
+		var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim")
+		var pinned_panel: Control = instance.get("_pinned_tooltip_panel")
+		_assert(pinned_scrim != null and pinned_scrim.visible, "Pressing Shift while hovering a merchant item should pin the item tooltip")
+		if pinned_panel != null:
+			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned arcanist tooltip should keep the card preview focused")
+			for widget: CardWidget in _card_widgets_under(pinned_panel):
+				_assert(widget.mouse_filter == Control.MOUSE_FILTER_STOP, "Pinned merchant card previews should route hover to the real card widget for nested icon tooltips")
+		else:
+			_failures.append("Pinned arcanist tooltip should keep the card preview focused")
+		instance.call("_close_pinned_tooltip")
+		merchant_magic_row.queue_free()
 	_assert(str(instance.call("_merchant_item_detail", "blacksmith", "crown_of_thorns")) == "Trinket | Legendary", "Blacksmith merchant details should spell out Legendary")
 	var card_tooltip: Control = instance.call("_build_card_tooltip_panel", "cleaver_hook") as Control
 	root.add_child(card_tooltip)

@@ -40,6 +40,9 @@ const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
 }
 const MERCHANT_SELL_VALUE_RATIO: float = 0.45
 const MERCHANT_OFFER_COUNT: int = 3
+const MERCHANT_STOCK_KEY: String = "merchant_stock"
+const MERCHANT_SOLD_KEY: String = "merchant_sold_items"
+const MERCHANT_REFILL_COUNT_KEY: String = "merchant_refill_count"
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -453,26 +456,11 @@ func merchant_kind_for_room(room: Dictionary) -> String:
 
 func merchant_offer_ids(run_state: Dictionary, merchant_kind: String) -> Array:
 	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
-	match merchant_kind:
-		MERCHANT_BLACKSMITH:
-			return _weighted_merchant_choices(
-				int(run_state.get("seed", 0)),
-				coord,
-				_available_merchant_equipment_ids(run_state),
-				MERCHANT_OFFER_COUNT,
-				1601,
-				MERCHANT_BLACKSMITH
-			)
-		MERCHANT_ARCANIST:
-			return _weighted_merchant_choices(
-				int(run_state.get("seed", 0)),
-				coord,
-				_available_merchant_magic_ids(run_state),
-				MERCHANT_OFFER_COUNT,
-				1701,
-				MERCHANT_ARCANIST
-			)
-	return []
+	var room: Dictionary = room_metadata(run_state, coord)
+	var stored_stock: Array = _merchant_room_stock(room)
+	if room.has(MERCHANT_STOCK_KEY):
+		return _merchant_valid_stock_ids(run_state, merchant_kind, room, stored_stock)
+	return _initial_merchant_stock(run_state, merchant_kind, room)
 
 func merchant_sellable_ids(run_state: Dictionary, merchant_kind: String) -> Array:
 	var result: Array = []
@@ -515,7 +503,11 @@ func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: St
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not _can_trade_at_merchant(next_state, merchant_kind):
 		return next_state
-	if not merchant_offer_ids(next_state, merchant_kind).has(item_id):
+	next_state = _ensure_merchant_room_stock(next_state, merchant_kind)
+	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
+	var stock: Array = _merchant_room_stock(room)
+	var bought_slot: int = stock.find(item_id)
+	if bought_slot < 0:
 		next_state["notice"] = "Not in stock."
 		return next_state
 	var cost: int = merchant_buy_cost(merchant_kind, item_id)
@@ -545,12 +537,14 @@ func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: St
 			next_state["magic_inventory"] = magic_inventory
 			next_state = _rebuild_deck_cards(next_state)
 			next_state["notice"] = "Bought %s." % str(GameData.card_def(item_id).get("name", item_id))
+	next_state = _refill_merchant_stock_slot(next_state, merchant_kind, bought_slot, item_id)
 	return next_state
 
 func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: String) -> Dictionary:
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not _can_trade_at_merchant(next_state, merchant_kind):
 		return next_state
+	next_state = _ensure_merchant_room_stock(next_state, merchant_kind)
 	if not merchant_sellable_ids(next_state, merchant_kind).has(item_id):
 		next_state["notice"] = "Cannot sell that here."
 		return next_state
@@ -575,6 +569,7 @@ func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: S
 			next_state["reward_cards"] = reward_cards
 			next_state = _rebuild_deck_cards(next_state)
 			next_state["notice"] = "Sold %s." % str(GameData.card_def(item_id).get("name", item_id))
+	next_state = _mark_merchant_item_sold(next_state, item_id)
 	next_state = add_held_embers(next_state, value)
 	return next_state
 
@@ -1109,6 +1104,127 @@ func _available_equipment_drop_ids(run_state: Dictionary) -> Array:
 
 func _can_trade_at_merchant(run_state: Dictionary, merchant_kind: String) -> bool:
 	return str(run_state.get("mode", "room")) == "room" and merchant_kind_for_current_room(run_state) == merchant_kind
+
+func _merchant_room_stock(room: Dictionary) -> Array:
+	return _string_array(room.get(MERCHANT_STOCK_KEY, []))
+
+func _merchant_room_sold_ids(room: Dictionary) -> Array:
+	return _string_array(room.get(MERCHANT_SOLD_KEY, []))
+
+func _initial_merchant_stock(run_state: Dictionary, merchant_kind: String, room: Dictionary) -> Array:
+	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	return _weighted_merchant_choices(
+		int(run_state.get("seed", 0)),
+		coord,
+		_available_merchant_offer_ids(run_state, merchant_kind, _merchant_room_sold_ids(room)),
+		MERCHANT_OFFER_COUNT,
+		_merchant_offer_salt(merchant_kind),
+		merchant_kind
+	)
+
+func _ensure_merchant_room_stock(run_state: Dictionary, merchant_kind: String) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = room_metadata(next_state, coord)
+	if not room.has(MERCHANT_STOCK_KEY):
+		room[MERCHANT_STOCK_KEY] = _initial_merchant_stock(next_state, merchant_kind, room)
+	if not room.has(MERCHANT_SOLD_KEY):
+		room[MERCHANT_SOLD_KEY] = []
+	if not room.has(MERCHANT_REFILL_COUNT_KEY):
+		room[MERCHANT_REFILL_COUNT_KEY] = 0
+	return _store_room_metadata(next_state, coord, room)
+
+func _refill_merchant_stock_slot(run_state: Dictionary, merchant_kind: String, slot_index: int, purchased_item_id: String) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = room_metadata(next_state, coord)
+	var stock: Array = _merchant_room_stock(room)
+	if slot_index < 0 or slot_index >= stock.size():
+		return next_state
+	stock.remove_at(slot_index)
+	var excluded: Array = stock.duplicate()
+	excluded.append_array(_merchant_room_sold_ids(room))
+	if not purchased_item_id.is_empty():
+		excluded.append(purchased_item_id)
+	var refill_count: int = maxi(0, int(room.get(MERCHANT_REFILL_COUNT_KEY, 0)))
+	var replacement: Array = _weighted_merchant_choices(
+		int(next_state.get("seed", 0)),
+		coord,
+		_available_merchant_offer_ids(next_state, merchant_kind, excluded),
+		1,
+		_merchant_offer_salt(merchant_kind) + 503 + refill_count * 29 + slot_index * 7,
+		merchant_kind
+	)
+	if not replacement.is_empty():
+		stock.insert(slot_index, str(replacement[0]))
+	room[MERCHANT_STOCK_KEY] = stock
+	room[MERCHANT_REFILL_COUNT_KEY] = refill_count + 1
+	return _store_room_metadata(next_state, coord, room)
+
+func _mark_merchant_item_sold(run_state: Dictionary, item_id: String) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = room_metadata(next_state, coord)
+	var sold_ids: Array = _merchant_room_sold_ids(room)
+	if not item_id.is_empty() and not sold_ids.has(item_id):
+		sold_ids.append(item_id)
+		sold_ids.sort()
+	room[MERCHANT_SOLD_KEY] = sold_ids
+	return _store_room_metadata(next_state, coord, room)
+
+func _merchant_valid_stock_ids(run_state: Dictionary, merchant_kind: String, room: Dictionary, stock: Array) -> Array:
+	var sold_ids: Array = _merchant_room_sold_ids(room)
+	var available: Array = _available_merchant_offer_ids(run_state, merchant_kind, sold_ids)
+	var result: Array = []
+	for item_var: Variant in stock:
+		var item_id: String = str(item_var)
+		if item_id.is_empty() or sold_ids.has(item_id):
+			continue
+		if available.has(item_id) or _merchant_offer_id_is_valid(merchant_kind, item_id):
+			if not result.has(item_id):
+				result.append(item_id)
+	return result
+
+func _merchant_offer_id_is_valid(merchant_kind: String, item_id: String) -> bool:
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			return not GameData.equipment_slot(item_id).is_empty()
+		MERCHANT_ARCANIST:
+			return not GameData.card_def(item_id).is_empty()
+	return false
+
+func _available_merchant_offer_ids(run_state: Dictionary, merchant_kind: String, excluded_ids: Array) -> Array:
+	var excluded: Dictionary = {}
+	for excluded_var: Variant in excluded_ids:
+		excluded[str(excluded_var)] = true
+	var source: Array = []
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			source = _available_merchant_equipment_ids(run_state)
+		MERCHANT_ARCANIST:
+			source = _available_merchant_magic_ids(run_state)
+	var result: Array = []
+	for item_var: Variant in source:
+		var item_id: String = str(item_var)
+		if item_id.is_empty() or excluded.has(item_id):
+			continue
+		result.append(item_id)
+	return result
+
+func _merchant_offer_salt(merchant_kind: String) -> int:
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			return 1601
+		MERCHANT_ARCANIST:
+			return 1701
+	return 1901
+
+func _store_room_metadata(run_state: Dictionary, coord: Vector2i, room: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
+	rooms[_room_key(coord)] = room
+	next_state["rooms"] = rooms
+	return next_state
 
 func _available_merchant_equipment_ids(run_state: Dictionary) -> Array:
 	var owned: Dictionary = {}
