@@ -11,6 +11,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const RunSceneScript = preload("res://scripts/run_scene.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
@@ -54,6 +55,7 @@ func _initialize() -> void:
 	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
+	_test_bile_bloomer_depth_band_spawn_rules()
 	_test_chainbound_gaoler_spawns_without_stacked_control()
 	_test_boss_room_spawns_zekarion_with_wisps()
 	_test_second_sequence_uses_scaled_zekarion_placeholder()
@@ -90,6 +92,8 @@ func _initialize() -> void:
 	_test_pierce_ignores_defenses()
 	_test_bleed_expose_and_sunder_keywords()
 	_test_enemy_pierce_intents_surface_icons()
+	_test_bile_bloomer_poison_and_expose_intents_apply_to_player()
+	_test_bile_bloomer_intents_surface_poison_and_expose_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
 	_test_immobilize_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
@@ -167,6 +171,8 @@ func _initialize() -> void:
 	_test_combat_board_surfaces_illusion_units()
 	_test_combat_board_surfaces_illusion_preview_units()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
+	_test_bile_bloomer_art_loads_for_board()
+	_test_bile_bloomer_turn_order_portrait_loads()
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_cinder_enemies_use_final_raster_art()
@@ -919,6 +925,30 @@ func _test_cinder_ooze_appears_only_in_standard_depth_pools() -> void:
 		_assert(not _room_has_enemy_type(boss_room, "cinder_droplet"), "Cinder Droplets should not appear in boss rooms")
 	_assert(depth_two_ooze_count > 0 and depth_two_ooze_count < depth_two_rooms, "Cinder Ooze should appear at low frequency in depth-two standard pools")
 	_assert(depth_three_ooze_count > 0 and depth_three_ooze_count < depth_three_rooms, "Cinder Ooze should appear at low frequency in depth-three standard pools")
+
+func _test_bile_bloomer_depth_band_spawn_rules() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var depth_two_seen: bool = false
+	var depth_three_seen: bool = false
+	for seed: int in range(64):
+		var depth_one_rng := RandomNumberGenerator.new()
+		depth_one_rng.seed = seed
+		var depth_one_types: Array = generator.call("_encounter_enemy_types", "combat", 1, depth_one_rng)
+		_assert(not depth_one_types.has("bile_bloomer"), "Bile Bloomer should stay out of first simple depth-one compositions")
+
+		var depth_two_rng := RandomNumberGenerator.new()
+		depth_two_rng.seed = seed
+		var depth_two_types: Array = generator.call("_encounter_enemy_types", "combat", 2, depth_two_rng)
+		if depth_two_types.has("bile_bloomer"):
+			depth_two_seen = true
+
+		var depth_three_rng := RandomNumberGenerator.new()
+		depth_three_rng.seed = seed
+		var depth_three_types: Array = generator.call("_encounter_enemy_types", "combat", 3, depth_three_rng)
+		if depth_three_types.has("bile_bloomer"):
+			depth_three_seen = true
+	_assert(depth_two_seen, "Bile Bloomer should appear in mid-depth normal encounter pools")
+	_assert(depth_three_seen, "Bile Bloomer should appear in deep normal encounter pools")
 
 func _test_chainbound_gaoler_spawns_without_stacked_control() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -2535,6 +2565,99 @@ func _test_enemy_pierce_intents_surface_icons() -> void:
 		_assert(found_pierce_icon, "%s pierce intent should render with the pierce icon" % str(enemy_def.get("name", enemy_type)))
 	board.free()
 
+func _test_bile_bloomer_poison_and_expose_intents_apply_to_player() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var poison_layout: Dictionary = _simple_room_layout()
+	poison_layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(3, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var poison_state: Dictionary = combat.create_combat(23101, poison_layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(poison_state, 0, _enemy_intent_by_id("bile_bloomer", "bile_burst"))
+	var poison_threat: Dictionary = combat.enemy_threat_tiles(poison_state, 0)
+	var poison_attack_tiles: Array = poison_threat.get("attack", []) as Array
+	_assert(poison_attack_tiles.has(Vector2i(2, 4)), "Bile Burst threat preview should show the player's tile before poison resolves")
+	_assert(poison_attack_tiles.has(Vector2i(1, 4)), "Bile Burst should preview the outer cardinal tile in its wider poison diamond")
+	_assert(poison_attack_tiles.has(Vector2i(2, 3)), "Bile Burst should preview the outer diagonal tile in its wider poison diamond")
+	var bile_burst: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
+	var bile_burst_actions: Array = bile_burst.get("actions", [])
+	var bile_burst_aoe: Dictionary = bile_burst_actions[1] as Dictionary
+	_assert((bile_burst_aoe.get("pattern", []) as Array).size() == 12, "Bile Burst should use a radius-2 diamond around the Bloomer")
+	var poison_result: Dictionary = combat.resolve_enemy_turn_with_steps(poison_state, 0)
+	var poisoned_player: Dictionary = (poison_result.get("state", {}) as Dictionary).get("player", {})
+	var poison: Dictionary = poisoned_player.get("poison", {})
+	_assert(int(poison.get("damage", 0)) == GameData.fixed_point_amount(2), "Bile Burst should apply poison through its revealed enemy intent")
+	_assert(int(poison.get("delay", 0)) == 2, "Bile Burst poison should use the existing delayed poison cadence")
+
+	var expose_layout: Dictionary = _simple_room_layout()
+	expose_layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(5, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var expose_state: Dictionary = combat.create_combat(23102, expose_layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(expose_state, 0, _enemy_intent_by_id("bile_bloomer", "spore_mark"))
+	var expose_threat: Dictionary = combat.enemy_threat_tiles(expose_state, 0)
+	_assert((expose_threat.get("attack", []) as Array).has(Vector2i(2, 4)), "Spore Mark threat preview should show the player's tile before expose resolves")
+	var expose_result: Dictionary = combat.resolve_enemy_turn_with_steps(expose_state, 0)
+	var exposed_player: Dictionary = (expose_result.get("state", {}) as Dictionary).get("player", {})
+	_assert(int(exposed_player.get("expose", 0)) == GameData.fixed_point_amount(2), "Spore Mark should apply expose through its revealed enemy intent")
+
+func _test_bile_bloomer_intents_surface_poison_and_expose_icons() -> void:
+	var board := CombatBoardView.new()
+	var poison_intent: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
+	var expose_intent: Dictionary = _enemy_intent_by_id("bile_bloomer", "spore_mark")
+	var found_poison_icon: bool = false
+	var found_expose_icon: bool = false
+	var poison_tooltip: String = ""
+	var expose_tooltip: String = ""
+	for poison_row_var: Variant in board.call("_intent_rows", poison_intent):
+		if typeof(poison_row_var) != TYPE_ARRAY:
+			continue
+		for poison_token_var: Variant in poison_row_var as Array:
+			if typeof(poison_token_var) != TYPE_DICTIONARY:
+				continue
+			var poison_token: Dictionary = poison_token_var
+			if str(poison_token.get("icon", "")) == "poison":
+				found_poison_icon = true
+				poison_tooltip = ActionIcons.token_tooltip(poison_token)
+	for expose_row_var: Variant in board.call("_intent_rows", expose_intent):
+		if typeof(expose_row_var) != TYPE_ARRAY:
+			continue
+		for expose_token_var: Variant in expose_row_var as Array:
+			if typeof(expose_token_var) != TYPE_DICTIONARY:
+				continue
+			var expose_token: Dictionary = expose_token_var
+			if str(expose_token.get("icon", "")) == "expose":
+				found_expose_icon = true
+				expose_tooltip = ActionIcons.token_tooltip(expose_token)
+	_assert(found_poison_icon, "Bile Burst enemy intent rows should surface a poison icon")
+	_assert(poison_tooltip.contains("Delayed damage"), "Poison intent icon tooltip should explain delayed damage")
+	_assert(found_expose_icon, "Spore Mark enemy intent rows should surface an expose icon")
+	_assert(expose_tooltip.contains("next hit"), "Expose intent icon tooltip should explain the next-hit setup")
+	board.free()
+
 func _test_pierce_cards_stay_in_allowed_elements() -> void:
 	var allowed_elements: Dictionary = {
 		"none": true,
@@ -2868,7 +2991,7 @@ func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
 
 func _max_elemental_enemy_move_attack_reach(combat: CombatEngine, element_id: String, room_depth: int) -> int:
 	var max_reach: int = 0
-	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden", "grave_surgeon", "chainbound_gaoler"]:
+	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden", "grave_surgeon", "chainbound_gaoler", "bile_bloomer"]:
 		for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
 			if typeof(intent_var) != TYPE_DICTIONARY:
 				continue
@@ -4816,6 +4939,52 @@ func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 		_assert(first_frame.region != last_frame.region, "%s anime trial idle loop should not hold the first frame at the loop boundary" % enemy_type)
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", enemy_unit)), 0.1), "%s anime trial idle loop should use the original frame cadence" % enemy_type)
 		_assert(texture != null, "%s anime trial art should load for board rendering" % enemy_type)
+
+func _test_bile_bloomer_art_loads_for_board() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	var bloomer_unit := {"key": "enemy_bile_bloomer", "type": "bile_bloomer"}
+	var texture: Texture2D = board.call("_texture_for_unit", bloomer_unit)
+	_assert(texture != null, "Bile Bloomer art should load for board rendering")
+	_assert(texture.get_size() == Vector2(255.0, 255.0), "Bile Bloomer static sprite should use the standard 255px unit canvas")
+	board.free()
+
+func _test_bile_bloomer_turn_order_portrait_loads() -> void:
+	var combat := CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(5, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var state: Dictionary = combat.create_combat(23103, layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var order: Array[Dictionary] = combat.current_turn_order(state, 10)
+	var run_scene := RunSceneScript.new()
+	var found_bloomer: bool = false
+	for entry: Dictionary in order:
+		if str(entry.get("type", "")) != "bile_bloomer":
+			continue
+		found_bloomer = true
+		var path: String = str(run_scene.call("_turn_order_portrait_path", entry))
+		_assert(path == "res://assets/art/portraits/bile_bloomer.png", "Bile Bloomer turn-order slot should use its enemy portrait instead of the player fallback")
+		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
+		_assert(image != null and not image.is_empty(), "Bile Bloomer turn-order portrait should load from disk")
+		if image != null and not image.is_empty():
+			_assert(image.get_size() == Vector2i(128, 128), "Bile Bloomer turn-order portrait should match the 128px portrait atlas size")
+	run_scene.free()
+	_assert(found_bloomer, "Bile Bloomer should appear in the visible turn-order queue")
 
 func _test_zekarion_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
