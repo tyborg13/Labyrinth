@@ -651,7 +651,8 @@ const TURN_ORDER_PORTRAITS := {
 	"harrier": "res://assets/art/portraits/bone_harrier.png",
 	"warden": "res://assets/art/portraits/ash_warden.png",
 	"zekarion": "res://assets/art/portraits/zekarion.png",
-	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png"
+	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
+	"frostglass_lancer": "res://assets/art/enemies/frostglass_lancer.png"
 }
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0

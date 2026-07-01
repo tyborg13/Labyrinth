@@ -42,6 +42,7 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "bleed", "expose", "sunder", "chain", "push", "pull"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
+const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_AOE_PATTERN: Array = [
 	[0, 0],
 	[1, 0],
@@ -658,7 +659,12 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 			"tile": enemy.get("pos", Vector2i.ZERO),
 			"intent_name": str(intent.get("name", "Action"))
 		})
-		for action: Dictionary in intent.get("actions", []):
+		var actions: Array = intent.get("actions", [])
+		for action_index: int in range(actions.size()):
+			var action_var: Variant = actions[action_index]
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var
 			if combat_outcome(next_state) != "":
 				break
 			if shocked and not _enemy_action_is_movement(action):
@@ -666,7 +672,10 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 			if immobilized and _enemy_action_is_movement(action):
 				continue
 			var before_state: Dictionary = next_state.duplicate(true)
-			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng)
+			var followup_action: Dictionary = {}
+			if not shocked:
+				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
+			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action)
 			var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 			if not step.is_empty():
 				steps.append(step)
@@ -751,7 +760,12 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				"tile": enemy.get("pos", Vector2i.ZERO),
 				"intent_name": str(intent.get("name", "Action"))
 			})
-			for action: Dictionary in intent.get("actions", []):
+			var actions: Array = intent.get("actions", [])
+			for action_index: int in range(actions.size()):
+				var action_var: Variant = actions[action_index]
+				if typeof(action_var) != TYPE_DICTIONARY:
+					continue
+				var action: Dictionary = action_var
 				if combat_outcome(next_state) != "":
 					break
 				if shocked and not _enemy_action_is_movement(action):
@@ -759,7 +773,10 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				if immobilized and _enemy_action_is_movement(action):
 					continue
 				var before_state: Dictionary = next_state.duplicate(true)
-				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng)
+				var followup_action: Dictionary = {}
+				if not shocked:
+					followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
+				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action)
 				var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 				if not step.is_empty():
 					steps.append(step)
@@ -1324,9 +1341,6 @@ func _enemy_action_oriented_to_target(action: Dictionary, enemy: Dictionary, tar
 		resolved_action["orientation"] = direction
 	return resolved_action
 
-func _enemy_action_locks_aoe_orientation(action: Dictionary) -> bool:
-	return str(action.get("type", "")) == "aoe" and bool(action.get("lock_aoe_orientation", false))
-
 func _enemy_aoe_tiles_for_target(state: Dictionary, enemy: Dictionary, action: Dictionary, center: Vector2i, score_player: bool) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = _best_aoe_tiles_for_target(state, action, center, score_player)
 	if not bool(action.get("stop_at_blockers", false)):
@@ -1340,22 +1354,17 @@ func _enemy_aoe_tiles_for_target(state: Dictionary, enemy: Dictionary, action: D
 func _aoe_tiles_until_blocked(grid: Array, source_pos: Vector2i, direction: Vector2i, tiles: Array[Vector2i]) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
-		var projection: Vector2i = _tile_projection_on_directional_ray(source_pos, direction, tile)
-		if projection == source_pos:
-			continue
-		if _directional_ray_clear_to_tile(grid, source_pos, direction, projection):
+		if _tile_is_on_directional_ray(source_pos, direction, tile) and _directional_ray_clear_to_tile(grid, source_pos, direction, tile):
 			lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
 
-func _tile_projection_on_directional_ray(source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> Vector2i:
+func _tile_is_on_directional_ray(source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> bool:
 	var delta: Vector2i = tile - source_pos
 	if direction.x != 0:
-		var distance_x: int = delta.x * direction.x
-		return source_pos if distance_x <= 0 else source_pos + direction * distance_x
+		return delta.y == 0 and delta.x * direction.x > 0
 	if direction.y != 0:
-		var distance_y: int = delta.y * direction.y
-		return source_pos if distance_y <= 0 else source_pos + direction * distance_y
-	return source_pos
+		return delta.x == 0 and delta.y * direction.y > 0
+	return false
 
 func _directional_ray_clear_to_tile(grid: Array, source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> bool:
 	var cursor: Vector2i = source_pos + direction
@@ -1451,7 +1460,7 @@ func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, act
 		return state
 	return _apply_action_keywords_to_player(state, action, source_pos)
 
-func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
+func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -1466,7 +1475,9 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move_toward":
-			var toward_tile: Vector2i = _best_move_toward(next_state, enemy_index, target_pos, int(action.get("range", 0)))
+			var toward_tile: Vector2i = _best_move_toward_for_followup(next_state, enemy_index, target_pos, int(action.get("range", 0)), followup_action)
+			if toward_tile == INVALID_TILE:
+				toward_tile = _best_move_toward(next_state, enemy_index, target_pos, int(action.get("range", 0)))
 			enemy["pos"] = toward_tile
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
@@ -2433,7 +2444,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
-	var target: Dictionary = _closest_enemy_target(next_state, enemy, rng) if _enemy_action_locks_aoe_orientation(action) else _closest_enemy_target_for_action(next_state, enemy, action, rng)
+	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
 	var damage: int = int(action.get("damage", 0))
@@ -3286,6 +3297,16 @@ func _advance_poison(unit: Dictionary) -> Dictionary:
 func _enemy_action_is_movement(action: Dictionary) -> bool:
 	return str(action.get("type", "")) in ["move_toward", "move_away"]
 
+func _next_enemy_followup_attack_action(actions: Array, start_index: int) -> Dictionary:
+	for action_index: int in range(start_index, actions.size()):
+		var action_var: Variant = actions[action_index]
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var
+		if str(action.get("type", "")) in ATTACK_ACTION_TYPES:
+			return action.duplicate(true)
+	return {}
+
 func _threat_movement_tiles(state: Dictionary, enemy: Dictionary, start_tile: Vector2i, action: Dictionary, occupied: Dictionary, blocked_target: Vector2i) -> Array[Vector2i]:
 	var move_range: int = int(action.get("range", 0))
 	if move_range <= 0:
@@ -3931,34 +3952,11 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	for intent: Dictionary in intents:
 		cursor += maxi(1, int(intent.get("weight", 1)))
 		if roll <= cursor:
-			enemy["intent"] = _enemy_intent_with_locked_aoe_orientation(state, enemy, intent)
+			enemy["intent"] = intent.duplicate(true)
 			enemies[enemy_index] = enemy
 			return
-	enemy["intent"] = _enemy_intent_with_locked_aoe_orientation(state, enemy, intents[0] as Dictionary)
+	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
 	enemies[enemy_index] = enemy
-
-func _enemy_intent_with_locked_aoe_orientation(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
-	var locked_intent: Dictionary = intent.duplicate(true)
-	var actions: Array = []
-	for action_var: Variant in locked_intent.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = (action_var as Dictionary).duplicate(true)
-		if _enemy_action_locks_aoe_orientation(action) and _action_orientation_direction(action) == Vector2i.ZERO:
-			var direction: Vector2i = _locked_aoe_orientation_for_enemy(state, enemy)
-			if direction != Vector2i.ZERO:
-				action["orientation"] = direction
-		actions.append(action)
-	locked_intent["actions"] = actions
-	return locked_intent
-
-func _locked_aoe_orientation_for_enemy(state: Dictionary, enemy: Dictionary) -> Vector2i:
-	var target: Dictionary = _closest_enemy_target(state, enemy)
-	if target.is_empty():
-		return Vector2i.ZERO
-	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
-	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
-	return _cardinal_direction(target_pos - source_pos)
 
 func _elementalized_enemy_intents(base_intents: Array, room_element: String, room_depth: int) -> Array:
 	var intents: Array = []
@@ -4169,6 +4167,47 @@ func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, mo
 		return best_tile
 	var terrain_planning_occupied: Dictionary = _enemy_path_blockers(state, enemy, false, true)
 	return _best_move_toward_with_scoring(state, enemy, target, move_range, movement_occupied, terrain_planning_occupied)
+
+func _best_move_toward_for_followup(state: Dictionary, enemy_index: int, target: Vector2i, move_range: int, followup_action: Dictionary) -> Vector2i:
+	if move_range <= 0:
+		return INVALID_TILE
+	if str(followup_action.get("type", "")) != "aoe" or not bool(followup_action.get("orient_toward_target", false)):
+		return INVALID_TILE
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return INVALID_TILE
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, true)
+	var candidates: Array[Vector2i] = _vector2i_values([start])
+	for tile: Vector2i in _reachable_enemy_anchor_tiles(state, enemy, move_range, occupied, target):
+		if not candidates.has(tile):
+			candidates.append(tile)
+	var best_tile: Vector2i = INVALID_TILE
+	var best_move_cost: int = 9999
+	var best_target_distance: int = 9999
+	for tile: Vector2i in candidates:
+		var candidate_enemy: Dictionary = enemy.duplicate(true)
+		candidate_enemy["pos"] = tile
+		var candidate_state: Dictionary = _state_with_enemy_anchor(state, candidate_enemy, tile)
+		if not _enemy_action_reaches_tile(candidate_state, candidate_enemy, followup_action, target):
+			continue
+		var move_cost: int = PathUtils.manhattan(start, tile)
+		var target_distance: int = _enemy_distance_to_tile(candidate_enemy, target)
+		if best_tile == INVALID_TILE or _line_setup_candidate_is_better(move_cost, target_distance, tile, best_move_cost, best_target_distance, best_tile):
+			best_tile = tile
+			best_move_cost = move_cost
+			best_target_distance = target_distance
+	return best_tile
+
+func _line_setup_candidate_is_better(move_cost: int, target_distance: int, tile: Vector2i, best_move_cost: int, best_target_distance: int, best_tile: Vector2i) -> bool:
+	if move_cost != best_move_cost:
+		return move_cost < best_move_cost
+	if target_distance != best_target_distance:
+		return target_distance < best_target_distance
+	if tile.y != best_tile.y:
+		return tile.y < best_tile.y
+	return tile.x < best_tile.x
 
 func _best_move_away(state: Dictionary, enemy_index: int, target: Vector2i, move_range: int) -> Vector2i:
 	var enemies: Array = state.get("enemies", [])

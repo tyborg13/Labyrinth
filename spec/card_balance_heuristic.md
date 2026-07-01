@@ -75,10 +75,10 @@ Encounter calibration is also important:
   is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
   harriers are quick, frostglass lancers and acolytes are baseline, and wardens
   are slow. Frostglass lancers enter only at local depths `2-3` as precision
-  fixed line-and-spearhead threats, so lateral movement and blocker-aware
-  positioning matter more once the opener band is past. At depth `1`, weighted first/repeat cycles
+  four-tile line-thrust threats that can move sideways to set up a lane, so
+  lateral movement and blocker-aware positioning matter more once the opener band is past. At depth `1`, weighted first/repeat cycles
   before the initial spawn stagger are roughly `11` for wisps, `13` for
-  crawlers, `13.4` for harriers, `16` for frostglass lancers, `16.25` for
+  crawlers, `13.4` for harriers, `15.8` for frostglass lancers, `16.25` for
   acolytes, and `20.25` for wardens; Zekarion cycles around `19.25` before
   summon forcing. Depth reduces enemy base initiative by up to `4` over time.
 - Later sequences keep the same local density and elemental-control curve, but
