@@ -470,15 +470,17 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 		2:
 			pool = [
 				["warden", "crawler", "crawler", "harrier"],
-				["acolyte", "harrier", "crawler", "crawler"],
+				["acolyte", "harrier", "crawler", "grave_surgeon"],
 				["warden", "acolyte", "harrier", "crawler"],
+				["chainbound_gaoler", "harrier", "crawler", "crawler"],
 				["bile_bloomer", "crawler", "harrier", "acolyte"]
 			]
 		_:
 			pool = [
-				["warden", "harrier", "acolyte", "crawler", "crawler"],
+				["warden", "harrier", "acolyte", "crawler", "grave_surgeon"],
 				["warden", "warden", "crawler", "crawler", "harrier"],
-				["warden", "acolyte", "harrier", "crawler", "crawler"],
+				["warden", "acolyte", "harrier", "crawler", "grave_surgeon"],
+				["chainbound_gaoler", "acolyte", "harrier", "crawler", "crawler"],
 				["bile_bloomer", "warden", "harrier", "crawler", "acolyte"]
 			]
 	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()

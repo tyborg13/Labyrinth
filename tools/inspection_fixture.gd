@@ -74,6 +74,8 @@ func _parse_args() -> Dictionary:
 		"equip": "",
 		"stats": "",
 		"room_coord": "",
+		"enemy_types": "",
+		"enemy_intents": "",
 		"notice": "",
 		"summary": ""
 	}
@@ -146,6 +148,12 @@ func _parse_args() -> Dictionary:
 			"--room-coord":
 				index += 1
 				parsed["room_coord"] = _required_arg(args, index, arg)
+			"--enemy-types":
+				index += 1
+				parsed["enemy_types"] = _required_arg(args, index, arg)
+			"--enemy-intents":
+				index += 1
+				parsed["enemy_intents"] = _required_arg(args, index, arg)
 			"--notice":
 				index += 1
 				parsed["notice"] = _required_arg(args, index, arg)
@@ -179,6 +187,7 @@ func _print_help() -> void:
 	print("  --equipment-inventory item_a,item_b")
 	print("Combat options:")
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
+	print("  --enemy-types enemy_a,enemy_b --enemy-intents intent_a,intent_b")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
 	print("Safety:")
@@ -390,11 +399,58 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 	if int(_options.get("player_hp", -1)) >= 0:
 		player["hp"] = clampi(int(_options.get("player_hp", 1)), 0, int(player.get("max_hp", 1)))
 	combat_state["player"] = player
+	if not str(_options.get("enemy_types", "")).strip_edges().is_empty():
+		combat_state = _apply_enemy_overrides(combat_state)
+		if _failed:
+			return state
 	combat_state["relics"] = state.get("relics", []).duplicate(true)
 	state["combat_state"] = combat_state
 	state["player_hp"] = int(player.get("hp", state.get("player_hp", 1)))
 	state["mode"] = "combat"
 	return state
+
+func _apply_enemy_overrides(combat_state: Dictionary) -> Dictionary:
+	var enemy_types: Array[String] = _string_list(str(_options.get("enemy_types", "")))
+	var enemy_intents: Array[String] = _string_list(str(_options.get("enemy_intents", "")))
+	var existing_enemies: Array = combat_state.get("enemies", [])
+	var fallback_positions: Array[Vector2i] = _vector2i_array([
+		Vector2i(5, 4),
+		Vector2i(5, 3),
+		Vector2i(4, 5),
+		Vector2i(5, 5),
+		Vector2i(4, 3)
+	])
+	var enemies: Array = []
+	for index: int in range(enemy_types.size()):
+		var enemy_type: String = enemy_types[index]
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		if enemy_def.is_empty():
+			_fail("Unknown enemy id %s in --enemy-types" % enemy_type)
+			return combat_state
+		var position: Vector2i = fallback_positions[mini(index, fallback_positions.size() - 1)]
+		if index < existing_enemies.size():
+			var existing_enemy: Dictionary = existing_enemies[index]
+			position = existing_enemy.get("pos", position)
+		var max_hp: int = int(enemy_def.get("max_hp", 1))
+		var enemy: Dictionary = {
+			"id": index + 1,
+			"type": enemy_type,
+			"pos": position,
+			"hp": max_hp,
+			"max_hp": max_hp,
+			"block": 0,
+			"stoneskin": 0,
+			"statuses": {}
+		}
+		var intent_id: String = enemy_intents[index] if index < enemy_intents.size() else ""
+		var intent: Dictionary = _enemy_intent(enemy_type, intent_id)
+		if intent.is_empty():
+			return combat_state
+		enemy["intent"] = intent
+		enemies.append(_combat_engine.call("_normalized_enemy", enemy) as Dictionary)
+	combat_state["enemies"] = enemies
+	combat_state = _combat_engine.call("_initialize_initiative_queue", combat_state) as Dictionary
+	return combat_state
 
 func _force_combat_room(source_state: Dictionary, coord: Vector2i) -> Dictionary:
 	var state: Dictionary = _run_state_for_room(source_state, coord, "combat", Vector2i(1, 0))
@@ -475,6 +531,27 @@ func _string_array(values: Array) -> Array[String]:
 			continue
 		result.append(item)
 	return result
+
+func _vector2i_array(values: Array) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for value: Variant in values:
+		result.append(value as Vector2i)
+	return result
+
+func _enemy_intent(enemy_type: String, intent_id: String) -> Dictionary:
+	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+	var intents: Array = enemy_def.get("intents", [])
+	if intents.is_empty():
+		_fail("Enemy %s has no intents." % enemy_type)
+		return {}
+	if intent_id.strip_edges().is_empty():
+		return (intents[0] as Dictionary).duplicate(true)
+	for intent_entry: Variant in intents:
+		var intent: Dictionary = intent_entry
+		if str(intent.get("id", "")) == intent_id:
+			return intent.duplicate(true)
+	_fail("Unknown intent id %s for enemy %s in --enemy-intents" % [intent_id, enemy_type])
+	return {}
 
 func _dictionary_values(source: Dictionary) -> Array[String]:
 	var result: Array[String] = []
