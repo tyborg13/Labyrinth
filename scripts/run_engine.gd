@@ -21,8 +21,25 @@ const BOSS_VICTORY_EMBERS: int = 30
 const DEBUG_BOSS_SEED: int = 90429
 const DEBUG_BOSS_COORD: Vector2i = Vector2i(4, 0)
 const RELIC_ROOM_CANDIDATE_PERCENT: int = 47
+const MERCHANT_ROOM_CANDIDATE_PERCENT: int = 22
+const MERCHANT_ROOM_MIN_DEPTH: int = 2
 const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
+const MERCHANT_BLACKSMITH: String = "blacksmith"
+const MERCHANT_ARCANIST: String = "arcanist"
+const MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY := {
+	"common": 34,
+	"rare": 54,
+	"epic": 82,
+	"legendary": 120
+}
+const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
+	"common": 20,
+	"uncommon": 32,
+	"rare": 48
+}
+const MERCHANT_SELL_VALUE_RATIO: float = 0.45
+const MERCHANT_OFFER_COUNT: int = 3
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -422,6 +439,145 @@ func swap_magic_card(run_state: Dictionary, inventory_index: int, attuned_index:
 	next_state["notice"] = "Attuned %s." % str(GameData.card_def(incoming_card_id).get("name", incoming_card_id))
 	return next_state
 
+func merchant_kind_for_current_room(run_state: Dictionary) -> String:
+	return merchant_kind_for_room(room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO)))
+
+func merchant_kind_for_room(room: Dictionary) -> String:
+	var room_type: String = str(room.get("type", ""))
+	if room_type == MERCHANT_BLACKSMITH or room_type == MERCHANT_ARCANIST:
+		return room_type
+	var merchant_kind: String = str(room.get("merchant_kind", ""))
+	if merchant_kind == MERCHANT_BLACKSMITH or merchant_kind == MERCHANT_ARCANIST:
+		return merchant_kind
+	return ""
+
+func merchant_offer_ids(run_state: Dictionary, merchant_kind: String) -> Array:
+	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			return _weighted_merchant_choices(
+				int(run_state.get("seed", 0)),
+				coord,
+				_available_merchant_equipment_ids(run_state),
+				MERCHANT_OFFER_COUNT,
+				1601,
+				MERCHANT_BLACKSMITH
+			)
+		MERCHANT_ARCANIST:
+			return _weighted_merchant_choices(
+				int(run_state.get("seed", 0)),
+				coord,
+				_available_merchant_magic_ids(run_state),
+				MERCHANT_OFFER_COUNT,
+				1701,
+				MERCHANT_ARCANIST
+			)
+	return []
+
+func merchant_sellable_ids(run_state: Dictionary, merchant_kind: String) -> Array:
+	var result: Array = []
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			for equipment_var: Variant in run_state.get("equipment_inventory", []):
+				var equipment_id: String = str(equipment_var)
+				if not equipment_id.is_empty() and GameData.equipment_slot(equipment_id) != "":
+					result.append(equipment_id)
+		MERCHANT_ARCANIST:
+			for card_var: Variant in run_state.get("magic_inventory", []):
+				var card_id: String = str(card_var)
+				if not card_id.is_empty() and not GameData.card_def(card_id).is_empty():
+					result.append(card_id)
+	result.sort()
+	return result
+
+func merchant_buy_cost(merchant_kind: String, item_id: String) -> int:
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			if GameData.equipment_def(item_id).is_empty():
+				return 0
+			var equipment_rarity: String = GameData.equipment_rarity(item_id)
+			return int(MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY.get(equipment_rarity, MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY["common"]))
+		MERCHANT_ARCANIST:
+			var card: Dictionary = GameData.card_def(item_id)
+			if card.is_empty():
+				return 0
+			var card_rarity: String = str(card.get("rarity", "common"))
+			return int(MERCHANT_MAGIC_BUY_COST_BY_RARITY.get(card_rarity, MERCHANT_MAGIC_BUY_COST_BY_RARITY["common"]))
+	return 0
+
+func merchant_sell_value(merchant_kind: String, item_id: String) -> int:
+	var buy_cost: int = merchant_buy_cost(merchant_kind, item_id)
+	if buy_cost <= 0:
+		return 0
+	return maxi(1, int(round(float(buy_cost) * MERCHANT_SELL_VALUE_RATIO)))
+
+func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: String) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if not _can_trade_at_merchant(next_state, merchant_kind):
+		return next_state
+	if not merchant_offer_ids(next_state, merchant_kind).has(item_id):
+		next_state["notice"] = "Not in stock."
+		return next_state
+	var cost: int = merchant_buy_cost(merchant_kind, item_id)
+	if cost <= 0:
+		return next_state
+	if held_embers(next_state) < cost:
+		next_state["notice"] = "Need %d embers." % cost
+		return next_state
+	next_state = spend_held_embers(next_state, cost)
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			var inventory: Array = next_state.get("equipment_inventory", []).duplicate()
+			if not inventory.has(item_id):
+				inventory.append(item_id)
+			next_state["equipment_inventory"] = inventory
+			var collected: Array = next_state.get("collected_equipment", []).duplicate()
+			if not collected.has(item_id):
+				collected.append(item_id)
+			next_state["collected_equipment"] = collected
+			next_state["notice"] = "Bought %s." % str(GameData.equipment_def(item_id).get("name", item_id))
+		MERCHANT_ARCANIST:
+			var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
+			reward_cards.append(item_id)
+			next_state["reward_cards"] = reward_cards
+			var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
+			magic_inventory.append(item_id)
+			next_state["magic_inventory"] = magic_inventory
+			next_state = _rebuild_deck_cards(next_state)
+			next_state["notice"] = "Bought %s." % str(GameData.card_def(item_id).get("name", item_id))
+	return next_state
+
+func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: String) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if not _can_trade_at_merchant(next_state, merchant_kind):
+		return next_state
+	if not merchant_sellable_ids(next_state, merchant_kind).has(item_id):
+		next_state["notice"] = "Cannot sell that here."
+		return next_state
+	var value: int = merchant_sell_value(merchant_kind, item_id)
+	if value <= 0:
+		return next_state
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			var inventory: Array = next_state.get("equipment_inventory", []).duplicate()
+			inventory.erase(item_id)
+			next_state["equipment_inventory"] = inventory
+			var collected: Array = next_state.get("collected_equipment", []).duplicate()
+			collected.erase(item_id)
+			next_state["collected_equipment"] = collected
+			next_state["notice"] = "Sold %s." % str(GameData.equipment_def(item_id).get("name", item_id))
+		MERCHANT_ARCANIST:
+			var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
+			magic_inventory.erase(item_id)
+			next_state["magic_inventory"] = magic_inventory
+			var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
+			reward_cards.erase(item_id)
+			next_state["reward_cards"] = reward_cards
+			next_state = _rebuild_deck_cards(next_state)
+			next_state["notice"] = "Sold %s." % str(GameData.card_def(item_id).get("name", item_id))
+	next_state = add_held_embers(next_state, value)
+	return next_state
+
 func skip_reward_for_heal(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var heal_amount: int = int((next_state.get("pending_reward", {}) as Dictionary).get("heal_amount", 0))
@@ -658,10 +814,12 @@ func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:
 	var room_type: String = _room_type_for_coord(seed, coord)
 	var element_id: String = _room_element_for_coord(seed, coord, room_type)
 	var npcs: Array[Dictionary] = _room_npcs_for_coord(seed, coord)
+	var merchant_kind: String = _merchant_kind_for_room_type(room_type)
 	return {
 		"coord": coord,
 		"depth": depth,
 		"type": room_type,
+		"merchant_kind": merchant_kind,
 		"element": element_id,
 		"connections": _room_connections(coord),
 		"npcs": npcs,
@@ -718,6 +876,8 @@ func _room_type_for_coord(seed: int, coord: Vector2i) -> String:
 		return "campfire"
 	if _is_relic_room_coord(seed, coord):
 		return "treasure"
+	if _is_merchant_room_coord(seed, coord):
+		return _merchant_room_type_for_coord(seed, coord)
 	return "combat"
 
 func _room_element_for_coord(seed: int, coord: Vector2i, room_type: String) -> String:
@@ -788,6 +948,59 @@ func _is_relic_room_eligible(coord: Vector2i) -> bool:
 
 func _relic_room_priority(seed: int, coord: Vector2i) -> int:
 	return _coord_hash(seed, coord, 733)
+
+func _is_merchant_room_coord(seed: int, coord: Vector2i) -> bool:
+	return _is_merchant_room_coord_with_memo(seed, coord, {})
+
+func _is_merchant_room_coord_with_memo(seed: int, coord: Vector2i, memo: Dictionary) -> bool:
+	var key: String = _room_key(coord)
+	if memo.has(key):
+		return bool(memo[key])
+	if not _is_merchant_room_candidate(seed, coord):
+		memo[key] = false
+		return false
+	var priority: int = _merchant_room_priority(seed, coord)
+	for dir: Vector2i in PathUtils.DIRS_4:
+		var neighbor: Vector2i = coord + dir
+		if not _is_merchant_room_candidate(seed, neighbor):
+			continue
+		var neighbor_priority: int = _merchant_room_priority(seed, neighbor)
+		var neighbor_has_priority: bool = neighbor_priority < priority or (neighbor_priority == priority and _room_key(neighbor) < key)
+		if not neighbor_has_priority:
+			continue
+		if _is_merchant_room_coord_with_memo(seed, neighbor, memo):
+			memo[key] = false
+			return false
+	memo[key] = true
+	return true
+
+func _is_merchant_room_candidate(seed: int, coord: Vector2i) -> bool:
+	if not _is_merchant_room_eligible(seed, coord):
+		return false
+	return (_coord_hash(seed, coord, 811) % 1000) < MERCHANT_ROOM_CANDIDATE_PERCENT * 10
+
+func _is_merchant_room_eligible(seed: int, coord: Vector2i) -> bool:
+	var depth: int = _room_depth(coord)
+	if depth < MERCHANT_ROOM_MIN_DEPTH or depth > MAX_DEPTH:
+		return false
+	if _is_sequence_boss_depth(depth):
+		return false
+	if _is_campfire_coord(coord):
+		return false
+	if _is_relic_room_coord(seed, coord):
+		return false
+	return true
+
+func _merchant_room_priority(seed: int, coord: Vector2i) -> int:
+	return _coord_hash(seed, coord, 821)
+
+func _merchant_room_type_for_coord(seed: int, coord: Vector2i) -> String:
+	return MERCHANT_BLACKSMITH if (_coord_hash(seed, coord, 827) % 2) == 0 else MERCHANT_ARCANIST
+
+func _merchant_kind_for_room_type(room_type: String) -> String:
+	if room_type == MERCHANT_BLACKSMITH or room_type == MERCHANT_ARCANIST:
+		return room_type
+	return ""
 
 func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -894,6 +1107,81 @@ func _available_equipment_drop_ids(run_state: Dictionary) -> Array:
 	result.sort()
 	return result
 
+func _can_trade_at_merchant(run_state: Dictionary, merchant_kind: String) -> bool:
+	return str(run_state.get("mode", "room")) == "room" and merchant_kind_for_current_room(run_state) == merchant_kind
+
+func _available_merchant_equipment_ids(run_state: Dictionary) -> Array:
+	var owned: Dictionary = {}
+	for equipment_var: Variant in run_state.get("equipment_inventory", []):
+		owned[str(equipment_var)] = true
+	for equipment_var: Variant in (run_state.get("equipped_equipment", {}) as Dictionary).values():
+		owned[str(equipment_var)] = true
+	var result: Array = []
+	for equipment_id_var: Variant in GameData.equipment_ids():
+		var equipment_id: String = str(equipment_id_var)
+		if owned.has(equipment_id):
+			continue
+		if GameData.equipment_slot(equipment_id).is_empty():
+			continue
+		result.append(equipment_id)
+	result.sort()
+	return result
+
+func _available_merchant_magic_ids(run_state: Dictionary) -> Array:
+	var owned: Dictionary = {}
+	for card_var: Variant in run_state.get("reward_cards", []):
+		owned[str(card_var)] = true
+	for card_var: Variant in run_state.get("attuned_magic_cards", []):
+		owned[str(card_var)] = true
+	for card_var: Variant in run_state.get("magic_inventory", []):
+		owned[str(card_var)] = true
+	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity("", true)
+	var result: Array = []
+	for rarity: String in ["common", "uncommon", "rare"]:
+		for card_id_var: Variant in pool_by_rarity.get(rarity, []):
+			var card_id: String = str(card_id_var)
+			if owned.has(card_id) or result.has(card_id):
+				continue
+			result.append(card_id)
+	result.sort()
+	return result
+
+func _weighted_merchant_choices(seed: int, coord: Vector2i, available: Array, count: int, salt: int, merchant_kind: String) -> Array:
+	var pool: Array = available.duplicate()
+	pool.sort()
+	var choices: Array = []
+	var pick_index: int = 0
+	while choices.size() < count and not pool.is_empty():
+		var total_weight: int = 0
+		for item_var: Variant in pool:
+			total_weight += maxi(1, _merchant_offer_weight(merchant_kind, str(item_var)))
+		var roll: int = (_coord_hash(seed, coord, salt + pick_index * 17) % maxi(1, total_weight)) + 1
+		var cursor: int = 0
+		var selected_index: int = 0
+		for index: int in range(pool.size()):
+			cursor += maxi(1, _merchant_offer_weight(merchant_kind, str(pool[index])))
+			if roll <= cursor:
+				selected_index = index
+				break
+		choices.append(str(pool[selected_index]))
+		pool.remove_at(selected_index)
+		pick_index += 1
+	return choices
+
+func _merchant_offer_weight(merchant_kind: String, item_id: String) -> int:
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			return GameData.equipment_offer_weight(item_id)
+		MERCHANT_ARCANIST:
+			var rarity: String = str(GameData.card_def(item_id).get("rarity", "common"))
+			match rarity:
+				"rare":
+					return 3
+				"uncommon":
+					return 6
+			return 12
+	return 1
+
 func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[String]:
 	var owned: Array = run_state.get("relics", []).duplicate()
 	var available: Array[String] = []
@@ -937,12 +1225,27 @@ func _reveal_neighbors(run_state: Dictionary, center: Vector2i) -> void:
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
-func _room_npcs_for_coord(_seed: int, coord: Vector2i) -> Array[Dictionary]:
+func _room_npcs_for_coord(seed: int, coord: Vector2i) -> Array[Dictionary]:
+	var room_type: String = _room_type_for_coord(seed, coord)
 	if coord == Vector2i.ZERO:
 		return [
 			{
 				"id": "emaciated_man",
 				"pos": Vector2i(4, 3)
+			}
+		]
+	if room_type == MERCHANT_BLACKSMITH:
+		return [
+			{
+				"id": MERCHANT_BLACKSMITH,
+				"pos": Vector2i(3, 4)
+			}
+		]
+	if room_type == MERCHANT_ARCANIST:
+		return [
+			{
+				"id": MERCHANT_ARCANIST,
+				"pos": Vector2i(3, 4)
 			}
 		]
 	return []

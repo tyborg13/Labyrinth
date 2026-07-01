@@ -1,4 +1,24 @@
 {
+  "arcanist": {
+    "name": "Arcanist",
+    "accent": "#8a67d8",
+    "art_path": "res://assets/art/npcs/arcanist.png",
+    "art_scale": 0.98,
+    "default_dialogue": [
+      "Threads of power cling to you. I can loosen some, or bind others tighter.",
+      "Embers remember every spell they touch."
+    ]
+  },
+  "blacksmith": {
+    "name": "Blacksmith",
+    "accent": "#d9862f",
+    "art_path": "res://assets/art/npcs/blacksmith.png",
+    "art_scale": 0.98,
+    "default_dialogue": [
+      "Steel keeps a sharper memory than flesh.",
+      "Show me what you carry. Embers can make it lighter, or heavier."
+    ]
+  },
   "emaciated_man": {
     "name": "Emaciated Man",
     "accent": "#b8aa90",

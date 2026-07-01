@@ -68,6 +68,7 @@ func _initialize() -> void:
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
+	_test_merchant_room_placement_and_trading(default_progression)
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
 	_test_elemental_intensity_icons_surface_card_requirements()
@@ -150,6 +151,7 @@ func _initialize() -> void:
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_emaciated_man_uses_matching_idle_sheet()
+	_test_merchant_assets_load_for_board()
 	_test_unit_hud_stacks_above_sprite_art()
 	_test_combat_board_zooms_to_rendered_room_bounds()
 	_test_foreground_props_fade_when_covering_behind_objects()
@@ -178,6 +180,7 @@ func _initialize() -> void:
 	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
 	_test_run_map_relic_room_spacing_and_density()
+	_test_run_map_merchant_room_spacing_and_density()
 	_test_run_map_repeats_depth_sequences()
 	_test_run_map_ring_links_and_outward_quarter()
 	_test_run_map_seals_departed_rooms()
@@ -293,6 +296,12 @@ func _test_music_library_routes_elemental_combat_tracks() -> void:
 		"element": ElementData.LIGHTNING
 	})
 	_assert(str(generic_boss_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Boss fallback should not use non-boss elemental combat music")
+	for merchant_type: String in ["blacksmith", "arcanist"]:
+		var merchant_entry: Dictionary = MusicLibrary.entry_for_context("room", {
+			"type": merchant_type,
+			"element": ElementData.NONE
+		})
+		_assert(str(merchant_entry.get("id", "")) == MusicLibrary.RELIC_ROOM_TRACK_ID, "%s rooms should use non-combat room music" % merchant_type.capitalize())
 
 func _audio_asset_loads(path: String) -> bool:
 	if path.get_extension().to_lower() == "wav":
@@ -562,6 +571,22 @@ func _test_special_rooms_use_corner_pillar_layout() -> void:
 		"type": "treasure"
 	}, Vector2i(0, -1))
 	_assert_corner_pillar_room(treasure_room, "Treasure")
+	var blacksmith_room: Dictionary = generator.generate_room(91, {
+		"coord": Vector2i(2, 1),
+		"depth": 2,
+		"type": "blacksmith",
+		"npcs": [{"id": "blacksmith", "pos": Vector2i(3, 4)}]
+	}, Vector2i(0, -1))
+	_assert_corner_pillar_room(blacksmith_room, "Blacksmith")
+	_assert((blacksmith_room.get("npcs", []) as Array).size() == 1, "Blacksmith rooms should keep their merchant NPC")
+	var arcanist_room: Dictionary = generator.generate_room(91, {
+		"coord": Vector2i(2, -1),
+		"depth": 2,
+		"type": "arcanist",
+		"npcs": [{"id": "arcanist", "pos": Vector2i(3, 4)}]
+	}, Vector2i(0, 1))
+	_assert_corner_pillar_room(arcanist_room, "Arcanist")
+	_assert((arcanist_room.get("npcs", []) as Array).size() == 1, "Arcanist rooms should keep their merchant NPC")
 	var grid: Array = campfire_room.get("grid", [])
 	for y: int in range(3, 6):
 		for x: int in range(3, 6):
@@ -1410,6 +1435,68 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 	_assert((run_state.get("equipment_inventory", []) as Array).has("splintered_shield"), "Equipping collected gear should move the replaced starter item into inventory")
 	_assert(post_equip_deck.has("kite_bash") and post_equip_deck.has("warded_advance"), "Equipping collected gear should add its cards to the active deck")
 	_assert(not post_equip_deck.has("brace") and not post_equip_deck.has("guarded_step"), "Equipping collected gear should remove the previous slot's cards from the active deck")
+
+func _test_merchant_room_placement_and_trading(default_progression: Dictionary) -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var blacksmith_state: Dictionary = {}
+	var blacksmith_coord: Vector2i = Vector2i(999, 999)
+	var arcanist_state: Dictionary = {}
+	var arcanist_coord: Vector2i = Vector2i(999, 999)
+	for seed: int in range(1, 90):
+		var run_state: Dictionary = run_engine.create_new_run(seed, default_progression)
+		if blacksmith_coord.x >= 900:
+			var smith_coord: Vector2i = _first_room_coord_of_type(run_engine, run_state, "blacksmith")
+			if smith_coord.x < 900:
+				blacksmith_coord = smith_coord
+				blacksmith_state = run_state
+		if arcanist_coord.x >= 900:
+			var mage_coord: Vector2i = _first_room_coord_of_type(run_engine, run_state, "arcanist")
+			if mage_coord.x < 900:
+				arcanist_coord = mage_coord
+				arcanist_state = run_state
+		if blacksmith_coord.x < 900 and arcanist_coord.x < 900:
+			break
+	_assert(blacksmith_coord.x < 900, "Generated maps should include blacksmith rooms across sampled seeds")
+	_assert(arcanist_coord.x < 900, "Generated maps should include arcanist rooms across sampled seeds")
+
+	blacksmith_state["current_room"] = blacksmith_coord
+	blacksmith_state["mode"] = "room"
+	blacksmith_state = run_engine.set_held_embers(blacksmith_state, 200)
+	_assert(run_engine.merchant_kind_for_current_room(blacksmith_state) == RunEngine.MERCHANT_BLACKSMITH, "Blacksmith room metadata should identify the equipment merchant")
+	var blacksmith_offers: Array = run_engine.merchant_offer_ids(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH)
+	_assert(blacksmith_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Blacksmiths should stock a compact set of equipment")
+	var equipment_id: String = str(blacksmith_offers[0])
+	var equipment_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, equipment_id)
+	var bought_equipment_state: Dictionary = run_engine.buy_merchant_item(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
+	_assert(int(bought_equipment_state.get("held_embers", 0)) == 200 - equipment_cost, "Buying equipment should spend held embers")
+	_assert((bought_equipment_state.get("equipment_inventory", []) as Array).has(equipment_id), "Bought equipment should enter equipment inventory")
+	_assert((bought_equipment_state.get("collected_equipment", []) as Array).has(equipment_id), "Bought equipment should count as collected while owned")
+	_assert(not run_engine.merchant_offer_ids(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH).has(equipment_id), "Owned equipment should leave merchant stock")
+	var equipment_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_BLACKSMITH, equipment_id)
+	var sold_equipment_state: Dictionary = run_engine.sell_merchant_item(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
+	_assert(not (sold_equipment_state.get("equipment_inventory", []) as Array).has(equipment_id), "Sold equipment should leave inventory")
+	_assert(not (sold_equipment_state.get("collected_equipment", []) as Array).has(equipment_id), "Sold equipment should leave duplicate-exclusion ownership")
+	_assert(int(sold_equipment_state.get("held_embers", 0)) == 200 - equipment_cost + equipment_sale_value, "Selling equipment should add the sell value to held embers")
+
+	arcanist_state["current_room"] = arcanist_coord
+	arcanist_state["mode"] = "room"
+	arcanist_state = run_engine.set_held_embers(arcanist_state, 160)
+	_assert(run_engine.merchant_kind_for_current_room(arcanist_state) == RunEngine.MERCHANT_ARCANIST, "Arcanist room metadata should identify the magic merchant")
+	var arcanist_offers: Array = run_engine.merchant_offer_ids(arcanist_state, RunEngine.MERCHANT_ARCANIST)
+	_assert(arcanist_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Arcanists should stock a compact set of magic cards")
+	var card_id: String = str(arcanist_offers[0])
+	var magic_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, card_id)
+	var pre_magic_deck: Array = (arcanist_state.get("deck_cards", []) as Array).duplicate()
+	var bought_magic_state: Dictionary = run_engine.buy_merchant_item(arcanist_state, RunEngine.MERCHANT_ARCANIST, card_id)
+	_assert(int(bought_magic_state.get("held_embers", 0)) == 160 - magic_cost, "Buying magic should spend held embers")
+	_assert((bought_magic_state.get("reward_cards", []) as Array).has(card_id), "Bought magic should enter reward-card history")
+	_assert((bought_magic_state.get("magic_inventory", []) as Array).has(card_id), "Bought magic should enter reserve magic")
+	_assert((bought_magic_state.get("deck_cards", []) as Array) == pre_magic_deck, "Bought magic should stay inactive until attuned")
+	var magic_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_ARCANIST, card_id)
+	var sold_magic_state: Dictionary = run_engine.sell_merchant_item(bought_magic_state, RunEngine.MERCHANT_ARCANIST, card_id)
+	_assert(not (sold_magic_state.get("magic_inventory", []) as Array).has(card_id), "Sold reserve magic should leave reserve inventory")
+	_assert(not (sold_magic_state.get("reward_cards", []) as Array).has(card_id), "Sold reserve magic should leave reward-card history")
+	_assert(int(sold_magic_state.get("held_embers", 0)) == 160 - magic_cost + magic_sale_value, "Selling magic should add the sell value to held embers")
 
 func _test_elemental_intensity_starts_from_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4772,12 +4859,29 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
 	tooltip_panel.free()
 
+func _test_merchant_assets_load_for_board() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	for npc_id: String in ["blacksmith", "arcanist"]:
+		var npc_def: Dictionary = GameData.npc_def(npc_id)
+		var art_path: String = str(npc_def.get("art_path", ""))
+		_assert(FileAccess.file_exists(art_path), "%s NPC sprite should exist" % npc_id)
+		var texture: Texture2D = (board.get("_unit_textures") as Dictionary).get(npc_id, null)
+		_assert(texture != null, "%s NPC sprite should load for board rendering" % npc_id)
+	var prop_textures: Dictionary = board.get("_scene_prop_textures") as Dictionary
+	_assert(prop_textures.get("blacksmith_forge", null) != null, "Blacksmith forge prop should load for board rendering")
+	_assert(prop_textures.get("arcanist_table", null) != null, "Arcanist table prop should load for board rendering")
+	board.free()
+
 func _test_room_icon_library_covers_door_room_types() -> void:
 	var room_cases: Array[Dictionary] = [
 		{"room": {"type": "combat", "element": "fire"}, "icon": "fire"},
 		{"room": {"type": "combat", "element": "none"}, "icon": "combat"},
 		{"room": {"type": "campfire", "element": "none"}, "icon": "campfire"},
 		{"room": {"type": "treasure", "element": "none"}, "icon": "treasure"},
+		{"room": {"type": "blacksmith", "element": "none"}, "icon": "blacksmith"},
+		{"room": {"type": "arcanist", "element": "none"}, "icon": "arcanist"},
 		{"room": {"type": "boss", "element": "none"}, "icon": "boss"}
 	]
 	for room_case: Dictionary in room_cases:
@@ -4854,7 +4958,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	for entry_var: Variant in map_view.call("_legend_entries"):
 		var entry: Dictionary = entry_var
 		labels[str(entry.get("label", ""))] = true
-	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Boss"]:
+	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Smith", "Arcanist", "Boss"]:
 		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
 	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
 	var marker_rooms: Dictionary = {
@@ -4885,7 +4989,7 @@ func _test_combat_board_loads_door_icons_for_room_types() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "boss"]:
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "blacksmith", "arcanist", "boss"]:
 		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
 	board.free()
 
@@ -4896,6 +5000,16 @@ func _map_visible_coords(map_view: LabyrinthMapView) -> Array[Vector2i]:
 			continue
 		coords.append((room_var as Dictionary).get("coord", Vector2i.ZERO))
 	return coords
+
+func _first_room_coord_of_type(run_engine: RunEngine, run_state: Dictionary, room_type: String) -> Vector2i:
+	for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+		for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+			var coord := Vector2i(x, y)
+			if maxi(absi(coord.x), absi(coord.y)) > RunEngine.MAX_DEPTH:
+				continue
+			if str(run_engine.room_metadata(run_state, coord).get("type", "")) == room_type:
+				return coord
+	return Vector2i(999, 999)
 
 func _test_run_map_room_types() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -4945,6 +5059,50 @@ func _test_run_map_relic_room_spacing_and_density() -> void:
 	var density: float = float(total_relic_rooms) / float(maxi(1, total_non_boss_rooms))
 	_assert(density > 0.20 and density < 0.30, "Relic rooms should average roughly one quarter of non-boss rooms")
 	_assert(found_different_signature, "Relic room placement should vary probabilistically by seed")
+
+func _test_run_map_merchant_room_spacing_and_density() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var total_eligible_rooms: int = 0
+	var total_merchant_rooms: int = 0
+	var merchant_types: Dictionary = {}
+	var first_signature: String = ""
+	var found_different_signature: bool = false
+	for seed: int in range(1, 51):
+		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
+		var signature_parts: Array[String] = []
+		for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+			for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+				var coord := Vector2i(x, y)
+				var depth: int = maxi(absi(coord.x), absi(coord.y))
+				if depth > RunEngine.MAX_DEPTH:
+					continue
+				var room: Dictionary = run_engine.room_metadata(run_state, coord)
+				var room_type: String = str(room.get("type", "combat"))
+				if depth >= RunEngine.MERCHANT_ROOM_MIN_DEPTH and room_type not in ["boss", "campfire", "treasure"]:
+					total_eligible_rooms += 1
+				if room_type not in ["blacksmith", "arcanist"]:
+					continue
+				total_merchant_rooms += 1
+				merchant_types[room_type] = true
+				signature_parts.append("%d,%d:%s" % [coord.x, coord.y, room_type])
+				_assert(depth >= RunEngine.MERCHANT_ROOM_MIN_DEPTH, "Merchant rooms should not appear before depth two")
+				var npcs: Array = room.get("npcs", [])
+				_assert(npcs.size() == 1 and str((npcs[0] as Dictionary).get("id", "")) == room_type, "Merchant rooms should carry their matching NPC")
+				for dir: Vector2i in PathUtils.DIRS_4:
+					var neighbor: Vector2i = coord + dir
+					if maxi(absi(neighbor.x), absi(neighbor.y)) > RunEngine.MAX_DEPTH:
+						continue
+					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) not in ["blacksmith", "arcanist"], "Merchant rooms should never be cardinally adjacent")
+		signature_parts.sort()
+		var signature: String = "|".join(signature_parts)
+		if seed == 1:
+			first_signature = signature
+		elif signature != first_signature:
+			found_different_signature = true
+	var density: float = float(total_merchant_rooms) / float(maxi(1, total_eligible_rooms))
+	_assert(density > 0.09 and density < 0.18, "Merchant rooms should average a moderate non-combat frequency")
+	_assert(merchant_types.has("blacksmith") and merchant_types.has("arcanist"), "Merchant generation should include both blacksmith and arcanist rooms")
+	_assert(found_different_signature, "Merchant room placement should vary probabilistically by seed")
 
 func _test_run_map_repeats_depth_sequences() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -5303,6 +5461,14 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(options.is_empty(), "Legacy unlocked progression should not keep the old touch option alive")
+	for merchant_id: String in ["blacksmith", "arcanist"]:
+		var merchant_dialogue: Dictionary = dialogue_engine.build_room_dialogue({
+			"coord": Vector2i(2, 1),
+			"npcs": [{"id": merchant_id}]
+		}, {}, ProgressionStore.default_data())
+		var merchant_lines: Array = merchant_dialogue.get("lines", [])
+		_assert(not merchant_lines.is_empty(), "%s should expose default room dialogue" % merchant_id.capitalize())
+		_assert(str(merchant_dialogue.get("npc_id", "")) == merchant_id, "%s dialogue should preserve the NPC id for future context branches" % merchant_id.capitalize())
 
 func _test_recovery_marker_flow() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -7496,13 +7662,44 @@ func _test_run_scene_logs_local_analytics() -> void:
 	instance.call("_refresh_ui")
 	instance.call("_on_reward_card_pressed", "spark_dart")
 	await process_frame
+	var merchant_run_state: Dictionary = instance.get("_run_state")
+	merchant_run_state["mode"] = "room"
+	merchant_run_state["current_room"] = Vector2i(2, 1)
+	merchant_run_state["held_embers"] = 0
+	merchant_run_state["unbanked_embers"] = 0
+	merchant_run_state["equipment_inventory"] = ["ward_kite"]
+	var merchant_collected: Array = (merchant_run_state.get("collected_equipment", []) as Array).duplicate()
+	if not merchant_collected.has("ward_kite"):
+		merchant_collected.append("ward_kite")
+	merchant_run_state["collected_equipment"] = merchant_collected
+	var merchant_rooms: Dictionary = (merchant_run_state.get("rooms", {}) as Dictionary).duplicate(true)
+	merchant_rooms["2,1"] = {
+		"coord": Vector2i(2, 1),
+		"depth": 2,
+		"type": "blacksmith",
+		"merchant_kind": "blacksmith",
+		"npcs": [{"id": "blacksmith", "pos": Vector2i(3, 4)}],
+		"connections": [],
+		"revealed": true,
+		"visited": true,
+		"cleared": true,
+		"sealed": false
+	}
+	merchant_run_state["rooms"] = merchant_rooms
+	merchant_run_state["combat_state"] = {}
+	instance.set("_run_state", merchant_run_state)
+	instance.set("_combat_state", {})
+	instance.call("_on_merchant_sell_pressed", "blacksmith", "ward_kite")
+	await process_frame
 	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
 	var playable_events: Array[Dictionary] = _analytics_events_by_type(events, "card_became_playable")
 	var played_events: Array[Dictionary] = _analytics_events_by_type(events, "card_played")
 	var reward_events: Array[Dictionary] = _analytics_events_by_type(events, "reward_choice")
+	var merchant_events: Array[Dictionary] = _analytics_events_by_type(events, "merchant_trade")
 	_assert(not playable_events.is_empty(), "Combat analytics should record when a drawn card becomes playable")
 	_assert(not played_events.is_empty(), "Combat analytics should record card play events")
 	_assert(not reward_events.is_empty(), "Reward analytics should record reward choices")
+	_assert(not merchant_events.is_empty(), "Merchant analytics should record successful trades")
 	var play_event: Dictionary = played_events[played_events.size() - 1]
 	var play_payload: Dictionary = play_event.get("payload", {})
 	_assert(str(play_event.get("card_id", "")) == "patch_up", "Card play analytics should record the played card id")
@@ -7522,6 +7719,10 @@ func _test_run_scene_logs_local_analytics() -> void:
 	var reward_payload: Dictionary = reward_event.get("payload", {})
 	_assert(str(reward_payload.get("choice_kind", "")) == "card", "Reward analytics should distinguish card picks from heal skips")
 	_assert(str(reward_payload.get("selected_card_id", "")) == "spark_dart", "Reward analytics should record the selected reward card")
+	var merchant_event: Dictionary = merchant_events[merchant_events.size() - 1]
+	var merchant_payload: Dictionary = merchant_event.get("payload", {})
+	_assert(str(merchant_payload.get("action", "")) == "sell", "Merchant analytics should record trade action")
+	_assert(str(merchant_payload.get("merchant_kind", "")) == "blacksmith", "Merchant analytics should record merchant kind")
 	instance.queue_free()
 	await process_frame
 

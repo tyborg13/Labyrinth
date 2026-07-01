@@ -51,7 +51,9 @@ const TRACKS: Dictionary = {
 const ROOM_TYPE_TRACKS: Dictionary = {
 	"combat": GENERIC_COMBAT_TRACK_ID,
 	"boss": GENERIC_COMBAT_TRACK_ID,
-	"treasure": RELIC_ROOM_TRACK_ID
+	"treasure": RELIC_ROOM_TRACK_ID,
+	"blacksmith": RELIC_ROOM_TRACK_ID,
+	"arcanist": RELIC_ROOM_TRACK_ID
 }
 
 const BOSS_TRACKS: Dictionary = {

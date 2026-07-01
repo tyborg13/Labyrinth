@@ -129,6 +129,8 @@ const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.78
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
+const BLACKSMITH_FORGE_PATH: String = "res://assets/art/tiles/blacksmith_forge.png"
+const ARCANIST_TABLE_PATH: String = "res://assets/art/tiles/arcanist_table.png"
 const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
 const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
 const COLUMN_TORCH_LEFT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_left_idle.png"
@@ -4175,7 +4177,9 @@ func _load_assets() -> void:
 	}
 	_scene_prop_textures = {
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
-		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH)
+		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
+		"blacksmith_forge": AssetLoader.load_texture(BLACKSMITH_FORGE_PATH),
+		"arcanist_table": AssetLoader.load_texture(ARCANIST_TABLE_PATH)
 	}
 	_scene_prop_idle_frames = {
 		"campfire_bonfire": _load_sprite_sheet_frames(

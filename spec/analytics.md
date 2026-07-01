@@ -41,6 +41,7 @@ available:
 - `progression_level_up`
 - `equipment_equipped`
 - `magic_attuned`
+- `merchant_trade`
 
 `run_started` includes the compiled starting deck plus the equipment model used
 to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and
@@ -117,6 +118,12 @@ outside combat. Its payload records `slot`, `previous_equipment_id`,
 one of the six attuned slots outside combat. Its payload records the reserve and
 attuned indices, the attuned `card_id`, full `attuned_magic_cards`,
 `magic_inventory`, `reward_cards`, and rebuilt `deck_cards`.
+
+`merchant_trade` fires when a blacksmith or arcanist transaction succeeds in a
+non-combat merchant room. Its payload records `action` (`buy` or `sell`),
+`merchant_kind`, `item_kind`, `item_id`, ember `amount`,
+`held_embers_before`, `held_embers_after`, the current `room`, and the updated
+equipment, magic, reward-card, and deck state.
 
 Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory

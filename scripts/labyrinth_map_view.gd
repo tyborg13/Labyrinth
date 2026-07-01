@@ -12,7 +12,9 @@ const ROOM_COLORS := {
 	"combat": Color("8c7462"),
 	"campfire": Color("d9854c"),
 	"treasure": Color("89a862"),
-	"boss": Color("b75643")
+	"boss": Color("b75643"),
+	"blacksmith": Color("b06a42"),
+	"arcanist": Color("7e65b7")
 }
 const CLEARED_TINT: Color = Color("5f6462")
 const CLEARED_ICON_MODULATE: Color = Color(0.70, 0.73, 0.69, 0.78)
@@ -287,6 +289,8 @@ func _legend_entries() -> Array[Dictionary]:
 		})
 	entries.append({"label": "Campfire", "room": {"type": "campfire", "element": ElementData.NONE}})
 	entries.append({"label": "Relic", "room": {"type": "treasure", "element": ElementData.NONE}})
+	entries.append({"label": "Smith", "room": {"type": "blacksmith", "element": ElementData.NONE}})
+	entries.append({"label": "Arcanist", "room": {"type": "arcanist", "element": ElementData.NONE}})
 	entries.append({"label": "Boss", "room": {"type": "boss", "element": ElementData.LIGHTNING}})
 	return entries
 

@@ -103,7 +103,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var grid: Array = _base_grid(rng)
 	var entrance_tile: Vector2i = ENTRANCE_BY_TRAVEL_DIR.get(travel_dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
 	_apply_available_doors(grid, room)
-	if room_type == "campfire" or room_type == "treasure":
+	if room_type == "campfire" or room_type == "treasure" or room_type == "blacksmith" or room_type == "arcanist":
 		_apply_corner_pillar_layout(grid)
 	elif room_type == "boss":
 		_apply_boss_layout(grid)
@@ -455,7 +455,7 @@ func _local_enemy_hp_scale(depth: int) -> float:
 			return 1.0
 
 func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator) -> Array:
-	if room_type == "start" or room_type == "campfire" or room_type == "treasure":
+	if room_type == "start" or room_type == "campfire" or room_type == "treasure" or room_type == "blacksmith" or room_type == "arcanist":
 		return []
 	if room_type == "boss":
 		return ["zekarion", "lightning_wisp", "lightning_wisp"]
