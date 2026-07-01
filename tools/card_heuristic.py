@@ -12,11 +12,14 @@ choices, and emergency outward loop escapes only appear when no revealed,
 unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
 2 uses the base roster, and depth 3 enemies have 112% HP without an extra
-generic damage/support bump. Later sequences keep the local curve while raising
-enemy HP and intent baselines. Zekarion's 2x2 footprint makes printed reach feel
-larger, so Tempest Breath is capped at range 3 after its one-tile advance to
-preserve safe boss-room repositioning. Elemental combat rooms seed 2-3 traps
-across eligible passable floor tiles, including the playable edge band, and
+generic damage/support bump. Frostglass Lancers enter only at local depths 2-3
+as precision line-threat enemies, increasing the value of lateral movement and
+blocker-aware positioning after the opener band. Later sequences keep the local
+curve while raising enemy HP and intent baselines. Zekarion's 2x2 footprint
+makes printed reach feel larger, so Tempest Breath is capped at range 3 after
+its one-tile advance to preserve safe boss-room repositioning. Elemental combat
+rooms seed 2-3 traps across eligible passable floor tiles, including the
+playable edge band, and
 those traps blast adjacent tiles when stepped on or attacked. First-sequence
 standard trap damage is 6/7/8 player-scale damage at depths 1/2/3, first-boss
 traps hit for 5 to avoid one-shotting full-health lightning wisps, and later

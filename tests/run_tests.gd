@@ -54,6 +54,7 @@ func _initialize() -> void:
 	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
+	_test_room_generation_places_frostglass_lancer_at_depth_two_and_three()
 	_test_boss_room_spawns_zekarion_with_wisps()
 	_test_second_sequence_uses_scaled_zekarion_placeholder()
 	_test_start_room_spawns_emaciated_man()
@@ -114,7 +115,9 @@ func _initialize() -> void:
 	_test_statuses_tick_on_affected_actor_turn()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_close_aoe_still_hits_player()
+	_test_frostglass_lancer_line_thrust_preview_and_resolution()
 	_test_enemy_threat_tiles_follow_intent()
+	_test_run_scene_frostglass_lancer_line_threat_overlay()
 	_test_enemy_threat_tiles_assume_player_can_vacate_current_tile()
 	_test_enemy_threat_tiles_include_enemy_triggered_trap_blasts()
 	_test_large_enemy_threat_tiles_use_footprint()
@@ -852,6 +855,34 @@ func _test_room_generation_scales_enemy_density() -> void:
 	_assert(int(deep_enemy.get("max_hp", 0)) > deep_base_hp, "Outer standard rooms should push enemy HP above base")
 	_assert(int(second_opening_enemy.get("max_hp", 0)) > int(opening_enemy.get("max_hp", 0)), "Second sequence enemies should start from a tougher HP baseline")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
+
+func _test_room_generation_places_frostglass_lancer_at_depth_two_and_three() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var depth_one_has_lancer: bool = false
+	var depth_two_has_lancer: bool = false
+	var depth_three_has_lancer: bool = false
+	for seed: int in range(100, 150):
+		var depth_one_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed % 5, seed % 7),
+			"depth": 1,
+			"type": "combat"
+		}, Vector2i(1, 0))
+		var depth_two_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed % 5, seed % 7),
+			"depth": 2,
+			"type": "combat"
+		}, Vector2i(1, 0))
+		var depth_three_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed % 5, seed % 7),
+			"depth": 3,
+			"type": "combat"
+		}, Vector2i(1, 0))
+		depth_one_has_lancer = depth_one_has_lancer or _room_has_enemy_type(depth_one_room, "frostglass_lancer")
+		depth_two_has_lancer = depth_two_has_lancer or _room_has_enemy_type(depth_two_room, "frostglass_lancer")
+		depth_three_has_lancer = depth_three_has_lancer or _room_has_enemy_type(depth_three_room, "frostglass_lancer")
+	_assert(not depth_one_has_lancer, "Frostglass Lancer should not appear in depth-one opener pools")
+	_assert(depth_two_has_lancer, "Frostglass Lancer should appear in depth-two precision-threat pools")
+	_assert(depth_three_has_lancer, "Frostglass Lancer should appear in depth-three precision-threat pools")
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -3437,6 +3468,66 @@ func _test_enemy_close_aoe_still_hits_player() -> void:
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 21, "Close enemy AOE attacks should still hit the player")
 	var steps: Array = phase.get("steps", [])
 	_assert(not steps.is_empty() and str((steps.back() as Dictionary).get("kind", "")) == "aoe", "Close enemy AOE hits should still enqueue an impact step")
+
+func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(5, 4)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "frostglass_lancer",
+		"pos": Vector2i(2, 4),
+		"hp": 130,
+		"max_hp": 130,
+		"block": 0
+	}]
+	var state: Dictionary = combat.create_combat(1783, layout, {
+		"hp": 30,
+		"max_hp": 30,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(state, 0, _enemy_intent_by_id("frostglass_lancer", "glass_lunge"))
+	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
+	var attack_tiles: Array = threat.get("attack", [])
+	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(4, 4)) and attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer preview should show the eastward glass-lance line")
+	_assert(not attack_tiles.has(Vector2i(2, 3)) and not attack_tiles.has(Vector2i(2, 5)), "Frostglass Lancer preview should not show stale north/south rotations")
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_state: Dictionary = phase.get("state", {})
+	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 0, "Frostglass Lancer line thrust should damage the player on the oriented line")
+	var last_step: Dictionary = ((phase.get("steps", []) as Array).back() as Dictionary)
+	var step_tiles: Array = last_step.get("tiles", [])
+	_assert(step_tiles.has(Vector2i(5, 4)) and step_tiles.has(Vector2i(6, 4)) and not step_tiles.has(Vector2i(4, 3)), "Frostglass Lancer impact step should report only the resolved line tiles")
+
+	var blocked_layout: Dictionary = _simple_room_layout()
+	blocked_layout["player_start"] = Vector2i(5, 4)
+	var blocked_grid: Array = blocked_layout.get("grid", []).duplicate(true)
+	blocked_grid[4][4] = "pillar"
+	blocked_layout["grid"] = blocked_grid
+	blocked_layout["enemies"] = [{
+		"id": 1,
+		"type": "frostglass_lancer",
+		"pos": Vector2i(2, 4),
+		"hp": 130,
+		"max_hp": 130,
+		"block": 0
+	}]
+	var blocked_state: Dictionary = combat.create_combat(1784, blocked_layout, {
+		"hp": 30,
+		"max_hp": 30,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(blocked_state, 0, _enemy_intent_by_id("frostglass_lancer", "glass_lunge"))
+	var blocked_threat: Dictionary = combat.enemy_threat_tiles(blocked_state, 0)
+	var blocked_attack_tiles: Array = blocked_threat.get("attack", [])
+	_assert(not blocked_attack_tiles.has(Vector2i(4, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer blocked-line preview should stop at impassable tiles")
+	var blocked_after: Dictionary = combat.resolve_enemy_phase(blocked_state)
+	_assert(int((blocked_after.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Frostglass Lancer line thrust should not hit through blocking tiles")
 
 func _test_shallow_elemental_enemy_actions_scale_back() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -7347,6 +7438,55 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Frostglass Lancer threat overlay coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(105, _simple_room_layout(), {
+		"hp": 30,
+		"max_hp": 30,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	combat_state["player"] = {
+		"pos": Vector2i(5, 4),
+		"hp": 30,
+		"max_hp": 30,
+		"block": 0,
+		"stoneskin": 0
+	}
+	combat_state["enemies"] = [
+		{
+			"id": 1,
+			"type": "frostglass_lancer",
+			"pos": Vector2i(2, 4),
+			"hp": 130,
+			"max_hp": 130,
+			"block": 0,
+			"intent": _enemy_intent_by_id("frostglass_lancer", "glass_lunge")
+		}
+	]
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.set("_hovered_board_tile", Vector2i(2, 4))
+	instance.call("_refresh_stage_view")
+	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var attack_tiles: Array = board_view.get("attack_tiles")
+	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(5, 4)), "RunScene should surface the Frostglass Lancer's straight-line threat on board hover")
+	_assert(not attack_tiles.has(Vector2i(2, 3)) and not attack_tiles.has(Vector2i(2, 5)), "RunScene Frostglass Lancer hover should avoid stale perpendicular line rotations")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -8111,6 +8251,14 @@ func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
 		if str(intent.get("id", "")) == intent_id:
 			return intent.duplicate(true)
 	return {}
+
+func _room_has_enemy_type(room: Dictionary, enemy_type: String) -> bool:
+	for enemy_var: Variant in room.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		if str((enemy_var as Dictionary).get("type", "")) == enemy_type:
+			return true
+	return false
 
 func _simple_room_layout() -> Dictionary:
 	return {

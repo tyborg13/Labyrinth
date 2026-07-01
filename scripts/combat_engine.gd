@@ -1041,7 +1041,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				center_tile = before_enemy.get("pos", Vector2i.ZERO)
 			var aoe_tiles: Array[Vector2i] = []
 			if action_type == "aoe":
-				aoe_tiles = _best_aoe_tiles_for_target(before_state, action, center_tile, true)
+				var resolved_step_action: Dictionary = _enemy_action_oriented_to_target(action, before_enemy, target_tile)
+				aoe_tiles = _enemy_aoe_tiles_for_target(before_state, before_enemy, resolved_step_action, center_tile, true)
 			elif action_type == "lightning_strikes":
 				aoe_tiles = _lightning_strike_tiles(before_state, before_enemy, action)
 			return {
@@ -1280,7 +1281,8 @@ func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: 
 				if not PathUtils.has_line_of_sight(state.get("grid", []), source_pos, target_pos):
 					return false
 				center = target_pos
-			return _best_aoe_tiles_for_target(state, action, center, true).has(target_pos)
+			var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target_pos)
+			return _enemy_aoe_tiles_for_target(state, enemy, resolved_action, center, true).has(target_pos)
 	return false
 
 func _enemy_action_reaches_tile(state: Dictionary, enemy: Dictionary, action: Dictionary, tile: Vector2i) -> bool:
@@ -1308,7 +1310,55 @@ func _enemy_action_reaches_tile(state: Dictionary, enemy: Dictionary, action: Di
 				if not PathUtils.has_line_of_sight(state.get("grid", []), source_pos, tile):
 					return false
 				center = tile
-			return _best_aoe_tiles_for_target(state, action, center, true).has(tile)
+			var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, tile)
+			return _enemy_aoe_tiles_for_target(state, enemy, resolved_action, center, true).has(tile)
+	return false
+
+func _enemy_action_oriented_to_target(action: Dictionary, enemy: Dictionary, target_pos: Vector2i) -> Dictionary:
+	var resolved_action: Dictionary = action.duplicate(true)
+	if not bool(resolved_action.get("orient_toward_target", false)):
+		return resolved_action
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
+	var direction: Vector2i = _cardinal_direction(target_pos - source_pos)
+	if direction != Vector2i.ZERO:
+		resolved_action["orientation"] = direction
+	return resolved_action
+
+func _enemy_aoe_tiles_for_target(state: Dictionary, enemy: Dictionary, action: Dictionary, center: Vector2i, score_player: bool) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _best_aoe_tiles_for_target(state, action, center, score_player)
+	if not bool(action.get("stop_at_blockers", false)):
+		return tiles
+	var direction: Vector2i = _action_orientation_direction(action)
+	if direction == Vector2i.ZERO:
+		return tiles
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, center)
+	return _aoe_tiles_until_blocked(state.get("grid", []), source_pos, direction, tiles)
+
+func _aoe_tiles_until_blocked(grid: Array, source_pos: Vector2i, direction: Vector2i, tiles: Array[Vector2i]) -> Array[Vector2i]:
+	var lookup: Dictionary = {}
+	for tile: Vector2i in tiles:
+		if not _tile_is_on_directional_ray(source_pos, direction, tile):
+			continue
+		if _directional_ray_clear_to_tile(grid, source_pos, direction, tile):
+			lookup[tile] = true
+	return _sorted_tiles_from_lookup(lookup)
+
+func _tile_is_on_directional_ray(source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> bool:
+	var delta: Vector2i = tile - source_pos
+	if direction.x != 0:
+		return delta.y == 0 and delta.x * direction.x > 0
+	if direction.y != 0:
+		return delta.x == 0 and delta.y * direction.y > 0
+	return false
+
+func _directional_ray_clear_to_tile(grid: Array, source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> bool:
+	var cursor: Vector2i = source_pos + direction
+	while cursor != tile + direction:
+		if not PathUtils.is_passable(grid, cursor):
+			return false
+		if cursor == tile:
+			return true
+		cursor += direction
 	return false
 
 func _best_enemy_trap_attack_index(state: Dictionary, enemy_index: int, action: Dictionary) -> int:
@@ -2383,9 +2433,10 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	var damage: int = int(action.get("damage", 0))
 	if action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
+		var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", Vector2i.ZERO))
 		if int(action.get("range", 0)) > 0:
 			center = target.get("pos", Vector2i.ZERO)
-		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, _best_aoe_tiles_for_target(next_state, action, center, true))
+		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true))
 		if affected_targets.is_empty():
 			return next_state
 		for affected_target: Dictionary in affected_targets:
@@ -3287,12 +3338,25 @@ func _threat_aoe_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary)
 	for center: Vector2i in centers:
 		if attack_range > 0 and not _enemy_aoe_can_target_center(state, enemy, action, center):
 			continue
-		for offsets_var: Variant in _aoe_pattern_variants(action):
-			var offsets: Array = offsets_var
-			for tile: Vector2i in _tiles_for_aoe_offsets(grid, center, offsets):
-				if _enemy_footprint_tiles(enemy).has(tile):
+		if bool(action.get("orient_toward_target", false)):
+			for target: Dictionary in _actor_targets(state):
+				if not _enemy_action_reaches_target(state, enemy, action, target):
 					continue
-				lookup[tile] = true
+				var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
+				if attack_range > 0 and center != target_pos:
+					continue
+				var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target_pos)
+				for tile: Vector2i in _enemy_aoe_tiles_for_target(state, enemy, resolved_action, center, true):
+					if _enemy_footprint_tiles(enemy).has(tile):
+						continue
+					lookup[tile] = true
+		else:
+			for offsets_var: Variant in _aoe_pattern_variants(action):
+				var offsets: Array = offsets_var
+				for tile: Vector2i in _tiles_for_aoe_offsets(grid, center, offsets):
+					if _enemy_footprint_tiles(enemy).has(tile):
+						continue
+					lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
 
 func _threat_trap_blast_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:

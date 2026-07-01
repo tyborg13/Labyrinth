@@ -178,6 +178,95 @@
       }
     ]
   },
+  "frostglass_lancer": {
+    "name": "Frostglass Lancer",
+    "max_hp": 13,
+    "base_initiative": 11,
+    "reward_embers": 11,
+    "accent": "#a8e7f0",
+    "art_path": "res://assets/art/enemies/frostglass_lancer.png",
+    "art_scale": 0.82,
+    "art_offset_y": -8,
+    "intents": [
+      {
+        "id": "glass_lunge",
+        "name": "Glass Lunge",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "aoe",
+            "damage": 5,
+            "range": 0,
+            "pattern": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            "rotate": true,
+            "orient_toward_target": true,
+            "stop_at_blockers": true
+          }
+        ]
+      },
+      {
+        "id": "spear_cast",
+        "name": "Spear Cast",
+        "time": 4,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 4
+          }
+        ]
+      },
+      {
+        "id": "refract_guard",
+        "name": "Refract Guard",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 1
+          },
+          {
+            "type": "block",
+            "amount": 5
+          }
+        ]
+      },
+      {
+        "id": "frost_pin",
+        "name": "Frost Pin",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 2,
+            "range": 4,
+            "freeze": 1
+          }
+        ]
+      }
+    ]
+  },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
     "max_hp": 72,
