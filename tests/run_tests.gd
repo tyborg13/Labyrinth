@@ -78,6 +78,10 @@ func _initialize() -> void:
 	_test_enemy_target_ties_randomize_between_player_side_actors()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
+	_test_cinder_ooze_splits_deterministically()
+	_test_cinder_ooze_split_skips_blocked_board()
+	_test_cinder_droplet_death_suppresses_rewards()
+	_test_cinder_droplet_does_not_resplit()
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
 	_test_relic_effect_hooks()
@@ -125,6 +129,7 @@ func _initialize() -> void:
 	_test_zekarion_ignores_shock_status()
 	_test_enemy_pathfinding_avoids_traps()
 	_test_shallow_elemental_enemy_actions_scale_back()
+	_test_cinder_ooze_appears_only_in_standard_depth_pools()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
 	_test_air_trap_tooltip_is_damage_only()
@@ -150,6 +155,7 @@ func _initialize() -> void:
 	_test_trial_enemy_art_uses_matching_idle_sheets()
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
+	_test_cinder_enemies_use_final_raster_art()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
 	_test_unit_hud_stacks_above_sprite_art()
@@ -852,6 +858,52 @@ func _test_room_generation_scales_enemy_density() -> void:
 	_assert(int(deep_enemy.get("max_hp", 0)) > deep_base_hp, "Outer standard rooms should push enemy HP above base")
 	_assert(int(second_opening_enemy.get("max_hp", 0)) > int(opening_enemy.get("max_hp", 0)), "Second sequence enemies should start from a tougher HP baseline")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
+
+func _test_cinder_ooze_appears_only_in_standard_depth_pools() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var depth_two_ooze_count: int = 0
+	var depth_three_ooze_count: int = 0
+	var depth_two_rooms: int = 0
+	var depth_three_rooms: int = 0
+	for seed: int in range(1, 81):
+		var depth_one_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 1),
+			"depth": 1,
+			"type": "combat",
+			"element": ElementData.NONE
+		}, Vector2i.ZERO)
+		_assert(not _room_has_enemy_type(depth_one_room, "cinder_ooze"), "Cinder Ooze should stay out of depth-one teaching rooms")
+		_assert(not _room_has_enemy_type(depth_one_room, "cinder_droplet"), "Cinder Droplets should not appear in normal room pools")
+		var depth_two_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 2),
+			"depth": 2,
+			"type": "combat",
+			"element": ElementData.NONE
+		}, Vector2i.ZERO)
+		depth_two_rooms += 1
+		if _room_has_enemy_type(depth_two_room, "cinder_ooze"):
+			depth_two_ooze_count += 1
+		_assert(not _room_has_enemy_type(depth_two_room, "cinder_droplet"), "Cinder Droplets should not appear in depth-two normal room pools")
+		var depth_three_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 3),
+			"depth": 3,
+			"type": "combat",
+			"element": ElementData.NONE
+		}, Vector2i.ZERO)
+		depth_three_rooms += 1
+		if _room_has_enemy_type(depth_three_room, "cinder_ooze"):
+			depth_three_ooze_count += 1
+		_assert(not _room_has_enemy_type(depth_three_room, "cinder_droplet"), "Cinder Droplets should not appear in depth-three normal room pools")
+		var boss_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 4),
+			"depth": 4,
+			"type": "boss",
+			"element": ElementData.LIGHTNING
+		}, Vector2i.ZERO)
+		_assert(not _room_has_enemy_type(boss_room, "cinder_ooze"), "Cinder Ooze should not appear in boss rooms")
+		_assert(not _room_has_enemy_type(boss_room, "cinder_droplet"), "Cinder Droplets should not appear in boss rooms")
+	_assert(depth_two_ooze_count > 0 and depth_two_ooze_count < depth_two_rooms, "Cinder Ooze should appear at low frequency in depth-two standard pools")
+	_assert(depth_three_ooze_count > 0 and depth_three_ooze_count < depth_three_rooms, "Cinder Ooze should appear at low frequency in depth-three standard pools")
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1932,6 +1984,85 @@ func _test_summoned_enemy_death_does_not_grant_card_play() -> void:
 	_assert(combat.cards_remaining_this_turn(state) == 2, "Summoned deaths should leave base plays unchanged before the killing card is finished")
 	var rewards: Array = state.get("death_rewards", [])
 	_assert(rewards.size() == 1 and bool((rewards[0] as Dictionary).get("summoned", false)), "Summoned death rewards should still be marked for animation filtering")
+
+func _test_cinder_ooze_splits_deterministically() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(171, _cinder_ooze_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	var droplets: Array = _enemies_of_type_for_test(state, "cinder_droplet", true)
+	_assert(droplets.size() == 2, "Killing Cinder Ooze should spawn up to two Cinder Droplets")
+	if droplets.size() >= 2:
+		_assert((droplets[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 3), "First Cinder Droplet should use the deterministic north split tile")
+		_assert((droplets[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(3, 4), "Second Cinder Droplet should use the deterministic west split tile")
+		_assert(int((droplets[0] as Dictionary).get("id", 0)) == 2 and int((droplets[1] as Dictionary).get("id", 0)) == 3, "Split droplets should receive stable new enemy ids")
+		_assert(bool((droplets[0] as Dictionary).get("summoned", false)) and bool((droplets[1] as Dictionary).get("summoned", false)), "Split droplets should be marked summoned")
+		_assert(not ((droplets[0] as Dictionary).get("intent", {}) as Dictionary).is_empty(), "Split droplets should receive preview intents")
+	_assert(int(state.get("room_embers", 0)) == 12, "The original Cinder Ooze should grant its ember reward once")
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 1, "The original Cinder Ooze should grant one death card play")
+	var order: Array[Dictionary] = combat.current_turn_order(state, 8)
+	var saw_droplet_turn: bool = false
+	for entry: Dictionary in order:
+		if str(entry.get("type", "")) == "cinder_droplet":
+			saw_droplet_turn = true
+			break
+	_assert(saw_droplet_turn, "Split droplets should be scheduled into the initiative queue")
+
+func _test_cinder_ooze_split_skips_blocked_board() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(172, _cinder_ooze_room_layout(true), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	var droplets: Array = _enemies_of_type_for_test(state, "cinder_droplet", false)
+	_assert(droplets.is_empty(), "Cinder Ooze should not split onto occupied, blocked, door, or invalid tiles")
+	_assert(_enemies_of_type_for_test(state, "harrier", true).size() == 1, "Blocked-board fallback should preserve unrelated live enemies")
+
+func _test_cinder_droplet_death_suppresses_rewards() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(173, _cinder_ooze_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 3))
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(3, 4))
+	_assert(int(state.get("room_embers", 0)) == 12, "Killing split droplets should not add ember rewards beyond the original Ooze")
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 1, "Killing split droplets should not add extra death card plays")
+	var rewards: Array = state.get("death_rewards", [])
+	_assert(rewards.size() == 3, "Ooze plus two droplets should create one reward record each for animation bookkeeping")
+	if rewards.size() == 3:
+		_assert(int((rewards[0] as Dictionary).get("embers", 0)) == 12 and not bool((rewards[0] as Dictionary).get("summoned", false)), "Original Ooze reward record should pay once")
+		_assert(int((rewards[1] as Dictionary).get("embers", 0)) == 0 and bool((rewards[1] as Dictionary).get("summoned", false)), "First droplet reward record should be summoned and emberless")
+		_assert(int((rewards[2] as Dictionary).get("embers", 0)) == 0 and bool((rewards[2] as Dictionary).get("summoned", false)), "Second droplet reward record should be summoned and emberless")
+
+func _test_cinder_droplet_does_not_resplit() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(174, _cinder_droplet_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	_assert(_enemies_of_type_for_test(state, "cinder_droplet", false).size() == 1, "Killing a Cinder Droplet should not append any resplit droplets")
 
 func _test_hand_draw_caps_at_eight() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4402,6 +4533,23 @@ func _test_lightning_wisp_uses_normal_loop_idle_sheet() -> void:
 	_assert(last_frame.region.position == Vector2(3060.0, 3060.0), "Lightning wisp normal loop should include the final source frame")
 	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", wisp_unit)), 0.15), "Lightning wisp idle loop should match the downloaded GIF cadence")
 	_assert(texture != null, "Lightning wisp idle art should load for board rendering")
+
+func _test_cinder_enemies_use_final_raster_art() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	for enemy_type: String in ["cinder_ooze", "cinder_droplet"]:
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var art_path: String = str(enemy_def.get("art_path", ""))
+		_assert(art_path.begins_with("res://assets/art/enemies/"), "%s should use final enemy art, not placeholder-era art" % enemy_type)
+		_assert(art_path.get_extension().to_lower() == "png", "%s should use runtime-visible raster PNG art" % enemy_type)
+		_assert(FileAccess.file_exists(art_path), "%s enemy sprite should exist" % enemy_type)
+		var texture: Texture2D = (board.get("_unit_textures") as Dictionary).get(enemy_type, null)
+		_assert(texture != null, "%s enemy sprite should load for board rendering" % enemy_type)
+		if texture != null:
+			_assert(texture.get_size() == Vector2(255, 255), "%s enemy sprite should use the static 255px unit canvas" % enemy_type)
+	board.free()
 
 func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
@@ -8112,6 +8260,27 @@ func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
 			return intent.duplicate(true)
 	return {}
 
+func _enemies_of_type_for_test(state: Dictionary, enemy_type: String, live_only: bool) -> Array:
+	var found: Array = []
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) != enemy_type:
+			continue
+		if live_only and int(enemy.get("hp", 0)) <= 0:
+			continue
+		found.append(enemy)
+	return found
+
+func _room_has_enemy_type(room: Dictionary, enemy_type: String) -> bool:
+	for enemy_var: Variant in room.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		if str((enemy_var as Dictionary).get("type", "")) == enemy_type:
+			return true
+	return false
+
 func _simple_room_layout() -> Dictionary:
 	return {
 		"name": "Test Room",
@@ -8126,6 +8295,66 @@ func _simple_room_layout() -> Dictionary:
 				"pos": Vector2i(5, 2),
 				"hp": 14,
 				"max_hp": 14,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
+func _cinder_ooze_room_layout(blocked_split: bool = false) -> Dictionary:
+	var grid: Array = _simple_grid()
+	var player_start: Vector2i = Vector2i(3, 3)
+	var enemies: Array = [
+		{
+			"id": 1,
+			"type": "cinder_ooze",
+			"pos": Vector2i(4, 4),
+			"hp": int(GameData.enemy_def("cinder_ooze").get("max_hp", 140)),
+			"max_hp": int(GameData.enemy_def("cinder_ooze").get("max_hp", 140)),
+			"block": 0
+		}
+	]
+	if blocked_split:
+		player_start = Vector2i(3, 4)
+		(grid[3] as Array)[4] = "wall"
+		(grid[5] as Array)[4] = "door"
+		enemies.append({
+			"id": 2,
+			"type": "harrier",
+			"pos": Vector2i(5, 4),
+			"hp": int(GameData.enemy_def("harrier").get("max_hp", 100)),
+			"max_hp": int(GameData.enemy_def("harrier").get("max_hp", 100)),
+			"block": 0
+		})
+	return {
+		"name": "Cinder Test Room",
+		"coord": Vector2i(2, 0),
+		"depth": 2,
+		"type": "combat",
+		"element": ElementData.NONE,
+		"grid": grid,
+		"player_start": player_start,
+		"enemies": enemies,
+		"loot": []
+	}
+
+func _cinder_droplet_room_layout() -> Dictionary:
+	return {
+		"name": "Cinder Droplet Test Room",
+		"coord": Vector2i(2, 1),
+		"depth": 2,
+		"type": "combat",
+		"element": ElementData.NONE,
+		"grid": _simple_grid(),
+		"player_start": Vector2i(3, 3),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "cinder_droplet",
+				"summoned": true,
+				"pos": Vector2i(4, 4),
+				"hp": int(GameData.enemy_def("cinder_droplet").get("max_hp", 50)),
+				"max_hp": int(GameData.enemy_def("cinder_droplet").get("max_hp", 50)),
 				"block": 0
 			}
 		],

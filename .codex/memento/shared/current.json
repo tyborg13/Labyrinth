@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-01T14:06:58Z",
+  "updated_at": "2026-07-01T19:30:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4441,6 +4441,28 @@
       "source": {
         "branch": "codex/fix-campfire-alpha-cleanup",
         "commit": "a6b0407"
+      }
+    },
+    {
+      "id": "mnt_20260701T193019Z_68e9a117",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Enemy split-on-death uses death_spawn data hooks",
+      "details": "Enemy definitions can declare death_spawn={type=split, enemy_type, count, radius, summoned}. CombatEngine skips death_spawn for summoned parents and marks split children summoned by default, so reward/card-play suppression and no-resplit behavior stay centralized.",
+      "status": "active",
+      "created_at": "2026-07-01T19:30:19Z",
+      "updated_at": "2026-07-01T19:30:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/enemy-cinder-ooze-splitter",
+        "commit": "7dfa920"
       }
     }
   ]

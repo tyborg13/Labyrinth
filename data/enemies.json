@@ -178,6 +178,85 @@
       }
     ]
   },
+  "cinder_ooze": {
+    "name": "Cinder Ooze",
+    "max_hp": 14,
+    "base_initiative": 13,
+    "reward_embers": 12,
+    "accent": "#d96b32",
+    "art_path": "res://assets/art/enemies/cinder_ooze.png",
+    "art_scale": 0.82,
+    "art_offset_y": 8,
+    "death_spawn": {
+      "type": "split",
+      "enemy_type": "cinder_droplet",
+      "count": 2,
+      "radius": 1,
+      "summoned": true
+    },
+    "intents": [
+      {
+        "id": "smolder_slide",
+        "name": "Smolder Slide",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          { "type": "move_toward", "range": 1 },
+          { "type": "melee", "damage": 4, "range": 1, "burn": 1 }
+        ]
+      },
+      {
+        "id": "cinder_bloom",
+        "name": "Cinder Bloom",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          { "type": "aoe", "damage": 3, "range": 0, "burn": 1, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+        ]
+      },
+      {
+        "id": "slag_shell",
+        "name": "Slag Shell",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          { "type": "block", "amount": 5 }
+        ]
+      }
+    ]
+  },
+  "cinder_droplet": {
+    "name": "Cinder Droplet",
+    "max_hp": 5,
+    "base_initiative": 9,
+    "reward_embers": 0,
+    "accent": "#f08a3a",
+    "art_path": "res://assets/art/enemies/cinder_droplet.png",
+    "art_scale": 0.56,
+    "art_offset_y": 18,
+    "intents": [
+      {
+        "id": "spatter",
+        "name": "Spatter",
+        "time": 4,
+        "weight": 4,
+        "actions": [
+          { "type": "move_toward", "range": 2 },
+          { "type": "melee", "damage": 2, "range": 1, "burn": 1 }
+        ]
+      },
+      {
+        "id": "hiss_back",
+        "name": "Hiss Back",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          { "type": "move_away", "range": 1 },
+          { "type": "block", "amount": 2 }
+        ]
+      }
+    ]
+  },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
     "max_hp": 72,

@@ -1560,6 +1560,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
 		next_state = _trigger_enemy_death_relics(next_state, enemy)
+		next_state = _trigger_enemy_death_spawn(next_state, enemy)
 		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
@@ -3625,6 +3626,95 @@ func _lightning_tile_score(state: Dictionary, enemy: Dictionary, action: Diction
 	seed = int((seed + int(state.get("turn", 1)) * 1103515245 + int(enemy.get("id", 0)) * 92821 + int(action.get("count", 0)) * 193) & 0x7fffffff)
 	seed = int((seed + tile.x * 68917 + tile.y * 28307) & 0x7fffffff)
 	return seed
+
+func _trigger_enemy_death_spawn(state: Dictionary, enemy: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	if bool(enemy.get("summoned", false)):
+		return next_state
+	var spawn_def_value: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("death_spawn", {})
+	if typeof(spawn_def_value) != TYPE_DICTIONARY:
+		return next_state
+	var spawn_def: Dictionary = (spawn_def_value as Dictionary).duplicate(true)
+	if spawn_def.is_empty():
+		return next_state
+	var spawn_kind: String = str(spawn_def.get("type", "split"))
+	if spawn_kind != "split":
+		return next_state
+	var spawn_type: String = str(spawn_def.get("enemy_type", ""))
+	if spawn_type.is_empty() or GameData.enemy_def(spawn_type).is_empty():
+		return next_state
+	var spawn_count: int = maxi(0, int(spawn_def.get("count", 0)))
+	if spawn_count <= 0:
+		return next_state
+	var spawn_tiles: Array[Vector2i] = _death_spawn_tiles_for_enemy(next_state, enemy, spawn_def)
+	if spawn_tiles.is_empty():
+		return next_state
+	var enemies: Array = next_state.get("enemies", []).duplicate(true)
+	var first_spawned_index: int = enemies.size()
+	var next_id: int = _next_enemy_id(next_state)
+	for tile: Vector2i in spawn_tiles:
+		enemies.append(_spawned_enemy_entry(next_state, spawn_type, next_id, tile, bool(spawn_def.get("summoned", true))))
+		next_id += 1
+	next_state["enemies"] = enemies
+	var intent_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	intent_rng.state = int(next_state.get("rng_state", 1))
+	for spawned_index: int in range(first_spawned_index, first_spawned_index + spawn_tiles.size()):
+		_assign_enemy_intent(next_state, spawned_index, intent_rng)
+		var spawned_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[spawned_index] as Dictionary)
+		_schedule_enemy_after_spawn(next_state, spawned_enemy, spawned_index - first_spawned_index)
+	next_state["rng_state"] = intent_rng.state
+	_log(next_state, "%s splits." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+	return next_state
+
+func _spawned_enemy_entry(state: Dictionary, enemy_type: String, enemy_id: int, tile: Vector2i, summoned: bool) -> Dictionary:
+	var max_hp: int = _scaled_enemy_max_hp(enemy_type, int(state.get("room_depth", 1)))
+	var spawned: Dictionary = {
+		"id": enemy_id,
+		"type": enemy_type,
+		"summoned": summoned,
+		"element": str(state.get("room_element", ElementData.NONE)),
+		"pos": tile,
+		"hp": max_hp,
+		"max_hp": max_hp,
+		"block": 0,
+		"stoneskin": 0
+	}
+	return _normalized_enemy(spawned)
+
+func _schedule_enemy_after_spawn(state: Dictionary, enemy: Dictionary, spawn_order: int) -> void:
+	var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
+	var delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(state, enemy) + maxi(0, intent_time_cost))
+	_schedule_actor(state, _enemy_actor_entry(state, enemy, int(state.get("initiative_clock", 0)) + delay + maxi(0, spawn_order), 0))
+
+func _death_spawn_tiles_for_enemy(state: Dictionary, enemy: Dictionary, spawn_def: Dictionary) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = _vector2i_values([])
+	var occupied: Dictionary = _enemy_blocking_tiles(state)
+	var radius: int = maxi(1, int(spawn_def.get("radius", 1)))
+	var origin: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	for tile: Vector2i in PathUtils.diamond_tiles(origin, radius, state.get("grid", [])):
+		if occupied.has(tile):
+			continue
+		if not PathUtils.is_passable(state.get("grid", []), tile):
+			continue
+		if _enemy_distance_to_tile(enemy, tile) <= 0:
+			continue
+		candidates.append(tile)
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var a_distance: int = _enemy_distance_to_tile(enemy, a)
+		var b_distance: int = _enemy_distance_to_tile(enemy, b)
+		if a_distance == b_distance:
+			if a.y == b.y:
+				return a.x < b.x
+			return a.y < b.y
+		return a_distance < b_distance
+	)
+	var results: Array[Vector2i] = _vector2i_values([])
+	var count: int = maxi(0, int(spawn_def.get("count", 0)))
+	for tile: Vector2i in candidates:
+		results.append(tile)
+		if results.size() >= count:
+			break
+	return results
 
 func _summon_tiles_for_enemy(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
 	var candidates: Array[Vector2i] = []

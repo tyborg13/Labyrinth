@@ -11,8 +11,10 @@ enemy density before a boss gate; lateral rooms remain deck-building route
 choices, and emergency outward loop escapes only appear when no revealed,
 unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
-2 uses the base roster, and depth 3 enemies have 112% HP without an extra
-generic damage/support bump. Later sequences keep the local curve while raising
+2 uses the base roster plus low-frequency Cinder Ooze split pressure, and depth
+3 enemies have 112% HP without an extra generic damage/support bump. Cinder
+Oozes split into summoned, rewardless Cinder Droplets rather than extra ember or
+death-card-play payouts. Later sequences keep the local curve while raising
 enemy HP and intent baselines. Zekarion's 2x2 footprint makes printed reach feel
 larger, so Tempest Breath is capped at range 3 after its one-tile advance to
 preserve safe boss-room repositioning. Elemental combat rooms seed 2-3 traps
