@@ -178,6 +178,47 @@
       }
     ]
   },
+  "bile_bloomer": {
+    "name": "Bile Bloomer",
+    "max_hp": 16,
+    "base_initiative": 14,
+    "reward_embers": 12,
+    "accent": "#b8b33a",
+    "art_path": "res://assets/art/enemies/bile_bloomer.png",
+    "art_scale": 0.86,
+    "art_offset_y": -6,
+    "intents": [
+      {
+        "id": "bile_burst",
+        "name": "Bile Burst",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          { "type": "move_toward", "range": 1 },
+          { "type": "aoe", "damage": 2, "range": 0, "poison": 2, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+        ]
+      },
+      {
+        "id": "spore_mark",
+        "name": "Spore Mark",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          { "type": "move_toward", "range": 1 },
+          { "type": "ranged", "damage": 1, "range": 4, "expose": 2 }
+        ]
+      },
+      {
+        "id": "pustule_shell",
+        "name": "Pustule Shell",
+        "time": 6,
+        "weight": 2,
+        "actions": [
+          { "type": "stoneskin", "amount": 4 }
+        ]
+      }
+    ]
+  },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
     "max_hp": 72,
