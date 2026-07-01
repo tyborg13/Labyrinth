@@ -1498,6 +1498,51 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	_assert(run_engine.merchant_offer_ids(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH) == blacksmith_sell_first_offers, "Selling spare equipment should leave blacksmith offers unchanged")
 	var blacksmith_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH, str(blacksmith_sell_first_offers[0]))
 	_assert(not run_engine.merchant_offer_ids(blacksmith_after_sell_first_buy, RunEngine.MERCHANT_BLACKSMITH).has("ward_kite"), "Sold equipment should not be introduced by a later blacksmith restock")
+	var regression_blacksmith_state: Dictionary = {}
+	var regression_blacksmith_coord: Vector2i = Vector2i(999, 999)
+	var blacksmith_route: Array = []
+	for seed: int in range(1, 120):
+		var candidate_state: Dictionary = run_engine.create_new_run(seed, default_progression)
+		var reachable_blacksmith: Dictionary = _first_reachable_room_of_type(run_engine, candidate_state, RunEngine.MERCHANT_BLACKSMITH)
+		if not reachable_blacksmith.is_empty():
+			regression_blacksmith_state = candidate_state
+			regression_blacksmith_coord = reachable_blacksmith.get("coord", Vector2i(999, 999))
+			blacksmith_route = (reachable_blacksmith.get("route", []) as Array).duplicate()
+			break
+	_assert(not blacksmith_route.is_empty(), "Blacksmith regression route should reach the sampled merchant room")
+	var visited_blacksmith_state: Dictionary = regression_blacksmith_state.duplicate(true)
+	for step_var: Variant in blacksmith_route:
+		var step: Vector2i = step_var
+		visited_blacksmith_state = _route_state_after_step(run_engine, visited_blacksmith_state, step)
+	var visited_blacksmith_room: Dictionary = run_engine.room_metadata(visited_blacksmith_state, regression_blacksmith_coord)
+	_assert(visited_blacksmith_room.has(RunEngine.MERCHANT_STOCK_KEY), "Entering a blacksmith room should persist the first-view stock")
+	var first_visit_blacksmith_offers: Array = run_engine.merchant_offer_ids(visited_blacksmith_state, RunEngine.MERCHANT_BLACKSMITH)
+	var unrelated_equipment_id: String = ""
+	for equipment_id_var: Variant in GameData.equipment_ids():
+		var candidate_equipment_id: String = str(equipment_id_var)
+		if first_visit_blacksmith_offers.has(candidate_equipment_id):
+			continue
+		if GameData.equipment_slot(candidate_equipment_id).is_empty():
+			continue
+		if (visited_blacksmith_state.get("equipped_equipment", {}) as Dictionary).values().has(candidate_equipment_id):
+			continue
+		unrelated_equipment_id = candidate_equipment_id
+		break
+	_assert(not unrelated_equipment_id.is_empty(), "Equipment pool should include an item outside first-view blacksmith stock")
+	if not unrelated_equipment_id.is_empty():
+		var unrelated_owned_state: Dictionary = visited_blacksmith_state.duplicate(true)
+		var unrelated_inventory: Array = (unrelated_owned_state.get("equipment_inventory", []) as Array).duplicate()
+		unrelated_inventory.append(unrelated_equipment_id)
+		unrelated_owned_state["equipment_inventory"] = unrelated_inventory
+		_assert(run_engine.merchant_offer_ids(unrelated_owned_state, RunEngine.MERCHANT_BLACKSMITH) == first_visit_blacksmith_offers, "First-view blacksmith stock should persist after unrelated ownership changes")
+	var externally_owned_offer_id: String = str(first_visit_blacksmith_offers[0])
+	var duplicate_owned_state: Dictionary = run_engine.set_held_embers(visited_blacksmith_state.duplicate(true), 200)
+	var duplicate_inventory: Array = (duplicate_owned_state.get("equipment_inventory", []) as Array).duplicate()
+	duplicate_inventory.append(externally_owned_offer_id)
+	duplicate_owned_state["equipment_inventory"] = duplicate_inventory
+	_assert(not run_engine.merchant_offer_ids(duplicate_owned_state, RunEngine.MERCHANT_BLACKSMITH).has(externally_owned_offer_id), "Stored blacksmith stock should hide equipment the player already owns")
+	var duplicate_buy_state: Dictionary = run_engine.buy_merchant_item(duplicate_owned_state, RunEngine.MERCHANT_BLACKSMITH, externally_owned_offer_id)
+	_assert(int(duplicate_buy_state.get("held_embers", 0)) == 200, "Blacksmiths should not sell a stored offer that became owned before purchase")
 
 	arcanist_state["current_room"] = arcanist_coord
 	arcanist_state["mode"] = "room"
@@ -5050,6 +5095,23 @@ func _first_room_coord_of_type(run_engine: RunEngine, run_state: Dictionary, roo
 			if str(run_engine.room_metadata(run_state, coord).get("type", "")) == room_type:
 				return coord
 	return Vector2i(999, 999)
+
+func _first_reachable_room_of_type(run_engine: RunEngine, run_state: Dictionary, room_type: String) -> Dictionary:
+	for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+		for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+			var coord := Vector2i(x, y)
+			if maxi(absi(coord.x), absi(coord.y)) > RunEngine.MAX_DEPTH:
+				continue
+			if str(run_engine.room_metadata(run_state, coord).get("type", "")) != room_type:
+				continue
+			var route: Array = _find_route_to_coord(run_engine, run_state, coord)
+			if route.is_empty():
+				continue
+			return {
+				"coord": coord,
+				"route": route
+			}
+	return {}
 
 func _test_run_map_room_types() -> void:
 	var run_engine: RunEngine = RunEngine.new()
