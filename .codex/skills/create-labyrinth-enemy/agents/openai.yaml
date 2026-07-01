@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Labyrinth Enemy"
+  short_description: "Design and implement Labyrinth enemies"
+  default_prompt: "Use $create-labyrinth-enemy to add a distinctive, tested Labyrinth enemy."
