@@ -7712,9 +7712,15 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	if merchant_magic_tooltip != null:
 		merchant_magic_tooltip.queue_free()
 	if merchant_magic_row != null:
+		var mouse_motion := InputEventMouseMotion.new()
+		mouse_motion.position = Vector2(20.0, 7.0)
+		mouse_motion.global_position = mouse_motion.position
+		Input.parse_input_event(mouse_motion)
+		await process_frame
 		instance.call("_on_merchant_row_mouse_entered", "arcanist", "spark_dart", merchant_magic_row)
 		var tooltip_text_before_pin: String = merchant_magic_row.tooltip_text
 		var tooltip_mouse_anchor: Vector2 = instance.call("_current_mouse_position")
+		_assert(tooltip_mouse_anchor.y > 40.0, "Pinned merchant tooltip test should use a non-clamped mouse anchor")
 		var shift_event := InputEventKey.new()
 		shift_event.keycode = KEY_SHIFT
 		shift_event.physical_keycode = KEY_SHIFT
