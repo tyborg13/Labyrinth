@@ -4362,9 +4362,9 @@ func _assert_torch_sheet_has_no_chroma_speckles(path: String) -> void:
 func _test_campfire_bonfire_assets_keep_clean_alpha_edges() -> void:
 	_assert_campfire_asset_alpha_samples(
 		"res://assets/art/tiles/campfire_bonfire.png",
-		Vector2i(360, 240),
+		Vector2i(992, 640),
 		[
-			Vector2i(184, 30)
+			Vector2i(508, 56)
 		]
 	)
 	_assert_campfire_asset_alpha_samples(
