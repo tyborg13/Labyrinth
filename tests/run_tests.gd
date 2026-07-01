@@ -156,6 +156,7 @@ func _initialize() -> void:
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_cinder_enemies_use_final_raster_art()
+	_test_cinder_enemies_have_turn_order_portraits()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
 	_test_unit_hud_stacks_above_sprite_art()
@@ -4559,6 +4560,41 @@ func _test_cinder_enemies_use_final_raster_art() -> void:
 				_assert(absf(visible_center_x - center.x) <= 1.0, "Cinder Droplet art should stay horizontally centered on its tile")
 				_assert(visible_bottom_y <= center.y + tile_height * 0.35, "Cinder Droplet art should not hang below its tile anchor")
 	board.free()
+
+func _test_cinder_enemies_have_turn_order_portraits() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	_assert(run_scene != null, "Run scene should load for Cinder turn-order portrait coverage")
+	if run_scene == null:
+		return
+	var instance: Node = run_scene.instantiate()
+	var player_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "player"}))
+	for enemy_type: String in ["cinder_ooze", "cinder_droplet"]:
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var entry: Dictionary = {
+			"kind": "enemy",
+			"team": "enemy",
+			"type": enemy_type,
+			"name": str(enemy_def.get("name", enemy_type)),
+			"time": 9,
+			"eta": 9,
+			"base_initiative": 6,
+			"intent_time_cost": 3,
+			"pos": Vector2i(4, 4),
+			"actor_key": "test_%s" % enemy_type
+		}
+		var portrait_path: String = str(instance.call("_turn_order_portrait_path", entry))
+		_assert(portrait_path != player_path, "%s turn-order slot should not fall back to the player portrait" % enemy_type)
+		_assert(portrait_path.begins_with("res://assets/art/portraits/"), "%s turn-order portrait should live with the generated portrait assets" % enemy_type)
+		_assert(FileAccess.file_exists(portrait_path), "%s turn-order portrait asset should exist" % enemy_type)
+		var slot: Control = instance.call("_build_turn_order_slot", entry, 0) as Control
+		_assert(slot != null, "%s turn-order slot should build" % enemy_type)
+		if slot != null:
+			var texture_rects: Array[TextureRect] = _texture_rects_under(slot)
+			_assert(not texture_rects.is_empty() and texture_rects[0].texture != null, "%s turn-order slot should render its portrait texture" % enemy_type)
+			if not texture_rects.is_empty() and texture_rects[0].texture != null:
+				_assert(texture_rects[0].texture.get_size() == Vector2(128, 128), "%s turn-order portrait should use the clock portrait canvas" % enemy_type)
+			slot.free()
+	instance.free()
 
 func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
