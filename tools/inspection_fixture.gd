@@ -209,7 +209,7 @@ func _build_progression() -> Dictionary:
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 	match scenario:
 		"start":
-			return _apply_room_overrides(_apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression)))
+			return _build_start_run(progression)
 		"character":
 			var character_state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
 			if str(_options.get("notice", "")).is_empty():
@@ -232,6 +232,15 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 		"defeat":
 			return _build_terminal_run(progression, "defeat")
 	return {}
+
+func _build_start_run(progression: Dictionary) -> Dictionary:
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
+	var requested_coord: Vector2i = _parse_coord(str(_options.get("room_coord", "")))
+	if requested_coord != INVALID_COORD:
+		state = _run_state_for_room(state, requested_coord, "room", Vector2i(1, 0))
+		if str(_options.get("notice", "")).is_empty():
+			state["notice"] = "Inspection fixture: room."
+	return _apply_room_overrides(state)
 
 func _build_combat_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
