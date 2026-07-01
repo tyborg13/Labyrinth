@@ -2388,6 +2388,24 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 			_register_tooltip(pattern_rect, ActionIcons.token_tooltip(token))
 			cursor_x += pattern_size.x + 5.0
 			continue
+		if str(token.get("kind", "")) == "text":
+			var text_value: String = ActionIcons.token_value_text(token)
+			if text_value.is_empty() or font == null:
+				continue
+			var text_width: float = maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
+			var text_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(text_width, icon_size))
+			draw_string(
+				font,
+				Vector2(cursor_x, origin.y + icon_size - 2.0),
+				text_value,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				text_width,
+				font_size,
+				_token_value_color(token, text_color)
+			)
+			_register_tooltip(text_rect, ActionIcons.token_tooltip(token))
+			cursor_x += text_width + 6.0
+			continue
 		var icon_key: String = str(token.get("icon", ""))
 		var tooltip: String = ActionIcons.token_tooltip(token)
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
@@ -2437,6 +2455,11 @@ func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Fon
 			continue
 		if str((token_var as Dictionary).get("kind", "")) == "aoe_pattern":
 			width += _aoe_token_size(token_var as Dictionary, icon_size).x + 5.0
+			continue
+		if str((token_var as Dictionary).get("kind", "")) == "text":
+			var text_value: String = ActionIcons.token_value_text(token_var as Dictionary)
+			if not text_value.is_empty() and font != null:
+				width += maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0) + 6.0
 			continue
 		width += icon_size + 3.0
 		var value_text: String = ActionIcons.token_value_text(token_var as Dictionary)
@@ -5014,7 +5037,7 @@ func _support_target_token_for_action(unit: Dictionary, action: Dictionary) -> D
 		var target_id: int = int(target_enemy.get("id", -1))
 		value_text = "-> Self" if target_id == source_id else "-> %s" % _short_enemy_name(target_enemy)
 		tooltip_text = "Support target: %s." % str(target_enemy.get("name", "Enemy"))
-	return ActionIcons.token_for("health", value_text, "neutral", tooltip_text)
+	return ActionIcons.text_token(value_text, "neutral", tooltip_text)
 
 func _support_source_enemy(unit: Dictionary) -> Dictionary:
 	var source_id: int = int(unit.get("id", -1))

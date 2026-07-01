@@ -97,6 +97,8 @@ func _initialize() -> void:
 	_test_heal_ally_no_target_noops()
 	_test_guard_ally_targets_threatened_ally()
 	_test_support_intent_rows_name_target()
+	_test_support_intent_target_marker_is_text_only()
+	_test_turn_order_uses_explicit_portraits_for_new_enemy_types()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_block_applies_on_actor_turn_only()
 	_test_aoe_hits_multiple_targets()
@@ -2613,6 +2615,40 @@ func _test_support_intent_rows_name_target() -> void:
 	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
 	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
 	board.free()
+
+func _test_support_intent_target_marker_is_text_only() -> void:
+	var board := CombatBoardView.new()
+	board.combat_state = _support_action_test_state()
+	var surgeon_unit := {
+		"key": "enemy_1",
+		"id": 1,
+		"role": "enemy",
+		"type": "grave_surgeon",
+		"pos": Vector2i(5, 4),
+		"hp": 110,
+		"max_hp": 110
+	}
+	var rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	_assert(rows.size() == 1, "heal_ally should still surface one intent row")
+	var tokens: Array = rows[0] as Array
+	_assert(tokens.size() == 2, "heal_ally support rows should show the action token and a target marker")
+	_assert(str((tokens[0] as Dictionary).get("icon", "")) == "heal", "heal_ally should keep the heal icon as the only action icon")
+	_assert(str((tokens[1] as Dictionary).get("kind", "")) == "text", "Support targets should render as text-only markers")
+	_assert(not (tokens[1] as Dictionary).has("icon"), "Support target markers should not add a health icon")
+	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 30  -> Crawler", "Support target plain text should not include a Health label")
+	board.free()
+
+func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	var instance: Node = run_scene.instantiate()
+	var surgeon_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "grave_surgeon"}))
+	_assert(surgeon_path == "res://assets/art/portraits/grave_surgeon.png", "Turn order should use explicit portraits for new enemies")
+	_assert(FileAccess.file_exists(surgeon_path), "Grave Surgeon turn-order portrait should exist")
+	var crawler_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "crawler"}))
+	_assert(crawler_path.find("tunnel_crawler.png") >= 0, "Existing enemies should keep their dedicated turn-order portraits")
+	var unknown_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "unknown_enemy"}))
+	_assert(unknown_path.find("player_reaver.png") >= 0, "Unknown turn-order entries should still fall back safely")
+	instance.free()
 
 func _max_elemental_enemy_move_attack_reach(combat: CombatEngine, element_id: String, room_depth: int) -> int:
 	var max_reach: int = 0
