@@ -202,6 +202,7 @@ func _initialize() -> void:
 	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
+	await _test_run_scene_pass_preview_chip_updates()
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
 	await _test_run_scene_drag_overlay_snapback_and_click_selection()
@@ -5541,6 +5542,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_choice_bar")
+	await process_frame
 	var choice_host: Node = _run_scene_choice_button_host(instance)
 	var pass_button: Button = _button_with_text(choice_host, "Pass")
 	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
@@ -5551,6 +5553,14 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
 	if overlay != null and piles_bar != null:
 		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat Pass overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
+	if pass_button != null and piles_bar != null:
+		var pass_rect: Rect2 = pass_button.get_global_rect()
+		_assert(pass_rect.position.y + pass_rect.size.y <= piles_bar.global_position.y + 1.0, "Combat Pass button should remain above the pile widgets")
+	var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
+	if preview_overlay != null and preview_overlay.visible and pass_button != null:
+		var preview_rect: Rect2 = preview_overlay.get_global_rect()
+		var preview_pass_rect: Rect2 = pass_button.get_global_rect()
+		_assert(preview_rect.position.y + preview_rect.size.y <= preview_pass_rect.position.y + 1.0, "Pass preview should sit above the Pass button instead of pushing it down")
 	instance.queue_free()
 	await process_frame
 
@@ -5588,6 +5598,117 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	_assert(pass_button != null, "Combat UI should offer Pass when the hand has no playable cards")
 	if pass_button != null:
 		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Dead-hand Pass button should use a large native-ratio frame")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_pass_preview_chip_updates() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for pass-preview chip coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+
+	var danger_state: Dictionary = _pass_preview_chip_state("danger")
+	_install_pass_preview_chip_state(instance, danger_state)
+	await process_frame
+	await process_frame
+	var choice_host: Node = _run_scene_choice_button_host(instance)
+	var pass_button: Button = _button_with_text(choice_host, "Pass")
+	_assert(pass_button != null, "Pass preview should keep the Pass button available")
+	_assert_pass_preview_chip(instance, ["-5"], false, false, "danger pass")
+	_assert(instance.find_child("PassPreviewDetail", true, false) == null, "Pass preview should not render the old wordy detail line")
+	var summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(int(summary.get("hp_loss", 0)) == 5, "Pass preview helper should return visible health damage")
+	_assert(not bool(summary.get("unrevealed_before_player", false)), "Baseline pass preview should not flag hidden actions when player returns first")
+	var live_state: Dictionary = instance.get("_combat_state")
+	_assert(int((live_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Pass preview summary should not damage the live player")
+	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Pass preview summary should not spend live card plays")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["SAFE"], false, false, "safe pass")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("layered"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["-4", "-3", "-5"], false, false, "layered pass")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("lethal"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["DEFEAT"], true, false, "lethal pass")
+
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("unrevealed"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["SAFE"], false, true, "unrevealed pass")
+	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
+	_assert(danger_label != null and danger_label.text == "DANGER!", "Unrevealed follow-up preview should render DANGER!")
+	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	_assert(danger_chip != null and danger_chip.tooltip_text == "Enemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
+
+	_install_pass_preview_chip_state(instance, danger_state)
+	await process_frame
+	await process_frame
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == 0, "Selecting Guarded Step should keep the move target pending")
+	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected move before hover")
+	var move_target: Vector2i = _pass_preview_chip_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
+	_assert(move_target.x >= 0, "Pass preview move-hover coverage should find a valid Guarded Step target")
+	if move_target.x >= 0:
+		instance.call("_on_board_tile_hovered", move_target)
+		await process_frame
+		await process_frame
+		_assert_pass_preview_chip(instance, ["SAFE"], false, true, "selected move hover")
+		var hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
+		_assert((hover_source_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == move_target, "Pass preview hover source should use the hovered move target")
+		_assert(int(hover_source_state.get("cards_played_this_turn", 0)) == 1, "Pass preview hover source should include the selected card commit")
+		_assert(int(hover_source_state.get("player_turn_time_spent", 0)) == 3, "Pass preview hover source should include selected card time before forecasting turn order")
+		_assert(((hover_source_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Pass preview hover source should remove the hypothetically committed card")
+	live_state = instance.get("_combat_state")
+	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected-card pass preview should not commit the selected card")
+	_assert((live_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Selected-card move hover should not move the live player")
+	_assert(((live_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2, "Selected-card pass preview should not remove a live hand card")
+
+	var attack_hover_state: Dictionary = _pass_preview_chip_state("danger")
+	var attack_enemies: Array = attack_hover_state.get("enemies", [])
+	if not attack_enemies.is_empty():
+		var attack_enemy: Dictionary = (attack_enemies[0] as Dictionary).duplicate(true)
+		attack_enemy["hp"] = 8
+		attack_enemy["max_hp"] = 8
+		attack_enemies[0] = attack_enemy
+		attack_hover_state["enemies"] = attack_enemies
+	_install_pass_preview_chip_state(instance, attack_hover_state)
+	await process_frame
+	await process_frame
+	await instance.call("_on_card_pressed", 1)
+	await process_frame
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == 1, "Selecting Quick Stab should keep the attack target pending")
+	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected attack before hover")
+	var attack_target := Vector2i(3, 4)
+	_assert((instance.get("_pending_target_tiles") as Array).has(attack_target), "Pass preview attack-hover coverage should find the adjacent enemy target")
+	instance.call("_on_board_tile_hovered", attack_target)
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["SAFE"], false, false, "selected attack hover")
+	var attack_hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
+	_assert(int(attack_hover_source_state.get("cards_played_this_turn", 0)) == 1, "Attack hover source should include the selected card commit")
+	_assert(int(attack_hover_source_state.get("player_turn_time_spent", 0)) == 2, "Attack hover source should include Quick Stab time before forecasting turn order")
+	_assert(int(((attack_hover_source_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) <= 0, "Attack hover source should include the confirmed attack effect")
+	instance.call("_on_board_tile_hovered", Vector2i(0, 0))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected attack hover cleared")
+	live_state = instance.get("_combat_state")
+	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected attack pass preview should not commit the selected card")
+	_assert(int(((live_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 8, "Selected attack hover should not damage the live enemy")
+
 	instance.queue_free()
 	await process_frame
 
@@ -7875,6 +7996,202 @@ func _button_with_text(node: Node, text: String) -> Button:
 		if button.text == text:
 			return button
 	return null
+
+func _pass_preview_chip_state(kind: String) -> Dictionary:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(7826, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["guarded_step", "quick_stab", "patch_up", "bone_dart"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var enemy_pos: Vector2i = Vector2i(3, 4)
+	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
+	if kind == "safe":
+		enemy_pos = Vector2i(6, 4)
+	elif kind == "layered":
+		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 12, "range": 1}]}
+	elif kind == "lethal":
+		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 30, "range": 1}]}
+	elif kind == "unrevealed":
+		enemy_pos = Vector2i(6, 4)
+	state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 3 if kind == "layered" else 0,
+		"stoneskin": 4 if kind == "layered" else 0,
+		"burn": 0,
+		"bleed": 0,
+		"expose": 0,
+		"freeze": 0,
+		"shock": 0,
+		"immobilize": false,
+		"poison": {"damage": 0, "trigger": 0, "stacks": []}
+	}
+	state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": enemy_pos,
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0,
+		"burn": 0,
+		"bleed": 0,
+		"expose": 0,
+		"freeze": 0,
+		"shock": 0,
+		"immobilize": false,
+		"poison": {"damage": 0, "trigger": 0, "stacks": []},
+		"intent": enemy_intent
+	}]
+	state["illusions"] = []
+	state["traps"] = []
+	state["terrain"] = []
+	state["deck"] = {
+		"hand": ["guarded_step", "quick_stab"],
+		"draw": ["patch_up", "bone_dart"],
+		"discard": ["sidestep_slash"],
+		"burned": [],
+		"cycles": 0,
+		"fatigue_base": 15
+	}
+	state["cards_per_turn"] = 2
+	state["draw_per_turn"] = 2
+	state["cards_played_this_turn"] = 0
+	state["death_bonus_card_plays_this_turn"] = 0
+	state["card_play_bonus_this_turn"] = 0
+	state["player_turn_time_spent"] = 20 if kind == "unrevealed" else 0
+	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
+	state["pending_player_trap_restriction"] = ""
+	state["turn_flags"] = {"first_attack_bonus_used": false, "first_move_bonus_used": false}
+	state["initiative_clock"] = 0
+	state["activation_seq"] = 1
+	state["current_actor"] = {
+		"kind": "player",
+		"actor_key": "player",
+		"name": "Reaver",
+		"type": "player",
+		"team": "player",
+		"time": 0,
+		"seq": 0
+	}
+	state["turn_queue"] = [{
+		"kind": "enemy",
+		"actor_key": "enemy_1",
+		"enemy_id": 1,
+		"type": "crawler",
+		"name": "Tunnel Crawler",
+		"team": "enemy",
+		"time": 1,
+		"seq": 1,
+		"pos": enemy_pos
+	}]
+	return state
+
+func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) -> void:
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state.duplicate(true)
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state.duplicate(true))
+	instance.set("_animation_lock", false)
+	instance.set("_drag_card_index", -1)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+
+func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_defeat: bool, expect_danger: bool, context: String) -> void:
+	var chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
+	var row: Node = instance.find_child("PassPreviewDamageRow", true, false)
+	_assert(chip != null, "%s should render the pass preview chip" % context)
+	_assert(row != null, "%s should render the pass preview damage row" % context)
+	if chip != null:
+		var chip_rect: Rect2 = chip.get_global_rect()
+		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
+		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
+		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
+		var piles_bar: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
+		var action_step_tracker: Control = instance.find_child(ACTION_STEP_TRACKER_PATH, true, false) as Control
+		if preview_overlay != null and preview_overlay.visible and choice_host != null and piles_bar != null:
+			var choice_rect: Rect2 = choice_host.get_global_rect()
+			var piles_rect: Rect2 = piles_bar.get_global_rect()
+			var viewport_width: float = instance.get_viewport().get_visible_rect().size.x
+			_assert(chip_rect.position.y + chip_rect.size.y <= choice_rect.position.y + 1.0, "%s pass preview should stack above the action buttons" % context)
+			_assert(choice_rect.position.y + choice_rect.size.y <= piles_rect.position.y + 1.0, "%s action buttons should stay above the pile widgets" % context)
+			_assert(choice_rect.position.x >= -1.0 and choice_rect.position.x + choice_rect.size.x <= viewport_width + 1.0, "%s action buttons should stay inside the viewport" % context)
+			_assert(absf(chip_rect.position.x - choice_rect.position.x) <= 1.0, "%s pass preview should be left-aligned with the action buttons" % context)
+			_assert(absf(choice_rect.position.x - piles_rect.position.x) <= 1.0, "%s action buttons should be left-aligned with the pile column" % context)
+		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
+			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
+			_assert(tracker_rect.position.y + tracker_rect.size.y <= chip_rect.position.y + 1.0, "%s action-step tracker should stack above the pass preview" % context)
+	if row == null:
+		return
+	var actual_texts: PackedStringArray = _pass_preview_chip_damage_texts(row)
+	_assert(actual_texts.size() == expected_texts.size(), "%s should render %d pass preview value(s), got %d: %s" % [context, expected_texts.size(), actual_texts.size(), ", ".join(actual_texts)])
+	for index: int in range(expected_texts.size()):
+		if index >= actual_texts.size():
+			break
+		_assert(actual_texts[index] == str(expected_texts[index]), "%s pass preview value %d should be %s, got %s" % [context, index, str(expected_texts[index]), actual_texts[index]])
+	var title_label: Label = instance.find_child("PassPreviewTitle", true, false) as Label
+	_assert(title_label != null and title_label.text == "On Turn End:", "%s pass preview should label the numbers as turn-end damage" % context)
+	for label: Label in _pass_preview_chip_damage_labels(row):
+		var label_rect: Rect2 = label.get_global_rect()
+		_assert(label_rect.size.x > 8.0 and label_rect.size.y > 8.0, "%s pass preview label '%s' should have visible dimensions" % [context, label.text])
+		if _pass_preview_chip_label_uses_icon(label):
+			var icon: TextureRect = instance.find_child("%sIcon" % str(label.name), true, false) as TextureRect
+			_assert(icon != null and icon.texture != null, "%s pass preview value '%s' should carry a faded context icon" % [context, label.text])
+			if icon != null:
+				_assert(icon.modulate.a > 0.0 and icon.modulate.a < 0.5, "%s pass preview value icon should stay faded behind the number" % context)
+	var defeat_label: Label = instance.find_child("PassPreviewDefeat", true, false) as Label
+	_assert((defeat_label != null) == expect_defeat, "%s defeat label presence should be %s" % [context, str(expect_defeat)])
+	var danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
+	_assert((danger_label != null) == expect_danger, "%s danger label presence should be %s" % [context, str(expect_danger)])
+
+func _pass_preview_chip_damage_texts(row: Node) -> PackedStringArray:
+	var texts := PackedStringArray()
+	for label: Label in _pass_preview_chip_damage_labels(row):
+		texts.append(label.text)
+	return texts
+
+func _pass_preview_chip_damage_labels(row: Node) -> Array[Label]:
+	var labels: Array[Label] = []
+	for label: Label in _labels_under(row):
+		if _pass_preview_chip_label_is_value(label):
+			labels.append(label)
+	return labels
+
+func _pass_preview_chip_label_is_value(label: Label) -> bool:
+	return [
+		"PassPreviewStoneSkinLoss",
+		"PassPreviewBlockLoss",
+		"PassPreviewHpLoss",
+		"PassPreviewSafe",
+		"PassPreviewDefeat"
+	].has(str(label.name))
+
+func _pass_preview_chip_label_uses_icon(label: Label) -> bool:
+	return [
+		"PassPreviewStoneSkinLoss",
+		"PassPreviewBlockLoss",
+		"PassPreviewHpLoss"
+	].has(str(label.name))
+
+func _pass_preview_chip_move_target(target_tiles: Array, enemy_pos: Vector2i) -> Vector2i:
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_distance: int = -1
+	for tile_var: Variant in target_tiles:
+		if typeof(tile_var) != TYPE_VECTOR2I:
+			continue
+		var tile: Vector2i = tile_var
+		var distance: int = absi(tile.x - enemy_pos.x) + absi(tile.y - enemy_pos.y)
+		if distance > best_distance:
+			best_distance = distance
+			best_tile = tile
+	return best_tile
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []

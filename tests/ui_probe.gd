@@ -69,6 +69,7 @@ func _capture_run_states() -> void:
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat.png")
 		await _capture_turn_order_probe(instance)
+		await _capture_pass_preview_probe(instance)
 		var combat_state: Dictionary = instance.get("_combat_state")
 		var ranged_deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
 		if ranged_deck.get("hand", []).is_empty():
@@ -378,6 +379,239 @@ func _capture_turn_order_probe(instance: Node) -> void:
 	await process_frame
 	await process_frame
 	await _save_root_screenshot("user://probes/run_turn_order_after_pass_full.png")
+
+func _capture_pass_preview_probe(instance: Node) -> void:
+	var base_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	if base_state.is_empty():
+		return
+	var danger_state: Dictionary = _pass_preview_probe_state(base_state, "danger")
+	_install_pass_preview_probe_state(instance, danger_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "danger")
+	await _save_root_screenshot("user://probes/run_pass_preview_danger.png")
+
+	await instance.call("_on_card_pressed", 0)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "selected card")
+	await _save_root_screenshot("user://probes/run_pass_preview_selected_card.png")
+
+	var move_target: Vector2i = _pass_preview_probe_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
+	if move_target.x >= 0:
+		instance.call("_on_board_tile_hovered", move_target)
+		await process_frame
+		await process_frame
+		_require_pass_preview_chip(instance, "selected move hover")
+		await _save_root_screenshot("user://probes/run_pass_preview_selected_move_hover.png")
+
+	var after_card_state: Dictionary = _pass_preview_probe_after_guarded_step(instance, danger_state)
+	_install_pass_preview_probe_state(instance, after_card_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "after card")
+	await _save_root_screenshot("user://probes/run_pass_preview_after_card.png")
+
+	var safe_state: Dictionary = _pass_preview_probe_state(base_state, "safe")
+	_install_pass_preview_probe_state(instance, safe_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "safe")
+	await _save_root_screenshot("user://probes/run_pass_preview_safe.png")
+
+	var layered_state: Dictionary = _pass_preview_probe_state(base_state, "layered")
+	_install_pass_preview_probe_state(instance, layered_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "layered")
+	await _save_root_screenshot("user://probes/run_pass_preview_layered.png")
+
+	var unrevealed_state: Dictionary = _pass_preview_probe_state(base_state, "unrevealed")
+	_install_pass_preview_probe_state(instance, unrevealed_state)
+	await process_frame
+	await process_frame
+	_require_pass_preview_chip(instance, "unrevealed")
+	await _save_root_screenshot("user://probes/run_pass_preview_unrevealed.png")
+
+	_install_pass_preview_probe_state(instance, safe_state)
+	await process_frame
+
+func _install_pass_preview_probe_state(instance: Node, combat_state: Dictionary) -> void:
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state.duplicate(true)
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state.duplicate(true))
+	instance.set("_animation_lock", false)
+	instance.set("_drag_card_index", -1)
+	instance.set("_card_play_count_override", -1)
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_ui")
+
+func _pass_preview_probe_state(base_state: Dictionary, kind: String) -> Dictionary:
+	var state: Dictionary = base_state.duplicate(true)
+	var enemy_pos: Vector2i = Vector2i(3, 4)
+	var enemy_intent: Dictionary = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
+	if kind == "safe":
+		enemy_pos = Vector2i(6, 4)
+		enemy_intent = {"name": "Claw", "time": 1, "actions": [{"type": "melee", "damage": 5, "range": 1}]}
+	elif kind == "layered":
+		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 12, "range": 1}]}
+	elif kind == "unrevealed":
+		enemy_pos = Vector2i(6, 4)
+	state["player"] = {
+		"pos": Vector2i(2, 4),
+		"hp": 24,
+		"max_hp": 24,
+		"block": 3 if kind == "layered" else 0,
+		"stoneskin": 4 if kind == "layered" else 0,
+		"burn": 0,
+		"bleed": 0,
+		"expose": 0,
+		"freeze": 0,
+		"shock": 0,
+		"immobilize": false,
+		"poison": {"damage": 0, "trigger": 0, "stacks": []}
+	}
+	state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": enemy_pos,
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0,
+		"burn": 0,
+		"bleed": 0,
+		"expose": 0,
+		"freeze": 0,
+		"shock": 0,
+		"immobilize": false,
+		"poison": {"damage": 0, "trigger": 0, "stacks": []},
+		"intent": enemy_intent
+	}]
+	state["illusions"] = []
+	state["traps"] = []
+	state["terrain"] = []
+	state["grid"] = _pass_preview_probe_simple_grid()
+	state["deck"] = {
+		"hand": ["guarded_step", "quick_stab"],
+		"draw": ["patch_up", "bone_dart"],
+		"discard": ["sidestep_slash"],
+		"burned": [],
+		"cycles": 0,
+		"fatigue_base": 15
+	}
+	state["cards_per_turn"] = 2
+	state["draw_per_turn"] = 2
+	state["cards_played_this_turn"] = 0
+	state["death_bonus_card_plays_this_turn"] = 0
+	state["card_play_bonus_this_turn"] = 0
+	state["player_turn_time_spent"] = 20 if kind == "unrevealed" else 0
+	state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": false}
+	state["pending_player_trap_restriction"] = ""
+	state["turn_flags"] = {"first_attack_bonus_used": false, "first_move_bonus_used": false}
+	state["initiative_clock"] = 0
+	state["activation_seq"] = 1
+	state["current_actor"] = {
+		"kind": "player",
+		"actor_key": "player",
+		"name": "Reaver",
+		"type": "player",
+		"team": "player",
+		"time": 0,
+		"seq": 0
+	}
+	state["turn_queue"] = [{
+		"kind": "enemy",
+		"actor_key": "enemy_1",
+		"enemy_id": 1,
+		"type": "crawler",
+		"name": "Tunnel Crawler",
+		"team": "enemy",
+		"time": 1,
+		"seq": 1,
+		"pos": enemy_pos
+	}]
+	return state
+
+func _pass_preview_probe_simple_grid() -> Array:
+	var grid: Array = []
+	for y: int in range(8):
+		var row: Array[String] = []
+		for x: int in range(8):
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "ash")
+		grid.append(row)
+	return grid
+
+func _pass_preview_probe_move_target(target_tiles: Array, enemy_pos: Vector2i) -> Vector2i:
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_distance: int = -1
+	for tile_var: Variant in target_tiles:
+		if typeof(tile_var) != TYPE_VECTOR2I:
+			continue
+		var tile: Vector2i = tile_var
+		var distance: int = absi(tile.x - enemy_pos.x) + absi(tile.y - enemy_pos.y)
+		if distance > best_distance:
+			best_distance = distance
+			best_tile = tile
+	return best_tile
+
+func _pass_preview_probe_after_guarded_step(instance: Node, source_state: Dictionary) -> Dictionary:
+	var combat_engine = instance.get("_combat_engine")
+	var state: Dictionary = source_state.duplicate(true)
+	var actions: Array = GameData.card_def("guarded_step").get("actions", [])
+	for action_index: int in range(actions.size()):
+		if typeof(actions[action_index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = actions[action_index]
+		if combat_engine.player_action_needs_target(action):
+			var target_tiles: Array = combat_engine.valid_targets_for_player_action(state, action)
+			var move_target: Vector2i = _pass_preview_probe_move_target(target_tiles, Vector2i(3, 4))
+			if move_target.x >= 0:
+				state = combat_engine.apply_player_action(state, action, move_target)
+		else:
+			state = combat_engine.apply_player_action(state, action)
+	return combat_engine.finish_player_card(state, 0)
+
+func _require_pass_preview_chip(instance: Node, label: String) -> void:
+	var row: Node = _first_node_named(instance, "PassPreviewDamageRow")
+	if row == null or _pass_preview_probe_damage_text(row).is_empty():
+		push_error("Missing pass preview damage values during %s pass preview probe" % label)
+
+func _pass_preview_probe_damage_text(row: Node) -> String:
+	if row == null:
+		return ""
+	var parts := PackedStringArray()
+	for label: Label in _pass_preview_probe_damage_labels(row):
+		parts.append(label.text)
+	return " ".join(parts)
+
+func _pass_preview_probe_damage_labels(node: Node) -> Array[Label]:
+	var labels: Array[Label] = []
+	if node is Label and _pass_preview_probe_is_damage_value(node as Label):
+		labels.append(node as Label)
+	for child: Node in node.get_children():
+		labels.append_array(_pass_preview_probe_damage_labels(child))
+	return labels
+
+func _pass_preview_probe_is_damage_value(label: Label) -> bool:
+	return [
+		"PassPreviewStoneSkinLoss",
+		"PassPreviewBlockLoss",
+		"PassPreviewHpLoss",
+		"PassPreviewSafe",
+		"PassPreviewDefeat"
+	].has(str(label.name))
+
+func _first_node_named(node: Node, node_name: String) -> Node:
+	if node.name == node_name:
+		return node
+	for child: Node in node.get_children():
+		var found: Node = _first_node_named(child, node_name)
+		if found != null:
+			return found
+	return null
 
 func _capture_orientation_previews(instance: Node) -> void:
 	instance.call("_reset_card_resolution")

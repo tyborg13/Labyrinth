@@ -630,6 +630,13 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
+const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(340.0, 64.0)
+const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 88.0
+const PASS_PREVIEW_STACK_GAP: float = 6.0
+const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(54.0, 34.0)
+const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
+const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
+const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -720,6 +727,7 @@ var _action_step_resolution_index: int = 0
 var _action_step_resolution_targets: Array[Vector2i] = []
 var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
+var _turn_order_anchor: CenterContainer
 var _turn_order_bar: Control
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
@@ -729,6 +737,7 @@ var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
 var _choice_button_overlay: HBoxContainer
+var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
@@ -920,6 +929,7 @@ func _notification(what: int) -> void:
 		_layout_choice_button_overlay()
 		_layout_header_hud()
 		_layout_elemental_intensity_bar()
+		_layout_turn_order_anchor()
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
@@ -955,7 +965,7 @@ func _apply_style() -> void:
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		pile_panel.clip_contents = true
-	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE)
+	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE + 3)
 	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
@@ -1042,20 +1052,49 @@ func _build_choice_button_overlay() -> void:
 	_choice_button_overlay.clip_contents = false
 	_choice_button_overlay.z_index = 120
 	_choice_button_overlay.z_as_relative = false
+	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
 	add_child(_choice_button_overlay)
+	_pass_preview_overlay = CenterContainer.new()
+	_pass_preview_overlay.name = "PassPreviewOverlay"
+	_pass_preview_overlay.visible = false
+	_pass_preview_overlay.mouse_filter = Control.MOUSE_FILTER_PASS
+	_pass_preview_overlay.clip_contents = false
+	_pass_preview_overlay.z_index = 121
+	_pass_preview_overlay.z_as_relative = false
+	add_child(_pass_preview_overlay)
 
 func _combat_choice_placeholder_size() -> Vector2:
 	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION)
 
 func _layout_choice_button_overlay() -> void:
-	if _choice_button_overlay == null or not _choice_button_overlay.visible:
+	if _choice_button_overlay == null:
 		return
-	if not choice_bar.is_inside_tree() or not choice_bar.visible:
+	if not choice_bar.is_inside_tree():
 		return
-	var overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
-	_choice_button_overlay.global_position = _choice_button_overlay_anchor_position(overlay_size)
-	_choice_button_overlay.size = overlay_size
+	if not choice_bar.visible and not (_choice_button_overlay.visible or (_pass_preview_overlay != null and _pass_preview_overlay.visible)):
+		return
+	var button_overlay_size: Vector2 = _choice_button_overlay.get_combined_minimum_size()
+	var button_overlay_position: Vector2 = _choice_button_overlay_anchor_position(button_overlay_size)
+	var viewport_size: Vector2 = get_viewport_rect().size
+	button_overlay_position.x = clampf(
+		button_overlay_position.x,
+		8.0,
+		maxf(8.0, viewport_size.x - button_overlay_size.x - 8.0)
+	)
+	if _choice_button_overlay.visible:
+		_choice_button_overlay.global_position = button_overlay_position
+		_choice_button_overlay.size = button_overlay_size
+	if _pass_preview_overlay == null or not _pass_preview_overlay.visible:
+		_layout_action_step_tracker()
+		return
+	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
+	_pass_preview_overlay.global_position = Vector2(
+		button_overlay_position.x,
+		button_overlay_position.y - preview_size.y - PASS_PREVIEW_STACK_GAP
+	)
+	_pass_preview_overlay.size = preview_size
+	_layout_action_step_tracker()
 
 func _connect_choice_overlay_layout_signals() -> void:
 	for control_var: Variant in [choice_bar, piles_bar, left_action_stack, bottom_stack, hand_row]:
@@ -1075,13 +1114,24 @@ func _queue_action_step_tracker_layout() -> void:
 
 func _choice_button_overlay_anchor_position(overlay_size: Vector2) -> Vector2:
 	var choice_rect: Rect2 = choice_bar.get_global_rect()
-	if _choice_bar_anchor_is_ready(choice_rect):
-		return choice_rect.position
+	var piles_position := Vector2.ZERO
+	var has_piles_position: bool = false
 	if piles_bar != null and piles_bar.is_inside_tree():
 		var piles_rect: Rect2 = piles_bar.get_global_rect()
 		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
 			var separation: float = float(left_action_stack.get_theme_constant("separation")) if left_action_stack != null else 0.0
-			return Vector2(piles_rect.position.x, piles_rect.position.y - overlay_size.y - separation)
+			piles_position = Vector2(
+				piles_rect.position.x,
+				piles_rect.position.y - overlay_size.y - separation
+			)
+			has_piles_position = true
+	if _choice_bar_anchor_is_ready(choice_rect):
+		var choice_position: Vector2 = Vector2(choice_rect.position.x, choice_rect.position.y)
+		if has_piles_position:
+			return Vector2(choice_position.x, piles_position.y)
+		return choice_position
+	if has_piles_position:
+		return piles_position
 	return choice_rect.position
 
 func _choice_bar_anchor_is_ready(choice_rect: Rect2) -> bool:
@@ -2600,6 +2650,7 @@ func _connect_header_layout_signals() -> void:
 func _queue_elemental_intensity_layout() -> void:
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
+	call_deferred("_layout_turn_order_anchor")
 
 func _intensity_bar_size() -> Vector2:
 	return Vector2(INTENSITY_BADGE_SIZE.x * 3.0 + 9.0 * 2.0, INTENSITY_BADGE_SIZE.y * 2.0 + 7.0)
@@ -2680,6 +2731,24 @@ func _layout_elemental_intensity_bar() -> void:
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
+
+func _layout_turn_order_anchor() -> void:
+	if _turn_order_anchor == null:
+		return
+	var header_y: float = 0.0
+	var header_height: float = TURN_ORDER_PANEL_MIN_SIZE.y
+	if top_bar != null:
+		var top_bar_rect: Rect2 = top_bar.get_global_rect()
+		header_y = top_bar_rect.position.y - get_global_rect().position.y
+		header_height = maxf(header_height, top_bar_rect.size.y)
+	_turn_order_anchor.anchor_left = 0.0
+	_turn_order_anchor.anchor_top = 0.0
+	_turn_order_anchor.anchor_right = 1.0
+	_turn_order_anchor.anchor_bottom = 0.0
+	_turn_order_anchor.offset_left = 0.0
+	_turn_order_anchor.offset_top = header_y
+	_turn_order_anchor.offset_right = 0.0
+	_turn_order_anchor.offset_bottom = header_y + header_height
 
 func _relic_bar_visible_bottom_y() -> float:
 	if relic_bar == null:
@@ -3032,6 +3101,13 @@ func _refresh_relic_bar() -> void:
 func _setup_turn_order_bar() -> void:
 	if _turn_order_panel != null:
 		return
+	_turn_order_anchor = CenterContainer.new()
+	_turn_order_anchor.name = "TurnOrderAnchor"
+	_turn_order_anchor.visible = false
+	_turn_order_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_anchor.z_index = 35
+	add_child(_turn_order_anchor)
+	_layout_turn_order_anchor()
 	_turn_order_panel = PanelContainer.new()
 	_turn_order_panel.name = "TurnOrderPanel"
 	_turn_order_panel.visible = false
@@ -3069,8 +3145,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_turn_order_bar.custom_minimum_size = TURN_ORDER_PORTRAIT_SIZE
 	row.add_child(_turn_order_bar)
-	top_bar.add_child(_turn_order_panel)
-	top_bar.move_child(_turn_order_panel, header_spacer.get_index())
+	_turn_order_anchor.add_child(_turn_order_panel)
 
 func _refresh_turn_order_bar() -> void:
 	if _turn_order_bar == null:
@@ -3081,8 +3156,7 @@ func _refresh_turn_order_bar() -> void:
 	if mode != "combat" or _combat_state.is_empty():
 		_clear_children(_turn_order_bar)
 		_turn_order_panel_locked_width = -1.0
-		if _turn_order_panel != null:
-			_turn_order_panel.visible = false
+		_set_turn_order_visible(false)
 		return
 	var entries: Array[Dictionary] = _combat_engine.current_turn_order(_turn_order_display_state(), TURN_ORDER_MAX_SLOTS)
 	_set_turn_order_bar_entries(entries)
@@ -3122,11 +3196,19 @@ func _set_turn_order_bar_entries(entries: Array[Dictionary]) -> void:
 	if _turn_order_panel != null:
 		var panel_width: float = _turn_order_panel_locked_width if _turn_order_panel_locked_width > 0.0 else _turn_order_panel_width_for_count(entries.size())
 		_turn_order_panel.custom_minimum_size = Vector2(panel_width, TURN_ORDER_PANEL_MIN_SIZE.y)
-		_turn_order_panel.visible = not entries.is_empty()
+		_set_turn_order_visible(not entries.is_empty())
 	for index: int in range(entries.size()):
 		var slot: Control = _build_turn_order_slot(entries[index], index)
 		slot.position = _turn_order_slot_position(index)
 		_turn_order_bar.add_child(slot)
+
+func _set_turn_order_visible(visible: bool) -> void:
+	if _turn_order_panel != null:
+		_turn_order_panel.visible = visible
+	if _turn_order_anchor != null:
+		_turn_order_anchor.visible = visible
+	if visible:
+		_layout_turn_order_anchor()
 
 func _turn_order_entries_width(count: int) -> float:
 	if count <= 0:
@@ -3731,6 +3813,14 @@ func _layout_action_step_tracker() -> void:
 	_action_step_tracker.global_position = Vector2(target_x, target_y)
 
 func _action_step_tracker_anchor_rect() -> Rect2:
+	if _pass_preview_overlay != null and _pass_preview_overlay.visible:
+		var preview_rect: Rect2 = _pass_preview_overlay.get_global_rect()
+		if preview_rect.size.x > 0.0 and preview_rect.size.y > 0.0 and preview_rect.position.y > 0.0:
+			return preview_rect
+	if _choice_button_overlay != null and _choice_button_overlay.visible:
+		var overlay_rect: Rect2 = _choice_button_overlay.get_global_rect()
+		if overlay_rect.size.x > 0.0 and overlay_rect.size.y > 0.0 and overlay_rect.position.y > 0.0:
+			return overlay_rect
 	if choice_bar != null and choice_bar.visible:
 		var choice_rect: Rect2 = choice_bar.get_global_rect()
 		if _choice_bar_anchor_is_ready(choice_rect):
@@ -4133,8 +4223,11 @@ func _refresh_death_overlay() -> void:
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
 	if _choice_button_overlay != null:
-		_clear_children(_choice_button_overlay)
+		_clear_children_now(_choice_button_overlay)
 		_choice_button_overlay.visible = false
+	if _pass_preview_overlay != null:
+		_clear_children_now(_pass_preview_overlay)
+		_pass_preview_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
 	_clear_terminal_overlay()
@@ -4144,8 +4237,10 @@ func _refresh_choice_bar() -> void:
 		if _current_action_can_skip():
 			_add_choice_button("Skip", _on_skip_action_pressed)
 		_add_choice_button("Cancel", _on_cancel_requested)
+		_add_pass_preview_chip()
 	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state):
-		_add_choice_button("Pass", _on_pass_turn_pressed)
+		_add_choice_button("Pass", _on_pass_turn_pressed, _pass_preview_button_tooltip())
+		_add_pass_preview_chip()
 	match mode:
 		"campfire":
 			_add_campfire_choice(
@@ -4184,11 +4279,13 @@ func _refresh_choice_bar() -> void:
 		"victory":
 			_show_victory_overlay()
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
-	if has_overlay_choices:
-		choice_bar.custom_minimum_size = _combat_choice_placeholder_size()
-	choice_bar.visible = choice_bar.get_child_count() > 0 or has_overlay_choices
+	var has_pass_preview: bool = _pass_preview_overlay != null and _pass_preview_overlay.get_child_count() > 0 and has_overlay_choices
+	choice_bar.visible = choice_bar.get_child_count() > 0
 	if _choice_button_overlay != null:
 		_choice_button_overlay.visible = has_overlay_choices
+	if _pass_preview_overlay != null:
+		_pass_preview_overlay.visible = has_pass_preview
+	if _choice_button_overlay != null or _pass_preview_overlay != null:
 		_layout_choice_button_overlay()
 		call_deferred("_layout_choice_button_overlay")
 	if _context_choice_overlay != null:
@@ -4217,6 +4314,351 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 		_choice_button_overlay.add_child(button)
 	else:
 		choice_bar.add_child(button)
+
+func _add_pass_preview_chip() -> void:
+	var summary: Dictionary = _pass_preview_summary()
+	if summary.is_empty():
+		return
+	var chip := TooltipPanelContainer.new()
+	chip.name = "PassPreviewChip"
+	var chip_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
+	if bool(summary.get("unrevealed_before_player", false)):
+		chip_size.y = PASS_PREVIEW_DANGER_CHIP_HEIGHT
+	chip.custom_minimum_size = chip_size
+	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.mouse_filter = Control.MOUSE_FILTER_STOP
+	var tooltip_text: String = _pass_preview_tooltip(summary)
+	chip.mouse_default_cursor_shape = Control.CURSOR_HELP if not tooltip_text.is_empty() else Control.CURSOR_ARROW
+	chip.tooltip_text = tooltip_text
+	chip.add_theme_stylebox_override("panel", _pass_preview_chip_style(summary))
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 7)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 7)
+	chip.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 0)
+	margin.add_child(vbox)
+
+	var damage_row := HBoxContainer.new()
+	damage_row.name = "PassPreviewDamageRow"
+	damage_row.custom_minimum_size = Vector2(chip_size.x - 28.0, 40.0)
+	damage_row.alignment = BoxContainer.ALIGNMENT_BEGIN
+	damage_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	damage_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(damage_row)
+	damage_row.add_child(_pass_preview_title_label())
+	if bool(summary.get("defeat", false)):
+		damage_row.add_child(_pass_preview_damage_label("DEFEAT", "PassPreviewDefeat", Color("f39779"), true))
+	else:
+		var entries: Array = summary.get("entries", [])
+		if entries.is_empty():
+			damage_row.add_child(_pass_preview_damage_label("SAFE", "PassPreviewSafe", Color("8fcf7d"), true))
+		else:
+			for entry_var: Variant in entries:
+				if typeof(entry_var) != TYPE_DICTIONARY:
+					continue
+				var entry: Dictionary = entry_var
+				var entry_color: Color = entry.get("color", Color("d9cdb4"))
+				damage_row.add_child(_pass_preview_damage_item(
+					str(entry.get("text", "")),
+					str(entry.get("name", "PassPreviewLoss")),
+					entry_color,
+					str(entry.get("icon_path", ""))
+				))
+
+	if bool(summary.get("unrevealed_before_player", false)):
+		var danger_label := Label.new()
+		danger_label.name = "PassPreviewDanger"
+		danger_label.text = "DANGER!"
+		danger_label.custom_minimum_size = Vector2(chip_size.x - 28.0, 30.0)
+		danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		danger_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		danger_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(danger_label, UiTypography.SIZE_BODY_LARGE)
+		danger_label.add_theme_color_override("font_color", Color("f39779"))
+		danger_label.add_theme_color_override("font_outline_color", Color("200806"))
+		danger_label.add_theme_constant_override("outline_size", 2)
+		vbox.add_child(danger_label)
+
+	if _choice_buttons_use_overlay():
+		_pass_preview_overlay.add_child(chip)
+	else:
+		choice_bar.add_child(chip)
+
+func _pass_preview_title_label() -> Label:
+	var label := Label.new()
+	label.name = "PassPreviewTitle"
+	label.text = "On Turn End:"
+	label.custom_minimum_size = Vector2(132.0, 34.0)
+	label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.clip_text = false
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE)
+	label.add_theme_color_override("font_color", Color("d9cdb4"))
+	label.add_theme_color_override("font_outline_color", Color("21150e"))
+	label.add_theme_constant_override("outline_size", 1)
+	return label
+
+func _pass_preview_damage_item(text: String, node_name: String, color: Color, icon_path: String) -> Control:
+	var item := Control.new()
+	item.name = "%sItem" % node_name
+	item.custom_minimum_size = PASS_PREVIEW_VALUE_SIZE
+	item.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	item.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	item.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if not icon_path.is_empty():
+		var icon := TextureRect.new()
+		icon.name = "%sIcon" % node_name
+		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon.anchor_right = 1.0
+		icon.anchor_bottom = 1.0
+		icon.offset_left = 6.0
+		icon.offset_top = 2.0
+		icon.offset_right = -6.0
+		icon.offset_bottom = -2.0
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture = AssetLoader.load_texture(icon_path)
+		icon.modulate = Color(color.r, color.g, color.b, 0.22)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		item.add_child(icon)
+	var label: Label = _pass_preview_damage_label(text, node_name, color, false)
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.anchor_right = 1.0
+	label.anchor_bottom = 1.0
+	label.offset_left = 0.0
+	label.offset_top = 0.0
+	label.offset_right = 0.0
+	label.offset_bottom = 0.0
+	label.custom_minimum_size = PASS_PREVIEW_VALUE_SIZE
+	item.add_child(label)
+	return item
+
+func _pass_preview_damage_label(text: String, node_name: String, color: Color, large: bool) -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.text = text
+	label.custom_minimum_size = Vector2(maxf(48.0, 16.0 + float(text.length()) * (15.0 if large else 13.0)), 36.0 if large else 34.0)
+	label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.clip_text = false
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION if large else UiTypography.SIZE_BODY_LARGE)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color("200806"))
+	label.add_theme_constant_override("outline_size", 3)
+	return label
+
+func _pass_preview_button_tooltip() -> String:
+	var summary: Dictionary = _pass_preview_summary()
+	return "" if summary.is_empty() else _pass_preview_tooltip(summary)
+
+func _pass_preview_source_state() -> Dictionary:
+	if _selected_card_index >= 0 and not _preview_combat_state.is_empty():
+		var hovered_state: Dictionary = _pass_preview_confirmed_hover_state()
+		if not hovered_state.is_empty():
+			return hovered_state
+		return _preview_combat_state.duplicate(true)
+	if not _combat_state.is_empty():
+		return _combat_state.duplicate(true)
+	return {}
+
+func _pass_preview_confirmed_hover_state() -> Dictionary:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return {}
+	if _hovered_board_tile.x < 0:
+		return {}
+	if _orientation_pending():
+		return _pass_preview_confirmed_orientation_state(_hovered_board_tile)
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return {}
+	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
+	if not shortcut_plan.is_empty():
+		return _pass_preview_confirmed_shortcut_state(preview, shortcut_plan, _hovered_board_tile)
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	if str(action.get("type", "")) == "aoe":
+		action = _action_with_aoe_aim_orientation(action)
+	elif _target_needs_force_orientation(action, _hovered_board_tile):
+		return {}
+	if not _pending_target_tiles.has(_hovered_board_tile):
+		return {}
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(_preview_combat_state.duplicate(true), action, _hovered_board_tile)
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, _pending_actions, _pending_action_index + 1)
+	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _pass_preview_confirmed_orientation_state(click_tile: Vector2i) -> Dictionary:
+	if _pending_orientation_target_tile.x < 0:
+		return {}
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	var direction: Vector2i = _force_direction_for_confirmation(action, _pending_orientation_target_tile, click_tile)
+	if direction == Vector2i.ZERO:
+		return {}
+	var oriented_action: Dictionary = _action_with_pending_orientation(action, direction)
+	if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, oriented_action).has(_pending_orientation_target_tile):
+		return {}
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(_preview_combat_state.duplicate(true), oriented_action, _pending_orientation_target_tile)
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, _pending_actions, _pending_action_index + 1)
+	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _pass_preview_confirmed_shortcut_state(preview: Dictionary, shortcut_plan: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var actions: Array = preview.get("actions", [])
+	var action_index: int = int(shortcut_plan.get("action_index", -1))
+	if action_index < 0 or action_index >= actions.size():
+		return {}
+	var action: Dictionary = shortcut_plan.get("action", {})
+	var action_state: Dictionary = (shortcut_plan.get("state", {}) as Dictionary).duplicate(true)
+	if action_state.is_empty():
+		return {}
+	if _target_needs_force_orientation_in_state(action_state, action, target_tile):
+		return action_state
+	if not _combat_engine.valid_targets_for_player_action(action_state, action).has(target_tile):
+		return {}
+	var resolved_state: Dictionary = _combat_engine.apply_player_action(action_state, action, target_tile)
+	var card_id: String = str(preview.get("card_id", _card_id_for_hand_index(_selected_card_index)))
+	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, actions, action_index + 1)
+	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionary:
+	var resolved_state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
+	if resolved_state.is_empty():
+		return {}
+	if bool(preview.get("complete", false)):
+		return _combat_engine.finish_player_card(resolved_state, _selected_card_index)
+	return resolved_state
+
+func _pass_preview_summary() -> Dictionary:
+	var source_state: Dictionary = _pass_preview_source_state()
+	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
+		return {}
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
+	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state)
+	var after_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	if after_state.is_empty():
+		return {}
+	var losses: Dictionary = _pass_preview_player_damage_losses(phase_result.get("steps", []) as Array)
+	var outcome: String = _combat_engine.combat_outcome(after_state)
+	var source_player: Dictionary = (source_state.get("player", {}) as Dictionary)
+	var defeat: bool = outcome == "defeat" or int(source_player.get("hp", 0)) - int(losses.get("hp", 0)) <= 0
+	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
+	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
+	var tone: String = "safe"
+	if defeat or int(losses.get("hp", 0)) > 0:
+		tone = "danger"
+	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player:
+		tone = "warning"
+	return {
+		"tone": tone,
+		"entries": entries,
+		"defeat": defeat,
+		"hp_loss": int(losses.get("hp", 0)),
+		"block_loss": int(losses.get("block", 0)),
+		"stoneskin_loss": int(losses.get("stoneskin", 0)),
+		"unrevealed_before_player": unrevealed_before_player,
+		"outcome": outcome
+	}
+
+func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
+	var losses: Dictionary = {"hp": 0, "block": 0, "stoneskin": 0}
+	for step_var: Variant in steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		var target_losses: Array = step.get("target_losses", [])
+		if target_losses.is_empty():
+			if int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0:
+				losses["hp"] = int(losses.get("hp", 0)) + maxi(0, int(step.get("hp_loss", 0)))
+				losses["block"] = int(losses.get("block", 0)) + maxi(0, int(step.get("block_loss", 0)))
+				losses["stoneskin"] = int(losses.get("stoneskin", 0)) + maxi(0, int(step.get("stoneskin_loss", 0)))
+			continue
+		for loss_var: Variant in target_losses:
+			if typeof(loss_var) != TYPE_DICTIONARY:
+				continue
+			var loss: Dictionary = loss_var
+			if str(loss.get("key", "")) != "player" and str(loss.get("kind", "")) != "player":
+				continue
+			losses["hp"] = int(losses.get("hp", 0)) + maxi(0, int(loss.get("hp_loss", 0)))
+			losses["block"] = int(losses.get("block", 0)) + maxi(0, int(loss.get("block_loss", 0)))
+			losses["stoneskin"] = int(losses.get("stoneskin", 0)) + maxi(0, int(loss.get("stoneskin_loss", 0)))
+	return losses
+
+func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	var stoneskin_loss: int = int(losses.get("stoneskin", 0))
+	var block_loss: int = int(losses.get("block", 0))
+	var hp_loss: int = int(losses.get("hp", 0))
+	if stoneskin_loss > 0:
+		entries.append({
+			"name": "PassPreviewStoneSkinLoss",
+			"text": "-%d" % stoneskin_loss,
+			"color": ElementData.accent(ElementData.EARTH),
+			"icon_path": PASS_PREVIEW_STONESKIN_ICON_PATH
+		})
+	if block_loss > 0:
+		entries.append({
+			"name": "PassPreviewBlockLoss",
+			"text": "-%d" % block_loss,
+			"color": Color("90d9ff"),
+			"icon_path": PASS_PREVIEW_BLOCK_ICON_PATH
+		})
+	if hp_loss > 0:
+		entries.append({
+			"name": "PassPreviewHpLoss",
+			"text": "-%d" % hp_loss,
+			"color": Color("f39779"),
+			"icon_path": PASS_PREVIEW_HEALTH_ICON_PATH
+		})
+	return entries
+
+func _pass_preview_tooltip(summary: Dictionary) -> String:
+	if bool(summary.get("unrevealed_before_player", false)):
+		return "Enemies have unrevealed actions before your next turn, you may take additional damage."
+	return ""
+
+func _pass_preview_chip_style(summary: Dictionary) -> StyleBoxFlat:
+	var tone: String = str(summary.get("tone", "safe"))
+	var accent: Color = Color("8fcf7d")
+	if tone == "danger":
+		accent = Color("d86654")
+	elif tone == "warning":
+		accent = Color("d7a95d")
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.105, 0.075, 0.055, 0.95)
+	style.border_color = accent.lightened(0.10)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.18)
+	style.shadow_size = 7
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
 
 func _choice_buttons_use_overlay() -> bool:
 	return str(_run_state.get("mode", "room")) == "combat" and _choice_button_overlay != null
@@ -5989,11 +6431,14 @@ func _action_with_pending_orientation(action: Dictionary, direction: Vector2i) -
 	return oriented
 
 func _target_needs_force_orientation(action: Dictionary, target_tile: Vector2i) -> bool:
+	return _target_needs_force_orientation_in_state(_preview_combat_state, action, target_tile)
+
+func _target_needs_force_orientation_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
 	if str(action.get("type", "")) == "aoe":
 		return false
 	if not _combat_engine.player_action_needs_orientation(action):
 		return false
-	return not _combat_engine.force_directions_for_player_action(_preview_combat_state, action, target_tile).is_empty()
+	return not _combat_engine.force_directions_for_player_action(state, action, target_tile).is_empty()
 
 func _pending_oriented_action() -> Dictionary:
 	if not _orientation_pending():
@@ -6141,6 +6586,23 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		return
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		_refresh_stage_view()
+		if _pass_preview_hover_can_change():
+			_refresh_choice_bar()
+
+func _pass_preview_hover_can_change() -> bool:
+	if str(_run_state.get("mode", "room")) != "combat":
+		return false
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return false
+	if _orientation_pending():
+		return _pending_orientation_target_tile.x >= 0
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return false
+	var action: Dictionary = preview.get("action", {})
+	if not _combat_engine.player_action_needs_target(action):
+		return false
+	return not _vector2i_array(preview.get("target_tiles", [])).is_empty()
 
 func _on_board_tile_dragged(start_tile: Vector2i, current_tile: Vector2i) -> void:
 	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
@@ -10277,18 +10739,7 @@ func _room_title_text(room: Dictionary) -> String:
 	return str(room.get("name", "Chamber"))
 
 func _room_subtitle_text(room: Dictionary) -> String:
-	var element_text: String = ElementData.short_label(str(room.get("element", ElementData.NONE)))
-	var depth_text: String = "Depth %d" % int(room.get("depth", 0))
-	if not element_text.is_empty():
-		depth_text = "%s  %s" % [element_text, depth_text]
-	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
-		return "%s  TURN %d  %d/%d" % [
-			depth_text,
-			int(_combat_state.get("turn", 1)),
-			int(_combat_state.get("cards_played_this_turn", 0)),
-			int(_combat_state.get("cards_per_turn", 2))
-		]
-	return depth_text
+	return "Depth %d" % int(room.get("depth", 0))
 
 func _maybe_auto_trigger_room_dialogue() -> void:
 	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
