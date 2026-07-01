@@ -752,8 +752,10 @@ var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
 var _pinned_tooltip_scrim: ColorRect
-var _pinned_tooltip_host: CenterContainer
+var _pinned_tooltip_host: Control
 var _pinned_tooltip_panel: Control
+var _pinned_tooltip_source_row: Control
+var _pinned_tooltip_source_text: String = ""
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -820,6 +822,8 @@ var _dialogue_suppresses_choices: bool = false
 var _last_auto_dialogue_key: String = ""
 var _merchant_hovered_kind: String = ""
 var _merchant_hovered_item_id: String = ""
+var _merchant_hovered_row: Control
+var _merchant_trade_animation_active: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -857,7 +861,7 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if _pinned_tooltip_scrim != null and _pinned_tooltip_scrim.visible:
-		if event.is_action_pressed("ui_cancel"):
+		if _is_shift_press_event(event) or event.is_action_pressed("ui_cancel"):
 			_close_pinned_tooltip()
 			get_viewport().set_input_as_handled()
 			return
@@ -1071,7 +1075,7 @@ func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim = ColorRect.new()
 	_pinned_tooltip_scrim.name = "PinnedTooltipScrim"
 	_pinned_tooltip_scrim.visible = false
-	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.18)
+	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.0)
 	_pinned_tooltip_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pinned_tooltip_scrim.z_index = 1240
 	_pinned_tooltip_scrim.z_as_relative = false
@@ -1079,36 +1083,46 @@ func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim.gui_input.connect(_on_pinned_tooltip_scrim_gui_input)
 	add_child(_pinned_tooltip_scrim)
 
-	_pinned_tooltip_host = CenterContainer.new()
+	_pinned_tooltip_host = Control.new()
 	_pinned_tooltip_host.name = "PinnedTooltipHost"
 	_pinned_tooltip_host.mouse_filter = Control.MOUSE_FILTER_PASS
 	_pinned_tooltip_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pinned_tooltip_scrim.add_child(_pinned_tooltip_host)
 
-func _is_merchant_tooltip_pin_event(event: InputEvent) -> bool:
-	if _merchant_hovered_kind.is_empty() or _merchant_hovered_item_id.is_empty():
-		return false
+func _is_shift_press_event(event: InputEvent) -> bool:
 	if event is InputEventKey:
 		var key_event: InputEventKey = event
 		return key_event.pressed and not key_event.echo and (key_event.keycode == KEY_SHIFT or key_event.physical_keycode == KEY_SHIFT)
 	return false
+
+func _is_merchant_tooltip_pin_event(event: InputEvent) -> bool:
+	if _merchant_hovered_kind.is_empty() or _merchant_hovered_item_id.is_empty():
+		return false
+	return _is_shift_press_event(event)
 
 func _open_pinned_merchant_tooltip(merchant_kind: String, item_id: String) -> void:
 	if _pinned_tooltip_scrim == null or _pinned_tooltip_host == null:
 		return
 	if merchant_kind.is_empty() or item_id.is_empty():
 		return
+	var source_row: Control = _merchant_hovered_row if _node_is_alive(_merchant_hovered_row) else null
 	for child: Node in _pinned_tooltip_host.get_children():
 		child.queue_free()
+	_suppress_pinned_tooltip_source(source_row)
 	_pinned_tooltip_panel = _build_merchant_item_tooltip_panel(merchant_kind, item_id, true)
 	if _pinned_tooltip_panel == null:
+		_restore_pinned_tooltip_source()
 		return
 	_pinned_tooltip_panel.name = "PinnedMerchantTooltip"
 	_pinned_tooltip_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pinned_tooltip_host.add_child(_pinned_tooltip_panel)
+	var panel_size: Vector2 = _pinned_tooltip_panel.get_combined_minimum_size()
+	_pinned_tooltip_panel.size = panel_size
+	_pinned_tooltip_panel.global_position = _pinned_merchant_tooltip_position(source_row, panel_size)
 	_pinned_tooltip_scrim.visible = true
 
 func _close_pinned_tooltip() -> void:
+	_restore_pinned_tooltip_source()
 	if _pinned_tooltip_scrim != null:
 		_pinned_tooltip_scrim.visible = false
 	if _pinned_tooltip_host != null:
@@ -1124,6 +1138,35 @@ func _on_pinned_tooltip_scrim_gui_input(event: InputEvent) -> void:
 				return
 			_close_pinned_tooltip()
 			_pinned_tooltip_scrim.accept_event()
+
+func _suppress_pinned_tooltip_source(source_row: Control) -> void:
+	_restore_pinned_tooltip_source()
+	if not _node_is_alive(source_row):
+		return
+	_pinned_tooltip_source_row = source_row
+	_pinned_tooltip_source_text = source_row.tooltip_text
+	source_row.tooltip_text = ""
+
+func _restore_pinned_tooltip_source() -> void:
+	if _node_is_alive(_pinned_tooltip_source_row):
+		_pinned_tooltip_source_row.tooltip_text = _pinned_tooltip_source_text
+	_pinned_tooltip_source_row = null
+	_pinned_tooltip_source_text = ""
+
+func _pinned_merchant_tooltip_position(source_row: Control, panel_size: Vector2) -> Vector2:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var margin: float = 10.0
+	var position: Vector2 = _current_mouse_position() + Vector2(18.0, 18.0)
+	if _node_is_alive(source_row):
+		var row_rect: Rect2 = source_row.get_global_rect()
+		position = row_rect.position + Vector2(row_rect.size.x + 12.0, 0.0)
+		if position.x + panel_size.x > viewport_size.x - margin:
+			position.x = row_rect.position.x - panel_size.x - 12.0
+		if position.y + panel_size.y > viewport_size.y - margin:
+			position.y = viewport_size.y - panel_size.y - margin
+	position.x = clampf(position.x, margin, maxf(margin, viewport_size.x - panel_size.x - margin))
+	position.y = clampf(position.y, margin, maxf(margin, viewport_size.y - panel_size.y - margin))
+	return position
 
 func _combat_choice_placeholder_size() -> Vector2:
 	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION)
@@ -4700,8 +4743,8 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.mouse_filter = Control.MOUSE_FILTER_STOP
 	row.add_theme_stylebox_override("panel", _merchant_row_style(item_accent, false, affordable))
-	row.mouse_entered.connect(_on_merchant_row_mouse_entered.bind(merchant_kind, item_id))
-	row.mouse_exited.connect(_on_merchant_row_mouse_exited.bind(merchant_kind, item_id))
+	row.mouse_entered.connect(_on_merchant_row_mouse_entered.bind(merchant_kind, item_id, row))
+	row.mouse_exited.connect(_on_merchant_row_mouse_exited.bind(merchant_kind, item_id, row))
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
@@ -4765,20 +4808,23 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
 	if selling:
-		button.pressed.connect(_on_merchant_sell_pressed.bind(merchant_kind, item_id))
+		button.pressed.connect(_on_merchant_sell_pressed.bind(merchant_kind, item_id, row))
 	else:
-		button.pressed.connect(_on_merchant_buy_pressed.bind(merchant_kind, item_id))
+		button.pressed.connect(_on_merchant_buy_pressed.bind(merchant_kind, item_id, row))
 	hbox.add_child(button)
 	return row
 
-func _on_merchant_row_mouse_entered(merchant_kind: String, item_id: String) -> void:
+func _on_merchant_row_mouse_entered(merchant_kind: String, item_id: String, row: Control = null) -> void:
 	_merchant_hovered_kind = merchant_kind
 	_merchant_hovered_item_id = item_id
+	_merchant_hovered_row = row
 
-func _on_merchant_row_mouse_exited(merchant_kind: String, item_id: String) -> void:
+func _on_merchant_row_mouse_exited(merchant_kind: String, item_id: String, row: Control = null) -> void:
 	if _merchant_hovered_kind == merchant_kind and _merchant_hovered_item_id == item_id:
 		_merchant_hovered_kind = ""
 		_merchant_hovered_item_id = ""
+		if _merchant_hovered_row == row or row == null:
+			_merchant_hovered_row = null
 
 func _merchant_price_chip(text: String, accent: Color, selling: bool, enabled: bool) -> Control:
 	var chip := PanelContainer.new()
@@ -8430,39 +8476,75 @@ func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 	await _animate_relic_acquired(relic_id)
 	_relic_claim_in_progress = false
 
-func _on_merchant_buy_pressed(merchant_kind: String, item_id: String) -> void:
+func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row: Control = null) -> void:
+	if _merchant_trade_animation_active:
+		return
 	var before_embers: int = _run_engine.held_embers(_run_state)
 	var before_state: Dictionary = _run_state.duplicate(true)
 	var amount: int = _run_engine.merchant_buy_cost(merchant_kind, item_id)
+	_close_pinned_tooltip()
 	_run_state = _run_engine.buy_merchant_item(_run_state, merchant_kind, item_id)
 	if _run_state == before_state:
 		return
+	_merchant_trade_animation_active = true
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	var after_embers: int = _run_engine.held_embers(_run_state)
 	if after_embers == before_embers:
 		_refresh_ui()
+		_merchant_trade_animation_active = false
 		return
 	ProgressionStore.save_run_state(_committed_run_state())
 	_analytics_log_merchant_trade("buy", merchant_kind, item_id, amount, before_embers, after_embers)
+	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, true)
 	_refresh_ui()
+	_merchant_trade_animation_active = false
 
-func _on_merchant_sell_pressed(merchant_kind: String, item_id: String) -> void:
+func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_row: Control = null) -> void:
+	if _merchant_trade_animation_active:
+		return
 	var before_embers: int = _run_engine.held_embers(_run_state)
 	var before_state: Dictionary = _run_state.duplicate(true)
 	var amount: int = _run_engine.merchant_sell_value(merchant_kind, item_id)
+	_close_pinned_tooltip()
 	_run_state = _run_engine.sell_merchant_item(_run_state, merchant_kind, item_id)
 	if _run_state == before_state:
 		return
+	_merchant_trade_animation_active = true
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	var after_embers: int = _run_engine.held_embers(_run_state)
 	if after_embers == before_embers:
 		_refresh_ui()
+		_merchant_trade_animation_active = false
 		return
 	ProgressionStore.save_run_state(_committed_run_state())
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
+	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, false)
 	_refresh_ui()
+	_merchant_trade_animation_active = false
+
+func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, item_id: String, buying: bool) -> void:
+	if not _node_is_alive(source_row):
+		return
+	var row: Control = source_row
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.pivot_offset = row.size * 0.5
+	var start_position: Vector2 = row.position
+	var accent: Color = _merchant_item_accent(merchant_kind, item_id)
+	var flash_color := Color(
+		clampf(accent.r * 1.35 + 0.18, 0.0, 1.0),
+		clampf(accent.g * 1.35 + 0.18, 0.0, 1.0),
+		clampf(accent.b * 1.35 + 0.18, 0.0, 1.0),
+		1.0
+	)
+	var tween: Tween = create_tween()
+	tween.tween_property(row, "modulate", flash_color, 0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(row, "scale", Vector2(1.025, 1.025), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(row, "modulate", Color(1.0, 1.0, 1.0, 0.16), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(row, "scale", Vector2(0.985, 0.985), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(row, "position", start_position + Vector2(10.0 if buying else -10.0, 0.0), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tween.finished
 
 func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
 	if _card_fx_layer == null:

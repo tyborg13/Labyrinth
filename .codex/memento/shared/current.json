@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-01T16:46:45Z",
+  "updated_at": "2026-07-01T17:22:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4376,7 +4376,7 @@
       }
     },
     {
-      "id": "mnt_20260701T164645Z_041c21ea",
+      "id": "mnt_20260701T172200Z_db3323d3",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -4385,16 +4385,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_engine.gd",
-      "summary": "Merchant room stock is visit-local room metadata.",
-      "details": "Merchant buy offers are stored on the current room under merchant_stock, merchant_sold_items, and merchant_refill_count. Buying refills only the purchased slot from the remaining unsold/unowned pool; selling freezes stock first, records the sold id, and must not reroll offers.",
+      "summary": "Merchant room trade state is visit-local room metadata.",
+      "details": "Merchant buy offers are stored on the current room under merchant_stock, merchant_sold_items, merchant_purchased_items, and merchant_refill_count. Buying records the purchased id so it enters inventory but is hidden from this visit's Sell list, then refills only the purchased buy slot from the remaining unsold/unowned pool. Selling records the sold id and must not reroll offers.",
       "status": "active",
-      "created_at": "2026-07-01T16:46:45Z",
-      "updated_at": "2026-07-01T16:46:45Z",
+      "created_at": "2026-07-01T17:22:00Z",
+      "updated_at": "2026-07-01T17:22:00Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260701T164645Z_041c21ea"
+      ],
       "source": {
         "branch": "codex/npc-merchant-rooms",
-        "commit": "a04ebc7"
+        "commit": "00d0099"
       }
     }
   ]
