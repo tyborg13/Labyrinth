@@ -388,11 +388,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
-		"block":
+		"block", "guard_ally":
 			tokens.append(_token_for_action_field(action, "block", "amount", int(action.get("amount", 0))))
 		"stoneskin":
 			tokens.append(_token_for_action_field(action, "stoneskin", "amount", int(action.get("amount", 0))))
-		"heal", "heal_self":
+		"heal", "heal_self", "heal_ally":
 			tokens.append(_token_for_action_field(action, "heal", "amount", int(action.get("amount", 0))))
 		"draw":
 			tokens.append(_token_for_action_field(action, "draw", "amount", int(action.get("amount", 0))))

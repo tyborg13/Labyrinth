@@ -13,19 +13,22 @@ unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
 2 uses the base roster, and depth 3 enemies have 112% HP without an extra
 generic damage/support bump. Later sequences keep the local curve while raising
-enemy HP and intent baselines. Zekarion's 2x2 footprint makes printed reach feel
-larger, so Tempest Breath is capped at range 3 after its one-tile advance to
-preserve safe boss-room repositioning. Elemental combat rooms seed 2-3 traps
-across eligible passable floor tiles, including the playable edge band, and
-those traps blast adjacent tiles when stepped on or attacked. First-sequence
-standard trap damage is 6/7/8 player-scale damage at depths 1/2/3, first-boss
-traps hit for 5 to avoid one-shotting full-health lightning wisps, and later
-sequences add 2 player-scale damage per completed sequence. Depth 1-2 fire
-rooms use shallow burn on enemy attacks and fire traps before depth-3 fire/earth
-trap statuses cap at 2. Every room places a 4 HP potion and 4 block shield, and
-combat rooms scatter 5-7 low-HP boxes/crates across eligible passable floor
-tiles, including edge-band tiles when connectivity stays intact. Those crates
-block movement without blocking line of sight.
+enemy HP and intent baselines. Grave surgeons join depth 2+ frontline pools as
+low-damage support enemies that heal or guard the most injured/threatened nearby
+enemy on the same support scaling curve as enemy block/healing. Zekarion's 2x2
+footprint makes printed reach feel larger, so Tempest Breath is capped at range
+3 after its one-tile advance to preserve safe boss-room repositioning.
+Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,
+including the playable edge band, and those traps blast adjacent tiles when
+stepped on or attacked. First-sequence standard trap damage is 6/7/8
+player-scale damage at depths 1/2/3, first-boss traps hit for 5 to avoid
+one-shotting full-health lightning wisps, and later sequences add 2 player-scale
+damage per completed sequence. Depth 1-2 fire rooms use shallow burn on enemy
+attacks and fire traps before depth-3 fire/earth trap statuses cap at 2. Every
+room places a 4 HP potion and 4 block shield, and combat rooms scatter 5-7
+low-HP boxes/crates across eligible passable floor tiles, including edge-band
+tiles when connectivity stays intact. Those crates block movement without
+blocking line of sight.
 Enemies killed by a card add a bonus card play for the turn, so large damage and
 broad damage get a small execute-tempo premium.
 """

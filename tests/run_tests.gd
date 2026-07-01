@@ -90,6 +90,13 @@ func _initialize() -> void:
 	_test_healing_cards_are_burned_and_downweighted()
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_harrier_has_moving_ranged_attack()
+	_test_grave_surgeon_data_and_pool_role()
+	_test_grave_surgeon_support_actions_scale()
+	_test_heal_ally_targets_most_injured_ally()
+	_test_heal_ally_falls_back_to_self()
+	_test_heal_ally_no_target_noops()
+	_test_guard_ally_targets_threatened_ally()
+	_test_support_intent_rows_name_target()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_block_applies_on_actor_turn_only()
 	_test_aoe_hits_multiple_targets()
@@ -2451,6 +2458,161 @@ func _test_harrier_has_moving_ranged_attack() -> void:
 			found = true
 			break
 	_assert(found, "Harriers should have at least one ranged attack that advances before firing")
+
+func _test_grave_surgeon_data_and_pool_role() -> void:
+	var surgeon_def: Dictionary = GameData.enemy_def("grave_surgeon")
+	_assert(str(surgeon_def.get("name", "")) == "Grave Surgeon", "Grave Surgeon enemy data should load")
+	_assert(FileAccess.file_exists(str(surgeon_def.get("art_path", ""))), "Grave Surgeon should use project enemy art")
+	_assert(int(surgeon_def.get("max_hp", 0)) == 110, "Grave Surgeon HP should stay in support-enemy range")
+	_assert(int(surgeon_def.get("reward_embers", 0)) == 11, "Grave Surgeon should reward normal support-enemy embers")
+	var support_intent_count: int = 0
+	var attack_damage_total: int = 0
+	for intent_var: Variant in surgeon_def.get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		for action_var: Variant in (intent_var as Dictionary).get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var as Dictionary
+			match str(action.get("type", "")):
+				"heal_ally", "guard_ally":
+					support_intent_count += 1
+				"melee", "ranged", "aoe", "push", "pull":
+					attack_damage_total += int(action.get("damage", 0))
+	_assert(support_intent_count >= 2, "Grave Surgeon should be defined by reusable support actions")
+	_assert(attack_damage_total <= 20, "Grave Surgeon's offensive pressure should stay low")
+	var generator := RoomGenerator.new()
+	var rng := RandomNumberGenerator.new()
+	var saw_surgeon: bool = false
+	for depth: int in [2, 3]:
+		for seed: int in range(24):
+			rng.seed = seed
+			var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng)
+			if not enemy_types.has("grave_surgeon"):
+				continue
+			saw_surgeon = true
+			_assert(enemy_types.size() >= 4, "Grave Surgeon should appear in multi-enemy rooms")
+			_assert(enemy_types.has("crawler") or enemy_types.has("harrier") or enemy_types.has("warden"), "Grave Surgeon should be paired with front-line enemies")
+	_assert(saw_surgeon, "Grave Surgeon should appear in depth 2+ encounter pools")
+
+func _test_grave_surgeon_support_actions_scale() -> void:
+	var suture: Dictionary = _enemy_intent_by_id("grave_surgeon", "triage_suture")
+	var brace: Dictionary = _enemy_intent_by_id("grave_surgeon", "field_brace")
+	var suture_action: Dictionary = (suture.get("actions", []) as Array)[1]
+	var brace_action: Dictionary = (brace.get("actions", []) as Array)[1]
+	_assert(str(suture_action.get("type", "")) == "heal_ally", "Triage Suture should use the reusable heal_ally action")
+	_assert(str(brace_action.get("type", "")) == "guard_ally", "Field Brace should use the reusable guard_ally action")
+	_assert(int(suture_action.get("amount", 0)) == 30, "heal_ally amount should scale from player units into fixed-point combat values")
+	_assert(int(brace_action.get("amount", 0)) == 40, "guard_ally amount should scale from player units into fixed-point combat values")
+	var combat := CombatEngine.new()
+	var shallow_suture: Dictionary = combat.call("_elementalize_enemy_intent", suture, ElementData.NONE, 1)
+	var shallow_heal: Dictionary = (shallow_suture.get("actions", []) as Array)[1]
+	_assert(int(shallow_heal.get("amount", 0)) == 20, "Depth-one support scaling should downshift heal_ally")
+	var later_brace: Dictionary = combat.call("_elementalize_enemy_intent", brace, ElementData.NONE, 6)
+	var later_guard: Dictionary = (later_brace.get("actions", []) as Array)[1]
+	_assert(int(later_guard.get("amount", 0)) == 60, "Later-sequence support scaling should raise guard_ally")
+
+func _test_heal_ally_targets_most_injured_ally() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var enemies: Array = resolved.get("enemies", [])
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 70, "heal_ally should target the ally with the most missing HP")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 70, "heal_ally should not heal a less injured ally first")
+	_assert(_combat_log_contains(resolved, "Grave Surgeon stitches Tunnel Crawler"), "heal_ally logs should name the supported ally")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("kind", "")) == "heal", "heal_ally should produce a heal animation step")
+	_assert(str(step.get("actor_key", "")) == "enemy_2", "heal_ally step should focus the healed ally")
+	_assert(str(step.get("source_actor_key", "")) == "enemy_1", "heal_ally step should preserve the Surgeon as source")
+
+func _test_heal_ally_falls_back_to_self() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	var surgeon: Dictionary = enemies[0]
+	surgeon["hp"] = 50
+	enemies[0] = surgeon
+	var crawler: Dictionary = enemies[1]
+	crawler["hp"] = int(crawler.get("max_hp", 1))
+	enemies[1] = crawler
+	var harrier: Dictionary = enemies[2]
+	harrier["hp"] = int(harrier.get("max_hp", 1))
+	enemies[2] = harrier
+	state["enemies"] = enemies
+	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var resolved_enemies: Array = resolved.get("enemies", [])
+	_assert(int((resolved_enemies[0] as Dictionary).get("hp", 0)) == 80, "heal_ally should fall back to the source when it is the only injured ally")
+	_assert(_combat_log_contains(resolved, "Grave Surgeon stitches itself"), "Self fallback logs should say itself")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("actor_key", "")) == "enemy_1", "Self fallback heal step should focus the Surgeon")
+	_assert(str(step.get("label", "")) == "Heal Self", "Self fallback heal step should label the self target")
+
+func _test_heal_ally_no_target_noops() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		enemy["hp"] = int(enemy.get("max_hp", 1))
+		enemies[index] = enemy
+	state["enemies"] = enemies
+	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var resolved_enemies: Array = resolved.get("enemies", [])
+	for index: int in range(resolved_enemies.size()):
+		var enemy: Dictionary = resolved_enemies[index]
+		_assert(int(enemy.get("hp", 0)) == int(enemy.get("max_hp", 1)), "heal_ally should no-op when no live enemy is injured")
+	var step: Dictionary = combat.call("_enemy_action_step", state, resolved, 0, action)
+	_assert(step.is_empty(), "heal_ally no-op should not produce a presentation step")
+
+func _test_guard_ally_targets_threatened_ally() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var action: Dictionary = {"type": "guard_ally", "amount": 40, "range": 4}
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var enemies: Array = resolved.get("enemies", [])
+	_assert(int((enemies[1] as Dictionary).get("block", 0)) == 40, "guard_ally should target the ally nearest the player")
+	_assert(int((enemies[0] as Dictionary).get("block", 0)) == 0, "guard_ally should not guard itself when a more threatened ally exists")
+	_assert(_combat_log_contains(resolved, "Grave Surgeon guards Tunnel Crawler"), "guard_ally logs should name the guarded ally")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("kind", "")) == "block", "guard_ally should produce a block animation step")
+	_assert(str(step.get("actor_key", "")) == "enemy_2", "guard_ally step should focus the guarded ally")
+	_assert(str(step.get("source_actor_key", "")) == "enemy_1", "guard_ally step should preserve the Surgeon as source")
+
+func _test_support_intent_rows_name_target() -> void:
+	var board := CombatBoardView.new()
+	board.combat_state = _support_action_test_state()
+	var surgeon_unit := {
+		"key": "enemy_1",
+		"id": 1,
+		"role": "enemy",
+		"type": "grave_surgeon",
+		"pos": Vector2i(5, 4),
+		"hp": 110,
+		"max_hp": 110
+	}
+	var heal_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	_assert(heal_rows.size() == 1, "heal_ally should surface an intent row")
+	_assert(ActionIcons.plain_text_for_tokens(heal_rows[0] as Array).find("-> Crawler") >= 0, "heal_ally intent row should name the ally target")
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	var surgeon: Dictionary = enemies[0]
+	surgeon["hp"] = 50
+	enemies[0] = surgeon
+	for index: int in range(1, enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		enemy["hp"] = int(enemy.get("max_hp", 1))
+		enemies[index] = enemy
+	state["enemies"] = enemies
+	board.combat_state = state
+	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
+	board.free()
 
 func _max_elemental_enemy_move_attack_reach(combat: CombatEngine, element_id: String, room_depth: int) -> int:
 	var max_reach: int = 0
@@ -8109,8 +8271,31 @@ func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
 			continue
 		var intent: Dictionary = intent_var
 		if str(intent.get("id", "")) == intent_id:
-			return intent.duplicate(true)
+				return intent.duplicate(true)
 	return {}
+
+func _support_action_test_state() -> Dictionary:
+	return {
+		"grid": _simple_grid(),
+		"room_depth": 2,
+		"room_element": ElementData.NONE,
+		"player": {"pos": Vector2i(2, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0},
+		"enemies": [
+			{"id": 1, "type": "grave_surgeon", "pos": Vector2i(5, 4), "hp": 110, "max_hp": 110, "block": 0, "stoneskin": 0},
+			{"id": 2, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 100, "block": 0, "stoneskin": 0},
+			{"id": 3, "type": "harrier", "pos": Vector2i(5, 3), "hp": 70, "max_hp": 100, "block": 0, "stoneskin": 0}
+		],
+		"illusions": [],
+		"terrain": [],
+		"traps": [],
+		"log": []
+	}
+
+func _combat_log_contains(state: Dictionary, text: String) -> bool:
+	for line_var: Variant in state.get("log", []):
+		if str(line_var).find(text) >= 0:
+			return true
+	return false
 
 func _simple_room_layout() -> Dictionary:
 	return {
