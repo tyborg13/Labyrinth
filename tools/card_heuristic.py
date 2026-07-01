@@ -14,10 +14,12 @@ depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
 2 uses the base roster plus low-frequency Cinder Ooze split pressure, and depth
 3 enemies have 112% HP without an extra generic damage/support bump. Cinder
 Oozes split into summoned, rewardless Cinder Droplets rather than extra ember or
-death-card-play payouts. Grave surgeons join depth 2+ frontline pools as
-low-damage support enemies that heal or guard the most injured/threatened nearby
-enemy on the same support scaling curve as enemy block/healing. Later sequences
-keep the local curve while raising enemy HP and intent baselines. Zekarion's 2x2
+death-card-play payouts. Chainbound Gaolers join depth 2-3 normal pools as
+mid-slow pull/immobilize control anchors without stacking with wardens in their
+seeded compositions. Grave surgeons join depth 2+ frontline pools as low-damage
+support enemies that heal or guard the most injured/threatened nearby enemy on
+the same support scaling curve as enemy block/healing. Later sequences keep the
+local curve while raising enemy HP and intent baselines. Zekarion's 2x2
 footprint makes printed reach feel larger, so Tempest Breath is capped at range
 3 after its one-tile advance to preserve safe boss-room repositioning.
 Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,

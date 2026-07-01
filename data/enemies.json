@@ -256,6 +256,79 @@
       }
     ]
   },
+  "chainbound_gaoler": {
+    "name": "Chainbound Gaoler",
+    "max_hp": 16,
+    "base_initiative": 13,
+    "reward_embers": 12,
+    "accent": "#b66a32",
+    "art_path": "res://assets/art/enemies/chainbound_gaoler.png",
+    "art_scale": 0.9,
+    "art_offset_y": -16,
+    "intents": [
+      {
+        "id": "chain_reel",
+        "name": "Chain Reel",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "pull",
+            "damage": 2,
+            "range": 4,
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "id": "manacle_pin",
+        "name": "Manacle Pin",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 1,
+            "range": 3,
+            "immobilize": true
+          }
+        ]
+      },
+      {
+        "id": "cudgel_press",
+        "name": "Cudgel Press",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "melee",
+            "damage": 5,
+            "range": 1
+          }
+        ]
+      },
+      {
+        "id": "iron_guard",
+        "name": "Iron Guard",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "block",
+            "amount": 6
+          }
+        ]
+      }
+    ]
+  },
   "grave_surgeon": {
     "name": "Grave Surgeon",
     "max_hp": 11,
