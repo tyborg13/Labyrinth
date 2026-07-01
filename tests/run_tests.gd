@@ -3489,17 +3489,33 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_set_enemy_intent(state, 0, _enemy_intent_by_id("frostglass_lancer", "glass_lunge"))
+	_set_enemy_intent(state, 0, _locked_enemy_intent(combat, state, 0, _enemy_intent_by_id("frostglass_lancer", "shatter_lance")))
 	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
 	var attack_tiles: Array = threat.get("attack", [])
-	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(4, 4)) and attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer preview should show the eastward glass-lance line")
-	_assert(not attack_tiles.has(Vector2i(2, 3)) and not attack_tiles.has(Vector2i(2, 5)), "Frostglass Lancer preview should not show stale north/south rotations")
+	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(4, 4)) and attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer preview should show the committed eastward glass-lance line")
+	_assert(attack_tiles.has(Vector2i(5, 3)) and attack_tiles.has(Vector2i(5, 5)), "Frostglass Lancer preview should show the wider spearhead burst at the line end")
+	_assert(not attack_tiles.has(Vector2i(2, 3)) and not attack_tiles.has(Vector2i(2, 5)) and not attack_tiles.has(Vector2i(3, 3)), "Frostglass Lancer preview should not show stale north/south rotations")
 	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
 	var after_state: Dictionary = phase.get("state", {})
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 0, "Frostglass Lancer line thrust should damage the player on the oriented line")
 	var last_step: Dictionary = ((phase.get("steps", []) as Array).back() as Dictionary)
 	var step_tiles: Array = last_step.get("tiles", [])
-	_assert(step_tiles.has(Vector2i(5, 4)) and step_tiles.has(Vector2i(6, 4)) and not step_tiles.has(Vector2i(4, 3)), "Frostglass Lancer impact step should report only the resolved line tiles")
+	_assert(step_tiles.has(Vector2i(5, 4)) and step_tiles.has(Vector2i(5, 3)) and step_tiles.has(Vector2i(5, 5)) and not step_tiles.has(Vector2i(4, 3)), "Frostglass Lancer impact step should report the committed line and spearhead only")
+
+	var dodge_state: Dictionary = combat.create_combat(17831, layout, {
+		"hp": 30,
+		"max_hp": 30,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(dodge_state, 0, _locked_enemy_intent(combat, dodge_state, 0, _enemy_intent_by_id("frostglass_lancer", "shatter_lance")))
+	var dodging_player: Dictionary = (dodge_state.get("player", {}) as Dictionary).duplicate(true)
+	dodging_player["pos"] = Vector2i(6, 6)
+	dodge_state["player"] = dodging_player
+	var dodged_after: Dictionary = combat.resolve_enemy_phase(dodge_state)
+	_assert(int((dodged_after.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Frostglass Lancer Shatter Lance should not track the player after the committed preview is dodged")
 
 	var blocked_layout: Dictionary = _simple_room_layout()
 	blocked_layout["player_start"] = Vector2i(5, 4)
@@ -3522,10 +3538,11 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_set_enemy_intent(blocked_state, 0, _enemy_intent_by_id("frostglass_lancer", "glass_lunge"))
+	_set_enemy_intent(blocked_state, 0, _locked_enemy_intent(combat, blocked_state, 0, _enemy_intent_by_id("frostglass_lancer", "shatter_lance")))
 	var blocked_threat: Dictionary = combat.enemy_threat_tiles(blocked_state, 0)
 	var blocked_attack_tiles: Array = blocked_threat.get("attack", [])
-	_assert(not blocked_attack_tiles.has(Vector2i(4, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer blocked-line preview should stop at impassable tiles")
+	_assert(blocked_attack_tiles.has(Vector2i(3, 4)) and not blocked_attack_tiles.has(Vector2i(4, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer blocked-line preview should stop at impassable tiles")
+	_assert(not blocked_attack_tiles.has(Vector2i(5, 3)) and not blocked_attack_tiles.has(Vector2i(5, 5)), "Frostglass Lancer blocked-line preview should clip the spearhead burst behind blockers")
 	var blocked_after: Dictionary = combat.resolve_enemy_phase(blocked_state)
 	_assert(int((blocked_after.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Frostglass Lancer line thrust should not hit through blocking tiles")
 
@@ -7469,10 +7486,10 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 			"pos": Vector2i(2, 4),
 			"hp": 130,
 			"max_hp": 130,
-			"block": 0,
-			"intent": _enemy_intent_by_id("frostglass_lancer", "glass_lunge")
+			"block": 0
 		}
 	]
+	_set_enemy_intent(combat_state, 0, _locked_enemy_intent(combat, combat_state, 0, _enemy_intent_by_id("frostglass_lancer", "shatter_lance")))
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = combat_state
@@ -7483,7 +7500,8 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(5, 4)), "RunScene should surface the Frostglass Lancer's straight-line threat on board hover")
-	_assert(not attack_tiles.has(Vector2i(2, 3)) and not attack_tiles.has(Vector2i(2, 5)), "RunScene Frostglass Lancer hover should avoid stale perpendicular line rotations")
+	_assert(attack_tiles.has(Vector2i(5, 3)) and attack_tiles.has(Vector2i(5, 5)), "RunScene should surface the Frostglass Lancer's spearhead burst on board hover")
+	_assert(not attack_tiles.has(Vector2i(2, 3)) and not attack_tiles.has(Vector2i(2, 5)) and not attack_tiles.has(Vector2i(3, 3)), "RunScene Frostglass Lancer hover should avoid stale perpendicular line rotations")
 	instance.queue_free()
 	await process_frame
 
@@ -8251,6 +8269,12 @@ func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
 		if str(intent.get("id", "")) == intent_id:
 			return intent.duplicate(true)
 	return {}
+
+func _locked_enemy_intent(combat: CombatEngine, state: Dictionary, enemy_index: int, intent: Dictionary) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return intent.duplicate(true)
+	return combat.call("_enemy_intent_with_locked_aoe_orientation", state, enemies[enemy_index] as Dictionary, intent) as Dictionary
 
 func _room_has_enemy_type(room: Dictionary, enemy_type: String) -> bool:
 	for enemy_var: Variant in room.get("enemies", []):

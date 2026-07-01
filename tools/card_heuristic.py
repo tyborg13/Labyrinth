@@ -13,8 +13,8 @@ unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
 2 uses the base roster, and depth 3 enemies have 112% HP without an extra
 generic damage/support bump. Frostglass Lancers enter only at local depths 2-3
-as precision line-threat enemies, increasing the value of lateral movement and
-blocker-aware positioning after the opener band. Later sequences keep the local
+as precision fixed line-and-spearhead enemies, increasing the value of lateral
+movement and blocker-aware positioning after the opener band. Later sequences keep the local
 curve while raising enemy HP and intent baselines. Zekarion's 2x2 footprint
 makes printed reach feel larger, so Tempest Breath is capped at range 3 after
 its one-tile advance to preserve safe boss-room repositioning. Elemental combat

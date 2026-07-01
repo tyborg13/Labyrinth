@@ -1324,6 +1324,9 @@ func _enemy_action_oriented_to_target(action: Dictionary, enemy: Dictionary, tar
 		resolved_action["orientation"] = direction
 	return resolved_action
 
+func _enemy_action_locks_aoe_orientation(action: Dictionary) -> bool:
+	return str(action.get("type", "")) == "aoe" and bool(action.get("lock_aoe_orientation", false))
+
 func _enemy_aoe_tiles_for_target(state: Dictionary, enemy: Dictionary, action: Dictionary, center: Vector2i, score_player: bool) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = _best_aoe_tiles_for_target(state, action, center, score_player)
 	if not bool(action.get("stop_at_blockers", false)):
@@ -1337,19 +1340,22 @@ func _enemy_aoe_tiles_for_target(state: Dictionary, enemy: Dictionary, action: D
 func _aoe_tiles_until_blocked(grid: Array, source_pos: Vector2i, direction: Vector2i, tiles: Array[Vector2i]) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
-		if not _tile_is_on_directional_ray(source_pos, direction, tile):
+		var projection: Vector2i = _tile_projection_on_directional_ray(source_pos, direction, tile)
+		if projection == source_pos:
 			continue
-		if _directional_ray_clear_to_tile(grid, source_pos, direction, tile):
+		if _directional_ray_clear_to_tile(grid, source_pos, direction, projection):
 			lookup[tile] = true
 	return _sorted_tiles_from_lookup(lookup)
 
-func _tile_is_on_directional_ray(source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> bool:
+func _tile_projection_on_directional_ray(source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> Vector2i:
 	var delta: Vector2i = tile - source_pos
 	if direction.x != 0:
-		return delta.y == 0 and delta.x * direction.x > 0
+		var distance_x: int = delta.x * direction.x
+		return source_pos if distance_x <= 0 else source_pos + direction * distance_x
 	if direction.y != 0:
-		return delta.x == 0 and delta.y * direction.y > 0
-	return false
+		var distance_y: int = delta.y * direction.y
+		return source_pos if distance_y <= 0 else source_pos + direction * distance_y
+	return source_pos
 
 func _directional_ray_clear_to_tile(grid: Array, source_pos: Vector2i, direction: Vector2i, tile: Vector2i) -> bool:
 	var cursor: Vector2i = source_pos + direction
@@ -2427,7 +2433,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
-	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
+	var target: Dictionary = _closest_enemy_target(next_state, enemy, rng) if _enemy_action_locks_aoe_orientation(action) else _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
 	var damage: int = int(action.get("damage", 0))
@@ -3338,7 +3344,12 @@ func _threat_aoe_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary)
 	for center: Vector2i in centers:
 		if attack_range > 0 and not _enemy_aoe_can_target_center(state, enemy, action, center):
 			continue
-		if bool(action.get("orient_toward_target", false)):
+		if _action_orientation_direction(action) != Vector2i.ZERO:
+			for tile: Vector2i in _enemy_aoe_tiles_for_target(state, enemy, action, center, true):
+				if _enemy_footprint_tiles(enemy).has(tile):
+					continue
+				lookup[tile] = true
+		elif bool(action.get("orient_toward_target", false)):
 			for target: Dictionary in _actor_targets(state):
 				if not _enemy_action_reaches_target(state, enemy, action, target):
 					continue
@@ -3920,11 +3931,34 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	for intent: Dictionary in intents:
 		cursor += maxi(1, int(intent.get("weight", 1)))
 		if roll <= cursor:
-			enemy["intent"] = intent.duplicate(true)
+			enemy["intent"] = _enemy_intent_with_locked_aoe_orientation(state, enemy, intent)
 			enemies[enemy_index] = enemy
 			return
-	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
+	enemy["intent"] = _enemy_intent_with_locked_aoe_orientation(state, enemy, intents[0] as Dictionary)
 	enemies[enemy_index] = enemy
+
+func _enemy_intent_with_locked_aoe_orientation(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	var locked_intent: Dictionary = intent.duplicate(true)
+	var actions: Array = []
+	for action_var: Variant in locked_intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = (action_var as Dictionary).duplicate(true)
+		if _enemy_action_locks_aoe_orientation(action) and _action_orientation_direction(action) == Vector2i.ZERO:
+			var direction: Vector2i = _locked_aoe_orientation_for_enemy(state, enemy)
+			if direction != Vector2i.ZERO:
+				action["orientation"] = direction
+		actions.append(action)
+	locked_intent["actions"] = actions
+	return locked_intent
+
+func _locked_aoe_orientation_for_enemy(state: Dictionary, enemy: Dictionary) -> Vector2i:
+	var target: Dictionary = _closest_enemy_target(state, enemy)
+	if target.is_empty():
+		return Vector2i.ZERO
+	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
+	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
+	return _cardinal_direction(target_pos - source_pos)
 
 func _elementalized_enemy_intents(base_intents: Array, room_element: String, room_depth: int) -> Array:
 	var intents: Array = []
