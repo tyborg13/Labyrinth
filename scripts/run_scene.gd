@@ -650,6 +650,7 @@ const TURN_ORDER_PORTRAITS := {
 	"acolyte": "res://assets/art/portraits/ash_acolyte.png",
 	"harrier": "res://assets/art/portraits/bone_harrier.png",
 	"warden": "res://assets/art/portraits/ash_warden.png",
+	"bile_bloomer": "res://assets/art/portraits/bile_bloomer.png",
 	"zekarion": "res://assets/art/portraits/zekarion.png",
 	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png"
 }

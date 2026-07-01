@@ -11,6 +11,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const RunSceneScript = preload("res://scripts/run_scene.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
@@ -152,6 +153,7 @@ func _initialize() -> void:
 	_test_combat_board_surfaces_illusion_preview_units()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
 	_test_bile_bloomer_art_loads_for_board()
+	_test_bile_bloomer_turn_order_portrait_loads()
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_emaciated_man_uses_matching_idle_sheet()
@@ -4503,6 +4505,41 @@ func _test_bile_bloomer_art_loads_for_board() -> void:
 	_assert(texture != null, "Bile Bloomer art should load for board rendering")
 	_assert(texture.get_size() == Vector2(255.0, 255.0), "Bile Bloomer static sprite should use the standard 255px unit canvas")
 	board.free()
+
+func _test_bile_bloomer_turn_order_portrait_loads() -> void:
+	var combat := CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(5, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var state: Dictionary = combat.create_combat(23103, layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var order: Array[Dictionary] = combat.current_turn_order(state, 10)
+	var run_scene := RunSceneScript.new()
+	var found_bloomer: bool = false
+	for entry: Dictionary in order:
+		if str(entry.get("type", "")) != "bile_bloomer":
+			continue
+		found_bloomer = true
+		var path: String = str(run_scene.call("_turn_order_portrait_path", entry))
+		_assert(path == "res://assets/art/portraits/bile_bloomer.png", "Bile Bloomer turn-order slot should use its enemy portrait instead of the player fallback")
+		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
+		_assert(image != null and not image.is_empty(), "Bile Bloomer turn-order portrait should load from disk")
+		if image != null and not image.is_empty():
+			_assert(image.get_size() == Vector2i(128, 128), "Bile Bloomer turn-order portrait should match the 128px portrait atlas size")
+	run_scene.free()
+	_assert(found_bloomer, "Bile Bloomer should appear in the visible turn-order queue")
 
 func _test_zekarion_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
