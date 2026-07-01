@@ -4518,7 +4518,7 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 
 	var stock_label := Label.new()
 	stock_label.text = "Stock"
-	UiTypography.set_label_size(stock_label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(stock_label, UiTypography.SIZE_BODY)
 	stock_label.add_theme_color_override("font_color", Color("f5ead4"))
 	stock_label.add_theme_color_override("font_outline_color", Color("241912"))
 	stock_label.add_theme_constant_override("outline_size", 1)
@@ -4530,7 +4530,7 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 
 	var ember_label := Label.new()
 	ember_label.text = "EMBERS %d" % _run_engine.held_embers(_run_state)
-	UiTypography.set_label_size(ember_label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(ember_label, UiTypography.SIZE_BODY)
 	ember_label.add_theme_color_override("font_color", Color("f0c978"))
 	ember_label.add_theme_color_override("font_outline_color", Color("241912"))
 	ember_label.add_theme_constant_override("outline_size", 1)
@@ -4567,7 +4567,7 @@ func _build_merchant_column(merchant_kind: String, selling: bool) -> Control:
 
 	var title := Label.new()
 	title.text = "Sell" if selling else "Buy"
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(title, UiTypography.SIZE_BODY)
 	title.add_theme_color_override("font_color", Color("fff1d5"))
 	title.add_theme_color_override("font_outline_color", Color("1d1510"))
 	title.add_theme_constant_override("outline_size", 1)
@@ -4602,7 +4602,7 @@ func _build_merchant_empty_row(text: String) -> Control:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
 	label.add_theme_color_override("font_color", Color("b9aa91"))
 	panel.add_child(label)
 	return panel
@@ -4610,11 +4610,19 @@ func _build_merchant_empty_row(text: String) -> Control:
 func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: bool) -> Control:
 	var item_accent: Color = _merchant_item_accent(merchant_kind, item_id)
 	var affordable: bool = selling or _run_engine.held_embers(_run_state) >= _run_engine.merchant_buy_cost(merchant_kind, item_id)
-	var row := TooltipPanelContainer.new()
+	var row: TooltipPanelContainer = null
+	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
+		var equipment_row := EquipmentTooltipPanelContainer.new()
+		equipment_row.equipment_id = item_id
+		equipment_row.host = self
+		equipment_row.tooltip_text = "equipment:%s" % item_id
+		row = equipment_row
+	else:
+		row = TooltipPanelContainer.new()
+		row.tooltip_text = _merchant_item_tooltip(merchant_kind, item_id)
 	row.custom_minimum_size = Vector2(0.0, MERCHANT_ROW_HEIGHT)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.mouse_filter = Control.MOUSE_FILTER_PASS
-	row.tooltip_text = _merchant_item_tooltip(merchant_kind, item_id)
+	row.mouse_filter = Control.MOUSE_FILTER_STOP
 	row.add_theme_stylebox_override("panel", _merchant_row_style(item_accent, false, affordable))
 
 	var margin := MarginContainer.new()
@@ -4642,6 +4650,7 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	icon.texture = AssetLoader.load_texture(_merchant_item_icon_path(merchant_kind, item_id))
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_center.add_child(icon)
+	_make_equipment_tile_content_passive(icon_frame)
 
 	var text_box := VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4651,7 +4660,7 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	var name_label := Label.new()
 	name_label.text = _merchant_item_name(merchant_kind, item_id)
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY)
 	name_label.add_theme_color_override("font_color", Color("fff1d5") if affordable else Color("cdbca2"))
 	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
 	name_label.add_theme_constant_override("outline_size", 1)
@@ -4660,12 +4669,15 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	var detail_label := Label.new()
 	detail_label.text = _merchant_item_detail(merchant_kind, item_id)
 	detail_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(detail_label, UiTypography.SIZE_CAPTION)
+	UiTypography.set_label_size(detail_label, UiTypography.SIZE_SMALL)
 	detail_label.add_theme_color_override("font_color", Color("cdbca2") if affordable else Color("9f927e"))
 	text_box.add_child(detail_label)
+	_make_equipment_tile_content_passive(text_box)
 
 	var amount: int = _run_engine.merchant_sell_value(merchant_kind, item_id) if selling else _run_engine.merchant_buy_cost(merchant_kind, item_id)
-	hbox.add_child(_merchant_price_chip("%d" % amount, item_accent, selling, affordable))
+	var price_chip: Control = _merchant_price_chip("%d" % amount, item_accent, selling, affordable)
+	_make_equipment_tile_content_passive(price_chip)
+	hbox.add_child(price_chip)
 
 	var button := Button.new()
 	button.text = "Sell" if selling else "Buy"
@@ -4673,7 +4685,7 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	button.custom_minimum_size = Vector2(82.0, 42.0)
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
 	if selling:
 		button.pressed.connect(_on_merchant_sell_pressed.bind(merchant_kind, item_id))
 	else:
@@ -4690,7 +4702,7 @@ func _merchant_price_chip(text: String, accent: Color, selling: bool, enabled: b
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY)
 	label.add_theme_color_override("font_color", Color("e1ffd1") if selling else Color("ffe1ad"))
 	label.add_theme_color_override("font_outline_color", Color("1b1008"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -10118,7 +10130,7 @@ func _equipment_slot_label(slot: String) -> String:
 
 func _equipment_rarity_label(rarity: String) -> String:
 	if rarity == "legendary":
-		return "Legend"
+		return "Legendary"
 	return rarity.capitalize()
 
 func _equipped_equipment_accent() -> Color:
