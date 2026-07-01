@@ -624,6 +624,7 @@ const MAGIC_INVENTORY_TILE_SIZE: Vector2 = Vector2(164.0, 38.0)
 const MAGIC_DRAG_CURSOR_OFFSET: Vector2 = Vector2(14.0, 18.0)
 const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(150.0, 150.0 * CARD_ASPECT_RATIO)
 const CARD_TOOLTIP_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
+const PINNED_TOOLTIP_CURSOR_OFFSET: Vector2 = Vector2(12.0, 12.0)
 const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(840.0, 104.0)
 const TURN_ORDER_PANEL_MIN_WIDTH: float = 520.0
 const TURN_ORDER_LABEL_WIDTH: float = 118.0
@@ -1153,17 +1154,10 @@ func _restore_pinned_tooltip_source() -> void:
 	_pinned_tooltip_source_row = null
 	_pinned_tooltip_source_text = ""
 
-func _pinned_merchant_tooltip_position(source_row: Control, panel_size: Vector2) -> Vector2:
+func _pinned_merchant_tooltip_position(_source_row: Control, panel_size: Vector2) -> Vector2:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var margin: float = 10.0
-	var position: Vector2 = _current_mouse_position() + Vector2(18.0, 18.0)
-	if _node_is_alive(source_row):
-		var row_rect: Rect2 = source_row.get_global_rect()
-		position = row_rect.position + Vector2(row_rect.size.x + 12.0, 0.0)
-		if position.x + panel_size.x > viewport_size.x - margin:
-			position.x = row_rect.position.x - panel_size.x - 12.0
-		if position.y + panel_size.y > viewport_size.y - margin:
-			position.y = viewport_size.y - panel_size.y - margin
+	var position: Vector2 = _current_mouse_position() + PINNED_TOOLTIP_CURSOR_OFFSET
 	position.x = clampf(position.x, margin, maxf(margin, viewport_size.x - panel_size.x - margin))
 	position.y = clampf(position.y, margin, maxf(margin, viewport_size.y - panel_size.y - margin))
 	return position

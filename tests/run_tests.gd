@@ -7714,7 +7714,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	if merchant_magic_row != null:
 		instance.call("_on_merchant_row_mouse_entered", "arcanist", "spark_dart", merchant_magic_row)
 		var tooltip_text_before_pin: String = merchant_magic_row.tooltip_text
-		var expected_pin_position: Vector2 = merchant_magic_row.get_global_rect().position + Vector2(merchant_magic_row.size.x + 12.0, 0.0)
+		var tooltip_mouse_anchor: Vector2 = instance.call("_current_mouse_position")
+		var expected_pin_position: Vector2 = tooltip_mouse_anchor + Vector2(12.0, 12.0)
 		var shift_event := InputEventKey.new()
 		shift_event.keycode = KEY_SHIFT
 		shift_event.physical_keycode = KEY_SHIFT
@@ -7727,7 +7728,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		_assert(merchant_magic_row.tooltip_text.is_empty(), "Pinned merchant tooltips should suppress the row's normal hover tooltip while focused")
 		if pinned_panel != null:
 			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned arcanist tooltip should keep the card preview focused")
-			_assert(pinned_panel.global_position.distance_to(expected_pin_position) < 3.0, "Pinned merchant tooltip should stay at the hovered row instead of jumping to screen center")
+			_assert(pinned_panel.global_position.distance_to(expected_pin_position) < 3.0, "Pinned merchant tooltip should stay where the hover preview appeared instead of jumping to a side panel")
 			for widget: CardWidget in _card_widgets_under(pinned_panel):
 				_assert(widget.mouse_filter == Control.MOUSE_FILTER_STOP, "Pinned merchant card previews should route hover to the real card widget for nested icon tooltips")
 		else:
