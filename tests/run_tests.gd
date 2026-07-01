@@ -7715,7 +7715,6 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		instance.call("_on_merchant_row_mouse_entered", "arcanist", "spark_dart", merchant_magic_row)
 		var tooltip_text_before_pin: String = merchant_magic_row.tooltip_text
 		var tooltip_mouse_anchor: Vector2 = instance.call("_current_mouse_position")
-		var expected_pin_position: Vector2 = tooltip_mouse_anchor + Vector2(12.0, 12.0)
 		var shift_event := InputEventKey.new()
 		shift_event.keycode = KEY_SHIFT
 		shift_event.physical_keycode = KEY_SHIFT
@@ -7727,6 +7726,10 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		_assert(pinned_scrim != null and pinned_scrim.visible, "Pressing Shift while hovering a merchant item should pin the item tooltip")
 		_assert(merchant_magic_row.tooltip_text.is_empty(), "Pinned merchant tooltips should suppress the row's normal hover tooltip while focused")
 		if pinned_panel != null:
+			var expected_pin_position: Vector2 = tooltip_mouse_anchor + Vector2(12.0, 0.0)
+			var viewport_size: Vector2 = instance.get_viewport_rect().size
+			expected_pin_position.x = clampf(expected_pin_position.x, 10.0, maxf(10.0, viewport_size.x - pinned_panel.size.x - 10.0))
+			expected_pin_position.y = clampf(expected_pin_position.y, 10.0, maxf(10.0, viewport_size.y - pinned_panel.size.y - 10.0))
 			_assert(_card_widget_count_under(pinned_panel) == 1, "Pinned arcanist tooltip should keep the card preview focused")
 			_assert(pinned_panel.global_position.distance_to(expected_pin_position) < 3.0, "Pinned merchant tooltip should stay where the hover preview appeared instead of jumping to a side panel")
 			for widget: CardWidget in _card_widgets_under(pinned_panel):
