@@ -13,7 +13,8 @@ unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
 2 uses the base roster, and depth 3 enemies have 112% HP without an extra
 generic damage/support bump. Normal enemy first/repeat cycles span roughly
-11-20 initiative, with bile bloomers near the slow attrition end at about 19.
+11-20 initiative, with bile bloomers near the slow attrition end at about 19
+and using a radius-2 poison diamond for their main area-denial intent.
 Later sequences keep the local curve while raising enemy HP and intent
 baselines. Zekarion's 2x2 footprint makes printed reach feel larger, so Tempest
 Breath is capped at range 3 after its one-tile advance to preserve safe

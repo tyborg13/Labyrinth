@@ -2411,7 +2411,14 @@ func _test_bile_bloomer_poison_and_expose_intents_apply_to_player() -> void:
 	})
 	_set_enemy_intent(poison_state, 0, _enemy_intent_by_id("bile_bloomer", "bile_burst"))
 	var poison_threat: Dictionary = combat.enemy_threat_tiles(poison_state, 0)
-	_assert((poison_threat.get("attack", []) as Array).has(Vector2i(2, 4)), "Bile Burst threat preview should show the player's tile before poison resolves")
+	var poison_attack_tiles: Array = poison_threat.get("attack", []) as Array
+	_assert(poison_attack_tiles.has(Vector2i(2, 4)), "Bile Burst threat preview should show the player's tile before poison resolves")
+	_assert(poison_attack_tiles.has(Vector2i(1, 4)), "Bile Burst should preview the outer cardinal tile in its wider poison diamond")
+	_assert(poison_attack_tiles.has(Vector2i(2, 3)), "Bile Burst should preview the outer diagonal tile in its wider poison diamond")
+	var bile_burst: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
+	var bile_burst_actions: Array = bile_burst.get("actions", [])
+	var bile_burst_aoe: Dictionary = bile_burst_actions[1] as Dictionary
+	_assert((bile_burst_aoe.get("pattern", []) as Array).size() == 12, "Bile Burst should use a radius-2 diamond around the Bloomer")
 	var poison_result: Dictionary = combat.resolve_enemy_turn_with_steps(poison_state, 0)
 	var poisoned_player: Dictionary = (poison_result.get("state", {}) as Dictionary).get("player", {})
 	var poison: Dictionary = poisoned_player.get("poison", {})

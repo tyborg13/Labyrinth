@@ -74,7 +74,7 @@ Encounter calibration is also important:
   Enemy base initiative
   is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
   harriers are quick, acolytes are baseline, bile bloomers are slow attrition
-  anchors, and wardens are slow. At depth `1`,
+  anchors with a radius-2 poison diamond, and wardens are slow. At depth `1`,
   weighted first/repeat cycles before the initial spawn stagger are roughly
   `11` for wisps, `13` for crawlers, `13.4` for harriers, `16.25` for
   acolytes, `19.1` for bile bloomers, and `20.25` for wardens; Zekarion cycles

@@ -195,7 +195,7 @@
         "weight": 4,
         "actions": [
           { "type": "move_toward", "range": 1 },
-          { "type": "aoe", "damage": 2, "range": 0, "poison": 2, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+          { "type": "aoe", "damage": 2, "range": 0, "poison": 2, "pattern": [[0, -2], [-1, -1], [0, -1], [1, -1], [-2, 0], [-1, 0], [1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]], "rotate": false }
         ]
       },
       {
