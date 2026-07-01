@@ -649,6 +649,7 @@ const TURN_ORDER_PORTRAITS := {
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
 	"acolyte": "res://assets/art/portraits/ash_acolyte.png",
 	"harrier": "res://assets/art/portraits/bone_harrier.png",
+	"grave_surgeon": "res://assets/art/portraits/grave_surgeon.png",
 	"warden": "res://assets/art/portraits/ash_warden.png",
 	"zekarion": "res://assets/art/portraits/zekarion.png",
 	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
@@ -3610,7 +3611,13 @@ func _turn_order_relative_time(entry: Dictionary) -> int:
 
 func _turn_order_portrait_path(entry: Dictionary) -> String:
 	var key: String = "player" if str(entry.get("kind", "")) == "player" else str(entry.get("type", ""))
-	return str(TURN_ORDER_PORTRAITS.get(key, TURN_ORDER_PORTRAITS.get("player", "")))
+	if TURN_ORDER_PORTRAITS.has(key):
+		return str(TURN_ORDER_PORTRAITS.get(key, ""))
+	if str(entry.get("kind", "")) == "enemy":
+		var enemy_art_path: String = str(GameData.enemy_def(key).get("art_path", ""))
+		if not enemy_art_path.is_empty():
+			return enemy_art_path
+	return str(TURN_ORDER_PORTRAITS.get("player", ""))
 
 func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
 	if tile.x < 0:

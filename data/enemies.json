@@ -256,6 +256,47 @@
       }
     ]
   },
+  "grave_surgeon": {
+    "name": "Grave Surgeon",
+    "max_hp": 11,
+    "base_initiative": 12,
+    "reward_embers": 11,
+    "accent": "#8aa65f",
+    "art_path": "res://assets/art/enemies/grave_surgeon.png",
+    "art_scale": 0.98,
+    "intents": [
+      {
+        "id": "triage_suture",
+        "name": "Triage Suture",
+        "time": 4,
+        "weight": 4,
+        "actions": [
+          { "type": "move_toward", "range": 1 },
+          { "type": "heal_ally", "amount": 3, "range": 4 }
+        ]
+      },
+      {
+        "id": "saw_jab",
+        "name": "Saw Jab",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          { "type": "move_toward", "range": 2 },
+          { "type": "melee", "damage": 2, "range": 1 }
+        ]
+      },
+      {
+        "id": "field_brace",
+        "name": "Field Brace",
+        "time": 4,
+        "weight": 3,
+        "actions": [
+          { "type": "move_toward", "range": 1 },
+          { "type": "guard_ally", "amount": 4, "range": 4 }
+        ]
+      }
+    ]
+  },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
     "max_hp": 72,

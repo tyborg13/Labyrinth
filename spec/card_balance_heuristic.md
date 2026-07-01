@@ -74,16 +74,21 @@ Encounter calibration is also important:
   Enemy base initiative
   is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
   harriers are quick, acolytes are baseline, Cinder Oozes are slower split
-  pressure, and wardens are slow. At depth `1`, weighted first/repeat cycles
-  before the initial spawn stagger are roughly `11` for wisps, `13` for
-  crawlers, `13` for Cinder Droplets, `13.4` for harriers, `16.25` for
-  acolytes, `17.78` for Cinder Oozes, and `20.25` for wardens; Zekarion cycles
-  around `19.25` before summon forcing. Depth reduces enemy base initiative by
-  up to `4` over time.
+  pressure, grave surgeons are support-paced, and wardens are slow. At depth
+  `1`, weighted first/repeat cycles before the initial spawn stagger are
+  roughly `11` for wisps, `13` for crawlers, `13` for Cinder Droplets, `13.4`
+  for harriers, `16` for grave surgeons, `16.25` for acolytes, `17.78` for
+  Cinder Oozes, and `20.25` for wardens; Zekarion cycles around `19.25`
+  before summon forcing. Grave surgeons contribute low direct damage but can
+  heal or guard the most injured/threatened nearby enemy, so their support
+  amounts follow the same depth/sequence support curve as enemy block and
+  healing. Depth reduces enemy base initiative by up to `4` over time.
 - Cinder Oozes enter normal local depth `2-3` pools at low frequency. Their
   split creates up to two summoned Cinder Droplets on nearby legal tiles; the
   droplets add cleanup pressure but grant no embers and no death card-play
   bonus.
+- Grave surgeons enter normal local depth `2-3` pools as support enemies that
+  lower direct pressure while extending allied bodies.
 - Later sequences keep the same local density and elemental-control curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.
