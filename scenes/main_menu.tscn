@@ -11,126 +11,138 @@ offset_right = 0.0
 offset_bottom = 0.0
 script = ExtResource("1_main")
 
-[node name="Backdrop" type="ColorRect" parent="."]
+[node name="MenuArt" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 0.0
 offset_bottom = 0.0
-color = Color(0.0784314, 0.0588235, 0.0509804, 1)
+expand_mode = 1
+stretch_mode = 6
 
-[node name="Margin" type="MarginContainer" parent="Backdrop"]
+[node name="GlobalScrim" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 52.0
-offset_top = 44.0
-offset_right = -52.0
-offset_bottom = -44.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.18)
 
-[node name="Center" type="CenterContainer" parent="Backdrop/Margin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+[node name="LeftScrim" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 540.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.018, 0.02, 0.026, 0.62)
 
-[node name="BodyRow" type="HBoxContainer" parent="Backdrop/Margin/Center"]
-custom_minimum_size = Vector2(1180, 0)
-layout_mode = 2
-theme_override_constants/separation = 24
+[node name="TitleShadow" type="Label" parent="."]
+layout_mode = 0
+offset_left = 70.0
+offset_top = 58.0
+offset_right = 734.0
+offset_bottom = 134.0
+mouse_filter = 2
+text = "Escape the Umbra"
 
-[node name="HeroPanel" type="PanelContainer" parent="Backdrop/Margin/Center/BodyRow"]
-custom_minimum_size = Vector2(700, 0)
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="Title" type="Label" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 52.0
+offset_right = 728.0
+offset_bottom = 128.0
+mouse_filter = 2
+text = "Escape the Umbra"
 
-[node name="HeroMargin" type="MarginContainer" parent="Backdrop/Margin/Center/BodyRow/HeroPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+[node name="MenuColumn" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 188.0
+offset_right = 430.0
+offset_bottom = 446.0
+theme_override_constants/separation = 10
 
-[node name="HeroVBox" type="VBoxContainer" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Title" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
-layout_mode = 2
-text = "Labyrinth of Ash"
-
-[node name="Subtitle" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
-layout_mode = 2
-autowrap_mode = 2
-text = "Play two cards a turn. Health is the clock."
-
-[node name="HeroArt" type="TextureRect" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
-custom_minimum_size = Vector2(0, 220)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Embers" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
-layout_mode = 2
-text = "Banked Embers: 0"
-
-[node name="Footer" type="Label" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
-layout_mode = 2
-autowrap_mode = 2
-text = "Start at the center. Route by doors. Sit at campfires to bank embers."
-
-[node name="ButtonRow" type="HBoxContainer" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="ContinueButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
-visible = false
-custom_minimum_size = Vector2(234, 52)
+[node name="ContinueButton" type="Button" parent="MenuColumn"]
+custom_minimum_size = Vector2(340, 54)
 layout_mode = 2
 text = "Continue"
 
-[node name="StartButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
-custom_minimum_size = Vector2(234, 52)
+[node name="StartButton" type="Button" parent="MenuColumn"]
+custom_minimum_size = Vector2(340, 54)
 layout_mode = 2
-text = "New Run"
+text = "New Game"
 
-[node name="BossButton" type="Button" parent="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow"]
+[node name="SettingsButton" type="Button" parent="MenuColumn"]
+custom_minimum_size = Vector2(340, 54)
+layout_mode = 2
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="MenuColumn"]
+custom_minimum_size = Vector2(340, 54)
+layout_mode = 2
+text = "Quit"
+
+[node name="BossButton" type="Button" parent="MenuColumn"]
 visible = false
-custom_minimum_size = Vector2(234, 52)
+custom_minimum_size = Vector2(340, 54)
 layout_mode = 2
 text = "Fight Boss"
 
-[node name="UpgradePanel" type="PanelContainer" parent="Backdrop/Margin/Center/BodyRow"]
-custom_minimum_size = Vector2(430, 0)
-layout_mode = 2
+[node name="ProfileBlock" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 806.0
+offset_right = 454.0
+offset_bottom = 892.0
+theme_override_constants/separation = 4
 
-[node name="UpgradeMargin" type="MarginContainer" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel"]
+[node name="Embers" type="Label" parent="ProfileBlock"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+text = "Profile: Reaver"
 
-[node name="UpgradeVBox" type="VBoxContainer" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="UpgradeTitle" type="Label" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox"]
-layout_mode = 2
-text = "Bound Magicks"
-
-[node name="UpgradeSubtitle" type="Label" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox"]
+[node name="Footer" type="Label" parent="ProfileBlock"]
 layout_mode = 2
 autowrap_mode = 2
-text = "Touch the Emaciated Man in the waypoint."
+text = "LV 1  |  EMBERS 0  |  BOUND 0"
 
-[node name="UpgradeList" type="VBoxContainer" parent="Backdrop/Margin/Center/BodyRow/UpgradePanel/UpgradeMargin/UpgradeVBox"]
+[node name="SettingsPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 468.0
+offset_top = 188.0
+offset_right = 848.0
+offset_bottom = 396.0
+
+[node name="SettingsMargin" type="MarginContainer" parent="SettingsPanel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/ContinueButton" to="." method="_on_continue_button_pressed"]
-[connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/StartButton" to="." method="_on_start_button_pressed"]
-[connection signal="pressed" from="Backdrop/Margin/Center/BodyRow/HeroPanel/HeroMargin/HeroVBox/ButtonRow/BossButton" to="." method="_on_boss_button_pressed"]
+[node name="SettingsVBox" type="VBoxContainer" parent="SettingsPanel/SettingsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SettingsTitle" type="Label" parent="SettingsPanel/SettingsMargin/SettingsVBox"]
+layout_mode = 2
+text = "Settings"
+
+[node name="SettingsSpacer" type="Control" parent="SettingsPanel/SettingsMargin/SettingsVBox"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SettingsBackButton" type="Button" parent="SettingsPanel/SettingsMargin/SettingsVBox"]
+custom_minimum_size = Vector2(250, 52)
+layout_mode = 2
+text = "Back"
+
+[connection signal="pressed" from="MenuColumn/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="MenuColumn/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MenuColumn/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="MenuColumn/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="MenuColumn/BossButton" to="." method="_on_boss_button_pressed"]
+[connection signal="pressed" from="SettingsPanel/SettingsMargin/SettingsVBox/SettingsBackButton" to="." method="_on_settings_back_button_pressed"]
