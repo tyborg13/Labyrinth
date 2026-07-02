@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-01T14:06:58Z",
+  "updated_at": "2026-07-02T12:45:50Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4441,6 +4441,50 @@
       "source": {
         "branch": "codex/fix-campfire-alpha-cleanup",
         "commit": "a6b0407"
+      }
+    },
+    {
+      "id": "mnt_20260702T124538Z_715d500d",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Consumable item card art should use the same ragged transparent art-window treatment as normal cards.",
+      "details": "Avoid full-opaque, full-bleed generated item art for Scavenger consumables. Generate/source the subject, then composite through existing card-art alpha masks and verify in CardWidget so the art stays inside the card frame.",
+      "status": "active",
+      "created_at": "2026-07-02T12:45:38Z",
+      "updated_at": "2026-07-02T12:45:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/scavenger-consumable-item-merchant",
+        "commit": "0aef32a"
+      }
+    },
+    {
+      "id": "mnt_20260702T124550Z_468e75fd",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/npcs",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/npcs",
+      "summary": "NPC merchant sprites should stay chunky and low-detail, matching player/enemy sprite density.",
+      "details": "For merchants such as the Scavenger, avoid highly detailed or realistic generated sprites. Crop to a readable silhouette, simplify/pixel-cluster the result, and compare against blacksmith/arcanist/player/enemy sheets before installing.",
+      "status": "active",
+      "created_at": "2026-07-02T12:45:50Z",
+      "updated_at": "2026-07-02T12:45:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/scavenger-consumable-item-merchant",
+        "commit": "0aef32a"
       }
     }
   ]
