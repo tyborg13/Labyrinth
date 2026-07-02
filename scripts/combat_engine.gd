@@ -118,6 +118,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"hand": [],
 			"discard": [],
 			"burned": [],
+			"consumed": [],
 			"cycles": 0,
 			"fatigue_base": FATIGUE_BASE_DAMAGE
 		},
@@ -415,7 +416,11 @@ func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 	var deck: Dictionary = next_state.get("deck", {}).duplicate(true)
 	deck["hand"] = hand
 	var card: Dictionary = card_def(card_id, next_state)
-	if bool(card.get("burn", false)):
+	if bool(card.get("consume_on_play", false)):
+		var consumed: Array = deck.get("consumed", []).duplicate()
+		consumed.append(card_id)
+		deck["consumed"] = consumed
+	elif bool(card.get("burn", false)):
 		var burned: Array = deck.get("burned", []).duplicate()
 		burned.append(card_id)
 		deck["burned"] = burned

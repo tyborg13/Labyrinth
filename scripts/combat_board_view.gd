@@ -131,6 +131,7 @@ const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
 const BLACKSMITH_FORGE_PATH: String = "res://assets/art/tiles/blacksmith_forge.png"
 const ARCANIST_TABLE_PATH: String = "res://assets/art/tiles/arcanist_table.png"
+const SCAVENGER_STALL_PATH: String = "res://assets/art/tiles/scavenger_stall.png"
 const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
 const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
 const COLUMN_TORCH_LEFT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_left_idle.png"
@@ -138,6 +139,11 @@ const COLUMN_TORCH_RIGHT_IDLE_PATH: String = "res://assets/art/tiles/column_torc
 const COLUMN_TORCH_IDLE_COLUMNS: int = 4
 const COLUMN_TORCH_IDLE_ROWS: int = 4
 const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
+const COLUMN_TORCH_EMBER_MOTE_COUNT: int = 4
+const COLUMN_TORCH_EMBER_MOTE_ALPHA: float = 0.90
+const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
+const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
+const COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE: float = 0.040
 const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
@@ -305,6 +311,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	if _campfire_atmosphere_active():
 		return true
+	if _pillar_torch_ember_motes_active():
+		return true
 	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
@@ -424,6 +432,7 @@ func _draw() -> void:
 	_draw_impact_decals()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
 	_draw_effect_overlay()
@@ -1484,6 +1493,102 @@ func _pillar_torch_rect(pillar_rect: Rect2, texture: Texture2D, side_sign: float
 	if side_sign < 0.0:
 		return Rect2(Vector2(anchor_x - draw_width * 0.84, top_y), Vector2(draw_width, draw_height))
 	return Rect2(Vector2(anchor_x - draw_width * 0.16, top_y), Vector2(draw_width, draw_height))
+
+func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
+	if tiles.is_empty() or not _pillar_torch_ember_motes_active():
+		return
+	var grid: Array = combat_state.get("grid", [])
+	var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+	if pillar_texture == null:
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
+	for tile: Vector2i in tiles:
+		if not _tile_renders_as_pillar(grid, tile):
+			continue
+		var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
+		var tint: Color = _foreground_blocker_tint("pillar", tile, pillar_rect, obstruction_entries)
+		var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
+		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "left", -1.0, tint_alpha, time_seconds)
+		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "right", 1.0, tint_alpha, time_seconds)
+
+func _pillar_torch_ember_motes_active() -> bool:
+	if not visible or combat_state.is_empty():
+		return false
+	var has_torch_texture: bool = _prop_textures.get("column_torch_left", null) != null or _prop_textures.get("column_torch_right", null) != null
+	if not has_torch_texture and _pillar_torch_idle_frames_for_side("left").is_empty() and _pillar_torch_idle_frames_for_side("right").is_empty():
+		return false
+	return _grid_has_tile("pillar")
+
+func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2, side_key: String, side_sign: float, tint_alpha: float, time_seconds: float) -> void:
+	if tint_alpha <= 0.0:
+		return
+	var torch_texture: Texture2D = _pillar_torch_texture(side_key)
+	if torch_texture == null:
+		return
+	var torch_rect: Rect2 = _pillar_torch_rect(pillar_rect, torch_texture, side_sign)
+	var source_point: Vector2 = _pillar_torch_flame_point(torch_rect, side_sign)
+	for index: int in range(COLUMN_TORCH_EMBER_MOTE_COUNT):
+		var seed: int = _pillar_torch_ember_seed(tile, side_key, index)
+		var speed: float = lerpf(0.34, 0.56, _ambient_hash01(seed + 13))
+		var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
+		var alpha: float = pow(clampf(sin(cycle * PI), 0.0, 1.0), 0.86) * COLUMN_TORCH_EMBER_MOTE_ALPHA * tint_alpha
+		alpha *= lerpf(0.56, 1.0, _ambient_hash01(seed + 19))
+		if alpha <= 0.045:
+			continue
+		var point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, cycle, time_seconds, side_sign)
+		var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire") * 0.62)
+		var previous_point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.09, side_sign)
+		var velocity: Vector2 = point - previous_point
+		var draw_width: float = _tile_width() * lerpf(COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, _ambient_hash01(seed + 37))
+		var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+		if texture == null and soft_texture == null:
+			draw_circle(point, maxf(0.7, draw_width * 0.28), Color(1.0, 0.70, 0.30, minf(alpha * 0.62, 0.48)))
+			continue
+		if texture == null:
+			texture = soft_texture
+		var texture_size: Vector2 = texture.get_size()
+		var draw_size := Vector2(draw_width, draw_width)
+		if texture_size.x > 0.0:
+			draw_size.y = draw_width * texture_size.y / texture_size.x
+		var rotation: float = lerpf(-0.22, 0.22, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.86 + _ambient_hash01(seed + 47) * TAU) * 0.07
+		var mote_alpha: float = alpha * lerpf(0.48, 0.74, _ambient_hash01(seed + 41))
+		_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
+		draw_circle(point, maxf(0.65, draw_width * 0.16), Color(1.0, 0.86, 0.42, minf(mote_alpha * 0.52, 0.46)))
+
+func _pillar_torch_flame_point(torch_rect: Rect2, side_sign: float) -> Vector2:
+	var flame_x_scale: float = 0.34 if side_sign < 0.0 else 0.66
+	return torch_rect.position + Vector2(torch_rect.size.x * flame_x_scale, torch_rect.size.y * 0.23)
+
+func _pillar_torch_ember_seed(tile: Vector2i, side_key: String, index: int) -> int:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var side_seed: int = 211 if side_key == "right" else 103
+	return room_coord.x * 83431 + room_coord.y * 64217 + tile.x * 2459 + tile.y * 3613 + side_seed + index * 1297 + 509
+
+func _pillar_torch_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float, side_sign: float) -> Vector2:
+	var tile_width: float = _tile_width()
+	var base_lateral: float = lerpf(-0.18, 0.18, _ambient_hash01(seed + 23)) * tile_width * lerpf(1.0, 0.64, cycle)
+	var sway: float = sin(time_seconds * lerpf(1.2, 2.6, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.006, 0.038, cycle)
+	var side_drift: float = side_sign * tile_width * lerpf(0.006, 0.030, _ambient_hash01(seed + 33)) * pow(cycle, 1.10)
+	var rise: float = pow(cycle, 0.76) * tile_width * COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE * lerpf(0.82, 1.18, _ambient_hash01(seed + 35))
+	return source_point + Vector2(base_lateral + sway + side_drift, _tile_height() * 0.018 - rise)
+
+func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
+	if tile.y < 0 or tile.y >= grid.size():
+		return false
+	var row_var: Variant = grid[tile.y]
+	if typeof(row_var) != TYPE_ARRAY:
+		return false
+	var row: Array = row_var
+	if tile.x < 0 or tile.x >= row.size():
+		return false
+	var tile_id: String = _display_tile_id(str(row[tile.x]), tile)
+	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+		tile_id = "pillar"
+	return tile_id == "pillar"
 
 func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
 	if not _is_tall_obstructive_tile(tile_id):
@@ -4204,7 +4309,8 @@ func _load_assets() -> void:
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
 		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
 		"blacksmith_forge": AssetLoader.load_texture(BLACKSMITH_FORGE_PATH),
-		"arcanist_table": AssetLoader.load_texture(ARCANIST_TABLE_PATH)
+		"arcanist_table": AssetLoader.load_texture(ARCANIST_TABLE_PATH),
+		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
 	}
 	_scene_prop_idle_frames = {
 		"campfire_bonfire": _load_sprite_sheet_frames(

@@ -65,6 +65,21 @@ func _capture_merchant_rooms() -> void:
 	await _settle_visuals()
 	await _save_root_screenshot("%s/arcanist_trade.png" % OUTPUT_DIR)
 
+	base_state = _run_with_room_type(probe_run_engine, progression, "scavenger")
+	var scavenger_coord: Vector2i = _first_room_coord_of_type(probe_run_engine, base_state, "scavenger")
+	if scavenger_coord.x >= 900:
+		_fail("Probe run should include a scavenger room")
+		return
+	var scavenger_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, scavenger_coord, Vector2i(1, 0))
+	scavenger_state["held_embers"] = 132
+	scavenger_state["unbanked_embers"] = 132
+	scavenger_state["item_inventory"] = ["crimson_draught", "nail_bomb", "smoke_bomb"]
+	instance.call("_load_run_state", scavenger_state)
+	await _settle_visuals()
+	instance.call("_close_dialogue")
+	await _settle_visuals()
+	await _save_root_screenshot("%s/scavenger_trade.png" % OUTPUT_DIR)
+
 	instance.queue_free()
 	await process_frame
 

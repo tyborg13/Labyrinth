@@ -344,6 +344,7 @@ source filter when comparing cards against peers:
 python3 tools/card_heuristic.py --reward-pool
 python3 tools/card_heuristic.py --elemental-rewards
 python3 tools/card_heuristic.py --equipment
+python3 tools/card_heuristic.py --items
 python3 tools/card_heuristic.py --starters
 ```
 
@@ -353,12 +354,17 @@ the elemental subset of that normal reward pool. `--equipment` is the
 equipment-only view, excluding starter cards granted by starting gear.
 `--neutral-rewards` isolates neutral normal rewards, which is useful when
 checking whether old neutral reward metadata is still intentional.
+`--items` is the Scavenger consumable view: cards marked `item: true`, typically
+also `consume_on_play: true`, which enter decks through equipped item slots and
+are destroyed after one play.
 
 Equipment cards are identified from `data/equipment.json`, not only from card
 metadata. Starter cards are identified by either `starter: true` or
 `rarity: "starter"` so older starter cards do not leak into reward-pool or
 equipment-only balance reviews just because they lack explicit
-`reward_pool: false`.
+`reward_pool: false`. Item cards are also excluded from reward-pool and
+equipment-only views so their one-use strength does not distort normal card
+comparisons.
 
 Source tags are shown automatically in filtered text output, can be added to any
 text view with `--show-source`, and are always included in `--json` output.
@@ -367,8 +373,9 @@ When reviewing or adding cards:
 
 1. Run the tool for the changed card and the full pool.
 2. Run the source view that matches how the card enters a deck: `--equipment`
-   for gear cards, `--starters` for starting-deck cards, and `--reward-pool` or
-   `--elemental-rewards` for magic rewards.
+   for gear cards, `--items` for Scavenger consumables, `--starters` for
+   starting-deck cards, and `--reward-pool` or `--elemental-rewards` for magic
+   rewards.
 3. Compare the score against similar cards, not just the global ranking.
 4. Decide whether any intentional over- or under-rate is justified by build,
    rarity, or encounter role.

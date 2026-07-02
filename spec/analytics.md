@@ -41,6 +41,7 @@ available:
 - `progression_level_up`
 - `equipment_equipped`
 - `magic_attuned`
+- `item_equipped`
 - `merchant_trade`
 
 `run_started` includes the compiled starting deck plus the equipment model used
@@ -50,6 +51,8 @@ death dropped embers for the new run: `recovery_marker_active`,
 `recovery_marker_amount`, and `recovery_marker_coord`.
 It also includes the active magic loadout fields `attuned_magic_cards` and
 `magic_inventory`; `reward_cards` remains the collected reward-card history.
+Consumable item loadout state is included as `equipped_items` and
+`item_inventory`.
 
 ## Card Metrics Supported
 
@@ -59,7 +62,8 @@ The current event stream is enough to derive:
 - combats-in-deck via `combat_started.payload.deck_cards`
 - equipment and magic build context via `combat_started.payload.equipped_equipment`,
   `reward_cards`, `attuned_magic_cards`, `magic_inventory`,
-  `equipment_inventory`, and `equipment_drops`
+  `equipped_items`, `item_inventory`, `equipment_inventory`, and
+  `equipment_drops`
 - elemental intensity at combat start via `combat_started.payload.elemental_intensity`
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
@@ -91,6 +95,7 @@ The current event stream is enough to derive:
 - immediate status application deltas for burn, bleed, expose, freeze, shock,
   immobilize, and poison
 - actual resolved action list and chosen targets
+- consumable item flags via `item_card` and `consume_on_play`
 
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
@@ -119,11 +124,16 @@ one of the six attuned slots outside combat. Its payload records the reserve and
 attuned indices, the attuned `card_id`, full `attuned_magic_cards`,
 `magic_inventory`, `reward_cards`, and rebuilt `deck_cards`.
 
-`merchant_trade` fires when a blacksmith or arcanist transaction succeeds in a
-non-combat merchant room. Its payload records `action` (`buy` or `sell`),
+`item_equipped` fires when the character overlay equips or stows a Scavenger
+consumable outside combat. Its payload records `action` (`equip` or `stow`),
+`card_id`, `inventory_index`, `equipped_index`, full `equipped_items`,
+`item_inventory`, and rebuilt `deck_cards`.
+
+`merchant_trade` fires when a blacksmith, arcanist, or scavenger transaction
+succeeds in a non-combat merchant room. Its payload records `action` (`buy` or `sell`),
 `merchant_kind`, `item_kind`, `item_id`, ember `amount`,
 `held_embers_before`, `held_embers_after`, the current `room`, and the updated
-equipment, magic, reward-card, and deck state.
+equipment, magic, item, reward-card, and deck state.
 
 Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory
@@ -152,6 +162,7 @@ Update analytics instrumentation when changes affect:
 
 - reward offering or reward selection flow
 - equipment ownership, drops, equip rules, or deck compilation
+- consumable item ownership, equip rules, use-on-play consumption, or deck compilation
 - ember carry, loss, extraction, or campfire level-up flow
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes

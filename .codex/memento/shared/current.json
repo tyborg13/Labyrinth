@@ -4552,6 +4552,94 @@
         "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
         "commit": "5052ce8"
       }
+    },
+    {
+      "id": "mnt_20260702T124538Z_715d500d",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/cards",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/cards",
+      "summary": "Consumable item card art should use the same ragged transparent art-window treatment as normal cards.",
+      "details": "Avoid full-opaque, full-bleed generated item art for Scavenger consumables. Generate/source the subject, then composite through existing card-art alpha masks and verify in CardWidget so the art stays inside the card frame.",
+      "status": "active",
+      "created_at": "2026-07-02T12:45:38Z",
+      "updated_at": "2026-07-02T12:45:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/scavenger-consumable-item-merchant",
+        "commit": "0aef32a"
+      }
+    },
+    {
+      "id": "mnt_20260702T124550Z_468e75fd",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art/npcs",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art/npcs",
+      "summary": "NPC merchant sprites should stay chunky and low-detail, matching player/enemy sprite density.",
+      "details": "For merchants such as the Scavenger, avoid highly detailed or realistic generated sprites. Crop to a readable silhouette, simplify/pixel-cluster the result, and compare against blacksmith/arcanist/player/enemy sheets before installing.",
+      "status": "active",
+      "created_at": "2026-07-02T12:45:50Z",
+      "updated_at": "2026-07-02T12:45:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/scavenger-consumable-item-merchant",
+        "commit": "0aef32a"
+      }
+    },
+    {
+      "id": "mnt_20260702T192213Z_67905c06",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Item loadout UI should mirror gear drag/drop",
+      "details": "Character Gear item cards should use cropped art icons, not two-letter text badges, and player-facing equip/stow controls should stay drag-based like equipment. Dragging an equipped consumable back to inventory may leave the item loadout empty; do not reintroduce button-only item management unless the interaction model is deliberately redesigned.",
+      "status": "active",
+      "created_at": "2026-07-02T19:22:13Z",
+      "updated_at": "2026-07-02T19:22:13Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/scavenger-consumable-item-merchant",
+        "commit": "568a58b"
+      }
+    },
+    {
+      "id": "mnt_20260702T215120Z_d4ba5ae0",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Column torch embers should be subtle but readable",
+      "details": "The initial torch ember tuning of 3 very tiny low-alpha motes was too hard to see at board scale. Prefer a slightly brighter, four-mote-per-torch treatment that remains small and sparse but catches the eye without becoming ambient room fire particles.",
+      "status": "active",
+      "created_at": "2026-07-02T21:51:20Z",
+      "updated_at": "2026-07-02T21:51:20Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-subtle-torch-ember-particles",
+        "commit": "702b937"
+      }
     }
   ]
 }
