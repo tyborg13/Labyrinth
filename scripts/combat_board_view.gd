@@ -194,6 +194,7 @@ const UNIT_SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.24)
 const UNIT_SHADOW_SOFT_COLOR: Color = Color(0.0, 0.0, 0.0, 0.10)
 const UNIT_SHADOW_ALPHA_THRESHOLD: float = 0.08
 const UNIT_SHADOW_SIMPLIFY_EPSILON: float = 3.0
+const UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON: float = 0.75
 const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = 8.0
 const UNIT_SHADOW_SHAPE_SCALE: float = 1.72
 const UNIT_SHADOW_WIDTH_SCALE: float = 0.82
@@ -4737,19 +4738,28 @@ func _unit_shadow_data_for_texture(texture: Texture2D) -> Dictionary:
 	var cache_key: int = texture.get_instance_id()
 	if _unit_shadow_polygon_cache.has(cache_key):
 		return _unit_shadow_polygon_cache.get(cache_key, {})
-	var texture_width: float = maxf(1.0, float(texture.get_width()))
-	var texture_height: float = maxf(1.0, float(texture.get_height()))
+	var data: Dictionary = _unit_shadow_data_for_texture_with_simplify(texture, UNIT_SHADOW_SIMPLIFY_EPSILON)
+	var shadow_polygons: Array = data.get("polygons", [])
+	var bounds: Rect2 = data.get("bounds", Rect2())
+	if shadow_polygons.is_empty() and bounds.size.x > 0.0 and bounds.size.y > 0.0 and UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON < UNIT_SHADOW_SIMPLIFY_EPSILON:
+		var retry_data: Dictionary = _unit_shadow_data_for_texture_with_simplify(texture, UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON)
+		var retry_polygons: Array = retry_data.get("polygons", [])
+		if not retry_polygons.is_empty():
+			data = retry_data
+	_unit_shadow_polygon_cache[cache_key] = data
+	return data
+
+func _unit_shadow_data_for_texture_with_simplify(texture: Texture2D, simplify_epsilon: float) -> Dictionary:
+	var local_polygons: Array[PackedVector2Array] = []
 	var opaque_polygons: Array[PackedVector2Array] = AssetLoader.build_alpha_polygons(
 		texture,
 		UNIT_SHADOW_ALPHA_THRESHOLD,
-		UNIT_SHADOW_SIMPLIFY_EPSILON,
+		simplify_epsilon,
 		UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA
 	)
 	var bounds: Rect2 = _polygon_bounds(opaque_polygons)
 	if bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
-		var empty_data: Dictionary = {"polygons": local_polygons, "bounds": Rect2()}
-		_unit_shadow_polygon_cache[cache_key] = empty_data
-		return empty_data
+		return {"polygons": local_polygons, "bounds": Rect2()}
 	var bounds_center_x: float = bounds.position.x + bounds.size.x * 0.5
 	var bounds_bottom_y: float = bounds.position.y + bounds.size.y
 	for polygon: PackedVector2Array in opaque_polygons:
@@ -4758,11 +4768,10 @@ func _unit_shadow_data_for_texture(texture: Texture2D) -> Dictionary:
 			local_polygon.append(Vector2(
 				(point.x - bounds_center_x) / bounds.size.x,
 				(point.y - bounds_bottom_y) / bounds.size.y
-			))
+		))
 		if _polygon_can_draw(local_polygon):
 			local_polygons.append(local_polygon)
 	var data: Dictionary = {"polygons": local_polygons, "bounds": bounds}
-	_unit_shadow_polygon_cache[cache_key] = data
 	return data
 
 func _unit_shadow_draw_size(texture: Texture2D, draw_size: Vector2, bounds: Rect2) -> Vector2:

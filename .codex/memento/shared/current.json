@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-02T21:59:26Z",
+  "updated_at": "2026-07-02T22:21:08Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4529,6 +4529,28 @@
       "source": {
         "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
         "commit": "a7b3907"
+      }
+    },
+    {
+      "id": "mnt_20260702T222108Z_3e7c86d7",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Unit shadow simplification can drop generated idle frames",
+      "details": "Retro Diffusion 255px idle frames can produce opaque bounds but non-triangulatable silhouette polygons at the broad UNIT_SHADOW_SIMPLIFY_EPSILON=3.0 pass, which makes _draw_unit_shadow fall back to the old oval for those frames. Keep the finer retry path in _unit_shadow_data_for_texture before using an oval fallback.",
+      "status": "active",
+      "created_at": "2026-07-02T22:21:08Z",
+      "updated_at": "2026-07-02T22:21:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
+        "commit": "5052ce8"
       }
     }
   ]
