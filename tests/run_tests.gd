@@ -7830,10 +7830,15 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_label_with_text(upgrade_scrim, "Static Lash") == null, "The gear overlay deck should not show inactive reserve magic")
 	_assert((instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "The gear overlay should not create reserve magic drag targets")
 	_assert((instance.get("_magic_attuned_tiles") as Dictionary).is_empty(), "The gear overlay should not create attuned magic drag targets")
+	_assert(upgrade_scrim.find_child("EquipmentLoadoutList", true, false) != null, "The gear overlay should fit the left loadout in a direct panel list")
 	var item_inventory_tiles: Dictionary = instance.get("_item_inventory_tiles")
+	var item_equipped_tiles: Dictionary = instance.get("_item_equipped_tiles")
 	var item_tile: Control = item_inventory_tiles.get(0, null) as Control
 	_assert(item_tile != null and item_tile.tooltip_text == "card:crimson_draught", "Item inventory tiles should own card-preview tooltips")
-	_assert(item_tile != null and item_tile.find_child("CardBadgeArt", true, false) is TextureRect, "Item inventory tiles should use card art as their visual background")
+	var item_art_chip: Control = item_tile.find_child("ItemCardArtChip", true, false) as Control if item_tile != null else null
+	_assert(item_art_chip != null and item_art_chip.find_child("ItemCardArtIcon", true, false) is TextureRect, "Item inventory tiles should use cropped card art as an icon")
+	_assert(item_art_chip != null and item_art_chip.find_child("CardBadgeName", true, false) == null, "Item art chips should not overlay two-letter text labels")
+	_assert(item_tile != null and _button_with_text(item_tile, "Equip") == null and _button_with_text(item_tile, "Stow") == null, "Item tiles should use drag/drop instead of equip or stow buttons")
 	var item_tile_tooltip: Control = item_tile.call("_make_custom_tooltip", item_tile.tooltip_text) as Control if item_tile != null else null
 	if item_tile_tooltip != null:
 		root.add_child(item_tile_tooltip)
@@ -7842,20 +7847,47 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		item_tile_tooltip.queue_free()
 	else:
 		_failures.append("Item inventory hover should show a real CardWidget preview")
-	instance.call("_equip_item_from_overlay", 0)
+	var item_target_slot: Control = item_equipped_tiles.get(0, null) as Control
+	var item_press := InputEventMouseButton.new()
+	item_press.button_index = MOUSE_BUTTON_LEFT
+	item_press.pressed = true
+	item_press.position = item_tile.get_global_rect().get_center() if item_tile != null else Vector2.ZERO
+	item_press.global_position = item_press.position
+	if item_tile != null:
+		item_tile.call("_gui_input", item_press)
+	await process_frame
+	_assert(str(instance.get("_item_drag_card_id")) == "crimson_draught", "Pressing an item inventory tile should start a visible item drag")
+	var item_drop_position: Vector2 = item_target_slot.get_global_rect().get_center() if item_target_slot != null else Vector2.ZERO
+	instance.call("_update_item_overlay_drag", item_drop_position)
+	instance.call("_release_item_overlay_drag", item_drop_position)
+	await process_frame
 	await process_frame
 	await create_timer(0.20).timeout
 	var item_equipped_state: Dictionary = instance.get("_run_state")
-	_assert((item_equipped_state.get("equipped_items", []) as Array).has("crimson_draught"), "Equipping from the item overlay should fill an item slot")
+	_assert((item_equipped_state.get("equipped_items", []) as Array).has("crimson_draught"), "Dragging from item inventory to an item slot should equip the item")
 	_assert((item_equipped_state.get("deck_cards", []) as Array).has("crimson_draught"), "Equipped item cards should enter the active deck from the overlay")
-	_assert(not (item_equipped_state.get("item_inventory", []) as Array).has("crimson_draught"), "Equipping from the item overlay should remove that copy from item inventory")
-	instance.call("_unequip_item_from_overlay", 0)
+	_assert(not (item_equipped_state.get("item_inventory", []) as Array).has("crimson_draught"), "Dragging from item inventory should remove that copy from item inventory")
+	item_equipped_tiles = instance.get("_item_equipped_tiles")
+	var equipped_item_tile: Control = item_equipped_tiles.get(0, null) as Control
+	var stow_press := InputEventMouseButton.new()
+	stow_press.button_index = MOUSE_BUTTON_LEFT
+	stow_press.pressed = true
+	stow_press.position = equipped_item_tile.get_global_rect().get_center() if equipped_item_tile != null else Vector2.ZERO
+	stow_press.global_position = stow_press.position
+	if equipped_item_tile != null:
+		equipped_item_tile.call("_gui_input", stow_press)
+	await process_frame
+	var item_inventory_panel: Control = instance.get("_item_inventory_drop_panel") as Control
+	var stow_position: Vector2 = item_inventory_panel.get_global_rect().get_center() if item_inventory_panel != null else Vector2.ZERO
+	instance.call("_update_item_overlay_drag", stow_position)
+	instance.call("_release_item_overlay_drag", stow_position)
+	await process_frame
 	await process_frame
 	await create_timer(0.20).timeout
 	var item_stowed_state: Dictionary = instance.get("_run_state")
-	_assert(not (item_stowed_state.get("equipped_items", []) as Array).has("crimson_draught"), "Stowing from the item overlay should empty the equipped item slot")
-	_assert((item_stowed_state.get("item_inventory", []) as Array).has("crimson_draught"), "Stowing from the item overlay should return the item to inventory")
-	_assert(not (item_stowed_state.get("deck_cards", []) as Array).has("crimson_draught"), "Stowing from the item overlay should remove the item card from the active deck")
+	_assert(not (item_stowed_state.get("equipped_items", []) as Array).has("crimson_draught"), "Dragging an equipped item to inventory should empty the item loadout")
+	_assert((item_stowed_state.get("item_inventory", []) as Array).has("crimson_draught"), "Dragging an equipped item to inventory should return the item to inventory")
+	_assert(not (item_stowed_state.get("deck_cards", []) as Array).has("crimson_draught"), "Dragging an equipped item out should remove the item card from the active deck")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await process_frame
 	_assert(_label_with_text(upgrade_scrim, "Attuned Magic") != null, "The magic overlay should show attuned spell slots")
