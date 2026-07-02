@@ -39,6 +39,16 @@ const PORTRAITS := [
 		"source": "res://assets/placeholders/units/lightning_wisp.png",
 		"out": "res://assets/art/portraits/lightning_wisp.png",
 		"crop": Rect2i(28, 12, 200, 230)
+	},
+	{
+		"source": "res://assets/art/enemies/cinder_ooze.png",
+		"out": "res://assets/art/portraits/cinder_ooze.png",
+		"crop": Rect2i(8, 12, 238, 222)
+	},
+	{
+		"source": "res://assets/art/enemies/cinder_droplet.png",
+		"out": "res://assets/art/portraits/cinder_droplet.png",
+		"crop": Rect2i(30, 62, 195, 176)
 	}
 ]
 

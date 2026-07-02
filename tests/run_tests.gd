@@ -11,6 +11,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const LabyrinthMapView = preload("res://scripts/labyrinth_map_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const RunSceneScript = preload("res://scripts/run_scene.gd")
 const DialogueEngine = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
@@ -55,6 +56,8 @@ func _initialize() -> void:
 	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
 	_test_room_generation_places_frostglass_lancer_at_depth_two_and_three()
+	_test_bile_bloomer_depth_band_spawn_rules()
+	_test_chainbound_gaoler_spawns_without_stacked_control()
 	_test_boss_room_spawns_zekarion_with_wisps()
 	_test_second_sequence_uses_scaled_zekarion_placeholder()
 	_test_start_room_spawns_emaciated_man()
@@ -79,6 +82,10 @@ func _initialize() -> void:
 	_test_enemy_target_ties_randomize_between_player_side_actors()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
+	_test_cinder_ooze_splits_deterministically()
+	_test_cinder_ooze_split_skips_blocked_board()
+	_test_cinder_droplet_death_suppresses_rewards()
+	_test_cinder_droplet_does_not_resplit()
 	_test_hand_draw_caps_at_eight()
 	_test_first_attack_bonus_damage_math()
 	_test_relic_effect_hooks()
@@ -86,11 +93,24 @@ func _initialize() -> void:
 	_test_pierce_ignores_defenses()
 	_test_bleed_expose_and_sunder_keywords()
 	_test_enemy_pierce_intents_surface_icons()
+	_test_bile_bloomer_poison_and_expose_intents_apply_to_player()
+	_test_bile_bloomer_intents_surface_poison_and_expose_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
 	_test_immobilize_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
 	_test_low_movement_enemies_advance_without_outpacing_crawlers()
 	_test_harrier_has_moving_ranged_attack()
+	_test_chainbound_gaoler_profile_and_mechanics()
+	_test_chainbound_gaoler_intent_icons_and_previews()
+	_test_grave_surgeon_data_and_pool_role()
+	_test_grave_surgeon_support_actions_scale()
+	_test_heal_ally_targets_most_injured_ally()
+	_test_heal_ally_falls_back_to_self()
+	_test_heal_ally_no_target_noops()
+	_test_guard_ally_targets_threatened_ally()
+	_test_support_intent_rows_name_target()
+	_test_support_intent_target_marker_is_text_only()
+	_test_turn_order_uses_explicit_portraits_for_new_enemy_types()
 	_test_player_block_absorbs_full_enemy_phase()
 	_test_enemy_block_applies_on_actor_turn_only()
 	_test_aoe_hits_multiple_targets()
@@ -128,6 +148,7 @@ func _initialize() -> void:
 	_test_zekarion_ignores_shock_status()
 	_test_enemy_pathfinding_avoids_traps()
 	_test_shallow_elemental_enemy_actions_scale_back()
+	_test_cinder_ooze_appears_only_in_standard_depth_pools()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
 	_test_air_trap_tooltip_is_damage_only()
@@ -142,8 +163,10 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_offsets_down_from_top_edge()
 	_test_boss_intent_layout_avoids_boss_health_bar()
 	_test_boss_health_bar_overlays_above_board_origin()
+	_test_turn_order_portraits_cover_enemy_roster()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
+	_test_chainbound_gaoler_board_art_is_taller_and_centered()
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_unit_shadow_uses_alpha_silhouette()
 	_test_player_uses_original_anime_art()
@@ -151,8 +174,12 @@ func _initialize() -> void:
 	_test_combat_board_surfaces_illusion_units()
 	_test_combat_board_surfaces_illusion_preview_units()
 	_test_trial_enemy_art_uses_matching_idle_sheets()
+	_test_bile_bloomer_art_loads_for_board()
+	_test_bile_bloomer_turn_order_portrait_loads()
 	_test_zekarion_uses_matching_idle_sheet()
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
+	_test_cinder_enemies_use_final_raster_art()
+	_test_cinder_enemies_have_turn_order_portraits()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
 	_test_unit_hud_stacks_above_sprite_art()
@@ -883,6 +910,103 @@ func _test_room_generation_places_frostglass_lancer_at_depth_two_and_three() -> 
 	_assert(not depth_one_has_lancer, "Frostglass Lancer should not appear in depth-one opener pools")
 	_assert(depth_two_has_lancer, "Frostglass Lancer should appear in depth-two precision-threat pools")
 	_assert(depth_three_has_lancer, "Frostglass Lancer should appear in depth-three precision-threat pools")
+
+func _test_cinder_ooze_appears_only_in_standard_depth_pools() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var depth_two_ooze_count: int = 0
+	var depth_three_ooze_count: int = 0
+	var depth_two_rooms: int = 0
+	var depth_three_rooms: int = 0
+	for seed: int in range(1, 81):
+		var depth_one_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 1),
+			"depth": 1,
+			"type": "combat",
+			"element": ElementData.NONE
+		}, Vector2i.ZERO)
+		_assert(not _room_has_enemy_type(depth_one_room, "cinder_ooze"), "Cinder Ooze should stay out of depth-one teaching rooms")
+		_assert(not _room_has_enemy_type(depth_one_room, "cinder_droplet"), "Cinder Droplets should not appear in normal room pools")
+		var depth_two_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 2),
+			"depth": 2,
+			"type": "combat",
+			"element": ElementData.NONE
+		}, Vector2i.ZERO)
+		depth_two_rooms += 1
+		if _room_has_enemy_type(depth_two_room, "cinder_ooze"):
+			depth_two_ooze_count += 1
+		_assert(not _room_has_enemy_type(depth_two_room, "cinder_droplet"), "Cinder Droplets should not appear in depth-two normal room pools")
+		var depth_three_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 3),
+			"depth": 3,
+			"type": "combat",
+			"element": ElementData.NONE
+		}, Vector2i.ZERO)
+		depth_three_rooms += 1
+		if _room_has_enemy_type(depth_three_room, "cinder_ooze"):
+			depth_three_ooze_count += 1
+		_assert(not _room_has_enemy_type(depth_three_room, "cinder_droplet"), "Cinder Droplets should not appear in depth-three normal room pools")
+		var boss_room: Dictionary = generator.generate_room(seed, {
+			"coord": Vector2i(seed, 4),
+			"depth": 4,
+			"type": "boss",
+			"element": ElementData.LIGHTNING
+		}, Vector2i.ZERO)
+		_assert(not _room_has_enemy_type(boss_room, "cinder_ooze"), "Cinder Ooze should not appear in boss rooms")
+		_assert(not _room_has_enemy_type(boss_room, "cinder_droplet"), "Cinder Droplets should not appear in boss rooms")
+	_assert(depth_two_ooze_count > 0 and depth_two_ooze_count < depth_two_rooms, "Cinder Ooze should appear at low frequency in depth-two standard pools")
+	_assert(depth_three_ooze_count > 0 and depth_three_ooze_count < depth_three_rooms, "Cinder Ooze should appear at low frequency in depth-three standard pools")
+
+func _test_bile_bloomer_depth_band_spawn_rules() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var depth_two_seen: bool = false
+	var depth_three_seen: bool = false
+	for seed: int in range(64):
+		var depth_one_rng := RandomNumberGenerator.new()
+		depth_one_rng.seed = seed
+		var depth_one_types: Array = generator.call("_encounter_enemy_types", "combat", 1, depth_one_rng)
+		_assert(not depth_one_types.has("bile_bloomer"), "Bile Bloomer should stay out of first simple depth-one compositions")
+
+		var depth_two_rng := RandomNumberGenerator.new()
+		depth_two_rng.seed = seed
+		var depth_two_types: Array = generator.call("_encounter_enemy_types", "combat", 2, depth_two_rng)
+		if depth_two_types.has("bile_bloomer"):
+			depth_two_seen = true
+
+		var depth_three_rng := RandomNumberGenerator.new()
+		depth_three_rng.seed = seed
+		var depth_three_types: Array = generator.call("_encounter_enemy_types", "combat", 3, depth_three_rng)
+		if depth_three_types.has("bile_bloomer"):
+			depth_three_seen = true
+	_assert(depth_two_seen, "Bile Bloomer should appear in mid-depth normal encounter pools")
+	_assert(depth_three_seen, "Bile Bloomer should appear in deep normal encounter pools")
+
+func _test_chainbound_gaoler_spawns_without_stacked_control() -> void:
+	var generator: RoomGenerator = RoomGenerator.new()
+	var saw_depth_two: bool = false
+	var saw_depth_three: bool = false
+	for depth: int in [2, 3]:
+		for seed: int in range(80):
+			var rng := RandomNumberGenerator.new()
+			rng.seed = seed
+			var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng)
+			var gaoler_count: int = 0
+			for enemy_type_var: Variant in enemy_types:
+				if str(enemy_type_var) == "chainbound_gaoler":
+					gaoler_count += 1
+			if gaoler_count <= 0:
+				continue
+			if depth == 2:
+				saw_depth_two = true
+				_assert(enemy_types.size() == 4, "Depth-two Chainbound Gaoler rooms should keep the normal four-enemy density")
+			else:
+				saw_depth_three = true
+				_assert(enemy_types.size() == 5, "Depth-three Chainbound Gaoler rooms should keep the normal five-enemy density")
+			_assert(gaoler_count == 1, "Chainbound Gaoler compositions should never stack multiple pull enemies")
+			_assert(not enemy_types.has("warden"), "Chainbound Gaoler compositions should avoid pairing with the slow heavy anchor")
+			_assert(not enemy_types.has("lightning_wisp"), "Chainbound Gaoler should stay out of boss/add control pairings")
+	_assert(saw_depth_two, "Chainbound Gaoler should appear in depth-two normal encounter pools")
+	_assert(saw_depth_three, "Chainbound Gaoler should appear in depth-three normal encounter pools")
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1964,6 +2088,85 @@ func _test_summoned_enemy_death_does_not_grant_card_play() -> void:
 	var rewards: Array = state.get("death_rewards", [])
 	_assert(rewards.size() == 1 and bool((rewards[0] as Dictionary).get("summoned", false)), "Summoned death rewards should still be marked for animation filtering")
 
+func _test_cinder_ooze_splits_deterministically() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(171, _cinder_ooze_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	var droplets: Array = _enemies_of_type_for_test(state, "cinder_droplet", true)
+	_assert(droplets.size() == 2, "Killing Cinder Ooze should spawn up to two Cinder Droplets")
+	if droplets.size() >= 2:
+		_assert((droplets[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 3), "First Cinder Droplet should use the deterministic north split tile")
+		_assert((droplets[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(3, 4), "Second Cinder Droplet should use the deterministic west split tile")
+		_assert(int((droplets[0] as Dictionary).get("id", 0)) == 2 and int((droplets[1] as Dictionary).get("id", 0)) == 3, "Split droplets should receive stable new enemy ids")
+		_assert(bool((droplets[0] as Dictionary).get("summoned", false)) and bool((droplets[1] as Dictionary).get("summoned", false)), "Split droplets should be marked summoned")
+		_assert(not ((droplets[0] as Dictionary).get("intent", {}) as Dictionary).is_empty(), "Split droplets should receive preview intents")
+	_assert(int(state.get("room_embers", 0)) == 12, "The original Cinder Ooze should grant its ember reward once")
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 1, "The original Cinder Ooze should grant one death card play")
+	var order: Array[Dictionary] = combat.current_turn_order(state, 8)
+	var saw_droplet_turn: bool = false
+	for entry: Dictionary in order:
+		if str(entry.get("type", "")) == "cinder_droplet":
+			saw_droplet_turn = true
+			break
+	_assert(saw_droplet_turn, "Split droplets should be scheduled into the initiative queue")
+
+func _test_cinder_ooze_split_skips_blocked_board() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(172, _cinder_ooze_room_layout(true), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	var droplets: Array = _enemies_of_type_for_test(state, "cinder_droplet", false)
+	_assert(droplets.is_empty(), "Cinder Ooze should not split onto occupied, blocked, door, or invalid tiles")
+	_assert(_enemies_of_type_for_test(state, "harrier", true).size() == 1, "Blocked-board fallback should preserve unrelated live enemies")
+
+func _test_cinder_droplet_death_suppresses_rewards() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(173, _cinder_ooze_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 3))
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(3, 4))
+	_assert(int(state.get("room_embers", 0)) == 12, "Killing split droplets should not add ember rewards beyond the original Ooze")
+	_assert(int(state.get("death_bonus_card_plays_this_turn", 0)) == 1, "Killing split droplets should not add extra death card plays")
+	var rewards: Array = state.get("death_rewards", [])
+	_assert(rewards.size() == 3, "Ooze plus two droplets should create one reward record each for animation bookkeeping")
+	if rewards.size() == 3:
+		_assert(int((rewards[0] as Dictionary).get("embers", 0)) == 12 and not bool((rewards[0] as Dictionary).get("summoned", false)), "Original Ooze reward record should pay once")
+		_assert(int((rewards[1] as Dictionary).get("embers", 0)) == 0 and bool((rewards[1] as Dictionary).get("summoned", false)), "First droplet reward record should be summoned and emberless")
+		_assert(int((rewards[2] as Dictionary).get("embers", 0)) == 0 and bool((rewards[2] as Dictionary).get("summoned", false)), "Second droplet reward record should be summoned and emberless")
+
+func _test_cinder_droplet_does_not_resplit() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(174, _cinder_droplet_room_layout(), {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
+	_assert(_enemies_of_type_for_test(state, "cinder_droplet", false).size() == 1, "Killing a Cinder Droplet should not append any resplit droplets")
+
 func _test_hand_draw_caps_at_eight() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(151, _simple_room_layout(), {
@@ -2393,6 +2596,99 @@ func _test_enemy_pierce_intents_surface_icons() -> void:
 		_assert(found_pierce_icon, "%s pierce intent should render with the pierce icon" % str(enemy_def.get("name", enemy_type)))
 	board.free()
 
+func _test_bile_bloomer_poison_and_expose_intents_apply_to_player() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var poison_layout: Dictionary = _simple_room_layout()
+	poison_layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(3, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var poison_state: Dictionary = combat.create_combat(23101, poison_layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(poison_state, 0, _enemy_intent_by_id("bile_bloomer", "bile_burst"))
+	var poison_threat: Dictionary = combat.enemy_threat_tiles(poison_state, 0)
+	var poison_attack_tiles: Array = poison_threat.get("attack", []) as Array
+	_assert(poison_attack_tiles.has(Vector2i(2, 4)), "Bile Burst threat preview should show the player's tile before poison resolves")
+	_assert(poison_attack_tiles.has(Vector2i(1, 4)), "Bile Burst should preview the outer cardinal tile in its wider poison diamond")
+	_assert(poison_attack_tiles.has(Vector2i(2, 3)), "Bile Burst should preview the outer diagonal tile in its wider poison diamond")
+	var bile_burst: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
+	var bile_burst_actions: Array = bile_burst.get("actions", [])
+	var bile_burst_aoe: Dictionary = bile_burst_actions[1] as Dictionary
+	_assert((bile_burst_aoe.get("pattern", []) as Array).size() == 12, "Bile Burst should use a radius-2 diamond around the Bloomer")
+	var poison_result: Dictionary = combat.resolve_enemy_turn_with_steps(poison_state, 0)
+	var poisoned_player: Dictionary = (poison_result.get("state", {}) as Dictionary).get("player", {})
+	var poison: Dictionary = poisoned_player.get("poison", {})
+	_assert(int(poison.get("damage", 0)) == GameData.fixed_point_amount(2), "Bile Burst should apply poison through its revealed enemy intent")
+	_assert(int(poison.get("delay", 0)) == 2, "Bile Burst poison should use the existing delayed poison cadence")
+
+	var expose_layout: Dictionary = _simple_room_layout()
+	expose_layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(5, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var expose_state: Dictionary = combat.create_combat(23102, expose_layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(expose_state, 0, _enemy_intent_by_id("bile_bloomer", "spore_mark"))
+	var expose_threat: Dictionary = combat.enemy_threat_tiles(expose_state, 0)
+	_assert((expose_threat.get("attack", []) as Array).has(Vector2i(2, 4)), "Spore Mark threat preview should show the player's tile before expose resolves")
+	var expose_result: Dictionary = combat.resolve_enemy_turn_with_steps(expose_state, 0)
+	var exposed_player: Dictionary = (expose_result.get("state", {}) as Dictionary).get("player", {})
+	_assert(int(exposed_player.get("expose", 0)) == GameData.fixed_point_amount(2), "Spore Mark should apply expose through its revealed enemy intent")
+
+func _test_bile_bloomer_intents_surface_poison_and_expose_icons() -> void:
+	var board := CombatBoardView.new()
+	var poison_intent: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
+	var expose_intent: Dictionary = _enemy_intent_by_id("bile_bloomer", "spore_mark")
+	var found_poison_icon: bool = false
+	var found_expose_icon: bool = false
+	var poison_tooltip: String = ""
+	var expose_tooltip: String = ""
+	for poison_row_var: Variant in board.call("_intent_rows", poison_intent):
+		if typeof(poison_row_var) != TYPE_ARRAY:
+			continue
+		for poison_token_var: Variant in poison_row_var as Array:
+			if typeof(poison_token_var) != TYPE_DICTIONARY:
+				continue
+			var poison_token: Dictionary = poison_token_var
+			if str(poison_token.get("icon", "")) == "poison":
+				found_poison_icon = true
+				poison_tooltip = ActionIcons.token_tooltip(poison_token)
+	for expose_row_var: Variant in board.call("_intent_rows", expose_intent):
+		if typeof(expose_row_var) != TYPE_ARRAY:
+			continue
+		for expose_token_var: Variant in expose_row_var as Array:
+			if typeof(expose_token_var) != TYPE_DICTIONARY:
+				continue
+			var expose_token: Dictionary = expose_token_var
+			if str(expose_token.get("icon", "")) == "expose":
+				found_expose_icon = true
+				expose_tooltip = ActionIcons.token_tooltip(expose_token)
+	_assert(found_poison_icon, "Bile Burst enemy intent rows should surface a poison icon")
+	_assert(poison_tooltip.contains("Delayed damage"), "Poison intent icon tooltip should explain delayed damage")
+	_assert(found_expose_icon, "Spore Mark enemy intent rows should surface an expose icon")
+	_assert(expose_tooltip.contains("next hit"), "Expose intent icon tooltip should explain the next-hit setup")
+	board.free()
+
 func _test_pierce_cards_stay_in_allowed_elements() -> void:
 	var allowed_elements: Dictionary = {
 		"none": true,
@@ -2483,9 +2779,250 @@ func _test_harrier_has_moving_ranged_attack() -> void:
 			break
 	_assert(found, "Harriers should have at least one ranged attack that advances before firing")
 
+func _test_chainbound_gaoler_profile_and_mechanics() -> void:
+	var gaoler_def: Dictionary = GameData.enemy_def("chainbound_gaoler")
+	_assert(str(gaoler_def.get("name", "")) == "Chainbound Gaoler", "Chainbound Gaoler enemy data should load by id")
+	_assert(int(gaoler_def.get("max_hp", 0)) == 160, "Chainbound Gaoler HP should be scaled from 16 player-scale HP")
+	_assert(int(gaoler_def.get("base_initiative", 0)) == 13, "Chainbound Gaoler should sit between acolyte and warden initiative")
+	_assert(int(gaoler_def.get("reward_embers", 0)) == 12, "Chainbound Gaoler should reward mid-depth normal enemy embers")
+	_assert(FileAccess.file_exists(str(gaoler_def.get("art_path", ""))), "Chainbound Gaoler should use runtime-visible raster art")
+	for intent_id: String in ["chain_reel", "manacle_pin", "cudgel_press", "iron_guard"]:
+		_assert(not _enemy_intent_by_id("chainbound_gaoler", intent_id).is_empty(), "Chainbound Gaoler should define %s intent" % intent_id)
+
+	var combat: CombatEngine = CombatEngine.new()
+	var pull_state: Dictionary = _chainbound_gaoler_combat_state(9117, Vector2i(2, 4), Vector2i(5, 4), "chain_reel")
+	var pull_phase: Dictionary = combat.resolve_enemy_phase_with_steps(pull_state)
+	var after_pull: Dictionary = pull_phase.get("state", {})
+	var pulled_player: Dictionary = after_pull.get("player", {})
+	_assert(pulled_player.get("pos", Vector2i.ZERO) == Vector2i(4, 4), "Chainbound Gaoler Chain Reel should pull the player two tiles inward")
+	var saw_pull_step: bool = false
+	for step_var: Variant in pull_phase.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("kind", "")) == "pull":
+			saw_pull_step = true
+			break
+	_assert(saw_pull_step, "Chainbound Gaoler pull should produce a visible pull animation step")
+
+	var pin_state: Dictionary = _chainbound_gaoler_combat_state(9118, Vector2i(2, 4), Vector2i(4, 4), "manacle_pin")
+	var pin_phase: Dictionary = combat.resolve_enemy_phase_with_steps(pin_state)
+	var after_pin: Dictionary = pin_phase.get("state", {})
+	_assert(bool((after_pin.get("player", {}) as Dictionary).get("immobilize", false)), "Chainbound Gaoler Manacle Pin should apply player immobilize")
+	after_pin = combat.prepare_next_player_turn(after_pin)
+	_assert(not combat.player_action_can_resolve(after_pin, {"type": "move", "range": 2}), "Gaoler immobilize should block movement on the next player turn")
+	_assert(not combat.player_action_can_resolve(after_pin, {"type": "blink", "range": 3}), "Gaoler immobilize should block blink on the next player turn")
+	_assert(combat.player_action_can_resolve(after_pin, {"type": "block", "amount": 4}), "Gaoler immobilize should leave non-movement actions playable")
+
+func _test_chainbound_gaoler_intent_icons_and_previews() -> void:
+	var board := CombatBoardView.new()
+	var pull_intent: Dictionary = _enemy_intent_by_id("chainbound_gaoler", "chain_reel")
+	var pin_intent: Dictionary = _enemy_intent_by_id("chainbound_gaoler", "manacle_pin")
+	var pull_rows: Array = board.call("_intent_rows", pull_intent)
+	var pin_rows: Array = board.call("_intent_rows", pin_intent)
+	_assert(_intent_rows_have_icon(pull_rows, "pull"), "Chainbound Gaoler Chain Reel intent row should show the pull icon")
+	_assert(_intent_rows_have_icon(pull_rows, "range"), "Chainbound Gaoler Chain Reel intent row should show pull range before it acts")
+	_assert(_intent_rows_have_icon(pin_rows, "immobilize"), "Chainbound Gaoler Manacle Pin intent row should show the immobilize icon")
+	board.free()
+
+	var combat: CombatEngine = CombatEngine.new()
+	var pull_state: Dictionary = _chainbound_gaoler_combat_state(9119, Vector2i(2, 4), Vector2i(5, 4), "chain_reel")
+	var pull_threat: Dictionary = combat.enemy_threat_tiles(pull_state, 0)
+	_assert((pull_threat.get("attack", []) as Array).has(Vector2i(2, 4)), "Chainbound Gaoler pull preview should mark the player tile before the enemy acts")
+	_assert((pull_threat.get("attack", []) as Array).has(Vector2i(4, 4)), "Chainbound Gaoler pull preview should mark tiles inside its chain reach")
+	var pin_state: Dictionary = _chainbound_gaoler_combat_state(9120, Vector2i(2, 4), Vector2i(4, 4), "manacle_pin")
+	var pin_threat: Dictionary = combat.enemy_threat_tiles(pin_state, 0)
+	_assert((pin_threat.get("attack", []) as Array).has(Vector2i(2, 4)), "Chainbound Gaoler immobilize preview should mark the player tile before the enemy acts")
+
+func _test_grave_surgeon_data_and_pool_role() -> void:
+	var surgeon_def: Dictionary = GameData.enemy_def("grave_surgeon")
+	_assert(str(surgeon_def.get("name", "")) == "Grave Surgeon", "Grave Surgeon enemy data should load")
+	_assert(FileAccess.file_exists(str(surgeon_def.get("art_path", ""))), "Grave Surgeon should use project enemy art")
+	_assert(int(surgeon_def.get("max_hp", 0)) == 110, "Grave Surgeon HP should stay in support-enemy range")
+	_assert(int(surgeon_def.get("reward_embers", 0)) == 11, "Grave Surgeon should reward normal support-enemy embers")
+	var support_intent_count: int = 0
+	var attack_damage_total: int = 0
+	for intent_var: Variant in surgeon_def.get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		for action_var: Variant in (intent_var as Dictionary).get("actions", []):
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = action_var as Dictionary
+			match str(action.get("type", "")):
+				"heal_ally", "guard_ally":
+					support_intent_count += 1
+				"melee", "ranged", "aoe", "push", "pull":
+					attack_damage_total += int(action.get("damage", 0))
+	_assert(support_intent_count >= 2, "Grave Surgeon should be defined by reusable support actions")
+	_assert(attack_damage_total <= 20, "Grave Surgeon's offensive pressure should stay low")
+	var generator := RoomGenerator.new()
+	var rng := RandomNumberGenerator.new()
+	var saw_surgeon: bool = false
+	for depth: int in [2, 3]:
+		for seed: int in range(24):
+			rng.seed = seed
+			var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng)
+			if not enemy_types.has("grave_surgeon"):
+				continue
+			saw_surgeon = true
+			_assert(enemy_types.size() >= 4, "Grave Surgeon should appear in multi-enemy rooms")
+			_assert(enemy_types.has("crawler") or enemy_types.has("harrier") or enemy_types.has("warden"), "Grave Surgeon should be paired with front-line enemies")
+	_assert(saw_surgeon, "Grave Surgeon should appear in depth 2+ encounter pools")
+
+func _test_grave_surgeon_support_actions_scale() -> void:
+	var suture: Dictionary = _enemy_intent_by_id("grave_surgeon", "triage_suture")
+	var brace: Dictionary = _enemy_intent_by_id("grave_surgeon", "field_brace")
+	var suture_action: Dictionary = (suture.get("actions", []) as Array)[1]
+	var brace_action: Dictionary = (brace.get("actions", []) as Array)[1]
+	_assert(str(suture_action.get("type", "")) == "heal_ally", "Triage Suture should use the reusable heal_ally action")
+	_assert(str(brace_action.get("type", "")) == "guard_ally", "Field Brace should use the reusable guard_ally action")
+	_assert(int(suture_action.get("amount", 0)) == 30, "heal_ally amount should scale from player units into fixed-point combat values")
+	_assert(int(brace_action.get("amount", 0)) == 40, "guard_ally amount should scale from player units into fixed-point combat values")
+	var combat := CombatEngine.new()
+	var shallow_suture: Dictionary = combat.call("_elementalize_enemy_intent", suture, ElementData.NONE, 1)
+	var shallow_heal: Dictionary = (shallow_suture.get("actions", []) as Array)[1]
+	_assert(int(shallow_heal.get("amount", 0)) == 20, "Depth-one support scaling should downshift heal_ally")
+	var later_brace: Dictionary = combat.call("_elementalize_enemy_intent", brace, ElementData.NONE, 6)
+	var later_guard: Dictionary = (later_brace.get("actions", []) as Array)[1]
+	_assert(int(later_guard.get("amount", 0)) == 60, "Later-sequence support scaling should raise guard_ally")
+
+func _test_heal_ally_targets_most_injured_ally() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var enemies: Array = resolved.get("enemies", [])
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 70, "heal_ally should target the ally with the most missing HP")
+	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 70, "heal_ally should not heal a less injured ally first")
+	_assert(_combat_log_contains(resolved, "Grave Surgeon stitches Tunnel Crawler"), "heal_ally logs should name the supported ally")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("kind", "")) == "heal", "heal_ally should produce a heal animation step")
+	_assert(str(step.get("actor_key", "")) == "enemy_2", "heal_ally step should focus the healed ally")
+	_assert(str(step.get("source_actor_key", "")) == "enemy_1", "heal_ally step should preserve the Surgeon as source")
+
+func _test_heal_ally_falls_back_to_self() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	var surgeon: Dictionary = enemies[0]
+	surgeon["hp"] = 50
+	enemies[0] = surgeon
+	var crawler: Dictionary = enemies[1]
+	crawler["hp"] = int(crawler.get("max_hp", 1))
+	enemies[1] = crawler
+	var harrier: Dictionary = enemies[2]
+	harrier["hp"] = int(harrier.get("max_hp", 1))
+	enemies[2] = harrier
+	state["enemies"] = enemies
+	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var resolved_enemies: Array = resolved.get("enemies", [])
+	_assert(int((resolved_enemies[0] as Dictionary).get("hp", 0)) == 80, "heal_ally should fall back to the source when it is the only injured ally")
+	_assert(_combat_log_contains(resolved, "Grave Surgeon stitches itself"), "Self fallback logs should say itself")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("actor_key", "")) == "enemy_1", "Self fallback heal step should focus the Surgeon")
+	_assert(str(step.get("label", "")) == "Heal Self", "Self fallback heal step should label the self target")
+
+func _test_heal_ally_no_target_noops() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		enemy["hp"] = int(enemy.get("max_hp", 1))
+		enemies[index] = enemy
+	state["enemies"] = enemies
+	var action: Dictionary = {"type": "heal_ally", "amount": 30, "range": 4}
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var resolved_enemies: Array = resolved.get("enemies", [])
+	for index: int in range(resolved_enemies.size()):
+		var enemy: Dictionary = resolved_enemies[index]
+		_assert(int(enemy.get("hp", 0)) == int(enemy.get("max_hp", 1)), "heal_ally should no-op when no live enemy is injured")
+	var step: Dictionary = combat.call("_enemy_action_step", state, resolved, 0, action)
+	_assert(step.is_empty(), "heal_ally no-op should not produce a presentation step")
+
+func _test_guard_ally_targets_threatened_ally() -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _support_action_test_state()
+	var action: Dictionary = {"type": "guard_ally", "amount": 40, "range": 4}
+	var before: Dictionary = state.duplicate(true)
+	var resolved: Dictionary = combat.call("_resolve_enemy_action", state, 0, action)
+	var enemies: Array = resolved.get("enemies", [])
+	_assert(int((enemies[1] as Dictionary).get("block", 0)) == 40, "guard_ally should target the ally nearest the player")
+	_assert(int((enemies[0] as Dictionary).get("block", 0)) == 0, "guard_ally should not guard itself when a more threatened ally exists")
+	_assert(_combat_log_contains(resolved, "Grave Surgeon guards Tunnel Crawler"), "guard_ally logs should name the guarded ally")
+	var step: Dictionary = combat.call("_enemy_action_step", before, resolved, 0, action)
+	_assert(str(step.get("kind", "")) == "block", "guard_ally should produce a block animation step")
+	_assert(str(step.get("actor_key", "")) == "enemy_2", "guard_ally step should focus the guarded ally")
+	_assert(str(step.get("source_actor_key", "")) == "enemy_1", "guard_ally step should preserve the Surgeon as source")
+
+func _test_support_intent_rows_name_target() -> void:
+	var board := CombatBoardView.new()
+	board.combat_state = _support_action_test_state()
+	var surgeon_unit := {
+		"key": "enemy_1",
+		"id": 1,
+		"role": "enemy",
+		"type": "grave_surgeon",
+		"pos": Vector2i(5, 4),
+		"hp": 110,
+		"max_hp": 110
+	}
+	var heal_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	_assert(heal_rows.size() == 1, "heal_ally should surface an intent row")
+	_assert(ActionIcons.plain_text_for_tokens(heal_rows[0] as Array).find("-> Crawler") >= 0, "heal_ally intent row should name the ally target")
+	var state: Dictionary = _support_action_test_state()
+	var enemies: Array = state.get("enemies", [])
+	var surgeon: Dictionary = enemies[0]
+	surgeon["hp"] = 50
+	enemies[0] = surgeon
+	for index: int in range(1, enemies.size()):
+		var enemy: Dictionary = enemies[index]
+		enemy["hp"] = int(enemy.get("max_hp", 1))
+		enemies[index] = enemy
+	state["enemies"] = enemies
+	board.combat_state = state
+	var self_rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	_assert(ActionIcons.plain_text_for_tokens(self_rows[0] as Array).find("-> Self") >= 0, "heal_ally intent row should say when the Surgeon targets itself")
+	board.free()
+
+func _test_support_intent_target_marker_is_text_only() -> void:
+	var board := CombatBoardView.new()
+	board.combat_state = _support_action_test_state()
+	var surgeon_unit := {
+		"key": "enemy_1",
+		"id": 1,
+		"role": "enemy",
+		"type": "grave_surgeon",
+		"pos": Vector2i(5, 4),
+		"hp": 110,
+		"max_hp": 110
+	}
+	var rows: Array = board.call("_intent_rows_for_unit", surgeon_unit, {"actions": [{"type": "heal_ally", "amount": 30, "range": 4}]})
+	_assert(rows.size() == 1, "heal_ally should still surface one intent row")
+	var tokens: Array = rows[0] as Array
+	_assert(tokens.size() == 2, "heal_ally support rows should show the action token and a target marker")
+	_assert(str((tokens[0] as Dictionary).get("icon", "")) == "heal", "heal_ally should keep the heal icon as the only action icon")
+	_assert(str((tokens[1] as Dictionary).get("kind", "")) == "text", "Support targets should render as text-only markers")
+	_assert(not (tokens[1] as Dictionary).has("icon"), "Support target markers should not add a health icon")
+	_assert(ActionIcons.plain_text_for_tokens(tokens) == "Heal 30  -> Crawler", "Support target plain text should not include a Health label")
+	board.free()
+
+func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	var instance: Node = run_scene.instantiate()
+	var surgeon_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "grave_surgeon"}))
+	_assert(surgeon_path == "res://assets/art/portraits/grave_surgeon.png", "Turn order should use explicit portraits for new enemies")
+	_assert(FileAccess.file_exists(surgeon_path), "Grave Surgeon turn-order portrait should exist")
+	var crawler_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "crawler"}))
+	_assert(crawler_path.find("tunnel_crawler.png") >= 0, "Existing enemies should keep their dedicated turn-order portraits")
+	var unknown_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "unknown_enemy"}))
+	_assert(unknown_path.find("player_reaver.png") >= 0, "Unknown turn-order entries should still fall back safely")
+	instance.free()
+
 func _max_elemental_enemy_move_attack_reach(combat: CombatEngine, element_id: String, room_depth: int) -> int:
 	var max_reach: int = 0
-	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden"]:
+	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden", "grave_surgeon", "chainbound_gaoler", "bile_bloomer"]:
 		for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
 			if typeof(intent_var) != TYPE_DICTIONARY:
 				continue
@@ -4297,6 +4834,37 @@ func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
 	_assert(is_equal_approx(draw_rect.position.y, scaled_rect.position.y + art_offset.y), "Enemy art offset should shift the sprite vertically after fitting")
 	_assert(is_equal_approx(draw_rect.end.y, scaled_rect.end.y + art_offset.y), "Enemy art offset should move the sprite feet by the configured amount")
 
+func _test_turn_order_portraits_cover_enemy_roster() -> void:
+	var run_scene_script: Script = load("res://scripts/run_scene.gd")
+	var instance: Node = run_scene_script.new()
+	var player_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "player", "type": "player"}))
+	_assert(FileAccess.file_exists(player_path), "Turn order should resolve a player portrait")
+	for enemy_type: String in GameData.enemies().keys():
+		var portrait_path: String = str(instance.call("_turn_order_portrait_path", {
+			"kind": "enemy",
+			"type": enemy_type
+		}))
+		_assert(portrait_path != player_path, "%s turn-order portrait should not fall back to the player portrait" % enemy_type)
+		_assert(FileAccess.file_exists(portrait_path), "%s turn-order portrait should exist" % enemy_type)
+	instance.free()
+
+func _test_chainbound_gaoler_board_art_is_taller_and_centered() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.call("_load_assets")
+	var center := Vector2(320.0, 240.0)
+	var player_unit := {"type": "player", "pos": Vector2i(0, 0)}
+	var gaoler_unit := {"type": "chainbound_gaoler", "pos": Vector2i(0, 0)}
+	var warden_unit := {"type": "warden", "pos": Vector2i(0, 0)}
+	var player_rect: Rect2 = board.call("_unit_draw_rect_for_center", player_unit, center)
+	var gaoler_rect: Rect2 = board.call("_unit_draw_rect_for_center", gaoler_unit, center)
+	var warden_rect: Rect2 = board.call("_unit_draw_rect_for_center", warden_unit, center)
+	_assert(float(GameData.enemy_def("chainbound_gaoler").get("art_scale", 1.0)) >= 0.9, "Chainbound Gaoler should not look shrunken next to the player")
+	_assert(gaoler_rect.size.y > player_rect.size.y * 0.88, "Chainbound Gaoler board art should read nearly as tall as the player")
+	_assert(gaoler_rect.size.y < warden_rect.size.y, "Chainbound Gaoler should remain smaller than the heavy Warden anchor")
+	_assert(gaoler_rect.end.y < player_rect.end.y - 6.0, "Chainbound Gaoler should be shifted upward from the front edge of the tile")
+	board.free()
+
 func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 	var board := CombatBoardView.new()
 	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
@@ -4467,6 +5035,52 @@ func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", enemy_unit)), 0.1), "%s anime trial idle loop should use the original frame cadence" % enemy_type)
 		_assert(texture != null, "%s anime trial art should load for board rendering" % enemy_type)
 
+func _test_bile_bloomer_art_loads_for_board() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	var bloomer_unit := {"key": "enemy_bile_bloomer", "type": "bile_bloomer"}
+	var texture: Texture2D = board.call("_texture_for_unit", bloomer_unit)
+	_assert(texture != null, "Bile Bloomer art should load for board rendering")
+	_assert(texture.get_size() == Vector2(255.0, 255.0), "Bile Bloomer static sprite should use the standard 255px unit canvas")
+	board.free()
+
+func _test_bile_bloomer_turn_order_portrait_loads() -> void:
+	var combat := CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "bile_bloomer",
+		"pos": Vector2i(5, 4),
+		"hp": 160,
+		"max_hp": 160,
+		"block": 0
+	}]
+	var state: Dictionary = combat.create_combat(23103, layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var order: Array[Dictionary] = combat.current_turn_order(state, 10)
+	var run_scene := RunSceneScript.new()
+	var found_bloomer: bool = false
+	for entry: Dictionary in order:
+		if str(entry.get("type", "")) != "bile_bloomer":
+			continue
+		found_bloomer = true
+		var path: String = str(run_scene.call("_turn_order_portrait_path", entry))
+		_assert(path == "res://assets/art/portraits/bile_bloomer.png", "Bile Bloomer turn-order slot should use its enemy portrait instead of the player fallback")
+		var image: Image = Image.load_from_file(ProjectSettings.globalize_path(path))
+		_assert(image != null and not image.is_empty(), "Bile Bloomer turn-order portrait should load from disk")
+		if image != null and not image.is_empty():
+			_assert(image.get_size() == Vector2i(128, 128), "Bile Bloomer turn-order portrait should match the 128px portrait atlas size")
+	run_scene.free()
+	_assert(found_bloomer, "Bile Bloomer should appear in the visible turn-order queue")
+
 func _test_zekarion_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
@@ -4497,6 +5111,67 @@ func _test_lightning_wisp_uses_normal_loop_idle_sheet() -> void:
 	_assert(last_frame.region.position == Vector2(3060.0, 3060.0), "Lightning wisp normal loop should include the final source frame")
 	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", wisp_unit)), 0.15), "Lightning wisp idle loop should match the downloaded GIF cadence")
 	_assert(texture != null, "Lightning wisp idle art should load for board rendering")
+
+func _test_cinder_enemies_use_final_raster_art() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	for enemy_type: String in ["cinder_ooze", "cinder_droplet"]:
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var art_path: String = str(enemy_def.get("art_path", ""))
+		_assert(art_path.begins_with("res://assets/art/enemies/"), "%s should use final enemy art, not placeholder-era art" % enemy_type)
+		_assert(art_path.get_extension().to_lower() == "png", "%s should use runtime-visible raster PNG art" % enemy_type)
+		_assert(FileAccess.file_exists(art_path), "%s enemy sprite should exist" % enemy_type)
+		var texture: Texture2D = (board.get("_unit_textures") as Dictionary).get(enemy_type, null)
+		_assert(texture != null, "%s enemy sprite should load for board rendering" % enemy_type)
+		if texture != null:
+			_assert(texture.get_size() == Vector2(255, 255), "%s enemy sprite should use the static 255px unit canvas" % enemy_type)
+			if enemy_type == "cinder_droplet":
+				var center := Vector2(320.0, 240.0)
+				var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", {"type": enemy_type, "pos": Vector2i.ZERO}, center)
+				var used_rect: Rect2i = texture.get_image().get_used_rect()
+				var visible_center_x: float = draw_rect.position.x + draw_rect.size.x * float(used_rect.position.x + used_rect.size.x * 0.5) / float(texture.get_width())
+				var visible_bottom_y: float = draw_rect.position.y + draw_rect.size.y * float(used_rect.position.y + used_rect.size.y) / float(texture.get_height())
+				var tile_height: float = float(board.call("_tile_height"))
+				_assert(absf(visible_center_x - center.x) <= 1.0, "Cinder Droplet art should stay horizontally centered on its tile")
+				_assert(visible_bottom_y <= center.y + tile_height * 0.35, "Cinder Droplet art should not hang below its tile anchor")
+	board.free()
+
+func _test_cinder_enemies_have_turn_order_portraits() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	_assert(run_scene != null, "Run scene should load for Cinder turn-order portrait coverage")
+	if run_scene == null:
+		return
+	var instance: Node = run_scene.instantiate()
+	var player_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "player"}))
+	for enemy_type: String in ["cinder_ooze", "cinder_droplet"]:
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var entry: Dictionary = {
+			"kind": "enemy",
+			"team": "enemy",
+			"type": enemy_type,
+			"name": str(enemy_def.get("name", enemy_type)),
+			"time": 9,
+			"eta": 9,
+			"base_initiative": 6,
+			"intent_time_cost": 3,
+			"pos": Vector2i(4, 4),
+			"actor_key": "test_%s" % enemy_type
+		}
+		var portrait_path: String = str(instance.call("_turn_order_portrait_path", entry))
+		_assert(portrait_path != player_path, "%s turn-order slot should not fall back to the player portrait" % enemy_type)
+		_assert(portrait_path.begins_with("res://assets/art/portraits/"), "%s turn-order portrait should live with the generated portrait assets" % enemy_type)
+		_assert(FileAccess.file_exists(portrait_path), "%s turn-order portrait asset should exist" % enemy_type)
+		var slot: Control = instance.call("_build_turn_order_slot", entry, 0) as Control
+		_assert(slot != null, "%s turn-order slot should build" % enemy_type)
+		if slot != null:
+			var texture_rects: Array[TextureRect] = _texture_rects_under(slot)
+			_assert(not texture_rects.is_empty() and texture_rects[0].texture != null, "%s turn-order slot should render its portrait texture" % enemy_type)
+			if not texture_rects.is_empty() and texture_rects[0].texture != null:
+				_assert(texture_rects[0].texture.get_size() == Vector2(128, 128), "%s turn-order portrait should use the clock portrait canvas" % enemy_type)
+			slot.free()
+	instance.free()
 
 func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
@@ -8269,11 +8944,89 @@ func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
 			return intent.duplicate(true)
 	return {}
 
+func _enemies_of_type_for_test(state: Dictionary, enemy_type: String, live_only: bool) -> Array:
+	var found: Array = []
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if str(enemy.get("type", "")) != enemy_type:
+			continue
+		if live_only and int(enemy.get("hp", 0)) <= 0:
+			continue
+		found.append(enemy)
+	return found
+
 func _room_has_enemy_type(room: Dictionary, enemy_type: String) -> bool:
 	for enemy_var: Variant in room.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
 		if str((enemy_var as Dictionary).get("type", "")) == enemy_type:
+			return true
+	return false
+
+func _intent_rows_have_icon(rows: Array, icon_key: String) -> bool:
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		for token_var: Variant in row_var as Array:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			if str((token_var as Dictionary).get("icon", "")) == icon_key:
+				return true
+	return false
+
+func _chainbound_gaoler_combat_state(seed: int, player_pos: Vector2i, gaoler_pos: Vector2i, intent_id: String) -> Dictionary:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(seed, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["guarded_step", "brace"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	state["player"] = {
+		"pos": player_pos,
+		"hp": 240,
+		"max_hp": 240,
+		"block": 0,
+		"stoneskin": 0
+	}
+	var gaoler_def: Dictionary = GameData.enemy_def("chainbound_gaoler")
+	state["enemies"] = [{
+		"id": 1,
+		"type": "chainbound_gaoler",
+		"pos": gaoler_pos,
+		"hp": int(gaoler_def.get("max_hp", 160)),
+		"max_hp": int(gaoler_def.get("max_hp", 160)),
+		"block": 0,
+		"stoneskin": 0,
+		"intent": _enemy_intent_by_id("chainbound_gaoler", intent_id)
+	}]
+	state["rng_state"] = seed
+	return state
+
+func _support_action_test_state() -> Dictionary:
+	return {
+		"grid": _simple_grid(),
+		"room_depth": 2,
+		"room_element": ElementData.NONE,
+		"player": {"pos": Vector2i(2, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0},
+		"enemies": [
+			{"id": 1, "type": "grave_surgeon", "pos": Vector2i(5, 4), "hp": 110, "max_hp": 110, "block": 0, "stoneskin": 0},
+			{"id": 2, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 100, "block": 0, "stoneskin": 0},
+			{"id": 3, "type": "harrier", "pos": Vector2i(5, 3), "hp": 70, "max_hp": 100, "block": 0, "stoneskin": 0}
+		],
+		"illusions": [],
+		"terrain": [],
+		"traps": [],
+		"log": []
+	}
+
+func _combat_log_contains(state: Dictionary, text: String) -> bool:
+	for line_var: Variant in state.get("log", []):
+		if str(line_var).find(text) >= 0:
 			return true
 	return false
 
@@ -8291,6 +9044,66 @@ func _simple_room_layout() -> Dictionary:
 				"pos": Vector2i(5, 2),
 				"hp": 14,
 				"max_hp": 14,
+				"block": 0
+			}
+		],
+		"loot": []
+	}
+
+func _cinder_ooze_room_layout(blocked_split: bool = false) -> Dictionary:
+	var grid: Array = _simple_grid()
+	var player_start: Vector2i = Vector2i(3, 3)
+	var enemies: Array = [
+		{
+			"id": 1,
+			"type": "cinder_ooze",
+			"pos": Vector2i(4, 4),
+			"hp": int(GameData.enemy_def("cinder_ooze").get("max_hp", 140)),
+			"max_hp": int(GameData.enemy_def("cinder_ooze").get("max_hp", 140)),
+			"block": 0
+		}
+	]
+	if blocked_split:
+		player_start = Vector2i(3, 4)
+		(grid[3] as Array)[4] = "wall"
+		(grid[5] as Array)[4] = "door"
+		enemies.append({
+			"id": 2,
+			"type": "harrier",
+			"pos": Vector2i(5, 4),
+			"hp": int(GameData.enemy_def("harrier").get("max_hp", 100)),
+			"max_hp": int(GameData.enemy_def("harrier").get("max_hp", 100)),
+			"block": 0
+		})
+	return {
+		"name": "Cinder Test Room",
+		"coord": Vector2i(2, 0),
+		"depth": 2,
+		"type": "combat",
+		"element": ElementData.NONE,
+		"grid": grid,
+		"player_start": player_start,
+		"enemies": enemies,
+		"loot": []
+	}
+
+func _cinder_droplet_room_layout() -> Dictionary:
+	return {
+		"name": "Cinder Droplet Test Room",
+		"coord": Vector2i(2, 1),
+		"depth": 2,
+		"type": "combat",
+		"element": ElementData.NONE,
+		"grid": _simple_grid(),
+		"player_start": Vector2i(3, 3),
+		"enemies": [
+			{
+				"id": 1,
+				"type": "cinder_droplet",
+				"summoned": true,
+				"pos": Vector2i(4, 4),
+				"hp": int(GameData.enemy_def("cinder_droplet").get("max_hp", 50)),
+				"max_hp": int(GameData.enemy_def("cinder_droplet").get("max_hp", 50)),
 				"block": 0
 			}
 		],

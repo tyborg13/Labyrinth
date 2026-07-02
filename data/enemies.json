@@ -15,8 +15,15 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          { "type": "move_toward", "range": 3 },
-          { "type": "melee", "damage": 3, "range": 1 }
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "damage": 3,
+            "range": 1
+          }
         ]
       },
       {
@@ -25,8 +32,14 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 2 },
-          { "type": "block", "amount": 4 }
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 4
+          }
         ]
       },
       {
@@ -35,8 +48,15 @@
         "time": 6,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 4 },
-          { "type": "melee", "damage": 5, "range": 1 }
+          {
+            "type": "move_toward",
+            "range": 4
+          },
+          {
+            "type": "melee",
+            "damage": 5,
+            "range": 1
+          }
         ]
       }
     ]
@@ -60,8 +80,15 @@
         "time": 4,
         "weight": 4,
         "actions": [
-          { "type": "move_toward", "range": 2 },
-          { "type": "ranged", "damage": 4, "range": 5 }
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "damage": 4,
+            "range": 5
+          }
         ]
       },
       {
@@ -70,8 +97,14 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 1 },
-          { "type": "block", "amount": 5 }
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "block",
+            "amount": 5
+          }
         ]
       },
       {
@@ -80,9 +113,19 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 3 },
-          { "type": "ranged", "damage": 3, "range": 4 },
-          { "type": "heal_self", "amount": 3 }
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 4
+          },
+          {
+            "type": "heal_self",
+            "amount": 3
+          }
         ]
       }
     ]
@@ -102,7 +145,12 @@
         "time": 4,
         "weight": 4,
         "actions": [
-          { "type": "ranged", "damage": 3, "range": 4, "pierce": true }
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 4,
+            "pierce": true
+          }
         ]
       },
       {
@@ -111,8 +159,14 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          { "type": "move_away", "range": 2 },
-          { "type": "block", "amount": 3 }
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 3
+          }
         ]
       },
       {
@@ -121,8 +175,15 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 3 },
-          { "type": "melee", "damage": 4, "range": 1 }
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "damage": 4,
+            "range": 1
+          }
         ]
       },
       {
@@ -131,8 +192,15 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 2 },
-          { "type": "ranged", "damage": 3, "range": 4 }
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 4
+          }
         ]
       }
     ]
@@ -153,8 +221,15 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          { "type": "move_toward", "range": 1 },
-          { "type": "melee", "damage": 7, "range": 1 }
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "melee",
+            "damage": 7,
+            "range": 1
+          }
         ]
       },
       {
@@ -163,7 +238,10 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          { "type": "block", "amount": 8 }
+          {
+            "type": "block",
+            "amount": 8
+          }
         ]
       },
       {
@@ -172,8 +250,407 @@
         "time": 6,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 2 },
-          { "type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false }
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "aoe",
+            "damage": 5,
+            "range": 0,
+            "pattern": [
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                -1,
+                0
+              ]
+            ],
+            "rotate": false
+          }
+        ]
+      }
+    ]
+  },
+  "cinder_ooze": {
+    "name": "Cinder Ooze",
+    "max_hp": 14,
+    "base_initiative": 13,
+    "reward_embers": 12,
+    "accent": "#d96b32",
+    "art_path": "res://assets/art/enemies/cinder_ooze.png",
+    "art_scale": 0.82,
+    "art_offset_y": 8,
+    "death_spawn": {
+      "type": "split",
+      "enemy_type": "cinder_droplet",
+      "count": 2,
+      "radius": 1,
+      "summoned": true
+    },
+    "intents": [
+      {
+        "id": "smolder_slide",
+        "name": "Smolder Slide",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "melee",
+            "damage": 4,
+            "range": 1,
+            "burn": 1
+          }
+        ]
+      },
+      {
+        "id": "cinder_bloom",
+        "name": "Cinder Bloom",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 3,
+            "range": 0,
+            "burn": 1,
+            "pattern": [
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                -1,
+                0
+              ]
+            ],
+            "rotate": false
+          }
+        ]
+      },
+      {
+        "id": "slag_shell",
+        "name": "Slag Shell",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "block",
+            "amount": 5
+          }
+        ]
+      }
+    ]
+  },
+  "cinder_droplet": {
+    "name": "Cinder Droplet",
+    "max_hp": 5,
+    "base_initiative": 9,
+    "reward_embers": 0,
+    "accent": "#f08a3a",
+    "art_path": "res://assets/art/enemies/cinder_droplet.png",
+    "art_scale": 0.56,
+    "intents": [
+      {
+        "id": "spatter",
+        "name": "Spatter",
+        "time": 4,
+        "weight": 4,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 2,
+            "range": 1,
+            "burn": 1
+          }
+        ]
+      },
+      {
+        "id": "hiss_back",
+        "name": "Hiss Back",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 1
+          },
+          {
+            "type": "block",
+            "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  "bile_bloomer": {
+    "name": "Bile Bloomer",
+    "max_hp": 16,
+    "base_initiative": 14,
+    "reward_embers": 12,
+    "accent": "#b8b33a",
+    "art_path": "res://assets/art/enemies/bile_bloomer.png",
+    "art_scale": 0.86,
+    "art_offset_y": -6,
+    "intents": [
+      {
+        "id": "bile_burst",
+        "name": "Bile Burst",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "aoe",
+            "damage": 2,
+            "range": 0,
+            "poison": 2,
+            "pattern": [
+              [
+                0,
+                -2
+              ],
+              [
+                -1,
+                -1
+              ],
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "rotate": false
+          }
+        ]
+      },
+      {
+        "id": "spore_mark",
+        "name": "Spore Mark",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "ranged",
+            "damage": 1,
+            "range": 4,
+            "expose": 2
+          }
+        ]
+      },
+      {
+        "id": "pustule_shell",
+        "name": "Pustule Shell",
+        "time": 6,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "stoneskin",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  "chainbound_gaoler": {
+    "name": "Chainbound Gaoler",
+    "max_hp": 16,
+    "base_initiative": 13,
+    "reward_embers": 12,
+    "accent": "#b66a32",
+    "art_path": "res://assets/art/enemies/chainbound_gaoler.png",
+    "art_scale": 0.9,
+    "art_offset_y": -16,
+    "intents": [
+      {
+        "id": "chain_reel",
+        "name": "Chain Reel",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "pull",
+            "damage": 2,
+            "range": 4,
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "id": "manacle_pin",
+        "name": "Manacle Pin",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 1,
+            "range": 3,
+            "immobilize": true
+          }
+        ]
+      },
+      {
+        "id": "cudgel_press",
+        "name": "Cudgel Press",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "melee",
+            "damage": 5,
+            "range": 1
+          }
+        ]
+      },
+      {
+        "id": "iron_guard",
+        "name": "Iron Guard",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "block",
+            "amount": 6
+          }
+        ]
+      }
+    ]
+  },
+  "grave_surgeon": {
+    "name": "Grave Surgeon",
+    "max_hp": 11,
+    "base_initiative": 12,
+    "reward_embers": 11,
+    "accent": "#8aa65f",
+    "art_path": "res://assets/art/enemies/grave_surgeon.png",
+    "art_scale": 0.98,
+    "intents": [
+      {
+        "id": "triage_suture",
+        "name": "Triage Suture",
+        "time": 4,
+        "weight": 4,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "heal_ally",
+            "amount": 3,
+            "range": 4
+          }
+        ]
+      },
+      {
+        "id": "saw_jab",
+        "name": "Saw Jab",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 2,
+            "range": 1
+          }
+        ]
+      },
+      {
+        "id": "field_brace",
+        "name": "Field Brace",
+        "time": 4,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "guard_ally",
+            "amount": 4,
+            "range": 4
+          }
         ]
       }
     ]
@@ -285,9 +762,14 @@
     "idle_sheet_order": "row_major",
     "idle_sheet_ping_pong": true,
     "idle_frame_seconds": 0.1,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["shock"],
+    "status_immunities": [
+      "shock"
+    ],
     "intents": [
       {
         "id": "storm_claw",
@@ -295,8 +777,16 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          { "type": "move_toward", "range": 2 },
-          { "type": "melee", "damage": 12, "range": 1, "shock": 1 }
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 12,
+            "range": 1,
+            "shock": 1
+          }
         ]
       },
       {
@@ -305,8 +795,16 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          { "type": "move_toward", "range": 1 },
-          { "type": "ranged", "damage": 8, "range": 3, "shock": 1 }
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "ranged",
+            "damage": 8,
+            "range": 3,
+            "shock": 1
+          }
         ]
       },
       {
@@ -315,7 +813,12 @@
         "time": 6,
         "weight": 2,
         "actions": [
-          { "type": "lightning_strikes", "damage": 7, "count": 6, "shock": 1 }
+          {
+            "type": "lightning_strikes",
+            "damage": 7,
+            "count": 6,
+            "shock": 1
+          }
         ]
       },
       {
@@ -324,7 +827,11 @@
         "time": 6,
         "weight": 0,
         "actions": [
-          { "type": "summon_minions", "minion_type": "lightning_wisp", "count": 2 }
+          {
+            "type": "summon_minions",
+            "minion_type": "lightning_wisp",
+            "count": 2
+          }
         ]
       }
     ]
@@ -349,8 +856,15 @@
         "time": 4,
         "weight": 4,
         "actions": [
-          { "type": "move_toward", "range": 4 },
-          { "type": "melee", "damage": 2, "range": 1 }
+          {
+            "type": "move_toward",
+            "range": 4
+          },
+          {
+            "type": "melee",
+            "damage": 2,
+            "range": 1
+          }
         ]
       },
       {
@@ -359,8 +873,16 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          { "type": "move_toward", "range": 3 },
-          { "type": "ranged", "damage": 2, "range": 3, "shock": 1 }
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "ranged",
+            "damage": 2,
+            "range": 3,
+            "shock": 1
+          }
         ]
       },
       {
@@ -369,8 +891,16 @@
         "time": 4,
         "weight": 1,
         "actions": [
-          { "type": "move_away", "range": 2 },
-          { "type": "ranged", "damage": 1, "range": 4, "shock": 1 }
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "damage": 1,
+            "range": 4,
+            "shock": 1
+          }
         ]
       }
     ]

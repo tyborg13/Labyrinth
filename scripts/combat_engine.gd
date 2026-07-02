@@ -33,6 +33,7 @@ const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -10
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
+const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
 const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, -1),
 	Vector2i(1, 0),
@@ -1035,6 +1036,50 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"amount": heal_amount,
 				"label": "Heal"
 			}
+		"heal_ally":
+			var heal_target_index: int = _enemy_support_target_index(before_state, enemy_index, action)
+			if heal_target_index < 0 or heal_target_index >= before_enemies.size() or heal_target_index >= after_enemies.size():
+				return {}
+			var before_heal_target: Dictionary = before_enemies[heal_target_index]
+			var after_heal_target: Dictionary = after_enemies[heal_target_index]
+			var ally_heal_amount: int = int(after_heal_target.get("hp", 0)) - int(before_heal_target.get("hp", 0))
+			if ally_heal_amount <= 0:
+				return {}
+			var heal_target_name: String = _enemy_display_name(after_heal_target)
+			return {
+				"kind": "heal",
+				"actor_key": _enemy_key(after_heal_target),
+				"actor_name": heal_target_name,
+				"source_actor_key": _enemy_key(after_enemy),
+				"source_actor_name": actor_name,
+				"target_name": heal_target_name,
+				"tile": after_heal_target.get("pos", Vector2i.ZERO),
+				"amount": ally_heal_amount,
+				"label": "Heal Self" if heal_target_index == enemy_index else "Heal Ally"
+			}
+		"guard_ally":
+			var guard_target_index: int = _enemy_support_target_index(before_state, enemy_index, action)
+			if guard_target_index < 0 or guard_target_index >= before_enemies.size() or guard_target_index >= after_enemies.size():
+				return {}
+			var before_guard_target: Dictionary = before_enemies[guard_target_index]
+			var after_guard_target: Dictionary = after_enemies[guard_target_index]
+			var guard_amount: int = int(after_guard_target.get("block", 0)) - int(before_guard_target.get("block", 0))
+			if guard_amount <= 0:
+				return {}
+			var guard_target_name: String = _enemy_display_name(after_guard_target)
+			return {
+				"kind": "block",
+				"actor_key": _enemy_key(after_guard_target),
+				"actor_name": guard_target_name,
+				"source_actor_key": _enemy_key(after_enemy),
+				"source_actor_name": actor_name,
+				"target_name": guard_target_name,
+				"tile": after_guard_target.get("pos", Vector2i.ZERO),
+				"amount": guard_amount,
+				"sfx_id": str(action.get("sfx_id", action.get("block_sfx_id", ""))),
+				"sfx_category": str(action.get("sfx_category", action.get("block_sfx_category", ""))),
+				"label": "Guard Self" if guard_target_index == enemy_index else "Guard Ally"
+			}
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var hp_loss: int = int(before_player.get("hp", 0)) - int(after_player.get("hp", 0))
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
@@ -1212,6 +1257,9 @@ func _target_loss_keys(target_losses: Array[Dictionary]) -> Array[String]:
 func _enemy_key(enemy: Dictionary) -> String:
 	return "enemy_%d" % int(enemy.get("id", -1))
 
+func _enemy_display_name(enemy: Dictionary) -> String:
+	return str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))
+
 func _actor_targets(state: Dictionary) -> Array[Dictionary]:
 	var targets: Array[Dictionary] = []
 	var player: Dictionary = _normalized_player(state.get("player", {}))
@@ -1271,6 +1319,82 @@ func _choose_actor_target_candidate(candidates: Array, rng: RandomNumberGenerato
 	if typeof(candidates[index]) != TYPE_DICTIONARY:
 		return {}
 	return (candidates[index] as Dictionary).duplicate(true)
+
+func _enemy_support_target_index(state: Dictionary, source_enemy_index: int, action: Dictionary) -> int:
+	var enemies: Array = state.get("enemies", [])
+	if source_enemy_index < 0 or source_enemy_index >= enemies.size():
+		return -1
+	var source_enemy: Dictionary = _normalized_enemy(enemies[source_enemy_index])
+	if int(source_enemy.get("hp", 0)) <= 0:
+		return -1
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ENEMY_SUPPORT_ACTION_TYPES:
+		return -1
+	var allow_self: bool = bool(action.get("allow_self", true))
+	var max_range: int = int(action.get("range", 99)) if action.has("range") else 99
+	var best_index: int = -1
+	var best_enemy: Dictionary = {}
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	for index: int in range(enemies.size()):
+		if index == source_enemy_index and not allow_self:
+			continue
+		var candidate: Dictionary = _normalized_enemy(enemies[index])
+		if int(candidate.get("hp", 0)) <= 0:
+			continue
+		if not _enemy_support_action_can_affect(candidate, action):
+			continue
+		if _enemy_distance_between(source_enemy, candidate) > max_range:
+			continue
+		if best_index < 0 or _enemy_support_candidate_precedes(action_type, source_enemy, candidate, best_enemy, player):
+			best_index = index
+			best_enemy = candidate
+	return best_index
+
+func _enemy_support_action_can_affect(candidate: Dictionary, action: Dictionary) -> bool:
+	if int(action.get("amount", 0)) <= 0:
+		return false
+	match str(action.get("type", "")):
+		"heal_ally":
+			return int(candidate.get("hp", 0)) < int(candidate.get("max_hp", 1))
+		"guard_ally":
+			return true
+		_:
+			return false
+
+func _enemy_support_candidate_precedes(action_type: String, source_enemy: Dictionary, candidate: Dictionary, incumbent: Dictionary, player: Dictionary) -> bool:
+	if incumbent.is_empty():
+		return true
+	match action_type:
+		"heal_ally":
+			var candidate_missing: int = maxi(0, int(candidate.get("max_hp", 1)) - int(candidate.get("hp", 0)))
+			var incumbent_missing: int = maxi(0, int(incumbent.get("max_hp", 1)) - int(incumbent.get("hp", 0)))
+			if candidate_missing != incumbent_missing:
+				return candidate_missing > incumbent_missing
+			var candidate_support_distance: int = _enemy_distance_between(source_enemy, candidate)
+			var incumbent_support_distance: int = _enemy_distance_between(source_enemy, incumbent)
+			if candidate_support_distance != incumbent_support_distance:
+				return candidate_support_distance < incumbent_support_distance
+			if int(candidate.get("hp", 0)) != int(incumbent.get("hp", 0)):
+				return int(candidate.get("hp", 0)) < int(incumbent.get("hp", 0))
+		"guard_ally":
+			var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+			var candidate_threat_distance: int = _enemy_distance_to_tile(candidate, player_pos)
+			var incumbent_threat_distance: int = _enemy_distance_to_tile(incumbent, player_pos)
+			if candidate_threat_distance != incumbent_threat_distance:
+				return candidate_threat_distance < incumbent_threat_distance
+			var candidate_defense: int = int(candidate.get("block", 0)) + int(candidate.get("stoneskin", 0))
+			var incumbent_defense: int = int(incumbent.get("block", 0)) + int(incumbent.get("stoneskin", 0))
+			if candidate_defense != incumbent_defense:
+				return candidate_defense < incumbent_defense
+			var candidate_ratio: int = int(candidate.get("hp", 0)) * int(incumbent.get("max_hp", 1))
+			var incumbent_ratio: int = int(incumbent.get("hp", 0)) * int(candidate.get("max_hp", 1))
+			if candidate_ratio != incumbent_ratio:
+				return candidate_ratio < incumbent_ratio
+			var candidate_guard_distance: int = _enemy_distance_between(source_enemy, candidate)
+			var incumbent_guard_distance: int = _enemy_distance_between(source_enemy, incumbent)
+			if candidate_guard_distance != incumbent_guard_distance:
+				return candidate_guard_distance < incumbent_guard_distance
+	return int(candidate.get("id", 0)) < int(incumbent.get("id", 0))
 
 func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -1507,6 +1631,33 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
 				int(action.get("amount", 0))
 			])
+		"heal_ally":
+			var heal_target_index: int = _enemy_support_target_index(next_state, enemy_index, action)
+			if heal_target_index < 0:
+				return next_state
+			var heal_target: Dictionary = _normalized_enemy(enemies[heal_target_index] as Dictionary)
+			var heal_before: int = int(heal_target.get("hp", 0))
+			heal_target["hp"] = mini(int(heal_target.get("max_hp", 1)), heal_before + int(action.get("amount", 0)))
+			enemies[heal_target_index] = heal_target
+			var healed_amount: int = int(heal_target.get("hp", 0)) - heal_before
+			if healed_amount > 0:
+				_log(next_state, "%s stitches %s for %d health." % [
+					_enemy_display_name(enemy),
+					"itself" if heal_target_index == enemy_index else _enemy_display_name(heal_target),
+					healed_amount
+				])
+		"guard_ally":
+			var guard_target_index: int = _enemy_support_target_index(next_state, enemy_index, action)
+			if guard_target_index < 0:
+				return next_state
+			var guard_target: Dictionary = _normalized_enemy(enemies[guard_target_index] as Dictionary)
+			guard_target["block"] = int(guard_target.get("block", 0)) + int(action.get("amount", 0))
+			enemies[guard_target_index] = guard_target
+			_log(next_state, "%s guards %s for %d block." % [
+				_enemy_display_name(enemy),
+				"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
+				int(action.get("amount", 0))
+			])
 		"melee":
 			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng)
 		"ranged":
@@ -1627,6 +1778,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
 		next_state = _trigger_enemy_death_relics(next_state, enemy)
+		next_state = _trigger_enemy_death_spawn(next_state, enemy)
 		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
@@ -2068,7 +2220,7 @@ func _enemy_action_time_cost(action: Dictionary) -> int:
 			return 4
 		"summon_minions":
 			return 5
-		"block", "stoneskin", "heal_self":
+		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally":
 			return 2
 		_:
 			return DEFAULT_ENEMY_INTENT_TIME_COST
@@ -3669,6 +3821,13 @@ func _enemy_distance_to_tile(enemy: Dictionary, tile: Vector2i) -> int:
 		best_distance = mini(best_distance, PathUtils.manhattan(enemy_tile, tile))
 	return best_distance
 
+func _enemy_distance_between(first_enemy: Dictionary, second_enemy: Dictionary) -> int:
+	var best_distance: int = 9999
+	for first_tile: Vector2i in _enemy_footprint_tiles(first_enemy):
+		for second_tile: Vector2i in _enemy_footprint_tiles(second_enemy):
+			best_distance = mini(best_distance, PathUtils.manhattan(first_tile, second_tile))
+	return best_distance
+
 func _closest_enemy_tile_to(enemy: Dictionary, tile: Vector2i) -> Vector2i:
 	var best_tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	var best_distance: int = 9999
@@ -3721,6 +3880,95 @@ func _lightning_tile_score(state: Dictionary, enemy: Dictionary, action: Diction
 	seed = int((seed + int(state.get("turn", 1)) * 1103515245 + int(enemy.get("id", 0)) * 92821 + int(action.get("count", 0)) * 193) & 0x7fffffff)
 	seed = int((seed + tile.x * 68917 + tile.y * 28307) & 0x7fffffff)
 	return seed
+
+func _trigger_enemy_death_spawn(state: Dictionary, enemy: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	if bool(enemy.get("summoned", false)):
+		return next_state
+	var spawn_def_value: Variant = GameData.enemy_def(str(enemy.get("type", ""))).get("death_spawn", {})
+	if typeof(spawn_def_value) != TYPE_DICTIONARY:
+		return next_state
+	var spawn_def: Dictionary = (spawn_def_value as Dictionary).duplicate(true)
+	if spawn_def.is_empty():
+		return next_state
+	var spawn_kind: String = str(spawn_def.get("type", "split"))
+	if spawn_kind != "split":
+		return next_state
+	var spawn_type: String = str(spawn_def.get("enemy_type", ""))
+	if spawn_type.is_empty() or GameData.enemy_def(spawn_type).is_empty():
+		return next_state
+	var spawn_count: int = maxi(0, int(spawn_def.get("count", 0)))
+	if spawn_count <= 0:
+		return next_state
+	var spawn_tiles: Array[Vector2i] = _death_spawn_tiles_for_enemy(next_state, enemy, spawn_def)
+	if spawn_tiles.is_empty():
+		return next_state
+	var enemies: Array = next_state.get("enemies", []).duplicate(true)
+	var first_spawned_index: int = enemies.size()
+	var next_id: int = _next_enemy_id(next_state)
+	for tile: Vector2i in spawn_tiles:
+		enemies.append(_spawned_enemy_entry(next_state, spawn_type, next_id, tile, bool(spawn_def.get("summoned", true))))
+		next_id += 1
+	next_state["enemies"] = enemies
+	var intent_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	intent_rng.state = int(next_state.get("rng_state", 1))
+	for spawned_index: int in range(first_spawned_index, first_spawned_index + spawn_tiles.size()):
+		_assign_enemy_intent(next_state, spawned_index, intent_rng)
+		var spawned_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[spawned_index] as Dictionary)
+		_schedule_enemy_after_spawn(next_state, spawned_enemy, spawned_index - first_spawned_index)
+	next_state["rng_state"] = intent_rng.state
+	_log(next_state, "%s splits." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+	return next_state
+
+func _spawned_enemy_entry(state: Dictionary, enemy_type: String, enemy_id: int, tile: Vector2i, summoned: bool) -> Dictionary:
+	var max_hp: int = _scaled_enemy_max_hp(enemy_type, int(state.get("room_depth", 1)))
+	var spawned: Dictionary = {
+		"id": enemy_id,
+		"type": enemy_type,
+		"summoned": summoned,
+		"element": str(state.get("room_element", ElementData.NONE)),
+		"pos": tile,
+		"hp": max_hp,
+		"max_hp": max_hp,
+		"block": 0,
+		"stoneskin": 0
+	}
+	return _normalized_enemy(spawned)
+
+func _schedule_enemy_after_spawn(state: Dictionary, enemy: Dictionary, spawn_order: int) -> void:
+	var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
+	var delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(state, enemy) + maxi(0, intent_time_cost))
+	_schedule_actor(state, _enemy_actor_entry(state, enemy, int(state.get("initiative_clock", 0)) + delay + maxi(0, spawn_order), 0))
+
+func _death_spawn_tiles_for_enemy(state: Dictionary, enemy: Dictionary, spawn_def: Dictionary) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = _vector2i_values([])
+	var occupied: Dictionary = _enemy_blocking_tiles(state)
+	var radius: int = maxi(1, int(spawn_def.get("radius", 1)))
+	var origin: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	for tile: Vector2i in PathUtils.diamond_tiles(origin, radius, state.get("grid", [])):
+		if occupied.has(tile):
+			continue
+		if not PathUtils.is_passable(state.get("grid", []), tile):
+			continue
+		if _enemy_distance_to_tile(enemy, tile) <= 0:
+			continue
+		candidates.append(tile)
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var a_distance: int = _enemy_distance_to_tile(enemy, a)
+		var b_distance: int = _enemy_distance_to_tile(enemy, b)
+		if a_distance == b_distance:
+			if a.y == b.y:
+				return a.x < b.x
+			return a.y < b.y
+		return a_distance < b_distance
+	)
+	var results: Array[Vector2i] = _vector2i_values([])
+	var count: int = maxi(0, int(spawn_def.get("count", 0)))
+	for tile: Vector2i in candidates:
+		results.append(tile)
+		if results.size() >= count:
+			break
+	return results
 
 func _summon_tiles_for_enemy(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
 	var candidates: Array[Vector2i] = []
@@ -4099,9 +4347,9 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 		scaled["damage"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("damage", 0)) + damage_delta)
 	var support_delta: int = _local_enemy_support_delta(room_depth)
 	if support_delta != 0:
-		if action_type == "block" or action_type == "stoneskin":
+		if action_type == "block" or action_type == "stoneskin" or action_type == "guard_ally":
 			scaled["amount"] = maxi(0, int(scaled.get("amount", 0)) + support_delta)
-		elif action_type == "heal_self":
+		elif action_type == "heal_self" or action_type == "heal_ally":
 			scaled["amount"] = maxi(0, int(scaled.get("amount", 0)) + support_delta)
 	var sequence_index: int = _depth_sequence_index(room_depth)
 	if sequence_index <= 0:
@@ -4109,9 +4357,9 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes":
 		if scaled.has("damage"):
 			scaled["damage"] = int(scaled.get("damage", 0)) + ENEMY_DAMAGE_BONUS_PER_SEQUENCE * sequence_index
-	if action_type == "block" or action_type == "stoneskin":
+	if action_type == "block" or action_type == "stoneskin" or action_type == "guard_ally":
 		scaled["amount"] = int(scaled.get("amount", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
-	elif action_type == "heal_self":
+	elif action_type == "heal_self" or action_type == "heal_ally":
 		scaled["amount"] = int(scaled.get("amount", 0)) + GameData.fixed_point_amount(sequence_index)
 	return scaled
 

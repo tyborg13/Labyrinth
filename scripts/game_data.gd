@@ -610,7 +610,7 @@ static func action_field_uses_fixed_point(action_type: String, field: String) ->
 	if field in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison"]:
 		return action_type in FIXED_POINT_ATTACK_ACTION_TYPES or action_type in ["trap", "all_enemies_damage", "all_enemies_status"]
 	if field == "amount":
-		return action_type in ["block", "stoneskin", "heal", "heal_self"]
+		return action_type in ["block", "stoneskin", "heal", "heal_self", "heal_ally", "guard_ally"]
 	if field == "health":
 		return action_type == "illusion"
 	return false
