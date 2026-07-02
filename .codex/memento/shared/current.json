@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-02T15:11:51Z",
+  "updated_at": "2026-07-02T21:59:26Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4507,6 +4507,28 @@
       "source": {
         "branch": "codex/polish-non-combat-room-title-text",
         "commit": "87f32c4"
+      }
+    },
+    {
+      "id": "mnt_20260702T215925Z_fee527ff",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art",
+      "summary": "Retro Diffusion advanced idle sheets use native 4x4 cells",
+      "details": "The July 2026 Retro Diffusion Advanced Animations -> Idle flow produced 16-frame PNG sheets at 1020x1020 total for 255x255 unit art, i.e. 4x4 cells at native 255x255 frame size. Configure these sheets with idle_sheet_columns:4, idle_sheet_rows:4, idle_sheet_order:row_major, idle_sheet_ping_pong:false. Older placeholder/anime trial idle sheets may be 4080px-wide 4x-upscaled sheets with different ping-pong metadata, so do not infer one convention from the other.",
+      "status": "active",
+      "created_at": "2026-07-02T21:59:25Z",
+      "updated_at": "2026-07-02T21:59:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
+        "commit": "a7b3907"
       }
     }
   ]
