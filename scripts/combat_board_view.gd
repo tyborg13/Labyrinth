@@ -139,9 +139,11 @@ const COLUMN_TORCH_RIGHT_IDLE_PATH: String = "res://assets/art/tiles/column_torc
 const COLUMN_TORCH_IDLE_COLUMNS: int = 4
 const COLUMN_TORCH_IDLE_ROWS: int = 4
 const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
-const COLUMN_TORCH_EMBER_MOTE_COUNT: int = 3
-const COLUMN_TORCH_EMBER_MOTE_ALPHA: float = 0.62
-const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.46
+const COLUMN_TORCH_EMBER_MOTE_COUNT: int = 4
+const COLUMN_TORCH_EMBER_MOTE_ALPHA: float = 0.90
+const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
+const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
+const COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE: float = 0.040
 const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
@@ -1537,13 +1539,13 @@ func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2,
 		var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire") * 0.62)
 		var previous_point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.09, side_sign)
 		var velocity: Vector2 = point - previous_point
-		var draw_width: float = _tile_width() * lerpf(0.014, 0.028, _ambient_hash01(seed + 37))
+		var draw_width: float = _tile_width() * lerpf(COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, _ambient_hash01(seed + 37))
 		var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
 		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
 		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
 		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
 		if texture == null and soft_texture == null:
-			draw_circle(point, maxf(0.7, draw_width * 0.28), Color(1.0, 0.70, 0.30, minf(alpha * 0.48, 0.36)))
+			draw_circle(point, maxf(0.7, draw_width * 0.28), Color(1.0, 0.70, 0.30, minf(alpha * 0.62, 0.48)))
 			continue
 		if texture == null:
 			texture = soft_texture
@@ -1552,9 +1554,9 @@ func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2,
 		if texture_size.x > 0.0:
 			draw_size.y = draw_width * texture_size.y / texture_size.x
 		var rotation: float = lerpf(-0.22, 0.22, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.86 + _ambient_hash01(seed + 47) * TAU) * 0.07
-		var mote_alpha: float = alpha * lerpf(0.36, 0.58, _ambient_hash01(seed + 41))
+		var mote_alpha: float = alpha * lerpf(0.48, 0.74, _ambient_hash01(seed + 41))
 		_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
-		draw_circle(point, maxf(0.65, draw_width * 0.16), Color(1.0, 0.86, 0.42, minf(mote_alpha * 0.42, 0.34)))
+		draw_circle(point, maxf(0.65, draw_width * 0.16), Color(1.0, 0.86, 0.42, minf(mote_alpha * 0.52, 0.46)))
 
 func _pillar_torch_flame_point(torch_rect: Rect2, side_sign: float) -> Vector2:
 	var flame_x_scale: float = 0.34 if side_sign < 0.0 else 0.66
