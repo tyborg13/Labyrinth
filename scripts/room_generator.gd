@@ -470,14 +470,25 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 		2:
 			pool = [
 				["warden", "crawler", "crawler", "harrier"],
-				["acolyte", "harrier", "crawler", "crawler"],
-				["warden", "acolyte", "harrier", "crawler"]
+				["acolyte", "harrier", "crawler", "grave_surgeon"],
+				["warden", "acolyte", "harrier", "crawler"],
+				["cinder_ooze", "acolyte", "harrier", "crawler"],
+				["chainbound_gaoler", "harrier", "crawler", "crawler"],
+				["bile_bloomer", "crawler", "harrier", "acolyte"],
+				["warden", "crawler", "frostglass_lancer", "harrier"],
+				["acolyte", "harrier", "crawler", "frostglass_lancer"]
 			]
 		_:
 			pool = [
-				["warden", "harrier", "acolyte", "crawler", "crawler"],
+				["warden", "harrier", "acolyte", "crawler", "grave_surgeon"],
 				["warden", "warden", "crawler", "crawler", "harrier"],
-				["warden", "acolyte", "harrier", "crawler", "crawler"]
+				["warden", "acolyte", "harrier", "crawler", "grave_surgeon"],
+				["warden", "cinder_ooze", "harrier", "crawler", "crawler"],
+				["chainbound_gaoler", "acolyte", "harrier", "crawler", "crawler"],
+				["bile_bloomer", "warden", "harrier", "crawler", "acolyte"],
+				["warden", "frostglass_lancer", "acolyte", "crawler", "harrier"],
+				["warden", "warden", "crawler", "frostglass_lancer", "harrier"],
+				["warden", "acolyte", "harrier", "frostglass_lancer", "crawler"]
 			]
 	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
 

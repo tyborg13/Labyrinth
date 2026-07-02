@@ -17,7 +17,7 @@ description: Create, rebalance, review, or implement Labyrinth of Ash enemies. U
    - **Spawn-pool tuning**: touch `scripts/room_generator.gd`, `spec/card_balance_heuristic.md`, `tools/card_heuristic.py`, and tests.
    - **Visual-only enemy work**: use the `imagegen` skill and current unit sprites as style references.
 3. Define the enemy's tactical job before editing: pressure pattern, counterplay, depth band, visual silhouette, and why this enemy earns a roster slot beside crawler, acolyte, harrier, warden, lightning wisp, and Zekarion.
-4. Implement data, mechanics, spawn integration, visuals, previews, and tests together. A new normal enemy that never appears in encounter pools is unfinished unless the task explicitly asks for a staged prototype.
+4. Implement data, mechanics, spawn integration, visuals, turn-clock presentation, previews, and tests together. A new normal enemy that never appears in encounter pools is unfinished unless the task explicitly asks for a staged prototype.
 5. Validate:
    ```bash
    jq empty data/enemies.json
@@ -65,6 +65,7 @@ description: Create, rebalance, review, or implement Labyrinth of Ash enemies. U
 - Final enemy sprites should be runtime-visible raster art, not SVG placeholders. Use the `imagegen` skill for final enemy art unless the user explicitly asks for a placeholder.
 - Prefer new final sprites under `assets/art/enemies/<enemy_id>.png`. Existing legacy sprites live under `assets/placeholders/units`; do not add new placeholder-era art there unless intentionally staging.
 - Static combat unit sprites use a transparent `255x255` PNG with a grounded full-body silhouette, readable at board scale, no text, no border frame, and no opaque square background.
+- Turn-clock portraits are required for every new enemy. Add a transparent `128x128` PNG under `assets/art/portraits/`, register it in `RunScene.TURN_ORDER_PORTRAITS`, and verify the enemy appears in the turn-order clock instead of falling back to the player portrait.
 - Optional idle sheets use the same stem with `_idle.png` and are discovered automatically, for example `assets/art/enemies/<enemy_id>_idle.png`. Configure `idle_sheet_columns`, `idle_sheet_rows`, `idle_sheet_order`, `idle_sheet_ping_pong`, and `idle_frame_seconds` in `data/enemies.json`.
 - Match Labyrinth's visual language: grim ash-fantasy, worn material surfaces, sharp silhouettes, muted shadows with one clear accent color, and painterly pixel-readable detail. Avoid cute mascots, bright toy colors, sci-fi tech, modern clothing, or generic high-fantasy monsters that do not look ash-corrupted or dungeon-native.
 - Tune `art_scale` and offsets against real board screenshots so the sprite's feet anchor to the tile and health/intent UI remains readable.
@@ -78,6 +79,7 @@ Add focused coverage for the actual risk:
 - spawn integration: the new enemy appears in intended depth pools, deterministically, without breaking player halo, door, reachability, or boss tests
 - mechanics: each novel action, status, summon, split, copy, footprint, or targeting behavior has a direct `CombatEngine` test
 - previews: board threat tiles, intent rows, status badges, damage previews, and animation steps make the mechanic legible
+- turn clock: add/update tests proving the new enemy is present in `CombatEngine.current_turn_order`, resolves to its explicit `RunScene` portrait path, and renders/inspects correctly in the turn-order UI
 - visuals: a board visual probe or contact sheet shows the enemy at board scale, with any idle sheet active
 - balance: compare turn cadence, reach, damage/support, HP, and ember reward against nearest existing enemies
 
@@ -92,6 +94,6 @@ When finishing enemy work, report:
 - spawn pool changes and any boss/elite restrictions
 - novel mechanic hooks added or reused
 - art path, idle sheet path if any, `art_scale`/offset choices, and whether `imagegen` was used
-- visual proof paths and inspection fixture launch command or not-applicable reason
+- portrait path, turn-clock integration proof, visual proof paths, and inspection fixture launch command or not-applicable reason
 - tests/probes run
 - any `spec/card_balance_heuristic.md`, `tools/card_heuristic.py`, analytics, or memento updates
