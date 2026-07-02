@@ -441,6 +441,7 @@ class RelicChoiceTitleEffect:
 	var _shadow_label: Label = null
 	var _glow_label: Label = null
 	var _bevel_label: Label = null
+	var _shimmer_label: RichTextLabel = null
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -470,6 +471,8 @@ class RelicChoiceTitleEffect:
 			_glow_label = _make_effect_label("TreasureTitleGlyphGlow", 1)
 		if _bevel_label == null:
 			_bevel_label = _make_effect_label("TreasureTitleTopLight", 2)
+		if _shimmer_label == null:
+			_shimmer_label = _make_shimmer_label()
 
 	func _make_effect_label(node_name: String, draw_order: int) -> Label:
 		var label := Label.new()
@@ -483,15 +486,30 @@ class RelicChoiceTitleEffect:
 		add_child(label)
 		return label
 
+	func _make_shimmer_label() -> RichTextLabel:
+		var label := RichTextLabel.new()
+		label.name = "TreasureTitleShimmer"
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.bbcode_enabled = true
+		label.fit_content = false
+		label.scroll_active = false
+		label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		label.clip_contents = false
+		label.z_index = 3
+		add_child(label)
+		return label
+
 	func _sync_label_text() -> void:
 		_ensure_labels()
 		for label: Label in [_shadow_label, _glow_label, _bevel_label]:
 			label.text = title_text
+		_update_shimmer_text()
 
 	func _sync_label_size() -> void:
 		_ensure_labels()
 		for label: Label in [_shadow_label, _glow_label, _bevel_label]:
 			UiTypographyScript.set_label_size(label, font_size)
+		UiTypographyScript.set_rich_text_size(_shimmer_label, font_size)
 
 	func _sync_label_style() -> void:
 		_ensure_labels()
@@ -504,6 +522,7 @@ class RelicChoiceTitleEffect:
 		_bevel_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.70, 0.18))
 		_bevel_label.add_theme_color_override("font_outline_color", Color(1.0, 0.94, 0.70, 0.0))
 		_bevel_label.add_theme_constant_override("outline_size", 0)
+		_shimmer_label.add_theme_color_override("default_color", Color(1.0, 0.95, 0.76, 0.0))
 
 	func _layout_labels() -> void:
 		_ensure_labels()
@@ -515,6 +534,10 @@ class RelicChoiceTitleEffect:
 			label.set_anchors_preset(Control.PRESET_TOP_LEFT)
 			label.size = size
 			label.pivot_offset = center_pivot
+		_shimmer_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		_shimmer_label.position = Vector2(0.0, -2.0)
+		_shimmer_label.size = size
+		_shimmer_label.pivot_offset = center_pivot
 
 	func _animate_labels() -> void:
 		_ensure_labels()
@@ -524,6 +547,46 @@ class RelicChoiceTitleEffect:
 		_glow_label.modulate = Color(1.0, 1.0, 1.0, 0.58 + 0.16 * breath)
 		_glow_label.scale = Vector2.ONE * (1.0 + 0.006 * breath)
 		_bevel_label.modulate = Color(1.0, 1.0, 1.0, 0.76 + 0.14 * sin(phase * 2.1))
+		_shimmer_label.modulate = Color(1.0, 1.0, 1.0, 0.94 + 0.06 * breath)
+		_update_shimmer_text()
+
+	func _update_shimmer_text() -> void:
+		if _shimmer_label == null:
+			return
+		if title_text.is_empty():
+			_shimmer_label.text = ""
+			return
+		var span: float = float(maxi(title_text.length(), 1)) + 8.0
+		var sweep_center: float = fposmod(phase * 4.1, span) - 4.0
+		var pieces := PackedStringArray()
+		pieces.append("[center]")
+		for index: int in range(title_text.length()):
+			var glyph: String = title_text.substr(index, 1)
+			var distance: float = absf(float(index) - sweep_center)
+			var core: float = clampf(1.0 - distance / 1.85, 0.0, 1.0)
+			var tail: float = clampf(1.0 - distance / 5.40, 0.0, 1.0)
+			var flicker: float = 0.5 + 0.5 * sin(phase * 5.2 + float(index) * 0.78)
+			var strength: float = clampf(pow(core, 1.24) + pow(tail, 2.55) * 0.46 + flicker * core * 0.14, 0.0, 1.0)
+			if strength > 0.015 and glyph != " ":
+				pieces.append("[color=#%s]%s[/color]" % [_shimmer_glyph_color(strength).to_html(true), _bbcode_glyph(glyph)])
+			else:
+				pieces.append(_bbcode_glyph(glyph))
+		pieces.append("[/center]")
+		_shimmer_label.text = "".join(pieces)
+
+	func _shimmer_glyph_color(strength: float) -> Color:
+		var low: Color = accent.lightened(0.44)
+		var high: Color = Color("fffef4").lerp(accent.lightened(0.62), 0.10)
+		var color: Color = low.lerp(high, clampf(strength * 1.24, 0.0, 1.0))
+		color.a = 0.08 + 0.80 * strength
+		return color
+
+	func _bbcode_glyph(glyph: String) -> String:
+		if glyph == "[":
+			return "[lb]"
+		if glyph == "]":
+			return "[rb]"
+		return glyph
 
 	func _accent_color(alpha: float) -> Color:
 		return Color(

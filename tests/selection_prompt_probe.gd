@@ -47,7 +47,13 @@ func _capture_reward_prompt(instance: Node) -> void:
 	instance.call("_load_run_state", reward_state)
 	await _settle_prompt()
 	_assert_prompt_ready(instance, "GROW YOUR POWER")
+	var shimmer_start: String = _shimmer_text(instance)
 	await _save_root_screenshot("%s/reward_prompt.png" % OUTPUT_DIR)
+	await _advance_prompt_motion(1.15)
+	var shimmer_after: String = _shimmer_text(instance)
+	if shimmer_start == shimmer_after:
+		_fail("Expected reward prompt shimmer to advance over time")
+	await _save_root_screenshot("%s/reward_prompt_shimmer.png" % OUTPUT_DIR)
 
 func _capture_treasure_prompt(instance: Node) -> void:
 	var probe_run_engine := RunEngine.new()
@@ -70,11 +76,29 @@ func _assert_prompt_ready(instance: Node, expected_text: String) -> void:
 		_fail("Expected visible selection prompt title: %s" % expected_text)
 	if prompt_effect == null or not prompt_effect.visible:
 		_fail("Expected visible animated title effect for: %s" % expected_text)
+	var shimmer_label: RichTextLabel = null
+	if prompt_effect != null:
+		shimmer_label = prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
+	if shimmer_label == null or not shimmer_label.bbcode_enabled:
+		_fail("Expected glyph shimmer layer for: %s" % expected_text)
+
+func _shimmer_text(instance: Node) -> String:
+	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
+	if prompt_effect == null:
+		return ""
+	var shimmer_label := prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
+	if shimmer_label == null:
+		return ""
+	return shimmer_label.text
 
 func _settle_prompt() -> void:
 	root.warp_mouse(Vector2(8.0, 8.0))
 	await process_frame
 	await process_frame
+	await process_frame
+
+func _advance_prompt_motion(seconds: float) -> void:
+	await create_timer(seconds).timeout
 	await process_frame
 
 func _run_state_for_room(probe_run_engine: RunEngine, source_state: Dictionary, coord: Vector2i, mode: String, travel_dir: Vector2i) -> Dictionary:

@@ -7045,9 +7045,20 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	var prompt_overlay: Control = instance.get("_relic_choice_overlay") as Control
 	var prompt_title: Label = instance.get("_relic_choice_title") as Label
 	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
+	var shimmer_label: RichTextLabel = null
+	if prompt_effect != null:
+		shimmer_label = prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Card reward selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "GROW YOUR POWER", "Card reward selection should use the Grow your power prompt")
 	_assert(prompt_effect != null and prompt_effect.visible and prompt_effect.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward prompt should include a non-interactive animated depth layer")
+	_assert(shimmer_label != null and shimmer_label.bbcode_enabled and shimmer_label.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward prompt should include a non-interactive glyph shimmer layer")
+	if prompt_effect != null and shimmer_label != null:
+		prompt_effect.set("phase", 0.0)
+		prompt_effect.call("_animate_labels")
+		var shimmer_start: String = shimmer_label.text
+		prompt_effect.set("phase", 1.15)
+		prompt_effect.call("_animate_labels")
+		_assert(shimmer_label.text != shimmer_start, "Selection prompt shimmer should advance across the title glyphs over time")
 	if prompt_title != null:
 		_assert(prompt_title.get_theme_constant("outline_size") >= 9, "Selection prompt title should keep a heavy outline for depth")
 		_assert(prompt_title.has_theme_color_override("font_shadow_color") and prompt_title.get_theme_constant("shadow_offset_y") >= 7, "Selection prompt title should keep a visible drop shadow")
@@ -7065,6 +7076,9 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Relic selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "CLAIM YOUR TREASURE", "Relic selection should keep the treasure prompt")
 	_assert(prompt_effect != null and prompt_effect.visible, "Relic selection should keep the animated prompt depth layer visible")
+	if prompt_effect != null:
+		shimmer_label = prompt_effect.get_node_or_null("TreasureTitleShimmer") as RichTextLabel
+	_assert(shimmer_label != null and shimmer_label.get_parsed_text() == "CLAIM YOUR TREASURE", "Relic selection should route the treasure prompt through the glyph shimmer layer")
 	var relic_choice_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	var first_relic_choice: Control = null
 	if relic_choice_bar != null and relic_choice_bar.get_child_count() > 0:
