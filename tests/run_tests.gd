@@ -7044,12 +7044,18 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	instance.call("_refresh_choice_bar")
 	var prompt_overlay: Control = instance.get("_relic_choice_overlay") as Control
 	var prompt_title: Label = instance.get("_relic_choice_title") as Label
+	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Card reward selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "GROW YOUR POWER", "Card reward selection should use the Grow your power prompt")
+	_assert(prompt_effect != null and prompt_effect.visible and prompt_effect.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Card reward prompt should include a non-interactive animated depth layer")
+	if prompt_title != null:
+		_assert(prompt_title.get_theme_constant("outline_size") >= 9, "Selection prompt title should keep a heavy outline for depth")
+		_assert(prompt_title.has_theme_color_override("font_shadow_color") and prompt_title.get_theme_constant("shadow_offset_y") >= 7, "Selection prompt title should keep a visible drop shadow")
 	instance.call("_on_reward_card_pressed", "quick_stab")
 	await process_frame
 	_assert(prompt_overlay != null and not prompt_overlay.visible, "Card reward prompt should clear after picking a reward")
 	_assert(prompt_title != null and not prompt_title.visible, "Card reward title should hide after picking a reward")
+	_assert(prompt_effect != null and not prompt_effect.visible, "Card reward title effect should hide after picking a reward")
 
 	run_state = instance.get("_run_state")
 	run_state["mode"] = "treasure"
@@ -7058,6 +7064,7 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 	instance.call("_refresh_choice_bar")
 	_assert(prompt_overlay != null and prompt_overlay.visible, "Relic selection should show the shared stage prompt overlay")
 	_assert(prompt_title != null and prompt_title.visible and prompt_title.text == "CLAIM YOUR TREASURE", "Relic selection should keep the treasure prompt")
+	_assert(prompt_effect != null and prompt_effect.visible, "Relic selection should keep the animated prompt depth layer visible")
 	var relic_choice_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	var first_relic_choice: Control = null
 	if relic_choice_bar != null and relic_choice_bar.get_child_count() > 0:

@@ -419,6 +419,120 @@ class RelicChoiceSparkleLayer:
 			alpha
 		)
 
+class RelicChoiceTitleEffect:
+	extends Control
+
+	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
+
+	var accent: Color = Color("f0c978"):
+		set(value):
+			accent = value
+			_sync_label_style()
+	var title_text: String = "":
+		set(value):
+			title_text = value
+			_sync_label_text()
+	var font_size: int = 76:
+		set(value):
+			font_size = value
+			_sync_label_size()
+	var phase: float = 0.0
+
+	var _shadow_label: Label = null
+	var _glow_label: Label = null
+	var _bevel_label: Label = null
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_contents = false
+		set_process(true)
+
+	func _ready() -> void:
+		_ensure_labels()
+		_sync_label_text()
+		_sync_label_size()
+		_sync_label_style()
+		_layout_labels()
+		_animate_labels()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			_layout_labels()
+
+	func _process(delta: float) -> void:
+		phase = wrapf(phase + delta, 0.0, 3600.0)
+		_animate_labels()
+
+	func _ensure_labels() -> void:
+		if _shadow_label == null:
+			_shadow_label = _make_effect_label("TreasureTitleCastShadow", 0)
+		if _glow_label == null:
+			_glow_label = _make_effect_label("TreasureTitleGlyphGlow", 1)
+		if _bevel_label == null:
+			_bevel_label = _make_effect_label("TreasureTitleTopLight", 2)
+
+	func _make_effect_label(node_name: String, draw_order: int) -> Label:
+		var label := Label.new()
+		label.name = node_name
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		label.clip_text = false
+		label.z_index = draw_order
+		add_child(label)
+		return label
+
+	func _sync_label_text() -> void:
+		_ensure_labels()
+		for label: Label in [_shadow_label, _glow_label, _bevel_label]:
+			label.text = title_text
+
+	func _sync_label_size() -> void:
+		_ensure_labels()
+		for label: Label in [_shadow_label, _glow_label, _bevel_label]:
+			UiTypographyScript.set_label_size(label, font_size)
+
+	func _sync_label_style() -> void:
+		_ensure_labels()
+		_shadow_label.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0, 0.58))
+		_shadow_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.52))
+		_shadow_label.add_theme_constant_override("outline_size", 11)
+		_glow_label.add_theme_color_override("font_color", _accent_color(0.26))
+		_glow_label.add_theme_color_override("font_outline_color", _accent_color(0.34))
+		_glow_label.add_theme_constant_override("outline_size", 15)
+		_bevel_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.70, 0.18))
+		_bevel_label.add_theme_color_override("font_outline_color", Color(1.0, 0.94, 0.70, 0.0))
+		_bevel_label.add_theme_constant_override("outline_size", 0)
+
+	func _layout_labels() -> void:
+		_ensure_labels()
+		var center_pivot := Vector2(size.x * 0.5, size.y * 0.42)
+		_shadow_label.position = Vector2(0.0, 8.0)
+		_glow_label.position = Vector2.ZERO
+		_bevel_label.position = Vector2(0.0, -2.0)
+		for label: Label in [_shadow_label, _glow_label, _bevel_label]:
+			label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			label.size = size
+			label.pivot_offset = center_pivot
+
+	func _animate_labels() -> void:
+		_ensure_labels()
+		var breath: float = 0.5 + 0.5 * sin(phase * 1.45)
+		_shadow_label.modulate = Color(1.0, 1.0, 1.0, 0.92)
+		_shadow_label.position = Vector2(0.0, 7.0 + 1.2 * breath)
+		_glow_label.modulate = Color(1.0, 1.0, 1.0, 0.58 + 0.16 * breath)
+		_glow_label.scale = Vector2.ONE * (1.0 + 0.006 * breath)
+		_bevel_label.modulate = Color(1.0, 1.0, 1.0, 0.76 + 0.14 * sin(phase * 2.1))
+
+	func _accent_color(alpha: float) -> Color:
+		return Color(
+			clampf(0.76 + accent.r * 0.28, 0.0, 1.0),
+			clampf(0.58 + accent.g * 0.36, 0.0, 1.0),
+			clampf(0.28 + accent.b * 0.28, 0.0, 1.0),
+			alpha
+		)
+
 class RelicAcquisitionBeam:
 	extends TextureRect
 
@@ -754,6 +868,7 @@ var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
 var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
+var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
@@ -1443,6 +1558,13 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_overlay.z_index = 70
 	stage_root.add_child(_relic_choice_overlay)
 
+	_relic_choice_title_effect = RelicChoiceTitleEffect.new()
+	_relic_choice_title_effect.name = "TreasureTitleEffect"
+	_relic_choice_title_effect.visible = false
+	_relic_choice_title_effect.font_size = RELIC_CHOICE_TITLE_FONT_SIZE
+	_relic_choice_title_effect.z_index = 1
+	_relic_choice_overlay.add_child(_relic_choice_title_effect)
+
 	_relic_choice_title = Label.new()
 	_relic_choice_title.name = "TreasureTitle"
 	_relic_choice_title.visible = false
@@ -1455,6 +1577,10 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_title.add_theme_color_override("font_color", Color("ffe4a5"))
 	_relic_choice_title.add_theme_color_override("font_outline_color", Color("26160e"))
 	_relic_choice_title.add_theme_constant_override("outline_size", 8)
+	_relic_choice_title.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.72))
+	_relic_choice_title.add_theme_constant_override("shadow_offset_x", 0)
+	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 7)
+	_relic_choice_title.z_index = 2
 	_relic_choice_overlay.add_child(_relic_choice_title)
 
 	_relic_choice_host = CenterContainer.new()
@@ -1484,6 +1610,10 @@ func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_title != null:
 		var title_height: float = clampf(stage_size.y * 0.20, 116.0, RELIC_CHOICE_TITLE_HEIGHT)
 		var title_top: float = maxf(10.0, stage_size.y * RELIC_CHOICE_TITLE_TOP_RATIO)
+		if _relic_choice_title_effect != null:
+			_relic_choice_title_effect.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			_relic_choice_title_effect.position = Vector2(0.0, title_top)
+			_relic_choice_title_effect.size = Vector2(stage_size.x, title_height)
 		_relic_choice_title.set_anchors_preset(Control.PRESET_TOP_LEFT)
 		_relic_choice_title.position = Vector2(0.0, title_top)
 		_relic_choice_title.size = Vector2(stage_size.x, title_height)
@@ -4838,6 +4968,8 @@ func _clear_relic_choice_overlay() -> void:
 	if _relic_choice_title != null:
 		_relic_choice_title.visible = false
 		_relic_choice_title.text = ""
+	if _relic_choice_title_effect != null:
+		_relic_choice_title_effect.visible = false
 	if _relic_choice_overlay != null:
 		_relic_choice_overlay.visible = false
 
@@ -4868,8 +5000,38 @@ func _reward_choices_available() -> bool:
 func _set_relic_choice_title(text: String) -> void:
 	if _relic_choice_title == null:
 		return
+	var should_show: bool = not text.is_empty()
+	var accent: Color = _relic_choice_title_accent(text)
+	_apply_relic_choice_title_depth(accent)
 	_relic_choice_title.text = text
-	_relic_choice_title.visible = not text.is_empty()
+	_relic_choice_title.visible = should_show
+	if _relic_choice_title_effect != null:
+		_relic_choice_title_effect.accent = accent
+		_relic_choice_title_effect.title_text = text
+		_relic_choice_title_effect.visible = should_show
+
+func _apply_relic_choice_title_depth(accent: Color) -> void:
+	if _relic_choice_title == null:
+		return
+	var face_color: Color = Color("fff0bd").lerp(accent.lightened(0.18), 0.24)
+	_relic_choice_title.add_theme_color_override("font_color", face_color)
+	_relic_choice_title.add_theme_color_override("font_outline_color", Color("1a0d08"))
+	_relic_choice_title.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.76))
+	_relic_choice_title.add_theme_constant_override("outline_size", 9)
+	_relic_choice_title.add_theme_constant_override("shadow_offset_x", 0)
+	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 7)
+
+func _relic_choice_title_accent(text: String) -> Color:
+	match text:
+		REWARD_CHOICE_TITLE_TEXT:
+			return Color("9fdc86")
+		RELIC_CHOICE_TITLE_TEXT:
+			return Color("f2c86a")
+		MERCHANT_TITLE_BLACKSMITH:
+			return Color("ef9356")
+		MERCHANT_TITLE_ARCANIST:
+			return Color("92d8ff")
+	return Color("f0c978")
 
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	if _relic_choice_bar == null:

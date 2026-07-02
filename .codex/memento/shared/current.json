@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-01T20:29:06Z",
+  "updated_at": "2026-07-02T15:11:51Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4485,6 +4485,28 @@
       "source": {
         "branch": "codex/enemy-frostglass-lancer",
         "commit": "f97f4a4"
+      }
+    },
+    {
+      "id": "mnt_20260702T151151Z_519dd3d9",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Selection prompt depth effects should be glyph-shaped",
+      "details": "For large non-combat selection prompts such as GROW YOUR POWER and CLAIM YOUR TREASURE, avoid simple geometric halos, underlines, sweep parallelograms, or other obvious decorative shapes behind the text. Keep depth/life treatments tied to the letterforms themselves: text-shaped shadow, glow, bevel/highlight, or similarly professional glyph-based effects.",
+      "status": "active",
+      "created_at": "2026-07-02T15:11:51Z",
+      "updated_at": "2026-07-02T15:11:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-non-combat-room-title-text",
+        "commit": "87f32c4"
       }
     }
   ]
