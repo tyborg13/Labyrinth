@@ -58,6 +58,7 @@ func _initialize() -> void:
 	_test_second_sequence_uses_scaled_zekarion_placeholder()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
+	_test_consumable_item_card_is_destroyed_after_play()
 	_test_two_card_turn_draw_flow()
 	_test_initiative_order_starts_with_active_player_and_fast_enemies()
 	_test_initiative_advances_enemy_turns_until_player_reacts()
@@ -298,7 +299,7 @@ func _test_music_library_routes_elemental_combat_tracks() -> void:
 		"element": ElementData.LIGHTNING
 	})
 	_assert(str(generic_boss_entry.get("id", "")) == MusicLibrary.GENERIC_COMBAT_TRACK_ID, "Boss fallback should not use non-boss elemental combat music")
-	for merchant_type: String in ["blacksmith", "arcanist"]:
+	for merchant_type: String in ["blacksmith", "arcanist", "scavenger"]:
 		var merchant_entry: Dictionary = MusicLibrary.entry_for_context("room", {
 			"type": merchant_type,
 			"element": ElementData.NONE
@@ -589,6 +590,14 @@ func _test_special_rooms_use_corner_pillar_layout() -> void:
 	}, Vector2i(0, 1))
 	_assert_corner_pillar_room(arcanist_room, "Arcanist")
 	_assert((arcanist_room.get("npcs", []) as Array).size() == 1, "Arcanist rooms should keep their merchant NPC")
+	var scavenger_room: Dictionary = generator.generate_room(91, {
+		"coord": Vector2i(-2, 1),
+		"depth": 2,
+		"type": "scavenger",
+		"npcs": [{"id": "scavenger", "pos": Vector2i(3, 4)}]
+	}, Vector2i(0, -1))
+	_assert_corner_pillar_room(scavenger_room, "Scavenger")
+	_assert((scavenger_room.get("npcs", []) as Array).size() == 1, "Scavenger rooms should keep their merchant NPC")
 	var grid: Array = campfire_room.get("grid", [])
 	for y: int in range(3, 6):
 		for x: int in range(3, 6):
@@ -926,6 +935,29 @@ func _test_fatigue_draws_cost_health_and_burn_removes_card() -> void:
 	var hp_after: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
 	_assert(hp_after == hp_before - 15, "Cycling the deck should deal fatigue damage")
 	_assert((state.get("deck", {}) as Dictionary).get("hand", []).has("quick_stab"), "Discard should reshuffle into the draw and refill hand")
+
+func _test_consumable_item_card_is_destroyed_after_play() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(111, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["crimson_draught", "quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = state.get("deck", {}).duplicate(true)
+	deck["hand"] = ["crimson_draught"]
+	deck["draw"] = ["quick_stab"]
+	deck["discard"] = []
+	deck["burned"] = []
+	deck["consumed"] = []
+	state["deck"] = deck
+	state = combat.finish_player_card(state, 0)
+	var after_deck: Dictionary = state.get("deck", {})
+	_assert((after_deck.get("consumed", []) as Array).has("crimson_draught"), "Consumable item cards should move to the consumed zone after play")
+	_assert(not (after_deck.get("discard", []) as Array).has("crimson_draught"), "Consumable item cards should not move to discard")
+	_assert(not (after_deck.get("burned", []) as Array).has("crimson_draught"), "Consumable item cards should not move to burned")
 
 func _test_two_card_turn_draw_flow() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -1284,12 +1316,30 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	_assert((run_state.get("attuned_magic_cards", []) as Array) == GameData.starting_magic_cards(), "Fresh runs should start with six bland attuned magic cards")
 	_assert((run_state.get("magic_inventory", []) as Array).is_empty(), "Fresh runs should start with no reserve magic")
 	_assert((run_state.get("equipment_inventory", []) as Array).is_empty(), "Fresh runs should not duplicate equipped starter gear into inventory")
+	_assert((run_state.get("item_inventory", []) as Array).is_empty(), "Fresh runs should start with no consumable item inventory")
+	_assert((run_state.get("equipped_items", []) as Array).is_empty(), "Fresh runs should start with no equipped consumable items")
 	_assert(int(run_state.get("equipment_drop_misses", -1)) == 0, "Fresh runs should start equipment pity from zero misses")
 	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
 	for slot: String in GameData.equipment_slots():
 		_assert(not str(equipped.get(slot, "")).is_empty(), "Fresh runs should equip a starter %s" % slot)
 	for starter_id_var: Variant in GameData.starter_equipment_ids():
 		_assert((run_state.get("collected_equipment", []) as Array).has(str(starter_id_var)), "Fresh runs should mark starter equipment as collected")
+	_assert(GameData.item_loadout_limit() == 2, "Item loadout should cap at two equipped consumables")
+	var item_card_ids: Array = GameData.item_card_ids()
+	_assert(item_card_ids.size() >= 10, "Scavenger item pool should start with at least ten consumables")
+	for item_card_id_var: Variant in item_card_ids:
+		var item_card_id: String = str(item_card_id_var)
+		var item_card: Dictionary = GameData.card_def(item_card_id)
+		_assert(bool(item_card.get("item", false)), "%s should be marked as an item card" % item_card_id)
+		_assert(GameData.card_consumes_on_play(item_card_id), "%s should be consumed after one play" % item_card_id)
+		_assert(not bool(item_card.get("reward_pool", true)), "%s should stay out of normal card rewards" % item_card_id)
+		_assert(FileAccess.file_exists(str(item_card.get("art_path", ""))), "%s item card art should exist" % item_card_id)
+	var item_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
+	for rarity: String in ["common", "uncommon", "rare"]:
+		_assert(not (item_reward_pool.get(rarity, []) as Array).has("crimson_draught"), "Consumable items should not appear in normal reward pools")
+	_assert(not GameData.upgradeable_card_ids().has("crimson_draught"), "Consumable items should not appear in the upgrade pool")
+	var deck_with_item: Array = GameData.compile_deck_cards(equipped, GameData.starting_magic_cards(), ["crimson_draught"])
+	_assert(deck_with_item.has("crimson_draught") and deck_with_item.size() == GameData.starting_deck().size() + 1, "Equipped item cards should compile into the active deck")
 
 	var reward_state: Dictionary = engine.claim_card_reward(run_state, "spark_dart")
 	_assert((reward_state.get("reward_cards", []) as Array) == ["spark_dart"], "Claimed card rewards should still append to reward_cards for collection history")
@@ -1320,6 +1370,29 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	var late_default_attuned: Array = late_default_swap_state.get("attuned_magic_cards", []) as Array
 	_assert(str(late_default_attuned[4]) == "static_lash", "Reserve magic should be swappable into late default magic slots")
 	_assert((late_default_swap_state.get("magic_inventory", []) as Array).has("pale_spark"), "Swapping into a late default slot should return that default magic to reserve")
+
+	var item_state: Dictionary = run_state.duplicate(true)
+	item_state["item_inventory"] = ["crimson_draught", "nail_bomb", "smoke_bomb"]
+	item_state = engine.equip_item_card(item_state, 0)
+	_assert((item_state.get("equipped_items", []) as Array).has("crimson_draught"), "Equipping an item should move it into equipped item slots")
+	_assert(not (item_state.get("item_inventory", []) as Array).has("crimson_draught"), "Equipped item cards should leave item inventory")
+	_assert((item_state.get("deck_cards", []) as Array).has("crimson_draught"), "Equipped item cards should enter the active deck")
+	item_state = engine.equip_item_card(item_state, 0)
+	_assert((item_state.get("equipped_items", []) as Array).has("nail_bomb"), "A second item can be equipped")
+	var full_item_state: Dictionary = engine.equip_item_card(item_state, 0)
+	_assert(not (full_item_state.get("equipped_items", []) as Array).has("smoke_bomb"), "A third item should not equip while both item slots are full")
+	var stowed_item_state: Dictionary = engine.unequip_item_card(item_state, 0)
+	_assert(not (stowed_item_state.get("equipped_items", []) as Array).has("crimson_draught"), "Stowing an item should remove it from equipped item slots")
+	_assert((stowed_item_state.get("item_inventory", []) as Array).has("crimson_draught"), "Stowed item cards should return to item inventory")
+	_assert(not (stowed_item_state.get("deck_cards", []) as Array).has("crimson_draught"), "Stowed item cards should leave the active deck")
+	var consumed_item_state: Dictionary = engine.consume_equipped_item_card(item_state, "nail_bomb")
+	_assert(not (consumed_item_state.get("equipped_items", []) as Array).has("nail_bomb"), "Consumed item cards should leave equipped item slots")
+	_assert(not (consumed_item_state.get("item_inventory", []) as Array).has("nail_bomb"), "Consumed item cards should not return to item inventory")
+	_assert(not (consumed_item_state.get("deck_cards", []) as Array).has("nail_bomb"), "Consumed item cards should leave future decks")
+	var combat_item_state: Dictionary = item_state.duplicate(true)
+	combat_item_state["mode"] = "combat"
+	var blocked_item_state: Dictionary = engine.equip_item_card(combat_item_state, 0)
+	_assert((blocked_item_state.get("equipped_items", []) as Array) == (item_state.get("equipped_items", []) as Array), "Item loadout changes should be locked during combat")
 
 	var legacy_state: Dictionary = run_state.duplicate(true)
 	legacy_state.erase("reward_cards")
@@ -1444,6 +1517,8 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var blacksmith_coord: Vector2i = Vector2i(999, 999)
 	var arcanist_state: Dictionary = {}
 	var arcanist_coord: Vector2i = Vector2i(999, 999)
+	var scavenger_state: Dictionary = {}
+	var scavenger_coord: Vector2i = Vector2i(999, 999)
 	for seed: int in range(1, 90):
 		var run_state: Dictionary = run_engine.create_new_run(seed, default_progression)
 		if blacksmith_coord.x >= 900:
@@ -1456,10 +1531,16 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 			if mage_coord.x < 900:
 				arcanist_coord = mage_coord
 				arcanist_state = run_state
-		if blacksmith_coord.x < 900 and arcanist_coord.x < 900:
+		if scavenger_coord.x >= 900:
+			var scav_coord: Vector2i = _first_room_coord_of_type(run_engine, run_state, "scavenger")
+			if scav_coord.x < 900:
+				scavenger_coord = scav_coord
+				scavenger_state = run_state
+		if blacksmith_coord.x < 900 and arcanist_coord.x < 900 and scavenger_coord.x < 900:
 			break
 	_assert(blacksmith_coord.x < 900, "Generated maps should include blacksmith rooms across sampled seeds")
 	_assert(arcanist_coord.x < 900, "Generated maps should include arcanist rooms across sampled seeds")
+	_assert(scavenger_coord.x < 900, "Generated maps should include scavenger rooms across sampled seeds")
 
 	blacksmith_state["current_room"] = blacksmith_coord
 	blacksmith_state["mode"] = "room"
@@ -1591,6 +1672,53 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	_assert(run_engine.merchant_offer_ids(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST) == arcanist_sell_first_offers, "Selling reserve magic should leave arcanist offers unchanged")
 	var arcanist_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST, str(arcanist_sell_first_offers[0]))
 	_assert(not run_engine.merchant_offer_ids(arcanist_after_sell_first_buy, RunEngine.MERCHANT_ARCANIST).has("spark_dart"), "Sold magic should not be introduced by a later arcanist restock")
+
+	scavenger_state["current_room"] = scavenger_coord
+	scavenger_state["mode"] = "room"
+	scavenger_state = run_engine.set_held_embers(scavenger_state, 180)
+	_assert(run_engine.merchant_kind_for_current_room(scavenger_state) == RunEngine.MERCHANT_SCAVENGER, "Scavenger room metadata should identify the item merchant")
+	var scavenger_offers: Array = run_engine.merchant_offer_ids(scavenger_state, RunEngine.MERCHANT_SCAVENGER)
+	_assert(scavenger_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Scavengers should stock a compact set of item cards")
+	var item_slot_index: int = 0
+	var item_card_id: String = str(scavenger_offers[item_slot_index])
+	_assert(GameData.card_is_item(item_card_id), "Scavenger stock should contain consumable item cards")
+	var item_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, item_card_id)
+	var pre_item_deck: Array = (scavenger_state.get("deck_cards", []) as Array).duplicate()
+	var bought_item_state: Dictionary = run_engine.buy_merchant_item(scavenger_state, RunEngine.MERCHANT_SCAVENGER, item_card_id)
+	_assert(int(bought_item_state.get("held_embers", 0)) == 180 - item_cost, "Buying an item should spend held embers")
+	_assert((bought_item_state.get("item_inventory", []) as Array).has(item_card_id), "Bought items should enter item inventory")
+	_assert((bought_item_state.get("deck_cards", []) as Array) == pre_item_deck, "Bought items should stay inactive until equipped")
+	_assert(not run_engine.merchant_sellable_ids(bought_item_state, RunEngine.MERCHANT_SCAVENGER).has(item_card_id), "Bought items should not be immediately sellable in the same scavenger visit")
+	var post_buy_scavenger_offers: Array = run_engine.merchant_offer_ids(bought_item_state, RunEngine.MERCHANT_SCAVENGER)
+	_assert(post_buy_scavenger_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Buying an item should refill only the purchased scavenger slot")
+	for index: int in range(scavenger_offers.size()):
+		if index == item_slot_index:
+			_assert(str(post_buy_scavenger_offers[index]) != item_card_id, "Purchased scavenger slot should receive a replacement offer")
+		else:
+			_assert(str(post_buy_scavenger_offers[index]) == str(scavenger_offers[index]), "Buying an item should preserve the other scavenger offer slots")
+	var immediate_item_resell_state: Dictionary = run_engine.sell_merchant_item(bought_item_state, RunEngine.MERCHANT_SCAVENGER, item_card_id)
+	_assert((immediate_item_resell_state.get("item_inventory", []) as Array).has(item_card_id), "Bought items should stay in inventory if an immediate resell is attempted")
+	_assert(int(immediate_item_resell_state.get("held_embers", 0)) == 180 - item_cost, "Immediate item resell attempts should not refund embers")
+	_assert(run_engine.merchant_offer_ids(immediate_item_resell_state, RunEngine.MERCHANT_SCAVENGER) == post_buy_scavenger_offers, "Blocked immediate item resell should not reroll scavenger offers")
+	var scavenger_sell_first_state: Dictionary = scavenger_state.duplicate(true)
+	scavenger_sell_first_state = run_engine.set_held_embers(scavenger_sell_first_state, 180)
+	var scavenger_sell_first_offers: Array = run_engine.merchant_offer_ids(scavenger_sell_first_state, RunEngine.MERCHANT_SCAVENGER)
+	var item_to_sell: String = ""
+	for candidate_item_var: Variant in GameData.item_card_ids():
+		var candidate_item_id: String = str(candidate_item_var)
+		if not scavenger_sell_first_offers.has(candidate_item_id):
+			item_to_sell = candidate_item_id
+			break
+	_assert(not item_to_sell.is_empty(), "Item pool should include a sellable item outside current scavenger stock")
+	scavenger_sell_first_state["item_inventory"] = [item_to_sell, "nail_bomb", item_to_sell]
+	var item_sale_value: int = run_engine.merchant_sell_value(RunEngine.MERCHANT_SCAVENGER, item_to_sell)
+	var scavenger_after_sell_first: Dictionary = run_engine.sell_merchant_item(scavenger_sell_first_state, RunEngine.MERCHANT_SCAVENGER, item_to_sell)
+	var remaining_items: Array = scavenger_after_sell_first.get("item_inventory", []) as Array
+	_assert(remaining_items.has(item_to_sell) and remaining_items.has("nail_bomb"), "Selling one duplicate item should remove only one owned copy")
+	_assert(int(scavenger_after_sell_first.get("held_embers", 0)) == 180 + item_sale_value, "Selling an item should add the sell value to held embers")
+	_assert(run_engine.merchant_offer_ids(scavenger_after_sell_first, RunEngine.MERCHANT_SCAVENGER) == scavenger_sell_first_offers, "Selling items should leave scavenger offers unchanged")
+	var scavenger_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(scavenger_after_sell_first, RunEngine.MERCHANT_SCAVENGER, str(scavenger_sell_first_offers[0]))
+	_assert(not run_engine.merchant_offer_ids(scavenger_after_sell_first_buy, RunEngine.MERCHANT_SCAVENGER).has(item_to_sell), "Sold items should not be introduced by a later scavenger restock")
 
 func _test_elemental_intensity_starts_from_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4987,8 +5115,11 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var cost_row: Array = cost_rows[0] as Array
 	_assert(str((cost_row[0] as Dictionary).get("icon", "")) == "exhaust", "Exhausting cards should use the exhaust cost icon")
 	_assert(str((cost_row[1] as Dictionary).get("icon", "")) == "health_cost", "Health costs should use the health-cost token")
+	var consume_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("crimson_draught"))
+	_assert(consume_cost_rows.size() == 1 and str(((consume_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "consume", "Consumable item cards should show a one-use cost icon")
 	_assert(not ActionIcons.tooltip("burn").contains("card"), "Burn status tooltip should not describe card exhaust costs")
 	_assert(ActionIcons.tooltip("exhaust").contains("Removes this card"), "Exhaust cost tooltip should describe card removal")
+	_assert(ActionIcons.tooltip("consume").contains("once"), "Consume cost tooltip should describe one-time item use")
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
 	_assert(tooltip_panel.get_child_count() == 1, "Keyword tooltip text should render as a custom panel instead of the default engine tooltip")
 	tooltip_panel.free()
@@ -4997,7 +5128,7 @@ func _test_merchant_assets_load_for_board() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
-	for npc_id: String in ["blacksmith", "arcanist"]:
+	for npc_id: String in ["blacksmith", "arcanist", "scavenger"]:
 		var npc_def: Dictionary = GameData.npc_def(npc_id)
 		var art_path: String = str(npc_def.get("art_path", ""))
 		_assert(FileAccess.file_exists(art_path), "%s NPC sprite should exist" % npc_id)
@@ -5006,6 +5137,7 @@ func _test_merchant_assets_load_for_board() -> void:
 	var prop_textures: Dictionary = board.get("_scene_prop_textures") as Dictionary
 	_assert(prop_textures.get("blacksmith_forge", null) != null, "Blacksmith forge prop should load for board rendering")
 	_assert(prop_textures.get("arcanist_table", null) != null, "Arcanist table prop should load for board rendering")
+	_assert(prop_textures.get("scavenger_stall", null) != null, "Scavenger stall prop should load for board rendering")
 	board.free()
 
 func _test_room_icon_library_covers_door_room_types() -> void:
@@ -5016,6 +5148,7 @@ func _test_room_icon_library_covers_door_room_types() -> void:
 		{"room": {"type": "treasure", "element": "none"}, "icon": "treasure"},
 		{"room": {"type": "blacksmith", "element": "none"}, "icon": "blacksmith"},
 		{"room": {"type": "arcanist", "element": "none"}, "icon": "arcanist"},
+		{"room": {"type": "scavenger", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "boss", "element": "none"}, "icon": "boss"}
 	]
 	for room_case: Dictionary in room_cases:
@@ -5092,7 +5225,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	for entry_var: Variant in map_view.call("_legend_entries"):
 		var entry: Dictionary = entry_var
 		labels[str(entry.get("label", ""))] = true
-	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Smith", "Arcanist", "Boss"]:
+	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Smith", "Arcanist", "Scavenger", "Boss"]:
 		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
 	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
 	var marker_rooms: Dictionary = {
@@ -5123,7 +5256,7 @@ func _test_combat_board_loads_door_icons_for_room_types() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "blacksmith", "arcanist", "boss"]:
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "blacksmith", "arcanist", "scavenger", "boss"]:
 		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
 	board.free()
 
@@ -5231,7 +5364,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 				var room_type: String = str(room.get("type", "combat"))
 				if depth >= RunEngine.MERCHANT_ROOM_MIN_DEPTH and room_type not in ["boss", "campfire", "treasure"]:
 					total_eligible_rooms += 1
-				if room_type not in ["blacksmith", "arcanist"]:
+				if room_type not in ["blacksmith", "arcanist", "scavenger"]:
 					continue
 				total_merchant_rooms += 1
 				merchant_types[room_type] = true
@@ -5243,7 +5376,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 					var neighbor: Vector2i = coord + dir
 					if maxi(absi(neighbor.x), absi(neighbor.y)) > RunEngine.MAX_DEPTH:
 						continue
-					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) not in ["blacksmith", "arcanist"], "Merchant rooms should never be cardinally adjacent")
+					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) not in ["blacksmith", "arcanist", "scavenger"], "Merchant rooms should never be cardinally adjacent")
 		signature_parts.sort()
 		var signature: String = "|".join(signature_parts)
 		if seed == 1:
@@ -5252,7 +5385,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 			found_different_signature = true
 	var density: float = float(total_merchant_rooms) / float(maxi(1, total_eligible_rooms))
 	_assert(density > 0.09 and density < 0.18, "Merchant rooms should average a moderate non-combat frequency")
-	_assert(merchant_types.has("blacksmith") and merchant_types.has("arcanist"), "Merchant generation should include both blacksmith and arcanist rooms")
+	_assert(merchant_types.has("blacksmith") and merchant_types.has("arcanist") and merchant_types.has("scavenger"), "Merchant generation should include blacksmith, arcanist, and scavenger rooms")
 	_assert(found_different_signature, "Merchant room placement should vary probabilistically by seed")
 
 func _test_run_map_repeats_depth_sequences() -> void:
@@ -5612,7 +5745,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(options.is_empty(), "Legacy unlocked progression should not keep the old touch option alive")
-	for merchant_id: String in ["blacksmith", "arcanist"]:
+	for merchant_id: String in ["blacksmith", "arcanist", "scavenger"]:
 		var merchant_dialogue: Dictionary = dialogue_engine.build_room_dialogue({
 			"coord": Vector2i(2, 1),
 			"npcs": [{"id": merchant_id}]
@@ -7686,13 +7819,43 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	gear_run_state["reward_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "static_lash"]
 	gear_run_state["attuned_magic_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "pale_spark", "pale_spark"]
 	gear_run_state["magic_inventory"] = ["static_lash"]
+	gear_run_state["item_inventory"] = ["crimson_draught", "nail_bomb"]
+	gear_run_state["equipped_items"] = []
 	instance.set("_run_state", gear_run_state)
 	instance.call("_rebuild_progression_overlay")
 	_assert(_label_with_text(upgrade_scrim, "Iron Cleaver") != null, "The gear overlay should render carried equipment")
+	_assert(_label_with_text(upgrade_scrim, "Crimson Draught") != null, "The gear overlay should render carried consumable items")
+	_assert(_label_with_text(upgrade_scrim, "Items 0/2") != null, "The gear overlay deck should show item loadout capacity")
 	_assert(_label_with_text(upgrade_scrim, "Learned Magic") == null, "The gear overlay should not show the magic reserve panel")
 	_assert(_label_with_text(upgrade_scrim, "Static Lash") == null, "The gear overlay deck should not show inactive reserve magic")
 	_assert((instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "The gear overlay should not create reserve magic drag targets")
 	_assert((instance.get("_magic_attuned_tiles") as Dictionary).is_empty(), "The gear overlay should not create attuned magic drag targets")
+	var item_inventory_tiles: Dictionary = instance.get("_item_inventory_tiles")
+	var item_tile: Control = item_inventory_tiles.get(0, null) as Control
+	_assert(item_tile != null and item_tile.tooltip_text == "card:crimson_draught", "Item inventory tiles should own card-preview tooltips")
+	_assert(item_tile != null and item_tile.find_child("CardBadgeArt", true, false) is TextureRect, "Item inventory tiles should use card art as their visual background")
+	var item_tile_tooltip: Control = item_tile.call("_make_custom_tooltip", item_tile.tooltip_text) as Control if item_tile != null else null
+	if item_tile_tooltip != null:
+		root.add_child(item_tile_tooltip)
+		await process_frame
+		_assert(_card_widget_count_under(item_tile_tooltip) == 1, "Item inventory hover should show a real CardWidget preview")
+		item_tile_tooltip.queue_free()
+	else:
+		_failures.append("Item inventory hover should show a real CardWidget preview")
+	instance.call("_equip_item_from_overlay", 0)
+	await process_frame
+	await create_timer(0.20).timeout
+	var item_equipped_state: Dictionary = instance.get("_run_state")
+	_assert((item_equipped_state.get("equipped_items", []) as Array).has("crimson_draught"), "Equipping from the item overlay should fill an item slot")
+	_assert((item_equipped_state.get("deck_cards", []) as Array).has("crimson_draught"), "Equipped item cards should enter the active deck from the overlay")
+	_assert(not (item_equipped_state.get("item_inventory", []) as Array).has("crimson_draught"), "Equipping from the item overlay should remove that copy from item inventory")
+	instance.call("_unequip_item_from_overlay", 0)
+	await process_frame
+	await create_timer(0.20).timeout
+	var item_stowed_state: Dictionary = instance.get("_run_state")
+	_assert(not (item_stowed_state.get("equipped_items", []) as Array).has("crimson_draught"), "Stowing from the item overlay should empty the equipped item slot")
+	_assert((item_stowed_state.get("item_inventory", []) as Array).has("crimson_draught"), "Stowing from the item overlay should return the item to inventory")
+	_assert(not (item_stowed_state.get("deck_cards", []) as Array).has("crimson_draught"), "Stowing from the item overlay should remove the item card from the active deck")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await process_frame
 	_assert(_label_with_text(upgrade_scrim, "Attuned Magic") != null, "The magic overlay should show attuned spell slots")
@@ -7873,6 +8036,23 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		_failures.append("Arcanist merchant hover should show a real CardWidget preview")
 	if merchant_magic_tooltip != null:
 		merchant_magic_tooltip.queue_free()
+	var merchant_item_row: Control = instance.call("_build_merchant_item_row", "scavenger", "crimson_draught", false) as Control
+	if merchant_item_row != null:
+		root.add_child(merchant_item_row)
+	await process_frame
+	_assert(merchant_item_row != null and merchant_item_row.tooltip_text == "card:crimson_draught", "Scavenger merchant rows should reuse the card tooltip trigger")
+	_assert(str(instance.call("_merchant_item_detail", "scavenger", "crimson_draught")).begins_with("Item | "), "Scavenger merchant details should identify item cards")
+	var merchant_item_tooltip: Control = merchant_item_row.call("_make_custom_tooltip", merchant_item_row.tooltip_text) as Control if merchant_item_row != null else null
+	if merchant_item_tooltip != null:
+		root.add_child(merchant_item_tooltip)
+		await process_frame
+		_assert(_card_widget_count_under(merchant_item_tooltip) == 1, "Scavenger merchant hover should show a real CardWidget preview")
+	else:
+		_failures.append("Scavenger merchant hover should show a real CardWidget preview")
+	if merchant_item_tooltip != null:
+		merchant_item_tooltip.queue_free()
+	if merchant_item_row != null:
+		merchant_item_row.queue_free()
 	if merchant_magic_row != null:
 		var mouse_motion := InputEventMouseMotion.new()
 		mouse_motion.position = Vector2(20.0, 7.0)
@@ -8033,15 +8213,26 @@ func _test_run_scene_logs_local_analytics() -> void:
 	instance.set("_combat_state", {})
 	instance.call("_on_merchant_sell_pressed", "blacksmith", "ward_kite")
 	await process_frame
+	var item_event_state: Dictionary = instance.get("_run_state")
+	item_event_state["equipped_items"] = ["crimson_draught"]
+	item_event_state["item_inventory"] = ["nail_bomb"]
+	var item_event_deck: Array = (item_event_state.get("deck_cards", []) as Array).duplicate()
+	if not item_event_deck.has("crimson_draught"):
+		item_event_deck.append("crimson_draught")
+	item_event_state["deck_cards"] = item_event_deck
+	instance.set("_run_state", item_event_state)
+	instance.call("_analytics_log_item_equipped", "equip", "crimson_draught", 0, 0)
 	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
 	var playable_events: Array[Dictionary] = _analytics_events_by_type(events, "card_became_playable")
 	var played_events: Array[Dictionary] = _analytics_events_by_type(events, "card_played")
 	var reward_events: Array[Dictionary] = _analytics_events_by_type(events, "reward_choice")
 	var merchant_events: Array[Dictionary] = _analytics_events_by_type(events, "merchant_trade")
+	var item_events: Array[Dictionary] = _analytics_events_by_type(events, "item_equipped")
 	_assert(not playable_events.is_empty(), "Combat analytics should record when a drawn card becomes playable")
 	_assert(not played_events.is_empty(), "Combat analytics should record card play events")
 	_assert(not reward_events.is_empty(), "Reward analytics should record reward choices")
 	_assert(not merchant_events.is_empty(), "Merchant analytics should record successful trades")
+	_assert(not item_events.is_empty(), "Item analytics should record item loadout changes")
 	var play_event: Dictionary = played_events[played_events.size() - 1]
 	var play_payload: Dictionary = play_event.get("payload", {})
 	_assert(str(play_event.get("card_id", "")) == "patch_up", "Card play analytics should record the played card id")
@@ -8055,6 +8246,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
 	_assert(play_payload.has("triggered_trap_damage"), "Card play analytics should include triggered trap damage")
 	_assert(play_payload.has("pickups_collected"), "Card play analytics should include collected battlefield pickups")
+	_assert(play_payload.has("consume_on_play") and play_payload.has("item_card"), "Card play analytics should include consumable item flags")
 	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
 	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
@@ -8065,6 +8257,11 @@ func _test_run_scene_logs_local_analytics() -> void:
 	var merchant_payload: Dictionary = merchant_event.get("payload", {})
 	_assert(str(merchant_payload.get("action", "")) == "sell", "Merchant analytics should record trade action")
 	_assert(str(merchant_payload.get("merchant_kind", "")) == "blacksmith", "Merchant analytics should record merchant kind")
+	_assert(merchant_payload.has("equipped_items") and merchant_payload.has("item_inventory"), "Merchant analytics should include item inventory context")
+	var item_payload: Dictionary = (item_events[item_events.size() - 1] as Dictionary).get("payload", {})
+	_assert(str(item_payload.get("action", "")) == "equip", "Item analytics should record loadout action")
+	_assert(str(item_payload.get("card_id", "")) == "crimson_draught", "Item analytics should record the item card id")
+	_assert((item_payload.get("equipped_items", []) as Array).has("crimson_draught"), "Item analytics should include equipped item state")
 	instance.queue_free()
 	await process_frame
 

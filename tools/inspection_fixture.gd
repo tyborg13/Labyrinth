@@ -10,7 +10,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["start", "combat", "reward", "campfire", "treasure", "character", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["start", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
 
 var _run_engine = RunEngine.new()
 var _combat_engine = CombatEngine.new()
@@ -38,7 +38,7 @@ func _initialize() -> void:
 	var run_state: Dictionary = _build_run_state(scenario, progression)
 	if _failed:
 		return
-	run_state["inspection_fixture"] = _fixture_metadata(scenario, user_namespace)
+	run_state["inspection_fixture"] = _fixture_metadata(scenario, user_namespace, run_state)
 	if not str(_options.get("notice", "")).is_empty():
 		run_state["notice"] = str(_options.get("notice", ""))
 	if not ProgressionStore.save_data(progression):
@@ -71,6 +71,8 @@ func _parse_args() -> Dictionary:
 		"attuned_magic": "",
 		"magic_inventory": "",
 		"equipment_inventory": "",
+		"item_inventory": "",
+		"equipped_items": "",
 		"equip": "",
 		"stats": "",
 		"room_coord": "",
@@ -137,6 +139,12 @@ func _parse_args() -> Dictionary:
 			"--equipment-inventory":
 				index += 1
 				parsed["equipment_inventory"] = _required_arg(args, index, arg)
+			"--item-inventory":
+				index += 1
+				parsed["item_inventory"] = _required_arg(args, index, arg)
+			"--equipped-items":
+				index += 1
+				parsed["equipped_items"] = _required_arg(args, index, arg)
 			"--equip":
 				index += 1
 				parsed["equip"] = _required_arg(args, index, arg)
@@ -177,6 +185,7 @@ func _print_help() -> void:
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
 	print("  --equipment-inventory item_a,item_b")
+	print("  --item-inventory card_a,card_b --equipped-items card_c,card_d")
 	print("Combat options:")
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("Room options:")
@@ -227,6 +236,8 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 			return _build_room_mode_run(progression, "campfire")
 		"treasure":
 			return _build_room_mode_run(progression, "treasure")
+		"blacksmith", "arcanist", "scavenger":
+			return _build_merchant_run(progression, scenario)
 		"victory":
 			return _build_terminal_run(progression, "victory")
 		"defeat":
@@ -294,6 +305,40 @@ func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 			state["notice"] = "Inspection fixture: relic cache."
 	return _apply_room_overrides(state)
 
+func _build_merchant_run(progression: Dictionary, merchant_kind: String) -> Dictionary:
+	var seed: int = int(_options.get("seed", DEFAULT_SEED))
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(seed, progression))
+	var requested_coord: Vector2i = _parse_coord(str(_options.get("room_coord", "")))
+	var coord: Vector2i = requested_coord if requested_coord != INVALID_COORD else _first_room_coord_of_type_or_invalid(state, merchant_kind)
+	if requested_coord == INVALID_COORD and coord == INVALID_COORD:
+		for offset: int in range(1, 120):
+			var candidate_seed: int = seed + offset
+			var candidate_state: Dictionary = _apply_loadout(_run_engine.create_new_run(candidate_seed, progression))
+			var candidate_coord: Vector2i = _first_room_coord_of_type_or_invalid(candidate_state, merchant_kind)
+			if candidate_coord == INVALID_COORD:
+				continue
+			state = candidate_state
+			coord = candidate_coord
+			break
+	if coord == INVALID_COORD:
+		_fail("Could not find a %s room for inspection." % merchant_kind)
+		return state
+	state = _run_state_for_room(state, coord, "room", Vector2i(1, 0))
+	var room: Dictionary = _run_engine.room_metadata(state, coord).duplicate(true)
+	room["type"] = merchant_kind
+	room["merchant_kind"] = merchant_kind
+	room["revealed"] = true
+	room["visited"] = true
+	room["cleared"] = true
+	room["npcs"] = [{"id": merchant_kind, "pos": Vector2i(3, 4)}]
+	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+	rooms[_room_key(coord)] = room
+	state["rooms"] = rooms
+	state["current_room_layout"] = _run_engine.call("_display_layout_for_room", int(state.get("seed", seed)), room, Vector2i(1, 0))
+	if str(_options.get("notice", "")).is_empty():
+		state["notice"] = "Inspection fixture: %s merchant." % merchant_kind.capitalize()
+	return _apply_room_overrides(state)
+
 func _build_terminal_run(progression: Dictionary, mode: String) -> Dictionary:
 	var coord: Vector2i = Vector2i(8, 0) if mode == "victory" else Vector2i(1, 0)
 	var state: Dictionary = _run_state_for_room(_apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression)), coord, mode, Vector2i(1, 0))
@@ -329,6 +374,19 @@ func _apply_loadout(run_state: Dictionary) -> Dictionary:
 		if not _validate_equipment_ids(equipment_inventory, "--equipment-inventory"):
 			return state
 		state["equipment_inventory"] = equipment_inventory
+	var item_inventory: Array[String] = _string_list(str(_options.get("item_inventory", "")))
+	if not item_inventory.is_empty():
+		if not _validate_item_card_ids(item_inventory, "--item-inventory"):
+			return state
+		state["item_inventory"] = item_inventory
+	var equipped_items: Array[String] = _string_list(str(_options.get("equipped_items", "")))
+	if not equipped_items.is_empty():
+		if equipped_items.size() > GameData.item_loadout_limit():
+			_fail("--equipped-items allows at most %d cards" % GameData.item_loadout_limit())
+			return state
+		if not _validate_item_card_ids(equipped_items, "--equipped-items"):
+			return state
+		state["equipped_items"] = equipped_items
 	var equipped: Dictionary = (state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
 	for entry: String in _string_list(str(_options.get("equip", ""))):
 		var pair: PackedStringArray = entry.split("=", false, 2)
@@ -348,7 +406,7 @@ func _apply_loadout(run_state: Dictionary) -> Dictionary:
 		equipped[slot] = equipment_id
 	state["equipped_equipment"] = equipped
 	state["collected_equipment"] = _unique_strings(GameData.starter_equipment_ids() + _dictionary_values(equipped) + equipment_inventory)
-	state["deck_cards"] = GameData.compile_deck_cards(equipped, state.get("attuned_magic_cards", []))
+	state["deck_cards"] = GameData.compile_deck_cards(equipped, state.get("attuned_magic_cards", []), state.get("equipped_items", []))
 	var max_hp: int = _option_or_default("player_max_hp", int(state.get("player_max_hp", 1)))
 	state["player_max_hp"] = maxi(1, max_hp)
 	state["player_hp"] = clampi(_option_or_default("player_hp", int(state.get("player_hp", max_hp))), 0, int(state.get("player_max_hp", max_hp)))
@@ -439,6 +497,10 @@ func _first_available_room_coord_of_type(state: Dictionary, room_type: String) -
 	return INVALID_COORD
 
 func _first_room_coord_of_type(state: Dictionary, room_type: String) -> Vector2i:
+	var coord: Vector2i = _first_room_coord_of_type_or_invalid(state, room_type)
+	return coord if coord != INVALID_COORD else Vector2i(1, 0)
+
+func _first_room_coord_of_type_or_invalid(state: Dictionary, room_type: String) -> Vector2i:
 	for radius: int in range(1, 9):
 		for x: int in range(-radius, radius + 1):
 			for y: int in range(-radius, radius + 1):
@@ -447,7 +509,7 @@ func _first_room_coord_of_type(state: Dictionary, room_type: String) -> Vector2i
 					continue
 				if str(_run_engine.room_metadata(state, coord).get("type", "")) == room_type:
 					return coord
-	return Vector2i(1, 0)
+	return INVALID_COORD
 
 func _parse_coord(value: String) -> Vector2i:
 	if value.strip_edges().is_empty():
@@ -515,16 +577,25 @@ func _validate_equipment_ids(equipment_ids: Array[String], source: String) -> bo
 			return false
 	return true
 
+func _validate_item_card_ids(card_ids: Array[String], source: String) -> bool:
+	for card_id: String in card_ids:
+		if not GameData.card_is_item(card_id):
+			_fail("Unknown item card id %s in %s" % [card_id, source])
+			return false
+	return true
+
 func _option_or_default(key: String, default_value: int) -> int:
 	var value: int = int(_options.get(key, -1))
 	return value if value >= 0 else default_value
 
-func _fixture_metadata(scenario: String, user_namespace: String) -> Dictionary:
+func _fixture_metadata(scenario: String, user_namespace: String, run_state: Dictionary) -> Dictionary:
+	var requested_seed: int = int(_options.get("seed", DEFAULT_SEED))
 	return {
 		"scenario": scenario,
 		"summary": str(_options.get("summary", "")),
 		"namespace": user_namespace,
-		"seed": int(_options.get("seed", DEFAULT_SEED)),
+		"seed": int(run_state.get("seed", requested_seed)),
+		"requested_seed": requested_seed,
 		"created_at_unix": Time.get_unix_time_from_system()
 	}
 

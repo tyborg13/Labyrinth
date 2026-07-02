@@ -55,6 +55,7 @@ SOURCE_FILTERS = (
     "elemental-reward",
     "neutral-reward",
     "equipment",
+    "item",
     "starter",
 )
 
@@ -570,9 +571,11 @@ def equipment_card_sources(equipment_path: Path) -> dict[str, list[str]]:
 def card_source_metadata(card_id: str, card: dict[str, Any], equipment_sources: dict[str, list[str]]) -> dict[str, Any]:
     equipment_ids = equipment_sources.get(card_id, [])
     is_equipment_granted = len(equipment_ids) > 0
+    is_item = bool(card.get("item", False))
+    consume_on_play = bool(card.get("consume_on_play", False))
     is_starter = bool(card.get("starter", False)) or str(card.get("rarity", "")) == "starter"
-    is_equipment = is_equipment_granted and not is_starter
-    is_reward_pool = bool(card.get("reward_pool", True)) and not is_equipment_granted and not is_starter
+    is_equipment = is_equipment_granted and not is_item and not is_starter
+    is_reward_pool = bool(card.get("reward_pool", True)) and not is_equipment_granted and not is_item and not is_starter
     element = str(card.get("element", "none"))
     is_elemental_reward = is_reward_pool and element in ELEMENTS
     is_neutral_reward = is_reward_pool and not is_elemental_reward
@@ -586,6 +589,10 @@ def card_source_metadata(card_id: str, card: dict[str, Any], equipment_sources: 
         source_tags.append("neutral-reward")
     if is_equipment:
         source_tags.append("equipment")
+    if is_item:
+        source_tags.append("item")
+    if consume_on_play:
+        source_tags.append("consumable")
     if is_starter:
         source_tags.append("starter")
     if not source_tags:
@@ -598,6 +605,8 @@ def card_source_metadata(card_id: str, card: dict[str, Any], equipment_sources: 
         "is_neutral_reward": is_neutral_reward,
         "is_equipment": is_equipment,
         "is_equipment_granted": is_equipment_granted,
+        "is_item": is_item,
+        "consume_on_play": consume_on_play,
         "is_starter": is_starter,
         "equipment_ids": list(equipment_ids),
     }
@@ -619,6 +628,7 @@ def scored_rows(
                 "rarity": card.get("rarity", "common"),
                 "element": card.get("element", "none"),
                 "burn": bool(card.get("burn", False)),
+                "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
                 "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),
@@ -707,6 +717,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_const",
         const="equipment",
         help="Only equipment-only cards, excluding starters granted by starting gear.",
+    )
+    source_group.add_argument(
+        "--items",
+        "--item",
+        dest="source_filter",
+        action="store_const",
+        const="item",
+        help="Only consumable item cards sold by the Scavenger.",
     )
     source_group.add_argument(
         "--starters",

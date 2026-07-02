@@ -19,6 +19,16 @@
       "Show me what you carry. Embers can make it lighter, or heavier."
     ]
   },
+  "scavenger": {
+    "name": "Scavenger",
+    "accent": "#c17f49",
+    "art_path": "res://assets/art/npcs/scavenger.png",
+    "art_scale": 0.92,
+    "default_dialogue": [
+      "Nothing down here is useless. Some things are just waiting for the right hand.",
+      "Buy it, use it, lose it. That's the honest bargain."
+    ]
+  },
   "emaciated_man": {
     "name": "Emaciated Man",
     "accent": "#b8aa90",

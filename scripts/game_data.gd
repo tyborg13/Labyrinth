@@ -55,6 +55,7 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 }
 const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
 const MAGIC_LOADOUT_LIMIT: int = 6
+const ITEM_LOADOUT_LIMIT: int = 2
 const STARTING_MAGIC_CARDS: Array[String] = [
 	"pale_spark",
 	"pale_spark",
@@ -191,6 +192,9 @@ static func starting_deck() -> Array:
 static func magic_loadout_limit() -> int:
 	return MAGIC_LOADOUT_LIMIT
 
+static func item_loadout_limit() -> int:
+	return ITEM_LOADOUT_LIMIT
+
 static func starting_magic_cards() -> Array:
 	return STARTING_MAGIC_CARDS.duplicate()
 
@@ -234,6 +238,31 @@ static func card_has_action_type(card_id: String, action_type: String) -> bool:
 
 static func reward_offer_weight(card_id: String) -> int:
 	return 1 if card_has_action_type(card_id, "heal") else 3
+
+static func item_card_ids() -> Array:
+	var result: Array = []
+	for card_id: String in cards().keys():
+		if card_is_item(card_id):
+			result.append(card_id)
+	result.sort()
+	return result
+
+static func card_is_item(card_id: String) -> bool:
+	var card: Dictionary = _raw_card_def(card_id)
+	return bool(card.get("item", false))
+
+static func card_consumes_on_play(card_id: String) -> bool:
+	var card: Dictionary = _raw_card_def(card_id)
+	return bool(card.get("consume_on_play", false))
+
+static func item_offer_weight(card_id: String) -> int:
+	var rarity: String = str(_raw_card_def(card_id).get("rarity", "common"))
+	match rarity:
+		"rare":
+			return 3
+		"uncommon":
+			return 6
+	return 12
 
 static func equipment_slots() -> Array[String]:
 	return EQUIPMENT_SLOTS.duplicate()
@@ -292,7 +321,7 @@ static func equipment_cards(equipment_id: String) -> Array:
 			result.append(card_id)
 	return result
 
-static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Array) -> Array:
+static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Array, item_cards: Array = []) -> Array:
 	var result: Array = []
 	for slot: String in EQUIPMENT_SLOTS:
 		var equipment_id: String = str(equipped_equipment.get(slot, ""))
@@ -302,6 +331,10 @@ static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Arra
 	for card_id_var: Variant in magic_cards:
 		var card_id: String = str(card_id_var)
 		if not card_id.is_empty():
+			result.append(card_id)
+	for card_id_var: Variant in item_cards:
+		var card_id: String = str(card_id_var)
+		if card_is_item(card_id):
 			result.append(card_id)
 	return result
 
@@ -396,7 +429,11 @@ static func upgrade_delta_summary(upgrade_id: String) -> String:
 	return "+%.1f value" % maxf(0.0, upgraded_value - base_value)
 
 static func upgradeable_card_ids() -> Array:
-	var result: Array = cards().keys()
+	var result: Array = []
+	for card_id: String in cards().keys():
+		if card_is_item(card_id):
+			continue
+		result.append(card_id)
 	result.sort_custom(func(a: Variant, b: Variant) -> bool:
 		var a_card: Dictionary = card_def(str(a))
 		var b_card: Dictionary = card_def(str(b))

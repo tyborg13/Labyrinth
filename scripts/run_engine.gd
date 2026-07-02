@@ -27,6 +27,7 @@ const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
 const MERCHANT_BLACKSMITH: String = "blacksmith"
 const MERCHANT_ARCANIST: String = "arcanist"
+const MERCHANT_SCAVENGER: String = "scavenger"
 const MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY := {
 	"common": 34,
 	"rare": 54,
@@ -37,6 +38,11 @@ const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
 	"common": 20,
 	"uncommon": 32,
 	"rare": 48
+}
+const MERCHANT_ITEM_BUY_COST_BY_RARITY := {
+	"common": 22,
+	"uncommon": 36,
+	"rare": 55
 }
 const MERCHANT_SELL_VALUE_RATIO: float = 0.45
 const MERCHANT_OFFER_COUNT: int = 3
@@ -64,6 +70,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	var reward_cards: Array = []
 	var attuned_magic_cards: Array = GameData.starting_magic_cards()
 	var magic_inventory: Array = []
+	var equipped_items: Array = []
 	var run_state: Dictionary = {
 		"seed": seed,
 		"run_index": int(progression.get("run_counter", 0)),
@@ -71,10 +78,12 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"current_room": Vector2i.ZERO,
 		"current_room_layout": start_layout,
 		"rooms": rooms,
-		"deck_cards": GameData.compile_deck_cards(equipped_equipment, attuned_magic_cards),
+		"deck_cards": GameData.compile_deck_cards(equipped_equipment, attuned_magic_cards, equipped_items),
 		"reward_cards": reward_cards,
 		"attuned_magic_cards": attuned_magic_cards,
 		"magic_inventory": magic_inventory,
+		"item_inventory": [],
+		"equipped_items": equipped_items,
 		"equipment_inventory": [],
 		"equipped_equipment": equipped_equipment,
 		"collected_equipment": GameData.starter_equipment_ids(),
@@ -132,7 +141,8 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 	var debug_magic_state: Dictionary = _magic_loadout_from_collected_rewards(debug_reward_cards)
 	var debug_attuned_magic: Array = debug_magic_state.get("attuned_magic_cards", []) as Array
 	var debug_magic_inventory: Array = debug_magic_state.get("magic_inventory", []) as Array
-	deck_cards = GameData.compile_deck_cards(debug_equipped, debug_attuned_magic)
+	var debug_equipped_items: Array = ["crimson_draught", "nail_bomb"]
+	deck_cards = GameData.compile_deck_cards(debug_equipped, debug_attuned_magic, debug_equipped_items)
 	var boss_room: Dictionary = _build_room_metadata(DEBUG_BOSS_SEED, DEBUG_BOSS_COORD)
 	boss_room["revealed"] = true
 	boss_room["visited"] = true
@@ -165,6 +175,8 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"reward_cards": debug_reward_cards,
 		"attuned_magic_cards": debug_attuned_magic,
 		"magic_inventory": debug_magic_inventory,
+		"item_inventory": [],
+		"equipped_items": debug_equipped_items,
 		"equipment_inventory": [],
 		"equipped_equipment": debug_equipped,
 		"collected_equipment": GameData.starter_equipment_ids(),
@@ -404,6 +416,9 @@ func can_change_equipment(run_state: Dictionary) -> bool:
 func can_change_magic(run_state: Dictionary) -> bool:
 	return can_change_equipment(run_state)
 
+func can_change_items(run_state: Dictionary) -> bool:
+	return can_change_equipment(run_state)
+
 func equip_equipment(run_state: Dictionary, equipment_id: String) -> Dictionary:
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not can_change_equipment(next_state):
@@ -448,15 +463,84 @@ func swap_magic_card(run_state: Dictionary, inventory_index: int, attuned_index:
 	next_state["notice"] = "Attuned %s." % str(GameData.card_def(incoming_card_id).get("name", incoming_card_id))
 	return next_state
 
+func equip_item_card(run_state: Dictionary, inventory_index: int, equipped_index: int = -1) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if not can_change_items(next_state):
+		return next_state
+	var inventory: Array = next_state.get("item_inventory", []).duplicate()
+	var equipped: Array = next_state.get("equipped_items", []).duplicate()
+	if inventory_index < 0 or inventory_index >= inventory.size():
+		return next_state
+	var incoming_card_id: String = str(inventory[inventory_index])
+	if not GameData.card_is_item(incoming_card_id):
+		return next_state
+	if equipped_index >= GameData.item_loadout_limit():
+		return next_state
+	inventory.remove_at(inventory_index)
+	if equipped_index >= 0 and equipped_index < equipped.size():
+		var outgoing_card_id: String = str(equipped[equipped_index])
+		equipped[equipped_index] = incoming_card_id
+		if not outgoing_card_id.is_empty():
+			inventory.append(outgoing_card_id)
+	elif equipped.size() < GameData.item_loadout_limit():
+		equipped.append(incoming_card_id)
+	else:
+		inventory.insert(inventory_index, incoming_card_id)
+		next_state["item_inventory"] = inventory
+		next_state["equipped_items"] = equipped
+		next_state["notice"] = "Item slots are full."
+		return next_state
+	next_state["item_inventory"] = inventory
+	next_state["equipped_items"] = equipped
+	next_state = _rebuild_deck_cards(next_state)
+	next_state["notice"] = "Equipped %s." % str(GameData.card_def(incoming_card_id).get("name", incoming_card_id))
+	return next_state
+
+func unequip_item_card(run_state: Dictionary, equipped_index: int) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if not can_change_items(next_state):
+		return next_state
+	var equipped: Array = next_state.get("equipped_items", []).duplicate()
+	if equipped_index < 0 or equipped_index >= equipped.size():
+		return next_state
+	var card_id: String = str(equipped[equipped_index])
+	equipped.remove_at(equipped_index)
+	var inventory: Array = next_state.get("item_inventory", []).duplicate()
+	if not card_id.is_empty():
+		inventory.append(card_id)
+	next_state["equipped_items"] = equipped
+	next_state["item_inventory"] = inventory
+	next_state = _rebuild_deck_cards(next_state)
+	next_state["notice"] = "Stowed %s." % str(GameData.card_def(card_id).get("name", card_id))
+	return next_state
+
+func consume_equipped_item_card(run_state: Dictionary, card_id: String) -> Dictionary:
+	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if card_id.is_empty() or not GameData.card_consumes_on_play(card_id):
+		return next_state
+	var equipped: Array = next_state.get("equipped_items", []).duplicate()
+	var consumed_index: int = -1
+	for index: int in range(equipped.size()):
+		if str(equipped[index]) == card_id:
+			consumed_index = index
+			break
+	if consumed_index < 0:
+		return next_state
+	equipped.remove_at(consumed_index)
+	next_state["equipped_items"] = equipped
+	next_state = _rebuild_deck_cards(next_state)
+	next_state["notice"] = "Used %s." % str(GameData.card_def(card_id).get("name", card_id))
+	return next_state
+
 func merchant_kind_for_current_room(run_state: Dictionary) -> String:
 	return merchant_kind_for_room(room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO)))
 
 func merchant_kind_for_room(room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", ""))
-	if room_type == MERCHANT_BLACKSMITH or room_type == MERCHANT_ARCANIST:
+	if room_type == MERCHANT_BLACKSMITH or room_type == MERCHANT_ARCANIST or room_type == MERCHANT_SCAVENGER:
 		return room_type
 	var merchant_kind: String = str(room.get("merchant_kind", ""))
-	if merchant_kind == MERCHANT_BLACKSMITH or merchant_kind == MERCHANT_ARCANIST:
+	if merchant_kind == MERCHANT_BLACKSMITH or merchant_kind == MERCHANT_ARCANIST or merchant_kind == MERCHANT_SCAVENGER:
 		return merchant_kind
 	return ""
 
@@ -472,6 +556,7 @@ func merchant_sellable_ids(run_state: Dictionary, merchant_kind: String) -> Arra
 	var result: Array = []
 	var room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
 	var purchased_ids: Array = _merchant_room_purchased_ids(room)
+	var purchased_counts: Dictionary = _id_counts(purchased_ids)
 	match merchant_kind:
 		MERCHANT_BLACKSMITH:
 			for equipment_var: Variant in run_state.get("equipment_inventory", []):
@@ -483,6 +568,16 @@ func merchant_sellable_ids(run_state: Dictionary, merchant_kind: String) -> Arra
 				var card_id: String = str(card_var)
 				if not card_id.is_empty() and not purchased_ids.has(card_id) and not GameData.card_def(card_id).is_empty():
 					result.append(card_id)
+		MERCHANT_SCAVENGER:
+			for card_var: Variant in run_state.get("item_inventory", []):
+				var card_id: String = str(card_var)
+				if card_id.is_empty() or not GameData.card_is_item(card_id):
+					continue
+				var protected_count: int = int(purchased_counts.get(card_id, 0))
+				if protected_count > 0:
+					purchased_counts[card_id] = protected_count - 1
+					continue
+				result.append(card_id)
 	result.sort()
 	return result
 
@@ -499,6 +594,12 @@ func merchant_buy_cost(merchant_kind: String, item_id: String) -> int:
 				return 0
 			var card_rarity: String = str(card.get("rarity", "common"))
 			return int(MERCHANT_MAGIC_BUY_COST_BY_RARITY.get(card_rarity, MERCHANT_MAGIC_BUY_COST_BY_RARITY["common"]))
+		MERCHANT_SCAVENGER:
+			var card: Dictionary = GameData.card_def(item_id)
+			if card.is_empty() or not GameData.card_is_item(item_id):
+				return 0
+			var card_rarity: String = str(card.get("rarity", "common"))
+			return int(MERCHANT_ITEM_BUY_COST_BY_RARITY.get(card_rarity, MERCHANT_ITEM_BUY_COST_BY_RARITY["common"]))
 	return 0
 
 func merchant_sell_value(merchant_kind: String, item_id: String) -> int:
@@ -548,6 +649,11 @@ func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: St
 			next_state["magic_inventory"] = magic_inventory
 			next_state = _rebuild_deck_cards(next_state)
 			next_state["notice"] = "Bought %s." % str(GameData.card_def(item_id).get("name", item_id))
+		MERCHANT_SCAVENGER:
+			var item_inventory: Array = next_state.get("item_inventory", []).duplicate()
+			item_inventory.append(item_id)
+			next_state["item_inventory"] = item_inventory
+			next_state["notice"] = "Bought %s." % str(GameData.card_def(item_id).get("name", item_id))
 	next_state = _mark_merchant_item_purchased(next_state, item_id)
 	next_state = _refill_merchant_stock_slot(next_state, merchant_kind, bought_slot, item_id)
 	return next_state
@@ -580,6 +686,11 @@ func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: S
 			reward_cards.erase(item_id)
 			next_state["reward_cards"] = reward_cards
 			next_state = _rebuild_deck_cards(next_state)
+			next_state["notice"] = "Sold %s." % str(GameData.card_def(item_id).get("name", item_id))
+		MERCHANT_SCAVENGER:
+			var item_inventory: Array = next_state.get("item_inventory", []).duplicate()
+			item_inventory.erase(item_id)
+			next_state["item_inventory"] = item_inventory
 			next_state["notice"] = "Sold %s." % str(GameData.card_def(item_id).get("name", item_id))
 	next_state = _mark_merchant_item_sold(next_state, item_id)
 	next_state = add_held_embers(next_state, value)
@@ -706,6 +817,7 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 	if not next_state.has("reward_cards"):
 		next_state["reward_cards"] = _migrated_reward_cards_from_deck(next_state.get("deck_cards", []), equipped)
 	next_state = _repair_magic_state(next_state)
+	next_state = _repair_item_state(next_state)
 	return _rebuild_deck_cards(next_state)
 
 func _repair_magic_state(run_state: Dictionary) -> Dictionary:
@@ -757,6 +869,28 @@ func _filled_attuned_magic(attuned_cards: Array) -> Array:
 		default_index += 1
 	return result
 
+func _repair_item_state(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var inventory: Array = _item_card_array(next_state.get("item_inventory", []))
+	var equipped: Array = _item_card_array(next_state.get("equipped_items", []))
+	var limit: int = GameData.item_loadout_limit()
+	if equipped.size() > limit:
+		for index: int in range(limit, equipped.size()):
+			inventory.append(str(equipped[index]))
+		while equipped.size() > limit:
+			equipped.pop_back()
+	next_state["item_inventory"] = inventory
+	next_state["equipped_items"] = equipped
+	return next_state
+
+func _item_card_array(values: Variant) -> Array:
+	var result: Array = []
+	for card_id_var: Variant in _string_array(values):
+		var card_id: String = str(card_id_var)
+		if GameData.card_is_item(card_id):
+			result.append(card_id)
+	return result
+
 func _string_array(values: Variant) -> Array:
 	var result: Array = []
 	if typeof(values) != TYPE_ARRAY:
@@ -785,7 +919,8 @@ func _rebuild_deck_cards(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	next_state["deck_cards"] = GameData.compile_deck_cards(
 		next_state.get("equipped_equipment", {}) as Dictionary,
-		next_state.get("attuned_magic_cards", []) as Array
+		next_state.get("attuned_magic_cards", []) as Array,
+		next_state.get("equipped_items", []) as Array
 	)
 	return next_state
 
@@ -1002,10 +1137,15 @@ func _merchant_room_priority(seed: int, coord: Vector2i) -> int:
 	return _coord_hash(seed, coord, 821)
 
 func _merchant_room_type_for_coord(seed: int, coord: Vector2i) -> String:
-	return MERCHANT_BLACKSMITH if (_coord_hash(seed, coord, 827) % 2) == 0 else MERCHANT_ARCANIST
+	match _coord_hash(seed, coord, 827) % 3:
+		0:
+			return MERCHANT_BLACKSMITH
+		1:
+			return MERCHANT_ARCANIST
+	return MERCHANT_SCAVENGER
 
 func _merchant_kind_for_room_type(room_type: String) -> String:
-	if room_type == MERCHANT_BLACKSMITH or room_type == MERCHANT_ARCANIST:
+	if room_type == MERCHANT_BLACKSMITH or room_type == MERCHANT_ARCANIST or room_type == MERCHANT_SCAVENGER:
 		return room_type
 	return ""
 
@@ -1198,11 +1338,20 @@ func _mark_merchant_item_purchased(run_state: Dictionary, item_id: String) -> Di
 	var coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var room: Dictionary = room_metadata(next_state, coord)
 	var purchased_ids: Array = _merchant_room_purchased_ids(room)
-	if not item_id.is_empty() and not purchased_ids.has(item_id):
+	if not item_id.is_empty():
 		purchased_ids.append(item_id)
 		purchased_ids.sort()
 	room[MERCHANT_PURCHASED_KEY] = purchased_ids
 	return _store_room_metadata(next_state, coord, room)
+
+func _id_counts(ids: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for id_var: Variant in ids:
+		var item_id: String = str(id_var)
+		if item_id.is_empty():
+			continue
+		counts[item_id] = int(counts.get(item_id, 0)) + 1
+	return counts
 
 func _merchant_valid_stock_ids(run_state: Dictionary, merchant_kind: String, room: Dictionary, stock: Array) -> Array:
 	var sold_ids: Array = _merchant_room_sold_ids(room)
@@ -1227,6 +1376,8 @@ func _available_merchant_offer_ids(run_state: Dictionary, merchant_kind: String,
 			source = _available_merchant_equipment_ids(run_state)
 		MERCHANT_ARCANIST:
 			source = _available_merchant_magic_ids(run_state)
+		MERCHANT_SCAVENGER:
+			source = _available_merchant_item_ids()
 	var result: Array = []
 	for item_var: Variant in source:
 		var item_id: String = str(item_var)
@@ -1241,6 +1392,8 @@ func _merchant_offer_salt(merchant_kind: String) -> int:
 			return 1601
 		MERCHANT_ARCANIST:
 			return 1701
+		MERCHANT_SCAVENGER:
+			return 1801
 	return 1901
 
 func _store_room_metadata(run_state: Dictionary, coord: Vector2i, room: Dictionary) -> Dictionary:
@@ -1286,6 +1439,9 @@ func _available_merchant_magic_ids(run_state: Dictionary) -> Array:
 	result.sort()
 	return result
 
+func _available_merchant_item_ids() -> Array:
+	return GameData.item_card_ids()
+
 func _weighted_merchant_choices(seed: int, coord: Vector2i, available: Array, count: int, salt: int, merchant_kind: String) -> Array:
 	var pool: Array = available.duplicate()
 	pool.sort()
@@ -1320,6 +1476,8 @@ func _merchant_offer_weight(merchant_kind: String, item_id: String) -> int:
 				"uncommon":
 					return 6
 			return 12
+		MERCHANT_SCAVENGER:
+			return GameData.item_offer_weight(item_id)
 	return 1
 
 func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[String]:
@@ -1385,6 +1543,13 @@ func _room_npcs_for_coord(seed: int, coord: Vector2i) -> Array[Dictionary]:
 		return [
 			{
 				"id": MERCHANT_ARCANIST,
+				"pos": Vector2i(3, 4)
+			}
+		]
+	if room_type == MERCHANT_SCAVENGER:
+		return [
+			{
+				"id": MERCHANT_SCAVENGER,
 				"pos": Vector2i(3, 4)
 			}
 		]

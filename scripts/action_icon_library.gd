@@ -102,6 +102,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Removes this card from the deck for the rest of combat.",
 		"path": "%s/exhaust.png" % ICON_ROOT
 	},
+	"consume": {
+		"label": "Consume",
+		"description": "Uses this item card once, then removes it from the run.",
+		"path": "%s/consume.png" % ICON_ROOT
+	},
 	"freeze": {
 		"label": "Freeze",
 		"description": "Stops the affected unit from acting on its next turn.",
@@ -334,6 +339,8 @@ static func cost_rows_for_card(card: Dictionary) -> Array:
 	var row: Array = []
 	if bool(card.get("burn", false)):
 		row.append(token_for("exhaust"))
+	if bool(card.get("consume_on_play", false)):
+		row.append(token_for("consume"))
 	var health_cost: int = int(card.get("health_cost", 0))
 	if health_cost > 0:
 		row.append(token_for("health_cost", "-%d" % health_cost))
@@ -351,6 +358,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(token_for("health_cost", "-%d" % health_cost))
 		"exhaust":
 			tokens.append(token_for("exhaust"))
+		"consume":
+			tokens.append(token_for("consume"))
 		"health_cost":
 			var health_cost: int = int(action.get("amount", action.get("health", 0)))
 			if health_cost > 0:

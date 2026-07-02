@@ -1122,6 +1122,8 @@ func _commit_pending() -> void:
 	var actions: Array = (_pending.get("actions", []) as Array).duplicate(true)
 	var targets: Array[Vector2i] = _vector2i_array(_pending.get("targets", []))
 	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index)
+	if GameData.card_consumes_on_play(card_id):
+		_run_state = _run_engine.consume_equipped_item_card(_run_state, card_id)
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
@@ -1445,6 +1447,8 @@ func _log_run_started() -> void:
 		"player_start_hp": int(_run_state.get("player_hp", 0)),
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
 		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
+		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
 		"driver": "manual_headless"
 	})
 
@@ -1479,6 +1483,8 @@ func _log_combat_started(reason: String) -> void:
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
 		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
+		"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
+		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
 		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
 	})
 
@@ -1692,6 +1698,8 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	return {
 		"play_mode": play_mode,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
+		"consume_on_play": GameData.card_consumes_on_play(card_id),
+		"item_card": GameData.card_is_item(card_id),
 		"enemy_hp_damage": _enemy_damage_between(before_state, resolved_state),
 		"enemy_block_removed": _enemy_block_removed_between(before_state, resolved_state),
 		"enemy_stoneskin_removed": _enemy_stoneskin_removed_between(before_state, resolved_state),
