@@ -1,6 +1,7 @@
 extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
@@ -10,13 +11,13 @@ const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
 
 const TITLE_TEXT: String = "Escape the Umbra"
 const PROFILE_TEXT: String = "Profile: Reaver"
-const TITLE_BASE_SIZE: int = 86
-const TITLE_MIN_SIZE: int = 38
-const MENU_FONT_SIZE: int = 24
-const MENU_BUTTON_HEIGHT: float = 56.0
-const MENU_BUTTON_HEIGHT_COMPACT: float = 48.0
-const MENU_BUTTON_MIN_WIDTH: float = 304.0
-const MENU_BUTTON_MAX_WIDTH: float = 382.0
+const TITLE_BASE_SIZE: int = 108
+const TITLE_MIN_SIZE: int = 42
+const MENU_FONT_SIZE: int = 28
+const MENU_BUTTON_HEIGHT: float = 64.0
+const MENU_BUTTON_HEIGHT_COMPACT: float = 54.0
+const MENU_BUTTON_MIN_WIDTH: float = 332.0
+const MENU_BUTTON_MAX_WIDTH: float = 420.0
 const MENU_SEPARATION: int = 10
 const EDGE_ACCENT := Color("d69b47")
 
@@ -39,6 +40,8 @@ const EDGE_ACCENT := Color("d69b47")
 @onready var settings_back_button: Button = $SettingsPanel/SettingsMargin/SettingsVBox/SettingsBackButton
 
 var _progression: Dictionary = {}
+var _using_keyboard_navigation: bool = false
+var _music_player: AudioStreamPlayer
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -46,6 +49,21 @@ func _ready() -> void:
 	_apply_style()
 	_reload_progression()
 	_update_layout()
+	_play_menu_music()
+
+func _input(event: InputEvent) -> void:
+	if _is_mouse_event(event):
+		_using_keyboard_navigation = false
+		call_deferred("_clear_menu_keyboard_focus")
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _is_keyboard_navigation_event(event):
+		return
+	_using_keyboard_navigation = true
+	if _menu_or_settings_has_focus():
+		return
+	_focus_default_keyboard_target()
+	get_viewport().set_input_as_handled()
 
 func _apply_style() -> void:
 	background_art.texture = AssetLoader.load_texture(BACKGROUND_ART_PATH)
@@ -55,21 +73,21 @@ func _apply_style() -> void:
 	global_scrim.color = Color(0.0, 0.0, 0.0, 0.16)
 	left_scrim.color = Color(0.011, 0.012, 0.018, 0.66)
 
-	_apply_title_style(title_label, Color("f5ead1"), Color("120b0a"), 7)
+	_apply_title_style(title_label, Color("fff1cf"), Color("090708"), 9)
 	_apply_title_style(title_shadow_label, Color(0.0, 0.0, 0.0, 0.55), Color(0.0, 0.0, 0.0, 0.0), 0)
-	title_shadow_label.modulate = Color(0.0, 0.0, 0.0, 0.58)
+	title_shadow_label.modulate = Color(0.0, 0.0, 0.0, 0.66)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
 		_apply_menu_button_style(button)
 	boss_button.visible = false
 
-	_apply_label_style(embers_label, HEADER_FONT, 20, Color("f0d39c"), Color("130d0b"), 2)
-	_apply_label_style(footer_label, REGULAR_FONT, 14, Color("cbb795"), Color("100b09"), 1)
+	_apply_label_style(embers_label, HEADER_FONT, 22, Color("f6d99f"), Color("100908"), 3)
+	_apply_label_style(footer_label, REGULAR_FONT, 15, Color("dbc59b"), Color("100908"), 2)
 	footer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	settings_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	_apply_label_style(settings_title_label, HEADER_FONT, 28, Color("f5ead1"), Color("120b0a"), 4)
+	_apply_label_style(settings_title_label, HEADER_FONT, 32, Color("fff1cf"), Color("090708"), 5)
 
 func _apply_title_style(label: Label, color: Color, outline_color: Color, outline_size: int) -> void:
 	label.text = TITLE_TEXT
@@ -102,8 +120,8 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.add_theme_color_override("font_focus_color", Color("fff4d8"))
 	button.add_theme_color_override("font_pressed_color", Color("dfc48f"))
 	button.add_theme_color_override("font_disabled_color", Color("8d806b"))
-	button.add_theme_color_override("font_outline_color", Color("130d0b"))
-	button.add_theme_constant_override("outline_size", 2)
+	button.add_theme_color_override("font_outline_color", Color("080606"))
+	button.add_theme_constant_override("outline_size", 3)
 
 func _make_menu_button_style(background: Color, accent: Color, expand: float = 0.0, pressed_offset: float = 0.0) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -149,8 +167,6 @@ func _reload_progression() -> void:
 		int(_progression.get("embers", 0)),
 		_bound_magick_count()
 	]
-	var focus_target: Button = continue_button if has_saved_run else start_button
-	focus_target.call_deferred("grab_focus")
 
 func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -160,7 +176,7 @@ func _update_layout() -> void:
 	var title_y: float = clampf(viewport_size.y * 0.052, 26.0, 62.0)
 	var menu_width: float = clampf(viewport_size.x * 0.22, MENU_BUTTON_MIN_WIDTH, MENU_BUTTON_MAX_WIDTH)
 	var button_height: float = MENU_BUTTON_HEIGHT_COMPACT if viewport_size.y < 700.0 else MENU_BUTTON_HEIGHT
-	var title_max_width: float = minf(viewport_size.x - margin_x * 2.0, maxf(380.0, viewport_size.x * 0.62))
+	var title_max_width: float = minf(viewport_size.x - margin_x * 2.0, maxf(420.0, viewport_size.x * 0.68))
 	var title_font_size: int = _fitted_title_font_size(title_max_width)
 	var title_height: float = maxf(HEADER_FONT.get_height(title_font_size), 54.0)
 	var title_size := Vector2(title_max_width, title_height + 16.0)
@@ -168,7 +184,7 @@ func _update_layout() -> void:
 	title_label.add_theme_font_size_override("font_size", title_font_size)
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
 	title_label.position = Vector2(margin_x, title_y)
-	title_shadow_label.position = title_label.position + Vector2(7.0, 7.0)
+	title_shadow_label.position = title_label.position + Vector2(9.0, 9.0)
 	title_label.size = title_size
 	title_shadow_label.size = title_size
 
@@ -220,6 +236,65 @@ func _bound_magick_count() -> int:
 			total += (mods_var as Array).size()
 	return total
 
+func _play_menu_music() -> void:
+	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.RELIC_ROOM_TRACK_ID)
+	var path: String = str(entry.get("path", ""))
+	var stream: AudioStream = AssetLoader.load_audio_stream(path)
+	if stream == null:
+		return
+	if _music_player == null:
+		_music_player = AudioStreamPlayer.new()
+		_music_player.name = "MusicPlayer"
+		add_child(_music_player)
+		_music_player.finished.connect(_on_music_finished)
+	_music_player.stream = stream
+	_music_player.volume_db = float(entry.get("volume_db", -13.0))
+	_music_player.play()
+
+func _on_music_finished() -> void:
+	if _music_player == null or _music_player.stream == null:
+		return
+	_music_player.play()
+
+func _is_mouse_event(event: InputEvent) -> bool:
+	return event is InputEventMouseMotion or event is InputEventMouseButton
+
+func _is_keyboard_navigation_event(event: InputEvent) -> bool:
+	if not event is InputEventKey:
+		return false
+	var key_event := event as InputEventKey
+	if not key_event.pressed or key_event.echo:
+		return false
+	if key_event.keycode in [KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_TAB]:
+		return true
+	for action: String in ["ui_up", "ui_down", "ui_left", "ui_right", "ui_focus_next", "ui_focus_prev"]:
+		if event.is_action_pressed(action):
+			return true
+	return false
+
+func _menu_or_settings_has_focus() -> bool:
+	for button_var: Variant in _focusable_menu_buttons():
+		var button := button_var as Button
+		if button != null and button.has_focus():
+			return true
+	return false
+
+func _clear_menu_keyboard_focus() -> void:
+	for button_var: Variant in _focusable_menu_buttons():
+		var button := button_var as Button
+		if button != null and button.has_focus():
+			button.release_focus()
+
+func _focus_default_keyboard_target() -> void:
+	if settings_panel.visible:
+		settings_back_button.grab_focus()
+		return
+	var target: Button = continue_button if not continue_button.disabled else start_button
+	target.grab_focus()
+
+func _focusable_menu_buttons() -> Array:
+	return [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]
+
 func _on_start_button_pressed() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
 		get_tree().root.remove_meta("labyrinth_resume_saved_run")
@@ -237,11 +312,17 @@ func _on_continue_button_pressed() -> void:
 
 func _on_settings_button_pressed() -> void:
 	settings_panel.visible = true
-	settings_back_button.grab_focus()
+	if _using_keyboard_navigation:
+		settings_back_button.grab_focus()
+	else:
+		_clear_menu_keyboard_focus()
 
 func _on_settings_back_button_pressed() -> void:
 	settings_panel.visible = false
-	settings_button.grab_focus()
+	if _using_keyboard_navigation:
+		settings_button.grab_focus()
+	else:
+		_clear_menu_keyboard_focus()
 
 func _on_quit_button_pressed() -> void:
 	get_tree().quit()
