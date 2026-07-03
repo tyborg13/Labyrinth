@@ -291,6 +291,10 @@
     "art_path": "res://assets/art/enemies/cinder_ooze.png",
     "art_scale": 0.82,
     "art_offset_y": 8,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "death_spawn": {
       "type": "split",
       "enemy_type": "cinder_droplet",
@@ -372,6 +376,10 @@
     "accent": "#f08a3a",
     "art_path": "res://assets/art/enemies/cinder_droplet.png",
     "art_scale": 0.56,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "intents": [
       {
         "id": "spatter",
@@ -418,6 +426,10 @@
     "art_path": "res://assets/art/enemies/bile_bloomer.png",
     "art_scale": 0.86,
     "art_offset_y": -6,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "intents": [
       {
         "id": "bile_burst",
@@ -529,6 +541,10 @@
     "art_path": "res://assets/art/enemies/chainbound_gaoler.png",
     "art_scale": 0.9,
     "art_offset_y": -16,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "intents": [
       {
         "id": "chain_reel",
@@ -601,6 +617,10 @@
     "accent": "#8aa65f",
     "art_path": "res://assets/art/enemies/grave_surgeon.png",
     "art_scale": 0.98,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "intents": [
       {
         "id": "triage_suture",
@@ -664,6 +684,10 @@
     "art_path": "res://assets/art/enemies/frostglass_lancer.png",
     "art_scale": 1.0,
     "art_offset_y": -6,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "intents": [
       {
         "id": "glass_lunge",

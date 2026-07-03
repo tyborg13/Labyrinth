@@ -4,6 +4,10 @@
     "accent": "#8a67d8",
     "art_path": "res://assets/art/npcs/arcanist.png",
     "art_scale": 0.98,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "default_dialogue": [
       "Threads of power cling to you. I can loosen some, or bind others tighter.",
       "Embers remember every spell they touch."
@@ -14,6 +18,10 @@
     "accent": "#d9862f",
     "art_path": "res://assets/art/npcs/blacksmith.png",
     "art_scale": 0.98,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
     "default_dialogue": [
       "Steel keeps a sharper memory than flesh.",
       "Show me what you carry. Embers can make it lighter, or heavier."

@@ -181,6 +181,8 @@ func _initialize() -> void:
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
+	_test_final_art_units_use_16_frame_idle_sheets()
+	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
 	_test_unit_hud_stacks_above_sprite_art()
@@ -5300,6 +5302,81 @@ func _test_cinder_enemies_have_turn_order_portraits() -> void:
 				_assert(texture_rects[0].texture.get_size() == Vector2(128, 128), "%s turn-order portrait should use the clock portrait canvas" % enemy_type)
 			slot.free()
 	instance.free()
+
+func _test_final_art_units_use_16_frame_idle_sheets() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	var unit_types: Array[String] = [
+		"cinder_ooze",
+		"cinder_droplet",
+		"bile_bloomer",
+		"chainbound_gaoler",
+		"grave_surgeon",
+		"frostglass_lancer",
+		"arcanist",
+		"blacksmith"
+	]
+	for unit_type: String in unit_types:
+		var definition: Dictionary = GameData.enemy_def(unit_type)
+		var role: String = "enemy"
+		if definition.is_empty():
+			definition = GameData.npc_def(unit_type)
+			role = "npc"
+		var art_path: String = str(definition.get("art_path", ""))
+		var idle_path: String = "%s_idle.%s" % [art_path.get_basename(), art_path.get_extension()]
+		var unit := {"key": "%s_%s" % [role, unit_type], "role": role, "type": unit_type}
+		var idle_frames: Array = board.call("_unit_idle_frames", unit)
+		var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
+		var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
+		_assert(FileAccess.file_exists(idle_path), "%s idle sheet should exist beside the static art" % unit_type)
+		_assert(idle_frames.size() == 16, "%s idle sheet should load all 16 advanced-animation frames" % unit_type)
+		_assert((idle_frames[0] as Texture2D).get_size() == Vector2(255.0, 255.0), "%s idle frames should use native 255px source cells" % unit_type)
+		_assert(first_frame != null and last_frame != null, "%s idle frames should be atlas-backed slices" % unit_type)
+		_assert(first_frame.region.position == Vector2.ZERO, "%s idle loop should start at the first source frame" % unit_type)
+		_assert(last_frame.region.position == Vector2(765.0, 765.0), "%s idle loop should include the final 4x4 source frame" % unit_type)
+		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", unit)), 0.1), "%s idle loop should use the default frame cadence" % unit_type)
+	board.free()
+
+func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
+	var board := CombatBoardView.new()
+	board.size = Vector2(960.0, 680.0)
+	board.visible = true
+	board.call("_load_assets")
+	board.presentation = {}
+	var unit_types: Array[String] = [
+		"cinder_ooze",
+		"cinder_droplet",
+		"bile_bloomer",
+		"chainbound_gaoler",
+		"grave_surgeon",
+		"frostglass_lancer",
+		"arcanist",
+		"blacksmith"
+	]
+	for unit_type: String in unit_types:
+		var unit := {"key": "shadow_%s" % unit_type, "role": "enemy", "type": unit_type, "pos": Vector2i.ZERO}
+		if not GameData.npc_def(unit_type).is_empty():
+			unit["role"] = "npc"
+		var idle_frames: Array = board.call("_unit_idle_frames", unit)
+		var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", unit, Vector2(320.0, 240.0))
+		for frame_index: int in range(idle_frames.size()):
+			var texture: Texture2D = idle_frames[frame_index] as Texture2D
+			var local_polygons: Array = board.call("_unit_shadow_polygons_for_texture", texture)
+			_assert(not local_polygons.is_empty(), "%s idle frame %d should keep a silhouette shadow instead of falling back to the old oval" % [unit_type, frame_index])
+			var bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", texture)
+			var shadow_size: Vector2 = board.call("_unit_shadow_draw_size", texture, draw_rect.size, bounds)
+			var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, unit_type)
+			var has_drawable_shadow := false
+			for polygon_var: Variant in local_polygons:
+				var local_polygon: PackedVector2Array = polygon_var
+				var projected: PackedVector2Array = board.call("_project_unit_shadow_polygon", local_polygon, shadow_size, foot_point)
+				if bool(board.call("_polygon_can_draw", projected)):
+					has_drawable_shadow = true
+					break
+			_assert(has_drawable_shadow, "%s idle frame %d should project to a drawable silhouette shadow" % [unit_type, frame_index])
+	board.free()
 
 func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	var board := CombatBoardView.new()
