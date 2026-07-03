@@ -25,6 +25,7 @@ const EDGE_ACCENT := Color("d69b47")
 @onready var global_scrim: ColorRect = $GlobalScrim
 @onready var left_scrim: ColorRect = $LeftScrim
 @onready var title_shadow_label: Label = $TitleShadow
+@onready var title_rim_label: Label = $TitleRim
 @onready var title_label: Label = $Title
 @onready var menu_column: VBoxContainer = $MenuColumn
 @onready var continue_button: Button = $MenuColumn/ContinueButton
@@ -79,9 +80,11 @@ func _apply_style() -> void:
 	global_scrim.color = Color(0.0, 0.0, 0.0, 0.16)
 	left_scrim.color = Color(0.011, 0.012, 0.018, 0.66)
 
-	_apply_title_style(title_label, Color("fff1c8"), Color("070403"), 13)
-	_apply_title_style(title_shadow_label, Color("000000"), Color("000000"), 14)
-	title_shadow_label.modulate = Color(0.0, 0.0, 0.0, 0.70)
+	_apply_title_style(title_shadow_label, Color("5b2d74"), Color("0b040f"), 18)
+	title_shadow_label.modulate = Color(1.0, 0.78, 1.0, 0.78)
+	_apply_title_style(title_rim_label, Color("c0522f"), Color("170508"), 13)
+	title_rim_label.modulate = Color(1.0, 0.78, 0.56, 0.88)
+	_apply_title_style(title_label, Color("ffe19a"), Color("210725"), 12)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
@@ -189,10 +192,13 @@ func _update_layout() -> void:
 
 	title_label.add_theme_font_size_override("font_size", title_font_size)
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
+	title_rim_label.add_theme_font_size_override("font_size", title_font_size)
 	title_label.position = Vector2(margin_x, title_y)
-	title_shadow_label.position = title_label.position + Vector2(14.0, 13.0)
+	title_shadow_label.position = title_label.position + Vector2(18.0, 15.0)
+	title_rim_label.position = title_label.position + Vector2(7.0, 6.0)
 	title_label.size = title_size
 	title_shadow_label.size = title_size
+	title_rim_label.size = title_size
 
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0)
 	menu_column.position = Vector2(margin_x, menu_y)

@@ -47,6 +47,15 @@ offset_bottom = 134.0
 mouse_filter = 2
 text = "Escape the Umbra"
 
+[node name="TitleRim" type="Label" parent="."]
+layout_mode = 0
+offset_left = 68.0
+offset_top = 56.0
+offset_right = 732.0
+offset_bottom = 132.0
+mouse_filter = 2
+text = "Escape the Umbra"
+
 [node name="Title" type="Label" parent="."]
 layout_mode = 0
 offset_left = 64.0
