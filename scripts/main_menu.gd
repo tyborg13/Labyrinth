@@ -20,14 +20,37 @@ const MENU_BUTTON_MIN_WIDTH: float = 332.0
 const MENU_BUTTON_MAX_WIDTH: float = 420.0
 const MENU_SEPARATION: int = 10
 const EDGE_ACCENT := Color("d69b47")
-const TITLE_FACE_BAND_COUNT: int = 64
-const TITLE_FACE_BAND_ALPHA: float = 0.76
-const TITLE_FACE_BAND_FEATHER: float = 0.006
 const TITLE_FACE_TOP_COLOR := Color("fff7cf")
 const TITLE_FACE_HIGH_COLOR := Color("ffe08e")
 const TITLE_FACE_MID_COLOR := Color("dd853e")
 const TITLE_FACE_LOW_COLOR := Color("85311f")
 const TITLE_FACE_BOTTOM_COLOR := Color("2d0b24")
+const TITLE_FACE_SHADER_CODE: String = """
+shader_type canvas_item;
+
+uniform vec4 top_color : source_color;
+uniform vec4 high_color : source_color;
+uniform vec4 mid_color : source_color;
+uniform vec4 low_color : source_color;
+uniform vec4 bottom_color : source_color;
+uniform float gradient_height = 1.0;
+
+varying float local_y;
+
+void vertex() {
+	local_y = VERTEX.y;
+}
+
+void fragment() {
+	vec4 glyph = texture(TEXTURE, UV);
+	float y = clamp(local_y / max(gradient_height, 1.0), 0.0, 1.0);
+	vec4 ramp = mix(top_color, high_color, smoothstep(0.00, 0.32, y));
+	ramp = mix(ramp, mid_color, smoothstep(0.22, 0.62, y));
+	ramp = mix(ramp, low_color, smoothstep(0.50, 0.86, y));
+	ramp = mix(ramp, bottom_color, smoothstep(0.76, 1.00, y));
+	COLOR = vec4(ramp.rgb, glyph.a * COLOR.a);
+}
+"""
 
 @onready var background_art: TextureRect = $MenuArt
 @onready var global_scrim: ColorRect = $GlobalScrim
@@ -52,8 +75,8 @@ const TITLE_FACE_BOTTOM_COLOR := Color("2d0b24")
 var _progression: Dictionary = {}
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
-var _title_face_band_clips: Array = []
-var _title_face_band_labels: Array = []
+var _title_face_label: Label
+var _title_face_material: ShaderMaterial
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -96,7 +119,7 @@ func _apply_style() -> void:
 	_apply_title_style(title_rim_label, Color("c0522f"), Color("170508"), 13)
 	title_rim_label.modulate = Color(1.0, 0.78, 0.56, 0.88)
 	_apply_title_style(title_label, Color("ffd98d"), Color("210725"), 12)
-	_ensure_title_face_bands()
+	_ensure_title_face_gradient()
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
@@ -119,40 +142,31 @@ func _apply_title_style(label: Label, color: Color, outline_color: Color, outlin
 	label.add_theme_color_override("font_outline_color", outline_color)
 	label.add_theme_constant_override("outline_size", outline_size)
 
-func _ensure_title_face_bands() -> void:
-	if _title_face_band_labels.size() == TITLE_FACE_BAND_COUNT:
+func _ensure_title_face_gradient() -> void:
+	if _title_face_label != null:
 		return
 	for child: Node in title_face_blend.get_children():
 		child.queue_free()
-	_title_face_band_clips.clear()
-	_title_face_band_labels.clear()
 	title_face_blend.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for band_index: int in range(TITLE_FACE_BAND_COUNT):
-		var clip := Control.new()
-		clip.name = "TitleFaceBandClip%02d" % (band_index + 1)
-		clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		clip.clip_contents = true
-		title_face_blend.add_child(clip)
+	_title_face_label = Label.new()
+	_title_face_label.name = "TitleFaceGradient"
+	_title_face_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_apply_title_style(_title_face_label, Color.WHITE, Color.TRANSPARENT, 0)
+	_title_face_material = _make_title_face_material()
+	_title_face_label.material = _title_face_material
+	title_face_blend.add_child(_title_face_label)
 
-		var label := Label.new()
-		label.name = "TitleFaceBand%02d" % (band_index + 1)
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_apply_title_style(label, _title_face_band_color(_title_face_band_sample(band_index)), Color.TRANSPARENT, 0)
-		label.modulate = Color(1.0, 1.0, 1.0, TITLE_FACE_BAND_ALPHA)
-		clip.add_child(label)
-		_title_face_band_clips.append(clip)
-		_title_face_band_labels.append(label)
-
-func _title_face_band_sample(band_index: int) -> float:
-	return (float(band_index) + 0.5) / float(maxi(TITLE_FACE_BAND_COUNT, 1))
-
-func _title_face_band_color(sample_y: float) -> Color:
-	var y: float = clampf(sample_y, 0.0, 1.0)
-	var color: Color = TITLE_FACE_TOP_COLOR.lerp(TITLE_FACE_HIGH_COLOR, smoothstep(0.0, 0.32, y))
-	color = color.lerp(TITLE_FACE_MID_COLOR, smoothstep(0.22, 0.62, y))
-	color = color.lerp(TITLE_FACE_LOW_COLOR, smoothstep(0.50, 0.86, y))
-	color = color.lerp(TITLE_FACE_BOTTOM_COLOR, smoothstep(0.76, 1.0, y))
-	return color
+func _make_title_face_material() -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = TITLE_FACE_SHADER_CODE
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("top_color", TITLE_FACE_TOP_COLOR)
+	material.set_shader_parameter("high_color", TITLE_FACE_HIGH_COLOR)
+	material.set_shader_parameter("mid_color", TITLE_FACE_MID_COLOR)
+	material.set_shader_parameter("low_color", TITLE_FACE_LOW_COLOR)
+	material.set_shader_parameter("bottom_color", TITLE_FACE_BOTTOM_COLOR)
+	return material
 
 func _apply_label_style(label: Label, font: Font, size: int, color: Color, outline_color: Color, outline_size: int) -> void:
 	label.add_theme_font_override("font", font)
@@ -248,7 +262,7 @@ func _update_layout() -> void:
 	title_rim_label.size = title_size
 	title_face_blend.position = title_label.position
 	title_face_blend.size = title_size
-	_layout_title_face_bands(title_size, title_font_size)
+	_layout_title_face_gradient(title_size, title_font_size)
 
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0)
 	menu_column.position = Vector2(margin_x, menu_y)
@@ -278,24 +292,15 @@ func _update_layout() -> void:
 	settings_panel.position = Vector2(panel_x, maxf(24.0, panel_y))
 	settings_panel.size = Vector2(panel_width, panel_height)
 
-func _layout_title_face_bands(title_size: Vector2, title_font_size: int) -> void:
-	_ensure_title_face_bands()
-	var band_count: int = maxi(_title_face_band_clips.size(), 1)
-	var feather_pixels: float = title_size.y * TITLE_FACE_BAND_FEATHER
-	for band_index: int in range(_title_face_band_clips.size()):
-		var clip := _title_face_band_clips[band_index] as Control
-		var label := _title_face_band_labels[band_index] as Label
-		if clip == null or label == null:
-			continue
-		var band_start_y: float = title_size.y * float(band_index) / float(band_count)
-		var band_end_y: float = title_size.y * float(band_index + 1) / float(band_count)
-		var clip_start_y: float = maxf(0.0, band_start_y - feather_pixels)
-		var clip_end_y: float = minf(title_size.y, band_end_y + feather_pixels)
-		clip.position = Vector2(0.0, clip_start_y)
-		clip.size = Vector2(title_size.x, maxf(1.0, clip_end_y - clip_start_y))
-		label.position = Vector2(0.0, -clip_start_y)
-		label.size = title_size
-		label.add_theme_font_size_override("font_size", title_font_size)
+func _layout_title_face_gradient(title_size: Vector2, title_font_size: int) -> void:
+	_ensure_title_face_gradient()
+	if _title_face_label == null:
+		return
+	_title_face_label.position = Vector2.ZERO
+	_title_face_label.size = title_size
+	_title_face_label.add_theme_font_size_override("font_size", title_font_size)
+	if _title_face_material != null:
+		_title_face_material.set_shader_parameter("gradient_height", title_size.y)
 
 func _menu_column_height(button_height: float) -> float:
 	var visible_buttons: int = 4
