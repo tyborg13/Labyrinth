@@ -20,6 +20,14 @@ const MENU_BUTTON_MIN_WIDTH: float = 332.0
 const MENU_BUTTON_MAX_WIDTH: float = 420.0
 const MENU_SEPARATION: int = 10
 const EDGE_ACCENT := Color("d69b47")
+const TITLE_FACE_BAND_COUNT: int = 64
+const TITLE_FACE_BAND_ALPHA: float = 0.76
+const TITLE_FACE_BAND_FEATHER: float = 0.006
+const TITLE_FACE_TOP_COLOR := Color("fff7cf")
+const TITLE_FACE_HIGH_COLOR := Color("ffe08e")
+const TITLE_FACE_MID_COLOR := Color("dd853e")
+const TITLE_FACE_LOW_COLOR := Color("85311f")
+const TITLE_FACE_BOTTOM_COLOR := Color("2d0b24")
 
 @onready var background_art: TextureRect = $MenuArt
 @onready var global_scrim: ColorRect = $GlobalScrim
@@ -27,10 +35,7 @@ const EDGE_ACCENT := Color("d69b47")
 @onready var title_shadow_label: Label = $TitleShadow
 @onready var title_rim_label: Label = $TitleRim
 @onready var title_label: Label = $Title
-@onready var title_highlight_clip: Control = $TitleFaceHighlightClip
-@onready var title_highlight_label: Label = $TitleFaceHighlightClip/TitleFaceHighlight
-@onready var title_shade_clip: Control = $TitleFaceShadeClip
-@onready var title_shade_label: Label = $TitleFaceShadeClip/TitleFaceShade
+@onready var title_face_blend: Control = $TitleFaceBlend
 @onready var menu_column: VBoxContainer = $MenuColumn
 @onready var continue_button: Button = $MenuColumn/ContinueButton
 @onready var start_button: Button = $MenuColumn/StartButton
@@ -47,6 +52,8 @@ const EDGE_ACCENT := Color("d69b47")
 var _progression: Dictionary = {}
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
+var _title_face_band_clips: Array = []
+var _title_face_band_labels: Array = []
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -88,11 +95,8 @@ func _apply_style() -> void:
 	title_shadow_label.modulate = Color(1.0, 0.78, 1.0, 0.78)
 	_apply_title_style(title_rim_label, Color("c0522f"), Color("170508"), 13)
 	title_rim_label.modulate = Color(1.0, 0.78, 0.56, 0.88)
-	_apply_title_style(title_label, Color("ffe19a"), Color("210725"), 12)
-	_apply_title_style(title_highlight_label, Color("fff6ca"), Color.TRANSPARENT, 0)
-	title_highlight_label.modulate = Color(1.0, 0.92, 0.54, 0.30)
-	_apply_title_style(title_shade_label, Color("7a2c18"), Color.TRANSPARENT, 0)
-	title_shade_label.modulate = Color(1.0, 0.62, 0.42, 0.34)
+	_apply_title_style(title_label, Color("ffd98d"), Color("210725"), 12)
+	_ensure_title_face_bands()
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
@@ -114,6 +118,41 @@ func _apply_title_style(label: Label, color: Color, outline_color: Color, outlin
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", outline_color)
 	label.add_theme_constant_override("outline_size", outline_size)
+
+func _ensure_title_face_bands() -> void:
+	if _title_face_band_labels.size() == TITLE_FACE_BAND_COUNT:
+		return
+	for child: Node in title_face_blend.get_children():
+		child.queue_free()
+	_title_face_band_clips.clear()
+	_title_face_band_labels.clear()
+	title_face_blend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for band_index: int in range(TITLE_FACE_BAND_COUNT):
+		var clip := Control.new()
+		clip.name = "TitleFaceBandClip%02d" % (band_index + 1)
+		clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip.clip_contents = true
+		title_face_blend.add_child(clip)
+
+		var label := Label.new()
+		label.name = "TitleFaceBand%02d" % (band_index + 1)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_apply_title_style(label, _title_face_band_color(_title_face_band_sample(band_index)), Color.TRANSPARENT, 0)
+		label.modulate = Color(1.0, 1.0, 1.0, TITLE_FACE_BAND_ALPHA)
+		clip.add_child(label)
+		_title_face_band_clips.append(clip)
+		_title_face_band_labels.append(label)
+
+func _title_face_band_sample(band_index: int) -> float:
+	return (float(band_index) + 0.5) / float(maxi(TITLE_FACE_BAND_COUNT, 1))
+
+func _title_face_band_color(sample_y: float) -> Color:
+	var y: float = clampf(sample_y, 0.0, 1.0)
+	var color: Color = TITLE_FACE_TOP_COLOR.lerp(TITLE_FACE_HIGH_COLOR, smoothstep(0.0, 0.32, y))
+	color = color.lerp(TITLE_FACE_MID_COLOR, smoothstep(0.22, 0.62, y))
+	color = color.lerp(TITLE_FACE_LOW_COLOR, smoothstep(0.50, 0.86, y))
+	color = color.lerp(TITLE_FACE_BOTTOM_COLOR, smoothstep(0.76, 1.0, y))
+	return color
 
 func _apply_label_style(label: Label, font: Font, size: int, color: Color, outline_color: Color, outline_size: int) -> void:
 	label.add_theme_font_override("font", font)
@@ -201,24 +240,15 @@ func _update_layout() -> void:
 	title_label.add_theme_font_size_override("font_size", title_font_size)
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
 	title_rim_label.add_theme_font_size_override("font_size", title_font_size)
-	title_highlight_label.add_theme_font_size_override("font_size", title_font_size)
-	title_shade_label.add_theme_font_size_override("font_size", title_font_size)
 	title_label.position = Vector2(margin_x, title_y)
 	title_shadow_label.position = title_label.position + Vector2(18.0, 15.0)
 	title_rim_label.position = title_label.position + Vector2(7.0, 6.0)
 	title_label.size = title_size
 	title_shadow_label.size = title_size
 	title_rim_label.size = title_size
-	var highlight_height: float = title_size.y * 0.44
-	var shade_y: float = title_size.y * 0.50
-	title_highlight_clip.position = title_label.position
-	title_highlight_clip.size = Vector2(title_size.x, highlight_height)
-	title_highlight_label.position = Vector2.ZERO
-	title_highlight_label.size = title_size
-	title_shade_clip.position = title_label.position + Vector2(0.0, shade_y)
-	title_shade_clip.size = Vector2(title_size.x, title_size.y - shade_y)
-	title_shade_label.position = Vector2(0.0, -shade_y)
-	title_shade_label.size = title_size
+	title_face_blend.position = title_label.position
+	title_face_blend.size = title_size
+	_layout_title_face_bands(title_size, title_font_size)
 
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0)
 	menu_column.position = Vector2(margin_x, menu_y)
@@ -247,6 +277,25 @@ func _update_layout() -> void:
 		panel_y = minf(viewport_size.y - panel_height - 24.0, menu_y + _menu_column_height(button_height) + 22.0)
 	settings_panel.position = Vector2(panel_x, maxf(24.0, panel_y))
 	settings_panel.size = Vector2(panel_width, panel_height)
+
+func _layout_title_face_bands(title_size: Vector2, title_font_size: int) -> void:
+	_ensure_title_face_bands()
+	var band_count: int = maxi(_title_face_band_clips.size(), 1)
+	var feather_pixels: float = title_size.y * TITLE_FACE_BAND_FEATHER
+	for band_index: int in range(_title_face_band_clips.size()):
+		var clip := _title_face_band_clips[band_index] as Control
+		var label := _title_face_band_labels[band_index] as Label
+		if clip == null or label == null:
+			continue
+		var band_start_y: float = title_size.y * float(band_index) / float(band_count)
+		var band_end_y: float = title_size.y * float(band_index + 1) / float(band_count)
+		var clip_start_y: float = maxf(0.0, band_start_y - feather_pixels)
+		var clip_end_y: float = minf(title_size.y, band_end_y + feather_pixels)
+		clip.position = Vector2(0.0, clip_start_y)
+		clip.size = Vector2(title_size.x, maxf(1.0, clip_end_y - clip_start_y))
+		label.position = Vector2(0.0, -clip_start_y)
+		label.size = title_size
+		label.add_theme_font_size_override("font_size", title_font_size)
 
 func _menu_column_height(button_height: float) -> float:
 	var visible_buttons: int = 4

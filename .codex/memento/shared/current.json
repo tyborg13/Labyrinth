@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-02T22:21:08Z",
+  "updated_at": "2026-07-03T21:52:17Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4639,6 +4639,28 @@
       "source": {
         "branch": "codex/add-subtle-torch-ember-particles",
         "commit": "702b937"
+      }
+    },
+    {
+      "id": "mnt_20260703T215217Z_989d371b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/main_menu.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/main_menu.gd",
+      "summary": "Main menu title gradient avoids screen-space shaders",
+      "details": "The title face is implemented with fine clipped Label bands under TitleFaceBlend. A ShaderMaterial using FRAGCOORD produced a smooth fill in code but visual probes on macOS display scaling made most of the title render too dark, so future title-face polish should prefer the clipped-label ramp unless the shader can use stable local text coordinates.",
+      "status": "active",
+      "created_at": "2026-07-03T21:52:17Z",
+      "updated_at": "2026-07-03T21:52:17Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-main-menu-title-shading",
+        "commit": "bf6ba16"
       }
     }
   ]
