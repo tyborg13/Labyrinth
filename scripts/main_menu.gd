@@ -27,6 +27,10 @@ const EDGE_ACCENT := Color("d69b47")
 @onready var title_shadow_label: Label = $TitleShadow
 @onready var title_rim_label: Label = $TitleRim
 @onready var title_label: Label = $Title
+@onready var title_highlight_clip: Control = $TitleFaceHighlightClip
+@onready var title_highlight_label: Label = $TitleFaceHighlightClip/TitleFaceHighlight
+@onready var title_shade_clip: Control = $TitleFaceShadeClip
+@onready var title_shade_label: Label = $TitleFaceShadeClip/TitleFaceShade
 @onready var menu_column: VBoxContainer = $MenuColumn
 @onready var continue_button: Button = $MenuColumn/ContinueButton
 @onready var start_button: Button = $MenuColumn/StartButton
@@ -85,6 +89,10 @@ func _apply_style() -> void:
 	_apply_title_style(title_rim_label, Color("c0522f"), Color("170508"), 13)
 	title_rim_label.modulate = Color(1.0, 0.78, 0.56, 0.88)
 	_apply_title_style(title_label, Color("ffe19a"), Color("210725"), 12)
+	_apply_title_style(title_highlight_label, Color("fff6ca"), Color.TRANSPARENT, 0)
+	title_highlight_label.modulate = Color(1.0, 0.92, 0.54, 0.30)
+	_apply_title_style(title_shade_label, Color("7a2c18"), Color.TRANSPARENT, 0)
+	title_shade_label.modulate = Color(1.0, 0.62, 0.42, 0.34)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
@@ -193,12 +201,24 @@ func _update_layout() -> void:
 	title_label.add_theme_font_size_override("font_size", title_font_size)
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
 	title_rim_label.add_theme_font_size_override("font_size", title_font_size)
+	title_highlight_label.add_theme_font_size_override("font_size", title_font_size)
+	title_shade_label.add_theme_font_size_override("font_size", title_font_size)
 	title_label.position = Vector2(margin_x, title_y)
 	title_shadow_label.position = title_label.position + Vector2(18.0, 15.0)
 	title_rim_label.position = title_label.position + Vector2(7.0, 6.0)
 	title_label.size = title_size
 	title_shadow_label.size = title_size
 	title_rim_label.size = title_size
+	var highlight_height: float = title_size.y * 0.44
+	var shade_y: float = title_size.y * 0.50
+	title_highlight_clip.position = title_label.position
+	title_highlight_clip.size = Vector2(title_size.x, highlight_height)
+	title_highlight_label.position = Vector2.ZERO
+	title_highlight_label.size = title_size
+	title_shade_clip.position = title_label.position + Vector2(0.0, shade_y)
+	title_shade_clip.size = Vector2(title_size.x, title_size.y - shade_y)
+	title_shade_label.position = Vector2(0.0, -shade_y)
+	title_shade_label.size = title_size
 
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0)
 	menu_column.position = Vector2(margin_x, menu_y)
