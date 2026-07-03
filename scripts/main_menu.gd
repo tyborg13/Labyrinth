@@ -11,7 +11,7 @@ const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
 
 const TITLE_TEXT: String = "Escape the Umbra"
 const PROFILE_TEXT: String = "Profile: Reaver"
-const TITLE_BASE_SIZE: int = 108
+const TITLE_BASE_SIZE: int = 106
 const TITLE_MIN_SIZE: int = 42
 const MENU_FONT_SIZE: int = 28
 const MENU_BUTTON_HEIGHT: float = 64.0
@@ -52,9 +52,15 @@ func _ready() -> void:
 	_play_menu_music()
 
 func _input(event: InputEvent) -> void:
-	if _is_mouse_event(event):
+	if event is InputEventMouseMotion:
 		_using_keyboard_navigation = false
 		call_deferred("_clear_menu_keyboard_focus")
+	elif event is InputEventMouseButton:
+		_using_keyboard_navigation = false
+		var mouse_button := event as InputEventMouseButton
+		# Releasing focus on mouse-down can cancel Button's press/release click path.
+		if not mouse_button.pressed:
+			call_deferred("_clear_menu_keyboard_focus")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_keyboard_navigation_event(event):
@@ -73,9 +79,9 @@ func _apply_style() -> void:
 	global_scrim.color = Color(0.0, 0.0, 0.0, 0.16)
 	left_scrim.color = Color(0.011, 0.012, 0.018, 0.66)
 
-	_apply_title_style(title_label, Color("fff1cf"), Color("090708"), 9)
-	_apply_title_style(title_shadow_label, Color(0.0, 0.0, 0.0, 0.55), Color(0.0, 0.0, 0.0, 0.0), 0)
-	title_shadow_label.modulate = Color(0.0, 0.0, 0.0, 0.66)
+	_apply_title_style(title_label, Color("fff1c8"), Color("070403"), 13)
+	_apply_title_style(title_shadow_label, Color("000000"), Color("000000"), 14)
+	title_shadow_label.modulate = Color(0.0, 0.0, 0.0, 0.70)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
@@ -121,7 +127,7 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.add_theme_color_override("font_pressed_color", Color("dfc48f"))
 	button.add_theme_color_override("font_disabled_color", Color("8d806b"))
 	button.add_theme_color_override("font_outline_color", Color("080606"))
-	button.add_theme_constant_override("outline_size", 3)
+	button.add_theme_constant_override("outline_size", 4)
 
 func _make_menu_button_style(background: Color, accent: Color, expand: float = 0.0, pressed_offset: float = 0.0) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -179,12 +185,12 @@ func _update_layout() -> void:
 	var title_max_width: float = minf(viewport_size.x - margin_x * 2.0, maxf(420.0, viewport_size.x * 0.68))
 	var title_font_size: int = _fitted_title_font_size(title_max_width)
 	var title_height: float = maxf(HEADER_FONT.get_height(title_font_size), 54.0)
-	var title_size := Vector2(title_max_width, title_height + 16.0)
+	var title_size := Vector2(title_max_width, title_height + 30.0)
 
 	title_label.add_theme_font_size_override("font_size", title_font_size)
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
 	title_label.position = Vector2(margin_x, title_y)
-	title_shadow_label.position = title_label.position + Vector2(9.0, 9.0)
+	title_shadow_label.position = title_label.position + Vector2(14.0, 13.0)
 	title_label.size = title_size
 	title_shadow_label.size = title_size
 
@@ -202,7 +208,7 @@ func _update_layout() -> void:
 	profile_block.position = Vector2(margin_x, profile_y)
 	profile_block.size = Vector2(profile_width, profile_height)
 
-	var left_width: float = maxf(menu_width + margin_x * 2.0 + 80.0, viewport_size.x * 0.34)
+	var left_width: float = margin_x + menu_width + clampf(viewport_size.x * 0.045, 64.0, 128.0)
 	left_scrim.position = Vector2.ZERO
 	left_scrim.size = Vector2(left_width, viewport_size.y)
 
@@ -255,9 +261,6 @@ func _on_music_finished() -> void:
 	if _music_player == null or _music_player.stream == null:
 		return
 	_music_player.play()
-
-func _is_mouse_event(event: InputEvent) -> bool:
-	return event is InputEventMouseMotion or event is InputEventMouseButton
 
 func _is_keyboard_navigation_event(event: InputEvent) -> bool:
 	if not event is InputEventKey:

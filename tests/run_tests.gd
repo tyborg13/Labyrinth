@@ -9188,15 +9188,31 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	key_event.pressed = true
 	instance.call("_unhandled_input", key_event)
 	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus when navigation keys are pressed")
+	var mouse_press := InputEventMouseButton.new()
+	mouse_press.button_index = MOUSE_BUTTON_LEFT
+	mouse_press.pressed = true
+	instance.call("_input", mouse_press)
+	await process_frame
+	_assert(continue_button.has_focus(), "Main menu should not clear focus on mouse down before button clicks can complete")
+	settings_button.pressed.emit()
+	_assert(settings_panel.visible, "Main menu Settings should open its placeholder panel")
+	_assert(not settings_back_button.has_focus(), "Mouse-clicked Settings should not force keyboard focus")
+	settings_back_button.pressed.emit()
+	_assert(not settings_panel.visible, "Main menu Settings back button should close its placeholder panel")
+	instance.call("_unhandled_input", key_event)
+	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus after mouse-clicked Settings closes")
+	var mouse_release := InputEventMouseButton.new()
+	mouse_release.button_index = MOUSE_BUTTON_LEFT
+	mouse_release.pressed = false
+	instance.call("_input", mouse_release)
+	await process_frame
+	_assert(not continue_button.has_focus(), "Main menu should clear keyboard focus after mouse release")
+	instance.call("_unhandled_input", key_event)
+	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus after mouse release clears it")
 	var mouse_event := InputEventMouseMotion.new()
 	instance.call("_input", mouse_event)
 	await process_frame
 	_assert(not continue_button.has_focus(), "Main menu should clear keyboard focus after mouse movement")
-	settings_button.pressed.emit()
-	_assert(settings_panel.visible, "Main menu Settings should open its placeholder panel")
-	_assert(not settings_back_button.has_focus(), "Mouse-opened Settings should not force keyboard focus")
-	settings_back_button.pressed.emit()
-	_assert(not settings_panel.visible, "Main menu Settings back button should close its placeholder panel")
 	_assert(music_player.stream != null, "Main menu should play the temporary relic-room music")
 	_assert(not boss_button.visible, "Main menu should keep the debug boss shortcut hidden by default")
 	instance.queue_free()
