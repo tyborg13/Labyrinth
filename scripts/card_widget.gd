@@ -16,10 +16,11 @@ const HOVER_LIFT: float = -12.0
 const SELECTED_LIFT: float = -5.0
 const HOVER_SCALE: float = 1.04
 const SELECTED_SCALE: float = 1.01
-const READY_WAVE_LIFT: float = -8.0
-const READY_WAVE_SCALE_BONUS: float = 0.035
+const READY_WAVE_LIFT: float = -6.0
+const READY_WAVE_SCALE_BONUS: float = 0.022
 const READY_WAVE_RISE_SECONDS: float = 0.09
 const READY_WAVE_SETTLE_SECONDS: float = 0.20
+const READY_WAVE_GLOW_INSET: float = 4.0
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -1186,21 +1187,22 @@ func play_ready_wave(delay_seconds: float = 0.0) -> void:
 	set_meta("ready_wave_active", true)
 	_ensure_ready_wave_glow()
 	if _ready_wave_glow != null:
+		_sync_ready_wave_glow_geometry()
 		_ready_wave_glow.visible = true
 		_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.0)
-		_ready_wave_glow.scale = Vector2(0.985, 0.985)
+		_ready_wave_glow.scale = Vector2(0.995, 0.995)
 	_ready_wave_tween = create_tween()
 	var safe_delay: float = maxf(0.0, delay_seconds)
 	if safe_delay > 0.0:
 		_ready_wave_tween.tween_interval(safe_delay)
 	_ready_wave_tween.tween_method(_set_ready_wave_progress, 0.0, 1.0, READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if _ready_wave_glow != null:
-		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "modulate:a", 1.0, READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.035, 1.035), READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "modulate:a", 0.82, READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.012, 1.012), READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_ready_wave_tween.tween_method(_set_ready_wave_progress, 1.0, 0.0, READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	if _ready_wave_glow != null:
 		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "modulate:a", 0.0, READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.075, 1.075), READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.028, 1.028), READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_ready_wave_tween.tween_callback(_finish_ready_wave)
 
 func _set_ready_wave_progress(progress: float) -> void:
@@ -1221,33 +1223,38 @@ func _ensure_ready_wave_glow() -> void:
 	_ready_wave_glow = PanelContainer.new()
 	_ready_wave_glow.name = "ReadyWaveGlow"
 	_ready_wave_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ready_wave_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_ready_wave_glow.anchor_right = 1.0
-	_ready_wave_glow.anchor_bottom = 1.0
-	_ready_wave_glow.offset_left = -5.0
-	_ready_wave_glow.offset_top = -5.0
-	_ready_wave_glow.offset_right = 5.0
-	_ready_wave_glow.offset_bottom = 5.0
-	_ready_wave_glow.pivot_offset = BASE_CARD_SIZE * 0.5
 	_ready_wave_glow.z_index = 10
 	_ready_wave_glow.visible = false
 	_ready_wave_glow.add_theme_stylebox_override("panel", _ready_wave_glow_style())
 	add_child(_ready_wave_glow)
+	_sync_ready_wave_glow_geometry()
+
+func _sync_ready_wave_glow_geometry() -> void:
+	if _ready_wave_glow == null:
+		return
+	_ready_wave_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ready_wave_glow.offset_left = READY_WAVE_GLOW_INSET
+	_ready_wave_glow.offset_top = READY_WAVE_GLOW_INSET
+	_ready_wave_glow.offset_right = -READY_WAVE_GLOW_INSET
+	_ready_wave_glow.offset_bottom = -READY_WAVE_GLOW_INSET
+	var base_size: Vector2 = size if size.x > 0.0 and size.y > 0.0 else BASE_CARD_SIZE
+	var glow_size: Vector2 = base_size - Vector2(READY_WAVE_GLOW_INSET * 2.0, READY_WAVE_GLOW_INSET * 2.0)
+	_ready_wave_glow.pivot_offset = glow_size * 0.5
 
 func _ready_wave_glow_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.78, 0.30, 0.08)
-	style.border_color = Color(1.0, 0.88, 0.48, 0.58)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_right = 12
-	style.corner_radius_bottom_left = 12
-	style.shadow_color = Color(1.0, 0.62, 0.22, 0.34)
-	style.shadow_size = 24
+	style.bg_color = Color(1.0, 0.78, 0.30, 0.035)
+	style.border_color = Color(1.0, 0.88, 0.48, 0.34)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 18
+	style.corner_radius_top_right = 18
+	style.corner_radius_bottom_right = 18
+	style.corner_radius_bottom_left = 18
+	style.shadow_color = Color(1.0, 0.62, 0.22, 0.18)
+	style.shadow_size = 10
 	style.shadow_offset = Vector2.ZERO
 	return style
 
