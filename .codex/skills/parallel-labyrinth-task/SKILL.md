@@ -18,7 +18,7 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
 - Any user-facing task runner, visual probe, inspection launch, or other worktree-local command must be a single copy-paste command that starts with `cd <task-worktree> && ...`.
 - If the task came from `.codex/tasks` with a queue id, keep the queue record in sync before ending each lifecycle turn. Use `tools/labyrinth_task_queue.py complete` for ready-for-user handoff, `tools/labyrinth_task_queue.py landed` after approved publish to `master`, and `tools/labyrinth_task_queue.py mark <task-id> abandoned|blocked|rejected` when work is stopped. If the worker cannot update the queue because of permissions or missing host access, report the exact command the orchestrator must run.
-- In app-created worktrees, Git branch, index, ref, and queue writes may require an orchestrator-side bridge because the worker sandbox cannot write the primary checkout's shared `.git` metadata or `.codex/tasks`. If adoption, staging, commit, or queue update fails with `Operation not permitted`, `.git/refs`, `.git/worktrees/*/index.lock`, or `.codex/tasks/*.tmp`, stop and report `needs Git bridge` or `needs queue bridge` with the exact blocked command. Do not create alternate Git directories, detached-HEAD commits, or ad hoc metadata workarounds.
+- In app-created worktrees, Git branch, index, and ref writes must work from the worker sandbox before implementation begins. After adoption, run `git update-index --refresh` as a Git-write smoke check. If adoption, the smoke check, staging, or commit fails with `Operation not permitted`, `.git/refs`, or `.git/worktrees/*/index.lock`, stop before further implementation and report the exact blocked command; the worker is not autonomous under that creation mode. Queue JSON writes may still be orchestrator-owned because they target the primary checkout's `.codex/tasks`. Do not create alternate Git directories, detached-HEAD commits, or ad hoc metadata workarounds.
 
 ## Starting A Task
 
@@ -31,6 +31,14 @@ python3 tools/parallel_task.py adopt --task "<short task description>"
 `adopt` fast-forwards the current clean worktree to the local `master` tip, renames the branch to `codex/<task-id>` when needed, and writes private task metadata. To use the remote tracking branch explicitly, pass `--fetch --base origin/master`.
 
 If an app-created worktree is detached and `adopt` cannot rename the current branch, or if `git switch -c codex/<task-id>` cannot create refs because of sandbox permissions, stop before edits and ask the orchestrator for the host-side Git bridge. The expected bridge is to attach the clean worktree to `codex/<task-id>` from the host side, rerun `python3 tools/parallel_task.py adopt --task-id <task-id> --task "<short task description>"`, then tell the worker to continue.
+
+After any app-worktree adoption or host-side branch repair, run:
+
+```bash
+git update-index --refresh
+```
+
+If that command cannot create or refresh the Git index, stop before editing. A worker that cannot pass this smoke check will almost certainly fail later at `git add`, `parallel_task.py commit`, or follow-up commits.
 
 If you are already inside a shared checkout and need to create the isolated task yourself, run:
 
@@ -98,7 +106,7 @@ When implementation and verification are complete:
 python3 tools/parallel_task.py commit -m "<concise task summary>"
 ```
 
-If staging or commit is blocked by shared Git metadata permissions, stop and report `needs Git bridge`. Include the exact commit command, the explicit task files that should be staged, and any incidental generated dirt that should be restored before commit, such as timestamp-only `.codex/memento/shared/current.json`. Do not report ready-for-user until the branch has a real commit, reviewer signoff, and an inspection fixture or not-applicable reason.
+If staging or commit is blocked by shared Git metadata permissions despite the starting smoke check, stop and report the exact blocked command plus the explicit task files that should be staged. Treat this as an infrastructure regression for the orchestrator to diagnose before launching more workers under the same creation mode. Do not report ready-for-user until the branch has a real commit, reviewer signoff, and an inspection fixture or not-applicable reason.
 
 4. Run the peer review gate below.
 

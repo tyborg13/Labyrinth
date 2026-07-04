@@ -19,7 +19,7 @@ Use this skill to turn reviewed queue items into parallel Codex work. Invoking t
 - Do not use hidden sub-agents as implementation workers. Hidden sub-agents are appropriate for scout review and implementation peer review.
 - Do not push, land, or clean up completed task work until the user explicitly approves.
 - Keep queue state current as part of orchestration, not as a later audit. When a worker reports reviewer signoff and inspection handoff, run `tools/labyrinth_task_queue.py complete`; when the user abandons or blocks work, run `mark abandoned` or `mark blocked`; when approved work lands on `master`, run `landed` before cleanup/reporting. If permissions prevent a queue update, report the exact command still needed.
-- App-created worktrees may start detached, and worker sandboxes may be unable to write the primary checkout's shared Git metadata. The orchestrator owns the host-side Git/queue bridge: attach/adopt app worktrees before implementation starts, commit scoped completed diffs when workers report Git index permission blocks, and update queue files when workers cannot.
+- App-visible worker threads are valid for autonomous implementation only after the worker itself proves it can write the task worktree Git index. Host-side branch/adopt repair can prepare state, but it does not prove the worker sandbox can later stage or commit. Do not let implementation begin until the worker passes the Git-write smoke check in the workflow below. Queue JSON writes may remain orchestrator-owned because they target the primary checkout queue.
 
 ## Host Tool Requirements
 
@@ -68,8 +68,9 @@ python3 tools/labyrinth_task_queue.py select --limit <N> --json
    - Prefer a short standby initial prompt until the app returns a thread id and worktree path. Do not send the full implementation prompt until the host-side branch/adopt preflight below succeeds.
    - Record the returned app thread id and worktree path. If either is unavailable, stop and report the blocker before leasing.
 
-4. Run the host-side app-worktree preflight before leasing or sending the full task prompt.
+4. Run the app-worktree preflight before leasing or sending the full task prompt.
    - App-created project worktrees often start on detached `HEAD`; do not ask the worker sandbox to repair that state.
+   - Prefer creating the task branch before `create_thread`, then create the app worktree from that existing branch with `startingState: {type: "branch", branchName: "codex/<task-id>"}` when the host tool supports it. Do not use `startingState` to invent a branch name; create the branch first if using this path.
    - In the returned worktree, verify it is clean and at the expected base:
 
 ```bash
@@ -92,8 +93,17 @@ cd <thread-worktree-path> && python3 tools/parallel_task.py status
 ```
 
    - If the full worker prompt was already sent and the worker reports `needs Git bridge`, run this same preflight/repair, then send a continuation message telling the worker the branch/adopt state is fixed.
+   - Before leasing or sending the implementation prompt, send a standby smoke-check prompt to the worker and require it to run these commands itself from the app worktree:
 
-5. Lease the task after the thread exists and the host-side preflight succeeds.
+```bash
+python3 tools/parallel_task.py status
+git status --short --branch
+git update-index --refresh
+```
+
+   - `git update-index --refresh` is the minimum non-content Git-write check. If it fails with `Operation not permitted`, `.git/refs`, or `.git/worktrees/*/index.lock`, the worker is not autonomous. Do not proceed with implementation in that thread. Abandon/recreate the worker with a different creation mode, or stop and report that the current Codex app host is not exposing writable Git metadata to app worktree workers.
+
+5. Lease the task after the thread exists and the worker-side Git-write smoke check succeeds.
 
 ```bash
 python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-id> --branch codex/<task-id> --worktree <thread-worktree-path>
@@ -101,15 +111,15 @@ python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-
 
 6. Send the full task prompt.
    - Give each thread the task JSON, queue id, acceptance criteria, proof requirements, and the instruction to use `$parallel-labyrinth-task`.
-   - Tell the worker the app worktree has already been host-adopted when preflight succeeded; the worker should confirm `python3 tools/parallel_task.py status` and `git status --short --branch` before editing.
-   - If a worker still sees detached `HEAD` or cannot write Git metadata, it should stop and report `needs Git bridge` with the exact blocked command.
+   - Tell the worker that the app worktree has passed the Git-write smoke check and that the worker owns normal task-branch staging/commits.
+   - Tell the worker to report queue-complete details if queue JSON writes are blocked; the orchestrator may run queue bookkeeping from the primary checkout.
 
 7. Monitor progress.
    - Read worker threads periodically.
    - Use queue `heartbeat` or `mark` when a worker reports meaningful state changes.
    - If a worker stalls or collides with newer work, mark `blocked` with a note rather than silently relaunching duplicate work.
    - Do not leave a task in `leased` after a worker has clearly finished, been abandoned, or landed. Reconcile the queue in the same turn you observe the state transition.
-   - If a worker reports that staging or committing is blocked by `.git/worktrees/*/index.lock` or another shared-Git permission error, use the host bridge from that worktree: restore only known incidental generated dirt such as timestamp-only `.codex/memento/shared/current.json`, stage explicit task files instead of `git add .`, commit the task branch, verify `git status --short --branch` is clean, then send the worker the commit hash so it can continue to peer review and fixture handoff.
+   - If a worker reports that staging or committing is blocked by `.git/worktrees/*/index.lock` or another shared-Git permission error after the smoke check passed, treat it as a host/sandbox regression, not normal workflow. Pause the task, inspect why the smoke check was insufficient, and only use a host-side commit bridge as an emergency unblock for already-completed work. Do not launch additional workers under the same creation mode until the Git-write smoke check is reliable again.
    - If a worker reports that queue writes are blocked, run the exact `tools/labyrinth_task_queue.py` command from the orchestrator side once the required handoff details are available.
 
 8. Require implementation peer review before user handoff.
@@ -165,13 +175,14 @@ Task proposal:
 Parallel-safety notes:
 <parallel_safety JSON or concise equivalent>
 
-Before editing, confirm the app-created clean worktree was host-adopted:
+Before editing, confirm the app-created clean worktree is adopted and Git-writable:
 python3 tools/parallel_task.py status
 git status --short --branch
+git update-index --refresh
 
-If it is not on `codex/<task-id>`, stop and report `needs Git bridge` with the exact blocked command. Do not invent alternate Git metadata workarounds.
+If it is not on `codex/<task-id>` or the Git-write smoke check fails, stop before editing and report the exact blocked command. Do not invent alternate Git metadata workarounds.
 
-Implement only this task's scope. Commit the finished branch, run the mandatory peer-review gate from $parallel-labyrinth-task, resolve any reviewer feedback, then create a user-inspection fixture with `python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Continue opens>" ...` or explain why no playable fixture applies. Stop for user inspection after reviewer SIGNOFF and the inspection-fixture step. Provide branch, worktree path, head commit, proof run, screenshots/artifacts if relevant, inspection fixture launch command or not-applicable reason, residual risks, and the reviewer signoff summary.
+Implement only this task's scope. Commit the finished branch yourself, run the mandatory peer-review gate from $parallel-labyrinth-task, resolve any reviewer feedback, then create a user-inspection fixture with `python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Continue opens>" ...` or explain why no playable fixture applies. Stop for user inspection after reviewer SIGNOFF and the inspection-fixture step. Provide branch, worktree path, head commit, proof run, screenshots/artifacts if relevant, inspection fixture launch command or not-applicable reason, residual risks, and the reviewer signoff summary. If queue completion is blocked, provide the exact queue `complete` command for the orchestrator to run.
 
 Do not push or clean up. After user approval, the work must land on master, not a remote task branch.
 ```
