@@ -55,9 +55,7 @@ func _initialize() -> void:
 	_test_room_generation_adds_pickups_and_destructible_terrain()
 	_test_special_rooms_use_corner_pillar_layout()
 	_test_room_generation_scales_enemy_density()
-	_test_room_generation_places_frostglass_lancer_at_depth_two_and_three()
-	_test_bile_bloomer_depth_band_spawn_rules()
-	_test_chainbound_gaoler_spawns_without_stacked_control()
+	_test_element_locked_enemy_spawn_rules()
 	_test_boss_room_spawns_zekarion_with_wisps()
 	_test_second_sequence_uses_scaled_zekarion_placeholder()
 	_test_start_room_spawns_emaciated_man()
@@ -148,8 +146,7 @@ func _initialize() -> void:
 	_test_summoned_wisps_receive_preview_intents()
 	_test_zekarion_ignores_shock_status()
 	_test_enemy_pathfinding_avoids_traps()
-	_test_shallow_elemental_enemy_actions_scale_back()
-	_test_cinder_ooze_appears_only_in_standard_depth_pools()
+	_test_enemy_intents_ignore_room_element()
 	_test_status_badges_surface_countdowns()
 	_test_player_restriction_badges_show_turn_lock()
 	_test_air_trap_tooltip_is_damage_only()
@@ -896,130 +893,49 @@ func _test_room_generation_scales_enemy_density() -> void:
 	_assert(int(second_opening_enemy.get("max_hp", 0)) > int(opening_enemy.get("max_hp", 0)), "Second sequence enemies should start from a tougher HP baseline")
 	_assert((boss_room.get("enemies", []) as Array).size() >= 3, "Boss rooms should include support enemies")
 
-func _test_room_generation_places_frostglass_lancer_at_depth_two_and_three() -> void:
+func _test_element_locked_enemy_spawn_rules() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
-	var depth_one_has_lancer: bool = false
-	var depth_two_has_lancer: bool = false
-	var depth_three_has_lancer: bool = false
-	for seed: int in range(100, 150):
-		var depth_one_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed % 5, seed % 7),
-			"depth": 1,
-			"type": "combat"
-		}, Vector2i(1, 0))
-		var depth_two_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed % 5, seed % 7),
-			"depth": 2,
-			"type": "combat"
-		}, Vector2i(1, 0))
-		var depth_three_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed % 5, seed % 7),
-			"depth": 3,
-			"type": "combat"
-		}, Vector2i(1, 0))
-		depth_one_has_lancer = depth_one_has_lancer or _room_has_enemy_type(depth_one_room, "frostglass_lancer")
-		depth_two_has_lancer = depth_two_has_lancer or _room_has_enemy_type(depth_two_room, "frostglass_lancer")
-		depth_three_has_lancer = depth_three_has_lancer or _room_has_enemy_type(depth_three_room, "frostglass_lancer")
-	_assert(not depth_one_has_lancer, "Frostglass Lancer should not appear in depth-one opener pools")
-	_assert(depth_two_has_lancer, "Frostglass Lancer should appear in depth-two precision-threat pools")
-	_assert(depth_three_has_lancer, "Frostglass Lancer should appear in depth-three precision-threat pools")
+	var locked_elements: Dictionary = {
+		"bile_bloomer": ElementData.EARTH,
+		"frostglass_lancer": ElementData.ICE,
+		"cinder_ooze": ElementData.FIRE,
+		"chainbound_gaoler": ElementData.AIR
+	}
+	var room_elements: Array[String] = [ElementData.NONE]
+	for element_id: String in ElementData.all_elements():
+		room_elements.append(element_id)
+	for enemy_type_var: Variant in locked_elements.keys():
+		var enemy_type: String = str(enemy_type_var)
+		var expected_element: String = str(locked_elements.get(enemy_type, ElementData.NONE))
+		_assert(str(GameData.enemy_def(enemy_type).get("element", "")) == expected_element, "%s should declare its locked element in enemy data" % enemy_type)
 
-func _test_cinder_ooze_appears_only_in_standard_depth_pools() -> void:
-	var generator: RoomGenerator = RoomGenerator.new()
-	var depth_two_ooze_count: int = 0
-	var depth_three_ooze_count: int = 0
-	var depth_two_rooms: int = 0
-	var depth_three_rooms: int = 0
-	for seed: int in range(1, 81):
-		var depth_one_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed, 1),
-			"depth": 1,
-			"type": "combat",
-			"element": ElementData.NONE
-		}, Vector2i.ZERO)
-		_assert(not _room_has_enemy_type(depth_one_room, "cinder_ooze"), "Cinder Ooze should stay out of depth-one teaching rooms")
-		_assert(not _room_has_enemy_type(depth_one_room, "cinder_droplet"), "Cinder Droplets should not appear in normal room pools")
-		var depth_two_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed, 2),
-			"depth": 2,
-			"type": "combat",
-			"element": ElementData.NONE
-		}, Vector2i.ZERO)
-		depth_two_rooms += 1
-		if _room_has_enemy_type(depth_two_room, "cinder_ooze"):
-			depth_two_ooze_count += 1
-		_assert(not _room_has_enemy_type(depth_two_room, "cinder_droplet"), "Cinder Droplets should not appear in depth-two normal room pools")
-		var depth_three_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed, 3),
-			"depth": 3,
-			"type": "combat",
-			"element": ElementData.NONE
-		}, Vector2i.ZERO)
-		depth_three_rooms += 1
-		if _room_has_enemy_type(depth_three_room, "cinder_ooze"):
-			depth_three_ooze_count += 1
-		_assert(not _room_has_enemy_type(depth_three_room, "cinder_droplet"), "Cinder Droplets should not appear in depth-three normal room pools")
-		var boss_room: Dictionary = generator.generate_room(seed, {
-			"coord": Vector2i(seed, 4),
-			"depth": 4,
-			"type": "boss",
-			"element": ElementData.LIGHTNING
-		}, Vector2i.ZERO)
-		_assert(not _room_has_enemy_type(boss_room, "cinder_ooze"), "Cinder Ooze should not appear in boss rooms")
-		_assert(not _room_has_enemy_type(boss_room, "cinder_droplet"), "Cinder Droplets should not appear in boss rooms")
-	_assert(depth_two_ooze_count > 0 and depth_two_ooze_count < depth_two_rooms, "Cinder Ooze should appear at low frequency in depth-two standard pools")
-	_assert(depth_three_ooze_count > 0 and depth_three_ooze_count < depth_three_rooms, "Cinder Ooze should appear at low frequency in depth-three standard pools")
-
-func _test_bile_bloomer_depth_band_spawn_rules() -> void:
-	var generator: RoomGenerator = RoomGenerator.new()
-	var depth_two_seen: bool = false
-	var depth_three_seen: bool = false
-	for seed: int in range(64):
-		var depth_one_rng := RandomNumberGenerator.new()
-		depth_one_rng.seed = seed
-		var depth_one_types: Array = generator.call("_encounter_enemy_types", "combat", 1, depth_one_rng)
-		_assert(not depth_one_types.has("bile_bloomer"), "Bile Bloomer should stay out of first simple depth-one compositions")
-
-		var depth_two_rng := RandomNumberGenerator.new()
-		depth_two_rng.seed = seed
-		var depth_two_types: Array = generator.call("_encounter_enemy_types", "combat", 2, depth_two_rng)
-		if depth_two_types.has("bile_bloomer"):
-			depth_two_seen = true
-
-		var depth_three_rng := RandomNumberGenerator.new()
-		depth_three_rng.seed = seed
-		var depth_three_types: Array = generator.call("_encounter_enemy_types", "combat", 3, depth_three_rng)
-		if depth_three_types.has("bile_bloomer"):
-			depth_three_seen = true
-	_assert(depth_two_seen, "Bile Bloomer should appear in mid-depth normal encounter pools")
-	_assert(depth_three_seen, "Bile Bloomer should appear in deep normal encounter pools")
-
-func _test_chainbound_gaoler_spawns_without_stacked_control() -> void:
-	var generator: RoomGenerator = RoomGenerator.new()
-	var saw_depth_two: bool = false
-	var saw_depth_three: bool = false
-	for depth: int in [2, 3]:
-		for seed: int in range(80):
-			var rng := RandomNumberGenerator.new()
-			rng.seed = seed
-			var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng)
-			var gaoler_count: int = 0
-			for enemy_type_var: Variant in enemy_types:
-				if str(enemy_type_var) == "chainbound_gaoler":
-					gaoler_count += 1
-			if gaoler_count <= 0:
-				continue
-			if depth == 2:
-				saw_depth_two = true
-				_assert(enemy_types.size() == 4, "Depth-two Chainbound Gaoler rooms should keep the normal four-enemy density")
+	for depth: int in [1, 2, 3]:
+		var seen: Dictionary = {}
+		for enemy_type_var: Variant in locked_elements.keys():
+			seen[str(enemy_type_var)] = false
+		for room_element: String in room_elements:
+			for seed: int in range(96):
+				var rng := RandomNumberGenerator.new()
+				rng.seed = seed
+				var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng, room_element)
+				_assert(not enemy_types.has("cinder_droplet"), "Cinder Droplets should only come from Cinder Ooze split spawns")
+				for enemy_type_var: Variant in locked_elements.keys():
+					var enemy_type: String = str(enemy_type_var)
+					if not enemy_types.has(enemy_type):
+						continue
+					seen[enemy_type] = true
+					var expected_element: String = str(locked_elements.get(enemy_type, ElementData.NONE))
+					_assert(room_element == expected_element, "%s should only appear in %s rooms" % [enemy_type, ElementData.name(expected_element)])
+					if enemy_type == "chainbound_gaoler":
+						_assert(enemy_types.size() == (4 if depth == 2 else 5), "Chainbound Gaoler rooms should keep normal enemy density")
+						_assert(not enemy_types.has("warden"), "Chainbound Gaoler compositions should avoid pairing with the slow heavy anchor")
+						_assert(not enemy_types.has("lightning_wisp"), "Chainbound Gaoler should stay out of boss/add control pairings")
+		for enemy_type_var: Variant in locked_elements.keys():
+			var enemy_type: String = str(enemy_type_var)
+			if depth == 1:
+				_assert(not bool(seen.get(enemy_type, false)), "%s should stay out of depth-one teaching rooms" % enemy_type)
 			else:
-				saw_depth_three = true
-				_assert(enemy_types.size() == 5, "Depth-three Chainbound Gaoler rooms should keep the normal five-enemy density")
-			_assert(gaoler_count == 1, "Chainbound Gaoler compositions should never stack multiple pull enemies")
-			_assert(not enemy_types.has("warden"), "Chainbound Gaoler compositions should avoid pairing with the slow heavy anchor")
-			_assert(not enemy_types.has("lightning_wisp"), "Chainbound Gaoler should stay out of boss/add control pairings")
-	_assert(saw_depth_two, "Chainbound Gaoler should appear in depth-two normal encounter pools")
-	_assert(saw_depth_three, "Chainbound Gaoler should appear in depth-three normal encounter pools")
+				_assert(bool(seen.get(enemy_type, false)), "%s should appear in its matching element depth-%d pool" % [enemy_type, depth])
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -3009,10 +2925,10 @@ func _test_grave_surgeon_support_actions_scale() -> void:
 	_assert(int(suture_action.get("amount", 0)) == 30, "heal_ally amount should scale from player units into fixed-point combat values")
 	_assert(int(brace_action.get("amount", 0)) == 40, "guard_ally amount should scale from player units into fixed-point combat values")
 	var combat := CombatEngine.new()
-	var shallow_suture: Dictionary = combat.call("_elementalize_enemy_intent", suture, ElementData.NONE, 1)
+	var shallow_suture: Dictionary = combat.call("_scale_enemy_intent", suture, 1)
 	var shallow_heal: Dictionary = (shallow_suture.get("actions", []) as Array)[1]
 	_assert(int(shallow_heal.get("amount", 0)) == 20, "Depth-one support scaling should downshift heal_ally")
-	var later_brace: Dictionary = combat.call("_elementalize_enemy_intent", brace, ElementData.NONE, 6)
+	var later_brace: Dictionary = combat.call("_scale_enemy_intent", brace, 6)
 	var later_guard: Dictionary = (later_brace.get("actions", []) as Array)[1]
 	_assert(int(later_guard.get("amount", 0)) == 60, "Later-sequence support scaling should raise guard_ally")
 
@@ -3151,31 +3067,6 @@ func _test_turn_order_uses_explicit_portraits_for_new_enemy_types() -> void:
 	var unknown_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "unknown_enemy"}))
 	_assert(unknown_path.find("player_reaver.png") >= 0, "Unknown turn-order entries should still fall back safely")
 	instance.free()
-
-func _max_elemental_enemy_move_attack_reach(combat: CombatEngine, element_id: String, room_depth: int) -> int:
-	var max_reach: int = 0
-	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden", "grave_surgeon", "chainbound_gaoler", "bile_bloomer"]:
-		for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
-			if typeof(intent_var) != TYPE_DICTIONARY:
-				continue
-			var intent: Dictionary = combat.call("_elementalize_enemy_intent", intent_var as Dictionary, element_id, room_depth)
-			max_reach = maxi(max_reach, _move_attack_reach_for_intent(intent))
-	return max_reach
-
-func _move_attack_reach_for_intent(intent: Dictionary) -> int:
-	var move_range: int = 0
-	var attack_range: int = 0
-	for action_var: Variant in intent.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = action_var as Dictionary
-		var action_type: String = str(action.get("type", ""))
-		if action_type == "move_toward" or action_type == "move_away":
-			move_range += int(action.get("range", 0))
-		elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
-			var fallback_range: int = 1 if action_type == "melee" else 0
-			attack_range = maxi(attack_range, int(action.get("range", fallback_range)))
-	return move_range + attack_range
 
 func _average_enemy_toward_move(enemy_type: String) -> float:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -4202,62 +4093,47 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	var blocked_after: Dictionary = combat.resolve_enemy_phase(blocked_state)
 	_assert(int((blocked_after.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Frostglass Lancer line thrust should not hit through blocking tiles")
 
-func _test_shallow_elemental_enemy_actions_scale_back() -> void:
+func _test_enemy_intents_ignore_room_element() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var shallow_ice_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "ice", 1)
-	var common_ice_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 4, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "ice", 3)
-	var rare_ice_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "ice", 3)
-	var shallow_ice_action: Dictionary = (shallow_ice_intent.get("actions", [])[0] as Dictionary)
-	var common_ice_action: Dictionary = (common_ice_intent.get("actions", [])[0] as Dictionary)
-	var rare_ice_action: Dictionary = (rare_ice_intent.get("actions", [])[0] as Dictionary)
-	_assert(int(shallow_ice_action.get("freeze", 0)) == 0, "Early-depth ice rooms should not hand enemies full freeze crowd control")
-	_assert(int(common_ice_action.get("freeze", 0)) == 0, "Common ice intents should not freeze on every shot")
-	_assert(int(rare_ice_action.get("freeze", 0)) == 1, "Rarer ice intents should keep their freeze identity")
-	_assert(int(rare_ice_action.get("range", 0)) == 4, "Freeze-bearing ice attacks should use a shorter range than the longest elemental shots")
-	var shallow_lightning_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 1)
-	var common_lightning_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 4, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 3)
-	var rare_lightning_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 3)
-	var shallow_lightning_action: Dictionary = (shallow_lightning_intent.get("actions", [])[0] as Dictionary)
-	var common_lightning_action: Dictionary = (common_lightning_intent.get("actions", [])[0] as Dictionary)
-	var rare_lightning_action: Dictionary = (rare_lightning_intent.get("actions", [])[0] as Dictionary)
-	_assert(int(shallow_lightning_action.get("shock", 0)) == 0, "Early-depth lightning rooms should not hand enemies full shock crowd control")
-	_assert(int(common_lightning_action.get("shock", 0)) == 0, "Common lightning intents should not shock on every shot")
-	_assert(int(rare_lightning_action.get("shock", 0)) == 1, "Rarer lightning intents should keep their shock identity")
-	_assert(int(rare_lightning_action.get("range", 0)) == 4, "Shock-bearing lightning attacks should use a shorter range than the longest elemental shots")
-	var second_sequence_opening: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 5)
-	var second_sequence_deep: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 7)
-	var second_sequence_opening_action: Dictionary = (second_sequence_opening.get("actions", [])[0] as Dictionary)
-	var second_sequence_deep_action: Dictionary = (second_sequence_deep.get("actions", [])[0] as Dictionary)
-	_assert(int(second_sequence_opening_action.get("shock", 0)) == 0, "Second sequence opening rooms should repeat the shallow control curve")
-	_assert(int(second_sequence_opening_action.get("damage", 0)) > int(shallow_lightning_action.get("damage", 0)), "Second sequence opening rooms should still hit from a higher damage baseline")
-	_assert(int(second_sequence_deep_action.get("shock", 0)) == 1, "Second sequence deep rooms should regain full elemental control")
-	var air_lunge_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 2, "actions": [{"type": "move_toward", "range": 4}, {"type": "melee", "damage": 5, "range": 1}]}, "air", 3)
-	var air_lunge_actions: Array = air_lunge_intent.get("actions", [])
-	var air_lunge_move: Dictionary = air_lunge_actions[0] as Dictionary
-	var air_lunge_attack: Dictionary = air_lunge_actions[1] as Dictionary
-	_assert(int(air_lunge_move.get("range", 0)) == 5, "Air rooms should keep their high enemy movement identity")
-	_assert(int(air_lunge_attack.get("range", 0)) == 3, "Air enemy attacks should give back safety by using shorter follow-up range")
-	var lightning_bolt_intent: Dictionary = combat.call("_elementalize_enemy_intent", {"weight": 4, "actions": [{"type": "move_toward", "range": 2}, {"type": "ranged", "damage": 4, "range": 5}]}, "lightning", 3)
-	var lightning_bolt_actions: Array = lightning_bolt_intent.get("actions", [])
-	var lightning_bolt_move: Dictionary = lightning_bolt_actions[0] as Dictionary
-	var lightning_bolt_attack: Dictionary = lightning_bolt_actions[1] as Dictionary
-	_assert(int(lightning_bolt_move.get("range", 0)) == 1, "Lightning rooms should pull enemy movement back while keeping pressure")
-	_assert(int(lightning_bolt_attack.get("range", 0)) == 5, "Lightning rooms should keep their relatively high attack range")
-	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.AIR, 3) == 8, "Air room enemies should no longer combine max movement with four-plus range attacks")
-	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.LIGHTNING, 3) == 6, "Lightning room enemies should leave more movement-based safety than before")
-	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.FIRE, 3) <= 7, "Fire room enemy reach should stay below the extreme mobility threshold")
-	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.ICE, 3) <= 7, "Ice room enemy reach should stay below the extreme mobility threshold")
-	_assert(_max_elemental_enemy_move_attack_reach(combat, ElementData.EARTH, 3) <= 5, "Earth room enemy reach should stay close and punish through durability/status instead")
-	var shallow_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 1)
-	var depth_two_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 2)
-	var deep_fire: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "fire", 3)
-	_assert(int(depth_two_fire.get("burn", 0)) == int(shallow_fire.get("burn", 0)), "Depth-two fire rooms should keep shallow burn pressure")
-	_assert(int(shallow_fire.get("burn", 0)) < int(deep_fire.get("burn", 0)), "Shallow elemental rooms should use lighter status payloads than deeper rooms")
-	var shallow_earth: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "earth", 1)
-	var depth_two_earth: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "earth", 2)
-	var deep_earth: Dictionary = combat.call("_elementalize_enemy_action", {"type": "melee", "damage": 4, "range": 1}, "earth", 3)
-	_assert(int(depth_two_earth.get("poison", 0)) == int(shallow_earth.get("poison", 0)), "Depth-two earth rooms should keep shallow poison pressure")
-	_assert(int(shallow_earth.get("poison", 0)) < int(deep_earth.get("poison", 0)), "Deeper earth rooms should retain a stronger poison identity")
+	var neutral_layout: Dictionary = _simple_room_layout()
+	neutral_layout["depth"] = 2
+	neutral_layout["element"] = ElementData.NONE
+	var neutral_state: Dictionary = combat.create_combat(1785, neutral_layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var neutral_intent: Dictionary = ((neutral_state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {})
+	_assert(not neutral_intent.has("element"), "Enemy intents should not inherit neutral room element markers")
+	for room_element: String in ElementData.all_elements():
+		var elemental_layout: Dictionary = neutral_layout.duplicate(true)
+		elemental_layout["element"] = room_element
+		var elemental_state: Dictionary = combat.create_combat(1785, elemental_layout, {
+			"hp": 24,
+			"max_hp": 24,
+			"deck_cards": ["quick_stab"],
+			"relics": [],
+			"hand_size": 1,
+			"heal_bonus": 0
+		})
+		var elemental_intent: Dictionary = ((elemental_state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {})
+		_assert(elemental_intent == neutral_intent, "%s rooms should not rewrite generic enemy intents" % ElementData.name(room_element))
+		_assert(not elemental_intent.has("element"), "%s rooms should not stamp room element markers onto enemy intents" % ElementData.name(room_element))
+
+	var base_intent: Dictionary = {"weight": 2, "actions": [{"type": "ranged", "damage": 40, "range": 5}]}
+	var shallow_intent: Dictionary = combat.call("_scale_enemy_intent", base_intent, 1)
+	var depth_two_intent: Dictionary = combat.call("_scale_enemy_intent", base_intent, 2)
+	var later_intent: Dictionary = combat.call("_scale_enemy_intent", base_intent, 6)
+	var shallow_action: Dictionary = (shallow_intent.get("actions", []) as Array)[0]
+	var depth_two_action: Dictionary = (depth_two_intent.get("actions", []) as Array)[0]
+	var later_action: Dictionary = (later_intent.get("actions", []) as Array)[0]
+	_assert(str(shallow_action.get("type", "")) == "ranged" and int(shallow_action.get("range", 0)) == 5, "Depth scaling should not change enemy attack shape")
+	_assert(int(shallow_action.get("damage", 0)) == 30, "Depth-one enemy attacks should still downshift damage")
+	_assert(int(depth_two_action.get("damage", 0)) == 40, "Depth-two enemy attacks should keep base damage")
+	_assert(int(later_action.get("damage", 0)) == 60, "Later sequences should still raise enemy attack damage")
 
 func _test_enemy_threat_tiles_follow_intent() -> void:
 	var combat: CombatEngine = CombatEngine.new()
