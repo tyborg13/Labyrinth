@@ -6,14 +6,6 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const OUTPUT_DIR: String = "user://map_travel_probe"
 const START_COORD: Vector2i = Vector2i.ZERO
 const DESTINATION_COORD: Vector2i = Vector2i(1, 0)
-const COMPACT_EDGE_BUFFER: float = 26.0
-const EXPANDED_EDGE_BUFFER: float = 56.0
-const COMPACT_GRID_SPACING: float = 34.0
-const EXPANDED_GRID_SPACING: float = 132.0
-const COMPACT_NODE_MAX_SIZE: float = 24.0
-const EXPANDED_NODE_MAX_SIZE: float = 64.0
-const LEGEND_WIDTH: float = 142.0
-const LEGEND_GAP: float = 18.0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -25,10 +17,21 @@ func _initialize() -> void:
 	quit()
 
 func _capture_map_travel_case(case_name: String, interactive: bool, show_legend: bool, map_size: Vector2, window_size: Vector2i) -> void:
-	var in_transit: Image = _draw_map_proof(interactive, show_legend, map_size, window_size, START_COORD, true, 0.52)
+	var map_view := LabyrinthMapView.new()
+	map_view.interactive = interactive
+	map_view.show_legend = show_legend
+	map_view.draw_background = true
+	map_view.size = map_size
+	map_view.set_run_state(_travel_run_state(START_COORD))
+	map_view.call("begin_travel_animation", START_COORD, DESTINATION_COORD)
+	map_view.set("_travel_progress", 0.52)
+	var in_transit: Image = _draw_map_proof(map_view, window_size)
 	in_transit.save_png("%s/%s_in_transit.png" % [OUTPUT_DIR, case_name])
-	var settled: Image = _draw_map_proof(interactive, show_legend, map_size, window_size, DESTINATION_COORD, false, 1.0)
+	map_view.call("clear_travel_animation")
+	map_view.set_run_state(_travel_run_state(DESTINATION_COORD))
+	var settled: Image = _draw_map_proof(map_view, window_size)
 	settled.save_png("%s/%s_settled.png" % [OUTPUT_DIR, case_name])
+	map_view.free()
 	await process_frame
 
 func _travel_run_state(current_coord: Vector2i) -> Dictionary:
@@ -56,81 +59,103 @@ func _travel_run_state(current_coord: Vector2i) -> Dictionary:
 		}
 	}
 
-func _draw_map_proof(interactive: bool, show_legend: bool, map_size: Vector2, window_size: Vector2i, current_coord: Vector2i, travel_active: bool, travel_progress: float) -> Image:
+func _draw_map_proof(map_view: LabyrinthMapView, window_size: Vector2i) -> Image:
 	var image := Image.create(window_size.x, window_size.y, false, Image.FORMAT_RGBA8)
 	image.fill(Color(0.045, 0.034, 0.028, 1.0))
+	var map_size: Vector2 = map_view.size
 	var origin: Vector2 = (Vector2(window_size) - map_size) * 0.5
 	image.fill_rect(_rect2i(Rect2(origin, map_size)), Color(0.075, 0.055, 0.045, 0.58))
-	var start_position: Vector2 = _coord_position(START_COORD, origin, map_size, interactive, show_legend)
-	var destination_position: Vector2 = _coord_position(DESTINATION_COORD, origin, map_size, interactive, show_legend)
-	var node_size: float = _base_node_size(map_size, interactive, show_legend)
-	_draw_image_line(image, start_position, destination_position, Color(0.025, 0.020, 0.016, 0.68), maxi(3, int(roundf(node_size * 0.34))))
-	_draw_image_line(image, start_position, destination_position, Color("9a8062"), maxi(2, int(roundf(node_size * 0.22))))
-	_draw_room_node_proof(image, start_position, node_size, Color("766d63"), current_coord == START_COORD)
-	_draw_room_node_proof(image, destination_position, node_size, Color("a65a43"), current_coord == DESTINATION_COORD)
-	if travel_active:
-		_draw_travel_proof(image, start_position, destination_position, node_size, travel_progress, interactive)
-	if show_legend:
-		_draw_legend_proof(image, origin, map_size)
+	var run_state: Dictionary = map_view.get("run_state")
+	var rooms: Dictionary = run_state.get("rooms", {})
+	var drawn_connections: Dictionary = {}
+	for room_key: String in rooms.keys():
+		var room: Dictionary = rooms[room_key]
+		if not bool(map_view.call("_room_visible_on_this_map", room)):
+			continue
+		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+		for connection_var: Variant in room.get("connections", []):
+			if typeof(connection_var) != TYPE_DICTIONARY:
+				continue
+			var connection: Dictionary = connection_var
+			var neighbor: Vector2i = connection.get("coord", Vector2i(999, 999))
+			var neighbor_key: String = "%d,%d" % [neighbor.x, neighbor.y]
+			var pair_key: String = "%s|%s" % [room_key, neighbor_key] if room_key < neighbor_key else "%s|%s" % [neighbor_key, room_key]
+			if drawn_connections.has(pair_key):
+				continue
+			var neighbor_room: Dictionary = map_view.call("_room_at", neighbor)
+			if neighbor_room.is_empty() or not bool(map_view.call("_room_visible_on_this_map", neighbor_room)):
+				continue
+			drawn_connections[pair_key] = true
+			_draw_connector_proof(image, map_view, origin, coord, neighbor, bool(room.get("revealed", false)) and bool(neighbor_room.get("revealed", false)))
+	for room_key: String in rooms.keys():
+		var shell_room: Dictionary = rooms[room_key]
+		if bool(map_view.call("_room_visible_on_this_map", shell_room)):
+			_draw_room_shell_proof(image, map_view, origin, shell_room)
+	for command_var: Variant in map_view.call("_travel_visual_commands", "trace"):
+		_draw_travel_command_proof(image, command_var as Dictionary, origin)
+	for room_key: String in rooms.keys():
+		var node_room: Dictionary = rooms[room_key]
+		if bool(map_view.call("_room_visible_on_this_map", node_room)):
+			_draw_room_node_proof(image, map_view, origin, node_room)
+	for command_var: Variant in map_view.call("_travel_visual_commands", "token"):
+		_draw_travel_command_proof(image, command_var as Dictionary, origin)
+	if bool(map_view.get("show_legend")):
+		_draw_legend_proof(image, map_view, origin)
 	return image
 
-func _draw_room_node_proof(image: Image, center: Vector2, base_node_size: float, fill: Color, current: bool) -> void:
-	var node_size: float = base_node_size * (1.22 if current else 1.0)
+func _draw_connector_proof(image: Image, map_view: LabyrinthMapView, origin: Vector2, a: Vector2i, b: Vector2i, revealed: bool) -> void:
+	var a_pos: Vector2 = origin + (map_view.call("_coord_position", a) as Vector2)
+	var b_pos: Vector2 = origin + (map_view.call("_coord_position", b) as Vector2)
+	var thickness: float = maxf(3.0 if not bool(map_view.get("interactive")) else 4.0, float(map_view.call("_base_node_size")) * 0.28)
+	_draw_image_line(image, a_pos, b_pos, Color(0.025, 0.020, 0.016, 0.58), int(roundf(thickness + 2.0)))
+	_draw_image_line(image, a_pos, b_pos, Color("9a8062") if revealed else Color(0.27, 0.23, 0.20, 0.56), int(roundf(thickness)))
+
+func _draw_room_shell_proof(image: Image, map_view: LabyrinthMapView, origin: Vector2, room: Dictionary) -> void:
+	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+	var center: Vector2 = origin + (map_view.call("_coord_position", coord) as Vector2)
+	var node_size: float = float(map_view.call("_base_node_size")) * 0.92
 	var rect := Rect2(center - Vector2.ONE * node_size * 0.5, Vector2.ONE * node_size)
-	image.fill_rect(_rect2i(rect.grow(3.0)), Color(0.0, 0.0, 0.0, 0.28))
-	image.fill_rect(_rect2i(rect), fill)
-	_draw_rect_outline(image, rect, Color("f3e6c5"), 2)
-	if current:
-		_draw_rect_outline(image, rect.grow(5.0), Color("f2c978"), 3)
+	image.fill_rect(_rect2i(rect.grow(2.0 if bool(map_view.get("interactive")) else 1.0)), Color(0.02, 0.015, 0.012, 0.42))
+	image.fill_rect(_rect2i(rect), Color(0.18, 0.15, 0.13, 0.60))
+	_draw_rect_outline(image, rect, Color(0.42, 0.35, 0.31, 0.54), 1)
 
-func _draw_travel_proof(image: Image, start_position: Vector2, destination_position: Vector2, node_size: float, progress: float, interactive: bool) -> void:
-	var clamped_progress: float = clampf(progress, 0.0, 1.0)
-	var token_position: Vector2 = start_position.lerp(destination_position, clamped_progress)
-	var trace_width: int = maxi(2, int(roundf(node_size * 0.11)))
-	_draw_image_line(image, start_position, token_position, Color(0.035, 0.018, 0.004, 0.78), trace_width + 5)
-	_draw_image_line(image, start_position, token_position, Color("ff9d39"), trace_width + 2)
-	_draw_image_line(image, start_position, token_position, Color("ffe39a"), maxi(1, trace_width))
-	_draw_ring(image, destination_position, node_size * (0.64 + 0.08 * sin(clamped_progress * PI)), 2 if interactive else 1, Color(1.0, 0.70, 0.27, 0.58))
-	var mote_count: int = 5 if interactive else 3
-	for index: int in range(mote_count):
-		var mote_t: float = clampf(clamped_progress - float(index) * 0.085, 0.0, 1.0)
-		if mote_t <= 0.0:
-			continue
-		_draw_circle(image, start_position.lerp(destination_position, mote_t), maxf(1.8, node_size * 0.055), Color(1.0, 0.74, 0.28, 0.82))
-	var token_radius: float = clampf(node_size * 0.16, 3.0, 9.0)
-	_draw_circle(image, token_position, token_radius * 1.95, Color(1.0, 0.34, 0.08, 0.34))
-	_draw_circle(image, token_position, token_radius * 1.18, Color("ff9d39"))
-	_draw_circle(image, token_position, token_radius * 0.56, Color("fff0b8"))
+func _draw_room_node_proof(image: Image, map_view: LabyrinthMapView, origin: Vector2, room: Dictionary) -> void:
+	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+	var current: Vector2i = (map_view.get("run_state") as Dictionary).get("current_room", Vector2i.ZERO)
+	var center: Vector2 = origin + (map_view.call("_coord_position", coord) as Vector2)
+	var accessible: bool = (map_view.call("_available_move_coords") as Array).has(coord)
+	var node_size: float = float(map_view.call("_base_node_size"))
+	if coord == current:
+		node_size *= 1.22
+	elif accessible and bool(map_view.get("interactive")):
+		node_size *= 1.08
+	var rect := Rect2(center - Vector2.ONE * node_size * 0.5, Vector2.ONE * node_size)
+	image.fill_rect(_rect2i(rect.grow(2.0 if bool(map_view.get("interactive")) else 1.0)), Color(0.0, 0.0, 0.0, 0.24))
+	image.fill_rect(_rect2i(rect), map_view.call("_room_fill_color", room))
+	_draw_rect_outline(image, rect, map_view.call("_room_border_color", room, accessible), 2)
+	if coord == current:
+		_draw_rect_outline(image, rect.grow(4.0 if bool(map_view.get("interactive")) else 2.5), Color("f2c978"), 2)
 
-func _draw_legend_proof(image: Image, origin: Vector2, map_size: Vector2) -> void:
-	var rect := Rect2(origin + Vector2(map_size.x - EXPANDED_EDGE_BUFFER - LEGEND_WIDTH, EXPANDED_EDGE_BUFFER), Vector2(LEGEND_WIDTH, 256.0))
+func _draw_travel_command_proof(image: Image, command: Dictionary, origin: Vector2) -> void:
+	match str(command.get("type", "")):
+		"line":
+			_draw_image_line(image, origin + (command.get("from", Vector2.ZERO) as Vector2), origin + (command.get("to", Vector2.ZERO) as Vector2), command.get("color", Color.WHITE), int(ceil(float(command.get("width", 1.0)))))
+		"arc":
+			_draw_ring(image, origin + (command.get("center", Vector2.ZERO) as Vector2), float(command.get("radius", 0.0)), int(ceil(float(command.get("width", 1.0)))), command.get("color", Color.WHITE))
+		"circle":
+			_draw_circle(image, origin + (command.get("center", Vector2.ZERO) as Vector2), float(command.get("radius", 0.0)), command.get("color", Color.WHITE))
+
+func _draw_legend_proof(image: Image, map_view: LabyrinthMapView, origin: Vector2) -> void:
+	var rect: Rect2 = map_view.call("_legend_rect")
+	rect.position += origin
 	image.fill_rect(_rect2i(rect), Color(0.08, 0.06, 0.05, 0.82))
 	_draw_rect_outline(image, rect, Color(0.93, 0.85, 0.70, 0.36), 1)
-	var swatches: Array[Color] = [Color("d8b96f"), Color("a65a43"), Color("d9854c"), Color("89a862"), Color("7e65b7"), Color("b75643")]
-	for index: int in range(swatches.size()):
+	var entries: Array = map_view.call("_legend_entries")
+	for index: int in range(mini(entries.size(), 8)):
+		var entry: Dictionary = entries[index]
 		var row_y: float = rect.position.y + 16.0 + float(index) * 30.0
-		image.fill_rect(_rect2i(Rect2(Vector2(rect.position.x + 14.0, row_y), Vector2(18.0, 18.0))), swatches[index])
+		image.fill_rect(_rect2i(Rect2(Vector2(rect.position.x + 14.0, row_y), Vector2(18.0, 18.0))), map_view.call("_room_fill_color", entry.get("room", {})))
 		image.fill_rect(_rect2i(Rect2(Vector2(rect.position.x + 42.0, row_y + 6.0), Vector2(70.0, 5.0))), Color("d9cbb2"))
-
-func _coord_position(coord: Vector2i, origin: Vector2, map_size: Vector2, interactive: bool, show_legend: bool) -> Vector2:
-	var map_rect: Rect2 = _map_rect(origin, map_size, interactive, show_legend)
-	var spacing: float = _grid_spacing(map_size, interactive, show_legend)
-	var coord_offset := Vector2(float(coord.x), float(coord.y)) - Vector2(0.5, 0.0)
-	return map_rect.get_center() + coord_offset * spacing
-
-func _map_rect(origin: Vector2, map_size: Vector2, interactive: bool, show_legend: bool) -> Rect2:
-	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER
-	var legend_width: float = LEGEND_WIDTH + LEGEND_GAP if show_legend else 0.0
-	return Rect2(origin + Vector2(padding, padding), Vector2(maxf(12.0, map_size.x - padding * 2.0 - legend_width), maxf(12.0, map_size.y - padding * 2.0)))
-
-func _grid_spacing(map_size: Vector2, interactive: bool, show_legend: bool) -> float:
-	var map_rect: Rect2 = _map_rect(Vector2.ZERO, map_size, interactive, show_legend)
-	var desired: float = COMPACT_GRID_SPACING if not interactive else EXPANDED_GRID_SPACING
-	return maxf(12.0, minf(desired, map_rect.size.x))
-
-func _base_node_size(map_size: Vector2, interactive: bool, show_legend: bool) -> float:
-	var base: float = _grid_spacing(map_size, interactive, show_legend) * 0.56
-	return clampf(base, 14.0 if not interactive else 20.0, COMPACT_NODE_MAX_SIZE if not interactive else EXPANDED_NODE_MAX_SIZE)
 
 func _rect2i(rect: Rect2) -> Rect2i:
 	return Rect2i(int(roundf(rect.position.x)), int(roundf(rect.position.y)), int(roundf(rect.size.x)), int(roundf(rect.size.y)))

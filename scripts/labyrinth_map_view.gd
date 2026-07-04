@@ -204,18 +204,27 @@ func _can_play_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> boo
 	return _room_visible_on_this_map(from_room) and _room_visible_on_this_map(to_room)
 
 func _draw_travel_trace() -> void:
+	for command_var: Variant in _travel_visual_commands("trace"):
+		_draw_travel_visual_command(command_var as Dictionary)
+
+func _draw_travel_token() -> void:
+	for command_var: Variant in _travel_visual_commands("token"):
+		_draw_travel_visual_command(command_var as Dictionary)
+
+func _travel_visual_commands(layer: String = "") -> Array:
+	var commands: Array = []
 	if not _travel_active:
-		return
+		return commands
 	var from_pos: Vector2 = _coord_position(_travel_from_coord)
 	var to_pos: Vector2 = _coord_position(_travel_to_coord)
 	var end_pos: Vector2 = from_pos.lerp(to_pos, _travel_progress)
 	var base_width: float = clampf(_base_node_size() * 0.13, 2.0, 7.0)
 	if from_pos.distance_to(end_pos) > 0.5:
-		draw_line(from_pos, end_pos, Color(0.035, 0.018, 0.004, 0.66), base_width + 5.0, true)
-		draw_line(from_pos, end_pos, Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.62), base_width + 1.6, true)
-		draw_line(from_pos, end_pos, Color(TRAVEL_TRACE_CORE_COLOR.r, TRAVEL_TRACE_CORE_COLOR.g, TRAVEL_TRACE_CORE_COLOR.b, 0.84), maxf(1.2, base_width * 0.46), true)
+		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(0.035, 0.018, 0.004, 0.66), "width": base_width + 5.0})
+		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.62), "width": base_width + 1.6})
+		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_CORE_COLOR.r, TRAVEL_TRACE_CORE_COLOR.g, TRAVEL_TRACE_CORE_COLOR.b, 0.84), "width": maxf(1.2, base_width * 0.46)})
 	var hint_radius: float = _base_node_size() * (0.64 + 0.08 * sin(_travel_progress * PI))
-	draw_arc(to_pos, hint_radius, 0.0, TAU, 32, Color(1.0, 0.70, 0.27, 0.18 + 0.30 * _travel_progress), 2.0 if interactive else 1.2, true)
+	commands.append({"layer": "trace", "type": "arc", "center": to_pos, "radius": hint_radius, "color": Color(1.0, 0.70, 0.27, 0.18 + 0.30 * _travel_progress), "width": 2.0 if interactive else 1.2})
 	var mote_count: int = 5 if interactive else 3
 	for index: int in range(mote_count):
 		var mote_t: float = clampf(_travel_progress - float(index) * 0.085, 0.0, 1.0)
@@ -223,23 +232,34 @@ func _draw_travel_trace() -> void:
 			continue
 		var center: Vector2 = from_pos.lerp(to_pos, mote_t)
 		var alpha: float = clampf((1.0 - float(index) * 0.13) * _travel_progress, 0.0, 0.78)
-		draw_circle(center, maxf(1.4, base_width * (0.48 - float(index) * 0.035)), Color(1.0, 0.74, 0.28, alpha))
-
-func _draw_travel_token() -> void:
-	if not _travel_active:
-		return
+		commands.append({"layer": "trace", "type": "circle", "center": center, "radius": maxf(1.4, base_width * (0.48 - float(index) * 0.035)), "color": Color(1.0, 0.74, 0.28, alpha)})
 	var token_pos: Vector2 = _travel_token_position()
 	var token_radius: float = clampf(_base_node_size() * 0.16, 3.0, 9.0)
 	var flare: float = sin(_travel_progress * PI)
-	draw_circle(token_pos, token_radius * 1.95, Color(1.0, 0.34, 0.08, 0.18 + 0.16 * flare))
-	draw_circle(token_pos, token_radius * 1.18, Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.88))
-	draw_circle(token_pos, token_radius * 0.56, TRAVEL_TOKEN_COLOR)
-	var from_pos: Vector2 = _coord_position(_travel_from_coord)
-	var to_pos: Vector2 = _coord_position(_travel_to_coord)
+	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.95, "color": Color(1.0, 0.34, 0.08, 0.18 + 0.16 * flare)})
+	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.18, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.88)})
+	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 0.56, "color": TRAVEL_TOKEN_COLOR})
 	var direction: Vector2 = to_pos - from_pos
 	if direction.length() > 0.1:
 		direction = direction.normalized()
-		draw_line(token_pos - direction * token_radius * 2.3, token_pos - direction * token_radius * 0.8, Color(1.0, 0.54, 0.13, 0.42), maxf(1.2, token_radius * 0.52), true)
+		commands.append({"layer": "token", "type": "line", "from": token_pos - direction * token_radius * 2.3, "to": token_pos - direction * token_radius * 0.8, "color": Color(1.0, 0.54, 0.13, 0.42), "width": maxf(1.2, token_radius * 0.52)})
+	if layer.is_empty():
+		return commands
+	var filtered: Array = []
+	for command_var: Variant in commands:
+		var command: Dictionary = command_var
+		if str(command.get("layer", "")) == layer:
+			filtered.append(command)
+	return filtered
+
+func _draw_travel_visual_command(command: Dictionary) -> void:
+	match str(command.get("type", "")):
+		"line":
+			draw_line(command.get("from", Vector2.ZERO), command.get("to", Vector2.ZERO), command.get("color", Color.WHITE), float(command.get("width", 1.0)), true)
+		"arc":
+			draw_arc(command.get("center", Vector2.ZERO), float(command.get("radius", 0.0)), 0.0, TAU, 32, command.get("color", Color.WHITE), float(command.get("width", 1.0)), true)
+		"circle":
+			draw_circle(command.get("center", Vector2.ZERO), float(command.get("radius", 0.0)), command.get("color", Color.WHITE))
 
 func _travel_token_position() -> Vector2:
 	if not _travel_active:
