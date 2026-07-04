@@ -235,6 +235,7 @@ func _initialize() -> void:
 	_test_default_theme_uses_pixel_font()
 	await _test_main_scenes_instantiate()
 	await _test_run_scene_minimap_click_opens_large_map()
+	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
 	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
@@ -6748,6 +6749,65 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	_assert(close_button != null, "Large map should expose a close button")
 	if close_button != null:
 		_assert(absf(close_button.custom_minimum_size.x - close_button.custom_minimum_size.y) <= 1.0, "Large map close button should be boxy instead of a wide native button")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for pre-battle preview coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	instance.call("_close_dialogue")
+
+	var run_engine: RunEngine = RunEngine.new()
+	var run_state: Dictionary = instance.get("_run_state")
+	var combat_coord: Vector2i = Vector2i(999, 999)
+	for coord_var: Variant in run_engine.available_moves(run_state):
+		if typeof(coord_var) != TYPE_VECTOR2I:
+			continue
+		var coord: Vector2i = coord_var
+		var preview_state: Dictionary = run_engine.move_to_room(run_state.duplicate(true), coord)
+		if str(preview_state.get("mode", "")) == "combat" and not (preview_state.get("combat_state", {}) as Dictionary).is_empty():
+			combat_coord = coord
+			break
+	if combat_coord == Vector2i(999, 999):
+		_failures.append("Run scene pre-battle preview test needs an available combat room")
+		instance.queue_free()
+		await process_frame
+		return
+
+	var original_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	await instance.call("_on_map_view_room_selected", combat_coord)
+	await process_frame
+	var preview_scrim: ColorRect = instance.get("_pre_battle_scrim") as ColorRect
+	var preview_panel: PanelContainer = instance.get("_pre_battle_panel") as PanelContainer
+	var paused_state: Dictionary = instance.get("_run_state")
+	_assert(preview_scrim != null and preview_scrim.visible, "Entering an uncleared combat room should show the pre-battle preview first")
+	_assert(str(paused_state.get("mode", "")) == "room", "Pre-battle preview should keep the current run in room mode until Start")
+	_assert(paused_state.get("current_room", Vector2i.ZERO) == original_room, "Pre-battle preview should not seal or move from the current room before Start")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleEnemyCard", true, false) != null, "Pre-battle preview should show enemy visual cards")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleDeckBadge", true, false) != null, "Pre-battle preview should show the current deck as visual badges")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleEquipmentRow", true, false) != null, "Pre-battle preview should show the current loadout icons")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) != null, "Pre-battle preview should show enemy opening intent icons")
+
+	instance.call("_on_pre_battle_equip_pressed")
+	await process_frame
+	var character_scrim: ColorRect = instance.get("_upgrade_scrim") as ColorRect
+	_assert(character_scrim != null and character_scrim.visible, "Pre-battle Equip should open the character loadout overlay")
+	_assert(preview_scrim != null and preview_scrim.visible, "Opening loadout from pre-battle should leave the preview waiting behind it")
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+
+	await instance.call("_on_pre_battle_start_pressed")
+	await process_frame
+	var started_state: Dictionary = instance.get("_run_state")
+	_assert(preview_scrim != null and not preview_scrim.visible, "Starting combat should close the pre-battle preview")
+	_assert(str(started_state.get("mode", "")) == "combat", "Pre-battle Start should enter combat through the normal room move")
+	_assert(started_state.get("current_room", Vector2i.ZERO) == combat_coord, "Pre-battle Start should move to the selected combat room")
+	_assert(not (started_state.get("combat_state", {}) as Dictionary).is_empty(), "Pre-battle Start should create the real combat state")
 	instance.queue_free()
 	await process_frame
 
