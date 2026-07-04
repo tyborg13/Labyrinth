@@ -866,7 +866,7 @@ const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
-const PRE_BATTLE_DECK_BADGE_SIZE: Vector2 = Vector2(72.0, 54.0)
+const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
 const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const TURN_ORDER_PORTRAITS := {
@@ -1678,6 +1678,16 @@ func _pre_battle_style(fill: Color, border: Color, content_margin: float = 10.0,
 	style.content_margin_bottom = content_margin
 	return style
 
+func _sync_pre_battle_overlay_layering() -> void:
+	if _pre_battle_scrim == null:
+		return
+	var character_overlay_open: bool = _upgrade_scrim != null and _upgrade_scrim.visible
+	_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE if character_overlay_open else Control.MOUSE_FILTER_STOP
+	if character_overlay_open:
+		_upgrade_scrim.move_to_front()
+	elif _pre_battle_scrim.visible:
+		_pre_battle_scrim.move_to_front()
+
 func _rebuild_pre_battle_overlay() -> void:
 	if _pre_battle_panel == null:
 		return
@@ -1815,18 +1825,28 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	var flow := HFlowContainer.new()
 	flow.name = "PreBattleEnemyFlow"
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.add_theme_constant_override("h_separation", 12)
-	flow.add_theme_constant_override("v_separation", 12)
 	scroll.add_child(flow)
 
+	var enemies: Array = []
 	for enemy_var: Variant in combat_state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
 		var enemy: Dictionary = enemy_var as Dictionary
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		flow.add_child(_build_pre_battle_enemy_card(enemy, combat_state, accent))
+		enemies.append(enemy)
+	var card_size: Vector2 = _pre_battle_enemy_card_size(enemies.size())
+	var card_gap: int = 8 if enemies.size() >= 5 else 12
+	flow.add_theme_constant_override("h_separation", card_gap)
+	flow.add_theme_constant_override("v_separation", card_gap)
+	for enemy_var: Variant in enemies:
+		flow.add_child(_build_pre_battle_enemy_card(enemy_var as Dictionary, accent, card_size))
 	return panel
+
+func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
+	if enemy_count >= 5:
+		return PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE
+	return PRE_BATTLE_ENEMY_CARD_SIZE
 
 func _build_pre_battle_deck_section(accent: Color) -> Control:
 	var panel := PanelContainer.new()
@@ -1951,13 +1971,13 @@ func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Co
 	row.add_child(line)
 	return row
 
-func _build_pre_battle_enemy_card(enemy: Dictionary, combat_state: Dictionary, room_accent: Color) -> Control:
+func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_size: Vector2) -> Control:
 	var enemy_type: String = str(enemy.get("type", ""))
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 	var accent: Color = room_accent
 	var card := PanelContainer.new()
 	card.name = "PreBattleEnemyCard"
-	card.custom_minimum_size = PRE_BATTLE_ENEMY_CARD_SIZE
+	card.custom_minimum_size = card_size
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.clip_contents = true
 	card.tooltip_text = str(enemy_def.get("name", enemy_type))
@@ -2000,7 +2020,7 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, combat_state: Dictionary, r
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	name_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	name_label.offset_top = PRE_BATTLE_ENEMY_CARD_SIZE.y - 40.0
+	name_label.offset_top = card_size.y - 40.0
 	name_label.offset_left = 8.0
 	name_label.offset_right = -8.0
 	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
@@ -2043,17 +2063,9 @@ func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Contr
 	return chip
 
 func _build_pre_battle_deck_badge(card_id: String) -> Control:
-	var card: Dictionary = GameData.card_def(card_id)
 	var accent: Color = ElementData.accent(GameData.card_element(card_id))
-	var badge := EquipmentCardBadge.new()
-	badge.card_id = card_id
-	badge.host = self
+	var badge: Control = _build_equipment_card_badge(card_id, accent)
 	badge.name = "PreBattleDeckBadge"
-	badge.custom_minimum_size = PRE_BATTLE_DECK_BADGE_SIZE
-	badge.tooltip_text = "card:%s" % card_id
-	badge.clip_contents = true
-	badge.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
-	badge.add_child(_build_card_art_badge_content(card, accent, ""))
 	return badge
 
 func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
@@ -9690,7 +9702,7 @@ func _show_pre_battle_preview() -> bool:
 	if _pre_battle_scrim == null:
 		return false
 	_pre_battle_scrim.visible = true
-	_pre_battle_scrim.move_to_front()
+	_sync_pre_battle_overlay_layering()
 	_animate_pre_battle_entry()
 	return true
 
@@ -9721,6 +9733,7 @@ func _sync_pre_battle_preview_after_refresh() -> void:
 func _close_pre_battle_preview() -> void:
 	if _pre_battle_scrim != null:
 		_pre_battle_scrim.visible = false
+		_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pre_battle_destination = INVALID_TARGET_TILE
 	_pre_battle_door_tile = INVALID_TARGET_TILE
 	_pre_battle_preview_run_state.clear()
@@ -10154,6 +10167,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
+	_sync_pre_battle_overlay_layering()
 
 func _open_level_up_overlay() -> void:
 	if _upgrade_scrim == null or not _can_level_at_campfire():
@@ -10165,6 +10179,7 @@ func _open_level_up_overlay() -> void:
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
+	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
 	if _upgrade_scrim != null:
@@ -10174,6 +10189,7 @@ func _close_card_upgrade_overlay() -> void:
 	_clear_equipment_drag_state(true)
 	_clear_magic_drag_state(true)
 	_clear_item_drag_state(true)
+	_sync_pre_battle_overlay_layering()
 
 func _rebuild_progression_overlay() -> void:
 	if _upgrade_dialog == null:

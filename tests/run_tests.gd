@@ -236,6 +236,7 @@ func _initialize() -> void:
 	await _test_main_scenes_instantiate()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
+	await _test_run_scene_pre_battle_five_enemy_layout_compacts()
 	await _test_run_scene_debug_boss_fixture_boots()
 	await _test_run_scene_offers_pass_during_combat()
 	await _test_run_scene_offers_pass_when_hand_dead()
@@ -6794,6 +6795,14 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleEnemyHealth", true, false) != null, "Pre-battle preview should show enemy health")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) == null, "Pre-battle preview should not reveal enemy opening intents")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleCloseButton", true, false) == null, "Pre-battle preview should not offer a back-out button after room entry")
+	var deck_badge: Control = null
+	if preview_panel != null:
+		deck_badge = preview_panel.find_child("PreBattleDeckBadge", true, false) as Control
+	var deck_badge_name: Label = null
+	if deck_badge != null:
+		deck_badge_name = deck_badge.find_child("CardBadgeName", true, false) as Label
+	_assert(deck_badge != null and deck_badge.custom_minimum_size.x > deck_badge.custom_minimum_size.y * 3.0, "Pre-battle deck badges should reuse the wide character-screen card badge shape")
+	_assert(deck_badge_name != null and not deck_badge_name.text.is_empty(), "Pre-battle deck badges should show the card name over the card art")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
 
@@ -6803,8 +6812,10 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(character_scrim != null and character_scrim.visible, "Pre-battle Equip should open the character loadout overlay")
 	_assert(bool(instance.call("_equipment_overlay_can_change")), "Pre-battle loadout should allow equipment changes after room commitment")
 	_assert(preview_scrim != null and preview_scrim.visible, "Opening loadout from pre-battle should leave the preview waiting behind it")
+	_assert(preview_scrim != null and preview_scrim.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Pre-battle preview should stop intercepting mouse input while loadout is open")
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
+	_assert(preview_scrim != null and preview_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Pre-battle preview should resume intercepting mouse input after loadout closes")
 
 	await instance.call("_on_pre_battle_start_pressed")
 	await process_frame
@@ -6813,6 +6824,41 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(str(started_state.get("mode", "")) == "combat", "Pre-battle Start should enter combat through the normal room move")
 	_assert(started_state.get("current_room", Vector2i.ZERO) == combat_coord, "Pre-battle Start should move to the selected combat room")
 	_assert(not (started_state.get("combat_state", {}) as Dictionary).is_empty(), "Pre-battle Start should create the real combat state")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for five-enemy pre-battle layout coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	instance.call("_close_dialogue")
+	var enemies: Array = []
+	for enemy_type: String in ["warden", "acolyte", "harrier", "crawler", "grave_surgeon"]:
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var max_hp: int = int(enemy_def.get("max_hp", 1))
+		enemies.append({
+			"type": enemy_type,
+			"hp": max_hp,
+			"max_hp": max_hp
+		})
+	var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": enemies}, Color("d8b06d")) as Control
+	root.add_child(enemy_section)
+	await process_frame
+	var enemy_flow: HFlowContainer = enemy_section.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
+	_assert(enemy_flow != null and enemy_flow.get_child_count() == 5, "Five-enemy pre-battle sections should render all enemy cards")
+	if enemy_flow == null:
+		enemy_section.queue_free()
+		instance.queue_free()
+		await process_frame
+		return
+	for index: int in range(enemy_flow.get_child_count()):
+		var card: Control = enemy_flow.get_child(index) as Control
+		_assert(card != null and card.custom_minimum_size.x <= 200.0 and card.custom_minimum_size.y <= 154.0, "Five-enemy pre-battle cards should switch to the compact fixed size")
+	enemy_section.queue_free()
 	instance.queue_free()
 	await process_frame
 

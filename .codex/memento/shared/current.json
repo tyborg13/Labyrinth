@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-04T13:01:00Z",
+  "updated_at": "2026-07-04T13:47:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4687,6 +4687,28 @@
       "source": {
         "branch": "codex/pre-battle-combat-preview-screen",
         "commit": "948ad7e"
+      }
+    },
+    {
+      "id": "mnt_20260704T134754Z_d588aa98",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pre-battle scrim must release mouse input while character overlay is open",
+      "details": "The pre-battle preview scrim is a full-screen input blocker. When Equip opens the character/loadout overlay from pre-battle, keep the preview visible behind it but set the pre-battle scrim mouse_filter to IGNORE and move the character overlay to front; restore STOP when the character overlay closes.",
+      "status": "active",
+      "created_at": "2026-07-04T13:47:54Z",
+      "updated_at": "2026-07-04T13:47:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/pre-battle-combat-preview-screen",
+        "commit": "b464d63"
       }
     }
   ]
