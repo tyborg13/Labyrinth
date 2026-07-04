@@ -284,6 +284,7 @@
   },
   "cinder_ooze": {
     "name": "Cinder Ooze",
+    "element": "fire",
     "max_hp": 14,
     "base_initiative": 13,
     "reward_embers": 12,
@@ -419,6 +420,7 @@
   },
   "bile_bloomer": {
     "name": "Bile Bloomer",
+    "element": "earth",
     "max_hp": 16,
     "base_initiative": 14,
     "reward_embers": 12,
@@ -534,6 +536,7 @@
   },
   "chainbound_gaoler": {
     "name": "Chainbound Gaoler",
+    "element": "air",
     "max_hp": 16,
     "base_initiative": 13,
     "reward_embers": 12,
@@ -677,6 +680,7 @@
   },
   "frostglass_lancer": {
     "name": "Frostglass Lancer",
+    "element": "ice",
     "max_hp": 13,
     "base_initiative": 11,
     "reward_embers": 11,

@@ -112,7 +112,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord, room_type)
 
 	var player_start: Vector2i = entrance_tile
-	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng)
+	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng, room_element)
 	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
@@ -454,11 +454,16 @@ func _local_enemy_hp_scale(depth: int) -> float:
 		_:
 			return 1.0
 
-func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator) -> Array:
+func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator, room_element: String = ElementData.NONE) -> Array:
 	if room_type == "start" or room_type == "campfire" or room_type == "treasure" or room_type == "blacksmith" or room_type == "arcanist" or room_type == "scavenger":
 		return []
 	if room_type == "boss":
 		return ["zekarion", "lightning_wisp", "lightning_wisp"]
+	var pool: Array = _base_encounter_enemy_type_pool(depth)
+	_add_element_locked_enemy_type_pools(pool, depth, room_element)
+	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
+
+func _base_encounter_enemy_type_pool(depth: int) -> Array:
 	var pool: Array = []
 	match depth:
 		1:
@@ -471,26 +476,43 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 			pool = [
 				["warden", "crawler", "crawler", "harrier"],
 				["acolyte", "harrier", "crawler", "grave_surgeon"],
-				["warden", "acolyte", "harrier", "crawler"],
-				["cinder_ooze", "acolyte", "harrier", "crawler"],
-				["chainbound_gaoler", "harrier", "crawler", "crawler"],
-				["bile_bloomer", "crawler", "harrier", "acolyte"],
-				["warden", "crawler", "frostglass_lancer", "harrier"],
-				["acolyte", "harrier", "crawler", "frostglass_lancer"]
+				["warden", "acolyte", "harrier", "crawler"]
 			]
 		_:
 			pool = [
 				["warden", "harrier", "acolyte", "crawler", "grave_surgeon"],
 				["warden", "warden", "crawler", "crawler", "harrier"],
-				["warden", "acolyte", "harrier", "crawler", "grave_surgeon"],
-				["warden", "cinder_ooze", "harrier", "crawler", "crawler"],
-				["chainbound_gaoler", "acolyte", "harrier", "crawler", "crawler"],
-				["bile_bloomer", "warden", "harrier", "crawler", "acolyte"],
-				["warden", "frostglass_lancer", "acolyte", "crawler", "harrier"],
-				["warden", "warden", "crawler", "frostglass_lancer", "harrier"],
-				["warden", "acolyte", "harrier", "frostglass_lancer", "crawler"]
+				["warden", "acolyte", "harrier", "crawler", "grave_surgeon"]
 			]
-	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
+	return pool
+
+func _add_element_locked_enemy_type_pools(pool: Array, depth: int, room_element: String) -> void:
+	match depth:
+		1:
+			return
+		2:
+			match room_element:
+				ElementData.FIRE:
+					pool.append(["cinder_ooze", "acolyte", "harrier", "crawler"])
+				ElementData.EARTH:
+					pool.append(["bile_bloomer", "crawler", "harrier", "acolyte"])
+				ElementData.ICE:
+					pool.append(["warden", "crawler", "frostglass_lancer", "harrier"])
+					pool.append(["acolyte", "harrier", "crawler", "frostglass_lancer"])
+				ElementData.AIR:
+					pool.append(["chainbound_gaoler", "harrier", "crawler", "crawler"])
+		_:
+			match room_element:
+				ElementData.FIRE:
+					pool.append(["warden", "cinder_ooze", "harrier", "crawler", "crawler"])
+				ElementData.EARTH:
+					pool.append(["bile_bloomer", "warden", "harrier", "crawler", "acolyte"])
+				ElementData.ICE:
+					pool.append(["warden", "frostglass_lancer", "acolyte", "crawler", "harrier"])
+					pool.append(["warden", "warden", "crawler", "frostglass_lancer", "harrier"])
+					pool.append(["warden", "acolyte", "harrier", "frostglass_lancer", "crawler"])
+				ElementData.AIR:
+					pool.append(["chainbound_gaoler", "acolyte", "harrier", "crawler", "crawler"])
 
 func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
 	var positions: Array[Vector2i] = []

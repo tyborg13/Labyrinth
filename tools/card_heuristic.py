@@ -11,28 +11,30 @@ enemy density before a boss gate; lateral rooms remain deck-building route
 choices, and emergency outward loop escapes only appear when no revealed,
 unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
-2 uses the base roster plus low-frequency Cinder Ooze split pressure, and depth
+2 uses the base roster plus element-locked specialist pressure, and depth
 3 enemies have 112% HP without an extra generic damage/support bump. Cinder
-Oozes split into summoned, rewardless Cinder Droplets rather than extra ember or
-death-card-play payouts. Frostglass Lancers join depth 2-3 normal pools as
-precision four-tile line-thrust enemies that can move sideways to set up a lane.
-Chainbound Gaolers join depth 2-3 normal pools as
-mid-slow pull/immobilize control anchors without stacking with wardens in their
-seeded compositions. Grave surgeons join depth 2+ frontline pools as low-damage
-support enemies that heal or guard the most injured/threatened nearby enemy on
-the same support scaling curve as enemy block/healing. Bile bloomers sit near
-the slow attrition end at about 19 initiative and use a radius-2 poison diamond
-for their main area-denial intent. Later sequences keep the local curve while
-raising enemy HP and intent baselines. Zekarion's 2x2 footprint makes printed
-reach feel larger, so Tempest Breath is capped at range 3 after its one-tile
-advance to preserve safe boss-room repositioning. Elemental combat rooms seed
-2-3 traps across eligible passable floor tiles, including the playable edge
-band, and those traps blast adjacent tiles when stepped on or attacked.
+Oozes join fire rooms and split into summoned, rewardless Cinder Droplets rather
+than extra ember or death-card-play payouts. Frostglass Lancers join ice rooms
+as precision four-tile line-thrust enemies that can move sideways to set up a
+lane. Chainbound Gaolers join air rooms as mid-slow pull/immobilize control
+anchors without stacking with wardens in their seeded compositions. Grave
+surgeons join depth 2+ frontline pools as low-damage support enemies that heal
+or guard the most injured/threatened nearby enemy on the same support scaling
+curve as enemy block/healing. Bile bloomers join earth rooms near the slow
+attrition end at about 19 initiative and use a radius-2 poison diamond for their
+main area-denial intent. Generic enemies keep their printed intent actions
+instead of being rewritten to match the room element. Later sequences keep the
+local curve while raising enemy HP and intent baselines. Zekarion's 2x2
+footprint makes printed reach feel larger, so Tempest Breath is capped at range
+3 after its one-tile advance to preserve safe boss-room repositioning.
+Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,
+including the playable edge band, and those traps blast adjacent tiles when
+stepped on or attacked.
 First-sequence standard trap damage is 6/7/8 player-scale damage at depths
 1/2/3, first-boss traps hit for 5 to avoid one-shotting full-health lightning
 wisps, and later sequences add 2 player-scale damage per completed sequence.
-Depth 1-2 fire rooms use shallow burn on enemy attacks and fire traps before
-depth-3 fire/earth trap statuses cap at 2. Every room places a 4 HP potion and
+Depth 1-2 fire traps use shallow burn before depth-3 fire/earth trap statuses
+cap at 2. Every room places a 4 HP potion and
 4 block shield, and combat rooms scatter 5-7 low-HP boxes/crates across eligible
 passable floor tiles, including edge-band tiles when connectivity stays intact.
 Those crates block movement without blocking line of sight.

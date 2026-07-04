@@ -32,7 +32,6 @@ const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
 const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -10
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
-const ELEMENTAL_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe"]
 const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
 const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, -1),
@@ -4190,9 +4189,8 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		enemy["intent"] = _zekarion_summon_intent()
 		enemies[enemy_index] = enemy
 		return
-	var intents: Array = _elementalized_enemy_intents(
+	var intents: Array = _scaled_enemy_intents(
 		definition.get("intents", []),
-		str(state.get("room_element", ElementData.NONE)),
 		int(state.get("room_depth", 1))
 	)
 	if intents.is_empty():
@@ -4211,122 +4209,24 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
 	enemies[enemy_index] = enemy
 
-func _elementalized_enemy_intents(base_intents: Array, room_element: String, room_depth: int) -> Array:
+func _scaled_enemy_intents(base_intents: Array, room_depth: int) -> Array:
 	var intents: Array = []
 	for intent_var: Variant in base_intents:
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
-		intents.append(_elementalize_enemy_intent(intent_var as Dictionary, room_element, room_depth))
+		intents.append(_scale_enemy_intent(intent_var as Dictionary, room_depth))
 	return intents
 
-func _elementalize_enemy_intent(base_intent: Dictionary, room_element: String, room_depth: int) -> Dictionary:
+func _scale_enemy_intent(base_intent: Dictionary, room_depth: int) -> Dictionary:
 	var intent: Dictionary = base_intent.duplicate(true)
-	var is_elemental_room: bool = ElementData.is_elemental(room_element)
-	var allow_control: bool = _intent_gets_elemental_control(base_intent, room_element, room_depth)
 	var actions: Array = []
 	for action_var: Variant in base_intent.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = (action_var as Dictionary).duplicate(true)
-		if is_elemental_room:
-			action = _elementalize_enemy_action(action, room_element, room_depth, allow_control)
 		actions.append(_scale_enemy_action_for_depth(action, room_depth))
 	intent["actions"] = actions
-	if is_elemental_room:
-		intent["element"] = room_element
 	return intent
-
-func _intent_gets_elemental_control(base_intent: Dictionary, room_element: String, room_depth: int) -> bool:
-	if room_element not in [ElementData.ICE, ElementData.LIGHTNING]:
-		return false
-	if _encounter_depth_for_room_depth(room_depth) < 3:
-		return false
-	return int(base_intent.get("weight", 1)) <= 2
-
-func _elementalize_enemy_action(base_action: Dictionary, room_element: String, room_depth: int, allow_control: bool = true) -> Dictionary:
-	var action: Dictionary = base_action.duplicate(true)
-	var action_type: String = str(action.get("type", ""))
-	var encounter_depth: int = _encounter_depth_for_room_depth(room_depth)
-	var full_power: bool = encounter_depth >= 3
-	var medium_power: bool = encounter_depth >= 2
-	match room_element:
-		ElementData.FIRE:
-			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
-				if action_type in ["ranged", "aoe"]:
-					action["type"] = "aoe"
-					if not action.has("pattern"):
-						action["pattern"] = DEFAULT_AOE_PATTERN.duplicate(true)
-					action["rotate"] = bool(action.get("rotate", true))
-				action["damage"] = int(action.get("damage", 0)) + GameData.fixed_point_amount(2 if medium_power else 1)
-				var fire_burn_amount: int = GameData.fixed_point_amount(2 if full_power else 1)
-				action["burn"] = maxi(
-					fire_burn_amount,
-					int(action.get("burn", 0)) + fire_burn_amount
-				)
-				if full_power and int(action.get("damage", 0)) >= GameData.fixed_point_amount(6):
-					action["self_damage"] = maxi(GameData.fixed_point_amount(1), int(action.get("self_damage", 0)))
-		ElementData.ICE:
-			if action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
-				var base_range: int = int(action.get("range", 1))
-				var range_floor: int = 4 if action_type == "ranged" else 3
-				action["type"] = "ranged"
-				action["range"] = maxi(range_floor, base_range)
-				if allow_control:
-					action["range"] = mini(int(action.get("range", 0)), 4)
-				action.erase("pattern")
-				action.erase("rotate")
-				if allow_control:
-					action["freeze"] = 1
-				else:
-					action.erase("freeze")
-		ElementData.LIGHTNING:
-			if action_type == "move_toward" or action_type == "move_away":
-				var lightning_move_range: int = int(action.get("range", 0))
-				if lightning_move_range > 0:
-					action["range"] = maxi(1, lightning_move_range - 1)
-			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
-				var base_range: int = int(action.get("range", 1))
-				var range_floor: int = 4 if action_type == "ranged" else 3
-				action["type"] = "ranged"
-				action["range"] = maxi(range_floor, base_range)
-				if allow_control:
-					action["range"] = mini(int(action.get("range", 0)), 4)
-				action.erase("pattern")
-				action.erase("rotate")
-				if allow_control:
-					action["shock"] = 1
-				else:
-					action.erase("shock")
-		ElementData.AIR:
-			if action_type == "move_toward" or action_type == "move_away":
-				action["range"] = int(action.get("range", 0)) + (1 if medium_power else 0)
-			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
-				action["type"] = "ranged"
-				action["range"] = mini(4, maxi(3, int(action.get("range", 1))))
-				action.erase("pattern")
-				action.erase("rotate")
-				action["damage"] = maxi(GameData.fixed_point_amount(1), int(action.get("damage", 0)) - GameData.fixed_point_amount(2))
-				if int(action.get("damage", 0)) % 2 == 0:
-					action["push"] = maxi(1, int(action.get("push", 0)) + (2 if full_power else 1))
-				else:
-					action["pull"] = maxi(1, int(action.get("pull", 0)) + (2 if full_power else 1))
-		ElementData.EARTH:
-			if action_type == "block":
-				action["type"] = "stoneskin"
-			elif action_type in ELEMENTAL_ATTACK_ACTION_TYPES:
-				action["type"] = "melee"
-				action["range"] = mini(2, maxi(1, int(action.get("range", 1))))
-				action.erase("pattern")
-				action.erase("rotate")
-				action["damage"] = int(action.get("damage", 0)) + GameData.fixed_point_amount(1 if medium_power else 0)
-				var poison_bonus: int = 1
-				if full_power:
-					poison_bonus = 2
-				action["poison"] = maxi(
-					GameData.fixed_point_amount(2 if full_power else 1),
-					int(action.get("poison", 0)) + GameData.fixed_point_amount(poison_bonus)
-				)
-	return action
 
 func _encounter_depth_for_room_depth(room_depth: int) -> int:
 	return posmod(maxi(1, room_depth) - 1, DEPTHS_PER_SEQUENCE) + 1
