@@ -86,10 +86,13 @@ Encounter calibration is also important:
   their support amounts follow the same depth/sequence support curve as enemy
   block and healing. Depth reduces enemy base initiative by up to `4` over
   time.
-- Cinder Oozes enter normal local depth `2-3` pools at low frequency. Their
-  split creates up to two summoned Cinder Droplets on nearby legal tiles; the
-  droplets add cleanup pressure but grant no embers and no death card-play
-  bonus.
+- Specialist enemies enter normal local depth `2-3` pools only in matching
+  elemental rooms: Cinder Oozes in fire, Frostglass Lancers in ice, Chainbound
+  Gaolers in air, and Bile Bloomers in earth. Generic enemies keep their own
+  printed intent actions instead of being rewritten to match the room element.
+- Cinder Oozes split into up to two summoned Cinder Droplets on nearby legal
+  tiles; the droplets add cleanup pressure but grant no embers and no death
+  card-play bonus.
 - Grave surgeons enter normal local depth `2-3` pools as support enemies that
   lower direct pressure while extending allied bodies.
 - Chainbound Gaolers enter normal local depth `2-3` pools at low frequency as
@@ -100,7 +103,7 @@ Encounter calibration is also important:
 - Frostglass Lancers enter normal local depth `2-3` pools as precision
   four-tile line-thrust enemies that can move sideways to set up a lane, so
   lateral movement and blocker-aware positioning matter more once the opener band is past.
-- Later sequences keep the same local density and elemental-control curve, but
+- Later sequences keep the same local density and elemental room-pressure curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
@@ -123,9 +126,9 @@ Encounter calibration is also important:
   one-shotting full-health lightning wisps; all generated traps gain `+2`
   player-scale damage per completed depth sequence. Depth-3 fire and earth
   trap statuses are capped at `2`.
-- Fire burn ramps gently in the first sequence: depth `1-2` fire enemy attacks
-  and traps apply shallow burn pressure, then deeper standard fire rooms restore
-  the heavier burn payload.
+- Fire trap burn ramps gently in the first sequence: depth `1-2` fire traps
+  apply shallow burn pressure, then deeper standard fire rooms restore the
+  heavier trap payload.
 - Every room places a `4` HP healing potion and a `4` block rusty shield as
   floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates across
   eligible passable floor tiles, including edge-band and corner floor tiles when
