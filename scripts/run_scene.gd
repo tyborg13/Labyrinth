@@ -9195,13 +9195,17 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	if not _run_engine.available_moves(_run_state).has(coord):
 		return
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_coord: Vector2i = previous_run_state.get("current_room", Vector2i(-999, -999))
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
+	var map_travel_started: bool = _begin_map_travel_animation(previous_coord, coord)
 	_animation_lock = true
 	_reset_card_resolution()
 	_hovered_board_tile = selected_door_tile
 	_refresh_ui()
 	if selected_door_tile.x >= 0:
 		await _play_door_opening_animation(selected_door_tile)
+	elif map_travel_started:
+		await get_tree().create_timer(_map_travel_animation_seconds()).timeout
 	_run_state = _run_engine.move_to_room(_run_state, coord)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
@@ -9211,6 +9215,19 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	_reset_card_resolution()
 	_hovered_board_tile = Vector2i(-1, -1)
 	_refresh_ui()
+
+func _begin_map_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
+	var started: bool = false
+	if mini_map != null and mini_map.has_method("begin_travel_animation"):
+		started = bool(mini_map.call("begin_travel_animation", from_coord, to_coord)) or started
+	if _large_map_view != null and _large_map_scrim != null and _large_map_scrim.visible and _large_map_view.has_method("begin_travel_animation"):
+		started = bool(_large_map_view.call("begin_travel_animation", from_coord, to_coord)) or started
+	return started
+
+func _map_travel_animation_seconds() -> float:
+	if mini_map != null and mini_map.has_method("travel_animation_seconds"):
+		return float(mini_map.call("travel_animation_seconds"))
+	return 0.0
 
 func _play_door_opening_animation(door_tile: Vector2i) -> void:
 	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)

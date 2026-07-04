@@ -211,6 +211,7 @@ func _initialize() -> void:
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_room_icon_library_covers_door_room_types()
 	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
+	_test_minimap_travel_animation_state()
 	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
 	_test_run_map_relic_room_spacing_and_density()
@@ -6111,6 +6112,48 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	_assert(not _map_visible_coords(map_view).has(Vector2i(3, 0)), "Compact minimap should not reveal distant dropped embers")
 	map_view.set("interactive", true)
 	_assert(_map_visible_coords(map_view).has(Vector2i(3, 0)), "Full map should show the dropped ember room at its exact coordinate")
+	map_view.free()
+
+func _test_minimap_travel_animation_state() -> void:
+	var map_view := LabyrinthMapView.new()
+	map_view.set("interactive", false)
+	map_view.set("show_legend", false)
+	map_view.size = Vector2(220.0, 188.0)
+	map_view.set_run_state({
+		"mode": "room",
+		"current_room": Vector2i.ZERO,
+		"rooms": {
+			"0,0": {
+				"coord": Vector2i.ZERO,
+				"type": "start",
+				"revealed": true,
+				"cleared": true,
+				"connections": [{"coord": Vector2i(1, 0)}]
+			},
+			"1,0": {
+				"coord": Vector2i(1, 0),
+				"type": "combat",
+				"element": "fire",
+				"revealed": true,
+				"cleared": false,
+				"connections": [{"coord": Vector2i.ZERO}]
+			}
+		}
+	})
+	var start_position: Vector2 = map_view.call("_coord_position", Vector2i.ZERO)
+	var destination_position: Vector2 = map_view.call("_coord_position", Vector2i(1, 0))
+	_assert(bool(map_view.call("begin_travel_animation", Vector2i.ZERO, Vector2i(1, 0))), "Minimap should start a travel animation between visible connected rooms")
+	_assert(bool(map_view.get("_travel_active")), "Minimap should mark travel animation active after a valid move starts")
+	_assert(map_view.get("_travel_from_coord") == Vector2i.ZERO, "Travel animation should remember the previous room coordinate")
+	_assert(map_view.get("_travel_to_coord") == Vector2i(1, 0), "Travel animation should remember the destination room coordinate")
+	map_view.set("_travel_progress", 0.5)
+	var token_position: Vector2 = map_view.call("_travel_token_position")
+	_assert(token_position.distance_to(start_position) > 1.0, "Travel token should leave the previous room while in transit")
+	_assert(token_position.distance_to(destination_position) > 1.0, "Travel token should not instantly snap to the destination")
+	_assert(((map_view.get("run_state") as Dictionary).get("current_room", Vector2i.ZERO) == Vector2i.ZERO), "Minimap current-room highlight should remain on the previous room until run state changes")
+	map_view.call("clear_travel_animation")
+	_assert(not bool(map_view.get("_travel_active")), "Minimap should clear travel animation state after settlement")
+	_assert(not bool(map_view.call("begin_travel_animation", Vector2i(-999, -999), Vector2i(1, 0))), "Minimap travel animation should no-op cleanly without a previous room coordinate")
 	map_view.free()
 
 func _test_combat_board_loads_door_icons_for_room_types() -> void:
