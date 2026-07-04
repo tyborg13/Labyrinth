@@ -18,6 +18,7 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
 - Any user-facing task runner, visual probe, inspection launch, or other worktree-local command must be a single copy-paste command that starts with `cd <task-worktree> && ...`.
 - If the task came from `.codex/tasks` with a queue id, keep the queue record in sync before ending each lifecycle turn. Use `tools/labyrinth_task_queue.py complete` for ready-for-user handoff, `tools/labyrinth_task_queue.py landed` after approved publish to `master`, and `tools/labyrinth_task_queue.py mark <task-id> abandoned|blocked|rejected` when work is stopped. If the worker cannot update the queue because of permissions or missing host access, report the exact command the orchestrator must run.
+- In app-created worktrees, Git branch, index, ref, and queue writes may require an orchestrator-side bridge because the worker sandbox cannot write the primary checkout's shared `.git` metadata or `.codex/tasks`. If adoption, staging, commit, or queue update fails with `Operation not permitted`, `.git/refs`, `.git/worktrees/*/index.lock`, or `.codex/tasks/*.tmp`, stop and report `needs Git bridge` or `needs queue bridge` with the exact blocked command. Do not create alternate Git directories, detached-HEAD commits, or ad hoc metadata workarounds.
 
 ## Starting A Task
 
@@ -28,6 +29,8 @@ python3 tools/parallel_task.py adopt --task "<short task description>"
 ```
 
 `adopt` fast-forwards the current clean worktree to the local `master` tip, renames the branch to `codex/<task-id>` when needed, and writes private task metadata. To use the remote tracking branch explicitly, pass `--fetch --base origin/master`.
+
+If an app-created worktree is detached and `adopt` cannot rename the current branch, or if `git switch -c codex/<task-id>` cannot create refs because of sandbox permissions, stop before edits and ask the orchestrator for the host-side Git bridge. The expected bridge is to attach the clean worktree to `codex/<task-id>` from the host side, rerun `python3 tools/parallel_task.py adopt --task-id <task-id> --task "<short task description>"`, then tell the worker to continue.
 
 If you are already inside a shared checkout and need to create the isolated task yourself, run:
 
@@ -94,6 +97,8 @@ When implementation and verification are complete:
 ```bash
 python3 tools/parallel_task.py commit -m "<concise task summary>"
 ```
+
+If staging or commit is blocked by shared Git metadata permissions, stop and report `needs Git bridge`. Include the exact commit command, the explicit task files that should be staged, and any incidental generated dirt that should be restored before commit, such as timestamp-only `.codex/memento/shared/current.json`. Do not report ready-for-user until the branch has a real commit, reviewer signoff, and an inspection fixture or not-applicable reason.
 
 4. Run the peer review gate below.
 
