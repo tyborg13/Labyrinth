@@ -61,12 +61,20 @@ func _capture_pre_battle_preview() -> void:
 			_fail("Pre-battle preview should render deck badges")
 		if panel.find_child("PreBattleEquipmentRow", true, false) == null:
 			_fail("Pre-battle preview should render equipment icons")
-		if panel.find_child("PreBattleIntentRow", true, false) == null:
-			_fail("Pre-battle preview should render intent icons")
+		if panel.find_child("PreBattleEnemyHealth", true, false) == null:
+			_fail("Pre-battle preview should render enemy health")
+		if panel.find_child("PreBattleIntentRow", true, false) != null:
+			_fail("Pre-battle preview should not render enemy intent icons")
+		if panel.find_child("PreBattleCloseButton", true, false) != null:
+			_fail("Pre-battle preview should not offer a back-out button")
 
 	var paused_state: Dictionary = instance.get("_run_state")
-	if str(paused_state.get("mode", "")) != "room":
-		_fail("Pre-battle preview should not enter combat before Start")
+	if str(paused_state.get("mode", "")) != RunEngine.MODE_PRE_BATTLE:
+		_fail("Pre-battle preview should commit to pre-battle mode before Start")
+	if paused_state.get("current_room", INVALID_COORD) != combat_coord:
+		_fail("Pre-battle preview should already be in the selected room")
+	if not (paused_state.get("combat_state", {}) as Dictionary).is_empty():
+		_fail("Pre-battle preview should not create the real combat state before Start")
 	await _save_root_screenshot("%s/pre_battle_preview.png" % OUTPUT_DIR)
 	instance.queue_free()
 	await process_frame

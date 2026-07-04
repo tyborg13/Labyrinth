@@ -6779,24 +6779,29 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 		await process_frame
 		return
 
-	var original_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	await instance.call("_on_map_view_room_selected", combat_coord)
 	await process_frame
 	var preview_scrim: ColorRect = instance.get("_pre_battle_scrim") as ColorRect
 	var preview_panel: PanelContainer = instance.get("_pre_battle_panel") as PanelContainer
 	var paused_state: Dictionary = instance.get("_run_state")
-	_assert(preview_scrim != null and preview_scrim.visible, "Entering an uncleared combat room should show the pre-battle preview first")
-	_assert(str(paused_state.get("mode", "")) == "room", "Pre-battle preview should keep the current run in room mode until Start")
-	_assert(paused_state.get("current_room", Vector2i.ZERO) == original_room, "Pre-battle preview should not seal or move from the current room before Start")
+	_assert(preview_scrim != null and preview_scrim.visible, "Entering an uncleared combat room should show the committed pre-battle preview")
+	_assert(str(paused_state.get("mode", "")) == RunEngine.MODE_PRE_BATTLE, "Pre-battle preview should use a committed pre-battle run mode until Start")
+	_assert(paused_state.get("current_room", Vector2i.ZERO) == combat_coord, "Pre-battle preview should move into the selected combat room before showing details")
+	_assert((paused_state.get("combat_state", {}) as Dictionary).is_empty(), "Pre-battle preview should not create the real combat state before Start")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleEnemyCard", true, false) != null, "Pre-battle preview should show enemy visual cards")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleDeckBadge", true, false) != null, "Pre-battle preview should show the current deck as visual badges")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleEquipmentRow", true, false) != null, "Pre-battle preview should show the current loadout icons")
-	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) != null, "Pre-battle preview should show enemy opening intent icons")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleEnemyHealth", true, false) != null, "Pre-battle preview should show enemy health")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) == null, "Pre-battle preview should not reveal enemy opening intents")
+	_assert(preview_panel != null and preview_panel.find_child("PreBattleCloseButton", true, false) == null, "Pre-battle preview should not offer a back-out button after room entry")
+	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
+	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
 
 	instance.call("_on_pre_battle_equip_pressed")
 	await process_frame
 	var character_scrim: ColorRect = instance.get("_upgrade_scrim") as ColorRect
 	_assert(character_scrim != null and character_scrim.visible, "Pre-battle Equip should open the character loadout overlay")
+	_assert(bool(instance.call("_equipment_overlay_can_change")), "Pre-battle loadout should allow equipment changes after room commitment")
 	_assert(preview_scrim != null and preview_scrim.visible, "Opening loadout from pre-battle should leave the preview waiting behind it")
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame

@@ -868,7 +868,6 @@ const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
 const PRE_BATTLE_DECK_BADGE_SIZE: Vector2 = Vector2(72.0, 54.0)
 const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
-const PRE_BATTLE_INTENT_ICON_SIZE: Vector2 = Vector2(28.0, 28.0)
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
@@ -1687,7 +1686,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if combat_state.is_empty():
 		return
-	var room: Dictionary = _run_engine.room_metadata(preview_state, preview_state.get("current_room", _pre_battle_destination))
+	var room: Dictionary = _run_engine.room_metadata(preview_state, preview_state.get("current_room", _run_state.get("current_room", _pre_battle_destination)))
 	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
@@ -1756,64 +1755,33 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	start_button.custom_minimum_size.x = 158.0
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
 	row.add_child(start_button)
-
-	var close_button := Button.new()
-	close_button.name = "PreBattleCloseButton"
-	close_button.text = "X"
-	close_button.tooltip_text = "Back"
-	_apply_progression_stepper_button_style(close_button)
-	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
-	close_button.custom_minimum_size = Vector2(46.0, 46.0)
-	close_button.pressed.connect(_close_pre_battle_preview)
-	row.add_child(close_button)
 	return row
 
 func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
-	var chip := PanelContainer.new()
+	var chip := VBoxContainer.new()
 	chip.name = "PreBattleRoomChip"
-	chip.custom_minimum_size = Vector2(430.0, 58.0)
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.040, 0.030, 0.026, 0.88), accent.darkened(0.04), 8.0, 8))
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	chip.add_child(margin)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	margin.add_child(row)
-	var icon_panel := PanelContainer.new()
-	icon_panel.custom_minimum_size = Vector2(42.0, 42.0)
-	icon_panel.add_theme_stylebox_override("panel", _equipment_icon_style(accent))
-	row.add_child(icon_panel)
-	var icon := TextureRect.new()
-	icon.texture = RoomIcons.icon_texture(RoomIcons.icon_id_for_room(room))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_panel.add_child(icon)
-	var title_box := VBoxContainer.new()
-	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_box.add_theme_constant_override("separation", 0)
-	row.add_child(title_box)
+	chip.custom_minimum_size = Vector2(510.0, 62.0)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.add_theme_constant_override("separation", 0)
 	var title := Label.new()
-	title.text = str(combat_state.get("room_name", room.get("name", "Combat")))
+	var header_room: Dictionary = room.duplicate(true)
+	header_room["name"] = str(combat_state.get("room_name", room.get("name", "Combat")))
+	header_room["type"] = str(combat_state.get("room_type", room.get("type", "combat")))
+	header_room["element"] = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
+	title.text = _room_title_text(header_room)
 	title.clip_text = true
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
-	title.add_theme_color_override("font_color", Color("fff0ce"))
-	title.add_theme_color_override("font_outline_color", Color("130d09"))
-	title.add_theme_constant_override("outline_size", 1)
-	title_box.add_child(title)
+	UiTypography.set_label_size(title, UiTypography.SIZE_TITLE + 3)
+	title.add_theme_color_override("font_color", accent if ElementData.is_elemental(str(header_room.get("element", ElementData.NONE))) else Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 2)
+	chip.add_child(title)
 	var meta := Label.new()
-	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
-	var element_label: String = ElementData.name(room_element) if ElementData.is_elemental(room_element) else "Depth"
-	meta.text = "%s %d" % [element_label, int(combat_state.get("room_depth", room.get("depth", 0)))]
+	meta.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
 	meta.clip_text = true
-	UiTypography.set_label_size(meta, UiTypography.SIZE_CAPTION)
+	UiTypography.set_label_size(meta, UiTypography.SIZE_SECTION)
 	meta.add_theme_color_override("font_color", accent.lightened(0.28))
-	title_box.add_child(meta)
+	chip.add_child(meta)
 	return chip
 
 func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
@@ -1986,8 +1954,7 @@ func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Co
 func _build_pre_battle_enemy_card(enemy: Dictionary, combat_state: Dictionary, room_accent: Color) -> Control:
 	var enemy_type: String = str(enemy.get("type", ""))
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-	var intent: Dictionary = (enemy.get("intent", {}) as Dictionary).duplicate(true)
-	var accent: Color = _pre_battle_intent_accent(intent, room_accent)
+	var accent: Color = room_accent
 	var card := PanelContainer.new()
 	card.name = "PreBattleEnemyCard"
 	card.custom_minimum_size = PRE_BATTLE_ENEMY_CARD_SIZE
@@ -2013,7 +1980,7 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, combat_state: Dictionary, r
 	art.offset_left = 6.0
 	art.offset_top = 6.0
 	art.offset_right = -6.0
-	art.offset_bottom = -34.0
+	art.offset_bottom = -42.0
 	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
 	stack.add_child(art)
 
@@ -2033,7 +2000,7 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, combat_state: Dictionary, r
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	name_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	name_label.offset_top = PRE_BATTLE_ENEMY_CARD_SIZE.y - 36.0
+	name_label.offset_top = PRE_BATTLE_ENEMY_CARD_SIZE.y - 40.0
 	name_label.offset_left = 8.0
 	name_label.offset_right = -8.0
 	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
@@ -2045,10 +2012,6 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, combat_state: Dictionary, r
 	var hp := _build_pre_battle_enemy_hp_badge(enemy, accent)
 	hp.position = Vector2(8.0, 8.0)
 	stack.add_child(hp)
-
-	var intent_row := _build_pre_battle_intent_row(enemy, intent, combat_state, accent)
-	intent_row.position = Vector2(8.0, PRE_BATTLE_ENEMY_CARD_SIZE.y - 72.0)
-	stack.add_child(intent_row)
 	return card
 
 func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Control:
@@ -2069,82 +2032,15 @@ func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Contr
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	row.add_child(icon)
 	var label := Label.new()
-	label.text = str(int(enemy.get("max_hp", enemy.get("hp", 0))))
+	var hp: int = int(enemy.get("hp", 0))
+	var max_hp: int = int(enemy.get("max_hp", hp))
+	label.text = str(hp) if hp == max_hp else "%d/%d" % [hp, max_hp]
 	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
 	label.add_theme_color_override("font_color", Color("fff0ce"))
 	label.add_theme_color_override("font_outline_color", Color("100907"))
 	label.add_theme_constant_override("outline_size", 1)
 	row.add_child(label)
 	return chip
-
-func _build_pre_battle_intent_row(enemy: Dictionary, intent: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
-	var row := HBoxContainer.new()
-	row.name = "PreBattleIntentRow"
-	row.custom_minimum_size = Vector2(PRE_BATTLE_ENEMY_CARD_SIZE.x - 16.0, 32.0)
-	row.size = row.custom_minimum_size
-	row.add_theme_constant_override("separation", 4)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var rows: Array = _pre_battle_intent_token_rows(enemy, intent, combat_state)
-	var token_count: int = 0
-	for row_var: Variant in rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			continue
-		var tokens: Array = row_var as Array
-		for token_var: Variant in tokens:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				continue
-			var token: Dictionary = token_var as Dictionary
-			row.add_child(_build_pre_battle_token_chip(token, accent))
-			token_count += 1
-			if token_count >= 5:
-				return row
-	if token_count <= 0:
-		row.add_child(_build_pre_battle_wait_chip(accent))
-	return row
-
-func _pre_battle_intent_token_rows(enemy: Dictionary, intent: Dictionary, combat_state: Dictionary) -> Array:
-	var rows: Array = []
-	for action_var: Variant in intent.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = action_var as Dictionary
-		var tokens: Array = ActionIcons.tokens_for_action(action)
-		if not tokens.is_empty():
-			rows.append(tokens)
-	return rows
-
-func _build_pre_battle_token_chip(token: Dictionary, accent: Color) -> Control:
-	var chip := PanelContainer.new()
-	chip.custom_minimum_size = Vector2(42.0, 30.0)
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.030, 0.023, 0.020, 0.86), accent.lightened(0.14), 4.0, 6))
-	chip.tooltip_text = ActionIcons.token_tooltip(token)
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 2)
-	chip.add_child(row)
-	var icon_key: String = str(token.get("icon", ""))
-	var icon := TextureRect.new()
-	icon.texture = ActionIcons.icon_texture(icon_key)
-	icon.custom_minimum_size = Vector2(PRE_BATTLE_INTENT_ICON_SIZE.x, PRE_BATTLE_INTENT_ICON_SIZE.y)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
-	var value_text: String = ActionIcons.token_value_text(token)
-	if not value_text.is_empty():
-		var label := Label.new()
-		label.text = value_text
-		UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-		label.add_theme_color_override("font_color", Color("fff0ce"))
-		label.add_theme_color_override("font_outline_color", Color("100907"))
-		label.add_theme_constant_override("outline_size", 1)
-		row.add_child(label)
-	return chip
-
-func _build_pre_battle_wait_chip(accent: Color) -> Control:
-	var token := ActionIcons.token_for("time", "?", "neutral", "Intent")
-	return _build_pre_battle_token_chip(token, accent)
 
 func _build_pre_battle_deck_badge(card_id: String) -> Control:
 	var card: Dictionary = GameData.card_def(card_id)
@@ -2166,22 +2062,6 @@ func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Tex
 		return AssetLoader.load_texture(portrait_path)
 	return AssetLoader.load_texture(str(enemy_def.get("art_path", "")))
 
-func _pre_battle_intent_accent(intent: Dictionary, fallback: Color) -> Color:
-	var element_id: String = str(intent.get("element", ElementData.NONE))
-	if ElementData.is_elemental(element_id):
-		return ElementData.accent(element_id)
-	for action_var: Variant in intent.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action_type: String = str((action_var as Dictionary).get("type", ""))
-		if action_type in ["melee", "ranged", "aoe", "push", "pull"]:
-			return Color("d86f57")
-		if action_type in ["block", "guard_ally", "stoneskin"]:
-			return Color("82bfdc")
-		if action_type in ["heal", "heal_ally"]:
-			return Color("88c47b")
-	return fallback
-
 func _animate_pre_battle_entry() -> void:
 	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
 		return
@@ -2202,24 +2082,10 @@ func _animate_pre_battle_living_parts() -> void:
 	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
 		return
 	var index: int = 0
-	for enemy_node: Node in _pre_battle_panel.find_children("PreBattleEnemyCard", "PanelContainer", true, false):
-		if enemy_node is Control:
-			_animate_pre_battle_panel_pulse(enemy_node as Control, float(index) * 0.12)
-			index += 1
-	index = 0
 	for badge_node: Node in _pre_battle_panel.find_children("PreBattleDeckBadge", "PanelContainer", true, false):
 		if badge_node is Control and index < PRE_BATTLE_CARD_LIMIT:
 			_animate_pre_battle_badge_lift(badge_node as Control, float(index) * 0.012)
 			index += 1
-
-func _animate_pre_battle_panel_pulse(panel: Control, delay: float) -> void:
-	if panel == null:
-		return
-	panel.pivot_offset = panel.size * 0.5
-	var tween: Tween = create_tween()
-	tween.set_loops()
-	tween.tween_property(panel, "scale", Vector2(1.018, 1.018), 1.05).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(panel, "scale", Vector2.ONE, 1.05).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _animate_pre_battle_badge_lift(badge: Control, delay: float) -> void:
 	if badge == null:
@@ -4021,7 +3887,7 @@ func _refresh_ui() -> void:
 	_refresh_stage_view()
 	_refresh_hand_panel()
 	_refresh_visibility()
-	_refresh_pre_battle_preview_if_visible()
+	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
 	_refresh_death_overlay()
@@ -5205,7 +5071,7 @@ func _refresh_visibility() -> void:
 		_close_pile_view()
 	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
 		_clear_children_now(_card_fx_layer)
-	if mode != "room":
+	if mode not in ["room", RunEngineScript.MODE_PRE_BATTLE]:
 		_close_card_upgrade_overlay()
 	if mode == "defeat":
 		_close_large_map()
@@ -8137,8 +8003,10 @@ func _on_cancel_requested() -> void:
 	if _drag_card_index >= 0:
 		await _animate_drag_cancel_to_source()
 		return
+	if _upgrade_scrim != null and _upgrade_scrim.visible:
+		_close_card_upgrade_overlay()
+		return
 	if _pre_battle_scrim != null and _pre_battle_scrim.visible:
-		_close_pre_battle_preview()
 		return
 	if _large_map_scrim != null and _large_map_scrim.visible:
 		_close_large_map()
@@ -9803,21 +9671,19 @@ func _log_text() -> String:
 		return notice
 	return ""
 
-func _pre_battle_preview_for_destination(coord: Vector2i) -> Dictionary:
-	if not _run_engine.available_moves(_run_state).has(coord):
-		return {}
-	var preview_state: Dictionary = _run_engine.move_to_room(_run_state.duplicate(true), coord)
+func _pre_battle_preview_for_current_room() -> Dictionary:
+	var preview_state: Dictionary = _run_engine.pre_battle_preview_state(_run_state)
 	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
-	if str(preview_state.get("mode", "room")) != "combat" or combat_state.is_empty():
+	if combat_state.is_empty():
 		return {}
 	return preview_state
 
-func _show_pre_battle_preview(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE) -> bool:
-	var preview_state: Dictionary = _pre_battle_preview_for_destination(coord)
+func _show_pre_battle_preview() -> bool:
+	var preview_state: Dictionary = _pre_battle_preview_for_current_room()
 	if preview_state.is_empty():
 		return false
-	_pre_battle_destination = coord
-	_pre_battle_door_tile = door_tile
+	_pre_battle_destination = _run_state.get("current_room", INVALID_TARGET_TILE)
+	_pre_battle_door_tile = INVALID_TARGET_TILE
 	_pre_battle_preview_run_state = preview_state
 	_pre_battle_start_pending = false
 	_rebuild_pre_battle_overlay()
@@ -9831,15 +9697,26 @@ func _show_pre_battle_preview(coord: Vector2i, door_tile: Vector2i = INVALID_TAR
 func _refresh_pre_battle_preview_if_visible() -> void:
 	if _pre_battle_scrim == null or not _pre_battle_scrim.visible or _pre_battle_start_pending:
 		return
-	if _pre_battle_destination.x < 0:
+	if str(_run_state.get("mode", "room")) != RunEngineScript.MODE_PRE_BATTLE:
 		_close_pre_battle_preview()
 		return
-	var preview_state: Dictionary = _pre_battle_preview_for_destination(_pre_battle_destination)
+	var preview_state: Dictionary = _pre_battle_preview_for_current_room()
 	if preview_state.is_empty():
 		_close_pre_battle_preview()
 		return
 	_pre_battle_preview_run_state = preview_state
 	_rebuild_pre_battle_overlay()
+
+func _sync_pre_battle_preview_after_refresh() -> void:
+	if _pre_battle_start_pending:
+		return
+	if str(_run_state.get("mode", "room")) == RunEngineScript.MODE_PRE_BATTLE:
+		if _pre_battle_scrim != null and _pre_battle_scrim.visible:
+			_refresh_pre_battle_preview_if_visible()
+		else:
+			_show_pre_battle_preview()
+	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
+		_close_pre_battle_preview()
 
 func _close_pre_battle_preview() -> void:
 	if _pre_battle_scrim != null:
@@ -9855,14 +9732,20 @@ func _on_pre_battle_equip_pressed() -> void:
 func _on_pre_battle_start_pressed() -> void:
 	if _pre_battle_start_pending:
 		return
-	var destination: Vector2i = _pre_battle_destination
-	var door_tile: Vector2i = _pre_battle_door_tile
-	if destination.x < 0:
+	if str(_run_state.get("mode", "room")) != RunEngineScript.MODE_PRE_BATTLE:
 		_close_pre_battle_preview()
 		return
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	_pre_battle_start_pending = true
 	_close_pre_battle_preview()
-	await _on_map_view_room_selected(destination, door_tile, true)
+	_run_state = _run_engine.begin_pre_battle_combat(_run_state)
+	_sync_progression_from_run()
+	_sync_combat_state_from_run()
+	_board_presentation.clear()
+	_reset_card_resolution()
+	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
+	_pre_battle_start_pending = false
+	_refresh_ui()
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
@@ -9871,15 +9754,13 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 		return
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
-	if not skip_pre_battle and _show_pre_battle_preview(coord, selected_door_tile):
-		return
 	_animation_lock = true
 	_reset_card_resolution()
 	_hovered_board_tile = selected_door_tile
 	_refresh_ui()
 	if selected_door_tile.x >= 0:
 		await _play_door_opening_animation(selected_door_tile)
-	_run_state = _run_engine.move_to_room(_run_state, coord)
+	_run_state = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
