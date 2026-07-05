@@ -243,6 +243,7 @@ func _initialize() -> void:
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
 	await _test_run_scene_drag_overlay_snapback_and_click_selection()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
+	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
@@ -6743,6 +6744,12 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(str(started_state.get("mode", "")) == "combat", "Pre-battle Start should enter combat through the normal room move")
 	_assert(started_state.get("current_room", Vector2i.ZERO) == combat_coord, "Pre-battle Start should move to the selected combat room")
 	_assert(not (started_state.get("combat_state", {}) as Dictionary).is_empty(), "Pre-battle Start should create the real combat state")
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var ready_wave_count: int = 0
+	for widget: CardWidget in _card_widgets_under(hand_box):
+		if str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
+			ready_wave_count += 1
+	_assert(ready_wave_count > 0, "Pre-battle Start should ready-wave playable opening hand cards")
 	instance.queue_free()
 	await process_frame
 
@@ -7238,6 +7245,72 @@ func _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts() -> void:
 		instance.set("_animation_lock", false)
 		instance.call("_refresh_hand_panel")
 		_assert(card_fx_layer.get_child_count() == 0, "Idle hand refresh should clear leftover card FX proxies before later selections")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_ready_wave_marks_only_playable_hand_cards() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for ready-wave coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(2, 4)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(5, 2),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0
+	}]
+	var combat_state: Dictionary = combat.create_combat(9401, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["quick_stab", "brace"],
+		"relics": [],
+		"hand_size": 2,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["quick_stab", "brace"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	combat_state["cards_played_this_turn"] = 0
+	combat_state["death_bonus_card_plays_this_turn"] = 0
+	combat_state["card_play_bonus_this_turn"] = 0
+	combat_state["player_turn_restrictions"] = {"frozen": false, "shocked": false, "immobilized": true}
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.set("_animation_lock", false)
+	instance.call("_queue_hand_ready_wave", "test_ready_wave")
+	instance.call("_refresh_hand_panel")
+	await process_frame
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var widgets: Array[CardWidget] = _card_widgets_under(hand_box)
+	_assert(widgets.size() >= 2, "Ready-wave test should render both hand cards")
+	if widgets.size() >= 2:
+		_assert(not widgets[0].has_meta("ready_wave_playable"), "Unplayable cards should not receive ready-wave metadata")
+		_assert(widgets[1].has_meta("ready_wave_playable"), "Playable cards should receive ready-wave metadata")
+		_assert(str(widgets[1].get_meta("ready_wave_reason", "")) == "test_ready_wave", "Ready-wave metadata should preserve the trigger reason")
+		_assert(int(widgets[1].get_meta("ready_wave_order", -1)) == 0, "Ready-wave order should count playable cards only")
+		_assert(float(widgets[1].get_meta("ready_wave_delay", -1.0)) == 0.0, "First playable ready-wave card should start without delay")
+	instance.set("_animation_lock", true)
+	instance.call("_queue_hand_ready_wave", "locked")
+	instance.call("_refresh_hand_panel")
+	await process_frame
+	widgets = _card_widgets_under(hand_box)
+	for widget: CardWidget in widgets:
+		_assert(not widget.has_meta("ready_wave_playable"), "Animation-locked hand refresh should skip ready-wave metadata")
 	instance.queue_free()
 	await process_frame
 
