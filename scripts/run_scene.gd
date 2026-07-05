@@ -748,6 +748,7 @@ const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 ]
 const HAND_CARD_OVERLAP: float = -28.0
 const HAND_CARD_GAP: float = 14.0
+const HAND_READY_WAVE_STAGGER_SECONDS: float = 0.055
 const PILE_CARD_SIZE: Vector2 = Vector2(220.0, 220.0 * CARD_ASPECT_RATIO)
 const PILE_DIALOG_CARD_SIZE: Vector2 = Vector2(196.0, 196.0 * CARD_ASPECT_RATIO)
 const PILE_DIALOG_FULL_SIZE: Vector2 = Vector2(1220.0, 620.0)
@@ -1021,6 +1022,9 @@ var _active_music_id: String = ""
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
 var _animating_hand_card_index: int = -1
+var _hand_ready_wave_indices: Dictionary = {}
+var _hand_ready_wave_token: int = 0
+var _hand_ready_wave_reason: String = ""
 var _dialogue_overlay: Control
 var _dialogue_dialog: PanelContainer
 var _dialogue_name_label: Label
@@ -6515,6 +6519,47 @@ func _show_campfire_choice_feedback_pulse(panel: PanelContainer, accent: Color) 
 	tween.tween_property(pulse, "modulate:a", 0.0, 0.19).set_delay(0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.finished.connect(_queue_free_node_now.bind(pulse))
 
+func _queue_hand_ready_wave(reason: String = "") -> void:
+	_hand_ready_wave_indices.clear()
+	_hand_ready_wave_reason = ""
+	if not _can_queue_hand_ready_wave():
+		return
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	var ready_order: int = 0
+	for index: int in range(hand.size()):
+		var options: Dictionary = _card_play_options_for_index(index)
+		if not bool(options.get("any_playable", false)):
+			continue
+		_hand_ready_wave_indices[index] = ready_order
+		ready_order += 1
+	if _hand_ready_wave_indices.is_empty():
+		return
+	_hand_ready_wave_token += 1
+	_hand_ready_wave_reason = reason
+
+func _can_queue_hand_ready_wave() -> bool:
+	return (
+		not _animation_lock
+		and str(_run_state.get("mode", "room")) == "combat"
+		and _combat_engine.is_player_turn(_combat_state)
+		and _selected_card_index < 0
+		and _drag_card_index < 0
+		and _animating_hand_card_index < 0
+	)
+
+func _ready_wave_delay_for_hand_index(index: int, options: Dictionary) -> float:
+	if not _can_queue_hand_ready_wave():
+		return -1.0
+	if not bool(options.get("any_playable", false)):
+		return -1.0
+	if not _hand_ready_wave_indices.has(index):
+		return -1.0
+	return float(_hand_ready_wave_indices[index]) * HAND_READY_WAVE_STAGGER_SECONDS
+
+func _consume_hand_ready_wave() -> void:
+	_hand_ready_wave_indices.clear()
+	_hand_ready_wave_reason = ""
+
 func _refresh_hand_panel() -> void:
 	_clear_idle_card_fx_layer()
 	_clear_children_now(hand_box)
@@ -6541,6 +6586,13 @@ func _refresh_hand_panel() -> void:
 				_card_def(str(hand[index]), _combat_state)
 			)
 			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+			var ready_wave_delay: float = _ready_wave_delay_for_hand_index(index, options)
+			if ready_wave_delay >= 0.0:
+				widget.set_meta("ready_wave_token", _hand_ready_wave_token)
+				widget.set_meta("ready_wave_reason", _hand_ready_wave_reason)
+				widget.set_meta("ready_wave_order", int(_hand_ready_wave_indices[index]))
+				widget.set_meta("ready_wave_delay", ready_wave_delay)
+				widget.set_meta("ready_wave_playable", true)
 			if index == _drag_card_index:
 				widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
 			elif index == _animating_hand_card_index:
@@ -6551,7 +6603,10 @@ func _refresh_hand_panel() -> void:
 				widget.mouse_entered.connect(_on_card_hover_started.bind(index))
 				widget.mouse_exited.connect(_on_card_hover_ended.bind(index))
 			hand_box.add_child(_hand_card_slot(widget, card_size))
+			if ready_wave_delay >= 0.0:
+				widget.call_deferred("play_ready_wave", ready_wave_delay)
 		hand_box.configure_layout(HAND_CARD_OVERLAP, true)
+		_consume_hand_ready_wave()
 	elif mode == "reward":
 		var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
 		var reward_cards: Array = reward_state.get("cards", [])
@@ -8160,6 +8215,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_board_presentation.clear()
 	_set_action_banner("")
 	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index)
+	var card_effect_draw_entries: Array[Dictionary] = _draw_entries_between_states(previous_combat_state, _combat_state)
 	if GameData.card_consumes_on_play(card_id):
 		_run_state = _run_engine.consume_equipped_item_card(_run_state, card_id)
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
@@ -8992,6 +9048,8 @@ func _resolve_enemy_round() -> void:
 	_sync_combat_state_from_run()
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
 	_animation_lock = false
+	if outcome == "":
+		_queue_hand_ready_wave("player_turn_start")
 	_refresh_ui()
 
 func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> void:
@@ -9873,6 +9931,7 @@ func _on_pre_battle_start_pressed() -> void:
 	_reset_card_resolution()
 	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
 	_pre_battle_start_pending = false
+	_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
@@ -9900,6 +9959,8 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	_animation_lock = false
 	_reset_card_resolution()
 	_hovered_board_tile = Vector2i(-1, -1)
+	if str(_run_state.get("mode", "room")) == "combat":
+		_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
 
 func _begin_map_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:

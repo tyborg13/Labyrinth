@@ -24,7 +24,8 @@ The main assumptions come from:
 
 These assumptions are baked into the current coefficients:
 
-- Player pace: `2` cards per turn and `2` draw per turn.
+- Player pace: `2` cards per turn, `2` draw per turn, and a `7`-card
+  maximum hand.
 - Player turns now run on an initiative clock instead of a fixed player-then-all-
   enemies round. The player starts combat active, then their next turn is
   scheduled at `base initiative + time spent on played cards`.
@@ -302,7 +303,7 @@ those factors, note that explicitly in review or commit context.
 Update this document and `tools/card_heuristic.py` together whenever any of the
 following change:
 
-- cards per turn or draw per turn
+- cards per turn, draw per turn, or maximum hand size
 - player base initiative, Agility scaling, card time costs, enemy base
   initiative, or enemy intent time costs
 - fatigue rules

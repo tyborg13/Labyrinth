@@ -16,6 +16,11 @@ const HOVER_LIFT: float = -12.0
 const SELECTED_LIFT: float = -5.0
 const HOVER_SCALE: float = 1.04
 const SELECTED_SCALE: float = 1.01
+const READY_WAVE_LIFT: float = -6.0
+const READY_WAVE_SCALE_BONUS: float = 0.022
+const READY_WAVE_RISE_SECONDS: float = 0.09
+const READY_WAVE_SETTLE_SECONDS: float = 0.20
+const READY_WAVE_GLOW_INSET: float = 4.0
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -335,6 +340,10 @@ var _drag_emitted: bool = false
 var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
 var _pose_tween: Tween
+var _ready_wave_tween: Tween
+var _ready_wave_progress: float = 0.0
+var _ready_wave_active: bool = false
+var _ready_wave_glow: PanelContainer
 var _summary_icon_box: VBoxContainer
 var _time_badge: TimeCostBadge
 
@@ -1168,9 +1177,107 @@ func _on_local_mouse_exited() -> void:
 		_time_badge.set_hovered(false)
 	_update_pose()
 
+func play_ready_wave(delay_seconds: float = 0.0) -> void:
+	if not is_node_ready() or top_level or not _interactive or _dimmed or not _usable:
+		return
+	if _ready_wave_tween != null:
+		_ready_wave_tween.kill()
+	_ready_wave_active = true
+	_ready_wave_progress = 0.0
+	set_meta("ready_wave_active", true)
+	_ensure_ready_wave_glow()
+	if _ready_wave_glow != null:
+		_sync_ready_wave_glow_geometry()
+		_ready_wave_glow.visible = true
+		_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		_ready_wave_glow.scale = Vector2(0.995, 0.995)
+	_ready_wave_tween = create_tween()
+	var safe_delay: float = maxf(0.0, delay_seconds)
+	if safe_delay > 0.0:
+		_ready_wave_tween.tween_interval(safe_delay)
+	_ready_wave_tween.tween_method(_set_ready_wave_progress, 0.0, 1.0, READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if _ready_wave_glow != null:
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "modulate:a", 0.82, READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.012, 1.012), READY_WAVE_RISE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_ready_wave_tween.tween_method(_set_ready_wave_progress, 1.0, 0.0, READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if _ready_wave_glow != null:
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "modulate:a", 0.0, READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.028, 1.028), READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_ready_wave_tween.tween_callback(_finish_ready_wave)
+
+func _set_ready_wave_progress(progress: float) -> void:
+	_ready_wave_progress = clampf(progress, 0.0, 1.0)
+	_apply_pose_now()
+
+func _finish_ready_wave() -> void:
+	_ready_wave_progress = 0.0
+	_ready_wave_active = false
+	set_meta("ready_wave_active", false)
+	if _ready_wave_glow != null:
+		_ready_wave_glow.visible = false
+	_apply_pose_now()
+
+func _ensure_ready_wave_glow() -> void:
+	if _ready_wave_glow != null:
+		return
+	_ready_wave_glow = PanelContainer.new()
+	_ready_wave_glow.name = "ReadyWaveGlow"
+	_ready_wave_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ready_wave_glow.z_index = 10
+	_ready_wave_glow.visible = false
+	_ready_wave_glow.add_theme_stylebox_override("panel", _ready_wave_glow_style())
+	add_child(_ready_wave_glow)
+	_sync_ready_wave_glow_geometry()
+
+func _sync_ready_wave_glow_geometry() -> void:
+	if _ready_wave_glow == null:
+		return
+	_ready_wave_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ready_wave_glow.offset_left = READY_WAVE_GLOW_INSET
+	_ready_wave_glow.offset_top = READY_WAVE_GLOW_INSET
+	_ready_wave_glow.offset_right = -READY_WAVE_GLOW_INSET
+	_ready_wave_glow.offset_bottom = -READY_WAVE_GLOW_INSET
+	var base_size: Vector2 = size if size.x > 0.0 and size.y > 0.0 else BASE_CARD_SIZE
+	var glow_size: Vector2 = base_size - Vector2(READY_WAVE_GLOW_INSET * 2.0, READY_WAVE_GLOW_INSET * 2.0)
+	_ready_wave_glow.pivot_offset = glow_size * 0.5
+
+func _ready_wave_glow_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.78, 0.30, 0.035)
+	style.border_color = Color(1.0, 0.88, 0.48, 0.34)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 18
+	style.corner_radius_top_right = 18
+	style.corner_radius_bottom_right = 18
+	style.corner_radius_bottom_left = 18
+	style.shadow_color = Color(1.0, 0.62, 0.22, 0.18)
+	style.shadow_size = 10
+	style.shadow_offset = Vector2.ZERO
+	return style
+
 func _update_pose(immediate: bool = false) -> void:
 	if not is_node_ready():
 		return
+	var pose: Dictionary = _pose_target()
+	var lift: float = float(pose.get("lift", 0.0))
+	var target_scale: Vector2 = pose.get("scale", Vector2.ONE)
+	z_index = 20 if lift < 0.0 else 0
+	if _pose_tween != null:
+		_pose_tween.kill()
+	if top_level:
+		scale = target_scale
+		return
+	if immediate or _ready_wave_active or not is_inside_tree():
+		_apply_pose_now()
+		return
+	_pose_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_pose_tween.tween_property(self, "position:y", lift, 0.12)
+	_pose_tween.parallel().tween_property(self, "scale", target_scale, 0.12)
+
+func _pose_target() -> Dictionary:
 	var lift: float = 0.0
 	var target_scale: Vector2 = Vector2.ONE
 	if _local_hovered and _interactive and not _dimmed:
@@ -1179,16 +1286,18 @@ func _update_pose(immediate: bool = false) -> void:
 	elif _selected or _previewed:
 		lift = SELECTED_LIFT
 		target_scale = Vector2.ONE * SELECTED_SCALE
+	if _ready_wave_progress > 0.0:
+		lift += READY_WAVE_LIFT * _ready_wave_progress
+		target_scale *= 1.0 + READY_WAVE_SCALE_BONUS * _ready_wave_progress
+	return {"lift": lift, "scale": target_scale}
+
+func _apply_pose_now() -> void:
+	var pose: Dictionary = _pose_target()
+	var lift: float = float(pose.get("lift", 0.0))
+	var target_scale: Vector2 = pose.get("scale", Vector2.ONE)
 	z_index = 20 if lift < 0.0 else 0
-	if _pose_tween != null:
-		_pose_tween.kill()
 	if top_level:
 		scale = target_scale
 		return
-	if immediate or not is_inside_tree():
-		position = Vector2(position.x, lift)
-		scale = target_scale
-		return
-	_pose_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	_pose_tween.tween_property(self, "position:y", lift, 0.12)
-	_pose_tween.parallel().tween_property(self, "scale", target_scale, 0.12)
+	position = Vector2(position.x, lift)
+	scale = target_scale
