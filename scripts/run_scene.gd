@@ -8234,8 +8234,6 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_card_play_count_override = -1
 	_reset_card_resolution()
 	_hovered_card_index = -1
-	if outcome == "" and not card_effect_draw_entries.is_empty():
-		_queue_hand_ready_wave("card_draw")
 	_refresh_ui()
 	if str(_run_state.get("mode", "room")) == "combat" and _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		await _resolve_enemy_round()
@@ -9818,6 +9816,7 @@ func _on_pre_battle_start_pressed() -> void:
 	_reset_card_resolution()
 	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
 	_pre_battle_start_pending = false
+	_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:

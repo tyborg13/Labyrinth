@@ -6744,6 +6744,12 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(str(started_state.get("mode", "")) == "combat", "Pre-battle Start should enter combat through the normal room move")
 	_assert(started_state.get("current_room", Vector2i.ZERO) == combat_coord, "Pre-battle Start should move to the selected combat room")
 	_assert(not (started_state.get("combat_state", {}) as Dictionary).is_empty(), "Pre-battle Start should create the real combat state")
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var ready_wave_count: int = 0
+	for widget: CardWidget in _card_widgets_under(hand_box):
+		if str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
+			ready_wave_count += 1
+	_assert(ready_wave_count > 0, "Pre-battle Start should ready-wave playable opening hand cards")
 	instance.queue_free()
 	await process_frame
 
