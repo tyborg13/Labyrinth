@@ -63,7 +63,14 @@ func _capture_run_states() -> void:
 	await process_frame
 
 	if combat_coord != Vector2i.ZERO:
-		instance.call("_on_map_view_room_selected", combat_coord)
+		await instance.call("_on_map_view_room_selected", combat_coord)
+		await process_frame
+		await process_frame
+		var pre_battle_scrim: Control = instance.get("_pre_battle_scrim") as Control
+		if pre_battle_scrim != null and pre_battle_scrim.visible:
+			await create_timer(0.24).timeout
+			await _save_root_screenshot("user://probes/run_pre_battle.png")
+			await instance.call("_on_pre_battle_start_pressed")
 		await create_timer(0.95).timeout
 		await process_frame
 		await process_frame

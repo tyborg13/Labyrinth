@@ -1,6 +1,7 @@
 extends SceneTree
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -10,7 +11,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["start", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
 
 var _run_engine = RunEngine.new()
 var _combat_engine = CombatEngine.new()
@@ -76,6 +77,7 @@ func _parse_args() -> Dictionary:
 		"equip": "",
 		"stats": "",
 		"room_coord": "",
+		"min_enemies": 0,
 		"enemy_types": "",
 		"enemy_intents": "",
 		"notice": "",
@@ -156,6 +158,9 @@ func _parse_args() -> Dictionary:
 			"--room-coord":
 				index += 1
 				parsed["room_coord"] = _required_arg(args, index, arg)
+			"--min-enemies":
+				index += 1
+				parsed["min_enemies"] = int(_required_arg(args, index, arg))
 			"--enemy-types":
 				index += 1
 				parsed["enemy_types"] = _required_arg(args, index, arg)
@@ -199,6 +204,8 @@ func _print_help() -> void:
 	print("  --enemy-types enemy_a,enemy_b --enemy-intents intent_a,intent_b")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
+	print("Pre-battle options:")
+	print("  --min-enemies N")
 	print("Safety:")
 	print("  The script refuses to write live user:// saves unless LABYRINTH_USER_DIR_NAME is set or --allow-live-user-dir is passed.")
 
@@ -233,6 +240,8 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 			if str(_options.get("notice", "")).is_empty():
 				character_state["notice"] = "Inspection fixture: open Character."
 			return _apply_room_overrides(character_state)
+		"pre_battle":
+			return _build_pre_battle_run(progression)
 		"combat":
 			return _build_combat_run(progression)
 		"boss":
@@ -275,6 +284,40 @@ func _build_combat_run(progression: Dictionary) -> Dictionary:
 			var fallback_coord: Vector2i = combat_coord if combat_coord != INVALID_COORD else _first_room_coord_of_type(state, "combat")
 			state = _force_combat_room(state, fallback_coord)
 	return _apply_combat_overrides(state)
+
+func _build_pre_battle_run(progression: Dictionary) -> Dictionary:
+	var seed: int = int(_options.get("seed", DEFAULT_SEED))
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(seed, progression))
+	var requested_coord: Vector2i = _parse_coord(str(_options.get("room_coord", "")))
+	var min_enemies: int = maxi(1, int(_options.get("min_enemies", 5)))
+	var coord: Vector2i = requested_coord
+	if coord == INVALID_COORD:
+		coord = _first_room_coord_with_min_enemies(state, min_enemies)
+	if coord == INVALID_COORD:
+		_fail("Could not find a pre-battle room with at least %d enemies." % min_enemies)
+		return state
+	var travel_dir: Vector2i = _fixture_travel_dir_for_coord(coord)
+	state = _run_state_for_room(state, coord, RunEngine.MODE_PRE_BATTLE, travel_dir)
+	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
+	var room: Dictionary = _run_engine.room_metadata(state, coord).duplicate(true)
+	if str(room.get("type", "")) not in ["combat", "boss"]:
+		room["type"] = "combat"
+		room["element"] = str(room.get("element", ElementData.NONE))
+	room["revealed"] = true
+	room["visited"] = true
+	room["cleared"] = false
+	room["sealed"] = false
+	rooms[_room_key(coord)] = room
+	state["rooms"] = rooms
+	state["current_room"] = coord
+	state["current_room_layout"] = _run_engine.call("_display_layout_for_room", seed, room, travel_dir)
+	state["mode"] = RunEngine.MODE_PRE_BATTLE
+	state["combat_state"] = {}
+	state["pre_battle_pending"] = true
+	state["pre_battle_travel_dir"] = travel_dir
+	if str(_options.get("notice", "")).is_empty():
+		state["notice"] = "Inspection fixture: pre-battle."
+	return _apply_room_overrides(state)
 
 func _build_reward_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
@@ -552,6 +595,22 @@ func _first_available_room_coord_of_type(state: Dictionary, room_type: String) -
 			return coord
 	return INVALID_COORD
 
+func _first_room_coord_with_min_enemies(state: Dictionary, min_enemies: int) -> Vector2i:
+	for radius: int in range(1, 9):
+		for x: int in range(-radius, radius + 1):
+			for y: int in range(-radius, radius + 1):
+				var coord := Vector2i(x, y)
+				if maxi(absi(x), absi(y)) != radius:
+					continue
+				var room: Dictionary = _run_engine.room_metadata(state, coord)
+				if str(room.get("type", "")) not in ["combat", "boss"]:
+					continue
+				var layout: Dictionary = _run_engine.call("_combat_layout_for_room", room, _fixture_travel_dir_for_coord(coord), state)
+				var enemies: Array = layout.get("enemies", [])
+				if enemies.size() >= min_enemies:
+					return coord
+	return INVALID_COORD
+
 func _first_room_coord_of_type(state: Dictionary, room_type: String) -> Vector2i:
 	var coord: Vector2i = _first_room_coord_of_type_or_invalid(state, room_type)
 	return coord if coord != INVALID_COORD else Vector2i(1, 0)
@@ -566,6 +625,13 @@ func _first_room_coord_of_type_or_invalid(state: Dictionary, room_type: String) 
 				if str(_run_engine.room_metadata(state, coord).get("type", "")) == room_type:
 					return coord
 	return INVALID_COORD
+
+func _fixture_travel_dir_for_coord(coord: Vector2i) -> Vector2i:
+	if coord == Vector2i.ZERO:
+		return Vector2i(1, 0)
+	if absi(coord.x) >= absi(coord.y) and coord.x != 0:
+		return Vector2i(1, 0) if coord.x > 0 else Vector2i(-1, 0)
+	return Vector2i(0, 1) if coord.y > 0 else Vector2i(0, -1)
 
 func _parse_coord(value: String) -> Vector2i:
 	if value.strip_edges().is_empty():

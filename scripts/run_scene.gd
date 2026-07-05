@@ -865,6 +865,11 @@ const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(54.0, 34.0)
 const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
+const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
+const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
+const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
+const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
+const PRE_BATTLE_CARD_LIMIT: int = 18
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -1077,6 +1082,12 @@ var _merchant_hovered_kind: String = ""
 var _merchant_hovered_item_id: String = ""
 var _merchant_hovered_row: Control
 var _merchant_trade_animation_active: bool = false
+var _pre_battle_scrim: ColorRect
+var _pre_battle_panel: PanelContainer
+var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
+var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
+var _pre_battle_preview_run_state: Dictionary = {}
+var _pre_battle_start_pending: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -1324,6 +1335,7 @@ func _build_overlay_ui() -> void:
 	_build_pile_overlay()
 	_build_card_upgrade_overlay()
 	_build_large_map_overlay()
+	_build_pre_battle_overlay()
 	_build_drag_overlay()
 	_build_death_overlay()
 
@@ -1624,6 +1636,482 @@ func _large_map_close_button_style(fill: Color, border: Color) -> StyleBoxFlat:
 	style.content_margin_right = 6
 	style.content_margin_bottom = 6
 	return style
+
+func _build_pre_battle_overlay() -> void:
+	_pre_battle_scrim = ColorRect.new()
+	_pre_battle_scrim.name = "PreBattleScrim"
+	_pre_battle_scrim.visible = false
+	_pre_battle_scrim.color = Color(0.018, 0.012, 0.010, 0.72)
+	_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pre_battle_scrim.z_index = 1130
+	_pre_battle_scrim.z_as_relative = false
+	_pre_battle_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_pre_battle_scrim)
+
+	var center := CenterContainer.new()
+	center.name = "PreBattleCenter"
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pre_battle_scrim.add_child(center)
+
+	_pre_battle_panel = PanelContainer.new()
+	_pre_battle_panel.name = "PreBattlePanel"
+	_pre_battle_panel.custom_minimum_size = PRE_BATTLE_DIALOG_SIZE
+	_pre_battle_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var style := _pre_battle_style(Color(0.074, 0.050, 0.039, 0.98), Color(0.94, 0.76, 0.49, 0.74), 18.0, 10)
+	style.shadow_size = 22
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	_pre_battle_panel.add_theme_stylebox_override("panel", style)
+	center.add_child(_pre_battle_panel)
+
+func _pre_battle_style(fill: Color, border: Color, content_margin: float = 10.0, radius: int = 8) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_right = radius
+	style.corner_radius_bottom_left = radius
+	style.content_margin_left = content_margin
+	style.content_margin_top = content_margin
+	style.content_margin_right = content_margin
+	style.content_margin_bottom = content_margin
+	return style
+
+func _sync_pre_battle_overlay_layering() -> void:
+	if _pre_battle_scrim == null:
+		return
+	var character_overlay_open: bool = _upgrade_scrim != null and _upgrade_scrim.visible
+	_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE if character_overlay_open else Control.MOUSE_FILTER_STOP
+	if character_overlay_open:
+		_upgrade_scrim.move_to_front()
+	elif _pre_battle_scrim.visible:
+		_pre_battle_scrim.move_to_front()
+
+func _rebuild_pre_battle_overlay() -> void:
+	if _pre_battle_panel == null:
+		return
+	_clear_children_now(_pre_battle_panel)
+	var preview_state: Dictionary = _pre_battle_preview_run_state.duplicate(true)
+	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if combat_state.is_empty():
+		return
+	var room: Dictionary = _run_engine.room_metadata(preview_state, preview_state.get("current_room", _run_state.get("current_room", _pre_battle_destination)))
+	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
+	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 22)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_right", 22)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	_pre_battle_panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.name = "PreBattleContent"
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 16)
+	margin.add_child(vbox)
+	vbox.add_child(_build_pre_battle_header(room, combat_state, accent))
+
+	var body := HBoxContainer.new()
+	body.name = "PreBattleBody"
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 16)
+	vbox.add_child(body)
+	body.add_child(_build_pre_battle_enemy_section(combat_state, accent))
+	body.add_child(_build_pre_battle_deck_section(accent))
+
+	call_deferred("_animate_pre_battle_living_parts")
+
+func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "PreBattleHeader"
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 12)
+
+	row.add_child(_build_pre_battle_room_chip(room, combat_state, accent))
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+
+	var gear_button := Button.new()
+	gear_button.name = "PreBattleEquipButton"
+	gear_button.text = "Equip"
+	gear_button.tooltip_text = "Character"
+	gear_button.icon = AssetLoader.load_texture("res://assets/art/equipment/training_sword.png")
+	gear_button.expand_icon = true
+	_ui_skin.apply_button_stylebox_overrides(gear_button)
+	_ui_skin.apply_button_text_overrides(gear_button)
+	UiTypography.set_button_size(gear_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(gear_button, UiSkin.BUTTON_HEIGHT_STANDARD)
+	gear_button.custom_minimum_size.x = 132.0
+	gear_button.pressed.connect(_on_pre_battle_equip_pressed)
+	row.add_child(gear_button)
+
+	var start_button := Button.new()
+	start_button.name = "PreBattleStartButton"
+	start_button.text = "Start"
+	start_button.tooltip_text = "Start combat"
+	start_button.icon = ActionIcons.icon_texture("melee")
+	start_button.expand_icon = true
+	_ui_skin.apply_button_stylebox_overrides(start_button)
+	_ui_skin.apply_button_text_overrides(start_button)
+	UiTypography.set_button_size(start_button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION)
+	start_button.custom_minimum_size.x = 158.0
+	start_button.pressed.connect(_on_pre_battle_start_pressed)
+	row.add_child(start_button)
+	return row
+
+func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
+	var chip := VBoxContainer.new()
+	chip.name = "PreBattleRoomChip"
+	chip.custom_minimum_size = Vector2(510.0, 62.0)
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.add_theme_constant_override("separation", 0)
+	var title := Label.new()
+	var header_room: Dictionary = room.duplicate(true)
+	header_room["name"] = str(combat_state.get("room_name", room.get("name", "Combat")))
+	header_room["type"] = str(combat_state.get("room_type", room.get("type", "combat")))
+	header_room["element"] = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
+	title.text = _room_title_text(header_room)
+	title.clip_text = true
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	UiTypography.set_label_size(title, UiTypography.SIZE_TITLE + 3)
+	title.add_theme_color_override("font_color", accent if ElementData.is_elemental(str(header_room.get("element", ElementData.NONE))) else Color("f0e6d2"))
+	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
+	title.add_theme_constant_override("outline_size", 2)
+	chip.add_child(title)
+	var meta := Label.new()
+	meta.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	meta.clip_text = true
+	UiTypography.set_label_size(meta, UiTypography.SIZE_SECTION)
+	meta.add_theme_color_override("font_color", accent.lightened(0.28))
+	chip.add_child(meta)
+	return chip
+
+func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
+	var panel := PanelContainer.new()
+	panel.name = "PreBattleEnemySection"
+	panel.custom_minimum_size = Vector2(676.0, 0.0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.045, 0.034, 0.029, 0.90), Color(0.72, 0.58, 0.42, 0.48), 12.0, 8))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	vbox.add_child(_pre_battle_section_label("Foes", ActionIcons.icon_texture("melee"), accent))
+
+	var scroll := ScrollContainer.new()
+	scroll.name = "PreBattleEnemyScroll"
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	vbox.add_child(scroll)
+	var flow := HFlowContainer.new()
+	flow.name = "PreBattleEnemyFlow"
+	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(flow)
+
+	var enemies: Array = []
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		enemies.append(enemy)
+	var card_size: Vector2 = _pre_battle_enemy_card_size(enemies.size())
+	var card_gap: int = 8 if enemies.size() >= 5 else 12
+	flow.add_theme_constant_override("h_separation", card_gap)
+	flow.add_theme_constant_override("v_separation", card_gap)
+	for enemy_var: Variant in enemies:
+		flow.add_child(_build_pre_battle_enemy_card(enemy_var as Dictionary, accent, card_size))
+	return panel
+
+func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
+	if enemy_count >= 5:
+		return PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE
+	return PRE_BATTLE_ENEMY_CARD_SIZE
+
+func _build_pre_battle_deck_section(accent: Color) -> Control:
+	var panel := PanelContainer.new()
+	panel.name = "PreBattleDeckSection"
+	panel.custom_minimum_size = Vector2(438.0, 0.0)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.045, 0.034, 0.029, 0.90), Color(0.72, 0.58, 0.42, 0.48), 12.0, 8))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 10)
+	margin.add_child(vbox)
+	vbox.add_child(_build_pre_battle_player_strip(accent))
+	vbox.add_child(_pre_battle_section_label("Deck", ActionIcons.icon_texture("card_play"), accent))
+
+	var scroll := ScrollContainer.new()
+	scroll.name = "PreBattleDeckScroll"
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	vbox.add_child(scroll)
+	var flow := HFlowContainer.new()
+	flow.name = "PreBattleDeckFlow"
+	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	flow.add_theme_constant_override("h_separation", 7)
+	flow.add_theme_constant_override("v_separation", 7)
+	scroll.add_child(flow)
+	for card_id_var: Variant in _run_state.get("deck_cards", []):
+		var card_id: String = str(card_id_var)
+		if card_id.is_empty():
+			continue
+		flow.add_child(_build_pre_battle_deck_badge(card_id))
+	return panel
+
+func _build_pre_battle_player_strip(accent: Color) -> Control:
+	var vbox := VBoxContainer.new()
+	vbox.name = "PreBattlePlayerStrip"
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 8)
+
+	var top_row := HBoxContainer.new()
+	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(top_row)
+	top_row.add_child(_build_pre_battle_hp_chip(accent))
+
+	var equipment_row := HFlowContainer.new()
+	equipment_row.name = "PreBattleEquipmentRow"
+	equipment_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	equipment_row.add_theme_constant_override("h_separation", 7)
+	equipment_row.add_theme_constant_override("v_separation", 7)
+	vbox.add_child(equipment_row)
+	var equipped: Dictionary = (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	for slot: String in GameData.equipment_slots():
+		var equipment_id: String = str(equipped.get(slot, ""))
+		if equipment_id.is_empty():
+			continue
+		equipment_row.add_child(_build_equipment_icon_chip(equipment_id, PRE_BATTLE_EQUIPMENT_ICON_SIZE, true))
+	return vbox
+
+func _build_pre_battle_hp_chip(accent: Color) -> Control:
+	var chip := PanelContainer.new()
+	chip.name = "PreBattleHealthChip"
+	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chip.custom_minimum_size = Vector2(0.0, 44.0)
+	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.86), accent.darkened(0.05), 6.0, 7))
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	chip.add_child(row)
+	var icon := TextureRect.new()
+	icon.texture = ActionIcons.icon_texture("health")
+	icon.custom_minimum_size = Vector2(28.0, 28.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	var label := Label.new()
+	label.text = "%d/%d" % [int(_run_state.get("player_hp", 0)), int(_run_state.get("player_max_hp", 0))]
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", Color("fff0ce"))
+	label.add_theme_color_override("font_outline_color", Color("120b08"))
+	label.add_theme_constant_override("outline_size", 1)
+	row.add_child(label)
+	return chip
+
+func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Color) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "PreBattle%sLabel" % text
+	row.add_theme_constant_override("separation", 8)
+	var icon := TextureRect.new()
+	icon.texture = icon_texture
+	icon.custom_minimum_size = Vector2(28.0, 28.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	var label := Label.new()
+	label.text = text
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", Color("fff0ce"))
+	label.add_theme_color_override("font_outline_color", Color("120b08"))
+	label.add_theme_constant_override("outline_size", 1)
+	row.add_child(label)
+	var line := ColorRect.new()
+	line.custom_minimum_size = Vector2(0.0, 2.0)
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	line.color = Color(accent.r, accent.g, accent.b, 0.38)
+	row.add_child(line)
+	return row
+
+func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_size: Vector2) -> Control:
+	var enemy_type: String = str(enemy.get("type", ""))
+	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+	var accent: Color = room_accent
+	var card := PanelContainer.new()
+	card.name = "PreBattleEnemyCard"
+	card.custom_minimum_size = card_size
+	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	card.clip_contents = true
+	card.tooltip_text = str(enemy_def.get("name", enemy_type))
+	card.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.038, 0.029, 0.025, 0.96), accent.lightened(0.08), 0.0, 8))
+
+	var stack := Control.new()
+	stack.clip_contents = true
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
+	card.add_child(stack)
+
+	var art := TextureRect.new()
+	art.name = "PreBattleEnemyArt"
+	art.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.offset_left = 6.0
+	art.offset_top = 6.0
+	art.offset_right = -6.0
+	art.offset_bottom = -42.0
+	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
+	stack.add_child(art)
+
+	var tint := ColorRect.new()
+	tint.name = "PreBattleEnemyTint"
+	tint.color = Color(accent.r, accent.g, accent.b, 0.10)
+	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tint.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stack.add_child(tint)
+
+	var name_label := Label.new()
+	name_label.name = "PreBattleEnemyName"
+	name_label.text = str(enemy_def.get("name", enemy_type))
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	name_label.offset_top = card_size.y - 40.0
+	name_label.offset_left = 8.0
+	name_label.offset_right = -8.0
+	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
+	name_label.add_theme_color_override("font_color", Color("fff4d6"))
+	name_label.add_theme_color_override("font_outline_color", Color("100907"))
+	name_label.add_theme_constant_override("outline_size", 2)
+	stack.add_child(name_label)
+
+	var hp := _build_pre_battle_enemy_hp_badge(enemy, accent)
+	hp.position = Vector2(8.0, 8.0)
+	stack.add_child(hp)
+	return card
+
+func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Control:
+	var chip := PanelContainer.new()
+	chip.name = "PreBattleEnemyHealth"
+	chip.custom_minimum_size = Vector2(88.0, 32.0)
+	chip.size = chip.custom_minimum_size
+	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.88), accent.lightened(0.14), 5.0, 7))
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 5)
+	chip.add_child(row)
+	var icon := TextureRect.new()
+	icon.texture = ActionIcons.icon_texture("health")
+	icon.custom_minimum_size = Vector2(22.0, 22.0)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	row.add_child(icon)
+	var label := Label.new()
+	var hp: int = int(enemy.get("hp", 0))
+	var max_hp: int = int(enemy.get("max_hp", hp))
+	label.text = str(hp) if hp == max_hp else "%d/%d" % [hp, max_hp]
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("fff0ce"))
+	label.add_theme_color_override("font_outline_color", Color("100907"))
+	label.add_theme_constant_override("outline_size", 1)
+	row.add_child(label)
+	return chip
+
+func _build_pre_battle_deck_badge(card_id: String) -> Control:
+	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	var badge: Control = _build_equipment_card_badge(card_id, accent)
+	badge.name = "PreBattleDeckBadge"
+	return badge
+
+func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
+	var portrait_path: String = str(TURN_ORDER_PORTRAITS.get(enemy_type, ""))
+	if not portrait_path.is_empty():
+		return AssetLoader.load_texture(portrait_path)
+	return AssetLoader.load_texture(str(enemy_def.get("art_path", "")))
+
+func _animate_pre_battle_entry() -> void:
+	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
+		return
+	await get_tree().process_frame
+	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
+		return
+	_pre_battle_scrim.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_pre_battle_panel.pivot_offset = _pre_battle_panel.size * 0.5
+	_pre_battle_panel.scale = Vector2(0.965, 0.965)
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(_pre_battle_scrim, "modulate:a", 1.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_pre_battle_panel, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _animate_pre_battle_living_parts() -> void:
+	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
+		return
+	await get_tree().process_frame
+	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
+		return
+	var index: int = 0
+	for badge_node: Node in _pre_battle_panel.find_children("PreBattleDeckBadge", "PanelContainer", true, false):
+		if badge_node is Control and index < PRE_BATTLE_CARD_LIMIT:
+			_animate_pre_battle_badge_lift(badge_node as Control, float(index) * 0.012)
+			index += 1
+
+func _animate_pre_battle_badge_lift(badge: Control, delay: float) -> void:
+	if badge == null:
+		return
+	var start_position: Vector2 = badge.position
+	badge.modulate = Color(1.0, 1.0, 1.0, 0.78)
+	badge.position = start_position + Vector2(0.0, 5.0)
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(badge, "position", start_position, 0.18).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(badge, "modulate:a", 1.0, 0.18).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _build_context_choice_overlay() -> void:
 	var stage_root: Control = board_view.get_parent()
@@ -3415,6 +3903,7 @@ func _refresh_ui() -> void:
 	_refresh_stage_view()
 	_refresh_hand_panel()
 	_refresh_visibility()
+	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
 	_refresh_death_overlay()
@@ -4598,7 +5087,7 @@ func _refresh_visibility() -> void:
 		_close_pile_view()
 	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
 		_clear_children_now(_card_fx_layer)
-	if mode != "room":
+	if mode not in ["room", RunEngineScript.MODE_PRE_BATTLE]:
 		_close_card_upgrade_overlay()
 	if mode == "defeat":
 		_close_large_map()
@@ -7581,6 +8070,11 @@ func _on_cancel_requested() -> void:
 	if _drag_card_index >= 0:
 		await _animate_drag_cancel_to_source()
 		return
+	if _upgrade_scrim != null and _upgrade_scrim.visible:
+		_close_card_upgrade_overlay()
+		return
+	if _pre_battle_scrim != null and _pre_battle_scrim.visible:
+		return
 	if _large_map_scrim != null and _large_map_scrim.visible:
 		_close_large_map()
 		return
@@ -9249,20 +9743,101 @@ func _log_text() -> String:
 		return notice
 	return ""
 
-func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE) -> void:
+func _pre_battle_preview_for_current_room() -> Dictionary:
+	var preview_state: Dictionary = _run_engine.pre_battle_preview_state(_run_state)
+	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if combat_state.is_empty():
+		return {}
+	return preview_state
+
+func _show_pre_battle_preview() -> bool:
+	var preview_state: Dictionary = _pre_battle_preview_for_current_room()
+	if preview_state.is_empty():
+		return false
+	_pre_battle_destination = _run_state.get("current_room", INVALID_TARGET_TILE)
+	_pre_battle_door_tile = INVALID_TARGET_TILE
+	_pre_battle_preview_run_state = preview_state
+	_pre_battle_start_pending = false
+	_rebuild_pre_battle_overlay()
+	if _pre_battle_scrim == null:
+		return false
+	_pre_battle_scrim.visible = true
+	_sync_pre_battle_overlay_layering()
+	_animate_pre_battle_entry()
+	return true
+
+func _refresh_pre_battle_preview_if_visible() -> void:
+	if _pre_battle_scrim == null or not _pre_battle_scrim.visible or _pre_battle_start_pending:
+		return
+	if str(_run_state.get("mode", "room")) != RunEngineScript.MODE_PRE_BATTLE:
+		_close_pre_battle_preview()
+		return
+	var preview_state: Dictionary = _pre_battle_preview_for_current_room()
+	if preview_state.is_empty():
+		_close_pre_battle_preview()
+		return
+	_pre_battle_preview_run_state = preview_state
+	_rebuild_pre_battle_overlay()
+
+func _sync_pre_battle_preview_after_refresh() -> void:
+	if _pre_battle_start_pending:
+		return
+	if str(_run_state.get("mode", "room")) == RunEngineScript.MODE_PRE_BATTLE:
+		if _pre_battle_scrim != null and _pre_battle_scrim.visible:
+			_refresh_pre_battle_preview_if_visible()
+		else:
+			_show_pre_battle_preview()
+	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
+		_close_pre_battle_preview()
+
+func _close_pre_battle_preview() -> void:
+	if _pre_battle_scrim != null:
+		_pre_battle_scrim.visible = false
+		_pre_battle_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pre_battle_destination = INVALID_TARGET_TILE
+	_pre_battle_door_tile = INVALID_TARGET_TILE
+	_pre_battle_preview_run_state.clear()
+	_pre_battle_start_pending = false
+
+func _on_pre_battle_equip_pressed() -> void:
+	_open_character_overlay("equipment")
+
+func _on_pre_battle_start_pressed() -> void:
+	if _pre_battle_start_pending:
+		return
+	if str(_run_state.get("mode", "room")) != RunEngineScript.MODE_PRE_BATTLE:
+		_close_pre_battle_preview()
+		return
+	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	_pre_battle_start_pending = true
+	_close_pre_battle_preview()
+	_run_state = _run_engine.begin_pre_battle_combat(_run_state)
+	_sync_progression_from_run()
+	_sync_combat_state_from_run()
+	_board_presentation.clear()
+	_reset_card_resolution()
+	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
+	_pre_battle_start_pending = false
+	_refresh_ui()
+
+func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
 		return
 	if not _run_engine.available_moves(_run_state).has(coord):
 		return
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
+	var previous_coord: Vector2i = previous_run_state.get("current_room", Vector2i(-999, -999))
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
+	var map_travel_started: bool = _begin_map_travel_animation(previous_coord, coord)
 	_animation_lock = true
 	_reset_card_resolution()
 	_hovered_board_tile = selected_door_tile
 	_refresh_ui()
 	if selected_door_tile.x >= 0:
 		await _play_door_opening_animation(selected_door_tile)
-	_run_state = _run_engine.move_to_room(_run_state, coord)
+	elif map_travel_started:
+		await get_tree().create_timer(_map_travel_animation_seconds()).timeout
+	_run_state = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
@@ -9273,6 +9848,19 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	if str(_run_state.get("mode", "room")) == "combat":
 		_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
+
+func _begin_map_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
+	var started: bool = false
+	if mini_map != null and mini_map.has_method("begin_travel_animation"):
+		started = bool(mini_map.call("begin_travel_animation", from_coord, to_coord)) or started
+	if _large_map_view != null and _large_map_scrim != null and _large_map_scrim.visible and _large_map_view.has_method("begin_travel_animation"):
+		started = bool(_large_map_view.call("begin_travel_animation", from_coord, to_coord)) or started
+	return started
+
+func _map_travel_animation_seconds() -> float:
+	if mini_map != null and mini_map.has_method("travel_animation_seconds"):
+		return float(mini_map.call("travel_animation_seconds"))
+	return 0.0
 
 func _play_door_opening_animation(door_tile: Vector2i) -> void:
 	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)
@@ -9658,6 +10246,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
+	_sync_pre_battle_overlay_layering()
 
 func _open_level_up_overlay() -> void:
 	if _upgrade_scrim == null or not _can_level_at_campfire():
@@ -9669,6 +10258,7 @@ func _open_level_up_overlay() -> void:
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
+	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
 	if _upgrade_scrim != null:
@@ -9678,6 +10268,7 @@ func _close_card_upgrade_overlay() -> void:
 	_clear_equipment_drag_state(true)
 	_clear_magic_drag_state(true)
 	_clear_item_drag_state(true)
+	_sync_pre_battle_overlay_layering()
 
 func _rebuild_progression_overlay() -> void:
 	if _upgrade_dialog == null:

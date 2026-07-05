@@ -50,6 +50,7 @@ const MERCHANT_STOCK_KEY: String = "merchant_stock"
 const MERCHANT_SOLD_KEY: String = "merchant_sold_items"
 const MERCHANT_PURCHASED_KEY: String = "merchant_purchased_items"
 const MERCHANT_REFILL_COUNT_KEY: String = "merchant_refill_count"
+const MODE_PRE_BATTLE: String = "pre_battle"
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -214,7 +215,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	_stage_recovery_marker(next_state)
 	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(next_state, current_coord)
-	if str(next_state.get("mode", "room")) != "combat" or not _room_blocks_exit_reveal(current_room):
+	if str(next_state.get("mode", "room")) not in ["combat", MODE_PRE_BATTLE] or not _room_blocks_exit_reveal(current_room):
 		_reveal_neighbors(next_state, current_coord)
 		_ensure_loop_escape_connection(next_state, current_coord)
 		_sync_current_layout_doors(next_state, current_coord)
@@ -269,6 +270,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	_clear_pre_battle_state(next_state)
 	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
 	var destination_key: String = _room_key(destination)
 	var current_key: String = _room_key(current)
@@ -338,6 +340,86 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
+	return next_state
+
+func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Dictionary:
+	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	if destination == current:
+		return run_state.duplicate(true)
+	if not available_moves(run_state).has(destination):
+		return run_state.duplicate(true)
+	var current_room_before_move: Dictionary = room_metadata(run_state, current)
+	var connection: Dictionary = _connection_to_room(current_room_before_move, destination)
+	if connection.is_empty():
+		return run_state.duplicate(true)
+	var next_state: Dictionary = run_state.duplicate(true)
+	_clear_pre_battle_state(next_state)
+	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
+	var destination_key: String = _room_key(destination)
+	var current_key: String = _room_key(current)
+	var current_room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), current, rooms.get(current_key, {}) as Dictionary)
+	current_room["sealed"] = true
+	rooms[current_key] = current_room
+	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
+	room["revealed"] = true
+	room["visited"] = true
+	room["sealed"] = false
+	rooms[destination_key] = room
+	next_state["current_room"] = destination
+	next_state["turns_spent"] = int(next_state.get("turns_spent", 0)) + 1
+	next_state["notice"] = ""
+	next_state["rooms"] = rooms
+	var reveal_exits_on_entry: bool = not _room_blocks_exit_reveal(room)
+	if reveal_exits_on_entry:
+		_reveal_neighbors(next_state, destination)
+		_ensure_loop_escape_connection(next_state, destination)
+	rooms = next_state.get("rooms", {}).duplicate(true)
+	room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
+	var merchant_kind: String = merchant_kind_for_room(room)
+	if not merchant_kind.is_empty():
+		room = _merchant_room_with_stock(next_state, room, merchant_kind)
+		rooms[destination_key] = room
+		next_state["rooms"] = rooms
+	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
+	next_state["current_room_layout"] = _display_layout_for_room(int(next_state.get("seed", 0)), room, travel_dir)
+	_stage_recovery_marker(next_state)
+	if str(room.get("type", "combat")) not in ["combat", "boss"] or bool(room.get("cleared", false)) or _room_has_npcs(room):
+		return move_to_room(run_state, destination)
+	next_state["mode"] = MODE_PRE_BATTLE
+	next_state["combat_state"] = {}
+	next_state["pre_battle_pending"] = true
+	next_state["pre_battle_travel_dir"] = travel_dir
+	return next_state
+
+func pre_battle_preview_state(run_state: Dictionary) -> Dictionary:
+	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE:
+		return {}
+	var next_state: Dictionary = run_state.duplicate(true)
+	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
+	if not _room_blocks_exit_reveal(room):
+		return {}
+	var travel_dir: Vector2i = next_state.get("pre_battle_travel_dir", Vector2i.ZERO)
+	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
+	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+	next_state["combat_state"] = combat_state
+	next_state["mode"] = "combat"
+	return next_state
+
+func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
+	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE:
+		return run_state.duplicate(true)
+	var next_state: Dictionary = run_state.duplicate(true)
+	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
+	if not _room_blocks_exit_reveal(room):
+		return next_state
+	var travel_dir: Vector2i = next_state.get("pre_battle_travel_dir", Vector2i.ZERO)
+	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
+	if _equipment_drop_can_attempt(next_state, room):
+		next_state = _record_equipment_drop_attempt(next_state, layout)
+	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
+	next_state["combat_state"] = combat_state
+	next_state["mode"] = "combat"
+	_clear_pre_battle_state(next_state)
 	return next_state
 
 func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
@@ -411,7 +493,7 @@ func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
 	return next_state
 
 func can_change_equipment(run_state: Dictionary) -> bool:
-	return str(run_state.get("mode", "room")) in ["room", "campfire"]
+	return str(run_state.get("mode", "room")) in ["room", "campfire", MODE_PRE_BATTLE]
 
 func can_change_magic(run_state: Dictionary) -> bool:
 	return can_change_equipment(run_state)
@@ -1557,6 +1639,10 @@ func _room_npcs_for_coord(seed: int, coord: Vector2i) -> Array[Dictionary]:
 
 func _room_has_npcs(room: Dictionary) -> bool:
 	return (room.get("npcs", []) as Array).size() > 0
+
+func _clear_pre_battle_state(run_state: Dictionary) -> void:
+	run_state.erase("pre_battle_pending")
+	run_state.erase("pre_battle_travel_dir")
 
 func _room_blocks_exit_reveal(room: Dictionary) -> bool:
 	var room_type: String = str(room.get("type", "combat"))

@@ -33,6 +33,11 @@ const LEGEND_PADDING: float = 12.0
 const LEGEND_ROW_HEIGHT: float = 26.0
 const RECOVERY_MARKER_ICON_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 const RECOVERY_MARKER_ACCENT: Color = Color("ff9d39")
+const TRAVEL_ANIMATION_SECONDS: float = 0.34
+const TRAVEL_SETTLE_SECONDS: float = 0.08
+const TRAVEL_TRACE_COLOR: Color = Color("ff9d39")
+const TRAVEL_TRACE_CORE_COLOR: Color = Color("ffe39a")
+const TRAVEL_TOKEN_COLOR: Color = Color("fff0b8")
 
 var run_state: Dictionary = {}
 @export var interactive: bool = true
@@ -42,6 +47,14 @@ var _hover_coord: Vector2i = Vector2i(-999, -999)
 var _room_icon_textures: Dictionary = {}
 var _recovery_marker_texture: Texture2D = null
 var _run_state_signature: String = ""
+var _travel_from_coord: Vector2i = Vector2i(-999, -999)
+var _travel_to_coord: Vector2i = Vector2i(-999, -999)
+var _travel_active: bool = false
+var _travel_tween: Tween = null
+var _travel_progress: float = 0.0:
+	set(value):
+		_travel_progress = clampf(value, 0.0, 1.0)
+		queue_redraw()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
@@ -136,13 +149,122 @@ func _draw() -> void:
 		if not _room_visible_on_this_map(rooms[room_key]):
 			continue
 		_draw_room_shell(rooms[room_key])
+	_draw_travel_trace()
 	for room_key: String in rooms.keys():
 		var room: Dictionary = rooms[room_key]
 		if not _room_visible_on_this_map(room):
 			continue
 		_draw_room_node(room)
+	_draw_travel_token()
 	if show_legend:
 		_draw_map_legend()
+
+func begin_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
+	clear_travel_animation()
+	if not _can_play_travel_animation(from_coord, to_coord):
+		return false
+	_travel_from_coord = from_coord
+	_travel_to_coord = to_coord
+	_travel_active = true
+	_travel_progress = 0.0
+	if is_inside_tree():
+		_travel_tween = create_tween()
+		_travel_tween.tween_property(self, "_travel_progress", 1.0, TRAVEL_ANIMATION_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_travel_tween.tween_interval(TRAVEL_SETTLE_SECONDS)
+		_travel_tween.tween_callback(Callable(self, "_finish_travel_animation"))
+	queue_redraw()
+	return true
+
+func clear_travel_animation() -> void:
+	if _travel_tween != null and _travel_tween.is_valid():
+		_travel_tween.kill()
+	_travel_tween = null
+	_finish_travel_animation()
+
+func travel_animation_seconds() -> float:
+	return TRAVEL_ANIMATION_SECONDS + TRAVEL_SETTLE_SECONDS
+
+func _finish_travel_animation() -> void:
+	_travel_tween = null
+	_travel_active = false
+	_travel_from_coord = Vector2i(-999, -999)
+	_travel_to_coord = Vector2i(-999, -999)
+	_travel_progress = 0.0
+	queue_redraw()
+
+func _can_play_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
+	if run_state.is_empty() or from_coord == to_coord:
+		return false
+	if from_coord.x <= -900 or to_coord.x <= -900:
+		return false
+	var from_room: Dictionary = _room_at(from_coord)
+	var to_room: Dictionary = _room_at(to_coord)
+	if from_room.is_empty() or to_room.is_empty():
+		return false
+	return _room_visible_on_this_map(from_room) and _room_visible_on_this_map(to_room)
+
+func _draw_travel_trace() -> void:
+	for command_var: Variant in _travel_visual_commands("trace"):
+		_draw_travel_visual_command(command_var as Dictionary)
+
+func _draw_travel_token() -> void:
+	for command_var: Variant in _travel_visual_commands("token"):
+		_draw_travel_visual_command(command_var as Dictionary)
+
+func _travel_visual_commands(layer: String = "") -> Array:
+	var commands: Array = []
+	if not _travel_active:
+		return commands
+	var from_pos: Vector2 = _coord_position(_travel_from_coord)
+	var to_pos: Vector2 = _coord_position(_travel_to_coord)
+	var end_pos: Vector2 = from_pos.lerp(to_pos, _travel_progress)
+	var base_width: float = clampf(_base_node_size() * 0.13, 2.0, 7.0)
+	if from_pos.distance_to(end_pos) > 0.5:
+		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(0.035, 0.018, 0.004, 0.66), "width": base_width + 5.0})
+		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.62), "width": base_width + 1.6})
+		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_CORE_COLOR.r, TRAVEL_TRACE_CORE_COLOR.g, TRAVEL_TRACE_CORE_COLOR.b, 0.84), "width": maxf(1.2, base_width * 0.46)})
+	var hint_radius: float = _base_node_size() * (0.64 + 0.08 * sin(_travel_progress * PI))
+	commands.append({"layer": "trace", "type": "arc", "center": to_pos, "radius": hint_radius, "color": Color(1.0, 0.70, 0.27, 0.18 + 0.30 * _travel_progress), "width": 2.0 if interactive else 1.2})
+	var mote_count: int = 5 if interactive else 3
+	for index: int in range(mote_count):
+		var mote_t: float = clampf(_travel_progress - float(index) * 0.085, 0.0, 1.0)
+		if mote_t <= 0.0:
+			continue
+		var center: Vector2 = from_pos.lerp(to_pos, mote_t)
+		var alpha: float = clampf((1.0 - float(index) * 0.13) * _travel_progress, 0.0, 0.78)
+		commands.append({"layer": "trace", "type": "circle", "center": center, "radius": maxf(1.4, base_width * (0.48 - float(index) * 0.035)), "color": Color(1.0, 0.74, 0.28, alpha)})
+	var token_pos: Vector2 = _travel_token_position()
+	var token_radius: float = clampf(_base_node_size() * 0.16, 3.0, 9.0)
+	var flare: float = sin(_travel_progress * PI)
+	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.95, "color": Color(1.0, 0.34, 0.08, 0.18 + 0.16 * flare)})
+	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.18, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.88)})
+	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 0.56, "color": TRAVEL_TOKEN_COLOR})
+	var direction: Vector2 = to_pos - from_pos
+	if direction.length() > 0.1:
+		direction = direction.normalized()
+		commands.append({"layer": "token", "type": "line", "from": token_pos - direction * token_radius * 2.3, "to": token_pos - direction * token_radius * 0.8, "color": Color(1.0, 0.54, 0.13, 0.42), "width": maxf(1.2, token_radius * 0.52)})
+	if layer.is_empty():
+		return commands
+	var filtered: Array = []
+	for command_var: Variant in commands:
+		var command: Dictionary = command_var
+		if str(command.get("layer", "")) == layer:
+			filtered.append(command)
+	return filtered
+
+func _draw_travel_visual_command(command: Dictionary) -> void:
+	match str(command.get("type", "")):
+		"line":
+			draw_line(command.get("from", Vector2.ZERO), command.get("to", Vector2.ZERO), command.get("color", Color.WHITE), float(command.get("width", 1.0)), true)
+		"arc":
+			draw_arc(command.get("center", Vector2.ZERO), float(command.get("radius", 0.0)), 0.0, TAU, 32, command.get("color", Color.WHITE), float(command.get("width", 1.0)), true)
+		"circle":
+			draw_circle(command.get("center", Vector2.ZERO), float(command.get("radius", 0.0)), command.get("color", Color.WHITE))
+
+func _travel_token_position() -> Vector2:
+	if not _travel_active:
+		return Vector2.ZERO
+	return _coord_position(_travel_from_coord).lerp(_coord_position(_travel_to_coord), _travel_progress)
 
 func _draw_room_shell(room: Dictionary) -> void:
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)

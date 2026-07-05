@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-03T23:44:29Z",
+  "updated_at": "2026-07-04T13:47:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -2902,30 +2902,6 @@
       }
     },
     {
-      "id": "mnt_20260517T212735Z_fcffaf58",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_engine.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_engine.gd",
-      "summary": "Elemental enemy reach budgets preserve movement safety.",
-      "details": "Air room enemies keep their +1 movement at medium/deep encounter depths, but elementalized attacks stay in a 3-4 range band so their max normal-roster move+attack reach is 8 instead of 9. Lightning room enemies keep high attack ranges, but positive move_toward/move_away actions lose 1 tile with a floor of 1 so their max normal-roster reach is 6.",
-      "status": "active",
-      "created_at": "2026-05-17T21:27:35Z",
-      "updated_at": "2026-05-17T21:27:35Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260517T212624Z_ad23b035"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "4e8fbef"
-      }
-    },
-    {
       "id": "mnt_20260520T035331Z_4dcac22b",
       "layer": "shared",
       "kind": "decision",
@@ -3306,28 +3282,6 @@
       }
     },
     {
-      "id": "mnt_20260529T160638Z_90aa8717",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_engine.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_engine.gd",
-      "summary": "Depth-two fire rooms keep shallow burn pressure",
-      "details": "Early playtest runs repeatedly died to depth-two fire burn spirals before reaching the first boss. Fire enemy attacks now use a one-player-scale burn payload at encounter depths 1-2 and only restore the heavier burn payload at deeper standard rooms, while keeping the direct fire damage bump at depth 2.",
-      "status": "active",
-      "created_at": "2026-05-29T16:06:38Z",
-      "updated_at": "2026-05-29T16:06:38Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "0d8389f"
-      }
-    },
-    {
       "id": "mnt_20260529T160700Z_0a71d6c4",
       "layer": "shared",
       "kind": "decision",
@@ -3342,28 +3296,6 @@
       "status": "active",
       "created_at": "2026-05-29T16:07:00Z",
       "updated_at": "2026-05-29T16:07:00Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "0d8389f"
-      }
-    },
-    {
-      "id": "mnt_20260529T160703Z_784792ce",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/room_generator.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/room_generator.gd",
-      "summary": "Depth-two fire traps keep shallow burn pressure",
-      "details": "Fire traps now apply one-player-scale burn at depths 1-2 and reserve the heavier burn payload for deeper fire rooms, matching the combat-engine fire enemy burn ramp used after early playtest deaths from depth-two burn attrition.",
-      "status": "active",
-      "created_at": "2026-05-29T16:07:03Z",
-      "updated_at": "2026-05-29T16:07:03Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
@@ -4663,6 +4595,77 @@
       "source": {
         "branch": "codex/improve-main-menu-title-shading",
         "commit": "753ee5a"
+      }
+    },
+    {
+      "id": "mnt_20260704T034455Z_6d95044d",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Enemy room elements now gate specialists instead of rewriting generic attacks",
+      "details": "CombatEngine assigns enemy intents from the enemy definition plus depth/sequence scaling only; room_element no longer converts generic attacks into fire/ice/lightning/air/earth variants. RoomGenerator gates specialist normal-room pools by matching room element: cinder_ooze=fire, frostglass_lancer=ice, chainbound_gaoler=air, bile_bloomer=earth; cinder_droplet remains split-only.",
+      "status": "active",
+      "created_at": "2026-07-04T03:44:55Z",
+      "updated_at": "2026-07-04T03:44:55Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260517T212735Z_fcffaf58",
+        "mnt_20260529T160638Z_90aa8717"
+      ],
+      "source": {
+        "branch": "codex/lock-enemy-elements-remove-variants",
+        "commit": "3a433c7"
+      }
+    },
+    {
+      "id": "mnt_20260704T130100Z_b6fdc974",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Pre-battle combat preview is a committed room mode, not a scouting modal",
+      "details": "Combat-room selection should move the run into mode=pre_battle at the destination before showing enemy details. The overlay has no back/close affordance and Start calls RunEngine.begin_pre_battle_combat so equipment, magic, and item loadout changes made in pre_battle rebuild the actual opening combat from the current deck. Do not restore the earlier behavior that previewed enemies before moving into the room.",
+      "status": "active",
+      "created_at": "2026-07-04T13:01:00Z",
+      "updated_at": "2026-07-04T13:01:00Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260704T040249Z_e6d14026"
+      ],
+      "source": {
+        "branch": "codex/pre-battle-combat-preview-screen",
+        "commit": "948ad7e"
+      }
+    },
+    {
+      "id": "mnt_20260704T134754Z_d588aa98",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pre-battle scrim must release mouse input while character overlay is open",
+      "details": "The pre-battle preview scrim is a full-screen input blocker. When Equip opens the character/loadout overlay from pre-battle, keep the preview visible behind it but set the pre-battle scrim mouse_filter to IGNORE and move the character overlay to front; restore STOP when the character overlay closes.",
+      "status": "active",
+      "created_at": "2026-07-04T13:47:54Z",
+      "updated_at": "2026-07-04T13:47:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/pre-battle-combat-preview-screen",
+        "commit": "b464d63"
       }
     }
   ]
