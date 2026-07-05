@@ -40,6 +40,8 @@ passable floor tiles, including edge-band tiles when connectivity stays intact.
 Those crates block movement without blocking line of sight.
 Enemies killed by a card add a bonus card play for the turn, so large damage and
 broad damage get a small execute-tempo premium.
+Player flow assumes 2 cards per turn, 2 draw per turn, and a 7-card max hand;
+the scorer values printed draw without simulating current hand occupancy.
 """
 
 from __future__ import annotations

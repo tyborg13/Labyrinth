@@ -85,7 +85,7 @@ func _initialize() -> void:
 	_test_cinder_ooze_split_skips_blocked_board()
 	_test_cinder_droplet_death_suppresses_rewards()
 	_test_cinder_droplet_does_not_resplit()
-	_test_hand_draw_caps_at_eight()
+	_test_hand_draw_caps_at_seven()
 	_test_first_attack_bonus_damage_math()
 	_test_relic_effect_hooks()
 	_test_tailwind_fletching_modifies_existing_forced_movement()
@@ -2216,7 +2216,7 @@ func _test_cinder_droplet_does_not_resplit() -> void:
 	state = combat.apply_player_action(state, {"type": "ranged", "damage": 999, "range": 5}, Vector2i(4, 4))
 	_assert(_enemies_of_type_for_test(state, "cinder_droplet", false).size() == 1, "Killing a Cinder Droplet should not append any resplit droplets")
 
-func _test_hand_draw_caps_at_eight() -> void:
+func _test_hand_draw_caps_at_seven() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(151, _simple_room_layout(), {
 		"hp": 24,
@@ -2227,14 +2227,14 @@ func _test_hand_draw_caps_at_eight() -> void:
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab"]
+	deck["hand"] = ["quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab", "quick_stab"]
 	deck["draw"] = ["quick_stab", "quick_stab", "quick_stab"]
 	deck["discard"] = []
 	deck["burned"] = []
 	state["deck"] = deck
 	state["draw_per_turn"] = 3
 	state = combat.prepare_next_player_turn(state)
-	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 8, "Drawing for a new turn should stop once the hand reaches eight cards")
+	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 7, "Drawing for a new turn should stop once the hand reaches seven cards")
 
 func _test_first_attack_bonus_damage_math() -> void:
 	var combat: CombatEngine = CombatEngine.new()
