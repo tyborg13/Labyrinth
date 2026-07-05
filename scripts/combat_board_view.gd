@@ -64,6 +64,9 @@ const LOOT_DRAW_WIDTH: float = 58.0
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
+const DEATH_FRAME_SECONDS: float = 0.065
+const DEATH_SHEET_COLUMNS: int = 4
+const DEATH_SHEET_ROWS: int = 4
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 const OUTER_WALL_RENDERING_ENABLED: bool = false
@@ -261,6 +264,7 @@ var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
 var _idle_frames_by_type: Dictionary = {}
+var _death_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_frame_key: String = ""
@@ -324,6 +328,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if not (presentation.get("impact_actor_keys", []) as Array).is_empty():
 		return true
 	if not (presentation.get("impact_decals", []) as Array).is_empty():
+		return true
+	if not (presentation.get("death_animation_units", []) as Array).is_empty():
 		return true
 	if not (presentation.get("preview_units", []) as Array).is_empty():
 		return true
@@ -2089,6 +2095,7 @@ func _visible_units() -> Array[Dictionary]:
 			"immobilize": bool(enemy.get("immobilize", false)),
 			"poison": enemy.get("poison", {}).duplicate(true)
 		})
+	units_to_draw.append_array(_death_animation_units_from_presentation())
 	for npc_index: int in range((combat_state.get("npcs", []) as Array).size()):
 		var npc: Dictionary = (combat_state.get("npcs", []) as Array)[npc_index]
 		var npc_id: String = str(npc.get("id", ""))
@@ -2112,6 +2119,45 @@ func _visible_units() -> Array[Dictionary]:
 	)
 	return units_to_draw
 
+func _death_animation_units_from_presentation() -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	for unit_var: Variant in presentation.get("death_animation_units", []):
+		if typeof(unit_var) != TYPE_DICTIONARY:
+			continue
+		var unit: Dictionary = (unit_var as Dictionary).duplicate(true)
+		var unit_type: String = str(unit.get("type", ""))
+		var unit_key: String = str(unit.get("key", ""))
+		if unit_type.is_empty() or unit_key.is_empty():
+			continue
+		var definition: Dictionary = GameData.enemy_def(unit_type)
+		if definition.is_empty():
+			continue
+		unit["key"] = unit_key
+		unit["role"] = "enemy"
+		unit["death_animation"] = true
+		unit["boss_bar"] = false
+		unit["name"] = str(unit.get("name", definition.get("name", "Enemy")))
+		unit["id"] = int(unit.get("id", -1))
+		var pos_value: Variant = unit.get("pos", Vector2i.ZERO)
+		unit["pos"] = pos_value if typeof(pos_value) == TYPE_VECTOR2I else Vector2i.ZERO
+		unit["hp"] = maxi(1, int(unit.get("hp", 1)))
+		unit["max_hp"] = maxi(1, int(unit.get("max_hp", unit.get("hp", 1))))
+		unit["block"] = 0
+		unit["stoneskin"] = 0
+		unit["burn"] = 0
+		unit["freeze"] = 0
+		unit["shock"] = 0
+		unit["immobilize"] = false
+		unit["poison"] = {}
+		if not unit.has("footprint"):
+			var footprint_value: Variant = definition.get("footprint", [])
+			if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
+				unit["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
+			else:
+				unit["footprint"] = Vector2i.ONE
+		units.append(unit)
+	return units
+
 func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
 		if _effective_unit_tile(unit) != tile:
@@ -2122,12 +2168,15 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	_draw_unit_shadow(unit)
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
+		var death_animation: bool = bool(unit.get("death_animation", false))
 		var draw_rect: Rect2 = _unit_draw_rect(unit)
 		var impact: float = _unit_impact_strength(unit)
 		var impact_offset := Vector2.ZERO
 		if impact > 0.0:
 			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
+		if death_animation:
+			shifted_rect = _death_animation_draw_rect(shifted_rect, float(unit.get("death_progress", 0.0)))
 		var body_tint: Color = Color.WHITE
 		var role: String = str(unit.get("role", ""))
 		if role == "illusion_preview":
@@ -2139,6 +2188,8 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			var echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -5.0), shifted_rect.size)
 			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
+		elif death_animation:
+			body_tint = _death_animation_tint(unit)
 		draw_texture_rect(texture, shifted_rect, false, body_tint)
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
@@ -2151,6 +2202,8 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
 	var reserved_rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
 	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)):
+			continue
 		var center: Vector2 = _unit_center(unit)
 		if str(unit.get("role", "")) == "npc":
 			_draw_npc_nameplate(unit, center)
@@ -4392,6 +4445,7 @@ func _load_assets() -> void:
 		_keyword_icon_textures[icon_key] = ActionIcons.icon_texture(icon_key)
 	_unit_textures.clear()
 	_idle_frames_by_type.clear()
+	_death_frames_by_type.clear()
 	_unit_shadow_polygon_cache.clear()
 	_unit_shadow_bottom_ratio_cache.clear()
 	_unit_textures["player"] = _load_unit_texture_with_idle("player", "res://assets/placeholders/units/player_reaver.png")
@@ -4467,6 +4521,9 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 	return canvas_size
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
+	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
+	if _unit_death_animation_active(unit) and not death_frames.is_empty():
+		return death_frames[_death_frame_index(unit)]
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if _unit_idle_animation_active(unit) and not idle_frames.is_empty():
 		return idle_frames[_idle_frame_index(unit)]
@@ -4479,6 +4536,9 @@ func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Textur
 		_idle_frames_by_type[unit_type] = idle_frames
 		if texture == null:
 			return idle_frames[0]
+	var death_frames: Array[Texture2D] = _load_death_frames_for_art_path(unit_type, art_path)
+	if not death_frames.is_empty():
+		_death_frames_by_type[unit_type] = death_frames
 	return texture
 
 func _load_idle_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
@@ -4495,6 +4555,20 @@ func _load_idle_frames_for_art_path(unit_type: String, art_path: String) -> Arra
 	)
 	return AssetLoader.build_sprite_sheet_frames(idle_sheet, frame_size, _idle_frame_indices(idle_layout))
 
+func _load_death_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
+	var death_frames: Array[Texture2D] = []
+	if art_path.is_empty():
+		return death_frames
+	var death_sheet: Texture2D = AssetLoader.load_texture_by_stem("%s_death" % art_path.get_basename(), AssetLoader.PNG_FIRST_TEXTURE_EXTENSIONS)
+	if death_sheet == null:
+		return death_frames
+	var death_layout: Dictionary = _unit_death_sheet_layout(unit_type)
+	var frame_size := Vector2i(
+		int(death_sheet.get_width() / int(death_layout.get("columns", DEATH_SHEET_COLUMNS))),
+		int(death_sheet.get_height() / int(death_layout.get("rows", DEATH_SHEET_ROWS)))
+	)
+	return AssetLoader.build_sprite_sheet_frames(death_sheet, frame_size, _idle_frame_indices(death_layout))
+
 func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
 	var definition: Dictionary = {}
 	if unit_type != "player" and not unit_type.is_empty():
@@ -4506,6 +4580,19 @@ func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
 		"rows": maxi(1, int(definition.get("idle_sheet_rows", IDLE_SHEET_ROWS))),
 		"order": str(definition.get("idle_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR)),
 		"ping_pong": bool(definition.get("idle_sheet_ping_pong", false))
+	}
+
+func _unit_death_sheet_layout(unit_type: String) -> Dictionary:
+	var definition: Dictionary = {}
+	if unit_type != "player" and not unit_type.is_empty():
+		definition = GameData.npc_def(unit_type)
+		if definition.is_empty():
+			definition = GameData.enemy_def(unit_type)
+	return {
+		"columns": maxi(1, int(definition.get("death_sheet_columns", DEATH_SHEET_COLUMNS))),
+		"rows": maxi(1, int(definition.get("death_sheet_rows", DEATH_SHEET_ROWS))),
+		"order": str(definition.get("death_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR)),
+		"ping_pong": bool(definition.get("death_sheet_ping_pong", false))
 	}
 
 func _idle_frame_indices(layout: Dictionary) -> Array:
@@ -4539,6 +4626,21 @@ func _unit_idle_frames(unit: Dictionary) -> Array[Texture2D]:
 		return []
 	return _idle_frames_by_type[unit_type]
 
+func _unit_death_frames(unit: Dictionary) -> Array[Texture2D]:
+	var unit_type: String = str(unit.get("type", ""))
+	if not _death_frames_by_type.has(unit_type):
+		return []
+	return _death_frames_by_type[unit_type]
+
+func _unit_death_frame_count(unit: Dictionary) -> int:
+	return _unit_death_frames(unit).size()
+
+func _death_frame_index(unit: Dictionary) -> int:
+	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
+	if death_frames.is_empty():
+		return 0
+	return clampi(int(unit.get("death_frame", 0)), 0, death_frames.size() - 1)
+
 func _idle_frame_index(unit: Dictionary) -> int:
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if idle_frames.is_empty():
@@ -4553,6 +4655,15 @@ func _unit_idle_frame_seconds(unit: Dictionary) -> float:
 	if definition.is_empty():
 		definition = GameData.enemy_def(unit_type)
 	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
+
+func _unit_death_frame_seconds(unit: Dictionary) -> float:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return DEATH_FRAME_SECONDS
+	var definition: Dictionary = GameData.npc_def(unit_type)
+	if definition.is_empty():
+		definition = GameData.enemy_def(unit_type)
+	return maxf(0.01, float(definition.get("death_frame_seconds", DEATH_FRAME_SECONDS)))
 
 func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
 	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
@@ -4587,6 +4698,8 @@ func _active_idle_frame_key() -> String:
 func _unit_idle_animation_active(unit: Dictionary) -> bool:
 	if not visible or combat_state.is_empty() or _unit_idle_frames(unit).is_empty():
 		return false
+	if bool(unit.get("death_animation", false)):
+		return false
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty():
 		return false
@@ -4597,6 +4710,11 @@ func _unit_idle_animation_active(unit: Dictionary) -> bool:
 		return true
 	var focus_actor_keys: Array = presentation.get("focus_actor_keys", [])
 	return not focus_actor_keys.has(actor_key)
+
+func _unit_death_animation_active(unit: Dictionary) -> bool:
+	if not visible or combat_state.is_empty() or not bool(unit.get("death_animation", false)):
+		return false
+	return not _unit_death_frames(unit).is_empty()
 
 func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
 	if not visible or combat_state.is_empty():
@@ -4670,6 +4788,27 @@ func _scaled_unit_rect(rect: Rect2, scale: float) -> Rect2:
 		rect.position.y + rect.size.y - scaled_size.y
 	)
 	return Rect2(scaled_position, scaled_size)
+
+func _death_animation_draw_rect(rect: Rect2, progress: float) -> Rect2:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return rect
+	var t: float = clampf(progress, 0.0, 1.0)
+	var vertical_scale: float = lerpf(1.0, 0.62, smoothstep(0.34, 1.0, t))
+	var horizontal_scale: float = 1.0 + sin(t * PI) * 0.10
+	var draw_size := Vector2(rect.size.x * horizontal_scale, rect.size.y * vertical_scale)
+	var bottom_center := Vector2(rect.get_center().x, rect.end.y)
+	return Rect2(Vector2(bottom_center.x - draw_size.x * 0.5, bottom_center.y - draw_size.y), draw_size)
+
+func _death_animation_tint(unit: Dictionary) -> Color:
+	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
+	var alpha: float = 1.0 - smoothstep(0.72, 1.0, t)
+	return Color(0.78, 0.76, 0.92, clampf(alpha, 0.0, 1.0))
+
+func _unit_shadow_alpha_scale(unit: Dictionary) -> float:
+	if not bool(unit.get("death_animation", false)):
+		return 1.0
+	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
+	return 1.0 - smoothstep(0.45, 1.0, t)
 
 func _unit_art_scale(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
@@ -4798,6 +4937,9 @@ func _tile_at_point(point: Vector2) -> Vector2i:
 func _draw_unit_shadow(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) in ["illusion", "illusion_preview"]:
 		return
+	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
+	if shadow_alpha_scale <= 0.02:
+		return
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture == null:
 		_draw_unit_shadow_fallback(unit)
@@ -4812,24 +4954,31 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	var foot_point: Vector2 = _unit_shadow_foot_point(texture, draw_rect, bounds, str(unit.get("type", "")))
 	var shadow_origin: Vector2 = foot_point + Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
 	var drew_shadow: bool = false
+	var shadow_color: Color = UNIT_SHADOW_COLOR
+	var soft_color: Color = UNIT_SHADOW_SOFT_COLOR
+	shadow_color.a *= shadow_alpha_scale
+	soft_color.a *= shadow_alpha_scale
 	for local_polygon: PackedVector2Array in shadow_polygons:
 		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, shadow_origin)
 		if not _polygon_can_draw(shadow_polygon):
 			continue
 		var soft_polygon: PackedVector2Array = _scaled_polygon(shadow_polygon, UNIT_SHADOW_SOFT_SCALE)
 		if _polygon_can_draw(soft_polygon):
-			draw_colored_polygon(soft_polygon, UNIT_SHADOW_SOFT_COLOR)
-		draw_colored_polygon(shadow_polygon, UNIT_SHADOW_COLOR)
+			draw_colored_polygon(soft_polygon, soft_color)
+		draw_colored_polygon(shadow_polygon, shadow_color)
 		drew_shadow = true
 	if not drew_shadow:
 		_draw_unit_shadow_fallback(unit)
 
 func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
+	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
+	if shadow_alpha_scale <= 0.02:
+		return
 	var draw_rect: Rect2 = _unit_draw_rect(unit)
 	var center := Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y - _tile_height() * 0.03)
 	var width: float = clampf(draw_rect.size.x * 0.54, _tile_width() * 0.26, _tile_width() * 0.68)
 	var height: float = clampf(_tile_height() * 0.34, _tile_height() * 0.20, _tile_height() * 0.44)
-	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20)
+	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20 * shadow_alpha_scale)
 
 func _unit_shadow_polygons_for_texture(texture: Texture2D) -> Array[PackedVector2Array]:
 	return _unit_shadow_data_for_texture(texture).get("polygons", []) as Array[PackedVector2Array]

@@ -179,6 +179,7 @@ func _initialize() -> void:
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
 	_test_final_art_units_use_16_frame_idle_sheets()
+	_test_enemy_death_sheets_load_for_full_roster()
 	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
@@ -205,6 +206,7 @@ func _initialize() -> void:
 	_test_combat_board_ambient_particles_follow_room_element()
 	_test_combat_board_loads_defense_heal_cast_frames()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
+	_test_run_scene_surfaces_defeated_enemy_death_units()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_room_icon_library_covers_door_room_types()
 	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
@@ -5218,6 +5220,68 @@ func _test_final_art_units_use_16_frame_idle_sheets() -> void:
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", unit)), 0.1), "%s idle loop should use the default frame cadence" % unit_type)
 	board.free()
 
+func _test_enemy_death_sheets_load_for_full_roster() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20},
+		"enemies": [{
+			"id": 99,
+			"type": "crawler",
+			"pos": Vector2i(4, 4),
+			"hp": 0,
+			"max_hp": 10,
+			"block": 0
+		}]
+	}
+	for enemy_type: String in GameData.enemies().keys():
+		var definition: Dictionary = GameData.enemy_def(enemy_type)
+		var art_path: String = str(definition.get("art_path", ""))
+		var death_path: String = "%s_death.%s" % [art_path.get_basename(), art_path.get_extension()]
+		var unit := {
+			"key": "enemy_%s_death" % enemy_type,
+			"role": "enemy",
+			"type": enemy_type,
+			"death_animation": true,
+			"death_frame": 5,
+			"death_progress": 0.42
+		}
+		var death_frames: Array = board.call("_unit_death_frames", unit)
+		_assert(FileAccess.file_exists(death_path), "%s death sheet should exist beside its base art" % enemy_type)
+		_assert(death_frames.size() == 16, "%s death sheet should load all 16 shadow-dissolve frames" % enemy_type)
+		if death_frames.size() >= 16:
+			var first_frame: AtlasTexture = death_frames[0] as AtlasTexture
+			var last_frame: AtlasTexture = death_frames[death_frames.size() - 1] as AtlasTexture
+			_assert((death_frames[0] as Texture2D).get_size() == Vector2(255.0, 255.0), "%s death frames should use the native 255px unit canvas" % enemy_type)
+			_assert(first_frame != null and last_frame != null, "%s death frames should be atlas-backed slices" % enemy_type)
+			_assert(first_frame.region.position == Vector2.ZERO, "%s death animation should begin at the first source frame" % enemy_type)
+			_assert(last_frame.region.position == Vector2(765.0, 765.0), "%s death animation should include the final 4x4 source frame" % enemy_type)
+			_assert(board.call("_texture_for_unit", unit) == death_frames[5], "%s death presentation should select the requested death frame" % enemy_type)
+	var death_entry := {
+		"key": "enemy_99",
+		"id": 99,
+		"type": "crawler",
+		"name": "Tunnel Crawler",
+		"pos": Vector2i(4, 4),
+		"death_frame": 3,
+		"death_progress": 0.3
+	}
+	board.presentation = {"death_animation_units": [death_entry]}
+	var found_death_unit: bool = false
+	for visible_var: Variant in board.call("_visible_units"):
+		if typeof(visible_var) != TYPE_DICTIONARY:
+			continue
+		var visible_unit: Dictionary = visible_var
+		if str(visible_unit.get("key", "")) != "enemy_99":
+			continue
+		found_death_unit = true
+		_assert(bool(visible_unit.get("death_animation", false)), "Death presentation units should be marked for dissolve rendering")
+		_assert(int(visible_unit.get("hp", 0)) > 0, "Death presentation units should stay drawable even when combat state HP is zero")
+	_assert(found_death_unit, "Combat board should surface presentation-only death animation units")
+	board.free()
+
 func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
@@ -8524,6 +8588,50 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	_assert(rendered_player.get("pos", Vector2i.ZERO) == (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "Animation-locked stage refresh should not draw the resolved player preview before the move animation starts")
 	instance.queue_free()
 	await process_frame
+
+func _test_run_scene_surfaces_defeated_enemy_death_units() -> void:
+	var instance := RunSceneScript.new()
+	var before_state: Dictionary = {
+		"enemies": [{
+			"id": 7,
+			"type": "chainbound_gaoler",
+			"pos": Vector2i(5, 4),
+			"footprint": Vector2i(2, 1),
+			"hp": 24,
+			"max_hp": 90,
+			"block": 0
+		}]
+	}
+	var after_state: Dictionary = before_state.duplicate(true)
+	var enemies: Array = (after_state.get("enemies", []) as Array).duplicate(true)
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["pos"] = Vector2i(6, 4)
+	enemy["hp"] = 0
+	enemies[0] = enemy
+	after_state["enemies"] = enemies
+	var units: Array = instance.call("_defeated_enemy_units_between_states", before_state, after_state)
+	_assert(units.size() == 1, "RunScene should produce a death presentation unit for enemies crossing to zero HP")
+	if not units.is_empty():
+		var death_unit: Dictionary = units[0]
+		_assert(str(death_unit.get("key", "")) == "enemy_7", "Death presentation units should preserve stable enemy actor keys")
+		_assert(str(death_unit.get("type", "")) == "chainbound_gaoler", "Death presentation units should preserve enemy type for sheet lookup")
+		_assert(death_unit.get("pos", Vector2i.ZERO) == Vector2i(6, 4), "Death presentation units should use the defeated enemy's final tile after forced movement")
+		_assert(death_unit.get("footprint", Vector2i.ONE) == Vector2i(2, 1), "Death presentation units should preserve large enemy footprints")
+		_assert(bool(death_unit.get("death_animation", false)), "Death presentation units should opt into dissolve rendering")
+	var hold_presentation: Dictionary = instance.call("_death_hold_presentation", before_state, after_state, {
+		"focus_actor_keys": ["player"],
+		"floating_texts": []
+	})
+	var hold_units: Array = hold_presentation.get("death_animation_units", [])
+	_assert(hold_units.size() == 1, "Post-lethal impact presentations should keep a frame-zero death unit visible before the dissolve starts")
+	_assert(hold_presentation.get("focus_actor_keys", []) == ["player"], "Death hold presentations should preserve existing impact presentation keys")
+	if not hold_units.is_empty():
+		var hold_unit: Dictionary = hold_units[0]
+		_assert(str(hold_unit.get("key", "")) == "enemy_7", "Death hold units should reuse the defeated enemy actor key")
+		_assert(hold_unit.get("pos", Vector2i.ZERO) == Vector2i(6, 4), "Death hold units should keep forced-movement deaths on the final tile")
+		_assert(int(hold_unit.get("death_frame", -1)) == 0, "Death hold units should start on the first death frame")
+		_assert(is_equal_approx(float(hold_unit.get("death_progress", -1.0)), 0.0), "Death hold units should not advance dissolve progress during impact text")
+	instance.free()
 
 func _test_run_scene_discard_pile_is_face_up_without_count() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

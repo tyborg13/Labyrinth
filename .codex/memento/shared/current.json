@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-04T13:47:54Z",
+  "updated_at": "2026-07-05T16:34:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4666,6 +4666,28 @@
       "source": {
         "branch": "codex/pre-battle-combat-preview-screen",
         "commit": "b464d63"
+      }
+    },
+    {
+      "id": "mnt_20260705T163429Z_311e73d8",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Death animation presentation should use the enemy's final after-state position.",
+      "details": "When an enemy dies after forced movement or a trap, before_state may contain the pre-push tile while after_state still carries the defeated enemy at the actual death tile. Death hold/dissolve units should source pos/footprint from after_enemy when available, falling back to before_enemy only when the defeated enemy was removed.",
+      "status": "active",
+      "created_at": "2026-07-05T16:34:29Z",
+      "updated_at": "2026-07-05T16:34:29Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-enemy-shadow-death-animations-with-retro-diffusion",
+        "commit": "f138298"
       }
     }
   ]
