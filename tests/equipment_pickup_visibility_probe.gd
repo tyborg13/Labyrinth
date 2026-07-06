@@ -17,8 +17,10 @@ func _initialize() -> void:
 	await process_frame
 	board.call("set_combat_state", _probe_state())
 	await process_frame
-	await create_timer(0.22).timeout
-	await _save_root_screenshot("%s/equipment_pickup_visibility.png" % OUTPUT_DIR)
+	await create_timer(0.16).timeout
+	await _save_root_screenshot("%s/equipment_pickup_visibility_a.png" % OUTPUT_DIR)
+	await create_timer(0.46).timeout
+	await _save_root_screenshot("%s/equipment_pickup_visibility_b.png" % OUTPUT_DIR)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit()
 

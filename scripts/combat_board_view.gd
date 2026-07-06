@@ -1897,29 +1897,17 @@ func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Text
 	var accent: Color = _equipment_loot_accent(loot)
 	var glow_color: Color = _equipment_pickup_glow_color(accent)
 	var pulse: float = _equipment_pickup_pulse(tile, loot)
+	var bobbed_rect: Rect2 = Rect2(loot_rect.position + _equipment_pickup_bob_offset(pulse), loot_rect.size)
 	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
 	_draw_rect_ground_shadow(tile, loot_rect, 0.54, 0.15, 0.10)
-	_draw_equipment_pickup_outline(loot_texture, loot_rect, glow_color, pulse)
-	draw_texture_rect(loot_texture, loot_rect, false)
+	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
+	draw_texture_rect(loot_texture, bobbed_rect, false)
 
 func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
-	var center: Vector2 = _tile_center(tile)
-	var ground_center: Vector2 = center + Vector2(0.0, _tile_height() * 0.20)
-	_draw_iso_ground_glow(
-		ground_center,
-		_tile_width() * (0.82 + pulse * 0.06),
-		_tile_height() * (0.34 + pulse * 0.04),
-		glow_color,
-		0.22 + pulse * 0.09
-	)
-	_draw_iso_ground_glow(
-		ground_center + Vector2(0.0, -_tile_height() * 0.03),
-		_tile_width() * 0.48,
-		_tile_height() * 0.18,
-		accent.lightened(0.36),
-		0.12 + pulse * 0.06
-	)
-	_draw_tile_ring(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.36 + pulse * 0.18), 2.3 + pulse * 0.9, 0.72 + pulse * 0.04)
+	var accent_glow: Color = accent.lightened(0.36)
+	_draw_tile_diamond_fill(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.10 + pulse * 0.06), 0.70 + pulse * 0.05)
+	_draw_tile_ring(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.46 + pulse * 0.22), 3.0 + pulse * 1.1, 0.76 + pulse * 0.05)
+	_draw_tile_ring(tile, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.56 + pulse * 0.18), 1.6 + pulse * 0.5, 0.58 + pulse * 0.03)
 
 func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_color: Color, pulse: float) -> void:
 	var offset_px: float = maxf(2.4, _tile_width() * 0.022)
@@ -1933,24 +1921,24 @@ func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_c
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
 	draw_texture_rect(texture, loot_rect.grow(maxf(1.0, _tile_width() * 0.006)), false, Color(1.0, 0.92, 0.62, 0.14 + pulse * 0.06))
 
-func _draw_iso_ground_glow(center: Vector2, width: float, height: float, color: Color, alpha: float) -> void:
-	if width <= 0.0 or height <= 0.0 or alpha <= 0.0:
-		return
-	for layer: int in range(3, 0, -1):
-		var layer_ratio: float = float(layer) / 3.0
-		var layer_width: float = width * (1.0 + layer_ratio * 0.28)
-		var layer_height: float = height * (1.0 + layer_ratio * 0.22)
-		var layer_alpha: float = alpha * (0.24 + (1.0 - layer_ratio) * 0.34)
-		var points := PackedVector2Array()
-		for step: int in range(SHADOW_POINT_COUNT):
-			var angle: float = TAU * float(step) / float(SHADOW_POINT_COUNT)
-			var unit_y: float = sin(angle)
-			points.append(center + Vector2(cos(angle) * layer_width * 0.5 + unit_y * layer_width * 0.08, unit_y * layer_height * 0.5))
-		draw_colored_polygon(points, Color(color.r, color.g, color.b, layer_alpha))
+func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width() * scale
+	var tile_height: float = _tile_height() * scale
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0)
+	])
+	draw_colored_polygon(points, color)
 
 func _equipment_pickup_pulse(tile: Vector2i, loot: Dictionary) -> float:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
 	return 0.5 + 0.5 * sin(time_seconds * 2.65 + _equipment_loot_phase(tile, loot))
+
+func _equipment_pickup_bob_offset(pulse: float) -> Vector2:
+	return Vector2(0.0, -_tile_height() * (0.035 + pulse * 0.060))
 
 func _equipment_loot_phase(tile: Vector2i, loot: Dictionary) -> float:
 	var equipment_id: String = str(loot.get("equipment_id", ""))
