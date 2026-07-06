@@ -82,14 +82,15 @@ void fragment() {
 var _progression: Dictionary = {}
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
-var _title_shadow_lines: Array[Label] = []
-var _title_rim_lines: Array[Label] = []
-var _title_base_lines: Array[Label] = []
-var _title_face_lines: Array[Label] = []
-var _title_face_materials: Array[ShaderMaterial] = []
+var _title_shadow_lines: Array[Label]
+var _title_rim_lines: Array[Label]
+var _title_base_lines: Array[Label]
+var _title_face_lines: Array[Label]
+var _title_face_materials: Array[ShaderMaterial]
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	_initialize_title_arrays()
 	resized.connect(_update_layout)
 	_apply_style()
 	_reload_progression()
@@ -151,6 +152,17 @@ func _configure_title_container(control: Control) -> void:
 	if control is Label:
 		(control as Label).text = ""
 
+func _initialize_title_arrays() -> void:
+	_title_shadow_lines = _make_empty_title_label_array()
+	_title_rim_lines = _make_empty_title_label_array()
+	_title_base_lines = _make_empty_title_label_array()
+	_title_face_lines = _make_empty_title_label_array()
+	_title_face_materials = _make_title_face_material_array()
+
+func _make_empty_title_label_array() -> Array[Label]:
+	var labels: Array[Label]
+	return labels
+
 func _ensure_title_line_labels() -> void:
 	if not _title_shadow_lines.is_empty():
 		return
@@ -158,7 +170,7 @@ func _ensure_title_line_labels() -> void:
 	_title_rim_lines = _make_title_line_labels(title_rim_label, "TitleRimLine")
 	_title_base_lines = _make_title_line_labels(title_label, "TitleBaseLine")
 	_title_face_lines = _make_title_line_labels(title_face_blend, "TitleFaceLine")
-	_title_face_materials.clear()
+	_title_face_materials = _make_title_face_material_array()
 	for index: int in range(_title_face_lines.size()):
 		var material := _make_title_face_material()
 		_title_face_materials.append(material)
@@ -167,7 +179,7 @@ func _ensure_title_line_labels() -> void:
 func _make_title_line_labels(parent: Node, prefix: String) -> Array[Label]:
 	for child: Node in parent.get_children():
 		child.queue_free()
-	var labels: Array[Label] = []
+	var labels: Array[Label]
 	for index: int in range(TITLE_LINE_TEXTS.size()):
 		var label := Label.new()
 		label.name = "%s%d" % [prefix, index + 1]
@@ -175,6 +187,10 @@ func _make_title_line_labels(parent: Node, prefix: String) -> Array[Label]:
 		parent.add_child(label)
 		labels.append(label)
 	return labels
+
+func _make_title_face_material_array() -> Array[ShaderMaterial]:
+	var materials: Array[ShaderMaterial]
+	return materials
 
 func _apply_title_layer_style(labels: Array[Label], color: Color, outline_color: Color, outline_size: int, modulate_color: Color) -> void:
 	for index: int in range(labels.size()):
