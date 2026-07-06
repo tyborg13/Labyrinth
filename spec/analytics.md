@@ -104,9 +104,11 @@ resolved action as `orientation`; legal push and pull direction choices are
 additive as `force_direction`, while `play_mode` comparison ignores those runtime
 direction fields so printed cards still classify as printed plays.
 
-`enemy_status_tick` captures delayed status resolution when the affected enemy's
-own initiative activation starts. It is useful for later value-model work, but
-it is not yet card-source attributed.
+`enemy_status_tick` captures delayed enemy status resolution. Burn and poison
+use `trigger: "turn_start"` when the affected enemy's initiative activation
+starts; bleed can use `trigger: "action"` plus `action_type` when a wounded enemy
+chooses a move or attack action during that activation. It is useful for later
+value-model work, but it is not yet card-source attributed.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as

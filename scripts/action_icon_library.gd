@@ -84,7 +84,7 @@ const KEYWORDS: Dictionary = {
 	},
 	"bleed": {
 		"label": "Bleed",
-		"description": "Physical damage over time. Ticks at the start of turn, then decays.",
+		"description": "Physical wound damage. Triggers before move or attack actions, then clears after the next turn.",
 		"path": "%s/bleed.png" % ICON_ROOT
 	},
 	"expose": {

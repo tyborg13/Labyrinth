@@ -40,6 +40,8 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(-1, 0)
 ]
 const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "bleed", "expose", "sunder", "chain", "push", "pull"]
+const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull"]
+const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
@@ -352,6 +354,9 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 		"move":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				var movement_path: Array[Vector2i] = path_for_player_action(next_state, action, target_tile)
+				next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+				if combat_outcome(next_state) == "defeat":
+					return next_state
 				next_state = _move_player_along_path(next_state, movement_path)
 				_mark_first_move_used(next_state)
 				next_state = _trigger_long_move_relics(next_state, movement_path.size() - 1)
@@ -492,6 +497,7 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if combat_outcome(next_state) != "" or not is_player_turn(next_state):
 		return next_state
+	next_state = _clear_player_bleed_after_turn(next_state)
 	var scheduled_time: int = (
 		int(next_state.get("initiative_clock", 0))
 		+ player_base_initiative(next_state)
@@ -649,7 +655,12 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 		next_state["rng_state"] = rng.state
 		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
 	if bool(turn_setup.get("skip_all", false)):
-		_assign_enemy_intent(next_state, enemy_index, rng)
+		var skip_enemies: Array = next_state.get("enemies", [])
+		if enemy_index >= 0 and enemy_index < skip_enemies.size():
+			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
+			next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
+			if int(skip_enemy.get("hp", 0)) > 0:
+				_assign_enemy_intent(next_state, enemy_index, rng)
 		next_state["rng_state"] = rng.state
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
@@ -676,6 +687,19 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
+			if _enemy_action_triggers_bleed(action):
+				var bleed_result: Dictionary = _trigger_enemy_bleed_for_action(next_state, enemy_index, action)
+				next_state = (bleed_result.get("state", next_state) as Dictionary).duplicate(true)
+				var bleed_step: Dictionary = bleed_result.get("step", {})
+				if not bleed_step.is_empty():
+					steps.append(bleed_step)
+				if combat_outcome(next_state) != "":
+					break
+				var bleed_enemies: Array = next_state.get("enemies", [])
+				if enemy_index < 0 or enemy_index >= bleed_enemies.size():
+					break
+				if int((bleed_enemies[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+					break
 			var before_state: Dictionary = next_state.duplicate(true)
 			var followup_action: Dictionary = {}
 			if not shocked:
@@ -685,7 +709,12 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 			if not step.is_empty():
 				steps.append(step)
 	if combat_outcome(next_state) == "":
-		_assign_enemy_intent(next_state, enemy_index, rng)
+		var post_turn_enemies: Array = next_state.get("enemies", [])
+		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
+			var post_turn_enemy: Dictionary = _normalized_enemy(post_turn_enemies[enemy_index] as Dictionary)
+			if int(post_turn_enemy.get("hp", 0)) > 0:
+				next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
+				_assign_enemy_intent(next_state, enemy_index, rng)
 	next_state["rng_state"] = rng.state
 	return {
 		"state": next_state,
@@ -751,7 +780,12 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		if combat_outcome(next_state) != "":
 			break
 		if bool(turn_setup.get("skip_all", false)):
-			_assign_enemy_intent(next_state, enemy_index, rng)
+			var skip_enemies: Array = next_state.get("enemies", [])
+			if enemy_index >= 0 and enemy_index < skip_enemies.size():
+				var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
+				next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
+				if int(skip_enemy.get("hp", 0)) > 0:
+					_assign_enemy_intent(next_state, enemy_index, rng)
 			continue
 		var shocked: bool = bool(turn_setup.get("shocked", false))
 		var immobilized: bool = bool(turn_setup.get("immobilized", false))
@@ -777,6 +811,19 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 					continue
 				if immobilized and _enemy_action_is_movement(action):
 					continue
+				if _enemy_action_triggers_bleed(action):
+					var bleed_result: Dictionary = _trigger_enemy_bleed_for_action(next_state, enemy_index, action)
+					next_state = (bleed_result.get("state", next_state) as Dictionary).duplicate(true)
+					var bleed_step: Dictionary = bleed_result.get("step", {})
+					if not bleed_step.is_empty():
+						steps.append(bleed_step)
+					if combat_outcome(next_state) != "":
+						break
+					var bleed_enemies: Array = next_state.get("enemies", [])
+					if enemy_index < 0 or enemy_index >= bleed_enemies.size():
+						break
+					if int((bleed_enemies[enemy_index] as Dictionary).get("hp", 0)) <= 0:
+						break
 				var before_state: Dictionary = next_state.duplicate(true)
 				var followup_action: Dictionary = {}
 				if not shocked:
@@ -785,7 +832,13 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 				if not step.is_empty():
 					steps.append(step)
-			_assign_enemy_intent(next_state, enemy_index, rng)
+		if combat_outcome(next_state) == "":
+			var post_turn_enemies: Array = next_state.get("enemies", [])
+			if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
+				var post_turn_enemy: Dictionary = _normalized_enemy(post_turn_enemies[enemy_index] as Dictionary)
+				if int(post_turn_enemy.get("hp", 0)) > 0:
+					next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
+					_assign_enemy_intent(next_state, enemy_index, rng)
 	next_state["rng_state"] = rng.state
 	return {
 		"state": next_state,
@@ -1683,6 +1736,9 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 	if not valid_targets_for_player_action(next_state, action).has(target_tile):
 		return next_state
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+	if combat_outcome(next_state) == "defeat":
+		return next_state
 	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
 	if trap_index >= 0:
 		if int(resolved_action.get("damage", 0)) > 0:
@@ -1731,6 +1787,9 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 	var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
 	var affected_traps: Array[Vector2i] = _trap_tiles_in_tiles(next_state, affected_tiles)
 	if affected.is_empty() and affected_terrain.is_empty() and affected_traps.is_empty():
+		return next_state
+	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+	if combat_outcome(next_state) == "defeat":
 		return next_state
 	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 		_mark_first_attack_used(next_state)
@@ -2751,6 +2810,9 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	if not valid_targets_for_player_action(next_state, action).has(target_tile):
 		return next_state
+	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+	if combat_outcome(next_state) == "defeat":
+		return next_state
 	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
 	if trap_index >= 0:
 		if int(resolved_action.get("damage", 0)) > 0:
@@ -3241,6 +3303,75 @@ func _apply_enemy_self_damage(state: Dictionary, enemy_index: int, amount: int) 
 		return state
 	return _damage_enemy(state, enemy_index, amount, false)
 
+func _player_action_triggers_bleed(action: Dictionary) -> bool:
+	return str(action.get("type", "")) in PLAYER_BLEED_TRIGGER_ACTION_TYPES
+
+func _enemy_action_triggers_bleed(action: Dictionary) -> bool:
+	return str(action.get("type", "")) in ENEMY_BLEED_TRIGGER_ACTION_TYPES
+
+func _trigger_player_bleed_for_action(state: Dictionary, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	if not _player_action_triggers_bleed(action):
+		return next_state
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	var bleed_amount: int = int(player.get("bleed", 0))
+	if bleed_amount <= 0:
+		return next_state
+	next_state = _damage_player(next_state, bleed_amount, false)
+	_log(next_state, "Bleed opens for %d." % bleed_amount)
+	return next_state
+
+func _trigger_enemy_bleed_for_action(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var empty_step: Dictionary = {}
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return {"state": next_state, "step": empty_step}
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var bleed_amount: int = int(enemy.get("bleed", 0))
+	if bleed_amount <= 0 or int(enemy.get("hp", 0)) <= 0:
+		return {"state": next_state, "step": empty_step}
+	var before_enemy: Dictionary = enemy.duplicate(true)
+	next_state = _damage_enemy(next_state, enemy_index, bleed_amount)
+	var after_enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= after_enemies.size():
+		return {"state": next_state, "step": empty_step}
+	var after_enemy: Dictionary = _normalized_enemy(after_enemies[enemy_index] as Dictionary)
+	var step: Dictionary = {
+		"kind": "status_damage",
+		"actor_key": _enemy_key(after_enemy),
+		"actor_name": str(GameData.enemy_def(str(after_enemy.get("type", ""))).get("name", "Enemy")),
+		"tile": before_enemy.get("pos", Vector2i.ZERO),
+		"amount": maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0))),
+		"label": "Bleed",
+		"text": "Bleed %d" % bleed_amount,
+		"trigger": "action",
+		"action_type": str(action.get("type", ""))
+	}
+	return {"state": next_state, "step": step}
+
+func _clear_player_bleed_after_turn(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var player: Dictionary = _normalized_player(next_state.get("player", {}))
+	if int(player.get("bleed", 0)) <= 0:
+		return next_state
+	player["bleed"] = 0
+	next_state["player"] = player
+	return next_state
+
+func _clear_enemy_bleed_after_turn(state: Dictionary, enemy_index: int) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if int(enemy.get("bleed", 0)) <= 0:
+		return next_state
+	enemy["bleed"] = 0
+	enemies[enemy_index] = enemy
+	next_state["enemies"] = enemies
+	return next_state
+
 func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictionary:
 	var next_state: Dictionary = state
 	var steps: Array[Dictionary] = []
@@ -3266,26 +3397,6 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 			"amount": int(before_enemy.get("hp", 0)) - int(enemy.get("hp", 0)),
 			"label": "Burn",
 			"text": "Burn %d" % burn_amount
-		})
-		if int(enemy.get("hp", 0)) <= 0:
-			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false}
-	if int(enemy.get("bleed", 0)) > 0:
-		var bleed_amount: int = int(enemy.get("bleed", 0))
-		var before_bleed_enemy: Dictionary = enemy.duplicate(true)
-		next_state = _damage_enemy(next_state, enemy_index, bleed_amount)
-		enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
-		enemy["bleed"] = maxi(0, int(enemy.get("bleed", 0)) - 1)
-		var bleed_enemies: Array = next_state.get("enemies", [])
-		bleed_enemies[enemy_index] = enemy
-		next_state["enemies"] = bleed_enemies
-		steps.append({
-			"kind": "status_damage",
-			"actor_key": _enemy_key(enemy),
-			"actor_name": actor_name,
-			"tile": enemy.get("pos", Vector2i.ZERO),
-			"amount": int(before_bleed_enemy.get("hp", 0)) - int(enemy.get("hp", 0)),
-			"label": "Bleed",
-			"text": "Bleed %d" % bleed_amount
 		})
 		if int(enemy.get("hp", 0)) <= 0:
 			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false}
@@ -3376,15 +3487,6 @@ func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 		player["burn"] = maxi(0, int(player.get("burn", 0)) - GameData.status_tick_reduction("burn"))
 		next_state["player"] = player
 		_log(next_state, "Burn deals %d." % burn_amount)
-		if combat_outcome(next_state) != "":
-			return next_state
-	if int(player.get("bleed", 0)) > 0:
-		var bleed_amount: int = int(player.get("bleed", 0))
-		next_state = _damage_player(next_state, bleed_amount, false)
-		player = _normalized_player(next_state.get("player", {}))
-		player["bleed"] = maxi(0, int(player.get("bleed", 0)) - 1)
-		next_state["player"] = player
-		_log(next_state, "Bleed deals %d." % bleed_amount)
 		if combat_outcome(next_state) != "":
 			return next_state
 	if _poison_damage(player) > 0:

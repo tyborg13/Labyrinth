@@ -1386,12 +1386,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Fast adjacent cut for 5 and bleed 2.",
+    "description": "Fast adjacent cut for 5 and bleed 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/sawtooth_flurry.png",
     "reward_pool": false,
     "actions": [
-      { "type": "melee", "damage": 5, "range": 1, "bleed": 2 }
+      { "type": "melee", "damage": 5, "range": 1, "bleed": 1 }
     ]
   },
   "serrated_slip": {
@@ -2053,13 +2053,13 @@
     "burn": false,
     "health_cost": 1,
     "time": 7,
-    "description": "Lose 1 health. Gain 5 stoneskin, then pierce for 6 at range 5, bleed 2, and poison 3.",
+    "description": "Lose 1 health. Gain 5 stoneskin, then pierce for 6 at range 5, bleed 1, and poison 3.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/thorn_crown_pact.png",
     "reward_pool": false,
     "actions": [
       { "type": "stoneskin", "amount": 5 },
-      { "type": "ranged", "damage": 6, "range": 5, "pierce": true, "bleed": 2, "poison": 3 }
+      { "type": "ranged", "damage": 6, "range": 5, "pierce": true, "bleed": 1, "poison": 3 }
     ]
   },
   "royal_bramble": {
@@ -2068,12 +2068,12 @@
     "burn": false,
     "health_cost": 1,
     "time": 6,
-    "description": "Lose 1 health. Pull 2 at range 5 for 4, bleed 2, expose 4, and sunder 4.",
+    "description": "Lose 1 health. Pull 2 at range 5 for 4, bleed 1, expose 4, and sunder 4.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/royal_bramble.png",
     "reward_pool": false,
     "actions": [
-      { "type": "pull", "damage": 4, "range": 5, "amount": 2, "bleed": 2, "expose": 4, "sunder": 4 }
+      { "type": "pull", "damage": 4, "range": 5, "amount": 2, "bleed": 1, "expose": 4, "sunder": 4 }
     ]
   },
   "crimson_draught": {
@@ -2119,12 +2119,12 @@
     "item": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Consume. Bomb a tile within 4 for 9, bleed 2, and sunder 3.",
+    "description": "Consume. Bomb a tile within 4 for 9, bleed 1, and sunder 3.",
     "accent": "#a16d4a",
     "art_path": "res://assets/art/cards/nail_bomb.png",
     "reward_pool": false,
     "actions": [
-      { "type": "aoe", "damage": 9, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "bleed": 2, "sunder": 3 }
+      { "type": "aoe", "damage": 9, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "bleed": 1, "sunder": 3 }
     ]
   },
   "pitch_firebomb": {

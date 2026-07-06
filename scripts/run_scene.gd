@@ -13817,6 +13817,8 @@ func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 			"label": str(step.get("label", "")),
 			"amount": int(step.get("amount", 0)),
 			"text": str(step.get("text", "")),
+			"trigger": str(step.get("trigger", "turn_start")),
+			"action_type": str(step.get("action_type", "")),
 			"tile": step.get("tile", Vector2i(-1, -1))
 		})
 

@@ -641,7 +641,7 @@ static func fixed_point_amount(amount: int) -> int:
 	return amount * FIXED_POINT_SCALE
 
 static func status_tick_reduction(status_id: String) -> int:
-	return FIXED_POINT_SCALE if status_id in ["burn", "bleed", "poison"] else 1
+	return FIXED_POINT_SCALE if status_id in ["burn", "poison"] else 1
 
 static func action_field_uses_fixed_point(action_type: String, field: String) -> bool:
 	if field in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison"]:

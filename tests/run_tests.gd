@@ -2567,7 +2567,58 @@ func _test_pierce_ignores_defenses() -> void:
 
 func _test_bleed_expose_and_sunder_keywords() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(1711, _simple_room_layout(), {
+	var bleed_state: Dictionary = combat.create_combat(1711, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	bleed_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	bleed_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0,
+		"intent": {}
+	}]
+	bleed_state = combat.apply_player_action(bleed_state, {"type": "melee", "damage": 0, "range": 1, "bleed": 3}, Vector2i(3, 4))
+	var marked_enemy: Dictionary = (bleed_state.get("enemies", []) as Array)[0]
+	_assert(int(marked_enemy.get("bleed", 0)) == 3, "Bleed attacks should store a physical damage-over-time stack")
+	bleed_state = combat.apply_player_action(bleed_state, {"type": "melee", "damage": 0, "range": 1, "bleed": 2}, Vector2i(3, 4))
+	marked_enemy = (bleed_state.get("enemies", []) as Array)[0]
+	_assert(int(marked_enemy.get("bleed", 0)) == 5, "Bleed applications should stack by damage before the target's next turn")
+	marked_enemy["intent"] = {
+		"name": "Advance and Bite",
+		"actions": [
+			{"type": "move_toward", "range": 1},
+			{"type": "melee", "damage": 1, "range": 1}
+		]
+	}
+	var bleed_enemies: Array = bleed_state.get("enemies", [])
+	bleed_enemies[0] = marked_enemy
+	bleed_state["enemies"] = bleed_enemies
+	var turn_result: Dictionary = combat.resolve_enemy_turn_with_steps(bleed_state, 0)
+	var resolved_bleed_state: Dictionary = turn_result.get("state", bleed_state)
+	var bleeding_enemy: Dictionary = (resolved_bleed_state.get("enemies", []) as Array)[0]
+	_assert(int(bleeding_enemy.get("hp", 0)) == 10, "Bleed should trigger before each enemy move or attack action")
+	_assert(int(bleeding_enemy.get("bleed", 0)) == 0, "Bleed should clear when the affected enemy finishes its next turn")
+	var bleed_action_types: Array = []
+	for step_var: Variant in turn_result.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("label", "")) == "Bleed":
+			bleed_action_types.append(str((step_var as Dictionary).get("action_type", "")))
+	_assert(
+		bleed_action_types.size() == 2
+		and str(bleed_action_types[0]) == "move_toward"
+		and str(bleed_action_types[1]) == "melee",
+		"Bleed should surface one status-damage step per triggering enemy action"
+	)
+
+	var state: Dictionary = combat.create_combat(1713, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
 		"deck_cards": ["quick_stab"],
@@ -2586,26 +2637,33 @@ func _test_bleed_expose_and_sunder_keywords() -> void:
 		"stoneskin": 3,
 		"intent": {}
 	}]
-	state = combat.apply_player_action(state, {"type": "melee", "damage": 0, "range": 1, "bleed": 3, "expose": 4}, Vector2i(3, 4))
-	var marked_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(marked_enemy.get("bleed", 0)) == 3, "Bleed attacks should store a physical damage-over-time stack")
-	_assert(int(marked_enemy.get("expose", 0)) == 4, "Expose attacks should store a next-hit damage bonus")
+	state = combat.apply_player_action(state, {"type": "melee", "damage": 0, "range": 1, "expose": 4}, Vector2i(3, 4))
+	var exposed_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(int(exposed_enemy.get("expose", 0)) == 4, "Expose attacks should store a next-hit damage bonus")
 	state = combat.apply_player_action(state, {"type": "melee", "damage": 5, "range": 1, "sunder": 6}, Vector2i(3, 4))
 	var sundered_enemy: Dictionary = (state.get("enemies", []) as Array)[0]
 	_assert(int(sundered_enemy.get("block", 0)) == 0, "Sunder should remove block before damage")
 	_assert(int(sundered_enemy.get("stoneskin", 0)) == 0, "Sunder plus follow-up damage should clear the remaining stoneskin")
 	_assert(int(sundered_enemy.get("hp", 0)) == 12, "Expose should add to the next hit before clearing")
 	_assert(int(sundered_enemy.get("expose", 0)) == 0, "Expose should clear after it boosts a hit")
-	var turn_result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
-	var bleed_state: Dictionary = turn_result.get("state", state)
-	var bleeding_enemy: Dictionary = (bleed_state.get("enemies", []) as Array)[0]
-	_assert(int(bleeding_enemy.get("hp", 0)) == 9, "Bleed should deal its stack at enemy start of turn")
-	_assert(int(bleeding_enemy.get("bleed", 0)) == 2, "Bleed should decay by one after ticking")
-	var saw_bleed_step: bool = false
-	for step_var: Variant in turn_result.get("steps", []):
-		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("label", "")) == "Bleed":
-			saw_bleed_step = true
-	_assert(saw_bleed_step, "Bleed ticks should surface status-damage steps")
+
+	var player_state: Dictionary = combat.create_combat(1712, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	player_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0, "bleed": 4}
+	var block_state: Dictionary = combat.apply_player_action(player_state, {"type": "block", "amount": 3})
+	_assert(int((block_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Block actions should not trigger player bleed")
+	var blink_state: Dictionary = combat.apply_player_action(player_state, {"type": "blink", "range": 2}, Vector2i(3, 4))
+	_assert(int((blink_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Blink actions should not trigger player bleed")
+	var move_state: Dictionary = combat.apply_player_action(player_state, {"type": "move", "range": 1}, Vector2i(3, 4))
+	_assert(int((move_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Move actions should trigger player bleed once before movement")
+	var ended_move_state: Dictionary = combat.finish_player_activation(move_state)
+	_assert(int((ended_move_state.get("player", {}) as Dictionary).get("bleed", 0)) == 0, "Player bleed should clear when the player's next turn is finished")
 
 func _test_enemy_pierce_intents_surface_icons() -> void:
 	var board := CombatBoardView.new()
@@ -5901,7 +5959,7 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((blood_row[1] as Dictionary).get("icon", "")) == "bleed", "Bleed should render as an attack keyword token")
 	_assert(str((blood_row[2] as Dictionary).get("icon", "")) == "expose", "Expose should render as an attack keyword token")
 	_assert(str((blood_row[3] as Dictionary).get("icon", "")) == "sunder", "Sunder should render as an attack keyword token")
-	_assert(ActionIcons.tooltip("bleed").contains("Physical damage"), "Bleed tooltip should explain the physical tick")
+	_assert(ActionIcons.tooltip("bleed").contains("move or attack"), "Bleed tooltip should explain action-triggered wound damage")
 	_assert(ActionIcons.tooltip("expose").contains("next hit"), "Expose tooltip should explain the follow-up damage")
 	_assert(ActionIcons.tooltip("sunder").contains("stoneskin"), "Sunder tooltip should explain defense breaking")
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})

@@ -101,7 +101,7 @@ class HeuristicWeights:
     aoe_rotatable_orientation_bonus: float = 0.05
     chain_extra_targets: float = 0.45
     pierce_value: float = 0.75
-    bleed_damage_value: float = 0.40
+    bleed_damage_value: float = 0.65
     expose_value_per_point: float = 0.32
     sunder_value_per_point: float = 0.20
     freeze_value: float = 3.8
