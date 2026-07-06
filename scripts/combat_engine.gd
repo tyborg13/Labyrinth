@@ -354,6 +354,8 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 		"move":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				var movement_path: Array[Vector2i] = path_for_player_action(next_state, action, target_tile)
+				if movement_path.size() <= 1:
+					return next_state
 				next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 				if combat_outcome(next_state) == "defeat":
 					return next_state
@@ -687,24 +689,13 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
-			if _enemy_action_triggers_bleed(action):
-				var bleed_result: Dictionary = _trigger_enemy_bleed_for_action(next_state, enemy_index, action)
-				next_state = (bleed_result.get("state", next_state) as Dictionary).duplicate(true)
-				var bleed_step: Dictionary = bleed_result.get("step", {})
-				if not bleed_step.is_empty():
-					steps.append(bleed_step)
-				if combat_outcome(next_state) != "":
-					break
-				var bleed_enemies: Array = next_state.get("enemies", [])
-				if enemy_index < 0 or enemy_index >= bleed_enemies.size():
-					break
-				if int((bleed_enemies[enemy_index] as Dictionary).get("hp", 0)) <= 0:
-					break
 			var before_state: Dictionary = next_state.duplicate(true)
 			var followup_action: Dictionary = {}
 			if not shocked:
 				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
-			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action)
+			var bleed_steps: Array[Dictionary] = []
+			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+			steps.append_array(bleed_steps)
 			var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 			if not step.is_empty():
 				steps.append(step)
@@ -811,24 +802,13 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 					continue
 				if immobilized and _enemy_action_is_movement(action):
 					continue
-				if _enemy_action_triggers_bleed(action):
-					var bleed_result: Dictionary = _trigger_enemy_bleed_for_action(next_state, enemy_index, action)
-					next_state = (bleed_result.get("state", next_state) as Dictionary).duplicate(true)
-					var bleed_step: Dictionary = bleed_result.get("step", {})
-					if not bleed_step.is_empty():
-						steps.append(bleed_step)
-					if combat_outcome(next_state) != "":
-						break
-					var bleed_enemies: Array = next_state.get("enemies", [])
-					if enemy_index < 0 or enemy_index >= bleed_enemies.size():
-						break
-					if int((bleed_enemies[enemy_index] as Dictionary).get("hp", 0)) <= 0:
-						break
 				var before_state: Dictionary = next_state.duplicate(true)
 				var followup_action: Dictionary = {}
 				if not shocked:
 					followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
-				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action)
+				var bleed_steps: Array[Dictionary] = []
+				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+				steps.append_array(bleed_steps)
 				var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 				if not step.is_empty():
 					steps.append(step)
@@ -1641,7 +1621,7 @@ func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, act
 		return state
 	return _apply_action_keywords_to_player(state, action, source_pos)
 
-func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}) -> Dictionary:
+func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = []) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -1659,11 +1639,25 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			var toward_tile: Vector2i = _best_move_toward_for_followup(next_state, enemy_index, target_pos, int(action.get("range", 0)), followup_action)
 			if toward_tile == INVALID_TILE:
 				toward_tile = _best_move_toward(next_state, enemy_index, target_pos, int(action.get("range", 0)))
+			if toward_tile == enemy.get("pos", Vector2i.ZERO):
+				return next_state
+			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+				return next_state
+			enemies = next_state.get("enemies", [])
+			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 			enemy["pos"] = toward_tile
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"move_away":
 			var away_tile: Vector2i = _best_move_away(next_state, enemy_index, target_pos, int(action.get("range", 0)))
+			if away_tile == enemy.get("pos", Vector2i.ZERO):
+				return next_state
+			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+				return next_state
+			enemies = next_state.get("enemies", [])
+			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 			enemy["pos"] = away_tile
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s falls back." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
@@ -1716,17 +1710,17 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				int(action.get("amount", 0))
 			])
 		"melee":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng)
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng, bleed_steps)
 		"ranged":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires", rng)
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires", rng, bleed_steps)
 		"aoe":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area", rng)
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area", rng, bleed_steps)
 		"lightning_strikes":
-			next_state = _enemy_lightning_strikes(next_state, enemy_index, action)
+			next_state = _enemy_lightning_strikes(next_state, enemy_index, action, bleed_steps)
 		"push":
-			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true, rng)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true, rng, bleed_steps)
 		"pull":
-			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng, bleed_steps)
 		"summon_minions":
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
 	return next_state
@@ -1736,11 +1730,11 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 	if not valid_targets_for_player_action(next_state, action).has(target_tile):
 		return next_state
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-	if combat_outcome(next_state) == "defeat":
-		return next_state
 	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
 	if trap_index >= 0:
+		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+		if combat_outcome(next_state) == "defeat":
+			return next_state
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _trigger_trap_at_index(next_state, trap_index)
@@ -1750,6 +1744,9 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 	if terrain_index >= 0:
 		var terrain_damage: int = final_damage_for_player_action(next_state, action)
 		if terrain_damage > 0:
+			next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+			if combat_outcome(next_state) == "defeat":
+				return next_state
 			_mark_first_attack_used(next_state)
 			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
 			_log(next_state, "%s splinters terrain for %d." % [attack_kind.capitalize(), terrain_damage])
@@ -1762,9 +1759,12 @@ func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: V
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
 		return next_state
-	next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
-	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
-	if damage > 0 or _action_has_keyword_effect(resolved_action):
+	if int(resolved_action.get("damage", 0)) > 0 or _action_has_keyword_effect(resolved_action):
+		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+		if combat_outcome(next_state) == "defeat":
+			return next_state
+		next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
+		var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
 		if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
@@ -2647,7 +2647,7 @@ func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dict
 			best_index = index
 	return best_index
 
-func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null) -> Dictionary:
+func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = []) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -2656,12 +2656,17 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	var action_type: String = str(action.get("type", ""))
 	var trap_attack_index: int = _best_enemy_trap_attack_index(next_state, enemy_index, action)
 	if trap_attack_index >= 0:
+		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+			return next_state
+		enemies = next_state.get("enemies", [])
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
 	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps)
 	var damage: int = int(action.get("damage", 0))
 	if action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
@@ -2671,11 +2676,21 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true))
 		if affected_targets.is_empty():
 			return next_state
+		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+			return next_state
+		enemies = next_state.get("enemies", [])
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		for affected_target: Dictionary in affected_targets:
 			if damage > 0:
 				next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action))
 			next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
 	else:
+		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+			return next_state
+		enemies = next_state.get("enemies", [])
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if damage > 0:
 			next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
@@ -2687,7 +2702,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	return next_state
 
-func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null) -> Dictionary:
+func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = []) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -2695,15 +2710,25 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var trap_attack_index: int = _best_enemy_trap_attack_index(next_state, enemy_index, action)
 	if trap_attack_index >= 0:
+		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+			return next_state
+		enemies = next_state.get("enemies", [])
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
 	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action)
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps)
 	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
 	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
 	var damage: int = int(action.get("damage", 0))
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	enemies = next_state.get("enemies", [])
+	enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if damage > 0:
 		next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action))
 	if str(target.get("kind", "")) == "player":
@@ -2716,12 +2741,15 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 	])
 	return next_state
 
-func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
 	var next_state: Dictionary = state
 	if int(action.get("damage", 0)) <= 0:
 		return next_state
 	var terrain_index: int = _blocking_terrain_index_for_enemy_action(next_state, enemy_index, action)
 	if terrain_index < 0:
+		return next_state
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 		return next_state
 	var damage: int = int(action.get("damage", 0))
 	next_state = _damage_terrain(next_state, terrain_index, damage)
@@ -2754,14 +2782,22 @@ func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: in
 		return -1
 	return -1
 
-func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(next_state, enemy, action)
-	for target: Dictionary in _actor_targets_in_tiles(next_state, strike_tiles):
+	var targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, strike_tiles)
+	if targets.is_empty():
+		return next_state
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	enemies = next_state.get("enemies", [])
+	enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	for target: Dictionary in targets:
 		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
@@ -2810,11 +2846,11 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	if not valid_targets_for_player_action(next_state, action).has(target_tile):
 		return next_state
-	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-	if combat_outcome(next_state) == "defeat":
-		return next_state
 	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
 	if trap_index >= 0:
+		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+		if combat_outcome(next_state) == "defeat":
+			return next_state
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
 		next_state = _trigger_trap_at_index(next_state, trap_index)
@@ -2824,6 +2860,9 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 	if terrain_index >= 0:
 		var terrain_damage: int = final_damage_for_player_action(next_state, resolved_action)
 		if terrain_damage > 0:
+			next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+			if combat_outcome(next_state) == "defeat":
+				return next_state
 			if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
 				_mark_first_attack_used(next_state)
 			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
@@ -2831,6 +2870,9 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 		return next_state
 	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
 	if enemy_index < 0:
+		return next_state
+	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+	if combat_outcome(next_state) == "defeat":
 		return next_state
 	next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
 	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
@@ -3349,6 +3391,23 @@ func _trigger_enemy_bleed_for_action(state: Dictionary, enemy_index: int, action
 		"action_type": str(action.get("type", ""))
 	}
 	return {"state": next_state, "step": step}
+
+func _trigger_enemy_bleed_for_resolved_action(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+	if not _enemy_action_triggers_bleed(action):
+		return state
+	var bleed_result: Dictionary = _trigger_enemy_bleed_for_action(state, enemy_index, action)
+	var bleed_step: Dictionary = bleed_result.get("step", {})
+	if not bleed_step.is_empty():
+		bleed_steps.append(bleed_step)
+	return (bleed_result.get("state", state) as Dictionary).duplicate(true)
+
+func _enemy_cannot_continue_after_bleed(state: Dictionary, enemy_index: int) -> bool:
+	if combat_outcome(state) != "":
+		return true
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return true
+	return int((enemies[enemy_index] as Dictionary).get("hp", 0)) <= 0
 
 func _clear_player_bleed_after_turn(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state

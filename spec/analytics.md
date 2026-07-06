@@ -107,7 +107,7 @@ direction fields so printed cards still classify as printed plays.
 `enemy_status_tick` captures delayed enemy status resolution. Burn and poison
 use `trigger: "turn_start"` when the affected enemy's initiative activation
 starts; bleed can use `trigger: "action"` plus `action_type` when a wounded enemy
-chooses a move or attack action during that activation. It is useful for later
+resolves a move or attack action during that activation. It is useful for later
 value-model work, but it is not yet card-source attributed.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and

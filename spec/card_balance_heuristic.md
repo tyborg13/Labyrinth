@@ -52,8 +52,8 @@ These assumptions are baked into the current coefficients:
   turn.
 - Burn ticks at enemy start of turn and decays by `1`.
 - Bleed is one-turn physical pressure: it triggers before the affected actor's
-  voluntary move or attack actions, stacks additively by damage, and clears
-  when that actor finishes its next turn.
+  resolved move or attack actions, stacks additively by damage, and clears when
+  that actor finishes its next turn.
 - Expose adds damage to the next hit against the target, then clears.
 - Sunder removes block and stoneskin before damage lands.
 - Poison lands after a two-turn delay.

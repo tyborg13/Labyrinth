@@ -25,6 +25,8 @@ attrition end at about 19 initiative and use a radius-2 poison diamond for their
 main area-denial intent. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
 attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
+Bleed pressure only opens on resolved move or attack actions, not skipped or
+blocked no-op action entries.
 Later sequences keep the local curve while raising enemy HP and intent
 baselines. Zekarion's 2x2
 footprint makes printed reach feel larger, so Tempest Breath is capped at range

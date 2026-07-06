@@ -2607,18 +2607,71 @@ func _test_bleed_expose_and_sunder_keywords() -> void:
 	var turn_result: Dictionary = combat.resolve_enemy_turn_with_steps(bleed_state, 0)
 	var resolved_bleed_state: Dictionary = turn_result.get("state", bleed_state)
 	var bleeding_enemy: Dictionary = (resolved_bleed_state.get("enemies", []) as Array)[0]
-	_assert(int(bleeding_enemy.get("hp", 0)) == 10, "Bleed should trigger before each enemy move or attack action")
+	_assert(int(bleeding_enemy.get("hp", 0)) == 15, "Enemy bleed should not trigger for a move action that does not change position")
 	_assert(int(bleeding_enemy.get("bleed", 0)) == 0, "Bleed should clear when the affected enemy finishes its next turn")
-	var bleed_action_types: Array = []
-	for step_var: Variant in turn_result.get("steps", []):
-		if typeof(step_var) == TYPE_DICTIONARY and str((step_var as Dictionary).get("label", "")) == "Bleed":
-			bleed_action_types.append(str((step_var as Dictionary).get("action_type", "")))
-	_assert(
-		bleed_action_types.size() == 2
-		and str(bleed_action_types[0]) == "move_toward"
-		and str(bleed_action_types[1]) == "melee",
-		"Bleed should surface one status-damage step per triggering enemy action"
-	)
+	_assert(_bleed_action_types_from_steps(turn_result.get("steps", [])) == ["melee"], "Adjacent enemy move+attack should only tick bleed for the attack")
+
+	var moving_bleed_state: Dictionary = combat.create_combat(1716, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	moving_bleed_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	moving_bleed_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(5, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0,
+		"bleed": 5,
+		"intent": {
+			"name": "Advance and Bite",
+			"actions": [
+				{"type": "move_toward", "range": 2},
+				{"type": "melee", "damage": 1, "range": 1}
+			]
+		}
+	}]
+	var moving_turn_result: Dictionary = combat.resolve_enemy_turn_with_steps(moving_bleed_state, 0)
+	var moved_bleeding_enemy: Dictionary = ((moving_turn_result.get("state", moving_bleed_state) as Dictionary).get("enemies", []) as Array)[0]
+	_assert(int(moved_bleeding_enemy.get("hp", 0)) == 10, "Enemy bleed should trigger for each move or attack action that actually resolves")
+	_assert(_bleed_action_types_from_steps(moving_turn_result.get("steps", [])) == ["move_toward", "melee"], "Resolved enemy move+attack should surface one bleed step per resolved action")
+
+	var move_block_state: Dictionary = combat.create_combat(1717, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	move_block_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	move_block_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0,
+		"bleed": 5,
+		"intent": {
+			"name": "Coil",
+			"actions": [
+				{"type": "move_toward", "range": 1},
+				{"type": "block", "amount": 4}
+			]
+		}
+	}]
+	var move_block_result: Dictionary = combat.resolve_enemy_turn_with_steps(move_block_state, 0)
+	var move_block_enemy: Dictionary = ((move_block_result.get("state", move_block_state) as Dictionary).get("enemies", []) as Array)[0]
+	_assert(int(move_block_enemy.get("hp", 0)) == 20, "Enemy bleed should not trigger for no-op movement followed by block")
+	_assert(_bleed_action_types_from_steps(move_block_result.get("steps", [])).is_empty(), "No-op enemy move+block should not surface bleed status steps")
 
 	var state: Dictionary = combat.create_combat(1713, _simple_room_layout(), {
 		"hp": 24,
@@ -2658,12 +2711,28 @@ func _test_bleed_expose_and_sunder_keywords() -> void:
 		"heal_bonus": 0
 	})
 	player_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0, "bleed": 4}
+	player_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(4, 4),
+		"hp": 20,
+		"max_hp": 20,
+		"block": 0,
+		"stoneskin": 0,
+		"intent": {}
+	}]
 	var block_state: Dictionary = combat.apply_player_action(player_state, {"type": "block", "amount": 3})
 	_assert(int((block_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Block actions should not trigger player bleed")
 	var blink_state: Dictionary = combat.apply_player_action(player_state, {"type": "blink", "range": 2}, Vector2i(3, 4))
 	_assert(int((blink_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Blink actions should not trigger player bleed")
+	var no_move_state: Dictionary = combat.apply_player_action(player_state, {"type": "move", "range": 1}, Vector2i(2, 4))
+	_assert(int((no_move_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Player bleed should not trigger for a move action that stays in place")
 	var move_state: Dictionary = combat.apply_player_action(player_state, {"type": "move", "range": 1}, Vector2i(3, 4))
-	_assert(int((move_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Move actions should trigger player bleed once before movement")
+	_assert(int((move_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Resolved move actions should trigger player bleed once")
+	var skipped_attack_state: Dictionary = combat.apply_player_action(move_state, {"type": "melee", "damage": 5, "range": 1}, Vector2i(-1, -1))
+	_assert(int((skipped_attack_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Skipped follow-up attacks should not trigger player bleed")
+	var attack_state: Dictionary = combat.apply_player_action(move_state, {"type": "melee", "damage": 5, "range": 1}, Vector2i(4, 4))
+	_assert(int((attack_state.get("player", {}) as Dictionary).get("hp", 0)) == 16, "Resolved follow-up attacks should trigger player bleed independently")
 	var ended_move_state: Dictionary = combat.finish_player_activation(move_state)
 	_assert(int((ended_move_state.get("player", {}) as Dictionary).get("bleed", 0)) == 0, "Player bleed should clear when the player's next turn is finished")
 
@@ -9739,6 +9808,16 @@ func _intent_rows_have_icon(rows: Array, icon_key: String) -> bool:
 			if str((token_var as Dictionary).get("icon", "")) == icon_key:
 				return true
 	return false
+
+func _bleed_action_types_from_steps(steps: Array) -> Array[String]:
+	var action_types: Array[String] = []
+	for step_var: Variant in steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var as Dictionary
+		if str(step.get("label", "")) == "Bleed":
+			action_types.append(str(step.get("action_type", "")))
+	return action_types
 
 func _intent_has_action_status(intent: Dictionary, action_type: String, status_key: String) -> bool:
 	for action_var: Variant in intent.get("actions", []):

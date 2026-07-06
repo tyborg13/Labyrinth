@@ -84,7 +84,7 @@ const KEYWORDS: Dictionary = {
 	},
 	"bleed": {
 		"label": "Bleed",
-		"description": "Physical wound damage. Triggers before move or attack actions, then clears after the next turn.",
+		"description": "Physical wound damage. Triggers before actual move or attack actions, then clears after the next turn.",
 		"path": "%s/bleed.png" % ICON_ROOT
 	},
 	"expose": {
