@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Retro Diffusion Animation"
+  short_description: "Generate and import Retro Diffusion sheets"
+  default_prompt: "Use $create-labyrinth-retrodiffusion-animation to generate and import a Labyrinth animation sheet."
