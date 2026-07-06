@@ -4545,8 +4545,18 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	)
 	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
-	_assert(equipment_rect.size == potion_rect.size, "Equipment pickups should use the same grounded tile footprint as ordinary pickups")
-	_assert(is_equal_approx(equipment_rect.end.y, potion_rect.end.y), "Equipment pickups should share the consumable pickup baseline")
+	_assert(equipment_rect.size.x > potion_rect.size.x, "Equipment pickups should render larger than ordinary pickups")
+	_assert(equipment_rect.end.y < potion_rect.end.y, "Equipment pickups should float above the consumable pickup baseline")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3)}]
+	}
+	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Unclaimed equipment pickups should animate their visibility beacon")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3), "claimed": true}]
+	}
+	_assert(not bool(board.call("_presentation_needs_continuous_redraw")), "Claimed equipment pickups should not keep the board animating")
 	var terrain_tooltip: String = str(board.call("_terrain_tooltip_text", {
 		"kind": "wooden_crate",
 		"hp": 2,

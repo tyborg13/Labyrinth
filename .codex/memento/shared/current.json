@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-05T16:34:30Z",
+  "updated_at": "2026-07-06T04:06:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4688,6 +4688,28 @@
       "source": {
         "branch": "codex/create-enemy-shadow-death-animations-with-retro-diffusion",
         "commit": "f138298"
+      }
+    },
+    {
+      "id": "mnt_20260706T040636Z_1c7b4a15",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Equipment pickups use a warm visibility beacon",
+      "details": "Room equipment drops intentionally render larger and raised above the tile with a warm pickup glow blended with rarity accent; pure rarity tint made common grey gear blend back into ash floors.",
+      "status": "active",
+      "created_at": "2026-07-06T04:06:36Z",
+      "updated_at": "2026-07-06T04:06:36Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/make-equipment-room-pickups-more-visible",
+        "commit": "c07757d"
       }
     }
   ]
