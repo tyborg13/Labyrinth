@@ -746,7 +746,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="source_filter",
         action="store_const",
         const="starter",
-        help="Only starter cards, using starter metadata or starter rarity.",
+        help="Only starter cards, using starter metadata or legacy starter rarity.",
     )
     parser.set_defaults(source_filter="all")
     return parser
