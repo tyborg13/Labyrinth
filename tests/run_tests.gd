@@ -899,6 +899,7 @@ func _test_room_generation_scales_enemy_density() -> void:
 
 func _test_element_locked_enemy_spawn_rules() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
+	var normal_enemy_types: Array = ["crawler", "harrier", "acolyte", "warden", "grave_surgeon"]
 	var locked_elements: Dictionary = {
 		"bile_bloomer": ElementData.EARTH,
 		"frostglass_lancer": ElementData.ICE,
@@ -914,14 +915,35 @@ func _test_element_locked_enemy_spawn_rules() -> void:
 		_assert(str(GameData.enemy_def(enemy_type).get("element", "")) == expected_element, "%s should declare its locked element in enemy data" % enemy_type)
 
 	for depth: int in [1, 2, 3]:
+		var expected_density: int = 5
+		if depth == 1:
+			expected_density = 3
+		elif depth == 2:
+			expected_density = 4
+		var seen_normal: Dictionary = {}
+		var base_pool: Array = generator.call("_base_encounter_enemy_type_pool", depth)
+		for enemy_type_var: Variant in normal_enemy_types:
+			seen_normal[str(enemy_type_var)] = false
+		for enemy_types_var: Variant in base_pool:
+			var enemy_types: Array = enemy_types_var as Array
+			_assert(enemy_types.size() == expected_density, "Base depth-%d enemy pools should keep the normal density curve" % depth)
+			for enemy_type_var: Variant in normal_enemy_types:
+				var enemy_type: String = str(enemy_type_var)
+				if enemy_types.has(enemy_type):
+					seen_normal[enemy_type] = true
+		for enemy_type_var: Variant in normal_enemy_types:
+			var enemy_type: String = str(enemy_type_var)
+			_assert(bool(seen_normal.get(enemy_type, false)), "%s should be eligible in depth-%d combat pools" % [enemy_type, depth])
+
 		var seen: Dictionary = {}
 		for enemy_type_var: Variant in locked_elements.keys():
 			seen[str(enemy_type_var)] = false
 		for room_element: String in room_elements:
-			for seed: int in range(96):
-				var rng := RandomNumberGenerator.new()
-				rng.seed = seed
-				var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng, room_element)
+			var pool: Array = generator.call("_base_encounter_enemy_type_pool", depth)
+			generator.call("_add_element_locked_enemy_type_pools", pool, depth, room_element)
+			for enemy_types_var: Variant in pool:
+				var enemy_types: Array = enemy_types_var as Array
+				_assert(enemy_types.size() == expected_density, "Elemental depth-%d enemy pools should keep the normal density curve" % depth)
 				_assert(not enemy_types.has("cinder_droplet"), "Cinder Droplets should only come from Cinder Ooze split spawns")
 				for enemy_type_var: Variant in locked_elements.keys():
 					var enemy_type: String = str(enemy_type_var)
@@ -931,15 +953,12 @@ func _test_element_locked_enemy_spawn_rules() -> void:
 					var expected_element: String = str(locked_elements.get(enemy_type, ElementData.NONE))
 					_assert(room_element == expected_element, "%s should only appear in %s rooms" % [enemy_type, ElementData.name(expected_element)])
 					if enemy_type == "chainbound_gaoler":
-						_assert(enemy_types.size() == (4 if depth == 2 else 5), "Chainbound Gaoler rooms should keep normal enemy density")
+						_assert(enemy_types.size() == expected_density, "Chainbound Gaoler rooms should keep normal enemy density")
 						_assert(not enemy_types.has("warden"), "Chainbound Gaoler compositions should avoid pairing with the slow heavy anchor")
 						_assert(not enemy_types.has("lightning_wisp"), "Chainbound Gaoler should stay out of boss/add control pairings")
 		for enemy_type_var: Variant in locked_elements.keys():
 			var enemy_type: String = str(enemy_type_var)
-			if depth == 1:
-				_assert(not bool(seen.get(enemy_type, false)), "%s should stay out of depth-one teaching rooms" % enemy_type)
-			else:
-				_assert(bool(seen.get(enemy_type, false)), "%s should appear in its matching element depth-%d pool" % [enemy_type, depth])
+			_assert(bool(seen.get(enemy_type, false)), "%s should appear in its matching element depth-%d pool" % [enemy_type, depth])
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1361,13 +1380,28 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
+	var valid_card_rarities: Dictionary = {
+		"common": true,
+		"rare": true,
+		"epic": true,
+		"legendary": true
+	}
+	var card_rarity_counts: Dictionary = {}
+	for card_id_var: Variant in GameData.cards().keys():
+		var card_id: String = str(card_id_var)
+		var rarity: String = str(GameData.card_def(card_id).get("rarity", ""))
+		_assert(valid_card_rarities.has(rarity), "%s should use the shared card rarity set" % card_id)
+		card_rarity_counts[rarity] = int(card_rarity_counts.get(rarity, 0)) + 1
+	for rarity: String in GameData.CARD_RARITY_TIERS:
+		_assert(int(card_rarity_counts.get(rarity, 0)) > 0, "Card data should include %s cards" % rarity)
 	var starting_deck: Array = GameData.starting_deck()
 	_assert(starting_deck.has("hamstring_shot"), "Hamstring Shot should replace the plain ranged starter in the starting deck")
 	_assert(not starting_deck.has("bone_dart"), "Bone Dart should stay out of the starting deck while retired")
 	_assert(bool(GameData.card_def("hamstring_shot").get("starter", false)), "Hamstring Shot should be marked as a starter card")
+	_assert(str(GameData.card_def("hamstring_shot").get("rarity", "")) == "common", "Starter Hamstring Shot should use common rarity plus starter metadata")
 	_assert(not bool(GameData.card_def("bone_dart").get("starter", false)), "Bone Dart should not be marked as an active starter card")
 	var reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		var cards: Array = reward_pool.get(rarity, [])
 		_assert(not cards.has("bone_dart"), "Bone Dart should stay out of reward offers while retired")
 		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
@@ -1375,11 +1409,12 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 			_assert(not cards.has(magic_card_id), "Default attuned magic should stay out of combat reward offers")
 	var elemental_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity("", true)
 	var elemental_reward_ids: Array = []
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		for card_id_var: Variant in elemental_reward_pool.get(rarity, []):
 			elemental_reward_ids.append(str(card_id_var))
 	_assert(elemental_reward_ids.has("threaded_path"), "Threaded Path should be a live elemental speed reward")
 	_assert(GameData.card_element("threaded_path") == ElementData.AIR, "Threaded Path should be an Air reward card")
+	_assert((elemental_reward_pool.get("legendary", []) as Array).has("wildfire_halo"), "Elemental rewards should include legendary magic capstones")
 	var elemental_reward_times: Dictionary = {}
 	for card_id_var: Variant in elemental_reward_ids:
 		var card_id: String = str(card_id_var)
@@ -1414,7 +1449,7 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 		_assert(not bool(item_card.get("reward_pool", true)), "%s should stay out of normal card rewards" % item_card_id)
 		_assert(FileAccess.file_exists(str(item_card.get("art_path", ""))), "%s item card art should exist" % item_card_id)
 	var item_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		_assert(not (item_reward_pool.get(rarity, []) as Array).has("crimson_draught"), "Consumable items should not appear in normal reward pools")
 	_assert(not GameData.upgradeable_card_ids().has("crimson_draught"), "Consumable items should not appear in the upgrade pool")
 	var deck_with_item: Array = GameData.compile_deck_cards(equipped, GameData.starting_magic_cards(), ["crimson_draught"])
@@ -2908,16 +2943,19 @@ func _test_grave_surgeon_data_and_pool_role() -> void:
 	var generator := RoomGenerator.new()
 	var rng := RandomNumberGenerator.new()
 	var saw_surgeon: bool = false
-	for depth: int in [2, 3]:
+	for depth: int in [1, 2, 3]:
+		var saw_surgeon_at_depth: bool = false
 		for seed: int in range(24):
 			rng.seed = seed
 			var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng)
 			if not enemy_types.has("grave_surgeon"):
 				continue
 			saw_surgeon = true
-			_assert(enemy_types.size() >= 4, "Grave Surgeon should appear in multi-enemy rooms")
+			saw_surgeon_at_depth = true
+			_assert(enemy_types.size() >= 3, "Grave Surgeon should appear in multi-enemy rooms")
 			_assert(enemy_types.has("crawler") or enemy_types.has("harrier") or enemy_types.has("warden"), "Grave Surgeon should be paired with front-line enemies")
-	_assert(saw_surgeon, "Grave Surgeon should appear in depth 2+ encounter pools")
+		_assert(saw_surgeon_at_depth, "Grave Surgeon should appear in depth-%d encounter pools" % depth)
+	_assert(saw_surgeon, "Grave Surgeon should appear in all standard encounter depth pools")
 
 func _test_grave_surgeon_support_actions_scale() -> void:
 	var suture: Dictionary = _enemy_intent_by_id("grave_surgeon", "triage_suture")
@@ -4545,8 +4583,22 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	)
 	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
-	_assert(equipment_rect.size == potion_rect.size, "Equipment pickups should use the same grounded tile footprint as ordinary pickups")
-	_assert(is_equal_approx(equipment_rect.end.y, potion_rect.end.y), "Equipment pickups should share the consumable pickup baseline")
+	_assert(equipment_rect.size.x > potion_rect.size.x, "Equipment pickups should render larger than ordinary pickups")
+	_assert(equipment_rect.end.y < potion_rect.end.y, "Equipment pickups should float above the consumable pickup baseline")
+	var low_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 0.0)
+	var high_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 1.0)
+	_assert(high_bob.y < low_bob.y, "Equipment pickups should bob upward as their visibility pulse rises")
+	_assert(high_bob.y < 0.0 and low_bob.y < 0.0, "Equipment pickup bobbing should keep the item visibly lifted above the tile")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3)}]
+	}
+	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Unclaimed equipment pickups should animate their visibility beacon")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3), "claimed": true}]
+	}
+	_assert(not bool(board.call("_presentation_needs_continuous_redraw")), "Claimed equipment pickups should not keep the board animating")
 	var terrain_tooltip: String = str(board.call("_terrain_tooltip_text", {
 		"kind": "wooden_crate",
 		"hp": 2,

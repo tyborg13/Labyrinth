@@ -36,13 +36,15 @@ const MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY := {
 }
 const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
 	"common": 20,
-	"uncommon": 32,
-	"rare": 48
+	"rare": 32,
+	"epic": 48,
+	"legendary": 72
 }
 const MERCHANT_ITEM_BUY_COST_BY_RARITY := {
 	"common": 22,
-	"uncommon": 36,
-	"rare": 55
+	"rare": 36,
+	"epic": 55,
+	"legendary": 82
 }
 const MERCHANT_SELL_VALUE_RATIO: float = 0.45
 const MERCHANT_OFFER_COUNT: int = 3
@@ -674,13 +676,13 @@ func merchant_buy_cost(merchant_kind: String, item_id: String) -> int:
 			var card: Dictionary = GameData.card_def(item_id)
 			if card.is_empty():
 				return 0
-			var card_rarity: String = str(card.get("rarity", "common"))
+			var card_rarity: String = GameData.card_rarity(item_id)
 			return int(MERCHANT_MAGIC_BUY_COST_BY_RARITY.get(card_rarity, MERCHANT_MAGIC_BUY_COST_BY_RARITY["common"]))
 		MERCHANT_SCAVENGER:
 			var card: Dictionary = GameData.card_def(item_id)
 			if card.is_empty() or not GameData.card_is_item(item_id):
 				return 0
-			var card_rarity: String = str(card.get("rarity", "common"))
+			var card_rarity: String = GameData.card_rarity(item_id)
 			return int(MERCHANT_ITEM_BUY_COST_BY_RARITY.get(card_rarity, MERCHANT_ITEM_BUY_COST_BY_RARITY["common"]))
 	return 0
 
@@ -1250,12 +1252,9 @@ func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: 
 	var attempts: int = 0
 	while choices.size() < count and attempts < 72:
 		attempts += 1
-		var rarity_roll: int = rng.randi_range(1, 100)
-		var rarity: String = "common"
-		if rarity_roll > 86:
-			rarity = "rare"
-		elif rarity_roll > 56:
-			rarity = "uncommon"
+		var rarity: String = _draw_card_reward_rarity(rng, pool_by_rarity)
+		if rarity.is_empty():
+			break
 		var pool: Array = (pool_by_rarity.get(rarity, []) as Array).duplicate()
 		if pool.is_empty():
 			continue
@@ -1270,6 +1269,24 @@ func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: 
 			continue
 		choices.append(str(weighted_pool[rng.randi_range(0, weighted_pool.size() - 1)]))
 	return choices
+
+func _draw_card_reward_rarity(rng: RandomNumberGenerator, pool_by_rarity: Dictionary) -> String:
+	var total_weight: int = 0
+	for rarity: String in GameData.CARD_RARITY_TIERS:
+		if (pool_by_rarity.get(rarity, []) as Array).is_empty():
+			continue
+		total_weight += GameData.rarity_offer_weight(rarity)
+	if total_weight <= 0:
+		return ""
+	var roll: int = rng.randi_range(1, total_weight)
+	var cursor: int = 0
+	for rarity: String in GameData.CARD_RARITY_TIERS:
+		if (pool_by_rarity.get(rarity, []) as Array).is_empty():
+			continue
+		cursor += GameData.rarity_offer_weight(rarity)
+		if roll <= cursor:
+			return rarity
+	return "common"
 
 func _equipment_drop_for_room(run_state: Dictionary, room: Dictionary) -> String:
 	if str(room.get("type", "")) != "combat" or bool(room.get("cleared", false)):
@@ -1512,7 +1529,7 @@ func _available_merchant_magic_ids(run_state: Dictionary) -> Array:
 		owned[str(card_var)] = true
 	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity("", true)
 	var result: Array = []
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		for card_id_var: Variant in pool_by_rarity.get(rarity, []):
 			var card_id: String = str(card_id_var)
 			if owned.has(card_id) or result.has(card_id):
@@ -1551,13 +1568,7 @@ func _merchant_offer_weight(merchant_kind: String, item_id: String) -> int:
 		MERCHANT_BLACKSMITH:
 			return GameData.equipment_offer_weight(item_id)
 		MERCHANT_ARCANIST:
-			var rarity: String = str(GameData.card_def(item_id).get("rarity", "common"))
-			match rarity:
-				"rare":
-					return 3
-				"uncommon":
-					return 6
-			return 12
+			return GameData.rarity_offer_weight(GameData.card_rarity(item_id))
 		MERCHANT_SCAVENGER:
 			return GameData.item_offer_weight(item_id)
 	return 1

@@ -40,7 +40,7 @@ For neutral cards, follow the existing pool and usually omit `element`; `GameDat
 - Air: `#72bea5`
 - Earth: `#89a15b`
 
-`rarity` drives reward pools, upgrade cost scaling, sorting, and frame texture selection. Reward cards use `common`, `uncommon`, or `rare`; `starter` is reserved for the starting deck.
+`rarity` drives reward pools, upgrade cost scaling, sorting, and frame texture selection. Cards use the shared loot tiers: `common`, `rare`, `epic`, or `legendary`. Starting-deck cards use `starter: true` metadata plus a normal rarity, usually `common`; do not use `starter` as a rarity value.
 
 Top-level costs:
 
