@@ -22,7 +22,8 @@
           {
             "type": "melee",
             "damage": 3,
-            "range": 1
+            "range": 1,
+            "bleed": 1
           }
         ]
       },
@@ -55,7 +56,8 @@
           {
             "type": "melee",
             "damage": 5,
-            "range": 1
+            "range": 1,
+            "bleed": 1
           }
         ]
       }
@@ -149,7 +151,8 @@
             "type": "ranged",
             "damage": 3,
             "range": 4,
-            "pierce": true
+            "pierce": true,
+            "bleed": 1
           }
         ]
       },

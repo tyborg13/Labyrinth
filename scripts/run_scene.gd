@@ -9321,12 +9321,20 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				"offset": -6.0
 			}]
 		"status_damage":
-			return [{
+			var status_float: Dictionary = {
 				"tile": step.get("tile", Vector2i.ZERO),
 				"text": "-%d" % int(step.get("amount", 0)),
 				"color": Color("f39779"),
 				"offset": -6.0
-			}]
+			}
+			if str(step.get("label", "")) == "Bleed":
+				status_float["icon"] = "bleed"
+				status_float["icon_tint"] = Color("ffe9df")
+				status_float["icon_fill"] = Color(0.18, 0.05, 0.05, 0.94)
+				status_float["icon_border"] = Color("ff8a76")
+				status_float["width"] = 70.0
+				status_float["x_offset"] = -26.0
+			return [status_float]
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			var terrain_losses: Array = step.get("terrain_losses", [])

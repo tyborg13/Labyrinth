@@ -91,6 +91,8 @@ func _initialize() -> void:
 	_test_tailwind_fletching_modifies_existing_forced_movement()
 	_test_pierce_ignores_defenses()
 	_test_bleed_expose_and_sunder_keywords()
+	_test_enemy_bleed_intents_apply_and_surface_icons()
+	_test_bleed_status_badges_and_trigger_floats()
 	_test_enemy_pierce_intents_surface_icons()
 	_test_bile_bloomer_poison_and_expose_intents_apply_to_player()
 	_test_bile_bloomer_intents_surface_poison_and_expose_icons()
@@ -2664,6 +2666,121 @@ func _test_bleed_expose_and_sunder_keywords() -> void:
 	_assert(int((move_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Move actions should trigger player bleed once before movement")
 	var ended_move_state: Dictionary = combat.finish_player_activation(move_state)
 	_assert(int((ended_move_state.get("player", {}) as Dictionary).get("bleed", 0)) == 0, "Player bleed should clear when the player's next turn is finished")
+
+func _test_enemy_bleed_intents_apply_and_surface_icons() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var board := CombatBoardView.new()
+	var crawler_skitter: Dictionary = _enemy_intent_by_id("crawler", "skitter_strike")
+	var crawler_lunge: Dictionary = _enemy_intent_by_id("crawler", "lunge")
+	var harrier_pelt: Dictionary = _enemy_intent_by_id("harrier", "pelt")
+	_assert(_intent_has_action_status(crawler_skitter, "melee", "bleed"), "Tunnel Crawler Skitter Strike claws should apply bleed")
+	_assert(_intent_has_action_status(crawler_lunge, "melee", "bleed"), "Tunnel Crawler Lunge claws should apply bleed")
+	_assert(_intent_has_action_status(harrier_pelt, "ranged", "bleed"), "Bone Harrier Pelt spear should apply bleed")
+	_assert(_intent_rows_have_icon(board.call("_intent_rows", crawler_skitter), "bleed"), "Crawler bleed intent rows should show the bleed icon")
+	_assert(_intent_rows_have_icon(board.call("_intent_rows", harrier_pelt), "bleed"), "Harrier bleed intent rows should show the bleed icon")
+	board.free()
+
+	var crawler_layout: Dictionary = _simple_room_layout()
+	crawler_layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(3, 4),
+		"hp": 140,
+		"max_hp": 140,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	var crawler_state: Dictionary = combat.create_combat(1714, crawler_layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(crawler_state, 0, crawler_skitter)
+	var crawler_result: Dictionary = combat.resolve_enemy_turn_with_steps(crawler_state, 0)
+	var crawler_player: Dictionary = (crawler_result.get("state", {}) as Dictionary).get("player", {})
+	_assert(int(crawler_player.get("bleed", 0)) == GameData.fixed_point_amount(1), "Crawler bleed claws should mark the player")
+
+	var harrier_layout: Dictionary = _simple_room_layout()
+	harrier_layout["enemies"] = [{
+		"id": 1,
+		"type": "harrier",
+		"pos": Vector2i(5, 4),
+		"hp": 100,
+		"max_hp": 100,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	var harrier_state: Dictionary = combat.create_combat(1715, harrier_layout, {
+		"hp": 240,
+		"max_hp": 240,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(harrier_state, 0, harrier_pelt)
+	var harrier_result: Dictionary = combat.resolve_enemy_turn_with_steps(harrier_state, 0)
+	var harrier_player: Dictionary = (harrier_result.get("state", {}) as Dictionary).get("player", {})
+	_assert(int(harrier_player.get("bleed", 0)) == GameData.fixed_point_amount(1), "Harrier bleed spear should mark the player")
+
+func _test_bleed_status_badges_and_trigger_floats() -> void:
+	var board := CombatBoardView.new()
+	board.call("_load_assets")
+	var textures: Dictionary = board.get("_keyword_icon_textures") as Dictionary
+	_assert(textures.get("bleed", null) != null, "Combat board should load the bleed icon texture")
+	var enemy_badges: Array = board.call("_unit_status_badges", {"bleed": 30})
+	_assert(enemy_badges.size() == 1, "Bleeding enemies should surface a status badge")
+	if not enemy_badges.is_empty():
+		var bleed_badge: Dictionary = enemy_badges[0] as Dictionary
+		_assert(str(bleed_badge.get("icon", "")) == "bleed", "Bleed status badge should use the bleed icon")
+		_assert(int(bleed_badge.get("count", 0)) == 30, "Bleed status badge should show the current bleed stack")
+		_assert(bleed_badge.has("icon_tint"), "Bleed status badge should use a high-contrast icon tint")
+	var player_statuses: Dictionary = board.call("_player_display_statuses", {"bleed": 20}, {})
+	var player_badges: Array = board.call("_unit_status_badges", player_statuses)
+	_assert(not player_badges.is_empty() and str((player_badges[0] as Dictionary).get("icon", "")) == "bleed", "Bleeding player should surface the same bleed badge")
+	board.set_combat_state({
+		"grid": _simple_grid(),
+		"player": {"pos": Vector2i(2, 4), "hp": 120, "max_hp": 120, "block": 0, "stoneskin": 0, "bleed": 20},
+		"enemies": [{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(4, 4),
+			"hp": 80,
+			"max_hp": 80,
+			"block": 0,
+			"stoneskin": 0,
+			"bleed": 30
+		}]
+	})
+	var visible_units: Array = board.call("_visible_units")
+	var visible_player_bleed: bool = false
+	var visible_enemy_bleed: bool = false
+	for unit_var: Variant in visible_units:
+		var unit: Dictionary = unit_var as Dictionary
+		if str(unit.get("role", "")) == "player" and int(unit.get("bleed", 0)) == 20:
+			visible_player_bleed = true
+		if str(unit.get("role", "")) == "enemy" and int(unit.get("bleed", 0)) == 30:
+			visible_enemy_bleed = true
+	_assert(visible_player_bleed, "Visible player draw data should retain bleed for status badges")
+	_assert(visible_enemy_bleed, "Visible enemy draw data should retain bleed for status badges")
+	board.free()
+
+	var instance: Node = RunSceneScript.new()
+	var bleed_floats: Array = instance.call("_floating_texts_for_step", {
+		"kind": "status_damage",
+		"label": "Bleed",
+		"tile": Vector2i(3, 4),
+		"amount": 50
+	})
+	_assert(bleed_floats.size() == 1, "Bleed trigger should create a floating feedback entry")
+	if not bleed_floats.is_empty():
+		var bleed_float: Dictionary = bleed_floats[0] as Dictionary
+		_assert(str(bleed_float.get("icon", "")) == "bleed", "Bleed trigger float should pop the bleed icon")
+		_assert(str(bleed_float.get("text", "")) == "-50", "Bleed trigger float should still show the damage number")
+	instance.free()
 
 func _test_enemy_pierce_intents_surface_icons() -> void:
 	var board := CombatBoardView.new()
@@ -9621,6 +9738,15 @@ func _intent_rows_have_icon(rows: Array, icon_key: String) -> bool:
 				continue
 			if str((token_var as Dictionary).get("icon", "")) == icon_key:
 				return true
+	return false
+
+func _intent_has_action_status(intent: Dictionary, action_type: String, status_key: String) -> bool:
+	for action_var: Variant in intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		if str(action.get("type", "")) == action_type and int(action.get(status_key, 0)) > 0:
+			return true
 	return false
 
 func _chainbound_gaoler_combat_state(seed: int, player_pos: Vector2i, gaoler_pos: Vector2i, intent_id: String) -> Dictionary:

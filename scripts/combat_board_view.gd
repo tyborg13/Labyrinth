@@ -2018,6 +2018,7 @@ func _visible_units() -> Array[Dictionary]:
 			"block": int(player.get("block", 0)),
 			"stoneskin": int(player.get("stoneskin", 0)),
 			"burn": int(player_statuses.get("burn", 0)),
+			"bleed": int(player_statuses.get("bleed", 0)),
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
 			"immobilize": bool(player_statuses.get("immobilize", false)),
@@ -2040,6 +2041,7 @@ func _visible_units() -> Array[Dictionary]:
 			"block": 0,
 			"stoneskin": 0,
 			"burn": 0,
+			"bleed": 0,
 			"freeze": 0,
 			"shock": 0,
 			"immobilize": false,
@@ -2066,6 +2068,7 @@ func _visible_units() -> Array[Dictionary]:
 			"block": 0,
 			"stoneskin": 0,
 			"burn": 0,
+			"bleed": 0,
 			"freeze": 0,
 			"shock": 0,
 			"immobilize": false,
@@ -2090,6 +2093,7 @@ func _visible_units() -> Array[Dictionary]:
 			"block": int(enemy.get("block", 0)),
 			"stoneskin": int(enemy.get("stoneskin", 0)),
 			"burn": int(enemy.get("burn", 0)),
+			"bleed": int(enemy.get("bleed", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
@@ -3927,6 +3931,21 @@ func _draw_floating_texts() -> void:
 		var label_width: float = float(entry.get("width", 48.0))
 		var font_size: int = int(entry.get("font_size", 16))
 		var text: String = str(entry.get("text", ""))
+		var icon_key: String = str(entry.get("icon", ""))
+		if not icon_key.is_empty():
+			var icon_size: float = float(entry.get("icon_size", 18.0))
+			var icon_rect := Rect2(text_pos + Vector2(0.0, -icon_size + 2.0), Vector2(icon_size, icon_size))
+			var icon_fill: Color = entry.get("icon_fill", Color(0.12, 0.06, 0.05, 0.90))
+			icon_fill.a *= color.a
+			var icon_border: Color = entry.get("icon_border", color)
+			icon_border.a *= color.a
+			var icon_tint: Color = entry.get("icon_tint", Color.WHITE)
+			icon_tint.a *= color.a
+			draw_circle(icon_rect.get_center(), icon_size * 0.56, icon_fill)
+			draw_arc(icon_rect.get_center(), icon_size * 0.56, 0.0, TAU, 20, icon_border, 1.3)
+			_draw_keyword_icon(icon_key, icon_rect.grow(-2.0), "", icon_tint)
+			text_pos.x += icon_size + 4.0
+			label_width = maxf(0.0, label_width - icon_size - 4.0)
 		var outline_size: int = int(entry.get("outline_size", 2))
 		if outline_size > 0:
 			var outline_color: Color = entry.get("outline_color", Color("200806"))
@@ -5434,7 +5453,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"icon": "bleed",
 			"count": int(unit.get("bleed", 0)),
 			"fill": STATUS_BLEED,
-			"border": STATUS_BLEED.lightened(0.22)
+			"border": STATUS_BLEED.lightened(0.22),
+			"icon_tint": Color("ffe9df")
 		})
 	if int(unit.get("expose", 0)) > 0:
 		badges.append({
@@ -5490,7 +5510,8 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 	draw_arc(center, radius, 0.0, TAU, 18, badge.get("border", Color.WHITE), 1.6)
 	var icon_key: String = str(badge.get("icon", ""))
 	var badge_rect := Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0))
-	_draw_keyword_icon(icon_key, Rect2(center - Vector2(6.5, 6.5), Vector2(13.0, 13.0)), ActionIcons.tooltip(icon_key), Color("1f1812"))
+	var icon_tint: Color = badge.get("icon_tint", Color("1f1812"))
+	_draw_keyword_icon(icon_key, Rect2(center - Vector2(6.5, 6.5), Vector2(13.0, 13.0)), ActionIcons.tooltip(icon_key), icon_tint)
 	_register_tooltip(badge_rect, ActionIcons.tooltip(icon_key))
 	var count: int = int(badge.get("count", 0))
 	if count <= 0:

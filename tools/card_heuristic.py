@@ -23,8 +23,10 @@ or guard the most injured/threatened nearby enemy on the same support scaling
 curve as enemy block/healing. Bile bloomers join earth rooms near the slow
 attrition end at about 19 initiative and use a radius-2 poison diamond for their
 main area-denial intent. Generic enemies keep their printed intent actions
-instead of being rewritten to match the room element. Later sequences keep the
-local curve while raising enemy HP and intent baselines. Zekarion's 2x2
+instead of being rewritten to match the room element. Tunnel Crawler claw
+attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
+Later sequences keep the local curve while raising enemy HP and intent
+baselines. Zekarion's 2x2
 footprint makes printed reach feel larger, so Tempest Breath is capped at range
 3 after its one-tile advance to preserve safe boss-room repositioning.
 Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,

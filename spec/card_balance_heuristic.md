@@ -86,8 +86,9 @@ Encounter calibration is also important:
   around `19.25` before summon forcing. Grave surgeons contribute low direct
   damage but can heal or guard the most injured/threatened nearby enemy, so
   their support amounts follow the same depth/sequence support curve as enemy
-  block and healing. Depth reduces enemy base initiative by up to `4` over
-  time.
+  block and healing. Tunnel crawler claw attacks and the Bone Harrier's spear
+  shot now add light one-turn bleed pressure. Depth reduces enemy base
+  initiative by up to `4` over time.
 - Specialist enemies enter normal local depth `2-3` pools only in matching
   elemental rooms: Cinder Oozes in fire, Frostglass Lancers in ice, Chainbound
   Gaolers in air, and Bile Bloomers in earth. Generic enemies keep their own
