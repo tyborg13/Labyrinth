@@ -365,12 +365,11 @@ also `consume_on_play: true`, which enter decks through equipped item slots and
 are destroyed after one play.
 
 Equipment cards are identified from `data/equipment.json`, not only from card
-metadata. Starter cards are identified by either `starter: true` or
-`rarity: "starter"` so older starter cards do not leak into reward-pool or
-equipment-only balance reviews just because they lack explicit
-`reward_pool: false`. Item cards are also excluded from reward-pool and
-equipment-only views so their one-use strength does not distort normal card
-comparisons.
+metadata. Starter cards are identified by `starter: true`; legacy
+`rarity: "starter"` is still treated as starter metadata so old data does not
+leak into reward-pool or equipment-only balance reviews. Item cards are also
+excluded from reward-pool and equipment-only views so their one-use strength
+does not distort normal card comparisons.
 
 Source tags are shown automatically in filtered text output, can be added to any
 text view with `--show-source`, and are always included in `--json` output.

@@ -134,7 +134,7 @@ If the requested subject is smoke, glass, hair, translucent materials, or other 
 
 Do not bake frames or rarity marks into card art. CardWidget handles them:
 
-- Rarity frame path is selected from `rarity` using `assets/art/ui/card_frame_rarity_{starter,common,uncommon,rare}.png`.
+- Rarity frame path is selected from `rarity` using `assets/art/ui/card_frame_rarity_{common,rare,epic,legendary}.png`. The old `starter`/`uncommon` rarity values are legacy-only; starting cards use `starter: true` metadata and a normal rarity.
 - Rarity socket color lives in those frame texture variants, not overlay controls.
 - Elemental frame tint is applied at runtime by `CardWidget._card_frame_texture` when `element` is one of the elemental ids.
 - Elemental backgrounds and accents come from `scripts/element_data.gd`; neutral cards use the card `accent`.

@@ -37,7 +37,7 @@ description: Create, implement, rebalance, or review cards for Labyrinth of Ash.
 - Card ids are lowercase snake_case keys in `data/cards.json`.
 - New playable cards need `name`, `rarity`, `time`, `burn`, `health_cost`, `description`, `accent`, `art_path`, and `actions`.
 - Neutral cards normally omit `element`; elemental cards use `fire`, `ice`, `lightning`, `air`, or `earth` and should keep `accent` aligned with `scripts/element_data.gd`.
-- `rarity` is `common`, `uncommon`, or `rare` for rewards. Use `starter` only when also updating the starting deck intentionally.
+- `rarity` uses the shared loot tiers: `common`, `rare`, `epic`, or `legendary`. Starting-deck cards use `starter: true` plus a normal rarity, usually `common`; do not use `starter` as a rarity value.
 - `time` is the card's initiative cost on a `1-10` scale. Use `5` as the normal baseline, lower values for fast/simple/low-impact cards, and higher values for heavy, high-impact, broad, or setup-payoff cards.
 - Top-level `burn: true` means **Exhaust this card for the rest of combat**. It is rendered as the Exhaust cost icon. Do not confuse it with action-level `burn`, which is the fire status.
 - `description` is still useful fallback text, but the card UI primarily renders icon rows from `ActionIconLibrary.rows_for_card`.

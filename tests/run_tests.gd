@@ -1380,13 +1380,28 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
+	var valid_card_rarities: Dictionary = {
+		"common": true,
+		"rare": true,
+		"epic": true,
+		"legendary": true
+	}
+	var card_rarity_counts: Dictionary = {}
+	for card_id_var: Variant in GameData.cards().keys():
+		var card_id: String = str(card_id_var)
+		var rarity: String = str(GameData.card_def(card_id).get("rarity", ""))
+		_assert(valid_card_rarities.has(rarity), "%s should use the shared card rarity set" % card_id)
+		card_rarity_counts[rarity] = int(card_rarity_counts.get(rarity, 0)) + 1
+	for rarity: String in GameData.CARD_RARITY_TIERS:
+		_assert(int(card_rarity_counts.get(rarity, 0)) > 0, "Card data should include %s cards" % rarity)
 	var starting_deck: Array = GameData.starting_deck()
 	_assert(starting_deck.has("hamstring_shot"), "Hamstring Shot should replace the plain ranged starter in the starting deck")
 	_assert(not starting_deck.has("bone_dart"), "Bone Dart should stay out of the starting deck while retired")
 	_assert(bool(GameData.card_def("hamstring_shot").get("starter", false)), "Hamstring Shot should be marked as a starter card")
+	_assert(str(GameData.card_def("hamstring_shot").get("rarity", "")) == "common", "Starter Hamstring Shot should use common rarity plus starter metadata")
 	_assert(not bool(GameData.card_def("bone_dart").get("starter", false)), "Bone Dart should not be marked as an active starter card")
 	var reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		var cards: Array = reward_pool.get(rarity, [])
 		_assert(not cards.has("bone_dart"), "Bone Dart should stay out of reward offers while retired")
 		_assert(not cards.has("hamstring_shot"), "Starter Hamstring Shot should stay out of reward offers")
@@ -1394,11 +1409,12 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 			_assert(not cards.has(magic_card_id), "Default attuned magic should stay out of combat reward offers")
 	var elemental_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity("", true)
 	var elemental_reward_ids: Array = []
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		for card_id_var: Variant in elemental_reward_pool.get(rarity, []):
 			elemental_reward_ids.append(str(card_id_var))
 	_assert(elemental_reward_ids.has("threaded_path"), "Threaded Path should be a live elemental speed reward")
 	_assert(GameData.card_element("threaded_path") == ElementData.AIR, "Threaded Path should be an Air reward card")
+	_assert((elemental_reward_pool.get("legendary", []) as Array).has("wildfire_halo"), "Elemental rewards should include legendary magic capstones")
 	var elemental_reward_times: Dictionary = {}
 	for card_id_var: Variant in elemental_reward_ids:
 		var card_id: String = str(card_id_var)
@@ -1433,7 +1449,7 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 		_assert(not bool(item_card.get("reward_pool", true)), "%s should stay out of normal card rewards" % item_card_id)
 		_assert(FileAccess.file_exists(str(item_card.get("art_path", ""))), "%s item card art should exist" % item_card_id)
 	var item_reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
-	for rarity: String in ["common", "uncommon", "rare"]:
+	for rarity: String in GameData.CARD_RARITY_TIERS:
 		_assert(not (item_reward_pool.get(rarity, []) as Array).has("crimson_draught"), "Consumable items should not appear in normal reward pools")
 	_assert(not GameData.upgradeable_card_ids().has("crimson_draught"), "Consumable items should not appear in the upgrade pool")
 	var deck_with_item: Array = GameData.compile_deck_cards(equipped, GameData.starting_magic_cards(), ["crimson_draught"])
@@ -4567,8 +4583,22 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	)
 	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
-	_assert(equipment_rect.size == potion_rect.size, "Equipment pickups should use the same grounded tile footprint as ordinary pickups")
-	_assert(is_equal_approx(equipment_rect.end.y, potion_rect.end.y), "Equipment pickups should share the consumable pickup baseline")
+	_assert(equipment_rect.size.x > potion_rect.size.x, "Equipment pickups should render larger than ordinary pickups")
+	_assert(equipment_rect.end.y < potion_rect.end.y, "Equipment pickups should float above the consumable pickup baseline")
+	var low_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 0.0)
+	var high_bob: Vector2 = board.call("_equipment_pickup_bob_offset", 1.0)
+	_assert(high_bob.y < low_bob.y, "Equipment pickups should bob upward as their visibility pulse rises")
+	_assert(high_bob.y < 0.0 and low_bob.y < 0.0, "Equipment pickup bobbing should keep the item visibly lifted above the tile")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3)}]
+	}
+	_assert(bool(board.call("_presentation_needs_continuous_redraw")), "Unclaimed equipment pickups should animate their visibility beacon")
+	board.combat_state = {
+		"grid": _simple_grid(),
+		"loot": [{"kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 3), "claimed": true}]
+	}
+	_assert(not bool(board.call("_presentation_needs_continuous_redraw")), "Claimed equipment pickups should not keep the board animating")
 	var terrain_tooltip: String = str(board.call("_terrain_tooltip_text", {
 		"kind": "wooden_crate",
 		"hp": 2,
