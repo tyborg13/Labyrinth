@@ -70,8 +70,10 @@ Encounter calibration is also important:
   unsealed same-depth-or-deeper exit.
 - First-sequence standard rooms now use a wider local band. Depth `1` enemies
   have `85%` HP and their damaging/support actions are shifted down by `1`
-  player-scale point, depth `2` uses the base roster, and depth `3` enemies
-  have `112%` HP without an extra generic damage/support bump.
+  player-scale point, depth `2` uses base stats, and depth `3` enemies have
+  `112%` HP without an extra generic damage/support bump. Standard depths share
+  the same normal-room roster eligibility; local depth controls density and
+  scaling instead of gating enemy types.
   Enemy base initiative
   is mostly roster-driven: lightning wisps and tunnel crawlers are fast,
   harriers are quick, frostglass lancers and acolytes are baseline, Cinder
@@ -87,23 +89,23 @@ Encounter calibration is also important:
   their support amounts follow the same depth/sequence support curve as enemy
   block and healing. Depth reduces enemy base initiative by up to `4` over
   time.
-- Specialist enemies enter normal local depth `2-3` pools only in matching
+- Specialist enemies enter normal local depth `1-3` pools only in matching
   elemental rooms: Cinder Oozes in fire, Frostglass Lancers in ice, Chainbound
   Gaolers in air, and Bile Bloomers in earth. Generic enemies keep their own
   printed intent actions instead of being rewritten to match the room element.
 - Cinder Oozes split into up to two summoned Cinder Droplets on nearby legal
   tiles; the droplets add cleanup pressure but grant no embers and no death
   card-play bonus.
-- Grave surgeons enter normal local depth `2-3` pools as support enemies that
+- Grave surgeons enter normal local depth `1-3` pools as support enemies that
   lower direct pressure while extending allied bodies.
-- Chainbound Gaolers enter normal local depth `2-3` pools at low frequency as
+- Chainbound Gaolers enter normal local depth `1-3` pools at low frequency as
   pull/immobilize control anchors without stacking with wardens or boss adds in
   their seeded compositions.
-- Bile Bloomers enter normal local depth `2-3` pools at low frequency as slow
+- Bile Bloomers enter normal local depth `1-3` pools at low frequency as slow
   poison/expose attrition anchors without changing boss rooms.
-- Frostglass Lancers enter normal local depth `2-3` pools as precision
+- Frostglass Lancers enter normal local depth `1-3` pools as precision
   four-tile line-thrust enemies that can move sideways to set up a lane, so
-  lateral movement and blocker-aware positioning matter more once the opener band is past.
+  lateral movement and blocker-aware positioning can appear from the opener band.
 - Later sequences keep the same local density and elemental room-pressure curve, but
   raise the baseline by `+45%` max HP, `+4` max HP, `+2` attack damage, and
   `+2` block/stoneskin per completed sequence.

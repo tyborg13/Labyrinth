@@ -899,6 +899,7 @@ func _test_room_generation_scales_enemy_density() -> void:
 
 func _test_element_locked_enemy_spawn_rules() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
+	var normal_enemy_types: Array = ["crawler", "harrier", "acolyte", "warden", "grave_surgeon"]
 	var locked_elements: Dictionary = {
 		"bile_bloomer": ElementData.EARTH,
 		"frostglass_lancer": ElementData.ICE,
@@ -914,14 +915,35 @@ func _test_element_locked_enemy_spawn_rules() -> void:
 		_assert(str(GameData.enemy_def(enemy_type).get("element", "")) == expected_element, "%s should declare its locked element in enemy data" % enemy_type)
 
 	for depth: int in [1, 2, 3]:
+		var expected_density: int = 5
+		if depth == 1:
+			expected_density = 3
+		elif depth == 2:
+			expected_density = 4
+		var seen_normal: Dictionary = {}
+		var base_pool: Array = generator.call("_base_encounter_enemy_type_pool", depth)
+		for enemy_type_var: Variant in normal_enemy_types:
+			seen_normal[str(enemy_type_var)] = false
+		for enemy_types_var: Variant in base_pool:
+			var enemy_types: Array = enemy_types_var as Array
+			_assert(enemy_types.size() == expected_density, "Base depth-%d enemy pools should keep the normal density curve" % depth)
+			for enemy_type_var: Variant in normal_enemy_types:
+				var enemy_type: String = str(enemy_type_var)
+				if enemy_types.has(enemy_type):
+					seen_normal[enemy_type] = true
+		for enemy_type_var: Variant in normal_enemy_types:
+			var enemy_type: String = str(enemy_type_var)
+			_assert(bool(seen_normal.get(enemy_type, false)), "%s should be eligible in depth-%d combat pools" % [enemy_type, depth])
+
 		var seen: Dictionary = {}
 		for enemy_type_var: Variant in locked_elements.keys():
 			seen[str(enemy_type_var)] = false
 		for room_element: String in room_elements:
-			for seed: int in range(96):
-				var rng := RandomNumberGenerator.new()
-				rng.seed = seed
-				var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng, room_element)
+			var pool: Array = generator.call("_base_encounter_enemy_type_pool", depth)
+			generator.call("_add_element_locked_enemy_type_pools", pool, depth, room_element)
+			for enemy_types_var: Variant in pool:
+				var enemy_types: Array = enemy_types_var as Array
+				_assert(enemy_types.size() == expected_density, "Elemental depth-%d enemy pools should keep the normal density curve" % depth)
 				_assert(not enemy_types.has("cinder_droplet"), "Cinder Droplets should only come from Cinder Ooze split spawns")
 				for enemy_type_var: Variant in locked_elements.keys():
 					var enemy_type: String = str(enemy_type_var)
@@ -931,15 +953,12 @@ func _test_element_locked_enemy_spawn_rules() -> void:
 					var expected_element: String = str(locked_elements.get(enemy_type, ElementData.NONE))
 					_assert(room_element == expected_element, "%s should only appear in %s rooms" % [enemy_type, ElementData.name(expected_element)])
 					if enemy_type == "chainbound_gaoler":
-						_assert(enemy_types.size() == (4 if depth == 2 else 5), "Chainbound Gaoler rooms should keep normal enemy density")
+						_assert(enemy_types.size() == expected_density, "Chainbound Gaoler rooms should keep normal enemy density")
 						_assert(not enemy_types.has("warden"), "Chainbound Gaoler compositions should avoid pairing with the slow heavy anchor")
 						_assert(not enemy_types.has("lightning_wisp"), "Chainbound Gaoler should stay out of boss/add control pairings")
 		for enemy_type_var: Variant in locked_elements.keys():
 			var enemy_type: String = str(enemy_type_var)
-			if depth == 1:
-				_assert(not bool(seen.get(enemy_type, false)), "%s should stay out of depth-one teaching rooms" % enemy_type)
-			else:
-				_assert(bool(seen.get(enemy_type, false)), "%s should appear in its matching element depth-%d pool" % [enemy_type, depth])
+			_assert(bool(seen.get(enemy_type, false)), "%s should appear in its matching element depth-%d pool" % [enemy_type, depth])
 
 func _test_boss_room_spawns_zekarion_with_wisps() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -2908,16 +2927,19 @@ func _test_grave_surgeon_data_and_pool_role() -> void:
 	var generator := RoomGenerator.new()
 	var rng := RandomNumberGenerator.new()
 	var saw_surgeon: bool = false
-	for depth: int in [2, 3]:
+	for depth: int in [1, 2, 3]:
+		var saw_surgeon_at_depth: bool = false
 		for seed: int in range(24):
 			rng.seed = seed
 			var enemy_types: Array = generator.call("_encounter_enemy_types", "combat", depth, rng)
 			if not enemy_types.has("grave_surgeon"):
 				continue
 			saw_surgeon = true
-			_assert(enemy_types.size() >= 4, "Grave Surgeon should appear in multi-enemy rooms")
+			saw_surgeon_at_depth = true
+			_assert(enemy_types.size() >= 3, "Grave Surgeon should appear in multi-enemy rooms")
 			_assert(enemy_types.has("crawler") or enemy_types.has("harrier") or enemy_types.has("warden"), "Grave Surgeon should be paired with front-line enemies")
-	_assert(saw_surgeon, "Grave Surgeon should appear in depth 2+ encounter pools")
+		_assert(saw_surgeon_at_depth, "Grave Surgeon should appear in depth-%d encounter pools" % depth)
+	_assert(saw_surgeon, "Grave Surgeon should appear in all standard encounter depth pools")
 
 func _test_grave_surgeon_support_actions_scale() -> void:
 	var suture: Dictionary = _enemy_intent_by_id("grave_surgeon", "triage_suture")

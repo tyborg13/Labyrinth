@@ -470,7 +470,11 @@ func _base_encounter_enemy_type_pool(depth: int) -> Array:
 			pool = [
 				["crawler", "crawler", "harrier"],
 				["crawler", "harrier", "acolyte"],
-				["crawler", "crawler", "acolyte"]
+				["crawler", "crawler", "acolyte"],
+				["warden", "crawler", "harrier"],
+				["grave_surgeon", "crawler", "harrier"],
+				["warden", "acolyte", "crawler"],
+				["grave_surgeon", "acolyte", "harrier"]
 			]
 		2:
 			pool = [
@@ -489,7 +493,16 @@ func _base_encounter_enemy_type_pool(depth: int) -> Array:
 func _add_element_locked_enemy_type_pools(pool: Array, depth: int, room_element: String) -> void:
 	match depth:
 		1:
-			return
+			match room_element:
+				ElementData.FIRE:
+					pool.append(["cinder_ooze", "harrier", "crawler"])
+				ElementData.EARTH:
+					pool.append(["bile_bloomer", "crawler", "harrier"])
+				ElementData.ICE:
+					pool.append(["frostglass_lancer", "crawler", "harrier"])
+					pool.append(["frostglass_lancer", "acolyte", "crawler"])
+				ElementData.AIR:
+					pool.append(["chainbound_gaoler", "harrier", "crawler"])
 		2:
 			match room_element:
 				ElementData.FIRE:
