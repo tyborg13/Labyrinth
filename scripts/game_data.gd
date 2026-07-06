@@ -53,6 +53,7 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 	"epic": 3,
 	"legendary": 1
 }
+const CARD_RARITY_TIERS: Array[String] = ["common", "rare", "epic", "legendary"]
 const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
 const MAGIC_LOADOUT_LIMIT: int = 6
 const ITEM_LOADOUT_LIMIT: int = 2
@@ -201,16 +202,17 @@ static func starting_magic_cards() -> Array:
 static func reward_card_pool_by_rarity(element_filter: String = "", elemental_only: bool = false) -> Dictionary:
 	var result: Dictionary = {
 		"common": [],
-		"uncommon": [],
-		"rare": []
+		"rare": [],
+		"epic": [],
+		"legendary": []
 	}
 	for card_id: String in cards().keys():
 		var card: Dictionary = cards()[card_id]
 		if not bool(card.get("reward_pool", true)):
 			continue
-		var rarity: String = str(card.get("rarity", "common"))
-		if rarity == "starter":
+		if bool(card.get("starter", false)):
 			continue
+		var rarity: String = card_rarity_from_def(card)
 		var card_element: String = card_element_from_def(card)
 		if elemental_only and not ElementData.is_elemental(card_element):
 			continue
@@ -220,6 +222,23 @@ static func reward_card_pool_by_rarity(element_filter: String = "", elemental_on
 			result[rarity] = []
 		(result[rarity] as Array).append(card_id)
 	return result
+
+static func card_rarity(card_id: String) -> String:
+	return card_rarity_from_def(_raw_card_def(card_id))
+
+static func card_rarity_from_def(card: Dictionary) -> String:
+	var rarity: String = str(card.get("rarity", "common"))
+	if rarity == "uncommon":
+		return "rare"
+	if rarity == "starter":
+		return "common"
+	return rarity if RELIC_RARITY_ACCENTS.has(rarity) else "common"
+
+static func card_rarity_accent(rarity: String) -> String:
+	return relic_rarity_accent(rarity)
+
+static func rarity_offer_weight(rarity: String) -> int:
+	return int(RELIC_RARITY_OFFER_WEIGHTS.get(str(rarity), RELIC_RARITY_OFFER_WEIGHTS["common"]))
 
 static func card_element(card_id: String) -> String:
 	return card_element_from_def(card_def(card_id))
@@ -256,13 +275,7 @@ static func card_consumes_on_play(card_id: String) -> bool:
 	return bool(card.get("consume_on_play", false))
 
 static func item_offer_weight(card_id: String) -> int:
-	var rarity: String = str(_raw_card_def(card_id).get("rarity", "common"))
-	match rarity:
-		"rare":
-			return 3
-		"uncommon":
-			return 6
-	return 12
+	return rarity_offer_weight(card_rarity(card_id))
 
 static func equipment_slots() -> Array[String]:
 	return EQUIPMENT_SLOTS.duplicate()
@@ -391,8 +404,8 @@ static func card_upgrade_ids() -> Array:
 	result.sort_custom(func(a: Variant, b: Variant) -> bool:
 		var a_card: Dictionary = card_def(str(upgrade_def(str(a)).get("card_id", "")))
 		var b_card: Dictionary = card_def(str(upgrade_def(str(b)).get("card_id", "")))
-		var a_rarity: int = _rarity_sort_index(str(a_card.get("rarity", "common")))
-		var b_rarity: int = _rarity_sort_index(str(b_card.get("rarity", "common")))
+		var a_rarity: int = _card_rarity_sort_index(a_card)
+		var b_rarity: int = _card_rarity_sort_index(b_card)
 		if a_rarity == b_rarity:
 			return str(a_card.get("name", a)) < str(b_card.get("name", b))
 		return a_rarity < b_rarity
@@ -414,7 +427,7 @@ static func upgrade_cost(upgrade_id: String) -> int:
 	if base_card.is_empty() or upgraded_card.is_empty():
 		return 0
 	var delta: float = maxf(1.0, _card_value(upgraded_card) - _card_value(base_card))
-	var rarity_floor: int = _upgrade_floor_for_rarity(str(base_card.get("rarity", "common")))
+	var rarity_floor: int = _upgrade_floor_for_card(base_card)
 	var scaled_cost: int = ceili(delta * 8.0 / 5.0) * 5
 	return maxi(rarity_floor, scaled_cost)
 
@@ -437,8 +450,8 @@ static func upgradeable_card_ids() -> Array:
 	result.sort_custom(func(a: Variant, b: Variant) -> bool:
 		var a_card: Dictionary = card_def(str(a))
 		var b_card: Dictionary = card_def(str(b))
-		var a_rarity: int = _rarity_sort_index(str(a_card.get("rarity", "common")))
-		var b_rarity: int = _rarity_sort_index(str(b_card.get("rarity", "common")))
+		var a_rarity: int = _card_rarity_sort_index(a_card)
+		var b_rarity: int = _card_rarity_sort_index(b_card)
 		if a_rarity == b_rarity:
 			return str(a_card.get("name", a)) < str(b_card.get("name", b))
 		return a_rarity < b_rarity
@@ -547,7 +560,7 @@ static func card_mod_cost(card_id: String, mod: Dictionary, progression: Diction
 	var value_delta: float = maxf(0.1, _card_value(preview_card) - _card_value(current_card))
 	var value_cost: int = ceili(value_delta * 120.0 / 10.0) * 10
 	var base_cost: int = maxi(int(mod.get("cost_base", 180)), value_cost)
-	var rarity_multiplier: float = _rarity_cost_multiplier(str(card_def(card_id).get("rarity", "common")))
+	var rarity_multiplier: float = _rarity_cost_multiplier_for_card(card_def(card_id))
 	var upgrade_count: int = card_upgrade_count(progression, card_id)
 	var stack_multiplier: float = 1.0 + float(upgrade_count) * 0.65 + float(upgrade_count * upgrade_count) * 0.22
 	return ceili(float(base_cost) * rarity_multiplier * stack_multiplier / 10.0) * 10
@@ -885,12 +898,24 @@ static func _rarity_sort_index(rarity: String) -> int:
 			return 0
 		"common":
 			return 1
-		"uncommon":
-			return 2
 		"rare":
+			return 2
+		"epic":
 			return 3
-		_:
+		"legendary":
 			return 4
+		_:
+			return 5
+
+static func _card_rarity_sort_index(card: Dictionary) -> int:
+	if bool(card.get("starter", false)):
+		return 0
+	return _rarity_sort_index(card_rarity_from_def(card))
+
+static func _upgrade_floor_for_card(card: Dictionary) -> int:
+	if bool(card.get("starter", false)):
+		return 15
+	return _upgrade_floor_for_rarity(card_rarity_from_def(card))
 
 static func _upgrade_floor_for_rarity(rarity: String) -> int:
 	match rarity:
@@ -898,12 +923,19 @@ static func _upgrade_floor_for_rarity(rarity: String) -> int:
 			return 15
 		"common":
 			return 20
-		"uncommon":
-			return 30
 		"rare":
+			return 30
+		"epic":
 			return 45
+		"legendary":
+			return 65
 		_:
 			return 20
+
+static func _rarity_cost_multiplier_for_card(card: Dictionary) -> float:
+	if bool(card.get("starter", false)):
+		return 1.0
+	return _rarity_cost_multiplier(card_rarity_from_def(card))
 
 static func _rarity_cost_multiplier(rarity: String) -> float:
 	match rarity:
@@ -911,10 +943,12 @@ static func _rarity_cost_multiplier(rarity: String) -> float:
 			return 1.0
 		"common":
 			return 1.12
-		"uncommon":
-			return 1.28
 		"rare":
+			return 1.28
+		"epic":
 			return 1.48
+		"legendary":
+			return 1.72
 		_:
 			return 1.12
 

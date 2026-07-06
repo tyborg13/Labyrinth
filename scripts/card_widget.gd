@@ -29,8 +29,9 @@ const CONDITIONAL_OUTLINE_COLOR: String = "#24160f"
 const CARD_FRAME_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_FRAME_STARTER_PATH: String = "res://assets/art/ui/card_frame_rarity_starter.png"
 const CARD_FRAME_COMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_common.png"
-const CARD_FRAME_UNCOMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_uncommon.png"
 const CARD_FRAME_RARE_PATH: String = "res://assets/art/ui/card_frame_rarity_rare.png"
+const CARD_FRAME_EPIC_PATH: String = "res://assets/art/ui/card_frame_rarity_epic.png"
+const CARD_FRAME_LEGENDARY_PATH: String = "res://assets/art/ui/card_frame_rarity_legendary.png"
 const BASE_CARD_SIZE: Vector2 = Vector2(250.0, 352.0)
 const CARD_FRAME_MARGIN: float = 34.0
 const COMPACT_CARD_WIDTH: float = 190.0
@@ -704,9 +705,13 @@ func _card_frame_path(rarity: String) -> String:
 		"common":
 			return CARD_FRAME_COMMON_PATH
 		"uncommon":
-			return CARD_FRAME_UNCOMMON_PATH
+			return CARD_FRAME_RARE_PATH
 		"rare":
 			return CARD_FRAME_RARE_PATH
+		"epic":
+			return CARD_FRAME_EPIC_PATH
+		"legendary":
+			return CARD_FRAME_LEGENDARY_PATH
 		_:
 			return CARD_FRAME_PATH
 

@@ -61,6 +61,10 @@ const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const LOOT_DRAW_WIDTH: float = 58.0
+const EQUIPMENT_LOOT_MIN_DRAW_WIDTH: float = 64.0
+const EQUIPMENT_LOOT_MAX_DRAW_WIDTH: float = 90.0
+const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
+const EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE: float = -0.02
 const IDLE_FRAME_SECONDS: float = 0.10
 const IDLE_SHEET_COLUMNS: int = 4
 const IDLE_SHEET_ROWS: int = 2
@@ -317,6 +321,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	if _pillar_torch_ember_motes_active():
 		return true
+	if _equipment_pickup_beacon_active():
+		return true
 	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
@@ -335,6 +341,17 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	var effect: Dictionary = presentation.get("effect", {})
 	return bool(effect.get("preview", false))
+
+func _equipment_pickup_beacon_active() -> bool:
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)):
+			continue
+		if str(loot.get("kind", "")) == "equipment":
+			return true
+	return false
 
 func _any_idle_animation_active() -> bool:
 	if not visible or combat_state.is_empty():
@@ -1449,9 +1466,13 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if loot_texture == null:
 			continue
 		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
-		_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
-		draw_texture_rect(loot_texture, loot_rect, false)
-		_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
+		if _is_equipment_loot(loot):
+			_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
+			_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
+		else:
+			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
+			draw_texture_rect(loot_texture, loot_rect, false)
+			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
 	for trap_var: Variant in combat_state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -1869,13 +1890,80 @@ func _door_is_visible(tile: Vector2i) -> bool:
 	var locked_doors: Dictionary = presentation.get("locked_door_tiles", {})
 	return bool(locked_doors.get(tile, false))
 
-func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, _loot: Dictionary = {}) -> Rect2:
-	var draw_width: float = LOOT_DRAW_WIDTH
+func _is_equipment_loot(loot: Dictionary) -> bool:
+	return str(loot.get("kind", "")) == "equipment"
+
+func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary) -> void:
+	var accent: Color = _equipment_loot_accent(loot)
+	var glow_color: Color = _equipment_pickup_glow_color(accent)
+	var pulse: float = _equipment_pickup_pulse(tile, loot)
+	var bobbed_rect: Rect2 = Rect2(loot_rect.position + _equipment_pickup_bob_offset(pulse), loot_rect.size)
+	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
+	_draw_rect_ground_shadow(tile, loot_rect, 0.54, 0.15, 0.10)
+	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
+	draw_texture_rect(loot_texture, bobbed_rect, false)
+
+func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
+	var accent_glow: Color = accent.lightened(0.36)
+	_draw_tile_diamond_fill(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.10 + pulse * 0.06), 0.70 + pulse * 0.05)
+	_draw_tile_ring(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.46 + pulse * 0.22), 3.0 + pulse * 1.1, 0.76 + pulse * 0.05)
+	_draw_tile_ring(tile, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.56 + pulse * 0.18), 1.6 + pulse * 0.5, 0.58 + pulse * 0.03)
+
+func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_color: Color, pulse: float) -> void:
+	var offset_px: float = maxf(2.4, _tile_width() * 0.022)
+	var outline_rect: Rect2 = loot_rect.grow(maxf(1.6, _tile_width() * 0.008))
+	var outline_tint := Color(glow_color.r, glow_color.g, glow_color.b, 0.34 + pulse * 0.12)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px, 0.0), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px, 0.0), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, -offset_px), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, offset_px), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
+	draw_texture_rect(texture, loot_rect.grow(maxf(1.0, _tile_width() * 0.006)), false, Color(1.0, 0.92, 0.62, 0.14 + pulse * 0.06))
+
+func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width() * scale
+	var tile_height: float = _tile_height() * scale
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0)
+	])
+	draw_colored_polygon(points, color)
+
+func _equipment_pickup_pulse(tile: Vector2i, loot: Dictionary) -> float:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	return 0.5 + 0.5 * sin(time_seconds * 2.65 + _equipment_loot_phase(tile, loot))
+
+func _equipment_pickup_bob_offset(pulse: float) -> Vector2:
+	return Vector2(0.0, -_tile_height() * (0.035 + pulse * 0.060))
+
+func _equipment_loot_phase(tile: Vector2i, loot: Dictionary) -> float:
+	var equipment_id: String = str(loot.get("equipment_id", ""))
+	var seed: int = abs(tile.x * 92821 + tile.y * 68917 + equipment_id.length() * 131)
+	return (float(seed % 1000) / 1000.0) * TAU
+
+func _equipment_loot_accent(loot: Dictionary) -> Color:
+	return Color(GameData.equipment_accent(str(loot.get("equipment_id", ""))))
+
+func _equipment_pickup_glow_color(accent: Color) -> Color:
+	return Color("f1d18b").lerp(accent.lightened(0.24), 0.34)
+
+func _loot_draw_width(loot: Dictionary) -> float:
+	if _is_equipment_loot(loot):
+		return clampf(_tile_width() * EQUIPMENT_LOOT_TILE_WIDTH_SCALE, EQUIPMENT_LOOT_MIN_DRAW_WIDTH, EQUIPMENT_LOOT_MAX_DRAW_WIDTH)
+	return LOOT_DRAW_WIDTH
+
+func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, loot: Dictionary = {}) -> Rect2:
+	var draw_width: float = _loot_draw_width(loot)
 	var draw_height: float = draw_width
 	if texture != null and texture.get_size().x > 0.0:
 		draw_height = draw_width * texture.get_size().y / texture.get_size().x
 	var center: Vector2 = _tile_center(tile)
-	var bottom_y: float = center.y + _tile_height() * 0.30
+	var baseline_scale: float = EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE if _is_equipment_loot(loot) else 0.30
+	var bottom_y: float = center.y + _tile_height() * baseline_scale
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
 func _loot_tooltip_text(loot: Dictionary) -> String:

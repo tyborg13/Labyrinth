@@ -9,16 +9,23 @@ const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.
 const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
 const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
 
-const TITLE_TEXT: String = "Escape the Umbra"
+const TITLE_LINE_TEXTS := ["Escape", "the", "Umbra"]
+const TITLE_LINE_ROW_INDICES := [0, 1, 1]
+const TITLE_LINE_SCALE_FACTORS := [1.0, 0.58, 1.0]
+const TITLE_ROW_OFFSET_FACTORS := [0.0, 0.72]
+const TITLE_WORD_GAP_FACTOR: float = 0.10
 const PROFILE_TEXT: String = "Profile: Reaver"
-const TITLE_BASE_SIZE: int = 106
+const TITLE_BASE_SIZE: int = 114
 const TITLE_MIN_SIZE: int = 42
-const MENU_FONT_SIZE: int = 28
-const MENU_BUTTON_HEIGHT: float = 64.0
-const MENU_BUTTON_HEIGHT_COMPACT: float = 54.0
-const MENU_BUTTON_MIN_WIDTH: float = 332.0
-const MENU_BUTTON_MAX_WIDTH: float = 420.0
-const MENU_SEPARATION: int = 10
+const TITLE_SMALL_LINE_MIN_SIZE: int = 28
+const TITLE_LINE_SPACING: int = -8
+const TITLE_TO_MENU_EXTRA_GAP: float = 14.0
+const MENU_FONT_SIZE: int = 34
+const MENU_BUTTON_HEIGHT: float = 78.0
+const MENU_BUTTON_HEIGHT_COMPACT: float = 64.0
+const MENU_BUTTON_MIN_WIDTH: float = 380.0
+const MENU_BUTTON_MAX_WIDTH: float = 470.0
+const MENU_SEPARATION: int = 14
 const EDGE_ACCENT := Color("d69b47")
 const TITLE_FACE_TOP_COLOR := Color("fff7cf")
 const TITLE_FACE_HIGH_COLOR := Color("ffe08e")
@@ -75,11 +82,15 @@ void fragment() {
 var _progression: Dictionary = {}
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
-var _title_face_label: Label
-var _title_face_material: ShaderMaterial
+var _title_shadow_lines: Array[Label]
+var _title_rim_lines: Array[Label]
+var _title_base_lines: Array[Label]
+var _title_face_lines: Array[Label]
+var _title_face_materials: Array[ShaderMaterial]
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	_initialize_title_arrays()
 	resized.connect(_update_layout)
 	_apply_style()
 	_reload_progression()
@@ -112,14 +123,17 @@ func _apply_style() -> void:
 	background_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	background_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	global_scrim.color = Color(0.0, 0.0, 0.0, 0.16)
-	left_scrim.color = Color(0.011, 0.012, 0.018, 0.66)
+	left_scrim.visible = false
 
-	_apply_title_style(title_shadow_label, Color("5b2d74"), Color("0b040f"), 18)
-	title_shadow_label.modulate = Color(1.0, 0.78, 1.0, 0.78)
-	_apply_title_style(title_rim_label, Color("c0522f"), Color("170508"), 13)
-	title_rim_label.modulate = Color(1.0, 0.78, 0.56, 0.88)
-	_apply_title_style(title_label, Color("ffd98d"), Color("210725"), 12)
-	_ensure_title_face_gradient()
+	_configure_title_container(title_shadow_label)
+	_configure_title_container(title_rim_label)
+	_configure_title_container(title_label)
+	_configure_title_container(title_face_blend)
+	_ensure_title_line_labels()
+	_apply_title_layer_style(_title_shadow_lines, Color("5b2d74"), Color("0b040f"), 18, Color(1.0, 0.78, 1.0, 0.78))
+	_apply_title_layer_style(_title_rim_lines, Color("c0522f"), Color("170508"), 13, Color(1.0, 0.78, 0.56, 0.88))
+	_apply_title_layer_style(_title_base_lines, Color("ffd98d"), Color("210725"), 12, Color.WHITE)
+	_apply_title_layer_style(_title_face_lines, Color.WHITE, Color.TRANSPARENT, 0, Color.WHITE)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
@@ -133,28 +147,64 @@ func _apply_style() -> void:
 	settings_panel.add_theme_stylebox_override("panel", _make_panel_style())
 	_apply_label_style(settings_title_label, HEADER_FONT, 32, Color("fff1cf"), Color("090708"), 5)
 
-func _apply_title_style(label: Label, color: Color, outline_color: Color, outline_size: int) -> void:
-	label.text = TITLE_TEXT
+func _configure_title_container(control: Control) -> void:
+	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if control is Label:
+		(control as Label).text = ""
+
+func _initialize_title_arrays() -> void:
+	_title_shadow_lines = _make_empty_title_label_array()
+	_title_rim_lines = _make_empty_title_label_array()
+	_title_base_lines = _make_empty_title_label_array()
+	_title_face_lines = _make_empty_title_label_array()
+	_title_face_materials = _make_title_face_material_array()
+
+func _make_empty_title_label_array() -> Array[Label]:
+	var labels: Array[Label]
+	return labels
+
+func _ensure_title_line_labels() -> void:
+	if not _title_shadow_lines.is_empty():
+		return
+	_title_shadow_lines = _make_title_line_labels(title_shadow_label, "TitleShadowLine")
+	_title_rim_lines = _make_title_line_labels(title_rim_label, "TitleRimLine")
+	_title_base_lines = _make_title_line_labels(title_label, "TitleBaseLine")
+	_title_face_lines = _make_title_line_labels(title_face_blend, "TitleFaceLine")
+	_title_face_materials = _make_title_face_material_array()
+	for index: int in range(_title_face_lines.size()):
+		var material := _make_title_face_material()
+		_title_face_materials.append(material)
+		_title_face_lines[index].material = material
+
+func _make_title_line_labels(parent: Node, prefix: String) -> Array[Label]:
+	for child: Node in parent.get_children():
+		child.queue_free()
+	var labels: Array[Label]
+	for index: int in range(TITLE_LINE_TEXTS.size()):
+		var label := Label.new()
+		label.name = "%s%d" % [prefix, index + 1]
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		parent.add_child(label)
+		labels.append(label)
+	return labels
+
+func _make_title_face_material_array() -> Array[ShaderMaterial]:
+	var materials: Array[ShaderMaterial]
+	return materials
+
+func _apply_title_layer_style(labels: Array[Label], color: Color, outline_color: Color, outline_size: int, modulate_color: Color) -> void:
+	for index: int in range(labels.size()):
+		_apply_title_style(labels[index], str(TITLE_LINE_TEXTS[index]), color, outline_color, outline_size)
+		labels[index].modulate = modulate_color
+
+func _apply_title_style(label: Label, text: String, color: Color, outline_color: Color, outline_size: int) -> void:
+	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	label.add_theme_font_override("font", HEADER_FONT)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", outline_color)
 	label.add_theme_constant_override("outline_size", outline_size)
-
-func _ensure_title_face_gradient() -> void:
-	if _title_face_label != null:
-		return
-	for child: Node in title_face_blend.get_children():
-		child.queue_free()
-	title_face_blend.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_title_face_label = Label.new()
-	_title_face_label.name = "TitleFaceGradient"
-	_title_face_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_apply_title_style(_title_face_label, Color.WHITE, Color.TRANSPARENT, 0)
-	_title_face_material = _make_title_face_material()
-	_title_face_label.material = _title_face_material
-	title_face_blend.add_child(_title_face_label)
 
 func _make_title_face_material() -> ShaderMaterial:
 	var shader := Shader.new()
@@ -191,20 +241,20 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.add_theme_color_override("font_pressed_color", Color("dfc48f"))
 	button.add_theme_color_override("font_disabled_color", Color("8d806b"))
 	button.add_theme_color_override("font_outline_color", Color("080606"))
-	button.add_theme_constant_override("outline_size", 4)
+	button.add_theme_constant_override("outline_size", 5)
 
 func _make_menu_button_style(background: Color, accent: Color, expand: float = 0.0, pressed_offset: float = 0.0) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = background
 	style.border_color = accent
-	style.border_width_left = 6
+	style.border_width_left = 7
 	style.border_width_top = 0
 	style.border_width_right = 0
 	style.border_width_bottom = 0
-	style.content_margin_left = 24
-	style.content_margin_top = 8 + pressed_offset
-	style.content_margin_right = 18
-	style.content_margin_bottom = maxf(4.0, 8 - pressed_offset)
+	style.content_margin_left = 28
+	style.content_margin_top = 11 + pressed_offset
+	style.content_margin_right = 22
+	style.content_margin_bottom = maxf(6.0, 11 - pressed_offset)
 	style.expand_margin_left = expand
 	style.expand_margin_top = expand
 	style.expand_margin_right = expand
@@ -246,10 +296,11 @@ func _update_layout() -> void:
 	var title_y: float = clampf(viewport_size.y * 0.052, 26.0, 62.0)
 	var menu_width: float = clampf(viewport_size.x * 0.22, MENU_BUTTON_MIN_WIDTH, MENU_BUTTON_MAX_WIDTH)
 	var button_height: float = MENU_BUTTON_HEIGHT_COMPACT if viewport_size.y < 700.0 else MENU_BUTTON_HEIGHT
-	var title_max_width: float = minf(viewport_size.x - margin_x * 2.0, maxf(420.0, viewport_size.x * 0.68))
-	var title_font_size: int = _fitted_title_font_size(title_max_width)
-	var title_height: float = maxf(HEADER_FONT.get_height(title_font_size), 54.0)
-	var title_size := Vector2(title_max_width, title_height + 30.0)
+	var title_max_width: float = minf(viewport_size.x - margin_x * 2.0, clampf(viewport_size.x * 0.38, 340.0, 700.0))
+	var title_max_height: float = clampf(viewport_size.y * 0.30, 136.0, 312.0)
+	var title_font_size: int = _fitted_title_font_size(title_max_width, title_max_height)
+	var title_height: float = maxf(_title_text_height(title_font_size), 54.0)
+	var title_size := Vector2(title_max_width, title_height + 34.0)
 
 	title_label.add_theme_font_size_override("font_size", title_font_size)
 	title_shadow_label.add_theme_font_size_override("font_size", title_font_size)
@@ -262,9 +313,9 @@ func _update_layout() -> void:
 	title_rim_label.size = title_size
 	title_face_blend.position = title_label.position
 	title_face_blend.size = title_size
-	_layout_title_face_gradient(title_size, title_font_size)
+	_layout_title_lines(title_font_size)
 
-	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0)
+	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0) + TITLE_TO_MENU_EXTRA_GAP
 	menu_column.position = Vector2(margin_x, menu_y)
 	menu_column.size = Vector2(menu_width, _menu_column_height(button_height))
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
@@ -278,9 +329,8 @@ func _update_layout() -> void:
 	profile_block.position = Vector2(margin_x, profile_y)
 	profile_block.size = Vector2(profile_width, profile_height)
 
-	var left_width: float = margin_x + menu_width + clampf(viewport_size.x * 0.045, 64.0, 128.0)
 	left_scrim.position = Vector2.ZERO
-	left_scrim.size = Vector2(left_width, viewport_size.y)
+	left_scrim.size = Vector2.ZERO
 
 	var panel_width: float = minf(390.0, maxf(300.0, viewport_size.x - margin_x * 2.0))
 	var panel_height: float = 214.0
@@ -292,28 +342,109 @@ func _update_layout() -> void:
 	settings_panel.position = Vector2(panel_x, maxf(24.0, panel_y))
 	settings_panel.size = Vector2(panel_width, panel_height)
 
-func _layout_title_face_gradient(title_size: Vector2, title_font_size: int) -> void:
-	_ensure_title_face_gradient()
-	if _title_face_label == null:
+func _layout_title_lines(title_font_size: int) -> void:
+	_ensure_title_line_labels()
+	var row_ys: Array = _title_row_y_positions(title_font_size)
+	var row_next_x: Array = []
+	for row_index: int in range(_title_row_count()):
+		row_next_x.append(_title_row_offset_x(title_font_size, row_index))
+	for index: int in range(TITLE_LINE_TEXTS.size()):
+		var row_index: int = _title_line_row_index(index)
+		var line_font_size: int = _title_line_font_size(title_font_size, index)
+		var line_text := str(TITLE_LINE_TEXTS[index])
+		var line_width: float = HEADER_FONT.get_string_size(line_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
+		var line_height: float = HEADER_FONT.get_height(line_font_size)
+		var line_size := Vector2(line_width + 80.0, line_height + 38.0)
+		var line_position := Vector2(float(row_next_x[row_index]), float(row_ys[row_index]))
+		_layout_title_line(_title_shadow_lines, index, line_position, line_size, line_font_size)
+		_layout_title_line(_title_rim_lines, index, line_position, line_size, line_font_size)
+		_layout_title_line(_title_base_lines, index, line_position, line_size, line_font_size)
+		_layout_title_line(_title_face_lines, index, line_position, line_size, line_font_size)
+		if index < _title_face_materials.size():
+			_title_face_materials[index].set_shader_parameter("gradient_height", line_size.y)
+		row_next_x[row_index] = line_position.x + line_width + _title_word_gap(title_font_size)
+
+func _layout_title_line(labels: Array[Label], index: int, position: Vector2, size: Vector2, font_size: int) -> void:
+	if index >= labels.size():
 		return
-	_title_face_label.position = Vector2.ZERO
-	_title_face_label.size = title_size
-	_title_face_label.add_theme_font_size_override("font_size", title_font_size)
-	if _title_face_material != null:
-		_title_face_material.set_shader_parameter("gradient_height", title_size.y)
+	var label: Label = labels[index]
+	label.position = position
+	label.size = size
+	label.add_theme_font_size_override("font_size", font_size)
 
 func _menu_column_height(button_height: float) -> float:
 	var visible_buttons: int = 4
 	return float(visible_buttons) * button_height + float(visible_buttons - 1) * float(MENU_SEPARATION)
 
-func _fitted_title_font_size(max_width: float) -> int:
+func _fitted_title_font_size(max_width: float, max_height: float) -> int:
 	var font_size: int = TITLE_BASE_SIZE
 	while font_size > TITLE_MIN_SIZE:
-		var text_width: float = HEADER_FONT.get_string_size(TITLE_TEXT, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
-		if text_width <= max_width:
+		var text_width: float = _title_max_line_width(font_size)
+		var text_height: float = _title_text_height(font_size)
+		if text_width <= max_width and text_height <= max_height:
 			return font_size
 		font_size -= 2
 	return TITLE_MIN_SIZE
+
+func _title_max_line_width(font_size: int) -> float:
+	var width: float = 0.0
+	var row_next_x: Array = []
+	for row_index: int in range(_title_row_count()):
+		row_next_x.append(_title_row_offset_x(font_size, row_index))
+	for index: int in range(TITLE_LINE_TEXTS.size()):
+		var row_index: int = _title_line_row_index(index)
+		var line_font_size: int = _title_line_font_size(font_size, index)
+		var line := str(TITLE_LINE_TEXTS[index])
+		var line_width: float = HEADER_FONT.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1.0, line_font_size).x
+		var line_x: float = float(row_next_x[row_index])
+		width = maxf(width, line_x + line_width)
+		row_next_x[row_index] = line_x + line_width + _title_word_gap(font_size)
+	return width
+
+func _title_text_height(font_size: int) -> float:
+	var row_heights: Array = _title_row_heights(font_size)
+	var height: float = 0.0
+	for row_index: int in range(row_heights.size()):
+		height += float(row_heights[row_index])
+		if row_index < row_heights.size() - 1:
+			height += float(TITLE_LINE_SPACING)
+	return height
+
+func _title_row_heights(font_size: int) -> Array:
+	var row_heights: Array = []
+	for row_index: int in range(_title_row_count()):
+		row_heights.append(0.0)
+	for index: int in range(TITLE_LINE_TEXTS.size()):
+		var row_index: int = _title_line_row_index(index)
+		var line_height: float = HEADER_FONT.get_height(_title_line_font_size(font_size, index))
+		row_heights[row_index] = maxf(float(row_heights[row_index]), line_height)
+	return row_heights
+
+func _title_row_y_positions(font_size: int) -> Array:
+	var row_heights: Array = _title_row_heights(font_size)
+	var positions: Array = []
+	var y: float = 0.0
+	for row_index: int in range(row_heights.size()):
+		positions.append(y)
+		y += float(row_heights[row_index]) + float(TITLE_LINE_SPACING)
+	return positions
+
+func _title_line_font_size(base_font_size: int, index: int) -> int:
+	var scale: float = float(TITLE_LINE_SCALE_FACTORS[index])
+	var min_size: int = TITLE_SMALL_LINE_MIN_SIZE if index == 1 else TITLE_MIN_SIZE
+	return maxi(min_size, int(round(float(base_font_size) * scale)))
+
+func _title_line_row_index(index: int) -> int:
+	return int(TITLE_LINE_ROW_INDICES[index])
+
+func _title_row_count() -> int:
+	return TITLE_ROW_OFFSET_FACTORS.size()
+
+func _title_row_offset_x(base_font_size: int, row_index: int) -> float:
+	return roundf(float(base_font_size) * float(TITLE_ROW_OFFSET_FACTORS[row_index]))
+
+func _title_word_gap(base_font_size: int) -> float:
+	return roundf(float(base_font_size) * TITLE_WORD_GAP_FACTOR)
 
 func _bound_magick_count() -> int:
 	var total: int = (_progression.get("card_upgrades", {}) as Dictionary).size()

@@ -11,24 +11,24 @@ enemy density before a boss gate; lateral rooms remain deck-building route
 choices, and emergency outward loop escapes only appear when no revealed,
 unsealed same-depth-or-deeper exits remain. The local combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
-2 uses the base roster plus element-locked specialist pressure, and depth
-3 enemies have 112% HP without an extra generic damage/support bump. Cinder
-Oozes join fire rooms and split into summoned, rewardless Cinder Droplets rather
-than extra ember or death-card-play payouts. Frostglass Lancers join ice rooms
-as precision four-tile line-thrust enemies that can move sideways to set up a
-lane. Chainbound Gaolers join air rooms as mid-slow pull/immobilize control
-anchors without stacking with wardens in their seeded compositions. Grave
-surgeons join depth 2+ frontline pools as low-damage support enemies that heal
-or guard the most injured/threatened nearby enemy on the same support scaling
-curve as enemy block/healing. Bile bloomers join earth rooms near the slow
-attrition end at about 19 initiative and use a radius-2 poison diamond for their
-main area-denial intent. Generic enemies keep their printed intent actions
+2 uses base stats, and depth 3 enemies have 112% HP without an extra generic
+damage/support bump. Standard depths share the same normal-room roster
+eligibility; depth controls density and scaling instead of gating enemy types.
+Cinder Oozes join fire rooms and split into summoned, rewardless Cinder
+Droplets rather than extra ember or death-card-play payouts. Frostglass Lancers
+join ice rooms as precision four-tile line-thrust enemies that can move sideways
+to set up a lane. Chainbound Gaolers join air rooms as mid-slow
+pull/immobilize control anchors without stacking with wardens in their seeded
+compositions. Grave surgeons join frontline pools as low-damage support enemies
+that heal or guard the most injured/threatened nearby enemy on the same support
+scaling curve as enemy block/healing. Bile bloomers join earth rooms near the
+slow attrition end at about 19 initiative and use a radius-2 poison diamond for
+their main area-denial intent. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
 attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
 Bleed pressure only opens on resolved move or attack actions, not skipped or
-blocked no-op action entries.
-Later sequences keep the local curve while raising enemy HP and intent
-baselines. Zekarion's 2x2
+blocked no-op action entries. Later sequences keep the local curve while raising
+enemy HP and intent baselines. Zekarion's 2x2
 footprint makes printed reach feel larger, so Tempest Breath is capped at range
 3 after its one-tile advance to preserve safe boss-room repositioning.
 Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,
@@ -750,7 +750,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="source_filter",
         action="store_const",
         const="starter",
-        help="Only starter cards, using starter metadata or starter rarity.",
+        help="Only starter cards, using starter metadata or legacy starter rarity.",
     )
     parser.set_defaults(source_filter="all")
     return parser
