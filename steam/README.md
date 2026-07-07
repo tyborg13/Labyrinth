@@ -43,7 +43,7 @@ If you still want the **default branch** for your personal build, the script sup
 
 ## One-time Steamworks setup
 
-1. Confirm [steam_build_config.env](steam_build_config.env) matches the Steamworks App IDs and Depot IDs you are repurposing for Labyrinth of Ash.
+1. Confirm [steam_build_config.env](steam_build_config.env) matches the Steamworks App IDs and Depot IDs you are repurposing for Escape the Umbra.
 2. Create or confirm desktop depots for each app:
    - macOS
    - Windows
@@ -51,9 +51,9 @@ If you still want the **default branch** for your personal build, the script sup
    - this script expects those to be three different Depot IDs, not one shared "All OSes" depot
 3. Add those depots to the package your test account installs from.
 4. Configure launch options in Steamworks once per app:
-   - macOS launch target: `Labyrinth of Ash.app`
-   - Windows launch target: `Labyrinth of Ash.exe`
-   - Linux launch target: `Labyrinth of Ash.x86_64`
+   - macOS launch target: `Escape the Umbra.app`
+   - Windows launch target: `Escape the Umbra.exe`
+   - Linux launch target: `Escape the Umbra.x86_64`
 
 If Mac or Linux installs appear empty in Steam, double-check that those depots were added to the package for the app.
 
@@ -64,16 +64,16 @@ If Mac or Linux installs appear empty in Steam, double-check that those depots w
 
 Steamworks should use these application names:
 
-- Main app: `Labyrinth of Ash`
-- Playtest app: `Labyrinth of Ash Playtest`
+- Main app: `Escape the Umbra`
+- Playtest app: `Escape the Umbra Playtest`
 
 Steamworks General Installation should use these install folders and launch targets:
 
-- Main install folder: `Labyrinth of Ash`
-- Playtest install folder: `Labyrinth of Ash Playtest`
-- Windows launch target: `Labyrinth of Ash.exe`
-- macOS launch target: `Labyrinth of Ash.app`
-- Linux launch target: `Labyrinth of Ash.x86_64`
+- Main install folder: `Escape the Umbra`
+- Playtest install folder: `Escape the Umbra Playtest`
+- Windows launch target: `Escape the Umbra.exe`
+- macOS launch target: `Escape the Umbra.app`
+- Linux launch target: `Escape the Umbra.x86_64`
 
 In Steamworks General Application Settings, enable Windows 64-bit, macOS 64-bit, macOS Apple Silicon, and Linux support for the app. Leave Android off. Leave macOS notarized off unless the exported app has been separately notarized.
 
@@ -85,7 +85,7 @@ If Steam Deck shows `Compatibility tool failed` immediately on launch, the most 
   - On Deck: `Properties > Compatibility`
   - Make sure `Force the use of a specific Steam Play compatibility tool` is turned off for the Linux build.
 - Steamworks is pointing the Linux launch option at the wrong target.
-  - The Linux launch target for this repo is `Labyrinth of Ash.x86_64`.
+  - The Linux launch target for this repo is `Escape the Umbra.x86_64`.
 - The Linux depot was not added to the package the Deck account installs from.
 - The uploaded Linux executable is missing its execute bit.
   - The export/upload script now runs `chmod +x` on the Linux client binary after export and after copying into the Steam content folder.
