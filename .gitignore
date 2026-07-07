@@ -2,7 +2,10 @@
 .import/
 .godot/
 export.cfg
-export_presets.cfg
+
+# Generated builds and SteamCMD/SteamPipe working files
+build/
+.steam/
 
 # OS files
 .DS_Store
