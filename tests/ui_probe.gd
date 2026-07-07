@@ -30,6 +30,15 @@ func _capture_scene(scene_path: String, output_path: String) -> void:
 	instance.queue_free()
 	await process_frame
 
+func _capture_grimoire_snapshot(instance: Node, output_path: String) -> void:
+	instance.call("_open_grimoire_overlay")
+	await process_frame
+	await process_frame
+	await _save_root_screenshot(output_path)
+	instance.call("_close_grimoire_overlay")
+	await process_frame
+	await process_frame
+
 func _capture_run_states() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	var instance: Node = packed.instantiate()
@@ -42,6 +51,7 @@ func _capture_run_states() -> void:
 	await process_frame
 	await _save_root_screenshot("user://probes/run_start.png")
 	await _capture_and_clear_start_dialogue(instance)
+	await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_start.png")
 	var combat_coord: Vector2i = _first_available_room_coord_of_type(instance, "combat")
 	if combat_coord != Vector2i.ZERO:
 		await _capture_door_opening_probe(instance, combat_coord)
@@ -75,6 +85,7 @@ func _capture_run_states() -> void:
 		await process_frame
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat.png")
+		await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_combat.png")
 		await _capture_turn_order_probe(instance)
 		await _capture_pass_preview_probe(instance)
 		var combat_state: Dictionary = instance.get("_combat_state")

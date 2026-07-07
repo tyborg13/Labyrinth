@@ -1,0 +1,540 @@
+{
+	"sections": [
+		{
+			"id": "basics",
+			"title": "Basics",
+			"summary": "Run flow, rooms, rewards, and the character sheet."
+		},
+		{
+			"id": "combat",
+			"title": "Combat",
+			"summary": "Board rules, timing, defenses, hazards, and card flow."
+		},
+		{
+			"id": "keywords",
+			"title": "Keywords",
+			"summary": "Card and enemy terms unlocked as they appear."
+		},
+		{
+			"id": "creatures",
+			"title": "Creatures",
+			"summary": "Enemies recorded the first time they are seen."
+		}
+	],
+	"entries": [
+		{
+			"id": "basic:run",
+			"section": "basics",
+			"title": "The Run",
+			"default": true,
+			"icon": "ember",
+			"body": [
+				"Explore rooms, survive fights, claim rewards, and push deeper toward the next boss.",
+				"Held embers travel with the run until banked, spent, recovered, or lost."
+			]
+		},
+		{
+			"id": "basic:map",
+			"section": "basics",
+			"title": "Map and Rooms",
+			"default": true,
+			"icon": "move",
+			"body": [
+				"Revealed exits show where you can travel next. Cleared rooms stay available as routes.",
+				"Combat, campfire, merchant, treasure, relic, and boss rooms each change the next choice."
+			]
+		},
+		{
+			"id": "basic:loadout",
+			"section": "basics",
+			"title": "Character and Loadout",
+			"default": true,
+			"icon": "stat_focus",
+			"body": [
+				"Equipment, attuned magic, item slots, relics, and progression stats shape your deck.",
+				"Most loadout changes happen outside combat, including pre-battle and campfire moments."
+			]
+		},
+		{
+			"id": "basic:rewards",
+			"section": "basics",
+			"title": "Rewards",
+			"default": true,
+			"icon": "draw",
+			"body": [
+				"After combat, choose a card, take healing, or claim other room rewards when offered.",
+				"New magic cards enter reserve first; attune them from the character sheet to add them to the active deck."
+			]
+		},
+		{
+			"id": "basic:relics",
+			"section": "basics",
+			"title": "Relics",
+			"default": true,
+			"icon": "element_fire",
+			"body": [
+				"Relics are passive run modifiers. Some trigger in combat, some change card values, and some alter rewards.",
+				"Hover relic badges in the top HUD for their current text."
+			]
+		},
+		{
+			"id": "combat:board",
+			"section": "combat",
+			"title": "Combat Board",
+			"default": true,
+			"icon": "range",
+			"body": [
+				"Cards resolve on the tile board. Movement, range, line of sight, enemy positions, traps, and terrain all matter.",
+				"Select a card to preview legal targets and the projected result before committing."
+			]
+		},
+		{
+			"id": "combat:turn_clock",
+			"section": "combat",
+			"title": "Turn Clock",
+			"default": true,
+			"icon": "time",
+			"body": [
+				"Each card adds time. Lower total time means your next turn returns sooner.",
+				"The turn clock at the top previews who acts now and who is coming next."
+			]
+		},
+		{
+			"id": "combat:card_plays",
+			"section": "combat",
+			"title": "Card Plays",
+			"default": true,
+			"icon": "card_play",
+			"body": [
+				"You normally get a limited number of card plays each player turn.",
+				"Some cards, kills, and relics can add extra plays before enemies act."
+			]
+		},
+		{
+			"id": "combat:health_defense",
+			"section": "combat",
+			"title": "Health and Defenses",
+			"default": true,
+			"icon": "health",
+			"body": [
+				"Damage hits block first, then stoneskin, then health unless an effect says otherwise.",
+				"Block is temporary. Stoneskin is sturdier and persists until broken."
+			]
+		},
+		{
+			"id": "combat:targeting",
+			"section": "combat",
+			"title": "Targeting",
+			"default": true,
+			"icon": "ranged",
+			"body": [
+				"Melee targets nearby tiles. Ranged and area cards check range, sight, and pattern rules.",
+				"Forced movement needs a clear line and can slam targets through danger."
+			]
+		},
+		{
+			"id": "combat:fatigue",
+			"section": "combat",
+			"title": "Fatigue",
+			"default": true,
+			"icon": "exhaust",
+			"body": [
+				"When the draw pile empties, the discard pile reshuffles and fatigue can bite into health.",
+				"Thin decks cycle quickly. Watch the pile counters during long fights."
+			]
+		},
+		{
+			"id": "combat:traps",
+			"section": "combat",
+			"title": "Traps",
+			"default": true,
+			"icon": "burn",
+			"body": [
+				"Traps trigger when a unit enters their tile. Their element can add damage or control pressure.",
+				"Path previews mark danger before you move."
+			]
+		},
+		{
+			"id": "combat:intensity",
+			"section": "combat",
+			"title": "Elemental Intensity",
+			"default": true,
+			"icon": "element_fire",
+			"body": [
+				"Elemental rooms build a shared intensity value. Some cards spend it, require it, or grow stronger from it.",
+				"Intensity belongs to the room, not to one card."
+			]
+		},
+		{
+			"id": "keyword:melee",
+			"section": "keywords",
+			"title": "Melee",
+			"default": true,
+			"icon": "melee",
+			"body": [
+				"Melee attacks hit close targets. Position first, then strike."
+			]
+		},
+		{
+			"id": "keyword:ranged",
+			"section": "keywords",
+			"title": "Ranged",
+			"default": true,
+			"icon": "ranged",
+			"body": [
+				"Ranged attacks can hit distant targets if range and line rules allow it."
+			]
+		},
+		{
+			"id": "keyword:aoe",
+			"section": "keywords",
+			"title": "Area Attack",
+			"default": true,
+			"icon": "ranged",
+			"body": [
+				"Area attacks use a tile pattern. Some patterns rotate before you commit."
+			]
+		},
+		{
+			"id": "keyword:move",
+			"section": "keywords",
+			"title": "Move",
+			"default": true,
+			"icon": "move",
+			"body": [
+				"Move through reachable passable tiles. Enemies, illusions, terrain, and traps can shape the path."
+			]
+		},
+		{
+			"id": "keyword:blink",
+			"section": "keywords",
+			"title": "Blink",
+			"default": true,
+			"icon": "blink",
+			"body": [
+				"Blink relocates directly to a legal tile instead of walking a path."
+			]
+		},
+		{
+			"id": "keyword:block",
+			"section": "keywords",
+			"title": "Block",
+			"default": true,
+			"icon": "block",
+			"body": [
+				"Block absorbs damage before health. It is best used when enemies are about to act."
+			]
+		},
+		{
+			"id": "keyword:stoneskin",
+			"section": "keywords",
+			"title": "Stoneskin",
+			"default": true,
+			"icon": "stoneskin",
+			"body": [
+				"Stoneskin is persistent armor. It absorbs damage across turns until broken."
+			]
+		},
+		{
+			"id": "keyword:heal",
+			"section": "keywords",
+			"title": "Heal",
+			"default": true,
+			"icon": "heal",
+			"body": [
+				"Heal restores health up to maximum health. Some heals exhaust or burn the card after use."
+			]
+		},
+		{
+			"id": "keyword:draw",
+			"section": "keywords",
+			"title": "Draw",
+			"default": true,
+			"icon": "draw",
+			"body": [
+				"Draw adds cards to hand, limited by hand size."
+			]
+		},
+		{
+			"id": "keyword:card_play",
+			"section": "keywords",
+			"title": "Card Play",
+			"default": true,
+			"icon": "card_play",
+			"body": [
+				"Card play effects add temporary plays for the current player turn."
+			]
+		},
+		{
+			"id": "keyword:illusion",
+			"section": "keywords",
+			"title": "Illusion",
+			"default": true,
+			"icon": "illusion",
+			"body": [
+				"Illusions are decoys with health. Enemies can target and destroy them."
+			]
+		},
+		{
+			"id": "keyword:immobilize",
+			"section": "keywords",
+			"title": "Immobilize",
+			"default": true,
+			"icon": "immobilize",
+			"body": [
+				"Immobilize prevents movement for the rest of the affected turn."
+			]
+		},
+		{
+			"id": "keyword:exhaust",
+			"section": "keywords",
+			"title": "Exhaust",
+			"default": true,
+			"icon": "exhaust",
+			"body": [
+				"Exhausted cards leave the deck for the rest of combat."
+			]
+		},
+		{
+			"id": "keyword:health_cost",
+			"section": "keywords",
+			"title": "Health Cost",
+			"default": true,
+			"icon": "health",
+			"body": [
+				"Health cost is paid when the card is played. It can be worth it, but it is real damage."
+			]
+		},
+		{
+			"id": "keyword:pierce",
+			"section": "keywords",
+			"title": "Pierce",
+			"icon": "pierce",
+			"body": [
+				"Pierce damage bypasses block and stoneskin without removing them.",
+				"It is strongest against armored enemies and dangerous when enemies use it on you."
+			]
+		},
+		{
+			"id": "keyword:bleed",
+			"section": "keywords",
+			"title": "Bleed",
+			"icon": "bleed",
+			"body": [
+				"Bleed opens before the affected unit moves or attacks, then clears after the next turn.",
+				"Plan around it when a card or enemy intent adds a wound."
+			]
+		},
+		{
+			"id": "keyword:burn",
+			"section": "keywords",
+			"title": "Burn",
+			"icon": "burn",
+			"body": [
+				"Burn deals fire damage over time, then decays.",
+				"Stacking burn pressures high-health targets and punishes long fights."
+			]
+		},
+		{
+			"id": "keyword:poison",
+			"section": "keywords",
+			"title": "Poison",
+			"icon": "poison",
+			"body": [
+				"Poison is delayed damage. It lands after its countdown instead of immediately."
+			]
+		},
+		{
+			"id": "keyword:freeze",
+			"section": "keywords",
+			"title": "Freeze",
+			"icon": "freeze",
+			"body": [
+				"Freeze prevents the affected unit from acting on its next turn."
+			]
+		},
+		{
+			"id": "keyword:shock",
+			"section": "keywords",
+			"title": "Shock",
+			"icon": "shock",
+			"body": [
+				"Shock disrupts the affected unit's next action."
+			]
+		},
+		{
+			"id": "keyword:expose",
+			"section": "keywords",
+			"title": "Expose",
+			"icon": "expose",
+			"body": [
+				"Expose makes the next hit against the target deal extra damage."
+			]
+		},
+		{
+			"id": "keyword:sunder",
+			"section": "keywords",
+			"title": "Sunder",
+			"icon": "sunder",
+			"body": [
+				"Sunder breaks block and stoneskin before damage lands."
+			]
+		},
+		{
+			"id": "keyword:chain",
+			"section": "keywords",
+			"title": "Chain",
+			"icon": "chain",
+			"body": [
+				"Chain jumps to additional nearby enemies after the first hit."
+			]
+		},
+		{
+			"id": "keyword:push",
+			"section": "keywords",
+			"title": "Push",
+			"icon": "push",
+			"body": [
+				"Push forces the target away. Forced movement can improve position or shove targets into danger."
+			]
+		},
+		{
+			"id": "keyword:pull",
+			"section": "keywords",
+			"title": "Pull",
+			"icon": "pull",
+			"body": [
+				"Pull forces the target closer. Use it to break lines, set up areas, or drag enemies through hazards."
+			]
+		},
+		{
+			"id": "keyword:consume",
+			"section": "keywords",
+			"title": "Consume",
+			"icon": "consume",
+			"body": [
+				"Consume removes an item card from the run after it is used."
+			]
+		},
+		{
+			"id": "enemy:crawler",
+			"section": "creatures",
+			"enemy_id": "crawler",
+			"title": "Tunnel Crawler",
+			"body": [
+				"Fast close-range predator that closes distance and opens bleed wounds.",
+				"It has modest health, but its short clock can punish slow turns."
+			]
+		},
+		{
+			"id": "enemy:acolyte",
+			"section": "creatures",
+			"enemy_id": "acolyte",
+			"title": "Ash Acolyte",
+			"body": [
+				"Ranged caster that mixes ash bolts, self-preservation, and draining pressure.",
+				"Keep cover, line of sight, and incoming intent timing in mind."
+			]
+		},
+		{
+			"id": "enemy:harrier",
+			"section": "creatures",
+			"enemy_id": "harrier",
+			"title": "Bone Harrier",
+			"body": [
+				"Mobile ranged skirmisher with pierce and bleed pressure.",
+				"It often attacks while repositioning, so corners and approach paths matter."
+			]
+		},
+		{
+			"id": "enemy:warden",
+			"section": "creatures",
+			"enemy_id": "warden",
+			"title": "Ash Warden",
+			"body": [
+				"Durable front-line guard with heavy melee, block, and close area pressure.",
+				"Pierce, sunder, forced movement, or focus fire help crack it cleanly."
+			]
+		},
+		{
+			"id": "enemy:cinder_ooze",
+			"section": "creatures",
+			"enemy_id": "cinder_ooze",
+			"title": "Cinder Ooze",
+			"body": [
+				"Fire-locked ooze that can split into droplets when killed.",
+				"Clear space and plan the follow-up before finishing it."
+			]
+		},
+		{
+			"id": "enemy:cinder_droplet",
+			"section": "creatures",
+			"enemy_id": "cinder_droplet",
+			"title": "Cinder Droplet",
+			"body": [
+				"Small ooze fragment spawned by larger cinder oozes.",
+				"Droplets are weaker, but several can steal board space at the wrong moment."
+			]
+		},
+		{
+			"id": "enemy:bile_bloomer",
+			"section": "creatures",
+			"enemy_id": "bile_bloomer",
+			"title": "Bile Bloomer",
+			"body": [
+				"Earth-locked controller that spreads poison and expose pressure.",
+				"Its delayed damage rewards decisive positioning and quick target priority."
+			]
+		},
+		{
+			"id": "enemy:chainbound_gaoler",
+			"section": "creatures",
+			"enemy_id": "chainbound_gaoler",
+			"title": "Chainbound Gaoler",
+			"body": [
+				"Air-locked jailer that pulls, pushes, and restricts movement.",
+				"Watch forced movement lines before committing fragile positions."
+			]
+		},
+		{
+			"id": "enemy:grave_surgeon",
+			"section": "creatures",
+			"enemy_id": "grave_surgeon",
+			"title": "Grave Surgeon",
+			"body": [
+				"Support enemy that heals or guards injured allies.",
+				"Interrupt it early or expect wounded enemies to stay relevant."
+			]
+		},
+		{
+			"id": "enemy:frostglass_lancer",
+			"section": "creatures",
+			"enemy_id": "frostglass_lancer",
+			"title": "Frostglass Lancer",
+			"body": [
+				"Ice-locked striker that threatens freeze and long reach.",
+				"Do not let it set up clean lines into your next turn."
+			]
+		},
+		{
+			"id": "enemy:zekarion",
+			"section": "creatures",
+			"enemy_id": "zekarion",
+			"title": "Zekarion, the Raging Tempest",
+			"body": [
+				"Boss creature that commands storms, summons wisps, and pressures broad areas.",
+				"Track the clock, clear adds, and avoid giving the tempest a clustered board."
+			]
+		},
+		{
+			"id": "enemy:lightning_wisp",
+			"section": "creatures",
+			"enemy_id": "lightning_wisp",
+			"title": "Lightning Wisp",
+			"body": [
+				"Summoned lightning minion with disruptive shock pressure.",
+				"Wisps are fragile, but leaving them alive can steal clean turns."
+			]
+		}
+	]
+}

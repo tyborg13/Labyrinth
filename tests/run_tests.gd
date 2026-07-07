@@ -3,6 +3,7 @@ extends SceneTree
 const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
@@ -41,6 +42,7 @@ func _initialize() -> void:
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_relic_data_rarity_and_offer_weights()
 	_test_equipment_data_rarity_and_starter_deck()
@@ -289,6 +291,32 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
 	quit(1)
+
+func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
+	_assert(GrimoireLibrary.sections().size() == 4, "Grimoire should expose the planned navigation sections")
+	var entries: Dictionary = GrimoireLibrary.entry_map()
+	for required_id: String in ["basic:run", "combat:turn_clock", "keyword:bleed", "enemy:crawler", "enemy:zekarion"]:
+		_assert(entries.has(required_id), "Grimoire should include %s" % required_id)
+	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
+	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
+	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
+	_assert(not defaults.has("keyword:bleed"), "Bleed should remain discoverable instead of default-unlocked")
+	var bleed_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
+	_assert(bleed_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
+	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])
+	_assert(crawler_entries.has("enemy:crawler"), "Seeing a crawler should unlock its creature entry")
+	_assert(crawler_entries.has("keyword:bleed"), "Enemy bleed intents should unlock the bleed entry")
+	var engine := RunEngine.new()
+	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("basic:run"), "New runs should carry default Grimoire entries")
+	_assert((run_state.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Default Grimoire entries should not start unread")
+	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["keyword:bleed"])
+	var added: Array = unlock_result.get("added", [])
+	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary
+	_assert(added.size() == 1 and str(added[0]) == "keyword:bleed", "First bleed discovery should report one added entry")
+	_assert(str(next_state.get(GrimoireLibrary.NOTICE_KEY, "")).contains("Bleed"), "Grimoire discovery should create a readable log notice")
+	var repeated: Dictionary = GrimoireLibrary.unlock_entries(next_state, ["keyword:bleed"])
+	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
 func _test_music_library_routes_elemental_combat_tracks() -> void:
 	var expected_tracks: Dictionary = {
