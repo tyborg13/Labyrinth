@@ -510,6 +510,20 @@ static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String
 	for entry_id: String in entry_ids_for_enemy_types(enemy_types):
 		if not result.has(entry_id):
 			result.append(entry_id)
+	var equipment_ids: Array = []
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if str(loot.get("kind", "")) != "equipment":
+			continue
+		var loot_equipment_id: String = str(loot.get("equipment_id", ""))
+		if not loot_equipment_id.is_empty():
+			equipment_ids.append(loot_equipment_id)
+	equipment_ids.append_array(combat_state.get("collected_equipment", []))
+	for entry_id: String in entry_ids_for_equipment_ids(equipment_ids):
+		if not result.has(entry_id):
+			result.append(entry_id)
 	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
 	for pile_name: String in ["hand", "draw", "discard", "burned", "consumed"]:
 		for entry_id: String in entry_ids_for_card_ids(deck.get(pile_name, [])):

@@ -322,6 +322,12 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(zekarion_entries.has("combat:lightning_strikes"), "Zekarion lightning strikes should unlock a mechanic entry")
 	_assert(zekarion_entries.has("combat:summons"), "Zekarion summons should unlock a mechanic entry")
 	_assert(zekarion_entries.has("enemy:lightning_wisp"), "Summon intents should unlock their minion creature entry")
+	var combat_loot_entries: Array[String] = GrimoireLibrary.entry_ids_for_combat_state({
+		"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}],
+		"collected_equipment": ["iron_cleaver"]
+	})
+	_assert(combat_loot_entries.has("equipment:ward_kite"), "Visible combat equipment loot should unlock equipment entries before pickup")
+	_assert(combat_loot_entries.has("equipment:iron_cleaver"), "Combat-state collected equipment should unlock equipment entries before run sync")
 	var engine := RunEngine.new()
 	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("basic:run"), "New runs should carry default Grimoire entries")
@@ -330,6 +336,10 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("character:emaciated_man"), "New runs should know the starting NPC entry")
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("keyword:bleed"), "New runs should know keywords printed on the starting deck")
 	_assert((run_state.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Default Grimoire entries should not start unread")
+	var run_with_visible_loot: Dictionary = run_state.duplicate(true)
+	run_with_visible_loot["combat_state"] = {"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}]}
+	var run_visible_loot_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(run_with_visible_loot)
+	_assert(run_visible_loot_entries.has("equipment:ward_kite"), "Run-state combat loot should unlock visible equipment entries")
 	var reward_offer_state: Dictionary = run_state.duplicate(true)
 	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
