@@ -16,6 +16,11 @@
 			"summary": "Card and enemy terms unlocked as they appear."
 		},
 		{
+			"id": "cards",
+			"title": "Cards",
+			"summary": "Cards recorded when they enter your deck, hand, rewards, or inventory."
+		},
+		{
 			"id": "creatures",
 			"title": "Creatures",
 			"summary": "Enemies recorded the first time they are seen."
@@ -163,6 +168,26 @@
 			"body": [
 				"Elemental rooms build a shared intensity value. Some cards spend it, require it, or grow stronger from it.",
 				"Intensity belongs to the room, not to one card."
+			]
+		},
+		{
+			"id": "combat:lightning_strikes",
+			"section": "combat",
+			"title": "Lightning Strikes",
+			"icon": "shock",
+			"body": [
+				"Lightning strikes choose several tiles and threaten repeated shock damage.",
+				"Watch the previewed danger pattern before ending your turn near a storm caller."
+			]
+		},
+		{
+			"id": "combat:summons",
+			"section": "combat",
+			"title": "Summons",
+			"icon": "illusion",
+			"body": [
+				"Some enemies spend an action to call additional creatures into the fight.",
+				"Summoned enemies still take turns, block paths, and can add their own Grimoire entries."
 			]
 		},
 		{

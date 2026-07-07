@@ -3022,6 +3022,13 @@ func _grimoire_body_text(entry: Dictionary) -> String:
 	return "\n\n".join(paragraphs)
 
 func _grimoire_entry_icon(entry: Dictionary) -> Texture2D:
+	var card_id: String = str(entry.get("card_id", ""))
+	if not card_id.is_empty():
+		var card: Dictionary = GameData.card_def(card_id)
+		var card_art_path: String = str(card.get("art_path", ""))
+		var card_texture: Texture2D = AssetLoader.load_texture(card_art_path)
+		if card_texture != null:
+			return card_texture
 	var enemy_id: String = str(entry.get("enemy_id", ""))
 	if not enemy_id.is_empty():
 		var enemy: Dictionary = GameData.enemy_def(enemy_id)

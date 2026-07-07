@@ -27,7 +27,9 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"illusion": "keyword:illusion",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
-	"intensity": "combat:intensity"
+	"intensity": "combat:intensity",
+	"lightning_strikes": "combat:lightning_strikes",
+	"summon_minions": "combat:summons"
 }
 
 const ACTION_FIELD_ENTRY_IDS := {
@@ -67,7 +69,27 @@ static func sections() -> Array:
 	return (data().get("sections", []) as Array).duplicate(true)
 
 static func entries() -> Array:
-	return (data().get("entries", []) as Array).duplicate(true)
+	var result: Array = (data().get("entries", []) as Array).duplicate(true)
+	result.append_array(card_entries())
+	return result
+
+static func card_entries() -> Array:
+	var result: Array = []
+	for card_id: String in GameData.cards().keys():
+		var card: Dictionary = GameData.card_def(card_id)
+		if card.is_empty():
+			continue
+		result.append({
+			"id": card_entry_id(card_id),
+			"section": "cards",
+			"title": str(card.get("name", card_id)),
+			"card_id": card_id,
+			"body": _card_entry_body(card)
+		})
+	return result
+
+static func card_entry_id(card_id: String) -> String:
+	return "card:%s" % card_id
 
 static func entry_map() -> Dictionary:
 	var result: Dictionary = {}
@@ -227,7 +249,12 @@ static func entry_ids_for_card_id(card_id: String) -> Array[String]:
 	var card: Dictionary = GameData.card_def(card_id)
 	if card.is_empty():
 		return []
-	return entry_ids_for_card_def(card)
+	var result: Array[String] = []
+	result.append(card_entry_id(card_id))
+	for entry_id: String in entry_ids_for_card_def(card):
+		if not result.has(entry_id):
+			result.append(entry_id)
+	return ordered_entry_ids(result)
 
 static func entry_ids_for_card_def(card: Dictionary) -> Array[String]:
 	var result: Array[String] = []
@@ -316,6 +343,11 @@ static func entry_ids_for_actions(actions: Variant) -> Array[String]:
 		var type_entry: String = str(ACTION_TYPE_ENTRY_IDS.get(action_type, ""))
 		if not type_entry.is_empty() and not result.has(type_entry):
 			result.append(type_entry)
+		if action_type == "summon_minions":
+			var minion_type: String = str(action.get("minion_type", ""))
+			var minion_entry: String = "enemy:%s" % minion_type
+			if not minion_type.is_empty() and not result.has(minion_entry):
+				result.append(minion_entry)
 		for field_name: String in ACTION_FIELD_ENTRY_IDS.keys():
 			if not action.has(field_name) or not _truthy_value(action.get(field_name)):
 				continue
@@ -326,6 +358,37 @@ static func entry_ids_for_actions(actions: Variant) -> Array[String]:
 			if not result.has("combat:intensity"):
 				result.append("combat:intensity")
 	return ordered_entry_ids(result)
+
+static func _card_entry_body(card: Dictionary) -> Array:
+	var body: Array = []
+	var description: String = str(card.get("description", "")).strip_edges()
+	if not description.is_empty():
+		body.append(description)
+	var facts: Array = []
+	var rarity: String = str(GameData.card_rarity_from_def(card)).capitalize()
+	if not rarity.is_empty():
+		facts.append("Rarity: %s" % rarity)
+	var element: String = str(GameData.card_element_from_def(card))
+	if not element.is_empty() and element != "none":
+		facts.append("Element: %s" % element.capitalize())
+	if card.has("time"):
+		facts.append("Time: %d" % int(card.get("time", 0)))
+	if int(card.get("health_cost", 0)) > 0:
+		facts.append("Health cost: %d" % int(card.get("health_cost", 0)))
+	if not facts.is_empty():
+		body.append(". ".join(facts) + ".")
+	var notes: Array = []
+	if bool(card.get("burn", false)):
+		notes.append("Exhausts for the rest of combat after use")
+	if bool(card.get("consume_on_play", false)):
+		notes.append("Consumed after use")
+	if bool(card.get("starter", false)):
+		notes.append("Starter card")
+	elif bool(card.get("reward_pool", true)):
+		notes.append("Can appear as a card reward")
+	if not notes.is_empty():
+		body.append(". ".join(notes) + ".")
+	return body
 
 static func _truthy_value(value: Variant) -> bool:
 	match typeof(value):
