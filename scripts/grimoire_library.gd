@@ -90,6 +90,8 @@ const ACTION_FIELD_ENTRY_IDS := {
 }
 
 static var _cache: Dictionary = {}
+static var _entries_cache: Array = []
+static var _entry_map_cache: Dictionary = {}
 
 static func data() -> Dictionary:
 	if not _cache.is_empty():
@@ -111,12 +113,15 @@ static func sections() -> Array:
 	return (data().get("sections", []) as Array).duplicate(true)
 
 static func entries() -> Array:
+	if not _entries_cache.is_empty():
+		return _entries_cache.duplicate(true)
 	var result: Array = (data().get("entries", []) as Array).duplicate(true)
 	result.append_array(magick_entries())
 	result.append_array(equipment_entries())
 	result.append_array(item_entries())
 	result.append_array(character_entries())
-	return result
+	_entries_cache = result
+	return _entries_cache.duplicate(true)
 
 static func magick_entries() -> Array:
 	var result: Array = []
@@ -197,6 +202,8 @@ static func character_entry_id(npc_id: String) -> String:
 	return "character:%s" % npc_id
 
 static func entry_map() -> Dictionary:
+	if not _entry_map_cache.is_empty():
+		return _entry_map_cache.duplicate(true)
 	var result: Dictionary = {}
 	for entry_var: Variant in entries():
 		if typeof(entry_var) != TYPE_DICTIONARY:
@@ -205,7 +212,8 @@ static func entry_map() -> Dictionary:
 		var entry_id: String = str(entry.get("id", ""))
 		if not entry_id.is_empty():
 			result[entry_id] = entry
-	return result
+	_entry_map_cache = result
+	return _entry_map_cache.duplicate(true)
 
 static func entry_def(entry_id: String) -> Dictionary:
 	return (entry_map().get(entry_id, {}) as Dictionary).duplicate(true)

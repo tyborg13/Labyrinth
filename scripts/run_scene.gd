@@ -832,9 +832,10 @@ const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
-const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1050.0, 690.0)
-const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(720.0, 500.0)
+const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1160.0, 700.0)
+const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(780.0, 520.0)
 const GRIMOIRE_LEFT_PAGE_WIDTH: float = 332.0
+const GRIMOIRE_DETAIL_PAGE_WIDTH: float = 650.0
 const GRIMOIRE_ENTRY_BUTTON_HEIGHT: float = 44.0
 const GRIMOIRE_CARD_PREVIEW_SIZE: Vector2 = Vector2(260.0, 364.0)
 const GRIMOIRE_EQUIPMENT_CARD_SIZE: Vector2 = Vector2(176.0, 246.4)
@@ -2797,6 +2798,7 @@ func _build_grimoire_overlay() -> void:
 
 	_grimoire_detail_panel = PanelContainer.new()
 	_grimoire_detail_panel.name = "GrimoireDetailPage"
+	_grimoire_detail_panel.custom_minimum_size = Vector2(GRIMOIRE_DETAIL_PAGE_WIDTH, 0.0)
 	_grimoire_detail_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_panel.add_theme_stylebox_override("panel", _grimoire_page_style(true))
@@ -2941,17 +2943,19 @@ func _rebuild_grimoire_overlay() -> void:
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	var unlocked: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []))
 	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
-	if _grimoire_selected_section.is_empty() or not GrimoireLibrary.section_has_unlocked_entries(_grimoire_selected_section, unlocked):
-		_grimoire_selected_section = _first_unlocked_grimoire_section(unlocked)
-	_grimoire_sync_selected_entry(unlocked)
+	var sections: Array = GrimoireLibrary.sections()
+	var entries_by_section: Dictionary = _grimoire_entries_by_section(unlocked)
+	if _grimoire_selected_section.is_empty() or _grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section).is_empty():
+		_grimoire_selected_section = _first_unlocked_grimoire_section_from(sections, entries_by_section)
+	_grimoire_sync_selected_entry(_grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section))
 	_clear_children_now(_grimoire_section_list)
 	var selected_index: int = 0
-	for section_var: Variant in GrimoireLibrary.sections():
+	for section_var: Variant in sections:
 		if typeof(section_var) != TYPE_DICTIONARY:
 			continue
 		var section: Dictionary = section_var as Dictionary
 		var section_id: String = str(section.get("id", ""))
-		var section_entries: Array[Dictionary] = GrimoireLibrary.entries_for_section(section_id, unlocked)
+		var section_entries: Array[Dictionary] = _grimoire_entries_for_section_map(entries_by_section, section_id)
 		if section_entries.is_empty():
 			continue
 		var section_selected: bool = section_id == _grimoire_selected_section
@@ -2999,6 +3003,44 @@ func _rebuild_grimoire_overlay() -> void:
 	_refresh_grimoire_detail()
 	_refresh_grimoire_badge()
 
+func _grimoire_entries_by_section(unlocked: Array[String]) -> Dictionary:
+	var unlocked_lookup: Dictionary = {}
+	for entry_id: String in unlocked:
+		unlocked_lookup[entry_id] = true
+	var result: Dictionary = {}
+	for entry_var: Variant in GrimoireLibrary.entries():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var entry_id: String = str(entry.get("id", ""))
+		if entry_id.is_empty() or not bool(unlocked_lookup.get(entry_id, false)):
+			continue
+		var section_id: String = str(entry.get("section", ""))
+		if section_id.is_empty():
+			continue
+		if not result.has(section_id):
+			result[section_id] = []
+		var section_entries: Array = result.get(section_id, [])
+		section_entries.append(entry)
+		result[section_id] = section_entries
+	return result
+
+func _grimoire_entries_for_section_map(entries_by_section: Dictionary, section_id: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry_var: Variant in entries_by_section.get(section_id, []):
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			result.append(entry_var as Dictionary)
+	return result
+
+func _first_unlocked_grimoire_section_from(sections: Array, entries_by_section: Dictionary) -> String:
+	for section_var: Variant in sections:
+		if typeof(section_var) != TYPE_DICTIONARY:
+			continue
+		var section_id: String = str((section_var as Dictionary).get("id", ""))
+		if not _grimoire_entries_for_section_map(entries_by_section, section_id).is_empty():
+			return section_id
+	return ""
+
 func _select_first_unread_grimoire_entry() -> void:
 	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
 	if unread.is_empty():
@@ -3023,10 +3065,11 @@ func _layout_grimoire_dialog() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var width: float = clampf(viewport_size.x - 48.0, GRIMOIRE_MIN_DIALOG_SIZE.x, GRIMOIRE_DIALOG_SIZE.x)
 	var height: float = clampf(viewport_size.y - 48.0, GRIMOIRE_MIN_DIALOG_SIZE.y, GRIMOIRE_DIALOG_SIZE.y)
-	_grimoire_dialog.custom_minimum_size = Vector2(width, height)
+	var dialog_size := Vector2(width, height)
+	_grimoire_dialog.custom_minimum_size = dialog_size
+	_grimoire_dialog.size = dialog_size
 
-func _grimoire_sync_selected_entry(unlocked: Array[String]) -> void:
-	var entries_for_section: Array[Dictionary] = GrimoireLibrary.entries_for_section(_grimoire_selected_section, unlocked)
+func _grimoire_sync_selected_entry(entries_for_section: Array[Dictionary]) -> void:
 	if entries_for_section.is_empty():
 		_grimoire_selected_entry = ""
 		_grimoire_selected_group = ""
@@ -3097,7 +3140,9 @@ func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: boo
 	button.add_theme_stylebox_override("focus", _grimoire_tab_style(depth, selected, true, false, kind))
 	button.add_theme_stylebox_override("disabled", _grimoire_tab_style(depth, false, false, false, kind))
 	var text_color: Color = Color("fff1cf") if selected and depth == 0 else Color("3d2818")
-	if selected and depth > 0:
+	if selected and kind == "group":
+		text_color = Color("fff1cf")
+	elif selected and depth > 0:
 		text_color = Color("2f1d10")
 	elif depth == 2:
 		text_color = Color("4c3522")
@@ -3114,16 +3159,16 @@ func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool,
 		style.bg_color = Color("5d351d") if selected else Color(0.72, 0.55, 0.32, 0.22)
 		style.border_color = Color("d1a35e") if selected or hover else Color(0.39, 0.24, 0.12, 0.42)
 	elif kind == "group":
-		style.bg_color = Color(0.82, 0.65, 0.38, 0.58) if selected else Color(0.72, 0.53, 0.29, 0.22)
-		style.border_color = Color(0.48, 0.29, 0.13, 0.52)
+		style.bg_color = Color("8a5628") if selected else Color(0.72, 0.53, 0.29, 0.22)
+		style.border_color = Color("d6a057") if selected or hover else Color(0.48, 0.29, 0.13, 0.52)
 	else:
-		style.bg_color = Color(0.96, 0.86, 0.64, 0.50) if selected else Color(0.98, 0.88, 0.66, 0.18)
-		style.border_color = Color(0.53, 0.34, 0.16, 0.34)
+		style.bg_color = Color("d7b16d") if selected else Color(0.98, 0.88, 0.66, 0.18)
+		style.border_color = Color("8a5628") if selected or hover else Color(0.53, 0.34, 0.16, 0.34)
 	if hover and not selected:
 		style.bg_color = style.bg_color.lightened(0.16)
 	if pressed:
 		style.bg_color = style.bg_color.darkened(0.10)
-	style.border_width_left = 1
+	style.border_width_left = 3 if selected and depth > 0 else 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
@@ -3252,12 +3297,10 @@ func _populate_grimoire_equipment_detail(equipment_id: String) -> void:
 	label.add_theme_color_override("font_outline_color", Color(1.0, 0.88, 0.64, 0.18))
 	label.add_theme_constant_override("outline_size", 1)
 	_grimoire_detail_content.add_child(label)
-	var row := HFlowContainer.new()
+	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	row.alignment = FlowContainer.ALIGNMENT_BEGIN
-	row.add_theme_constant_override("h_separation", 10)
-	row.add_theme_constant_override("v_separation", 10)
+	row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_theme_constant_override("separation", 10)
 	_grimoire_detail_content.add_child(row)
 	for card_id_var: Variant in card_ids:
 		row.add_child(_build_card_preview_widget(str(card_id_var), GRIMOIRE_EQUIPMENT_CARD_SIZE, true))
