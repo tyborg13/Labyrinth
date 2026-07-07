@@ -21,6 +21,7 @@ const READY_WAVE_SCALE_BONUS: float = 0.022
 const READY_WAVE_RISE_SECONDS: float = 0.09
 const READY_WAVE_SETTLE_SECONDS: float = 0.20
 const READY_WAVE_GLOW_INSET: float = 4.0
+const INTENSITY_GLOW_PAD: float = 12.0
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -316,6 +317,58 @@ class TimeCostBadge:
 	func _polar_point(center: Vector2, angle: float, length: float) -> Vector2:
 		return center + Vector2(cos(angle), sin(angle)) * length
 
+class IntensityActiveGlow:
+	extends Control
+
+	var element_id: String = "none"
+	var glow_color: Color = Color.TRANSPARENT
+	var layout_scale: float = 1.0
+
+	func setup(next_element_id: String, next_glow_color: Color, next_layout_scale: float, active: bool) -> void:
+		element_id = next_element_id
+		glow_color = next_glow_color
+		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
+		visible = active
+		queue_redraw()
+
+	func _draw() -> void:
+		if not visible:
+			return
+		var pad: float = _pad()
+		if size.x <= pad * 2.0 or size.y <= pad * 2.0:
+			return
+		var card_rect := Rect2(Vector2(pad, pad), size - Vector2(pad * 2.0, pad * 2.0))
+		var radius: float = clampf(19.0 * layout_scale, 7.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
+		_draw_rounded_outline(card_rect.grow(5.2 * layout_scale), radius + 5.2 * layout_scale, _with_alpha(0.11), 9.0 * layout_scale)
+		_draw_rounded_outline(card_rect.grow(2.6 * layout_scale), radius + 2.6 * layout_scale, _with_alpha(0.20), 5.2 * layout_scale)
+		_draw_rounded_outline(card_rect, radius, _with_alpha(0.86), maxf(1.7, 2.3 * layout_scale))
+		_draw_rounded_outline(card_rect.grow(-3.0 * layout_scale), maxf(2.0, radius - 3.0 * layout_scale), _with_alpha(0.22), maxf(1.0, 1.2 * layout_scale))
+
+	func _draw_rounded_outline(rect: Rect2, radius: float, color: Color, width: float) -> void:
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0 or color.a <= 0.0:
+			return
+		var safe_radius: float = clampf(radius, 0.0, minf(rect.size.x, rect.size.y) * 0.5)
+		var left: float = rect.position.x
+		var top: float = rect.position.y
+		var right: float = rect.end.x
+		var bottom: float = rect.end.y
+		draw_line(Vector2(left + safe_radius, top), Vector2(right - safe_radius, top), color, width, true)
+		draw_line(Vector2(right, top + safe_radius), Vector2(right, bottom - safe_radius), color, width, true)
+		draw_line(Vector2(right - safe_radius, bottom), Vector2(left + safe_radius, bottom), color, width, true)
+		draw_line(Vector2(left, bottom - safe_radius), Vector2(left, top + safe_radius), color, width, true)
+		if safe_radius <= 0.0:
+			return
+		draw_arc(Vector2(left + safe_radius, top + safe_radius), safe_radius, PI, PI * 1.5, 12, color, width, true)
+		draw_arc(Vector2(right - safe_radius, top + safe_radius), safe_radius, PI * 1.5, TAU, 12, color, width, true)
+		draw_arc(Vector2(right - safe_radius, bottom - safe_radius), safe_radius, 0.0, PI * 0.5, 12, color, width, true)
+		draw_arc(Vector2(left + safe_radius, bottom - safe_radius), safe_radius, PI * 0.5, PI, 12, color, width, true)
+
+	func _with_alpha(alpha: float) -> Color:
+		return Color(glow_color.r, glow_color.g, glow_color.b, alpha)
+
+	func _pad() -> float:
+		return 12.0 * layout_scale
+
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
@@ -345,6 +398,7 @@ var _ready_wave_tween: Tween
 var _ready_wave_progress: float = 0.0
 var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
+var _intensity_active_glow: IntensityActiveGlow
 var _summary_icon_box: VBoxContainer
 var _time_badge: TimeCostBadge
 
@@ -374,6 +428,7 @@ func _ready() -> void:
 	footer_label.add_theme_color_override("font_outline_color", Color("f5ecdb"))
 	footer_label.add_theme_constant_override("outline_size", 1)
 	_ensure_summary_icon_box()
+	_ensure_intensity_active_glow()
 	_ensure_time_badge()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
@@ -386,6 +441,7 @@ func _notification(what: int) -> void:
 		_update_layout_metrics()
 		pivot_offset = size * 0.5
 		_position_time_badge()
+		_sync_intensity_active_glow_geometry()
 		if not card_id.is_empty():
 			_apply_configuration()
 
@@ -483,6 +539,7 @@ func _apply_configuration() -> void:
 	_fit_title_label(_base_title_size())
 	_queue_title_refit()
 	_refresh_summary_display(card)
+	_refresh_intensity_active_glow()
 	_refresh_time_badge(card)
 	footer_label.text = ""
 	footer_label.visible = false
@@ -751,6 +808,62 @@ func _position_time_badge() -> void:
 	var overhang: float = clampf(width * 0.020, _scaled_card_value(3.5, 1.5), _scaled_card_value(5.0, 3.0))
 	_time_badge.position = Vector2(width - badge_size + overhang, -overhang)
 	_time_badge.z_index = 12
+
+func _ensure_intensity_active_glow() -> void:
+	if _intensity_active_glow != null:
+		return
+	_intensity_active_glow = IntensityActiveGlow.new()
+	_intensity_active_glow.name = "IntensityActiveGlow"
+	_intensity_active_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_intensity_active_glow.z_index = 9
+	_intensity_active_glow.visible = false
+	add_child(_intensity_active_glow)
+	_sync_intensity_active_glow_geometry()
+
+func _sync_intensity_active_glow_geometry() -> void:
+	if _intensity_active_glow == null:
+		return
+	var pad: float = _intensity_glow_pad()
+	var card_size: Vector2 = size if size.x > 0.0 and size.y > 0.0 else custom_minimum_size
+	if card_size.x <= 0.0 or card_size.y <= 0.0:
+		card_size = BASE_CARD_SIZE
+	_intensity_active_glow.position = Vector2(-pad, -pad)
+	_intensity_active_glow.size = card_size + Vector2(pad * 2.0, pad * 2.0)
+	_intensity_active_glow.pivot_offset = _intensity_active_glow.size * 0.5
+
+func _refresh_intensity_active_glow() -> void:
+	_ensure_intensity_active_glow()
+	var condition: Dictionary = _active_intensity_condition()
+	var element_id: String = str(condition.get("element", ElementData.NONE))
+	var active: bool = ElementData.is_elemental(element_id)
+	_sync_intensity_active_glow_geometry()
+	_intensity_active_glow.setup(element_id, _intensity_glow_color(element_id), _card_layout_scale(), active)
+
+func _active_intensity_condition() -> Dictionary:
+	for row_var: Variant in _summary_rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row: Array = row_var as Array
+		for token_var: Variant in row:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			var token: Dictionary = token_var
+			if str(token.get("kind", "")) != "intensity_requirement":
+				continue
+			if not bool(token.get("condition_active", false)):
+				continue
+			var element_id: String = str(token.get("element", ElementData.NONE))
+			if ElementData.is_elemental(element_id):
+				return {"element": element_id}
+	return {}
+
+func _intensity_glow_color(element_id: String) -> Color:
+	if not ElementData.is_elemental(element_id):
+		return Color.TRANSPARENT
+	return ElementData.accent(element_id).lerp(Color.WHITE, 0.16)
+
+func _intensity_glow_pad() -> float:
+	return _scaled_card_value(INTENSITY_GLOW_PAD, 6.0)
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)

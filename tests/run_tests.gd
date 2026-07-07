@@ -265,6 +265,7 @@ func _initialize() -> void:
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
+	await _test_card_widget_active_intensity_condition_glows()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
@@ -8534,6 +8535,56 @@ func _test_run_scene_intensity_condition_rows_mark_activity() -> void:
 	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
 	var inactive_token: Dictionary = _first_intensity_requirement_token(inactive_display.get("summary_rows", []))
 	_assert(not inactive_token.is_empty() and not bool(inactive_token.get("condition_active", false)), "An unmet intensity bonus should not render as active")
+	instance.queue_free()
+	await process_frame
+
+func _test_card_widget_active_intensity_condition_glows() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
+	if run_scene == null or card_scene == null:
+		_failures.append("Run scene and CardWidget scene should load for intensity glow coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var earth_layout: Dictionary = _simple_room_layout()
+	earth_layout["element"] = ElementData.EARTH
+	var active_state: Dictionary = combat.create_combat(15126, earth_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["venom_claw"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var active_display: Dictionary = instance.call("_card_widget_display", "venom_claw", active_state)
+	var widget := card_scene.instantiate() as CardWidget
+	widget.custom_minimum_size = Vector2(250.0, 352.0)
+	widget.size = Vector2(250.0, 352.0)
+	root.add_child(widget)
+	await process_frame
+	widget.configure("venom_claw", false, false, true, false, false, true, GameData.card_def("venom_claw"))
+	widget.set_display_overrides(str(active_display.get("summary_bbcode", "")), active_display.get("modifier_lines", []), active_display.get("summary_rows", []))
+	await process_frame
+	var glow: Control = widget.get_node_or_null("IntensityActiveGlow") as Control
+	_assert(glow != null and glow.visible, "A card with an active elemental intensity condition should show the full-card glow")
+	_assert(glow != null and str(glow.get("element_id")) == ElementData.EARTH, "The active intensity glow should use the triggered element")
+	var fire_layout: Dictionary = _simple_room_layout()
+	fire_layout["element"] = ElementData.FIRE
+	var inactive_state: Dictionary = combat.create_combat(15127, fire_layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["venom_claw"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
+	widget.set_display_overrides(str(inactive_display.get("summary_bbcode", "")), inactive_display.get("modifier_lines", []), inactive_display.get("summary_rows", []))
+	await process_frame
+	_assert(glow != null and not glow.visible, "A card below its elemental intensity threshold should hide the full-card glow")
+	widget.queue_free()
 	instance.queue_free()
 	await process_frame
 
