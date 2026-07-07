@@ -142,6 +142,7 @@ Generate a Steam preview build instead of uploading content:
   - `Steam macOS`
   - `Steam Windows`
   - `Steam Linux`
-- The Steam presets exclude development-only folders such as `.codex/`, `output/`, `playtest/`, `spec/`, `tests/`, `tmp/`, and `tools/`.
+- Before exporting, the script copies a sanitized project into `.steam/export_project/` and omits development-only folders such as `.codex/`, `output/`, `playtest/`, `spec/`, `tests/`, `tmp/`, and `tools/`.
+- After exporting, the script inspects each generated `.pck` and fails before upload if those development-only `res://` paths are present.
 - The current Labyrinth client does not require GodotSteam binaries for upload/testing; this workflow packages ordinary Godot desktop exports for Steam launch.
 - `steam_appid.txt` is intentionally **not** included in uploaded depots. Add one next to a local export only if future Steam API integration requires local non-Steam launches to initialize Steam.

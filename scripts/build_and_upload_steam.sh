@@ -14,6 +14,8 @@ STEAMPIPE_ROOT="${BUILD_ROOT}/steampipe"
 STEAMPIPE_SCRIPT_ROOT="${STEAMPIPE_ROOT}/scripts"
 STEAMPIPE_OUTPUT_ROOT="${STEAMPIPE_ROOT}/output"
 EXPORT_STAGING_ROOT="${PROJECT_ROOT}/.steam/export_staging"
+EXPORT_PROJECT_ROOT="${PROJECT_ROOT}/.steam/export_project"
+DEV_EXPORT_PATH_PATTERN='^res://(\.codex|output|playtest|spec|tests|tmp|tools)/'
 
 CONFIG_PATH="${DEFAULT_CONFIG_PATH}"
 GODOT_BINARY="${DEFAULT_GODOT_BINARY}"
@@ -118,6 +120,28 @@ ensure_dir() {
 	mkdir -p "$1"
 }
 
+prepare_export_project() {
+	log "Preparing sanitized export project."
+	rm -rf "${EXPORT_PROJECT_ROOT}"
+	ensure_dir "${EXPORT_PROJECT_ROOT}"
+
+	rsync -a --delete \
+		--exclude '/.git/' \
+		--exclude '/.godot/' \
+		--exclude '/.import/' \
+		--exclude '/.steam/' \
+		--exclude '/.codex/' \
+		--exclude '/build/' \
+		--exclude '/output/' \
+		--exclude '/playtest/' \
+		--exclude '/spec/' \
+		--exclude '/tests/' \
+		--exclude '/tmp/' \
+		--exclude '/tools/' \
+		--exclude '.DS_Store' \
+		"${PROJECT_ROOT}/" "${EXPORT_PROJECT_ROOT}/"
+}
+
 parse_args() {
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
@@ -199,6 +223,8 @@ load_config() {
 validate_environment() {
 	[[ "$(uname -s)" == "Darwin" ]] || fail "This script is intended to run on macOS."
 	[[ -x "${GODOT_BINARY}" ]] || fail "Godot binary not found or not executable: ${GODOT_BINARY}"
+	command -v rsync >/dev/null 2>&1 || fail "Missing required command: rsync"
+	command -v strings >/dev/null 2>&1 || fail "Missing required command: strings"
 }
 
 steamcmd_requires_rosetta() {
@@ -566,7 +592,7 @@ export_platform() {
 	rm -rf "${staging_parent_dir}"
 	ensure_dir "${staging_parent_dir}"
 	(
-		cd "${PROJECT_ROOT}"
+		cd "${EXPORT_PROJECT_ROOT}"
 		"${GODOT_BINARY}" --headless --path . --export-release "${preset_name}" "${staging_path}"
 	)
 	if [[ "${platform}" == "linux" && -f "${staging_path}" ]]; then
@@ -611,6 +637,53 @@ ensure_export_outputs_exist() {
 	fi
 	if [[ "${EXPORT_LINUX}" -eq 1 && ! -f "$(linux_output_path)" ]]; then
 		fail "Missing Linux export at $(linux_output_path). Run without --upload-only first."
+	fi
+}
+
+pck_search_root() {
+	local platform="$1"
+	case "${platform}" in
+		macos)
+			printf '%s/Contents/Resources' "$(macos_output_path)"
+			;;
+		windows)
+			dirname "$(windows_output_path)"
+			;;
+		linux)
+			dirname "$(linux_output_path)"
+			;;
+		*)
+			fail "Unsupported export platform '${platform}'."
+			;;
+	esac
+}
+
+validate_exported_pck() {
+	local platform="$1"
+	local search_root pck_paths pck_path matches
+	search_root="$(pck_search_root "${platform}")"
+	[[ -d "${search_root}" ]] || fail "Missing ${platform} PCK search root: ${search_root}"
+	pck_paths="$(find "${search_root}" -maxdepth 1 -type f -name '*.pck' -print)"
+	[[ -n "${pck_paths}" ]] || fail "Missing ${platform} PCK under ${search_root}"
+
+	while IFS= read -r pck_path; do
+		[[ -n "${pck_path}" ]] || continue
+		matches="$(strings -a "${pck_path}" | grep -E "${DEV_EXPORT_PATH_PATTERN}" | head -n 10 || true)"
+		if [[ -n "${matches}" ]]; then
+			fail "Exported ${platform} PCK includes development-only resources: ${matches//$'\n'/, }"
+		fi
+	done <<< "${pck_paths}"
+}
+
+validate_exported_content() {
+	if [[ "${EXPORT_MACOS}" -eq 1 ]]; then
+		validate_exported_pck macos
+	fi
+	if [[ "${EXPORT_WINDOWS}" -eq 1 ]]; then
+		validate_exported_pck windows
+	fi
+	if [[ "${EXPORT_LINUX}" -eq 1 ]]; then
+		validate_exported_pck linux
 	fi
 }
 
@@ -842,6 +915,7 @@ main() {
 
 	if [[ "${MODE}" != "upload-only" ]]; then
 		ensure_godot_templates
+		prepare_export_project
 		rm -rf "${CONTENT_ROOT}" "${EXPORT_STAGING_ROOT}"
 		ensure_dir "${CONTENT_ROOT}"
 		if [[ "${EXPORT_MACOS}" -eq 1 ]]; then
@@ -862,10 +936,13 @@ main() {
 		if [[ "${EXPORT_LINUX}" -eq 1 ]]; then
 			sync_staged_platform_output linux
 		fi
+		ensure_export_outputs_exist
+		validate_exported_content
 	fi
 
 	if [[ "${MODE}" != "export-only" ]]; then
 		ensure_export_outputs_exist
+		validate_exported_content
 		if [[ "${DRY_RUN}" -eq 0 ]]; then
 			ensure_steamcmd
 		fi
