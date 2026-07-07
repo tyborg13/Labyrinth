@@ -6,6 +6,8 @@ const GameData = preload("res://scripts/game_data.gd")
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
 const PROGRESSION_SCHEMA: int = 2
+const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
+const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 
 static var _storage_path: String = DEFAULT_STORAGE_PATH
 static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
@@ -31,7 +33,9 @@ static func default_data() -> Dictionary:
 		"pending_fire_rest_dialogue": false,
 		"fire_rest_dialogue_seen": false,
 		"run_counter": 0,
-		"recovery_marker": {}
+		"recovery_marker": {},
+		GRIMOIRE_UNLOCKED_KEY: [],
+		GRIMOIRE_UNREAD_KEY: []
 	}
 
 static func load_data() -> Dictionary:
@@ -76,6 +80,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data["run_counter"] = 0
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
+	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
+	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
 	var card_upgrades: Dictionary = (data.get("card_upgrades", {}) as Dictionary).duplicate(true)
 	for upgrade_id_var: Variant in data.get("purchased_upgrades", []):
 		var upgrade_id: String = str(upgrade_id_var)
@@ -120,6 +126,17 @@ static func _migrated_legacy_card_upgrades(data: Dictionary) -> Dictionary:
 	next_data["pending_fire_rest_dialogue"] = false
 	next_data["fire_rest_dialogue_seen"] = false
 	return next_data
+
+static func _normalized_string_array(value: Variant) -> Array:
+	var result: Array = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for item_var: Variant in value:
+		var item_id: String = str(item_var)
+		if item_id.is_empty() or result.has(item_id):
+			continue
+		result.append(item_id)
+	return result
 
 static func save_data(data: Dictionary) -> bool:
 	var file: FileAccess = FileAccess.open(_storage_path, FileAccess.WRITE)

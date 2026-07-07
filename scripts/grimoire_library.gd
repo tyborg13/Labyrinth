@@ -9,6 +9,47 @@ const UNREAD_KEY: String = "grimoire_unread"
 const NOTICE_KEY: String = "grimoire_notice"
 const MERCHANT_STOCK_KEY: String = "merchant_stock"
 
+const SECTION_MAGICKS: String = "magicks"
+const SECTION_EQUIPMENT: String = "equipment"
+const SECTION_ITEMS: String = "items"
+const SECTION_CHARACTERS: String = "characters"
+
+const ELEMENT_TITLES := {
+	"fire": "Fire",
+	"ice": "Ice",
+	"lightning": "Lightning",
+	"air": "Air",
+	"earth": "Earth",
+	"none": "Unaligned"
+}
+
+const EQUIPMENT_SLOT_TITLES := {
+	"weapon": "Weapons",
+	"offhand": "Offhands",
+	"armor": "Armor",
+	"boots": "Boots",
+	"trinket": "Trinkets"
+}
+
+const CHARACTER_BODIES := {
+	"arcanist": [
+		"NPC merchant associated with learned magicks.",
+		"Arcanist rooms offer magic cards. Purchased magic enters reserve and can be attuned from the character sheet."
+	],
+	"blacksmith": [
+		"NPC merchant associated with weapons, armor, trinkets, and other equipment.",
+		"Blacksmith rooms offer equipment. Equipment changes the deck by adding its granted cards while equipped."
+	],
+	"scavenger": [
+		"NPC merchant associated with single-use item cards.",
+		"Scavenger rooms offer item cards. Items can be equipped into item slots and are consumed when played."
+	],
+	"emaciated_man": [
+		"NPC encountered in the starting chamber.",
+		"The Emaciated Man appears before the first door selection and provides the run's opening dialogue."
+	]
+}
+
 const ACTION_TYPE_ENTRY_IDS := {
 	"melee": "keyword:melee",
 	"ranged": "keyword:ranged",
@@ -71,26 +112,89 @@ static func sections() -> Array:
 
 static func entries() -> Array:
 	var result: Array = (data().get("entries", []) as Array).duplicate(true)
-	result.append_array(card_entries())
+	result.append_array(magick_entries())
+	result.append_array(equipment_entries())
+	result.append_array(item_entries())
+	result.append_array(character_entries())
 	return result
 
-static func card_entries() -> Array:
+static func magick_entries() -> Array:
 	var result: Array = []
 	for card_id: String in GameData.cards().keys():
+		var card: Dictionary = GameData.card_def(card_id)
+		if card.is_empty() or not is_magick_card_id(card_id):
+			continue
+		result.append({
+			"id": magick_entry_id(card_id),
+			"section": SECTION_MAGICKS,
+			"title": str(card.get("name", card_id)),
+			"card_id": card_id,
+			"group": _card_element_group(card),
+			"group_title": _card_element_group_title(card),
+			"body": _card_entry_body(card)
+		})
+	return result
+
+static func equipment_entries() -> Array:
+	var result: Array = []
+	for equipment_id_var: Variant in GameData.equipment_ids():
+		var equipment_id: String = str(equipment_id_var)
+		var item: Dictionary = GameData.equipment_def(equipment_id)
+		if item.is_empty() or GameData.equipment_slot(equipment_id).is_empty():
+			continue
+		result.append({
+			"id": equipment_entry_id(equipment_id),
+			"section": SECTION_EQUIPMENT,
+			"title": str(item.get("name", equipment_id)),
+			"equipment_id": equipment_id,
+			"group": GameData.equipment_slot(equipment_id),
+			"group_title": str(EQUIPMENT_SLOT_TITLES.get(GameData.equipment_slot(equipment_id), GameData.equipment_slot(equipment_id).capitalize())),
+			"body": _equipment_entry_body(equipment_id, item)
+		})
+	return result
+
+static func item_entries() -> Array:
+	var result: Array = []
+	for card_id_var: Variant in GameData.item_card_ids():
+		var card_id: String = str(card_id_var)
 		var card: Dictionary = GameData.card_def(card_id)
 		if card.is_empty():
 			continue
 		result.append({
-			"id": card_entry_id(card_id),
-			"section": "cards",
+			"id": item_entry_id(card_id),
+			"section": SECTION_ITEMS,
 			"title": str(card.get("name", card_id)),
 			"card_id": card_id,
 			"body": _card_entry_body(card)
 		})
 	return result
 
-static func card_entry_id(card_id: String) -> String:
-	return "card:%s" % card_id
+static func character_entries() -> Array:
+	var result: Array = []
+	for npc_id: String in GameData.npcs().keys():
+		var npc: Dictionary = GameData.npc_def(npc_id)
+		if npc.is_empty():
+			continue
+		result.append({
+			"id": character_entry_id(npc_id),
+			"section": SECTION_CHARACTERS,
+			"title": str(npc.get("name", npc_id)),
+			"npc_id": npc_id,
+			"body": _character_entry_body(npc_id, npc)
+		})
+	return result
+
+static func magick_entry_id(card_id: String) -> String:
+	return "magick:%s" % card_id
+
+static func item_entry_id(card_id: String) -> String:
+	return "item:%s" % card_id
+
+static func equipment_entry_id(equipment_id: String) -> String:
+	return "equipment:%s" % equipment_id
+
+static func character_entry_id(npc_id: String) -> String:
+	return "character:%s" % npc_id
 
 static func entry_map() -> Dictionary:
 	var result: Dictionary = {}
@@ -125,18 +229,48 @@ static func default_entry_ids() -> Array[String]:
 			result.append(str(entry.get("id", "")))
 	return ordered_entry_ids(result)
 
+static func ensure_progression_state(progression: Dictionary) -> Dictionary:
+	if progression.is_empty():
+		return {}
+	var next_progression: Dictionary = progression.duplicate(true)
+	var unlocked: Array[String] = normalize_entry_ids(next_progression.get(UNLOCKED_KEY, []))
+	for entry_id: String in default_entry_ids():
+		if not unlocked.has(entry_id):
+			unlocked.append(entry_id)
+	unlocked = ordered_entry_ids(unlocked)
+	next_progression[UNLOCKED_KEY] = unlocked
+	var unread: Array[String] = normalize_entry_ids(next_progression.get(UNREAD_KEY, []))
+	var filtered_unread: Array[String] = []
+	for entry_id: String in ordered_entry_ids(unread):
+		if unlocked.has(entry_id):
+			filtered_unread.append(entry_id)
+	next_progression[UNREAD_KEY] = filtered_unread
+	return next_progression
+
 static func ensure_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var unlocked: Array[String] = normalize_entry_ids(next_state.get(UNLOCKED_KEY, []))
+	var progression: Dictionary = {}
+	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
+		progression = ensure_progression_state(next_state.get("progression", {}) as Dictionary)
+		if not progression.is_empty():
+			next_state["progression"] = progression
+			for entry_id: String in normalize_entry_ids(progression.get(UNLOCKED_KEY, [])):
+				if not unlocked.has(entry_id):
+					unlocked.append(entry_id)
 	var has_unlocked_key: bool = next_state.has(UNLOCKED_KEY)
 	for entry_id: String in default_entry_ids():
 		if not unlocked.has(entry_id):
 			unlocked.append(entry_id)
 	if not has_unlocked_key:
-		unlocked.append_array(entry_ids_for_card_ids(next_state.get("deck_cards", [])))
+		unlocked.append_array(entry_ids_for_run_state(next_state))
 	unlocked = ordered_entry_ids(unlocked)
 	next_state[UNLOCKED_KEY] = unlocked
 	var unread: Array[String] = normalize_entry_ids(next_state.get(UNREAD_KEY, []))
+	if not progression.is_empty():
+		for entry_id: String in normalize_entry_ids(progression.get(UNREAD_KEY, [])):
+			if not unread.has(entry_id):
+				unread.append(entry_id)
 	var filtered_unread: Array[String] = []
 	for entry_id: String in ordered_entry_ids(unread):
 		if unlocked.has(entry_id):
@@ -150,27 +284,51 @@ static func unlock_entries(run_state: Dictionary, candidate_ids: Array) -> Dicti
 	var next_state: Dictionary = ensure_run_state(run_state)
 	var unlocked: Array[String] = normalize_entry_ids(next_state.get(UNLOCKED_KEY, []))
 	var unread: Array[String] = normalize_entry_ids(next_state.get(UNREAD_KEY, []))
+	var progression: Dictionary = {}
+	var progression_unlocked: Array[String] = []
+	var progression_unread: Array[String] = []
+	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
+		progression = ensure_progression_state(next_state.get("progression", {}) as Dictionary)
+		if not progression.is_empty():
+			progression_unlocked = normalize_entry_ids(progression.get(UNLOCKED_KEY, []))
+			progression_unread = normalize_entry_ids(progression.get(UNREAD_KEY, []))
 	var added: Array[String] = []
+	var progression_changed: bool = false
 	for entry_id: String in ordered_entry_ids(candidate_ids):
-		if unlocked.has(entry_id):
-			continue
-		unlocked.append(entry_id)
-		if not unread.has(entry_id):
-			unread.append(entry_id)
-		added.append(entry_id)
+		var run_already_unlocked: bool = unlocked.has(entry_id)
+		if not run_already_unlocked:
+			unlocked.append(entry_id)
+			if not unread.has(entry_id):
+				unread.append(entry_id)
+			added.append(entry_id)
+		if not progression.is_empty() and not progression_unlocked.has(entry_id):
+			progression_unlocked.append(entry_id)
+			progression_changed = true
+			if not run_already_unlocked and not progression_unread.has(entry_id):
+				progression_unread.append(entry_id)
 	next_state[UNLOCKED_KEY] = ordered_entry_ids(unlocked)
 	next_state[UNREAD_KEY] = ordered_entry_ids(unread)
+	if not progression.is_empty():
+		progression[UNLOCKED_KEY] = ordered_entry_ids(progression_unlocked)
+		progression[UNREAD_KEY] = ordered_entry_ids(progression_unread)
+		next_state["progression"] = progression
 	if not added.is_empty():
 		next_state[NOTICE_KEY] = notice_for_added_entries(added)
 	return {
 		"state": next_state,
-		"added": added
+		"added": added,
+		"progression_changed": progression_changed
 	}
 
 static func clear_unread(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = ensure_run_state(run_state)
 	next_state[UNREAD_KEY] = []
 	next_state[NOTICE_KEY] = ""
+	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
+		var progression: Dictionary = ensure_progression_state(next_state.get("progression", {}) as Dictionary)
+		if not progression.is_empty():
+			progression[UNREAD_KEY] = []
+			next_state["progression"] = progression
 	return next_state
 
 static func notice_for_added_entries(entry_ids: Array) -> String:
@@ -251,8 +409,47 @@ static func entry_ids_for_card_id(card_id: String) -> Array[String]:
 	if card.is_empty():
 		return []
 	var result: Array[String] = []
-	result.append(card_entry_id(card_id))
+	if GameData.card_is_item(card_id):
+		result.append(item_entry_id(card_id))
+	elif is_magick_card_id(card_id):
+		result.append(magick_entry_id(card_id))
 	for entry_id: String in entry_ids_for_card_def(card):
+		if not result.has(entry_id):
+			result.append(entry_id)
+	return ordered_entry_ids(result)
+
+static func entry_ids_for_equipment_ids(equipment_ids: Variant) -> Array[String]:
+	var result: Array[String] = []
+	if typeof(equipment_ids) != TYPE_ARRAY:
+		return result
+	for equipment_id_var: Variant in equipment_ids:
+		for entry_id: String in entry_ids_for_equipment_id(str(equipment_id_var)):
+			if not result.has(entry_id):
+				result.append(entry_id)
+	return ordered_entry_ids(result)
+
+static func entry_ids_for_equipment_id(equipment_id: String) -> Array[String]:
+	if GameData.equipment_def(equipment_id).is_empty() or GameData.equipment_slot(equipment_id).is_empty():
+		return []
+	var result: Array[String] = []
+	result.append(equipment_entry_id(equipment_id))
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+		for entry_id: String in entry_ids_for_card_id(str(card_id_var)):
+			if entry_id.begins_with("magick:") or entry_id.begins_with("item:"):
+				continue
+			if not result.has(entry_id):
+				result.append(entry_id)
+	return ordered_entry_ids(result)
+
+static func entry_ids_for_npc_ids(npc_ids: Variant) -> Array[String]:
+	var result: Array[String] = []
+	if typeof(npc_ids) != TYPE_ARRAY:
+		return result
+	for npc_id_var: Variant in npc_ids:
+		var npc_id: String = str(npc_id_var)
+		if GameData.npc_def(npc_id).is_empty():
+			continue
+		var entry_id: String = character_entry_id(npc_id)
 		if not result.has(entry_id):
 			result.append(entry_id)
 	return ordered_entry_ids(result)
@@ -326,13 +523,35 @@ static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 		for entry_id: String in entry_ids_for_card_ids(run_state.get(card_list_key, [])):
 			if not result.has(entry_id):
 				result.append(entry_id)
+	var equipment_ids: Array = []
+	equipment_ids.append_array(run_state.get("collected_equipment", []))
+	equipment_ids.append_array(run_state.get("equipment_inventory", []))
+	for equipment_id_var: Variant in (run_state.get("equipped_equipment", {}) as Dictionary).values():
+		equipment_ids.append(equipment_id_var)
+	for entry_id: String in entry_ids_for_equipment_ids(equipment_ids):
+		if not result.has(entry_id):
+			result.append(entry_id)
+	var current_room: Dictionary = _current_room_metadata(run_state)
+	var npc_ids: Array = []
+	for npc_var: Variant in current_room.get("npcs", []):
+		if typeof(npc_var) != TYPE_DICTIONARY:
+			continue
+		var npc_id: String = str((npc_var as Dictionary).get("id", ""))
+		if not npc_id.is_empty():
+			npc_ids.append(npc_id)
+	for entry_id: String in entry_ids_for_npc_ids(npc_ids):
+		if not result.has(entry_id):
+			result.append(entry_id)
 	var pending_reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
 	for entry_id: String in entry_ids_for_card_ids(pending_reward.get("cards", [])):
 		if not result.has(entry_id):
 			result.append(entry_id)
-	for entry_id: String in entry_ids_for_card_ids(_current_merchant_offer_card_ids(run_state)):
-		if not result.has(entry_id):
-			result.append(entry_id)
+	for offer_id_var: Variant in _current_merchant_offer_ids(run_state):
+		var offer_id: String = str(offer_id_var)
+		var offer_entries: Array[String] = entry_ids_for_equipment_id(offer_id) if not GameData.equipment_def(offer_id).is_empty() else entry_ids_for_card_id(offer_id)
+		for entry_id: String in offer_entries:
+			if not result.has(entry_id):
+				result.append(entry_id)
 	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
 	for entry_id: String in entry_ids_for_combat_state(combat_state):
 		if not result.has(entry_id):
@@ -390,13 +609,15 @@ static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]
 						result.append(nested_entry)
 	return ordered_entry_ids(result)
 
-static func _current_merchant_offer_card_ids(run_state: Dictionary) -> Array:
+static func _current_merchant_offer_ids(run_state: Dictionary) -> Array:
 	var room: Dictionary = _current_room_metadata(run_state)
 	var result: Array = []
 	for item_var: Variant in room.get(MERCHANT_STOCK_KEY, []):
-		var card_id: String = str(item_var)
-		if not card_id.is_empty() and not GameData.card_def(card_id).is_empty() and not result.has(card_id):
-			result.append(card_id)
+		var item_id: String = str(item_var)
+		if item_id.is_empty() or result.has(item_id):
+			continue
+		if not GameData.card_def(item_id).is_empty() or not GameData.equipment_def(item_id).is_empty():
+			result.append(item_id)
 	return result
 
 static func _current_room_metadata(run_state: Dictionary) -> Dictionary:
@@ -435,6 +656,63 @@ static func _card_entry_body(card: Dictionary) -> Array:
 	if not notes.is_empty():
 		body.append(". ".join(notes) + ".")
 	return body
+
+static func _equipment_entry_body(equipment_id: String, item: Dictionary) -> Array:
+	var body: Array = []
+	var description: String = str(item.get("description", "")).strip_edges()
+	if not description.is_empty():
+		body.append(description)
+	var slot_label: String = _equipment_slot_singular(GameData.equipment_slot(equipment_id))
+	var rarity: String = GameData.equipment_rarity(equipment_id).capitalize()
+	var card_count: int = GameData.equipment_cards(equipment_id).size()
+	body.append("%s %s equipment. Adds %d card%s to the deck while equipped." % [
+		rarity,
+		slot_label,
+		card_count,
+		"" if card_count == 1 else "s"
+	])
+	return body
+
+static func _character_entry_body(npc_id: String, npc: Dictionary) -> Array:
+	var predefined: Array = (CHARACTER_BODIES.get(npc_id, []) as Array).duplicate(true)
+	if not predefined.is_empty():
+		return predefined
+	var dialogue: Array = npc.get("default_dialogue", [])
+	if not dialogue.is_empty():
+		return ["NPC encountered in the labyrinth.", "Default dialogue lines: %d." % dialogue.size()]
+	return ["NPC encountered in the labyrinth."]
+
+static func _card_element_group(card: Dictionary) -> String:
+	var element: String = str(GameData.card_element_from_def(card))
+	return element if ELEMENT_TITLES.has(element) else "none"
+
+static func _card_element_group_title(card: Dictionary) -> String:
+	var group: String = _card_element_group(card)
+	return str(ELEMENT_TITLES.get(group, group.capitalize()))
+
+static func _equipment_slot_singular(slot: String) -> String:
+	match slot:
+		"weapon":
+			return "weapon"
+		"offhand":
+			return "offhand"
+		"armor":
+			return "armor"
+		"boots":
+			return "boots"
+		"trinket":
+			return "trinket"
+	return "gear"
+
+static func is_magick_card_id(card_id: String) -> bool:
+	if card_id.is_empty() or GameData.card_is_item(card_id):
+		return false
+	var card: Dictionary = GameData.card_def(card_id)
+	if card.is_empty():
+		return false
+	if GameData.starting_magic_cards().has(card_id):
+		return true
+	return bool(card.get("reward_pool", true))
 
 static func _truthy_value(value: Variant) -> bool:
 	match typeof(value):

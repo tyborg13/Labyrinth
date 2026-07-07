@@ -293,21 +293,28 @@ func _initialize() -> void:
 	quit(1)
 
 func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
-	_assert(GrimoireLibrary.sections().size() == 5, "Grimoire should expose the planned navigation sections")
+	_assert(GrimoireLibrary.sections().size() == 8, "Grimoire should expose the planned navigation sections")
 	var entries: Dictionary = GrimoireLibrary.entry_map()
-	for required_id: String in ["basic:run", "combat:turn_clock", "combat:summons", "keyword:bleed", "card:quick_stab", "enemy:crawler", "enemy:zekarion"]:
+	for required_id: String in ["basic:run", "combat:turn_clock", "combat:summons", "keyword:bleed", "magick:pale_spark", "magick:spark_dart", "equipment:training_sword", "item:crimson_draught", "character:emaciated_man", "enemy:crawler", "enemy:zekarion"]:
 		_assert(entries.has(required_id), "Grimoire should include %s" % required_id)
 	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
-	_assert(not defaults.has("keyword:bleed"), "Bleed should remain discoverable instead of default-unlocked")
-	var bleed_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
-	_assert(bleed_card_entries.has("card:sawtooth_flurry"), "Cards should unlock their own Grimoire entry")
-	_assert(bleed_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
+	_assert(not defaults.has("keyword:bleed"), "Bleed should remain context-unlocked instead of static-default")
+	var equipment_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
+	_assert(not equipment_card_entries.has("magick:sawtooth_flurry"), "Equipment-derived cards should not unlock Magick entries")
+	_assert(equipment_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
 	var spark_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("spark_dart")
-	_assert(spark_card_entries.has("card:spark_dart"), "Elemental reward cards should unlock their own Grimoire entry")
+	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
 	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	var item_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("crimson_draught")
+	_assert(item_card_entries.has("item:crimson_draught"), "Scavenger consumables should unlock item entries")
+	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("training_sword")
+	_assert(equipment_entries.has("equipment:training_sword"), "Discovered equipment should unlock its equipment entry")
+	_assert(equipment_entries.has("keyword:bleed"), "Equipment should unlock keywords from granted cards")
+	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["blacksmith"])
+	_assert(npc_entries.has("character:blacksmith"), "Seen NPCs should unlock character entries")
 	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])
 	_assert(crawler_entries.has("enemy:crawler"), "Seeing a crawler should unlock its creature entry")
 	_assert(crawler_entries.has("keyword:bleed"), "Enemy bleed intents should unlock the bleed entry")
@@ -318,12 +325,15 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var engine := RunEngine.new()
 	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("basic:run"), "New runs should carry default Grimoire entries")
-	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("card:quick_stab"), "New runs should know starting deck card entries")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("magick:pale_spark"), "New runs should know starting Magick entries")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("equipment:training_sword"), "New runs should know starter equipment entries")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("character:emaciated_man"), "New runs should know the starting NPC entry")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("keyword:bleed"), "New runs should know keywords printed on the starting deck")
 	_assert((run_state.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Default Grimoire entries should not start unread")
 	var reward_offer_state: Dictionary = run_state.duplicate(true)
 	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
-	_assert(reward_offer_entries.has("card:spark_dart"), "Visible reward-offer cards should unlock their card entry before selection")
+	_assert(reward_offer_entries.has("magick:spark_dart"), "Visible reward-offer cards should unlock their Magick entry before selection")
 	_assert(reward_offer_entries.has("keyword:shock"), "Visible reward-offer cards should unlock nested keyword entries before selection")
 	var merchant_offer_state: Dictionary = run_state.duplicate(true)
 	merchant_offer_state["current_room"] = Vector2i(2, 1)
@@ -331,18 +341,30 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 		"2,1": {
 			"type": "arcanist",
 			"merchant_kind": "arcanist",
-			"merchant_stock": ["spark_dart"]
+			"merchant_stock": ["spark_dart", "crimson_draught", "iron_cleaver"],
+			"npcs": [{"id": "blacksmith"}]
 		}
 	}
 	var merchant_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(merchant_offer_state)
-	_assert(merchant_offer_entries.has("card:spark_dart"), "Visible merchant-offer cards should unlock their card entry before purchase")
+	_assert(merchant_offer_entries.has("magick:spark_dart"), "Visible merchant-offer cards should unlock their Magick entry before purchase")
+	_assert(merchant_offer_entries.has("item:crimson_draught"), "Visible scavenger-offer cards should unlock item entries before purchase")
+	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible blacksmith-offer equipment should unlock equipment entries before purchase")
+	_assert(merchant_offer_entries.has("character:blacksmith"), "Current-room NPCs should unlock character entries")
 	_assert(merchant_offer_entries.has("keyword:shock"), "Visible merchant-offer cards should unlock nested keyword entries before purchase")
-	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["card:sawtooth_flurry", "keyword:bleed"])
+	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["magick:spark_dart", "keyword:shock"])
 	var added: Array = unlock_result.get("added", [])
 	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary
-	_assert(added.size() == 2 and added.has("card:sawtooth_flurry") and added.has("keyword:bleed"), "First card discovery should report the card and keyword entries")
+	_assert(added.size() == 2 and added.has("magick:spark_dart") and added.has("keyword:shock"), "First Magick discovery should report the card and keyword entries")
 	_assert(str(next_state.get(GrimoireLibrary.NOTICE_KEY, "")).contains("2 entries"), "Multi-entry Grimoire discovery should create a readable log notice")
-	var repeated: Dictionary = GrimoireLibrary.unlock_entries(next_state, ["keyword:bleed"])
+	var profile_after_unlock: Dictionary = next_state.get("progression", {}) as Dictionary
+	_assert((profile_after_unlock.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("magick:spark_dart"), "Discovered entries should persist into progression data")
+	_assert((profile_after_unlock.get(GrimoireLibrary.UNREAD_KEY, []) as Array).has("magick:spark_dart"), "Unread Grimoire discoveries should persist in progression data")
+	var later_run_state: Dictionary = engine.create_new_run(24681, profile_after_unlock)
+	_assert((later_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("magick:spark_dart"), "Later runs should inherit persistent Grimoire entries")
+	var cleared_unread: Dictionary = GrimoireLibrary.clear_unread(next_state)
+	_assert((cleared_unread.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Clearing Grimoire unread should clear run unread entries")
+	_assert(((cleared_unread.get("progression", {}) as Dictionary).get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Clearing Grimoire unread should clear persistent unread entries")
+	var repeated: Dictionary = GrimoireLibrary.unlock_entries(next_state, ["keyword:shock"])
 	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
 func _test_music_library_routes_elemental_combat_tracks() -> void:

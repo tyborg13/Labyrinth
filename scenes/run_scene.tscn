@@ -70,12 +70,12 @@ layout_mode = 2
 text = "Stats"
 
 [node name="GrimoireButton" type="Button" parent="Backdrop/Margin/MainVBox/TopBar"]
-custom_minimum_size = Vector2(46, 38)
+custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
 tooltip_text = "Grimoire"
 
 [node name="MenuButton" type="Button" parent="Backdrop/Margin/MainVBox/TopBar"]
-custom_minimum_size = Vector2(46, 38)
+custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
 tooltip_text = "Menu"
 
