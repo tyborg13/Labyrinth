@@ -176,6 +176,26 @@ level should already require a meaningful run. The target feel is that level
 `2` requires either getting fairly deep into one run or safely carrying embers
 out of several short campfire aborts.
 
+### Merchant Ember Sinks
+
+Blacksmith, Arcanist, and Scavenger purchases spend the same held embers used
+for campfire level-ups. Merchant prices should therefore create a visible choice:
+buy a run-shaping item now, or keep saving toward permanent character growth.
+Common goods should not be affordable from one or two normal enemy kills.
+
+| Merchant | Common | Rare | Epic | Legendary |
+| --- | ---: | ---: | ---: | ---: |
+| Blacksmith equipment | 150 | 240 | 360 | 540 |
+| Arcanist magic | 110 | 175 | 265 | 400 |
+| Scavenger consumables | 90 | 145 | 220 | 330 |
+
+Blacksmith gear is priced highest because it can permanently reshape a run's
+equipment options. Arcanist magic sits near the level-up curve because it adds a
+new deck option for the run but still requires attunement. Scavenger consumables
+are cheaper because they are one-use cards, but even common items should require
+several combats of saving. Merchant resale returns about a third of buy price so
+spare loot stays meaningful without turning sales into the primary ember source.
+
 ## Stat List
 
 All stats live in one upgrade list. There is no separate elemental mastery

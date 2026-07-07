@@ -29,24 +29,24 @@ const MERCHANT_BLACKSMITH: String = "blacksmith"
 const MERCHANT_ARCANIST: String = "arcanist"
 const MERCHANT_SCAVENGER: String = "scavenger"
 const MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY := {
-	"common": 34,
-	"rare": 54,
-	"epic": 82,
-	"legendary": 120
+	"common": 150,
+	"rare": 240,
+	"epic": 360,
+	"legendary": 540
 }
 const MERCHANT_MAGIC_BUY_COST_BY_RARITY := {
-	"common": 20,
-	"rare": 32,
-	"epic": 48,
-	"legendary": 72
+	"common": 110,
+	"rare": 175,
+	"epic": 265,
+	"legendary": 400
 }
 const MERCHANT_ITEM_BUY_COST_BY_RARITY := {
-	"common": 22,
-	"rare": 36,
-	"epic": 55,
-	"legendary": 82
+	"common": 90,
+	"rare": 145,
+	"epic": 220,
+	"legendary": 330
 }
-const MERCHANT_SELL_VALUE_RATIO: float = 0.45
+const MERCHANT_SELL_VALUE_RATIO: float = 0.35
 const MERCHANT_OFFER_COUNT: int = 3
 const MERCHANT_STOCK_KEY: String = "merchant_stock"
 const MERCHANT_SOLD_KEY: String = "merchant_sold_items"

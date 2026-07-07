@@ -31,15 +31,15 @@ func _capture_merchant_rooms() -> void:
 	await process_frame
 
 	var probe_run_engine := RunEngine.new()
-	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), 140)
+	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), 300)
 	var base_state: Dictionary = _run_with_room_type(probe_run_engine, progression, "blacksmith")
 	var blacksmith_coord: Vector2i = _first_room_coord_of_type(probe_run_engine, base_state, "blacksmith")
 	if blacksmith_coord.x >= 900:
 		_fail("Probe run should include a blacksmith room")
 		return
 	var blacksmith_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, blacksmith_coord, Vector2i(1, 0))
-	blacksmith_state["held_embers"] = 140
-	blacksmith_state["unbanked_embers"] = 140
+	blacksmith_state["held_embers"] = 300
+	blacksmith_state["unbanked_embers"] = 300
 	blacksmith_state["equipment_inventory"] = ["ward_kite", "iron_cleaver"]
 	blacksmith_state["collected_equipment"] = GameData.starter_equipment_ids() + ["ward_kite", "iron_cleaver"]
 	instance.call("_load_run_state", blacksmith_state)
@@ -55,8 +55,8 @@ func _capture_merchant_rooms() -> void:
 		_fail("Probe run should include an arcanist room")
 		return
 	var arcanist_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, arcanist_coord, Vector2i(1, 0))
-	arcanist_state["held_embers"] = 96
-	arcanist_state["unbanked_embers"] = 96
+	arcanist_state["held_embers"] = 220
+	arcanist_state["unbanked_embers"] = 220
 	arcanist_state["reward_cards"] = ["spark_dart", "frostbolt"]
 	arcanist_state["magic_inventory"] = ["spark_dart", "frostbolt"]
 	instance.call("_load_run_state", arcanist_state)
@@ -71,8 +71,8 @@ func _capture_merchant_rooms() -> void:
 		_fail("Probe run should include a scavenger room")
 		return
 	var scavenger_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, scavenger_coord, Vector2i(1, 0))
-	scavenger_state["held_embers"] = 132
-	scavenger_state["unbanked_embers"] = 132
+	scavenger_state["held_embers"] = 180
+	scavenger_state["unbanked_embers"] = 180
 	scavenger_state["item_inventory"] = ["crimson_draught", "nail_bomb", "smoke_bomb"]
 	instance.call("_load_run_state", scavenger_state)
 	await _settle_visuals()
