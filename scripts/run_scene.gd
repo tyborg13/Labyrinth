@@ -974,6 +974,7 @@ var _grimoire_badge_label: Label
 var _grimoire_selected_section: String = ""
 var _grimoire_selected_group: String = ""
 var _grimoire_selected_entry: String = ""
+var _grimoire_nav_scroll_revision: int = 0
 var _header_icon_textures: Dictionary = {}
 var _pile_scrim: ColorRect
 var _pile_dialog: PanelContainer
@@ -2936,10 +2937,15 @@ func _grimoire_close_button_style(pressed: bool, hover: bool) -> StyleBoxFlat:
 	style.content_margin_bottom = 5
 	return style
 
-func _rebuild_grimoire_overlay() -> void:
+func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	if _grimoire_section_list == null:
 		return
 	_layout_grimoire_dialog()
+	var preserved_scroll_vertical: int = 0
+	if _grimoire_entry_scroll != null:
+		preserved_scroll_vertical = _grimoire_entry_scroll.scroll_vertical
+	_grimoire_nav_scroll_revision += 1
+	var scroll_revision: int = _grimoire_nav_scroll_revision
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	var unlocked: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []))
 	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
@@ -2999,7 +3005,10 @@ func _rebuild_grimoire_overlay() -> void:
 				var entry_index: int = _add_grimoire_entry_tab(entry, unread, 2)
 				if str(entry.get("id", "")) == _grimoire_selected_entry:
 					selected_index = entry_index
-	call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0)
+	if scroll_to_selection:
+		call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
+	else:
+		call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
 	_refresh_grimoire_detail()
 	_refresh_grimoire_badge()
 
@@ -3182,7 +3191,19 @@ func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool,
 	style.content_margin_bottom = 4
 	return style
 
-func _scroll_grimoire_entry_list_to_index(index: int, attempt: int = 0) -> void:
+func _restore_grimoire_entry_list_scroll(scroll_position: int, attempt: int = 0, revision: int = 0) -> void:
+	if revision != _grimoire_nav_scroll_revision:
+		return
+	if _grimoire_entry_scroll == null:
+		return
+	if (_grimoire_entry_scroll.size.y <= 0.0 or (_grimoire_entry_list != null and _grimoire_entry_list.size.y <= 0.0)) and attempt < 4:
+		call_deferred("_restore_grimoire_entry_list_scroll", scroll_position, attempt + 1, revision)
+		return
+	_grimoire_entry_scroll.scroll_vertical = maxi(0, scroll_position)
+
+func _scroll_grimoire_entry_list_to_index(index: int, attempt: int = 0, revision: int = 0) -> void:
+	if revision != _grimoire_nav_scroll_revision:
+		return
 	if _grimoire_entry_scroll == null:
 		return
 	if _grimoire_entry_list == null or _grimoire_entry_list.get_child_count() <= 0:
@@ -3192,7 +3213,7 @@ func _scroll_grimoire_entry_list_to_index(index: int, attempt: int = 0) -> void:
 	if child == null:
 		return
 	if (child.size.y <= 0.0 or _grimoire_entry_scroll.size.y <= 0.0) and attempt < 4:
-		call_deferred("_scroll_grimoire_entry_list_to_index", safe_index, attempt + 1)
+		call_deferred("_scroll_grimoire_entry_list_to_index", safe_index, attempt + 1, revision)
 		return
 	var target: int = maxi(0, int(child.position.y - _grimoire_entry_scroll.size.y * 0.45 + child.size.y * 0.5))
 	_grimoire_entry_scroll.scroll_vertical = target
@@ -11265,7 +11286,7 @@ func _open_grimoire_overlay() -> void:
 	_close_large_map()
 	_close_menu_overlay()
 	_select_first_unread_grimoire_entry()
-	_rebuild_grimoire_overlay()
+	_rebuild_grimoire_overlay(true)
 	_grimoire_scrim.visible = true
 	_grimoire_scrim.move_to_front()
 	_refresh_grimoire_badge()

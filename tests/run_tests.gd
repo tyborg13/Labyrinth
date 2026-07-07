@@ -279,6 +279,7 @@ func _initialize() -> void:
 	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
 	await _test_run_scene_character_stats_overlay_opens()
+	await _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable()
 	await _test_run_scene_logs_local_analytics()
 	await _test_main_menu_shows_continue_for_saved_run()
 
@@ -9701,6 +9702,53 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_button_with_text(upgrade_scrim, "+") != null, "The level-up overlay should use plus buttons instead of set buttons")
 	_assert(_button_with_text(upgrade_scrim, "-") != null, "The level-up overlay should use minus buttons beside stat values")
 	_assert(_button_with_text(upgrade_scrim, "Set") == null, "The level-up overlay should not show old select buttons")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Grimoire nav scroll coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	instance.call("_close_dialogue")
+	var run_state: Dictionary = GrimoireLibrary.ensure_run_state(instance.get("_run_state"))
+	var all_entry_ids: Array[String] = []
+	for entry_var: Variant in GrimoireLibrary.entries():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var entry_id: String = str(entry.get("id", ""))
+		if not entry_id.is_empty():
+			all_entry_ids.append(entry_id)
+	run_state[GrimoireLibrary.UNLOCKED_KEY] = all_entry_ids
+	run_state[GrimoireLibrary.UNREAD_KEY] = []
+	instance.set("_run_state", run_state)
+	instance.set("_grimoire_selected_section", "keywords")
+	instance.set("_grimoire_selected_group", "")
+	instance.set("_grimoire_selected_entry", "keyword:melee")
+	instance.call("_open_grimoire_overlay")
+	for _frame: int in range(6):
+		await process_frame
+	var scroll: ScrollContainer = instance.get("_grimoire_entry_scroll") as ScrollContainer
+	_assert(scroll != null, "Grimoire should expose a scrollable navigation list")
+	if scroll == null:
+		instance.queue_free()
+		await process_frame
+		return
+	scroll.scroll_vertical = 150
+	for _frame: int in range(3):
+		await process_frame
+	var before_click_scroll: int = scroll.scroll_vertical
+	_assert(before_click_scroll >= 80, "Grimoire nav scroll fixture should have enough overflow for a stable-click regression")
+	instance.call("_on_grimoire_entry_pressed", "keyword:ranged")
+	for _frame: int in range(6):
+		await process_frame
+	var after_click_scroll: int = scroll.scroll_vertical
+	_assert(absi(after_click_scroll - before_click_scroll) <= 1, "Clicking a Grimoire entry should not recenter or otherwise scroll the nav list")
+	instance.call("_close_grimoire_overlay")
 	instance.queue_free()
 	await process_frame
 
