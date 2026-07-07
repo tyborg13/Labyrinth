@@ -325,6 +325,18 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
 	_assert(reward_offer_entries.has("card:spark_dart"), "Visible reward-offer cards should unlock their card entry before selection")
 	_assert(reward_offer_entries.has("keyword:shock"), "Visible reward-offer cards should unlock nested keyword entries before selection")
+	var merchant_offer_state: Dictionary = run_state.duplicate(true)
+	merchant_offer_state["current_room"] = Vector2i(2, 1)
+	merchant_offer_state["rooms"] = {
+		"2,1": {
+			"type": "arcanist",
+			"merchant_kind": "arcanist",
+			"merchant_stock": ["spark_dart"]
+		}
+	}
+	var merchant_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(merchant_offer_state)
+	_assert(merchant_offer_entries.has("card:spark_dart"), "Visible merchant-offer cards should unlock their card entry before purchase")
+	_assert(merchant_offer_entries.has("keyword:shock"), "Visible merchant-offer cards should unlock nested keyword entries before purchase")
 	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["card:sawtooth_flurry", "keyword:bleed"])
 	var added: Array = unlock_result.get("added", [])
 	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary

@@ -7,6 +7,7 @@ const GRIMOIRE_PATH: String = "res://data/grimoire.json"
 const UNLOCKED_KEY: String = "grimoire_unlocked"
 const UNREAD_KEY: String = "grimoire_unread"
 const NOTICE_KEY: String = "grimoire_notice"
+const MERCHANT_STOCK_KEY: String = "merchant_stock"
 
 const ACTION_TYPE_ENTRY_IDS := {
 	"melee": "keyword:melee",
@@ -329,6 +330,9 @@ static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 	for entry_id: String in entry_ids_for_card_ids(pending_reward.get("cards", [])):
 		if not result.has(entry_id):
 			result.append(entry_id)
+	for entry_id: String in entry_ids_for_card_ids(_current_merchant_offer_card_ids(run_state)):
+		if not result.has(entry_id):
+			result.append(entry_id)
 	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
 	for entry_id: String in entry_ids_for_combat_state(combat_state):
 		if not result.has(entry_id):
@@ -385,6 +389,21 @@ static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]
 					if not result.has(nested_entry):
 						result.append(nested_entry)
 	return ordered_entry_ids(result)
+
+static func _current_merchant_offer_card_ids(run_state: Dictionary) -> Array:
+	var room: Dictionary = _current_room_metadata(run_state)
+	var result: Array = []
+	for item_var: Variant in room.get(MERCHANT_STOCK_KEY, []):
+		var card_id: String = str(item_var)
+		if not card_id.is_empty() and not GameData.card_def(card_id).is_empty() and not result.has(card_id):
+			result.append(card_id)
+	return result
+
+static func _current_room_metadata(run_state: Dictionary) -> Dictionary:
+	var rooms: Dictionary = run_state.get("rooms", {}) as Dictionary
+	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var key: String = "%d,%d" % [coord.x, coord.y]
+	return (rooms.get(key, {}) as Dictionary).duplicate(true)
 
 static func _card_entry_body(card: Dictionary) -> Array:
 	var body: Array = []
