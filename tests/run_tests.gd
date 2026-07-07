@@ -304,6 +304,10 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var bleed_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
 	_assert(bleed_card_entries.has("card:sawtooth_flurry"), "Cards should unlock their own Grimoire entry")
 	_assert(bleed_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
+	var spark_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("spark_dart")
+	_assert(spark_card_entries.has("card:spark_dart"), "Elemental reward cards should unlock their own Grimoire entry")
+	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
+	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
 	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])
 	_assert(crawler_entries.has("enemy:crawler"), "Seeing a crawler should unlock its creature entry")
 	_assert(crawler_entries.has("keyword:bleed"), "Enemy bleed intents should unlock the bleed entry")
@@ -316,6 +320,11 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("basic:run"), "New runs should carry default Grimoire entries")
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("card:quick_stab"), "New runs should know starting deck card entries")
 	_assert((run_state.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Default Grimoire entries should not start unread")
+	var reward_offer_state: Dictionary = run_state.duplicate(true)
+	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
+	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
+	_assert(reward_offer_entries.has("card:spark_dart"), "Visible reward-offer cards should unlock their card entry before selection")
+	_assert(reward_offer_entries.has("keyword:shock"), "Visible reward-offer cards should unlock nested keyword entries before selection")
 	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["card:sawtooth_flurry", "keyword:bleed"])
 	var added: Array = unlock_result.get("added", [])
 	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary

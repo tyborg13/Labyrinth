@@ -325,6 +325,10 @@ static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 		for entry_id: String in entry_ids_for_card_ids(run_state.get(card_list_key, [])):
 			if not result.has(entry_id):
 				result.append(entry_id)
+	var pending_reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
+	for entry_id: String in entry_ids_for_card_ids(pending_reward.get("cards", [])):
+		if not result.has(entry_id):
+			result.append(entry_id)
 	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
 	for entry_id: String in entry_ids_for_combat_state(combat_state):
 		if not result.has(entry_id):
@@ -357,6 +361,29 @@ static func entry_ids_for_actions(actions: Variant) -> Array[String]:
 		if action.has("requires_intensity") or action.has("intensity_bonus"):
 			if not result.has("combat:intensity"):
 				result.append("combat:intensity")
+		for entry_id: String in _entry_ids_for_nested_action_values(action):
+			if not result.has(entry_id):
+				result.append(entry_id)
+	return ordered_entry_ids(result)
+
+static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]:
+	var result: Array[String] = []
+	match typeof(value):
+		TYPE_DICTIONARY:
+			for key_var: Variant in (value as Dictionary).keys():
+				var key: String = str(key_var)
+				var nested_value: Variant = (value as Dictionary).get(key_var)
+				var field_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(key, ""))
+				if not field_entry.is_empty() and _truthy_value(nested_value) and not result.has(field_entry):
+					result.append(field_entry)
+				for nested_entry: String in _entry_ids_for_nested_action_values(nested_value):
+					if not result.has(nested_entry):
+						result.append(nested_entry)
+		TYPE_ARRAY:
+			for item_var: Variant in value:
+				for nested_entry: String in _entry_ids_for_nested_action_values(item_var):
+					if not result.has(nested_entry):
+						result.append(nested_entry)
 	return ordered_entry_ids(result)
 
 static func _card_entry_body(card: Dictionary) -> Array:
