@@ -117,7 +117,7 @@ theme_override_constants/separation = 4
 
 [node name="Embers" type="Label" parent="ProfileBlock"]
 layout_mode = 2
-text = "Profile: Reaver"
+text = "Profile Reaver"
 
 [node name="Footer" type="Label" parent="ProfileBlock"]
 layout_mode = 2

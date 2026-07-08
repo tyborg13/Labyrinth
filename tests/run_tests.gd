@@ -3,9 +3,11 @@ extends SceneTree
 const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
+const SteamServiceScript = preload("res://scripts/steam_service.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -26,6 +28,25 @@ const ACTION_STEP_TRACKER_PATH: String = "ActionStepTracker"
 const ACTION_STEP_CHOICE_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
 const ACTION_STEP_PILES_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
+class FakeSteam:
+	extends Object
+
+	var logged_on: bool = true
+	var steam_id: String = "76561198027391269"
+	var persona: String = "Ashfarer"
+
+	func loggedOn() -> bool:
+		return logged_on
+
+	func getSteamID() -> String:
+		return steam_id
+
+	func getPersonaName() -> String:
+		return persona
+
+	func run_callbacks() -> void:
+		pass
+
 var _failures: Array[String] = []
 
 func _initialize() -> void:
@@ -41,6 +62,8 @@ func _initialize() -> void:
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	_test_steam_service_fallback_and_cloud_paths()
+	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_relic_data_rarity_and_offer_weights()
 	_test_equipment_data_rarity_and_starter_deck()
@@ -278,6 +301,7 @@ func _initialize() -> void:
 	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
 	await _test_run_scene_character_stats_overlay_opens()
+	await _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable()
 	await _test_run_scene_logs_local_analytics()
 	await _test_main_menu_shows_continue_for_saved_run()
 
@@ -290,6 +314,91 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
 	quit(1)
+
+func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
+	_assert(GrimoireLibrary.sections().size() == 8, "Grimoire should expose the planned navigation sections")
+	var entries: Dictionary = GrimoireLibrary.entry_map()
+	for required_id: String in ["basic:run", "combat:turn_clock", "combat:summons", "keyword:bleed", "magick:pale_spark", "magick:spark_dart", "equipment:training_sword", "item:crimson_draught", "character:emaciated_man", "enemy:crawler", "enemy:zekarion"]:
+		_assert(entries.has(required_id), "Grimoire should include %s" % required_id)
+	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
+	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
+	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
+	_assert(not defaults.has("keyword:bleed"), "Bleed should remain context-unlocked instead of static-default")
+	var equipment_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
+	_assert(not equipment_card_entries.has("magick:sawtooth_flurry"), "Equipment-derived cards should not unlock Magick entries")
+	_assert(equipment_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
+	var spark_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("spark_dart")
+	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
+	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
+	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	var item_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("crimson_draught")
+	_assert(item_card_entries.has("item:crimson_draught"), "Scavenger consumables should unlock item entries")
+	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("sawtooth_knife")
+	_assert(equipment_entries.has("equipment:sawtooth_knife"), "Discovered equipment should unlock its equipment entry")
+	_assert(equipment_entries.has("keyword:bleed"), "Equipment should unlock keywords from granted cards")
+	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["blacksmith"])
+	_assert(npc_entries.has("character:blacksmith"), "Seen NPCs should unlock character entries")
+	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])
+	_assert(crawler_entries.has("enemy:crawler"), "Seeing a crawler should unlock its creature entry")
+	_assert(crawler_entries.has("keyword:bleed"), "Enemy bleed intents should unlock the bleed entry")
+	var zekarion_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["zekarion"])
+	_assert(zekarion_entries.has("combat:lightning_strikes"), "Zekarion lightning strikes should unlock a mechanic entry")
+	_assert(zekarion_entries.has("combat:summons"), "Zekarion summons should unlock a mechanic entry")
+	_assert(zekarion_entries.has("enemy:lightning_wisp"), "Summon intents should unlock their minion creature entry")
+	var combat_loot_entries: Array[String] = GrimoireLibrary.entry_ids_for_combat_state({
+		"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}],
+		"collected_equipment": ["iron_cleaver"]
+	})
+	_assert(combat_loot_entries.has("equipment:ward_kite"), "Visible combat equipment loot should unlock equipment entries before pickup")
+	_assert(combat_loot_entries.has("equipment:iron_cleaver"), "Combat-state collected equipment should unlock equipment entries before run sync")
+	var engine := RunEngine.new()
+	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("basic:run"), "New runs should carry default Grimoire entries")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("magick:pale_spark"), "New runs should know starting Magick entries")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("equipment:training_sword"), "New runs should know starter equipment entries")
+	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("character:emaciated_man"), "New runs should know the starting NPC entry")
+	_assert(not (run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("keyword:bleed"), "New runs should not know Bleed before a visible or owned source has Bleed")
+	_assert((run_state.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Default Grimoire entries should not start unread")
+	var run_with_visible_loot: Dictionary = run_state.duplicate(true)
+	run_with_visible_loot["combat_state"] = {"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}]}
+	var run_visible_loot_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(run_with_visible_loot)
+	_assert(run_visible_loot_entries.has("equipment:ward_kite"), "Run-state combat loot should unlock visible equipment entries")
+	var reward_offer_state: Dictionary = run_state.duplicate(true)
+	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
+	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
+	_assert(reward_offer_entries.has("magick:spark_dart"), "Visible reward-offer cards should unlock their Magick entry before selection")
+	_assert(reward_offer_entries.has("keyword:shock"), "Visible reward-offer cards should unlock nested keyword entries before selection")
+	var merchant_offer_state: Dictionary = run_state.duplicate(true)
+	merchant_offer_state["current_room"] = Vector2i(2, 1)
+	merchant_offer_state["rooms"] = {
+		"2,1": {
+			"type": "arcanist",
+			"merchant_kind": "arcanist",
+			"merchant_stock": ["spark_dart", "crimson_draught", "iron_cleaver"],
+			"npcs": [{"id": "blacksmith"}]
+		}
+	}
+	var merchant_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(merchant_offer_state)
+	_assert(merchant_offer_entries.has("magick:spark_dart"), "Visible merchant-offer cards should unlock their Magick entry before purchase")
+	_assert(merchant_offer_entries.has("item:crimson_draught"), "Visible scavenger-offer cards should unlock item entries before purchase")
+	_assert(merchant_offer_entries.has("equipment:iron_cleaver"), "Visible blacksmith-offer equipment should unlock equipment entries before purchase")
+	_assert(merchant_offer_entries.has("character:blacksmith"), "Current-room NPCs should unlock character entries")
+	_assert(merchant_offer_entries.has("keyword:shock"), "Visible merchant-offer cards should unlock nested keyword entries before purchase")
+	var unlock_result: Dictionary = GrimoireLibrary.unlock_entries(run_state, ["magick:spark_dart", "keyword:shock"])
+	var added: Array = unlock_result.get("added", [])
+	var next_state: Dictionary = unlock_result.get("state", {}) as Dictionary
+	_assert(added.size() == 2 and added.has("magick:spark_dart") and added.has("keyword:shock"), "First Magick discovery should report the card and keyword entries")
+	_assert(str(next_state.get(GrimoireLibrary.NOTICE_KEY, "")).contains("2 entries"), "Multi-entry Grimoire discovery should create a readable log notice")
+	var profile_after_unlock: Dictionary = next_state.get("progression", {}) as Dictionary
+	_assert((profile_after_unlock.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("magick:spark_dart"), "Discovered entries should persist into progression data")
+	_assert((profile_after_unlock.get(GrimoireLibrary.UNREAD_KEY, []) as Array).has("magick:spark_dart"), "Unread Grimoire discoveries should persist in progression data")
+	var later_run_state: Dictionary = engine.create_new_run(24681, profile_after_unlock)
+	_assert((later_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("magick:spark_dart"), "Later runs should inherit persistent Grimoire entries")
+	var cleared_unread: Dictionary = GrimoireLibrary.clear_unread(next_state)
+	_assert((cleared_unread.get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Clearing Grimoire unread should clear run unread entries")
+	_assert(((cleared_unread.get("progression", {}) as Dictionary).get(GrimoireLibrary.UNREAD_KEY, []) as Array).is_empty(), "Clearing Grimoire unread should clear persistent unread entries")
+	var repeated: Dictionary = GrimoireLibrary.unlock_entries(next_state, ["keyword:shock"])
+	_assert((repeated.get("added", []) as Array).is_empty(), "Repeated Grimoire discoveries should not add duplicates")
 
 func _test_music_library_routes_elemental_combat_tracks() -> void:
 	var expected_tracks: Dictionary = {
@@ -1630,6 +1739,20 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 
 func _test_merchant_room_placement_and_trading(default_progression: Dictionary) -> void:
 	var run_engine: RunEngine = RunEngine.new()
+	var purchase_budget: int = 600
+	var first_level_cost: int = ProgressionStore.next_level_cost(default_progression)
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "iron_cleaver") == 150, "Common blacksmith gear should require saving across multiple combats")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "duelist_rapier") > first_level_cost, "Rare blacksmith gear should compete with the first level-up")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "grave_greatsword") == 360, "Epic blacksmith gear should cost multiple early level-up budgets")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, "crown_of_thorns") == 540, "Legendary blacksmith gear should be a major ember commitment")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "spark_dart") == 110, "Common arcanist magic should no longer be affordable from one or two enemy kills")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "battle_rhythm") == 175, "Rare arcanist magic should nearly match the first level-up")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "blood_price") == 265, "Epic arcanist magic should exceed the first level-up")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, "wildfire_halo") == 400, "Legendary arcanist magic should demand deep-run savings")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "crimson_draught") == 90, "Common Scavenger items should require saving across multiple combats")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "mossglass_elixir") == 145, "Rare Scavenger items should create a real level-up tradeoff")
+	_assert(run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, "storm_jar") == 220, "Epic Scavenger items should exceed the first level-up")
+	_assert(run_engine.merchant_sell_value(RunEngine.MERCHANT_BLACKSMITH, "ward_kite") == 53, "Merchant resale should be useful but well below buy price")
 	var blacksmith_state: Dictionary = {}
 	var blacksmith_coord: Vector2i = Vector2i(999, 999)
 	var arcanist_state: Dictionary = {}
@@ -1661,7 +1784,7 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 
 	blacksmith_state["current_room"] = blacksmith_coord
 	blacksmith_state["mode"] = "room"
-	blacksmith_state = run_engine.set_held_embers(blacksmith_state, 200)
+	blacksmith_state = run_engine.set_held_embers(blacksmith_state, purchase_budget)
 	_assert(run_engine.merchant_kind_for_current_room(blacksmith_state) == RunEngine.MERCHANT_BLACKSMITH, "Blacksmith room metadata should identify the equipment merchant")
 	var blacksmith_offers: Array = run_engine.merchant_offer_ids(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH)
 	_assert(blacksmith_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Blacksmiths should stock a compact set of equipment")
@@ -1669,7 +1792,7 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var equipment_id: String = str(blacksmith_offers[equipment_slot_index])
 	var equipment_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_BLACKSMITH, equipment_id)
 	var bought_equipment_state: Dictionary = run_engine.buy_merchant_item(blacksmith_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
-	_assert(int(bought_equipment_state.get("held_embers", 0)) == 200 - equipment_cost, "Buying equipment should spend held embers")
+	_assert(int(bought_equipment_state.get("held_embers", 0)) == purchase_budget - equipment_cost, "Buying equipment should spend held embers")
 	_assert((bought_equipment_state.get("equipment_inventory", []) as Array).has(equipment_id), "Bought equipment should enter equipment inventory")
 	_assert((bought_equipment_state.get("collected_equipment", []) as Array).has(equipment_id), "Bought equipment should count as collected while owned")
 	_assert(not run_engine.merchant_sellable_ids(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH).has(equipment_id), "Bought equipment should not be immediately sellable in the same blacksmith visit")
@@ -1683,10 +1806,10 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 			_assert(str(post_buy_blacksmith_offers[index]) == str(blacksmith_offers[index]), "Buying equipment should preserve the other blacksmith offer slots")
 	var immediate_resell_state: Dictionary = run_engine.sell_merchant_item(bought_equipment_state, RunEngine.MERCHANT_BLACKSMITH, equipment_id)
 	_assert((immediate_resell_state.get("equipment_inventory", []) as Array).has(equipment_id), "Bought equipment should stay owned if an immediate resell is attempted")
-	_assert(int(immediate_resell_state.get("held_embers", 0)) == 200 - equipment_cost, "Immediate equipment resell attempts should not refund embers")
+	_assert(int(immediate_resell_state.get("held_embers", 0)) == purchase_budget - equipment_cost, "Immediate equipment resell attempts should not refund embers")
 	_assert(run_engine.merchant_offer_ids(immediate_resell_state, RunEngine.MERCHANT_BLACKSMITH) == post_buy_blacksmith_offers, "Blocked immediate equipment resell should not reroll blacksmith offers")
 	var blacksmith_sell_first_state: Dictionary = blacksmith_state.duplicate(true)
-	blacksmith_sell_first_state = run_engine.set_held_embers(blacksmith_sell_first_state, 200)
+	blacksmith_sell_first_state = run_engine.set_held_embers(blacksmith_sell_first_state, purchase_budget)
 	blacksmith_sell_first_state["equipment_inventory"] = ["ward_kite"]
 	var collected_before_sale: Array = (blacksmith_sell_first_state.get("collected_equipment", []) as Array).duplicate()
 	if not collected_before_sale.has("ward_kite"):
@@ -1697,7 +1820,7 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var blacksmith_after_sell_first: Dictionary = run_engine.sell_merchant_item(blacksmith_sell_first_state, RunEngine.MERCHANT_BLACKSMITH, "ward_kite")
 	_assert(not (blacksmith_after_sell_first.get("equipment_inventory", []) as Array).has("ward_kite"), "Sold spare equipment should leave inventory")
 	_assert(not (blacksmith_after_sell_first.get("collected_equipment", []) as Array).has("ward_kite"), "Sold spare equipment should leave duplicate-exclusion ownership")
-	_assert(int(blacksmith_after_sell_first.get("held_embers", 0)) == 200 + equipment_sale_value, "Selling spare equipment should add the sell value to held embers")
+	_assert(int(blacksmith_after_sell_first.get("held_embers", 0)) == purchase_budget + equipment_sale_value, "Selling spare equipment should add the sell value to held embers")
 	_assert(run_engine.merchant_offer_ids(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH) == blacksmith_sell_first_offers, "Selling spare equipment should leave blacksmith offers unchanged")
 	var blacksmith_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(blacksmith_after_sell_first, RunEngine.MERCHANT_BLACKSMITH, str(blacksmith_sell_first_offers[0]))
 	_assert(not run_engine.merchant_offer_ids(blacksmith_after_sell_first_buy, RunEngine.MERCHANT_BLACKSMITH).has("ward_kite"), "Sold equipment should not be introduced by a later blacksmith restock")
@@ -1739,17 +1862,17 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 		unrelated_owned_state["equipment_inventory"] = unrelated_inventory
 		_assert(run_engine.merchant_offer_ids(unrelated_owned_state, RunEngine.MERCHANT_BLACKSMITH) == first_visit_blacksmith_offers, "First-view blacksmith stock should persist after unrelated ownership changes")
 	var externally_owned_offer_id: String = str(first_visit_blacksmith_offers[0])
-	var duplicate_owned_state: Dictionary = run_engine.set_held_embers(visited_blacksmith_state.duplicate(true), 200)
+	var duplicate_owned_state: Dictionary = run_engine.set_held_embers(visited_blacksmith_state.duplicate(true), purchase_budget)
 	var duplicate_inventory: Array = (duplicate_owned_state.get("equipment_inventory", []) as Array).duplicate()
 	duplicate_inventory.append(externally_owned_offer_id)
 	duplicate_owned_state["equipment_inventory"] = duplicate_inventory
 	_assert(not run_engine.merchant_offer_ids(duplicate_owned_state, RunEngine.MERCHANT_BLACKSMITH).has(externally_owned_offer_id), "Stored blacksmith stock should hide equipment the player already owns")
 	var duplicate_buy_state: Dictionary = run_engine.buy_merchant_item(duplicate_owned_state, RunEngine.MERCHANT_BLACKSMITH, externally_owned_offer_id)
-	_assert(int(duplicate_buy_state.get("held_embers", 0)) == 200, "Blacksmiths should not sell a stored offer that became owned before purchase")
+	_assert(int(duplicate_buy_state.get("held_embers", 0)) == purchase_budget, "Blacksmiths should not sell a stored offer that became owned before purchase")
 
 	arcanist_state["current_room"] = arcanist_coord
 	arcanist_state["mode"] = "room"
-	arcanist_state = run_engine.set_held_embers(arcanist_state, 160)
+	arcanist_state = run_engine.set_held_embers(arcanist_state, purchase_budget)
 	_assert(run_engine.merchant_kind_for_current_room(arcanist_state) == RunEngine.MERCHANT_ARCANIST, "Arcanist room metadata should identify the magic merchant")
 	var arcanist_offers: Array = run_engine.merchant_offer_ids(arcanist_state, RunEngine.MERCHANT_ARCANIST)
 	_assert(arcanist_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Arcanists should stock a compact set of magic cards")
@@ -1758,7 +1881,7 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var magic_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_ARCANIST, card_id)
 	var pre_magic_deck: Array = (arcanist_state.get("deck_cards", []) as Array).duplicate()
 	var bought_magic_state: Dictionary = run_engine.buy_merchant_item(arcanist_state, RunEngine.MERCHANT_ARCANIST, card_id)
-	_assert(int(bought_magic_state.get("held_embers", 0)) == 160 - magic_cost, "Buying magic should spend held embers")
+	_assert(int(bought_magic_state.get("held_embers", 0)) == purchase_budget - magic_cost, "Buying magic should spend held embers")
 	_assert((bought_magic_state.get("reward_cards", []) as Array).has(card_id), "Bought magic should enter reward-card history")
 	_assert((bought_magic_state.get("magic_inventory", []) as Array).has(card_id), "Bought magic should enter reserve magic")
 	_assert((bought_magic_state.get("deck_cards", []) as Array) == pre_magic_deck, "Bought magic should stay inactive until attuned")
@@ -1774,10 +1897,10 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var immediate_magic_resell_state: Dictionary = run_engine.sell_merchant_item(bought_magic_state, RunEngine.MERCHANT_ARCANIST, card_id)
 	_assert((immediate_magic_resell_state.get("magic_inventory", []) as Array).has(card_id), "Bought magic should stay in reserve if an immediate resell is attempted")
 	_assert((immediate_magic_resell_state.get("reward_cards", []) as Array).has(card_id), "Bought magic should stay in reward-card history if an immediate resell is attempted")
-	_assert(int(immediate_magic_resell_state.get("held_embers", 0)) == 160 - magic_cost, "Immediate magic resell attempts should not refund embers")
+	_assert(int(immediate_magic_resell_state.get("held_embers", 0)) == purchase_budget - magic_cost, "Immediate magic resell attempts should not refund embers")
 	_assert(run_engine.merchant_offer_ids(immediate_magic_resell_state, RunEngine.MERCHANT_ARCANIST) == post_buy_arcanist_offers, "Blocked immediate magic resell should not reroll arcanist offers")
 	var arcanist_sell_first_state: Dictionary = arcanist_state.duplicate(true)
-	arcanist_sell_first_state = run_engine.set_held_embers(arcanist_sell_first_state, 160)
+	arcanist_sell_first_state = run_engine.set_held_embers(arcanist_sell_first_state, purchase_budget)
 	arcanist_sell_first_state["magic_inventory"] = ["spark_dart"]
 	arcanist_sell_first_state["reward_cards"] = ["spark_dart"]
 	var arcanist_sell_first_offers: Array = run_engine.merchant_offer_ids(arcanist_sell_first_state, RunEngine.MERCHANT_ARCANIST)
@@ -1785,14 +1908,14 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var arcanist_after_sell_first: Dictionary = run_engine.sell_merchant_item(arcanist_sell_first_state, RunEngine.MERCHANT_ARCANIST, "spark_dart")
 	_assert(not (arcanist_after_sell_first.get("magic_inventory", []) as Array).has("spark_dart"), "Sold reserve magic should leave reserve inventory")
 	_assert(not (arcanist_after_sell_first.get("reward_cards", []) as Array).has("spark_dart"), "Sold reserve magic should leave reward-card history")
-	_assert(int(arcanist_after_sell_first.get("held_embers", 0)) == 160 + magic_sale_value, "Selling magic should add the sell value to held embers")
+	_assert(int(arcanist_after_sell_first.get("held_embers", 0)) == purchase_budget + magic_sale_value, "Selling magic should add the sell value to held embers")
 	_assert(run_engine.merchant_offer_ids(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST) == arcanist_sell_first_offers, "Selling reserve magic should leave arcanist offers unchanged")
 	var arcanist_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(arcanist_after_sell_first, RunEngine.MERCHANT_ARCANIST, str(arcanist_sell_first_offers[0]))
 	_assert(not run_engine.merchant_offer_ids(arcanist_after_sell_first_buy, RunEngine.MERCHANT_ARCANIST).has("spark_dart"), "Sold magic should not be introduced by a later arcanist restock")
 
 	scavenger_state["current_room"] = scavenger_coord
 	scavenger_state["mode"] = "room"
-	scavenger_state = run_engine.set_held_embers(scavenger_state, 180)
+	scavenger_state = run_engine.set_held_embers(scavenger_state, purchase_budget)
 	_assert(run_engine.merchant_kind_for_current_room(scavenger_state) == RunEngine.MERCHANT_SCAVENGER, "Scavenger room metadata should identify the item merchant")
 	var scavenger_offers: Array = run_engine.merchant_offer_ids(scavenger_state, RunEngine.MERCHANT_SCAVENGER)
 	_assert(scavenger_offers.size() == RunEngine.MERCHANT_OFFER_COUNT, "Scavengers should stock a compact set of item cards")
@@ -1802,7 +1925,7 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var item_cost: int = run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, item_card_id)
 	var pre_item_deck: Array = (scavenger_state.get("deck_cards", []) as Array).duplicate()
 	var bought_item_state: Dictionary = run_engine.buy_merchant_item(scavenger_state, RunEngine.MERCHANT_SCAVENGER, item_card_id)
-	_assert(int(bought_item_state.get("held_embers", 0)) == 180 - item_cost, "Buying an item should spend held embers")
+	_assert(int(bought_item_state.get("held_embers", 0)) == purchase_budget - item_cost, "Buying an item should spend held embers")
 	_assert((bought_item_state.get("item_inventory", []) as Array).has(item_card_id), "Bought items should enter item inventory")
 	_assert((bought_item_state.get("deck_cards", []) as Array) == pre_item_deck, "Bought items should stay inactive until equipped")
 	_assert(not run_engine.merchant_sellable_ids(bought_item_state, RunEngine.MERCHANT_SCAVENGER).has(item_card_id), "Bought items should not be immediately sellable in the same scavenger visit")
@@ -1815,10 +1938,10 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 			_assert(str(post_buy_scavenger_offers[index]) == str(scavenger_offers[index]), "Buying an item should preserve the other scavenger offer slots")
 	var immediate_item_resell_state: Dictionary = run_engine.sell_merchant_item(bought_item_state, RunEngine.MERCHANT_SCAVENGER, item_card_id)
 	_assert((immediate_item_resell_state.get("item_inventory", []) as Array).has(item_card_id), "Bought items should stay in inventory if an immediate resell is attempted")
-	_assert(int(immediate_item_resell_state.get("held_embers", 0)) == 180 - item_cost, "Immediate item resell attempts should not refund embers")
+	_assert(int(immediate_item_resell_state.get("held_embers", 0)) == purchase_budget - item_cost, "Immediate item resell attempts should not refund embers")
 	_assert(run_engine.merchant_offer_ids(immediate_item_resell_state, RunEngine.MERCHANT_SCAVENGER) == post_buy_scavenger_offers, "Blocked immediate item resell should not reroll scavenger offers")
 	var scavenger_sell_first_state: Dictionary = scavenger_state.duplicate(true)
-	scavenger_sell_first_state = run_engine.set_held_embers(scavenger_sell_first_state, 180)
+	scavenger_sell_first_state = run_engine.set_held_embers(scavenger_sell_first_state, purchase_budget)
 	var scavenger_sell_first_offers: Array = run_engine.merchant_offer_ids(scavenger_sell_first_state, RunEngine.MERCHANT_SCAVENGER)
 	var item_to_sell: String = ""
 	for candidate_item_var: Variant in GameData.item_card_ids():
@@ -1832,7 +1955,7 @@ func _test_merchant_room_placement_and_trading(default_progression: Dictionary) 
 	var scavenger_after_sell_first: Dictionary = run_engine.sell_merchant_item(scavenger_sell_first_state, RunEngine.MERCHANT_SCAVENGER, item_to_sell)
 	var remaining_items: Array = scavenger_after_sell_first.get("item_inventory", []) as Array
 	_assert(remaining_items.has(item_to_sell) and remaining_items.has("nail_bomb"), "Selling one duplicate item should remove only one owned copy")
-	_assert(int(scavenger_after_sell_first.get("held_embers", 0)) == 180 + item_sale_value, "Selling an item should add the sell value to held embers")
+	_assert(int(scavenger_after_sell_first.get("held_embers", 0)) == purchase_budget + item_sale_value, "Selling an item should add the sell value to held embers")
 	_assert(run_engine.merchant_offer_ids(scavenger_after_sell_first, RunEngine.MERCHANT_SCAVENGER) == scavenger_sell_first_offers, "Selling items should leave scavenger offers unchanged")
 	var scavenger_after_sell_first_buy: Dictionary = run_engine.buy_merchant_item(scavenger_after_sell_first, RunEngine.MERCHANT_SCAVENGER, str(scavenger_sell_first_offers[0]))
 	_assert(not run_engine.merchant_offer_ids(scavenger_after_sell_first_buy, RunEngine.MERCHANT_SCAVENGER).has(item_to_sell), "Sold items should not be introduced by a later scavenger restock")
@@ -6968,6 +7091,26 @@ func _test_run_state_save_and_load() -> void:
 	ProgressionStore.clear_saved_run()
 	_assert(not ProgressionStore.has_saved_run(), "Clearing the saved run should remove the save slot")
 
+func _test_steam_service_fallback_and_cloud_paths() -> void:
+	var service: Node = SteamServiceScript.new()
+	_assert(str(service.call("profile_label_text")) == "Profile Reaver", "Steam profile label should fall back cleanly without an active Steam user")
+	_assert(str(service.call("steam_cloud_subdirectory_template")) == "Escape the Umbra/steam/{64BitSteamID}", "Steam Cloud setup should use the same account-scoped subdirectory as the runtime")
+	var success: Dictionary = service.call("_normalized_init_result", {"status": 0})
+	_assert(bool(success.get("ok", false)), "GodotSteam steamInitEx status 0 should be treated as initialized")
+	for failed_status: int in [1, 2, 3]:
+		var failed: Dictionary = service.call("_normalized_init_result", {"status": failed_status})
+		_assert(not bool(failed.get("ok", true)), "GodotSteam steamInitEx failure status %d should not initialize Steam" % failed_status)
+	var fake_steam := FakeSteam.new()
+	service.call("_initialize_with_steam_for_test", fake_steam, {"status": 0})
+	_assert(bool(service.call("is_steam_active")), "A successful logged-in Steam user should make SteamService active")
+	_assert(str(service.call("profile_label_text")) == "Profile Ashfarer", "Steam profile label should use the Steam persona name")
+	_assert(str(service.call("steam_user_dir_name")) == "Escape the Umbra/steam/76561198027391269", "Steam user data should be scoped to the 64-bit Steam ID")
+	var failed_service: Node = SteamServiceScript.new()
+	failed_service.call("_initialize_with_steam_for_test", fake_steam, {"status": 1})
+	_assert(not bool(failed_service.call("is_steam_active")), "Failed Steam initialization should not make SteamService active")
+	failed_service.queue_free()
+	service.queue_free()
+
 func _test_default_theme_uses_pixel_font() -> void:
 	var theme: Theme = load("res://themes/default_theme.tres")
 	_assert(theme != null, "The project should ship a default UI theme")
@@ -9665,6 +9808,53 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_button_with_text(upgrade_scrim, "+") != null, "The level-up overlay should use plus buttons instead of set buttons")
 	_assert(_button_with_text(upgrade_scrim, "-") != null, "The level-up overlay should use minus buttons beside stat values")
 	_assert(_button_with_text(upgrade_scrim, "Set") == null, "The level-up overlay should not show old select buttons")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Grimoire nav scroll coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	instance.call("_close_dialogue")
+	var run_state: Dictionary = GrimoireLibrary.ensure_run_state(instance.get("_run_state"))
+	var all_entry_ids: Array[String] = []
+	for entry_var: Variant in GrimoireLibrary.entries():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var entry_id: String = str(entry.get("id", ""))
+		if not entry_id.is_empty():
+			all_entry_ids.append(entry_id)
+	run_state[GrimoireLibrary.UNLOCKED_KEY] = all_entry_ids
+	run_state[GrimoireLibrary.UNREAD_KEY] = []
+	instance.set("_run_state", run_state)
+	instance.set("_grimoire_selected_section", "keywords")
+	instance.set("_grimoire_selected_group", "")
+	instance.set("_grimoire_selected_entry", "keyword:melee")
+	instance.call("_open_grimoire_overlay")
+	for _frame: int in range(6):
+		await process_frame
+	var scroll: ScrollContainer = instance.get("_grimoire_entry_scroll") as ScrollContainer
+	_assert(scroll != null, "Grimoire should expose a scrollable navigation list")
+	if scroll == null:
+		instance.queue_free()
+		await process_frame
+		return
+	scroll.scroll_vertical = 150
+	for _frame: int in range(3):
+		await process_frame
+	var before_click_scroll: int = scroll.scroll_vertical
+	_assert(before_click_scroll >= 80, "Grimoire nav scroll fixture should have enough overflow for a stable-click regression")
+	instance.call("_on_grimoire_entry_pressed", "keyword:ranged")
+	for _frame: int in range(6):
+		await process_frame
+	var after_click_scroll: int = scroll.scroll_vertical
+	_assert(absi(after_click_scroll - before_click_scroll) <= 1, "Clicking a Grimoire entry should not recenter or otherwise scroll the nav list")
+	instance.call("_close_grimoire_overlay")
 	instance.queue_free()
 	await process_frame
 

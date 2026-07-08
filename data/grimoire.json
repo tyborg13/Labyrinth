@@ -1,0 +1,597 @@
+{
+	"sections": [
+		{
+			"id": "basics",
+			"title": "Basics",
+			"summary": "Run flow, rooms, rewards, and the character sheet."
+		},
+		{
+			"id": "combat",
+			"title": "Combat",
+			"summary": "Board rules, timing, defenses, hazards, and card flow."
+		},
+		{
+			"id": "keywords",
+			"title": "Keywords",
+			"summary": "Card and enemy terms unlocked as they appear."
+		},
+		{
+			"id": "magicks",
+			"title": "Magicks",
+			"summary": "Magic cards recorded when they are learned, offered, or seen in combat."
+		},
+		{
+			"id": "equipment",
+			"title": "Equipment",
+			"summary": "Weapons, armor, trinkets, and other gear recorded when discovered."
+		},
+		{
+			"id": "items",
+			"title": "Items",
+			"summary": "Single-use scavenger cards recorded when carried or offered."
+		},
+		{
+			"id": "characters",
+			"title": "Characters",
+			"summary": "NPCs recorded when encountered."
+		},
+		{
+			"id": "creatures",
+			"title": "Creatures",
+			"summary": "Enemies recorded the first time they are seen."
+		}
+	],
+	"entries": [
+		{
+			"id": "basic:run",
+			"section": "basics",
+			"title": "The Run",
+			"default": true,
+			"icon": "ember",
+			"body": [
+				"Explore rooms, survive fights, claim rewards, and push deeper toward the next boss.",
+				"Held embers travel with the run until banked, spent, recovered, or lost."
+			]
+		},
+		{
+			"id": "basic:map",
+			"section": "basics",
+			"title": "Map and Rooms",
+			"default": true,
+			"icon": "move",
+			"body": [
+				"Revealed exits show where you can travel next. Cleared rooms stay available as routes.",
+				"Combat, campfire, merchant, treasure, relic, and boss rooms each change the next choice."
+			]
+		},
+		{
+			"id": "basic:loadout",
+			"section": "basics",
+			"title": "Character and Loadout",
+			"default": true,
+			"icon": "stat_focus",
+			"body": [
+				"Equipment, attuned magic, item slots, relics, and progression stats shape your deck.",
+				"Most loadout changes happen outside combat, including pre-battle and campfire moments."
+			]
+		},
+		{
+			"id": "basic:rewards",
+			"section": "basics",
+			"title": "Rewards",
+			"default": true,
+			"icon": "draw",
+			"body": [
+				"After combat, choose a card, take healing, or claim other room rewards when offered.",
+				"New magic cards enter reserve first; attune them from the character sheet to add them to the active deck."
+			]
+		},
+		{
+			"id": "basic:relics",
+			"section": "basics",
+			"title": "Relics",
+			"default": true,
+			"icon": "element_fire",
+			"body": [
+				"Relics are passive run modifiers. Some trigger in combat, some change card values, and some alter rewards.",
+				"Hover relic badges in the top HUD for their current text."
+			]
+		},
+		{
+			"id": "combat:board",
+			"section": "combat",
+			"title": "Combat Board",
+			"default": true,
+			"icon": "range",
+			"body": [
+				"Cards resolve against board coordinates. A target is legal only when the card's targeting rule, range, line of sight, occupancy, and terrain checks all pass.",
+				"Card previews show legal targets, affected tiles, and projected result values before resolution."
+			]
+		},
+		{
+			"id": "combat:turn_clock",
+			"section": "combat",
+			"title": "Turn Clock",
+			"default": true,
+			"icon": "time",
+			"body": [
+				"Each played card adds its printed time to the acting unit's turn delay.",
+				"The turn clock orders actors by current delay and previews the next activations."
+			]
+		},
+		{
+			"id": "combat:card_plays",
+			"section": "combat",
+			"title": "Card Plays",
+			"default": true,
+			"icon": "card_play",
+			"body": [
+				"Each player turn begins with a finite card play capacity. Playing a card spends one play unless an effect states otherwise.",
+				"Card play effects add temporary capacity that expires at the end of the current player turn."
+			]
+		},
+		{
+			"id": "combat:health_defense",
+			"section": "combat",
+			"title": "Health and Defenses",
+			"default": true,
+			"icon": "health",
+			"body": [
+				"Non-piercing damage is applied to block first, then stoneskin, then health.",
+				"Block resets on that unit's turn boundary. Stoneskin persists until damage or sunder removes it."
+			]
+		},
+		{
+			"id": "combat:targeting",
+			"section": "combat",
+			"title": "Targeting",
+			"default": true,
+			"icon": "ranged",
+			"body": [
+				"Melee actions target adjacent or pattern-defined nearby tiles. Ranged actions require a legal range and line-of-sight path.",
+				"Area actions resolve over a tile pattern. Push and pull resolve forced movement along a legal direction until distance, blockers, or terrain stop the target."
+			]
+		},
+		{
+			"id": "combat:fatigue",
+			"section": "combat",
+			"title": "Fatigue",
+			"default": true,
+			"icon": "exhaust",
+			"body": [
+				"When a draw request empties the draw pile, the discard pile reshuffles into a new draw pile.",
+				"Each reshuffle increments fatigue. Fatigue deals direct health loss that bypasses block."
+			]
+		},
+		{
+			"id": "combat:traps",
+			"section": "combat",
+			"title": "Traps",
+			"default": true,
+			"icon": "burn",
+			"body": [
+				"Traps resolve when the player enters their tile.",
+				"Trap payloads can apply damage, burn, poison, freeze, shock, or immobilize according to the trap definition."
+			]
+		},
+		{
+			"id": "combat:intensity",
+			"section": "combat",
+			"title": "Elemental Intensity",
+			"default": true,
+			"icon": "element_fire",
+			"body": [
+				"Elemental intensity is a room-scoped value keyed by element.",
+				"Cards can require, add, spend, or scale from the room's current intensity according to their printed fields."
+			]
+		},
+		{
+			"id": "combat:lightning_strikes",
+			"section": "combat",
+			"title": "Lightning Strikes",
+			"icon": "shock",
+			"body": [
+				"Lightning strikes select a set of target tiles from the action definition and resolve shock damage on those tiles.",
+				"Strike tiles are previewed before the enemy activation resolves."
+			]
+		},
+		{
+			"id": "combat:summons",
+			"section": "combat",
+			"title": "Summons",
+			"icon": "illusion",
+			"body": [
+				"Summon actions create additional enemy units of the configured minion type.",
+				"Summoned units enter the normal turn clock, occupy board tiles, and use their own intent definitions."
+			]
+		},
+		{
+			"id": "keyword:melee",
+			"section": "keywords",
+			"title": "Melee",
+			"default": true,
+			"icon": "melee",
+			"body": [
+				"Melee actions use short-range target rules, usually adjacent to the acting unit."
+			]
+		},
+		{
+			"id": "keyword:ranged",
+			"section": "keywords",
+			"title": "Ranged",
+			"default": true,
+			"icon": "ranged",
+			"body": [
+				"Ranged actions target distant tiles that pass the action's range and line-of-sight checks."
+			]
+		},
+		{
+			"id": "keyword:aoe",
+			"section": "keywords",
+			"title": "Area Attack",
+			"default": true,
+			"icon": "aoe",
+			"body": [
+				"Area actions resolve over every legal target tile in their configured pattern.",
+				"Some area patterns can rotate around the origin before the action is committed."
+			]
+		},
+		{
+			"id": "keyword:move",
+			"section": "keywords",
+			"title": "Move",
+			"default": true,
+			"icon": "move",
+			"body": [
+				"Move actions walk through reachable passable tiles.",
+				"Occupancy, terrain, movement range, and trap tiles are evaluated during path preview and resolution."
+			]
+		},
+		{
+			"id": "keyword:blink",
+			"section": "keywords",
+			"title": "Blink",
+			"default": true,
+			"icon": "blink",
+			"body": [
+				"Blink relocates the unit directly to a legal destination tile without tracing an intervening path."
+			]
+		},
+		{
+			"id": "keyword:block",
+			"section": "keywords",
+			"title": "Block",
+			"default": true,
+			"icon": "block",
+			"body": [
+				"Block absorbs non-piercing damage before stoneskin and health.",
+				"Block is cleared when that unit begins its next activation."
+			]
+		},
+		{
+			"id": "keyword:stoneskin",
+			"section": "keywords",
+			"title": "Stoneskin",
+			"default": true,
+			"icon": "stoneskin",
+			"body": [
+				"Stoneskin absorbs non-piercing damage after block and before health.",
+				"Stoneskin persists across turns until damage or sunder removes it."
+			]
+		},
+		{
+			"id": "keyword:heal",
+			"section": "keywords",
+			"title": "Heal",
+			"default": true,
+			"icon": "heal",
+			"body": [
+				"Heal increases health up to maximum health.",
+				"Card persistence after a heal is determined by the card's exhaust or consume fields."
+			]
+		},
+		{
+			"id": "keyword:draw",
+			"section": "keywords",
+			"title": "Draw",
+			"default": true,
+			"icon": "draw",
+			"body": [
+				"Draw moves cards from draw pile to hand up to the requested amount and hand-size limit."
+			]
+		},
+		{
+			"id": "keyword:card_play",
+			"section": "keywords",
+			"title": "Card Play",
+			"default": true,
+			"icon": "card_play",
+			"body": [
+				"Card play effects increase current-turn card play capacity by the printed amount."
+			]
+		},
+		{
+			"id": "keyword:illusion",
+			"section": "keywords",
+			"title": "Illusion",
+			"default": true,
+			"icon": "illusion",
+			"body": [
+				"Illusion actions create allied decoy units with health.",
+				"Enemy targeting can choose illusions, and damage can destroy them."
+			]
+		},
+		{
+			"id": "keyword:immobilize",
+			"section": "keywords",
+			"title": "Immobilize",
+			"default": true,
+			"icon": "immobilize",
+			"body": [
+				"Immobilize prevents move and blink actions on the affected unit's next activation.",
+				"The immobilize flag clears after that activation is processed."
+			]
+		},
+		{
+			"id": "keyword:exhaust",
+			"section": "keywords",
+			"title": "Exhaust",
+			"default": true,
+			"icon": "exhaust",
+			"body": [
+				"Exhaust moves the played card to the burned pile instead of discard.",
+				"Burned cards do not return to draw or discard for the rest of the combat."
+			]
+		},
+		{
+			"id": "keyword:health_cost",
+			"section": "keywords",
+			"title": "Health Cost",
+			"default": true,
+			"icon": "health",
+			"body": [
+				"Health cost is paid when the card is committed.",
+				"Health-cost loss bypasses block and stoneskin."
+			]
+		},
+		{
+			"id": "keyword:pierce",
+			"section": "keywords",
+			"title": "Pierce",
+			"icon": "pierce",
+			"body": [
+				"Pierce damage bypasses block and stoneskin.",
+				"Bypassed defenses are not reduced by the pierced damage."
+			]
+		},
+		{
+			"id": "keyword:bleed",
+			"section": "keywords",
+			"title": "Bleed",
+			"icon": "bleed",
+			"body": [
+				"Bleed stores a damage value on the affected unit.",
+				"Before that unit resolves a real move or attack action, bleed deals its stored damage. The bleed value clears after that unit's next activation."
+			]
+		},
+		{
+			"id": "keyword:burn",
+			"section": "keywords",
+			"title": "Burn",
+			"icon": "burn",
+			"body": [
+				"Burn deals its current value as damage at the start of the affected unit's activation.",
+				"After the tick, burn is reduced by the status decay value."
+			]
+		},
+		{
+			"id": "keyword:poison",
+			"section": "keywords",
+			"title": "Poison",
+			"icon": "poison",
+			"body": [
+				"Poison stores delayed damage and a countdown.",
+				"When the countdown reaches zero during turn setup, poison deals its stored damage and clears that stored damage."
+			]
+		},
+		{
+			"id": "keyword:freeze",
+			"section": "keywords",
+			"title": "Freeze",
+			"icon": "freeze",
+			"body": [
+				"Freeze skips the affected unit's next activation.",
+				"Freeze also doubles incoming damage while its stored value is above zero."
+			]
+		},
+		{
+			"id": "keyword:shock",
+			"section": "keywords",
+			"title": "Shock",
+			"icon": "shock",
+			"body": [
+				"Shock disrupts the affected unit's next non-movement action.",
+				"The shock value decrements during that unit's turn setup."
+			]
+		},
+		{
+			"id": "keyword:expose",
+			"section": "keywords",
+			"title": "Expose",
+			"icon": "expose",
+			"body": [
+				"Expose adds its stored value to the next damage hit against the affected unit.",
+				"Expose clears after being consumed by a hit."
+			]
+		},
+		{
+			"id": "keyword:sunder",
+			"section": "keywords",
+			"title": "Sunder",
+			"icon": "sunder",
+			"body": [
+				"Sunder removes block first, then stoneskin, up to the printed sunder value.",
+				"Sunder resolves before the damage portion of the action."
+			]
+		},
+		{
+			"id": "keyword:chain",
+			"section": "keywords",
+			"title": "Chain",
+			"icon": "chain",
+			"body": [
+				"Chain applies additional hits to eligible nearby enemies after the primary target is hit.",
+				"The printed chain value controls how many extra jumps can occur."
+			]
+		},
+		{
+			"id": "keyword:push",
+			"section": "keywords",
+			"title": "Push",
+			"icon": "push",
+			"body": [
+				"Push moves the target away from the action source up to the printed distance.",
+				"Forced movement stops when the target reaches an invalid tile, blocker, or maximum distance."
+			]
+		},
+		{
+			"id": "keyword:pull",
+			"section": "keywords",
+			"title": "Pull",
+			"icon": "pull",
+			"body": [
+				"Pull moves the target toward the action source up to the printed distance.",
+				"Forced movement stops when the target reaches an invalid tile, blocker, or maximum distance."
+			]
+		},
+		{
+			"id": "keyword:consume",
+			"section": "keywords",
+			"title": "Consume",
+			"icon": "consume",
+			"body": [
+				"Consume removes the played item card from the run after resolution."
+			]
+		},
+		{
+			"id": "enemy:crawler",
+			"section": "creatures",
+			"enemy_id": "crawler",
+			"title": "Tunnel Crawler",
+			"body": [
+				"Fast close-range predator that closes distance and opens bleed wounds.",
+				"Its intents favor short movement paths followed by melee bleed attacks."
+			]
+		},
+		{
+			"id": "enemy:acolyte",
+			"section": "creatures",
+			"enemy_id": "acolyte",
+			"title": "Ash Acolyte",
+			"body": [
+				"Ranged caster with ash bolt attacks, self-defense actions, and health-draining effects.",
+				"Its intents alternate between line-of-sight damage and preservation."
+			]
+		},
+		{
+			"id": "enemy:harrier",
+			"section": "creatures",
+			"enemy_id": "harrier",
+			"title": "Bone Harrier",
+			"body": [
+				"Mobile ranged skirmisher with pierce and bleed attacks.",
+				"Its intents often combine repositioning with a ranged strike."
+			]
+		},
+		{
+			"id": "enemy:warden",
+			"section": "creatures",
+			"enemy_id": "warden",
+			"title": "Ash Warden",
+			"body": [
+				"Durable front-line guard with heavy melee attacks, block gains, and close area strikes.",
+				"It can absorb damage through defenses before its health is exposed."
+			]
+		},
+		{
+			"id": "enemy:cinder_ooze",
+			"section": "creatures",
+			"enemy_id": "cinder_ooze",
+			"title": "Cinder Ooze",
+			"body": [
+				"Fire-locked ooze that can split into droplets when killed.",
+				"Its death effect can add smaller cinder enemies to nearby valid tiles."
+			]
+		},
+		{
+			"id": "enemy:cinder_droplet",
+			"section": "creatures",
+			"enemy_id": "cinder_droplet",
+			"title": "Cinder Droplet",
+			"body": [
+				"Small ooze fragment spawned by larger cinder oozes.",
+				"Droplets have lower health than the parent ooze and still occupy board tiles."
+			]
+		},
+		{
+			"id": "enemy:bile_bloomer",
+			"section": "creatures",
+			"enemy_id": "bile_bloomer",
+			"title": "Bile Bloomer",
+			"body": [
+				"Earth-locked controller that applies poison and expose.",
+				"Its intents emphasize delayed damage and vulnerability setup."
+			]
+		},
+		{
+			"id": "enemy:chainbound_gaoler",
+			"section": "creatures",
+			"enemy_id": "chainbound_gaoler",
+			"title": "Chainbound Gaoler",
+			"body": [
+				"Air-locked jailer that pulls, pushes, and restricts movement.",
+				"Its intents use forced movement and immobilize to alter reachable tiles."
+			]
+		},
+		{
+			"id": "enemy:grave_surgeon",
+			"section": "creatures",
+			"enemy_id": "grave_surgeon",
+			"title": "Grave Surgeon",
+			"body": [
+				"Support enemy that heals or guards injured allies.",
+				"Its intents restore allied health or add block to allied units."
+			]
+		},
+		{
+			"id": "enemy:frostglass_lancer",
+			"section": "creatures",
+			"enemy_id": "frostglass_lancer",
+			"title": "Frostglass Lancer",
+			"body": [
+				"Ice-locked striker that threatens freeze and long reach.",
+				"Its intents combine line-based reach with freeze application."
+			]
+		},
+		{
+			"id": "enemy:zekarion",
+			"section": "creatures",
+			"enemy_id": "zekarion",
+			"title": "Zekarion, the Raging Tempest",
+			"body": [
+				"Boss creature that commands storms, summons wisps, and resolves broad area attacks.",
+				"Its intents include lightning strike patterns and summon actions."
+			]
+		},
+		{
+			"id": "enemy:lightning_wisp",
+			"section": "creatures",
+			"enemy_id": "lightning_wisp",
+			"title": "Lightning Wisp",
+			"body": [
+				"Summoned lightning minion with shock attacks.",
+				"Wisps have low health and enter the normal enemy turn sequence."
+			]
+		}
+	]
+}
