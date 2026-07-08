@@ -21,7 +21,7 @@ const READY_WAVE_SCALE_BONUS: float = 0.022
 const READY_WAVE_RISE_SECONDS: float = 0.09
 const READY_WAVE_SETTLE_SECONDS: float = 0.20
 const READY_WAVE_GLOW_INSET: float = 4.0
-const INTENSITY_GLOW_PAD: float = 12.0
+const INTENSITY_GLOW_PAD: float = 9.0
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -320,25 +320,42 @@ class TimeCostBadge:
 class IntensityActiveGlow:
 	extends Control
 
+	const PULSE_SECONDS: float = 2.8
+	const PULSE_ALPHA_MIN: float = 0.86
+	const PULSE_ALPHA_MAX: float = 1.0
+
 	var element_id: String = "none"
 	var glow_color: Color = Color.TRANSPARENT
 	var layout_scale: float = 1.0
 	var _glow_texture: Texture2D
 	var _texture_key: String = ""
+	var _pulse_phase: float = 0.0
+
+	func _ready() -> void:
+		set_process(visible)
 
 	func setup(next_element_id: String, next_glow_color: Color, next_layout_scale: float, active: bool) -> void:
 		element_id = next_element_id
 		glow_color = next_glow_color
 		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
 		visible = active
+		set_process(active)
 		if active:
 			_refresh_texture()
+		queue_redraw()
+
+	func _process(delta: float) -> void:
+		if not visible:
+			return
+		_pulse_phase = fmod(_pulse_phase + delta / PULSE_SECONDS, 1.0)
 		queue_redraw()
 
 	func _draw() -> void:
 		if not visible or _glow_texture == null:
 			return
-		draw_texture_rect(_glow_texture, Rect2(Vector2.ZERO, size), false)
+		var wave: float = 0.5 + 0.5 * sin(_pulse_phase * TAU)
+		var alpha: float = lerpf(PULSE_ALPHA_MIN, PULSE_ALPHA_MAX, wave)
+		draw_texture_rect(_glow_texture, Rect2(Vector2.ZERO, size), false, Color(1.0, 1.0, 1.0, alpha))
 
 	func _refresh_texture() -> void:
 		var texture_size := Vector2i(maxi(1, int(ceil(size.x))), maxi(1, int(ceil(size.y))))
@@ -364,9 +381,9 @@ class IntensityActiveGlow:
 			return ImageTexture.create_from_image(image)
 		var card_rect := Rect2(Vector2(pad, pad), Vector2(texture_size) - Vector2(pad * 2.0, pad * 2.0)).grow(-_edge_inset())
 		var radius: float = clampf(18.0 * layout_scale, 6.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
-		var outer_spread: float = maxf(5.0, 12.5 * layout_scale)
-		var inner_spread: float = maxf(5.0, 13.5 * layout_scale)
-		var core_width: float = maxf(1.5, 3.6 * layout_scale)
+		var outer_spread: float = maxf(4.0, 8.0 * layout_scale)
+		var inner_spread: float = maxf(4.0, 9.4 * layout_scale)
+		var core_width: float = maxf(1.2, 2.4 * layout_scale)
 		for y: int in range(texture_size.y):
 			for x: int in range(texture_size.x):
 				var point := Vector2(float(x) + 0.5, float(y) + 0.5)
@@ -375,10 +392,10 @@ class IntensityActiveGlow:
 				var spread: float = inner_spread if signed_distance < 0.0 else outer_spread
 				var bloom: float = exp(-pow(edge_distance / spread, 2.0))
 				var core: float = 1.0 - smoothstep(0.0, core_width, edge_distance)
-				var alpha: float = bloom * 0.42 + core * 0.14
+				var alpha: float = bloom * 0.34 + core * 0.10
 				if signed_distance < 0.0:
-					alpha *= 0.78
-				alpha = clampf(alpha, 0.0, 0.50)
+					alpha *= 0.74
+				alpha = clampf(alpha, 0.0, 0.42)
 				if alpha <= 0.006:
 					continue
 				image.set_pixel(x, y, Color(glow_color.r, glow_color.g, glow_color.b, alpha))
@@ -394,10 +411,10 @@ class IntensityActiveGlow:
 		return outside.length() + inside - radius
 
 	func _pad() -> float:
-		return 12.0 * layout_scale
+		return 9.0 * layout_scale
 
 	func _edge_inset() -> float:
-		return 4.5 * layout_scale
+		return 4.0 * layout_scale
 
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
@@ -847,7 +864,7 @@ func _ensure_intensity_active_glow() -> void:
 	_intensity_active_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_intensity_active_glow.show_behind_parent = true
 	_intensity_active_glow.z_as_relative = true
-	_intensity_active_glow.z_index = -1
+	_intensity_active_glow.z_index = 0
 	_intensity_active_glow.visible = false
 	add_child(_intensity_active_glow)
 	move_child(_intensity_active_glow, 0)
