@@ -362,11 +362,11 @@ class IntensityActiveGlow:
 		var pad: float = _pad()
 		if texture_size.x <= int(ceil(pad * 2.0)) or texture_size.y <= int(ceil(pad * 2.0)):
 			return ImageTexture.create_from_image(image)
-		var card_rect := Rect2(Vector2(pad, pad), Vector2(texture_size) - Vector2(pad * 2.0, pad * 2.0))
-		var radius: float = clampf(19.0 * layout_scale, 7.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
-		var outer_spread: float = maxf(4.0, 9.8 * layout_scale)
-		var inner_spread: float = maxf(2.0, 4.2 * layout_scale)
-		var core_width: float = maxf(1.0, 2.1 * layout_scale)
+		var card_rect := Rect2(Vector2(pad, pad), Vector2(texture_size) - Vector2(pad * 2.0, pad * 2.0)).grow(-_edge_inset())
+		var radius: float = clampf(18.0 * layout_scale, 6.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
+		var outer_spread: float = maxf(5.0, 12.5 * layout_scale)
+		var inner_spread: float = maxf(5.0, 13.5 * layout_scale)
+		var core_width: float = maxf(1.5, 3.6 * layout_scale)
 		for y: int in range(texture_size.y):
 			for x: int in range(texture_size.x):
 				var point := Vector2(float(x) + 0.5, float(y) + 0.5)
@@ -375,10 +375,10 @@ class IntensityActiveGlow:
 				var spread: float = inner_spread if signed_distance < 0.0 else outer_spread
 				var bloom: float = exp(-pow(edge_distance / spread, 2.0))
 				var core: float = 1.0 - smoothstep(0.0, core_width, edge_distance)
-				var alpha: float = bloom * 0.34 + core * 0.18
+				var alpha: float = bloom * 0.42 + core * 0.14
 				if signed_distance < 0.0:
-					alpha *= 0.68
-				alpha = clampf(alpha, 0.0, 0.48)
+					alpha *= 0.78
+				alpha = clampf(alpha, 0.0, 0.50)
 				if alpha <= 0.006:
 					continue
 				image.set_pixel(x, y, Color(glow_color.r, glow_color.g, glow_color.b, alpha))
@@ -395,6 +395,9 @@ class IntensityActiveGlow:
 
 	func _pad() -> float:
 		return 12.0 * layout_scale
+
+	func _edge_inset() -> float:
+		return 4.5 * layout_scale
 
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
@@ -842,9 +845,12 @@ func _ensure_intensity_active_glow() -> void:
 	_intensity_active_glow = IntensityActiveGlow.new()
 	_intensity_active_glow.name = "IntensityActiveGlow"
 	_intensity_active_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_intensity_active_glow.z_index = 9
+	_intensity_active_glow.show_behind_parent = true
+	_intensity_active_glow.z_as_relative = true
+	_intensity_active_glow.z_index = -1
 	_intensity_active_glow.visible = false
 	add_child(_intensity_active_glow)
+	move_child(_intensity_active_glow, 0)
 	_sync_intensity_active_glow_geometry()
 
 func _sync_intensity_active_glow_geometry() -> void:

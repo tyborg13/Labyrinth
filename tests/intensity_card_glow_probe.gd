@@ -48,7 +48,7 @@ func _capture_intensity_glow_cards() -> void:
 
 	var active_state: Dictionary = _all_elements_combat_state()
 	var start_position := Vector2(44.0, 64.0)
-	var card_gap: float = 28.0
+	var card_gap: float = -66.0
 	for index: int in range(ELEMENT_SAMPLES.size()):
 		var sample: Dictionary = ELEMENT_SAMPLES[index]
 		var card_id: String = str(sample.get("card", ""))
@@ -57,7 +57,8 @@ func _capture_intensity_glow_cards() -> void:
 			start_position + Vector2(float(index) * (250.0 + card_gap), 0.0),
 			"%s active" % str(sample.get("label", "")),
 			card_id,
-			display
+			display,
+			index
 		)
 	await process_frame
 	await process_frame
@@ -72,12 +73,13 @@ func _capture_intensity_glow_cards() -> void:
 	background.queue_free()
 	await process_frame
 
-func _add_labeled_card(position: Vector2, label_text: String, card_id: String, display: Dictionary) -> void:
+func _add_labeled_card(position: Vector2, label_text: String, card_id: String, display: Dictionary, draw_order: int) -> void:
 	var label := Label.new()
 	label.text = label_text
 	label.position = position + Vector2(0.0, -34.0)
 	label.size = Vector2(250.0, 28.0)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.z_index = ELEMENT_SAMPLES.size() + 12
 	label.add_theme_color_override("font_color", Color("f4dfb8"))
 	label.add_theme_color_override("font_outline_color", Color("160c07"))
 	label.add_theme_constant_override("outline_size", 2)
@@ -87,6 +89,7 @@ func _add_labeled_card(position: Vector2, label_text: String, card_id: String, d
 	slot.position = position
 	slot.custom_minimum_size = Vector2(250.0, 352.0)
 	slot.size = Vector2(250.0, 352.0)
+	slot.z_index = draw_order
 	root.add_child(slot)
 	var widget: CardWidget = CardWidgetScene.instantiate()
 	widget.custom_minimum_size = Vector2(250.0, 352.0)
