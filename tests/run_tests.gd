@@ -239,6 +239,7 @@ func _initialize() -> void:
 	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
 	_test_run_map_two_room_choices_are_like_category_different_type()
+	_test_run_map_recovery_marker_keeps_two_room_choices_like_category()
 	_test_run_map_relic_room_spacing_and_density()
 	_test_run_map_merchant_room_spacing_and_density()
 	_test_run_map_repeats_depth_sequences()
@@ -6634,6 +6635,35 @@ func _test_map_choice_pair_is_valid(first_room: Dictionary, second_room: Diction
 	if _test_map_choice_category(first_room) != _test_map_choice_category(second_room):
 		return false
 	return _test_map_choice_type_key(first_room) != _test_map_choice_type_key(second_room)
+
+func _test_run_map_recovery_marker_keeps_two_room_choices_like_category() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var current := Vector2i(1, -2)
+	var campfire_coord := Vector2i(0, -2)
+	var recovery_coord := Vector2i(2, -2)
+	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	progression = ProgressionStore.record_lost_embers(progression, 23, recovery_coord, int(progression.get("run_counter", 0)))
+	progression = ProgressionStore.prepare_for_new_run(progression)
+	var run_state: Dictionary = run_engine.create_new_run(51, progression)
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	var current_room: Dictionary = run_engine.room_metadata(run_state, current).duplicate(true)
+	current_room["revealed"] = true
+	current_room["visited"] = true
+	current_room["cleared"] = true
+	current_room["sealed"] = false
+	rooms[_test_room_key(current)] = current_room
+	run_state["current_room"] = current
+	run_state["mode"] = "room"
+	run_state["rooms"] = rooms
+	run_engine.call("_reveal_neighbors", run_state, current)
+	var moves: Array[Vector2i] = run_engine.available_moves(run_state)
+	_assert(moves.size() == 2 and moves.has(campfire_coord) and moves.has(recovery_coord), "Recovery regression setup should expose exactly the campfire/recovery two-choice pair")
+	var campfire_choice: Dictionary = run_engine.room_metadata(run_state, campfire_coord)
+	var recovery_choice: Dictionary = run_engine.room_metadata(run_state, recovery_coord)
+	_assert(bool(recovery_choice.get("recovery_marker", false)), "The dropped ember room should keep its recovery marker after pair normalization")
+	_assert(str(recovery_choice.get("type", "")) == "combat", "The dropped ember room should stay combat so lost embers remain recoverable")
+	_assert(_test_map_choice_pair_is_valid(campfire_choice, recovery_choice), "Recovery combat paired with a campfire should normalize into like-category, different-type choices")
+	_assert(str(campfire_choice.get("type", "")) == "combat", "The campfire choice should be converted only when needed to match locked recovery combat")
 
 func _test_map_choice_category(room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))

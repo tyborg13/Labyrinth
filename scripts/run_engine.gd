@@ -1652,16 +1652,16 @@ func _normalize_current_choice_pair(run_state: Dictionary) -> void:
 func _choice_pair_adjusted_for_category(seed: int, first_coord: Vector2i, first_room: Dictionary, second_coord: Vector2i, second_room: Dictionary, target_category: String) -> Dictionary:
 	var adjusted_first: Dictionary = first_room.duplicate(true)
 	var adjusted_second: Dictionary = second_room.duplicate(true)
-	if _choice_room_category(adjusted_first) != target_category and _choice_room_can_retype(adjusted_first):
+	if _choice_room_category(adjusted_first) != target_category and _choice_room_can_retype(adjusted_first, target_category):
 		var avoid_second: String = _choice_room_type_key(adjusted_second) if _choice_room_category(adjusted_second) == target_category else ""
 		adjusted_first = _room_retyped_for_choice(seed, first_coord, adjusted_first, target_category, avoid_second)
-	if _choice_room_category(adjusted_second) != target_category and _choice_room_can_retype(adjusted_second):
+	if _choice_room_category(adjusted_second) != target_category and _choice_room_can_retype(adjusted_second, target_category):
 		var avoid_first: String = _choice_room_type_key(adjusted_first) if _choice_room_category(adjusted_first) == target_category else ""
 		adjusted_second = _room_retyped_for_choice(seed, second_coord, adjusted_second, target_category, avoid_first)
 	if _choice_room_category(adjusted_first) == target_category and _choice_room_category(adjusted_second) == target_category and _choice_room_type_key(adjusted_first) == _choice_room_type_key(adjusted_second):
-		if _choice_room_can_retype(adjusted_second):
+		if _choice_room_can_retype(adjusted_second, target_category):
 			adjusted_second = _room_retyped_for_choice(seed, second_coord, adjusted_second, target_category, _choice_room_type_key(adjusted_first))
-		elif _choice_room_can_retype(adjusted_first):
+		elif _choice_room_can_retype(adjusted_first, target_category):
 			adjusted_first = _room_retyped_for_choice(seed, first_coord, adjusted_first, target_category, _choice_room_type_key(adjusted_second))
 	return {
 		"first": adjusted_first,
@@ -1699,7 +1699,7 @@ func _choice_room_type_key(room: Dictionary) -> String:
 		return "boss"
 	return room_type
 
-func _choice_room_can_retype(room: Dictionary) -> bool:
+func _choice_room_can_retype(room: Dictionary, target_category: String = "") -> bool:
 	if bool(room.get("visited", false)) or bool(room.get("cleared", false)):
 		return false
 	if _room_has_recovery_marker(room):
@@ -1711,7 +1711,7 @@ func _choice_room_can_retype(room: Dictionary) -> bool:
 		return false
 	if _is_sequence_boss_depth(_room_depth(coord)):
 		return false
-	if _is_campfire_coord(coord):
+	if _is_campfire_coord(coord) and target_category != CHOICE_CATEGORY_COMBAT:
 		return false
 	return true
 
