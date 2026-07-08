@@ -21,6 +21,7 @@ const READY_WAVE_SCALE_BONUS: float = 0.022
 const READY_WAVE_RISE_SECONDS: float = 0.09
 const READY_WAVE_SETTLE_SECONDS: float = 0.20
 const READY_WAVE_GLOW_INSET: float = 4.0
+const INTENSITY_GLOW_PAD: float = 9.0
 const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
@@ -316,6 +317,105 @@ class TimeCostBadge:
 	func _polar_point(center: Vector2, angle: float, length: float) -> Vector2:
 		return center + Vector2(cos(angle), sin(angle)) * length
 
+class IntensityActiveGlow:
+	extends Control
+
+	const PULSE_SECONDS: float = 2.8
+	const PULSE_ALPHA_MIN: float = 0.86
+	const PULSE_ALPHA_MAX: float = 1.0
+
+	var element_id: String = "none"
+	var glow_color: Color = Color.TRANSPARENT
+	var layout_scale: float = 1.0
+	var _glow_texture: Texture2D
+	var _texture_key: String = ""
+	var _pulse_phase: float = 0.0
+
+	func _ready() -> void:
+		set_process(visible)
+
+	func setup(next_element_id: String, next_glow_color: Color, next_layout_scale: float, active: bool) -> void:
+		element_id = next_element_id
+		glow_color = next_glow_color
+		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
+		visible = active
+		set_process(active)
+		if active:
+			_refresh_texture()
+		queue_redraw()
+
+	func _process(delta: float) -> void:
+		if not visible:
+			return
+		_pulse_phase = fmod(_pulse_phase + delta / PULSE_SECONDS, 1.0)
+		queue_redraw()
+
+	func _draw() -> void:
+		if not visible or _glow_texture == null:
+			return
+		var wave: float = 0.5 + 0.5 * sin(_pulse_phase * TAU)
+		var alpha: float = lerpf(PULSE_ALPHA_MIN, PULSE_ALPHA_MAX, wave)
+		draw_texture_rect(_glow_texture, Rect2(Vector2.ZERO, size), false, Color(1.0, 1.0, 1.0, alpha))
+
+	func _refresh_texture() -> void:
+		var texture_size := Vector2i(maxi(1, int(ceil(size.x))), maxi(1, int(ceil(size.y))))
+		var key: String = "%s|%dx%d|%.3f|%.3f|%.3f|%.3f" % [
+			element_id,
+			texture_size.x,
+			texture_size.y,
+			glow_color.r,
+			glow_color.g,
+			glow_color.b,
+			layout_scale
+		]
+		if key == _texture_key and _glow_texture != null:
+			return
+		_texture_key = key
+		_glow_texture = _build_glow_texture(texture_size)
+
+	func _build_glow_texture(texture_size: Vector2i) -> Texture2D:
+		var image := Image.create_empty(texture_size.x, texture_size.y, false, Image.FORMAT_RGBA8)
+		image.fill(Color.TRANSPARENT)
+		var pad: float = _pad()
+		if texture_size.x <= int(ceil(pad * 2.0)) or texture_size.y <= int(ceil(pad * 2.0)):
+			return ImageTexture.create_from_image(image)
+		var card_rect := Rect2(Vector2(pad, pad), Vector2(texture_size) - Vector2(pad * 2.0, pad * 2.0)).grow(-_edge_inset())
+		var radius: float = clampf(18.0 * layout_scale, 6.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
+		var outer_spread: float = maxf(4.0, 8.0 * layout_scale)
+		var inner_spread: float = maxf(4.0, 9.4 * layout_scale)
+		var core_width: float = maxf(1.2, 2.4 * layout_scale)
+		for y: int in range(texture_size.y):
+			for x: int in range(texture_size.x):
+				var point := Vector2(float(x) + 0.5, float(y) + 0.5)
+				var signed_distance: float = _rounded_rect_signed_distance(point, card_rect, radius)
+				var edge_distance: float = absf(signed_distance)
+				var spread: float = inner_spread if signed_distance < 0.0 else outer_spread
+				var bloom: float = exp(-pow(edge_distance / spread, 2.0))
+				var core: float = 1.0 - smoothstep(0.0, core_width, edge_distance)
+				var alpha: float = bloom * 0.34 + core * 0.10
+				if signed_distance < 0.0:
+					alpha *= 0.74
+				alpha = clampf(alpha, 0.0, 0.42)
+				if alpha <= 0.006:
+					continue
+				image.set_pixel(x, y, Color(glow_color.r, glow_color.g, glow_color.b, alpha))
+		return ImageTexture.create_from_image(image)
+
+	func _rounded_rect_signed_distance(point: Vector2, rect: Rect2, radius: float) -> float:
+		var center: Vector2 = rect.get_center()
+		var half_size: Vector2 = rect.size * 0.5
+		var relative: Vector2 = point - center
+		var q := Vector2(absf(relative.x), absf(relative.y)) - (half_size - Vector2(radius, radius))
+		var outside := Vector2(maxf(q.x, 0.0), maxf(q.y, 0.0))
+		var inside: float = minf(maxf(q.x, q.y), 0.0)
+		return outside.length() + inside - radius
+
+	func _pad() -> float:
+		return 9.0 * layout_scale
+
+	func _edge_inset() -> float:
+		return 4.0 * layout_scale
+
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
@@ -345,6 +445,7 @@ var _ready_wave_tween: Tween
 var _ready_wave_progress: float = 0.0
 var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
+var _intensity_active_glow: IntensityActiveGlow
 var _summary_icon_box: VBoxContainer
 var _time_badge: TimeCostBadge
 
@@ -374,6 +475,7 @@ func _ready() -> void:
 	footer_label.add_theme_color_override("font_outline_color", Color("f5ecdb"))
 	footer_label.add_theme_constant_override("outline_size", 1)
 	_ensure_summary_icon_box()
+	_ensure_intensity_active_glow()
 	_ensure_time_badge()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
@@ -386,6 +488,7 @@ func _notification(what: int) -> void:
 		_update_layout_metrics()
 		pivot_offset = size * 0.5
 		_position_time_badge()
+		_sync_intensity_active_glow_geometry()
 		if not card_id.is_empty():
 			_apply_configuration()
 
@@ -483,6 +586,7 @@ func _apply_configuration() -> void:
 	_fit_title_label(_base_title_size())
 	_queue_title_refit()
 	_refresh_summary_display(card)
+	_refresh_intensity_active_glow()
 	_refresh_time_badge(card)
 	footer_label.text = ""
 	footer_label.visible = false
@@ -751,6 +855,65 @@ func _position_time_badge() -> void:
 	var overhang: float = clampf(width * 0.020, _scaled_card_value(3.5, 1.5), _scaled_card_value(5.0, 3.0))
 	_time_badge.position = Vector2(width - badge_size + overhang, -overhang)
 	_time_badge.z_index = 12
+
+func _ensure_intensity_active_glow() -> void:
+	if _intensity_active_glow != null:
+		return
+	_intensity_active_glow = IntensityActiveGlow.new()
+	_intensity_active_glow.name = "IntensityActiveGlow"
+	_intensity_active_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_intensity_active_glow.show_behind_parent = true
+	_intensity_active_glow.z_as_relative = true
+	_intensity_active_glow.z_index = 0
+	_intensity_active_glow.visible = false
+	add_child(_intensity_active_glow)
+	move_child(_intensity_active_glow, 0)
+	_sync_intensity_active_glow_geometry()
+
+func _sync_intensity_active_glow_geometry() -> void:
+	if _intensity_active_glow == null:
+		return
+	var pad: float = _intensity_glow_pad()
+	var card_size: Vector2 = size if size.x > 0.0 and size.y > 0.0 else custom_minimum_size
+	if card_size.x <= 0.0 or card_size.y <= 0.0:
+		card_size = BASE_CARD_SIZE
+	_intensity_active_glow.position = Vector2(-pad, -pad)
+	_intensity_active_glow.size = card_size + Vector2(pad * 2.0, pad * 2.0)
+	_intensity_active_glow.pivot_offset = _intensity_active_glow.size * 0.5
+
+func _refresh_intensity_active_glow() -> void:
+	_ensure_intensity_active_glow()
+	var condition: Dictionary = _active_intensity_condition()
+	var element_id: String = str(condition.get("element", ElementData.NONE))
+	var active: bool = ElementData.is_elemental(element_id)
+	_sync_intensity_active_glow_geometry()
+	_intensity_active_glow.setup(element_id, _intensity_glow_color(element_id), _card_layout_scale(), active)
+
+func _active_intensity_condition() -> Dictionary:
+	for row_var: Variant in _summary_rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row: Array = row_var as Array
+		for token_var: Variant in row:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				continue
+			var token: Dictionary = token_var
+			if str(token.get("kind", "")) != "intensity_requirement":
+				continue
+			if not bool(token.get("condition_active", false)):
+				continue
+			var element_id: String = str(token.get("element", ElementData.NONE))
+			if ElementData.is_elemental(element_id):
+				return {"element": element_id}
+	return {}
+
+func _intensity_glow_color(element_id: String) -> Color:
+	if not ElementData.is_elemental(element_id):
+		return Color.TRANSPARENT
+	return ElementData.accent(element_id).lerp(Color.WHITE, 0.16)
+
+func _intensity_glow_pad() -> float:
+	return _scaled_card_value(INTENSITY_GLOW_PAD, 6.0)
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-08T12:20:59Z",
+  "updated_at": "2026-07-08T14:05:39Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4757,6 +4757,28 @@
       "source": {
         "branch": "codex/integrate-steam-profile-cloud-saves",
         "commit": "87f1ecd"
+      }
+    },
+    {
+      "id": "mnt_20260708T140538Z_eae26fcf",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Active card glow must stay at card z-plane",
+      "details": "For elemental-intensity CardWidget glow, use show_behind_parent with relative z_index 0 rather than z_index -1. HandFanContainer assigns the first card slot z_index 0, so a negative child z can place the first card's glow below the hand/background plane until hover/focus lifts the widget. Keeping the glow at the card z-plane lets later hand cards cover it while preserving visibility for the first card.",
+      "status": "active",
+      "created_at": "2026-07-08T14:05:38Z",
+      "updated_at": "2026-07-08T14:05:38Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-active-card-glow",
+        "commit": "9788e4e"
       }
     }
   ]
