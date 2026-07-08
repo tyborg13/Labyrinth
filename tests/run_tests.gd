@@ -238,6 +238,7 @@ func _initialize() -> void:
 	_test_minimap_travel_animation_state()
 	_test_combat_board_loads_door_icons_for_room_types()
 	_test_run_map_room_types()
+	_test_run_map_two_room_choices_are_like_category_different_type()
 	_test_run_map_relic_room_spacing_and_density()
 	_test_run_map_merchant_room_spacing_and_density()
 	_test_run_map_repeats_depth_sequences()
@@ -6570,6 +6571,86 @@ func _test_run_map_room_types() -> void:
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Depth-four rooms should punctuate the first sequence with boss territory")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(6, 0)).get("type", "")) == "campfire", "Axis depth-6 rooms should repeat the campfire beat in the second sequence")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(8, 0)).get("type", "")) == "boss", "Depth-eight rooms should be the temporary final boss territory")
+
+func _test_run_map_two_room_choices_are_like_category_different_type() -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	for seed: int in range(1, 21):
+		var base_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
+		for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+			for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+				var current := Vector2i(x, y)
+				if maxi(absi(current.x), absi(current.y)) > RunEngine.MAX_DEPTH:
+					continue
+				var base_room: Dictionary = run_engine.room_metadata(base_state, current)
+				if str(base_room.get("type", "")) == "boss":
+					continue
+				var connections: Array = base_room.get("connections", [])
+				var sealed_variant_count: int = 1 << connections.size()
+				for sealed_mask: int in range(sealed_variant_count):
+					var run_state: Dictionary = base_state.duplicate(true)
+					var rooms: Dictionary = {}
+					var current_room: Dictionary = base_room.duplicate(true)
+					current_room["revealed"] = true
+					current_room["visited"] = true
+					current_room["cleared"] = true
+					current_room["sealed"] = false
+					rooms[_test_room_key(current)] = current_room
+					for connection_index: int in range(connections.size()):
+						if (sealed_mask & (1 << connection_index)) == 0:
+							continue
+						var connection: Dictionary = connections[connection_index]
+						var sealed_coord: Vector2i = connection.get("coord", Vector2i(999, 999))
+						if sealed_coord.x >= 900:
+							continue
+						var sealed_room: Dictionary = run_engine.room_metadata(base_state, sealed_coord).duplicate(true)
+						sealed_room["revealed"] = true
+						sealed_room["visited"] = true
+						sealed_room["cleared"] = true
+						sealed_room["sealed"] = true
+						rooms[_test_room_key(sealed_coord)] = sealed_room
+					run_state["current_room"] = current
+					run_state["mode"] = "room"
+					run_state["rooms"] = rooms
+					run_engine.call("_reveal_neighbors", run_state, current)
+					run_engine.call("_ensure_loop_escape_connection", run_state, current)
+					var moves: Array[Vector2i] = run_engine.available_moves(run_state)
+					if moves.size() != 2:
+						continue
+					var first_room: Dictionary = run_engine.room_metadata(run_state, moves[0])
+					var second_room: Dictionary = run_engine.room_metadata(run_state, moves[1])
+					var message: String = "Two-room choices should match combat/non-combat category and differ in visible type. seed=%d current=%s choices=%s:%s/%s vs %s:%s/%s" % [
+						seed,
+						str(current),
+						str(moves[0]),
+						str(first_room.get("type", "")),
+						str(first_room.get("element", "")),
+						str(moves[1]),
+						str(second_room.get("type", "")),
+						str(second_room.get("element", ""))
+					]
+					_assert(_test_map_choice_pair_is_valid(first_room, second_room), message)
+
+func _test_map_choice_pair_is_valid(first_room: Dictionary, second_room: Dictionary) -> bool:
+	if _test_map_choice_category(first_room) != _test_map_choice_category(second_room):
+		return false
+	return _test_map_choice_type_key(first_room) != _test_map_choice_type_key(second_room)
+
+func _test_map_choice_category(room: Dictionary) -> String:
+	var room_type: String = str(room.get("type", "combat"))
+	if room_type == "combat" or room_type == "boss":
+		return "combat"
+	return "non_combat"
+
+func _test_map_choice_type_key(room: Dictionary) -> String:
+	var room_type: String = str(room.get("type", "combat"))
+	if room_type == "combat":
+		return str(room.get("element", "none"))
+	if room_type == "boss":
+		return "boss"
+	return room_type
+
+func _test_room_key(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
 
 func _test_run_map_relic_room_spacing_and_density() -> void:
 	var run_engine: RunEngine = RunEngine.new()

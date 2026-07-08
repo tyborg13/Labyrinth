@@ -29,6 +29,9 @@ const EQUIPMENT_DROP_PITY_MISSES: int = 2
 const MERCHANT_BLACKSMITH: String = "blacksmith"
 const MERCHANT_ARCANIST: String = "arcanist"
 const MERCHANT_SCAVENGER: String = "scavenger"
+const CHOICE_CATEGORY_COMBAT: String = "combat"
+const CHOICE_CATEGORY_NON_COMBAT: String = "non_combat"
+const CHOICE_NON_COMBAT_ROOM_TYPES = ["treasure", MERCHANT_BLACKSMITH, MERCHANT_ARCANIST, MERCHANT_SCAVENGER]
 const MERCHANT_EQUIPMENT_BUY_COST_BY_RARITY := {
 	"common": 150,
 	"rare": 240,
@@ -1616,6 +1619,154 @@ func _reveal_neighbors(run_state: Dictionary, center: Vector2i) -> void:
 		room["revealed"] = true
 		rooms[key] = room
 	run_state["rooms"] = rooms
+	if run_state.get("current_room", Vector2i.ZERO) == center:
+		_normalize_current_choice_pair(run_state)
+
+func _normalize_current_choice_pair(run_state: Dictionary) -> void:
+	var choices: Array[Vector2i] = available_moves(run_state)
+	if choices.size() != 2:
+		return
+	var seed: int = int(run_state.get("seed", 0))
+	var first_coord: Vector2i = choices[0]
+	var second_coord: Vector2i = choices[1]
+	var first_room: Dictionary = room_metadata(run_state, first_coord)
+	var second_room: Dictionary = room_metadata(run_state, second_coord)
+	if _choice_pair_is_valid(first_room, second_room):
+		return
+	var target_category: String = _choice_pair_target_category(first_room, second_room)
+	var adjusted_pair: Dictionary = _choice_pair_adjusted_for_category(seed, first_coord, first_room, second_coord, second_room, target_category)
+	var adjusted_first: Dictionary = adjusted_pair.get("first", first_room)
+	var adjusted_second: Dictionary = adjusted_pair.get("second", second_room)
+	if not _choice_pair_is_valid(adjusted_first, adjusted_second):
+		target_category = CHOICE_CATEGORY_COMBAT if target_category == CHOICE_CATEGORY_NON_COMBAT else CHOICE_CATEGORY_NON_COMBAT
+		adjusted_pair = _choice_pair_adjusted_for_category(seed, first_coord, first_room, second_coord, second_room, target_category)
+		adjusted_first = adjusted_pair.get("first", first_room)
+		adjusted_second = adjusted_pair.get("second", second_room)
+	if not _choice_pair_is_valid(adjusted_first, adjusted_second):
+		return
+	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
+	rooms[_room_key(first_coord)] = adjusted_first
+	rooms[_room_key(second_coord)] = adjusted_second
+	run_state["rooms"] = rooms
+
+func _choice_pair_adjusted_for_category(seed: int, first_coord: Vector2i, first_room: Dictionary, second_coord: Vector2i, second_room: Dictionary, target_category: String) -> Dictionary:
+	var adjusted_first: Dictionary = first_room.duplicate(true)
+	var adjusted_second: Dictionary = second_room.duplicate(true)
+	if _choice_room_category(adjusted_first) != target_category and _choice_room_can_retype(adjusted_first):
+		var avoid_second: String = _choice_room_type_key(adjusted_second) if _choice_room_category(adjusted_second) == target_category else ""
+		adjusted_first = _room_retyped_for_choice(seed, first_coord, adjusted_first, target_category, avoid_second)
+	if _choice_room_category(adjusted_second) != target_category and _choice_room_can_retype(adjusted_second):
+		var avoid_first: String = _choice_room_type_key(adjusted_first) if _choice_room_category(adjusted_first) == target_category else ""
+		adjusted_second = _room_retyped_for_choice(seed, second_coord, adjusted_second, target_category, avoid_first)
+	if _choice_room_category(adjusted_first) == target_category and _choice_room_category(adjusted_second) == target_category and _choice_room_type_key(adjusted_first) == _choice_room_type_key(adjusted_second):
+		if _choice_room_can_retype(adjusted_second):
+			adjusted_second = _room_retyped_for_choice(seed, second_coord, adjusted_second, target_category, _choice_room_type_key(adjusted_first))
+		elif _choice_room_can_retype(adjusted_first):
+			adjusted_first = _room_retyped_for_choice(seed, first_coord, adjusted_first, target_category, _choice_room_type_key(adjusted_second))
+	return {
+		"first": adjusted_first,
+		"second": adjusted_second
+	}
+
+func _choice_pair_is_valid(first_room: Dictionary, second_room: Dictionary) -> bool:
+	if _choice_room_category(first_room) != _choice_room_category(second_room):
+		return false
+	return _choice_room_type_key(first_room) != _choice_room_type_key(second_room)
+
+func _choice_pair_target_category(first_room: Dictionary, second_room: Dictionary) -> String:
+	var first_category: String = _choice_room_category(first_room)
+	var second_category: String = _choice_room_category(second_room)
+	if first_category == second_category:
+		return first_category
+	if _choice_room_type_key(first_room) == "boss" or _choice_room_type_key(second_room) == "boss":
+		return CHOICE_CATEGORY_COMBAT
+	if _choice_room_type_key(first_room) == "campfire" or _choice_room_type_key(second_room) == "campfire":
+		return CHOICE_CATEGORY_NON_COMBAT
+	return CHOICE_CATEGORY_NON_COMBAT
+
+func _choice_room_category(room: Dictionary) -> String:
+	var room_type: String = str(room.get("type", "combat"))
+	if room_type == "combat" or room_type == "boss":
+		return CHOICE_CATEGORY_COMBAT
+	return CHOICE_CATEGORY_NON_COMBAT
+
+func _choice_room_type_key(room: Dictionary) -> String:
+	var room_type: String = str(room.get("type", "combat"))
+	if room_type == "combat":
+		var element_id: String = str(room.get("element", ElementData.NONE))
+		return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
+	if room_type == "boss":
+		return "boss"
+	return room_type
+
+func _choice_room_can_retype(room: Dictionary) -> bool:
+	if bool(room.get("visited", false)) or bool(room.get("cleared", false)):
+		return false
+	if _room_has_recovery_marker(room):
+		return false
+	if room.has(MERCHANT_STOCK_KEY) or room.has(MERCHANT_SOLD_KEY) or room.has(MERCHANT_PURCHASED_KEY):
+		return false
+	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+	if coord == Vector2i.ZERO:
+		return false
+	if _is_sequence_boss_depth(_room_depth(coord)):
+		return false
+	if _is_campfire_coord(coord):
+		return false
+	return true
+
+func _room_retyped_for_choice(seed: int, coord: Vector2i, room: Dictionary, category: String, avoid_key: String) -> Dictionary:
+	var next_room: Dictionary = room.duplicate(true)
+	next_room["cleared"] = false
+	if category == CHOICE_CATEGORY_COMBAT:
+		next_room["type"] = "combat"
+		next_room["merchant_kind"] = ""
+		next_room["element"] = _choice_combat_element(seed, coord, avoid_key)
+		next_room["npcs"] = []
+		return next_room
+	var room_type: String = _choice_non_combat_room_type(seed, coord, avoid_key)
+	if room_type.is_empty():
+		return room.duplicate(true)
+	next_room["type"] = room_type
+	next_room["merchant_kind"] = _merchant_kind_for_room_type(room_type)
+	next_room["element"] = ElementData.NONE
+	next_room["npcs"] = _npcs_for_room_type(room_type)
+	return next_room
+
+func _choice_combat_element(seed: int, coord: Vector2i, avoid_key: String) -> String:
+	var choices: Array = []
+	for element_id: String in ElementData.all_elements():
+		if element_id == avoid_key:
+			continue
+		choices.append(element_id)
+	if choices.is_empty():
+		return ElementData.FIRE
+	return str(choices[_coord_hash(seed, coord, 1321) % choices.size()])
+
+func _choice_non_combat_room_type(seed: int, coord: Vector2i, avoid_key: String) -> String:
+	var choices: Array = []
+	if _is_relic_room_eligible(coord) and avoid_key != "treasure":
+		choices.append("treasure")
+	var depth: int = _room_depth(coord)
+	if depth >= MERCHANT_ROOM_MIN_DEPTH and depth <= MAX_DEPTH and not _is_sequence_boss_depth(depth) and not _is_campfire_coord(coord):
+		for room_type_var: Variant in CHOICE_NON_COMBAT_ROOM_TYPES:
+			var room_type: String = str(room_type_var)
+			if room_type == "treasure" or room_type == avoid_key:
+				continue
+			choices.append(room_type)
+	if choices.is_empty():
+		return ""
+	return str(choices[_coord_hash(seed, coord, 1327) % choices.size()])
+
+func _npcs_for_room_type(room_type: String) -> Array[Dictionary]:
+	var npcs: Array[Dictionary] = []
+	if room_type == MERCHANT_BLACKSMITH:
+		npcs.append({"id": MERCHANT_BLACKSMITH, "pos": Vector2i(3, 4)})
+	elif room_type == MERCHANT_ARCANIST:
+		npcs.append({"id": MERCHANT_ARCANIST, "pos": Vector2i(3, 4)})
+	elif room_type == MERCHANT_SCAVENGER:
+		npcs.append({"id": MERCHANT_SCAVENGER, "pos": Vector2i(3, 4)})
+	return npcs
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
