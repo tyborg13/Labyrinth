@@ -30,6 +30,19 @@ func _capture_scene(scene_path: String, output_path: String) -> void:
 	instance.queue_free()
 	await process_frame
 
+func _capture_grimoire_snapshot(instance: Node, output_path: String, entry_id: String = "") -> void:
+	instance.call("_open_grimoire_overlay")
+	await process_frame
+	await process_frame
+	if not entry_id.is_empty():
+		instance.call("_on_grimoire_entry_pressed", entry_id)
+		await process_frame
+		await process_frame
+	await _save_root_screenshot(output_path)
+	instance.call("_close_grimoire_overlay")
+	await process_frame
+	await process_frame
+
 func _capture_run_states() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	var instance: Node = packed.instantiate()
@@ -42,6 +55,20 @@ func _capture_run_states() -> void:
 	await process_frame
 	await _save_root_screenshot("user://probes/run_start.png")
 	await _capture_and_clear_start_dialogue(instance)
+	await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_start.png")
+	await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_magick.png", "magick:pale_spark")
+	await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_equipment.png", "equipment:training_sword")
+	await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_character.png", "character:emaciated_man")
+	var inventory_probe_state: Dictionary = instance.get("_run_state")
+	var item_inventory: Array = (inventory_probe_state.get("item_inventory", []) as Array).duplicate()
+	if not item_inventory.has("crimson_draught"):
+		item_inventory.append("crimson_draught")
+	inventory_probe_state["item_inventory"] = item_inventory
+	instance.set("_run_state", inventory_probe_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_item.png", "item:crimson_draught")
 	var combat_coord: Vector2i = _first_available_room_coord_of_type(instance, "combat")
 	if combat_coord != Vector2i.ZERO:
 		await _capture_door_opening_probe(instance, combat_coord)
@@ -75,6 +102,7 @@ func _capture_run_states() -> void:
 		await process_frame
 		await process_frame
 		await _save_root_screenshot("user://probes/run_combat.png")
+		await _capture_grimoire_snapshot(instance, "user://probes/run_grimoire_combat.png")
 		await _capture_turn_order_probe(instance)
 		await _capture_pass_preview_probe(instance)
 		var combat_state: Dictionary = instance.get("_combat_state")

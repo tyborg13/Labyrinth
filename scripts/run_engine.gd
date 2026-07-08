@@ -5,6 +5,7 @@ const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
@@ -107,6 +108,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"notice": "",
 		"progression": progression.duplicate(true)
 	}
+	run_state = GrimoireLibrary.ensure_run_state(run_state)
 	_reveal_neighbors(run_state, Vector2i.ZERO)
 	_stage_recovery_marker(run_state)
 	return run_state
@@ -167,7 +169,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 	var combat_state: Dictionary = _combat_engine.create_combat(DEBUG_BOSS_SEED, layout, player_snapshot)
 	var rooms: Dictionary = {}
 	rooms[_room_key(DEBUG_BOSS_COORD)] = boss_room
-	return {
+	var run_state: Dictionary = {
 		"seed": DEBUG_BOSS_SEED,
 		"run_index": -1,
 		"mode": "combat",
@@ -203,11 +205,13 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"progression": progression.duplicate(true),
 		"debug_boss_run": true
 	}
+	return GrimoireLibrary.ensure_run_state(run_state)
 
 func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	next_state = GrimoireLibrary.ensure_run_state(next_state)
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
