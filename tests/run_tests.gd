@@ -7,6 +7,7 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
+const SteamServiceScript = preload("res://scripts/steam_service.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -42,6 +43,7 @@ func _initialize() -> void:
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	_test_steam_service_fallback_and_cloud_paths()
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_relic_data_rarity_and_offer_weights()
@@ -7068,6 +7070,12 @@ func _test_run_state_save_and_load() -> void:
 	_assert(int(loaded.get("hand_size", 0)) == 5, "Saved runs should preserve the base hand size")
 	ProgressionStore.clear_saved_run()
 	_assert(not ProgressionStore.has_saved_run(), "Clearing the saved run should remove the save slot")
+
+func _test_steam_service_fallback_and_cloud_paths() -> void:
+	var service: Node = SteamServiceScript.new()
+	_assert(str(service.call("profile_label_text")) == "Profile Reaver", "Steam profile label should fall back cleanly without an active Steam user")
+	_assert(str(service.call("steam_cloud_subdirectory_template")) == "Escape the Umbra/steam/{64BitSteamID}", "Steam Cloud setup should use the same account-scoped subdirectory as the runtime")
+	service.queue_free()
 
 func _test_default_theme_uses_pixel_font() -> void:
 	var theme: Theme = load("res://themes/default_theme.tres")

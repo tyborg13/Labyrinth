@@ -77,6 +77,60 @@ Steamworks General Installation should use these install folders and launch targ
 
 In Steamworks General Application Settings, enable Windows 64-bit, macOS 64-bit, macOS Apple Silicon, and Linux support for the app. Leave Android off. Leave macOS notarized off unless the exported app has been separately notarized.
 
+## Runtime Steam integration
+
+The project vendors a trimmed GodotSteam GDExtension under `addons/godotsteam/` for desktop 64-bit Steam builds:
+
+- macOS universal debug/release
+- Windows x86_64 debug/release
+- Linux x86_64 debug/release, including Steam Deck
+
+`scripts/steam_service.gd` is a project autoload. On startup it initializes GodotSteam when the Steam singleton is present, runs Steam callbacks, reads the logged-in user's Steam ID and persona name, and switches `user://` to an account-scoped directory before save files load:
+
+```text
+Escape the Umbra/steam/<64-bit Steam ID>
+```
+
+That means the main menu shows `Profile <Steam persona name>` when Steam initializes, while non-Steam/editor launches fall back to `Profile Reaver`. It also keeps the existing save files (`progression.json` and `current_run.save`) separated by Steam account on shared computers.
+
+For local non-Steam API testing, place a temporary `steam_appid.txt` next to the local exported executable or project binary. Do not include `steam_appid.txt` in uploaded depots; Steam provides the app context when launched through the client.
+
+## Steam Cloud setup
+
+Steam Cloud is configured in Steamworks App Admin, not in this repo. Use Steam Auto-Cloud for the existing save files; the game code keeps the runtime paths stable and account-scoped.
+
+Enable Steam Cloud for both the main app and Playtest app, then add two Auto-Cloud root entries for each app:
+
+```text
+Root: WinAppDataRoaming
+Subdirectory: Escape the Umbra/steam/{64BitSteamID}
+Pattern: progression.json
+OS: All OSes
+Recursive: No
+
+Root: WinAppDataRoaming
+Subdirectory: Escape the Umbra/steam/{64BitSteamID}
+Pattern: current_run.save
+OS: All OSes
+Recursive: No
+```
+
+Add root overrides for the same subdirectory so the Windows root maps to the native locations on the other supported platforms:
+
+```text
+Original Root: WinAppDataRoaming
+Override OS: macOS
+New Root: MacAppSupport
+New Subdirectory: Escape the Umbra/steam/{64BitSteamID}
+
+Original Root: WinAppDataRoaming
+Override OS: Linux
+New Root: LinuxXdgDataHome
+New Subdirectory: Escape the Umbra/steam/{64BitSteamID}
+```
+
+Recommended starting quota: 16 MB and 16 files per user. The player-facing progression stats are stored in `progression.json`; the current in-progress run is stored in `current_run.save`. Do not sync `user://analytics` by default because those JSONL files are local balancing telemetry and can grow over time.
+
 ## Steam Deck troubleshooting
 
 If Steam Deck shows `Compatibility tool failed` immediately on launch, the most common causes are:
@@ -144,5 +198,5 @@ Generate a Steam preview build instead of uploading content:
   - `Steam Linux`
 - Before exporting, the script copies a sanitized project into `.steam/export_project/` and omits development-only folders such as `.codex/`, `output/`, `playtest/`, `spec/`, `tests/`, `tmp/`, and `tools/`.
 - After exporting, the script inspects each generated `.pck` and fails before upload if those development-only `res://` paths are present.
-- The current Labyrinth client does not require GodotSteam binaries for upload/testing; this workflow packages ordinary Godot desktop exports for Steam launch.
-- `steam_appid.txt` is intentionally **not** included in uploaded depots. Add one next to a local export only if future Steam API integration requires local non-Steam launches to initialize Steam.
+- GodotSteam is included for Steam persona/account integration. The normal Godot export templates should still be used with the GDExtension.
+- `steam_appid.txt` is intentionally **not** included in uploaded depots. Add one next to a local export only for local non-Steam API testing.

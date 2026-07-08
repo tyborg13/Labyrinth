@@ -14,7 +14,7 @@ const TITLE_LINE_ROW_INDICES := [0, 1, 1]
 const TITLE_LINE_SCALE_FACTORS := [1.0, 0.58, 1.0]
 const TITLE_ROW_OFFSET_FACTORS := [0.0, 0.72]
 const TITLE_WORD_GAP_FACTOR: float = 0.10
-const PROFILE_TEXT: String = "Profile: Reaver"
+const FALLBACK_PROFILE_TEXT: String = "Profile Reaver"
 const TITLE_BASE_SIZE: int = 114
 const TITLE_MIN_SIZE: int = 42
 const TITLE_SMALL_LINE_MIN_SIZE: int = 28
@@ -91,6 +91,7 @@ var _title_face_materials: Array[ShaderMaterial]
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
 	_initialize_title_arrays()
+	_connect_steam_service()
 	resized.connect(_update_layout)
 	_apply_style()
 	_reload_progression()
@@ -281,7 +282,7 @@ func _reload_progression() -> void:
 	_progression = ProgressionStore.load_data()
 	var has_saved_run: bool = ProgressionStore.has_saved_run()
 	continue_button.disabled = not has_saved_run
-	embers_label.text = PROFILE_TEXT
+	embers_label.text = _profile_text()
 	footer_label.text = "LV %d  |  EMBERS %d  |  BOUND %d" % [
 		int(_progression.get("level", 1)),
 		int(_progression.get("embers", 0)),
@@ -452,6 +453,32 @@ func _bound_magick_count() -> int:
 		if typeof(mods_var) == TYPE_ARRAY:
 			total += (mods_var as Array).size()
 	return total
+
+func _connect_steam_service() -> void:
+	var steam_service: Node = _steam_service()
+	if steam_service == null:
+		return
+	if steam_service.has_signal("profile_changed") and not steam_service.is_connected("profile_changed", Callable(self, "_on_steam_profile_changed")):
+		steam_service.connect("profile_changed", Callable(self, "_on_steam_profile_changed"))
+	if steam_service.has_signal("steam_status_changed") and not steam_service.is_connected("steam_status_changed", Callable(self, "_on_steam_status_changed")):
+		steam_service.connect("steam_status_changed", Callable(self, "_on_steam_status_changed"))
+
+func _profile_text() -> String:
+	var steam_service: Node = _steam_service()
+	if steam_service != null and steam_service.has_method("profile_label_text"):
+		var label_text: String = str(steam_service.call("profile_label_text")).strip_edges()
+		if not label_text.is_empty():
+			return label_text
+	return FALLBACK_PROFILE_TEXT
+
+func _steam_service() -> Node:
+	return get_node_or_null("/root/SteamService")
+
+func _on_steam_profile_changed(_profile_name: String) -> void:
+	embers_label.text = _profile_text()
+
+func _on_steam_status_changed(_active: bool) -> void:
+	embers_label.text = _profile_text()
 
 func _play_menu_music() -> void:
 	var entry: Dictionary = MusicLibrary.entry(MusicLibrary.RELIC_ROOM_TRACK_ID)

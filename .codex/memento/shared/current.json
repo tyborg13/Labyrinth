@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-06T20:01:02Z",
+  "updated_at": "2026-07-08T12:20:59Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4735,6 +4735,28 @@
       "source": {
         "branch": "codex/make-eligible-enemies-available-at-all-depths",
         "commit": "c07757d"
+      }
+    },
+    {
+      "id": "mnt_20260708T122059Z_fc8177c9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/steam_service.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/steam_service.gd",
+      "summary": "Steam runtime uses account-scoped Godot user data",
+      "details": "SteamService initializes GodotSteam before menu/run scenes load, runs callbacks, and when a logged-in Steam user is active sets custom_user_dir_name to Escape the Umbra/steam/<64-bit SteamID> unless a parallel task namespace is already active. Steam Auto-Cloud should use the matching Escape the Umbra/steam/{64BitSteamID} subdirectory and sync progression.json plus current_run.save only; keep user://analytics local by default because it is append-only balancing telemetry.",
+      "status": "active",
+      "created_at": "2026-07-08T12:20:59Z",
+      "updated_at": "2026-07-08T12:20:59Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/integrate-steam-profile-cloud-saves",
+        "commit": "87f1ecd"
       }
     }
   ]
