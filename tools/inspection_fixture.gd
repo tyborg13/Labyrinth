@@ -66,6 +66,7 @@ func _parse_args() -> Dictionary:
 		"draw": "",
 		"discard": "",
 		"burned": "",
+		"elemental_intensity": "",
 		"reward_cards": "",
 		"relic_choices": "",
 		"relics": "",
@@ -125,6 +126,9 @@ func _parse_args() -> Dictionary:
 			"--burned":
 				index += 1
 				parsed["burned"] = _required_arg(args, index, arg)
+			"--elemental-intensity":
+				index += 1
+				parsed["elemental_intensity"] = _required_arg(args, index, arg)
 			"--reward-cards":
 				index += 1
 				parsed["reward_cards"] = _required_arg(args, index, arg)
@@ -201,6 +205,7 @@ func _print_help() -> void:
 	print("  --item-inventory card_a,card_b --equipped-items card_c,card_d")
 	print("Combat options:")
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
+	print("  --elemental-intensity fire=2,ice=2,lightning=2,air=2,earth=2")
 	print("  --enemy-types enemy_a,enemy_b --enemy-intents intent_a,intent_b")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
@@ -494,6 +499,9 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 			return state
 		deck[zone] = cards
 	combat_state["deck"] = deck
+	var intensity: Dictionary = _elemental_intensity_override(combat_state)
+	if not intensity.is_empty():
+		combat_state["elemental_intensity"] = intensity
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
 	if int(_options.get("player_max_hp", -1)) >= 0:
 		player["max_hp"] = maxi(1, int(_options.get("player_max_hp", 1)))
@@ -509,6 +517,23 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 	state["player_hp"] = int(player.get("hp", state.get("player_hp", 1)))
 	state["mode"] = "combat"
 	return state
+
+func _elemental_intensity_override(combat_state: Dictionary) -> Dictionary:
+	var raw: String = str(_options.get("elemental_intensity", ""))
+	if raw.strip_edges().is_empty():
+		return {}
+	var intensity: Dictionary = _combat_engine.elemental_intensities(combat_state)
+	for entry: String in _string_list(raw):
+		var pair: PackedStringArray = entry.split("=", false, 2)
+		if pair.size() != 2:
+			_fail("Invalid --elemental-intensity entry %s. Use element=value." % entry)
+			return {}
+		var element_id: String = pair[0].strip_edges()
+		if not ElementData.is_elemental(element_id):
+			_fail("Unknown elemental intensity %s" % element_id)
+			return {}
+		intensity[element_id] = maxi(0, int(pair[1]))
+	return intensity
 
 func _apply_enemy_overrides(combat_state: Dictionary) -> Dictionary:
 	var enemy_types: Array[String] = _string_list(str(_options.get("enemy_types", "")))

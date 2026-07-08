@@ -9,6 +9,13 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const OUTPUT_DIR: String = "user://probes/intensity_card_glow"
+const ELEMENT_SAMPLES: Array = [
+	{"element": ElementData.FIRE, "card": "firebrand_volley", "label": "Fire"},
+	{"element": ElementData.ICE, "card": "frostbolt", "label": "Ice"},
+	{"element": ElementData.LIGHTNING, "card": "spark_dart", "label": "Lightning"},
+	{"element": ElementData.AIR, "card": "vacuum_line", "label": "Air"},
+	{"element": ElementData.EARTH, "card": "venom_claw", "label": "Earth"}
+]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -39,10 +46,19 @@ func _capture_intensity_glow_cards() -> void:
 	background.anchor_bottom = 1.0
 	root.add_child(background)
 
-	var active_display: Dictionary = instance.call("_card_widget_display", "venom_claw", _combat_state_for_element(ElementData.EARTH, 15128))
-	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", _combat_state_for_element(ElementData.FIRE, 15129))
-	_add_labeled_card(Vector2(104.0, 64.0), "Active: Earth 2+", active_display)
-	_add_labeled_card(Vector2(386.0, 64.0), "Inactive: Fire room", inactive_display)
+	var active_state: Dictionary = _all_elements_combat_state()
+	var start_position := Vector2(44.0, 64.0)
+	var card_gap: float = 28.0
+	for index: int in range(ELEMENT_SAMPLES.size()):
+		var sample: Dictionary = ELEMENT_SAMPLES[index]
+		var card_id: String = str(sample.get("card", ""))
+		var display: Dictionary = instance.call("_card_widget_display", card_id, active_state)
+		_add_labeled_card(
+			start_position + Vector2(float(index) * (250.0 + card_gap), 0.0),
+			"%s active" % str(sample.get("label", "")),
+			card_id,
+			display
+		)
 	await process_frame
 	await process_frame
 	await create_timer(0.10).timeout
@@ -56,7 +72,7 @@ func _capture_intensity_glow_cards() -> void:
 	background.queue_free()
 	await process_frame
 
-func _add_labeled_card(position: Vector2, label_text: String, display: Dictionary) -> void:
+func _add_labeled_card(position: Vector2, label_text: String, card_id: String, display: Dictionary) -> void:
 	var label := Label.new()
 	label.text = label_text
 	label.position = position + Vector2(0.0, -34.0)
@@ -76,16 +92,20 @@ func _add_labeled_card(position: Vector2, label_text: String, display: Dictionar
 	widget.custom_minimum_size = Vector2(250.0, 352.0)
 	widget.size = Vector2(250.0, 352.0)
 	slot.add_child(widget)
-	widget.configure("venom_claw", false, false, true, false, false, true, GameData.card_def("venom_claw"))
+	widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
 
-func _combat_state_for_element(element_id: String, seed: int) -> Dictionary:
+func _all_elements_combat_state() -> Dictionary:
+	var cards: Array[String] = []
+	for sample_var: Variant in ELEMENT_SAMPLES:
+		var sample: Dictionary = sample_var
+		cards.append(str(sample.get("card", "")))
 	var combat := CombatEngine.new()
 	var layout: Dictionary = {
 		"name": "Intensity Glow Probe",
 		"coord": Vector2i(4, 1),
 		"type": "combat",
-		"element": element_id,
+		"element": ElementData.EARTH,
 		"grid": _simple_grid(),
 		"player_start": Vector2i(2, 5),
 		"enemies": [{
@@ -98,20 +118,27 @@ func _combat_state_for_element(element_id: String, seed: int) -> Dictionary:
 		}],
 		"loot": []
 	}
-	var state: Dictionary = combat.create_combat(seed, layout, {
+	var state: Dictionary = combat.create_combat(15130, layout, {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
+		"deck_cards": cards,
 		"relics": [],
-		"hand_size": 1,
+		"hand_size": cards.size(),
 		"heal_bonus": 0
 	})
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["venom_claw"]
+	deck["hand"] = cards
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
 	state["deck"] = deck
+	state["elemental_intensity"] = {
+		ElementData.FIRE: 3,
+		ElementData.ICE: 3,
+		ElementData.LIGHTNING: 3,
+		ElementData.AIR: 3,
+		ElementData.EARTH: 3
+	}
 	return state
 
 func _simple_grid() -> Array:

@@ -323,48 +323,75 @@ class IntensityActiveGlow:
 	var element_id: String = "none"
 	var glow_color: Color = Color.TRANSPARENT
 	var layout_scale: float = 1.0
+	var _glow_texture: Texture2D
+	var _texture_key: String = ""
 
 	func setup(next_element_id: String, next_glow_color: Color, next_layout_scale: float, active: bool) -> void:
 		element_id = next_element_id
 		glow_color = next_glow_color
 		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
 		visible = active
+		if active:
+			_refresh_texture()
 		queue_redraw()
 
 	func _draw() -> void:
-		if not visible:
+		if not visible or _glow_texture == null:
 			return
+		draw_texture_rect(_glow_texture, Rect2(Vector2.ZERO, size), false)
+
+	func _refresh_texture() -> void:
+		var texture_size := Vector2i(maxi(1, int(ceil(size.x))), maxi(1, int(ceil(size.y))))
+		var key: String = "%s|%dx%d|%.3f|%.3f|%.3f|%.3f" % [
+			element_id,
+			texture_size.x,
+			texture_size.y,
+			glow_color.r,
+			glow_color.g,
+			glow_color.b,
+			layout_scale
+		]
+		if key == _texture_key and _glow_texture != null:
+			return
+		_texture_key = key
+		_glow_texture = _build_glow_texture(texture_size)
+
+	func _build_glow_texture(texture_size: Vector2i) -> Texture2D:
+		var image := Image.create_empty(texture_size.x, texture_size.y, false, Image.FORMAT_RGBA8)
+		image.fill(Color.TRANSPARENT)
 		var pad: float = _pad()
-		if size.x <= pad * 2.0 or size.y <= pad * 2.0:
-			return
-		var card_rect := Rect2(Vector2(pad, pad), size - Vector2(pad * 2.0, pad * 2.0))
+		if texture_size.x <= int(ceil(pad * 2.0)) or texture_size.y <= int(ceil(pad * 2.0)):
+			return ImageTexture.create_from_image(image)
+		var card_rect := Rect2(Vector2(pad, pad), Vector2(texture_size) - Vector2(pad * 2.0, pad * 2.0))
 		var radius: float = clampf(19.0 * layout_scale, 7.0, minf(card_rect.size.x, card_rect.size.y) * 0.16)
-		_draw_rounded_outline(card_rect.grow(5.2 * layout_scale), radius + 5.2 * layout_scale, _with_alpha(0.11), 9.0 * layout_scale)
-		_draw_rounded_outline(card_rect.grow(2.6 * layout_scale), radius + 2.6 * layout_scale, _with_alpha(0.20), 5.2 * layout_scale)
-		_draw_rounded_outline(card_rect, radius, _with_alpha(0.86), maxf(1.7, 2.3 * layout_scale))
-		_draw_rounded_outline(card_rect.grow(-3.0 * layout_scale), maxf(2.0, radius - 3.0 * layout_scale), _with_alpha(0.22), maxf(1.0, 1.2 * layout_scale))
+		var outer_spread: float = maxf(4.0, 9.8 * layout_scale)
+		var inner_spread: float = maxf(2.0, 4.2 * layout_scale)
+		var core_width: float = maxf(1.0, 2.1 * layout_scale)
+		for y: int in range(texture_size.y):
+			for x: int in range(texture_size.x):
+				var point := Vector2(float(x) + 0.5, float(y) + 0.5)
+				var signed_distance: float = _rounded_rect_signed_distance(point, card_rect, radius)
+				var edge_distance: float = absf(signed_distance)
+				var spread: float = inner_spread if signed_distance < 0.0 else outer_spread
+				var bloom: float = exp(-pow(edge_distance / spread, 2.0))
+				var core: float = 1.0 - smoothstep(0.0, core_width, edge_distance)
+				var alpha: float = bloom * 0.34 + core * 0.18
+				if signed_distance < 0.0:
+					alpha *= 0.68
+				alpha = clampf(alpha, 0.0, 0.48)
+				if alpha <= 0.006:
+					continue
+				image.set_pixel(x, y, Color(glow_color.r, glow_color.g, glow_color.b, alpha))
+		return ImageTexture.create_from_image(image)
 
-	func _draw_rounded_outline(rect: Rect2, radius: float, color: Color, width: float) -> void:
-		if rect.size.x <= 0.0 or rect.size.y <= 0.0 or color.a <= 0.0:
-			return
-		var safe_radius: float = clampf(radius, 0.0, minf(rect.size.x, rect.size.y) * 0.5)
-		var left: float = rect.position.x
-		var top: float = rect.position.y
-		var right: float = rect.end.x
-		var bottom: float = rect.end.y
-		draw_line(Vector2(left + safe_radius, top), Vector2(right - safe_radius, top), color, width, true)
-		draw_line(Vector2(right, top + safe_radius), Vector2(right, bottom - safe_radius), color, width, true)
-		draw_line(Vector2(right - safe_radius, bottom), Vector2(left + safe_radius, bottom), color, width, true)
-		draw_line(Vector2(left, bottom - safe_radius), Vector2(left, top + safe_radius), color, width, true)
-		if safe_radius <= 0.0:
-			return
-		draw_arc(Vector2(left + safe_radius, top + safe_radius), safe_radius, PI, PI * 1.5, 12, color, width, true)
-		draw_arc(Vector2(right - safe_radius, top + safe_radius), safe_radius, PI * 1.5, TAU, 12, color, width, true)
-		draw_arc(Vector2(right - safe_radius, bottom - safe_radius), safe_radius, 0.0, PI * 0.5, 12, color, width, true)
-		draw_arc(Vector2(left + safe_radius, bottom - safe_radius), safe_radius, PI * 0.5, PI, 12, color, width, true)
-
-	func _with_alpha(alpha: float) -> Color:
-		return Color(glow_color.r, glow_color.g, glow_color.b, alpha)
+	func _rounded_rect_signed_distance(point: Vector2, rect: Rect2, radius: float) -> float:
+		var center: Vector2 = rect.get_center()
+		var half_size: Vector2 = rect.size * 0.5
+		var relative: Vector2 = point - center
+		var q := Vector2(absf(relative.x), absf(relative.y)) - (half_size - Vector2(radius, radius))
+		var outside := Vector2(maxf(q.x, 0.0), maxf(q.y, 0.0))
+		var inside: float = minf(maxf(q.x, q.y), 0.0)
+		return outside.length() + inside - radius
 
 	func _pad() -> float:
 		return 12.0 * layout_scale
