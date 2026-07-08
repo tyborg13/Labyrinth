@@ -126,14 +126,14 @@ func _normalized_init_result(raw_result: Variant) -> Dictionary:
 		TYPE_BOOL:
 			result["ok"] = bool(raw_result)
 		TYPE_INT:
-			result["ok"] = int(raw_result) == 1
+			result["ok"] = int(raw_result) == 0
 			result["status"] = int(raw_result)
 		TYPE_DICTIONARY:
 			var raw_dict: Dictionary = (raw_result as Dictionary).duplicate(true)
 			for key_var: Variant in raw_dict.keys():
 				result[str(key_var)] = raw_dict[key_var]
 			if raw_dict.has("status"):
-				result["ok"] = int(raw_dict.get("status", 0)) == 1
+				result["ok"] = int(raw_dict.get("status", -1)) == 0
 			elif raw_dict.has("success"):
 				result["ok"] = bool(raw_dict.get("success", false))
 			elif raw_dict.has("ok"):
@@ -141,6 +141,13 @@ func _normalized_init_result(raw_result: Variant) -> Dictionary:
 		_:
 			result["raw"] = str(raw_result)
 	return result
+
+func _initialize_with_steam_for_test(steam: Object, raw_result: Variant) -> void:
+	_steam = steam
+	_init_result = _normalized_init_result(raw_result)
+	_initialized = bool(_init_result.get("ok", false))
+	if _initialized:
+		_refresh_user_info()
 
 func _safe_path_fragment(value: String) -> String:
 	var result: String = ""
