@@ -394,6 +394,8 @@ func _build_saved_run_preview(run_state: Dictionary) -> Dictionary:
 	if player_max_hp <= 0 or player_hp < 0 or player_hp > player_max_hp or held_embers < 0:
 		return {}
 	var coord: Vector2i = coord_value
+	if not _has_resumable_saved_run_structure(run_state, str(mode_value), coord, player_hp, player_max_hp):
+		return {}
 	var depth: int = _saved_room_depth(run_state, coord)
 	return {
 		"location": "DEPTH %d  ·  %s" % [depth, str(SAVED_RUN_MODE_LABELS[str(mode_value)])],
@@ -402,6 +404,63 @@ func _build_saved_run_preview(run_state: Dictionary) -> Dictionary:
 
 func _is_numeric_value(value: Variant) -> bool:
 	return typeof(value) in [TYPE_INT, TYPE_FLOAT]
+
+func _has_resumable_saved_run_structure(run_state: Dictionary, mode: String, coord: Vector2i, player_hp: int, player_max_hp: int) -> bool:
+	if not _is_numeric_value(run_state.get("seed", null)):
+		return false
+	if typeof(run_state.get("current_room_layout", null)) != TYPE_DICTIONARY or (run_state.get("current_room_layout", {}) as Dictionary).is_empty():
+		return false
+	var rooms_value: Variant = run_state.get("rooms", null)
+	if typeof(rooms_value) != TYPE_DICTIONARY:
+		return false
+	var room_value: Variant = (rooms_value as Dictionary).get("%d,%d" % [coord.x, coord.y], null)
+	if typeof(room_value) != TYPE_DICTIONARY:
+		return false
+	var room: Dictionary = room_value
+	if not _is_numeric_value(room.get("depth", null)) or str(room.get("type", "")).is_empty():
+		return false
+	var room_coord_value: Variant = room.get("coord", null)
+	if typeof(room_coord_value) != TYPE_VECTOR2I or room_coord_value != coord:
+		return false
+	var deck_value: Variant = run_state.get("deck_cards", null)
+	if typeof(deck_value) != TYPE_ARRAY or (deck_value as Array).is_empty():
+		return false
+	match mode:
+		"combat":
+			return _has_resumable_combat_structure(run_state, player_hp, player_max_hp)
+		"pre_battle":
+			return bool(run_state.get("pre_battle_pending", false)) and typeof(run_state.get("pre_battle_travel_dir", null)) == TYPE_VECTOR2I
+		"reward":
+			var reward_value: Variant = run_state.get("pending_reward", null)
+			return typeof(reward_value) == TYPE_DICTIONARY and typeof((reward_value as Dictionary).get("cards", null)) == TYPE_ARRAY and not ((reward_value as Dictionary).get("cards", []) as Array).is_empty()
+		"treasure":
+			var relics_value: Variant = run_state.get("pending_relics", null)
+			return typeof(relics_value) == TYPE_ARRAY and not (relics_value as Array).is_empty()
+		"room", "campfire":
+			return true
+	return false
+
+func _has_resumable_combat_structure(run_state: Dictionary, player_hp: int, player_max_hp: int) -> bool:
+	var combat_value: Variant = run_state.get("combat_state", null)
+	if typeof(combat_value) != TYPE_DICTIONARY or (combat_value as Dictionary).is_empty():
+		return false
+	var combat_state: Dictionary = combat_value
+	var combat_player_value: Variant = combat_state.get("player", null)
+	if typeof(combat_player_value) != TYPE_DICTIONARY:
+		return false
+	var combat_player: Dictionary = combat_player_value
+	if not _is_numeric_value(combat_player.get("hp", null)) or not _is_numeric_value(combat_player.get("max_hp", null)):
+		return false
+	if int(combat_player.get("hp", -1)) != player_hp or int(combat_player.get("max_hp", -1)) != player_max_hp:
+		return false
+	var combat_deck_value: Variant = combat_state.get("deck", null)
+	var enemies_value: Variant = combat_state.get("enemies", null)
+	return (
+		typeof(combat_deck_value) == TYPE_DICTIONARY
+		and not (combat_deck_value as Dictionary).is_empty()
+		and typeof(enemies_value) == TYPE_ARRAY
+		and not (enemies_value as Array).is_empty()
+	)
 
 func _saved_room_depth(run_state: Dictionary, coord: Vector2i) -> int:
 	var fallback: int = maxi(absi(coord.x), absi(coord.y))

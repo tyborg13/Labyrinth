@@ -39,16 +39,7 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()
 	progression["embers"] = 91
 	_assert(ProgressionStore.save_data(progression), "Valid-save fixture should write progression")
-	var run_state: Dictionary = RunEngine.new().create_new_run(9081, progression)
-	run_state["mode"] = "combat"
-	run_state["current_room"] = Vector2i(3, 1)
-	run_state["player_hp"] = 175
-	run_state["player_max_hp"] = 260
-	run_state["held_embers"] = 74
-	run_state["unbanked_embers"] = 74
-	var rooms: Dictionary = (run_state.get("rooms", {}) as Dictionary).duplicate(true)
-	rooms["3,1"] = {"depth": 3, "type": "combat"}
-	run_state["rooms"] = rooms
+	var run_state: Dictionary = _valid_combat_run(progression)
 	_assert(ProgressionStore.save_run_state(run_state), "Valid-save fixture should write the run")
 	var bytes_before: PackedByteArray = _run_file_bytes()
 	var instance: Node = await _instantiate_menu()
@@ -65,7 +56,7 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	var replacement_cancel: Button = instance.get_node("ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementCancelButton")
 	var replacement_confirm: Button = instance.get_node("ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementConfirmButton")
 	_assert(resume_panel.visible, "A valid save should show the resume card")
-	_assert(resume_location.text == "DEPTH 3  ·  IN COMBAT", "Resume card should show the saved depth and mode")
+	_assert(resume_location.text == "DEPTH 4  ·  IN COMBAT", "Resume card should show the saved depth and mode")
 	_assert(resume_stats.text == "HP 175 / 260  ·  HELD 74 EMBERS", "Resume card should show accurate saved HP and explicitly identify held embers")
 	_assert(continue_button.text == "Continue Run" and not continue_button.disabled, "Continue should become the primary enabled action for a valid save")
 	var continue_style: StyleBoxFlat = continue_button.get_theme_stylebox("normal") as StyleBoxFlat
@@ -120,7 +111,7 @@ func _test_corrupt_save_is_hidden_and_recoverable() -> void:
 	_assert(file != null, "Corrupt-save fixture should open the run path")
 	if file == null:
 		return
-	file.store_var(["not", "a", "run dictionary"], false)
+	file.store_var(_dictionary_shaped_corrupt_run(), false)
 	file.close()
 	var bytes_before: PackedByteArray = _run_file_bytes()
 	var instance: Node = await _instantiate_menu()
@@ -132,7 +123,7 @@ func _test_corrupt_save_is_hidden_and_recoverable() -> void:
 	var replacement_panel: PanelContainer = instance.get_node("ReplacementPanel")
 	var resume_location: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeLocation")
 	var resume_stats: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeStats")
-	_assert(continue_button.disabled and not resume_panel.visible and not replacement_panel.visible, "A corrupt save should not expose Continue or saved-run context")
+	_assert(continue_button.disabled and not resume_panel.visible and not replacement_panel.visible, "A dictionary-shaped corrupt save should not expose Continue or saved-run context")
 	_assert(resume_location.text.is_empty() and resume_stats.text.is_empty(), "A corrupt save should not leak stale summary text")
 	_assert(_run_file_bytes() == bytes_before, "Rendering a corrupt-save state must not rewrite or clear the bad file")
 	_stop_menu_music(instance)
@@ -142,6 +133,36 @@ func _test_corrupt_save_is_hidden_and_recoverable() -> void:
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Corrupt-save recovery should use the existing New Game replacement semantic")
 	instance.free()
 	await process_frame
+
+func _valid_combat_run(progression: Dictionary) -> Dictionary:
+	var run_state: Dictionary = RunEngine.new().create_debug_boss_run(progression)
+	run_state["debug_boss_run"] = false
+	run_state["player_hp"] = 175
+	run_state["player_max_hp"] = 260
+	run_state["held_embers"] = 74
+	run_state["unbanked_embers"] = 74
+	var combat_state: Dictionary = (run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	player["hp"] = 175
+	player["max_hp"] = 260
+	combat_state["player"] = player
+	run_state["combat_state"] = combat_state
+	return run_state
+
+func _dictionary_shaped_corrupt_run() -> Dictionary:
+	return {
+		"seed": 9081,
+		"mode": "combat",
+		"current_room": Vector2i.ZERO,
+		"current_room_layout": {"width": 9, "height": 9},
+		"rooms": {"0,0": {"coord": Vector2i.ZERO, "depth": 0, "type": "combat"}},
+		"deck_cards": ["quick_stab"],
+		"player_hp": 50,
+		"player_max_hp": 100,
+		"held_embers": 10,
+		"unbanked_embers": 10,
+		"combat_state": {}
+	}
 
 func _instantiate_menu() -> Node:
 	var packed: PackedScene = load("res://scenes/main_menu.tscn")

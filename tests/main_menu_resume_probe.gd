@@ -7,7 +7,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_resume_probe_progression.json"
 const RUN_PATH: String = "user://main_menu_resume_probe_run.save"
-const OUTPUT_DIR: String = "user://probes/main_menu_resume_safety_20260709_v3"
+const OUTPUT_DIR: String = "user://probes/main_menu_resume_safety_20260709_v4"
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -35,16 +35,18 @@ func _capture_valid_save_states() -> void:
 	progression["embers"] = 91
 	progression["level"] = 4
 	ProgressionStore.save_data(progression)
-	var run_state: Dictionary = RunEngine.new().create_new_run(9081, progression)
-	run_state["mode"] = "combat"
-	run_state["current_room"] = Vector2i(3, 1)
+	var run_state: Dictionary = RunEngine.new().create_debug_boss_run(progression)
+	run_state["debug_boss_run"] = false
 	run_state["player_hp"] = 175
 	run_state["player_max_hp"] = 260
 	run_state["held_embers"] = 74
 	run_state["unbanked_embers"] = 74
-	var rooms: Dictionary = (run_state.get("rooms", {}) as Dictionary).duplicate(true)
-	rooms["3,1"] = {"depth": 3, "type": "combat"}
-	run_state["rooms"] = rooms
+	var combat_state: Dictionary = (run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	player["hp"] = 175
+	player["max_hp"] = 260
+	combat_state["player"] = player
+	run_state["combat_state"] = combat_state
 	ProgressionStore.save_run_state(run_state)
 	var instance: Node = await _instantiate_menu()
 	await _save_screenshot("%s/valid_resume.png" % OUTPUT_DIR)
@@ -65,7 +67,19 @@ func _capture_no_save_state() -> void:
 
 func _capture_corrupt_save_state() -> void:
 	var file: FileAccess = FileAccess.open(RUN_PATH, FileAccess.WRITE)
-	file.store_var(["not", "a", "run dictionary"], false)
+	file.store_var({
+		"seed": 9081,
+		"mode": "combat",
+		"current_room": Vector2i.ZERO,
+		"current_room_layout": {"width": 9, "height": 9},
+		"rooms": {"0,0": {"coord": Vector2i.ZERO, "depth": 0, "type": "combat"}},
+		"deck_cards": ["quick_stab"],
+		"player_hp": 50,
+		"player_max_hp": 100,
+		"held_embers": 10,
+		"unbanked_embers": 10,
+		"combat_state": {}
+	}, false)
 	file.close()
 	var instance: Node = await _instantiate_menu()
 	await _save_screenshot("%s/corrupt_save.png" % OUTPUT_DIR)
