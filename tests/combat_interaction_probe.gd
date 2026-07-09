@@ -47,6 +47,25 @@ func _capture_states() -> void:
 	_assert_drag_state(instance)
 	await _save_root_screenshot("%s/drag_full_card.png" % OUTPUT_DIR)
 
+	var move_panel: Control = (instance.get("_drag_zone_panels") as Dictionary).get("move", null) as Control
+	_assert(move_panel != null, "Drag proof should expose the compact Move fallback")
+	if move_panel != null:
+		var move_hover_position: Vector2 = move_panel.get_global_rect().get_center()
+		instance.call("_update_drag_overlay_hover", "move")
+		await _settle_ui()
+		var proxy: Control = instance.get("_drag_card_proxy") as Control
+		var rail: Control = instance.get("_action_step_tracker") as Control
+		if proxy != null:
+			proxy.global_position = move_hover_position - proxy.size * proxy.scale * 0.5
+		await _settle_ui()
+		_assert(str(rail.get_meta("drag_hover_zone", "")) == "move", "Fallback-hover proof should enter Move hover state")
+		_assert(proxy != null and rail.z_index > proxy.z_index, "Action rail should remain readable above the held card proxy")
+		_assert(proxy != null and Rect2(proxy.global_position, proxy.size * proxy.scale).intersects(move_panel.get_global_rect()), "Fallback-hover proof should place the held card directly over the Move command")
+		var fallback_verb: Label = instance.get("_action_context_verb_label") as Label
+		_assert(fallback_verb != null and fallback_verb.text == "RELEASE · MOVE" and _label_text_fits(fallback_verb), "Move fallback instruction should remain fully readable")
+		_assert(str(rail.get_meta("risk_text", "")) == "FALLBACK · MOVE", "Move hover should replace the primary badge with the active fallback context")
+		await _save_root_screenshot("%s/drag_fallback_move_hover.png" % OUTPUT_DIR)
+
 	await instance.call("_commit_drag_drop", "play")
 	await _settle_ui()
 	_assert_context(instance, "MOVE", "STEP 1/2", "move target")
@@ -268,6 +287,8 @@ func _simple_grid() -> Array:
 
 func _settle_ui() -> void:
 	await process_frame
+	await process_frame
+	RenderingServer.force_draw()
 	await process_frame
 
 func _save_root_screenshot(output_path: String) -> void:

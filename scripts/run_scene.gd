@@ -4321,7 +4321,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_connector.visible = false
 	_action_context_connector.color = Color("d5aa62")
 	_action_context_connector.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_action_context_connector.z_index = 117
+	_action_context_connector.z_index = 123
 	_action_context_connector.z_as_relative = false
 	add_child(_action_context_connector)
 
@@ -4330,7 +4330,7 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker.visible = false
 	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_MIN_SIZE
 	_action_step_tracker.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_action_step_tracker.z_index = 118
+	_action_step_tracker.z_index = 124
 	_action_step_tracker.z_as_relative = false
 	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_PASS
 	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
@@ -5922,11 +5922,11 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 	if context_mode == "drag":
 		match _drag_hover_zone:
 			"attack":
-				verb_text = "RELEASE · BASIC ATTACK"
+				verb_text = "RELEASE · ATTACK"
 				target_text = _fallback_command_detail("attack").to_upper()
 				target_tone = "attack"
 			"move":
-				verb_text = "RELEASE · BASIC MOVE"
+				verb_text = "RELEASE · MOVE"
 				target_text = _fallback_command_detail("move").to_upper()
 				target_tone = "move"
 			"play":
@@ -5941,7 +5941,11 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 					verb_text = "CHOOSE A DEFAULT COMMAND"
 					target_text = "FULL CARD UNAVAILABLE"
 					target_tone = "invalid"
-		if bool(_drag_card_options.get("printed_playable", false)):
+		if _drag_hover_zone == "attack":
+			_set_action_context_risk("warning", "FALLBACK · ATTACK")
+		elif _drag_hover_zone == "move":
+			_set_action_context_risk("warning", "FALLBACK · MOVE")
+		elif bool(_drag_card_options.get("printed_playable", false)):
 			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
 		else:
 			_set_action_context_risk("neutral", "FALLBACK ONLY")
