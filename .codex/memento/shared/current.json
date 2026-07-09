@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-08T14:05:39Z",
+  "updated_at": "2026-07-09T19:35:43Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4779,6 +4779,28 @@
       "source": {
         "branch": "codex/elemental-intensity-active-card-glow",
         "commit": "9788e4e"
+      }
+    },
+    {
+      "id": "mnt_20260709T193543Z_bbc6319c",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Run-end recap values must be captured before terminal state clearing",
+      "details": "Victory banking and defeat loss processing clear run_state.held_embers before later UI refreshes. Preserve the terminal amount in dedicated presentation state and build the recap from committed progression plus that captured amount; recomputing from the ended run will incorrectly show zero and can misreport recovery-marker consequences.",
+      "status": "active",
+      "created_at": "2026-07-09T19:35:43Z",
+      "updated_at": "2026-07-09T19:35:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-run-end-recap",
+        "commit": "5d91a8e"
       }
     }
   ]
