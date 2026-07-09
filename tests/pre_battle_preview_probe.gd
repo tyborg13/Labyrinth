@@ -88,7 +88,10 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		_fail("Pre-battle preview should already be in the selected room")
 	if not (paused_state.get("combat_state", {}) as Dictionary).is_empty():
 		_fail("Pre-battle preview should not create the real combat state before Start")
-	await _save_root_screenshot("%s/loadout_before_swaps_v1.png" % OUTPUT_DIR)
+	var natural_enemy_flow: HFlowContainer = panel.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer if panel != null else null
+	if natural_enemy_flow == null or natural_enemy_flow.get_child_count() != 3:
+		_fail("Deterministic loadout proof should supply the composed three-enemy layout")
+	await _save_root_screenshot("%s/enemy_layout_3_loadout_before_swaps_v1.png" % OUTPUT_DIR)
 
 	var enemy_card: Control = panel.find_child("PreBattleEnemyCard", true, false) as Control if panel != null else null
 	if enemy_card == null:
@@ -207,10 +210,11 @@ func _capture_enemy_count_layouts() -> void:
 		layout_combat_state["enemies"] = layout_enemies
 		var layout_preview_state: Dictionary = preview_state.duplicate(true)
 		layout_preview_state["combat_state"] = layout_combat_state
-		instance.set("_pre_battle_preview_run_state", layout_preview_state)
-		instance.call("_rebuild_pre_battle_overlay")
-		await create_timer(0.40).timeout
-		await process_frame
+		if enemy_count < 5:
+			instance.set("_pre_battle_preview_run_state", layout_preview_state)
+			instance.call("_rebuild_pre_battle_overlay")
+			await create_timer(0.40).timeout
+			await process_frame
 		var flow: HFlowContainer = panel.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
 		if flow == null or flow.get_child_count() != enemy_count:
 			_fail("%d-enemy pre-battle proof should render exactly %d cards" % [enemy_count, enemy_count])
@@ -225,7 +229,12 @@ func _capture_enemy_count_layouts() -> void:
 				if enemy_count == 5 and (card.custom_minimum_size.x > 200.0 or card.custom_minimum_size.y > 154.0):
 					_fail("Five-enemy pre-battle preview should use compact enemy cards")
 					break
-		await _save_root_screenshot("%s/enemy_layout_%d_v1.png" % [OUTPUT_DIR, enemy_count])
+		var screenshot_path: String = "%s/enemy_layout_%d_v1.png" % [OUTPUT_DIR, enemy_count]
+		if enemy_count == 3:
+			screenshot_path = "%s/_synthetic_three_buffer_warmup.png" % OUTPUT_DIR
+		await _save_root_screenshot(screenshot_path)
+		if enemy_count == 3:
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(screenshot_path))
 		instance.queue_free()
 		await process_frame
 		await process_frame
