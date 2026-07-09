@@ -193,6 +193,7 @@ func _assert_prompt_clear_of_huds(instance: Node, label: String) -> void:
 	var board: Control = instance.get("board_view") as Control
 	var timeline: Control = instance.get("_turn_order_panel") as Control
 	var mini_map: Control = instance.get("mini_map_overlay") as Control
+	var action_context: Control = instance.get("_action_step_tracker") as Control
 	if prompt == null or board == null:
 		_fail("Missing prompt or board for %s layout check" % label)
 		return
@@ -203,6 +204,8 @@ func _assert_prompt_clear_of_huds(instance: Node, label: String) -> void:
 		_fail("%s should not obscure the turn timeline" % label)
 	if mini_map != null and mini_map.visible and prompt_rect.intersects(mini_map.get_global_rect()):
 		_fail("%s should not obscure the minimap" % label)
+	if action_context != null and action_context.visible and prompt_rect.intersects(action_context.get_global_rect()):
+		_fail("%s should not overlap the active combat action rail" % label)
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []

@@ -811,10 +811,15 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
-const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(342.0, 92.0)
+const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(800.0, 108.0)
 const ACTION_STEP_CHIP_SIZE: Vector2 = Vector2(46.0, 46.0)
 const ACTION_STEP_ICON_INSET: float = 9.0
-const ACTION_STEP_TRACKER_GAP: float = 8.0
+const ACTION_STEP_TRACKER_GAP: float = 12.0
+const ACTION_CONTEXT_MAX_WIDTH: float = 960.0
+const ACTION_CONTEXT_EDGE_MARGIN: float = 16.0
+const ACTION_CONTEXT_COMMAND_SIZE: Vector2 = Vector2(172.0, 50.0)
+const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 112.0
+const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
@@ -1046,10 +1051,17 @@ var _play_meter_count: Label
 var _play_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
 var _action_step_tracker_title: Label
+var _action_context_step_label: Label
+var _action_context_verb_label: Label
+var _action_context_target_label: Label
+var _action_context_risk_panel: PanelContainer
+var _action_context_risk_label: Label
 var _action_step_tracker_steps: HBoxContainer
 var _contextual_combat_prompt_host: CenterContainer
 var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
+var _action_context_command_bar: HBoxContainer
+var _action_context_connector: ColorRect
 var _action_step_resolution_active: bool = false
 var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
@@ -4129,55 +4141,15 @@ func _build_drag_overlay() -> void:
 	_drag_overlay.anchor_right = 1.0
 	_drag_overlay.anchor_bottom = 1.0
 	add_child(_drag_overlay)
-
-	var tint := ColorRect.new()
-	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tint.color = Color(0.02, 0.02, 0.02, 0.22)
-	tint.anchors_preset = Control.PRESET_FULL_RECT
-	tint.anchor_right = 1.0
-	tint.anchor_bottom = 1.0
-	_drag_overlay.add_child(tint)
-
-	var center := CenterContainer.new()
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.anchors_preset = Control.PRESET_FULL_RECT
-	center.anchor_right = 1.0
-	center.anchor_bottom = 1.0
-	_drag_overlay.add_child(center)
-
-	var vbox := VBoxContainer.new()
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.custom_minimum_size = Vector2(760.0, 330.0)
-	vbox.add_theme_constant_override("separation", 18)
-	center.add_child(vbox)
-
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
-	_drag_zone_panels["play"] = _build_drag_zone("Play Card", "Card Action", UiTypography.SIZE_SECTION, Vector2(760.0, 160.0), Color("c5a26a"), Color("2f241c"))
-	vbox.add_child(_drag_zone_panels["play"])
-	_drag_zone_labels["play"] = _drag_zone_panels["play"].get_meta("label")
-	_drag_zone_detail_labels["play"] = _drag_zone_panels["play"].get_meta("detail_label")
 
-	var bottom_row := HBoxContainer.new()
-	bottom_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bottom_row.add_theme_constant_override("separation", 16)
-	vbox.add_child(bottom_row)
-
-	_drag_zone_panels["attack"] = _build_drag_zone("Default Attack", _fallback_label("attack"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("cf7657"), Color("2f1d18"))
-	bottom_row.add_child(_drag_zone_panels["attack"])
-	_drag_zone_labels["attack"] = _drag_zone_panels["attack"].get_meta("label")
-	_drag_zone_detail_labels["attack"] = _drag_zone_panels["attack"].get_meta("detail_label")
-
-	_drag_zone_panels["move"] = _build_drag_zone("Default Move", _fallback_label("move"), UiTypography.SIZE_BODY_LARGE, Vector2(372.0, 140.0), Color("5b8ea2"), Color("18262f"))
-	bottom_row.add_child(_drag_zone_panels["move"])
-	_drag_zone_labels["move"] = _drag_zone_panels["move"].get_meta("label")
-	_drag_zone_detail_labels["move"] = _drag_zone_panels["move"].get_meta("detail_label")
-
-func _build_drag_zone(title_text: String, detail_text: String, title_size: int, minimum_size: Vector2, accent: Color, fill: Color) -> PanelContainer:
+func _build_drag_command_zone(zone: String, title_text: String, detail_text: String, accent: Color, fill: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
+	panel.name = "Drag%sCommand" % zone.capitalize()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.custom_minimum_size = minimum_size
+	panel.custom_minimum_size = ACTION_CONTEXT_COMMAND_SIZE
 	panel.set_meta("accent", accent)
 	panel.set_meta("fill", fill)
 	panel.set_meta("detail_text", detail_text)
@@ -4189,13 +4161,13 @@ func _build_drag_zone(title_text: String, detail_text: String, title_size: int, 
 	label.text = title_text.to_upper()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, title_size)
+	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
 	label.add_theme_color_override("font_color", Color("f4ead5"))
 	label.add_theme_color_override("font_outline_color", Color("241912"))
 	label.add_theme_constant_override("outline_size", 2)
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", 0)
 	center.add_child(vbox)
 	vbox.add_child(label)
 	var detail_label := Label.new()
@@ -4211,6 +4183,9 @@ func _build_drag_zone(title_text: String, detail_text: String, title_size: int, 
 	panel.set_meta("label", label)
 	panel.set_meta("detail_label", detail_label)
 	panel.add_theme_stylebox_override("panel", _drag_zone_style(fill, accent, false, true))
+	_drag_zone_panels[zone] = panel
+	_drag_zone_labels[zone] = label
+	_drag_zone_detail_labels[zone] = detail_label
 	return panel
 
 func _on_dialogue_overlay_gui_input(event: InputEvent) -> void:
@@ -4421,6 +4396,9 @@ func _show_drag_overlay() -> void:
 	_close_pile_view()
 	_drag_overlay.visible = true
 	_drag_overlay.move_to_front()
+	_refresh_choice_bar()
+	_refresh_stage_view()
+	_refresh_contextual_combat_tutorial()
 
 func _cancel_drag_play() -> void:
 	if _drag_overlay != null:
@@ -4435,6 +4413,8 @@ func _cancel_drag_play() -> void:
 	_drag_card_grab_offset = Vector2.ZERO
 	_update_drag_overlay_hover("")
 	_refresh_hand_panel()
+	_refresh_choice_bar()
+	_refresh_stage_view()
 	_refresh_contextual_combat_tutorial()
 
 func _animate_drag_cancel_to_source() -> void:
@@ -4468,18 +4448,24 @@ func _commit_drag_drop(zone: String) -> void:
 		await _animate_drag_cancel_to_source()
 		return
 	if _drag_card_proxy != null:
-		var zone_rect: Rect2 = _drag_zone_panels.get(zone, null).get_global_rect()
-		await _animate_card_proxy_to_rect(_drag_card_proxy, _rect_from_center(zone_rect.get_center(), _drag_card_source_rect.size), 0.10)
+		var destination_rect: Rect2 = _stage_card_rect(_drag_card_source_rect.size)
+		if zone in ["attack", "move"]:
+			var command_panel: PanelContainer = _drag_zone_panels.get(zone, null) as PanelContainer
+			if command_panel != null:
+				destination_rect = _rect_from_center(command_panel.get_global_rect().get_center(), _drag_card_source_rect.size)
+		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
 	_cancel_drag_play()
 	await _begin_card_preview(hand_index, preview, label_override)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
-	for zone: String in ["play", "attack", "move"]:
+	for zone: String in ["attack", "move"]:
 		var panel: PanelContainer = _drag_zone_panels.get(zone, null)
 		if panel == null or not panel.visible:
 			continue
 		if panel.get_global_rect().has_point(mouse_position):
 			return zone
+	if bool(_drag_card_options.get("printed_playable", false)) and board_view != null and board_view.get_global_rect().has_point(mouse_position):
+		return "play"
 	return ""
 
 func _current_mouse_position() -> Vector2:
@@ -4504,6 +4490,8 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	proxy.name = "CardProxy"
 	proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	proxy.top_level = true
+	proxy.z_index = 122
+	proxy.z_as_relative = false
 	proxy.position = rect.position
 	proxy.custom_minimum_size = CARD_WIDGET_BASE_SIZE
 	proxy.size = CARD_WIDGET_BASE_SIZE
@@ -4576,7 +4564,7 @@ func _stage_card_rect(size_hint: Vector2) -> Rect2:
 
 func _update_drag_overlay_hover(zone: String) -> void:
 	_drag_hover_zone = zone
-	for zone_name: String in ["play", "attack", "move"]:
+	for zone_name: String in ["attack", "move"]:
 		var panel: PanelContainer = _drag_zone_panels.get(zone_name, null)
 		var label: Label = _drag_zone_labels.get(zone_name, null)
 		var detail_label: Label = _drag_zone_detail_labels.get(zone_name, null)
@@ -4591,6 +4579,7 @@ func _update_drag_overlay_hover(zone: String) -> void:
 		detail_label.add_theme_color_override("font_color", accent.lightened(0.32) if valid else Color("8c8277"))
 		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.52)
 		detail_label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.64)
+	_update_action_context_copy()
 
 func _drag_zone_detail_text(zone: String, valid: bool) -> String:
 	if not valid:
@@ -4599,9 +4588,9 @@ func _drag_zone_detail_text(zone: String, valid: bool) -> String:
 		"play":
 			return "Card Action"
 		"attack":
-			return _fallback_label("attack")
+			return _fallback_command_detail("attack")
 		"move":
-			return _fallback_label("move")
+			return _fallback_command_detail("move")
 		_:
 			return ""
 
@@ -4613,21 +4602,21 @@ func _drag_zone_style(fill: Color, accent: Color, hovered: bool, valid: bool) ->
 	else:
 		style.bg_color = fill.darkened(0.34).lerp(Color("17120f"), 0.28)
 		style.border_color = Color("6f6256")
-	var border_width: int = 5 if hovered else 4 if valid else 2
+	var border_width: int = 3 if hovered else 2 if valid else 1
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
 	style.border_width_bottom = border_width
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_right = 14
-	style.corner_radius_bottom_left = 14
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
 	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.24) if hovered else Color(0.0, 0.0, 0.0, 0.18)
-	style.shadow_size = 18 if hovered else 8 if valid else 0
-	style.content_margin_left = 8.0
-	style.content_margin_top = 8.0
-	style.content_margin_right = 8.0
-	style.content_margin_bottom = 8.0
+	style.shadow_size = 10 if hovered else 4 if valid else 0
+	style.content_margin_left = 6.0
+	style.content_margin_top = 4.0
+	style.content_margin_right = 6.0
+	style.content_margin_bottom = 4.0
 	return style
 
 func _drag_option_valid(zone: String) -> bool:
@@ -4759,14 +4748,23 @@ func _resolve_contextual_combat_prompt(prompt_id: String, skipped: bool) -> void
 	_refresh_contextual_combat_tutorial()
 
 func _setup_action_step_tracker() -> void:
+	_action_context_connector = ColorRect.new()
+	_action_context_connector.name = "ActionContextConnector"
+	_action_context_connector.visible = false
+	_action_context_connector.color = Color("d5aa62")
+	_action_context_connector.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_action_context_connector.z_index = 123
+	_action_context_connector.z_as_relative = false
+	add_child(_action_context_connector)
+
 	_action_step_tracker = PanelContainer.new()
 	_action_step_tracker.name = "ActionStepTracker"
 	_action_step_tracker.visible = false
 	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_MIN_SIZE
 	_action_step_tracker.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_action_step_tracker.z_index = 118
+	_action_step_tracker.z_index = 124
 	_action_step_tracker.z_as_relative = false
-	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_PASS
 	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
 	add_child(_action_step_tracker)
 
@@ -4774,22 +4772,30 @@ func _setup_action_step_tracker() -> void:
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 9)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 9)
 	_action_step_tracker.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 5)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
+	var header := HBoxContainer.new()
+	header.name = "ActionContextHeader"
+	header.custom_minimum_size = Vector2(0.0, 26.0)
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_theme_constant_override("separation", 8)
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(header)
+
 	_action_step_tracker_title = Label.new()
 	_action_step_tracker_title.name = "ActionStepTitle"
-	_action_step_tracker_title.custom_minimum_size = Vector2(ACTION_STEP_TRACKER_MIN_SIZE.x - 24.0, 22.0)
-	_action_step_tracker_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_action_step_tracker_title.custom_minimum_size = Vector2(160.0, 22.0)
+	_action_step_tracker_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_action_step_tracker_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_action_step_tracker_title.clip_text = true
 	_action_step_tracker_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -4798,14 +4804,87 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker_title.add_theme_color_override("font_color", Color("fff1d5"))
 	_action_step_tracker_title.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_step_tracker_title.add_theme_constant_override("outline_size", 2)
-	vbox.add_child(_action_step_tracker_title)
+	header.add_child(_action_step_tracker_title)
+
+	_action_context_step_label = Label.new()
+	_action_context_step_label.name = "ActionContextStep"
+	_action_context_step_label.custom_minimum_size = Vector2(80.0, 22.0)
+	_action_context_step_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_action_context_step_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_action_context_step_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_action_context_step_label, UiTypography.SIZE_SMALL)
+	_action_context_step_label.add_theme_color_override("font_color", Color("d8ad65"))
+	_action_context_step_label.add_theme_color_override("font_outline_color", Color("20140d"))
+	_action_context_step_label.add_theme_constant_override("outline_size", 1)
+	header.add_child(_action_context_step_label)
+
+	_action_context_verb_label = Label.new()
+	_action_context_verb_label.name = "ActionContextVerb"
+	_action_context_verb_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_action_context_verb_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_action_context_verb_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_action_context_verb_label.clip_text = true
+	_action_context_verb_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_action_context_verb_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_action_context_verb_label, UiTypography.SIZE_BODY_LARGE)
+	_action_context_verb_label.add_theme_color_override("font_color", Color("fff0ce"))
+	_action_context_verb_label.add_theme_color_override("font_outline_color", Color("20140d"))
+	_action_context_verb_label.add_theme_constant_override("outline_size", 2)
+	header.add_child(_action_context_verb_label)
+
+	_action_context_target_label = Label.new()
+	_action_context_target_label.name = "ActionContextTarget"
+	_action_context_target_label.custom_minimum_size = Vector2(96.0, 22.0)
+	_action_context_target_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_action_context_target_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_action_context_target_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_action_context_target_label, UiTypography.SIZE_SMALL)
+	_action_context_target_label.add_theme_color_override("font_color", Color("9ed7df"))
+	_action_context_target_label.add_theme_color_override("font_outline_color", Color("20140d"))
+	_action_context_target_label.add_theme_constant_override("outline_size", 1)
+	header.add_child(_action_context_target_label)
+
+	_action_context_risk_panel = PanelContainer.new()
+	_action_context_risk_panel.name = "ActionContextRisk"
+	_action_context_risk_panel.custom_minimum_size = Vector2(156.0, 24.0)
+	_action_context_risk_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_action_context_risk_panel.add_theme_stylebox_override("panel", _action_context_risk_style("safe"))
+	header.add_child(_action_context_risk_panel)
+
+	_action_context_risk_label = Label.new()
+	_action_context_risk_label.name = "ActionContextRiskLabel"
+	_action_context_risk_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_action_context_risk_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_action_context_risk_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_action_context_risk_label, UiTypography.SIZE_SMALL)
+	_action_context_risk_label.add_theme_color_override("font_color", Color("aee49f"))
+	_action_context_risk_panel.add_child(_action_context_risk_label)
+
+	var action_row := HBoxContainer.new()
+	action_row.name = "ActionContextActions"
+	action_row.custom_minimum_size = Vector2(0.0, ACTION_STEP_CHIP_SIZE.y)
+	action_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	action_row.add_theme_constant_override("separation", 10)
+	vbox.add_child(action_row)
 
 	_action_step_tracker_steps = HBoxContainer.new()
 	_action_step_tracker_steps.name = "ActionStepChips"
-	_action_step_tracker_steps.alignment = BoxContainer.ALIGNMENT_CENTER
+	_action_step_tracker_steps.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_action_step_tracker_steps.add_theme_constant_override("separation", 6)
 	_action_step_tracker_steps.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(_action_step_tracker_steps)
+	action_row.add_child(_action_step_tracker_steps)
+
+	var action_spacer := Control.new()
+	action_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	action_row.add_child(action_spacer)
+
+	_action_context_command_bar = HBoxContainer.new()
+	_action_context_command_bar.name = "ActionContextCommands"
+	_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_END
+	_action_context_command_bar.add_theme_constant_override("separation", 8)
+	action_row.add_child(_action_context_command_bar)
 
 func _setup_play_meter() -> void:
 	_play_meter = PanelContainer.new()
@@ -6005,14 +6084,20 @@ func _refresh_card_play_meter() -> void:
 	_play_meter.modulate = meter_tint
 
 func _refresh_action_step_tracker() -> void:
-	if _action_step_tracker == null or _action_step_tracker_steps == null:
+	if _action_step_tracker == null or _action_step_tracker_steps == null or _action_context_command_bar == null:
 		return
 	_clear_children_now(_action_step_tracker_steps)
+	_clear_children_now(_action_context_command_bar)
+	_drag_zone_panels.clear()
+	_drag_zone_labels.clear()
+	_drag_zone_detail_labels.clear()
 	_action_step_tracker.set_meta("step_statuses", [])
 	_action_step_tracker.set_meta("step_action_types", [])
 	var tracker_state: Dictionary = _action_step_tracker_state()
 	var active: bool = bool(tracker_state.get("active", false))
 	_action_step_tracker.visible = active
+	if _action_context_connector != null:
+		_action_context_connector.visible = false
 	if not active:
 		if _action_step_tracker_title != null:
 			_action_step_tracker_title.text = ""
@@ -6022,13 +6107,11 @@ func _refresh_action_step_tracker() -> void:
 	var current_index: int = int(tracker_state.get("action_index", 0))
 	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
 	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
-	var current_number: int = clampi(current_index + 1, 1, actions.size())
+	var current_number: int = clampi(current_index + 1, 1, maxi(1, actions.size()))
 	if _action_step_tracker_title != null:
-		_action_step_tracker_title.text = "%s  %d/%d" % [
-			str(card.get("name", card_id)),
-			current_number,
-			actions.size()
-		]
+		_action_step_tracker_title.text = str(card.get("name", card_id))
+	if _action_context_step_label != null:
+		_action_context_step_label.text = "STEP %d/%d" % [current_number, maxi(1, actions.size())]
 	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
 	var statuses: Array = []
 	var action_types: Array = []
@@ -6042,6 +6125,9 @@ func _refresh_action_step_tracker() -> void:
 		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status))
 	_action_step_tracker.set_meta("step_statuses", statuses)
 	_action_step_tracker.set_meta("step_action_types", action_types)
+	_action_step_tracker.set_meta("context_mode", str(tracker_state.get("mode", "selection")))
+	_build_action_context_commands(tracker_state)
+	_update_action_context_copy(tracker_state)
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
 
@@ -6052,15 +6138,30 @@ func _action_step_tracker_state() -> Dictionary:
 	if _action_step_resolution_active and _action_step_resolution_actions.size() > 1:
 		return {
 			"active": true,
+			"mode": "resolution",
 			"card_id": _action_step_resolution_card_id,
 			"actions": _action_step_resolution_actions,
 			"action_index": clampi(_action_step_resolution_index, 0, _action_step_resolution_actions.size()),
 			"selected_targets": _action_step_resolution_targets
 		}
-	if _selected_card_index < 0 or _pending_actions.size() <= 1 or _pending_action_index >= _pending_actions.size():
+	if _drag_card_index >= 0:
+		var printed_preview: Dictionary = _drag_card_options.get("play", {})
+		var drag_actions: Array = printed_preview.get("actions", [])
+		if drag_actions.is_empty():
+			drag_actions = (_card_def(_card_id_for_hand_index(_drag_card_index), _combat_state).get("actions", []) as Array).duplicate(true)
+		return {
+			"active": true,
+			"mode": "drag",
+			"card_id": _card_id_for_hand_index(_drag_card_index),
+			"actions": drag_actions,
+			"action_index": clampi(int(printed_preview.get("action_index", 0)), 0, maxi(0, drag_actions.size() - 1)),
+			"selected_targets": []
+		}
+	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
 		return {}
 	return {
 		"active": true,
+		"mode": "selection",
 		"card_id": _card_id_for_hand_index(_selected_card_index),
 		"actions": _pending_actions,
 		"action_index": _pending_action_index,
@@ -6094,39 +6195,344 @@ func _action_step_status_for_index(index: int, current_index: int, skipped_indic
 
 func _layout_action_step_tracker() -> void:
 	if _action_step_tracker == null or not _action_step_tracker.visible:
+		if _action_context_connector != null:
+			_action_context_connector.visible = false
 		return
 	var tracker_size: Vector2 = _action_step_tracker.get_combined_minimum_size()
 	if tracker_size.x <= 0.0 or tracker_size.y <= 0.0:
 		tracker_size = ACTION_STEP_TRACKER_MIN_SIZE
+	var viewport_size: Vector2 = get_viewport_rect().size
+	tracker_size.x = minf(maxf(ACTION_STEP_TRACKER_MIN_SIZE.x, tracker_size.x), minf(ACTION_CONTEXT_MAX_WIDTH, viewport_size.x - ACTION_CONTEXT_EDGE_MARGIN * 2.0))
 	_action_step_tracker.size = tracker_size
 	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
 	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
 		return
-	var viewport_size: Vector2 = get_viewport_rect().size
-	var target_x: float = clampf(anchor_rect.position.x, 8.0, maxf(8.0, viewport_size.x - tracker_size.x - 8.0))
-	var target_y: float = maxf(8.0, anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP)
+	var target_x: float = clampf(
+		anchor_rect.get_center().x - tracker_size.x * 0.5,
+		ACTION_CONTEXT_EDGE_MARGIN,
+		maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.x - tracker_size.x - ACTION_CONTEXT_EDGE_MARGIN)
+	)
+	var target_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP)
 	_action_step_tracker.global_position = Vector2(target_x, target_y)
+	if _action_context_connector != null:
+		var connector_top: float = target_y + tracker_size.y
+		var connector_bottom: float = maxf(connector_top, _action_step_tracker_connector_target_y(anchor_rect))
+		_action_context_connector.global_position = Vector2(anchor_rect.get_center().x - ACTION_CONTEXT_CONNECTOR_WIDTH * 0.5, connector_top)
+		_action_context_connector.size = Vector2(ACTION_CONTEXT_CONNECTOR_WIDTH, maxf(0.0, connector_bottom - connector_top))
+		var tutorial_visible: bool = _contextual_combat_prompt_host != null and _contextual_combat_prompt_host.visible
+		_action_context_connector.visible = _action_context_connector.size.y > 1.0 and not tutorial_visible
 
 func _action_step_tracker_anchor_rect() -> Rect2:
-	if _pass_preview_overlay != null and _pass_preview_overlay.visible:
-		var preview_rect: Rect2 = _pass_preview_overlay.get_global_rect()
-		if preview_rect.size.x > 0.0 and preview_rect.size.y > 0.0 and preview_rect.position.y > 0.0:
-			return preview_rect
-	if _choice_button_overlay != null and _choice_button_overlay.visible:
-		var overlay_rect: Rect2 = _choice_button_overlay.get_global_rect()
-		if overlay_rect.size.x > 0.0 and overlay_rect.size.y > 0.0 and overlay_rect.position.y > 0.0:
-			return overlay_rect
-	if choice_bar != null and choice_bar.visible:
-		var choice_rect: Rect2 = choice_bar.get_global_rect()
-		if _choice_bar_anchor_is_ready(choice_rect):
-			return choice_rect
-	if piles_bar != null and piles_bar.visible:
-		var piles_rect: Rect2 = piles_bar.get_global_rect()
-		if piles_rect.size.y > 0.0 and piles_rect.position.y > 0.0:
-			return piles_rect
-	if left_action_stack != null and left_action_stack.is_inside_tree():
-		return left_action_stack.get_global_rect()
+	if _drag_card_index >= 0 and _drag_card_source_rect.size.x > 0.0 and _drag_card_source_rect.size.y > 0.0:
+		return Rect2(
+			Vector2(_drag_card_source_rect.get_center().x - 1.0, _action_context_anchor_top(minf(_hand_visual_top(), _drag_card_source_rect.position.y))),
+			Vector2(2.0, 1.0)
+		)
+	if _selected_card_index >= 0:
+		var selected_rect: Rect2 = _hand_card_global_rect(_selected_card_index)
+		if selected_rect.size.x > 0.0 and selected_rect.size.y > 0.0:
+			return Rect2(
+				Vector2(selected_rect.get_center().x - 1.0, _action_context_anchor_top(minf(_hand_visual_top(), selected_rect.position.y))),
+				Vector2(2.0, 1.0)
+			)
+	if _animating_hand_card_index >= 0:
+		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+		return _hand_receive_rect(_animating_hand_card_index, maxi(1, hand.size()), _hand_card_size(maxi(1, hand.size()), false))
+	if hand_scroll != null and hand_scroll.is_inside_tree():
+		var hand_rect: Rect2 = hand_scroll.get_global_rect()
+		if hand_rect.size.x > 0.0 and hand_rect.size.y > 0.0:
+			return Rect2(Vector2(hand_rect.get_center().x - 1.0, _action_context_anchor_top(hand_rect.position.y)), Vector2(2.0, hand_rect.size.y))
 	return Rect2()
+
+func _action_context_anchor_top(default_top: float) -> float:
+	if _contextual_combat_prompt_host == null or not _contextual_combat_prompt_host.visible or not _contextual_combat_prompt_host.is_inside_tree():
+		return default_top
+	var prompt_rect: Rect2 = _contextual_combat_prompt_host.get_global_rect()
+	if prompt_rect.size.x <= 0.0 or prompt_rect.size.y <= 0.0:
+		return default_top
+	return minf(default_top, prompt_rect.position.y)
+
+func _action_step_tracker_connector_target_y(anchor_rect: Rect2) -> float:
+	if _drag_card_index >= 0 and _drag_card_source_rect.size.y > 0.0:
+		return _drag_card_source_rect.position.y
+	if _selected_card_index >= 0:
+		var selected_rect: Rect2 = _hand_card_global_rect(_selected_card_index)
+		if selected_rect.size.y > 0.0:
+			return selected_rect.position.y
+	return anchor_rect.position.y
+
+func _hand_visual_top() -> float:
+	if hand_box == null or hand_box.get_child_count() <= 0:
+		return INF
+	var visual_top: float = INF
+	for index: int in range(hand_box.get_child_count()):
+		var card_control: Control = _hand_card_control(index)
+		if card_control == null or not card_control.visible:
+			continue
+		visual_top = minf(visual_top, _control_visual_global_rect(card_control).position.y)
+	return visual_top
+
+func _control_visual_global_rect(control: Control) -> Rect2:
+	if control == null:
+		return Rect2()
+	var transform: Transform2D = control.get_global_transform()
+	var corners: Array[Vector2] = []
+	corners.append(transform * Vector2.ZERO)
+	corners.append(transform * Vector2(control.size.x, 0.0))
+	corners.append(transform * control.size)
+	corners.append(transform * Vector2(0.0, control.size.y))
+	var min_point: Vector2 = corners[0]
+	var max_point: Vector2 = corners[0]
+	for corner: Vector2 in corners:
+		min_point.x = minf(min_point.x, corner.x)
+		min_point.y = minf(min_point.y, corner.y)
+		max_point.x = maxf(max_point.x, corner.x)
+		max_point.y = maxf(max_point.y, corner.y)
+	return Rect2(min_point, max_point - min_point)
+
+func _build_action_context_commands(tracker_state: Dictionary) -> void:
+	if _action_context_command_bar == null:
+		return
+	var context_mode: String = str(tracker_state.get("mode", "selection"))
+	if context_mode == "drag":
+		_action_context_command_bar.add_child(_build_drag_command_zone(
+			"attack",
+			"Basic Attack",
+			_fallback_command_detail("attack"),
+			Color("cf7657"),
+			Color("2f1d18")
+		))
+		_action_context_command_bar.add_child(_build_drag_command_zone(
+			"move",
+			"Basic Move",
+			_fallback_command_detail("move"),
+			Color("5b8ea2"),
+			Color("18262f")
+		))
+		_update_drag_overlay_hover(_drag_hover_zone)
+		return
+	if context_mode != "selection":
+		return
+	if _current_action_supports_rotation():
+		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area")
+	if _current_action_can_skip():
+		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step")
+	_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand")
+
+func _add_action_context_button(text: String, callback: Callable, tooltip: String = "") -> void:
+	if _action_context_command_bar == null:
+		return
+	var button := Button.new()
+	button.name = "ActionContext%s" % text.replace(" ", "")
+	button.text = text
+	button.tooltip_text = tooltip
+	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, ACTION_CONTEXT_BUTTON_MIN_WIDTH)
+	button.pressed.connect(callback)
+	_action_context_command_bar.add_child(button)
+
+func _current_action_supports_rotation() -> bool:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return false
+	var action: Dictionary = _pending_actions[_pending_action_index]
+	return str(action.get("type", "")) == "aoe" and _combat_engine.player_action_needs_orientation(action)
+
+func _on_rotate_action_context_pressed() -> void:
+	if not _current_action_supports_rotation():
+		return
+	_rotate_aoe_aim(1)
+	_update_action_context_copy()
+
+func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
+	if _action_step_tracker == null or not _action_step_tracker.visible:
+		return
+	var state: Dictionary = tracker_state if not tracker_state.is_empty() else _action_step_tracker_state()
+	if state.is_empty():
+		return
+	var actions: Array = state.get("actions", [])
+	var action_index: int = clampi(int(state.get("action_index", 0)), 0, maxi(0, actions.size() - 1))
+	var action: Dictionary = {}
+	if not actions.is_empty() and typeof(actions[action_index]) == TYPE_DICTIONARY:
+		action = actions[action_index] as Dictionary
+	var context_mode: String = str(state.get("mode", "selection"))
+	var verb_text: String = ""
+	var target_text: String = ""
+	var target_tone: String = "neutral"
+	if context_mode == "drag":
+		match _drag_hover_zone:
+			"attack":
+				verb_text = "RELEASE · ATTACK"
+				target_text = _fallback_command_detail("attack").to_upper()
+				target_tone = "attack"
+			"move":
+				verb_text = "RELEASE · MOVE"
+				target_text = _fallback_command_detail("move").to_upper()
+				target_tone = "move"
+			"play":
+				verb_text = "RELEASE TO PLAY"
+				target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
+				target_tone = "valid"
+			_:
+				if bool(_drag_card_options.get("printed_playable", false)):
+					verb_text = "DROP ON BOARD"
+					target_text = _action_context_valid_target_count_text(_drag_card_options.get("play", {}))
+				else:
+					verb_text = "CHOOSE A DEFAULT COMMAND"
+					target_text = "FULL CARD UNAVAILABLE"
+					target_tone = "invalid"
+		if _drag_hover_zone == "attack":
+			_set_action_context_risk("warning", "FALLBACK · ATTACK")
+		elif _drag_hover_zone == "move":
+			_set_action_context_risk("warning", "FALLBACK · MOVE")
+		elif bool(_drag_card_options.get("printed_playable", false)):
+			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
+		else:
+			_set_action_context_risk("neutral", "FALLBACK ONLY")
+	elif context_mode == "resolution":
+		verb_text = "RESOLVING · %s" % _action_step_action_name(action).to_upper()
+		target_text = "IN MOTION"
+		target_tone = "neutral"
+		_set_action_context_risk("primary", "CARD COMMITTED")
+	else:
+		var action_name: String = _action_step_action_name(action).to_upper()
+		if not _selected_card_label_override.is_empty():
+			action_name = _selected_card_label_override.to_upper()
+		if _orientation_pending():
+			verb_text = "SET DIRECTION · CHOOSE ARROW"
+			target_text = "DIRECTION"
+			target_tone = "valid"
+		elif str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) > 0:
+			verb_text = "AIM AREA"
+			var aoe_target_state: Dictionary = _action_context_target_state()
+			target_text = str(aoe_target_state.get("text", ""))
+			target_tone = str(aoe_target_state.get("tone", "neutral"))
+		else:
+			verb_text = "%s · %s" % [action_name, _action_prompt(action).to_upper()]
+			var target_state: Dictionary = _action_context_target_state()
+			target_text = str(target_state.get("text", ""))
+			target_tone = str(target_state.get("tone", "neutral"))
+		_update_action_context_risk()
+	if _action_context_verb_label != null:
+		_action_context_verb_label.text = verb_text
+	if _action_context_target_label != null:
+		_action_context_target_label.text = target_text
+		_action_context_target_label.add_theme_color_override("font_color", _action_context_target_color(target_tone))
+	_action_step_tracker.set_meta("action_verb", verb_text)
+	_action_step_tracker.set_meta("target_state", target_text)
+	_action_step_tracker.set_meta("drag_hover_zone", _drag_hover_zone)
+
+func _action_context_target_state() -> Dictionary:
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return {"text": "RESOLVE", "tone": "neutral"}
+	var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
+	var shortcut_plans: Dictionary = (_preview_shortcuts_for_current_action(preview).get("plans", {}) as Dictionary)
+	if _hovered_board_tile.x >= 0:
+		var hovered_valid: bool = target_tiles.has(_hovered_board_tile) or shortcut_plans.has(_hovered_board_tile)
+		return {
+			"text": "VALID TARGET" if hovered_valid else "INVALID TARGET",
+			"tone": "valid" if hovered_valid else "invalid"
+		}
+	var target_count: int = target_tiles.size()
+	for shortcut_tile_var: Variant in shortcut_plans.keys():
+		if not target_tiles.has(shortcut_tile_var):
+			target_count += 1
+	return {
+		"text": "%d VALID" % target_count,
+		"tone": "valid" if target_count > 0 else "invalid"
+	}
+
+func _action_context_valid_target_count_text(preview_variant: Variant) -> String:
+	if typeof(preview_variant) != TYPE_DICTIONARY:
+		return ""
+	var preview: Dictionary = preview_variant as Dictionary
+	var target_tiles: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
+	if target_tiles.is_empty():
+		return "READY" if bool(preview.get("playable", false)) else "UNAVAILABLE"
+	return "%d VALID" % target_tiles.size()
+
+func _action_context_target_color(tone: String) -> Color:
+	match tone:
+		"valid":
+			return Color("9edba0")
+		"invalid":
+			return Color("f08b72")
+		"attack":
+			return Color("ef9a7b")
+		"move":
+			return Color("8ac5d9")
+		_:
+			return Color("c9b9a3")
+
+func _update_action_context_risk() -> void:
+	var summary: Dictionary = _pass_preview_summary()
+	if summary.is_empty():
+		_set_action_context_risk("neutral", "TURN END · --")
+		return
+	var tone: String = str(summary.get("tone", "safe"))
+	var risk_text: String = "TURN END · SAFE"
+	if bool(summary.get("defeat", false)):
+		risk_text = "TURN END · DEFEAT"
+		tone = "danger"
+	else:
+		var values: PackedStringArray = []
+		if int(summary.get("stoneskin_loss", 0)) > 0:
+			values.append("-%d SKIN" % int(summary.get("stoneskin_loss", 0)))
+		if int(summary.get("block_loss", 0)) > 0:
+			values.append("-%d BLOCK" % int(summary.get("block_loss", 0)))
+		if int(summary.get("hp_loss", 0)) > 0:
+			values.append("-%d HP" % int(summary.get("hp_loss", 0)))
+		if not values.is_empty():
+			risk_text = "TURN END · %s" % " ".join(values)
+		elif bool(summary.get("unrevealed_before_player", false)):
+			risk_text = "TURN END · DANGER"
+			tone = "warning"
+	_set_action_context_risk(tone, risk_text)
+
+func _set_action_context_risk(tone: String, text: String) -> void:
+	if _action_context_risk_panel != null:
+		_action_context_risk_panel.add_theme_stylebox_override("panel", _action_context_risk_style(tone))
+		_action_context_risk_panel.tooltip_text = _pass_preview_tooltip(_pass_preview_summary()) if tone not in ["primary", "neutral"] else ""
+	if _action_context_risk_label != null:
+		_action_context_risk_label.text = text
+		_action_context_risk_label.add_theme_color_override("font_color", _action_context_risk_color(tone))
+	if _action_step_tracker != null:
+		_action_step_tracker.set_meta("risk_text", text)
+		_action_step_tracker.set_meta("risk_tone", tone)
+
+func _action_context_risk_style(tone: String) -> StyleBoxFlat:
+	var accent: Color = _action_context_risk_color(tone)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.065, 0.052, 0.044, 0.96)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.78)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.content_margin_left = 6.0
+	style.content_margin_right = 6.0
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.12)
+	style.shadow_size = 4
+	return style
+
+func _action_context_risk_color(tone: String) -> Color:
+	match tone:
+		"danger":
+			return Color("f08b72")
+		"warning":
+			return Color("e7be6d")
+		"primary":
+			return Color("e0b86e")
+		"neutral":
+			return Color("b6aa99")
+		_:
+			return Color("9edb91")
 
 func _begin_action_step_resolution_tracker(card_id: String, actions: Array, selected_targets: Array) -> void:
 	_action_step_resolution_card_id = card_id
@@ -6150,6 +6556,8 @@ func _clear_action_step_resolution_tracker() -> void:
 	_action_step_resolution_targets.clear()
 	if _action_step_tracker != null:
 		_action_step_tracker.visible = false
+	if _action_context_connector != null:
+		_action_context_connector.visible = false
 
 func _build_action_step_chip(index: int, action: Dictionary, status: String) -> Control:
 	var chip := PanelContainer.new()
@@ -6518,10 +6926,7 @@ func _refresh_choice_bar() -> void:
 		choice_bar.visible = false
 		return
 	if mode == "combat" and _selected_card_index >= 0:
-		if _current_action_can_skip():
-			_add_choice_button("Skip", _on_skip_action_pressed)
-		_add_choice_button("Cancel", _on_cancel_requested)
-		_add_pass_preview_chip()
+		pass
 	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state):
 		_add_choice_button("Pass", _on_pass_turn_pressed, _pass_preview_button_tooltip())
 		_add_pass_preview_chip()
@@ -6578,6 +6983,7 @@ func _refresh_choice_bar() -> void:
 	if _choice_button_overlay != null or _pass_preview_overlay != null:
 		_layout_choice_button_overlay()
 		call_deferred("_layout_choice_button_overlay")
+	_refresh_action_step_tracker()
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = _context_choice_bar != null and _context_choice_bar.get_child_count() > 0
 	if _relic_choice_overlay != null:
@@ -8522,6 +8928,8 @@ func _board_display_state() -> Dictionary:
 
 func _active_card_preview() -> Dictionary:
 	if _drag_card_index >= 0:
+		if bool(_drag_card_options.get("printed_playable", false)):
+			return (_drag_card_options.get("play", {}) as Dictionary).duplicate(true)
 		return {}
 	if _selected_card_index >= 0:
 		if _pending_action_index < _pending_actions.size():
@@ -8608,6 +9016,15 @@ func _fallback_label(play_kind: String) -> String:
 			return "%d Attack" % _fallback_attack_damage()
 		"move":
 			return "%d Move" % FALLBACK_MOVE_RANGE
+		_:
+			return ""
+
+func _fallback_command_detail(play_kind: String) -> String:
+	match play_kind:
+		"attack":
+			return "%d Damage" % _fallback_attack_damage()
+		"move":
+			return "Range %d" % FALLBACK_MOVE_RANGE
 		_:
 			return ""
 
@@ -9320,6 +9737,7 @@ func _set_aoe_aim_orientation(direction: Vector2i) -> void:
 	if _current_action_is_aimed_aoe():
 		_refresh_pending_aoe_target_tiles()
 		_refresh_stage_view()
+		_update_action_context_copy()
 
 func _rotate_aoe_aim(step: int) -> void:
 	var current_index: int = ORIENTATION_DIRECTIONS.find(_aoe_aim_orientation)
@@ -11329,11 +11747,11 @@ func _room_hover_hint() -> String:
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
 		"move", "blink", "illusion":
-			return "Choose tile"
+			return "Tile"
 		"aoe":
-			return "Choose area" if int(action.get("range", 0)) > 0 else "Resolve"
+			return "Tile" if int(action.get("range", 0)) > 0 else "Resolve"
 		"melee", "ranged", "push", "pull":
-			return "Choose target"
+			return "Target"
 		_:
 			return "Resolve"
 
