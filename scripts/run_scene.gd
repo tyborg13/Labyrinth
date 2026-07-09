@@ -17,6 +17,8 @@ const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
+const SettingsPanelScript = preload("res://scripts/settings_panel.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -733,7 +735,6 @@ const FATIGUE_EFFECT_FRAMES: int = 9
 const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
 const FATIGUE_EDGE_LINGER_FRAMES: int = 3
 const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
-const DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
@@ -965,6 +966,7 @@ var _animation_lock: bool = false
 var _board_presentation: Dictionary = {}
 var _menu_scrim: ColorRect
 var _menu_dialog: PanelContainer
+var _settings_panel: PanelContainer
 var _grimoire_scrim: ColorRect
 var _grimoire_dialog: PanelContainer
 var _grimoire_section_list: VBoxContainer
@@ -1056,6 +1058,7 @@ var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _music_tween: Tween
 var _active_music_id: String = ""
+var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_grab_offset: Vector2 = Vector2.ZERO
 var _animating_hand_card_index: int = -1
@@ -1131,6 +1134,8 @@ var _pre_battle_start_pending: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	_settings = SettingsStore.load_settings()
+	SettingsStore.apply_settings(_settings, get_window())
 	set_process(true)
 	_apply_style()
 	_layout_mini_map_overlay()
@@ -1153,7 +1158,11 @@ func _process(delta: float) -> void:
 	if text.is_empty():
 		_complete_current_dialogue_line()
 		return
-	_dialogue_char_progress = minf(_dialogue_char_progress + delta * DIALOGUE_CHARACTERS_PER_SECOND, float(text.length()))
+	if SettingsStore.dialogue_is_instant(_settings):
+		_complete_current_dialogue_line()
+		return
+	var characters_per_second: float = SettingsStore.dialogue_characters_per_second(_settings)
+	_dialogue_char_progress = minf(_dialogue_char_progress + delta * characters_per_second, float(text.length()))
 	_dialogue_text_label.visible_characters = int(floor(_dialogue_char_progress))
 	if _dialogue_char_progress >= float(text.length()):
 		_complete_current_dialogue_line()
@@ -2294,6 +2303,10 @@ func _animate_pre_battle_entry() -> void:
 	await get_tree().process_frame
 	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
 		return
+	if _reduced_motion_enabled():
+		_pre_battle_scrim.modulate = Color.WHITE
+		_pre_battle_panel.scale = Vector2.ONE
+		return
 	_pre_battle_scrim.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	_pre_battle_panel.pivot_offset = _pre_battle_panel.size * 0.5
 	_pre_battle_panel.scale = Vector2(0.965, 0.965)
@@ -2302,7 +2315,7 @@ func _animate_pre_battle_entry() -> void:
 	tween.tween_property(_pre_battle_panel, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _animate_pre_battle_living_parts() -> void:
-	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
+	if _reduced_motion_enabled() or _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
 		return
 	await get_tree().process_frame
 	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
@@ -2651,6 +2664,13 @@ func _build_menu_overlay() -> void:
 	_menu_scrim.add_child(center)
 	center.add_child(_menu_dialog)
 
+	_settings_panel = SettingsPanelScript.new()
+	_settings_panel.name = "SettingsPanel"
+	_settings_panel.visible = false
+	_settings_panel.connect("back_requested", Callable(self, "_close_settings_overlay"))
+	_settings_panel.connect("settings_changed", Callable(self, "_on_settings_changed"))
+	center.add_child(_settings_panel)
+
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING))
 	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
@@ -2678,6 +2698,7 @@ func _build_menu_overlay() -> void:
 
 	for entry: Dictionary in [
 		{"text": "Character", "callback": Callable(self, "_on_character_stats_pressed")},
+		{"text": "Settings", "callback": Callable(self, "_open_settings_overlay")},
 		{"text": "Exit to Desktop", "callback": Callable(self, "_on_exit_to_desktop_pressed")},
 		{"text": "Save and Quit", "callback": Callable(self, "_on_save_and_quit_pressed")},
 		{"text": "Succumb to the Darkness", "callback": Callable(self, "_on_abandon_run_pressed")},
@@ -3956,6 +3977,8 @@ func _show_dialogue_line(index: int) -> void:
 		_dialogue_text_label.visible_characters = 0
 	_update_dialogue_footer()
 	if _dialogue_visible_text().is_empty():
+		_complete_current_dialogue_line()
+	elif SettingsStore.dialogue_is_instant(_settings):
 		_complete_current_dialogue_line()
 
 func _complete_current_dialogue_line() -> void:
@@ -9079,7 +9102,10 @@ func _on_cancel_requested() -> void:
 		_close_grimoire_overlay()
 		return
 	if _menu_scrim != null and _menu_scrim.visible:
-		_close_menu_overlay()
+		if _settings_panel != null and _settings_panel.visible:
+			_close_settings_overlay()
+		else:
+			_close_menu_overlay()
 		return
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
@@ -10162,6 +10188,7 @@ func _play_sfx(entry: Dictionary) -> void:
 		return
 	var player := AudioStreamPlayer.new()
 	player.stream = resource
+	player.bus = SettingsStore.SFX_BUS
 	player.volume_db = float(entry.get("volume_db", 0.0))
 	add_child(player)
 	player.play()
@@ -10205,6 +10232,7 @@ func _ensure_music_player() -> void:
 		return
 	_music_player = AudioStreamPlayer.new()
 	_music_player.name = "MusicPlayer"
+	_music_player.bus = SettingsStore.MUSIC_BUS
 	add_child(_music_player)
 	_music_player.finished.connect(_on_music_finished)
 
@@ -11004,6 +11032,8 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	_refresh_ui()
 
 func _begin_map_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> bool:
+	if _reduced_motion_enabled():
+		return false
 	var started: bool = false
 	if mini_map != null and mini_map.has_method("begin_travel_animation"):
 		started = bool(mini_map.call("begin_travel_animation", from_coord, to_coord)) or started
@@ -11017,6 +11047,17 @@ func _map_travel_animation_seconds() -> float:
 	return 0.0
 
 func _play_door_opening_animation(door_tile: Vector2i) -> void:
+	if _reduced_motion_enabled():
+		_board_presentation = {
+			"door_opening": {
+				"tile": door_tile,
+				"frame": maxi(0, DOOR_OPENING_FRAMES - 1),
+				"progress": 1.0
+			}
+		}
+		_refresh_stage_view()
+		await get_tree().process_frame
+		return
 	var frame_count: int = maxi(1, DOOR_OPENING_FRAMES)
 	for frame: int in range(frame_count):
 		var progress: float = 1.0 if frame_count <= 1 else float(frame) / float(frame_count - 1)
@@ -11290,11 +11331,41 @@ func _open_menu_overlay() -> void:
 	_close_pile_view()
 	_close_card_upgrade_overlay()
 	_close_grimoire_overlay()
+	if _settings_panel != null:
+		_settings_panel.visible = false
+	if _menu_dialog != null:
+		_menu_dialog.visible = true
 	_menu_scrim.visible = true
 
 func _close_menu_overlay() -> void:
 	if _menu_scrim != null:
 		_menu_scrim.visible = false
+	if _settings_panel != null:
+		_settings_panel.visible = false
+	if _menu_dialog != null:
+		_menu_dialog.visible = true
+
+func _open_settings_overlay() -> void:
+	if _menu_scrim == null or _settings_panel == null:
+		return
+	_menu_dialog.visible = false
+	if _settings_panel.has_method("open"):
+		_settings_panel.call("open")
+	else:
+		_settings_panel.visible = true
+	_settings_panel.move_to_front()
+
+func _close_settings_overlay() -> void:
+	if _settings_panel != null:
+		_settings_panel.visible = false
+	if _menu_dialog != null:
+		_menu_dialog.visible = true
+
+func _on_settings_changed(settings: Dictionary) -> void:
+	_settings = SettingsStore.normalize_settings(settings)
+
+func _reduced_motion_enabled() -> bool:
+	return SettingsStore.reduced_motion_enabled(_settings)
 
 func _open_grimoire_overlay() -> void:
 	if _grimoire_scrim == null:

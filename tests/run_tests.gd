@@ -6,6 +6,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceScript = preload("res://scripts/steam_service.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -54,6 +55,8 @@ func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
+	SettingsStore.set_storage_path("user://labyrinth_settings_test.json")
+	SettingsStore.clear_storage()
 	AnalyticsStore.set_storage_dir("user://labyrinth_analytics_test")
 	AnalyticsStore.clear_storage()
 	var default_progression: Dictionary = ProgressionStore.default_data()
@@ -308,6 +311,7 @@ func _initialize() -> void:
 	await _test_run_scene_character_stats_overlay_opens()
 	await _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable()
 	await _test_run_scene_logs_local_analytics()
+	await _test_settings_persistence_audio_and_presentation_preferences()
 	await _test_main_menu_shows_continue_for_saved_run()
 
 	if _failures.is_empty():
@@ -10223,6 +10227,122 @@ func _test_run_scene_logs_local_analytics() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_settings_persistence_audio_and_presentation_preferences() -> void:
+	SettingsStore.clear_storage()
+	var defaults: Dictionary = SettingsStore.default_settings()
+	_assert(SettingsStore.load_settings() == defaults, "Settings should use phase-one defaults when no profile exists")
+	_assert(SettingsStore.storage_path() != ProgressionStore.DEFAULT_STORAGE_PATH, "Settings should persist separately from progression")
+
+	var custom: Dictionary = defaults.duplicate(true)
+	custom["master_volume"] = 0.65
+	custom["music_volume"] = 0.35
+	custom["sfx_volume"] = 0.55
+	custom["display_mode"] = SettingsStore.DISPLAY_WINDOWED
+	custom["ui_scale"] = 1.15
+	custom["dialogue_speed"] = SettingsStore.DIALOGUE_FAST
+	custom["reduced_motion"] = true
+	_assert(SettingsStore.save_settings(custom), "Settings should save to their own persistent profile")
+	var loaded: Dictionary = SettingsStore.load_settings()
+	_assert(loaded == SettingsStore.normalize_settings(custom), "All settings should survive a disk reload")
+
+	var malformed_file: FileAccess = FileAccess.open(SettingsStore.storage_path(), FileAccess.WRITE)
+	_assert(malformed_file != null, "Settings malformed-data test should open its isolated file")
+	if malformed_file != null:
+		malformed_file.store_string("{malformed settings")
+		malformed_file.close()
+	_assert(SettingsStore.load_settings() == defaults, "Malformed settings JSON should fall back to safe defaults")
+
+	var invalid_file: FileAccess = FileAccess.open(SettingsStore.storage_path(), FileAccess.WRITE)
+	if invalid_file != null:
+		invalid_file.store_string(JSON.stringify({
+			"master_volume": 7.0,
+			"music_volume": "loud",
+			"sfx_volume": -4.0,
+			"display_mode": "offscreen",
+			"ui_scale": 99.0,
+			"dialogue_speed": "unbounded",
+			"reduced_motion": "yes"
+		}))
+		invalid_file.close()
+	var repaired: Dictionary = SettingsStore.load_settings()
+	_assert(is_equal_approx(float(repaired["master_volume"]), 1.0), "Master volume should clamp malformed high values")
+	_assert(is_equal_approx(float(repaired["music_volume"]), float(defaults["music_volume"])), "Non-numeric music volume should use its default")
+	_assert(is_equal_approx(float(repaired["sfx_volume"]), 0.0), "SFX volume should clamp malformed low values")
+	_assert(str(repaired["display_mode"]) == SettingsStore.DISPLAY_FULLSCREEN, "Invalid display modes should never survive normalization")
+	_assert(is_equal_approx(float(repaired["ui_scale"]), 1.25), "UI scale should snap to a supported bounded value")
+	_assert(str(repaired["dialogue_speed"]) == SettingsStore.DIALOGUE_STANDARD, "Invalid dialogue speed should use its safe default")
+	_assert(not bool(repaired["reduced_motion"]), "Non-boolean reduced motion data should use its safe default")
+
+	SettingsStore.apply_audio_settings(custom)
+	for bus_name: String in [SettingsStore.MASTER_BUS, SettingsStore.MUSIC_BUS, SettingsStore.SFX_BUS]:
+		_assert(AudioServer.get_bus_index(bus_name) >= 0, "Settings should provision the %s audio bus" % bus_name)
+	var master_index: int = AudioServer.get_bus_index(SettingsStore.MASTER_BUS)
+	var music_index: int = AudioServer.get_bus_index(SettingsStore.MUSIC_BUS)
+	var sfx_index: int = AudioServer.get_bus_index(SettingsStore.SFX_BUS)
+	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(master_index)), 0.65), "Master volume should affect the Master bus")
+	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(music_index)), 0.35), "Music volume should affect only the Music bus")
+	_assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(sfx_index)), 0.55), "SFX volume should affect only the SFX bus")
+
+	var safe_large: Vector2i = SettingsStore.safe_windowed_size(Vector2i(9000, 9000), Vector2i(1920, 1080))
+	var safe_small: Vector2i = SettingsStore.safe_windowed_size(Vector2i.ZERO, Vector2i(800, 450))
+	var safe_tiny: Vector2i = SettingsStore.safe_windowed_size(Vector2i(1600, 900), Vector2i(500, 300))
+	_assert(safe_large.x <= 1856 and safe_large.y <= 1016, "Windowed mode should stay inside the usable screen")
+	_assert(safe_small.x >= 640 and safe_small.y >= 360 and safe_small.x <= 800 and safe_small.y <= 450, "Windowed fallback should remain usable on a small screen")
+	_assert(safe_tiny.x <= 500 and safe_tiny.y <= 300, "Windowed fallback should never exceed even an unusually small usable screen")
+	_assert(SettingsStore.dialogue_characters_per_second(custom) > SettingsStore.STANDARD_DIALOGUE_CHARACTERS_PER_SECOND, "Fast dialogue should visibly outpace standard dialogue")
+	var instant: Dictionary = custom.duplicate(true)
+	instant["dialogue_speed"] = SettingsStore.DIALOGUE_INSTANT
+	_assert(SettingsStore.dialogue_is_instant(instant), "Instant dialogue should bypass type-on presentation")
+	_assert(is_zero_approx(SettingsStore.motion_duration(0.24, custom)), "Reduced motion should settle supported transitions immediately")
+	custom["reduced_motion"] = false
+	_assert(is_equal_approx(SettingsStore.motion_duration(0.24, custom), 0.24), "Full motion should preserve supported transition duration")
+
+	SettingsStore.save_settings(loaded)
+	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
+	var menu_instance: Node = main_menu_scene.instantiate()
+	root.add_child(menu_instance)
+	await process_frame
+	var menu_settings_panel: Node = menu_instance.get_node("SettingsPanel")
+	_assert(is_equal_approx(float((menu_settings_panel.call("current_settings") as Dictionary)["music_volume"]), 0.35), "Main-menu settings should read the shared persistent profile")
+	var menu_music: AudioStreamPlayer = menu_instance.get_node("MusicPlayer")
+	_assert(menu_music.bus == SettingsStore.MUSIC_BUS, "Main-menu music should route through the Music bus")
+	var restore_button: Button = _button_with_text(menu_settings_panel, "Restore defaults")
+	_assert(restore_button != null, "Settings should expose Restore defaults")
+	if restore_button != null:
+		restore_button.pressed.emit()
+	var confirmation_panel: PanelContainer = menu_settings_panel.get("_confirmation_panel") as PanelContainer
+	_assert(confirmation_panel != null and confirmation_panel.visible, "Restore defaults should require a deliberate confirmation step")
+	_assert(is_equal_approx(float((menu_settings_panel.call("current_settings") as Dictionary)["music_volume"]), 0.35), "Opening restore confirmation should not change settings")
+	var confirm_restore: Button = _button_with_text(confirmation_panel, "Restore")
+	_assert(confirm_restore != null, "Restore confirmation should expose an explicit Restore action")
+	if confirm_restore != null:
+		confirm_restore.pressed.emit()
+	_assert((menu_settings_panel.call("current_settings") as Dictionary) == defaults, "Confirmed restore should reset every phase-one setting")
+	menu_instance.queue_free()
+	await process_frame
+
+	SettingsStore.save_settings(loaded)
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	var run_instance: Node = run_scene.instantiate()
+	root.add_child(run_instance)
+	await process_frame
+	_assert(is_equal_approx(float((run_instance.get("_settings") as Dictionary)["music_volume"]), 0.35), "In-run settings should read the same persistent profile as the main menu")
+	run_instance.call("_ensure_music_player")
+	var run_music: AudioStreamPlayer = run_instance.get("_music_player") as AudioStreamPlayer
+	_assert(run_music != null and run_music.bus == SettingsStore.MUSIC_BUS, "In-run music should route through the Music bus")
+	run_instance.call("_play_sfx", {"path": "res://assets/audio/sfx/action_block.wav", "volume_db": -8.0, "duration": 0.1})
+	var routed_sfx_found: bool = false
+	for child: Node in run_instance.get_children():
+		if child is AudioStreamPlayer and child != run_music and (child as AudioStreamPlayer).bus == SettingsStore.SFX_BUS:
+			routed_sfx_found = true
+			break
+	_assert(routed_sfx_found, "In-run effects should route through the SFX bus")
+	run_instance.queue_free()
+	await process_frame
+
+	SettingsStore.save_settings(defaults)
+	SettingsStore.apply_audio_settings(defaults)
+
 func _test_main_menu_shows_continue_for_saved_run() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
 	if main_menu_scene == null:
@@ -10237,7 +10357,7 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	var boss_button: Button = instance.get_node("MenuColumn/BossButton")
 	var settings_button: Button = instance.get_node("MenuColumn/SettingsButton")
 	var settings_panel: PanelContainer = instance.get_node("SettingsPanel")
-	var settings_back_button: Button = instance.get_node("SettingsPanel/SettingsMargin/SettingsVBox/SettingsBackButton")
+	var settings_back_button: Button = settings_panel.call("back_button") as Button
 	var music_player: AudioStreamPlayer = instance.get_node("MusicPlayer")
 	_assert(continue_button.visible, "Main menu should expose Continue when a saved run exists")
 	_assert(not continue_button.disabled, "Main menu should enable Continue when a saved run exists")
@@ -10254,10 +10374,11 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	await process_frame
 	_assert(continue_button.has_focus(), "Main menu should not clear focus on mouse down before button clicks can complete")
 	settings_button.pressed.emit()
-	_assert(settings_panel.visible, "Main menu Settings should open its placeholder panel")
+	_assert(settings_panel.visible, "Main menu Settings should open the complete shared settings panel")
+	_assert((settings_panel.call("current_settings") as Dictionary) == SettingsStore.load_settings(), "Main menu settings panel should reflect the persisted profile")
 	_assert(not settings_back_button.has_focus(), "Mouse-clicked Settings should not force keyboard focus")
 	settings_back_button.pressed.emit()
-	_assert(not settings_panel.visible, "Main menu Settings back button should close its placeholder panel")
+	_assert(not settings_panel.visible, "Main menu Settings back button should close the settings panel")
 	instance.call("_unhandled_input", key_event)
 	_assert(continue_button.has_focus(), "Main menu should restore keyboard focus after mouse-clicked Settings closes")
 	var mouse_release := InputEventMouseButton.new()
@@ -10273,6 +10394,7 @@ func _test_main_menu_shows_continue_for_saved_run() -> void:
 	await process_frame
 	_assert(not continue_button.has_focus(), "Main menu should clear keyboard focus after mouse movement")
 	_assert(music_player.stream != null, "Main menu should play the temporary relic-room music")
+	_assert(music_player.bus == SettingsStore.MUSIC_BUS, "Main menu music should remain routed through the Music bus")
 	_assert(not boss_button.visible, "Main menu should keep the debug boss shortcut hidden by default")
 	instance.queue_free()
 	ProgressionStore.clear_saved_run()
