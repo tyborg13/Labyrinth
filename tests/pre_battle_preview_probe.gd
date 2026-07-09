@@ -4,7 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
-const OUTPUT_DIR: String = "user://pre_battle_preview_probe"
+const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v1"
 const INVALID_COORD: Vector2i = Vector2i(999, 999)
 
 var _failed: bool = false
@@ -16,12 +16,12 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_pre_battle_preview_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_pre_battle_preview_probe.save")
 	ProgressionStore.clear_saved_run()
-	await _capture_pre_battle_preview()
-	await _capture_five_enemy_pre_battle_preview()
+	await _capture_loadout_refresh_and_inspections()
+	await _capture_enemy_count_layouts()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
 
-func _capture_pre_battle_preview() -> void:
+func _capture_loadout_refresh_and_inspections() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
 		_fail("Run scene should load for pre-battle preview probe")
@@ -33,6 +33,14 @@ func _capture_pre_battle_preview() -> void:
 
 	var probe_run_engine := RunEngine.new()
 	var run_state: Dictionary = _run_with_available_combat(probe_run_engine)
+	var equipment_inventory: Array = (run_state.get("equipment_inventory", []) as Array).duplicate()
+	if not equipment_inventory.has("iron_cleaver"):
+		equipment_inventory.append("iron_cleaver")
+	run_state["equipment_inventory"] = equipment_inventory
+	var magic_inventory: Array = (run_state.get("magic_inventory", []) as Array).duplicate()
+	if not magic_inventory.has("bone_dart"):
+		magic_inventory.append("bone_dart")
+	run_state["magic_inventory"] = magic_inventory
 	var combat_coord: Vector2i = _first_available_combat_coord(probe_run_engine, run_state)
 	if combat_coord == INVALID_COORD:
 		_fail("Probe run should include an available combat room")
@@ -64,6 +72,10 @@ func _capture_pre_battle_preview() -> void:
 			_fail("Pre-battle preview should render equipment icons")
 		if panel.find_child("PreBattleEnemyHealth", true, false) == null:
 			_fail("Pre-battle preview should render enemy health")
+		if panel.find_child("PreBattleThreatSummary", true, false) == null:
+			_fail("Pre-battle preview should render known threat summaries")
+		if panel.find_child("PreBattleAttunedRow", true, false) == null:
+			_fail("Pre-battle preview should render attuned magic separately")
 		if panel.find_child("PreBattleIntentRow", true, false) != null:
 			_fail("Pre-battle preview should not render enemy intent icons")
 		if panel.find_child("PreBattleCloseButton", true, false) != null:
@@ -76,61 +88,147 @@ func _capture_pre_battle_preview() -> void:
 		_fail("Pre-battle preview should already be in the selected room")
 	if not (paused_state.get("combat_state", {}) as Dictionary).is_empty():
 		_fail("Pre-battle preview should not create the real combat state before Start")
-	await _save_root_screenshot("%s/pre_battle_preview.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/loadout_before_swaps_v1.png" % OUTPUT_DIR)
+
+	var enemy_card: Control = panel.find_child("PreBattleEnemyCard", true, false) as Control if panel != null else null
+	if enemy_card == null:
+		_fail("Enemy inspection proof needs an enemy card")
+	else:
+		_click_control(enemy_card)
+		await process_frame
+		await create_timer(0.15).timeout
+		var pinned_enemy: Control = instance.find_child("PinnedPreBattleInspection", true, false) as Control
+		if pinned_enemy == null or str(pinned_enemy.get_meta("inspection_kind", "")) != "enemy":
+			_fail("Enemy card click should pin known move inspection")
+		await _save_root_screenshot("%s/expanded_enemy_known_moves_v1.png" % OUTPUT_DIR)
+		instance.call("_close_pinned_tooltip")
+		await process_frame
+
+	instance.call("_on_pre_battle_equip_pressed")
+	await process_frame
+	await instance.call("_equip_equipment_from_overlay", "iron_cleaver")
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+	await process_frame
+	panel = instance.get("_pre_battle_panel") as Control
+	if _control_with_meta(panel, "equipment_id", "iron_cleaver") == null:
+		_fail("Returning from equipment swap should refresh the equipped weapon chip")
+	await _save_root_screenshot("%s/loadout_after_equipment_swap_v1.png" % OUTPUT_DIR)
+	await _save_root_screenshot("%s/loadout_before_attunement_swap_v1.png" % OUTPUT_DIR)
+
+	instance.call("_on_pre_battle_equip_pressed")
+	await process_frame
+	instance.call("_switch_character_overlay_mode", "magic")
+	await process_frame
+	var reserve_magic: Array = (instance.get("_run_state") as Dictionary).get("magic_inventory", []) as Array
+	var bone_dart_index: int = reserve_magic.find("bone_dart")
+	if bone_dart_index < 0:
+		_fail("Attunement proof needs Bone Dart in reserve magic")
+	else:
+		await instance.call("_swap_magic_from_overlay", bone_dart_index, 0)
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+	await process_frame
+	panel = instance.get("_pre_battle_panel") as Control
+	var attuned_bone_dart: Control = _control_with_meta(panel, "card_id", "bone_dart", "attuned")
+	if attuned_bone_dart == null:
+		_fail("Returning from attunement swap should refresh the active spell badge")
+	await _save_root_screenshot("%s/loadout_after_attunement_swap_v1.png" % OUTPUT_DIR)
+
+	var equipped_cleaver: Control = _control_with_meta(panel, "equipment_id", "iron_cleaver")
+	if equipped_cleaver != null:
+		_click_control(equipped_cleaver)
+		await process_frame
+		await create_timer(0.15).timeout
+		await _save_root_screenshot("%s/expanded_equipment_after_swap_v1.png" % OUTPUT_DIR)
+		instance.call("_close_pinned_tooltip")
+		await process_frame
+	if attuned_bone_dart != null:
+		_click_control(attuned_bone_dart)
+		await process_frame
+		await create_timer(0.15).timeout
+		await _save_root_screenshot("%s/expanded_attuned_magic_after_swap_v1.png" % OUTPUT_DIR)
+		instance.call("_close_pinned_tooltip")
+		await process_frame
+	var active_deck_card: Control = _first_control_with_source(panel, "deck")
+	if active_deck_card != null:
+		_click_control(active_deck_card)
+		await process_frame
+		await create_timer(0.15).timeout
+		await _save_root_screenshot("%s/expanded_active_deck_card_v1.png" % OUTPUT_DIR)
+		instance.call("_close_pinned_tooltip")
+		await process_frame
+	var final_state: Dictionary = instance.get("_run_state")
+	if str(final_state.get("mode", "")) != RunEngine.MODE_PRE_BATTLE:
+		_fail("Loadout inspection and swaps should preserve committed pre-battle mode")
+	if not (instance.get("_exit_destinations_by_tile") as Dictionary).is_empty():
+		_fail("Loadout inspection should not reveal exits")
 	instance.queue_free()
 	await process_frame
 
-func _capture_five_enemy_pre_battle_preview() -> void:
+func _capture_enemy_count_layouts() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
-		_fail("Run scene should load for five-enemy pre-battle preview probe")
+		_fail("Run scene should load for enemy-count pre-battle proof")
 		return
-	var instance: Node = packed.instantiate()
-	root.add_child(instance)
-	await process_frame
-	await process_frame
-
 	var probe_run_engine := RunEngine.new()
 	var progression: Dictionary = ProgressionStore.default_data()
 	var run_state: Dictionary = probe_run_engine.create_new_run(7262026, progression)
 	var combat_coord: Vector2i = _first_room_coord_with_min_enemies(probe_run_engine, run_state, 5)
 	if combat_coord == INVALID_COORD:
 		_fail("Probe should find a generated room with at least five enemies")
-		instance.queue_free()
-		await process_frame
 		return
 	run_state = _pre_battle_state_for_room(probe_run_engine, run_state, combat_coord)
-	instance.call("_load_run_state", run_state)
-	await process_frame
-	await process_frame
-	instance.call("_close_dialogue")
-	await process_frame
-	await create_timer(0.30).timeout
-	await process_frame
-
-	var scrim: Control = instance.get("_pre_battle_scrim") as Control
-	var panel: Control = instance.get("_pre_battle_panel") as Control
-	if scrim == null or not scrim.visible:
-		_fail("Five-enemy pre-battle preview should be visible")
-	elif panel == null:
-		_fail("Five-enemy pre-battle preview panel should exist")
-	else:
+	for enemy_count: int in [1, 3, 5]:
+		var instance: Node = packed.instantiate()
+		root.add_child(instance)
+		await process_frame
+		await process_frame
+		instance.call("_load_run_state", run_state.duplicate(true))
+		await process_frame
+		await process_frame
+		instance.call("_close_dialogue")
+		await create_timer(0.50).timeout
+		await process_frame
+		var scrim: Control = instance.get("_pre_battle_scrim") as Control
+		var panel: Control = instance.get("_pre_battle_panel") as Control
+		if scrim == null or not scrim.visible or panel == null:
+			_fail("%d-enemy pre-battle preview should be visible" % enemy_count)
+			instance.queue_free()
+			await process_frame
+			continue
+		var preview_state: Dictionary = (instance.get("_pre_battle_preview_run_state") as Dictionary).duplicate(true)
+		var original_combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
+		var original_enemies: Array = (original_combat_state.get("enemies", []) as Array).duplicate(true)
+		var layout_enemies: Array = []
+		for index: int in range(mini(enemy_count, original_enemies.size())):
+			layout_enemies.append((original_enemies[index] as Dictionary).duplicate(true))
+		var layout_combat_state: Dictionary = original_combat_state.duplicate(true)
+		layout_combat_state["enemies"] = layout_enemies
+		var layout_preview_state: Dictionary = preview_state.duplicate(true)
+		layout_preview_state["combat_state"] = layout_combat_state
+		instance.set("_pre_battle_preview_run_state", layout_preview_state)
+		instance.call("_rebuild_pre_battle_overlay")
+		await create_timer(0.40).timeout
+		await process_frame
 		var flow: HFlowContainer = panel.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
-		if flow == null:
-			_fail("Five-enemy pre-battle preview should render the enemy flow")
-		elif flow.get_child_count() < 5:
-			_fail("Five-enemy pre-battle preview should render at least five enemy cards")
+		if flow == null or flow.get_child_count() != enemy_count:
+			_fail("%d-enemy pre-battle proof should render exactly %d cards" % [enemy_count, enemy_count])
+		elif flow.alignment != FlowContainer.ALIGNMENT_CENTER:
+			_fail("%d-enemy pre-battle proof should center incomplete rows" % enemy_count)
 		else:
 			for index: int in range(flow.get_child_count()):
 				var card: Control = flow.get_child(index) as Control
-				if card == null:
-					continue
-				if card.custom_minimum_size.x > 200.0 or card.custom_minimum_size.y > 154.0:
+				if card == null or card.find_child("PreBattleThreatSummary", true, false) == null:
+					_fail("%d-enemy pre-battle proof should retain threat summaries" % enemy_count)
+					break
+				if enemy_count == 5 and (card.custom_minimum_size.x > 200.0 or card.custom_minimum_size.y > 154.0):
 					_fail("Five-enemy pre-battle preview should use compact enemy cards")
 					break
-	await _save_root_screenshot("%s/pre_battle_preview_five_enemies.png" % OUTPUT_DIR)
-	instance.queue_free()
-	await process_frame
+		await _save_root_screenshot("%s/enemy_layout_%d_v1.png" % [OUTPUT_DIR, enemy_count])
+		instance.queue_free()
+		await process_frame
+		await process_frame
 
 func _run_with_available_combat(probe_run_engine: RunEngine) -> Dictionary:
 	var progression: Dictionary = ProgressionStore.default_data()
@@ -197,7 +295,41 @@ func _travel_dir_for_coord(coord: Vector2i) -> Vector2i:
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
+func _click_control(control: Control) -> void:
+	if control == null:
+		return
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	control.call("_gui_input", click)
+
+func _control_with_meta(node: Node, meta_key: String, expected_value: String, source_kind: String = "") -> Control:
+	if node == null:
+		return null
+	if node is Control and str(node.get_meta(meta_key, "")) == expected_value:
+		if source_kind.is_empty() or str(node.get_meta("source_kind", "")) == source_kind:
+			return node as Control
+	for child: Node in node.get_children():
+		var match_control: Control = _control_with_meta(child, meta_key, expected_value, source_kind)
+		if match_control != null:
+			return match_control
+	return null
+
+func _first_control_with_source(node: Node, source_kind: String) -> Control:
+	if node == null:
+		return null
+	if node is Control and str(node.get_meta("source_kind", "")) == source_kind:
+		return node as Control
+	for child: Node in node.get_children():
+		var match_control: Control = _first_control_with_source(child, source_kind)
+		if match_control != null:
+			return match_control
+	return null
+
 func _save_root_screenshot(output_path: String) -> void:
+	await process_frame
+	await process_frame
+	RenderingServer.force_draw(true)
 	var image: Image = root.get_viewport().get_texture().get_image()
 	image.save_png(output_path)
 
