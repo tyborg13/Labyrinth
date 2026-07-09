@@ -270,7 +270,7 @@ func _initialize() -> void:
 	await _test_run_scene_pass_preview_chip_updates()
 	await _test_run_scene_action_selection_buttons_are_large()
 	await _test_run_scene_action_selection_keeps_hand_layout_stable()
-	await _test_run_scene_drag_overlay_snapback_and_click_selection()
+	await _test_run_scene_combat_interaction_context_paths()
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
@@ -7578,14 +7578,14 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 0, "Selecting Guarded Step should keep the move target pending")
-	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected move before hover")
+	_assert_action_context_risk(instance, "-5 HP", "danger", "selected move before hover")
 	var move_target: Vector2i = _pass_preview_chip_move_target(instance.get("_pending_target_tiles") as Array, Vector2i(3, 4))
 	_assert(move_target.x >= 0, "Pass preview move-hover coverage should find a valid Guarded Step target")
 	if move_target.x >= 0:
 		instance.call("_on_board_tile_hovered", move_target)
 		await process_frame
 		await process_frame
-		_assert_pass_preview_chip(instance, ["SAFE"], false, true, "selected move hover")
+		_assert_action_context_risk(instance, "DANGER", "warning", "selected move hover")
 		var hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
 		_assert((hover_source_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == move_target, "Pass preview hover source should use the hovered move target")
 		_assert(int(hover_source_state.get("cards_played_this_turn", 0)) == 1, "Pass preview hover source should include the selected card commit")
@@ -7611,13 +7611,13 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 1, "Selecting Quick Stab should keep the attack target pending")
-	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected attack before hover")
+	_assert_action_context_risk(instance, "-5 HP", "danger", "selected attack before hover")
 	var attack_target := Vector2i(3, 4)
 	_assert((instance.get("_pending_target_tiles") as Array).has(attack_target), "Pass preview attack-hover coverage should find the adjacent enemy target")
 	instance.call("_on_board_tile_hovered", attack_target)
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["SAFE"], false, false, "selected attack hover")
+	_assert_action_context_risk(instance, "SAFE", "safe", "selected attack hover")
 	var attack_hover_source_state: Dictionary = instance.call("_pass_preview_source_state")
 	_assert(int(attack_hover_source_state.get("cards_played_this_turn", 0)) == 1, "Attack hover source should include the selected card commit")
 	_assert(int(attack_hover_source_state.get("player_turn_time_spent", 0)) == 2, "Attack hover source should include Quick Stab time before forecasting turn order")
@@ -7625,7 +7625,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	instance.call("_on_board_tile_hovered", Vector2i(0, 0))
 	await process_frame
 	await process_frame
-	_assert_pass_preview_chip(instance, ["-5"], false, false, "selected attack hover cleared")
+	_assert_action_context_risk(instance, "-5 HP", "danger", "selected attack hover cleared")
 	live_state = instance.get("_combat_state")
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected attack pass preview should not commit the selected card")
 	_assert(int(((live_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 8, "Selected attack hover should not damage the live enemy")
@@ -7649,15 +7649,20 @@ func _test_run_scene_action_selection_buttons_are_large() -> void:
 	instance.set("_pending_action_index", 0)
 	instance.set("_pending_action_can_skip", true)
 	instance.call("_refresh_choice_bar")
-	var choice_host: Node = _run_scene_choice_button_host(instance)
-	var skip_button: Button = _button_with_text(choice_host, "Skip")
-	var cancel_button: Button = _button_with_text(choice_host, "Cancel")
-	_assert(skip_button != null, "Action selection should show Skip when the current action can be skipped")
-	_assert(cancel_button != null, "Action selection should show Cancel while a card action is selected")
+	await process_frame
+	await process_frame
+	var context: Control = instance.get("_action_step_tracker") as Control
+	var context_verb: Label = instance.get("_action_context_verb_label") as Label
+	var skip_button: Button = _button_with_text(context, "Skip")
+	var cancel_button: Button = _button_with_text(context, "Cancel")
+	_assert(context != null and context.visible, "Action selection should show one coherent context rail")
+	_assert(_label_text_fits(context_verb), "Action-selection instruction should fit without ellipsis")
+	_assert(skip_button != null, "Action context should show Skip when the current action can be skipped")
+	_assert(cancel_button != null, "Action context should show Cancel while a card action is selected")
 	if skip_button != null:
-		_assert_button_uses_native_ratio(skip_button, UiSkin.BUTTON_HEIGHT_ACTION, "Action-selection Skip button should use a large native-ratio frame")
+		_assert_button_uses_native_ratio(skip_button, UiSkin.BUTTON_HEIGHT_STANDARD, "Action-context Skip should use a compact native-ratio frame")
 	if cancel_button != null:
-		_assert_button_uses_native_ratio(cancel_button, UiSkin.BUTTON_HEIGHT_ACTION, "Action-selection Cancel button should use a large native-ratio frame")
+		_assert_button_uses_native_ratio(cancel_button, UiSkin.BUTTON_HEIGHT_STANDARD, "Action-context Cancel should use a compact native-ratio frame")
 	instance.queue_free()
 	await process_frame
 
@@ -7704,46 +7709,16 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_drag_overlay_snapback_and_click_selection() -> void:
+func _test_run_scene_combat_interaction_context_paths() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for drag overlay coverage")
+		_failures.append("Run scene should load for combat interaction context coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
 	await process_frame
-	var combat: CombatEngine = CombatEngine.new()
-	var far_layout: Dictionary = _simple_room_layout()
-	far_layout["player_start"] = Vector2i(2, 5)
-	far_layout["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(6, 5),
-		"hp": 140,
-		"max_hp": 140,
-		"block": 0
-	}]
-	var combat_state: Dictionary = combat.create_combat(9204, far_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["quick_stab"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab"]
-	deck["draw"] = []
-	deck["discard"] = []
-	deck["burned"] = []
-	combat_state["deck"] = deck
-	var run_state: Dictionary = instance.get("_run_state")
-	run_state["mode"] = "combat"
-	run_state["combat_state"] = combat_state
-	instance.set("_run_state", run_state)
-	instance.set("_combat_state", combat_state)
-	instance.call("_refresh_ui")
-	await process_frame
+
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(6, 5)], 9204)
 	await process_frame
 	var options: Dictionary = instance.call("_card_play_options_for_index", 0)
 	_assert(not bool(options.get("printed_playable", false)), "Far melee cards should show printed play as disabled while dragging")
@@ -7752,92 +7727,135 @@ func _test_run_scene_drag_overlay_snapback_and_click_selection() -> void:
 	instance.call("_on_card_drag_started", 0)
 	await process_frame
 	var overlay: Control = instance.get("_drag_overlay") as Control
-	_assert(overlay != null and overlay.visible, "Starting a fallback-only drag should show the drop-zone overlay")
+	_assert(overlay != null and overlay.visible, "Starting a card drag should show the proxy layer")
+	_assert(overlay != null and overlay.get_child_count() == 1, "Card drag should keep only the held-card proxy in its full-screen layer, with no central scrim or zones")
+	var context: Control = instance.get("_action_step_tracker") as Control
+	_assert(context != null and context.visible, "Card drag should show the compact action context")
+	_assert(context != null and str(context.get_meta("context_mode", "")) == "drag", "Drag action context should expose its drag state")
 	var zone_panels: Dictionary = instance.get("_drag_zone_panels")
 	var zone_labels: Dictionary = instance.get("_drag_zone_labels")
-	var play_panel: PanelContainer = zone_panels.get("play", null) as PanelContainer
 	var attack_panel: PanelContainer = zone_panels.get("attack", null) as PanelContainer
 	var move_panel: PanelContainer = zone_panels.get("move", null) as PanelContainer
-	var play_label: Label = zone_labels.get("play", null) as Label
 	var attack_label: Label = zone_labels.get("attack", null) as Label
 	var move_label: Label = zone_labels.get("move", null) as Label
-	_assert(play_label != null and play_label.text == "PLAY CARD", "Printed drag zone should use the requested Play Card primary text")
-	_assert(attack_label != null and attack_label.text == "DEFAULT ATTACK", "Attack drag zone should use the requested Default Attack primary text")
-	_assert(move_label != null and move_label.text == "DEFAULT MOVE", "Move drag zone should use the requested Default Move primary text")
-	_assert(play_panel != null and play_panel.custom_minimum_size.x >= 760.0 and play_panel.custom_minimum_size.y >= 160.0, "Printed drag zone should be larger and easier to hit")
-	_assert(attack_panel != null and attack_panel.custom_minimum_size.x >= 372.0 and attack_panel.custom_minimum_size.y >= 140.0, "Attack drag zone should be larger and easier to hit")
-	_assert(move_panel != null and move_panel.custom_minimum_size.x >= 372.0 and move_panel.custom_minimum_size.y >= 140.0, "Move drag zone should be larger and easier to hit")
+	_assert(not zone_panels.has("play"), "Full-card play should use the live battlefield instead of a Play Card drop panel")
+	_assert(attack_label != null and attack_label.text == "BASIC ATTACK", "Fallback attack should remain a distinct compact command")
+	_assert(move_label != null and move_label.text == "BASIC MOVE", "Fallback move should remain a distinct compact command")
+	_assert(attack_panel != null and attack_panel.custom_minimum_size.x <= 200.0 and attack_panel.custom_minimum_size.y <= 64.0, "Fallback attack should use a compact action-rail target")
+	_assert(move_panel != null and move_panel.custom_minimum_size.x <= 200.0 and move_panel.custom_minimum_size.y <= 64.0, "Fallback move should use a compact action-rail target")
 	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
-	var play_detail: Label = detail_labels.get("play", null) as Label
 	var move_detail: Label = detail_labels.get("move", null) as Label
-	_assert(play_detail != null and play_detail.text == "UNAVAILABLE", "Disabled printed drag zones should carry an explicit unavailable state")
-	_assert(move_detail != null and move_detail.text == str(instance.call("_fallback_label", "move")).to_upper(), "Available fallback move zones should keep their concise movement label")
+	_assert(move_detail != null and move_detail.text == "RANGE 2", "Available fallback move zones should keep a concise, non-redundant movement label")
 	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var hidden_source: Control = null
 	if hand_box.get_child_count() > 0:
 		hidden_source = hand_box.get_child(0) as Control
 	_assert(hidden_source != null and not hidden_source.visible, "Card drag should hide the source card while the proxy is held")
-	await instance.call("_commit_drag_drop", "play")
-	await process_frame
-	_assert(int(instance.get("_drag_card_index")) == -1, "Disabled drag drops should clear drag state")
-	_assert(int(instance.get("_selected_card_index")) == -1, "Disabled drag drops should not start card selection")
-	overlay = instance.get("_drag_overlay") as Control
-	_assert(overlay != null and not overlay.visible, "Disabled drag drops should hide the overlay after snapback")
-	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var restored_source: Control = null
-	if hand_box.get_child_count() > 0:
-		restored_source = hand_box.get_child(0) as Control
-	_assert(restored_source != null and restored_source.visible, "Disabled drag drops should restore the source card instead of leaving it hidden")
-
-	instance.call("_on_card_drag_started", 0)
-	await process_frame
+	var board_view: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as Control
+	_assert(str(instance.call("_drag_zone_at", board_view.get_global_rect().get_center())) == "", "An unavailable full card should not make the battlefield a valid drop target")
 	await instance.call("_commit_drag_drop", "")
 	await process_frame
-	_assert(int(instance.get("_drag_card_index")) == -1, "Dropping outside every drag zone should also snap back and clear drag state")
+	_assert(int(instance.get("_drag_card_index")) == -1 and not overlay.visible, "Dropping outside every valid target should snap the card back and clear drag state")
 	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	restored_source = null
-	if hand_box.get_child_count() > 0:
-		restored_source = hand_box.get_child(0) as Control
-	_assert(restored_source != null and restored_source.visible, "Out-of-zone drag drops should restore the source card")
+	var restored_source: Control = hand_box.get_child(0) as Control if hand_box.get_child_count() > 0 else null
+	_assert(restored_source != null and restored_source.visible, "Invalid drag drops should restore the source card")
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	await instance.call("_commit_drag_drop", "move")
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == 0, "Fallback move drop should select the consumed hand card")
+	_assert(str(instance.get("_selected_card_label_override")) == "2 Move", "Fallback move should keep its concise action identity")
+	var pending_actions: Array = instance.get("_pending_actions")
+	_assert(pending_actions.size() == 1 and str((pending_actions[0] as Dictionary).get("type", "")) == "move", "Fallback move should preserve its one-step move semantics")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == -1, "Cancel should clear fallback targeting without consuming the card")
+	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Cancel should leave the hand card unconsumed")
 
-	var adjacent_layout: Dictionary = _simple_room_layout()
-	adjacent_layout["player_start"] = Vector2i(2, 5)
-	adjacent_layout["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 5),
-		"hp": 140,
-		"max_hp": 140,
-		"block": 0
-	}]
-	combat_state = combat.create_combat(9205, adjacent_layout, {
+	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9205)
+	await process_frame
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	_assert(str(instance.call("_drag_zone_at", board_view.get_global_rect().get_center())) == "play", "The readable battlefield should be the primary full-card drop path")
+	var verb_label: Label = instance.get("_action_context_verb_label") as Label
+	_assert(verb_label != null and verb_label.text == "DROP ON BOARD", "The primary drag instruction should remain terse and explicit")
+	_assert(_label_text_fits(verb_label), "The primary drag instruction should fit without ellipsis")
+	await instance.call("_commit_drag_drop", "play")
+	await process_frame
+	pending_actions = instance.get("_pending_actions")
+	_assert(int(instance.get("_selected_card_index")) == 0 and str(instance.get("_selected_card_label_override")).is_empty(), "Full-card drag should enter printed-card targeting")
+	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) > int(instance.call("_fallback_attack_damage")), "Full-card drag should retain printed attack values")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	await instance.call("_commit_drag_drop", "attack")
+	await process_frame
+	pending_actions = instance.get("_pending_actions")
+	_assert(str(instance.get("_selected_card_label_override")) == "20 Attack", "Fallback attack should keep its concise action identity")
+	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) == int(instance.call("_fallback_attack_damage")), "Fallback attack should preserve scaled default damage")
+	instance.call("_on_cancel_requested")
+	await process_frame
+
+	_install_combat_interaction_fixture(instance, "sidestep_slash", Vector2i(2, 5), [Vector2i(5, 5)], 9206)
+	await process_frame
+	instance.call("_on_card_drag_started", 0)
+	await process_frame
+	await instance.call("_commit_drag_drop", "play")
+	await process_frame
+	pending_actions = instance.get("_pending_actions")
+	_assert(pending_actions.size() == 2, "Full-card drag should preserve every printed compound-card step")
+	_assert(str((pending_actions[0] as Dictionary).get("type", "")) == "move" and str((pending_actions[1] as Dictionary).get("type", "")) == "melee", "Compound full-card drag should preserve move then attack ordering")
+	context = instance.get("_action_step_tracker") as Control
+	_assert((context.get_meta("step_statuses", []) as Array).size() == 2, "Compound targeting should compose both steps into the action context")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	await instance.call("_on_card_pressed", 0)
+	_assert(int(instance.get("_selected_card_index")) == 0, "Click-to-select should keep full-card play as the primary selection path")
+	_assert(int(instance.get("_drag_card_index")) == -1, "Click-to-select should not leave drag state active")
+	instance.queue_free()
+	await process_frame
+
+func _install_combat_interaction_fixture(instance: Node, card_id: String, player_pos: Vector2i, enemy_positions: Array, seed: int) -> void:
+	instance.call("_cancel_drag_play")
+	instance.call("_reset_card_resolution")
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = player_pos
+	var enemies: Array = []
+	for index: int in range(enemy_positions.size()):
+		enemies.append({
+			"id": index + 1,
+			"type": "crawler",
+			"pos": enemy_positions[index],
+			"hp": 140,
+			"max_hp": 140,
+			"block": 0
+		})
+	layout["enemies"] = enemies
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(seed, layout, {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["quick_stab"],
+		"deck_cards": [card_id],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	deck = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab"]
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = [card_id]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
-	run_state = instance.get("_run_state")
+	combat_state["current_actor"] = {"kind": "player", "key": "player"}
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	run_state["mode"] = "combat"
+	run_state["current_room_layout"] = layout
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
+	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
-	await process_frame
-	await instance.call("_on_card_pressed", 0)
-	_assert(int(instance.get("_selected_card_index")) == 0, "Click-to-select should continue to select a normal playable card after drag cancellation")
-	_assert(int(instance.get("_drag_card_index")) == -1, "Click-to-select should not leave drag state active")
-	var click_preview: Dictionary = instance.call("_active_card_preview")
-	_assert(not (click_preview.get("target_tiles", []) as Array).is_empty(), "Click selection should still expose printed card targets independently of drag flow")
-	instance.queue_free()
-	await process_frame
 
 func _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
@@ -8343,7 +8361,10 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	await instance.call("_on_card_pressed", 0)
 	await process_frame
 	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
-	_assert(tracker != null and not tracker.visible, "Single-action cards should not show the step tracker")
+	_assert(tracker != null and tracker.visible, "Single-action cards should use the same coherent action context")
+	_assert_action_step_tracker_statuses(instance, ["current"], "Single-action context should show its current step")
+	_assert(str(tracker.get_meta("action_verb", "")).contains("MELEE"), "Single-action context should surface a terse action verb")
+	_assert(_button_with_text(tracker, "Cancel") != null, "Single-action context should keep Cancel in the same region")
 
 	instance.queue_free()
 	await process_frame
@@ -8523,6 +8544,8 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	instance.set("_combat_state", combat_state)
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
+	var action_context: Control = instance.get("_action_step_tracker") as Control
+	_assert(_button_with_text(action_context, "Rotate") != null, "Rotatable AOE targeting should compose Rotate into the action context")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
 	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
@@ -10718,6 +10741,24 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 	instance.set("_card_play_count_override", -1)
 	instance.call("_reset_card_resolution")
 	instance.call("_refresh_ui")
+
+func _assert_action_context_risk(instance: Node, expected_fragment: String, expected_tone: String, context: String) -> void:
+	var action_context: Control = instance.get("_action_step_tracker") as Control
+	_assert(action_context != null and action_context.visible, "%s should show the action context" % context)
+	if action_context == null:
+		return
+	var risk_text: String = str(action_context.get_meta("risk_text", ""))
+	var risk_tone: String = str(action_context.get_meta("risk_tone", ""))
+	_assert(risk_text.contains(expected_fragment), "%s should include risk '%s', got '%s'" % [context, expected_fragment, risk_text])
+	_assert(risk_tone == expected_tone, "%s should use risk tone %s, got %s" % [context, expected_tone, risk_tone])
+	_assert(instance.find_child("PassPreviewChip", true, false) == null, "%s should compose risk into the action context instead of duplicating the pass-preview chip" % context)
+
+func _label_text_fits(label: Label) -> bool:
+	if label == null:
+		return false
+	var font: Font = label.get_theme_font("font")
+	var font_size: int = label.get_theme_font_size("font_size")
+	return font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x <= label.size.x + 1.0
 
 func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_defeat: bool, expect_danger: bool, context: String) -> void:
 	var chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
