@@ -3,28 +3,61 @@ class_name UiTypography
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
-const PIXEL_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Regular.ttf"
+const DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Header.tres"
+const BODY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Regular.tres"
+const PIXEL_FONT_PATH: String = BODY_FONT_PATH
 
-const SIZE_CAPTION: int = 11
-const SIZE_SMALL: int = 12
-const SIZE_BODY: int = 13
-const SIZE_BODY_LARGE: int = 15
-const SIZE_SECTION: int = 18
-const SIZE_SECTION_LARGE: int = 20
-const SIZE_TITLE: int = 24
-const SIZE_HERO: int = 32
+const ROLE_CAPTION: String = "caption"
+const ROLE_BODY: String = "body"
+const ROLE_BODY_LARGE: String = "body_large"
+const ROLE_SECTION: String = "section"
+const ROLE_TITLE: String = "title"
+const ROLE_HERO: String = "hero"
+const ROLE_BANNER: String = "banner"
+
+# Utility UI type scale. Caption and body are deliberate readability floors;
+# display roles retain the distressed header face used by the game's art.
+const SIZE_CAPTION: int = 14
+const SIZE_SMALL: int = 15
+const SIZE_BODY: int = 16
+const SIZE_BODY_LARGE: int = 18
+const SIZE_SECTION: int = 21
+const SIZE_SECTION_LARGE: int = 24
+const SIZE_TITLE: int = 30
+const SIZE_HERO: int = 38
+const SIZE_BANNER: int = 58
+
+const SPACE_HAIRLINE: int = 2
+const SPACE_TIGHT: int = 4
+const SPACE_SMALL: int = 8
+const SPACE_MEDIUM: int = 12
+const SPACE_LARGE: int = 16
+const SPACE_XL: int = 24
+const SPACE_XXL: int = 32
+
+const SAFE_MARGIN: float = 24.0
+const PANEL_PADDING_COMPACT: float = 14.0
+const PANEL_PADDING: float = 20.0
+const PANEL_PADDING_LARGE: float = 24.0
+const PANEL_GAP: float = 16.0
 
 const REFERENCE_VIEWPORT_WIDTH: float = 1600.0
 const REFERENCE_VIEWPORT_HEIGHT: float = 1080.0
-const HEIGHT_BOOST_WEIGHT: float = 0.40
-const WIDTH_BOOST_WEIGHT: float = 0.16
-const MAX_UI_SCALE: float = 1.40
+const HEIGHT_BOOST_WEIGHT: float = 0.14
+const WIDTH_BOOST_WEIGHT: float = 0.06
+const MAX_UI_SCALE: float = 1.12
+
+static func display_font() -> Font:
+	return AssetLoader.load_font(DISPLAY_FONT_PATH)
+
+static func body_font() -> Font:
+	return AssetLoader.load_font(BODY_FONT_PATH)
 
 static func default_font(control: Control) -> Font:
 	var font: Font = control.get_theme_default_font()
 	if font != null:
 		return font
-	return AssetLoader.load_font(PIXEL_FONT_PATH)
+	return body_font()
 
 static func ui_scale(control: Control) -> float:
 	if control == null:
@@ -51,6 +84,63 @@ static func scaled_value(control: Control, value: float) -> float:
 
 static func scaled_size(control: Control, size: int) -> int:
 	return maxi(1, int(round(float(size) * ui_scale(control))))
+
+static func modal_size(control: Control, preferred: Vector2, minimum: Vector2 = Vector2.ZERO, safe_margin: float = SAFE_MARGIN) -> Vector2:
+	var viewport_size: Vector2 = control.get_viewport_rect().size if control != null else Vector2(REFERENCE_VIEWPORT_WIDTH, REFERENCE_VIEWPORT_HEIGHT)
+	var available := Vector2(
+		maxf(1.0, viewport_size.x - safe_margin * 2.0),
+		maxf(1.0, viewport_size.y - safe_margin * 2.0)
+	)
+	return Vector2(
+		clampf(preferred.x, minf(minimum.x, available.x), available.x),
+		clampf(preferred.y, minf(minimum.y, available.y), available.y)
+	)
+
+static func role_size(role: String) -> int:
+	match role:
+		ROLE_CAPTION:
+			return SIZE_CAPTION
+		ROLE_BODY:
+			return SIZE_BODY
+		ROLE_BODY_LARGE:
+			return SIZE_BODY_LARGE
+		ROLE_SECTION:
+			return SIZE_SECTION
+		ROLE_TITLE:
+			return SIZE_TITLE
+		ROLE_HERO:
+			return SIZE_HERO
+		ROLE_BANNER:
+			return SIZE_BANNER
+	return SIZE_BODY
+
+static func role_uses_display_font(role: String) -> bool:
+	return role in [ROLE_SECTION, ROLE_TITLE, ROLE_HERO, ROLE_BANNER]
+
+static func apply_label_role(label: Label, role: String) -> void:
+	if label == null:
+		return
+	var font: Font = display_font() if role_uses_display_font(role) else body_font()
+	if font != null:
+		label.add_theme_font_override("font", font)
+	set_label_size(label, role_size(role))
+
+static func apply_button_role(button: Button, role: String = ROLE_BODY) -> void:
+	if button == null:
+		return
+	var font: Font = body_font()
+	if font != null:
+		button.add_theme_font_override("font", font)
+	set_button_size(button, role_size(role))
+
+static func apply_rich_text_role(label: RichTextLabel, role: String = ROLE_BODY) -> void:
+	if label == null:
+		return
+	var font: Font = display_font() if role_uses_display_font(role) else body_font()
+	if font != null:
+		for property_name: String in ["normal_font", "bold_font", "italics_font", "bold_italics_font", "mono_font"]:
+			label.add_theme_font_override(property_name, font)
+	set_rich_text_size(label, role_size(role))
 
 static func apply_board_font(control: Control, board_view: Control) -> void:
 	if board_view == null or not board_view.has_method("apply_unit_label_font"):

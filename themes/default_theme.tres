@@ -4,4 +4,4 @@
 
 [resource]
 default_font = ExtResource("1_pixel_font")
-default_font_size = 12
+default_font_size = 16

@@ -547,7 +547,9 @@ class RelicChoiceTitleEffect:
 	func _sync_label_size() -> void:
 		_ensure_labels()
 		for label: Label in [_shadow_label, _glow_label, _bevel_label]:
+			UiTypographyScript.apply_label_role(label, UiTypographyScript.ROLE_BANNER)
 			UiTypographyScript.set_label_size(label, font_size)
+		UiTypographyScript.apply_rich_text_role(_shimmer_label, UiTypographyScript.ROLE_BANNER)
 		UiTypographyScript.set_rich_text_size(_shimmer_label, font_size)
 
 	func _sync_label_style() -> void:
@@ -809,17 +811,18 @@ const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const RELIC_CHOICE_TITLE_TEXT: String = "CLAIM YOUR TREASURE"
-const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
-const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
+const RELIC_CHOICE_TITLE_FONT_SIZE: int = UiTypography.SIZE_BANNER
+const RELIC_CHOICE_TITLE_HEIGHT: float = 118.0
 const RELIC_CHOICE_TITLE_TOP_RATIO: float = 0.0
-const RELIC_CHOICE_BOTTOM_MARGIN: float = 68.0
+const RELIC_CHOICE_BOTTOM_MARGIN: float = 44.0
 const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choice_rune_halo.png"
 const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
 const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
 const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
-const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
+const TERMINAL_OVERLAY_MAX_SIZE: Vector2 = Vector2(600.0, 320.0)
+const TERMINAL_OVERLAY_MIN_SIZE: Vector2 = Vector2(440.0, 210.0)
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
 const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
@@ -832,16 +835,19 @@ const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
-const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1160.0, 700.0)
-const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(780.0, 520.0)
-const GRIMOIRE_LEFT_PAGE_WIDTH: float = 332.0
-const GRIMOIRE_DETAIL_PAGE_WIDTH: float = 650.0
+const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1120.0, 640.0)
+const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(820.0, 520.0)
+const GRIMOIRE_LEFT_PAGE_WIDTH: float = 300.0
+const GRIMOIRE_DETAIL_PAGE_WIDTH: float = 620.0
 const GRIMOIRE_ENTRY_BUTTON_HEIGHT: float = 44.0
-const GRIMOIRE_CARD_PREVIEW_SIZE: Vector2 = Vector2(260.0, 364.0)
+const GRIMOIRE_CARD_PREVIEW_SIZE: Vector2 = Vector2(240.0, 337.92)
 const GRIMOIRE_EQUIPMENT_CARD_SIZE: Vector2 = Vector2(176.0, 246.4)
 const GRIMOIRE_BADGE_SIZE: Vector2 = Vector2(18.0, 18.0)
-const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1240.0, 866.0)
-const CHARACTER_BODY_HEIGHT: float = 680.0
+const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1180.0, 760.0)
+const CHARACTER_DIALOG_MIN_SIZE: Vector2 = Vector2(1040.0, 620.0)
+const PROGRESSION_DIALOG_SIZE: Vector2 = Vector2(1040.0, 610.0)
+const PROGRESSION_DIALOG_MIN_SIZE: Vector2 = Vector2(900.0, 520.0)
+const CHARACTER_BODY_MIN_HEIGHT: float = 360.0
 const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(178.0, 92.0)
 const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 58.0)
 const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(42.0, 42.0)
@@ -879,7 +885,8 @@ const PASS_PREVIEW_VALUE_SIZE: Vector2 = Vector2(54.0, 34.0)
 const PASS_PREVIEW_STONESKIN_ICON_PATH: String = "res://assets/art/icons/stoneskin.png"
 const PASS_PREVIEW_BLOCK_ICON_PATH: String = "res://assets/art/icons/block.png"
 const PASS_PREVIEW_HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
-const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 770.0)
+const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1200.0, 650.0)
+const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
 const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
@@ -1257,6 +1264,8 @@ func _notification(what: int) -> void:
 		_layout_elemental_intensity_bar()
 		_layout_turn_order_anchor()
 		_layout_grimoire_dialog()
+		_layout_pre_battle_dialog()
+		_layout_progression_dialog()
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
@@ -1738,10 +1747,10 @@ func _build_large_map_overlay() -> void:
 	frame_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	frame_margin.anchor_right = 1.0
 	frame_margin.anchor_bottom = 1.0
-	frame_margin.add_theme_constant_override("margin_left", 34)
-	frame_margin.add_theme_constant_override("margin_top", 30)
-	frame_margin.add_theme_constant_override("margin_right", 34)
-	frame_margin.add_theme_constant_override("margin_bottom", 30)
+	frame_margin.add_theme_constant_override("margin_left", int(UiTypography.SAFE_MARGIN))
+	frame_margin.add_theme_constant_override("margin_top", int(UiTypography.SAFE_MARGIN))
+	frame_margin.add_theme_constant_override("margin_right", int(UiTypography.SAFE_MARGIN))
+	frame_margin.add_theme_constant_override("margin_bottom", int(UiTypography.SAFE_MARGIN))
 	frame_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_large_map_scrim.add_child(frame_margin)
 
@@ -1760,26 +1769,26 @@ func _build_large_map_overlay() -> void:
 	frame_margin.add_child(_large_map_dialog)
 
 	var content_margin := MarginContainer.new()
-	content_margin.add_theme_constant_override("margin_left", 18)
-	content_margin.add_theme_constant_override("margin_top", 16)
-	content_margin.add_theme_constant_override("margin_right", 18)
-	content_margin.add_theme_constant_override("margin_bottom", 18)
+	content_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING))
+	content_margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
+	content_margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING))
+	content_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_large_map_dialog.add_child(content_margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 12)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	content_margin.add_child(vbox)
 
 	var top_row := HBoxContainer.new()
-	top_row.add_theme_constant_override("separation", 10)
+	top_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	vbox.add_child(top_row)
 
 	var title := Label.new()
 	title.text = "Map"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
+	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -1790,7 +1799,7 @@ func _build_large_map_overlay() -> void:
 	close_button.text = "X"
 	close_button.tooltip_text = "Close"
 	_ui_skin.apply_button_text_overrides(close_button)
-	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
 	close_button.add_theme_stylebox_override("normal", _large_map_close_button_style(Color(0.18, 0.13, 0.09, 0.84), Color(0.88, 0.76, 0.56, 0.72)))
 	close_button.add_theme_stylebox_override("hover", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
 	close_button.add_theme_stylebox_override("pressed", _large_map_close_button_style(Color(0.12, 0.09, 0.07, 0.92), Color(0.72, 0.58, 0.40, 0.90)))
@@ -1808,7 +1817,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.set("draw_background", false)
 	_large_map_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_large_map_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_large_map_view.custom_minimum_size = Vector2(720.0, 460.0)
+	_large_map_view.custom_minimum_size = Vector2(640.0, 400.0)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
 	vbox.add_child(_large_map_view)
 
@@ -1856,6 +1865,14 @@ func _build_pre_battle_overlay() -> void:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 	_pre_battle_panel.add_theme_stylebox_override("panel", style)
 	center.add_child(_pre_battle_panel)
+	_layout_pre_battle_dialog()
+
+func _layout_pre_battle_dialog() -> void:
+	if _pre_battle_panel == null:
+		return
+	var dialog_size: Vector2 = UiTypography.modal_size(_pre_battle_panel, PRE_BATTLE_DIALOG_SIZE, PRE_BATTLE_DIALOG_MIN_SIZE, UiTypography.SPACE_LARGE)
+	_pre_battle_panel.custom_minimum_size = dialog_size
+	_pre_battle_panel.size = dialog_size
 
 func _pre_battle_style(fill: Color, border: Color, content_margin: float = 10.0, radius: int = 8) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -1898,17 +1915,17 @@ func _rebuild_pre_battle_overlay() -> void:
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 22)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 20)
+	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_pre_battle_panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.name = "PreBattleContent"
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 16)
+	vbox.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
 	margin.add_child(vbox)
 	vbox.add_child(_build_pre_battle_header(room, combat_state, accent))
 
@@ -1916,7 +1933,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	body.name = "PreBattleBody"
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 16)
+	body.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
 	vbox.add_child(body)
 	body.add_child(_build_pre_battle_enemy_section(combat_state, accent))
 	body.add_child(_build_pre_battle_deck_section(accent))
@@ -1927,7 +1944,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	var row := HBoxContainer.new()
 	row.name = "PreBattleHeader"
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 12)
+	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 
 	row.add_child(_build_pre_battle_room_chip(room, combat_state, accent))
 
@@ -1943,7 +1960,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	gear_button.expand_icon = true
 	_ui_skin.apply_button_stylebox_overrides(gear_button)
 	_ui_skin.apply_button_text_overrides(gear_button)
-	UiTypography.set_button_size(gear_button, UiTypography.SIZE_SMALL)
+	UiTypography.apply_button_role(gear_button, UiTypography.ROLE_BODY)
 	_ui_skin.apply_button_native_size(gear_button, UiSkin.BUTTON_HEIGHT_STANDARD)
 	gear_button.custom_minimum_size.x = 132.0
 	gear_button.pressed.connect(_on_pre_battle_equip_pressed)
@@ -1957,7 +1974,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	start_button.expand_icon = true
 	_ui_skin.apply_button_stylebox_overrides(start_button)
 	_ui_skin.apply_button_text_overrides(start_button)
-	UiTypography.set_button_size(start_button, UiTypography.SIZE_SECTION)
+	UiTypography.apply_button_role(start_button, UiTypography.ROLE_SECTION)
 	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION)
 	start_button.custom_minimum_size.x = 158.0
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
@@ -1978,7 +1995,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.text = _room_title_text(header_room)
 	title.clip_text = true
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(title, UiTypography.SIZE_TITLE + 3)
+	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", accent if ElementData.is_elemental(str(header_room.get("element", ElementData.NONE))) else Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -1986,7 +2003,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	var meta := Label.new()
 	meta.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
 	meta.clip_text = true
-	UiTypography.set_label_size(meta, UiTypography.SIZE_SECTION)
+	UiTypography.apply_label_role(meta, UiTypography.ROLE_BODY_LARGE)
 	meta.add_theme_color_override("font_color", accent.lightened(0.28))
 	chip.add_child(meta)
 	return chip
@@ -2007,7 +2024,7 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	margin.add_child(vbox)
 	vbox.add_child(_pre_battle_section_label("Foes", ActionIcons.icon_texture("melee"), accent))
 
@@ -2061,7 +2078,7 @@ func _build_pre_battle_deck_section(accent: Color) -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	margin.add_child(vbox)
 	vbox.add_child(_build_pre_battle_player_strip(accent))
 	vbox.add_child(_pre_battle_section_label("Deck", ActionIcons.icon_texture("card_play"), accent))
@@ -2091,11 +2108,11 @@ func _build_pre_battle_player_strip(accent: Color) -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.name = "PreBattlePlayerStrip"
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 
 	var top_row := HBoxContainer.new()
 	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_theme_constant_override("separation", 8)
+	top_row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	vbox.add_child(top_row)
 	top_row.add_child(_build_pre_battle_hp_chip(accent))
 
@@ -2133,7 +2150,7 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 	row.add_child(icon)
 	var label := Label.new()
 	label.text = "%d/%d" % [int(_run_state.get("player_hp", 0)), int(_run_state.get("player_max_hp", 0))]
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(label, UiTypography.ROLE_BODY)
 	label.add_theme_color_override("font_color", Color("fff0ce"))
 	label.add_theme_color_override("font_outline_color", Color("120b08"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -2155,7 +2172,7 @@ func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Co
 	var label := Label.new()
 	label.text = text
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(label, UiTypography.ROLE_SECTION)
 	label.add_theme_color_override("font_color", Color("fff0ce"))
 	label.add_theme_color_override("font_outline_color", Color("120b08"))
 	label.add_theme_constant_override("outline_size", 1)
@@ -2389,7 +2406,7 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_relic_choice_title.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_relic_choice_title.autowrap_mode = TextServer.AUTOWRAP_OFF
-	UiTypography.set_label_size(_relic_choice_title, RELIC_CHOICE_TITLE_FONT_SIZE)
+	UiTypography.apply_label_role(_relic_choice_title, UiTypography.ROLE_BANNER)
 	_relic_choice_title.add_theme_color_override("font_color", Color("ffe4a5"))
 	_relic_choice_title.add_theme_color_override("font_outline_color", Color("26160e"))
 	_relic_choice_title.add_theme_constant_override("outline_size", 8)
@@ -2424,7 +2441,7 @@ func _layout_relic_choice_overlay() -> void:
 	_relic_choice_overlay.offset_right = 0.0
 	_relic_choice_overlay.offset_bottom = 0.0
 	if _relic_choice_title != null:
-		var title_height: float = clampf(stage_size.y * 0.20, 116.0, RELIC_CHOICE_TITLE_HEIGHT)
+		var title_height: float = clampf(stage_size.y * 0.18, 96.0, RELIC_CHOICE_TITLE_HEIGHT)
 		var title_top: float = maxf(10.0, stage_size.y * RELIC_CHOICE_TITLE_TOP_RATIO)
 		if _relic_choice_title_effect != null:
 			_relic_choice_title_effect.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -2459,23 +2476,23 @@ func _build_terminal_overlay(stage_root: Control) -> void:
 	_terminal_overlay.add_child(_terminal_panel)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_bottom", 24)
+	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_terminal_panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
 	_terminal_title_label = Label.new()
 	_terminal_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_terminal_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_terminal_title_label, UiTypography.SIZE_HERO)
+	UiTypography.apply_label_role(_terminal_title_label, UiTypography.ROLE_HERO)
 	_terminal_title_label.add_theme_color_override("font_color", Color("ffe4a5"))
 	_terminal_title_label.add_theme_color_override("font_outline_color", Color("24150d"))
 	_terminal_title_label.add_theme_constant_override("outline_size", 5)
@@ -2484,7 +2501,7 @@ func _build_terminal_overlay(stage_root: Control) -> void:
 	_terminal_status_label = Label.new()
 	_terminal_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_terminal_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_terminal_status_label, UiTypography.SIZE_SECTION)
+	UiTypography.apply_label_role(_terminal_status_label, UiTypography.ROLE_SECTION)
 	_terminal_status_label.add_theme_color_override("font_color", Color("f7ecd3"))
 	_terminal_status_label.add_theme_color_override("font_outline_color", Color("21150e"))
 	_terminal_status_label.add_theme_constant_override("outline_size", 2)
@@ -2493,19 +2510,19 @@ func _build_terminal_overlay(stage_root: Control) -> void:
 	_terminal_reward_label = Label.new()
 	_terminal_reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_terminal_reward_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_terminal_reward_label, UiTypography.SIZE_BODY_LARGE)
+	UiTypography.apply_label_role(_terminal_reward_label, UiTypography.ROLE_BODY_LARGE)
 	_terminal_reward_label.add_theme_color_override("font_color", Color("f0c56f"))
 	_terminal_reward_label.add_theme_color_override("font_outline_color", Color("2a1a0e"))
 	_terminal_reward_label.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(_terminal_reward_label)
 
 	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0.0, 6.0)
+	spacer.custom_minimum_size = Vector2(0.0, UiTypography.SPACE_TIGHT)
 	vbox.add_child(spacer)
 
 	var button_row := HBoxContainer.new()
 	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	button_row.add_theme_constant_override("separation", 18)
+	button_row.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
 	button_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(button_row)
 
@@ -2518,7 +2535,7 @@ func _terminal_button(text: String, callback: Callable) -> Button:
 	button.text = text
 	_ui_skin.apply_button_stylebox_overrides(button)
 	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	UiTypography.apply_button_role(button, UiTypography.ROLE_SECTION)
 	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 210.0)
 	button.pressed.connect(callback)
 	return button
@@ -2552,8 +2569,13 @@ func _layout_terminal_overlay() -> void:
 	_terminal_overlay.offset_bottom = 0.0
 	if _terminal_panel == null:
 		return
-	var width: float = clampf(stage_size.x * 0.46, 420.0, TERMINAL_OVERLAY_SIZE.x)
-	var height: float = TERMINAL_OVERLAY_SIZE.y
+	var content_size: Vector2 = _terminal_panel.get_combined_minimum_size()
+	var available := Vector2(
+		maxf(1.0, stage_size.x - UiTypography.SAFE_MARGIN * 2.0),
+		maxf(1.0, stage_size.y - UiTypography.SAFE_MARGIN * 2.0)
+	)
+	var width: float = clampf(content_size.x, minf(TERMINAL_OVERLAY_MIN_SIZE.x, available.x), minf(TERMINAL_OVERLAY_MAX_SIZE.x, available.x))
+	var height: float = clampf(content_size.y, minf(TERMINAL_OVERLAY_MIN_SIZE.y, available.y), minf(TERMINAL_OVERLAY_MAX_SIZE.y, available.y))
 	var left: float = (stage_size.x - width) * 0.5
 	var top: float = (stage_size.y - height) * 0.5
 	_terminal_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -2612,7 +2634,7 @@ func _build_menu_overlay() -> void:
 
 	_menu_dialog = PanelContainer.new()
 	_menu_dialog.name = "MenuDialog"
-	_menu_dialog.custom_minimum_size = Vector2(360.0, 0.0)
+	_menu_dialog.custom_minimum_size = Vector2(400.0, 0.0)
 	_menu_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
 	var dialog_style := _ui_skin.make_plain_card_style(Color(0.11, 0.08, 0.06, 0.96), Color("9d7a50"), 18.0)
 	dialog_style.corner_radius_top_left = 14
@@ -2630,19 +2652,19 @@ func _build_menu_overlay() -> void:
 	center.add_child(_menu_dialog)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 18)
+	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_menu_dialog.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	margin.add_child(vbox)
 
 	var title := Label.new()
 	title.text = "Camp"
-	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
+	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -2650,7 +2672,7 @@ func _build_menu_overlay() -> void:
 
 	var subtitle := Label.new()
 	subtitle.text = "Choose your next step."
-	UiTypography.set_label_size(subtitle, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(subtitle, UiTypography.ROLE_BODY)
 	subtitle.add_theme_color_override("font_color", Color("cdbca2"))
 	vbox.add_child(subtitle)
 
@@ -2665,7 +2687,7 @@ func _build_menu_overlay() -> void:
 		button.text = str(entry.get("text", ""))
 		_ui_skin.apply_button_stylebox_overrides(button)
 		_ui_skin.apply_button_text_overrides(button)
-		UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
 		_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, MENU_DIALOG_BUTTON_MIN_WIDTH)
 		button.pressed.connect(entry.get("callback", Callable()))
 		vbox.add_child(button)
@@ -2699,20 +2721,20 @@ func _build_grimoire_overlay() -> void:
 	center.add_child(_grimoire_dialog)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 22)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 22)
+	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
 	_grimoire_dialog.add_child(margin)
 
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 12)
+	root.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(root)
 
 	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 12)
+	header.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	root.add_child(header)
 
 	var title_stack := VBoxContainer.new()
@@ -2722,7 +2744,7 @@ func _build_grimoire_overlay() -> void:
 
 	var title := Label.new()
 	title.text = "Grimoire"
-	UiTypography.set_label_size(title, UiTypography.SIZE_TITLE + 5)
+	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", Color("f3ddb0"))
 	title.add_theme_color_override("font_outline_color", Color("2b1a10"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -2730,7 +2752,7 @@ func _build_grimoire_overlay() -> void:
 
 	var subtitle := Label.new()
 	subtitle.text = "Collected field notes"
-	UiTypography.set_label_size(subtitle, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(subtitle, UiTypography.ROLE_BODY)
 	subtitle.add_theme_color_override("font_color", Color("c9ad7c"))
 	title_stack.add_child(subtitle)
 
@@ -2744,7 +2766,7 @@ func _build_grimoire_overlay() -> void:
 	close_button.add_theme_color_override("font_color", Color("f7dfad"))
 	close_button.add_theme_color_override("font_hover_color", Color("fff0c8"))
 	close_button.add_theme_color_override("font_pressed_color", Color("e8b968"))
-	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
 	close_button.custom_minimum_size = Vector2(104.0, 36.0)
 	close_button.pressed.connect(_close_grimoire_overlay)
 	header.add_child(close_button)
@@ -2752,7 +2774,7 @@ func _build_grimoire_overlay() -> void:
 	var book_row := HBoxContainer.new()
 	book_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	book_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	book_row.add_theme_constant_override("separation", 14)
+	book_row.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
 	root.add_child(book_row)
 
 	var left_page := PanelContainer.new()
@@ -2763,16 +2785,16 @@ func _build_grimoire_overlay() -> void:
 	book_row.add_child(left_page)
 
 	var left_margin := MarginContainer.new()
-	left_margin.add_theme_constant_override("margin_left", 16)
-	left_margin.add_theme_constant_override("margin_top", 14)
-	left_margin.add_theme_constant_override("margin_right", 16)
-	left_margin.add_theme_constant_override("margin_bottom", 16)
+	left_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	left_margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
+	left_margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	left_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
 	left_page.add_child(left_margin)
 
 	var left_stack := VBoxContainer.new()
 	left_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left_stack.add_theme_constant_override("separation", 10)
+	left_stack.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	left_margin.add_child(left_stack)
 
 	_grimoire_entry_scroll = ScrollContainer.new()
@@ -2787,7 +2809,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_section_list = VBoxContainer.new()
 	_grimoire_section_list.name = "GrimoireNavList"
 	_grimoire_section_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_grimoire_section_list.add_theme_constant_override("separation", 5)
+	_grimoire_section_list.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT)
 	_grimoire_entry_scroll.add_child(_grimoire_section_list)
 	_grimoire_entry_list = _grimoire_section_list
 
@@ -2806,20 +2828,20 @@ func _build_grimoire_overlay() -> void:
 	book_row.add_child(_grimoire_detail_panel)
 
 	var detail_margin := MarginContainer.new()
-	detail_margin.add_theme_constant_override("margin_left", 24)
-	detail_margin.add_theme_constant_override("margin_top", 22)
-	detail_margin.add_theme_constant_override("margin_right", 26)
-	detail_margin.add_theme_constant_override("margin_bottom", 24)
+	detail_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	detail_margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	detail_margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	detail_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_LARGE))
 	_grimoire_detail_panel.add_child(detail_margin)
 
 	var detail_stack := VBoxContainer.new()
 	detail_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_stack.add_theme_constant_override("separation", 12)
+	detail_stack.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	detail_margin.add_child(detail_stack)
 
 	var detail_header := HBoxContainer.new()
-	detail_header.add_theme_constant_override("separation", 14)
+	detail_header.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
 	detail_stack.add_child(detail_header)
 
 	var icon_frame := PanelContainer.new()
@@ -2849,13 +2871,13 @@ func _build_grimoire_overlay() -> void:
 	detail_header.add_child(detail_title_stack)
 
 	_grimoire_detail_kicker = Label.new()
-	UiTypography.set_label_size(_grimoire_detail_kicker, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(_grimoire_detail_kicker, UiTypography.ROLE_CAPTION)
 	_grimoire_detail_kicker.add_theme_color_override("font_color", Color("a97546"))
 	detail_title_stack.add_child(_grimoire_detail_kicker)
 
 	_grimoire_detail_title = Label.new()
 	_grimoire_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(_grimoire_detail_title, UiTypography.SIZE_TITLE + 2)
+	UiTypography.apply_label_role(_grimoire_detail_title, UiTypography.ROLE_TITLE)
 	_grimoire_detail_title.add_theme_color_override("font_color", Color("3a2416"))
 	_grimoire_detail_title.add_theme_color_override("font_outline_color", Color(1.0, 0.88, 0.64, 0.20))
 	_grimoire_detail_title.add_theme_constant_override("outline_size", 1)
@@ -2874,7 +2896,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_detail_body.scroll_active = true
 	_grimoire_detail_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	UiTypography.set_rich_text_size(_grimoire_detail_body, UiTypography.SIZE_SECTION)
+	UiTypography.apply_rich_text_role(_grimoire_detail_body, UiTypography.ROLE_BODY)
 	_grimoire_detail_body.add_theme_color_override("default_color", Color("4a3320"))
 	detail_stack.add_child(_grimoire_detail_body)
 
@@ -2882,7 +2904,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_detail_content.name = "GrimoireDetailContent"
 	_grimoire_detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_grimoire_detail_content.add_theme_constant_override("separation", 12)
+	_grimoire_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	detail_stack.add_child(_grimoire_detail_content)
 
 func _grimoire_cover_style() -> StyleBoxFlat:
@@ -3071,10 +3093,7 @@ func _grimoire_section_has_unread(section_id: String, unread: Array[String]) -> 
 func _layout_grimoire_dialog() -> void:
 	if _grimoire_dialog == null:
 		return
-	var viewport_size: Vector2 = get_viewport_rect().size
-	var width: float = clampf(viewport_size.x - 48.0, GRIMOIRE_MIN_DIALOG_SIZE.x, GRIMOIRE_DIALOG_SIZE.x)
-	var height: float = clampf(viewport_size.y - 48.0, GRIMOIRE_MIN_DIALOG_SIZE.y, GRIMOIRE_DIALOG_SIZE.y)
-	var dialog_size := Vector2(width, height)
+	var dialog_size: Vector2 = UiTypography.modal_size(_grimoire_dialog, GRIMOIRE_DIALOG_SIZE, GRIMOIRE_MIN_DIALOG_SIZE)
 	_grimoire_dialog.custom_minimum_size = dialog_size
 	_grimoire_dialog.size = dialog_size
 
@@ -3126,7 +3145,7 @@ func _add_grimoire_entry_tab(entry: Dictionary, unread: Array[String], depth: in
 func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	var wrapper := MarginContainer.new()
 	wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	wrapper.add_theme_constant_override("margin_left", depth * 16)
+	wrapper.add_theme_constant_override("margin_left", depth * UiTypography.SPACE_LARGE)
 	wrapper.add_theme_constant_override("margin_right", 0)
 	wrapper.add_child(button)
 	_grimoire_section_list.add_child(wrapper)
@@ -3140,7 +3159,7 @@ func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: boo
 	button.clip_text = true
 	button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	button.tooltip_text = tooltip if not tooltip.is_empty() else label
-	button.custom_minimum_size = Vector2(0.0, 42.0 if depth == 0 else 34.0 if kind == "group" else GRIMOIRE_ENTRY_BUTTON_HEIGHT)
+	button.custom_minimum_size = Vector2(0.0, 44.0 if depth == 0 else 38.0 if kind == "group" else GRIMOIRE_ENTRY_BUTTON_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_stylebox_override("normal", _grimoire_tab_style(depth, selected, false, false, kind))
@@ -3159,7 +3178,7 @@ func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: boo
 	button.add_theme_color_override("font_hover_color", Color("26170d"))
 	button.add_theme_color_override("font_pressed_color", text_color)
 	button.add_theme_color_override("font_focus_color", text_color)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL if depth <= 1 else UiTypography.SIZE_CAPTION)
+	UiTypography.apply_button_role(button, UiTypography.ROLE_BODY if depth <= 1 else UiTypography.ROLE_CAPTION)
 	return button
 
 func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool, kind: String) -> StyleBoxFlat:
@@ -3185,10 +3204,10 @@ func _grimoire_tab_style(depth: int, selected: bool, hover: bool, pressed: bool,
 	style.corner_radius_top_right = 4
 	style.corner_radius_bottom_right = 4
 	style.corner_radius_bottom_left = 4
-	style.content_margin_left = 12
-	style.content_margin_top = 4
-	style.content_margin_right = 10
-	style.content_margin_bottom = 4
+	style.content_margin_left = UiTypography.SPACE_MEDIUM
+	style.content_margin_top = UiTypography.SPACE_TIGHT
+	style.content_margin_right = UiTypography.SPACE_SMALL
+	style.content_margin_bottom = UiTypography.SPACE_TIGHT
 	return style
 
 func _restore_grimoire_entry_list_scroll(scroll_position: int, attempt: int = 0, revision: int = 0) -> void:
@@ -11444,30 +11463,28 @@ func _rebuild_progression_overlay() -> void:
 		return
 	_sync_progression_from_run()
 	_clear_children_now(_upgrade_dialog)
-	var dialog_size: Vector2 = Vector2(1040.0, 560.0) if _progression_overlay_mode == "level_up" else CHARACTER_DIALOG_SIZE
-	_upgrade_dialog.custom_minimum_size = dialog_size
-	_upgrade_dialog.size = dialog_size
+	_layout_progression_dialog()
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 22)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 18)
+	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
+	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
 	_upgrade_dialog.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 14)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
 	margin.add_child(vbox)
 
 	var top_row := HBoxContainer.new()
-	top_row.add_theme_constant_override("separation", 10)
+	top_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	vbox.add_child(top_row)
 
 	var title := Label.new()
 	title.text = "Draw Strength" if _progression_overlay_mode == "level_up" else "Character"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(title, UiTypography.SIZE_SECTION)
+	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
@@ -11475,7 +11492,7 @@ func _rebuild_progression_overlay() -> void:
 
 	var summary := Label.new()
 	summary.text = _progression_overlay_summary_text()
-	UiTypography.set_label_size(summary, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(summary, UiTypography.ROLE_CAPTION)
 	summary.add_theme_color_override("font_color", Color("f0c978"))
 	summary.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	summary.add_theme_constant_override("outline_size", 1)
@@ -11484,7 +11501,7 @@ func _rebuild_progression_overlay() -> void:
 	var close_button := Button.new()
 	close_button.text = "X"
 	_apply_progression_stepper_button_style(close_button)
-	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
+	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
 	close_button.custom_minimum_size = Vector2(48.0, 48.0)
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -11502,7 +11519,7 @@ func _rebuild_progression_overlay() -> void:
 		var body := HBoxContainer.new()
 		body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		body.add_theme_constant_override("separation", 16)
+		body.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
 		vbox.add_child(_fixed_character_body_frame(body))
 
 		body.add_child(_build_progression_status_panel())
@@ -11511,13 +11528,13 @@ func _rebuild_progression_overlay() -> void:
 	if _progression_overlay_mode == "level_up":
 		var confirm_row := HBoxContainer.new()
 		confirm_row.alignment = BoxContainer.ALIGNMENT_END
-		confirm_row.add_theme_constant_override("separation", 10)
+		confirm_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 		vbox.add_child(confirm_row)
 
 		var cancel_button := Button.new()
 		cancel_button.text = "Cancel"
 		_apply_progression_command_button_style(cancel_button)
-		UiTypography.set_button_size(cancel_button, UiTypography.SIZE_SMALL)
+		UiTypography.apply_button_role(cancel_button, UiTypography.ROLE_BODY)
 		cancel_button.custom_minimum_size = Vector2(176.0, 52.0)
 		cancel_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		cancel_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -11530,13 +11547,22 @@ func _rebuild_progression_overlay() -> void:
 		confirm_button.text = "Confirm"
 		confirm_button.disabled = not can_confirm
 		_apply_progression_command_button_style(confirm_button)
-		UiTypography.set_button_size(confirm_button, UiTypography.SIZE_SMALL)
+		UiTypography.apply_button_role(confirm_button, UiTypography.ROLE_BODY)
 		confirm_button.custom_minimum_size = Vector2(188.0, 52.0)
 		confirm_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		confirm_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		if can_confirm:
 			confirm_button.pressed.connect(_confirm_level_up)
 		confirm_row.add_child(confirm_button)
+
+func _layout_progression_dialog() -> void:
+	if _upgrade_dialog == null:
+		return
+	var preferred: Vector2 = PROGRESSION_DIALOG_SIZE if _progression_overlay_mode == "level_up" else CHARACTER_DIALOG_SIZE
+	var minimum: Vector2 = PROGRESSION_DIALOG_MIN_SIZE if _progression_overlay_mode == "level_up" else CHARACTER_DIALOG_MIN_SIZE
+	var dialog_size: Vector2 = UiTypography.modal_size(_upgrade_dialog, preferred, minimum)
+	_upgrade_dialog.custom_minimum_size = dialog_size
+	_upgrade_dialog.size = dialog_size
 
 func _progression_overlay_summary_text() -> String:
 	var level: int = int(_progression.get("level", 1))
@@ -11557,7 +11583,7 @@ func _progression_overlay_summary_text() -> String:
 
 func _build_character_overlay_tabs() -> Control:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	for entry: Dictionary in [
 		{"mode": "equipment", "text": "Gear"},
 		{"mode": "magic", "text": "Magic"},
@@ -11571,6 +11597,7 @@ func _build_character_overlay_tabs() -> Control:
 		button.custom_minimum_size = Vector2(132.0, 42.0)
 		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		_apply_character_tab_style(button, button.button_pressed)
+		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
 		if _progression_overlay_mode != mode:
 			button.pressed.connect(_switch_character_overlay_mode.bind(mode))
 		row.add_child(button)
@@ -11616,7 +11643,7 @@ func _build_equipment_overlay_body() -> Control:
 	var body := HBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 14)
+	body.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
 	body.add_child(_build_equipment_character_column())
 	body.add_child(_build_equipment_inventory_column())
 	body.add_child(_build_current_deck_column())
@@ -11635,7 +11662,7 @@ func _build_magic_overlay_body() -> Control:
 	var body := HBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 14)
+	body.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
 	body.add_child(_build_magic_attuned_column())
 	body.add_child(_build_magic_inventory_column())
 	body.add_child(_build_current_deck_column())
@@ -11643,7 +11670,9 @@ func _build_magic_overlay_body() -> Control:
 
 func _fixed_character_body_frame(content: Control) -> Control:
 	var frame := Control.new()
-	frame.custom_minimum_size = Vector2(0.0, CHARACTER_BODY_HEIGHT)
+	var dialog_height: float = _upgrade_dialog.custom_minimum_size.y if _upgrade_dialog != null else CHARACTER_DIALOG_SIZE.y
+	var chrome_height: float = 150.0 if _progression_overlay_mode == "level_up" else 194.0
+	frame.custom_minimum_size = Vector2(0.0, maxf(CHARACTER_BODY_MIN_HEIGHT, dialog_height - chrome_height))
 	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	frame.clip_contents = true
@@ -11667,12 +11696,12 @@ func _build_equipment_character_column() -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	margin.add_child(vbox)
 
 	var title := Label.new()
 	title.text = "Loadout"
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(title, UiTypography.ROLE_SECTION)
 	title.add_theme_color_override("font_color", Color("f5ead4"))
 	title.add_theme_color_override("font_outline_color", Color("241912"))
 	title.add_theme_constant_override("outline_size", 1)
@@ -13550,24 +13579,24 @@ func _build_progression_status_panel() -> Control:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(282.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _ui_skin.make_plain_card_style(Color(0.13, 0.09, 0.065, 0.96), Color("8f6f46"), 12.0))
+	panel.add_theme_stylebox_override("panel", _ui_skin.make_plain_card_style(Color(0.13, 0.09, 0.065, 0.96), Color("8f6f46"), UiTypography.PANEL_PADDING_COMPACT))
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 14)
+	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
+	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
+	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_COMPACT))
 	panel.add_child(margin)
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	margin.add_child(vbox)
 	vbox.add_child(_build_progression_character_panel())
 	for row_text: String in _progression_status_rows():
 		var label := Label.new()
 		label.text = row_text
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+		UiTypography.apply_label_role(label, UiTypography.ROLE_BODY)
 		label.add_theme_color_override("font_color", Color("e8dcc5"))
 		label.add_theme_color_override("font_outline_color", Color("241912"))
 		label.add_theme_constant_override("outline_size", 1)
@@ -13600,7 +13629,7 @@ func _build_progression_character_panel() -> Control:
 
 	var stack := VBoxContainer.new()
 	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	stack.add_theme_constant_override("separation", 6)
+	stack.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	margin.add_child(stack)
 
 	var art := TextureRect.new()
@@ -13619,7 +13648,7 @@ func _build_progression_character_panel() -> Control:
 	name_label.text = "The Reaver"
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(name_label, UiTypography.ROLE_BODY)
 	name_label.add_theme_color_override("font_color", Color("f5ead4"))
 	name_label.add_theme_color_override("font_outline_color", Color("241912"))
 	name_label.add_theme_constant_override("outline_size", 1)
@@ -13646,7 +13675,7 @@ func _build_progression_stat_list() -> Control:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	var list := VBoxContainer.new()
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 8)
+	list.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	scroll.add_child(list)
 	var stats: Dictionary = GameData.normalized_progression_stats(_progression.get("stats", {}))
 	for stat_id: String in GameData.progression_stat_ids():
@@ -13662,14 +13691,14 @@ func _build_progression_stat_row(stat_id: String, value: int) -> Control:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _progression_stat_row_style(Color(str(stat_def.get("accent", "#c28a53"))), selected))
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 8)
+	margin.add_theme_constant_override("margin_left", UiTypography.SPACE_MEDIUM)
+	margin.add_theme_constant_override("margin_top", UiTypography.SPACE_SMALL)
+	margin.add_theme_constant_override("margin_right", UiTypography.SPACE_MEDIUM)
+	margin.add_theme_constant_override("margin_bottom", UiTypography.SPACE_SMALL)
 	panel.add_child(margin)
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	margin.add_child(row)
 	var icon := TextureRect.new()
 	icon.custom_minimum_size = Vector2(48.0, 48.0)
@@ -13679,11 +13708,11 @@ func _build_progression_stat_row(stat_id: String, value: int) -> Control:
 	row.add_child(icon)
 	var text_box := VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", 2)
+	text_box.add_theme_constant_override("separation", UiTypography.SPACE_HAIRLINE)
 	row.add_child(text_box)
 	var name_label := Label.new()
 	name_label.text = str(stat_def.get("name", stat_id))
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(name_label, UiTypography.ROLE_BODY)
 	name_label.add_theme_color_override("font_color", Color("f5ead4"))
 	name_label.add_theme_color_override("font_outline_color", Color("241912"))
 	name_label.add_theme_constant_override("outline_size", 1)
@@ -13691,7 +13720,7 @@ func _build_progression_stat_row(stat_id: String, value: int) -> Control:
 	var desc_label := Label.new()
 	desc_label.text = str(stat_def.get("short", ""))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(desc_label, UiTypography.SIZE_CAPTION)
+	UiTypography.apply_label_role(desc_label, UiTypography.ROLE_CAPTION)
 	desc_label.add_theme_color_override("font_color", Color("cdbca2"))
 	text_box.add_child(desc_label)
 	if _progression_overlay_mode == "level_up":
@@ -13745,7 +13774,7 @@ func _build_progression_stat_value_badge(value: int, cap: int, selected: bool) -
 	label.text = "%d/%d" % [value, cap]
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
+	UiTypography.apply_label_role(label, UiTypography.ROLE_BODY)
 	label.add_theme_color_override("font_color", Color("fff0ce") if selected else Color("e8dcc5"))
 	label.add_theme_color_override("font_outline_color", Color("1d1510"))
 	label.add_theme_constant_override("outline_size", 1)
