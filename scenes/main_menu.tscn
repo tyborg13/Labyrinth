@@ -107,6 +107,33 @@ custom_minimum_size = Vector2(340, 54)
 layout_mode = 2
 text = "Fight Boss"
 
+[node name="ResumePanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 454.0
+offset_top = 188.0
+offset_right = 794.0
+offset_bottom = 312.0
+
+[node name="ResumeMargin" type="MarginContainer" parent="ResumePanel"]
+layout_mode = 2
+
+[node name="ResumeVBox" type="VBoxContainer" parent="ResumePanel/ResumeMargin"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="ResumeEyebrow" type="Label" parent="ResumePanel/ResumeMargin/ResumeVBox"]
+layout_mode = 2
+text = "RUN IN PROGRESS"
+
+[node name="ResumeLocation" type="Label" parent="ResumePanel/ResumeMargin/ResumeVBox"]
+layout_mode = 2
+text = "DEPTH 3  ·  IN COMBAT"
+
+[node name="ResumeStats" type="Label" parent="ResumePanel/ResumeMargin/ResumeVBox"]
+layout_mode = 2
+text = "HP 185 / 260  ·  HELD 74 EMBERS"
+
 [node name="ProfileBlock" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 64.0
@@ -157,9 +184,63 @@ custom_minimum_size = Vector2(250, 52)
 layout_mode = 2
 text = "Back"
 
+[node name="ReplacementPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 454.0
+offset_top = 188.0
+offset_right = 814.0
+offset_bottom = 436.0
+
+[node name="ReplacementMargin" type="MarginContainer" parent="ReplacementPanel"]
+layout_mode = 2
+
+[node name="ReplacementVBox" type="VBoxContainer" parent="ReplacementPanel/ReplacementMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ReplacementTitle" type="Label" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
+layout_mode = 2
+text = "Replace saved run?"
+
+[node name="ReplacementWarning" type="Label" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
+layout_mode = 2
+text = "This run will be discarded."
+
+[node name="ReplacementLocation" type="Label" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
+layout_mode = 2
+text = "DEPTH 3  ·  IN COMBAT"
+
+[node name="ReplacementStats" type="Label" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
+layout_mode = 2
+text = "HP 185 / 260  ·  HELD 74 EMBERS"
+
+[node name="ReplacementSpacer" type="Control" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ReplacementActions" type="HBoxContainer" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ReplacementCancelButton" type="Button" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions"]
+custom_minimum_size = Vector2(130, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cancel"
+
+[node name="ReplacementConfirmButton" type="Button" parent="ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions"]
+custom_minimum_size = Vector2(160, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Replace Run"
+
 [connection signal="pressed" from="MenuColumn/ContinueButton" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="MenuColumn/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuColumn/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="MenuColumn/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="MenuColumn/BossButton" to="." method="_on_boss_button_pressed"]
 [connection signal="pressed" from="SettingsPanel/SettingsMargin/SettingsVBox/SettingsBackButton" to="." method="_on_settings_back_button_pressed"]
+[connection signal="pressed" from="ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementCancelButton" to="." method="_on_replacement_cancel_button_pressed"]
+[connection signal="pressed" from="ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementConfirmButton" to="." method="_on_replacement_confirm_button_pressed"]

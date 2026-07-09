@@ -26,7 +26,21 @@ const MENU_BUTTON_HEIGHT_COMPACT: float = 64.0
 const MENU_BUTTON_MIN_WIDTH: float = 380.0
 const MENU_BUTTON_MAX_WIDTH: float = 470.0
 const MENU_SEPARATION: int = 14
+const CONTEXT_PANEL_MIN_WIDTH: float = 300.0
+const CONTEXT_PANEL_MAX_WIDTH: float = 360.0
+const CONTEXT_PANEL_GAP: float = 24.0
+const RESUME_PANEL_HEIGHT: float = 124.0
+const REPLACEMENT_PANEL_HEIGHT: float = 248.0
 const EDGE_ACCENT := Color("d69b47")
+const DANGER_ACCENT := Color("b94c3f")
+const SAVED_RUN_MODE_LABELS := {
+	"room": "EXPLORING",
+	"pre_battle": "AT THE THRESHOLD",
+	"combat": "IN COMBAT",
+	"reward": "CHOOSING A REWARD",
+	"campfire": "AT CAMPFIRE",
+	"treasure": "AT TREASURE"
+}
 const TITLE_FACE_TOP_COLOR := Color("fff7cf")
 const TITLE_FACE_HIGH_COLOR := Color("ffe08e")
 const TITLE_FACE_MID_COLOR := Color("dd853e")
@@ -72,14 +86,24 @@ void fragment() {
 @onready var settings_button: Button = $MenuColumn/SettingsButton
 @onready var quit_button: Button = $MenuColumn/QuitButton
 @onready var boss_button: Button = $MenuColumn/BossButton
+@onready var resume_panel: PanelContainer = $ResumePanel
+@onready var resume_location_label: Label = $ResumePanel/ResumeMargin/ResumeVBox/ResumeLocation
+@onready var resume_stats_label: Label = $ResumePanel/ResumeMargin/ResumeVBox/ResumeStats
 @onready var profile_block: VBoxContainer = $ProfileBlock
 @onready var embers_label: Label = $ProfileBlock/Embers
 @onready var footer_label: Label = $ProfileBlock/Footer
 @onready var settings_panel: PanelContainer = $SettingsPanel
 @onready var settings_title_label: Label = $SettingsPanel/SettingsMargin/SettingsVBox/SettingsTitle
 @onready var settings_back_button: Button = $SettingsPanel/SettingsMargin/SettingsVBox/SettingsBackButton
+@onready var replacement_panel: PanelContainer = $ReplacementPanel
+@onready var replacement_location_label: Label = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementLocation
+@onready var replacement_stats_label: Label = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementStats
+@onready var replacement_cancel_button: Button = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementCancelButton
+@onready var replacement_confirm_button: Button = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementConfirmButton
 
 var _progression: Dictionary = {}
+var _saved_run_preview: Dictionary = {}
+var _replacement_confirmation_open: bool = false
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
 var _title_shadow_lines: Array[Label]
@@ -139,7 +163,14 @@ func _apply_style() -> void:
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
 		_apply_menu_button_style(button)
+	_apply_confirmation_button_style(replacement_cancel_button, false)
+	_apply_confirmation_button_style(replacement_confirm_button, true)
 	boss_button.visible = false
+
+	resume_panel.add_theme_stylebox_override("panel", _make_context_panel_style(EDGE_ACCENT, 0.90))
+	_apply_label_style($ResumePanel/ResumeMargin/ResumeVBox/ResumeEyebrow, REGULAR_FONT, 14, Color("c9a86c"), Color("100908"), 2)
+	_apply_label_style(resume_location_label, HEADER_FONT, 23, Color("fff0c4"), Color("100908"), 4)
+	_apply_label_style(resume_stats_label, REGULAR_FONT, 17, Color("e7d7ba"), Color("100908"), 2)
 
 	_apply_label_style(embers_label, HEADER_FONT, 22, Color("f6d99f"), Color("100908"), 3)
 	_apply_label_style(footer_label, REGULAR_FONT, 15, Color("dbc59b"), Color("100908"), 2)
@@ -147,6 +178,12 @@ func _apply_style() -> void:
 
 	settings_panel.add_theme_stylebox_override("panel", _make_panel_style())
 	_apply_label_style(settings_title_label, HEADER_FONT, 32, Color("fff1cf"), Color("090708"), 5)
+
+	replacement_panel.add_theme_stylebox_override("panel", _make_context_panel_style(DANGER_ACCENT, 0.94))
+	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementTitle, HEADER_FONT, 27, Color("fff1cf"), Color("090708"), 5)
+	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementWarning, REGULAR_FONT, 15, Color("d9b8a4"), Color("090708"), 2)
+	_apply_label_style(replacement_location_label, HEADER_FONT, 20, Color("ffe2b0"), Color("090708"), 4)
+	_apply_label_style(replacement_stats_label, REGULAR_FONT, 16, Color("e7d7ba"), Color("090708"), 2)
 
 func _configure_title_container(control: Control) -> void:
 	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -244,6 +281,26 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.add_theme_color_override("font_outline_color", Color("080606"))
 	button.add_theme_constant_override("outline_size", 5)
 
+func _apply_confirmation_button_style(button: Button, destructive: bool) -> void:
+	_apply_menu_button_style(button)
+	button.add_theme_font_size_override("font_size", 20)
+	if not destructive:
+		return
+	button.add_theme_stylebox_override("normal", _make_menu_button_style(Color(0.12, 0.025, 0.027, 0.88), DANGER_ACCENT, 0.0))
+	button.add_theme_stylebox_override("hover", _make_menu_button_style(Color(0.20, 0.045, 0.042, 0.94), DANGER_ACCENT.lightened(0.18), 2.0))
+	button.add_theme_stylebox_override("focus", _make_menu_button_style(Color(0.20, 0.045, 0.042, 0.94), DANGER_ACCENT.lightened(0.18), 3.0))
+	button.add_theme_stylebox_override("pressed", _make_menu_button_style(Color(0.09, 0.015, 0.018, 0.96), Color("ef8a68"), 0.0, 2.0))
+
+func _apply_continue_button_state(primary: bool) -> void:
+	_apply_menu_button_style(continue_button)
+	if not primary:
+		return
+	continue_button.add_theme_stylebox_override("normal", _make_menu_button_style(Color(0.15, 0.095, 0.025, 0.88), Color("f0c978"), 1.0))
+	continue_button.add_theme_stylebox_override("hover", _make_menu_button_style(Color(0.23, 0.145, 0.035, 0.94), Color("ffe3a0"), 3.0))
+	continue_button.add_theme_stylebox_override("focus", _make_menu_button_style(Color(0.23, 0.145, 0.035, 0.94), Color("ffe3a0"), 3.0))
+	continue_button.add_theme_stylebox_override("pressed", _make_menu_button_style(Color(0.10, 0.055, 0.015, 0.96), Color("fff0bd"), 0.0, 2.0))
+	continue_button.add_theme_color_override("font_color", Color("fff2cf"))
+
 func _make_menu_button_style(background: Color, accent: Color, expand: float = 0.0, pressed_offset: float = 0.0) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = background
@@ -278,16 +335,104 @@ func _make_panel_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 18
 	return style
 
+func _make_context_panel_style(accent: Color, opacity: float) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.020, 0.028, opacity)
+	style.border_color = accent
+	style.border_width_left = 4
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_right = 4
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48)
+	style.shadow_size = 12
+	style.content_margin_left = 18
+	style.content_margin_top = 15
+	style.content_margin_right = 18
+	style.content_margin_bottom = 15
+	return style
+
 func _reload_progression() -> void:
 	_progression = ProgressionStore.load_data()
-	var has_saved_run: bool = ProgressionStore.has_saved_run()
-	continue_button.disabled = not has_saved_run
+	_refresh_saved_run_preview()
 	embers_label.text = _profile_text()
 	footer_label.text = "LV %d  |  EMBERS %d  |  BOUND %d" % [
 		int(_progression.get("level", 1)),
 		int(_progression.get("embers", 0)),
 		_bound_magick_count()
 	]
+
+func _refresh_saved_run_preview() -> void:
+	_saved_run_preview = _build_saved_run_preview(ProgressionStore.load_saved_run())
+	var has_valid_save: bool = not _saved_run_preview.is_empty()
+	if not has_valid_save:
+		_replacement_confirmation_open = false
+	continue_button.text = "Continue Run" if has_valid_save else "Continue"
+	_set_menu_actions_locked(_replacement_confirmation_open)
+	_apply_continue_button_state(has_valid_save)
+	_apply_preview_text(_saved_run_preview)
+	_sync_context_panels()
+
+func _build_saved_run_preview(run_state: Dictionary) -> Dictionary:
+	if run_state.is_empty():
+		return {}
+	var mode_value: Variant = run_state.get("mode", null)
+	var coord_value: Variant = run_state.get("current_room", null)
+	var hp_value: Variant = run_state.get("player_hp", null)
+	var max_hp_value: Variant = run_state.get("player_max_hp", null)
+	var ember_value: Variant = run_state.get("held_embers", run_state.get("unbanked_embers", null))
+	if typeof(mode_value) not in [TYPE_STRING, TYPE_STRING_NAME] or not SAVED_RUN_MODE_LABELS.has(str(mode_value)):
+		return {}
+	if typeof(coord_value) != TYPE_VECTOR2I:
+		return {}
+	if not _is_numeric_value(hp_value) or not _is_numeric_value(max_hp_value) or not _is_numeric_value(ember_value):
+		return {}
+	var player_hp: int = int(hp_value)
+	var player_max_hp: int = int(max_hp_value)
+	var held_embers: int = int(ember_value)
+	if player_max_hp <= 0 or player_hp < 0 or player_hp > player_max_hp or held_embers < 0:
+		return {}
+	var coord: Vector2i = coord_value
+	var depth: int = _saved_room_depth(run_state, coord)
+	return {
+		"location": "DEPTH %d  ·  %s" % [depth, str(SAVED_RUN_MODE_LABELS[str(mode_value)])],
+		"stats": "HP %d / %d  ·  HELD %d EMBERS" % [player_hp, player_max_hp, held_embers]
+	}
+
+func _is_numeric_value(value: Variant) -> bool:
+	return typeof(value) in [TYPE_INT, TYPE_FLOAT]
+
+func _saved_room_depth(run_state: Dictionary, coord: Vector2i) -> int:
+	var fallback: int = maxi(absi(coord.x), absi(coord.y))
+	var rooms_value: Variant = run_state.get("rooms", {})
+	if typeof(rooms_value) != TYPE_DICTIONARY:
+		return fallback
+	var room_value: Variant = (rooms_value as Dictionary).get("%d,%d" % [coord.x, coord.y], {})
+	if typeof(room_value) != TYPE_DICTIONARY:
+		return fallback
+	var depth_value: Variant = (room_value as Dictionary).get("depth", fallback)
+	return maxi(0, int(depth_value)) if _is_numeric_value(depth_value) else fallback
+
+func _apply_preview_text(preview: Dictionary) -> void:
+	var location: String = str(preview.get("location", ""))
+	var stats: String = str(preview.get("stats", ""))
+	resume_location_label.text = location
+	resume_stats_label.text = stats
+	replacement_location_label.text = location
+	replacement_stats_label.text = stats
+
+func _sync_context_panels() -> void:
+	var has_valid_save: bool = not _saved_run_preview.is_empty()
+	replacement_panel.visible = _replacement_confirmation_open and has_valid_save
+	resume_panel.visible = has_valid_save and not _replacement_confirmation_open and not settings_panel.visible
+
+func _set_menu_actions_locked(locked: bool) -> void:
+	continue_button.disabled = locked or _saved_run_preview.is_empty()
+	start_button.disabled = locked
+	settings_button.disabled = locked
+	quit_button.disabled = locked
+	boss_button.disabled = locked
 
 func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -323,6 +468,18 @@ func _update_layout() -> void:
 		button.custom_minimum_size = Vector2(menu_width, button_height)
 	settings_back_button.custom_minimum_size = Vector2(minf(250.0, menu_width), button_height)
 
+	var context_width: float = clampf(viewport_size.x * 0.18, CONTEXT_PANEL_MIN_WIDTH, CONTEXT_PANEL_MAX_WIDTH)
+	var context_x: float = margin_x + menu_width + CONTEXT_PANEL_GAP
+	var context_y: float = menu_y
+	if context_x + context_width + margin_x > viewport_size.x:
+		context_x = margin_x
+		context_y = menu_y + _menu_column_height(button_height) + 20.0
+		context_width = menu_width
+	resume_panel.position = Vector2(context_x, context_y)
+	resume_panel.size = Vector2(context_width, RESUME_PANEL_HEIGHT)
+	replacement_panel.position = Vector2(context_x, context_y)
+	replacement_panel.size = Vector2(maxf(context_width, 340.0), REPLACEMENT_PANEL_HEIGHT)
+
 	var profile_width: float = minf(menu_width + 72.0, viewport_size.x - margin_x * 2.0)
 	var profile_height: float = 86.0
 	var profile_y: float = viewport_size.y - profile_height - clampf(viewport_size.y * 0.055, 34.0, 64.0)
@@ -335,7 +492,7 @@ func _update_layout() -> void:
 
 	var panel_width: float = minf(390.0, maxf(300.0, viewport_size.x - margin_x * 2.0))
 	var panel_height: float = 214.0
-	var panel_x: float = margin_x + menu_width + 38.0
+	var panel_x: float = context_x
 	var panel_y: float = menu_y
 	if panel_x + panel_width + margin_x > viewport_size.x:
 		panel_x = margin_x
@@ -537,15 +694,36 @@ func _focusable_menu_buttons() -> Array:
 	return [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]
 
 func _on_start_button_pressed() -> void:
-	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
-		get_tree().root.remove_meta("labyrinth_resume_saved_run")
+	_refresh_saved_run_preview()
+	if not _saved_run_preview.is_empty():
+		_replacement_confirmation_open = true
+		_set_menu_actions_locked(true)
+		_sync_context_panels()
+		return
+	_begin_new_game()
+
+func _on_replacement_cancel_button_pressed() -> void:
+	_replacement_confirmation_open = false
+	_set_menu_actions_locked(false)
+	_sync_context_panels()
+
+func _on_replacement_confirm_button_pressed() -> void:
+	_begin_new_game()
+
+func _begin_new_game() -> void:
+	var scene_tree: SceneTree = get_tree() if is_inside_tree() else null
+	if scene_tree != null and scene_tree.root.has_meta("labyrinth_resume_saved_run"):
+		scene_tree.root.remove_meta("labyrinth_resume_saved_run")
 	if ProgressionStore.has_saved_run():
 		_progression = ProgressionStore.set_embers(ProgressionStore.load_data(), 0)
 		ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
-	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
+	_saved_run_preview = {}
+	if scene_tree != null:
+		scene_tree.change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_continue_button_pressed() -> void:
+	_refresh_saved_run_preview()
 	if continue_button.disabled:
 		return
 	get_tree().root.set_meta("labyrinth_resume_saved_run", true)
@@ -553,6 +731,7 @@ func _on_continue_button_pressed() -> void:
 
 func _on_settings_button_pressed() -> void:
 	settings_panel.visible = true
+	_sync_context_panels()
 	if _using_keyboard_navigation:
 		settings_back_button.grab_focus()
 	else:
@@ -560,6 +739,7 @@ func _on_settings_button_pressed() -> void:
 
 func _on_settings_back_button_pressed() -> void:
 	settings_panel.visible = false
+	_sync_context_panels()
 	if _using_keyboard_navigation:
 		settings_button.grab_focus()
 	else:
