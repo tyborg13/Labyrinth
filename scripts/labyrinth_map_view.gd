@@ -4,6 +4,7 @@ class_name LabyrinthMapView
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 signal room_selected(coord: Vector2i)
 
@@ -27,10 +28,10 @@ const COMPACT_GRID_SPACING: float = 34.0
 const EXPANDED_GRID_SPACING: float = 132.0
 const COMPACT_NODE_MAX_SIZE: float = 24.0
 const EXPANDED_NODE_MAX_SIZE: float = 64.0
-const LEGEND_GAP: float = 18.0
-const LEGEND_WIDTH: float = 142.0
-const LEGEND_PADDING: float = 12.0
-const LEGEND_ROW_HEIGHT: float = 26.0
+const LEGEND_GAP: float = 20.0
+const LEGEND_WIDTH: float = 174.0
+const LEGEND_PADDING: float = 14.0
+const LEGEND_ROW_HEIGHT: float = 30.0
 const RECOVERY_MARKER_ICON_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 const RECOVERY_MARKER_ACCENT: Color = Color("ff9d39")
 const TRAVEL_ANIMATION_SECONDS: float = 0.34
@@ -58,7 +59,7 @@ var _travel_progress: float = 0.0:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(120.0, 120.0) if not interactive else Vector2(820.0, 620.0)
+	custom_minimum_size = Vector2(120.0, 120.0) if not interactive else Vector2(640.0, 400.0)
 
 func set_run_state(next_state: Dictionary) -> void:
 	var next_signature: String = _map_state_signature(next_state)
@@ -371,7 +372,9 @@ func _room_icon_texture_for_room(room: Dictionary) -> Texture2D:
 	return _room_icon_textures.get(icon_id, null)
 
 func _draw_map_legend() -> void:
-	var font: Font = get_theme_default_font()
+	var font: Font = UiTypography.body_font()
+	if font == null:
+		font = get_theme_default_font()
 	if font == null:
 		return
 	var entries: Array[Dictionary] = _legend_entries()
@@ -380,9 +383,9 @@ func _draw_map_legend() -> void:
 	var legend_rect: Rect2 = _legend_rect()
 	draw_rect(legend_rect, Color(0.08, 0.06, 0.05, 0.82), true)
 	draw_rect(legend_rect, Color(0.93, 0.85, 0.70, 0.36), false, 1.0)
-	var label_size: int = 12 if interactive else 7
-	var icon_side: float = 18.0 if interactive else 12.0
-	var icon_radius: float = 7.0 if interactive else 4.6
+	var label_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY) if interactive else 7
+	var icon_side: float = 20.0 if interactive else 12.0
+	var icon_radius: float = 8.0 if interactive else 4.6
 	for index: int in range(entries.size()):
 		var entry: Dictionary = entries[index]
 		var room: Dictionary = entry.get("room", {})
@@ -393,10 +396,10 @@ func _draw_map_legend() -> void:
 		_draw_room_icon(room, icon_center, icon_radius, Color.WHITE)
 		draw_string(
 			font,
-			icon_center + Vector2(14.0 if interactive else 10.0, 4.0),
+			icon_center + Vector2(16.0 if interactive else 10.0, 5.0),
 			str(entry.get("label", "")),
 			HORIZONTAL_ALIGNMENT_LEFT,
-			legend_rect.size.x - (30.0 if interactive else 24.0),
+			legend_rect.size.x - (34.0 if interactive else 24.0),
 			label_size,
 			Color("d9cbb2")
 		)

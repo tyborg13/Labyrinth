@@ -120,8 +120,14 @@ func _build_children() -> void:
 	_continue_button.disabled = true
 	_continue_button.add_theme_font_override("font", REGULAR_FONT)
 	_ui_skin.apply_button_stylebox_overrides(_continue_button)
-	_ui_skin.apply_button_text_overrides(_continue_button, Color("f4d8d8"), Color("170304"), 2)
-	UiTypography.set_button_size(_continue_button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_text_overrides(
+		_continue_button,
+		Color("f4d8d8"),
+		Color("170304"),
+		Color("c9aaaa"),
+		2
+	)
+	UiTypography.apply_button_role(_continue_button, UiTypography.ROLE_SECTION)
 	_ui_skin.apply_button_native_size(_continue_button, CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH)
 	_continue_button.pressed.connect(func() -> void:
 		if not _continue_button.disabled:
@@ -137,7 +143,7 @@ func _update_child_layout() -> void:
 	var title_font: Font = HEADER_FONT
 	var title_size: Vector2 = title_font.get_string_size(TITLE_TEXT, HORIZONTAL_ALIGNMENT_LEFT, -1.0, title_font_size)
 	title_size.y = maxf(title_size.y, title_font.get_height(title_font_size))
-	title_size += Vector2(28.0, 18.0)
+	title_size += Vector2(UiTypography.PANEL_PADDING_COMPACT * 2.0, UiTypography.SPACE_LARGE)
 	_title_label.size = title_size
 	var title_y: float = maxf(24.0, (size.y - title_size.y) * 0.50)
 	var text_t: float = clampf((_elapsed - ENGULF_SECONDS) / TITLE_REVEAL_SECONDS, 0.0, 1.0)
@@ -153,7 +159,7 @@ func _update_child_layout() -> void:
 		1.0
 	)
 	_continue_button.size = _ui_skin.button_native_size(CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH)
-	_continue_button.position = Vector2((size.x - _continue_button.size.x) * 0.5, title_y + title_size.y + 24.0)
+	_continue_button.position = Vector2((size.x - _continue_button.size.x) * 0.5, title_y + title_size.y + UiTypography.SPACE_XL)
 	_continue_button.visible = button_alpha > 0.0
 	_continue_button.disabled = button_alpha < 0.98
 	_continue_button.modulate = Color(1.0, 1.0, 1.0, _ease_out_cubic(button_alpha))
@@ -162,7 +168,7 @@ func _fitted_title_font_size() -> int:
 	var font: Font = HEADER_FONT
 	var font_size: int = 92
 	var min_size: int = 38
-	var max_width: float = maxf(240.0, size.x - 56.0)
+	var max_width: float = maxf(240.0, size.x - UiTypography.SAFE_MARGIN * 2.0)
 	while font_size > min_size:
 		var text_width: float = font.get_string_size(TITLE_TEXT, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 		if text_width <= max_width:

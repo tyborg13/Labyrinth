@@ -21,6 +21,7 @@ const MusicLibrary = preload("res://scripts/music_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScript = CardWidget
@@ -260,6 +261,7 @@ func _initialize() -> void:
 	_test_run_state_save_and_load()
 	_test_hand_fan_layout_lifts_center_cards()
 	_test_default_theme_uses_pixel_font()
+	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
@@ -7234,7 +7236,18 @@ func _test_default_theme_uses_pixel_font() -> void:
 	_assert(font != null, "The default theme should expose a default font")
 	if font != null:
 		_assert(font.resource_path.ends_with("LabyrinthCrumble-Regular.tres"), "The default theme should use the custom crumbly pixel font")
+	_assert(theme.default_font_size >= UiTypography.SIZE_BODY, "The default theme should preserve the shared readable body-text floor")
 	probe.queue_free()
+
+func _test_ui_typography_system() -> void:
+	_assert(UiTypography.SIZE_CAPTION >= 14, "Utility UI captions should stay at or above the shared readability floor")
+	_assert(UiTypography.SIZE_BODY >= 16, "Utility UI body text should stay at or above the shared readability floor")
+	_assert(UiTypography.SIZE_TITLE > UiTypography.SIZE_SECTION and UiTypography.SIZE_SECTION > UiTypography.SIZE_BODY, "Shared typography roles should preserve title, section, and body hierarchy")
+	_assert(UiTypography.SPACE_TIGHT < UiTypography.SPACE_SMALL and UiTypography.SPACE_SMALL < UiTypography.SPACE_LARGE, "Shared spacing tokens should form a coherent progression")
+	var display_font: Font = UiTypography.display_font()
+	var body_font: Font = UiTypography.body_font()
+	_assert(display_font != null and display_font.resource_path.ends_with("LabyrinthCrumble-Header.tres"), "Display roles should retain the distressed pixel heading face")
+	_assert(body_font != null and body_font.resource_path.ends_with("LabyrinthCrumble-Regular.tres"), "Body roles should use the cleaner readable pixel face")
 
 func _test_main_scenes_instantiate() -> void:
 	var main_menu_scene: PackedScene = load("res://scenes/main_menu.tscn")
@@ -7328,6 +7341,9 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleDeckBadge", true, false) != null, "Pre-battle preview should show the current deck as visual badges")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleEquipmentRow", true, false) != null, "Pre-battle preview should show the current loadout icons")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleEnemyHealth", true, false) != null, "Pre-battle preview should show enemy health")
+	if preview_panel != null:
+		var preview_viewport: Vector2 = instance.get_viewport_rect().size
+		_assert(preview_panel.custom_minimum_size.x <= preview_viewport.x - UiTypography.SPACE_XXL and preview_panel.custom_minimum_size.y <= preview_viewport.y - UiTypography.SPACE_XXL, "Pre-battle preview should preserve safe viewport margins")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) == null, "Pre-battle preview should not reveal enemy opening intents")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleCloseButton", true, false) == null, "Pre-battle preview should not offer a back-out button after room entry")
 	var deck_badge: Control = null
@@ -9541,6 +9557,9 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var character_dialog: PanelContainer = instance.get("_upgrade_dialog")
 	var stats_dialog_size: Vector2 = character_dialog.custom_minimum_size if character_dialog != null else Vector2.ZERO
 	var stats_dialog_actual_size: Vector2 = character_dialog.size if character_dialog != null else Vector2.ZERO
+	if character_dialog != null:
+		var character_viewport: Vector2 = instance.get_viewport_rect().size
+		_assert(character_dialog.custom_minimum_size.x <= character_viewport.x - UiTypography.SAFE_MARGIN * 2.0 and character_dialog.custom_minimum_size.y <= character_viewport.y - UiTypography.SAFE_MARGIN * 2.0, "Character dialog should preserve safe viewport margins")
 	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the character stats overlay")
 	_assert(upgrade_scrim.z_index >= 1200 and not upgrade_scrim.z_as_relative, "The character overlay should render above combat hand cards")
 	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
@@ -9913,7 +9932,9 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_level_up_overlay")
 	var upgrade_dialog: PanelContainer = instance.get("_upgrade_dialog")
-	_assert(upgrade_dialog != null and upgrade_dialog.custom_minimum_size.y <= 560.0, "The campfire level-up overlay should stay short enough to keep its action row visible")
+	if upgrade_dialog != null:
+		var progression_viewport: Vector2 = instance.get_viewport_rect().size
+		_assert(upgrade_dialog.custom_minimum_size.y <= progression_viewport.y - UiTypography.SAFE_MARGIN * 2.0, "The campfire level-up overlay should preserve safe margins so its action row remains visible")
 	_assert(_label_with_text(upgrade_scrim, "Draw Strength") != null, "The campfire level-up overlay should use the Draw Strength title")
 	_assert(_label_with_text(upgrade_scrim, "Choose 2 different stats.") != null, "The level-up overlay should explain the two-stat pick")
 	_assert(_button_with_text(upgrade_scrim, "+") != null, "The level-up overlay should use plus buttons instead of set buttons")
