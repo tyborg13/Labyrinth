@@ -87,6 +87,7 @@ func _capture_states() -> void:
 	await _settle_ui()
 	context = instance.get("_action_step_tracker") as Control
 	_assert(_button_with_text(context, "Rotate") != null, "Rotatable AOE should compose Rotate into the action context")
+	_assert(str(context.get_meta("action_verb", "")) == "AIM AREA", "AOE targeting should use concise, non-redundant copy")
 	var focus_tiles: Array = (board.get("presentation") as Dictionary).get("focus_tiles", [])
 	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(4, 4)) and not focus_tiles.has(Vector2i(6, 4)), "AOE rotation state should show the selected vertical pattern")
 	await _save_root_screenshot("%s/aoe_rotation.png" % OUTPUT_DIR)
@@ -195,7 +196,8 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	var board_overlap: Rect2 = context_rect.intersection(board_rect)
 	_assert(board_overlap.get_area() <= board_rect.get_area() * 0.12, "Action context should preserve at least 88% of the battlefield control area")
 	var selected_card: Control = _hand_card_control(hand_box, int(instance.get("_selected_card_index")))
-	_assert(selected_card != null and context_rect.position.y + context_rect.size.y <= selected_card.get_global_rect().position.y + 1.0, "Action context should connect above, not cover, the selected hand card")
+	var hand_visual_top: float = _hand_visual_top(hand_box)
+	_assert(selected_card != null and context_rect.end.y <= hand_visual_top + 1.0, "Action context should sit above the entire rendered hand, including rotated card titles and ornaments")
 
 func _hand_card_control(hand_box: Control, index: int) -> Control:
 	if hand_box == null or index < 0 or index >= hand_box.get_child_count():
@@ -204,6 +206,17 @@ func _hand_card_control(hand_box: Control, index: int) -> Control:
 	if slot != null and slot.get_child_count() > 0 and slot.get_child(0) is Control:
 		return slot.get_child(0) as Control
 	return slot
+
+func _hand_visual_top(hand_box: Control) -> float:
+	var visual_top: float = INF
+	for index: int in range(hand_box.get_child_count()):
+		var card: Control = _hand_card_control(hand_box, index)
+		if card == null or not card.visible:
+			continue
+		var transform: Transform2D = card.get_global_transform()
+		for corner: Vector2 in [Vector2.ZERO, Vector2(card.size.x, 0.0), card.size, Vector2(0.0, card.size.y)]:
+			visual_top = minf(visual_top, (transform * corner).y)
+	return visual_top
 
 func _button_with_text(root_node: Node, text: String) -> Button:
 	if root_node == null:

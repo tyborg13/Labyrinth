@@ -5784,18 +5784,24 @@ func _layout_action_step_tracker() -> void:
 	_action_step_tracker.global_position = Vector2(target_x, target_y)
 	if _action_context_connector != null:
 		var connector_top: float = target_y + tracker_size.y
-		var connector_bottom: float = maxf(connector_top, anchor_rect.position.y)
+		var connector_bottom: float = maxf(connector_top, _action_step_tracker_connector_target_y(anchor_rect))
 		_action_context_connector.global_position = Vector2(anchor_rect.get_center().x - ACTION_CONTEXT_CONNECTOR_WIDTH * 0.5, connector_top)
 		_action_context_connector.size = Vector2(ACTION_CONTEXT_CONNECTOR_WIDTH, maxf(0.0, connector_bottom - connector_top))
 		_action_context_connector.visible = _action_context_connector.size.y > 1.0
 
 func _action_step_tracker_anchor_rect() -> Rect2:
 	if _drag_card_index >= 0 and _drag_card_source_rect.size.x > 0.0 and _drag_card_source_rect.size.y > 0.0:
-		return _drag_card_source_rect
+		return Rect2(
+			Vector2(_drag_card_source_rect.get_center().x - 1.0, minf(_hand_visual_top(), _drag_card_source_rect.position.y)),
+			Vector2(2.0, 1.0)
+		)
 	if _selected_card_index >= 0:
 		var selected_rect: Rect2 = _hand_card_global_rect(_selected_card_index)
 		if selected_rect.size.x > 0.0 and selected_rect.size.y > 0.0:
-			return selected_rect
+			return Rect2(
+				Vector2(selected_rect.get_center().x - 1.0, minf(_hand_visual_top(), selected_rect.position.y)),
+				Vector2(2.0, 1.0)
+			)
 	if _animating_hand_card_index >= 0:
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 		return _hand_receive_rect(_animating_hand_card_index, maxi(1, hand.size()), _hand_card_size(maxi(1, hand.size()), false))
@@ -5804,6 +5810,44 @@ func _action_step_tracker_anchor_rect() -> Rect2:
 		if hand_rect.size.x > 0.0 and hand_rect.size.y > 0.0:
 			return Rect2(Vector2(hand_rect.get_center().x - 1.0, hand_rect.position.y), Vector2(2.0, hand_rect.size.y))
 	return Rect2()
+
+func _action_step_tracker_connector_target_y(anchor_rect: Rect2) -> float:
+	if _drag_card_index >= 0 and _drag_card_source_rect.size.y > 0.0:
+		return _drag_card_source_rect.position.y
+	if _selected_card_index >= 0:
+		var selected_rect: Rect2 = _hand_card_global_rect(_selected_card_index)
+		if selected_rect.size.y > 0.0:
+			return selected_rect.position.y
+	return anchor_rect.position.y
+
+func _hand_visual_top() -> float:
+	if hand_box == null or hand_box.get_child_count() <= 0:
+		return INF
+	var visual_top: float = INF
+	for index: int in range(hand_box.get_child_count()):
+		var card_control: Control = _hand_card_control(index)
+		if card_control == null or not card_control.visible:
+			continue
+		visual_top = minf(visual_top, _control_visual_global_rect(card_control).position.y)
+	return visual_top
+
+func _control_visual_global_rect(control: Control) -> Rect2:
+	if control == null:
+		return Rect2()
+	var transform: Transform2D = control.get_global_transform()
+	var corners: Array[Vector2] = []
+	corners.append(transform * Vector2.ZERO)
+	corners.append(transform * Vector2(control.size.x, 0.0))
+	corners.append(transform * control.size)
+	corners.append(transform * Vector2(0.0, control.size.y))
+	var min_point: Vector2 = corners[0]
+	var max_point: Vector2 = corners[0]
+	for corner: Vector2 in corners:
+		min_point.x = minf(min_point.x, corner.x)
+		min_point.y = minf(min_point.y, corner.y)
+		max_point.x = maxf(max_point.x, corner.x)
+		max_point.y = maxf(max_point.y, corner.y)
+	return Rect2(min_point, max_point - min_point)
 
 func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	if _action_context_command_bar == null:
@@ -5897,7 +5941,10 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 					verb_text = "CHOOSE A DEFAULT COMMAND"
 					target_text = "FULL CARD UNAVAILABLE"
 					target_tone = "invalid"
-		_set_action_context_risk("primary", "PRIMARY · FULL CARD")
+		if bool(_drag_card_options.get("printed_playable", false)):
+			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
+		else:
+			_set_action_context_risk("neutral", "FALLBACK ONLY")
 	elif context_mode == "resolution":
 		verb_text = "RESOLVING · %s" % _action_step_action_name(action).to_upper()
 		target_text = "IN MOTION"
@@ -5911,6 +5958,11 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 			verb_text = "SET DIRECTION · CHOOSE ARROW"
 			target_text = "DIRECTION"
 			target_tone = "valid"
+		elif str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) > 0:
+			verb_text = "AIM AREA"
+			var aoe_target_state: Dictionary = _action_context_target_state()
+			target_text = str(aoe_target_state.get("text", ""))
+			target_tone = str(aoe_target_state.get("tone", "neutral"))
 		else:
 			verb_text = "%s · %s" % [action_name, _action_prompt(action).to_upper()]
 			var target_state: Dictionary = _action_context_target_state()
@@ -11074,7 +11126,7 @@ func _action_prompt(action: Dictionary) -> String:
 		"move", "blink", "illusion":
 			return "Tile"
 		"aoe":
-			return "Area" if int(action.get("range", 0)) > 0 else "Resolve"
+			return "Tile" if int(action.get("range", 0)) > 0 else "Resolve"
 		"melee", "ranged", "push", "pull":
 			return "Target"
 		_:

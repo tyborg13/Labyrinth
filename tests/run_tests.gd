@@ -7732,6 +7732,7 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var context: Control = instance.get("_action_step_tracker") as Control
 	_assert(context != null and context.visible, "Card drag should show the compact action context")
 	_assert(context != null and str(context.get_meta("context_mode", "")) == "drag", "Drag action context should expose its drag state")
+	_assert(str(context.get_meta("risk_text", "")) == "FALLBACK ONLY", "Fallback-only drag should not label the unavailable full card as primary")
 	var zone_panels: Dictionary = instance.get("_drag_zone_panels")
 	var zone_labels: Dictionary = instance.get("_drag_zone_labels")
 	var attack_panel: PanelContainer = zone_panels.get("attack", null) as PanelContainer
