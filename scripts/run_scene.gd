@@ -20,7 +20,7 @@ const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
-const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
+const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
@@ -819,7 +819,6 @@ const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acqu
 const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
-const TERMINAL_OVERLAY_SIZE: Vector2 = Vector2(560.0, 292.0)
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
 const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
@@ -953,6 +952,7 @@ var _aoe_aim_orientation: Vector2i = Vector2i(1, 0)
 var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
 var _victory_carry_amount: int = 0
+var _defeat_lost_amount: int = 0
 var _exit_destinations_by_tile: Dictionary = {}
 var _animation_lock: bool = false
 var _board_presentation: Dictionary = {}
@@ -1019,11 +1019,7 @@ var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
 var _campfire_choice_action_pending: bool = false
 var _relic_claim_in_progress: bool = false
-var _terminal_overlay: Control
-var _terminal_panel: PanelContainer
-var _terminal_title_label: Label
-var _terminal_status_label: Label
-var _terminal_reward_label: Label
+var _run_end_recap: RunEndRecapOverlay
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
@@ -1043,8 +1039,6 @@ var _drag_hover_zone: String = ""
 var _card_fx_layer: Control
 var _equipment_fx_layer: Control
 var _fatigue_edge_overlay: FatigueEdgeOverlay
-var _death_overlay: DeathEngulfOverlay
-var _death_sequence_started: bool = false
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _music_tween: Tween
@@ -1251,7 +1245,6 @@ func _notification(what: int) -> void:
 		_layout_mini_map_overlay()
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
-		_layout_terminal_overlay()
 		_layout_choice_button_overlay()
 		_layout_header_hud()
 		_layout_elemental_intensity_bar()
@@ -1530,7 +1523,6 @@ func _build_overlay_ui() -> void:
 	_build_large_map_overlay()
 	_build_pre_battle_overlay()
 	_build_drag_overlay()
-	_build_death_overlay()
 
 func _build_choice_button_overlay() -> void:
 	_choice_button_overlay = HBoxContainer.new()
@@ -2347,7 +2339,7 @@ func _build_context_choice_overlay() -> void:
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
 	_build_relic_choice_overlay(stage_root)
-	_build_terminal_overlay(stage_root)
+	_build_run_end_recap(stage_root)
 
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
@@ -2444,121 +2436,16 @@ func _layout_relic_choice_overlay() -> void:
 		_relic_choice_host.position = Vector2(left, top)
 		_relic_choice_host.size = Vector2(width, height)
 
-func _build_terminal_overlay(stage_root: Control) -> void:
-	_terminal_overlay = Control.new()
-	_terminal_overlay.name = "TerminalOverlay"
-	_terminal_overlay.visible = false
-	_terminal_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_terminal_overlay.z_index = 88
-	stage_root.add_child(_terminal_overlay)
-
-	_terminal_panel = PanelContainer.new()
-	_terminal_panel.name = "TerminalPanel"
-	_terminal_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	_terminal_panel.add_theme_stylebox_override("panel", _terminal_panel_style())
-	_terminal_overlay.add_child(_terminal_panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_terminal_panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 10)
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(vbox)
-
-	_terminal_title_label = Label.new()
-	_terminal_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_terminal_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_terminal_title_label, UiTypography.SIZE_HERO)
-	_terminal_title_label.add_theme_color_override("font_color", Color("ffe4a5"))
-	_terminal_title_label.add_theme_color_override("font_outline_color", Color("24150d"))
-	_terminal_title_label.add_theme_constant_override("outline_size", 5)
-	vbox.add_child(_terminal_title_label)
-
-	_terminal_status_label = Label.new()
-	_terminal_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_terminal_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_terminal_status_label, UiTypography.SIZE_SECTION)
-	_terminal_status_label.add_theme_color_override("font_color", Color("f7ecd3"))
-	_terminal_status_label.add_theme_color_override("font_outline_color", Color("21150e"))
-	_terminal_status_label.add_theme_constant_override("outline_size", 2)
-	vbox.add_child(_terminal_status_label)
-
-	_terminal_reward_label = Label.new()
-	_terminal_reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_terminal_reward_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_terminal_reward_label, UiTypography.SIZE_BODY_LARGE)
-	_terminal_reward_label.add_theme_color_override("font_color", Color("f0c56f"))
-	_terminal_reward_label.add_theme_color_override("font_outline_color", Color("2a1a0e"))
-	_terminal_reward_label.add_theme_constant_override("outline_size", 2)
-	vbox.add_child(_terminal_reward_label)
-
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0.0, 6.0)
-	vbox.add_child(spacer)
-
-	var button_row := HBoxContainer.new()
-	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	button_row.add_theme_constant_override("separation", 18)
-	button_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(button_row)
-
-	button_row.add_child(_terminal_button("Again", _on_restart_pressed))
-	button_row.add_child(_terminal_button("Menu", _on_back_to_menu_pressed))
-	_layout_terminal_overlay()
-
-func _terminal_button(text: String, callback: Callable) -> Button:
-	var button := Button.new()
-	button.text = text
-	_ui_skin.apply_button_stylebox_overrides(button)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 210.0)
-	button.pressed.connect(callback)
-	return button
-
-func _terminal_panel_style() -> StyleBoxFlat:
-	var style := _ui_skin.make_plain_card_style(Color(0.10, 0.065, 0.045, 0.96), Color("c08a4a"), 20.0)
-	style.border_width_left = 4
-	style.border_width_top = 4
-	style.border_width_right = 4
-	style.border_width_bottom = 4
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_right = 12
-	style.corner_radius_bottom_left = 12
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	style.shadow_size = 18
-	return style
-
-func _layout_terminal_overlay() -> void:
-	if _terminal_overlay == null:
-		return
-	var stage_root: Control = board_view.get_parent()
-	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
-	_terminal_overlay.anchor_left = 0.0
-	_terminal_overlay.anchor_top = 0.0
-	_terminal_overlay.anchor_right = 1.0
-	_terminal_overlay.anchor_bottom = 1.0
-	_terminal_overlay.offset_left = 0.0
-	_terminal_overlay.offset_top = 0.0
-	_terminal_overlay.offset_right = 0.0
-	_terminal_overlay.offset_bottom = 0.0
-	if _terminal_panel == null:
-		return
-	var width: float = clampf(stage_size.x * 0.46, 420.0, TERMINAL_OVERLAY_SIZE.x)
-	var height: float = TERMINAL_OVERLAY_SIZE.y
-	var left: float = (stage_size.x - width) * 0.5
-	var top: float = (stage_size.y - height) * 0.5
-	_terminal_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_terminal_panel.position = Vector2(left, top)
-	_terminal_panel.size = Vector2(width, height)
+func _build_run_end_recap(stage_root: Control) -> void:
+	_run_end_recap = RunEndRecapOverlay.new()
+	_run_end_recap.name = "RunEndRecapOverlay"
+	_run_end_recap.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_run_end_recap.anchor_right = 1.0
+	_run_end_recap.anchor_bottom = 1.0
+	_run_end_recap.z_index = 88
+	_run_end_recap.new_run_pressed.connect(_on_restart_pressed)
+	_run_end_recap.main_menu_pressed.connect(_on_back_to_menu_pressed)
+	stage_root.add_child(_run_end_recap)
 
 func _build_card_fx_layer() -> void:
 	_card_fx_layer = Control.new()
@@ -2589,15 +2476,6 @@ func _build_fatigue_edge_overlay() -> void:
 	_fatigue_edge_overlay.z_index = 210
 	_fatigue_edge_overlay.z_as_relative = false
 	add_child(_fatigue_edge_overlay)
-
-func _build_death_overlay() -> void:
-	_death_overlay = DeathEngulfOverlay.new()
-	_death_overlay.name = "DeathEngulfOverlay"
-	_death_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_death_overlay.anchor_right = 1.0
-	_death_overlay.anchor_bottom = 1.0
-	_death_overlay.continue_pressed.connect(_on_death_continue_pressed)
-	add_child(_death_overlay)
 
 func _build_menu_overlay() -> void:
 	_menu_scrim = ColorRect.new()
@@ -4811,9 +4689,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_victory_carry_processed = false
 	_defeat_loss_processed = false
 	_victory_carry_amount = 0
-	_death_sequence_started = false
-	if _death_overlay != null:
-		_death_overlay.reset()
+	_defeat_lost_amount = 0
+	if _run_end_recap != null:
+		_run_end_recap.reset()
 	_set_fatigue_edge_progress(-1.0)
 	_board_presentation.clear()
 	action_banner.visible = false
@@ -4878,7 +4756,6 @@ func _refresh_ui() -> void:
 	_sync_pre_battle_preview_after_refresh()
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
-	_refresh_death_overlay()
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
@@ -6054,8 +5931,9 @@ func _refresh_visibility() -> void:
 		_choice_button_overlay.visible = false
 	if _context_choice_overlay != null and mode != "campfire":
 		_context_choice_overlay.visible = false
-	grimoire_button.visible = mode != "defeat"
-	menu_button.visible = mode != "defeat"
+	stats_label.visible = mode not in ["victory", "defeat"]
+	grimoire_button.visible = mode not in ["victory", "defeat"]
+	menu_button.visible = mode not in ["victory", "defeat"]
 	if mode != "combat":
 		_cancel_drag_play()
 		_close_pile_view()
@@ -6068,24 +5946,6 @@ func _refresh_visibility() -> void:
 		_close_grimoire_overlay()
 	_layout_choice_button_overlay()
 
-func _refresh_death_overlay() -> void:
-	if _death_overlay == null:
-		return
-	var mode: String = str(_run_state.get("mode", "room"))
-	if mode != "defeat":
-		_death_sequence_started = false
-		if _death_overlay.visible:
-			_death_overlay.reset()
-		return
-	if _death_sequence_started:
-		return
-	_death_sequence_started = true
-	_close_menu_overlay()
-	_close_pile_view()
-	_close_card_upgrade_overlay()
-	_cancel_drag_play()
-	_death_overlay.play(board_view)
-
 func _refresh_choice_bar() -> void:
 	_clear_children(choice_bar)
 	if _choice_button_overlay != null:
@@ -6096,8 +5956,9 @@ func _refresh_choice_bar() -> void:
 		_pass_preview_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
-	_clear_terminal_overlay()
 	var mode: String = str(_run_state.get("mode", "room"))
+	if mode not in ["victory", "defeat"] and _run_end_recap != null:
+		_run_end_recap.reset()
 	choice_bar.custom_minimum_size = Vector2.ZERO
 	if _dialogue_active and _dialogue_suppresses_choices:
 		choice_bar.visible = false
@@ -6150,8 +6011,8 @@ func _refresh_choice_bar() -> void:
 				var relic_id: String = str(relic_id_var)
 				var relic: Dictionary = GameData.relic_def(relic_id)
 				_add_relic_choice(relic_id, relic)
-		"victory":
-			_show_victory_overlay()
+		"victory", "defeat":
+			_show_run_end_recap(mode)
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
 	var has_pass_preview: bool = _pass_preview_overlay != null and _pass_preview_overlay.get_child_count() > 0 and has_overlay_choices
 	choice_bar.visible = choice_bar.get_child_count() > 0
@@ -6572,25 +6433,12 @@ func _clear_relic_choice_overlay() -> void:
 	if _relic_choice_overlay != null:
 		_relic_choice_overlay.visible = false
 
-func _clear_terminal_overlay() -> void:
-	if _terminal_overlay != null:
-		_terminal_overlay.visible = false
-
-func _show_victory_overlay() -> void:
-	if _terminal_overlay == null:
+func _show_run_end_recap(outcome: String) -> void:
+	if _run_end_recap == null:
 		return
-	var carried_embers: int = _victory_carry_amount
-	if carried_embers <= 0:
-		carried_embers = _run_engine.held_embers(_run_state)
-	if _terminal_title_label != null:
-		_terminal_title_label.text = "VICTORY"
-	if _terminal_status_label != null:
-		_terminal_status_label.text = "Run complete"
-	if _terminal_reward_label != null:
-		_terminal_reward_label.text = "Embers carried %d" % carried_embers
-	_terminal_overlay.visible = true
-	_layout_terminal_overlay()
-	call_deferred("_layout_terminal_overlay")
+	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
+	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
+	_run_end_recap.present(model)
 
 func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
@@ -11240,11 +11088,6 @@ func _on_restart_pressed() -> void:
 	ProgressionStore.clear_saved_run()
 	_start_run()
 
-func _on_death_continue_pressed() -> void:
-	if str(_run_state.get("mode", "room")) != "defeat":
-		return
-	_on_restart_pressed()
-
 func _on_menu_button_pressed() -> void:
 	if _dialogue_active or _animation_lock:
 		return
@@ -14996,9 +14839,11 @@ func _process_victory_carry() -> void:
 
 func _process_defeat_loss() -> void:
 	if _is_debug_boss_run():
+		_defeat_lost_amount = _run_engine.held_embers(_run_state)
 		_defeat_loss_processed = true
 		return
 	var lost_amount: int = _run_engine.held_embers(_run_state)
+	_defeat_lost_amount = lost_amount
 	_progression = ProgressionStore.record_lost_embers(
 		_progression,
 		lost_amount,
