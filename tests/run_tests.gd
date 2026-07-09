@@ -7417,6 +7417,18 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	root.add_child(instance)
 	await process_frame
 	instance.call("_close_dialogue")
+	var prepared_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var equipment_inventory: Array = (prepared_state.get("equipment_inventory", []) as Array).duplicate()
+	if not equipment_inventory.has("iron_cleaver"):
+		equipment_inventory.append("iron_cleaver")
+	prepared_state["equipment_inventory"] = equipment_inventory
+	var magic_inventory: Array = (prepared_state.get("magic_inventory", []) as Array).duplicate()
+	if not magic_inventory.has("bone_dart"):
+		magic_inventory.append("bone_dart")
+	prepared_state["magic_inventory"] = magic_inventory
+	instance.call("_load_run_state", prepared_state)
+	await process_frame
+	instance.call("_close_dialogue")
 
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = instance.get("_run_state")
@@ -7451,6 +7463,10 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	if preview_panel != null:
 		var preview_viewport: Vector2 = instance.get_viewport_rect().size
 		_assert(preview_panel.custom_minimum_size.x <= preview_viewport.x - UiTypography.SPACE_XXL and preview_panel.custom_minimum_size.y <= preview_viewport.y - UiTypography.SPACE_XXL, "Pre-battle preview should preserve safe viewport margins")
+	var threat_summary: Label = preview_panel.find_child("PreBattleThreatSummary", true, false) as Label if preview_panel != null else null
+	_assert(threat_summary != null and not threat_summary.text.is_empty(), "Pre-battle enemy cards should summarize already-known tactical threats")
+	var attuned_row: HFlowContainer = preview_panel.find_child("PreBattleAttunedRow", true, false) as HFlowContainer if preview_panel != null else null
+	_assert(attuned_row != null and attuned_row.get_child_count() == (paused_state.get("attuned_magic_cards", []) as Array).size(), "Pre-battle preview should show each currently attuned magic card separately")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) == null, "Pre-battle preview should not reveal enemy opening intents")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleCloseButton", true, false) == null, "Pre-battle preview should not offer a back-out button after room entry")
 	var deck_badge: Control = null
@@ -7463,6 +7479,34 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(deck_badge_name != null and not deck_badge_name.text.is_empty(), "Pre-battle deck badges should show the card name over the card art")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
+	var inspection_sources: Array[Control] = []
+	if preview_panel != null:
+		for node_name: String in ["PreBattleEnemyCard", "PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
+			var source: Control = preview_panel.find_child(node_name, true, false) as Control
+			if source != null:
+				inspection_sources.append(source)
+	_assert(inspection_sources.size() == 4, "Pre-battle enemy, equipment, attuned magic, and active deck entries should all be inspectable")
+	var inspection_kinds: Array[String] = ["enemy", "equipment", "card", "card"]
+	for index: int in range(inspection_sources.size()):
+		var hover_inspection_var: Variant = inspection_sources[index].call("_make_custom_tooltip", inspection_sources[index].tooltip_text)
+		_assert(hover_inspection_var is Control, "Hovering a pre-battle summary entry should build a readable rich inspection")
+		if hover_inspection_var is Control:
+			var hover_inspection: Control = hover_inspection_var as Control
+			_assert(hover_inspection.get_combined_minimum_size().x >= 180.0, "Pre-battle hover inspection should be materially larger than its summary chip")
+			hover_inspection.free()
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.pressed = true
+		inspection_sources[index].call("_gui_input", click)
+		await process_frame
+		var pinned_inspection: Control = instance.find_child("PinnedPreBattleInspection", true, false) as Control
+		_assert(pinned_inspection != null and pinned_inspection.visible, "Clicking a pre-battle summary entry should pin a readable inspection")
+		if pinned_inspection != null and index < inspection_kinds.size():
+			_assert(str(pinned_inspection.get_meta("inspection_kind", "")) == inspection_kinds[index], "Pinned pre-battle inspection should preserve its content kind")
+		_assert(str((instance.get("_run_state") as Dictionary).get("mode", "")) == RunEngine.MODE_PRE_BATTLE, "Inspecting pre-battle details should keep the room committed")
+		_assert((instance.get("_exit_destinations_by_tile") as Dictionary).is_empty(), "Inspecting pre-battle details should not reveal exits")
+		instance.call("_close_pinned_tooltip")
+		await process_frame
 
 	instance.call("_on_pre_battle_equip_pressed")
 	await process_frame
@@ -7471,9 +7515,35 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(bool(instance.call("_equipment_overlay_can_change")), "Pre-battle loadout should allow equipment changes after room commitment")
 	_assert(preview_scrim != null and preview_scrim.visible, "Opening loadout from pre-battle should leave the preview waiting behind it")
 	_assert(preview_scrim != null and preview_scrim.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Pre-battle preview should stop intercepting mouse input while loadout is open")
+	await instance.call("_equip_equipment_from_overlay", "iron_cleaver")
+	var equipment_swapped_state: Dictionary = instance.get("_run_state")
+	_assert(str((equipment_swapped_state.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Pre-battle equipment swaps should update the committed run loadout")
+	instance.call("_switch_character_overlay_mode", "magic")
+	await process_frame
+	var reserve_magic: Array = (instance.get("_run_state") as Dictionary).get("magic_inventory", []) as Array
+	var bone_dart_index: int = reserve_magic.find("bone_dart")
+	_assert(bone_dart_index >= 0, "Pre-battle magic swap coverage should retain the prepared reserve spell")
+	if bone_dart_index >= 0:
+		await instance.call("_swap_magic_from_overlay", bone_dart_index, 0)
+	var magic_swapped_state: Dictionary = instance.get("_run_state")
+	_assert(str((magic_swapped_state.get("attuned_magic_cards", []) as Array)[0]) == "bone_dart", "Pre-battle magic swaps should update the committed attunement")
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 	_assert(preview_scrim != null and preview_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Pre-battle preview should resume intercepting mouse input after loadout closes")
+	preview_panel = instance.get("_pre_battle_panel") as PanelContainer
+	var refreshed_weapon: Control = _pre_battle_control_with_meta(preview_panel, "PreBattleEquipmentChip", "equipment_id", "iron_cleaver")
+	var refreshed_attunement: Control = _pre_battle_control_with_meta(preview_panel, "PreBattleAttunedBadge", "card_id", "bone_dart")
+	_assert(refreshed_weapon != null, "Returning from equipment changes should refresh the exact equipped weapon in the pre-battle summary")
+	_assert(refreshed_attunement != null, "Returning from magic changes should refresh the exact attuned spell in the pre-battle summary")
+	var expected_deck: Array = ((instance.get("_run_state") as Dictionary).get("deck_cards", []) as Array).duplicate()
+	var displayed_deck: Array = _pre_battle_card_ids(preview_panel, "deck")
+	expected_deck.sort()
+	displayed_deck.sort()
+	_assert(displayed_deck == expected_deck, "Pre-battle Active Deck should exactly match the refreshed deck Start will use (shown=%s expected=%s)" % [str(displayed_deck), str(expected_deck)])
+	var refreshed_preview_state: Dictionary = instance.get("_pre_battle_preview_run_state")
+	var refreshed_preview_deck: Array = _combat_deck_card_ids(refreshed_preview_state.get("combat_state", {}) as Dictionary)
+	refreshed_preview_deck.sort()
+	_assert(refreshed_preview_deck == expected_deck, "Pre-battle combat preview should rebuild from the refreshed loadout")
 
 	await instance.call("_on_pre_battle_start_pressed")
 	await process_frame
@@ -7482,6 +7552,9 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(str(started_state.get("mode", "")) == "combat", "Pre-battle Start should enter combat through the normal room move")
 	_assert(started_state.get("current_room", Vector2i.ZERO) == combat_coord, "Pre-battle Start should move to the selected combat room")
 	_assert(not (started_state.get("combat_state", {}) as Dictionary).is_empty(), "Pre-battle Start should create the real combat state")
+	var started_deck: Array = _combat_deck_card_ids(started_state.get("combat_state", {}) as Dictionary)
+	started_deck.sort()
+	_assert(started_deck == expected_deck, "Pre-battle Start should use the exact equipment- and attunement-refreshed deck")
 	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var ready_wave_count: int = 0
 	for widget: CardWidget in _card_widgets_under(hand_box):
@@ -7509,20 +7582,31 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 			"hp": max_hp,
 			"max_hp": max_hp
 		})
-	var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": enemies}, Color("d8b06d")) as Control
-	root.add_child(enemy_section)
-	await process_frame
-	var enemy_flow: HFlowContainer = enemy_section.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
-	_assert(enemy_flow != null and enemy_flow.get_child_count() == 5, "Five-enemy pre-battle sections should render all enemy cards")
-	if enemy_flow == null:
-		enemy_section.queue_free()
-		instance.queue_free()
+	for enemy_count: int in [1, 3, 5]:
+		var layout_enemies: Array = enemies.slice(0, enemy_count)
+		var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": layout_enemies}, Color("d8b06d")) as Control
+		root.add_child(enemy_section)
 		await process_frame
-		return
-	for index: int in range(enemy_flow.get_child_count()):
-		var card: Control = enemy_flow.get_child(index) as Control
-		_assert(card != null and card.custom_minimum_size.x <= 200.0 and card.custom_minimum_size.y <= 154.0, "Five-enemy pre-battle cards should switch to the compact fixed size")
-	enemy_section.queue_free()
+		var enemy_flow: HFlowContainer = enemy_section.find_child("PreBattleEnemyFlow", true, false) as HFlowContainer
+		_assert(enemy_flow != null and enemy_flow.get_child_count() == enemy_count, "%d-enemy pre-battle sections should render every enemy card" % enemy_count)
+		if enemy_flow != null:
+			_assert(enemy_flow.alignment == FlowContainer.ALIGNMENT_CENTER, "%d-enemy pre-battle layouts should keep incomplete rows composed and centered" % enemy_count)
+			for index: int in range(enemy_flow.get_child_count()):
+				var card: Control = enemy_flow.get_child(index) as Control
+				var threat: Label = card.find_child("PreBattleThreatSummary", true, false) as Label if card != null else null
+				_assert(threat != null and not threat.text.is_empty(), "%d-enemy pre-battle cards should retain readable threat summaries" % enemy_count)
+				if enemy_count == 5:
+					_assert(card != null and card.custom_minimum_size.x <= 200.0 and card.custom_minimum_size.y <= 154.0, "Five-enemy pre-battle cards should switch to the compact fixed size")
+		enemy_section.queue_free()
+		await process_frame
+	var inspection: Control = instance.call("_build_pre_battle_enemy_inspection_panel", enemies[0]) as Control
+	root.add_child(inspection)
+	await process_frame
+	var known_moves: Control = inspection.find_child("PreBattleKnownMoves", true, false) as Control
+	var known_move_count: int = known_moves.get_child_count() if known_moves != null else 0
+	_assert(known_move_count == (GameData.enemy_def("warden").get("intents", []) as Array).size(), "Enemy inspection should show the full known move repertoire without selecting an opener (shown=%d expected=%d)" % [known_move_count, (GameData.enemy_def("warden").get("intents", []) as Array).size()])
+	_assert(inspection.find_child("PreBattleIntentRow", true, false) == null, "Enemy inspection should not expose the hidden opening-intent row")
+	inspection.queue_free()
 	instance.queue_free()
 	await process_frame
 
@@ -11181,6 +11265,43 @@ func _pass_preview_chip_move_target(target_tiles: Array, enemy_pos: Vector2i) ->
 			best_distance = distance
 			best_tile = tile
 	return best_tile
+
+func _pre_battle_control_with_meta(root_node: Node, node_name: String, meta_key: String, expected_value: String) -> Control:
+	if root_node == null:
+		return null
+	if root_node is Control and str(root_node.get_meta(meta_key, "")) == expected_value:
+		if str(root_node.name) == node_name or str(root_node.name).begins_with("@"):
+			return root_node as Control
+	for child: Node in root_node.get_children():
+		var match_control: Control = _pre_battle_control_with_meta(child, node_name, meta_key, expected_value)
+		if match_control != null:
+			return match_control
+	return null
+
+func _pre_battle_card_ids(root_node: Node, source_kind: String) -> Array:
+	var card_ids: Array = []
+	if root_node == null:
+		return card_ids
+	_pre_battle_collect_card_ids(root_node, source_kind, card_ids)
+	return card_ids
+
+func _pre_battle_collect_card_ids(node: Node, source_kind: String, card_ids: Array) -> void:
+	if str(node.get_meta("source_kind", "")) == source_kind:
+		var card_id: String = str(node.get_meta("card_id", ""))
+		if not card_id.is_empty():
+			card_ids.append(card_id)
+	for child: Node in node.get_children():
+		_pre_battle_collect_card_ids(child, source_kind, card_ids)
+
+func _combat_deck_card_ids(combat_state: Dictionary) -> Array:
+	var card_ids: Array = []
+	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
+	for pile_name: String in ["draw", "hand", "discard", "burned"]:
+		for card_id_var: Variant in deck.get(pile_name, []):
+			var card_id: String = str(card_id_var)
+			if not card_id.is_empty():
+				card_ids.append(card_id)
+	return card_ids
 
 func _labels_under(node: Node) -> Array[Label]:
 	var labels: Array[Label] = []
