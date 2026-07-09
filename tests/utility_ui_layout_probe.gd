@@ -149,19 +149,29 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	victory_state["held_embers"] = 42
 	instance.call("_load_run_state", victory_state)
 	await _settle()
+	var run_end_recap: Control = instance.get("_run_end_recap") as Control
+	if run_end_recap != null:
+		run_end_recap.call("seek_presentation", 0.62)
+	await _settle()
 	await _capture(output_dir, "victory")
-	_check_inside_viewport(instance.get("_terminal_panel") as Control, "Victory dialog", UiTypography.SAFE_MARGIN)
+	var victory_panel: Control = run_end_recap.find_child("OutcomeRecap", true, false) as Control if run_end_recap != null else null
+	_check_inside_viewport(victory_panel, "Victory recap", UiTypography.SAFE_MARGIN)
+	_check_descendant_minimum_font(victory_panel, "Victory recap")
 
 	var defeat_state: Dictionary = _state_for_room(run_engine, base_state, Vector2i(1, 0), "defeat")
 	defeat_state["player_hp"] = 0
 	defeat_state["held_embers"] = 23
 	instance.call("_load_run_state", defeat_state)
-	await create_timer(3.45).timeout
+	await _settle()
+	run_end_recap = instance.get("_run_end_recap") as Control
+	if run_end_recap != null:
+		run_end_recap.call("seek_presentation", 0.62)
 	await _settle()
 	await _capture(output_dir, "defeat")
-	var death_overlay: Control = instance.get("_death_overlay") as Control
-	_check_inside_viewport(_find_control_with_text(death_overlay, "DARKNESS FALLS"), "Defeat title")
-	_check_inside_viewport(_find_control_with_text(death_overlay, "Begin Again"), "Defeat action")
+	var defeat_panel: Control = run_end_recap.find_child("OutcomeRecap", true, false) as Control if run_end_recap != null else null
+	_check_inside_viewport(defeat_panel, "Defeat recap", UiTypography.SAFE_MARGIN)
+	_check_inside_viewport(run_end_recap.find_child("NewRunButton", true, false) as Control if run_end_recap != null else null, "Defeat new-run action")
+	_check_inside_viewport(run_end_recap.find_child("MainMenuButton", true, false) as Control if run_end_recap != null else null, "Defeat main-menu action")
 
 	instance.queue_free()
 	await process_frame

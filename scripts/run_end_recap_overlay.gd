@@ -467,9 +467,12 @@ func _update_presentation() -> void:
 	if _panel == null or not visible:
 		return
 	var progress: float = _intro_progress()
+	var content_minimum: Vector2 = _panel.get_combined_minimum_size()
 	var width: float = clampf(size.x * 0.39, PANEL_MIN_WIDTH, PANEL_MAX_SIZE.x)
+	width = maxf(width, content_minimum.x)
 	width = minf(width, maxf(320.0, size.x - 32.0))
 	var height: float = minf(PANEL_MAX_SIZE.y, maxf(520.0, size.y - 28.0))
+	height = maxf(height, content_minimum.y)
 	height = minf(height, maxf(320.0, size.y - 20.0))
 	var edge_margin: float = minf(PANEL_EDGE_MARGIN, maxf(16.0, size.x * 0.035))
 	var base_x: float = size.x - width - edge_margin

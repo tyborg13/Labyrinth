@@ -31,7 +31,7 @@ const EXPANDED_NODE_MIN_SIZE: float = 24.0
 const EXPANDED_MIN_FIT_SPAN: float = 2.5
 const EXPANDED_FIT_RATIO: float = 0.92
 const LEGEND_GAP: float = 18.0
-const LEGEND_WIDTH: float = 260.0
+const LEGEND_WIDTH: float = 280.0
 const LEGEND_PADDING: float = 14.0
 const LEGEND_ROW_HEIGHT: float = 28.0
 const LEGEND_SECTION_GAP: float = 8.0
@@ -481,7 +481,7 @@ func _draw_map_legend() -> void:
 		{"label": "Current", "state": ROUTE_CURRENT},
 		{"label": "Reachable", "state": ROUTE_REACHABLE},
 		{"label": "Visited", "state": ROUTE_VISITED},
-		{"label": "Unavailable", "state": ROUTE_UNAVAILABLE}
+		{"label": "Blocked", "state": ROUTE_UNAVAILABLE}
 	]
 	for index: int in range(route_entries.size()):
 		var entry: Dictionary = route_entries[index]
