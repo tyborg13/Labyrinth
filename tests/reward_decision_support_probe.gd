@@ -16,11 +16,13 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_reward_decision_support_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_reward_decision_support_probe.save")
 	ProgressionStore.clear_saved_run()
-	await _capture_reward_states()
+	var fixture_args: PackedStringArray = OS.get_cmdline_user_args()
+	var fixture_case: String = str(fixture_args[0]).strip_edges().to_lower() if not fixture_args.is_empty() else ""
+	await _capture_reward_state_case(fixture_case)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
 
-func _capture_reward_states() -> void:
+func _capture_reward_state_case(fixture_case: String) -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
 		_fail("Run scene should load for reward decision-support probe")
@@ -48,24 +50,29 @@ func _capture_reward_states() -> void:
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
-	await _capture_reward_state(
-		packed,
-		open_state,
-		"ATTUNED 4/6 | 2 OPEN | CLAIMS -> RESERVE",
-		"spark_dart",
-		"frostbolt",
-		false,
-		"%s/reward_injured_open_new_duplicate_v3.png" % OUTPUT_DIR
-	)
-	await _capture_reward_state(
-		packed,
-		full_state,
-		"ATTUNED 6/6 | FULL | CLAIMS -> RESERVE",
-		"spark_dart",
-		"white_silence",
-		true,
-		"%s/reward_full_health_full_attunement_v3.png" % OUTPUT_DIR
-	)
+	match fixture_case:
+		"open":
+			await _capture_reward_state(
+				packed,
+				open_state,
+				"ATTUNED 4/6 | 2 OPEN | CLAIMS -> RESERVE",
+				"spark_dart",
+				"frostbolt",
+				false,
+				"%s/reward_injured_open_new_duplicate_v5.png" % OUTPUT_DIR
+			)
+		"full":
+			await _capture_reward_state(
+				packed,
+				full_state,
+				"ATTUNED 6/6 | FULL | CLAIMS -> RESERVE",
+				"spark_dart",
+				"white_silence",
+				true,
+				"%s/reward_full_health_full_attunement_v5.png" % OUTPUT_DIR
+			)
+		_:
+			_fail("Reward decision-support probe requires fixture argument: open or full")
 
 func _capture_reward_state(packed: PackedScene, state: Dictionary, expected_context: String, duplicate_card_id: String, new_card_id: String, expect_fully_wasted_heal: bool, output_path: String) -> void:
 	ProgressionStore.clear_saved_run()
