@@ -808,6 +808,7 @@ const PROGRESSION_COMMAND_BUTTON_DISABLED_PATH: String = "res://assets/art/ui/pr
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
+const REWARD_ATTUNEMENT_CONTEXT_SIZE: Vector2 = Vector2(520.0, 34.0)
 const RELIC_CHOICE_TITLE_TEXT: String = "CLAIM YOUR TREASURE"
 const RELIC_CHOICE_TITLE_FONT_SIZE: int = 76
 const RELIC_CHOICE_TITLE_HEIGHT: float = 156.0
@@ -1015,6 +1016,8 @@ var _context_choice_bar: HBoxContainer
 var _relic_choice_overlay: Control
 var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
+var _reward_attunement_context_panel: PanelContainer
+var _reward_attunement_context_label: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
 var _campfire_choice_action_pending: bool = false
@@ -2399,6 +2402,25 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_title.z_index = 2
 	_relic_choice_overlay.add_child(_relic_choice_title)
 
+	_reward_attunement_context_panel = PanelContainer.new()
+	_reward_attunement_context_panel.name = "RewardAttunementContext"
+	_reward_attunement_context_panel.visible = false
+	_reward_attunement_context_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_reward_attunement_context_panel.z_index = 3
+	_reward_attunement_context_panel.add_theme_stylebox_override("panel", _reward_attunement_context_style(false))
+	_relic_choice_overlay.add_child(_reward_attunement_context_panel)
+
+	_reward_attunement_context_label = Label.new()
+	_reward_attunement_context_label.name = "RewardAttunementContextLabel"
+	_reward_attunement_context_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_reward_attunement_context_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_reward_attunement_context_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_reward_attunement_context_label, UiTypography.SIZE_CAPTION)
+	_reward_attunement_context_label.add_theme_color_override("font_color", Color("d7e5ff"))
+	_reward_attunement_context_label.add_theme_color_override("font_outline_color", Color("14101d"))
+	_reward_attunement_context_label.add_theme_constant_override("outline_size", 1)
+	_reward_attunement_context_panel.add_child(_reward_attunement_context_label)
+
 	_relic_choice_host = CenterContainer.new()
 	_relic_choice_host.name = "RelicChoiceHost"
 	_relic_choice_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2433,6 +2455,12 @@ func _layout_relic_choice_overlay() -> void:
 		_relic_choice_title.set_anchors_preset(Control.PRESET_TOP_LEFT)
 		_relic_choice_title.position = Vector2(0.0, title_top)
 		_relic_choice_title.size = Vector2(stage_size.x, title_height)
+		if _reward_attunement_context_panel != null:
+			var context_width: float = minf(REWARD_ATTUNEMENT_CONTEXT_SIZE.x, maxf(280.0, stage_size.x - 24.0))
+			var context_size := Vector2(context_width, REWARD_ATTUNEMENT_CONTEXT_SIZE.y)
+			_reward_attunement_context_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			_reward_attunement_context_panel.position = Vector2((stage_size.x - context_size.x) * 0.5, title_top + 88.0)
+			_reward_attunement_context_panel.size = context_size
 	if _relic_choice_host != null:
 		var max_width: float = minf(RELIC_CHOICE_OVERLAY_SIZE.x, maxf(360.0, stage_size.x - 24.0))
 		var min_width: float = minf(640.0, max_width)
@@ -6142,6 +6170,7 @@ func _refresh_choice_bar() -> void:
 		"reward":
 			if _reward_choices_available():
 				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
+				_refresh_reward_attunement_context()
 		"treasure":
 			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
@@ -6569,6 +6598,8 @@ func _clear_relic_choice_overlay() -> void:
 		_relic_choice_title.text = ""
 	if _relic_choice_title_effect != null:
 		_relic_choice_title_effect.visible = false
+	if _reward_attunement_context_panel != null:
+		_reward_attunement_context_panel.visible = false
 	if _relic_choice_overlay != null:
 		_relic_choice_overlay.visible = false
 
@@ -6595,6 +6626,65 @@ func _show_victory_overlay() -> void:
 func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
 	return (reward_state.get("cards", []) as Array).size() > 0 or int(reward_state.get("heal_amount", 0)) > 0
+
+func _refresh_reward_attunement_context() -> void:
+	if _reward_attunement_context_panel == null or _reward_attunement_context_label == null:
+		return
+	var attuned_count: int = mini(_nonempty_card_count(_run_state.get("attuned_magic_cards", [])), GameData.magic_loadout_limit())
+	var open_count: int = maxi(0, GameData.magic_loadout_limit() - attuned_count)
+	var capacity_text: String = "FULL" if open_count == 0 else "%d OPEN" % open_count
+	var destinations: Dictionary = {}
+	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	for card_id_var: Variant in reward_state.get("cards", []):
+		var card_id: String = str(card_id_var)
+		if card_id.is_empty():
+			continue
+		var context: Dictionary = _reward_card_choice_context(card_id)
+		destinations[str(context.get("destination", "reserve"))] = true
+	var destination_text: String = "OUTCOME SHOWN ON CARDS"
+	if destinations.size() == 1:
+		destination_text = "CLAIMS -> %s" % str(destinations.keys()[0]).to_upper()
+	_reward_attunement_context_label.text = "ATTUNED %d/%d | %s | %s" % [
+		attuned_count,
+		GameData.magic_loadout_limit(),
+		capacity_text,
+		destination_text
+	]
+	_reward_attunement_context_panel.set_meta("attuned_count", attuned_count)
+	_reward_attunement_context_panel.set_meta("attuned_limit", GameData.magic_loadout_limit())
+	_reward_attunement_context_panel.set_meta("open_count", open_count)
+	_reward_attunement_context_panel.add_theme_stylebox_override("panel", _reward_attunement_context_style(open_count == 0))
+	_reward_attunement_context_panel.visible = not destinations.is_empty()
+
+func _nonempty_card_count(values: Variant) -> int:
+	if typeof(values) != TYPE_ARRAY:
+		return 0
+	var count: int = 0
+	for value_var: Variant in values as Array:
+		if not str(value_var).is_empty():
+			count += 1
+	return count
+
+func _reward_attunement_context_style(full: bool) -> StyleBoxFlat:
+	var accent: Color = Color("9aa7c8") if full else Color("89c6df")
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.045, 0.075, 0.93)
+	style.border_color = accent.darkened(0.10)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = 8
+	style.content_margin_left = 12
+	style.content_margin_top = 3
+	style.content_margin_right = 12
+	style.content_margin_bottom = 3
+	return style
 
 func _set_relic_choice_title(text: String) -> void:
 	if _relic_choice_title == null:
@@ -7588,11 +7678,12 @@ func _refresh_hand_panel() -> void:
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		var reward_card_size: Vector2 = _hand_card_size(reward_choice_count, true)
 		for card_id_var: Variant in reward_cards:
+			var card_id: String = str(card_id_var)
 			var widget = CardWidgetScene.instantiate()
 			widget.custom_minimum_size = reward_card_size
-			widget.configure(str(card_id_var), false, false, true, false, true, true, _card_def(str(card_id_var)))
-			widget.activated.connect(_on_reward_card_pressed.bind(str(card_id_var)))
-			hand_box.add_child(_hand_card_slot(widget, reward_card_size))
+			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
+			widget.activated.connect(_on_reward_card_pressed.bind(card_id))
+			hand_box.add_child(_reward_card_choice_slot(widget, card_id, reward_card_size))
 		if heal_amount > 0:
 			hand_box.add_child(_reward_heal_choice_slot(heal_amount, reward_card_size))
 		hand_box.configure_layout(HAND_CARD_GAP, false)
@@ -7601,6 +7692,96 @@ func _refresh_hand_panel() -> void:
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)
+
+func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vector2) -> Control:
+	var slot: Control = _hand_card_slot(widget, card_size)
+	slot.name = "RewardCardChoiceSlot"
+	var context: Dictionary = _reward_card_choice_context(card_id)
+	slot.set_meta("reward_card_id", card_id)
+	slot.set_meta("reward_status", str(context.get("status", "new")))
+	slot.set_meta("reward_destination", str(context.get("destination", "reserve")))
+	slot.set_meta("reward_attuned_count", int(context.get("attuned_count", 0)))
+	slot.set_meta("reward_attuned_limit", int(context.get("attuned_limit", GameData.magic_loadout_limit())))
+	slot.set_meta("reward_attunement_full", bool(context.get("attunement_full", false)))
+	var scaler: Control = slot.get_node_or_null("CardScaleFrame") as Control
+	if scaler != null:
+		_add_reward_card_badge(
+			scaler,
+			"RewardOwnershipBadge",
+			str(context.get("status", "new")).to_upper(),
+			Vector2(18.0, 62.0),
+			Vector2(98.0 if bool(context.get("duplicate", false)) else 60.0, 24.0),
+			Color("e2b86d") if bool(context.get("duplicate", false)) else Color("a8d98d")
+		)
+		_add_reward_card_badge(
+			scaler,
+			"RewardDestinationBadge",
+			"TO %s" % str(context.get("destination", "reserve")).to_upper(),
+			Vector2(132.0, 145.0),
+			Vector2(100.0, 24.0),
+			Color("a8bde8") if str(context.get("destination", "reserve")) == "reserve" else Color("a8d98d")
+		)
+	return slot
+
+func _reward_card_choice_context(card_id: String) -> Dictionary:
+	var attuned: Array = _run_state.get("attuned_magic_cards", []) as Array
+	var inventory: Array = _run_state.get("magic_inventory", []) as Array
+	var history: Array = _run_state.get("reward_cards", []) as Array
+	var duplicate: bool = attuned.has(card_id) or inventory.has(card_id) or history.has(card_id)
+	var preview_state: Dictionary = _run_engine.claim_card_reward(_run_state, card_id)
+	var preview_attuned: Array = preview_state.get("attuned_magic_cards", []) as Array
+	var preview_inventory: Array = preview_state.get("magic_inventory", []) as Array
+	var destination: String = "reserve"
+	if preview_inventory.count(card_id) <= inventory.count(card_id) and preview_attuned.count(card_id) > attuned.count(card_id):
+		destination = "active"
+	var attuned_count: int = mini(_nonempty_card_count(attuned), GameData.magic_loadout_limit())
+	return {
+		"status": "duplicate" if duplicate else "new",
+		"duplicate": duplicate,
+		"destination": destination,
+		"attuned_count": attuned_count,
+		"attuned_limit": GameData.magic_loadout_limit(),
+		"attunement_full": attuned_count >= GameData.magic_loadout_limit()
+	}
+
+func _add_reward_card_badge(parent: Control, badge_name: String, text: String, position: Vector2, badge_size: Vector2, accent: Color) -> void:
+	var panel := PanelContainer.new()
+	panel.name = badge_name
+	panel.position = position
+	panel.size = badge_size
+	panel.custom_minimum_size = badge_size
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.z_index = 40
+	panel.add_theme_stylebox_override("panel", _reward_card_badge_style(accent))
+	parent.add_child(panel)
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 12)
+	label.add_theme_color_override("font_color", accent.lightened(0.20))
+	label.add_theme_color_override("font_outline_color", Color("130d0a"))
+	label.add_theme_constant_override("outline_size", 1)
+	panel.add_child(label)
+
+func _reward_card_badge_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.075, 0.050, 0.040, 0.94)
+	style.border_color = accent.darkened(0.12)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.44)
+	style.shadow_size = 5
+	style.content_margin_left = 5
+	style.content_margin_right = 5
+	return style
 
 func _scaled_card_slot(widget: Control, card_size: Vector2, interactive: bool = false) -> Control:
 	card_size = _normalized_card_size(card_size)
@@ -7637,6 +7818,12 @@ func _card_widget_scale_for_size(card_size: Vector2) -> float:
 	return minf(card_size.x / CARD_WIDGET_BASE_SIZE.x, card_size.y / CARD_WIDGET_BASE_SIZE.y)
 
 func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
+	var current_hp: int = maxi(0, int(_run_state.get("player_hp", 0)))
+	var max_hp: int = maxi(1, int(_run_state.get("player_max_hp", current_hp)))
+	var result_hp: int = mini(max_hp, current_hp + maxi(0, heal_amount))
+	var effective_heal: int = maxi(0, result_hp - current_hp)
+	var wasted_heal: int = maxi(0, heal_amount - effective_heal)
+	var fully_wasted: bool = heal_amount > 0 and effective_heal == 0
 	var slot := Control.new()
 	slot.name = "RewardHealChoiceSlot"
 	slot.custom_minimum_size = slot_size
@@ -7646,9 +7833,15 @@ func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
 	panel.custom_minimum_size = slot_size
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	panel.tooltip_text = "Recover instead"
+	panel.tooltip_text = "At full health; Recover still skips the card reward." if fully_wasted else "Skip the card reward and recover health."
 	panel.set_meta("reward_heal_amount", heal_amount)
-	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(false))
+	panel.set_meta("reward_heal_current_hp", current_hp)
+	panel.set_meta("reward_heal_max_hp", max_hp)
+	panel.set_meta("reward_heal_result_hp", result_hp)
+	panel.set_meta("reward_heal_effective", effective_heal)
+	panel.set_meta("reward_heal_wasted", wasted_heal)
+	panel.set_meta("reward_heal_fully_wasted", fully_wasted)
+	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(false, fully_wasted, wasted_heal > 0))
 	panel.gui_input.connect(_on_reward_heal_choice_gui_input)
 	panel.mouse_entered.connect(_set_reward_heal_choice_hovered.bind(panel, true))
 	panel.mouse_exited.connect(_set_reward_heal_choice_hovered.bind(panel, false))
@@ -7688,6 +7881,7 @@ func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = AssetLoader.load_texture(HEALTH_ICON_PATH)
+	icon.modulate = Color(0.64, 0.58, 0.58, 0.82) if fully_wasted else Color.WHITE
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_center.add_child(icon)
 
@@ -7703,23 +7897,42 @@ func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
 	vbox.add_child(title)
 
 	var amount := Label.new()
+	amount.name = "RewardHealAmount"
 	amount.text = "+%d HP" % heal_amount
 	amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	amount.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(amount, UiTypography.SIZE_SECTION)
-	amount.add_theme_color_override("font_color", Color("b9ef86"))
+	amount.add_theme_color_override("font_color", Color("d98779") if fully_wasted else (Color("e5bc70") if wasted_heal > 0 else Color("b9ef86")))
 	amount.add_theme_color_override("font_outline_color", Color("1f170f"))
 	amount.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(amount)
 
+	var hp_context := Label.new()
+	hp_context.name = "RewardHealProjection"
+	hp_context.text = "%d -> %d / %d" % [current_hp, result_hp, max_hp]
+	hp_context.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hp_context.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hp_context.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(hp_context, UiTypography.SIZE_BODY)
+	hp_context.add_theme_color_override("font_color", Color("f0ddbd"))
+	hp_context.add_theme_color_override("font_outline_color", Color("21150e"))
+	hp_context.add_theme_constant_override("outline_size", 1)
+	vbox.add_child(hp_context)
+
 	var detail := Label.new()
-	detail.text = "Skip card"
+	detail.name = "RewardHealOutcome"
+	if fully_wasted:
+		detail.text = "FULL | %d WASTED" % wasted_heal
+	elif wasted_heal > 0:
+		detail.text = "%d RESTORED | %d WASTED" % [effective_heal, wasted_heal]
+	else:
+		detail.text = "%d HP RESTORED" % effective_heal
 	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(detail, UiTypography.SIZE_CAPTION)
-	detail.add_theme_color_override("font_color", Color("dec9a7"))
+	detail.add_theme_color_override("font_color", Color("e39a84") if fully_wasted else (Color("e5bc70") if wasted_heal > 0 else Color("dec9a7")))
 	detail.add_theme_color_override("font_outline_color", Color("21150e"))
 	detail.add_theme_constant_override("outline_size", 1)
 	vbox.add_child(detail)
@@ -7738,13 +7951,22 @@ func _set_reward_heal_choice_hovered(panel: PanelContainer, hovered: bool) -> vo
 	if panel == null:
 		return
 	panel.z_index = 40 if hovered else 30
-	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(hovered))
+	panel.add_theme_stylebox_override("panel", _reward_heal_choice_style(
+		hovered,
+		bool(panel.get_meta("reward_heal_fully_wasted", false)),
+		int(panel.get_meta("reward_heal_wasted", 0)) > 0
+	))
 
-func _reward_heal_choice_style(hovered: bool) -> StyleBoxFlat:
+func _reward_heal_choice_style(hovered: bool, fully_wasted: bool = false, has_waste: bool = false) -> StyleBoxFlat:
 	var accent := Color("a9d16e")
+	if fully_wasted:
+		accent = Color("b86f63")
+	elif has_waste:
+		accent = Color("c69a58")
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.13, 0.085, 0.055, 0.96).lightened(0.06) if hovered else Color(0.13, 0.085, 0.055, 0.92)
-	style.border_color = accent.lightened(0.16) if hovered else Color("8e9f63")
+	var base_bg: Color = Color(0.105, 0.065, 0.060, 0.92) if fully_wasted else Color(0.13, 0.085, 0.055, 0.92)
+	style.bg_color = base_bg.lightened(0.06) if hovered else base_bg
+	style.border_color = accent.lightened(0.16) if hovered else accent.darkened(0.16)
 	style.border_width_left = 4
 	style.border_width_top = 4
 	style.border_width_right = 4
