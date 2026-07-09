@@ -4,6 +4,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
@@ -76,12 +77,11 @@ void fragment() {
 @onready var embers_label: Label = $ProfileBlock/Embers
 @onready var footer_label: Label = $ProfileBlock/Footer
 @onready var settings_panel: PanelContainer = $SettingsPanel
-@onready var settings_title_label: Label = $SettingsPanel/SettingsMargin/SettingsVBox/SettingsTitle
-@onready var settings_back_button: Button = $SettingsPanel/SettingsMargin/SettingsVBox/SettingsBackButton
 
 var _progression: Dictionary = {}
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
+var settings_back_button: Button
 var _title_shadow_lines: Array[Label]
 var _title_rim_lines: Array[Label]
 var _title_base_lines: Array[Label]
@@ -90,8 +90,12 @@ var _title_face_materials: Array[ShaderMaterial]
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	SettingsStore.apply_settings(SettingsStore.load_settings(), get_window())
 	_initialize_title_arrays()
 	_connect_steam_service()
+	settings_back_button = settings_panel.call("back_button") as Button
+	if settings_panel.has_signal("back_requested"):
+		settings_panel.connect("back_requested", Callable(self, "_on_settings_back_button_pressed"))
 	resized.connect(_update_layout)
 	_apply_style()
 	_reload_progression()
@@ -137,16 +141,13 @@ func _apply_style() -> void:
 	_apply_title_layer_style(_title_face_lines, Color.WHITE, Color.TRANSPARENT, 0, Color.WHITE)
 
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
-	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]:
+	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
 		_apply_menu_button_style(button)
 	boss_button.visible = false
 
 	_apply_label_style(embers_label, HEADER_FONT, 22, Color("f6d99f"), Color("100908"), 3)
 	_apply_label_style(footer_label, REGULAR_FONT, 15, Color("dbc59b"), Color("100908"), 2)
 	footer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-	settings_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	_apply_label_style(settings_title_label, HEADER_FONT, 32, Color("fff1cf"), Color("090708"), 5)
 
 func _configure_title_container(control: Control) -> void:
 	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -321,8 +322,6 @@ func _update_layout() -> void:
 	menu_column.size = Vector2(menu_width, _menu_column_height(button_height))
 	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
 		button.custom_minimum_size = Vector2(menu_width, button_height)
-	settings_back_button.custom_minimum_size = Vector2(minf(250.0, menu_width), button_height)
-
 	var profile_width: float = minf(menu_width + 72.0, viewport_size.x - margin_x * 2.0)
 	var profile_height: float = 86.0
 	var profile_y: float = viewport_size.y - profile_height - clampf(viewport_size.y * 0.055, 34.0, 64.0)
@@ -333,14 +332,14 @@ func _update_layout() -> void:
 	left_scrim.position = Vector2.ZERO
 	left_scrim.size = Vector2.ZERO
 
-	var panel_width: float = minf(390.0, maxf(300.0, viewport_size.x - margin_x * 2.0))
-	var panel_height: float = 214.0
+	var panel_width: float = minf(900.0, maxf(720.0, viewport_size.x - margin_x * 2.0))
+	var panel_height: float = minf(800.0, viewport_size.y - 48.0)
 	var panel_x: float = margin_x + menu_width + 38.0
-	var panel_y: float = menu_y
+	var panel_y: float = maxf(24.0, (viewport_size.y - panel_height) * 0.5)
 	if panel_x + panel_width + margin_x > viewport_size.x:
-		panel_x = margin_x
-		panel_y = minf(viewport_size.y - panel_height - 24.0, menu_y + _menu_column_height(button_height) + 22.0)
-	settings_panel.position = Vector2(panel_x, maxf(24.0, panel_y))
+		panel_width = minf(900.0, viewport_size.x - margin_x * 2.0)
+		panel_x = (viewport_size.x - panel_width) * 0.5
+	settings_panel.position = Vector2(panel_x, panel_y)
 	settings_panel.size = Vector2(panel_width, panel_height)
 
 func _layout_title_lines(title_font_size: int) -> void:
@@ -489,6 +488,7 @@ func _play_menu_music() -> void:
 	if _music_player == null:
 		_music_player = AudioStreamPlayer.new()
 		_music_player.name = "MusicPlayer"
+		_music_player.bus = SettingsStore.MUSIC_BUS
 		add_child(_music_player)
 		_music_player.finished.connect(_on_music_finished)
 	_music_player.stream = stream
@@ -552,7 +552,10 @@ func _on_continue_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_settings_button_pressed() -> void:
-	settings_panel.visible = true
+	if settings_panel.has_method("open"):
+		settings_panel.call("open")
+	else:
+		settings_panel.visible = true
 	if _using_keyboard_navigation:
 		settings_back_button.grab_focus()
 	else:
