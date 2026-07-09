@@ -280,6 +280,7 @@ func _initialize() -> void:
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
+	await _test_run_scene_reward_decision_support_matches_claims()
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
 	await _test_run_scene_campfire_choices_use_relic_overlay()
@@ -8061,6 +8062,8 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	await process_frame
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "reward"
+	run_state["player_hp"] = 240
+	run_state["player_max_hp"] = 360
 	run_state["pending_reward"] = {
 		"cards": ["quick_stab", "bone_dart", "sidestep_slash"],
 		"heal_amount": RunEngine.REWARD_HEAL,
@@ -8081,10 +8084,136 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	_assert(heal_choice != null, "Reward heal choice should render as a card-like tile beside the offered cards")
 	if heal_choice != null:
 		_assert(int(heal_choice.get_meta("reward_heal_amount", 0)) == RunEngine.REWARD_HEAL, "Reward heal tile should keep the offered heal amount")
+		_assert(int(heal_choice.get_meta("reward_heal_current_hp", 0)) == 240, "Reward heal tile should keep current health context")
+		_assert(int(heal_choice.get_meta("reward_heal_result_hp", 0)) == 300, "Reward heal tile should show the capped post-claim health result")
+		_assert(int(heal_choice.get_meta("reward_heal_effective", 0)) == RunEngine.REWARD_HEAL, "Injured Recover should show its effective healing")
+		_assert(int(heal_choice.get_meta("reward_heal_wasted", -1)) == 0, "Injured Recover should not report wasted healing when the full amount fits")
 		_assert(heal_choice.mouse_filter == Control.MOUSE_FILTER_STOP, "Reward heal tile should receive clicks directly")
 		_assert(_button_with_text(hand_box, "+%d HP" % RunEngine.REWARD_HEAL) == null, "Reward heal choice should not render as a floating button over the cards")
+		_assert(_label_with_text(heal_choice, "240 -> 300 / 360") != null, "Reward heal tile should show current-to-capped HP context")
+		_assert(_label_with_text(heal_choice, "%d HP RESTORED" % RunEngine.REWARD_HEAL) != null, "Injured Recover should state the health actually restored")
 		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
 		_assert(hand_box.get_child_count() == 4 and hand_box.get_child(3) == heal_slot, "Reward heal choice should sit immediately to the right of the offered cards")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_reward_decision_support_matches_claims() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for reward decision-support coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var engine := RunEngine.new()
+	var open_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	open_state["mode"] = "reward"
+	open_state["player_hp"] = 180
+	open_state["player_max_hp"] = 360
+	open_state["attuned_magic_cards"] = ["pale_spark", "dull_bolt", "waning_pulse", "chain_bolt"]
+	open_state["magic_inventory"] = ["spark_dart"]
+	open_state["reward_cards"] = ["spark_dart"]
+	open_state["pending_reward"] = {
+		"cards": ["spark_dart", "frostbolt", "firebrand_volley", "threaded_path"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", open_state)
+	instance.call("_refresh_choice_bar")
+	instance.call("_refresh_hand_panel")
+	instance.call("_refresh_visibility")
+	await process_frame
+	await process_frame
+	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var duplicate_slot: Control = null
+	var new_slot: Control = null
+	for slot_var: Node in hand_box.get_children():
+		var slot: Control = slot_var as Control
+		if slot == null:
+			continue
+		match str(slot.get_meta("reward_card_id", "")):
+			"spark_dart":
+				duplicate_slot = slot
+			"frostbolt":
+				new_slot = slot
+	_assert(hand_box.get_child_count() == 5, "Four reward cards plus Recover should remain in the five-choice row")
+	_assert(duplicate_slot != null and str(duplicate_slot.get_meta("reward_status", "")) == "duplicate", "Already-owned reward magic should display Duplicate")
+	_assert(duplicate_slot != null and _label_with_text(duplicate_slot, "DUPLICATE") != null, "Duplicate status should be visible on its reward card")
+	_assert(new_slot != null and str(new_slot.get_meta("reward_status", "")) == "new", "Unowned reward magic should display New")
+	_assert(new_slot != null and _label_with_text(new_slot, "NEW") != null, "New status should be visible on its reward card")
+	_assert(new_slot != null and str(new_slot.get_meta("reward_destination", "")) == "reserve", "Open-capacity reward context should still reflect the live reserve-only claim rule")
+	_assert(new_slot != null and _label_with_text(new_slot, "TO RESERVE") != null, "Each reward card should visibly state its post-claim destination")
+	_assert(new_slot != null and int(new_slot.get_meta("reward_attuned_count", -1)) == 4, "Reward choices should retain the current open attunement count")
+	var attunement_panel: PanelContainer = instance.get("_reward_attunement_context_panel") as PanelContainer
+	_assert(attunement_panel != null and attunement_panel.visible, "Reward choices should show compact attunement capacity context")
+	_assert(attunement_panel != null and _label_with_text(attunement_panel, "ATTUNED 4/6 | 2 OPEN | CLAIMS -> RESERVE") != null, "Open attunement context should state capacity and the live reserve outcome")
+	var open_claimed: Dictionary = engine.claim_card_reward(open_state, "frostbolt")
+	_assert((open_claimed.get("magic_inventory", []) as Array).count("frostbolt") == 1, "Actual open-capacity claim should add the displayed card to reserve")
+	_assert(not (open_claimed.get("attuned_magic_cards", []) as Array).has("frostbolt"), "Actual open-capacity claim should not imply the reward became active")
+	var duplicate_claimed: Dictionary = engine.claim_card_reward(open_state, "spark_dart")
+	_assert((duplicate_claimed.get("magic_inventory", []) as Array).count("spark_dart") == 2, "Actual duplicate claim should add another reserve copy")
+
+	var full_state: Dictionary = open_state.duplicate(true)
+	full_state["player_hp"] = 360
+	full_state["attuned_magic_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "threaded_path", "stone_plate"]
+	full_state["magic_inventory"] = ["spark_dart"]
+	full_state["reward_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "threaded_path", "stone_plate"]
+	full_state["pending_reward"] = {
+		"cards": ["spark_dart", "white_silence", "wildfire_halo", "royal_bramble"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", full_state)
+	instance.call("_refresh_choice_bar")
+	instance.call("_refresh_hand_panel")
+	instance.call("_refresh_visibility")
+	await process_frame
+	await process_frame
+	_assert(attunement_panel != null and _label_with_text(attunement_panel, "ATTUNED 6/6 | FULL | CLAIMS -> RESERVE") != null, "Full attunement context should state capacity and reserve outcome")
+	var heal_choice: PanelContainer = hand_box.find_child("RewardHealChoice", true, false) as PanelContainer
+	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_result_hp", -1)) == 360, "Full-health Recover should show unchanged capped health")
+	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_effective", -1)) == 0, "Full-health Recover should show zero effective healing")
+	_assert(heal_choice != null and int(heal_choice.get_meta("reward_heal_wasted", -1)) == RunEngine.REWARD_HEAL, "Full-health Recover should expose all offered healing as wasted")
+	_assert(heal_choice != null and _label_with_text(heal_choice, "360 -> 360 / 360") != null, "Full-health Recover should show an unambiguous unchanged HP projection")
+	_assert(heal_choice != null and _label_with_text(heal_choice, "FULL | %d WASTED" % RunEngine.REWARD_HEAL) != null, "Full-health Recover should visibly call out wasted healing")
+	var healed_full: Dictionary = engine.skip_reward_for_heal(full_state)
+	var displayed_full_result: int = int(heal_choice.get_meta("reward_heal_result_hp", -2)) if heal_choice != null else -2
+	_assert(int(healed_full.get("player_hp", -1)) == displayed_full_result, "Displayed full-health Recover result should match the actual claim result")
+	var full_new_slot: Control = null
+	for slot_var: Node in hand_box.get_children():
+		var slot: Control = slot_var as Control
+		if slot != null and str(slot.get_meta("reward_card_id", "")) == "white_silence":
+			full_new_slot = slot
+			break
+	var full_claimed: Dictionary = engine.claim_card_reward(full_state, "white_silence")
+	_assert(full_new_slot != null and str(full_new_slot.get_meta("reward_destination", "")) == "reserve", "Full-attunement card choice should display the actual reserve destination")
+	_assert((full_claimed.get("magic_inventory", []) as Array).has("white_silence"), "Actual full-attunement claim should add the displayed card to reserve")
+	_assert((full_claimed.get("attuned_magic_cards", []) as Array) == (full_state.get("attuned_magic_cards", []) as Array), "Actual full-attunement claim should leave active magic unchanged")
+	var visible_reward_card_widgets: int = 0
+	for slot_var: Node in hand_box.get_children():
+		var slot: Control = slot_var as Control
+		if slot == null or str(slot.get_meta("reward_card_id", "")).is_empty():
+			continue
+		var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
+		var ownership_badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
+		var destination_badge: Control = slot.find_child("RewardDestinationBadge", true, false) as Control
+		var card_widget_visible: bool = card_widget != null and card_widget.is_visible_in_tree() and card_widget.modulate.a > 0.1 and card_widget.get_global_rect().size.x > 1.0
+		_assert(card_widget_visible, "Each of the four reward choices should contain a visibly rendered card widget")
+		if card_widget_visible:
+			visible_reward_card_widgets += 1
+		_assert(ownership_badge != null and ownership_badge.is_visible_in_tree() and card_widget != null and card_widget.get_global_rect().intersects(ownership_badge.get_global_rect()), "Each reward card should visibly render its New/Duplicate badge")
+		_assert(destination_badge != null and destination_badge.is_visible_in_tree() and card_widget != null and card_widget.get_global_rect().intersects(destination_badge.get_global_rect()), "Each reward card should visibly render its destination badge")
+	_assert(visible_reward_card_widgets == 4, "All four reward card widgets should be visibly rendered in the five-choice row")
+	if hand_box.get_child_count() == 5:
+		var scroll_rect: Rect2 = hand_scroll.get_global_rect()
+		var first_rect: Rect2 = (hand_box.get_child(0) as Control).get_global_rect()
+		var last_rect: Rect2 = (hand_box.get_child(hand_box.get_child_count() - 1) as Control).get_global_rect()
+		_assert(first_rect.position.x >= scroll_rect.position.x - 1.0 and last_rect.end.x <= scroll_rect.end.x + 1.0, "All five reward choices should fit inside the reference hand viewport without overflow")
+		for slot_var: Node in hand_box.get_children():
+			var slot: Control = slot_var as Control
+			if slot != null:
+				_assert(absf(slot.get_global_rect().position.y - first_rect.position.y) <= 1.0, "All five reward choices should remain vertically aligned")
 	instance.queue_free()
 	await process_frame
 
