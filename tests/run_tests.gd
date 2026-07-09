@@ -8068,6 +8068,21 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	_assert(full_new_slot != null and str(full_new_slot.get_meta("reward_destination", "")) == "reserve", "Full-attunement card choice should display the actual reserve destination")
 	_assert((full_claimed.get("magic_inventory", []) as Array).has("white_silence"), "Actual full-attunement claim should add the displayed card to reserve")
 	_assert((full_claimed.get("attuned_magic_cards", []) as Array) == (full_state.get("attuned_magic_cards", []) as Array), "Actual full-attunement claim should leave active magic unchanged")
+	var visible_reward_card_widgets: int = 0
+	for slot_var: Node in hand_box.get_children():
+		var slot: Control = slot_var as Control
+		if slot == null or str(slot.get_meta("reward_card_id", "")).is_empty():
+			continue
+		var card_widget: Control = slot.find_child("CardWidget", true, false) as Control
+		var ownership_badge: Control = slot.find_child("RewardOwnershipBadge", true, false) as Control
+		var destination_badge: Control = slot.find_child("RewardDestinationBadge", true, false) as Control
+		var card_widget_visible: bool = card_widget != null and card_widget.is_visible_in_tree() and card_widget.modulate.a > 0.1 and card_widget.get_global_rect().size.x > 1.0
+		_assert(card_widget_visible, "Each of the four reward choices should contain a visibly rendered card widget")
+		if card_widget_visible:
+			visible_reward_card_widgets += 1
+		_assert(ownership_badge != null and ownership_badge.is_visible_in_tree() and card_widget != null and card_widget.get_global_rect().intersects(ownership_badge.get_global_rect()), "Each reward card should visibly render its New/Duplicate badge")
+		_assert(destination_badge != null and destination_badge.is_visible_in_tree() and card_widget != null and card_widget.get_global_rect().intersects(destination_badge.get_global_rect()), "Each reward card should visibly render its destination badge")
+	_assert(visible_reward_card_widgets == 4, "All four reward card widgets should be visibly rendered in the five-choice row")
 	if hand_box.get_child_count() == 5:
 		var scroll_rect: Rect2 = hand_scroll.get_global_rect()
 		var first_rect: Rect2 = (hand_box.get_child(0) as Control).get_global_rect()
