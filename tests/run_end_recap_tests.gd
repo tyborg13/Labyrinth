@@ -70,6 +70,15 @@ func _test_recap_model_values() -> void:
 	var victory: Dictionary = RunEndRecapOverlay.build_model(run_state, ProgressionStore.default_data(), "victory", 0)
 	_assert(str(victory.get("ember_label", "")) == "EMBERS BANKED" and int(victory.get("ember_amount", -1)) == 0, "Zero-ember victory should explicitly show a zero banked result")
 	_assert(str(victory.get("boss_result", "")) == "Final boss defeated", "Victory recap should report the final boss result")
+	var expiring_marker_progression: Dictionary = ProgressionStore.record_lost_embers(
+		ProgressionStore.default_data(),
+		19,
+		Vector2i(3, 0),
+		0
+	)
+	expiring_marker_progression = ProgressionStore.prepare_for_new_run(expiring_marker_progression)
+	var marker_victory: Dictionary = RunEndRecapOverlay.build_model(run_state, expiring_marker_progression, "victory", 28)
+	_assert(str(marker_victory.get("recovery_status", "")) == "Marker expires · 19 embers unrecovered", "Victory recap should preview recovery-marker expiry on New Run")
 
 func _test_overlay_action_signals() -> void:
 	var overlay := RunEndRecapOverlay.new()
@@ -102,7 +111,13 @@ func _test_overlay_action_signals() -> void:
 
 func _test_run_scene_progression_and_actions() -> void:
 	var engine := RunEngine.new()
-	var progression: Dictionary = ProgressionStore.default_data()
+	var progression: Dictionary = ProgressionStore.record_lost_embers(
+		ProgressionStore.default_data(),
+		19,
+		Vector2i(3, 0),
+		0
+	)
+	progression = ProgressionStore.prepare_for_new_run(progression)
 	ProgressionStore.save_data(progression)
 	var instance: Node = RUN_SCENE.instantiate()
 	root.add_child(instance)
@@ -116,6 +131,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	_assert(recap != null and recap.visible, "Victory should display the run recap over the board")
 	var victory_model: Dictionary = recap.call("recap_model") if recap != null else {}
 	_assert(int(victory_model.get("ember_amount", -1)) == 53, "Victory display should preserve the pre-clear carried amount")
+	_assert(str(victory_model.get("recovery_status", "")) == "Marker expires · 19 embers unrecovered", "Victory display should communicate the marker consequence of starting the next run")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 53, "Victory should commit banked embers before displaying the recap")
 	_assert(engine.held_embers(instance.get("_run_state")) == 0, "Victory should clear embers from the ended run after banking")
 	var victory_new_run_button: Button = recap.find_child("NewRunButton", true, false) as Button if recap != null else null
@@ -125,6 +141,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	var restarted_state: Dictionary = instance.get("_run_state") as Dictionary
 	_assert(str(restarted_state.get("mode", "")) == "room", "Victory New Run should begin a fresh run")
 	_assert(engine.held_embers(restarted_state) == 53, "Victory New Run should carry the banked ember result")
+	_assert(ProgressionStore.recovery_marker(restarted_state.get("progression", {}) as Dictionary).is_empty(), "Victory New Run should expire the marker exactly as the recap promises")
 
 	progression = restarted_state.get("progression", {}) as Dictionary
 	var defeat_state: Dictionary = _terminal_state(engine, progression, Vector2i(2, 0), "defeat", 41)

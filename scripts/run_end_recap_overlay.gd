@@ -87,8 +87,13 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		var marker_coord: Vector2i = ProgressionStore.recovery_coord(progression)
 		var marker_depth: int = _coord_depth(marker_coord)
 		var marker_amount: int = int(marker.get("amount", 0))
-		var marker_verb: String = "set" if normalized_outcome == "defeat" and marker_amount == maxi(0, ember_amount) else "active"
-		recovery_status = "Recovery marker %s · Depth %d · %d embers" % [marker_verb, marker_depth, marker_amount]
+		var next_progression: Dictionary = ProgressionStore.prepare_for_new_run(progression)
+		var next_marker: Dictionary = ProgressionStore.recovery_marker(next_progression)
+		if next_marker.is_empty():
+			recovery_status = "Marker expires · %d embers unrecovered" % marker_amount
+		else:
+			var marker_verb: String = "set" if normalized_outcome == "defeat" and marker_amount == maxi(0, ember_amount) else "active"
+			recovery_status = "Recovery marker %s · Depth %d · %d embers" % [marker_verb, marker_depth, marker_amount]
 
 	var safe_ember_amount: int = maxi(0, ember_amount)
 	return {
