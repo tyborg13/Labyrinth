@@ -23,6 +23,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -992,6 +994,9 @@ var _play_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
 var _action_step_tracker_title: Label
 var _action_step_tracker_steps: HBoxContainer
+var _contextual_combat_prompt_host: CenterContainer
+var _contextual_combat_prompt: Control
+var _active_contextual_combat_prompt_id: String = ""
 var _action_step_resolution_active: bool = false
 var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
@@ -1130,6 +1135,7 @@ func _ready() -> void:
 	_build_overlay_ui()
 	_build_context_choice_overlay()
 	_setup_pile_widgets()
+	_setup_contextual_combat_tutorial()
 	_setup_action_step_tracker()
 	_setup_play_meter()
 	_setup_elemental_intensity_bar()
@@ -4110,6 +4116,7 @@ func _cancel_drag_play() -> void:
 	_drag_card_grab_offset = Vector2.ZERO
 	_update_drag_overlay_hover("")
 	_refresh_hand_panel()
+	_refresh_contextual_combat_tutorial()
 
 func _animate_drag_cancel_to_source() -> void:
 	if _drag_card_proxy != null and _drag_card_source_rect.size.length() > 0.0:
@@ -4326,6 +4333,111 @@ func _setup_pile_widgets() -> void:
 	for spec_var: Variant in pile_specs:
 		var spec: Dictionary = spec_var
 		_build_pile_widget(spec)
+
+func _setup_contextual_combat_tutorial() -> void:
+	_contextual_combat_prompt_host = CenterContainer.new()
+	_contextual_combat_prompt_host.name = "ContextualCombatPromptHost"
+	_contextual_combat_prompt_host.visible = false
+	_contextual_combat_prompt_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_contextual_combat_prompt_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom_stack.add_child(_contextual_combat_prompt_host)
+	bottom_stack.move_child(_contextual_combat_prompt_host, 0)
+
+	_contextual_combat_prompt = ContextualCombatPromptScene.new()
+	_contextual_combat_prompt_host.add_child(_contextual_combat_prompt)
+	_contextual_combat_prompt.connect("completed", Callable(self, "_on_contextual_combat_prompt_completed"))
+	_contextual_combat_prompt.connect("skipped", Callable(self, "_on_contextual_combat_prompt_skipped"))
+	_contextual_combat_prompt.connect("grimoire_requested", Callable(self, "_on_contextual_combat_prompt_grimoire_requested"))
+
+func _refresh_contextual_combat_tutorial() -> void:
+	if _contextual_combat_prompt_host == null or _contextual_combat_prompt == null:
+		return
+	var prompt: Dictionary = ContextualCombatTutorial.next_prompt(_contextual_combat_tutorial_context(), _progression)
+	_active_contextual_combat_prompt_id = str(prompt.get("id", ""))
+	if prompt.is_empty():
+		_contextual_combat_prompt.call("clear_prompt")
+		_contextual_combat_prompt_host.visible = false
+		return
+	_contextual_combat_prompt.call("configure", prompt)
+	_contextual_combat_prompt_host.visible = true
+
+func _contextual_combat_tutorial_context() -> Dictionary:
+	var mode: String = str(_run_state.get("mode", "room"))
+	var selected: bool = _selected_card_index >= 0
+	var current_action: Dictionary = {}
+	if selected and _pending_action_index >= 0 and _pending_action_index < _pending_actions.size():
+		current_action = _pending_actions[_pending_action_index] as Dictionary
+	var hand_count: int = 0
+	if not _combat_state.is_empty():
+		hand_count = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()
+	var pass_available: bool = (
+		mode == "combat"
+		and not selected
+		and not _animation_lock
+		and _drag_card_index < 0
+		and not _combat_state.is_empty()
+		and _combat_engine.is_player_turn(_combat_state)
+	)
+	return {
+		"mode": mode,
+		"player_turn": mode == "combat" and not _combat_state.is_empty() and _combat_engine.is_player_turn(_combat_state),
+		"hand_count": hand_count,
+		"card_selected": selected,
+		"target_required": not current_action.is_empty() and _combat_engine.player_action_needs_target(current_action),
+		"target_count": _pending_target_tiles.size(),
+		"optional_step": selected and _pending_action_can_skip,
+		"pass_available": pass_available,
+		"pass_preview_visible": _pass_preview_overlay != null and _pass_preview_overlay.visible,
+		"timeline_visible": _turn_order_panel != null and _turn_order_panel.visible,
+		"card_time_preview": not _turn_order_card_time_preview().is_empty(),
+		"suppressed": _contextual_combat_tutorial_suppressed()
+	}
+
+func _contextual_combat_tutorial_suppressed() -> bool:
+	return (
+		_dialogue_active
+		or _animation_lock
+		or _drag_card_index >= 0
+		or _visible_control(_menu_scrim)
+		or _visible_control(_grimoire_scrim)
+		or _visible_control(_pile_scrim)
+		or _visible_control(_large_map_scrim)
+		or _visible_control(_upgrade_scrim)
+		or _visible_control(_pre_battle_scrim)
+		or _visible_control(_terminal_overlay)
+	)
+
+func _visible_control(control: Control) -> bool:
+	return control != null and control.visible
+
+func _on_contextual_combat_prompt_completed(prompt_id: String) -> void:
+	_resolve_contextual_combat_prompt(prompt_id, false)
+
+func _on_contextual_combat_prompt_skipped(prompt_id: String) -> void:
+	_resolve_contextual_combat_prompt(prompt_id, true)
+
+func _on_contextual_combat_prompt_grimoire_requested(prompt_id: String, entry_id: String) -> void:
+	_resolve_contextual_combat_prompt(prompt_id, false)
+	_open_grimoire_overlay()
+	_on_grimoire_entry_pressed(entry_id)
+
+func _complete_active_contextual_combat_prompt(prompt_id: String) -> void:
+	if _active_contextual_combat_prompt_id == prompt_id:
+		_resolve_contextual_combat_prompt(prompt_id, false)
+
+func _resolve_contextual_combat_prompt(prompt_id: String, skipped: bool) -> void:
+	if not ContextualCombatTutorial.prompt_ids().has(prompt_id):
+		return
+	_progression = ContextualCombatTutorial.resolve_progression(_progression, prompt_id, skipped)
+	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
+	if not run_progression.is_empty():
+		run_progression = ContextualCombatTutorial.resolve_progression(run_progression, prompt_id, skipped)
+		_run_state["progression"] = run_progression
+	if not _is_debug_boss_run():
+		ProgressionStore.save_data(_progression)
+		if not _run_state.is_empty():
+			ProgressionStore.save_run_state(_committed_run_state())
+	_refresh_contextual_combat_tutorial()
 
 func _setup_action_step_tracker() -> void:
 	_action_step_tracker = PanelContainer.new()
@@ -4882,6 +4994,7 @@ func _refresh_ui() -> void:
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
+	_refresh_contextual_combat_tutorial()
 	_maybe_auto_trigger_room_dialogue()
 
 func _refresh_pile_counts() -> void:
@@ -8876,6 +8989,7 @@ func _on_card_drag_started(index: int) -> void:
 	var options: Dictionary = _card_play_options_for_index(index)
 	if not bool(options.get("any_playable", false)):
 		return
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
 	var source_rect: Rect2 = _hand_card_global_rect(index)
 	_drag_card_index = index
 	_drag_card_options = options.duplicate(true)
@@ -8896,6 +9010,8 @@ func _on_card_drag_started(index: int) -> void:
 func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "") -> void:
 	if not bool(preview.get("playable", false)):
 		return
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.TIMELINE_READING)
 	_hovered_card_index = -1
 	_selected_card_label_override = label_override
 	if bool(preview.get("complete", false)):
@@ -8937,6 +9053,7 @@ func _on_card_hover_started(index: int) -> void:
 	_hovered_card_index = index
 	_refresh_stage_view()
 	_refresh_turn_order_bar()
+	_refresh_contextual_combat_tutorial()
 
 func _on_card_hover_ended(index: int) -> void:
 	if _selected_card_index >= 0 or _drag_card_index >= 0:
@@ -8947,6 +9064,7 @@ func _on_card_hover_ended(index: int) -> void:
 			return
 		_refresh_stage_view()
 		_refresh_turn_order_bar()
+		_refresh_contextual_combat_tutorial()
 
 func _on_board_tile_hovered(tile: Vector2i) -> void:
 	if _dialogue_active or _drag_card_index >= 0:
@@ -9014,6 +9132,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		shortcut_plan = (_preview_shortcuts_for_current_action(preview).get("plans", {}) as Dictionary).get(tile, {}) as Dictionary
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
 		return
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.SELECT_TARGET)
 	if not shortcut_plan.is_empty():
 		await _on_pending_shortcut_clicked(tile, shortcut_plan)
 		return
@@ -9098,6 +9217,7 @@ func _on_large_map_room_selected(coord: Vector2i) -> void:
 func _cancel_card_selection() -> void:
 	if _selected_card_index < 0:
 		return
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.CANCEL_OPTIONAL)
 	_reset_card_resolution()
 	_refresh_ui()
 
@@ -9107,6 +9227,7 @@ func _current_action_can_skip() -> bool:
 func _on_skip_action_pressed() -> void:
 	if _animation_lock or not _current_action_can_skip():
 		return
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.CANCEL_OPTIONAL)
 	var previous_action_index: int = _pending_action_index
 	_pending_selected_targets.append(INVALID_TARGET_TILE)
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
@@ -11260,6 +11381,7 @@ func _on_pass_turn_pressed() -> void:
 		return
 	if not _combat_engine.is_player_turn(_combat_state):
 		return
+	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.PASS_CONSEQUENCE)
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	await _resolve_enemy_round()
@@ -14902,6 +15024,9 @@ func _run_state_with_profile_grimoire(next_run_state: Dictionary) -> Dictionary:
 			if not merged.has(entry_id):
 				merged.append(entry_id)
 		embedded_progression[key] = GrimoireLibrary.ordered_entry_ids(merged)
+	var prompt_states: Dictionary = ContextualCombatTutorial.merged_states(_progression, embedded_progression)
+	if not prompt_states.is_empty():
+		embedded_progression[ContextualCombatTutorial.PROGRESSION_KEY] = prompt_states
 	state["progression"] = embedded_progression
 	return state
 

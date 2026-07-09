@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-08T14:05:39Z",
+  "updated_at": "2026-07-09T19:43:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4779,6 +4779,28 @@
       "source": {
         "branch": "codex/elemental-intensity-active-card-glow",
         "commit": "9788e4e"
+      }
+    },
+    {
+      "id": "mnt_20260709T194312Z_4d184678",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/contextual_combat_tutorial.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/contextual_combat_tutorial.gd",
+      "summary": "Combat onboarding uses five first-run contextual micro-prompts",
+      "details": "Keep prompt definitions and trigger priority in ContextualCombatTutorial, keep presentation in ContextualCombatPrompt, and integrate RunScene only through combat context plus interaction completion hooks. Prompt state persists under combat_micro_prompt_states; the layout host belongs above the hand so prompts never cover board targets or HUD anchors.",
+      "status": "active",
+      "created_at": "2026-07-09T19:43:12Z",
+      "updated_at": "2026-07-09T19:43:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-contextual-first-run-onboarding",
+        "commit": "5d91a8e"
       }
     }
   ]
