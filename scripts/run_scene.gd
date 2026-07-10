@@ -12428,6 +12428,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
 	var state: Dictionary = run_state.duplicate(true)
 	var mode: String = str(state.get("mode", ""))
+	if mode in ["victory", "defeat"]:
+		state = _terminal_state_with_recorded_run_result(state, _progression)
+		_progression = (state.get("progression", _progression) as Dictionary).duplicate(true)
 	if mode == "victory":
 		if not _victory_carry_processed:
 			var victory_amount: int = _run_engine.held_embers(state)

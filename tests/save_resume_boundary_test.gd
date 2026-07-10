@@ -239,15 +239,47 @@ func _test_terminal_boundaries(base_run: Dictionary) -> void:
 	var defeat_run: Dictionary = _run_engine.finish_combat(base_run, defeat_combat)
 	defeat_run["held_embers"] = 23
 	defeat_run["unbanked_embers"] = 23
-	_run_scene.set("_progression", ProgressionStore.default_data())
+	defeat_run["run_stats"] = {
+		"enemies_killed": 7,
+		"damage_dealt": 620,
+		"damage_received": 140
+	}
+	var baseline_record: Dictionary = ProgressionStore.record_run_result(
+		ProgressionStore.default_data(),
+		"save-boundary:baseline",
+		{
+			"enemies_killed": 2,
+			"damage_dealt": 300,
+			"damage_received": 80,
+			"depth": 0,
+			"rooms_cleared": 0,
+			"bosses_defeated": 0
+		}
+	)
+	var baseline_progression: Dictionary = (baseline_record.get("data", {}) as Dictionary).duplicate(true)
+	_run_scene.set("_progression", baseline_progression)
 	_run_scene.set("_defeat_loss_processed", false)
 	_run_scene.set("_run_state", defeat_run)
 	_run_scene.set("_combat_state", {})
 	ProgressionStore.clear_saved_run()
 	_assert(bool(_run_scene.call("_persist_committed_boundary", "terminal_defeat")), "Defeat should finalize progression at the committed boundary")
 	_assert(not ProgressionStore.has_saved_run(), "Committed defeat should not leave an older resumable combat")
-	_assert(int(ProgressionStore.recovery_marker(ProgressionStore.load_data()).get("amount", 0)) == 23, "Committed defeat should persist the recovery marker before clearing the run")
+	var committed_defeat: Dictionary = ProgressionStore.load_data()
+	_assert(int(ProgressionStore.recovery_marker(committed_defeat).get("amount", 0)) == 23, "Committed defeat should persist the recovery marker before clearing the run")
+	var defeat_result_id: String = RunEngine.run_result_id(defeat_run)
+	var committed_result: Dictionary = ProgressionStore.run_result_for_id(committed_defeat, defeat_result_id)
+	var committed_new_bests: Array = committed_result.get("new_bests", []) as Array
+	_assert(not committed_result.is_empty(), "Terminal checkpoint finalization should durably record the run result before clearing the run")
+	_assert(committed_new_bests.has("enemies_killed") and committed_new_bests.has("damage_dealt") and not committed_new_bests.has("damage_received"), "Terminal checkpoint finalization should persist strict eligible NEW BEST decisions")
+	var committed_result_count: int = ProgressionStore.completed_run_results(committed_defeat).size()
+	_run_scene.set("_progression", committed_defeat)
+	_run_scene.set("_defeat_loss_processed", false)
+	_assert(bool(_run_scene.call("_persist_run_state_snapshot", defeat_run, false, "terminal_defeat_reload_retry").get("saved", false)), "A reloaded terminal checkpoint should finalize successfully")
+	var replayed_defeat: Dictionary = ProgressionStore.load_data()
+	_assert(ProgressionStore.completed_run_results(replayed_defeat).size() == committed_result_count, "Reloading and retrying a terminal checkpoint must not duplicate its run-result ledger entry")
+	_assert(ProgressionStore.run_result_for_id(replayed_defeat, defeat_result_id) == committed_result, "Reloading and retrying a terminal checkpoint must preserve the original NEW BEST decision")
 	_matrix_rows.append("terminal/defeat")
+	_matrix_rows.append("terminal/result_idempotence")
 
 	var victory_run: Dictionary = _run_engine.create_debug_boss_run(ProgressionStore.default_data())
 	victory_run["held_embers"] = 44
