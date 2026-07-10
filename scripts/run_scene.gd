@@ -861,6 +861,8 @@ const PROGRESSION_COMMAND_BUTTON_DISABLED_PATH: String = "res://assets/art/ui/pr
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
+const REWARD_CARD_HOVER_LIFT: float = -20.0
+const REWARD_CARD_HOVER_SCALE: float = 1.10
 const RELIC_CHOICE_TITLE_TEXT: String = "CLAIM YOUR TREASURE"
 const RELIC_CHOICE_TITLE_FONT_SIZE: int = UiTypography.SIZE_BANNER
 const RELIC_CHOICE_TITLE_HEIGHT: float = 118.0
@@ -8372,6 +8374,7 @@ func _refresh_hand_panel() -> void:
 			var widget = CardWidgetScene.instantiate()
 			widget.custom_minimum_size = reward_card_size
 			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
+			widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
 			widget.activated.connect(_on_reward_card_pressed.bind(card_id))
 			hand_box.add_child(_reward_card_choice_slot(widget, card_id, reward_card_size))
 		if heal_amount > 0:

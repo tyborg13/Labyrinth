@@ -8306,22 +8306,26 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 		var time_badge: Control = card_widget.find_child("TimeCostBadge", true, false) as Control
 		_assert(title_label == null or not ownership_badge.get_global_rect().intersects(title_label.get_global_rect()), "Ownership badges should not cover card titles")
 		_assert(time_badge == null or not ownership_badge.get_global_rect().intersects(time_badge.get_global_rect()), "Ownership badges should not cover card costs")
+		var initial_card_rect: Rect2 = card_widget.get_global_rect()
 		var initial_badge_rect: Rect2 = ownership_badge.get_global_rect()
-		var initial_badge_scale: Vector2 = ownership_badge.get_global_transform().get_scale()
-		var initial_card_scale: Vector2 = card_widget.get_global_transform().get_scale()
+		var initial_badge_anchor: Vector2 = _rect_anchor_within_rect(initial_badge_rect, initial_card_rect)
 		var initial_badge_position: Vector2 = ownership_badge.position
 		var initial_badge_local_scale: Vector2 = ownership_badge.scale
-		card_widget.call("_on_local_mouse_entered")
-		card_widget.call("_apply_pose_now")
-		var hovered_badge_scale: Vector2 = ownership_badge.get_global_transform().get_scale()
-		var hovered_card_scale: Vector2 = card_widget.get_global_transform().get_scale()
+		card_widget.mouse_entered.emit()
+		await create_timer(0.15).timeout
+		var hovered_card_rect: Rect2 = card_widget.get_global_rect()
+		var hovered_badge_rect: Rect2 = ownership_badge.get_global_rect()
+		var card_growth: Vector2 = Vector2(hovered_card_rect.size.x / initial_card_rect.size.x, hovered_card_rect.size.y / initial_card_rect.size.y)
+		var badge_growth: Vector2 = Vector2(hovered_badge_rect.size.x / initial_badge_rect.size.x, hovered_badge_rect.size.y / initial_badge_rect.size.y)
 		_assert(card_widget.z_index == 20 and ownership_badge.z_index > card_widget.z_index, "Hovered card and badge should rise together above sibling choices")
+		_assert(card_growth.x >= 1.085 and card_growth.y >= 1.085, "Reward card rendered bounds should materially enlarge through the production hover signal/tween")
 		_assert(ownership_badge.position == initial_badge_position and ownership_badge.scale == initial_badge_local_scale, "Badge local attachment should remain fixed during hover pose changes")
-		_assert(not ownership_badge.get_global_rect().is_equal_approx(initial_badge_rect), "Ownership badges should visibly move and enlarge with hovered cards")
-		_assert(is_equal_approx(hovered_badge_scale.x / initial_badge_scale.x, hovered_card_scale.x / initial_card_scale.x), "Ownership badge hover scale should exactly match its card")
-		card_widget.call("_on_local_mouse_exited")
-		card_widget.call("_apply_pose_now")
-		_assert(card_widget.z_index == 0 and ownership_badge.get_global_rect().is_equal_approx(initial_badge_rect), "Ownership badge should return exactly with its card")
+		_assert(card_growth.is_equal_approx(badge_growth), "Ownership badge rendered bounds should enlarge by exactly the card hover ratio")
+		_assert(_rect_anchor_within_rect(hovered_badge_rect, hovered_card_rect).distance_to(initial_badge_anchor) <= 0.002, "Ownership badge should preserve its exact rendered anchor within the hovered card")
+		_assert(hovered_badge_rect.get_center().distance_to(initial_badge_rect.get_center()) >= 8.0, "Ownership badges should visibly move with hovered cards")
+		card_widget.mouse_exited.emit()
+		await create_timer(0.15).timeout
+		_assert(card_widget.z_index == 0 and card_widget.get_global_rect().is_equal_approx(initial_card_rect) and ownership_badge.get_global_rect().is_equal_approx(initial_badge_rect), "Ownership badge should return exactly with its card")
 	_assert(visible_reward_card_widgets == 4, "All four reward card widgets should be visibly rendered in the five-choice row")
 	if hand_box.get_child_count() == 5:
 		var scroll_rect: Rect2 = hand_scroll.get_global_rect()
@@ -11373,6 +11377,14 @@ func _labels_under(node: Node) -> Array[Label]:
 	for child: Node in node.get_children():
 		labels.append_array(_labels_under(child))
 	return labels
+
+func _rect_anchor_within_rect(child_rect: Rect2, parent_rect: Rect2) -> Vector2:
+	if parent_rect.size.x <= 0.0 or parent_rect.size.y <= 0.0:
+		return Vector2.ZERO
+	return Vector2(
+		(child_rect.get_center().x - parent_rect.position.x) / parent_rect.size.x,
+		(child_rect.get_center().y - parent_rect.position.y) / parent_rect.size.y
+	)
 
 func _label_with_text(node: Node, text: String) -> Label:
 	for label: Label in _labels_under(node):

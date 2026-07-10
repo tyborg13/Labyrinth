@@ -440,6 +440,8 @@ var _left_pressed: bool = false
 var _drag_emitted: bool = false
 var _press_position: Vector2 = Vector2.ZERO
 var _local_hovered: bool = false
+var _hover_lift: float = HOVER_LIFT
+var _hover_scale: float = HOVER_SCALE
 var _pose_tween: Tween
 var _ready_wave_tween: Tween
 var _ready_wave_progress: float = 0.0
@@ -576,6 +578,12 @@ func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = 
 	tooltip_text = "modifiers" if not _modifier_tooltip_lines.is_empty() else ""
 	if is_node_ready():
 		_apply_configuration()
+
+func set_hover_pose(next_lift: float, next_scale: float) -> void:
+	_hover_lift = clampf(next_lift, -40.0, 0.0)
+	_hover_scale = clampf(next_scale, 1.0, 1.20)
+	if is_node_ready() and _local_hovered:
+		_update_pose()
 
 func _apply_configuration() -> void:
 	if not is_node_ready():
@@ -1449,8 +1457,8 @@ func _pose_target() -> Dictionary:
 	var lift: float = 0.0
 	var target_scale: Vector2 = Vector2.ONE
 	if _local_hovered and _interactive and not _dimmed:
-		lift = HOVER_LIFT
-		target_scale = Vector2.ONE * HOVER_SCALE
+		lift = _hover_lift
+		target_scale = Vector2.ONE * _hover_scale
 	elif _selected or _previewed:
 		lift = SELECTED_LIFT
 		target_scale = Vector2.ONE * SELECTED_SCALE

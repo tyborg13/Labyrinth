@@ -8,7 +8,7 @@ const OUTPUT_DIR: String = "user://reward_simplification_v2_proof"
 const OFFERED_CARDS: Array[String] = ["spark_dart", "frostbolt", "firebrand_volley", "threaded_path"]
 const OWNED_CARD_ID: String = "spark_dart"
 const NEW_CARD_ID: String = "frostbolt"
-const PROOF_VERSION: String = "v6"
+const PROOF_VERSION: String = "v7"
 
 var _failed: bool = false
 
@@ -48,7 +48,12 @@ func _capture_resolution(resolution: Vector2i) -> void:
 	_assert_ownership_badge(new_slot, "NEW")
 	_assert_injured_recover(instance)
 	await _save_root_screenshot(
-		"%s/reward_%dx%d_injured_before_hover_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
+		"%s/reward_%dx%d_injured_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
+		instance,
+		resolution
+	)
+	await _save_root_screenshot(
+		"%s/reward_%dx%d_new_before_hover_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
 		instance,
 		resolution
 	)
@@ -56,6 +61,11 @@ func _capture_resolution(resolution: Vector2i) -> void:
 		new_slot,
 		"NEW",
 		"%s/reward_%dx%d_new_hovered_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
+		instance,
+		resolution
+	)
+	await _save_root_screenshot(
+		"%s/reward_%dx%d_owned_before_hover_%s.png" % [output_dir, resolution.x, resolution.y, PROOF_VERSION],
 		instance,
 		resolution
 	)
@@ -120,6 +130,16 @@ func _show_reward_state(instance: Node, state: Dictionary) -> void:
 	settled_state["progression"] = progression
 	instance.set("_run_state", settled_state)
 	instance.call("_refresh_ui")
+	await _settle()
+	await _freeze_reward_title(instance)
+
+func _freeze_reward_title(instance: Node) -> void:
+	await create_timer(0.70).timeout
+	var title_effect: Node = instance.get("_relic_choice_title_effect") as Node
+	if title_effect != null:
+		title_effect.set_process(false)
+		title_effect.set("phase", 0.0)
+		title_effect.call("_animate_labels")
 	await _settle()
 
 func _assert_reward_layout(instance: Node, resolution: Vector2i) -> Dictionary:
@@ -203,32 +223,59 @@ func _hover_card_and_capture(slot: Control, expected_text: String, output_path: 
 		return
 	var initial_badge_position: Vector2 = badge.position
 	var initial_badge_local_scale: Vector2 = badge.scale
-	var initial_badge_scale: Vector2 = badge.get_global_transform().get_scale()
-	var initial_card_scale: Vector2 = card_widget.get_global_transform().get_scale()
+	var initial_card_rect: Rect2 = card_widget.get_global_rect()
+	var initial_badge_rect: Rect2 = badge.get_global_rect()
+	var initial_badge_anchor: Vector2 = _rect_anchor_within(initial_badge_rect, initial_card_rect)
 	root.warp_mouse(card_widget.get_global_rect().get_center())
-	card_widget.call("_on_local_mouse_entered")
-	await create_timer(0.18).timeout
+	card_widget.mouse_entered.emit()
+	await create_timer(0.22).timeout
 	await process_frame
-	if card_widget.scale.x < 1.035 or card_widget.z_index != 20:
+	var hovered_card_rect: Rect2 = card_widget.get_global_rect()
+	var hovered_badge_rect: Rect2 = badge.get_global_rect()
+	var card_growth: Vector2 = Vector2(
+		hovered_card_rect.size.x / initial_card_rect.size.x,
+		hovered_card_rect.size.y / initial_card_rect.size.y
+	)
+	var badge_growth: Vector2 = Vector2(
+		hovered_badge_rect.size.x / initial_badge_rect.size.x,
+		hovered_badge_rect.size.y / initial_badge_rect.size.y
+	)
+	if card_growth.x < 1.085 or card_growth.y < 1.085 or card_widget.z_index != 20:
 		_fail("%s card should reach its real hover scale and z-order" % expected_text)
 	if badge.position != initial_badge_position or badge.scale != initial_badge_local_scale:
 		_fail("%s badge local attachment should remain exact during hover" % expected_text)
-	var hovered_badge_scale: Vector2 = badge.get_global_transform().get_scale()
-	var hovered_card_scale: Vector2 = card_widget.get_global_transform().get_scale()
-	if not is_equal_approx(hovered_badge_scale.x / initial_badge_scale.x, hovered_card_scale.x / initial_card_scale.x):
-		_fail("%s badge should enlarge by exactly the card hover ratio" % expected_text)
+	if not card_growth.is_equal_approx(badge_growth):
+		_fail("%s badge rendered bounds should enlarge by exactly the card hover ratio" % expected_text)
+	if _rect_anchor_within(hovered_badge_rect, hovered_card_rect).distance_to(initial_badge_anchor) > 0.002:
+		_fail("%s badge should preserve its exact rendered anchor within the hovered card" % expected_text)
+	if hovered_badge_rect.get_center().distance_to(initial_badge_rect.get_center()) < 8.0:
+		_fail("%s badge should visibly move with the hovered card" % expected_text)
 	if badge.z_index <= card_widget.z_index:
 		_fail("%s badge should remain above the hovered card face" % expected_text)
+	var title: Control = card_widget.get_node_or_null("Margin/VBox/TopRow/Title") as Control
+	var cost: Control = card_widget.find_child("TimeCostBadge", true, false) as Control
+	if title != null and hovered_badge_rect.intersects(title.get_global_rect()):
+		_fail("%s badge should stay clear of its title while enlarged" % expected_text)
+	if cost != null and hovered_badge_rect.intersects(cost.get_global_rect()):
+		_fail("%s badge should stay clear of its cost while enlarged" % expected_text)
 	var viewport_rect := Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size)
 	if not viewport_rect.encloses(card_widget.get_global_rect()):
 		_fail("%s hovered card should remain inside %s" % [expected_text, resolution])
 	await _save_root_screenshot(output_path, instance, resolution)
 	root.warp_mouse(Vector2(8.0, 8.0))
-	card_widget.call("_on_local_mouse_exited")
-	await create_timer(0.18).timeout
+	card_widget.mouse_exited.emit()
+	await create_timer(0.22).timeout
 	await process_frame
-	if not card_widget.scale.is_equal_approx(Vector2.ONE) or card_widget.z_index != 0:
+	if not card_widget.get_global_rect().is_equal_approx(initial_card_rect) or not badge.get_global_rect().is_equal_approx(initial_badge_rect) or card_widget.z_index != 0:
 		_fail("%s card and badge should complete their return animation" % expected_text)
+
+func _rect_anchor_within(child_rect: Rect2, parent_rect: Rect2) -> Vector2:
+	if parent_rect.size.x <= 0.0 or parent_rect.size.y <= 0.0:
+		return Vector2.ZERO
+	return Vector2(
+		(child_rect.get_center().x - parent_rect.position.x) / parent_rect.size.x,
+		(child_rect.get_center().y - parent_rect.position.y) / parent_rect.size.y
+	)
 
 func _assert_injured_recover(instance: Node) -> void:
 	var heal_choice: PanelContainer = instance.find_child("RewardHealChoice", true, false) as PanelContainer
