@@ -4662,22 +4662,20 @@ func _layout_contextual_combat_prompt_overlay() -> void:
 		Vector2(viewport_rect.position.x + CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN, safe_top),
 		Vector2(viewport_rect.size.x - CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN * 2.0, maxf(0.0, safe_bottom - safe_top))
 	)
-	var protected_rects: Array[Rect2] = _contextual_combat_prompt_protected_rects()
+	var protected_rects: Array = _contextual_combat_prompt_protected_rects()
 	_contextual_combat_prompt_host.set_meta("safe_area", safe_area)
 	_contextual_combat_prompt_host.set_meta("protected_rects", protected_rects)
-	var x_candidates: Array[float] = [
-		safe_area.position.x,
-		safe_area.end.x - prompt_size.x
-	]
+	var x_candidates: Array = []
+	x_candidates.append(safe_area.position.x)
+	x_candidates.append(safe_area.end.x - prompt_size.x)
 	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
 	if board_bounds.size.x > 0.0:
 		x_candidates.append(board_bounds.position.x - prompt_size.x - CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 		x_candidates.append(board_bounds.end.x + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
-	var y_candidates: Array[float] = [
-		safe_area.position.y,
-		safe_area.get_center().y - prompt_size.y * 0.5,
-		safe_area.end.y - prompt_size.y
-	]
+	var y_candidates: Array = []
+	y_candidates.append(safe_area.position.y)
+	y_candidates.append(safe_area.get_center().y - prompt_size.y * 0.5)
+	y_candidates.append(safe_area.end.y - prompt_size.y)
 	for protected_rect: Rect2 in protected_rects:
 		x_candidates.append(protected_rect.end.x)
 		x_candidates.append(protected_rect.position.x - prompt_size.x)
@@ -4702,8 +4700,8 @@ func _layout_contextual_combat_prompt_overlay() -> void:
 	_contextual_combat_prompt_host.global_position = chosen_rect.position
 	_contextual_combat_prompt_host.size = chosen_rect.size
 
-func _contextual_combat_prompt_protected_rects() -> Array[Rect2]:
-	var result: Array[Rect2] = []
+func _contextual_combat_prompt_protected_rects() -> Array:
+	var result: Array = []
 	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
 	if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0:
 		result.append(board_bounds.grow(CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP))
@@ -4753,7 +4751,7 @@ func _contextual_combat_rendered_board_bounds() -> Rect2:
 				bounds = bounds.expand(global_point)
 	return bounds
 
-func _rect_intersects_any(rect: Rect2, others: Array[Rect2]) -> bool:
+func _rect_intersects_any(rect: Rect2, others: Array) -> bool:
 	for other: Rect2 in others:
 		if rect.intersects(other):
 			return true

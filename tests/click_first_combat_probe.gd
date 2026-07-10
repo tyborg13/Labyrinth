@@ -8,20 +8,21 @@ const GameData = preload("res://scripts/game_data.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 
 const OUTPUT_DIR: String = "user://probes/ui_stable_tutorial_click_fallbacks_v2"
-const STABLE_PROOF_DIR: String = "/private/tmp/labyrinth-ui-stable-tutorial-click-fallbacks-v2-recovery-final-r3"
+const STABLE_PROOF_DIR_ENV: String = "LABYRINTH_CLICK_PROOF_DIR"
 const STORAGE_PATH: String = "user://click_first_combat_probe_progression.json"
 const RUN_STORAGE_PATH: String = "user://click_first_combat_probe_run.save"
 const SETTINGS_PATH: String = "user://click_first_combat_probe_settings.json"
-const VIEWPORTS: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1920, 1080)]
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 
 var _failed: bool = false
+var _stable_proof_dir: String = ""
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path(STORAGE_PATH)
 	ProgressionStore.set_run_storage_path(RUN_STORAGE_PATH)
 	SettingsStore.set_storage_path(SETTINGS_PATH)
+	_stable_proof_dir = OS.get_environment(STABLE_PROOF_DIR_ENV).strip_edges()
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["display_mode"] = SettingsStore.DISPLAY_WINDOWED
 	SettingsStore.save_settings(settings)
@@ -38,31 +39,38 @@ func _initialize() -> void:
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))
 		quit(1 if _failed else 0)
 		return
-	for viewport_size: Vector2i in VIEWPORTS:
+	for viewport_size: Vector2i in _proof_viewports():
 		await _capture_resolution(viewport_size)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(1 if _failed else 0)
 
+func _proof_viewports() -> Array:
+	var result: Array = []
+	result.append(Vector2i(1280, 720))
+	result.append(Vector2i(1920, 1080))
+	return result
+
 func _capture_single_state(viewport_size: Vector2i, proof_state: String) -> void:
 	_remove_if_present(STORAGE_PATH)
 	_remove_if_present(RUN_STORAGE_PATH)
-	root.content_scale_size = viewport_size
-	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	root.size = viewport_size
-	await process_frame
-	await process_frame
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
 		_fail("Run scene should load for %s proof" % proof_state)
 		return
+	var capture_viewport := SubViewport.new()
+	capture_viewport.name = "ClickFirstProofViewport"
+	capture_viewport.size = viewport_size
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(capture_viewport)
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
-	root.size = viewport_size
+	capture_viewport.add_child(instance)
 	await _settle_ui()
+	_assert(instance.get_viewport().get_visible_rect().size == Vector2(viewport_size), "%s proof viewport should settle at exact logical size %s, got %s" % [proof_state, viewport_size, instance.get_viewport().get_visible_rect().size])
 	var output_dir: String = "%s/%dx%d" % [OUTPUT_DIR, viewport_size.x, viewport_size.y]
-	var stable_dir: String = "%s/%dx%d" % [STABLE_PROOF_DIR, viewport_size.x, viewport_size.y]
+	var stable_dir: String = "" if _stable_proof_dir.is_empty() else "%s/%dx%d" % [_stable_proof_dir, viewport_size.x, viewport_size.y]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
-	DirAccess.make_dir_recursive_absolute(stable_dir)
+	if not stable_dir.is_empty():
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(stable_dir))
 	var file_name: String = ""
 	match proof_state:
 		"idle_tutorial":
@@ -112,8 +120,11 @@ func _capture_single_state(viewport_size: Vector2i, proof_state: String) -> void
 	if not file_name.is_empty():
 		_hide_fixture_debug_ui(instance)
 		await _settle_ui()
-		await _save_screenshot(instance, "%s/%s" % [output_dir, file_name], viewport_size, "%s/%s" % [stable_dir, file_name])
+		var stable_output_path: String = "" if stable_dir.is_empty() else "%s/%s" % [stable_dir, file_name]
+		await _save_screenshot(instance, "%s/%s" % [output_dir, file_name], viewport_size, stable_output_path)
 	instance.queue_free()
+	await process_frame
+	capture_viewport.queue_free()
 	await process_frame
 
 func _capture_resolution(viewport_size: Vector2i) -> void:
@@ -167,7 +178,7 @@ func _capture_resolution(viewport_size: Vector2i) -> void:
 	await instance.call("_on_skip_action_pressed")
 	await _settle_ui()
 	_assert(int(instance.get("_pending_action_index")) == 1, "Skip should advance the clicked full card to its second step")
-	var compound_targets: Array[Vector2i] = _vector2i_array(instance.get("_pending_selected_targets") as Array)
+	var compound_targets: Array = instance.get("_pending_selected_targets") as Array
 	_assert(not compound_targets.is_empty() and compound_targets[0] == INVALID_TARGET_TILE, "Skip should preserve the optional-step placeholder")
 	await _save_screenshot(instance, "%s/05_compound_target.png" % output_dir, viewport_size)
 	instance.call("_on_cancel_requested")
@@ -181,7 +192,7 @@ func _capture_resolution(viewport_size: Vector2i) -> void:
 	_assert(str(instance.get("_selected_card_label_override")) == "20 Attack", "Clicked Basic Attack should be clearly identified as a fallback")
 	var attack_actions: Array = instance.get("_pending_actions")
 	_assert(attack_actions.size() == 1 and int((attack_actions[0] as Dictionary).get("damage", 0)) == int(instance.call("_fallback_attack_damage")), "Clicked Basic Attack should use fallback damage, not printed damage")
-	var attack_targets: Array[Vector2i] = _vector2i_array(instance.get("_pending_target_tiles") as Array)
+	var attack_targets: Array = instance.get("_pending_target_tiles") as Array
 	_assert(attack_targets.has(Vector2i(3, 4)), "Clicked Basic Attack should preserve legal adjacent targets")
 	var attack_state_before_invalid: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	await instance.call("_on_board_tile_clicked", Vector2i(0, 0))
@@ -198,7 +209,7 @@ func _capture_resolution(viewport_size: Vector2i) -> void:
 	_assert(str(instance.get("_selected_card_label_override")) == "2 Move", "Clicked Basic Move should be clearly identified as a fallback")
 	var move_actions: Array = instance.get("_pending_actions")
 	_assert(move_actions.size() == 1 and str((move_actions[0] as Dictionary).get("type", "")) == "move", "Clicked Basic Move should use the one-step fallback move")
-	var move_targets: Array[Vector2i] = _vector2i_array(instance.get("_pending_target_tiles") as Array)
+	var move_targets: Array = instance.get("_pending_target_tiles") as Array
 	_assert(not move_targets.is_empty(), "Clicked Basic Move should preserve legal board targets")
 	await _save_screenshot(instance, "%s/04_move_target.png" % output_dir, viewport_size)
 	instance.call("_on_cancel_requested")
@@ -307,7 +318,7 @@ func _assert_clicked_fallback_consumption(instance: Node, play_kind: String, see
 	await _choose_clicked_action(instance, 1, play_kind)
 	var target: Vector2i = Vector2i(3, 4)
 	if play_kind == "move":
-		var move_targets: Array[Vector2i] = _vector2i_array(instance.get("_pending_target_tiles") as Array)
+		var move_targets: Array = instance.get("_pending_target_tiles") as Array
 		_assert(not move_targets.is_empty(), "Basic Move consumption proof needs a legal target")
 		if move_targets.is_empty():
 			return
@@ -369,8 +380,9 @@ func _assert_tutorial_geometry_stable(instance: Node, label: String) -> void:
 func _combat_geometry(instance: Node) -> Dictionary:
 	var pass_button: Button = _button_with_text(instance.get("_choice_button_overlay") as Node, "Pass")
 	var pass_preview: Control = instance.get("_pass_preview_overlay") as Control
-	return {
+	var geometry: Dictionary = {
 		"board": (instance.get("board_view") as Control).get_global_rect(),
+		"rendered_board": instance.call("_contextual_combat_rendered_board_bounds"),
 		"hand": (instance.get("hand_row") as Control).get_global_rect(),
 		"pass": pass_button.get_global_rect() if pass_button != null else Rect2(-1.0, -1.0, 0.0, 0.0),
 		"pass_preview": pass_preview.get_global_rect() if pass_preview != null and pass_preview.visible else Rect2(-1.0, -1.0, 0.0, 0.0),
@@ -380,12 +392,20 @@ func _combat_geometry(instance: Node) -> Dictionary:
 		"combat_widget": (instance.get("_play_meter") as Control).get_global_rect(),
 		"minimap": (instance.get("mini_map_overlay") as Control).get_global_rect()
 	}
+	var hand: Array = _hand(instance)
+	for index: int in range(hand.size()):
+		var card_control: Control = instance.call("_hand_card_control", index) as Control
+		if card_control != null and card_control.is_visible_in_tree():
+			geometry["card_%d" % index] = instance.call("_control_visual_global_rect", card_control)
+	return geometry
 
 func _assert_geometry_equal(expected: Dictionary, actual: Dictionary, label: String) -> void:
+	_assert(expected.size() == actual.size(), "%s must keep the same protected geometry keys: %s != %s" % [label, expected.keys(), actual.keys()])
 	for key: String in expected.keys():
+		_assert(actual.has(key), "%s must retain protected geometry for %s" % [label, key])
 		var expected_rect: Rect2 = expected.get(key, Rect2())
 		var actual_rect: Rect2 = actual.get(key, Rect2())
-		_assert(expected_rect.is_equal_approx(actual_rect), "%s must keep %s identical: %s != %s" % [label, key, expected_rect, actual_rect])
+		_assert(expected_rect == actual_rect, "%s must keep %s exactly identical: %s != %s" % [label, key, expected_rect, actual_rect])
 
 func _assert_tutorial_clear_of_play(instance: Node, label: String) -> void:
 	var host: Control = instance.get("_contextual_combat_prompt_host") as Control
@@ -395,7 +415,7 @@ func _assert_tutorial_clear_of_play(instance: Node, label: String) -> void:
 	var context: Control = instance.get("_action_step_tracker") as Control
 	var board: Control = instance.get("board_view") as Control
 	var prompt_rect: Rect2 = prompt.get_global_rect()
-	var viewport_bounds := Rect2(Vector2.ZERO, root.get_viewport().get_visible_rect().size).grow(1.0)
+	var viewport_bounds := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size).grow(1.0)
 	for tile_var: Variant in board.call("_rendered_tiles_in_draw_order") as Array:
 		if typeof(tile_var) != TYPE_VECTOR2I:
 			continue
@@ -472,13 +492,6 @@ func _button_with_text(root_node: Node, text: String) -> Button:
 			return button
 	return null
 
-func _vector2i_array(values: Array) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
-	for value: Variant in values:
-		if typeof(value) == TYPE_VECTOR2I:
-			result.append(value)
-	return result
-
 func _room_layout(player_pos: Vector2i, enemy_positions: Array) -> Dictionary:
 	var enemies: Array = []
 	for index: int in range(enemy_positions.size()):
@@ -522,20 +535,30 @@ func _settle_ui() -> void:
 func _save_screenshot(instance: Node, output_path: String, expected_size: Vector2i, stable_output_path: String = "") -> void:
 	if DisplayServer.get_name() == "headless":
 		return
+	_remove_if_present(output_path)
+	if not stable_output_path.is_empty():
+		_remove_if_present(stable_output_path)
 	await create_timer(0.50).timeout
 	await process_frame
 	await process_frame
 	RenderingServer.force_draw()
-	var image: Image = root.get_viewport().get_texture().get_image()
+	var capture_viewport: Viewport = instance.get_viewport()
+	var logical_viewport_size: Vector2 = capture_viewport.get_visible_rect().size
+	_assert(logical_viewport_size == Vector2(expected_size), "%s logical viewport should be %s before capture, got %s" % [output_path, expected_size, logical_viewport_size])
+	if logical_viewport_size != Vector2(expected_size):
+		return
+	var image: Image = capture_viewport.get_texture().get_image()
 	_assert(image != null, "%s should produce a renderer frame" % output_path)
 	if image == null:
 		return
+	_assert(image.get_size() == expected_size, "%s captured texture should be exact size %s without scaling, got %s" % [output_path, expected_size, image.get_size()])
 	if image.get_size() != expected_size:
-		image.resize(expected_size.x, expected_size.y, Image.INTERPOLATE_LANCZOS)
+		return
 	var frame_coverage: float = _non_black_frame_coverage(image)
-	_assert(image.get_size() == expected_size, "%s should render at exact size %s, got %s" % [output_path, expected_size, image.get_size()])
 	_assert(frame_coverage >= 0.95, "%s should have a complete renderer frame, got %.3f non-black coverage" % [output_path, frame_coverage])
 	_assert_scene_regions_rendered(instance, image, output_path)
+	if _failed:
+		return
 	image.save_png(output_path)
 	if not stable_output_path.is_empty():
 		image.save_png(stable_output_path)
@@ -561,36 +584,32 @@ func _assert_scene_regions_rendered(instance: Node, image: Image, label: String)
 	var board_rect: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
 	regions.append({"name": "board", "rect": board_rect, "min_range": 0.12, "min_edge_ratio": 0.012})
 
-	var piles_rect := Rect2()
-	var has_piles: bool = false
-	for pile_var: Variant in [instance.get("draw_pile"), instance.get("discard_pile")]:
-		var pile: Control = pile_var as Control
-		if pile == null or not pile.visible:
-			continue
-		piles_rect = pile.get_global_rect() if not has_piles else piles_rect.merge(pile.get_global_rect())
-		has_piles = true
-	_assert(has_piles, "%s should expose visible draw/discard pile regions" % label)
-	if has_piles:
-		regions.append({"name": "piles", "rect": piles_rect, "min_range": 0.08, "min_edge_ratio": 0.005})
+	_append_capture_region(regions, "draw pile", instance.get("draw_pile") as Control, 0.08, 0.005)
+	_append_capture_region(regions, "discard pile", instance.get("discard_pile") as Control, 0.08, 0.005)
 
-	var cards_rect := Rect2()
-	var has_cards: bool = false
+	var visible_card_count: int = 0
 	var hand: Array = _hand(instance)
 	for index: int in range(hand.size()):
 		var card_control: Control = instance.call("_hand_card_control", index) as Control
-		if card_control == null or not card_control.visible:
+		if card_control == null or not card_control.is_visible_in_tree():
 			continue
 		var card_rect: Rect2 = instance.call("_control_visual_global_rect", card_control)
-		cards_rect = card_rect if not has_cards else cards_rect.merge(card_rect)
-		has_cards = true
-	_assert(has_cards, "%s should expose at least one visible hand card region" % label)
-	if has_cards:
-		regions.append({"name": "visible cards", "rect": cards_rect, "min_range": 0.16, "min_edge_ratio": 0.010})
+		regions.append({"name": "hand card %d" % index, "rect": card_rect, "min_range": 0.16, "min_edge_ratio": 0.010})
+		visible_card_count += 1
+	_assert(visible_card_count > 0, "%s should expose at least one independently checked hand card region" % label)
 
+	if int(instance.get("_drag_card_index")) >= 0:
+		_append_capture_region(regions, "drag card proxy", instance.get("_drag_card_proxy") as Control, 0.16, 0.010)
+
+	var image_bounds := Rect2(Vector2.ZERO, Vector2(image.get_size()))
 	for region_var: Variant in regions:
 		var region: Dictionary = region_var as Dictionary
 		var region_name: String = str(region.get("name", "region"))
 		var region_rect: Rect2 = region.get("rect", Rect2())
+		var visible_rect: Rect2 = region_rect.intersection(image_bounds)
+		var region_area: float = maxf(1.0, region_rect.size.x * region_rect.size.y)
+		var visible_fraction: float = maxf(0.0, visible_rect.size.x * visible_rect.size.y) / region_area
+		_assert(visible_fraction >= 0.90, "%s %s region %s must remain at least 90%% visible inside captured image %s, got %.3f" % [label, region_name, region_rect, image_bounds, visible_fraction])
 		var metrics: Dictionary = _image_region_detail_metrics(image, region_rect)
 		var sample_count: int = int(metrics.get("samples", 0))
 		var luma_range: float = float(metrics.get("luma_range", 0.0))
@@ -600,7 +619,7 @@ func _assert_scene_regions_rendered(instance: Node, image: Image, label: String)
 		_assert(edge_ratio >= float(region.get("min_edge_ratio", 0.004)), "%s %s region should contain scene edges, got ratio %.4f" % [label, region_name, edge_ratio])
 
 func _append_capture_region(regions: Array, name: String, control: Control, min_range: float, min_edge_ratio: float) -> void:
-	if control == null or not control.visible or not control.is_inside_tree():
+	if control == null or not control.is_visible_in_tree():
 		_fail("Screenshot completeness region %s should be visible" % name)
 		return
 	regions.append({

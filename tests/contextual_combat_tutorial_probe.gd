@@ -219,8 +219,9 @@ func _assert_prompt_geometry_stable(instance: Node, label: String) -> void:
 func _combat_geometry(instance: Node) -> Dictionary:
 	var pass_button: Button = _button_with_text(instance.get("_choice_button_overlay") as Node, "Pass")
 	var pass_preview: Control = instance.get("_pass_preview_overlay") as Control
-	return {
+	var geometry: Dictionary = {
 		"board": (instance.get("board_view") as Control).get_global_rect(),
+		"rendered_board": instance.call("_contextual_combat_rendered_board_bounds"),
 		"hand": (instance.get("hand_row") as Control).get_global_rect(),
 		"pass": pass_button.get_global_rect() if pass_button != null else Rect2(-1.0, -1.0, 0.0, 0.0),
 		"pass_preview": pass_preview.get_global_rect() if pass_preview != null and pass_preview.visible else Rect2(-1.0, -1.0, 0.0, 0.0),
@@ -230,12 +231,21 @@ func _combat_geometry(instance: Node) -> Dictionary:
 		"combat_widget": (instance.get("_play_meter") as Control).get_global_rect(),
 		"minimap": (instance.get("mini_map_overlay") as Control).get_global_rect()
 	}
+	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var hand: Array = ((combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for index: int in range(hand.size()):
+		var card_control: Control = instance.call("_hand_card_control", index) as Control
+		if card_control != null and card_control.is_visible_in_tree():
+			geometry["card_%d" % index] = instance.call("_control_visual_global_rect", card_control)
+	return geometry
 
 func _assert_geometry_equal(expected: Dictionary, actual: Dictionary, label: String) -> void:
+	_assert(expected.size() == actual.size(), "%s must keep the same protected geometry keys: %s != %s" % [label, expected.keys(), actual.keys()])
 	for key: String in expected.keys():
+		_assert(actual.has(key), "%s must retain protected geometry for %s" % [label, key])
 		var expected_rect: Rect2 = expected.get(key, Rect2())
 		var actual_rect: Rect2 = actual.get(key, Rect2())
-		_assert(expected_rect.is_equal_approx(actual_rect), "%s must keep %s rect identical: %s != %s" % [label, key, expected_rect, actual_rect])
+		_assert(expected_rect == actual_rect, "%s must keep %s rect exactly identical: %s != %s" % [label, key, expected_rect, actual_rect])
 
 func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
 	instance.call("_on_card_pressed", hand_index)
