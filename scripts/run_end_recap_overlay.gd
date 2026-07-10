@@ -1,7 +1,8 @@
 extends Control
 class_name RunEndRecapOverlay
 
-const GameData = preload("res://scripts/game_data.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -11,12 +12,23 @@ const REGULAR_FONT = preload("res://fonts/LabyrinthCrumble-Regular.tres")
 signal new_run_pressed
 signal main_menu_pressed
 
-const INTRO_SECONDS: float = 0.62
-const PANEL_MAX_SIZE: Vector2 = Vector2(680.0, 650.0)
-const PANEL_MIN_WIDTH: float = 540.0
+const VICTORY_INTRO_SECONDS: float = 0.62
+const DEFEAT_PANEL_DELAY_SECONDS: float = 1.04
+const DEFEAT_PANEL_INTRO_SECONDS: float = 0.58
+const PANEL_MAX_SIZE: Vector2 = Vector2(710.0, 660.0)
+const PANEL_MIN_WIDTH: float = 548.0
 const PANEL_EDGE_MARGIN: float = 42.0
 const BUTTON_HEIGHT: float = 54.0
 const BUTTON_MIN_WIDTH: float = 226.0
+const NEW_BEST_COLOR: Color = Color("72c78c")
+const STAT_SPECS := [
+	{"id": "enemies_killed", "label": "ENEMIES KILLED"},
+	{"id": "damage_dealt", "label": "DAMAGE DEALT"},
+	{"id": "damage_received", "label": "DAMAGE TAKEN"},
+	{"id": "depth", "label": "DEPTH"},
+	{"id": "rooms_cleared", "label": "ROOMS CLEARED"},
+	{"id": "bosses_defeated", "label": "BOSSES"}
+]
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _model: Dictionary = {}
@@ -24,15 +36,14 @@ var _model_fingerprint: String = ""
 var _motion_enabled: bool = true
 var _elapsed: float = 0.0
 
+var _death_shroud: DeathEngulfOverlay
 var _panel: PanelContainer
 var _kicker_label: Label
 var _title_label: Label
 var _summary_label: Label
 var _accent_rule: ColorRect
-var _depth_value: Label
-var _rooms_value: Label
-var _boss_value: Label
-var _build_value: Label
+var _stat_value_labels: Dictionary = {}
+var _stat_best_labels: Dictionary = {}
 var _ember_label: Label
 var _ember_value: Label
 var _recovery_value: Label
@@ -45,17 +56,15 @@ func _ready() -> void:
 	set_process(false)
 	_build_children()
 
-static func build_model(run_state: Dictionary, progression: Dictionary, outcome: String, ember_amount: int) -> Dictionary:
-	var normalized_outcome: String = "victory" if outcome == "victory" else "defeat"
+static func result_stats(run_state: Dictionary) -> Dictionary:
 	var rooms: Dictionary = run_state.get("rooms", {}) as Dictionary
 	var current_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = {}
 	var current_key: String = "%d,%d" % [current_coord.x, current_coord.y]
 	if rooms.has(current_key) and typeof(rooms[current_key]) == TYPE_DICTIONARY:
 		current_room = rooms[current_key] as Dictionary
-	var depth: int = int(current_room.get("depth", _coord_depth(current_coord)))
 	var rooms_cleared: int = 0
-	var bosses_cleared: int = 0
+	var bosses_defeated: int = 0
 	for room_var: Variant in rooms.values():
 		if typeof(room_var) != TYPE_DICTIONARY:
 			continue
@@ -64,15 +73,26 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 			continue
 		rooms_cleared += 1
 		if str(room.get("type", "")) == "boss":
-			bosses_cleared += 1
+			bosses_defeated += 1
+	var combat_stats: Dictionary = CombatEngine.normalized_run_stats(run_state.get("run_stats", {}))
+	return {
+		"enemies_killed": int(combat_stats.get("enemies_killed", 0)),
+		"damage_dealt": int(combat_stats.get("damage_dealt", 0)),
+		"damage_received": int(combat_stats.get("damage_received", 0)),
+		"depth": maxi(0, int(current_room.get("depth", _coord_depth(current_coord)))),
+		"rooms_cleared": rooms_cleared,
+		"bosses_defeated": bosses_defeated
+	}
 
+static func build_model(run_state: Dictionary, progression: Dictionary, outcome: String, ember_amount: int) -> Dictionary:
+	var normalized_outcome: String = "victory" if outcome == "victory" else "defeat"
+	var stats: Dictionary = result_stats(run_state)
 	var boss_result: String
 	if normalized_outcome == "victory":
 		boss_result = "Final boss defeated"
-	elif str(current_room.get("type", "")) == "boss":
-		boss_result = "Boss challenge failed"
-	elif bosses_cleared > 0:
-		boss_result = "%d guardian%s defeated" % [bosses_cleared, "" if bosses_cleared == 1 else "s"]
+	elif int(stats.get("bosses_defeated", 0)) > 0:
+		var boss_count: int = int(stats.get("bosses_defeated", 0))
+		boss_result = "%d guardian%s defeated" % [boss_count, "" if boss_count == 1 else "s"]
 	else:
 		boss_result = "Final boss not reached"
 
@@ -95,66 +115,27 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 			var marker_verb: String = "set" if normalized_outcome == "defeat" and marker_amount == maxi(0, ember_amount) else "active"
 			recovery_status = "Recovery marker %s · Depth %d · %d embers" % [marker_verb, marker_depth, marker_amount]
 
-	var safe_ember_amount: int = maxi(0, ember_amount)
+	var run_result: Dictionary = run_state.get("run_result", {}) as Dictionary
+	var new_bests: Array[String] = []
+	for stat_id_var: Variant in run_result.get("new_bests", []):
+		var stat_id: String = str(stat_id_var)
+		if ProgressionStore.BEST_ELIGIBLE_STAT_IDS.has(stat_id) and not new_bests.has(stat_id):
+			new_bests.append(stat_id)
 	return {
 		"outcome": normalized_outcome,
 		"kicker": "THE LABYRINTH YIELDS" if normalized_outcome == "victory" else "THE ASH REMEMBERS",
 		"title": "ASCENT COMPLETE" if normalized_outcome == "victory" else "RUN ENDED",
-		"summary": "The path is yours. Your carried embers are secure." if normalized_outcome == "victory" else "The path closes, but what was lost can be reclaimed.",
-		"depth": maxi(0, depth),
-		"rooms_cleared": rooms_cleared,
+		"summary": "The ascent is complete. Carried embers are secure." if normalized_outcome == "victory" else "The room remains. The ash remembers.",
+		"stats": stats,
+		"new_bests": new_bests,
+		"depth": int(stats.get("depth", 0)),
+		"rooms_cleared": int(stats.get("rooms_cleared", 0)),
+		"bosses_defeated": int(stats.get("bosses_defeated", 0)),
 		"boss_result": boss_result,
-		"build_highlights": _build_highlights(run_state),
 		"ember_label": "EMBERS BANKED" if normalized_outcome == "victory" else "EMBERS LOST",
-		"ember_amount": safe_ember_amount,
+		"ember_amount": maxi(0, ember_amount),
 		"recovery_status": recovery_status
 	}
-
-static func _build_highlights(run_state: Dictionary) -> Array[String]:
-	var highlights: Array[String] = []
-	var deck_count: int = (run_state.get("deck_cards", []) as Array).size()
-	var attuned_count: int = (run_state.get("attuned_magic_cards", []) as Array).size()
-	var deck_text: String = "%d-card deck" % deck_count
-	if attuned_count > 0:
-		deck_text += " · %d attuned" % attuned_count
-	highlights.append(deck_text)
-
-	var relic_names: Array[String] = []
-	for relic_var: Variant in run_state.get("relics", []):
-		var relic_id: String = str(relic_var)
-		var relic_name: String = str(GameData.relic_def(relic_id).get("name", relic_id))
-		if not relic_name.is_empty():
-			relic_names.append(relic_name)
-	if not relic_names.is_empty():
-		highlights.append("Relics · %s" % _summarize_names(relic_names))
-
-	var equipment_names: Array[String] = []
-	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
-	var slots: Array = equipped.keys()
-	slots.sort()
-	for slot_var: Variant in slots:
-		var equipment_id: String = str(equipped.get(slot_var, ""))
-		if equipment_id.is_empty():
-			continue
-		var equipment_name: String = str(GameData.equipment_def(equipment_id).get("name", equipment_id))
-		if not equipment_name.is_empty() and not equipment_names.has(equipment_name):
-			equipment_names.append(equipment_name)
-	if not equipment_names.is_empty():
-		highlights.append("Gear · %s" % _summarize_names(equipment_names))
-	return highlights
-
-static func _summarize_names(names: Array[String]) -> String:
-	var shown: Array[String] = []
-	for index: int in range(mini(2, names.size())):
-		shown.append(names[index])
-	var summary: String = ""
-	for index: int in range(shown.size()):
-		if index > 0:
-			summary += ", "
-		summary += shown[index]
-	if names.size() > shown.size():
-		summary += " +%d" % (names.size() - shown.size())
-	return summary
 
 static func _coord_depth(coord: Vector2i) -> int:
 	return maxi(abs(coord.x), abs(coord.y))
@@ -169,8 +150,13 @@ func present(model: Dictionary) -> void:
 	visible = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if restart_motion:
-		_elapsed = 0.0 if _motion_enabled else INTRO_SECONDS
-	set_process(_motion_enabled and _elapsed < INTRO_SECONDS)
+		_elapsed = 0.0 if _motion_enabled else _presentation_duration()
+		if _is_victory():
+			_death_shroud.reset()
+		else:
+			_death_shroud.set_motion_enabled(_motion_enabled)
+			_death_shroud.play()
+	set_process(_motion_enabled and _elapsed < _presentation_duration())
 	_update_presentation()
 
 func reset() -> void:
@@ -179,29 +165,52 @@ func reset() -> void:
 	_elapsed = 0.0
 	visible = false
 	set_process(false)
+	if _death_shroud != null:
+		_death_shroud.reset()
 	queue_redraw()
 
 func set_motion_enabled(enabled: bool) -> void:
 	_motion_enabled = enabled
+	if _death_shroud != null:
+		_death_shroud.set_motion_enabled(enabled)
 	if visible and not _motion_enabled:
-		_elapsed = INTRO_SECONDS
+		_elapsed = _presentation_duration()
 		set_process(false)
+		if not _is_victory():
+			_death_shroud.seek_seconds(DeathEngulfOverlay.ENGULF_SECONDS)
 		_update_presentation()
 
 func motion_enabled() -> bool:
 	return _motion_enabled
 
 func seek_presentation(seconds: float) -> void:
-	_elapsed = clampf(seconds, 0.0, INTRO_SECONDS)
-	set_process(_motion_enabled and _elapsed < INTRO_SECONDS)
+	_elapsed = clampf(seconds, 0.0, _presentation_duration())
+	if not _is_victory() and _death_shroud != null:
+		_death_shroud.seek_seconds(minf(_elapsed, DeathEngulfOverlay.ENGULF_SECONDS))
+	set_process(_motion_enabled and _elapsed < _presentation_duration())
 	_update_presentation()
+
+func presentation_duration() -> float:
+	return _presentation_duration()
 
 func recap_model() -> Dictionary:
 	return _model.duplicate(true)
 
+func shroud_progress() -> float:
+	return _death_shroud.engulf_progress() if _death_shroud != null and _death_shroud.visible else 0.0
+
+func final_shroud_alpha() -> float:
+	return DeathEngulfOverlay.FINAL_SHROUD_ALPHA
+
+func has_decorative_edge_strokes() -> bool:
+	return _death_shroud.has_decorative_edge_strokes() if _death_shroud != null else false
+
+func sample_shroud_alpha(normalized_position: Vector2, progress_override: float = -1.0) -> float:
+	return _death_shroud.sample_alpha(normalized_position, progress_override) if _death_shroud != null else 0.0
+
 func _process(delta: float) -> void:
-	_elapsed = minf(INTRO_SECONDS, _elapsed + minf(delta, 1.0 / 30.0))
-	if _elapsed >= INTRO_SECONDS:
+	_elapsed = minf(_presentation_duration(), _elapsed + minf(delta, 1.0 / 30.0))
+	if _elapsed >= _presentation_duration():
 		set_process(false)
 	_update_presentation()
 
@@ -210,30 +219,19 @@ func _notification(what: int) -> void:
 		_update_presentation()
 
 func _draw() -> void:
-	if not visible or _model.is_empty():
+	if not visible or _model.is_empty() or not _is_victory():
 		return
 	var progress: float = _intro_progress()
-	var victory: bool = str(_model.get("outcome", "defeat")) == "victory"
-	var accent: Color = _accent_color()
-	var scrim: Color = Color(0.035, 0.025, 0.018, 0.26 * progress) if victory else Color(0.045, 0.012, 0.014, 0.38 * progress)
-	draw_rect(Rect2(Vector2.ZERO, size), scrim, true)
-	var edge_alpha: float = (0.32 if victory else 0.44) * progress
-	draw_rect(Rect2(0.0, 0.0, size.x, 3.0), Color(accent.r, accent.g, accent.b, edge_alpha), true)
-	draw_rect(Rect2(0.0, size.y - 3.0, size.x, 3.0), Color(accent.r, accent.g, accent.b, edge_alpha), true)
-	var side_width: float = 18.0 + 12.0 * (1.0 - progress)
-	draw_rect(Rect2(0.0, 0.0, side_width, size.y), Color(accent.r, accent.g, accent.b, edge_alpha * 0.28), true)
-	draw_rect(Rect2(size.x - side_width, 0.0, side_width, size.y), Color(accent.r, accent.g, accent.b, edge_alpha * 0.28), true)
-	if victory:
-		for index: int in range(6):
-			var x: float = size.x * (0.08 + float(index) * 0.13)
-			var y: float = size.y * (0.19 + float((index * 7) % 5) * 0.14)
-			draw_circle(Vector2(x, y), 2.0 + float(index % 2), Color(accent.r, accent.g, accent.b, 0.28 * progress))
-	else:
-		for index: int in range(5):
-			var y: float = size.y * (0.16 + float(index) * 0.16)
-			draw_line(Vector2(0.0, y), Vector2(34.0 + float(index % 2) * 18.0, y + 10.0), Color(accent.r, accent.g, accent.b, 0.30 * progress), 3.0)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.025, 0.018, 0.24 * progress), true)
 
 func _build_children() -> void:
+	_death_shroud = DeathEngulfOverlay.new()
+	_death_shroud.name = "DeathShroud"
+	_death_shroud.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_death_shroud.anchor_right = 1.0
+	_death_shroud.anchor_bottom = 1.0
+	add_child(_death_shroud)
+
 	_panel = PanelContainer.new()
 	_panel.name = "OutcomeRecap"
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -241,17 +239,16 @@ func _build_children() -> void:
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 30)
-	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_top", 22)
 	margin.add_theme_constant_override("margin_right", 30)
-	margin.add_theme_constant_override("margin_bottom", 24)
+	margin.add_theme_constant_override("margin_bottom", 22)
 	_panel.add_child(margin)
 
 	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 10)
+	content.add_theme_constant_override("separation", 9)
 	margin.add_child(content)
 
 	_kicker_label = _label("OutcomeKicker", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	_kicker_label.add_theme_font_override("font", REGULAR_FONT)
 	content.add_child(_kicker_label)
 
 	_title_label = _label("OutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
@@ -267,48 +264,28 @@ func _build_children() -> void:
 
 	_summary_label = _label("OutcomeSummary", UiTypography.SIZE_BODY_LARGE, HORIZONTAL_ALIGNMENT_LEFT)
 	_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_summary_label.custom_minimum_size = Vector2(0.0, 42.0)
+	_summary_label.custom_minimum_size = Vector2(420.0, 38.0)
 	content.add_child(_summary_label)
 
-	var metrics := HBoxContainer.new()
-	metrics.name = "OutcomeMetrics"
-	metrics.add_theme_constant_override("separation", 8)
-	content.add_child(metrics)
-	_depth_value = _add_metric(metrics, "DEPTH", "DepthValue", 132.0)
-	_rooms_value = _add_metric(metrics, "ROOMS CLEARED", "RoomsValue", 158.0)
-	_boss_value = _add_metric(metrics, "BOSS RESULT", "BossValue", 250.0, true)
-
-	var build_panel := PanelContainer.new()
-	build_panel.name = "BuildRecap"
-	build_panel.custom_minimum_size = Vector2(0.0, 82.0)
-	build_panel.add_theme_stylebox_override("panel", _inset_style(Color("8c7354"), Color(0.045, 0.035, 0.030, 0.88)))
-	content.add_child(build_panel)
-	var build_margin := MarginContainer.new()
-	build_margin.add_theme_constant_override("margin_left", 14)
-	build_margin.add_theme_constant_override("margin_top", 9)
-	build_margin.add_theme_constant_override("margin_right", 14)
-	build_margin.add_theme_constant_override("margin_bottom", 9)
-	build_panel.add_child(build_margin)
-	var build_box := VBoxContainer.new()
-	build_box.add_theme_constant_override("separation", 3)
-	build_margin.add_child(build_box)
-	var build_heading := _label("BuildHeading", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	build_heading.text = "BUILD HIGHLIGHTS"
-	build_box.add_child(build_heading)
-	_build_value = _label("BuildValue", UiTypography.SIZE_BODY, HORIZONTAL_ALIGNMENT_LEFT)
-	_build_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_build_value.max_lines_visible = 3
-	build_box.add_child(_build_value)
+	var stat_grid := GridContainer.new()
+	stat_grid.name = "RunStatGrid"
+	stat_grid.columns = 3
+	stat_grid.custom_minimum_size = Vector2(0.0, 184.0)
+	stat_grid.add_theme_constant_override("h_separation", 8)
+	stat_grid.add_theme_constant_override("v_separation", 8)
+	content.add_child(stat_grid)
+	for spec_var: Variant in STAT_SPECS:
+		_add_stat_metric(stat_grid, spec_var as Dictionary)
 
 	var ember_panel := PanelContainer.new()
 	ember_panel.name = "EmberResult"
-	ember_panel.custom_minimum_size = Vector2(0.0, 96.0)
+	ember_panel.custom_minimum_size = Vector2(0.0, 94.0)
 	content.add_child(ember_panel)
 	var ember_margin := MarginContainer.new()
 	ember_margin.add_theme_constant_override("margin_left", 16)
-	ember_margin.add_theme_constant_override("margin_top", 10)
+	ember_margin.add_theme_constant_override("margin_top", 9)
 	ember_margin.add_theme_constant_override("margin_right", 16)
-	ember_margin.add_theme_constant_override("margin_bottom", 10)
+	ember_margin.add_theme_constant_override("margin_bottom", 9)
 	ember_panel.add_child(ember_margin)
 	var ember_row := HBoxContainer.new()
 	ember_row.add_theme_constant_override("separation", 14)
@@ -331,7 +308,7 @@ func _build_children() -> void:
 	recovery_box.add_child(recovery_heading)
 	_recovery_value = _label("RecoveryValue", UiTypography.SIZE_BODY, HORIZONTAL_ALIGNMENT_LEFT)
 	_recovery_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_recovery_value.custom_minimum_size = Vector2(0.0, 38.0)
+	_recovery_value.custom_minimum_size = Vector2(240.0, 38.0)
 	recovery_box.add_child(_recovery_value)
 
 	var button_row := HBoxContainer.new()
@@ -346,6 +323,42 @@ func _build_children() -> void:
 	_main_menu_button.pressed.connect(func() -> void: main_menu_pressed.emit())
 	button_row.add_child(_main_menu_button)
 
+func _add_stat_metric(host: GridContainer, spec: Dictionary) -> void:
+	var stat_id: String = str(spec.get("id", ""))
+	var panel := PanelContainer.new()
+	panel.name = "%sMetric" % stat_id.to_pascal_case()
+	panel.custom_minimum_size = Vector2(156.0, 88.0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _inset_style(Color("6e5946"), Color(0.035, 0.030, 0.028, 0.86)))
+	host.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 11)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 11)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 0)
+	margin.add_child(box)
+	var heading := _label("%sHeading" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
+	heading.text = str(spec.get("label", stat_id.to_upper()))
+	box.add_child(heading)
+	var value := _label("%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
+	value.add_theme_font_override("font", HEADER_FONT)
+	value.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(value)
+	var best := _label("%sBest" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
+	best.text = "NEW BEST"
+	best.custom_minimum_size = Vector2(0.0, 15.0)
+	best.add_theme_color_override("font_color", NEW_BEST_COLOR)
+	best.add_theme_color_override("font_outline_color", Color("102217"))
+	best.add_theme_constant_override("outline_size", 2)
+	box.add_child(best)
+	_stat_value_labels[stat_id] = value
+	_stat_best_labels[stat_id] = best
+
 func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -> Label:
 	var label := Label.new()
 	label.name = node_name
@@ -358,32 +371,6 @@ func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -
 	label.add_theme_color_override("font_outline_color", Color("160f0c"))
 	label.add_theme_constant_override("outline_size", 1)
 	return label
-
-func _add_metric(host: HBoxContainer, heading: String, value_name: String, width: float, wrap: bool = false) -> Label:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(width, 90.0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _inset_style(Color("6e5946"), Color(0.035, 0.030, 0.028, 0.86)))
-	host.add_child(panel)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 11)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 11)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	panel.add_child(margin)
-	var box := VBoxContainer.new()
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 3)
-	margin.add_child(box)
-	var heading_label := _label(value_name + "Heading", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	heading_label.text = heading
-	box.add_child(heading_label)
-	var value := _label(value_name, UiTypography.SIZE_SECTION, HORIZONTAL_ALIGNMENT_LEFT)
-	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap else TextServer.AUTOWRAP_OFF
-	value.max_lines_visible = 2 if wrap else 1
-	value.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(value)
-	return value
 
 func _button(node_name: String, text: String) -> Button:
 	var button := Button.new()
@@ -399,16 +386,21 @@ func _button(node_name: String, text: String) -> Button:
 func _apply_model() -> void:
 	if _panel == null or _model.is_empty():
 		return
-	var victory: bool = str(_model.get("outcome", "defeat")) == "victory"
+	var victory: bool = _is_victory()
 	var accent: Color = _accent_color()
 	_kicker_label.text = str(_model.get("kicker", ""))
 	_title_label.text = str(_model.get("title", ""))
 	_summary_label.text = str(_model.get("summary", ""))
-	_depth_value.text = str(int(_model.get("depth", 0)))
-	_rooms_value.text = str(int(_model.get("rooms_cleared", 0)))
-	_boss_value.text = str(_model.get("boss_result", ""))
-	var build_lines: Array = _model.get("build_highlights", []) as Array
-	_build_value.text = "\n".join(build_lines)
+	var stats: Dictionary = _model.get("stats", {}) as Dictionary
+	var new_bests: Array = _model.get("new_bests", []) as Array
+	for stat_id_var: Variant in _stat_value_labels.keys():
+		var stat_id: String = str(stat_id_var)
+		var value_label: Label = _stat_value_labels.get(stat_id) as Label
+		var best_label: Label = _stat_best_labels.get(stat_id) as Label
+		if value_label != null:
+			value_label.text = str(int(stats.get(stat_id, 0)))
+		if best_label != null:
+			best_label.visible = new_bests.has(stat_id)
 	_ember_label.text = str(_model.get("ember_label", ""))
 	_ember_value.text = str(int(_model.get("ember_amount", 0)))
 	_recovery_value.text = str(_model.get("recovery_status", ""))
@@ -425,7 +417,7 @@ func _apply_model() -> void:
 		ember_panel.add_theme_stylebox_override("panel", _inset_style(accent, Color(accent.r * 0.12, accent.g * 0.10, accent.b * 0.08, 0.92)))
 
 func _panel_style(victory: bool, accent: Color) -> StyleBoxFlat:
-	var background: Color = Color(0.075, 0.052, 0.035, 0.965) if victory else Color(0.070, 0.028, 0.030, 0.97)
+	var background: Color = Color(0.075, 0.052, 0.035, 0.965) if victory else Color(0.055, 0.030, 0.034, 0.95)
 	var style := _ui_skin.make_plain_card_style(background, accent, 0.0)
 	style.border_width_left = 4
 	style.border_width_top = 4
@@ -435,8 +427,8 @@ func _panel_style(victory: bool, accent: Color) -> StyleBoxFlat:
 	style.corner_radius_top_right = 12
 	style.corner_radius_bottom_right = 12
 	style.corner_radius_bottom_left = 12
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.64)
-	style.shadow_size = 24
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
+	style.shadow_size = 22
 	style.shadow_offset = Vector2(0.0, 8.0)
 	return style
 
@@ -455,12 +447,20 @@ func _inset_style(border: Color, background: Color) -> StyleBoxFlat:
 	return style
 
 func _accent_color() -> Color:
-	return Color("e7b85a") if str(_model.get("outcome", "defeat")) == "victory" else Color("bd4b43")
+	return Color("e7b85a") if _is_victory() else Color("bd4b43")
+
+func _is_victory() -> bool:
+	return str(_model.get("outcome", "defeat")) == "victory"
+
+func _presentation_duration() -> float:
+	return VICTORY_INTRO_SECONDS if _is_victory() else maxf(DeathEngulfOverlay.ENGULF_SECONDS, DEFEAT_PANEL_DELAY_SECONDS + DEFEAT_PANEL_INTRO_SECONDS)
 
 func _intro_progress() -> float:
 	if not _motion_enabled:
 		return 1.0
-	var t: float = clampf(_elapsed / INTRO_SECONDS, 0.0, 1.0)
+	var start: float = 0.0 if _is_victory() else DEFEAT_PANEL_DELAY_SECONDS
+	var duration: float = VICTORY_INTRO_SECONDS if _is_victory() else DEFEAT_PANEL_INTRO_SECONDS
+	var t: float = clampf((_elapsed - start) / duration, 0.0, 1.0)
 	return 1.0 - pow(1.0 - t, 3.0)
 
 func _update_presentation() -> void:
@@ -468,12 +468,12 @@ func _update_presentation() -> void:
 		return
 	var progress: float = _intro_progress()
 	var content_minimum: Vector2 = _panel.get_combined_minimum_size()
-	var width: float = clampf(size.x * 0.39, PANEL_MIN_WIDTH, PANEL_MAX_SIZE.x)
+	var width: float = clampf(size.x * 0.41, PANEL_MIN_WIDTH, PANEL_MAX_SIZE.x)
 	width = maxf(width, content_minimum.x)
 	width = minf(width, maxf(320.0, size.x - 32.0))
-	var height: float = minf(PANEL_MAX_SIZE.y, maxf(520.0, size.y - 28.0))
-	height = maxf(height, content_minimum.y)
-	height = minf(height, maxf(320.0, size.y - 20.0))
+	var available_height: float = maxf(320.0, size.y - 20.0)
+	var desired_height: float = maxf(480.0, ceilf(content_minimum.y) + 4.0)
+	var height: float = minf(desired_height, minf(PANEL_MAX_SIZE.y, available_height))
 	var edge_margin: float = minf(PANEL_EDGE_MARGIN, maxf(16.0, size.x * 0.035))
 	var base_x: float = size.x - width - edge_margin
 	if base_x < 16.0:
@@ -483,7 +483,7 @@ func _update_presentation() -> void:
 	_panel.position = Vector2(base_x + slide, base_y)
 	_panel.size = Vector2(width, height)
 	_panel.pivot_offset = _panel.size * 0.5
-	var beat: float = sin(clampf(_elapsed / INTRO_SECONDS, 0.0, 1.0) * PI) * 0.012 if _motion_enabled else 0.0
+	var beat: float = sin(clampf(_elapsed / _presentation_duration(), 0.0, 1.0) * PI) * 0.010 if _motion_enabled else 0.0
 	_panel.scale = Vector2.ONE * (0.985 + 0.015 * progress + beat)
 	_panel.modulate = Color(1.0, 1.0, 1.0, progress)
 	queue_redraw()

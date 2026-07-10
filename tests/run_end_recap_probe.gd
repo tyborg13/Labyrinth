@@ -1,70 +1,88 @@
 extends SceneTree
 
+const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_DIR: String = "user://run_end_recap_probe_v1"
+const OUTPUT_ROOT: String = "user://run_end_recap_probe_v2"
 
 var _failed: bool = false
+var _resolution: Vector2i = Vector2i(1920, 1080)
+var _output_dir: String = ""
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	_clear_probe_output(OUTPUT_DIR)
+	_resolution = _requested_resolution()
+	_output_dir = "%s/%dx%d" % [OUTPUT_ROOT, _resolution.x, _resolution.y]
+	_configure_window(_resolution)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
+	_clear_probe_output(_output_dir)
 	ProgressionStore.set_storage_path("user://run_end_recap_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://run_end_recap_probe_saved_run.save")
 	ProgressionStore.clear_saved_run()
-	await _capture_states()
-	print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	quit(1 if _failed else 0)
+	call_deferred("_capture_states")
 
 func _capture_states() -> void:
+	await process_frame
+	await process_frame
 	var instance: Node = RUN_SCENE.instantiate()
 	root.add_child(instance)
 	await process_frame
 	await process_frame
 	var engine := RunEngine.new()
 
-	var victory_progression: Dictionary = ProgressionStore.default_data()
-	var victory_state: Dictionary = _terminal_state(engine, victory_progression, Vector2i(8, 0), "victory", 64, 4)
-	await _install_state(instance, victory_progression, victory_state)
-	await _capture_at(instance, 0.0, "%s/victory_nonzero_beat_00.png" % OUTPUT_DIR)
-	await _capture_at(instance, 0.24, "%s/victory_nonzero_beat_01.png" % OUTPUT_DIR)
-	await _capture_at(instance, 0.62, "%s/victory_nonzero_final.png" % OUTPUT_DIR)
-
-	var zero_victory_progression: Dictionary = ProgressionStore.default_data()
-	var zero_victory: Dictionary = _terminal_state(engine, zero_victory_progression, Vector2i(8, 0), "victory", 0, 3)
-	await _install_state(instance, zero_victory_progression, zero_victory)
-	await _capture_at(instance, 0.62, "%s/victory_zero_final.png" % OUTPUT_DIR)
-
-	var active_marker_progression: Dictionary = ProgressionStore.record_lost_embers(
-		ProgressionStore.default_data(),
-		19,
-		Vector2i(3, 0),
-		0
-	)
-	active_marker_progression = ProgressionStore.prepare_for_new_run(active_marker_progression)
-	active_marker_progression = ProgressionStore.set_embers(active_marker_progression, 28)
-	var marker_victory: Dictionary = _terminal_state(engine, active_marker_progression, Vector2i(8, 0), "victory", 28, 5)
-	await _install_state(instance, active_marker_progression, marker_victory)
-	await _capture_at(instance, 0.62, "%s/victory_nonzero_active_marker_final.png" % OUTPUT_DIR)
-
-	var defeat_progression: Dictionary = ProgressionStore.default_data()
-	var defeat_state: Dictionary = _terminal_state(engine, defeat_progression, Vector2i(3, 0), "defeat", 47, 2)
+	var baseline_stats: Dictionary = {
+		"enemies_killed": 3,
+		"damage_dealt": 300,
+		"damage_received": 150,
+		"depth": 1,
+		"rooms_cleared": 1,
+		"bosses_defeated": 0
+	}
+	var baseline_record: Dictionary = ProgressionStore.record_run_result(ProgressionStore.default_data(), "probe:baseline", baseline_stats)
+	var defeat_progression: Dictionary = baseline_record.get("data", {}) as Dictionary
+	var defeat_state: Dictionary = _terminal_state(engine, defeat_progression, Vector2i(4, 0), "defeat", 47, 3, {
+		"enemies_killed": 9,
+		"damage_dealt": 780,
+		"damage_received": 260
+	})
 	await _install_state(instance, defeat_progression, defeat_state)
-	await _capture_at(instance, 0.0, "%s/defeat_nonzero_beat_00.png" % OUTPUT_DIR)
-	await _capture_at(instance, 0.24, "%s/defeat_nonzero_beat_01.png" % OUTPUT_DIR)
-	await _capture_at(instance, 0.62, "%s/defeat_nonzero_recovery_final.png" % OUTPUT_DIR)
+	var recap: Control = instance.get("_run_end_recap") as Control
+	if recap != null:
+		recap.call("seek_presentation", 0.0)
+	await _capture("defeat_pre_engulf.png")
+	if recap != null:
+		recap.call("seek_presentation", 0.78)
+	await _capture("defeat_mid_engulf.png")
+	if recap != null:
+		recap.call("seek_presentation", float(recap.call("presentation_duration")))
+	await _capture("defeat_final.png")
+	if recap != null:
+		recap.call("reset")
+		recap.call("set_motion_enabled", false)
+		instance.call("_show_run_end_recap", "defeat")
+	await create_timer(0.08).timeout
+	await _capture("defeat_reduced_motion_final.png")
 
-	var zero_defeat_progression: Dictionary = ProgressionStore.default_data()
-	var zero_defeat: Dictionary = _terminal_state(engine, zero_defeat_progression, Vector2i(2, 0), "defeat", 0, 1)
-	await _install_state(instance, zero_defeat_progression, zero_defeat)
-	await _capture_at(instance, 0.62, "%s/defeat_zero_no_marker_final.png" % OUTPUT_DIR)
+	var victory_progression: Dictionary = ProgressionStore.load_data()
+	var victory_state: Dictionary = _terminal_state(engine, victory_progression, Vector2i(8, 0), "victory", 64, 6, {
+		"enemies_killed": 14,
+		"damage_dealt": 1240,
+		"damage_received": 310
+	})
+	await _install_state(instance, victory_progression, victory_state)
+	recap = instance.get("_run_end_recap") as Control
+	if recap != null:
+		recap.call("set_motion_enabled", true)
+		recap.call("seek_presentation", float(recap.call("presentation_duration")))
+	await _capture("victory_final.png")
 
 	instance.queue_free()
 	await process_frame
+	print(ProjectSettings.globalize_path(_output_dir))
+	quit(1 if _failed else 0)
 
 func _install_state(instance: Node, progression: Dictionary, state: Dictionary) -> void:
 	ProgressionStore.save_data(progression)
@@ -77,19 +95,9 @@ func _install_state(instance: Node, progression: Dictionary, state: Dictionary) 
 		_fail("Terminal state should display the recap overlay")
 	var board: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as Control
 	if board == null or not board.visible:
-		_fail("Terminal state should keep the final board visible")
+		_fail("Terminal state should keep the final tactical room visible")
 
-func _capture_at(instance: Node, seconds: float, output_path: String) -> void:
-	var recap: Control = instance.get("_run_end_recap") as Control
-	if recap == null:
-		_fail("Recap overlay should exist for capture")
-		return
-	recap.call("seek_presentation", seconds)
-	await process_frame
-	await process_frame
-	await _save_root_screenshot(output_path)
-
-func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i, outcome: String, held_embers: int, cleared_rooms: int) -> Dictionary:
+func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i, outcome: String, held_embers: int, cleared_rooms: int, run_stats: Dictionary) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(8841 + held_embers * 3 + coord.x, progression)
 	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
 	var marked: int = 0
@@ -109,29 +117,77 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 	var room: Dictionary = engine.room_metadata(state, coord).duplicate(true)
 	room["revealed"] = true
 	room["visited"] = true
-	room["cleared"] = outcome == "victory"
+	room["cleared"] = false
 	if outcome == "victory":
 		room["type"] = "boss"
 	rooms[_room_key(coord)] = room
 	state["rooms"] = rooms
 	state["current_room"] = coord
-	state["current_room_layout"] = engine.call("_display_layout_for_room", int(state.get("seed", 0)), room, Vector2i(1, 0))
+	state["run_stats"] = CombatEngine.normalized_run_stats(run_stats)
+	var layout: Dictionary = engine.call("_combat_layout_for_room", room, Vector2i(1, 0), state)
+	var combat := CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(int(state.get("seed", 0)), layout, engine.call("_player_snapshot", state) as Dictionary)
+	combat_state["run_stats"] = CombatEngine.normalized_run_stats(run_stats)
+	if outcome == "defeat":
+		var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+		player["hp"] = 0
+		combat_state["player"] = player
+	else:
+		var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+		for index: int in range(enemies.size()):
+			var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+			enemy["hp"] = 0
+			enemies[index] = enemy
+		combat_state["enemies"] = enemies
+	state["mode"] = "combat"
+	state["combat_state"] = combat_state
+	state["held_embers"] = held_embers
+	state["unbanked_embers"] = held_embers
+	state = engine.finish_combat(state, combat_state)
 	state["mode"] = outcome
 	state["victory"] = outcome == "victory"
 	state["game_over"] = outcome == "defeat"
-	state["player_hp"] = 0 if outcome == "defeat" else int(state.get("player_max_hp", 1))
 	state["held_embers"] = held_embers
 	state["unbanked_embers"] = held_embers
+	state["run_stats"] = CombatEngine.normalized_run_stats(run_stats)
 	state["progression"] = progression.duplicate(true)
-	state["relics"] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 	return state
+
+func _requested_resolution() -> Vector2i:
+	for argument: String in OS.get_cmdline_user_args():
+		if not argument.begins_with("--resolution="):
+			continue
+		var value: String = argument.trim_prefix("--resolution=").to_lower()
+		var parts: PackedStringArray = value.split("x", false)
+		if parts.size() == 2:
+			var width: int = int(parts[0])
+			var height: int = int(parts[1])
+			if width >= 640 and height >= 360:
+				return Vector2i(width, height)
+	return Vector2i(1920, 1080)
+
+func _configure_window(resolution: Vector2i) -> void:
+	root.content_scale_size = resolution
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.size = resolution
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(resolution)
+
+func _capture(filename: String) -> void:
+	await process_frame
+	await process_frame
+	var image: Image = root.get_viewport().get_texture().get_image()
+	if image.get_width() != _resolution.x or image.get_height() != _resolution.y:
+		# macOS exposes the Retina backing texture even though content_scale_size is
+		# the requested logical proof viewport. Preserve that Metal render and
+		# downsample it to the exact review resolution.
+		image.resize(_resolution.x, _resolution.y, Image.INTERPOLATE_LANCZOS)
+	var error: Error = image.save_png("%s/%s" % [_output_dir, filename])
+	if error != OK:
+		_fail("Could not save %s" % filename)
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
-
-func _save_root_screenshot(output_path: String) -> void:
-	var image: Image = root.get_viewport().get_texture().get_image()
-	image.save_png(output_path)
 
 func _clear_probe_output(output_dir: String) -> void:
 	_clear_probe_output_absolute(ProjectSettings.globalize_path(output_dir))

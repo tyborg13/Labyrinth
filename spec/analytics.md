@@ -141,6 +141,41 @@ Intermediate boss victories emit `combat_ended` and return the run to room mode
 without `reward_offered` or `run_ended`; only defeat and the final boss victory
 emit `run_ended`.
 
+`run_ended` includes the canonical cumulative performance snapshot:
+`enemies_killed`, `damage_dealt`, and `damage_received`. Damage fields count
+actual fixed-point HP removed after block and stoneskin, capped by remaining HP;
+they do not count absorbed defense or overkill. Enemy alive-to-dead transitions
+are the sole kill source. The same monotonic `run_stats` dictionary travels in
+the committed run/combat snapshot, so save/resume and animation checkpoints
+replace a snapshot rather than reapplying a delta.
+
+## Local Personal Bests
+
+The local progression profile stores `run_bests` plus the idempotent
+`last_run_result`. Higher values are eligible for personal-best treatment for
+enemies killed, damage dealt, depth, rooms cleared, and bosses defeated. Damage
+received remains an informational result because celebrating a larger value
+would be misleading.
+
+The first observed value for each eligible field establishes its baseline and
+does not show `NEW BEST`; there is no invented prior history. Later values show
+`NEW BEST` only when they strictly exceed the stored value, never on a tie. A
+stable run result id makes repeated recap refresh, terminal retry, replay hooks,
+and process restart idempotent while preserving the original badge decision for
+the just-finished run. The profile keeps the 32 most recently used completed
+result records, including their original stats and badge fields; a non-adjacent
+`A → B → replay A` returns A's original decision without changing the monotonic
+bests, and refreshes A's recency in that bounded ledger.
+
+Terminal persistence must record the result before profile save and before the
+terminal snapshot is cleared. Any committed-boundary save path should pass its
+supplied victory/defeat dictionary through
+`_terminal_state_with_recorded_run_result`, then adopt the progression embedded
+in the returned state before banking/loss processing and `save_data`. Do not
+rely only on later `_process_victory_carry` or `_process_defeat_loss` refresh
+hooks: a save implementation may set those processed flags during committed
+terminal finalization and legitimately bypass the UI-time hooks.
+
 `progression_level_up` fires when the player confirms Draw Strength at a
 campfire. Its payload records the previous and new levels, chosen stats,
 post-purchase stat values, ember cost, held embers before purchase, and held

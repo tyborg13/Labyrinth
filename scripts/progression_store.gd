@@ -8,6 +8,25 @@ const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
 const PROGRESSION_SCHEMA: int = 2
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
+const RUN_BESTS_KEY: String = "run_bests"
+const LAST_RUN_RESULT_KEY: String = "last_run_result"
+const RUN_RESULT_LEDGER_KEY: String = "completed_run_results"
+const RUN_RESULT_LEDGER_LIMIT: int = 32
+const RUN_RESULT_STAT_IDS := [
+	"enemies_killed",
+	"damage_dealt",
+	"damage_received",
+	"depth",
+	"rooms_cleared",
+	"bosses_defeated"
+]
+const BEST_ELIGIBLE_STAT_IDS := [
+	"enemies_killed",
+	"damage_dealt",
+	"depth",
+	"rooms_cleared",
+	"bosses_defeated"
+]
 
 static var _storage_path: String = DEFAULT_STORAGE_PATH
 static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
@@ -34,6 +53,9 @@ static func default_data() -> Dictionary:
 		"fire_rest_dialogue_seen": false,
 		"run_counter": 0,
 		"recovery_marker": {},
+		RUN_BESTS_KEY: {},
+		LAST_RUN_RESULT_KEY: {},
+		RUN_RESULT_LEDGER_KEY: [],
 		GRIMOIRE_UNLOCKED_KEY: [],
 		GRIMOIRE_UNREAD_KEY: []
 	}
@@ -80,6 +102,13 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data["run_counter"] = 0
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
+	data[RUN_BESTS_KEY] = _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
+	data[LAST_RUN_RESULT_KEY] = _normalized_last_run_result(data.get(LAST_RUN_RESULT_KEY, {}))
+	var completed_results: Array[Dictionary] = _normalized_run_result_ledger(data.get(RUN_RESULT_LEDGER_KEY, []))
+	var last_result: Dictionary = data.get(LAST_RUN_RESULT_KEY, {}) as Dictionary
+	if not last_result.is_empty() and _result_index_for_id(completed_results, str(last_result.get("result_id", ""))) < 0:
+		completed_results.append(last_result.duplicate(true))
+	data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
 	var card_upgrades: Dictionary = (data.get("card_upgrades", {}) as Dictionary).duplicate(true)
@@ -217,6 +246,118 @@ static func _run_backup_path() -> String:
 static func _remove_run_file_if_present(path: String) -> void:
 	if FileAccess.file_exists(path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+static func record_run_result(data: Dictionary, result_id: String, stats_value: Variant) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	var safe_result_id: String = result_id.strip_edges()
+	if safe_result_id.is_empty():
+		return {"data": next_data, "result": {}, "recorded": false}
+	var completed_results: Array[Dictionary] = completed_run_results(next_data)
+	var previous_index: int = _result_index_for_id(completed_results, safe_result_id)
+	if previous_index >= 0:
+		var previous_result: Dictionary = completed_results[previous_index].duplicate(true)
+		completed_results.remove_at(previous_index)
+		completed_results.append(previous_result.duplicate(true))
+		next_data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
+		next_data[LAST_RUN_RESULT_KEY] = previous_result
+		return {"data": next_data, "result": previous_result, "recorded": false}
+
+	var stats: Dictionary = _normalized_run_metric_map(stats_value, RUN_RESULT_STAT_IDS)
+	var bests: Dictionary = run_bests(next_data)
+	var new_bests: Array[String] = []
+	for stat_id_var: Variant in BEST_ELIGIBLE_STAT_IDS:
+		var stat_id: String = str(stat_id_var)
+		var value: int = int(stats.get(stat_id, 0))
+		if not bests.has(stat_id):
+			# First-ever observations establish a baseline without claiming prior history.
+			bests[stat_id] = value
+			continue
+		if value > int(bests.get(stat_id, 0)):
+			bests[stat_id] = value
+			new_bests.append(stat_id)
+	var result: Dictionary = {
+		"result_id": safe_result_id,
+		"stats": stats,
+		"new_bests": new_bests
+	}
+	next_data[RUN_BESTS_KEY] = bests
+	next_data[LAST_RUN_RESULT_KEY] = result
+	completed_results.append(result.duplicate(true))
+	next_data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
+	return {"data": next_data, "result": result, "recorded": true}
+
+static func run_bests(data: Dictionary) -> Dictionary:
+	return _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
+
+static func last_run_result(data: Dictionary) -> Dictionary:
+	return _normalized_last_run_result(data.get(LAST_RUN_RESULT_KEY, {}))
+
+static func completed_run_results(data: Dictionary) -> Array[Dictionary]:
+	return _normalized_run_result_ledger(data.get(RUN_RESULT_LEDGER_KEY, []))
+
+static func run_result_for_id(data: Dictionary, result_id: String) -> Dictionary:
+	var ledger: Array[Dictionary] = completed_run_results(data)
+	var index: int = _result_index_for_id(ledger, result_id.strip_edges())
+	return ledger[index].duplicate(true) if index >= 0 else {}
+
+static func _normalized_run_metric_map(value: Variant, allowed_ids: Array) -> Dictionary:
+	var result: Dictionary = {}
+	if typeof(value) != TYPE_DICTIONARY:
+		return result
+	var source: Dictionary = value as Dictionary
+	for stat_id_var: Variant in allowed_ids:
+		var stat_id: String = str(stat_id_var)
+		if source.has(stat_id):
+			result[stat_id] = maxi(0, int(source.get(stat_id, 0)))
+	return result
+
+static func _normalized_last_run_result(value: Variant) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return {}
+	var source: Dictionary = value as Dictionary
+	var result_id: String = str(source.get("result_id", "")).strip_edges()
+	if result_id.is_empty():
+		return {}
+	var new_bests: Array[String] = []
+	for stat_id_var: Variant in source.get("new_bests", []):
+		var stat_id: String = str(stat_id_var)
+		if BEST_ELIGIBLE_STAT_IDS.has(stat_id) and not new_bests.has(stat_id):
+			new_bests.append(stat_id)
+	return {
+		"result_id": result_id,
+		"stats": _normalized_run_metric_map(source.get("stats", {}), RUN_RESULT_STAT_IDS),
+		"new_bests": new_bests
+	}
+
+static func _normalized_run_result_ledger(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for entry_var: Variant in (value as Array):
+		var entry: Dictionary = _normalized_last_run_result(entry_var)
+		if entry.is_empty():
+			continue
+		var existing_index: int = _result_index_for_id(result, str(entry.get("result_id", "")))
+		if existing_index >= 0:
+			result.remove_at(existing_index)
+		result.append(entry)
+	return _bounded_run_result_ledger(result)
+
+static func _bounded_run_result_ledger(value: Array[Dictionary]) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry: Dictionary in value:
+		result.append(entry.duplicate(true))
+	while result.size() > RUN_RESULT_LEDGER_LIMIT:
+		result.pop_front()
+	return result
+
+static func _result_index_for_id(results: Array[Dictionary], result_id: String) -> int:
+	if result_id.is_empty():
+		return -1
+	for index: int in range(results.size()):
+		if str(results[index].get("result_id", "")) == result_id:
+			return index
+	return -1
 
 static func add_embers(data: Dictionary, amount: int) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))

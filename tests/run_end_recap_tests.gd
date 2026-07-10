@@ -1,6 +1,8 @@
 extends SceneTree
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const AnalyticsStore = preload("res://scripts/analytics_store.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
@@ -12,12 +14,18 @@ func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://run_end_recap_progression_test.json")
 	ProgressionStore.set_run_storage_path("user://run_end_recap_saved_run_test.save")
+	AnalyticsStore.set_storage_dir("user://run_end_recap_analytics_test")
 	call_deferred("_run")
 
 func _run() -> void:
 	ProgressionStore.clear_saved_run()
+	ProgressionStore.save_data(ProgressionStore.default_data())
+	AnalyticsStore.clear_storage()
 	_test_recap_model_values()
+	_test_combat_stat_sources_and_snapshot_exactly_once()
+	_test_personal_best_restart_persistence_and_policy()
 	await _test_overlay_action_signals()
+	await _test_shroud_animation_and_reduced_motion()
 	await _test_run_scene_progression_and_actions()
 	if _failures.is_empty():
 		print("RUN END RECAP TEST RESULT: PASS")
@@ -41,7 +49,9 @@ func _test_recap_model_values() -> void:
 		"deck_cards": ["quick_stab", "patch_up", "pale_spark", "guarded_step"],
 		"attuned_magic_cards": ["pale_spark"],
 		"relics": ["iron_lung", "ember_lens", "pilgrim_boots"],
-		"equipped_equipment": {"weapon": "training_sword"}
+		"equipped_equipment": {"weapon": "training_sword"},
+		"run_stats": {"enemies_killed": 11, "damage_dealt": 830, "damage_received": 270},
+		"run_result": {"new_bests": ["enemies_killed", "damage_dealt", "depth"]}
 	}
 	var progression: Dictionary = ProgressionStore.record_lost_embers(
 		ProgressionStore.default_data(),
@@ -55,10 +65,14 @@ func _test_recap_model_values() -> void:
 	_assert(str(defeat.get("boss_result", "")) == "1 guardian defeated", "Defeat recap should derive prior boss clears")
 	_assert(str(defeat.get("ember_label", "")) == "EMBERS LOST" and int(defeat.get("ember_amount", -1)) == 37, "Defeat recap should show the committed lost ember amount")
 	_assert(str(defeat.get("recovery_status", "")) == "Recovery marker set · Depth 4 · 37 embers", "Defeat recap should match the committed recovery marker")
-	var highlights: Array = defeat.get("build_highlights", []) as Array
-	_assert(highlights.size() == 3, "Build recap should include deck, relic, and equipment highlights")
-	_assert(str(highlights[0]) == "4-card deck · 1 attuned", "Build recap should derive deck and attunement counts")
-	_assert(str(highlights[1]) == "Relics · Iron Lung, Ember Lens +1", "Build recap should derive named relic highlights")
+	var stats: Dictionary = defeat.get("stats", {}) as Dictionary
+	_assert(int(stats.get("enemies_killed", -1)) == 11, "Defeat recap should reliably report enemies killed")
+	_assert(int(stats.get("damage_dealt", -1)) == 830, "Defeat recap should reliably report actual enemy HP damage")
+	_assert(int(stats.get("damage_received", -1)) == 270, "Defeat recap should reliably report actual player HP damage")
+	_assert(int(stats.get("bosses_defeated", -1)) == 1, "Defeat recap should retain a compact numeric boss result")
+	_assert(not defeat.has("build_highlights"), "Recap model should omit prose build inventories")
+	var new_bests: Array = defeat.get("new_bests", []) as Array
+	_assert(new_bests.has("enemies_killed") and new_bests.has("damage_dealt") and new_bests.has("depth"), "Recap should carry only the persisted strict-best decisions for this run")
 
 	var zero_defeat: Dictionary = RunEndRecapOverlay.build_model(
 		run_state,
@@ -79,6 +93,121 @@ func _test_recap_model_values() -> void:
 	expiring_marker_progression = ProgressionStore.prepare_for_new_run(expiring_marker_progression)
 	var marker_victory: Dictionary = RunEndRecapOverlay.build_model(run_state, expiring_marker_progression, "victory", 28)
 	_assert(str(marker_victory.get("recovery_status", "")) == "Marker expires · 19 embers unrecovered", "Victory recap should preview recovery-marker expiry on New Run")
+
+func _test_combat_stat_sources_and_snapshot_exactly_once() -> void:
+	var combat := CombatEngine.new()
+	var combat_state: Dictionary = {
+		"run_stats": {"enemies_killed": 2, "damage_dealt": 30, "damage_received": 10},
+		"player": {"pos": Vector2i(1, 1), "hp": 100, "max_hp": 100, "block": 15, "stoneskin": 0},
+		"enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(2, 1), "hp": 50, "max_hp": 50, "block": 10, "stoneskin": 0}],
+		"relics": [],
+		"death_rewards": [],
+		"room_embers": 0,
+		"death_bonus_card_plays_this_turn": 0,
+		"log": []
+	}
+	var untouched_preview_source: Dictionary = combat_state.duplicate(true)
+	var preview_only: Dictionary = combat.call("_damage_enemy", combat_state.duplicate(true), 0, 20, false, true) as Dictionary
+	_assert(int((untouched_preview_source.get("run_stats", {}) as Dictionary).get("damage_dealt", -1)) == 30, "Preview/replay hooks must not mutate their source stat snapshot")
+	_assert(int((preview_only.get("run_stats", {}) as Dictionary).get("damage_dealt", -1)) == 50, "Enemy HP loss should be the deterministic damage-dealt source")
+
+	combat_state = preview_only
+	combat_state = combat.call("_damage_enemy", combat_state, 0, 999, false, true) as Dictionary
+	var stats: Dictionary = combat.run_stats(combat_state)
+	_assert(int(stats.get("damage_dealt", -1)) == 80, "Overkill should count only the enemy HP actually removed")
+	_assert(int(stats.get("enemies_killed", -1)) == 3, "An alive-to-dead transition should increment enemies killed once")
+	combat_state = combat.call("_damage_enemy", combat_state, 0, 999, false, true) as Dictionary
+	_assert(combat.run_stats(combat_state) == stats, "Repeated damage against an already-dead enemy must not double count damage or kills")
+
+	combat_state = combat.call("_damage_player", combat_state, 40, false, false) as Dictionary
+	stats = combat.run_stats(combat_state)
+	_assert(int(stats.get("damage_received", -1)) == 35, "Damage received should count HP loss after block and stoneskin")
+	combat_state = combat.call("_damage_player", combat_state, 999, true, false) as Dictionary
+	stats = combat.run_stats(combat_state)
+	_assert(int(stats.get("damage_received", -1)) == 110, "Lethal overkill should count only remaining player HP")
+
+	var engine := RunEngine.new()
+	var run_state: Dictionary = engine.create_new_run(4401, ProgressionStore.default_data())
+	run_state["run_stats"] = {"enemies_killed": 2, "damage_dealt": 30, "damage_received": 10}
+	var checkpoint_once: Dictionary = engine.set_combat_state(run_state, combat_state)
+	var checkpoint_twice: Dictionary = engine.set_combat_state(checkpoint_once, combat_state)
+	_assert((checkpoint_once.get("run_stats", {}) as Dictionary) == (checkpoint_twice.get("run_stats", {}) as Dictionary), "Applying the same committed combat snapshot twice must overwrite, never add, run stats")
+	_assert(ProgressionStore.save_run_state(checkpoint_once), "Run-stat checkpoint fixture should save")
+	var repaired: Dictionary = engine.repair_loaded_run_state(ProgressionStore.load_saved_run())
+	_assert((repaired.get("run_stats", {}) as Dictionary) == stats, "Save/resume should preserve the exact cumulative stat snapshot")
+	var terminal_once: Dictionary = engine.finish_combat(run_state, combat_state)
+	var terminal_again: Dictionary = engine.finish_combat(run_state, combat_state)
+	_assert((terminal_once.get("run_stats", {}) as Dictionary) == (terminal_again.get("run_stats", {}) as Dictionary), "Replaying a terminal transition from the same committed input must produce identical, not doubled, stats")
+	ProgressionStore.clear_saved_run()
+
+func _test_personal_best_restart_persistence_and_policy() -> void:
+	var first_stats: Dictionary = {
+		"enemies_killed": 3,
+		"damage_dealt": 120,
+		"damage_received": 80,
+		"depth": 2,
+		"rooms_cleared": 2,
+		"bosses_defeated": 0
+	}
+	var first_record: Dictionary = ProgressionStore.record_run_result(ProgressionStore.default_data(), "run:first", first_stats)
+	var first_result: Dictionary = first_record.get("result", {}) as Dictionary
+	_assert((first_result.get("new_bests", []) as Array).is_empty(), "First-ever values should establish a baseline without inventing a prior best")
+	var progression: Dictionary = first_record.get("data", {}) as Dictionary
+	_assert(ProgressionStore.save_data(progression), "First-run best baseline should persist locally")
+
+	var restarted: Dictionary = ProgressionStore.load_data()
+	_assert(ProgressionStore.run_bests(restarted) == {
+		"enemies_killed": 3,
+		"damage_dealt": 120,
+		"depth": 2,
+		"rooms_cleared": 2,
+		"bosses_defeated": 0
+	}, "Process-restart load should preserve every eligible personal-best baseline")
+	var tie_record: Dictionary = ProgressionStore.record_run_result(restarted, "run:tie", first_stats)
+	_assert(((tie_record.get("result", {}) as Dictionary).get("new_bests", []) as Array).is_empty(), "A tie must never be labeled NEW BEST")
+
+	var improved_stats: Dictionary = first_stats.duplicate(true)
+	improved_stats["enemies_killed"] = 4
+	improved_stats["damage_dealt"] = 121
+	improved_stats["damage_received"] = 999
+	improved_stats["depth"] = 3
+	improved_stats["rooms_cleared"] = 3
+	improved_stats["bosses_defeated"] = 1
+	var improved_record: Dictionary = ProgressionStore.record_run_result(tie_record.get("data", {}) as Dictionary, "run:improved", improved_stats)
+	var improved_result: Dictionary = improved_record.get("result", {}) as Dictionary
+	var improved_bests: Array = improved_result.get("new_bests", []) as Array
+	for stat_id: String in ["enemies_killed", "damage_dealt", "depth", "rooms_cleared", "bosses_defeated"]:
+		_assert(improved_bests.has(stat_id), "Strictly exceeding %s should earn NEW BEST" % stat_id)
+	_assert(not improved_bests.has("damage_received"), "Damage taken is reported but should not celebrate a higher value as a personal best")
+
+	var replay_stats: Dictionary = improved_stats.duplicate(true)
+	replay_stats["enemies_killed"] = 999
+	var replay_record: Dictionary = ProgressionStore.record_run_result(improved_record.get("data", {}) as Dictionary, "run:improved", replay_stats)
+	_assert(not bool(replay_record.get("recorded", true)), "Repeating the same run-result id should be an idempotent no-op")
+	_assert(int(ProgressionStore.run_bests(replay_record.get("data", {}) as Dictionary).get("enemies_killed", -1)) == 4, "A replay/testing hook must not replace already-recorded stats for the same run")
+	_assert(ProgressionStore.save_data(replay_record.get("data", {}) as Dictionary), "Improved bests should persist locally")
+	var second_restart: Dictionary = ProgressionStore.load_data()
+	_assert(ProgressionStore.last_run_result(second_restart) == improved_result, "NEW BEST eligibility should survive a process restart for the just-finished run")
+
+	var ledger_a: Dictionary = ProgressionStore.record_run_result(ProgressionStore.default_data(), "ledger:A", first_stats)
+	var ledger_a_result: Dictionary = (ledger_a.get("result", {}) as Dictionary).duplicate(true)
+	var ledger_b: Dictionary = ProgressionStore.record_run_result(ledger_a.get("data", {}) as Dictionary, "ledger:B", improved_stats)
+	var ledger_b_bests: Dictionary = ProgressionStore.run_bests(ledger_b.get("data", {}) as Dictionary)
+	_assert(ProgressionStore.save_data(ledger_b.get("data", {}) as Dictionary), "A → B result ledger should persist before replay")
+	var ledger_restart: Dictionary = ProgressionStore.load_data()
+	var forged_a_stats: Dictionary = improved_stats.duplicate(true)
+	forged_a_stats["enemies_killed"] = 999
+	var replay_a: Dictionary = ProgressionStore.record_run_result(ledger_restart, "ledger:A", forged_a_stats)
+	_assert(not bool(replay_a.get("recorded", true)), "A → B → replay A should be recognized after save/reload")
+	_assert((replay_a.get("result", {}) as Dictionary) == ledger_a_result, "A → B → replay A should return A's original silent-baseline badge decision")
+	_assert(ProgressionStore.run_bests(replay_a.get("data", {}) as Dictionary) == ledger_b_bests, "Replaying non-adjacent A must not alter the monotonic bests established by B")
+	_assert(ProgressionStore.last_run_result(replay_a.get("data", {}) as Dictionary) == ledger_a_result, "A replay should restore A's original result for recap presentation")
+
+	var bounded_data: Dictionary = replay_a.get("data", {}) as Dictionary
+	for index: int in range(ProgressionStore.RUN_RESULT_LEDGER_LIMIT + 3):
+		var bounded_record: Dictionary = ProgressionStore.record_run_result(bounded_data, "ledger:bounded:%02d" % index, first_stats)
+		bounded_data = bounded_record.get("data", {}) as Dictionary
+	_assert(ProgressionStore.completed_run_results(bounded_data).size() == ProgressionStore.RUN_RESULT_LEDGER_LIMIT, "Completed result history should remain durably bounded")
 
 func _test_overlay_action_signals() -> void:
 	var overlay := RunEndRecapOverlay.new()
@@ -109,6 +238,77 @@ func _test_overlay_action_signals() -> void:
 	overlay.queue_free()
 	await process_frame
 
+func _test_shroud_animation_and_reduced_motion() -> void:
+	var overlay := RunEndRecapOverlay.new()
+	overlay.size = Vector2(1280.0, 720.0)
+	root.add_child(overlay)
+	await process_frame
+	var run_state: Dictionary = {
+		"current_room": Vector2i(4, 0),
+		"rooms": {
+			"0,0": {"depth": 0, "type": "start", "cleared": true},
+			"1,0": {"depth": 1, "type": "combat", "cleared": true},
+			"4,0": {"depth": 4, "type": "combat", "cleared": false}
+		},
+		"run_stats": {"enemies_killed": 8, "damage_dealt": 640, "damage_received": 230},
+		"run_result": {"new_bests": ["enemies_killed", "damage_dealt", "depth"]}
+	}
+	var model: Dictionary = RunEndRecapOverlay.build_model(run_state, ProgressionStore.default_data(), "defeat", 0)
+	overlay.present(model)
+	overlay.seek_presentation(0.0)
+	_assert(is_zero_approx(overlay.shroud_progress()), "Defeat should begin with the authored room fully visible before edge engulf")
+	_assert(is_zero_approx(overlay.sample_shroud_alpha(Vector2(0.5, 0.5))), "Pre-engulf center should have no dark cover")
+
+	overlay.seek_presentation(0.78)
+	var mid_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.01, 0.50))
+	var mid_center_alpha: float = overlay.sample_shroud_alpha(Vector2(0.50, 0.50))
+	_assert(overlay.shroud_progress() > 0.45 and overlay.shroud_progress() < 0.60, "Mid-engulf seek should land in the inward edge progression")
+	_assert(mid_edge_alpha > mid_center_alpha + 0.12, "Mid-engulf darkness should visibly advance from the room edges toward its center")
+	_assert(mid_edge_alpha < 0.58, "The tactical room must remain readable during the darkest animated edge coverage")
+
+	overlay.seek_presentation(overlay.presentation_duration())
+	var final_center_alpha: float = overlay.sample_shroud_alpha(Vector2(0.50, 0.50))
+	var final_edge_alpha: float = overlay.sample_shroud_alpha(Vector2(0.01, 0.50))
+	_assert(is_equal_approx(overlay.shroud_progress(), 1.0), "Final defeat recap should retain the completed engulf state")
+	_assert(is_equal_approx(final_center_alpha, overlay.final_shroud_alpha()) and is_equal_approx(final_edge_alpha, overlay.final_shroud_alpha()), "Final shroud should settle to one coherent translucent composition")
+	_assert(overlay.final_shroud_alpha() > 0.30 and overlay.final_shroud_alpha() < 0.50, "Final shroud alpha should darken without obscuring the defeated room")
+	_assert(not overlay.has_decorative_edge_strokes(), "Defeat presentation must not draw arbitrary red edge strokes or decorative noise")
+	_assert(overlay.find_child("BuildRecap", true, false) == null, "Defeat recap should omit the prose build inventory")
+	_assert(overlay.find_child("RunStatGrid", true, false) != null, "Defeat recap should expose a visually structured run-stat grid")
+	var kills_best: Label = overlay.find_child("EnemiesKilledBest", true, false) as Label
+	var received_best: Label = overlay.find_child("DamageReceivedBest", true, false) as Label
+	var kills_heading: Label = overlay.find_child("EnemiesKilledHeading", true, false) as Label
+	_assert(kills_best != null and kills_best.visible and kills_best.text == "NEW BEST", "Strict eligible improvements should show the restrained NEW BEST badge")
+	_assert(received_best != null and not received_best.visible, "Damage taken should remain a neutral reported stat")
+	_assert(kills_heading != null and kills_heading.text == "ENEMIES KILLED", "Kill count should use an unambiguous player-facing label")
+
+	var recap_panel: PanelContainer = overlay.find_child("OutcomeRecap", true, false) as PanelContainer
+	overlay.size = Vector2(1920.0, 1080.0)
+	overlay.call("_update_presentation")
+	var roomy_minimum: Vector2 = recap_panel.get_combined_minimum_size() if recap_panel != null else Vector2.ZERO
+	var roomy_expected_height: float = maxf(480.0, ceilf(roomy_minimum.y) + 4.0)
+	_assert(recap_panel != null and is_equal_approx(recap_panel.size.y, roomy_expected_height), "Large-resolution recap height should follow content instead of leaving a fixed empty lower void")
+	overlay.size = Vector2(1280.0, 720.0)
+	overlay.call("_update_presentation")
+	var compact_minimum: Vector2 = recap_panel.get_combined_minimum_size() if recap_panel != null else Vector2.ZERO
+	_assert(recap_panel != null and recap_panel.size.y + 0.5 >= compact_minimum.y and recap_panel.size.y <= 700.0, "1280×720 recap should remain fully contained and unclipped")
+
+	var animated_final_alpha: float = final_center_alpha
+	overlay.set_motion_enabled(false)
+	overlay.reset()
+	overlay.present(model)
+	await process_frame
+	_assert(is_equal_approx(overlay.shroud_progress(), 1.0), "Reduced motion should skip directly to the completed shroud")
+	_assert(is_equal_approx(overlay.sample_shroud_alpha(Vector2(0.5, 0.5)), animated_final_alpha), "Reduced motion must preserve the same final translucent shroud")
+	_assert(recap_panel != null and is_equal_approx(recap_panel.modulate.a, 1.0), "Reduced motion must preserve the same fully readable recap panel")
+
+	var victory_model: Dictionary = RunEndRecapOverlay.build_model(run_state, ProgressionStore.default_data(), "victory", 12)
+	overlay.present(victory_model)
+	await process_frame
+	_assert(is_zero_approx(overlay.shroud_progress()), "Victory should remain coherent without inheriting the defeat shroud")
+	overlay.queue_free()
+	await process_frame
+
 func _test_run_scene_progression_and_actions() -> void:
 	var engine := RunEngine.new()
 	var progression: Dictionary = ProgressionStore.record_lost_embers(
@@ -125,6 +325,16 @@ func _test_run_scene_progression_and_actions() -> void:
 	await process_frame
 
 	var victory_state: Dictionary = _terminal_state(engine, progression, Vector2i(8, 0), "victory", 53)
+	var helper_source: Dictionary = victory_state.duplicate(true)
+	var live_state_before_helper: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var helper_state: Dictionary = instance.call("_terminal_state_with_recorded_run_result", helper_source, progression) as Dictionary
+	var helper_progression: Dictionary = helper_state.get("progression", {}) as Dictionary
+	var helper_result: Dictionary = helper_state.get("run_result", {}) as Dictionary
+	_assert(not helper_result.is_empty() and not ProgressionStore.run_result_for_id(helper_progression, RunEngine.run_result_id(helper_state)).is_empty(), "Terminal result helper should return a supplied state with its durable result decision embedded")
+	_assert(engine.held_embers(helper_state) == 53, "Terminal result helper must preserve held embers for the caller's victory/defeat finalization")
+	_assert(not helper_source.has("run_result") and (instance.get("_run_state") as Dictionary) == live_state_before_helper, "Terminal result helper should not mutate its supplied source or live RunScene state")
+	var helper_replay: Dictionary = instance.call("_terminal_state_with_recorded_run_result", helper_state, helper_progression) as Dictionary
+	_assert((helper_replay.get("run_result", {}) as Dictionary) == helper_result, "Terminal finalization retries should reuse the original result decision")
 	instance.call("_load_run_state", victory_state)
 	await process_frame
 	var recap: Control = instance.get("_run_end_recap") as Control
@@ -150,10 +360,30 @@ func _test_run_scene_progression_and_actions() -> void:
 	recap = instance.get("_run_end_recap") as Control
 	var defeat_model: Dictionary = recap.call("recap_model") if recap != null else {}
 	_assert(int(defeat_model.get("ember_amount", -1)) == 41, "Defeat display should preserve the pre-clear lost amount")
+	var defeat_stats: Dictionary = defeat_model.get("stats", {}) as Dictionary
+	_assert(int(defeat_stats.get("enemies_killed", -1)) == 7 and int(defeat_stats.get("damage_dealt", -1)) == 620 and int(defeat_stats.get("damage_received", -1)) == 140, "Terminal recap should use the durable cumulative run-stat snapshot")
+	var defeat_new_bests: Array = defeat_model.get("new_bests", []) as Array
+	_assert(defeat_new_bests.has("enemies_killed") and defeat_new_bests.has("damage_dealt") and not defeat_new_bests.has("damage_received"), "Later strict improvements should surface only eligible NEW BEST fields")
 	var committed_defeat: Dictionary = ProgressionStore.load_data()
 	var marker: Dictionary = ProgressionStore.recovery_marker(committed_defeat)
 	_assert(int(committed_defeat.get("embers", -1)) == 0, "Defeat should commit zero carried embers")
 	_assert(int(marker.get("amount", -1)) == 41 and ProgressionStore.recovery_coord(committed_defeat) == Vector2i(2, 0), "Defeat should commit the displayed recovery marker")
+	var bests_before_replay: Dictionary = ProgressionStore.run_bests(committed_defeat)
+	var result_before_replay: Dictionary = ProgressionStore.last_run_result(committed_defeat)
+	instance.call("_load_run_state", defeat_state)
+	await process_frame
+	recap = instance.get("_run_end_recap") as Control
+	var replay_model: Dictionary = recap.call("recap_model") if recap != null else {}
+	_assert(ProgressionStore.run_bests(ProgressionStore.load_data()) == bests_before_replay, "Repeated terminal refresh/load must not double count or replace best values")
+	_assert(ProgressionStore.last_run_result(ProgressionStore.load_data()) == result_before_replay, "Repeated terminal refresh/load must preserve the original just-finished result decision")
+	_assert((replay_model.get("new_bests", []) as Array) == defeat_new_bests, "A repeated recap after profile reload should preserve NEW BEST eligibility")
+	instance.call("_analytics_log_run_ended", "defeat")
+	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
+	var run_ended_payload: Dictionary = {}
+	for event: Dictionary in events:
+		if str(event.get("event_type", "")) == "run_ended":
+			run_ended_payload = (event.get("payload", {}) as Dictionary).duplicate(true)
+	_assert(int(run_ended_payload.get("enemies_killed", -1)) == 7 and int(run_ended_payload.get("damage_dealt", -1)) == 620 and int(run_ended_payload.get("damage_received", -1)) == 140, "run_ended analytics should append all canonical performance stats")
 	var defeat_new_run_button: Button = recap.find_child("NewRunButton", true, false) as Button if recap != null else null
 	if defeat_new_run_button != null:
 		defeat_new_run_button.pressed.emit()
@@ -205,6 +435,11 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 	state["player_hp"] = 0 if outcome == "defeat" else int(state.get("player_max_hp", 1))
 	state["held_embers"] = held_embers
 	state["unbanked_embers"] = held_embers
+	state["run_stats"] = {
+		"enemies_killed": 5 if outcome == "victory" else 7,
+		"damage_dealt": 500 if outcome == "victory" else 620,
+		"damage_received": 120 if outcome == "victory" else 140
+	}
 	state["progression"] = progression.duplicate(true)
 	return state
 

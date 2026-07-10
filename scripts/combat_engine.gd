@@ -64,6 +64,28 @@ const TRAP_BLAST_OFFSETS: Array[Vector2i] = [
 	Vector2i(-1, -1)
 ]
 
+const RUN_STAT_ENEMIES_KILLED: String = "enemies_killed"
+const RUN_STAT_DAMAGE_DEALT: String = "damage_dealt"
+const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
+
+static func default_run_stats() -> Dictionary:
+	return {
+		RUN_STAT_ENEMIES_KILLED: 0,
+		RUN_STAT_DAMAGE_DEALT: 0,
+		RUN_STAT_DAMAGE_RECEIVED: 0
+	}
+
+static func normalized_run_stats(value: Variant) -> Dictionary:
+	var source: Dictionary = value as Dictionary if typeof(value) == TYPE_DICTIONARY else {}
+	return {
+		RUN_STAT_ENEMIES_KILLED: maxi(0, int(source.get(RUN_STAT_ENEMIES_KILLED, 0))),
+		RUN_STAT_DAMAGE_DEALT: maxi(0, int(source.get(RUN_STAT_DAMAGE_DEALT, 0))),
+		RUN_STAT_DAMAGE_RECEIVED: maxi(0, int(source.get(RUN_STAT_DAMAGE_RECEIVED, 0)))
+	}
+
+func run_stats(state: Dictionary) -> Dictionary:
+	return normalized_run_stats(state.get("run_stats", {}))
+
 func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dictionary) -> Dictionary:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _combat_seed(run_seed, room_layout.get("coord", Vector2i.ZERO))
@@ -140,6 +162,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"first_move_bonus_used": false
 		},
 		"relic_flags": {},
+		"run_stats": normalized_run_stats(player_snapshot.get("run_stats", {})),
 		"death_rewards": [],
 		"room_embers": 0,
 		"recovered_embers_total": 0,
@@ -1832,7 +1855,8 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var was_alive: bool = int(enemy.get("hp", 0)) > 0
+	var hp_before: int = int(enemy.get("hp", 0))
+	var was_alive: bool = hp_before > 0
 	var total_damage: int = damage
 	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
 		total_damage *= 2
@@ -1850,7 +1874,9 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		enemy["stoneskin"] = stoneskin_amount
 	enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - remaining)
 	enemies[enemy_index] = enemy
+	_record_run_stat(next_state, RUN_STAT_DAMAGE_DEALT, maxi(0, hp_before - int(enemy.get("hp", 0))))
 	if was_alive and int(enemy.get("hp", 0)) <= 0:
+		_record_run_stat(next_state, RUN_STAT_ENEMIES_KILLED, 1)
 		var reward_embers: int = int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
 		var bonus_card_plays: int = 0 if bool(enemy.get("summoned", false)) else 1
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
@@ -1909,7 +1935,8 @@ func _record_death_reward(state: Dictionary, enemy: Dictionary, embers: int, car
 func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_freeze_multiplier: bool = true) -> Dictionary:
 	var next_state: Dictionary = state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	var was_alive: bool = int(player.get("hp", 0)) > 0
+	var hp_before: int = int(player.get("hp", 0))
+	var was_alive: bool = hp_before > 0
 	var remaining: int = damage * 2 if apply_freeze_multiplier and int(player.get("freeze", 0)) > 0 else damage
 	if not bypass_block:
 		var block_amount: int = int(player.get("block", 0))
@@ -1924,9 +1951,17 @@ func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_fr
 		player["stoneskin"] = stoneskin_amount
 	player["hp"] = maxi(0, int(player.get("hp", 0)) - remaining)
 	next_state["player"] = player
+	_record_run_stat(next_state, RUN_STAT_DAMAGE_RECEIVED, maxi(0, hp_before - int(player.get("hp", 0))))
 	if was_alive and int(player.get("hp", 0)) <= 0:
 		next_state = _trigger_prevent_lethal_relics(next_state)
 	return next_state
+
+func _record_run_stat(state: Dictionary, stat_id: String, amount: int) -> void:
+	if amount <= 0:
+		return
+	var stats: Dictionary = normalized_run_stats(state.get("run_stats", {}))
+	stats[stat_id] = maxi(0, int(stats.get(stat_id, 0)) + amount)
+	state["run_stats"] = stats
 
 func _lose_player_health(state: Dictionary, amount: int, bypass_block: bool, apply_freeze_multiplier: bool = true) -> Dictionary:
 	return _damage_player(state, amount, bypass_block, apply_freeze_multiplier)

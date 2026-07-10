@@ -61,6 +61,12 @@ const MODE_PRE_BATTLE: String = "pre_battle"
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
 
+static func normalized_run_stats(value: Variant) -> Dictionary:
+	return CombatEngineScript.normalized_run_stats(value)
+
+static func run_result_id(run_state: Dictionary) -> String:
+	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
+
 func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	var max_hp: int = BASE_MAX_HP + GameData.vigor_max_hp_bonus(progression) + GameData.stat_bonus_from_upgrades(progression, "max_hp")
 	var hand_size: int = BASE_HAND_SIZE + GameData.stat_bonus_from_upgrades(progression, "hand_size")
@@ -108,6 +114,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"game_over": false,
 		"victory": false,
 		"turns_spent": 0,
+		"run_stats": CombatEngineScript.default_run_stats(),
 		"notice": "",
 		"progression": progression.duplicate(true)
 	}
@@ -204,6 +211,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"game_over": false,
 		"victory": false,
 		"turns_spent": 11,
+		"run_stats": CombatEngineScript.default_run_stats(),
 		"notice": "Debug boss fixture",
 		"progression": progression.duplicate(true),
 		"debug_boss_run": true
@@ -215,6 +223,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	if next_state.is_empty():
 		return next_state
 	next_state = GrimoireLibrary.ensure_run_state(next_state)
+	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(next_state.get("run_stats", {}))
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
@@ -434,6 +443,7 @@ func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
 func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	next_state["combat_state"] = combat_state.duplicate(true)
+	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	next_state = _apply_recovered_embers_from_combat(next_state, combat_state)
 	next_state = _apply_collected_equipment_from_combat(next_state, combat_state)
@@ -1039,7 +1049,8 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"hand_size": int(run_state.get("hand_size", BASE_HAND_SIZE)),
 		"heal_bonus": int(run_state.get("heal_bonus", 0)),
 		"cards_per_turn": BASE_CARDS_PER_TURN,
-		"draw_per_turn": BASE_DRAW_PER_TURN
+		"draw_per_turn": BASE_DRAW_PER_TURN,
+		"run_stats": CombatEngineScript.normalized_run_stats(run_state.get("run_stats", {}))
 	}
 
 func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:

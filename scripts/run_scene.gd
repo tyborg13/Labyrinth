@@ -15382,11 +15382,15 @@ func _analytics_log_run_resumed() -> void:
 func _analytics_log_run_ended(outcome: String) -> void:
 	if outcome.is_empty() or _run_state.is_empty():
 		return
+	var run_stats: Dictionary = RunEngineScript.normalized_run_stats(_run_state.get("run_stats", {}))
 	_analytics_store.write_event("run_ended", _analytics_context_from_states(_run_state, _combat_state), {
 		"outcome": outcome,
 		"turns_spent": int(_run_state.get("turns_spent", 0)),
 		"held_embers": _run_engine.held_embers(_run_state),
-		"mode": str(_run_state.get("mode", "room"))
+		"mode": str(_run_state.get("mode", "room")),
+		"enemies_killed": int(run_stats.get("enemies_killed", 0)),
+		"damage_dealt": int(run_stats.get("damage_dealt", 0)),
+		"damage_received": int(run_stats.get("damage_received", 0))
 	})
 
 func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary) -> void:
@@ -16017,6 +16021,11 @@ func _run_state_with_profile_grimoire(next_run_state: Dictionary) -> Dictionary:
 			if not merged.has(entry_id):
 				merged.append(entry_id)
 		embedded_progression[key] = GrimoireLibrary.ordered_entry_ids(merged)
+	for profile_key: String in [ProgressionStore.RUN_BESTS_KEY, ProgressionStore.LAST_RUN_RESULT_KEY]:
+		if _progression.has(profile_key) and typeof(_progression.get(profile_key)) == TYPE_DICTIONARY:
+			embedded_progression[profile_key] = (_progression.get(profile_key) as Dictionary).duplicate(true)
+	if _progression.has(ProgressionStore.RUN_RESULT_LEDGER_KEY) and typeof(_progression.get(ProgressionStore.RUN_RESULT_LEDGER_KEY)) == TYPE_ARRAY:
+		embedded_progression[ProgressionStore.RUN_RESULT_LEDGER_KEY] = (_progression.get(ProgressionStore.RUN_RESULT_LEDGER_KEY) as Array).duplicate(true)
 	var prompt_states: Dictionary = ContextualCombatTutorial.merged_states(_progression, embedded_progression)
 	if not prompt_states.is_empty():
 		embedded_progression[ContextualCombatTutorial.PROGRESSION_KEY] = prompt_states
@@ -16104,6 +16113,7 @@ func _process_victory_carry() -> void:
 		_victory_carry_amount = _run_engine.held_embers(_run_state)
 		_victory_carry_processed = true
 		return
+	_record_terminal_run_result()
 	var amount: int = _run_engine.held_embers(_run_state)
 	_victory_carry_amount = amount
 	_progression = ProgressionStore.set_embers(_progression, amount)
@@ -16117,6 +16127,7 @@ func _process_defeat_loss() -> void:
 		_defeat_lost_amount = _run_engine.held_embers(_run_state)
 		_defeat_loss_processed = true
 		return
+	_record_terminal_run_result()
 	var lost_amount: int = _run_engine.held_embers(_run_state)
 	_defeat_lost_amount = lost_amount
 	_progression = ProgressionStore.record_lost_embers(
@@ -16129,6 +16140,24 @@ func _process_defeat_loss() -> void:
 	_run_state = _run_engine.clear_held_embers(_run_state)
 	_run_state["progression"] = _progression.duplicate(true)
 	_defeat_loss_processed = true
+
+func _record_terminal_run_result() -> void:
+	_run_state = _terminal_state_with_recorded_run_result(_run_state, _progression)
+	_progression = (_run_state.get("progression", _progression) as Dictionary).duplicate(true)
+
+func _terminal_state_with_recorded_run_result(terminal_state: Dictionary, progression: Dictionary) -> Dictionary:
+	var state: Dictionary = terminal_state.duplicate(true)
+	if str(state.get("mode", "")) not in ["victory", "defeat"] or bool(state.get("debug_boss_run", false)):
+		return state
+	var result_stats: Dictionary = RunEndRecapOverlay.result_stats(state)
+	var result_id: String = RunEngineScript.run_result_id(state)
+	var recorded: Dictionary = ProgressionStore.record_run_result(progression, result_id, result_stats)
+	var next_progression: Dictionary = (recorded.get("data", progression) as Dictionary).duplicate(true)
+	var result: Dictionary = (recorded.get("result", {}) as Dictionary).duplicate(true)
+	state["progression"] = next_progression
+	if not result.is_empty():
+		state["run_result"] = result
+	return state
 
 func _enemy_occupied_tiles(state: Dictionary) -> Dictionary:
 	var occupied: Dictionary = {}

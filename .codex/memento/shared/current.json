@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T02:58:00Z",
+  "updated_at": "2026-07-10T12:22:44Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4890,6 +4890,28 @@
       "supersedes": [],
       "source": {
         "branch": "codex/ui-button-system-overhaul-v2",
+        "commit": "ada58b5"
+      }
+    },
+    {
+      "id": "mnt_20260710T122244Z_2418a834",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_terminal_state_with_recorded_run_result"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_terminal_state_with_recorded_run_result",
+      "summary": "Record run results through the supplied terminal state before persistence",
+      "details": "Terminal commit paths must pass their terminal dictionary through this state-in/state-out helper, adopt the embedded progression before ember banking/loss and save_data, and only then set processed flags. The bounded completed-result ledger preserves the original stats and NEW BEST decision for non-adjacent replay; UI-only victory/defeat hooks are not a durable save boundary.",
+      "status": "active",
+      "created_at": "2026-07-10T12:22:44Z",
+      "updated_at": "2026-07-10T12:22:44Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-run-end-shroud-stats-bests-v2",
         "commit": "ada58b5"
       }
     }
