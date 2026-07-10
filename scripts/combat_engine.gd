@@ -524,15 +524,18 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 			next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 			player_turn_before_state = next_state.duplicate(true)
 			next_state = prepare_next_player_turn(next_state)
+			_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
 			_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 			break
 		match str(entry.get("kind", "")):
 			"player":
 				player_turn_before_state = next_state.duplicate(true)
 				next_state = prepare_next_player_turn(next_state)
+				_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
 				_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 				break
 			"enemy":
+				_append_commit_step(steps, before_pop_state, next_state, "initiative_activate")
 				_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 				var enemy_index: int = _enemy_index_for_id(next_state, int(entry.get("enemy_id", -1)))
 				if enemy_index < 0:
@@ -551,6 +554,7 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 					if int(enemy.get("hp", 0)) > 0:
 						_schedule_enemy_after_turn(next_state, enemy, int(turn_result.get("time_cost", 0)))
 				next_state["current_actor"] = {}
+				_append_commit_step(steps, before_reschedule_state, next_state, "initiative_reschedule")
 				_append_turn_order_step(steps, before_reschedule_state, next_state, "reschedule")
 			_:
 				continue
@@ -605,7 +609,7 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 					next_state = before_pop_state.duplicate(true)
 					break
 				revealed_enemy_ids[enemy_id] = true
-				var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index)
+				var turn_result: Dictionary = resolve_enemy_turn_with_steps(next_state, enemy_index, false)
 				next_state = (turn_result.get("state", next_state) as Dictionary).duplicate(true)
 				for step_var: Variant in turn_result.get("steps", []):
 					if typeof(step_var) == TYPE_DICTIONARY:
@@ -632,7 +636,7 @@ func preview_revealed_enemy_actions_before_player_turn_with_steps(state: Diction
 func resolve_enemy_phase(state: Dictionary) -> Dictionary:
 	return (resolve_enemy_phase_with_steps(state).get("state", state.duplicate(true)) as Dictionary).duplicate(true)
 
-func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dictionary:
+func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_commit_steps: bool = true) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.state = int(next_state.get("rng_state", 0))
@@ -646,10 +650,13 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 	next_state["current_actor"] = _enemy_actor_entry(next_state, enemy, int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 	var intent: Dictionary = (enemy.get("intent", {}) as Dictionary).duplicate(true)
 	var turn_time_cost: int = _enemy_intent_time_cost(intent)
+	var before_turn_setup: Dictionary = next_state.duplicate(true)
 	enemy["block"] = 0
 	(next_state.get("enemies", []) as Array)[enemy_index] = enemy
 	var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
 	next_state = (turn_setup.get("state", next_state) as Dictionary).duplicate(true)
+	if include_commit_steps:
+		_append_commit_step(steps, before_turn_setup, next_state, "enemy_turn_start")
 	for step_var: Variant in turn_setup.get("steps", []):
 		if typeof(step_var) == TYPE_DICTIONARY:
 			steps.append(step_var)
@@ -657,6 +664,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 		next_state["rng_state"] = rng.state
 		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
 	if bool(turn_setup.get("skip_all", false)):
+		var before_skip_resolution: Dictionary = next_state.duplicate(true)
 		var skip_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < skip_enemies.size():
 			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -664,6 +672,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 			if int(skip_enemy.get("hp", 0)) > 0:
 				_assign_enemy_intent(next_state, enemy_index, rng)
 		next_state["rng_state"] = rng.state
+		if include_commit_steps:
+			_append_commit_step(steps, before_skip_resolution, next_state, "enemy_turn_complete")
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
@@ -695,10 +705,14 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
 			var bleed_steps: Array[Dictionary] = []
 			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+			next_state["rng_state"] = rng.state
+			if include_commit_steps:
+				_append_commit_step(steps, before_state, next_state, "enemy_action")
 			steps.append_array(bleed_steps)
 			var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
 			if not step.is_empty():
 				steps.append(step)
+	var before_turn_complete: Dictionary = next_state.duplicate(true)
 	if combat_outcome(next_state) == "":
 		var post_turn_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -707,6 +721,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int) -> Dicti
 				next_state = _clear_enemy_bleed_after_turn(next_state, enemy_index)
 				_assign_enemy_intent(next_state, enemy_index, rng)
 	next_state["rng_state"] = rng.state
+	if include_commit_steps:
+		_append_commit_step(steps, before_turn_complete, next_state, "enemy_turn_complete")
 	return {
 		"state": next_state,
 		"steps": steps,
@@ -2228,6 +2244,15 @@ func _append_turn_order_step(steps: Array[Dictionary], before_state: Dictionary,
 		"label": label,
 		"before_order": before_order,
 		"after_order": after_order
+	})
+
+func _append_commit_step(steps: Array[Dictionary], before_state: Dictionary, after_state: Dictionary, boundary: String) -> void:
+	if before_state == after_state:
+		return
+	steps.append({
+		"kind": "commit",
+		"boundary": boundary,
+		"state": after_state.duplicate(true)
 	})
 
 func _turn_order_signature(order: Array[Dictionary]) -> String:

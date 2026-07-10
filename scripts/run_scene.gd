@@ -999,6 +999,8 @@ var _combat_engine = CombatEngineScript.new()
 var _progression: Dictionary = {}
 var _run_state: Dictionary = {}
 var _combat_state: Dictionary = {}
+var _committed_run_state_override: Dictionary = {}
+var _save_in_progress: bool = false
 var _preview_combat_state: Dictionary = {}
 var _analytics_store: AnalyticsStore = AnalyticsStore.new()
 var _analytics_combat_tracker: Dictionary = {}
@@ -4358,6 +4360,7 @@ func _maybe_mark_fire_rest_dialogue_seen() -> void:
 	ProgressionStore.save_data(_progression)
 	if not _run_state.is_empty():
 		_run_state["progression"] = _progression.duplicate(true)
+		_persist_committed_boundary("fire_dialogue_seen")
 
 func _current_dialogue_line() -> Dictionary:
 	if not _dialogue_active or _dialogue_line_index < 0:
@@ -4799,7 +4802,7 @@ func _resolve_contextual_combat_prompt(prompt_id: String, skipped: bool) -> void
 	if not _is_debug_boss_run():
 		ProgressionStore.save_data(_progression)
 		if not _run_state.is_empty():
-			ProgressionStore.save_run_state(_committed_run_state())
+			_persist_committed_boundary("tutorial_progress")
 	_refresh_contextual_combat_tutorial()
 
 func _setup_action_step_tracker() -> void:
@@ -5366,6 +5369,7 @@ func _boot_run() -> void:
 func _load_run_state(next_run_state: Dictionary) -> void:
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
+	_committed_run_state_override.clear()
 	var merged_run_state: Dictionary = _run_state_with_profile_grimoire(next_run_state)
 	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(merged_run_state))
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
@@ -5391,6 +5395,7 @@ func _start_run() -> void:
 	var new_run_state: Dictionary = _ensure_run_analytics_metadata(_run_engine.create_new_run(_new_seed(), _progression))
 	_load_run_state(new_run_state)
 	_analytics_log_run_started()
+	_persist_committed_boundary("run_started")
 
 func _start_debug_boss_run() -> void:
 	_progression = ProgressionStore.default_data()
@@ -10145,24 +10150,24 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animation_lock = true
 	_begin_card_play_meter_spend_preview()
 	_refresh_ui()
+	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(resolved_state, hand_index)
+	var committed_run_state: Dictionary = _run_state.duplicate(true)
+	if GameData.card_consumes_on_play(card_id):
+		committed_run_state = _run_engine.consume_equipped_item_card(committed_run_state, card_id)
+	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
+	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	await _animate_card_play_fx(card_id, source_rect, card_size)
-	await _animate_player_card_resolution(_combat_state.duplicate(true), card_id, actions, selected_targets)
+	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
 	_board_presentation.clear()
 	_set_action_banner("")
-	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index)
-	var card_effect_draw_entries: Array[Dictionary] = _draw_entries_between_states(previous_combat_state, _combat_state)
-	if GameData.card_consumes_on_play(card_id):
-		_run_state = _run_engine.consume_equipped_item_card(_run_state, card_id)
+	_run_state = committed_run_state
+	_sync_combat_state_from_run()
+	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, resolved_state, actions, selected_targets)
-	var outcome: String = _combat_engine.combat_outcome(_combat_state)
-	var transition_combat_state: Dictionary = _combat_state.duplicate(true)
-	if outcome == "":
-		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
-	else:
-		_run_state = _run_engine.finish_combat(_run_state, _combat_state)
-	_sync_combat_state_from_run()
+	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
+	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
 	if outcome == "":
@@ -10955,16 +10960,25 @@ func _resolve_enemy_round() -> void:
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
+	_hold_committed_run_state(_run_state_for_combat_checkpoint(previous_run_state, scheduled_state), "player_activation_finished")
 	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
-	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []))
+	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state)
 	_board_presentation.clear()
 	_set_action_banner("")
-	_combat_state = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
+	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
+		final_run_state = _hold_committed_run_state(final_run_state, "enemy_round_complete")
+	else:
+		final_run_state = _committed_run_state_override.duplicate(true)
+	_run_state = final_run_state
+	_sync_combat_state_from_run()
+	_release_committed_run_state()
 	_analytics_log_enemy_status_ticks(phase_result)
-	var outcome: String = _combat_engine.combat_outcome(_combat_state)
+	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
@@ -10975,23 +10989,26 @@ func _resolve_enemy_round() -> void:
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
 		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
 		outcome = _combat_engine.combat_outcome(_combat_state)
-	var transition_combat_state: Dictionary = _combat_state.duplicate(true)
-	if outcome == "":
-		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
-	else:
-		_run_state = _run_engine.finish_combat(_run_state, _combat_state)
-	_sync_combat_state_from_run()
+	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
 	_animation_lock = false
 	if outcome == "":
 		_queue_hand_ready_wave("player_turn_start")
 	_refresh_ui()
 
-func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> void:
+func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_run_state: Dictionary) -> void:
 	if steps.is_empty():
 		return
 	for step_var: Variant in steps:
 		var step: Dictionary = step_var
+		if str(step.get("kind", "")) == "commit":
+			var checkpoint_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
+			if not checkpoint_state.is_empty():
+				_hold_committed_run_state(
+					_run_state_for_combat_checkpoint(base_run_state, checkpoint_state),
+					str(step.get("boundary", "enemy_checkpoint"))
+				)
+			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
@@ -11916,6 +11933,7 @@ func _on_pre_battle_start_pressed() -> void:
 	_board_presentation.clear()
 	_reset_card_resolution()
 	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
+	_persist_committed_boundary("pre_battle_start")
 	_pre_battle_start_pending = false
 	_queue_hand_ready_wave("combat_start")
 	_refresh_ui()
@@ -11928,6 +11946,8 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_coord: Vector2i = previous_run_state.get("current_room", Vector2i(-999, -999))
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
+	var committed_run_state: Dictionary = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
+	committed_run_state = _hold_committed_run_state(committed_run_state, "room_move")
 	var map_travel_started: bool = _begin_map_travel_animation(previous_coord, coord)
 	_animation_lock = true
 	_reset_card_resolution()
@@ -11937,10 +11957,12 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 		await _play_door_opening_animation(selected_door_tile)
 	elif map_travel_started:
 		await get_tree().create_timer(_map_travel_animation_seconds()).timeout
-	_run_state = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
+	_run_state = committed_run_state
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	_release_committed_run_state()
 	_analytics_log_combat_transition(previous_run_state, "room_move", _combat_state)
+	_persist_committed_boundary("room_move_analytics")
 	_board_presentation.clear()
 	_animation_lock = false
 	_reset_card_resolution()
@@ -11996,6 +12018,7 @@ func _on_reward_card_pressed(card_id: String) -> void:
 	_run_state = _run_engine.claim_card_reward(_run_state, card_id)
 	_sync_combat_state_from_run()
 	_analytics_log_reward_choice("card", reward_state, card_id, player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
+	_persist_committed_boundary("reward_card_claimed")
 	_refresh_ui()
 
 func _on_skip_reward_pressed() -> void:
@@ -12005,6 +12028,7 @@ func _on_skip_reward_pressed() -> void:
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_analytics_log_reward_choice("heal_skip", reward_state, "", player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
+	_persist_committed_boundary("reward_heal_claimed")
 	_refresh_ui()
 
 func _on_campfire_sit_pressed() -> void:
@@ -12021,10 +12045,12 @@ func _on_campfire_embrace_pressed() -> void:
 
 func _on_campfire_linger_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
+	_persist_committed_boundary("campfire_linger")
 	_refresh_ui()
 
 func _on_campfire_leave_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state)
+	_persist_committed_boundary("campfire_leave")
 	_refresh_ui()
 
 func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
@@ -12038,6 +12064,7 @@ func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 	_run_state = _run_engine.claim_relic(_run_state, relic_id)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	_persist_committed_boundary("relic_claimed")
 	_refresh_ui()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
 	await _animate_relic_acquired(relic_id)
@@ -12061,7 +12088,7 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 		_refresh_ui()
 		_merchant_trade_animation_active = false
 		return
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("merchant_buy")
 	_analytics_log_merchant_trade("buy", merchant_kind, item_id, amount, before_embers, after_embers)
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, true)
 	_refresh_ui()
@@ -12085,7 +12112,7 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 		_refresh_ui()
 		_merchant_trade_animation_active = false
 		return
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("merchant_sell")
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
 	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, false)
 	_refresh_ui()
@@ -12312,9 +12339,76 @@ func _close_grimoire_overlay() -> void:
 	log_overlay.visible = not log_label.text.is_empty()
 
 func _committed_run_state() -> Dictionary:
+	if not _committed_run_state_override.is_empty():
+		return _committed_run_state_override.duplicate(true)
 	var state: Dictionary = _run_state.duplicate(true)
 	if str(state.get("mode", "")) == "combat":
 		state = _run_engine.set_combat_state(state, _combat_state)
+	return state
+
+func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	if _combat_engine.combat_outcome(combat_state).is_empty():
+		return _run_engine.set_combat_state(base_run_state, combat_state)
+	return _run_engine.finish_combat(base_run_state, combat_state)
+
+func _persist_committed_boundary(boundary: String = "") -> bool:
+	return bool(_persist_run_state_snapshot(_committed_run_state(), false, boundary).get("saved", false))
+
+func _hold_committed_run_state(run_state: Dictionary, boundary: String = "") -> Dictionary:
+	return (_persist_run_state_snapshot(run_state, true, boundary).get("state", run_state) as Dictionary).duplicate(true)
+
+func _release_committed_run_state() -> void:
+	_committed_run_state_override.clear()
+
+func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool, boundary: String) -> Dictionary:
+	var state: Dictionary = run_state.duplicate(true)
+	if state.is_empty() or bool(state.get("debug_boss_run", false)):
+		return {"state": state, "saved": false}
+	if _save_in_progress:
+		return {"state": state, "saved": false}
+	_save_in_progress = true
+	var mode: String = str(state.get("mode", ""))
+	var saved: bool = false
+	if mode in ["victory", "defeat"]:
+		state = _finalize_terminal_committed_state(state)
+		saved = ProgressionStore.save_data(_progression)
+		if saved:
+			ProgressionStore.clear_saved_run()
+		else:
+			ProgressionStore.save_run_state(state)
+	else:
+		saved = ProgressionStore.save_run_state(state)
+	if hold_for_animation:
+		_committed_run_state_override = state.duplicate(true)
+	_save_in_progress = false
+	if not saved:
+		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
+	return {"state": state, "saved": saved}
+
+func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
+	var state: Dictionary = run_state.duplicate(true)
+	var mode: String = str(state.get("mode", ""))
+	if mode == "victory":
+		if not _victory_carry_processed:
+			var victory_amount: int = _run_engine.held_embers(state)
+			_victory_carry_amount = victory_amount
+			_progression = ProgressionStore.set_embers(_progression, victory_amount)
+			_victory_carry_processed = true
+		state = _run_engine.clear_held_embers(state)
+		state["progression"] = _progression.duplicate(true)
+	elif mode == "defeat":
+		if not _defeat_loss_processed:
+			var lost_amount: int = _run_engine.held_embers(state)
+			_defeat_lost_amount = lost_amount
+			_progression = ProgressionStore.record_lost_embers(
+				_progression,
+				lost_amount,
+				state.get("current_room", Vector2i.ZERO),
+				int(state.get("run_index", 0))
+			)
+			_defeat_loss_processed = true
+		state = _run_engine.clear_held_embers(state)
+		state["progression"] = _progression.duplicate(true)
 	return state
 
 func _is_debug_boss_run() -> bool:
@@ -12333,7 +12427,7 @@ func _save_run_progress() -> void:
 	if not run_progression.is_empty():
 		saved_progression["embers"] = int(run_progression.get("embers", 0))
 	ProgressionStore.save_data(saved_progression)
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("explicit_save")
 
 func _on_save_and_quit_pressed() -> void:
 	_close_menu_overlay()
@@ -14172,7 +14266,7 @@ func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
 	if attuned_index < 0 or attuned_index >= attuned.size() or str(attuned[attuned_index]) != incoming_card_id:
 		_clear_magic_drag_state(true)
 		return
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("magic_attuned")
 	_analytics_log_magic_attuned(inventory_index, attuned_index, incoming_card_id)
 	_clear_magic_drag_state(false)
 	_refresh_ui()
@@ -14200,7 +14294,7 @@ func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) ->
 		_clear_item_drag_state(true)
 		_item_swap_animation_active = false
 		return
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("item_equipped")
 	var actual_equipped_index: int = _equipped_item_index_after_change(card_id, before_equipped, after_equipped, equipped_index)
 	_analytics_log_item_equipped("equip", card_id, inventory_index, actual_equipped_index)
 	_clear_item_drag_state(false)
@@ -14230,7 +14324,7 @@ func _unequip_item_from_overlay(equipped_index: int) -> void:
 		_clear_item_drag_state(true)
 		_item_swap_animation_active = false
 		return
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("item_stowed")
 	var inventory_index: int = max(0, after_inventory.size() - 1)
 	_analytics_log_item_equipped("stow", card_id, inventory_index, equipped_index)
 	_clear_item_drag_state(false)
@@ -14429,7 +14523,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 		_clear_equipment_drag_state(true)
 		return
 	_equipment_swap_animation_active = true
-	ProgressionStore.save_run_state(_committed_run_state())
+	_persist_committed_boundary("equipment_equipped")
 	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
 	_refresh_ui()
 	_progression_overlay_mode = "equipment"
@@ -14881,7 +14975,7 @@ func _confirm_level_up() -> void:
 	ProgressionStore.save_data(_progression)
 	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
 	_run_state = _run_engine.leave_campfire(_run_state, 0)
-	ProgressionStore.save_run_state(_run_state)
+	_persist_committed_boundary("level_up")
 	_analytics_log_level_up(before_progression, _progression)
 	_close_card_upgrade_overlay()
 	_refresh_ui()
@@ -15027,6 +15121,7 @@ func _on_card_mod_upgrade_pressed(mod: Dictionary) -> void:
 		_combat_state["card_upgrades"] = (_progression.get("card_upgrades", {}) as Dictionary).duplicate(true)
 		_combat_state["card_mods"] = (_progression.get("card_mods", {}) as Dictionary).duplicate(true)
 		_run_state["combat_state"] = _combat_state.duplicate(true)
+	_persist_committed_boundary("card_upgrade")
 	_refresh_card_upgrade_overlay()
 	_refresh_ui()
 
@@ -15929,7 +16024,7 @@ func _persist_grimoire_progression_from_run() -> void:
 	if not _progression.is_empty():
 		ProgressionStore.save_data(_progression)
 	if not _run_state.is_empty():
-		ProgressionStore.save_run_state(_committed_run_state())
+		_persist_committed_boundary("grimoire_progress")
 
 func _layout_mini_map_overlay() -> void:
 	if mini_map_overlay == null:

@@ -4846,6 +4846,28 @@
         "branch": "codex/ui-prebattle-deck-fit-v2",
         "commit": "ada58b5"
       }
+    },
+    {
+      "id": "mnt_20260710T022303Z_ddb3dfae",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Committed saves stay ahead of combat presentation",
+      "details": "RunScene holds the newest coherent run snapshot separately while card, room-travel, and enemy animations render local before/after states; _committed_run_state and close paths must prefer that hold so animation-time quits cannot roll back. CombatEngine commit steps belong before each enemy mutation's presentation and must carry the post-action rng_state plus initiative/turn checkpoints. Never serialize hover, selection, drag, or animation presentation state.",
+      "status": "active",
+      "created_at": "2026-07-10T02:23:03Z",
+      "updated_at": "2026-07-10T02:23:03Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-save-every-action-v2",
+        "commit": "ada58b5"
+      }
     }
   ]
 }

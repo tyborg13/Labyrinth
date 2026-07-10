@@ -146,30 +146,69 @@ static func save_data(data: Dictionary) -> bool:
 	return true
 
 static func has_saved_run() -> bool:
-	return FileAccess.file_exists(_run_storage_path)
+	return FileAccess.file_exists(_run_storage_path) or FileAccess.file_exists(_run_backup_path())
 
 static func load_saved_run() -> Dictionary:
 	if not has_saved_run():
 		return {}
-	var file: FileAccess = FileAccess.open(_run_storage_path, FileAccess.READ)
+	var loaded: Dictionary = _load_run_dictionary(_run_storage_path)
+	if not loaded.is_empty():
+		return loaded
+	return _load_run_dictionary(_run_backup_path())
+
+static func _load_run_dictionary(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		return {}
 	var data: Variant = file.get_var(false)
+	file.close()
 	if typeof(data) != TYPE_DICTIONARY:
 		return {}
 	return (data as Dictionary).duplicate(true)
 
 static func save_run_state(run_state: Dictionary) -> bool:
-	var file: FileAccess = FileAccess.open(_run_storage_path, FileAccess.WRITE)
+	var temp_path: String = _run_temp_path()
+	var backup_path: String = _run_backup_path()
+	_remove_run_file_if_present(temp_path)
+	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
 	file.store_var(run_state, false)
+	file.flush()
+	file.close()
+	if _load_run_dictionary(temp_path).is_empty() and not run_state.is_empty():
+		_remove_run_file_if_present(temp_path)
+		return false
+	_remove_run_file_if_present(backup_path)
+	var live_path: String = ProjectSettings.globalize_path(_run_storage_path)
+	var live_exists: bool = FileAccess.file_exists(_run_storage_path)
+	if live_exists and DirAccess.rename_absolute(live_path, ProjectSettings.globalize_path(backup_path)) != OK:
+		_remove_run_file_if_present(temp_path)
+		return false
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), live_path) != OK:
+		if live_exists:
+			DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_path), live_path)
+		_remove_run_file_if_present(temp_path)
+		return false
+	_remove_run_file_if_present(backup_path)
 	return true
 
 static func clear_saved_run() -> void:
-	if not has_saved_run():
-		return
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(_run_storage_path))
+	_remove_run_file_if_present(_run_storage_path)
+	_remove_run_file_if_present(_run_temp_path())
+	_remove_run_file_if_present(_run_backup_path())
+
+static func _run_temp_path() -> String:
+	return "%s.tmp" % _run_storage_path
+
+static func _run_backup_path() -> String:
+	return "%s.backup" % _run_storage_path
+
+static func _remove_run_file_if_present(path: String) -> void:
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 static func add_embers(data: Dictionary, amount: int) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
