@@ -15,7 +15,7 @@ The removed bitmap families were the three `button_wood_gold_*` planks and the e
 | Contextual combat tutorial | `UiSkin` through `scripts/contextual_combat_prompt.gd` | compact Grimoire, Got it, and Skip |
 | Pre-battle | `UiSkin` through `scripts/run_scene.gd` | standard Equip and selected primary Start |
 | Camp/menu, dialogue, map, pile, and upgrade overlays | `UiSkin` through `scripts/run_scene.gd` | standard commands, large room choices, destructive abandon, square close icons |
-| Merchant and dense progression controls | `UiSkin` through `scripts/run_scene.gd` | compact Buy/Sell and stepper controls; standard, selected, and destructive progression commands |
+| Merchant and dense progression controls | `UiSkin` through `scripts/run_scene.gd` | compact Buy/Sell and stepper controls; standard and selected progression commands |
 | Reward/treasure selection | Card/relic choice controls remain authored selection objects; supporting context actions use shared large buttons | selected cards/relics are not stretched action-button bitmaps |
 | Run-end recap | `UiSkin` through `scripts/run_end_recap_overlay.gd` | large New Run and Main Menu |
 | Death engulf continuation | `UiSkin` through `scripts/death_engulf_overlay.gd` | selected primary Begin Again |

@@ -37,7 +37,7 @@ func _initialize() -> void:
 func _capture_gallery(scale: float, suffix: String) -> void:
 	await _show_gallery(scale)
 	_validate_gallery(scale)
-	await RenderingServer.frame_post_draw
+	RenderingServer.force_draw(true)
 	var image: Image = root.get_texture().get_image()
 	var path: String = "%s/button_gallery_%s_v2.png" % [OUTPUT_DIR, suffix]
 	var error: Error = image.save_png(path)
@@ -175,8 +175,7 @@ func _build_variant_grid() -> Control:
 	grid.add_child(_sample_card("STANDARD", "Menus and prompts", _gallery_button("Continue", UiSkin.VARIANT_STANDARD, UiSkin.BUTTON_HEIGHT_STANDARD, 168.0)))
 	grid.add_child(_sample_card("LARGE", "Primary combat action", _gallery_button("Enter the Ash", UiSkin.VARIANT_LARGE, UiSkin.BUTTON_HEIGHT_ACTION, 224.0)))
 	grid.add_child(_sample_card("DESTRUCTIVE", "Irreversible choice", _gallery_button("Abandon Run", UiSkin.VARIANT_DESTRUCTIVE, UiSkin.BUTTON_HEIGHT_STANDARD, 196.0)))
-	var selected := _gallery_button("Attuned", UiSkin.VARIANT_SELECTED, UiSkin.BUTTON_HEIGHT_STANDARD, 166.0)
-	selected.toggle_mode = true
+	var selected := _gallery_button("Attuned", UiSkin.VARIANT_SELECTED, UiSkin.BUTTON_HEIGHT_STANDARD, 166.0, true)
 	selected.button_pressed = true
 	selected.set_meta("button_gallery_state", UiSkin.STATE_SELECTED)
 	grid.add_child(_sample_card("SELECTED / TOGGLE", "Persistent active state", selected))
@@ -199,7 +198,6 @@ func _build_state_grid() -> Control:
 	disabled.disabled = true
 	grid.add_child(_state_card("DISABLED", disabled))
 	var selected := _state_button("Selected", UiSkin.VARIANT_SELECTED, UiSkin.STATE_SELECTED)
-	selected.toggle_mode = true
 	selected.button_pressed = true
 	grid.add_child(_state_card("SELECTED", selected))
 	grid.add_child(_state_card("DESTRUCTIVE", _state_button("Restore", UiSkin.VARIANT_DESTRUCTIVE, UiSkin.STATE_NORMAL)))
@@ -208,9 +206,10 @@ func _build_state_grid() -> Control:
 	grid.add_child(_state_card("KEYBOARD FOCUS", _focus_sample))
 	return grid
 
-func _gallery_button(text: String, variant: String, height: float, min_width: float) -> Button:
+func _gallery_button(text: String, variant: String, height: float, min_width: float, toggle_mode: bool = false) -> Button:
 	var button := Button.new()
 	button.text = text
+	button.toggle_mode = toggle_mode
 	button.add_theme_font_override("font", REGULAR_FONT)
 	_ui_skin.apply_button_stylebox_overrides(button, variant)
 	_ui_skin.apply_button_text_overrides(button)
@@ -220,7 +219,7 @@ func _gallery_button(text: String, variant: String, height: float, min_width: fl
 	return button
 
 func _state_button(text: String, variant: String, state: String) -> Button:
-	var button := _gallery_button(text, variant, UiSkin.BUTTON_HEIGHT_STANDARD, 174.0)
+	var button := _gallery_button(text, variant, UiSkin.BUTTON_HEIGHT_STANDARD, 174.0, state == UiSkin.STATE_SELECTED)
 	button.set_meta("button_gallery_state", state)
 	if state in [UiSkin.STATE_HOVER, UiSkin.STATE_PRESSED]:
 		button.add_theme_stylebox_override("normal", _ui_skin.make_button_style(variant, state))
@@ -319,6 +318,14 @@ func _validate_gallery(scale: float) -> void:
 		_require(button.get_theme_stylebox("normal") is StyleBoxFlat, "Gallery buttons should use code-native styleboxes")
 		_require(button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) != null, "Gallery buttons should render the shared ornament")
 		_require(button.size.x > 0.0 and button.size.y > 0.0, "Gallery buttons should have a settled renderer size")
+		if str(button.get_meta("button_gallery_state", "")) == UiSkin.STATE_SELECTED:
+			var pressed_style := button.get_theme_stylebox("pressed") as StyleBoxFlat
+			var expected_style := _ui_skin.make_button_style(str(button.get_meta("button_variant", "")), UiSkin.STATE_SELECTED)
+			_require(button.toggle_mode, "Selected gallery samples should enable toggle mode before styling")
+			_require(
+				pressed_style != null and pressed_style.bg_color == expected_style.bg_color and pressed_style.border_color == expected_style.border_color,
+				"Selected gallery samples should render the selected StyleBoxFlat palette"
+			)
 
 func _require(condition: bool, message: String) -> void:
 	if condition:
