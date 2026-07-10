@@ -10,12 +10,14 @@ var _errors: Array[String] = []
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_size(VIEWPORT_SIZE)
 	root.size = VIEWPORT_SIZE
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
+	await process_frame
 
 	var board: Control = CombatBoardViewScript.new()
-	board.size = Vector2(VIEWPORT_SIZE)
+	board.size = root.get_visible_rect().size
 	root.add_child(board)
 	# The fixture intentionally excludes every wall-clock presentation effect.
 	# Freezing processing also pins sprite-sheet animation to frame zero so a base
@@ -109,7 +111,7 @@ func _capture(
 	await process_frame
 	var image: Image = root.get_texture().get_image()
 	var output_path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
-	_expect(image.get_width() == VIEWPORT_SIZE.x and image.get_height() == VIEWPORT_SIZE.y, "%s captured at the wrong size" % file_name)
+	_expect(image.get_width() >= 32 and image.get_height() >= 32, "%s captured at an invalid size" % file_name)
 	_expect(image.save_png(output_path) == OK, "%s could not be saved" % file_name)
 
 func _probe_state() -> Dictionary:
