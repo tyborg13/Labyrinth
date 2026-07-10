@@ -9,8 +9,8 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
-const PROMPT_HEIGHT: float = 62.0
-const ICON_SIZE: Vector2 = Vector2(38.0, 38.0)
+const PROMPT_SIZE: Vector2 = Vector2(300.0, 104.0)
+const ICON_SIZE: Vector2 = Vector2(30.0, 30.0)
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _prompt_id: String = ""
@@ -55,27 +55,32 @@ func _build() -> void:
 		return
 	name = "ContextualCombatPrompt"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(1060.0, PROMPT_HEIGHT)
+	custom_minimum_size = PROMPT_SIZE
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
 	var margin := MarginContainer.new()
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 7)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 7)
+	margin.add_theme_constant_override("margin_left", 9)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 9)
+	margin.add_theme_constant_override("margin_bottom", 6)
 	add_child(margin)
 
-	var row := HBoxContainer.new()
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", 10)
-	margin.add_child(row)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 4)
+	margin.add_child(column)
+
+	var message_row := HBoxContainer.new()
+	message_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	message_row.add_theme_constant_override("separation", 7)
+	column.add_child(message_row)
 
 	var icon_frame := PanelContainer.new()
 	icon_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_frame.custom_minimum_size = Vector2(46.0, 46.0)
+	icon_frame.custom_minimum_size = Vector2(38.0, 38.0)
 	icon_frame.add_theme_stylebox_override("panel", _icon_style())
-	row.add_child(icon_frame)
+	message_row.add_child(icon_frame)
 
 	var icon_center := CenterContainer.new()
 	icon_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -88,40 +93,49 @@ func _build() -> void:
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_center.add_child(_icon)
 
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 0)
+	message_row.add_child(copy)
+
 	_kicker = Label.new()
 	_kicker.text = "COMBAT NOTE"
-	_kicker.custom_minimum_size = Vector2(112.0, 0.0)
 	_kicker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_kicker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(_kicker, UiTypography.SIZE_CAPTION)
 	_kicker.add_theme_color_override("font_outline_color", Color("25170f"))
 	_kicker.add_theme_constant_override("outline_size", 2)
-	row.add_child(_kicker)
+	copy.add_child(_kicker)
 
 	_message = Label.new()
-	_message.custom_minimum_size = Vector2(500.0, 0.0)
+	_message.custom_minimum_size = Vector2(230.0, 42.0)
 	_message.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_message.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_message.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_message, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(_message, UiTypography.SIZE_CAPTION)
 	_message.add_theme_color_override("font_color", Color("f5e7ce"))
 	_message.add_theme_color_override("font_outline_color", Color("21150f"))
 	_message.add_theme_constant_override("outline_size", 2)
-	row.add_child(_message)
+	copy.add_child(_message)
 
-	_grimoire_button = _small_button("Grimoire", Vector2(106.0, 38.0))
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.add_theme_constant_override("separation", 5)
+	column.add_child(actions)
+
+	_grimoire_button = _small_button("Grimoire", Vector2(82.0, 30.0))
 	_grimoire_button.pressed.connect(_on_grimoire_pressed)
-	row.add_child(_grimoire_button)
+	actions.add_child(_grimoire_button)
 
-	var done_button: Button = _small_button("Got it", Vector2(82.0, 38.0))
+	var done_button: Button = _small_button("Got it", Vector2(66.0, 30.0))
 	done_button.pressed.connect(_on_completed_pressed)
-	row.add_child(done_button)
+	actions.add_child(done_button)
 
-	var skip_button: Button = _small_button("Skip", Vector2(70.0, 38.0))
+	var skip_button: Button = _small_button("Skip", Vector2(54.0, 30.0))
 	skip_button.modulate = Color(1.0, 1.0, 1.0, 0.78)
 	skip_button.pressed.connect(_on_skipped_pressed)
-	row.add_child(skip_button)
+	actions.add_child(skip_button)
 
 func _small_button(text: String, minimum_size: Vector2) -> Button:
 	var button := Button.new()

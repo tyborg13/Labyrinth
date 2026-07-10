@@ -91,7 +91,7 @@ func _capture_states() -> void:
 	await _save_root_screenshot("%s/cancel_restored.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, ["sidestep_slash"], Vector2i(2, 4), [Vector2i(3, 4)], 9802)
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await _settle_ui()
 	context = instance.get("_action_step_tracker") as Control
 	_assert(_button_with_text(context, "Skip") != null, "Optional step should compose Skip into the action context")
@@ -99,7 +99,7 @@ func _capture_states() -> void:
 	await _save_root_screenshot("%s/optional_step.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, ["thunderline"], Vector2i(2, 4), [Vector2i(4, 4), Vector2i(4, 2), Vector2i(6, 4)], 9803)
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
 	instance.call("_rotate_aoe_aim", -1)
 	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
@@ -118,7 +118,7 @@ func _capture_states() -> void:
 		[Vector2i(3, 4), Vector2i(5, 2), Vector2i(5, 4)],
 		9804
 	)
-	await instance.call("_on_card_pressed", 1)
+	await _choose_clicked_card_action(instance, 1, "play")
 	await _settle_ui()
 	_assert_context(instance, "MOVE", "STEP 1/2", "HUD stress")
 	_assert_hud_collision_free(instance)
@@ -166,6 +166,13 @@ func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, ene
 	instance.set("_combat_state", combat_state)
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
+	await _settle_ui()
+
+func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
+	instance.call("_on_card_pressed", hand_index)
+	await _settle_ui()
+	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Click should open play-mode choices for the exact hand card")
+	await instance.call("_on_card_action_choice_pressed", play_kind)
 	await _settle_ui()
 
 func _assert_drag_state(instance: Node) -> void:

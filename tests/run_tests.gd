@@ -7846,7 +7846,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, danger_state)
 	await process_frame
 	await process_frame
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 0, "Selecting Guarded Step should keep the move target pending")
@@ -7879,7 +7879,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_install_pass_preview_chip_state(instance, attack_hover_state)
 	await process_frame
 	await process_frame
-	await instance.call("_on_card_pressed", 1)
+	await _choose_clicked_card_action(instance, 1, "play")
 	await process_frame
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 1, "Selecting Quick Stab should keep the attack target pending")
@@ -7996,12 +7996,38 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert(not bool(options.get("printed_playable", false)), "Far melee cards should show printed play as disabled while dragging")
 	_assert(not bool(options.get("attack_playable", false)), "Far melee cards should disable fallback attack when no enemy is adjacent")
 	_assert(bool(options.get("move_playable", false)), "Far melee cards should keep fallback move available")
+	instance.call("_on_card_pressed", 0)
+	await process_frame
+	await process_frame
+	var context: Control = instance.get("_action_step_tracker") as Control
+	var full_choice: Button = context.find_child("CardActionChoicePlay", true, false) as Button
+	var attack_choice: Button = context.find_child("CardActionChoiceAttack", true, false) as Button
+	var move_choice: Button = context.find_child("CardActionChoiceMove", true, false) as Button
+	_assert(context.visible and str(context.get_meta("context_mode", "")) == "choice", "Clicking a playable card should open a dedicated play-mode choice rail")
+	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == 0, "Opening play-mode choices should not commit or retarget the card")
+	_assert(full_choice != null and full_choice.disabled, "Full-card choice should remain visible but disabled when its printed action has no legal target")
+	_assert(attack_choice != null and attack_choice.disabled, "Basic Attack choice should remain visible but disabled without a legal adjacent target")
+	_assert(move_choice != null and not move_choice.disabled, "Basic Move choice should be a first-class enabled click target")
+	for choice_button: Button in [full_choice, attack_choice, move_choice]:
+		if choice_button != null:
+			_assert(choice_button.custom_minimum_size.x >= 88.0 and choice_button.custom_minimum_size.y >= 48.0, "Clicked-card play modes should use obvious full-height controls")
+	instance.call("_on_cancel_requested")
+	await process_frame
+	_assert(int(instance.get("_card_action_choice_index")) == -1 and int(instance.get("_selected_card_index")) == -1, "Cancel from play-mode choices should return cleanly to idle")
+	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Canceling play-mode choices should not consume the card")
+	await _choose_clicked_card_action(instance, 0, "move")
+	_assert(int(instance.get("_selected_card_index")) == 0, "Clicked Basic Move should keep the exact chosen hand-card index")
+	_assert(str(instance.get("_selected_card_label_override")) == "2 Move", "Clicked Basic Move should keep its concise fallback identity")
+	var pending_actions: Array = instance.get("_pending_actions")
+	_assert(pending_actions.size() == 1 and str((pending_actions[0] as Dictionary).get("type", "")) == "move", "Clicked Basic Move should preserve its one-step move semantics")
+	instance.call("_on_cancel_requested")
+	await process_frame
 	instance.call("_on_card_drag_started", 0)
 	await process_frame
 	var overlay: Control = instance.get("_drag_overlay") as Control
 	_assert(overlay != null and overlay.visible, "Starting a card drag should show the proxy layer")
 	_assert(overlay != null and overlay.get_child_count() == 1, "Card drag should keep only the held-card proxy in its full-screen layer, with no central scrim or zones")
-	var context: Control = instance.get("_action_step_tracker") as Control
+	context = instance.get("_action_step_tracker") as Control
 	_assert(context != null and context.visible, "Card drag should show the compact action context")
 	_assert(context != null and str(context.get_meta("context_mode", "")) == "drag", "Drag action context should expose its drag state")
 	_assert(str(context.get_meta("risk_text", "")) == "FALLBACK ONLY", "Fallback-only drag should not label the unavailable full card as primary")
@@ -8038,7 +8064,7 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	await process_frame
 	_assert(int(instance.get("_selected_card_index")) == 0, "Fallback move drop should select the consumed hand card")
 	_assert(str(instance.get("_selected_card_label_override")) == "2 Move", "Fallback move should keep its concise action identity")
-	var pending_actions: Array = instance.get("_pending_actions")
+	pending_actions = instance.get("_pending_actions")
 	_assert(pending_actions.size() == 1 and str((pending_actions[0] as Dictionary).get("type", "")) == "move", "Fallback move should preserve its one-step move semantics")
 	instance.call("_on_cancel_requested")
 	await process_frame
@@ -8060,13 +8086,10 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) > int(instance.call("_fallback_attack_damage")), "Full-card drag should retain printed attack values")
 	instance.call("_on_cancel_requested")
 	await process_frame
-	instance.call("_on_card_drag_started", 0)
-	await process_frame
-	await instance.call("_commit_drag_drop", "attack")
-	await process_frame
+	await _choose_clicked_card_action(instance, 0, "attack")
 	pending_actions = instance.get("_pending_actions")
-	_assert(str(instance.get("_selected_card_label_override")) == "20 Attack", "Fallback attack should keep its concise action identity")
-	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) == int(instance.call("_fallback_attack_damage")), "Fallback attack should preserve scaled default damage")
+	_assert(str(instance.get("_selected_card_label_override")) == "20 Attack", "Clicked Basic Attack should keep its concise fallback identity")
+	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) == int(instance.call("_fallback_attack_damage")), "Clicked Basic Attack should preserve scaled default damage")
 	instance.call("_on_cancel_requested")
 	await process_frame
 
@@ -8083,8 +8106,8 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert((context.get_meta("step_statuses", []) as Array).size() == 2, "Compound targeting should compose both steps into the action context")
 	instance.call("_on_cancel_requested")
 	await process_frame
-	await instance.call("_on_card_pressed", 0)
-	_assert(int(instance.get("_selected_card_index")) == 0, "Click-to-select should keep full-card play as the primary selection path")
+	await _choose_clicked_card_action(instance, 0, "play")
+	_assert(int(instance.get("_selected_card_index")) == 0, "Clicked Full Card should enter the printed compound-card path")
 	_assert(int(instance.get("_drag_card_index")) == -1, "Click-to-select should not leave drag state active")
 	instance.queue_free()
 	await process_frame
@@ -8740,7 +8763,7 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(5, 4)])
 	await process_frame
 	var piles_y_before: float = _control_global_rect(instance, ACTION_STEP_PILES_PATH).position.y
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Move-attack selection should show current movement and remaining attack")
 	_assert_action_step_tracker_layout(instance, piles_y_before, "Move-attack tracker should not shift piles or controls")
@@ -8749,21 +8772,21 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	_assert_action_step_tracker_statuses(instance, ["done", "current"], "Choosing the move target should advance the tracker to the attack")
 
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)])
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
 	await instance.call("_on_skip_action_pressed")
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Manual skip should keep a skipped movement placeholder")
 
 	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)], true)
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Auto-skipped immobilized movement should be visible before the attack")
 
 	_load_action_step_tracker_fixture(instance, "guarded_step", Vector2i(2, 4), [Vector2i(5, 5)])
 	await process_frame
 	piles_y_before = _control_global_rect(instance, ACTION_STEP_PILES_PATH).position.y
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Targetless follow-up actions should remain visible after the current move step")
 	_assert_action_step_tracker_layout(instance, piles_y_before, "Targetless follow-up tracker should occupy overlay space above controls")
@@ -8784,7 +8807,7 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	instance.set("_animation_lock", false)
 
 	_load_action_step_tracker_fixture(instance, "quick_stab", Vector2i(2, 4), [Vector2i(3, 4)])
-	await instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
 	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
 	_assert(tracker != null and tracker.visible, "Single-action cards should use the same coherent action context")
@@ -9104,7 +9127,7 @@ func _test_run_scene_targetless_card_click_commits_play() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_ui")
-	instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await create_timer(1.5).timeout
 	var committed_state: Dictionary = instance.get("_combat_state")
 	var committed_player: Dictionary = committed_state.get("player", {})
@@ -10460,7 +10483,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_ui")
 	instance.call("_analytics_log_playable_cards")
-	instance.call("_on_card_pressed", 0)
+	await _choose_clicked_card_action(instance, 0, "play")
 	await create_timer(1.5).timeout
 	var reward_run_state: Dictionary = instance.get("_run_state")
 	reward_run_state["mode"] = "reward"
@@ -11186,6 +11209,14 @@ func _buttons_under(node: Node) -> Array[Button]:
 	for child: Node in node.get_children():
 		buttons.append_array(_buttons_under(child))
 	return buttons
+
+func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: String) -> void:
+	instance.call("_on_card_pressed", hand_index)
+	await process_frame
+	await process_frame
+	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode choices for that exact card")
+	await instance.call("_on_card_action_choice_pressed", play_kind)
+	await process_frame
 
 func _button_with_text(node: Node, text: String) -> Button:
 	for button: Button in _buttons_under(node):
