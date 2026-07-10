@@ -5376,6 +5376,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	_repair_legacy_empty_actor_transition()
 	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
 	_victory_carry_processed = false
@@ -12420,6 +12421,31 @@ func _pending_combat_checkpoints() -> Array:
 func _has_pending_combat_checkpoints() -> bool:
 	return str(_run_state.get("mode", "")) == "combat" and not _pending_combat_checkpoints().is_empty()
 
+func _repair_legacy_empty_actor_transition() -> bool:
+	if str(_run_state.get("mode", "")) != "combat" or _has_pending_combat_checkpoints():
+		return false
+	if not _combat_state.has("current_actor"):
+		return false
+	var current_actor: Variant = _combat_state.get("current_actor", null)
+	if typeof(current_actor) != TYPE_DICTIONARY or not (current_actor as Dictionary).is_empty():
+		return false
+	var turn_queue: Variant = _combat_state.get("turn_queue", [])
+	if typeof(turn_queue) != TYPE_ARRAY or (turn_queue as Array).is_empty() or _combat_engine.combat_outcome(_combat_state) != "":
+		return false
+	var scheduled_state: Dictionary = _combat_state.duplicate(true)
+	scheduled_state["current_actor"] = {"kind": "transition"}
+	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var checkpoints: Array = _combat_commit_checkpoints(phase_result.get("steps", []))
+	if checkpoints.is_empty():
+		return false
+	_run_state = _run_state_with_combat_checkpoints(
+		_run_state_for_combat_checkpoint(_run_state, scheduled_state),
+		checkpoints
+	)
+	_combat_state = scheduled_state
+	_persist_committed_boundary("legacy_empty_actor_transition_repaired")
+	return true
+
 func _consume_next_pending_combat_checkpoint() -> bool:
 	if not _has_pending_combat_checkpoints():
 		return false
@@ -12518,15 +12544,16 @@ func _is_debug_boss_run() -> bool:
 func _save_run_progress() -> void:
 	if _is_debug_boss_run():
 		return
-	var mode: String = str(_run_state.get("mode", ""))
-	if mode in ["victory", "defeat"] or _run_state.is_empty():
+	var committed_state: Dictionary = _committed_run_state()
+	var mode: String = str(committed_state.get("mode", ""))
+	if mode in ["victory", "defeat"] or committed_state.is_empty():
 		if ProgressionStore.save_data(_progression):
 			ProgressionStore.clear_saved_run()
 		else:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
 		return
 	var saved_progression: Dictionary = _progression.duplicate(true)
-	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
+	var run_progression: Dictionary = (committed_state.get("progression", {}) as Dictionary).duplicate(true)
 	if not run_progression.is_empty():
 		saved_progression["embers"] = int(run_progression.get("embers", 0))
 	ProgressionStore.save_data(saved_progression)

@@ -42,12 +42,18 @@ action or animation cursor. Continue consumes and persists those snapshots in
 order until the next playable player turn or terminal outcome. This prevents an
 empty actor from becoming a second player activation and prevents relaunch from
 re-running enemy actions, RNG, counters, or start-of-turn effects.
+Pre-cursor saves written during the older pass animation can contain an empty
+`current_actor` plus the queued timeline. Load recognizes that exact legacy
+shape, marks it as a transition, builds the same deterministic snapshot cursor
+from its saved RNG state, and persists the repair before continuing.
 
 Terminal victory/defeat progression is finalized at the committed boundary
 before the resumable slot is cleared. This prevents a close during the terminal
 animation from restoring the last combat or losing ember banking/recovery data.
 If profile persistence fails, the resumable slot keeps the unprocessed terminal
 snapshot, including held embers, so a later resume can retry exactly once.
+Explicit save/quit checks the held committed state during terminal presentation
+and never replaces that unprocessed fallback with the finalized display state.
 Campfire Embrace likewise clears the run only after the bank/rest profile write
 succeeds; a failed write leaves the previous resumable run unchanged.
 

@@ -6,7 +6,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/save_resume_inspection_20260709_v11"
+const OUTPUT_DIR: String = "user://probes/save_resume_inspection_20260709_v12"
 
 var _combat_engine: CombatEngine = CombatEngine.new()
 
@@ -93,7 +93,22 @@ func _initialize() -> void:
 	_assert(not continued_state.has("pending_combat_checkpoints"), "Completed enemy continuation should clear its serialized cursor")
 	_assert(_combat_engine.is_player_turn(continued.get("_combat_state") as Dictionary), "Enemy continuation should return to a playable player turn")
 
-	continued.queue_free()
+	var legacy_scheduled: Dictionary = scheduled.duplicate(true)
+	legacy_scheduled["current_actor"] = {}
+	var legacy_scheduled_run: Dictionary = continued.call("_run_state_for_combat_checkpoint", resumed_state, legacy_scheduled) as Dictionary
+	_assert(ProgressionStore.save_run_state(legacy_scheduled_run), "Legacy empty-actor inspection checkpoint should persist")
+	root.remove_child(continued)
+	continued.free()
+	await process_frame
+	var legacy_continued: Node = await _resume_run_scene()
+	legacy_continued.set("_settings", {"reduced_motion": true})
+	legacy_continued.call("_close_dialogue")
+	await _settle_ui()
+	var legacy_continued_state: Dictionary = (legacy_continued.call("_committed_run_state") as Dictionary).duplicate(true)
+	_assert(legacy_continued_state == expected_after_enemy_phase, "Legacy empty-actor Continue should repair and reach the exact final state")
+	_assert(_combat_engine.is_player_turn(legacy_continued.get("_combat_state") as Dictionary), "Legacy empty-actor repair should return to a playable player turn")
+
+	legacy_continued.queue_free()
 	await process_frame
 	var steam_service: Node = root.get_node_or_null("SteamService")
 	if steam_service != null:
@@ -102,7 +117,7 @@ func _initialize() -> void:
 	AssetLoader._audio_cache.clear()
 	if not functional_only:
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	print("TEST RESULT: PASS — inspection action and enemy continuation survive quit/relaunch")
+	print("TEST RESULT: PASS — inspection action, enemy continuation, and legacy transition survive quit/relaunch")
 	quit(0)
 
 func _seed_probe_fixture() -> void:

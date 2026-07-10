@@ -180,6 +180,10 @@ func _test_enemy_and_turn_boundaries(base_run: Dictionary) -> void:
 	var scheduled_run_state: Dictionary = _combat_checkpoint_run_state(base_run, scheduled, commit_checkpoints)
 	_assert_run_resume("turn/pass_activation", scheduled_run_state)
 	_assert_playable_continuation("resume/pass_activation", scheduled_run_state, final_run_state)
+	var legacy_scheduled: Dictionary = scheduled.duplicate(true)
+	legacy_scheduled["current_actor"] = {}
+	var legacy_scheduled_run: Dictionary = _run_scene.call("_run_state_for_combat_checkpoint", base_run, legacy_scheduled) as Dictionary
+	_assert_legacy_empty_actor_continuation(legacy_scheduled_run, final_run_state)
 	var enemy_actions: int = 0
 	var saw_player_turn_start: bool = false
 	var checkpoint_index: int = 0
@@ -288,12 +292,18 @@ func _test_terminal_failure_recovery(base_run: Dictionary) -> void:
 		_run_scene.set("_defeat_loss_processed", false)
 		_run_scene.set("_run_state", terminal_run.duplicate(true))
 		_run_scene.set("_combat_state", {})
-		_assert(not bool(_run_scene.call("_persist_committed_boundary", "terminal_%s_forced_failure" % mode)), "%s should report an unwritable progression path" % mode)
+		var failure_result: Dictionary = _run_scene.call("_persist_run_state_snapshot", terminal_run, true, "terminal_%s_forced_failure" % mode) as Dictionary
+		_assert(not bool(failure_result.get("saved", true)), "%s should report an unwritable progression path" % mode)
 		var fallback: Dictionary = ProgressionStore.load_saved_run()
 		_assert(fallback == terminal_run, "%s failure fallback must preserve the unprocessed terminal snapshot" % mode)
 		_assert(_run_engine.held_embers(fallback) == held, "%s failure fallback must preserve held embers" % mode)
+		var held_terminal_override: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
+		_assert(str(held_terminal_override.get("mode", "")) == mode and _run_engine.held_embers(held_terminal_override) == 0, "%s animation fixture should hold the finalized terminal snapshot" % mode)
+		_run_scene.set("_run_state", base_run.duplicate(true))
+		_run_scene.set("_combat_state", (base_run.get("combat_state", {}) as Dictionary).duplicate(true))
 		_run_scene.call("_save_run_progress")
-		_assert(ProgressionStore.load_saved_run() == terminal_run, "%s Save & Quit retry must not clear the fallback while progression remains unwritable" % mode)
+		_assert(ProgressionStore.load_saved_run() == terminal_run, "%s animation-time Save & Quit must not overwrite the unprocessed fallback" % mode)
+		_run_scene.call("_release_committed_run_state")
 
 		ProgressionStore.set_storage_path(PROGRESSION_PATH)
 		_recreate_run_scene_from_saved(fallback)
@@ -445,6 +455,24 @@ func _assert_playable_continuation(label: String, saved_run: Dictionary, expecte
 		_assert(_combat_engine.is_player_turn(final_combat), "%s should resume at a playable player activation" % label)
 	if resumed == expected_final_run:
 		_matrix_rows.append(label)
+
+func _assert_legacy_empty_actor_continuation(saved_run: Dictionary, expected_final_run: Dictionary) -> void:
+	ProgressionStore.clear_saved_run()
+	_assert(ProgressionStore.save_run_state(saved_run), "Legacy empty-actor transition should seed a production-format save")
+	_recreate_run_scene_from_saved(ProgressionStore.load_saved_run())
+	_assert(bool(_run_scene.call("_repair_legacy_empty_actor_transition")), "Legacy empty-actor transition should rebuild a deterministic continuation cursor")
+	var repaired_save: Dictionary = ProgressionStore.load_saved_run()
+	var repaired_combat: Dictionary = (repaired_save.get("combat_state", {}) as Dictionary)
+	_assert(str((repaired_combat.get("current_actor", {}) as Dictionary).get("kind", "")) == "transition", "Legacy repair should persist an explicit transition actor")
+	_assert(repaired_save.has(COMBAT_CONTINUATION_KEY), "Legacy repair should persist the rebuilt continuation before consuming it")
+	var safety: int = 0
+	while safety < 100 and bool(_run_scene.call("_consume_next_pending_combat_checkpoint")):
+		safety += 1
+	_run_scene.call("_release_committed_run_state")
+	var resumed: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
+	_assert(resumed == expected_final_run, "Legacy empty-actor Continue should reach the exact final state without an extra player activation")
+	if resumed == expected_final_run:
+		_matrix_rows.append("legacy/empty_actor_transition_resume")
 
 func _recreate_run_scene_from_saved(saved_run: Dictionary) -> void:
 	if _run_scene != null:
