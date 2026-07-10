@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T12:48:23Z",
+  "updated_at": "2026-07-10T14:51:50Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4913,6 +4913,28 @@
       "source": {
         "branch": "codex/ui-run-end-shroud-stats-bests-v2",
         "commit": "ada58b5"
+      }
+    },
+    {
+      "id": "mnt_20260710T145150Z_4d277a6a",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Clicked combat cards default directly to their printed action",
+      "details": "Do not put a mandatory mode-choice click between selecting a card and using its printed action. A click should immediately enter normal printed targeting while a persistent mode-tab row defaults to CARD; optional fallback tabs may retarget the same card and must display their live values, such as ATTACK 20 and MOVE 2, with unavailable modes visibly disabled.",
+      "status": "active",
+      "created_at": "2026-07-10T14:51:50Z",
+      "updated_at": "2026-07-10T14:51:50Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-ux-feedback-v2-integration",
+        "commit": "0b2a043"
       }
     }
   ]

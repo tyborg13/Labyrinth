@@ -818,7 +818,7 @@ const ACTION_STEP_TRACKER_GAP: float = 12.0
 const ACTION_CONTEXT_MAX_WIDTH: float = 960.0
 const ACTION_CONTEXT_EDGE_MARGIN: float = 16.0
 const ACTION_CONTEXT_COMMAND_SIZE: Vector2 = Vector2(144.0, 50.0)
-const CARD_ACTION_CHOICE_SIZE: Vector2 = Vector2(92.0, 50.0)
+const CARD_ACTION_CHOICE_SIZE: Vector2 = Vector2(84.0, 40.0)
 const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
@@ -1003,6 +1003,7 @@ var _analytics_combat_tracker: Dictionary = {}
 var _selected_card_index: int = -1
 var _card_action_choice_index: int = -1
 var _card_action_choice_options: Dictionary = {}
+var _card_action_choice_mode: String = "play"
 var _hovered_card_index: int = -1
 var _hovered_board_tile: Vector2i = Vector2i(-1, -1)
 var _pending_actions: Array = []
@@ -1061,6 +1062,7 @@ var _action_context_target_label: Label
 var _action_context_risk_panel: PanelContainer
 var _action_context_risk_label: Label
 var _action_step_tracker_steps: HBoxContainer
+var _card_action_mode_tab_bar: HBoxContainer
 var _contextual_combat_prompt_host: CenterContainer
 var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
@@ -4989,6 +4991,15 @@ func _setup_action_step_tracker() -> void:
 	_action_context_risk_label.add_theme_color_override("font_color", Color("aee49f"))
 	_action_context_risk_panel.add_child(_action_context_risk_label)
 
+	_card_action_mode_tab_bar = HBoxContainer.new()
+	_card_action_mode_tab_bar.name = "CardActionModeTabs"
+	_card_action_mode_tab_bar.visible = false
+	_card_action_mode_tab_bar.custom_minimum_size = Vector2(0.0, CARD_ACTION_CHOICE_SIZE.y)
+	_card_action_mode_tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_card_action_mode_tab_bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	_card_action_mode_tab_bar.add_theme_constant_override("separation", 4)
+	vbox.add_child(_card_action_mode_tab_bar)
+
 	var action_row := HBoxContainer.new()
 	action_row.name = "ActionContextActions"
 	action_row.custom_minimum_size = Vector2(0.0, ACTION_STEP_CHIP_SIZE.y)
@@ -6222,6 +6233,9 @@ func _refresh_action_step_tracker() -> void:
 		return
 	_clear_children_now(_action_step_tracker_steps)
 	_clear_children_now(_action_context_command_bar)
+	if _card_action_mode_tab_bar != null:
+		_clear_children_now(_card_action_mode_tab_bar)
+		_card_action_mode_tab_bar.visible = false
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
@@ -6241,7 +6255,7 @@ func _refresh_action_step_tracker() -> void:
 	var actions: Array = tracker_state.get("actions", [])
 	var current_index: int = int(tracker_state.get("action_index", 0))
 	var context_mode: String = str(tracker_state.get("mode", "selection"))
-	var compact_header_mode: bool = context_mode in ["choice", "drag"]
+	var compact_header_mode: bool = context_mode == "drag"
 	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
 	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
 	var current_number: int = clampi(current_index + 1, 1, maxi(1, actions.size()))
@@ -6259,7 +6273,7 @@ func _refresh_action_step_tracker() -> void:
 	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
 	var statuses: Array = []
 	var action_types: Array = []
-	for index: int in range(0 if context_mode in ["choice", "drag"] else actions.size()):
+	for index: int in range(0 if context_mode == "drag" else actions.size()):
 		var action: Dictionary = {}
 		if typeof(actions[index]) == TYPE_DICTIONARY:
 			action = actions[index] as Dictionary
@@ -6271,6 +6285,7 @@ func _refresh_action_step_tracker() -> void:
 	_action_step_tracker.set_meta("step_action_types", action_types)
 	_action_step_tracker.set_meta("context_mode", context_mode)
 	_action_step_tracker.set_meta("choice_card_index", _card_action_choice_index if context_mode == "choice" else -1)
+	_refresh_card_action_mode_tabs(context_mode)
 	_build_action_context_commands(tracker_state)
 	_update_action_context_copy(tracker_state)
 	_layout_action_step_tracker()
@@ -6306,17 +6321,23 @@ func _action_step_tracker_state() -> Dictionary:
 		var choice_card_id: String = _card_id_for_hand_index(_card_action_choice_index)
 		if choice_card_id.is_empty():
 			return {}
-		var printed_preview: Dictionary = _card_action_choice_options.get("play", {})
-		var choice_actions: Array = printed_preview.get("actions", [])
+		var active_preview: Dictionary = _card_action_choice_options.get(_card_action_choice_mode, {})
+		var choice_actions: Array = active_preview.get("actions", [])
 		if choice_actions.is_empty():
 			choice_actions = (_card_def(choice_card_id, _combat_state).get("actions", []) as Array).duplicate(true)
+		var choice_action_index: int = int(active_preview.get("action_index", 0))
+		var choice_targets: Array[Vector2i] = []
+		if _selected_card_index == _card_action_choice_index and not _pending_actions.is_empty():
+			choice_actions = _pending_actions
+			choice_action_index = _pending_action_index
+			choice_targets = _pending_selected_targets
 		return {
 			"active": true,
 			"mode": "choice",
 			"card_id": choice_card_id,
 			"actions": choice_actions,
-			"action_index": 0,
-			"selected_targets": []
+			"action_index": choice_action_index,
+			"selected_targets": choice_targets
 		}
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
 		return {}
@@ -6452,6 +6473,7 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	var context_mode: String = str(tracker_state.get("mode", "selection"))
 	_action_context_command_bar.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_END
+	_action_context_command_bar.add_theme_constant_override("separation", 8)
 	if context_mode == "drag":
 		_action_context_command_bar.add_child(_build_drag_command_zone(
 			"attack",
@@ -6469,105 +6491,110 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		))
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
-	if context_mode == "choice":
-		_action_context_command_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_CENTER
-		_action_context_command_bar.add_child(_build_card_action_choice_button(
+	if context_mode not in ["selection", "choice"]:
+		return
+	var alongside_mode_tabs: bool = context_mode == "choice"
+	if _current_action_supports_rotation():
+		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
+	if _current_action_can_skip():
+		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
+	_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
+
+func _refresh_card_action_mode_tabs(context_mode: String) -> void:
+	if _card_action_mode_tab_bar == null or context_mode != "choice":
+		return
+	_card_action_mode_tab_bar.visible = true
+	_card_action_mode_tab_bar.add_child(_build_card_action_choice_button(
 			"play",
-			"FULL\nCARD",
+			"PRINTED",
 			bool(_card_action_choice_options.get("printed_playable", false)),
 			Color("d8aa5f"),
 			Color("342719"),
 			"Use this card's printed actions"
 		))
-		_action_context_command_bar.add_child(_build_card_action_choice_button(
+	_card_action_mode_tab_bar.add_child(_build_card_action_choice_button(
 			"attack",
-			"BASIC\nATTACK",
+			"ATTACK %d" % _fallback_attack_damage(),
 			bool(_card_action_choice_options.get("attack_playable", false)),
 			Color("d97558"),
 			Color("321c18"),
 			"Spend this card for a basic Attack"
 		))
-		_action_context_command_bar.add_child(_build_card_action_choice_button(
+	_card_action_mode_tab_bar.add_child(_build_card_action_choice_button(
 			"move",
-			"BASIC\nMOVE",
+			"MOVE %d" % FALLBACK_MOVE_RANGE,
 			bool(_card_action_choice_options.get("move_playable", false)),
 			Color("65a7bf"),
 			Color("182833"),
 			"Spend this card for a basic Move"
 		))
-		return
-	if context_mode != "selection":
-		return
-	if _current_action_supports_rotation():
-		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area")
-	if _current_action_can_skip():
-		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step")
-	_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand")
 
 func _build_card_action_choice_button(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String) -> Button:
 	var button := Button.new()
+	var active: bool = play_kind == _card_action_choice_mode
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
 	button.text = text
 	button.tooltip_text = tooltip if available else "%s · unavailable with current targets" % tooltip
 	button.custom_minimum_size = CARD_ACTION_CHOICE_SIZE
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.focus_mode = Control.FOCUS_NONE
 	button.disabled = not available
 	button.set_meta("play_kind", play_kind)
 	button.set_meta("available", available)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
+	button.set_meta("active", active)
+	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
 	button.add_theme_color_override("font_color", Color("fff2d8"))
 	button.add_theme_color_override("font_hover_color", Color.WHITE)
 	button.add_theme_color_override("font_pressed_color", Color.WHITE)
 	button.add_theme_color_override("font_disabled_color", Color("8e8276"))
 	button.add_theme_color_override("font_outline_color", Color("20140d"))
 	button.add_theme_constant_override("outline_size", 1)
-	button.add_theme_stylebox_override("normal", _card_action_choice_style(fill, accent, "normal"))
-	button.add_theme_stylebox_override("hover", _card_action_choice_style(fill, accent, "hover"))
-	button.add_theme_stylebox_override("pressed", _card_action_choice_style(fill, accent, "pressed"))
-	button.add_theme_stylebox_override("disabled", _card_action_choice_style(fill, accent, "disabled"))
+	button.add_theme_stylebox_override("normal", _card_action_choice_style(fill, accent, "normal", active))
+	button.add_theme_stylebox_override("hover", _card_action_choice_style(fill, accent, "hover", active))
+	button.add_theme_stylebox_override("pressed", _card_action_choice_style(fill, accent, "pressed", true))
+	button.add_theme_stylebox_override("disabled", _card_action_choice_style(fill, accent, "disabled", active))
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.pressed.connect(_on_card_action_choice_pressed.bind(play_kind))
 	return button
 
-func _card_action_choice_style(fill: Color, accent: Color, state: String) -> StyleBoxFlat:
+func _card_action_choice_style(fill: Color, accent: Color, state: String, active: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	match state:
 		"hover":
-			style.bg_color = fill.lightened(0.16)
+			style.bg_color = fill.lightened(0.2 if active else 0.12)
 			style.border_color = accent.lightened(0.28)
 			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.26)
-			style.shadow_size = 9
+			style.shadow_size = 6
 		"pressed":
-			style.bg_color = fill.lightened(0.05)
-			style.border_color = accent.lightened(0.12)
+			style.bg_color = fill.lightened(0.16)
+			style.border_color = accent.lightened(0.24)
 			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.16)
 			style.shadow_size = 4
 		"disabled":
-			style.bg_color = fill.darkened(0.38)
-			style.border_color = Color("655b52")
+			style.bg_color = fill.darkened(0.2 if active else 0.42)
+			style.border_color = accent.darkened(0.3) if active else Color("655b52")
 			style.shadow_color = Color.TRANSPARENT
 		_:
-			style.bg_color = fill
-			style.border_color = accent
-			style.shadow_color = Color(0.0, 0.0, 0.0, 0.26)
-			style.shadow_size = 5
+			style.bg_color = fill.lightened(0.12) if active else fill.darkened(0.1)
+			style.border_color = accent.lightened(0.18) if active else accent.darkened(0.18)
+			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.2) if active else Color(0.0, 0.0, 0.0, 0.2)
+			style.shadow_size = 5 if active else 2
 	var border_width: int = 2 if state != "disabled" else 1
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
-	style.border_width_bottom = border_width
+	style.border_width_bottom = 4 if active else border_width
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.content_margin_left = 8.0
+	style.corner_radius_bottom_right = 2
+	style.corner_radius_bottom_left = 2
+	style.content_margin_left = 5.0
 	style.content_margin_top = 5.0
-	style.content_margin_right = 8.0
+	style.content_margin_right = 5.0
 	style.content_margin_bottom = 5.0
 	return style
 
-func _add_action_context_button(text: String, callback: Callable, tooltip: String = "") -> void:
+func _add_action_context_button(text: String, callback: Callable, tooltip: String = "", extra_compact: bool = false) -> void:
 	if _action_context_command_bar == null:
 		return
 	var button := Button.new()
@@ -6576,8 +6603,10 @@ func _add_action_context_button(text: String, callback: Callable, tooltip: Strin
 	button.tooltip_text = tooltip
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, ACTION_CONTEXT_BUTTON_MIN_WIDTH, true, UiSkin.VARIANT_COMPACT)
+	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION if extra_compact else UiTypography.SIZE_SMALL)
+	var button_height: float = 36.0 if extra_compact else UiSkin.BUTTON_HEIGHT_STANDARD
+	var minimum_width: float = 72.0 if extra_compact else ACTION_CONTEXT_BUTTON_MIN_WIDTH
+	_ui_skin.apply_button_native_size(button, button_height, minimum_width, true, UiSkin.VARIANT_COMPACT)
 	button.pressed.connect(callback)
 	_action_context_command_bar.add_child(button)
 
@@ -6638,8 +6667,11 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 			_set_action_context_risk("primary", "PRIMARY · FULL CARD")
 		else:
 			_set_action_context_risk("neutral", "FALLBACK ONLY")
-	elif context_mode == "choice":
-		verb_text = "CHOOSE ACTION"
+	elif context_mode == "choice" and _selected_card_index < 0:
+		verb_text = "CARD UNAVAILABLE"
+		target_text = "CHOOSE ATTACK OR MOVE"
+		target_tone = "invalid"
+		_set_action_context_risk("neutral", "NO PRINTED TARGET")
 	elif context_mode == "resolution":
 		verb_text = "RESOLVING · %s" % _action_step_action_name(action).to_upper()
 		target_text = "IN MOTION"
@@ -9138,16 +9170,20 @@ func _show_card_action_choices(index: int, options: Dictionary) -> void:
 		return
 	_card_action_choice_index = index
 	_card_action_choice_options = options.duplicate(true)
+	_card_action_choice_mode = "play"
 	_hovered_card_index = index
 	_selected_card_label_override = ""
-	_refresh_ui()
 
 func _clear_card_action_choice_state() -> void:
 	_card_action_choice_index = -1
 	_card_action_choice_options.clear()
+	_card_action_choice_mode = "play"
 
 func _cancel_card_action_choice() -> void:
 	if _card_action_choice_index < 0:
+		return
+	if _selected_card_index >= 0:
+		_cancel_card_selection()
 		return
 	_clear_card_action_choice_state()
 	_hovered_card_index = -1
@@ -9163,8 +9199,12 @@ func _on_card_action_choice_pressed(play_kind: String) -> void:
 	var preview: Dictionary = options.get(preview_key, {})
 	if not bool(options.get(playable_key, false)) or not bool(preview.get("playable", false)):
 		return
+	if _selected_card_index == hand_index and _card_action_choice_mode == play_kind:
+		return
 	var label_override: String = "" if play_kind == "play" else _fallback_label(play_kind)
-	_clear_card_action_choice_state()
+	_card_action_choice_mode = play_kind
+	_card_action_choice_options = options.duplicate(true)
+	_clear_active_card_preview_state()
 	await _begin_card_preview(hand_index, preview, label_override)
 
 func _fallback_actions(play_kind: String) -> Array:
@@ -10049,8 +10089,14 @@ func _on_card_pressed(index: int) -> void:
 	if _card_action_choice_index == index:
 		_cancel_card_action_choice()
 		return
+	if _selected_card_index >= 0 or _card_action_choice_index >= 0:
+		_reset_card_resolution()
 	var options: Dictionary = _card_play_options_for_index(index)
 	_show_card_action_choices(index, options)
+	if bool(options.get("printed_playable", false)):
+		await _on_card_action_choice_pressed("play")
+	else:
+		_refresh_ui()
 
 func _on_card_drag_started(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -15546,8 +15592,11 @@ func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 
 func _reset_card_resolution() -> void:
 	_clear_action_step_resolution_tracker()
-	_selected_card_index = -1
+	_clear_active_card_preview_state()
 	_clear_card_action_choice_state()
+
+func _clear_active_card_preview_state() -> void:
+	_selected_card_index = -1
 	_selected_card_label_override = ""
 	_hovered_card_index = -1
 	_pending_actions.clear()

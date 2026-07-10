@@ -8003,14 +8003,15 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var full_choice: Button = context.find_child("CardActionChoicePlay", true, false) as Button
 	var attack_choice: Button = context.find_child("CardActionChoiceAttack", true, false) as Button
 	var move_choice: Button = context.find_child("CardActionChoiceMove", true, false) as Button
-	_assert(context.visible and str(context.get_meta("context_mode", "")) == "choice", "Clicking a playable card should open a dedicated play-mode choice rail")
-	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == 0, "Opening play-mode choices should not commit or retarget the card")
-	_assert(full_choice != null and full_choice.disabled, "Full-card choice should remain visible but disabled when its printed action has no legal target")
-	_assert(attack_choice != null and attack_choice.disabled, "Basic Attack choice should remain visible but disabled without a legal adjacent target")
-	_assert(move_choice != null and not move_choice.disabled, "Basic Move choice should be a first-class enabled click target")
+	_assert(context.visible and str(context.get_meta("context_mode", "")) == "choice", "Clicking a card should open its persistent play-mode tabs")
+	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == 0, "An unavailable printed mode should remain selected without inventing a target")
+	_assert(str(instance.get("_card_action_choice_mode")) == "play", "As Written should remain the default tab even when no printed target is legal")
+	_assert(full_choice != null and full_choice.disabled and bool(full_choice.get_meta("active", false)), "Unavailable As Written should remain visibly selected and disabled")
+	_assert(attack_choice != null and attack_choice.disabled and not bool(attack_choice.get_meta("active", false)), "Attack should be a disabled inactive tab without an adjacent target")
+	_assert(move_choice != null and not move_choice.disabled and not bool(move_choice.get_meta("active", false)), "Move should be an enabled inactive tab")
 	for choice_button: Button in [full_choice, attack_choice, move_choice]:
 		if choice_button != null:
-			_assert(choice_button.custom_minimum_size.x >= 88.0 and choice_button.custom_minimum_size.y >= 48.0, "Clicked-card play modes should use obvious full-height controls")
+			_assert(choice_button.custom_minimum_size.x >= 80.0 and choice_button.custom_minimum_size.y >= 36.0 and choice_button.custom_minimum_size.y <= 44.0, "Clicked-card play modes should use compact tabs")
 	instance.call("_on_cancel_requested")
 	await process_frame
 	_assert(int(instance.get("_card_action_choice_index")) == -1 and int(instance.get("_selected_card_index")) == -1, "Cancel from play-mode choices should return cleanly to idle")
@@ -8072,6 +8073,16 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Cancel should leave the hand card unconsumed")
 
 	_install_combat_interaction_fixture(instance, "quick_stab", Vector2i(2, 5), [Vector2i(3, 5)], 9205)
+	await process_frame
+	instance.call("_on_card_pressed", 0)
+	await process_frame
+	await process_frame
+	pending_actions = instance.get("_pending_actions")
+	_assert(int(instance.get("_selected_card_index")) == 0, "One click should immediately select the card's printed action")
+	_assert(str(instance.get("_card_action_choice_mode")) == "play", "One click should keep As Written active")
+	_assert(str(instance.get("_selected_card_label_override")).is_empty(), "As Written should not carry a fallback label")
+	_assert(pending_actions.size() == 1 and int((pending_actions[0] as Dictionary).get("damage", 0)) > int(instance.call("_fallback_attack_damage")), "One-click printed targeting should retain the card's printed damage")
+	instance.call("_on_cancel_requested")
 	await process_frame
 	instance.call("_on_card_drag_started", 0)
 	await process_frame
@@ -11214,9 +11225,12 @@ func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: Str
 	instance.call("_on_card_pressed", hand_index)
 	await process_frame
 	await process_frame
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode choices for that exact card")
-	await instance.call("_on_card_action_choice_pressed", play_kind)
-	await process_frame
+	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode tabs for that exact card")
+	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Clicking a card should begin in As Written mode")
+	if play_kind != "play":
+		await instance.call("_on_card_action_choice_pressed", play_kind)
+		await process_frame
+	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested play-mode tab should be active")
 
 func _button_with_text(node: Node, text: String) -> Button:
 	for button: Button in _buttons_under(node):
