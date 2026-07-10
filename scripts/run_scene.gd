@@ -818,7 +818,7 @@ const ACTION_STEP_TRACKER_GAP: float = 12.0
 const ACTION_CONTEXT_MAX_WIDTH: float = 960.0
 const ACTION_CONTEXT_EDGE_MARGIN: float = 16.0
 const ACTION_CONTEXT_COMMAND_SIZE: Vector2 = Vector2(144.0, 50.0)
-const CARD_ACTION_CHOICE_SIZE: Vector2 = Vector2(84.0, 40.0)
+const CARD_ACTION_MODE_OPTION_HEIGHT: float = 40.0
 const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
@@ -1062,7 +1062,7 @@ var _action_context_target_label: Label
 var _action_context_risk_panel: PanelContainer
 var _action_context_risk_label: Label
 var _action_step_tracker_steps: HBoxContainer
-var _card_action_mode_tab_bar: HBoxContainer
+var _card_action_mode_selector: HBoxContainer
 var _contextual_combat_prompt_host: CenterContainer
 var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
@@ -4991,14 +4991,14 @@ func _setup_action_step_tracker() -> void:
 	_action_context_risk_label.add_theme_color_override("font_color", Color("aee49f"))
 	_action_context_risk_panel.add_child(_action_context_risk_label)
 
-	_card_action_mode_tab_bar = HBoxContainer.new()
-	_card_action_mode_tab_bar.name = "CardActionModeTabs"
-	_card_action_mode_tab_bar.visible = false
-	_card_action_mode_tab_bar.custom_minimum_size = Vector2(0.0, CARD_ACTION_CHOICE_SIZE.y)
-	_card_action_mode_tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_card_action_mode_tab_bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	_card_action_mode_tab_bar.add_theme_constant_override("separation", 4)
-	vbox.add_child(_card_action_mode_tab_bar)
+	_card_action_mode_selector = HBoxContainer.new()
+	_card_action_mode_selector.name = "CardActionModeSelector"
+	_card_action_mode_selector.visible = false
+	_card_action_mode_selector.custom_minimum_size = Vector2(0.0, CARD_ACTION_MODE_OPTION_HEIGHT)
+	_card_action_mode_selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_card_action_mode_selector.alignment = BoxContainer.ALIGNMENT_CENTER
+	_card_action_mode_selector.add_theme_constant_override("separation", 4)
+	vbox.add_child(_card_action_mode_selector)
 
 	var action_row := HBoxContainer.new()
 	action_row.name = "ActionContextActions"
@@ -6233,9 +6233,9 @@ func _refresh_action_step_tracker() -> void:
 		return
 	_clear_children_now(_action_step_tracker_steps)
 	_clear_children_now(_action_context_command_bar)
-	if _card_action_mode_tab_bar != null:
-		_clear_children_now(_card_action_mode_tab_bar)
-		_card_action_mode_tab_bar.visible = false
+	if _card_action_mode_selector != null:
+		_clear_children_now(_card_action_mode_selector)
+		_card_action_mode_selector.visible = false
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
@@ -6285,7 +6285,7 @@ func _refresh_action_step_tracker() -> void:
 	_action_step_tracker.set_meta("step_action_types", action_types)
 	_action_step_tracker.set_meta("context_mode", context_mode)
 	_action_step_tracker.set_meta("choice_card_index", _card_action_choice_index if context_mode == "choice" else -1)
-	_refresh_card_action_mode_tabs(context_mode)
+	_refresh_card_action_mode_selector(context_mode)
 	_build_action_context_commands(tracker_state)
 	_update_action_context_copy(tracker_state)
 	_layout_action_step_tracker()
@@ -6500,98 +6500,158 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
 	_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
 
-func _refresh_card_action_mode_tabs(context_mode: String) -> void:
-	if _card_action_mode_tab_bar == null or context_mode != "choice":
+func _refresh_card_action_mode_selector(context_mode: String) -> void:
+	if _card_action_mode_selector == null or context_mode != "choice":
 		return
-	_card_action_mode_tab_bar.visible = true
-	_card_action_mode_tab_bar.add_child(_build_card_action_choice_button(
+	_card_action_mode_selector.visible = true
+	var mode_group := ButtonGroup.new()
+	mode_group.allow_unpress = false
+	_card_action_mode_selector.add_child(_build_card_action_mode_option(
 			"play",
 			"PRINTED",
 			bool(_card_action_choice_options.get("printed_playable", false)),
 			Color("d8aa5f"),
 			Color("342719"),
-			"Use this card's printed actions"
+			"Use this card's printed actions",
+			mode_group
 		))
-	_card_action_mode_tab_bar.add_child(_build_card_action_choice_button(
+	_card_action_mode_selector.add_child(_build_card_action_mode_option(
 			"attack",
 			"ATTACK %d" % _fallback_attack_damage(),
 			bool(_card_action_choice_options.get("attack_playable", false)),
 			Color("d97558"),
 			Color("321c18"),
-			"Spend this card for a basic Attack"
+			"Spend this card for a basic Attack",
+			mode_group
 		))
-	_card_action_mode_tab_bar.add_child(_build_card_action_choice_button(
+	_card_action_mode_selector.add_child(_build_card_action_mode_option(
 			"move",
 			"MOVE %d" % FALLBACK_MOVE_RANGE,
 			bool(_card_action_choice_options.get("move_playable", false)),
 			Color("65a7bf"),
 			Color("182833"),
-			"Spend this card for a basic Move"
+			"Spend this card for a basic Move",
+			mode_group
 		))
 
-func _build_card_action_choice_button(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String) -> Button:
+func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
 	var button := Button.new()
 	var active: bool = play_kind == _card_action_choice_mode
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
-	button.text = text
+	button.text = ""
 	button.tooltip_text = tooltip if available else "%s · unavailable with current targets" % tooltip
-	button.custom_minimum_size = CARD_ACTION_CHOICE_SIZE
+	var option_width: float = 112.0 if play_kind == "attack" else 96.0
+	button.custom_minimum_size = Vector2(option_width, CARD_ACTION_MODE_OPTION_HEIGHT)
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.focus_mode = Control.FOCUS_NONE
+	button.toggle_mode = true
+	button.button_group = mode_group
+	button.set_pressed_no_signal(active)
 	button.disabled = not available
+	button.modulate = Color.WHITE if available else Color(0.62, 0.62, 0.62, 0.58)
 	button.set_meta("play_kind", play_kind)
 	button.set_meta("available", available)
 	button.set_meta("active", active)
-	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
-	button.add_theme_color_override("font_color", Color("fff2d8"))
-	button.add_theme_color_override("font_hover_color", Color.WHITE)
-	button.add_theme_color_override("font_pressed_color", Color.WHITE)
-	button.add_theme_color_override("font_disabled_color", Color("8e8276"))
-	button.add_theme_color_override("font_outline_color", Color("20140d"))
-	button.add_theme_constant_override("outline_size", 1)
-	button.add_theme_stylebox_override("normal", _card_action_choice_style(fill, accent, "normal", active))
-	button.add_theme_stylebox_override("hover", _card_action_choice_style(fill, accent, "hover", active))
-	button.add_theme_stylebox_override("pressed", _card_action_choice_style(fill, accent, "pressed", true))
-	button.add_theme_stylebox_override("disabled", _card_action_choice_style(fill, accent, "disabled", active))
+	button.add_theme_stylebox_override("normal", _card_action_mode_option_style(fill, accent, "normal", active))
+	button.add_theme_stylebox_override("hover", _card_action_mode_option_style(fill, accent, "hover", active))
+	button.add_theme_stylebox_override("pressed", _card_action_mode_option_style(fill, accent, "pressed", true))
+	button.add_theme_stylebox_override("hover_pressed", _card_action_mode_option_style(fill, accent, "hover", true))
+	button.add_theme_stylebox_override("disabled", _card_action_mode_option_style(fill, accent, "disabled", active))
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	_add_card_action_mode_option_content(button, text, accent, active, available)
 	button.pressed.connect(_on_card_action_choice_pressed.bind(play_kind))
 	return button
 
-func _card_action_choice_style(fill: Color, accent: Color, state: String, active: bool) -> StyleBoxFlat:
+func _add_card_action_mode_option_content(button: Button, text: String, accent: Color, active: bool, available: bool) -> void:
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.anchor_right = 1.0
+	margin.anchor_bottom = 1.0
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_right", 6)
+	button.add_child(margin)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 5)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(row)
+	var indicator := PanelContainer.new()
+	indicator.name = "ModeIndicator"
+	indicator.custom_minimum_size = Vector2(13.0, 13.0)
+	indicator.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	indicator.add_theme_stylebox_override("panel", _card_action_mode_indicator_style(accent, active, available, false))
+	row.add_child(indicator)
+	var indicator_center := CenterContainer.new()
+	indicator_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	indicator.add_child(indicator_center)
+	var dot := PanelContainer.new()
+	dot.name = "SelectedDot"
+	dot.visible = active
+	dot.custom_minimum_size = Vector2(5.0, 5.0)
+	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dot.add_theme_stylebox_override("panel", _card_action_mode_indicator_style(accent, active, available, true))
+	indicator_center.add_child(dot)
+	var label := Label.new()
+	label.name = "ModeLabel"
+	label.text = text
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
+	label.add_theme_color_override("font_color", Color("fff4df") if active and available else (Color("d8cbb8") if available else Color("817a73")))
+	label.add_theme_color_override("font_outline_color", Color("20140d"))
+	label.add_theme_constant_override("outline_size", 1)
+	row.add_child(label)
+
+func _card_action_mode_indicator_style(accent: Color, active: bool, available: bool, dot: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var resolved_accent: Color = accent if available else Color("59544f")
+	style.bg_color = resolved_accent.lightened(0.18) if dot else (Color("1c1713") if available else Color("171513"))
+	if not dot:
+		style.border_color = resolved_accent.lightened(0.2) if active else resolved_accent.darkened(0.2)
+		style.border_width_left = 2 if active else 1
+		style.border_width_top = 2 if active else 1
+		style.border_width_right = 2 if active else 1
+		style.border_width_bottom = 2 if active else 1
+	var radius: int = 3 if dot else 7
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_right = radius
+	style.corner_radius_bottom_left = radius
+	return style
+
+func _card_action_mode_option_style(fill: Color, accent: Color, state: String, active: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	match state:
 		"hover":
-			style.bg_color = fill.lightened(0.2 if active else 0.12)
+			style.bg_color = fill.lightened(0.2 if active else 0.08)
 			style.border_color = accent.lightened(0.28)
 			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.26)
 			style.shadow_size = 6
 		"pressed":
-			style.bg_color = fill.lightened(0.16)
+			style.bg_color = fill.lightened(0.12)
 			style.border_color = accent.lightened(0.24)
 			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.16)
 			style.shadow_size = 4
 		"disabled":
-			style.bg_color = fill.darkened(0.2 if active else 0.42)
-			style.border_color = accent.darkened(0.3) if active else Color("655b52")
+			style.bg_color = Color("171411") if active else Color("0d0c0b")
+			style.border_color = Color("625a52") if active else Color("3f3b37")
 			style.shadow_color = Color.TRANSPARENT
 		_:
-			style.bg_color = fill.lightened(0.12) if active else fill.darkened(0.1)
-			style.border_color = accent.lightened(0.18) if active else accent.darkened(0.18)
+			style.bg_color = fill.lightened(0.08) if active else Color("17130f")
+			style.border_color = accent.lightened(0.18) if active else accent.darkened(0.12)
 			style.shadow_color = Color(accent.r, accent.g, accent.b, 0.2) if active else Color(0.0, 0.0, 0.0, 0.2)
 			style.shadow_size = 5 if active else 2
 	var border_width: int = 2 if state != "disabled" else 1
 	style.border_width_left = border_width
 	style.border_width_top = border_width
 	style.border_width_right = border_width
-	style.border_width_bottom = 4 if active else border_width
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 2
-	style.corner_radius_bottom_left = 2
-	style.content_margin_left = 5.0
-	style.content_margin_top = 5.0
-	style.content_margin_right = 5.0
-	style.content_margin_bottom = 5.0
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = 7
+	style.corner_radius_top_right = 7
+	style.corner_radius_bottom_right = 7
+	style.corner_radius_bottom_left = 7
 	return style
 
 func _add_action_context_button(text: String, callback: Callable, tooltip: String = "", extra_compact: bool = false) -> void:

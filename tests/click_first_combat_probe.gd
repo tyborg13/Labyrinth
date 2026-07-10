@@ -307,12 +307,16 @@ func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, ene
 func _choose_clicked_action(instance: Node, hand_index: int, play_kind: String) -> void:
 	instance.call("_on_card_pressed", hand_index)
 	await _settle_ui()
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Click should expose play-mode tabs for exact hand index %d" % hand_index)
+	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Click should expose play-mode options for exact hand index %d" % hand_index)
 	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Click should default to the card's printed mode")
 	if play_kind != "play":
 		await instance.call("_on_card_action_choice_pressed", play_kind)
 		await _settle_ui()
-	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested %s tab should remain active" % play_kind)
+	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested %s mode should remain active" % play_kind)
+	var context: Control = instance.get("_action_step_tracker") as Control
+	var active_button_name: String = "CardActionChoice%s" % play_kind.capitalize()
+	var active_button: Button = context.find_child(active_button_name, true, false) as Button
+	_assert(active_button != null and active_button.toggle_mode and active_button.button_pressed, "Requested %s mode should be the selected exclusive option" % play_kind)
 
 func _assert_clicked_fallback_consumption(instance: Node, play_kind: String, seed: int) -> void:
 	var enemy_positions: Array = [Vector2i(3, 4)] if play_kind == "attack" else [Vector2i(6, 4)]
@@ -343,13 +347,23 @@ func _assert_choice_state(instance: Node, hand_index: int, label: String) -> voi
 	_assert(int(context.get_meta("choice_card_index", -1)) == hand_index, "%s should retain exact source-card metadata" % label)
 	_assert(int(instance.get("_selected_card_index")) == hand_index, "%s should enter printed targeting immediately without another click" % label)
 	_assert(str(instance.get("_card_action_choice_mode")) == "play", "%s should select As Written by default" % label)
+	var shared_group: ButtonGroup = null
+	var pressed_count: int = 0
 	for button_name: String in ["CardActionChoicePlay", "CardActionChoiceAttack", "CardActionChoiceMove"]:
 		var button: Button = context.find_child(button_name, true, false) as Button
-		_assert(button != null and button.visible, "%s should expose tab %s" % [label, button_name])
+		_assert(button != null and button.visible, "%s should expose mode option %s" % [label, button_name])
 		if button != null:
-			_assert(button.get_global_rect().size.x >= 80.0 and button.get_global_rect().size.y >= 36.0 and button.get_global_rect().size.y <= 44.0, "%s should render %s as a compact tab" % [label, button_name])
+			_assert(button.get_global_rect().size.x >= 88.0 and button.get_global_rect().size.y >= 36.0 and button.get_global_rect().size.y <= 44.0, "%s should render %s as a compact mode option" % [label, button_name])
+			_assert(button.toggle_mode and button.button_group != null, "%s should make %s part of an exclusive selector" % [label, button_name])
+			if shared_group == null:
+				shared_group = button.button_group
+			else:
+				_assert(button.button_group == shared_group, "%s mode options should share one ButtonGroup" % label)
+			if button.button_pressed:
+				pressed_count += 1
 	var printed_tab: Button = context.find_child("CardActionChoicePlay", true, false) as Button
-	_assert(printed_tab != null and bool(printed_tab.get_meta("active", false)), "%s should visibly mark As Written as active" % label)
+	_assert(pressed_count == 1, "%s should show exactly one selected mode" % label)
+	_assert(printed_tab != null and printed_tab.button_pressed and bool(printed_tab.get_meta("active", false)), "%s should visibly mark As Written as the selected mode" % label)
 	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
 	_assert(not context.get_global_rect().intersects(board_bounds), "%s play-mode rail %s should leave tactical board %s visible" % [label, context.get_global_rect(), board_bounds])
 

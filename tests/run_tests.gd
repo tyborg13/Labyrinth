@@ -8003,15 +8003,18 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var full_choice: Button = context.find_child("CardActionChoicePlay", true, false) as Button
 	var attack_choice: Button = context.find_child("CardActionChoiceAttack", true, false) as Button
 	var move_choice: Button = context.find_child("CardActionChoiceMove", true, false) as Button
-	_assert(context.visible and str(context.get_meta("context_mode", "")) == "choice", "Clicking a card should open its persistent play-mode tabs")
+	_assert(context.visible and str(context.get_meta("context_mode", "")) == "choice", "Clicking a card should open its persistent exclusive play-mode selector")
 	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == 0, "An unavailable printed mode should remain selected without inventing a target")
 	_assert(str(instance.get("_card_action_choice_mode")) == "play", "As Written should remain the default tab even when no printed target is legal")
-	_assert(full_choice != null and full_choice.disabled and bool(full_choice.get_meta("active", false)), "Unavailable As Written should remain visibly selected and disabled")
-	_assert(attack_choice != null and attack_choice.disabled and not bool(attack_choice.get_meta("active", false)), "Attack should be a disabled inactive tab without an adjacent target")
-	_assert(move_choice != null and not move_choice.disabled and not bool(move_choice.get_meta("active", false)), "Move should be an enabled inactive tab")
+	_assert(full_choice != null and full_choice.disabled and full_choice.toggle_mode and full_choice.button_pressed and bool(full_choice.get_meta("active", false)), "Unavailable As Written should remain visibly selected and disabled")
+	_assert(attack_choice != null and attack_choice.disabled and attack_choice.toggle_mode and not attack_choice.button_pressed and not bool(attack_choice.get_meta("active", false)), "Attack should be a disabled inactive mode without an adjacent target")
+	_assert(move_choice != null and not move_choice.disabled and move_choice.toggle_mode and not move_choice.button_pressed and not bool(move_choice.get_meta("active", false)), "Move should be an enabled inactive mode")
+	_assert(full_choice != null and attack_choice != null and full_choice.modulate.a <= 0.65 and attack_choice.modulate.a <= 0.65, "Unavailable modes should be substantially dimmed")
+	_assert(move_choice != null and move_choice.modulate.a >= 0.95, "Available unselected modes should remain bright")
+	_assert(full_choice != null and attack_choice != null and move_choice != null and full_choice.button_group == attack_choice.button_group and attack_choice.button_group == move_choice.button_group, "All three play modes should share one exclusive ButtonGroup")
 	for choice_button: Button in [full_choice, attack_choice, move_choice]:
 		if choice_button != null:
-			_assert(choice_button.custom_minimum_size.x >= 80.0 and choice_button.custom_minimum_size.y >= 36.0 and choice_button.custom_minimum_size.y <= 44.0, "Clicked-card play modes should use compact tabs")
+			_assert(choice_button.custom_minimum_size.x >= 88.0 and choice_button.custom_minimum_size.y >= 36.0 and choice_button.custom_minimum_size.y <= 44.0, "Clicked-card play modes should use compact radio-style options")
 	instance.call("_on_cancel_requested")
 	await process_frame
 	_assert(int(instance.get("_card_action_choice_index")) == -1 and int(instance.get("_selected_card_index")) == -1, "Cancel from play-mode choices should return cleanly to idle")
@@ -11225,12 +11228,13 @@ func _choose_clicked_card_action(instance: Node, hand_index: int, play_kind: Str
 	instance.call("_on_card_pressed", hand_index)
 	await process_frame
 	await process_frame
-	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode tabs for that exact card")
+	_assert(int(instance.get("_card_action_choice_index")) == hand_index, "Clicking a playable hand card should open play-mode options for that exact card")
 	_assert(str(instance.get("_card_action_choice_mode")) == "play", "Clicking a card should begin in As Written mode")
 	if play_kind != "play":
 		await instance.call("_on_card_action_choice_pressed", play_kind)
 		await process_frame
-	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested play-mode tab should be active")
+		await process_frame
+	_assert(str(instance.get("_card_action_choice_mode")) == play_kind, "Requested play mode should be active")
 
 func _button_with_text(node: Node, text: String) -> Button:
 	for button: Button in _buttons_under(node):
