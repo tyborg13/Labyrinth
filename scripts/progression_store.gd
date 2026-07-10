@@ -195,7 +195,17 @@ static func _load_run_dictionary(path: String) -> Dictionary:
 	file.close()
 	if typeof(data) != TYPE_DICTIONARY:
 		return {}
-	return (data as Dictionary).duplicate(true)
+	# `get_var()` decodes a fresh Variant graph owned by this call. Returning it
+	# directly avoids cloning the entire save once more during resume/recovery.
+	return data as Dictionary
+
+static func _run_dictionary_is_nonempty(path: String) -> bool:
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return false
+	var data: Variant = file.get_var(false)
+	file.close()
+	return typeof(data) == TYPE_DICTIONARY and not (data as Dictionary).is_empty()
 
 static func save_run_state(run_state: Dictionary) -> bool:
 	var temp_path: String = _run_temp_path()
@@ -207,23 +217,25 @@ static func save_run_state(run_state: Dictionary) -> bool:
 	file.store_var(run_state, false)
 	file.flush()
 	file.close()
-	if _load_run_dictionary(temp_path).is_empty() and not run_state.is_empty():
+	if not run_state.is_empty() and not _run_dictionary_is_nonempty(temp_path):
 		_remove_run_file_if_present(temp_path)
 		return false
 	var live_path: String = ProjectSettings.globalize_path(_run_storage_path)
 	var live_exists: bool = FileAccess.file_exists(_run_storage_path)
-	var live_valid: bool = live_exists and not _load_run_dictionary(_run_storage_path).is_empty()
-	var backup_valid: bool = not _load_run_dictionary(backup_path).is_empty()
+	var live_valid: bool = live_exists and _run_dictionary_is_nonempty(_run_storage_path)
+	var backup_valid: bool = false
 	if live_valid:
 		_remove_run_file_if_present(backup_path)
 		if DirAccess.rename_absolute(live_path, ProjectSettings.globalize_path(backup_path)) != OK:
 			_remove_run_file_if_present(temp_path)
 			return false
 		backup_valid = true
-	elif live_exists:
-		if DirAccess.remove_absolute(live_path) != OK:
-			_remove_run_file_if_present(temp_path)
-			return false
+	else:
+		backup_valid = _run_dictionary_is_nonempty(backup_path)
+		if live_exists:
+			if DirAccess.remove_absolute(live_path) != OK:
+				_remove_run_file_if_present(temp_path)
+				return false
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), live_path) != OK:
 		if backup_valid and not FileAccess.file_exists(_run_storage_path):
 			DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_path), live_path)

@@ -90,8 +90,16 @@ const ACTION_FIELD_ENTRY_IDS := {
 }
 
 static var _cache: Dictionary = {}
+# Catalog data is generated from immutable resource definitions. Public accessors
+# still return isolated copies; hot internal derivation paths share these refs.
 static var _entries_cache: Array = []
 static var _entry_map_cache: Dictionary = {}
+static var _entry_ids_cache: Array[String] = []
+static var _section_map_cache: Dictionary = {}
+static var _default_entry_ids_cache: Array[String] = []
+static var _card_entry_ids_cache: Dictionary = {}
+static var _equipment_entry_ids_cache: Dictionary = {}
+static var _enemy_type_entry_ids_cache: Dictionary = {}
 
 static func data() -> Dictionary:
 	if not _cache.is_empty():
@@ -113,15 +121,18 @@ static func sections() -> Array:
 	return (data().get("sections", []) as Array).duplicate(true)
 
 static func entries() -> Array:
+	return _entries_ref().duplicate(true)
+
+static func _entries_ref() -> Array:
 	if not _entries_cache.is_empty():
-		return _entries_cache.duplicate(true)
+		return _entries_cache
 	var result: Array = (data().get("entries", []) as Array).duplicate(true)
 	result.append_array(magick_entries())
 	result.append_array(equipment_entries())
 	result.append_array(item_entries())
 	result.append_array(character_entries())
 	_entries_cache = result
-	return _entries_cache.duplicate(true)
+	return _entries_cache
 
 static func magick_entries() -> Array:
 	var result: Array = []
@@ -202,10 +213,13 @@ static func character_entry_id(npc_id: String) -> String:
 	return "character:%s" % npc_id
 
 static func entry_map() -> Dictionary:
+	return _entry_map_ref().duplicate(true)
+
+static func _entry_map_ref() -> Dictionary:
 	if not _entry_map_cache.is_empty():
-		return _entry_map_cache.duplicate(true)
+		return _entry_map_cache
 	var result: Dictionary = {}
-	for entry_var: Variant in entries():
+	for entry_var: Variant in _entries_ref():
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = entry_var as Dictionary
@@ -213,61 +227,87 @@ static func entry_map() -> Dictionary:
 		if not entry_id.is_empty():
 			result[entry_id] = entry
 	_entry_map_cache = result
-	return _entry_map_cache.duplicate(true)
+	return _entry_map_cache
+
+static func _entry_ids_ref() -> Array[String]:
+	if not _entry_ids_cache.is_empty():
+		return _entry_ids_cache
+	for entry_var: Variant in _entries_ref():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry_id: String = str((entry_var as Dictionary).get("id", ""))
+		if not entry_id.is_empty():
+			_entry_ids_cache.append(entry_id)
+	return _entry_ids_cache
 
 static func entry_def(entry_id: String) -> Dictionary:
-	return (entry_map().get(entry_id, {}) as Dictionary).duplicate(true)
+	return (_entry_map_ref().get(entry_id, {}) as Dictionary).duplicate(true)
 
 static func section_def(section_id: String) -> Dictionary:
-	for section_var: Variant in sections():
-		if typeof(section_var) != TYPE_DICTIONARY:
-			continue
-		var section: Dictionary = section_var as Dictionary
-		if str(section.get("id", "")) == section_id:
-			return section.duplicate(true)
-	return {}
+	if _section_map_cache.is_empty():
+		for section_var: Variant in data().get("sections", []):
+			if typeof(section_var) != TYPE_DICTIONARY:
+				continue
+			var section: Dictionary = section_var as Dictionary
+			var cached_section_id: String = str(section.get("id", ""))
+			if not cached_section_id.is_empty():
+				_section_map_cache[cached_section_id] = section
+	return (_section_map_cache.get(section_id, {}) as Dictionary).duplicate(true)
 
 static func default_entry_ids() -> Array[String]:
-	var result: Array[String] = []
-	for entry_var: Variant in entries():
+	return _copy_string_array(_default_entry_ids_ref())
+
+static func _default_entry_ids_ref() -> Array[String]:
+	if not _default_entry_ids_cache.is_empty():
+		return _default_entry_ids_cache
+	for entry_var: Variant in _entries_ref():
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = entry_var as Dictionary
 		if bool(entry.get("default", false)):
-			result.append(str(entry.get("id", "")))
-	return ordered_entry_ids(result)
+			var entry_id: String = str(entry.get("id", ""))
+			if not entry_id.is_empty():
+				_default_entry_ids_cache.append(entry_id)
+	return _default_entry_ids_cache
 
 static func ensure_progression_state(progression: Dictionary) -> Dictionary:
 	if progression.is_empty():
 		return {}
 	var next_progression: Dictionary = progression.duplicate(true)
-	var unlocked: Array[String] = normalize_entry_ids(next_progression.get(UNLOCKED_KEY, []))
-	for entry_id: String in default_entry_ids():
-		if not unlocked.has(entry_id):
-			unlocked.append(entry_id)
-	unlocked = ordered_entry_ids(unlocked)
-	next_progression[UNLOCKED_KEY] = unlocked
-	var unread: Array[String] = normalize_entry_ids(next_progression.get(UNREAD_KEY, []))
-	var filtered_unread: Array[String] = []
-	for entry_id: String in ordered_entry_ids(unread):
-		if unlocked.has(entry_id):
-			filtered_unread.append(entry_id)
-	next_progression[UNREAD_KEY] = filtered_unread
+	_ensure_progression_state_in_place(next_progression)
 	return next_progression
 
 static func ensure_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	_ensure_run_state_in_place(next_state)
+	return next_state
+
+static func _ensure_progression_state_in_place(progression: Dictionary) -> void:
+	var unlocked_wanted: Dictionary = _entry_id_set(progression.get(UNLOCKED_KEY, []))
+	_add_entry_ids_to_set(unlocked_wanted, _default_entry_ids_ref())
+	var unlocked: Array[String] = _ordered_entry_ids_from_set(unlocked_wanted)
+	progression[UNLOCKED_KEY] = unlocked
+	var unlocked_set: Dictionary = _entry_id_set(unlocked)
+	var unread_set: Dictionary = _entry_id_set(progression.get(UNREAD_KEY, []))
+	var filtered_unread: Array[String] = []
+	for entry_id: String in _entry_ids_ref():
+		if unread_set.has(entry_id) and unlocked_set.has(entry_id):
+			filtered_unread.append(entry_id)
+	progression[UNREAD_KEY] = filtered_unread
+
+static func _ensure_run_state_in_place(next_state: Dictionary) -> void:
 	var unlocked: Array[String] = normalize_entry_ids(next_state.get(UNLOCKED_KEY, []))
 	var progression: Dictionary = {}
 	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
-		progression = ensure_progression_state(next_state.get("progression", {}) as Dictionary)
+		progression = next_state.get("progression", {}) as Dictionary
 		if not progression.is_empty():
+			_ensure_progression_state_in_place(progression)
 			next_state["progression"] = progression
-			for entry_id: String in normalize_entry_ids(progression.get(UNLOCKED_KEY, [])):
+			for entry_id: String in progression.get(UNLOCKED_KEY, []):
 				if not unlocked.has(entry_id):
 					unlocked.append(entry_id)
 	var has_unlocked_key: bool = next_state.has(UNLOCKED_KEY)
-	for entry_id: String in default_entry_ids():
+	for entry_id: String in _default_entry_ids_ref():
 		if not unlocked.has(entry_id):
 			unlocked.append(entry_id)
 	if not has_unlocked_key:
@@ -276,44 +316,55 @@ static func ensure_run_state(run_state: Dictionary) -> Dictionary:
 	next_state[UNLOCKED_KEY] = unlocked
 	var unread: Array[String] = normalize_entry_ids(next_state.get(UNREAD_KEY, []))
 	if not progression.is_empty():
-		for entry_id: String in normalize_entry_ids(progression.get(UNREAD_KEY, [])):
+		for entry_id: String in progression.get(UNREAD_KEY, []):
 			if not unread.has(entry_id):
 				unread.append(entry_id)
 	var filtered_unread: Array[String] = []
+	var unlocked_set: Dictionary = _entry_id_set(unlocked)
 	for entry_id: String in ordered_entry_ids(unread):
-		if unlocked.has(entry_id):
+		if unlocked_set.has(entry_id):
 			filtered_unread.append(entry_id)
 	next_state[UNREAD_KEY] = filtered_unread
 	if not next_state.has(NOTICE_KEY):
 		next_state[NOTICE_KEY] = ""
-	return next_state
 
 static func unlock_entries(run_state: Dictionary, candidate_ids: Array) -> Dictionary:
-	var next_state: Dictionary = ensure_run_state(run_state)
+	var next_state: Dictionary = run_state.duplicate(true)
+	_ensure_run_state_in_place(next_state)
 	var unlocked: Array[String] = normalize_entry_ids(next_state.get(UNLOCKED_KEY, []))
 	var unread: Array[String] = normalize_entry_ids(next_state.get(UNREAD_KEY, []))
+	var unlocked_set: Dictionary = _entry_id_set(unlocked)
+	var unread_set: Dictionary = _entry_id_set(unread)
 	var progression: Dictionary = {}
 	var progression_unlocked: Array[String] = []
 	var progression_unread: Array[String] = []
+	var progression_unlocked_set: Dictionary = {}
+	var progression_unread_set: Dictionary = {}
 	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
-		progression = ensure_progression_state(next_state.get("progression", {}) as Dictionary)
+		progression = next_state.get("progression", {}) as Dictionary
 		if not progression.is_empty():
-			progression_unlocked = normalize_entry_ids(progression.get(UNLOCKED_KEY, []))
-			progression_unread = normalize_entry_ids(progression.get(UNREAD_KEY, []))
+			progression_unlocked = _copy_string_values(progression.get(UNLOCKED_KEY, []))
+			progression_unread = _copy_string_values(progression.get(UNREAD_KEY, []))
+			progression_unlocked_set = _entry_id_set(progression_unlocked)
+			progression_unread_set = _entry_id_set(progression_unread)
 	var added: Array[String] = []
 	var progression_changed: bool = false
 	for entry_id: String in ordered_entry_ids(candidate_ids):
-		var run_already_unlocked: bool = unlocked.has(entry_id)
+		var run_already_unlocked: bool = unlocked_set.has(entry_id)
 		if not run_already_unlocked:
 			unlocked.append(entry_id)
-			if not unread.has(entry_id):
+			unlocked_set[entry_id] = true
+			if not unread_set.has(entry_id):
 				unread.append(entry_id)
+				unread_set[entry_id] = true
 			added.append(entry_id)
-		if not progression.is_empty() and not progression_unlocked.has(entry_id):
+		if not progression.is_empty() and not progression_unlocked_set.has(entry_id):
 			progression_unlocked.append(entry_id)
+			progression_unlocked_set[entry_id] = true
 			progression_changed = true
-			if not run_already_unlocked and not progression_unread.has(entry_id):
+			if not run_already_unlocked and not progression_unread_set.has(entry_id):
 				progression_unread.append(entry_id)
+				progression_unread_set[entry_id] = true
 	next_state[UNLOCKED_KEY] = ordered_entry_ids(unlocked)
 	next_state[UNREAD_KEY] = ordered_entry_ids(unread)
 	if not progression.is_empty():
@@ -329,11 +380,12 @@ static func unlock_entries(run_state: Dictionary, candidate_ids: Array) -> Dicti
 	}
 
 static func clear_unread(run_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = ensure_run_state(run_state)
+	var next_state: Dictionary = run_state.duplicate(true)
+	_ensure_run_state_in_place(next_state)
 	next_state[UNREAD_KEY] = []
 	next_state[NOTICE_KEY] = ""
 	if typeof(next_state.get("progression", {})) == TYPE_DICTIONARY:
-		var progression: Dictionary = ensure_progression_state(next_state.get("progression", {}) as Dictionary)
+		var progression: Dictionary = next_state.get("progression", {}) as Dictionary
 		if not progression.is_empty():
 			progression[UNREAD_KEY] = []
 			next_state["progression"] = progression
@@ -344,41 +396,41 @@ static func notice_for_added_entries(entry_ids: Array) -> String:
 	if ordered.is_empty():
 		return ""
 	if ordered.size() == 1:
-		var entry: Dictionary = entry_def(ordered[0])
+		var entry: Dictionary = _entry_map_ref().get(ordered[0], {}) as Dictionary
 		return "Added %s entry to the Grimoire." % str(entry.get("title", "new"))
 	return "Added %d entries to the Grimoire." % ordered.size()
 
 static func entries_for_section(section_id: String, unlocked_ids: Array) -> Array[Dictionary]:
 	var unlocked: Array[String] = normalize_entry_ids(unlocked_ids)
+	var unlocked_set: Dictionary = _entry_id_set(unlocked)
 	var result: Array[Dictionary] = []
-	for entry_var: Variant in entries():
+	for entry_var: Variant in _entries_ref():
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
 		var entry: Dictionary = entry_var as Dictionary
 		var entry_id: String = str(entry.get("id", ""))
-		if unlocked.has(entry_id) and str(entry.get("section", "")) == section_id:
+		if unlocked_set.has(entry_id) and str(entry.get("section", "")) == section_id:
 			result.append(entry.duplicate(true))
 	return result
 
 static func first_unlocked_entry_id_for_section(section_id: String, unlocked_ids: Array) -> String:
-	for entry: Dictionary in entries_for_section(section_id, unlocked_ids):
-		return str(entry.get("id", ""))
+	var unlocked_set: Dictionary = _entry_id_set(normalize_entry_ids(unlocked_ids))
+	for entry_var: Variant in _entries_ref():
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var entry_id: String = str(entry.get("id", ""))
+		if unlocked_set.has(entry_id) and str(entry.get("section", "")) == section_id:
+			return entry_id
 	return ""
 
 static func section_has_unlocked_entries(section_id: String, unlocked_ids: Array) -> bool:
 	return not first_unlocked_entry_id_for_section(section_id, unlocked_ids).is_empty()
 
 static func normalize_entry_ids(value: Variant) -> Array[String]:
-	var result: Array[String] = []
 	if typeof(value) != TYPE_ARRAY:
-		return result
-	var known: Dictionary = entry_map()
-	for id_var: Variant in value:
-		var entry_id: String = str(id_var)
-		if entry_id.is_empty() or not known.has(entry_id) or result.has(entry_id):
-			continue
-		result.append(entry_id)
-	return ordered_entry_ids(result)
+		return _empty_string_array()
+	return _ordered_entry_ids_from_set(_entry_id_set(value))
 
 static func ordered_entry_ids(value: Variant) -> Array[String]:
 	var wanted: Dictionary = {}
@@ -392,132 +444,189 @@ static func ordered_entry_ids(value: Variant) -> Array[String]:
 			var entry_id: String = str(id_var)
 			if not entry_id.is_empty():
 				wanted[entry_id] = true
+	return _ordered_entry_ids_from_set(wanted)
+
+static func _entry_id_set(value: Variant) -> Dictionary:
+	var result: Dictionary = {}
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for id_var: Variant in value:
+		var entry_id: String = str(id_var)
+		if not entry_id.is_empty():
+			result[entry_id] = true
+	return result
+
+static func _add_entry_ids_to_set(target: Dictionary, values: Variant) -> void:
+	if typeof(values) != TYPE_ARRAY:
+		return
+	for id_var: Variant in values:
+		var entry_id: String = str(id_var)
+		if not entry_id.is_empty():
+			target[entry_id] = true
+
+static func _ordered_entry_ids_from_set(wanted: Dictionary) -> Array[String]:
 	var result: Array[String] = []
-	for entry_var: Variant in entries():
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var entry: Dictionary = entry_var as Dictionary
-		var entry_id: String = str(entry.get("id", ""))
-		if bool(wanted.get(entry_id, false)):
+	for entry_id: String in _entry_ids_ref():
+		if wanted.has(entry_id):
 			result.append(entry_id)
 	return result
 
-static func entry_ids_for_card_ids(card_ids: Variant) -> Array[String]:
+static func _copy_string_array(source: Array[String]) -> Array[String]:
 	var result: Array[String] = []
-	if typeof(card_ids) != TYPE_ARRAY:
+	result.append_array(source)
+	return result
+
+static func _empty_string_array() -> Array[String]:
+	var result: Array[String] = []
+	return result
+
+static func _copy_string_values(source: Variant) -> Array[String]:
+	var result: Array[String] = []
+	if typeof(source) != TYPE_ARRAY:
 		return result
-	for card_id_var: Variant in card_ids:
-		for entry_id: String in entry_ids_for_card_id(str(card_id_var)):
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+	for value: Variant in source:
+		result.append(str(value))
+	return result
+
+static func entry_ids_for_card_ids(card_ids: Variant) -> Array[String]:
+	if typeof(card_ids) != TYPE_ARRAY:
+		return _empty_string_array()
+	var wanted: Dictionary = {}
+	_collect_entry_ids_for_card_ids(card_ids, wanted)
+	return _ordered_entry_ids_from_set(wanted)
 
 static func entry_ids_for_card_id(card_id: String) -> Array[String]:
+	return _copy_string_values(_entry_ids_for_card_id_ref(card_id))
+
+static func _entry_ids_for_card_id_ref(card_id: String) -> Array:
+	if _card_entry_ids_cache.has(card_id):
+		return _card_entry_ids_cache.get(card_id, []) as Array
 	var card: Dictionary = GameData.card_def(card_id)
 	if card.is_empty():
+		_card_entry_ids_cache[card_id] = []
 		return []
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
 	if GameData.card_is_item(card_id):
-		result.append(item_entry_id(card_id))
+		wanted[item_entry_id(card_id)] = true
 	elif is_magick_card_id(card_id):
-		result.append(magick_entry_id(card_id))
-	for entry_id: String in entry_ids_for_card_def(card):
-		if not result.has(entry_id):
-			result.append(entry_id)
-	return ordered_entry_ids(result)
+		wanted[magick_entry_id(card_id)] = true
+	_collect_entry_ids_for_card_def(card, wanted)
+	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
+	_card_entry_ids_cache[card_id] = result
+	return result
+
+static func _collect_entry_ids_for_card_ids(card_ids: Variant, wanted: Dictionary) -> void:
+	if typeof(card_ids) != TYPE_ARRAY:
+		return
+	for card_id_var: Variant in card_ids:
+		_add_entry_ids_to_set(wanted, _entry_ids_for_card_id_ref(str(card_id_var)))
 
 static func entry_ids_for_equipment_ids(equipment_ids: Variant) -> Array[String]:
-	var result: Array[String] = []
 	if typeof(equipment_ids) != TYPE_ARRAY:
-		return result
-	for equipment_id_var: Variant in equipment_ids:
-		for entry_id: String in entry_ids_for_equipment_id(str(equipment_id_var)):
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+		return _empty_string_array()
+	var wanted: Dictionary = {}
+	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted)
+	return _ordered_entry_ids_from_set(wanted)
 
 static func entry_ids_for_equipment_id(equipment_id: String) -> Array[String]:
+	return _copy_string_values(_entry_ids_for_equipment_id_ref(equipment_id))
+
+static func _entry_ids_for_equipment_id_ref(equipment_id: String) -> Array:
+	if _equipment_entry_ids_cache.has(equipment_id):
+		return _equipment_entry_ids_cache.get(equipment_id, []) as Array
 	if GameData.equipment_def(equipment_id).is_empty() or GameData.equipment_slot(equipment_id).is_empty():
+		_equipment_entry_ids_cache[equipment_id] = []
 		return []
-	var result: Array[String] = []
-	result.append(equipment_entry_id(equipment_id))
+	var wanted: Dictionary = {}
+	wanted[equipment_entry_id(equipment_id)] = true
 	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
-		for entry_id: String in entry_ids_for_card_id(str(card_id_var)):
+		for entry_id_var: Variant in _entry_ids_for_card_id_ref(str(card_id_var)):
+			var entry_id: String = str(entry_id_var)
 			if entry_id.begins_with("magick:") or entry_id.begins_with("item:"):
 				continue
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+			wanted[entry_id] = true
+	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
+	_equipment_entry_ids_cache[equipment_id] = result
+	return result
+
+static func _collect_entry_ids_for_equipment_ids(equipment_ids: Variant, wanted: Dictionary) -> void:
+	if typeof(equipment_ids) != TYPE_ARRAY:
+		return
+	for equipment_id_var: Variant in equipment_ids:
+		_add_entry_ids_to_set(wanted, _entry_ids_for_equipment_id_ref(str(equipment_id_var)))
 
 static func entry_ids_for_npc_ids(npc_ids: Variant) -> Array[String]:
-	var result: Array[String] = []
 	if typeof(npc_ids) != TYPE_ARRAY:
-		return result
+		return _empty_string_array()
+	var wanted: Dictionary = {}
 	for npc_id_var: Variant in npc_ids:
 		var npc_id: String = str(npc_id_var)
 		if GameData.npc_def(npc_id).is_empty():
 			continue
 		var entry_id: String = character_entry_id(npc_id)
-		if not result.has(entry_id):
-			result.append(entry_id)
-	return ordered_entry_ids(result)
+		wanted[entry_id] = true
+	return _ordered_entry_ids_from_set(wanted)
 
 static func entry_ids_for_card_def(card: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
+	_collect_entry_ids_for_card_def(card, wanted)
+	return _ordered_entry_ids_from_set(wanted)
+
+static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary) -> void:
 	if bool(card.get("burn", false)):
-		result.append("keyword:exhaust")
+		wanted["keyword:exhaust"] = true
 	if bool(card.get("consume_on_play", false)):
-		result.append("keyword:consume")
+		wanted["keyword:consume"] = true
 	if int(card.get("health_cost", 0)) > 0:
-		result.append("keyword:health_cost")
+		wanted["keyword:health_cost"] = true
 	if card.has("requires_intensity") or card.has("intensity_bonus"):
-		result.append("combat:intensity")
-	for entry_id: String in entry_ids_for_actions(card.get("actions", [])):
-		if not result.has(entry_id):
-			result.append(entry_id)
-	return ordered_entry_ids(result)
+		wanted["combat:intensity"] = true
+	_collect_entry_ids_for_actions(card.get("actions", []), wanted)
 
 static func entry_ids_for_enemy_types(enemy_types: Variant) -> Array[String]:
-	var result: Array[String] = []
 	if typeof(enemy_types) != TYPE_ARRAY:
-		return result
+		return _empty_string_array()
+	var wanted: Dictionary = {}
 	for enemy_type_var: Variant in enemy_types:
-		var enemy_type: String = str(enemy_type_var)
-		var enemy_entry_id: String = "enemy:%s" % enemy_type
-		if not result.has(enemy_entry_id):
-			result.append(enemy_entry_id)
-		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-		for entry_id: String in entry_ids_for_enemy_def(enemy_def):
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+		_add_entry_ids_to_set(wanted, _entry_ids_for_enemy_type_ref(str(enemy_type_var)))
+	return _ordered_entry_ids_from_set(wanted)
+
+static func _entry_ids_for_enemy_type_ref(enemy_type: String) -> Array:
+	if _enemy_type_entry_ids_cache.has(enemy_type):
+		return _enemy_type_entry_ids_cache.get(enemy_type, []) as Array
+	var wanted: Dictionary = {}
+	wanted["enemy:%s" % enemy_type] = true
+	_collect_entry_ids_for_enemy_def(GameData.enemy_def(enemy_type), wanted)
+	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
+	_enemy_type_entry_ids_cache[enemy_type] = result
+	return result
 
 static func entry_ids_for_enemy_def(enemy: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
+	_collect_entry_ids_for_enemy_def(enemy, wanted)
+	return _ordered_entry_ids_from_set(wanted)
+
+static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictionary) -> void:
 	for intent_var: Variant in enemy.get("intents", []):
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		for entry_id: String in entry_ids_for_actions(intent.get("actions", [])):
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+		_collect_entry_ids_for_actions(intent.get("actions", []), wanted)
 
 static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
 	if not (combat_state.get("traps", []) as Array).is_empty():
-		result.append("combat:traps")
-	var enemy_types: Array[String] = []
+		wanted["combat:traps"] = true
+	var enemy_types_seen: Dictionary = {}
 	for enemy_var: Variant in combat_state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
 		var enemy: Dictionary = enemy_var as Dictionary
 		var enemy_type: String = str(enemy.get("type", ""))
-		if not enemy_type.is_empty() and not enemy_types.has(enemy_type):
-			enemy_types.append(enemy_type)
-	for entry_id: String in entry_ids_for_enemy_types(enemy_types):
-		if not result.has(entry_id):
-			result.append(entry_id)
+		if enemy_type.is_empty() or enemy_types_seen.has(enemy_type):
+			continue
+		enemy_types_seen[enemy_type] = true
+		_add_entry_ids_to_set(wanted, _entry_ids_for_enemy_type_ref(enemy_type))
 	var equipment_ids: Array = []
 	for loot_var: Variant in combat_state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -529,30 +638,22 @@ static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String
 		if not loot_equipment_id.is_empty():
 			equipment_ids.append(loot_equipment_id)
 	equipment_ids.append_array(combat_state.get("collected_equipment", []))
-	for entry_id: String in entry_ids_for_equipment_ids(equipment_ids):
-		if not result.has(entry_id):
-			result.append(entry_id)
+	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted)
 	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
 	for pile_name: String in ["hand", "draw", "discard", "burned", "consumed"]:
-		for entry_id: String in entry_ids_for_card_ids(deck.get(pile_name, [])):
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+		_collect_entry_ids_for_card_ids(deck.get(pile_name, []), wanted)
+	return _ordered_entry_ids_from_set(wanted)
 
 static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
 	for card_list_key: String in ["deck_cards", "reward_cards", "attuned_magic_cards", "magic_inventory", "item_inventory", "equipped_items"]:
-		for entry_id: String in entry_ids_for_card_ids(run_state.get(card_list_key, [])):
-			if not result.has(entry_id):
-				result.append(entry_id)
+		_collect_entry_ids_for_card_ids(run_state.get(card_list_key, []), wanted)
 	var equipment_ids: Array = []
 	equipment_ids.append_array(run_state.get("collected_equipment", []))
 	equipment_ids.append_array(run_state.get("equipment_inventory", []))
 	for equipment_id_var: Variant in (run_state.get("equipped_equipment", {}) as Dictionary).values():
 		equipment_ids.append(equipment_id_var)
-	for entry_id: String in entry_ids_for_equipment_ids(equipment_ids):
-		if not result.has(entry_id):
-			result.append(entry_id)
+	_collect_entry_ids_for_equipment_ids(equipment_ids, wanted)
 	var current_room: Dictionary = _current_room_metadata(run_state)
 	var npc_ids: Array = []
 	for npc_var: Variant in current_room.get("npcs", []):
@@ -561,75 +662,66 @@ static func entry_ids_for_run_state(run_state: Dictionary) -> Array[String]:
 		var npc_id: String = str((npc_var as Dictionary).get("id", ""))
 		if not npc_id.is_empty():
 			npc_ids.append(npc_id)
-	for entry_id: String in entry_ids_for_npc_ids(npc_ids):
-		if not result.has(entry_id):
-			result.append(entry_id)
+	_add_entry_ids_to_set(wanted, entry_ids_for_npc_ids(npc_ids))
 	var pending_reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
-	for entry_id: String in entry_ids_for_card_ids(pending_reward.get("cards", [])):
-		if not result.has(entry_id):
-			result.append(entry_id)
+	_collect_entry_ids_for_card_ids(pending_reward.get("cards", []), wanted)
 	for offer_id_var: Variant in _current_merchant_offer_ids(run_state):
 		var offer_id: String = str(offer_id_var)
-		var offer_entries: Array[String] = entry_ids_for_equipment_id(offer_id) if not GameData.equipment_def(offer_id).is_empty() else entry_ids_for_card_id(offer_id)
-		for entry_id: String in offer_entries:
-			if not result.has(entry_id):
-				result.append(entry_id)
+		var offer_entries: Array = _entry_ids_for_equipment_id_ref(offer_id) if not GameData.equipment_def(offer_id).is_empty() else _entry_ids_for_card_id_ref(offer_id)
+		_add_entry_ids_to_set(wanted, offer_entries)
 	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
-	for entry_id: String in entry_ids_for_combat_state(combat_state):
-		if not result.has(entry_id):
-			result.append(entry_id)
-	return ordered_entry_ids(result)
+	_add_entry_ids_to_set(wanted, entry_ids_for_combat_state(combat_state))
+	return _ordered_entry_ids_from_set(wanted)
 
 static func entry_ids_for_actions(actions: Variant) -> Array[String]:
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
+	_collect_entry_ids_for_actions(actions, wanted)
+	return _ordered_entry_ids_from_set(wanted)
+
+static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary) -> void:
 	if typeof(actions) != TYPE_ARRAY:
-		return result
+		return
 	for action_var: Variant in actions:
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
 		var type_entry: String = str(ACTION_TYPE_ENTRY_IDS.get(action_type, ""))
-		if not type_entry.is_empty() and not result.has(type_entry):
-			result.append(type_entry)
+		if not type_entry.is_empty():
+			wanted[type_entry] = true
 		if action_type == "summon_minions":
 			var minion_type: String = str(action.get("minion_type", ""))
 			var minion_entry: String = "enemy:%s" % minion_type
-			if not minion_type.is_empty() and not result.has(minion_entry):
-				result.append(minion_entry)
+			if not minion_type.is_empty():
+				wanted[minion_entry] = true
 		for field_name: String in ACTION_FIELD_ENTRY_IDS.keys():
 			if not action.has(field_name) or not _truthy_value(action.get(field_name)):
 				continue
 			var field_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(field_name, ""))
-			if not field_entry.is_empty() and not result.has(field_entry):
-				result.append(field_entry)
+			if not field_entry.is_empty():
+				wanted[field_entry] = true
 		if action.has("requires_intensity") or action.has("intensity_bonus"):
-			if not result.has("combat:intensity"):
-				result.append("combat:intensity")
-		for entry_id: String in _entry_ids_for_nested_action_values(action):
-			if not result.has(entry_id):
-				result.append(entry_id)
-	return ordered_entry_ids(result)
+			wanted["combat:intensity"] = true
+		_collect_nested_action_entry_ids(action, wanted)
 
 static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]:
-	var result: Array[String] = []
+	var wanted: Dictionary = {}
+	_collect_nested_action_entry_ids(value, wanted)
+	return _ordered_entry_ids_from_set(wanted)
+
+static func _collect_nested_action_entry_ids(value: Variant, wanted: Dictionary) -> void:
 	match typeof(value):
 		TYPE_DICTIONARY:
 			for key_var: Variant in (value as Dictionary).keys():
 				var key: String = str(key_var)
 				var nested_value: Variant = (value as Dictionary).get(key_var)
 				var field_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(key, ""))
-				if not field_entry.is_empty() and _truthy_value(nested_value) and not result.has(field_entry):
-					result.append(field_entry)
-				for nested_entry: String in _entry_ids_for_nested_action_values(nested_value):
-					if not result.has(nested_entry):
-						result.append(nested_entry)
+				if not field_entry.is_empty() and _truthy_value(nested_value):
+					wanted[field_entry] = true
+				_collect_nested_action_entry_ids(nested_value, wanted)
 		TYPE_ARRAY:
 			for item_var: Variant in value:
-				for nested_entry: String in _entry_ids_for_nested_action_values(item_var):
-					if not result.has(nested_entry):
-						result.append(nested_entry)
-	return ordered_entry_ids(result)
+				_collect_nested_action_entry_ids(item_var, wanted)
 
 static func _current_merchant_offer_ids(run_state: Dictionary) -> Array:
 	var room: Dictionary = _current_room_metadata(run_state)
@@ -646,7 +738,7 @@ static func _current_room_metadata(run_state: Dictionary) -> Dictionary:
 	var rooms: Dictionary = run_state.get("rooms", {}) as Dictionary
 	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var key: String = "%d,%d" % [coord.x, coord.y]
-	return (rooms.get(key, {}) as Dictionary).duplicate(true)
+	return rooms.get(key, {}) as Dictionary
 
 static func _card_entry_body(card: Dictionary) -> Array:
 	var body: Array = []

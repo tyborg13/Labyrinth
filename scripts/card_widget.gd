@@ -323,6 +323,10 @@ class IntensityActiveGlow:
 	const PULSE_SECONDS: float = 2.8
 	const PULSE_ALPHA_MIN: float = 0.86
 	const PULSE_ALPHA_MAX: float = 1.0
+	const SHARED_TEXTURE_CACHE_LIMIT: int = 24
+
+	static var _shared_texture_cache: Dictionary = {}
+	static var _shared_texture_cache_order: Array[String] = []
 
 	var element_id: String = "none"
 	var glow_color: Color = Color.TRANSPARENT
@@ -359,7 +363,7 @@ class IntensityActiveGlow:
 
 	func _refresh_texture() -> void:
 		var texture_size := Vector2i(maxi(1, int(ceil(size.x))), maxi(1, int(ceil(size.y))))
-		var key: String = "%s|%dx%d|%.3f|%.3f|%.3f|%.3f" % [
+		var key: String = "%s|%dx%d|%.6f|%.6f|%.6f|%.6f" % [
 			element_id,
 			texture_size.x,
 			texture_size.y,
@@ -371,7 +375,17 @@ class IntensityActiveGlow:
 		if key == _texture_key and _glow_texture != null:
 			return
 		_texture_key = key
+		if _shared_texture_cache.has(key):
+			_glow_texture = _shared_texture_cache.get(key, null)
+			_shared_texture_cache_order.erase(key)
+			_shared_texture_cache_order.append(key)
+			return
 		_glow_texture = _build_glow_texture(texture_size)
+		_shared_texture_cache[key] = _glow_texture
+		_shared_texture_cache_order.append(key)
+		while _shared_texture_cache_order.size() > SHARED_TEXTURE_CACHE_LIMIT:
+			var expired_key: String = _shared_texture_cache_order.pop_front()
+			_shared_texture_cache.erase(expired_key)
 
 	func _build_glow_texture(texture_size: Vector2i) -> Texture2D:
 		var image := Image.create_empty(texture_size.x, texture_size.y, false, Image.FORMAT_RGBA8)

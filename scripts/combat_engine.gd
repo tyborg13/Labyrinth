@@ -313,8 +313,10 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					targets.append(trap_pos)
 		"aoe":
 			var aoe_range: int = int(action.get("range", 0))
+			var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state)
+			var pattern_specs: Array[Dictionary] = _aoe_pattern_specs_for_legality(action, aoe_range > 0)
 			if aoe_range <= 0:
-				if _has_attackable_in_tiles(state, _best_aoe_tiles_for_target(state, action, player_pos, false)):
+				if _aoe_pattern_specs_hit_attackable(player_pos, pattern_specs, attackable_tiles):
 					targets.append(player_pos)
 			else:
 				for tile: Vector2i in PathUtils.diamond_tiles(player_pos, aoe_range, state.get("grid", [])):
@@ -324,7 +326,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 						continue
 					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
 						continue
-					if not _has_attackable_in_tiles(state, _best_aoe_tiles_for_target(state, action, tile, false)):
+					if not _aoe_pattern_specs_hit_attackable(tile, pattern_specs, attackable_tiles):
 						continue
 					targets.append(tile)
 		"push", "pull":
@@ -365,6 +367,56 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 		_:
 			return _vector2i_values([])
 
+func movement_plan_for_player_action(state: Dictionary, action: Dictionary, prevalidated_targets: Variant = null) -> Dictionary:
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+	var target_tiles: Array[Vector2i] = []
+	if str(action.get("type", "")) != "move" or move_range <= 0 or not player_action_can_resolve(state, action):
+		return {
+			"start": player_pos,
+			"range": move_range,
+			"target_tiles": target_tiles,
+			"paths": {}
+		}
+	if typeof(prevalidated_targets) == TYPE_ARRAY:
+		target_tiles = _vector2i_values(prevalidated_targets as Array)
+	else:
+		target_tiles = valid_targets_for_player_action(state, action)
+	var navigation: Dictionary = _lowest_trap_navigation(
+		state.get("grid", []),
+		player_pos,
+		move_range,
+		_occupied_actor_tiles(state),
+		_trap_tiles_lookup(state)
+	)
+	var came_from: Dictionary = navigation.get("came_from", {})
+	var paths: Dictionary = {}
+	for target_tile: Vector2i in target_tiles:
+		var path: Array[Vector2i] = _path_from_navigation(came_from, player_pos, target_tile)
+		if not path.is_empty():
+			paths[target_tile] = path
+	return {
+		"start": player_pos,
+		"range": move_range,
+		"target_tiles": target_tiles,
+		"paths": paths
+	}
+
+func path_from_player_movement_plan(plan: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var paths: Dictionary = plan.get("paths", {})
+	var path_value: Variant = paths.get(target_tile, [])
+	if typeof(path_value) != TYPE_ARRAY:
+		return _vector2i_values([])
+	return _vector2i_values(path_value as Array)
+
+func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, target_tile: Vector2i, planned_path: Array) -> Dictionary:
+	var movement_path: Array[Vector2i] = _vector2i_values(planned_path)
+	if not _prevalidated_player_move_path_is_usable(state, action, target_tile, movement_path):
+		return apply_player_action(state, action, target_tile)
+	var next_state: Dictionary = state.duplicate(true)
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	return _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
+
 func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if not player_action_can_resolve(next_state, action):
@@ -379,13 +431,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 				var movement_path: Array[Vector2i] = path_for_player_action(next_state, action, target_tile)
 				if movement_path.size() <= 1:
 					return next_state
-				next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-				if combat_outcome(next_state) == "defeat":
-					return next_state
-				next_state = _move_player_along_path(next_state, movement_path)
-				_mark_first_move_used(next_state)
-				next_state = _trigger_long_move_relics(next_state, movement_path.size() - 1)
-				_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
+				next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
 		"blink":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				player["pos"] = target_tile
@@ -434,6 +480,38 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
 	return next_state
+
+func _apply_player_move_along_path(next_state: Dictionary, resolved_action: Dictionary, target_tile: Vector2i, movement_path: Array[Vector2i]) -> Dictionary:
+	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
+	if combat_outcome(next_state) == "defeat":
+		return next_state
+	next_state = _move_player_along_path(next_state, movement_path)
+	_mark_first_move_used(next_state)
+	next_state = _trigger_long_move_relics(next_state, movement_path.size() - 1)
+	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
+	return next_state
+
+func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Dictionary, target_tile: Vector2i, movement_path: Array[Vector2i]) -> bool:
+	if str(action.get("type", "")) != "move" or not player_action_can_resolve(state, action):
+		return false
+	if movement_path.size() <= 1:
+		return false
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	if movement_path[0] != player_pos or movement_path[movement_path.size() - 1] != target_tile:
+		return false
+	var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
+	if movement_path.size() - 1 > move_range:
+		return false
+	var grid: Array = state.get("grid", [])
+	var occupied: Dictionary = _occupied_actor_tiles(state)
+	for index: int in range(1, movement_path.size()):
+		var previous_tile: Vector2i = movement_path[index - 1]
+		var tile: Vector2i = movement_path[index]
+		if PathUtils.manhattan(previous_tile, tile) != 1:
+			return false
+		if not PathUtils.is_passable(grid, tile) or occupied.has(tile):
+			return false
+	return true
 
 func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
@@ -3118,11 +3196,17 @@ func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distanc
 		return _vector2i_values([start])
 	if max_distance <= 0:
 		return empty
+	var navigation: Dictionary = _lowest_trap_navigation(grid, start, max_distance, occupied, trap_tiles, goal, true)
+	return _path_from_navigation(navigation.get("came_from", {}) as Dictionary, start, goal)
+
+func _lowest_trap_navigation(grid: Array, start: Vector2i, max_distance: int, occupied: Dictionary, trap_tiles: Dictionary, stop_goal: Vector2i = Vector2i(-1, -1), stop_at_goal: bool = false) -> Dictionary:
+	var came_from: Dictionary = {start: start}
+	if max_distance <= 0:
+		return {"came_from": came_from}
 	var grid_height: int = grid.size()
 	var grid_width: int = (grid[0] as Array).size() if grid_height > 0 else 0
 	var trap_weight: int = grid_height * maxi(1, grid_width) + 1
 	var frontier: Array[Vector2i] = _vector2i_values([start])
-	var came_from: Dictionary = {start: start}
 	var step_costs: Dictionary = {start: 0}
 	var path_costs: Dictionary = {start: 0}
 	while not frontier.is_empty():
@@ -3138,7 +3222,7 @@ func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distanc
 				best_cost = candidate_cost
 		var current: Vector2i = best_tile
 		frontier.remove_at(best_index)
-		if current == goal:
+		if stop_at_goal and current == stop_goal:
 			break
 		var current_steps: int = int(step_costs.get(current, 0))
 		if current_steps >= max_distance:
@@ -3147,7 +3231,7 @@ func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distanc
 			var next_tile: Vector2i = current + dir
 			if not PathUtils.is_passable(grid, next_tile):
 				continue
-			if occupied.has(next_tile) and next_tile != goal:
+			if occupied.has(next_tile) and (not stop_at_goal or next_tile != stop_goal):
 				continue
 			var next_steps: int = current_steps + 1
 			if next_steps > max_distance:
@@ -3161,6 +3245,12 @@ func _lowest_trap_path(grid: Array, start: Vector2i, goal: Vector2i, max_distanc
 			came_from[next_tile] = current
 			if not frontier.has(next_tile):
 				frontier.append(next_tile)
+	return {"came_from": came_from}
+
+func _path_from_navigation(came_from: Dictionary, start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
+	var empty: Array[Vector2i] = []
+	if start == goal:
+		return _vector2i_values([start])
 	if not came_from.has(goal):
 		return empty
 	var path: Array[Vector2i] = _vector2i_values([goal])
@@ -4275,6 +4365,53 @@ func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_ti
 			best_tiles = tiles
 	return best_tiles
 
+func _player_attackable_tiles_lookup(state: Dictionary) -> Dictionary:
+	var lookup: Dictionary = {}
+	var grid: Array = state.get("grid", [])
+	for enemy: Dictionary in _live_enemies(state):
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			if PathUtils.is_passable(grid, tile):
+				lookup[tile] = true
+	for terrain: Dictionary in _live_terrain(state):
+		var terrain_tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+		if PathUtils.is_passable(grid, terrain_tile):
+			lookup[terrain_tile] = true
+	for trap: Dictionary in _live_traps(state):
+		var trap_tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if PathUtils.is_passable(grid, trap_tile):
+			lookup[trap_tile] = true
+	return lookup
+
+func _aoe_pattern_specs_for_legality(action: Dictionary, centered_target: bool) -> Array[Dictionary]:
+	var variants: Array = []
+	var orientation: Vector2i = _action_orientation_direction(action)
+	if orientation != Vector2i.ZERO:
+		variants.append(_aoe_pattern_offsets_for_direction(action, orientation))
+	else:
+		variants = _aoe_pattern_variants(action)
+	var specs: Array[Dictionary] = []
+	for offsets_var: Variant in variants:
+		if typeof(offsets_var) != TYPE_ARRAY:
+			continue
+		var offsets: Array = offsets_var as Array
+		specs.append({
+			"offsets": offsets,
+			"center": _aoe_center_offset(offsets) if centered_target else Vector2i.ZERO
+		})
+	return specs
+
+func _aoe_pattern_specs_hit_attackable(target_tile: Vector2i, specs: Array[Dictionary], attackable_tiles: Dictionary) -> bool:
+	if attackable_tiles.is_empty():
+		return false
+	for spec: Dictionary in specs:
+		var anchor: Vector2i = target_tile - (spec.get("center", Vector2i.ZERO) as Vector2i)
+		for offset_var: Variant in spec.get("offsets", []):
+			if typeof(offset_var) != TYPE_VECTOR2I:
+				continue
+			if attackable_tiles.has(anchor + (offset_var as Vector2i)):
+				return true
+	return false
+
 func _aoe_tiles_for_anchor(grid: Array, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
 	var centered_target: bool = int(action.get("range", 0)) > 0
 	var orientation: Vector2i = _action_orientation_direction(action)
@@ -4647,9 +4784,11 @@ func _enemy_anchor_path_distance(state: Dictionary, enemy: Dictionary, target: V
 		return 0
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	var queue: Array[Vector2i] = _vector2i_values([start])
+	var queue_head: int = 0
 	var distance_by_tile: Dictionary = {start: 0}
-	while not queue.is_empty():
-		var current: Vector2i = queue.pop_front()
+	while queue_head < queue.size():
+		var current: Vector2i = queue[queue_head]
+		queue_head += 1
 		var current_distance: int = int(distance_by_tile.get(current, 0))
 		for dir: Vector2i in PathUtils.DIRS_4:
 			var next_tile: Vector2i = current + dir
@@ -4688,9 +4827,11 @@ func _reachable_enemy_anchor_tiles(state: Dictionary, enemy: Dictionary, max_dis
 	if max_distance <= 0:
 		return results
 	var queue: Array[Vector2i] = _vector2i_values([start])
+	var queue_head: int = 0
 	var distance_by_tile: Dictionary = {start: 0}
-	while not queue.is_empty():
-		var current: Vector2i = queue.pop_front()
+	while queue_head < queue.size():
+		var current: Vector2i = queue[queue_head]
+		queue_head += 1
 		var current_distance: int = int(distance_by_tile.get(current, 0))
 		if current_distance > 0:
 			results.append(current)

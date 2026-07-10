@@ -53,23 +53,74 @@ const TRAVEL_TRACE_CORE_COLOR: Color = Color("ffe39a")
 const TRAVEL_TOKEN_COLOR: Color = Color("fff0b8")
 
 var run_state: Dictionary = {}
-@export var interactive: bool = true
-@export var show_legend: bool = true
-@export var draw_background: bool = true
+@export var interactive: bool = true:
+	set(value):
+		if interactive == value:
+			return
+		interactive = value
+		_sync_interactivity()
+		_rebuild_state_caches()
+		queue_redraw()
+@export var show_legend: bool = true:
+	set(value):
+		if show_legend == value:
+			return
+		show_legend = value
+		_invalidate_layout_cache()
+		queue_redraw()
+@export var draw_background: bool = true:
+	set(value):
+		if draw_background == value:
+			return
+		draw_background = value
+		queue_redraw()
 var _hover_coord: Vector2i = INVALID_COORD
 var _room_icon_textures: Dictionary = {}
 var _recovery_marker_texture: Texture2D = null
 var _run_state_signature: String = ""
+var _state_cache_valid: bool = false
+var _state_cache_revision: int = 0
+var _rooms_by_coord: Dictionary = {}
+var _drawable_rooms_cache: Array[Dictionary] = []
+var _visible_rooms_cache: Array[Dictionary] = []
+var _visible_connections_cache: Array[Dictionary] = []
+var _available_move_coords_cache: Array[Vector2i] = []
+var _available_move_coord_set: Dictionary = {}
+var _coord_bounds_cache: Rect2i = Rect2i(0, 0, 1, 1)
+var _legend_entries_cache: Array[Dictionary] = []
+var _layout_cache_valid: bool = false
+var _layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
+var _layout_cache_interactive: bool = true
+var _layout_cache_show_legend: bool = true
+var _layout_cache_state_revision: int = -1
+var _layout_cache_revision: int = 0
+var _map_rect_cache: Rect2 = Rect2()
+var _legend_rect_cache: Rect2 = Rect2()
+var _grid_spacing_cache: float = 22.0
+var _base_node_size_cache: float = EXPANDED_NODE_MIN_SIZE
+var _coord_positions_cache: Dictionary = {}
+var _available_hit_rects_cache: Array[Dictionary] = []
+var _visible_hit_rects_cache: Array[Dictionary] = []
+var _visible_node_rects_cache: Array[Dictionary] = []
 var _travel_from_coord: Vector2i = INVALID_COORD
 var _travel_to_coord: Vector2i = INVALID_COORD
 var _travel_active: bool = false
 var _travel_tween: Tween = null
+var _travel_visual_cache_valid: bool = false
+var _travel_visual_cache_progress: float = -1.0
+var _travel_visual_cache_layout_revision: int = -1
+var _travel_trace_commands_cache: Array[Dictionary] = []
+var _travel_token_commands_cache: Array[Dictionary] = []
 var _travel_progress: float = 0.0:
 	set(value):
 		_travel_progress = clampf(value, 0.0, 1.0)
+		_invalidate_travel_visual_cache()
 		queue_redraw()
 
 func _ready() -> void:
+	_sync_interactivity()
+
+func _sync_interactivity() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = Vector2(120.0, 120.0) if not interactive else Vector2(640.0, 400.0)
 
@@ -79,8 +130,9 @@ func set_run_state(next_state: Dictionary) -> void:
 		return
 	_run_state_signature = next_signature
 	run_state = _compact_map_state(next_state)
+	_rebuild_state_caches()
 	if _hover_coord.x > -900:
-		var hovered_room: Dictionary = _room_at(_hover_coord)
+		var hovered_room: Dictionary = _room_ref_at(_hover_coord)
 		if hovered_room.is_empty() or not _room_visible_on_this_map(hovered_room):
 			_hover_coord = INVALID_COORD
 	queue_redraw()
@@ -123,6 +175,183 @@ func _map_state_signature(source_state: Dictionary) -> String:
 func _coord_signature(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
+func _rebuild_state_caches() -> void:
+	_state_cache_valid = true
+	_state_cache_revision += 1
+	_rooms_by_coord.clear()
+	_drawable_rooms_cache.clear()
+	_visible_rooms_cache.clear()
+	_visible_connections_cache.clear()
+	_available_move_coords_cache.clear()
+	_available_move_coord_set.clear()
+	var rooms: Dictionary = run_state.get("rooms", {})
+	for room_var: Variant in rooms.values():
+		if typeof(room_var) != TYPE_DICTIONARY:
+			continue
+		var room: Dictionary = room_var
+		_rooms_by_coord[room.get("coord", Vector2i.ZERO)] = room
+		if _room_visible_on_this_map(room):
+			_drawable_rooms_cache.append(room)
+			_visible_rooms_cache.append(room)
+	if _visible_rooms_cache.is_empty():
+		_visible_rooms_cache.append({"coord": run_state.get("current_room", Vector2i.ZERO)})
+	_rebuild_coord_bounds_cache()
+	_rebuild_available_move_cache()
+	_rebuild_visible_connection_cache(rooms)
+	_invalidate_layout_cache()
+
+func _ensure_state_caches() -> void:
+	if not _state_cache_valid:
+		_rebuild_state_caches()
+
+func _rebuild_coord_bounds_cache() -> void:
+	var min_x: int = 0
+	var max_x: int = 0
+	var min_y: int = 0
+	var max_y: int = 0
+	for room: Dictionary in _visible_rooms_cache:
+		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+		min_x = mini(min_x, coord.x)
+		max_x = maxi(max_x, coord.x)
+		min_y = mini(min_y, coord.y)
+		max_y = maxi(max_y, coord.y)
+	_coord_bounds_cache = Rect2i(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+
+func _rebuild_available_move_cache() -> void:
+	if str(run_state.get("mode", "room")) != "room":
+		return
+	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var current_room: Dictionary = _room_ref_at(current)
+	var current_depth: int = int(current_room.get("depth", 0))
+	for connection_var: Variant in current_room.get("connections", []):
+		if typeof(connection_var) != TYPE_DICTIONARY:
+			continue
+		var candidate: Vector2i = (connection_var as Dictionary).get("coord", Vector2i(999, 999))
+		if _available_move_coord_set.has(candidate):
+			continue
+		var room: Dictionary = _room_ref_at(candidate)
+		if room.is_empty() or not bool(room.get("revealed", false)):
+			continue
+		if int(room.get("depth", 0)) < current_depth or bool(room.get("sealed", false)):
+			continue
+		_available_move_coord_set[candidate] = true
+		_available_move_coords_cache.append(candidate)
+
+func _rebuild_visible_connection_cache(rooms: Dictionary) -> void:
+	var drawn_connections: Dictionary = {}
+	for room_key_var: Variant in rooms.keys():
+		var room_key: String = str(room_key_var)
+		var room: Dictionary = rooms.get(room_key_var, {}) as Dictionary
+		if not _room_visible_on_this_map(room):
+			continue
+		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
+		for connection_var: Variant in room.get("connections", []):
+			if typeof(connection_var) != TYPE_DICTIONARY:
+				continue
+			var neighbor: Vector2i = (connection_var as Dictionary).get("coord", Vector2i(999, 999))
+			var neighbor_key: String = _room_key(neighbor)
+			var pair_key: String = "%s|%s" % [room_key, neighbor_key] if room_key < neighbor_key else "%s|%s" % [neighbor_key, room_key]
+			if drawn_connections.has(pair_key):
+				continue
+			var neighbor_room: Dictionary = _room_ref_at(neighbor)
+			if neighbor_room.is_empty() or not _room_visible_on_this_map(neighbor_room):
+				continue
+			drawn_connections[pair_key] = true
+			_visible_connections_cache.append({
+				"from": coord,
+				"to": neighbor,
+				"revealed": bool(room.get("revealed", false)) and bool(neighbor_room.get("revealed", false))
+			})
+
+func _invalidate_layout_cache() -> void:
+	_layout_cache_valid = false
+	_invalidate_travel_visual_cache()
+
+func _ensure_layout_cache() -> void:
+	_ensure_state_caches()
+	if _layout_cache_valid \
+			and _layout_cache_size == size \
+			and _layout_cache_interactive == interactive \
+			and _layout_cache_show_legend == show_legend \
+			and _layout_cache_state_revision == _state_cache_revision:
+		return
+	_layout_cache_valid = true
+	_layout_cache_size = size
+	_layout_cache_interactive = interactive
+	_layout_cache_show_legend = show_legend
+	_layout_cache_state_revision = _state_cache_revision
+	_layout_cache_revision += 1
+	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER
+	var legend_width: float = LEGEND_WIDTH + LEGEND_GAP if show_legend else 0.0
+	_map_rect_cache = Rect2(
+		Vector2(padding, padding),
+		Vector2(
+			maxf(12.0, size.x - padding * 2.0 - legend_width),
+			maxf(12.0, size.y - padding * 2.0)
+		)
+	)
+	var room_rows: int = int(ceil(float(_legend_entries_ref().size()) * 0.5))
+	var legend_height: float = LEGEND_PADDING * 2.0 + LEGEND_SECTION_HEIGHT * 2.0 + LEGEND_ROW_HEIGHT * 2.0 + LEGEND_SECTION_GAP + float(room_rows) * LEGEND_ROW_HEIGHT
+	_legend_rect_cache = Rect2(
+		Vector2(size.x - padding - LEGEND_WIDTH, padding),
+		Vector2(LEGEND_WIDTH, minf(legend_height, maxf(12.0, size.y - padding * 2.0)))
+	)
+	var span_x: int = maxi(0, _coord_bounds_cache.size.x - 1)
+	var span_y: int = maxi(0, _coord_bounds_cache.size.y - 1)
+	if not interactive:
+		_grid_spacing_cache = COMPACT_GRID_SPACING
+		if span_x > 0:
+			_grid_spacing_cache = minf(_grid_spacing_cache, _map_rect_cache.size.x / float(span_x))
+		if span_y > 0:
+			_grid_spacing_cache = minf(_grid_spacing_cache, _map_rect_cache.size.y / float(span_y))
+		_grid_spacing_cache = maxf(12.0, _grid_spacing_cache)
+	else:
+		var fit_x: float = _map_rect_cache.size.x / maxf(float(span_x), EXPANDED_MIN_FIT_SPAN)
+		var fit_y: float = _map_rect_cache.size.y / maxf(float(span_y), EXPANDED_MIN_FIT_SPAN)
+		_grid_spacing_cache = maxf(22.0, minf(fit_x, fit_y) * EXPANDED_FIT_RATIO)
+	var base: float = _grid_spacing_cache * 0.56
+	_base_node_size_cache = clampf(base, 14.0 if not interactive else EXPANDED_NODE_MIN_SIZE, COMPACT_NODE_MAX_SIZE if not interactive else EXPANDED_NODE_MAX_SIZE)
+	var bounds_center := Vector2(
+		float(_coord_bounds_cache.position.x) + float(_coord_bounds_cache.size.x - 1) * 0.5,
+		float(_coord_bounds_cache.position.y) + float(_coord_bounds_cache.size.y - 1) * 0.5
+	)
+	_coord_positions_cache.clear()
+	for coord_var: Variant in _rooms_by_coord.keys():
+		var coord: Vector2i = coord_var
+		var coord_offset := Vector2(float(coord.x), float(coord.y)) - bounds_center
+		_coord_positions_cache[coord] = _map_rect_cache.get_center() + coord_offset * _grid_spacing_cache
+	var current_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	if not _coord_positions_cache.has(current_coord):
+		var current_offset := Vector2(float(current_coord.x), float(current_coord.y)) - bounds_center
+		_coord_positions_cache[current_coord] = _map_rect_cache.get_center() + current_offset * _grid_spacing_cache
+	_available_hit_rects_cache.clear()
+	_visible_hit_rects_cache.clear()
+	_visible_node_rects_cache.clear()
+	var hit_radius: float = _base_node_size_cache * 0.72
+	for coord: Vector2i in _available_move_coords_cache:
+		var center: Vector2 = _cached_coord_position(coord, bounds_center)
+		_available_hit_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)})
+	var node_half_size: float = _base_node_size_cache * 0.66
+	for room: Dictionary in _visible_rooms_cache:
+		var coord: Vector2i = room.get("coord", INVALID_COORD)
+		if coord.x <= -900:
+			continue
+		var center: Vector2 = _cached_coord_position(coord, bounds_center)
+		_visible_hit_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)})
+		_visible_node_rects_cache.append({"coord": coord, "rect": Rect2(center - Vector2.ONE * node_half_size, Vector2.ONE * node_half_size * 2.0).grow(6.0)})
+	_invalidate_travel_visual_cache()
+
+func _cached_coord_position(coord: Vector2i, bounds_center: Vector2) -> Vector2:
+	if _coord_positions_cache.has(coord):
+		return _coord_positions_cache.get(coord, Vector2.ZERO)
+	var coord_offset := Vector2(float(coord.x), float(coord.y)) - bounds_center
+	var position: Vector2 = _map_rect_cache.get_center() + coord_offset * _grid_spacing_cache
+	_coord_positions_cache[coord] = position
+	return position
+
+func _invalidate_travel_visual_cache() -> void:
+	_travel_visual_cache_valid = false
+
 func _gui_input(event: InputEvent) -> void:
 	if not interactive or run_state.is_empty():
 		return
@@ -144,36 +373,13 @@ func _draw() -> void:
 			draw_rect(Rect2(Vector2.ZERO, size), Color(0.075, 0.055, 0.045, 0.58), true)
 	if run_state.is_empty():
 		return
-	var rooms: Dictionary = run_state.get("rooms", {})
-	var drawn_connections: Dictionary = {}
-	for room_key: String in rooms.keys():
-		var room: Dictionary = rooms[room_key] as Dictionary
-		if not _room_visible_on_this_map(room):
-			continue
-		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
-		for connection_var: Variant in room.get("connections", []):
-			if typeof(connection_var) != TYPE_DICTIONARY:
-				continue
-			var connection: Dictionary = connection_var
-			var neighbor: Vector2i = connection.get("coord", Vector2i(999, 999))
-			var neighbor_key: String = _room_key(neighbor)
-			var pair_key: String = "%s|%s" % [room_key, neighbor_key] if room_key < neighbor_key else "%s|%s" % [neighbor_key, room_key]
-			var neighbor_room: Dictionary = _room_at(neighbor)
-			if drawn_connections.has(pair_key):
-				continue
-			if neighbor_room.is_empty() or not _room_visible_on_this_map(neighbor_room):
-				continue
-			drawn_connections[pair_key] = true
-			_draw_connector(coord, neighbor, bool(room.get("revealed", false)) and bool(neighbor_room.get("revealed", false)))
-	for room_key: String in rooms.keys():
-		if not _room_visible_on_this_map(rooms[room_key]):
-			continue
-		_draw_room_shell(rooms[room_key])
+	_ensure_layout_cache()
+	for connection: Dictionary in _visible_connections_cache:
+		_draw_connector(connection.get("from", Vector2i.ZERO), connection.get("to", Vector2i.ZERO), bool(connection.get("revealed", false)))
+	for room: Dictionary in _drawable_rooms_cache:
+		_draw_room_shell(room)
 	_draw_travel_trace()
-	for room_key: String in rooms.keys():
-		var room: Dictionary = rooms[room_key]
-		if not _room_visible_on_this_map(room):
-			continue
+	for room: Dictionary in _drawable_rooms_cache:
 		_draw_room_node(room)
 	_draw_travel_token()
 	if show_legend:
@@ -219,34 +425,60 @@ func _can_play_travel_animation(from_coord: Vector2i, to_coord: Vector2i) -> boo
 		return false
 	if from_coord.x <= -900 or to_coord.x <= -900:
 		return false
-	var from_room: Dictionary = _room_at(from_coord)
-	var to_room: Dictionary = _room_at(to_coord)
+	var from_room: Dictionary = _room_ref_at(from_coord)
+	var to_room: Dictionary = _room_ref_at(to_coord)
 	if from_room.is_empty() or to_room.is_empty():
 		return false
 	return _room_visible_on_this_map(from_room) and _room_visible_on_this_map(to_room)
 
 func _draw_travel_trace() -> void:
-	for command_var: Variant in _travel_visual_commands("trace"):
+	if not _travel_active:
+		return
+	_ensure_travel_visual_cache()
+	for command_var: Variant in _travel_trace_commands_cache:
 		_draw_travel_visual_command(command_var as Dictionary)
 
 func _draw_travel_token() -> void:
-	for command_var: Variant in _travel_visual_commands("token"):
+	if not _travel_active:
+		return
+	_ensure_travel_visual_cache()
+	for command_var: Variant in _travel_token_commands_cache:
 		_draw_travel_visual_command(command_var as Dictionary)
 
 func _travel_visual_commands(layer: String = "") -> Array:
-	var commands: Array = []
 	if not _travel_active:
-		return commands
+		return []
+	_ensure_travel_visual_cache()
+	if layer == "trace":
+		return _travel_trace_commands_cache.duplicate(true)
+	if layer == "token":
+		return _travel_token_commands_cache.duplicate(true)
+	var commands: Array = []
+	commands.append_array(_travel_trace_commands_cache)
+	commands.append_array(_travel_token_commands_cache)
+	return commands
+
+func _ensure_travel_visual_cache() -> void:
+	_ensure_layout_cache()
+	if _travel_visual_cache_valid \
+			and is_equal_approx(_travel_visual_cache_progress, _travel_progress) \
+			and _travel_visual_cache_layout_revision == _layout_cache_revision:
+		return
+	_travel_visual_cache_valid = true
+	_travel_visual_cache_progress = _travel_progress
+	_travel_visual_cache_layout_revision = _layout_cache_revision
+	_travel_trace_commands_cache.clear()
+	_travel_token_commands_cache.clear()
 	var from_pos: Vector2 = _coord_position(_travel_from_coord)
 	var to_pos: Vector2 = _coord_position(_travel_to_coord)
 	var end_pos: Vector2 = from_pos.lerp(to_pos, _travel_progress)
 	var base_width: float = clampf(_base_node_size() * 0.13, 2.0, 7.0)
 	if from_pos.distance_to(end_pos) > 0.5:
-		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(0.035, 0.018, 0.004, 0.66), "width": base_width + 5.0})
-		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.62), "width": base_width + 1.6})
-		commands.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_CORE_COLOR.r, TRAVEL_TRACE_CORE_COLOR.g, TRAVEL_TRACE_CORE_COLOR.b, 0.84), "width": maxf(1.2, base_width * 0.46)})
+		_travel_trace_commands_cache.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(0.035, 0.018, 0.004, 0.66), "width": base_width + 5.0})
+		_travel_trace_commands_cache.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.62), "width": base_width + 1.6})
+		_travel_trace_commands_cache.append({"layer": "trace", "type": "line", "from": from_pos, "to": end_pos, "color": Color(TRAVEL_TRACE_CORE_COLOR.r, TRAVEL_TRACE_CORE_COLOR.g, TRAVEL_TRACE_CORE_COLOR.b, 0.84), "width": maxf(1.2, base_width * 0.46)})
 	var hint_radius: float = _base_node_size() * (0.64 + 0.08 * sin(_travel_progress * PI))
-	commands.append({"layer": "trace", "type": "arc", "center": to_pos, "radius": hint_radius, "color": Color(1.0, 0.70, 0.27, 0.18 + 0.30 * _travel_progress), "width": 2.0 if interactive else 1.2})
+	_travel_trace_commands_cache.append({"layer": "trace", "type": "arc", "center": to_pos, "radius": hint_radius, "color": Color(1.0, 0.70, 0.27, 0.18 + 0.30 * _travel_progress), "width": 2.0 if interactive else 1.2})
 	var mote_count: int = 5 if interactive else 3
 	for index: int in range(mote_count):
 		var mote_t: float = clampf(_travel_progress - float(index) * 0.085, 0.0, 1.0)
@@ -254,25 +486,17 @@ func _travel_visual_commands(layer: String = "") -> Array:
 			continue
 		var center: Vector2 = from_pos.lerp(to_pos, mote_t)
 		var alpha: float = clampf((1.0 - float(index) * 0.13) * _travel_progress, 0.0, 0.78)
-		commands.append({"layer": "trace", "type": "circle", "center": center, "radius": maxf(1.4, base_width * (0.48 - float(index) * 0.035)), "color": Color(1.0, 0.74, 0.28, alpha)})
+		_travel_trace_commands_cache.append({"layer": "trace", "type": "circle", "center": center, "radius": maxf(1.4, base_width * (0.48 - float(index) * 0.035)), "color": Color(1.0, 0.74, 0.28, alpha)})
 	var token_pos: Vector2 = _travel_token_position()
 	var token_radius: float = clampf(_base_node_size() * 0.16, 3.0, 9.0)
 	var flare: float = sin(_travel_progress * PI)
-	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.95, "color": Color(1.0, 0.34, 0.08, 0.18 + 0.16 * flare)})
-	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.18, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.88)})
-	commands.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 0.56, "color": TRAVEL_TOKEN_COLOR})
+	_travel_token_commands_cache.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.95, "color": Color(1.0, 0.34, 0.08, 0.18 + 0.16 * flare)})
+	_travel_token_commands_cache.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 1.18, "color": Color(TRAVEL_TRACE_COLOR.r, TRAVEL_TRACE_COLOR.g, TRAVEL_TRACE_COLOR.b, 0.88)})
+	_travel_token_commands_cache.append({"layer": "token", "type": "circle", "center": token_pos, "radius": token_radius * 0.56, "color": TRAVEL_TOKEN_COLOR})
 	var direction: Vector2 = to_pos - from_pos
 	if direction.length() > 0.1:
 		direction = direction.normalized()
-		commands.append({"layer": "token", "type": "line", "from": token_pos - direction * token_radius * 2.3, "to": token_pos - direction * token_radius * 0.8, "color": Color(1.0, 0.54, 0.13, 0.42), "width": maxf(1.2, token_radius * 0.52)})
-	if layer.is_empty():
-		return commands
-	var filtered: Array = []
-	for command_var: Variant in commands:
-		var command: Dictionary = command_var
-		if str(command.get("layer", "")) == layer:
-			filtered.append(command)
-	return filtered
+		_travel_token_commands_cache.append({"layer": "token", "type": "line", "from": token_pos - direction * token_radius * 2.3, "to": token_pos - direction * token_radius * 0.8, "color": Color(1.0, 0.54, 0.13, 0.42), "width": maxf(1.2, token_radius * 0.52)})
 
 func _draw_travel_visual_command(command: Dictionary) -> void:
 	match str(command.get("type", "")):
@@ -340,10 +564,11 @@ func _draw_room_node(room: Dictionary) -> void:
 		_draw_recovery_marker_badge(position, node_size)
 
 func _draw_compact_room_node(room: Dictionary) -> void:
+	_ensure_state_caches()
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	var position: Vector2 = _coord_position(coord)
-	var accessible: bool = _available_move_coords().has(coord)
+	var accessible: bool = _available_move_coord_set.has(coord)
 	var node_size: float = _base_node_size()
 	if coord == current:
 		node_size *= 1.22
@@ -466,7 +691,7 @@ func _draw_map_legend() -> void:
 		font = get_theme_default_font()
 	if font == null:
 		return
-	var entries: Array[Dictionary] = _legend_entries()
+	var entries: Array[Dictionary] = _legend_entries_ref()
 	if entries.is_empty():
 		return
 	var legend_rect: Rect2 = _legend_rect()
@@ -539,26 +764,32 @@ func _draw_route_state_sample(center: Vector2, route_state: String) -> void:
 			_draw_dashed_rect(rect, Color(0.62, 0.57, 0.50, 0.82), 1.0, 4.0)
 
 func _legend_entries() -> Array[Dictionary]:
-	var entries: Array[Dictionary] = [
-		{"label": "Start", "room": {"type": "start", "element": ElementData.NONE}}
-	]
+	var entries: Array[Dictionary] = []
+	for entry: Dictionary in _legend_entries_ref():
+		entries.append(entry.duplicate(true))
+	return entries
+
+func _legend_entries_ref() -> Array[Dictionary]:
+	if not _legend_entries_cache.is_empty():
+		return _legend_entries_cache
+	_legend_entries_cache.append({"label": "Start", "room": {"type": "start", "element": ElementData.NONE}})
 	for element_id: String in ElementData.all_elements():
-		entries.append({
+		_legend_entries_cache.append({
 			"label": ElementData.name(element_id),
 			"room": {"type": "combat", "element": element_id}
 		})
-	entries.append({"label": "Campfire", "room": {"type": "campfire", "element": ElementData.NONE}})
-	entries.append({"label": "Relic", "room": {"type": "treasure", "element": ElementData.NONE}})
-	entries.append({"label": "Smith", "room": {"type": "blacksmith", "element": ElementData.NONE}})
-	entries.append({"label": "Arcanist", "room": {"type": "arcanist", "element": ElementData.NONE}})
-	entries.append({"label": "Scavenger", "room": {"type": "scavenger", "element": ElementData.NONE}})
-	entries.append({"label": "Boss", "room": {"type": "boss", "element": ElementData.LIGHTNING}})
-	return entries
+	_legend_entries_cache.append({"label": "Campfire", "room": {"type": "campfire", "element": ElementData.NONE}})
+	_legend_entries_cache.append({"label": "Relic", "room": {"type": "treasure", "element": ElementData.NONE}})
+	_legend_entries_cache.append({"label": "Smith", "room": {"type": "blacksmith", "element": ElementData.NONE}})
+	_legend_entries_cache.append({"label": "Arcanist", "room": {"type": "arcanist", "element": ElementData.NONE}})
+	_legend_entries_cache.append({"label": "Scavenger", "room": {"type": "scavenger", "element": ElementData.NONE}})
+	_legend_entries_cache.append({"label": "Boss", "room": {"type": "boss", "element": ElementData.LIGHTNING}})
+	return _legend_entries_cache
 
 func _draw_hover_card() -> void:
 	if _hover_coord.x <= -900:
 		return
-	var room: Dictionary = _room_at(_hover_coord)
+	var room: Dictionary = _room_ref_at(_hover_coord)
 	if room.is_empty() or not _room_visible_on_this_map(room):
 		return
 	var font: Font = get_theme_default_font()
@@ -647,7 +878,7 @@ func _hover_card_rect(coord: Vector2i) -> Rect2:
 	]
 	for candidate_index: int in range(candidates.size()):
 		var rect := Rect2(candidates[candidate_index], HOVER_CARD_SIZE)
-		for iteration: int in range(_visible_rooms().size()):
+		for iteration: int in range(_visible_rooms_cache.size()):
 			var overlap: Rect2 = _hover_card_other_node_overlap(rect, coord)
 			if overlap.size == Vector2.ZERO:
 				break
@@ -679,13 +910,11 @@ func _hover_card_intersects_other_node(card_rect: Rect2, hovered_coord: Vector2i
 	return _hover_card_other_node_overlap(card_rect, hovered_coord).size != Vector2.ZERO
 
 func _hover_card_other_node_overlap(card_rect: Rect2, hovered_coord: Vector2i) -> Rect2:
-	var node_half_size: float = _base_node_size() * 0.66
-	for room: Dictionary in _visible_rooms():
-		var coord: Vector2i = room.get("coord", INVALID_COORD)
-		if coord == hovered_coord or coord.x <= -900:
+	_ensure_layout_cache()
+	for node_entry: Dictionary in _visible_node_rects_cache:
+		if node_entry.get("coord", INVALID_COORD) == hovered_coord:
 			continue
-		var node_center: Vector2 = _coord_position(coord)
-		var node_rect := Rect2(node_center - Vector2.ONE * node_half_size, Vector2.ONE * node_half_size * 2.0).grow(6.0)
+		var node_rect: Rect2 = node_entry.get("rect", Rect2())
 		if card_rect.intersects(node_rect):
 			return node_rect
 	return Rect2()
@@ -703,64 +932,36 @@ func _hover_card_bounds() -> Rect2:
 	)
 
 func _available_move_coords() -> Array[Vector2i]:
+	_ensure_state_caches()
 	var coords: Array[Vector2i] = []
-	if str(run_state.get("mode", "room")) != "room":
-		return coords
-	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
-	var current_room: Dictionary = _room_at(current)
-	var current_depth: int = int(current_room.get("depth", 0))
-	var seen: Dictionary = {}
-	for connection_var: Variant in current_room.get("connections", []):
-		if typeof(connection_var) != TYPE_DICTIONARY:
-			continue
-		var connection: Dictionary = connection_var
-		var candidate: Vector2i = connection.get("coord", Vector2i(999, 999))
-		if seen.has(candidate):
-			continue
-		var room: Dictionary = _room_at(candidate)
-		if room.is_empty() or not bool(room.get("revealed", false)):
-			continue
-		if int(room.get("depth", 0)) < current_depth:
-			continue
-		if bool(room.get("sealed", false)):
-			continue
-		seen[candidate] = true
-		coords.append(candidate)
+	for coord: Vector2i in _available_move_coords_cache:
+		coords.append(coord)
 	return coords
 
 func _coord_position(coord: Vector2i) -> Vector2:
-	var map_rect: Rect2 = _map_rect()
-	var bounds: Rect2i = _coord_bounds()
+	_ensure_layout_cache()
 	var bounds_center := Vector2(
-		float(bounds.position.x) + float(bounds.size.x - 1) * 0.5,
-		float(bounds.position.y) + float(bounds.size.y - 1) * 0.5
+		float(_coord_bounds_cache.position.x) + float(_coord_bounds_cache.size.x - 1) * 0.5,
+		float(_coord_bounds_cache.position.y) + float(_coord_bounds_cache.size.y - 1) * 0.5
 	)
-	var spacing: float = _grid_spacing()
-	var coord_offset := Vector2(float(coord.x), float(coord.y)) - bounds_center
-	return map_rect.get_center() + coord_offset * spacing
+	return _cached_coord_position(coord, bounds_center)
 
 func _coord_at_point(point: Vector2) -> Vector2i:
-	var hit_radius: float = _base_node_size() * 0.72
-	for coord: Vector2i in _available_move_coords():
-		var room: Dictionary = _room_at(coord)
-		if room.is_empty() or not bool(room.get("revealed", false)):
-			continue
-		var rect := Rect2(_coord_position(coord) - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)
-		if rect.has_point(point):
-			return coord
+	_ensure_layout_cache()
+	for hit_entry: Dictionary in _available_hit_rects_cache:
+		var hit_rect: Rect2 = hit_entry.get("rect", Rect2())
+		if hit_rect.has_point(point):
+			return hit_entry.get("coord", INVALID_COORD)
 	return INVALID_COORD
 
 func _hover_coord_at_point(point: Vector2) -> Vector2i:
 	if not interactive:
 		return INVALID_COORD
-	var hit_radius: float = _base_node_size() * 0.72
-	for room: Dictionary in _visible_rooms():
-		var coord: Vector2i = room.get("coord", INVALID_COORD)
-		if coord.x <= -900:
-			continue
-		var rect := Rect2(_coord_position(coord) - Vector2.ONE * hit_radius, Vector2.ONE * hit_radius * 2.0)
-		if rect.has_point(point):
-			return coord
+	_ensure_layout_cache()
+	for hit_entry: Dictionary in _visible_hit_rects_cache:
+		var hit_rect: Rect2 = hit_entry.get("rect", Rect2())
+		if hit_rect.has_point(point):
+			return hit_entry.get("coord", INVALID_COORD)
 	return INVALID_COORD
 
 func _draw_connector(a: Vector2i, b: Vector2i, revealed: bool = true) -> void:
@@ -788,18 +989,22 @@ func _draw_connector(a: Vector2i, b: Vector2i, revealed: bool = true) -> void:
 			draw_dashed_line(a_pos, b_pos, Color(0.37, 0.33, 0.29, 0.64), 2.2, 10.0, true, true)
 
 func _node_route_state(room: Dictionary) -> String:
+	_ensure_state_caches()
+	return _route_state_for_room(room)
+
+func _route_state_for_room(room: Dictionary) -> String:
 	var coord: Vector2i = room.get("coord", INVALID_COORD)
 	if coord == run_state.get("current_room", Vector2i.ZERO):
 		return ROUTE_CURRENT
-	if _available_move_coords().has(coord):
+	if _available_move_coord_set.has(coord):
 		return ROUTE_REACHABLE
 	if bool(room.get("visited", false)) or bool(room.get("cleared", false)):
 		return ROUTE_VISITED
 	return ROUTE_UNAVAILABLE
 
 func _connector_route_state(a: Vector2i, b: Vector2i) -> String:
-	var a_room: Dictionary = _room_at(a)
-	var b_room: Dictionary = _room_at(b)
+	var a_room: Dictionary = _room_ref_at(a)
+	var b_room: Dictionary = _room_ref_at(b)
 	if a_room.is_empty() or b_room.is_empty():
 		return ROUTE_UNAVAILABLE
 	var a_state: String = _node_route_state(a_room)
@@ -813,8 +1018,8 @@ func _connector_route_state(a: Vector2i, b: Vector2i) -> String:
 	return ROUTE_UNAVAILABLE
 
 func _draw_route_chevron(a: Vector2i, b: Vector2i, color: Color) -> void:
-	var a_room: Dictionary = _room_at(a)
-	var b_room: Dictionary = _room_at(b)
+	var a_room: Dictionary = _room_ref_at(a)
+	var b_room: Dictionary = _room_ref_at(b)
 	var from_pos: Vector2 = _coord_position(a)
 	var to_pos: Vector2 = _coord_position(b)
 	if _node_route_state(a_room) == ROUTE_REACHABLE:
@@ -832,58 +1037,37 @@ func _draw_route_chevron(a: Vector2i, b: Vector2i, color: Color) -> void:
 	draw_line(back - perpendicular * 7.0, tip, color, 2.5, true)
 
 func _room_at(coord: Vector2i) -> Dictionary:
-	var rooms: Dictionary = run_state.get("rooms", {})
-	var key: String = _room_key(coord)
-	if not rooms.has(key):
+	var room: Dictionary = _room_ref_at(coord)
+	if room.is_empty():
 		return {}
-	return (rooms[key] as Dictionary).duplicate(true)
+	return room.duplicate(true)
+
+func _room_ref_at(coord: Vector2i) -> Dictionary:
+	_ensure_state_caches()
+	if _rooms_by_coord.has(coord):
+		return _rooms_by_coord.get(coord, {}) as Dictionary
+	return (run_state.get("rooms", {}) as Dictionary).get(_room_key(coord), {}) as Dictionary
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
 func _base_node_size() -> float:
-	var base: float = _grid_spacing() * 0.56
-	return clampf(base, 14.0 if not interactive else EXPANDED_NODE_MIN_SIZE, COMPACT_NODE_MAX_SIZE if not interactive else EXPANDED_NODE_MAX_SIZE)
+	_ensure_layout_cache()
+	return _base_node_size_cache
 
 func _grid_spacing() -> float:
-	var map_rect: Rect2 = _map_rect()
-	var bounds: Rect2i = _coord_bounds()
-	var span_x: int = maxi(0, bounds.size.x - 1)
-	var span_y: int = maxi(0, bounds.size.y - 1)
-	if not interactive:
-		var compact_spacing: float = COMPACT_GRID_SPACING
-		if span_x > 0:
-			compact_spacing = minf(compact_spacing, map_rect.size.x / float(span_x))
-		if span_y > 0:
-			compact_spacing = minf(compact_spacing, map_rect.size.y / float(span_y))
-		return maxf(12.0, compact_spacing)
-	var fit_x: float = map_rect.size.x / maxf(float(span_x), EXPANDED_MIN_FIT_SPAN)
-	var fit_y: float = map_rect.size.y / maxf(float(span_y), EXPANDED_MIN_FIT_SPAN)
-	return maxf(22.0, minf(fit_x, fit_y) * EXPANDED_FIT_RATIO)
+	_ensure_layout_cache()
+	return _grid_spacing_cache
 
 func _coord_bounds() -> Rect2i:
-	var rooms: Array[Dictionary] = _visible_rooms()
-	var min_x: int = 0
-	var max_x: int = 0
-	var min_y: int = 0
-	var max_y: int = 0
-	for room: Dictionary in rooms:
-		var coord: Vector2i = room.get("coord", Vector2i.ZERO)
-		min_x = mini(min_x, coord.x)
-		max_x = maxi(max_x, coord.x)
-		min_y = mini(min_y, coord.y)
-		max_y = maxi(max_y, coord.y)
-	return Rect2i(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+	_ensure_state_caches()
+	return _coord_bounds_cache
 
 func _visible_rooms() -> Array[Dictionary]:
+	_ensure_state_caches()
 	var results: Array[Dictionary] = []
-	var rooms: Dictionary = run_state.get("rooms", {})
-	for room_var: Variant in rooms.values():
-		var room: Dictionary = room_var
-		if _room_visible_on_this_map(room):
-			results.append(room)
-	if results.is_empty():
-		results.append({"coord": run_state.get("current_room", Vector2i.ZERO)})
+	for room: Dictionary in _visible_rooms_cache:
+		results.append(room)
 	return results
 
 func _room_visible_on_this_map(room: Dictionary) -> bool:
@@ -896,22 +1080,9 @@ func _room_visible_on_this_map(room: Dictionary) -> bool:
 	return interactive and bool(room.get("recovery_marker", false))
 
 func _map_rect() -> Rect2:
-	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER
-	var legend_width: float = LEGEND_WIDTH + LEGEND_GAP if show_legend else 0.0
-	return Rect2(
-		Vector2(padding, padding),
-		Vector2(
-			maxf(12.0, size.x - padding * 2.0 - legend_width),
-			maxf(12.0, size.y - padding * 2.0)
-		)
-	)
+	_ensure_layout_cache()
+	return _map_rect_cache
 
 func _legend_rect() -> Rect2:
-	var padding: float = COMPACT_EDGE_BUFFER if not interactive else EXPANDED_EDGE_BUFFER
-	var width: float = LEGEND_WIDTH
-	var room_rows: int = int(ceil(float(_legend_entries().size()) * 0.5))
-	var height: float = LEGEND_PADDING * 2.0 + LEGEND_SECTION_HEIGHT * 2.0 + LEGEND_ROW_HEIGHT * 2.0 + LEGEND_SECTION_GAP + float(room_rows) * LEGEND_ROW_HEIGHT
-	return Rect2(
-		Vector2(size.x - padding - width, padding),
-		Vector2(width, minf(height, maxf(12.0, size.y - padding * 2.0)))
-	)
+	_ensure_layout_cache()
+	return _legend_rect_cache

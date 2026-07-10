@@ -46,6 +46,11 @@ const STATE_FOCUS: String = "focus"
 const BUTTON_ORNAMENT_NAME: String = "ThemedButtonOrnament"
 
 var _cache: Dictionary = {}
+# Controls may share these application-only templates because UiSkin never mutates
+# them after construction. Callers that customize a StyleBox still receive an
+# isolated resource from make_button_style().
+var _applied_button_styles: Dictionary = {}
+var _applied_button_style_sets: Dictionary = {}
 
 func texture(key: String) -> Texture2D:
 	if _cache.has(key):
@@ -211,18 +216,43 @@ func apply_button_stylebox_overrides(
 ) -> void:
 	if button == null:
 		return
-	button.add_theme_stylebox_override("normal", make_button_style(variant, STATE_NORMAL))
-	button.add_theme_stylebox_override("hover", make_button_style(variant, STATE_HOVER))
-	button.add_theme_stylebox_override("pressed", make_button_style(variant, STATE_SELECTED if button.toggle_mode else STATE_PRESSED))
-	var selected_hover_variant: String = VARIANT_SELECTED if button.toggle_mode and variant == VARIANT_STANDARD else variant
-	button.add_theme_stylebox_override("hover_pressed", make_button_style(selected_hover_variant, STATE_HOVER))
-	button.add_theme_stylebox_override("focus", make_button_style(variant, STATE_FOCUS))
-	button.add_theme_stylebox_override("disabled", make_button_style(variant, STATE_DISABLED))
+	var styles: Dictionary = _applied_button_style_set(variant, button.toggle_mode)
+	button.add_theme_stylebox_override("normal", styles[STATE_NORMAL])
+	button.add_theme_stylebox_override("hover", styles[STATE_HOVER])
+	button.add_theme_stylebox_override("pressed", styles["pressed_override"])
+	button.add_theme_stylebox_override("hover_pressed", styles["hover_pressed_override"])
+	button.add_theme_stylebox_override("focus", styles[STATE_FOCUS])
+	button.add_theme_stylebox_override("disabled", styles[STATE_DISABLED])
 	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	button.set_meta("button_variant", variant)
 	if button is Button:
 		(button as Button).alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ensure_button_ornament(button, variant)
+
+func _applied_button_style_set(variant: String, toggle_mode: bool) -> Dictionary:
+	var cache_key: String = "%s:%s" % [variant, "toggle" if toggle_mode else "plain"]
+	if _applied_button_style_sets.has(cache_key):
+		return _applied_button_style_sets[cache_key]
+	var selected_hover_variant: String = VARIANT_SELECTED if toggle_mode and variant == VARIANT_STANDARD else variant
+	var styles: Dictionary = {
+		STATE_NORMAL: _applied_button_style(variant, STATE_NORMAL),
+		STATE_HOVER: _applied_button_style(variant, STATE_HOVER),
+		"pressed_override": _applied_button_style(variant, STATE_SELECTED if toggle_mode else STATE_PRESSED),
+		"hover_pressed_override": _applied_button_style(selected_hover_variant, STATE_HOVER),
+		STATE_FOCUS: _applied_button_style(variant, STATE_FOCUS),
+		STATE_DISABLED: _applied_button_style(variant, STATE_DISABLED),
+	}
+	_applied_button_style_sets[cache_key] = styles
+	return styles
+
+func _applied_button_style(variant: String, state: String) -> StyleBoxFlat:
+	var variant_styles: Dictionary = _applied_button_styles.get(variant, {})
+	if variant_styles.has(state):
+		return variant_styles[state]
+	var style: StyleBoxFlat = make_button_style(variant, state)
+	variant_styles[state] = style
+	_applied_button_styles[variant] = variant_styles
+	return style
 
 func apply_button_text_overrides(
 	button: BaseButton,

@@ -36,9 +36,11 @@ static func reachable_tiles(grid: Array, start: Vector2i, max_distance: int, occ
 		return results
 	var queue: Array[Vector2i] = []
 	queue.append(start)
+	var queue_head: int = 0
 	var distance_by_tile: Dictionary = {start: 0}
-	while not queue.is_empty():
-		var current: Vector2i = queue.pop_front()
+	while queue_head < queue.size():
+		var current: Vector2i = queue[queue_head]
+		queue_head += 1
 		var current_distance: int = int(distance_by_tile.get(current, 0))
 		if current_distance > 0:
 			results.append(current)
@@ -66,9 +68,11 @@ static func find_path(grid: Array, start: Vector2i, goal: Vector2i, occupied: Di
 		return empty
 	var frontier: Array[Vector2i] = []
 	frontier.append(start)
+	var frontier_head: int = 0
 	var came_from: Dictionary = {start: start}
-	while not frontier.is_empty():
-		var current: Vector2i = frontier.pop_front()
+	while frontier_head < frontier.size():
+		var current: Vector2i = frontier[frontier_head]
+		frontier_head += 1
 		if current == goal:
 			break
 		for dir: Vector2i in DIRS_4:
