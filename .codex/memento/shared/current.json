@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-09T19:43:12Z",
+  "updated_at": "2026-07-10T02:32:51Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4823,6 +4823,28 @@
       "source": {
         "branch": "codex/ui-contextual-first-run-onboarding",
         "commit": "5d91a8e"
+      }
+    },
+    {
+      "id": "mnt_20260710T023251Z_b4904583",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pre-battle Active Deck uses counted dense tiles at supported sizes",
+      "details": "The committed pre-battle overlay groups duplicate card ids into xN tiles and switches to the 120px three-column dense layout at nine groups (attuned magic is always dense). This keeps the 19-card maximum immediately visible without a deck scrollbar at 1280x720 and larger; retain the auto ScrollContainer only for genuinely extreme overflow.",
+      "status": "active",
+      "created_at": "2026-07-10T02:32:51Z",
+      "updated_at": "2026-07-10T02:32:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-prebattle-deck-fit-v2",
+        "commit": "ada58b5"
       }
     }
   ]

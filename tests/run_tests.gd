@@ -7466,16 +7466,32 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	var threat_summary: Label = preview_panel.find_child("PreBattleThreatSummary", true, false) as Label if preview_panel != null else null
 	_assert(threat_summary != null and not threat_summary.text.is_empty(), "Pre-battle enemy cards should summarize already-known tactical threats")
 	var attuned_row: HFlowContainer = preview_panel.find_child("PreBattleAttunedRow", true, false) as HFlowContainer if preview_panel != null else null
-	_assert(attuned_row != null and attuned_row.get_child_count() == (paused_state.get("attuned_magic_cards", []) as Array).size(), "Pre-battle preview should show each currently attuned magic card separately")
+	var displayed_attuned_cards: Array = _pre_battle_card_ids(preview_panel, "attuned")
+	_assert(attuned_row != null and displayed_attuned_cards.size() == (paused_state.get("attuned_magic_cards", []) as Array).size(), "Pre-battle preview should represent every attuned magic card, including counted duplicates")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleIntentRow", true, false) == null, "Pre-battle preview should not reveal enemy opening intents")
 	_assert(preview_panel != null and preview_panel.find_child("PreBattleCloseButton", true, false) == null, "Pre-battle preview should not offer a back-out button after room entry")
+	var deck_scroll: ScrollContainer = preview_panel.find_child("PreBattleDeckScroll", true, false) as ScrollContainer if preview_panel != null else null
+	var displayed_deck_entries: int = 0
+	if deck_scroll != null:
+		var scroll_rect: Rect2 = deck_scroll.get_global_rect().grow(1.0)
+		var deck_flow: HFlowContainer = deck_scroll.find_child("PreBattleDeckFlow", true, false) as HFlowContainer
+		var deck_badges: Array = deck_flow.get_children() if deck_flow != null else []
+		for badge_var: Variant in deck_badges:
+			var visible_badge: Control = badge_var as Control
+			if visible_badge == null:
+				continue
+			displayed_deck_entries += maxi(1, int(visible_badge.get_meta("card_count", 1)))
+			_assert(scroll_rect.encloses(visible_badge.get_global_rect()), "Standard pre-battle deck tiles should all be immediately visible without scrolling")
+		var deck_bar: VScrollBar = deck_scroll.get_v_scroll_bar()
+		_assert(not deck_bar.visible and deck_bar.max_value <= deck_bar.page + 1.0, "Standard pre-battle Active Deck should not need or expose vertical scrolling")
+	_assert(displayed_deck_entries == (paused_state.get("deck_cards", []) as Array).size(), "Counted pre-battle deck tiles should represent every card Start will use")
 	var deck_badge: Control = null
 	if preview_panel != null:
 		deck_badge = preview_panel.find_child("PreBattleDeckBadge", true, false) as Control
 	var deck_badge_name: Label = null
 	if deck_badge != null:
 		deck_badge_name = deck_badge.find_child("CardBadgeName", true, false) as Label
-	_assert(deck_badge != null and deck_badge.custom_minimum_size.x > deck_badge.custom_minimum_size.y * 3.0, "Pre-battle deck badges should reuse the wide character-screen card badge shape")
+	_assert(deck_badge != null and deck_badge.custom_minimum_size.x > deck_badge.custom_minimum_size.y * 3.0, "Pre-battle deck badges should retain a wide, readable tile shape when compacted")
 	_assert(deck_badge_name != null and not deck_badge_name.text.is_empty(), "Pre-battle deck badges should show the card name over the card art")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
@@ -11356,7 +11372,8 @@ func _pre_battle_collect_card_ids(node: Node, source_kind: String, card_ids: Arr
 	if str(node.get_meta("source_kind", "")) == source_kind:
 		var card_id: String = str(node.get_meta("card_id", ""))
 		if not card_id.is_empty():
-			card_ids.append(card_id)
+			for _copy_index: int in range(maxi(1, int(node.get_meta("card_count", 1)))):
+				card_ids.append(card_id)
 	for child: Node in node.get_children():
 		_pre_battle_collect_card_ids(child, source_kind, card_ids)
 

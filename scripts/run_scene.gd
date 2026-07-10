@@ -941,7 +941,10 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(252.0, 188.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 152.0)
-const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
+const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(46.0, 46.0)
+const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
+const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
+const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
@@ -1330,6 +1333,8 @@ func _notification(what: int) -> void:
 		_layout_turn_order_anchor()
 		_layout_grimoire_dialog()
 		_layout_pre_battle_dialog()
+		if _pre_battle_scrim != null and _pre_battle_scrim.visible:
+			call_deferred("_rebuild_pre_battle_overlay")
 		_layout_progression_dialog()
 
 func _apply_style() -> void:
@@ -2182,14 +2187,18 @@ func _build_pre_battle_deck_section(accent: Color) -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	margin.add_child(vbox)
 	vbox.add_child(_build_pre_battle_player_strip(accent))
 	var active_deck: Array = (_run_state.get("deck_cards", []) as Array).duplicate()
+	var deck_groups: Array = _pre_battle_card_groups(active_deck)
+	var badge_layout: Dictionary = _pre_battle_card_badge_layout("deck", deck_groups.size())
 	vbox.add_child(_pre_battle_section_label("Active Deck  %d" % active_deck.size(), ActionIcons.icon_texture("card_play"), accent))
 
 	var scroll := ScrollContainer.new()
 	scroll.name = "PreBattleDeckScroll"
+	scroll.set_meta("deck_entry_count", active_deck.size())
+	scroll.set_meta("deck_group_count", deck_groups.size())
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -2199,21 +2208,26 @@ func _build_pre_battle_deck_section(accent: Color) -> Control:
 	var flow := HFlowContainer.new()
 	flow.name = "PreBattleDeckFlow"
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.add_theme_constant_override("h_separation", 7)
-	flow.add_theme_constant_override("v_separation", 7)
+	flow.add_theme_constant_override("h_separation", int(badge_layout.get("h_gap", 5)))
+	flow.add_theme_constant_override("v_separation", int(badge_layout.get("v_gap", 5)))
 	scroll.add_child(flow)
-	for card_id_var: Variant in active_deck:
-		var card_id: String = str(card_id_var)
-		if card_id.is_empty():
-			continue
-		flow.add_child(_build_pre_battle_card_badge(card_id, "PreBattleDeckBadge", "deck"))
+	for group_var: Variant in deck_groups:
+		var group: Dictionary = group_var as Dictionary
+		flow.add_child(_build_pre_battle_card_badge(
+			str(group.get("card_id", "")),
+			"PreBattleDeckBadge",
+			"deck",
+			int(group.get("count", 1)),
+			badge_layout.get("badge_size", EQUIPMENT_DECK_BADGE_SIZE) as Vector2,
+			int(badge_layout.get("font_size", UiTypography.SIZE_CAPTION))
+		))
 	return panel
 
 func _build_pre_battle_player_strip(accent: Color) -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.name = "PreBattlePlayerStrip"
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	vbox.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT)
 
 	var top_row := HBoxContainer.new()
 	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2226,8 +2240,8 @@ func _build_pre_battle_player_strip(accent: Color) -> Control:
 	var equipment_row := HFlowContainer.new()
 	equipment_row.name = "PreBattleEquipmentRow"
 	equipment_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	equipment_row.add_theme_constant_override("h_separation", 7)
-	equipment_row.add_theme_constant_override("v_separation", 7)
+	equipment_row.add_theme_constant_override("h_separation", 6)
+	equipment_row.add_theme_constant_override("v_separation", 4)
 	vbox.add_child(equipment_row)
 	var equipped: Dictionary = (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
 	for slot: String in GameData.equipment_slots():
@@ -2237,19 +2251,61 @@ func _build_pre_battle_player_strip(accent: Color) -> Control:
 		equipment_row.add_child(_build_pre_battle_equipment_chip(equipment_id))
 
 	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
+	var attuned_groups: Array = _pre_battle_card_groups(attuned)
+	var badge_layout: Dictionary = _pre_battle_card_badge_layout("attuned", attuned_groups.size())
 	vbox.add_child(_pre_battle_loadout_label("Attuned Magic  %d/%d" % [attuned.size(), GameData.magic_loadout_limit()], "Active spells"))
 	var attuned_row := HFlowContainer.new()
 	attuned_row.name = "PreBattleAttunedRow"
 	attuned_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	attuned_row.add_theme_constant_override("h_separation", 7)
-	attuned_row.add_theme_constant_override("v_separation", 7)
+	attuned_row.add_theme_constant_override("h_separation", int(badge_layout.get("h_gap", 5)))
+	attuned_row.add_theme_constant_override("v_separation", int(badge_layout.get("v_gap", 5)))
 	vbox.add_child(attuned_row)
-	for card_id_var: Variant in attuned:
+	for group_var: Variant in attuned_groups:
+		var group: Dictionary = group_var as Dictionary
+		attuned_row.add_child(_build_pre_battle_card_badge(
+			str(group.get("card_id", "")),
+			"PreBattleAttunedBadge",
+			"attuned",
+			int(group.get("count", 1)),
+			badge_layout.get("badge_size", PRE_BATTLE_CARD_BADGE_COMPACT_SIZE) as Vector2,
+			int(badge_layout.get("font_size", UiTypography.SIZE_CAPTION))
+		))
+	return vbox
+
+func _pre_battle_card_groups(card_ids: Array) -> Array:
+	var groups: Array = []
+	var group_index_by_card: Dictionary = {}
+	for card_id_var: Variant in card_ids:
 		var card_id: String = str(card_id_var)
 		if card_id.is_empty():
 			continue
-		attuned_row.add_child(_build_pre_battle_card_badge(card_id, "PreBattleAttunedBadge", "attuned"))
-	return vbox
+		if group_index_by_card.has(card_id):
+			var existing_index: int = int(group_index_by_card[card_id])
+			var existing_group: Dictionary = (groups[existing_index] as Dictionary).duplicate(true)
+			existing_group["count"] = int(existing_group.get("count", 1)) + 1
+			groups[existing_index] = existing_group
+			continue
+		group_index_by_card[card_id] = groups.size()
+		groups.append({"card_id": card_id, "count": 1})
+	return groups
+
+func _pre_battle_card_badge_layout(source_kind: String, group_count: int) -> Dictionary:
+	var viewport_height: float = get_viewport_rect().size.y
+	var compact_height: bool = viewport_height <= 740.0
+	var dense: bool = source_kind == "attuned" or group_count >= PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD
+	if not dense:
+		return {
+			"badge_size": EQUIPMENT_DECK_BADGE_SIZE,
+			"font_size": UiTypography.SIZE_CAPTION,
+			"h_gap": 7,
+			"v_gap": 7,
+		}
+	return {
+		"badge_size": PRE_BATTLE_CARD_BADGE_COMPACT_SIZE if compact_height else PRE_BATTLE_CARD_BADGE_DENSE_SIZE,
+		"font_size": 12,
+		"h_gap": 5,
+		"v_gap": 1 if compact_height else 2,
+	}
 
 func _pre_battle_loadout_label(text: String, detail: String) -> Control:
 	var row := HBoxContainer.new()
@@ -2273,7 +2329,7 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 	var chip := PanelContainer.new()
 	chip.name = "PreBattleHealthChip"
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chip.custom_minimum_size = Vector2(0.0, 44.0)
+	chip.custom_minimum_size = Vector2(0.0, 40.0)
 	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.86), accent.darkened(0.05), 6.0, 7))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -2437,7 +2493,7 @@ func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Contr
 	row.add_child(label)
 	return chip
 
-func _build_pre_battle_card_badge(card_id: String, badge_name: String, source_kind: String) -> Control:
+func _build_pre_battle_card_badge(card_id: String, badge_name: String, source_kind: String, card_count: int = 1, badge_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE, font_size: int = UiTypography.SIZE_CAPTION) -> Control:
 	var card: Dictionary = GameData.card_def(card_id)
 	var accent: Color = ElementData.accent(GameData.card_element(card_id))
 	var badge := PreBattleCardBadge.new()
@@ -2447,13 +2503,38 @@ func _build_pre_battle_card_badge(card_id: String, badge_name: String, source_ki
 	badge.source_kind = source_kind
 	badge.set_meta("card_id", card_id)
 	badge.set_meta("source_kind", source_kind)
-	badge.custom_minimum_size = EQUIPMENT_DECK_BADGE_SIZE
+	badge.set_meta("card_count", maxi(1, card_count))
+	badge.custom_minimum_size = badge_size
 	badge.tooltip_text = "card:%s" % card_id
 	badge.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	badge.clip_contents = true
 	badge.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
-	badge.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
+	var display_name: String = str(card.get("name", card_id))
+	if card_count > 1:
+		display_name += " x%d" % card_count
+	badge.set_meta("display_name", display_name)
+	var content: Control = _build_card_art_badge_content(card, accent, display_name)
+	var name_label: Label = content.find_child("CardBadgeName", true, false) as Label
+	if name_label != null:
+		var fitted_font_size: int = _pre_battle_badge_font_size(display_name, badge_size.x, font_size)
+		UiTypography.set_label_size(name_label, fitted_font_size)
+		badge.set_meta("label_font_size", fitted_font_size)
+		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_label.max_lines_visible = 2
+		name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+		name_label.add_theme_constant_override("line_spacing", -3)
+		name_label.offset_left = 4.0
+		name_label.offset_right = -4.0
+	badge.add_child(content)
 	return badge
+
+func _pre_battle_badge_font_size(display_name: String, badge_width: float, preferred_size: int) -> int:
+	var font: Font = UiTypography.body_font()
+	var fitted_size: int = preferred_size
+	var available_width: float = maxf(24.0, badge_width - 18.0)
+	while font != null and fitted_size > 10 and font.get_string_size(display_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, fitted_size).x > available_width:
+		fitted_size -= 1
+	return fitted_size
 
 func _build_pre_battle_equipment_chip(equipment_id: String) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
