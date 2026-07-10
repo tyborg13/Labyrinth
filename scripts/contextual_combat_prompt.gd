@@ -129,7 +129,7 @@ func _small_button(text: String, minimum_size: Vector2) -> Button:
 	button.custom_minimum_size = minimum_size
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.focus_mode = Control.FOCUS_NONE
-	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
 	return button

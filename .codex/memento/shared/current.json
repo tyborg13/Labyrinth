@@ -4870,6 +4870,28 @@
         "branch": "codex/ui-save-every-action-v2",
         "commit": "cbe9f4b"
       }
+    },
+    {
+      "id": "mnt_20260710T024532Z_b8515d56",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ui_skin.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ui_skin.gd",
+      "summary": "Command buttons use scalable UiSkin variants, not state bitmaps",
+      "details": "Player-facing command/action Buttons and OptionButtons should use UiSkin compact, standard, large, destructive, selected, or icon StyleBoxFlat variants plus the non-interactive themed ornament. Do not reintroduce stretched per-state bitmap buttons. Card widgets and parchment navigation lists are intentional non-command exceptions. Styling must preserve existing focus modes, neighbors, controller traversal, and bindings.",
+      "status": "active",
+      "created_at": "2026-07-10T02:45:32Z",
+      "updated_at": "2026-07-10T02:45:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-button-system-overhaul-v2",
+        "commit": "ada58b5"
+      }
     }
   ]
 }

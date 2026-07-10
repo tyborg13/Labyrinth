@@ -207,12 +207,12 @@ func _build_footer() -> Control:
 	confirm_row.add_child(warning)
 	var cancel := Button.new()
 	cancel.text = "Cancel"
-	_style_button(cancel, 120.0)
+	_style_button(cancel, 120.0, Color("efe4c1"), UiSkin.VARIANT_COMPACT)
 	cancel.pressed.connect(_dismiss_restore_confirmation)
 	confirm_row.add_child(cancel)
 	var confirm := Button.new()
 	confirm.text = "Restore"
-	_style_button(confirm, 138.0, Color("ffb29b"))
+	_style_button(confirm, 138.0, Color("ffcabd"), UiSkin.VARIANT_DESTRUCTIVE)
 	confirm.pressed.connect(_confirm_restore_defaults)
 	confirm_row.add_child(confirm)
 	footer.add_child(_confirmation_panel)
@@ -229,7 +229,7 @@ func _build_footer() -> Control:
 	actions.add_child(_status_label)
 	var restore := Button.new()
 	restore.text = "Restore defaults"
-	_style_button(restore, 194.0, Color("e9b0a0"))
+	_style_button(restore, 194.0, Color("efc7ba"), UiSkin.VARIANT_DESTRUCTIVE)
 	restore.pressed.connect(_show_restore_confirmation)
 	actions.add_child(restore)
 	_back_button = Button.new()
@@ -337,17 +337,27 @@ func _setting_row(title_text: String, detail_text: String, setting_control: Cont
 func _option_control() -> OptionButton:
 	var option := OptionButton.new()
 	option.custom_minimum_size = Vector2(CONTROL_WIDTH, 44.0)
-	_ui_skin.apply_button_stylebox_overrides(option)
+	_ui_skin.apply_button_stylebox_overrides(option, UiSkin.VARIANT_STANDARD)
 	_ui_skin.apply_button_text_overrides(option)
 	UiTypography.set_option_button_size(option, UiTypography.SIZE_BODY)
+	option.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	option.add_theme_constant_override("arrow_margin", 12)
+	option.set_meta("settings_text_centered", true)
 	return option
 
-func _style_button(button: Button, width: float, font_color: Color = Color("efe4c1")) -> void:
-	_ui_skin.apply_button_stylebox_overrides(button)
+func _style_button(
+	button: Button,
+	width: float,
+	font_color: Color = Color("efe4c1"),
+	variant: String = UiSkin.VARIANT_STANDARD
+) -> void:
+	_ui_skin.apply_button_stylebox_overrides(button, variant)
 	_ui_skin.apply_button_text_overrides(button, font_color)
 	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, width, false)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, width, false, variant)
 	button.custom_minimum_size.x = width
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.set_meta("settings_text_centered", true)
 
 func _sync_controls_from_settings() -> void:
 	if _controls.is_empty():

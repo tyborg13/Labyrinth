@@ -69,6 +69,7 @@ func _initialize() -> void:
 	_test_steam_service_fallback_and_cloud_paths()
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
+	_test_ui_skin_button_system()
 	_test_relic_data_rarity_and_offer_weights()
 	_test_equipment_data_rarity_and_starter_deck()
 	_test_room_generation_is_deterministic()
@@ -324,6 +325,54 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL (%d failure(s))" % _failures.size())
 	quit(1)
+
+func _test_ui_skin_button_system() -> void:
+	var skin := UiSkin.new()
+	var variants: Array[String] = [
+		UiSkin.VARIANT_COMPACT,
+		UiSkin.VARIANT_STANDARD,
+		UiSkin.VARIANT_LARGE,
+		UiSkin.VARIANT_DESTRUCTIVE,
+		UiSkin.VARIANT_SELECTED,
+		UiSkin.VARIANT_ICON
+	]
+	var states: Array[String] = [
+		UiSkin.STATE_NORMAL,
+		UiSkin.STATE_HOVER,
+		UiSkin.STATE_PRESSED,
+		UiSkin.STATE_DISABLED,
+		UiSkin.STATE_SELECTED,
+		UiSkin.STATE_FOCUS
+	]
+	for variant: String in variants:
+		for state: String in states:
+			var style: StyleBox = skin.make_button_style(variant, state)
+			_assert(style is StyleBoxFlat, "%s/%s button state should use scalable code-native StyleBoxFlat construction" % [variant, state])
+			if style is StyleBoxFlat and state != UiSkin.STATE_FOCUS:
+				var flat := style as StyleBoxFlat
+				_assert(is_equal_approx(flat.content_margin_left, flat.content_margin_right), "%s/%s button content should stay mathematically centered" % [variant, state])
+
+	var compact_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_COMPACT)
+	var standard_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_STANDARD)
+	var large_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_LARGE)
+	var icon_size: Vector2 = skin.button_native_size(UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, UiSkin.VARIANT_ICON)
+	_assert(compact_size.x < standard_size.x and standard_size.x < large_size.x, "Compact, standard, and large buttons should use distinct native proportions")
+	_assert(is_equal_approx(icon_size.x, icon_size.y), "Icon buttons should use a native square proportion")
+
+	var button := Button.new()
+	button.toggle_mode = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.focus_neighbor_left = NodePath("../PreserveLeft")
+	button.focus_neighbor_right = NodePath("../PreserveRight")
+	skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
+	_assert(button.focus_mode == Control.FOCUS_NONE, "Button styling should not change focus eligibility")
+	_assert(button.focus_neighbor_left == NodePath("../PreserveLeft") and button.focus_neighbor_right == NodePath("../PreserveRight"), "Button styling should not change controller focus traversal")
+	_assert(button.alignment == HORIZONTAL_ALIGNMENT_CENTER, "Themed button labels should default to mathematical centering")
+	_assert(button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) != null, "Themed buttons should include the scalable brass edge ornament")
+	_assert(str(button.get_meta("button_variant", "")) == UiSkin.VARIANT_STANDARD, "Themed buttons should expose their applied variant for regression inspection")
+	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
+		_assert(button.get_theme_stylebox(state_name) is StyleBoxFlat, "Applied %s button state should remain code-native" % state_name)
+	button.free()
 
 func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(GrimoireLibrary.sections().size() == 8, "Grimoire should expose the planned navigation sections")
@@ -7691,7 +7740,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	var pass_button: Button = _button_with_text(choice_host, "Pass")
 	_assert(pass_button != null, "Combat UI should always offer Pass when the player can end the turn manually")
 	if pass_button != null:
-		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Combat Pass button should use a large native-ratio frame")
+		_assert_button_uses_variant(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, UiSkin.VARIANT_LARGE, "Combat Pass button should use the large themed variant")
 	var overlay: Control = instance.get("_choice_button_overlay") as Control
 	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
@@ -7741,7 +7790,7 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	var pass_button: Button = _button_with_text(choice_host, "Pass")
 	_assert(pass_button != null, "Combat UI should offer Pass when the hand has no playable cards")
 	if pass_button != null:
-		_assert_button_uses_native_ratio(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, "Dead-hand Pass button should use a large native-ratio frame")
+		_assert_button_uses_variant(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, UiSkin.VARIANT_LARGE, "Dead-hand Pass button should use the large themed variant")
 	instance.queue_free()
 	await process_frame
 
@@ -7883,9 +7932,9 @@ func _test_run_scene_action_selection_buttons_are_large() -> void:
 	_assert(skip_button != null, "Action context should show Skip when the current action can be skipped")
 	_assert(cancel_button != null, "Action context should show Cancel while a card action is selected")
 	if skip_button != null:
-		_assert_button_uses_native_ratio(skip_button, UiSkin.BUTTON_HEIGHT_STANDARD, "Action-context Skip should use a compact native-ratio frame")
+		_assert_button_uses_variant(skip_button, UiSkin.BUTTON_HEIGHT_STANDARD, UiSkin.VARIANT_COMPACT, "Action-context Skip should use the compact themed variant")
 	if cancel_button != null:
-		_assert_button_uses_native_ratio(cancel_button, UiSkin.BUTTON_HEIGHT_STANDARD, "Action-context Cancel should use a compact native-ratio frame")
+		_assert_button_uses_variant(cancel_button, UiSkin.BUTTON_HEIGHT_STANDARD, UiSkin.VARIANT_COMPACT, "Action-context Cancel should use the compact themed variant")
 	instance.queue_free()
 	await process_frame
 
@@ -7913,7 +7962,7 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	var pass_hand_x: float = hand_scroll.global_position.x
 	var pass_action_width: float = left_action_stack.size.x
-	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION).x
+	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE).x
 	var expected_action_width: float = maxf(piles_bar.get_combined_minimum_size().x, single_action_width)
 	var two_action_width: float = single_action_width * 2.0 + float(choice_bar.get_theme_constant("separation"))
 	_assert(absf(pass_action_width - expected_action_width) <= 1.0, "Combat action controls should keep the original pile/pass layout footprint")
@@ -10582,11 +10631,19 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	await process_frame
 	var menu_settings_panel: Node = menu_instance.get_node("SettingsPanel")
 	_assert(is_equal_approx(float((menu_settings_panel.call("current_settings") as Dictionary)["music_volume"]), 0.35), "Main-menu settings should read the shared persistent profile")
+	var settings_controls: Dictionary = menu_settings_panel.get("_controls") as Dictionary
+	for key: String in ["display_mode", "ui_scale", "dialogue_speed", "reduced_motion"]:
+		var settings_control: Variant = settings_controls.get(key)
+		_assert(settings_control is Button, "Settings %s should expose a button-derived centered control" % key)
+		if settings_control is Button:
+			_assert_button_text_centered(settings_control as Button, "Settings %s" % key)
 	var menu_music: AudioStreamPlayer = menu_instance.get_node("MusicPlayer")
 	_assert(menu_music.bus == SettingsStore.MUSIC_BUS, "Main-menu music should route through the Music bus")
 	var restore_button: Button = _button_with_text(menu_settings_panel, "Restore defaults")
 	_assert(restore_button != null, "Settings should expose Restore defaults")
 	if restore_button != null:
+		_assert_button_text_centered(restore_button, "Settings Restore defaults")
+		_assert(str(restore_button.get_meta("button_variant", "")) == UiSkin.VARIANT_DESTRUCTIVE, "Restore defaults should use the destructive themed variant")
 		restore_button.pressed.emit()
 	var confirmation_panel: PanelContainer = menu_settings_panel.get("_confirmation_panel") as PanelContainer
 	_assert(confirmation_panel != null and confirmation_panel.visible, "Restore defaults should require a deliberate confirmation step")
@@ -10594,6 +10651,7 @@ func _test_settings_persistence_audio_and_presentation_preferences() -> void:
 	var confirm_restore: Button = _button_with_text(confirmation_panel, "Restore")
 	_assert(confirm_restore != null, "Restore confirmation should expose an explicit Restore action")
 	if confirm_restore != null:
+		_assert_button_text_centered(confirm_restore, "Settings restore confirmation")
 		confirm_restore.pressed.emit()
 	_assert((menu_settings_panel.call("current_settings") as Dictionary) == defaults, "Confirmed restore should reset every phase-one setting")
 	menu_instance.queue_free()
@@ -11449,14 +11507,26 @@ func _run_scene_choice_button_host(instance: Node) -> Node:
 		return overlay
 	return instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 
-func _assert_button_uses_native_ratio(button: Button, min_height: float, message: String) -> void:
+func _assert_button_text_centered(button: Button, message: String) -> void:
+	_assert(button.alignment == HORIZONTAL_ALIGNMENT_CENTER, "%s text should be mathematically centered" % message)
+	_assert(bool(button.get_meta("settings_text_centered", false)), "%s should carry the settings centering contract" % message)
+	var normal_style: StyleBox = button.get_theme_stylebox("normal")
+	_assert(normal_style is StyleBoxFlat, "%s should use the code-native themed background" % message)
+	if normal_style is StyleBoxFlat:
+		var flat := normal_style as StyleBoxFlat
+		_assert(is_equal_approx(flat.content_margin_left, flat.content_margin_right), "%s should reserve equal left/right text margins" % message)
+
+func _assert_button_uses_variant(button: Button, min_height: float, variant: String, message: String) -> void:
 	var minimum_size: Vector2 = button.custom_minimum_size
 	_assert(minimum_size.y >= min_height, message)
 	if minimum_size.y <= 0.0:
 		_failures.append("%s should have a positive minimum height" % message)
 		return
-	var ratio: float = minimum_size.x / minimum_size.y
-	_assert(is_equal_approx(ratio, UiSkin.BUTTON_TEXTURE_ASPECT), "%s should preserve the button art ratio" % message)
+	var native_size: Vector2 = UiSkin.new().button_native_size(minimum_size.y, 0.0, variant)
+	_assert(minimum_size.x >= native_size.x, "%s should meet the variant's content-aware native width" % message)
+	_assert(str(button.get_meta("button_variant", "")) == variant, "%s should carry the expected themed variant" % message)
+	_assert(button.get_theme_stylebox("normal") is StyleBoxFlat, "%s should not use a stretched bitmap StyleBox" % message)
+	_assert(button.get_node_or_null(UiSkin.BUTTON_ORNAMENT_NAME) != null, "%s should render the shared scalable ornament" % message)
 
 func _assert_board_kept_animating_enemy(board_view: Node, expected_tile: Vector2i, context: String) -> void:
 	var rendered_state: Dictionary = board_view.get("combat_state")

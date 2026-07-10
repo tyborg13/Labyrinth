@@ -43,6 +43,7 @@ func _capture_main_menu_settings(scale: float, suffix: String) -> void:
 	var panel: Control = instance.get_node("SettingsPanel") as Control
 	_require(panel != null and panel.visible, "Main-menu settings panel should be visible at %s scale" % suffix)
 	_require(is_equal_approx(float((panel.call("current_settings") as Dictionary)["ui_scale"]), scale), "Main-menu panel should read %s UI scale" % suffix)
+	_require_centered_settings_controls(panel, "main-menu %s" % suffix)
 	await _save_screenshot("%s/main_menu_settings_%s.png" % [OUTPUT_DIR, suffix])
 	if suffix == "100":
 		var before_restore: Dictionary = panel.call("current_settings") as Dictionary
@@ -76,6 +77,7 @@ func _capture_run_settings(scale: float, suffix: String) -> void:
 	var panel: Control = instance.get("_settings_panel") as Control
 	_require(panel != null and panel.visible, "In-run settings panel should be visible at %s scale" % suffix)
 	_require(is_equal_approx(float((panel.call("current_settings") as Dictionary)["ui_scale"]), scale), "In-run panel should read %s UI scale" % suffix)
+	_require_centered_settings_controls(panel, "in-run %s" % suffix)
 	await _save_screenshot("%s/run_settings_%s.png" % [OUTPUT_DIR, suffix])
 	instance.queue_free()
 	await process_frame
@@ -166,6 +168,24 @@ func _require(condition: bool, message: String) -> void:
 		return
 	push_error(message)
 	quit(1)
+
+func _require_centered_settings_controls(panel: Control, context: String) -> void:
+	var centered_controls: Array[Button] = []
+	_collect_centered_settings_controls(panel, centered_controls)
+	_require(centered_controls.size() >= 7, "%s Settings should expose all centered button-derived controls" % context)
+	for button: Button in centered_controls:
+		_require(button.alignment == HORIZONTAL_ALIGNMENT_CENTER, "%s %s text should be mathematically centered" % [context, button.text])
+		var normal_style: StyleBox = button.get_theme_stylebox("normal")
+		_require(normal_style is StyleBoxFlat, "%s %s should use the code-native themed style" % [context, button.text])
+		if normal_style is StyleBoxFlat:
+			var flat := normal_style as StyleBoxFlat
+			_require(is_equal_approx(flat.content_margin_left, flat.content_margin_right), "%s %s should reserve symmetric text margins" % [context, button.text])
+
+func _collect_centered_settings_controls(node: Node, result: Array[Button]) -> void:
+	if node is Button and bool(node.get_meta("settings_text_centered", false)):
+		result.append(node as Button)
+	for child: Node in node.get_children():
+		_collect_centered_settings_controls(child, result)
 
 func _button_with_text(node: Node, text: String) -> Button:
 	if node is Button and (node as Button).text == text:

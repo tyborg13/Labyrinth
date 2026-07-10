@@ -390,10 +390,10 @@ func _button(node_name: String, text: String) -> Button:
 	button.name = node_name
 	button.text = text
 	button.add_theme_font_override("font", REGULAR_FONT)
-	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH)
+	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH, true, UiSkin.VARIANT_LARGE)
 	return button
 
 func _apply_model() -> void:

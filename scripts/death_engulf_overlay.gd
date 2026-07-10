@@ -119,7 +119,7 @@ func _build_children() -> void:
 	_continue_button.visible = false
 	_continue_button.disabled = true
 	_continue_button.add_theme_font_override("font", REGULAR_FONT)
-	_ui_skin.apply_button_stylebox_overrides(_continue_button)
+	_ui_skin.apply_button_stylebox_overrides(_continue_button, UiSkin.VARIANT_SELECTED)
 	_ui_skin.apply_button_text_overrides(
 		_continue_button,
 		Color("f4d8d8"),
@@ -128,7 +128,7 @@ func _build_children() -> void:
 		2
 	)
 	UiTypography.apply_button_role(_continue_button, UiTypography.ROLE_SECTION)
-	_ui_skin.apply_button_native_size(_continue_button, CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH)
+	_ui_skin.apply_button_native_size(_continue_button, CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH, true, UiSkin.VARIANT_SELECTED)
 	_continue_button.pressed.connect(func() -> void:
 		if not _continue_button.disabled:
 			continue_pressed.emit()
@@ -158,7 +158,7 @@ func _update_child_layout() -> void:
 		0.0,
 		1.0
 	)
-	_continue_button.size = _ui_skin.button_native_size(CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH)
+	_continue_button.size = _ui_skin.button_native_size(CONTINUE_BUTTON_HEIGHT, CONTINUE_BUTTON_MIN_WIDTH, UiSkin.VARIANT_SELECTED)
 	_continue_button.position = Vector2((size.x - _continue_button.size.x) * 0.5, title_y + title_size.y + UiTypography.SPACE_XL)
 	_continue_button.visible = button_alpha > 0.0
 	_continue_button.disabled = button_alpha < 0.98

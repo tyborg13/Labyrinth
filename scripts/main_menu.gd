@@ -5,6 +5,7 @@ const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const UiSkin = preload("res://scripts/ui_skin.gd")
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const HEADER_FONT = preload("res://fonts/LabyrinthCrumble-Header.tres")
@@ -105,6 +106,7 @@ var _saved_run_preview: Dictionary = {}
 var _replacement_confirmation_open: bool = false
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
+var _ui_skin: UiSkin = UiSkin.new()
 var settings_back_button: Button
 var _title_shadow_lines: Array[Label]
 var _title_rim_lines: Array[Label]
@@ -269,56 +271,26 @@ func _apply_menu_button_style(button: Button) -> void:
 	button.focus_mode = Control.FOCUS_ALL
 	button.add_theme_font_override("font", HEADER_FONT)
 	button.add_theme_font_size_override("font_size", MENU_FONT_SIZE)
-	button.add_theme_stylebox_override("normal", _make_menu_button_style(Color(0.02, 0.024, 0.033, 0.72), EDGE_ACCENT.darkened(0.24), 0.0))
-	button.add_theme_stylebox_override("hover", _make_menu_button_style(Color(0.07, 0.071, 0.082, 0.86), EDGE_ACCENT.lightened(0.12), 2.0))
-	button.add_theme_stylebox_override("focus", _make_menu_button_style(Color(0.08, 0.078, 0.088, 0.90), EDGE_ACCENT.lightened(0.18), 3.0))
-	button.add_theme_stylebox_override("pressed", _make_menu_button_style(Color(0.015, 0.016, 0.022, 0.90), Color("f0c978"), 0.0, 2.0))
-	button.add_theme_stylebox_override("disabled", _make_menu_button_style(Color(0.02, 0.02, 0.026, 0.42), Color("5f5140"), 0.0))
-	button.add_theme_color_override("font_color", Color("f3e5c5"))
-	button.add_theme_color_override("font_hover_color", Color("fff4d8"))
-	button.add_theme_color_override("font_focus_color", Color("fff4d8"))
-	button.add_theme_color_override("font_pressed_color", Color("dfc48f"))
-	button.add_theme_color_override("font_disabled_color", Color("8d806b"))
-	button.add_theme_color_override("font_outline_color", Color("080606"))
-	button.add_theme_constant_override("outline_size", 5)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 func _apply_confirmation_button_style(button: Button, destructive: bool) -> void:
 	_apply_menu_button_style(button)
 	button.add_theme_font_size_override("font_size", 20)
 	if not destructive:
 		return
-	button.add_theme_stylebox_override("normal", _make_menu_button_style(Color(0.12, 0.025, 0.027, 0.88), DANGER_ACCENT, 0.0))
-	button.add_theme_stylebox_override("hover", _make_menu_button_style(Color(0.20, 0.045, 0.042, 0.94), DANGER_ACCENT.lightened(0.18), 2.0))
-	button.add_theme_stylebox_override("focus", _make_menu_button_style(Color(0.20, 0.045, 0.042, 0.94), DANGER_ACCENT.lightened(0.18), 3.0))
-	button.add_theme_stylebox_override("pressed", _make_menu_button_style(Color(0.09, 0.015, 0.018, 0.96), Color("ef8a68"), 0.0, 2.0))
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_DESTRUCTIVE)
+	_ui_skin.apply_button_text_overrides(button, Color("ffe2d6"), Color("120507"), Color("8d6d68"), 4)
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 func _apply_continue_button_state(primary: bool) -> void:
 	_apply_menu_button_style(continue_button)
 	if not primary:
 		return
-	continue_button.add_theme_stylebox_override("normal", _make_menu_button_style(Color(0.15, 0.095, 0.025, 0.88), Color("f0c978"), 1.0))
-	continue_button.add_theme_stylebox_override("hover", _make_menu_button_style(Color(0.23, 0.145, 0.035, 0.94), Color("ffe3a0"), 3.0))
-	continue_button.add_theme_stylebox_override("focus", _make_menu_button_style(Color(0.23, 0.145, 0.035, 0.94), Color("ffe3a0"), 3.0))
-	continue_button.add_theme_stylebox_override("pressed", _make_menu_button_style(Color(0.10, 0.055, 0.015, 0.96), Color("fff0bd"), 0.0, 2.0))
-	continue_button.add_theme_color_override("font_color", Color("fff2cf"))
-
-func _make_menu_button_style(background: Color, accent: Color, expand: float = 0.0, pressed_offset: float = 0.0) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = background
-	style.border_color = accent
-	style.border_width_left = 7
-	style.border_width_top = 0
-	style.border_width_right = 0
-	style.border_width_bottom = 0
-	style.content_margin_left = 28
-	style.content_margin_top = 11 + pressed_offset
-	style.content_margin_right = 22
-	style.content_margin_bottom = maxf(6.0, 11 - pressed_offset)
-	style.expand_margin_left = expand
-	style.expand_margin_top = expand
-	style.expand_margin_right = expand
-	style.expand_margin_bottom = expand
-	return style
+	_ui_skin.apply_button_stylebox_overrides(continue_button, UiSkin.VARIANT_SELECTED)
+	_ui_skin.apply_button_text_overrides(continue_button, Color("fff2cf"), Color("080606"), Color("8d806b"), 5)
+	continue_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 func _make_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

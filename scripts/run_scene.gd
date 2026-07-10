@@ -850,14 +850,6 @@ const MERCHANT_ICON_SIZE: Vector2 = Vector2(44.0, 44.0)
 const MERCHANT_TITLE_BLACKSMITH: String = "BLACKSMITH"
 const MERCHANT_TITLE_ARCANIST: String = "ARCANIST"
 const MERCHANT_TITLE_SCAVENGER: String = "SCAVENGER"
-const PROGRESSION_STEPPER_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_stepper_normal.png"
-const PROGRESSION_STEPPER_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_stepper_hover.png"
-const PROGRESSION_STEPPER_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_stepper_pressed.png"
-const PROGRESSION_STEPPER_BUTTON_DISABLED_PATH: String = "res://assets/art/ui/progression_stepper_disabled.png"
-const PROGRESSION_COMMAND_BUTTON_NORMAL_PATH: String = "res://assets/art/ui/progression_command_normal.png"
-const PROGRESSION_COMMAND_BUTTON_HOVER_PATH: String = "res://assets/art/ui/progression_command_hover.png"
-const PROGRESSION_COMMAND_BUTTON_PRESSED_PATH: String = "res://assets/art/ui/progression_command_pressed.png"
-const PROGRESSION_COMMAND_BUTTON_DISABLED_PATH: String = "res://assets/art/ui/progression_command_disabled.png"
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
@@ -1439,11 +1431,7 @@ func _apply_tooltip_wrapper_style() -> void:
 func _setup_header_icon_button(button: Button, icon_kind: String, tooltip: String) -> void:
 	if button == null:
 		return
-	button.add_theme_stylebox_override("normal", _header_icon_button_style(false, false))
-	button.add_theme_stylebox_override("hover", _header_icon_button_style(false, true))
-	button.add_theme_stylebox_override("pressed", _header_icon_button_style(true, false))
-	button.add_theme_stylebox_override("focus", _header_icon_button_style(false, true))
-	button.add_theme_stylebox_override("disabled", _header_icon_button_style(false, false))
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_ICON)
 	button.add_theme_color_override("icon_normal_color", Color("f7dfad"))
 	button.add_theme_color_override("icon_hover_color", Color("fff0c8"))
 	button.add_theme_color_override("icon_pressed_color", Color("e8b968"))
@@ -1459,31 +1447,6 @@ func _setup_header_icon_button(button: Button, icon_kind: String, tooltip: Strin
 	button.modulate = Color.WHITE
 	if button == grimoire_button:
 		_ensure_grimoire_badge()
-
-func _header_icon_button_style(pressed: bool, hover: bool) -> StyleBoxFlat:
-	var fill: Color = Color(0.16, 0.105, 0.06, 0.92)
-	if hover:
-		fill = Color(0.23, 0.15, 0.075, 0.96)
-	if pressed:
-		fill = Color(0.10, 0.065, 0.04, 0.98)
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = Color("c49a5a") if hover or pressed else Color("7f5d36")
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.shadow_size = 4
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.26)
-	style.content_margin_left = 10
-	style.content_margin_top = 8
-	style.content_margin_right = 10
-	style.content_margin_bottom = 8
-	return style
 
 func _ensure_grimoire_badge() -> void:
 	if grimoire_button == null or _grimoire_badge != null:
@@ -1761,7 +1724,7 @@ func _pinned_merchant_tooltip_position(_source_row: Control, panel_size: Vector2
 	return position
 
 func _combat_choice_placeholder_size() -> Vector2:
-	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION)
+	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE)
 
 func _layout_choice_button_overlay() -> void:
 	if _choice_button_overlay == null:
@@ -1907,12 +1870,9 @@ func _build_large_map_overlay() -> void:
 	close_button.name = "CloseButton"
 	close_button.text = "X"
 	close_button.tooltip_text = "Close"
+	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
-	close_button.add_theme_stylebox_override("normal", _large_map_close_button_style(Color(0.18, 0.13, 0.09, 0.84), Color(0.88, 0.76, 0.56, 0.72)))
-	close_button.add_theme_stylebox_override("hover", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
-	close_button.add_theme_stylebox_override("pressed", _large_map_close_button_style(Color(0.12, 0.09, 0.07, 0.92), Color(0.72, 0.58, 0.40, 0.90)))
-	close_button.add_theme_stylebox_override("focus", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
 	close_button.custom_minimum_size = Vector2(40.0, 40.0)
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -1929,25 +1889,6 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.custom_minimum_size = Vector2(640.0, 400.0)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
 	vbox.add_child(_large_map_view)
-
-func _large_map_close_button_style(fill: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	style.content_margin_left = 6
-	style.content_margin_top = 6
-	style.content_margin_right = 6
-	style.content_margin_bottom = 6
-	return style
-
 func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
 	_pre_battle_scrim.name = "PreBattleScrim"
@@ -2067,7 +2008,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	gear_button.tooltip_text = "Character"
 	gear_button.icon = AssetLoader.load_texture("res://assets/art/equipment/training_sword.png")
 	gear_button.expand_icon = true
-	_ui_skin.apply_button_stylebox_overrides(gear_button)
+	_ui_skin.apply_button_stylebox_overrides(gear_button, UiSkin.VARIANT_STANDARD)
 	_ui_skin.apply_button_text_overrides(gear_button)
 	UiTypography.apply_button_role(gear_button, UiTypography.ROLE_BODY)
 	_ui_skin.apply_button_native_size(gear_button, UiSkin.BUTTON_HEIGHT_STANDARD)
@@ -2081,10 +2022,10 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	start_button.tooltip_text = "Start combat"
 	start_button.icon = ActionIcons.icon_texture("melee")
 	start_button.expand_icon = true
-	_ui_skin.apply_button_stylebox_overrides(start_button)
+	_ui_skin.apply_button_stylebox_overrides(start_button, UiSkin.VARIANT_SELECTED)
 	_ui_skin.apply_button_text_overrides(start_button)
 	UiTypography.apply_button_role(start_button, UiTypography.ROLE_SECTION)
-	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION)
+	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION, 0.0, true, UiSkin.VARIANT_SELECTED)
 	start_button.custom_minimum_size.x = 158.0
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
 	row.add_child(start_button)
@@ -3059,10 +3000,11 @@ func _build_menu_overlay() -> void:
 	]:
 		var button := Button.new()
 		button.text = str(entry.get("text", ""))
-		_ui_skin.apply_button_stylebox_overrides(button)
+		var variant: String = UiSkin.VARIANT_DESTRUCTIVE if button.text == "Succumb to the Darkness" else UiSkin.VARIANT_STANDARD
+		_ui_skin.apply_button_stylebox_overrides(button, variant)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
-		_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, MENU_DIALOG_BUTTON_MIN_WIDTH)
+		_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, MENU_DIALOG_BUTTON_MIN_WIDTH, true, variant)
 		button.pressed.connect(entry.get("callback", Callable()))
 		vbox.add_child(button)
 
@@ -3133,13 +3075,8 @@ func _build_grimoire_overlay() -> void:
 	var close_button := Button.new()
 	close_button.text = "Close"
 	close_button.tooltip_text = "Close Grimoire"
-	close_button.add_theme_stylebox_override("normal", _grimoire_close_button_style(false, false))
-	close_button.add_theme_stylebox_override("hover", _grimoire_close_button_style(false, true))
-	close_button.add_theme_stylebox_override("pressed", _grimoire_close_button_style(true, false))
-	close_button.add_theme_stylebox_override("focus", _grimoire_close_button_style(false, true))
-	close_button.add_theme_color_override("font_color", Color("f7dfad"))
-	close_button.add_theme_color_override("font_hover_color", Color("fff0c8"))
-	close_button.add_theme_color_override("font_pressed_color", Color("e8b968"))
+	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(close_button, Color("f7dfad"))
 	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
 	close_button.custom_minimum_size = Vector2(104.0, 36.0)
 	close_button.pressed.connect(_close_grimoire_overlay)
@@ -3309,28 +3246,6 @@ func _grimoire_icon_frame_style() -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 7
 	style.corner_radius_bottom_left = 7
 	style.shadow_size = 4
-	return style
-
-func _grimoire_close_button_style(pressed: bool, hover: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.22, 0.13, 0.065, 0.94)
-	if hover:
-		style.bg_color = style.bg_color.lightened(0.10)
-	if pressed:
-		style.bg_color = style.bg_color.darkened(0.12)
-	style.border_color = Color("bf8a48") if hover or pressed else Color("80552c")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	style.content_margin_left = 14
-	style.content_margin_top = 5
-	style.content_margin_right = 14
-	style.content_margin_bottom = 5
 	return style
 
 func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
@@ -4004,12 +3919,9 @@ func _build_pile_overlay() -> void:
 	var close_button := Button.new()
 	close_button.name = "CloseButton"
 	close_button.text = "X"
+	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
-	close_button.add_theme_stylebox_override("normal", _large_map_close_button_style(Color(0.18, 0.13, 0.09, 0.84), Color(0.88, 0.76, 0.56, 0.72)))
-	close_button.add_theme_stylebox_override("hover", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
-	close_button.add_theme_stylebox_override("pressed", _large_map_close_button_style(Color(0.12, 0.09, 0.07, 0.92), Color(0.72, 0.58, 0.40, 0.90)))
-	close_button.add_theme_stylebox_override("focus", _large_map_close_button_style(Color(0.28, 0.20, 0.13, 0.90), Color(0.98, 0.86, 0.64, 0.88)))
 	close_button.custom_minimum_size = Vector2(40.0, 40.0)
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -4109,10 +4021,10 @@ func _build_card_upgrade_overlay() -> void:
 
 	var close_button := Button.new()
 	close_button.text = "X"
-	_ui_skin.apply_button_stylebox_overrides(close_button)
+	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
 	_ui_skin.apply_button_text_overrides(close_button)
 	UiTypography.set_button_size(close_button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(close_button, 36.0)
+	_ui_skin.apply_button_native_size(close_button, 36.0, 0.0, true, UiSkin.VARIANT_ICON)
 	close_button.pressed.connect(_close_card_upgrade_overlay)
 	top_row.add_child(close_button)
 
@@ -4417,7 +4329,7 @@ func _update_dialogue_footer() -> void:
 		var option: Dictionary = (option_var as Dictionary).duplicate(true)
 		var button := Button.new()
 		button.text = str(option.get("label", "Continue"))
-		_ui_skin.apply_button_stylebox_overrides(button)
+		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
 		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, DIALOGUE_OPTION_BUTTON_MIN_WIDTH)
@@ -6390,10 +6302,10 @@ func _add_action_context_button(text: String, callback: Callable, tooltip: Strin
 	button.name = "ActionContext%s" % text.replace(" ", "")
 	button.text = text
 	button.tooltip_text = tooltip
-	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, ACTION_CONTEXT_BUTTON_MIN_WIDTH)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, ACTION_CONTEXT_BUTTON_MIN_WIDTH, true, UiSkin.VARIANT_COMPACT)
 	button.pressed.connect(callback)
 	_action_context_command_bar.add_child(button)
 
@@ -7063,11 +6975,12 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	var button := Button.new()
 	button.text = text
 	button.tooltip_text = tooltip
-	_ui_skin.apply_button_stylebox_overrides(button)
-	_ui_skin.apply_button_text_overrides(button)
 	var large_action_button: bool = _large_action_choice_text(text)
+	var variant: String = UiSkin.VARIANT_LARGE if large_action_button else UiSkin.VARIANT_STANDARD
+	_ui_skin.apply_button_stylebox_overrides(button, variant)
+	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION if large_action_button else UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_ACTION if large_action_button else UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, variant)
 	button.pressed.connect(callback)
 	if _choice_buttons_use_overlay():
 		_choice_button_overlay.add_child(button)
@@ -7431,10 +7344,10 @@ func _add_context_choice_button(text: String, callback: Callable, tooltip: Strin
 	var button := Button.new()
 	button.text = text
 	button.tooltip_text = tooltip
-	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 0.0, true, UiSkin.VARIANT_LARGE)
 	button.pressed.connect(callback)
 	_context_choice_bar.add_child(button)
 
@@ -7889,7 +7802,7 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	button.text = "Sell" if selling else "Buy"
 	button.disabled = not affordable
 	button.custom_minimum_size = Vector2(82.0, 42.0)
-	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_BODY)
 	if selling:
@@ -12822,23 +12735,7 @@ func _switch_character_overlay_mode(mode: String) -> void:
 	_rebuild_progression_overlay()
 
 func _apply_character_tab_style(button: Button, active: bool) -> void:
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(0.20, 0.13, 0.08, 0.95) if active else Color(0.10, 0.07, 0.05, 0.90)
-	normal.border_color = Color("d7a85d") if active else Color("6d5a46")
-	normal.border_width_left = 2
-	normal.border_width_top = 2
-	normal.border_width_right = 2
-	normal.border_width_bottom = 2
-	normal.corner_radius_top_left = 6
-	normal.corner_radius_top_right = 6
-	normal.corner_radius_bottom_right = 6
-	normal.corner_radius_bottom_left = 6
-	var hover := normal.duplicate() as StyleBoxFlat
-	hover.bg_color = normal.bg_color.lightened(0.08)
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", normal)
-	button.add_theme_stylebox_override("focus", hover)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED if active else UiSkin.VARIANT_STANDARD)
 	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
 
 func _build_equipment_overlay_body() -> Control:
@@ -14995,37 +14892,15 @@ func _build_progression_stat_value_badge(value: int, cap: int, selected: bool) -
 func _apply_progression_stepper_button_style(button: Button) -> void:
 	if button == null:
 		return
-	button.add_theme_stylebox_override("normal", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_NORMAL_PATH, 18.0, 5.0, 5.0))
-	button.add_theme_stylebox_override("hover", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_HOVER_PATH, 18.0, 5.0, 5.0))
-	button.add_theme_stylebox_override("pressed", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_PRESSED_PATH, 18.0, 6.0, 4.0))
-	button.add_theme_stylebox_override("focus", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_HOVER_PATH, 18.0, 5.0, 5.0))
-	button.add_theme_stylebox_override("disabled", _progression_texture_button_style(PROGRESSION_STEPPER_BUTTON_DISABLED_PATH, 18.0, 5.0, 5.0))
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_ICON)
 	_apply_progression_button_text(button, UiTypography.SIZE_BODY)
 
 func _apply_progression_command_button_style(button: Button) -> void:
 	if button == null:
 		return
-	button.add_theme_stylebox_override("normal", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_NORMAL_PATH, 26.0, 16.0, 7.0))
-	button.add_theme_stylebox_override("hover", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_HOVER_PATH, 26.0, 16.0, 7.0))
-	button.add_theme_stylebox_override("pressed", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_PRESSED_PATH, 26.0, 16.0, 8.0))
-	button.add_theme_stylebox_override("focus", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_HOVER_PATH, 26.0, 16.0, 7.0))
-	button.add_theme_stylebox_override("disabled", _progression_texture_button_style(PROGRESSION_COMMAND_BUTTON_DISABLED_PATH, 26.0, 16.0, 7.0))
+	var variant: String = UiSkin.VARIANT_SELECTED if button.text == "Confirm" else UiSkin.VARIANT_STANDARD
+	_ui_skin.apply_button_stylebox_overrides(button, variant)
 	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
-
-func _progression_texture_button_style(path: String, texture_margin: float, content_margin_h: float, content_margin_v: float) -> StyleBoxTexture:
-	var style := StyleBoxTexture.new()
-	style.texture = AssetLoader.load_texture(path)
-	style.texture_margin_left = texture_margin
-	style.texture_margin_top = texture_margin
-	style.texture_margin_right = texture_margin
-	style.texture_margin_bottom = texture_margin
-	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
-	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
-	style.content_margin_left = content_margin_h
-	style.content_margin_top = content_margin_v
-	style.content_margin_right = content_margin_h
-	style.content_margin_bottom = content_margin_v
-	return style
 
 func _apply_progression_button_text(button: Button, font_size: int) -> void:
 	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -15214,10 +15089,10 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 	else:
 		button.text = "Need %d" % int(option.get("cost", 0))
 		button.disabled = true
-	_ui_skin.apply_button_stylebox_overrides(button)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_COMPACT)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(button, 42.0)
+	_ui_skin.apply_button_native_size(button, 42.0, 0.0, true, UiSkin.VARIANT_COMPACT)
 	if not button.disabled:
 		button.pressed.connect(_on_card_mod_upgrade_pressed.bind(option))
 	row.add_child(button)
@@ -15226,12 +15101,11 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 func _upgrade_list_button(text: String, selected: bool) -> Button:
 	var button := Button.new()
 	button.text = text
-	_ui_skin.apply_button_stylebox_overrides(button)
+	var variant: String = UiSkin.VARIANT_SELECTED if selected else UiSkin.VARIANT_STANDARD
+	_ui_skin.apply_button_stylebox_overrides(button, variant)
 	_ui_skin.apply_button_text_overrides(button)
 	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
-	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, UPGRADE_LIST_BUTTON_MIN_WIDTH)
-	if selected:
-		button.modulate = Color("ffd99a")
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_STANDARD, UPGRADE_LIST_BUTTON_MIN_WIDTH, true, variant)
 	return button
 
 func _on_upgrade_card_selected(card_id: String) -> void:
