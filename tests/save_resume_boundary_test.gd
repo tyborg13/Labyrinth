@@ -8,6 +8,10 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 
+const PROGRESSION_PATH: String = "user://save_resume_boundary_progression.json"
+const UNWRITABLE_PROGRESSION_PATH: String = "user://save_resume_boundary_missing/progression.json"
+const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
+
 var _failures: Array[String] = []
 var _combat_engine: CombatEngine = CombatEngine.new()
 var _run_engine: RunEngine = RunEngine.new()
@@ -16,13 +20,14 @@ var _matrix_rows: Array[String] = []
 
 func _initialize() -> void:
 	var user_namespace: String = ParallelRuntime.apply_from_environment()
-	ProgressionStore.set_storage_path("user://save_resume_boundary_progression.json")
+	ProgressionStore.set_storage_path(PROGRESSION_PATH)
 	ProgressionStore.set_run_storage_path(ProgressionStore.DEFAULT_RUN_STORAGE_PATH)
 	ProgressionStore.clear_saved_run()
 	ProgressionStore.save_data(ProgressionStore.default_data())
 	_run_scene = RunScene.new()
 	_run_scene.set("_progression", ProgressionStore.default_data())
 	_test_transactional_corrupt_recovery()
+	_test_transactional_replacement_failure_recovery()
 	_test_legacy_save_repair()
 	var base_run: Dictionary = _normal_combat_run()
 	if base_run.is_empty():
@@ -32,6 +37,8 @@ func _initialize() -> void:
 		_test_enemy_and_turn_boundaries(base_run)
 		_test_room_and_reward_boundaries(base_run)
 		_test_terminal_boundaries(base_run)
+		_test_terminal_failure_recovery(base_run)
+		_test_campfire_failure_preserves_run(base_run)
 	_run_scene.free()
 	ProgressionStore.clear_saved_run()
 	print("SAVE NAMESPACE: %s" % user_namespace)
@@ -65,6 +72,30 @@ func _test_transactional_corrupt_recovery() -> void:
 	ProgressionStore.clear_saved_run()
 	_assert(not FileAccess.file_exists(backup_path), "Clearing a save should remove transactional backup artifacts")
 	_matrix_rows.append("corrupt/current→backup")
+
+func _test_transactional_replacement_failure_recovery() -> void:
+	var blocked_run_path: String = "user://save_resume_blocked_live"
+	var blocked_live_path: String = ProjectSettings.globalize_path(blocked_run_path)
+	var blocked_backup_path: String = "%s.backup" % blocked_run_path
+	ProgressionStore.set_run_storage_path(blocked_run_path)
+	DirAccess.remove_absolute(blocked_live_path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(blocked_backup_path))
+	DirAccess.make_dir_recursive_absolute(blocked_live_path)
+	var valid_backup: Dictionary = _run_engine.create_new_run(88009, ProgressionStore.default_data())
+	var backup: FileAccess = FileAccess.open(blocked_backup_path, FileAccess.WRITE)
+	_assert(backup != null, "Replacement failure should create a valid recovery backup")
+	if backup != null:
+		backup.store_var(valid_backup, false)
+		backup.close()
+	var replacement: Dictionary = _run_engine.create_new_run(88010, ProgressionStore.default_data())
+	_assert(not ProgressionStore.save_run_state(replacement), "A directory occupying the live path should force replacement failure")
+	_assert(ProgressionStore.load_saved_run() == valid_backup, "Failed replacement must keep the only valid backup loadable")
+	DirAccess.remove_absolute(blocked_live_path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(blocked_backup_path))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s.tmp" % blocked_run_path))
+	ProgressionStore.set_run_storage_path(ProgressionStore.DEFAULT_RUN_STORAGE_PATH)
+	ProgressionStore.clear_saved_run()
+	_matrix_rows.append("transaction/replacement_failure_backup")
 
 func _test_legacy_save_repair() -> void:
 	var legacy: Dictionary = _run_engine.create_new_run(88002, ProgressionStore.default_data())
@@ -126,27 +157,49 @@ func _test_enemy_and_turn_boundaries(base_run: Dictionary) -> void:
 	player["hp"] = maxi(int(player.get("hp", 1)), GameData.fixed_point_amount(100))
 	player["max_hp"] = maxi(int(player.get("max_hp", 1)), player["hp"])
 	combat_state["player"] = player
+	var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+	var first_enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	first_enemy["intent"] = {
+		"id": "save_resume_combo",
+		"name": "Save Resume Combo",
+		"time": 4,
+		"actions": [
+			{"type": "block", "amount": 2},
+			{"type": "block", "amount": 3}
+		]
+	}
+	first_enemy["shocked"] = 0
+	first_enemy["immobilized"] = 0
+	enemies[0] = first_enemy
+	combat_state["enemies"] = enemies
 	var scheduled: Dictionary = _combat_engine.finish_player_activation(combat_state)
-	_assert_combat_resume("turn/pass_activation", base_run, scheduled)
+	_assert(not _combat_engine.is_player_turn(scheduled), "A committed pass must not default an empty actor to another player activation")
 	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled)
+	var commit_checkpoints: Array = _run_scene.call("_combat_commit_checkpoints", phase.get("steps", [])) as Array
+	var final_run_state: Dictionary = _run_scene.call("_run_state_for_combat_checkpoint", base_run, phase.get("state", {}) as Dictionary) as Dictionary
+	var scheduled_run_state: Dictionary = _combat_checkpoint_run_state(base_run, scheduled, commit_checkpoints)
+	_assert_run_resume("turn/pass_activation", scheduled_run_state)
+	_assert_playable_continuation("resume/pass_activation", scheduled_run_state, final_run_state)
 	var enemy_actions: int = 0
 	var saw_player_turn_start: bool = false
 	var checkpoint_index: int = 0
-	for step_var: Variant in phase.get("steps", []):
-		if typeof(step_var) != TYPE_DICTIONARY:
-			continue
-		var step: Dictionary = step_var
-		if str(step.get("kind", "")) != "commit":
-			continue
-		var boundary: String = str(step.get("boundary", "checkpoint"))
-		var checkpoint: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
+	for checkpoint_var: Variant in commit_checkpoints:
+		var checkpoint_entry: Dictionary = checkpoint_var as Dictionary
+		var boundary: String = str(checkpoint_entry.get("boundary", "checkpoint"))
+		var checkpoint: Dictionary = (checkpoint_entry.get("state", {}) as Dictionary).duplicate(true)
 		if boundary == "enemy_action":
 			enemy_actions += 1
 		if boundary == "player_turn_start":
 			saw_player_turn_start = true
-		_assert_combat_resume("enemy/%02d_%s" % [checkpoint_index, boundary], base_run, checkpoint)
+		var checkpoint_run_state: Dictionary = _combat_checkpoint_run_state(
+			base_run,
+			checkpoint,
+			_remaining_checkpoints(commit_checkpoints, checkpoint_index + 1)
+		)
+		_assert_run_resume("enemy/%02d_%s" % [checkpoint_index, boundary], checkpoint_run_state)
+		_assert_playable_continuation("resume/%02d_%s" % [checkpoint_index, boundary], checkpoint_run_state, final_run_state)
 		checkpoint_index += 1
-	_assert(enemy_actions > 0, "Enemy phase matrix should include at least one resolved enemy action checkpoint")
+	_assert(enemy_actions >= 2, "Enemy phase matrix should include every action in a compound enemy intent")
 	_assert(saw_player_turn_start, "Enemy phase matrix should include the next player turn/draw checkpoint")
 	_assert_combat_resume("turn/round_complete", base_run, phase.get("state", {}) as Dictionary)
 
@@ -215,6 +268,92 @@ func _test_terminal_boundaries(base_run: Dictionary) -> void:
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == expected_banked_embers, "Committed victory should bank held embers before clearing the run")
 	_matrix_rows.append("terminal/victory")
 
+func _test_terminal_failure_recovery(base_run: Dictionary) -> void:
+	var terminal_cases: Array = [
+		{"mode": "defeat", "held": 31},
+		{"mode": "victory", "held": 47}
+	]
+	for case_var: Variant in terminal_cases:
+		var case: Dictionary = case_var as Dictionary
+		var mode: String = str(case.get("mode", ""))
+		var held: int = int(case.get("held", 0))
+		var terminal_run: Dictionary = _terminal_run_state(base_run, mode, held)
+		ProgressionStore.set_storage_path(PROGRESSION_PATH)
+		_assert(ProgressionStore.save_data(ProgressionStore.default_data()), "%s failure fixture should reset progression" % mode)
+		ProgressionStore.clear_saved_run()
+		ProgressionStore.set_storage_path(UNWRITABLE_PROGRESSION_PATH)
+		_run_scene.call("_release_committed_run_state")
+		_run_scene.set("_progression", ProgressionStore.default_data())
+		_run_scene.set("_victory_carry_processed", false)
+		_run_scene.set("_defeat_loss_processed", false)
+		_run_scene.set("_run_state", terminal_run.duplicate(true))
+		_run_scene.set("_combat_state", {})
+		_assert(not bool(_run_scene.call("_persist_committed_boundary", "terminal_%s_forced_failure" % mode)), "%s should report an unwritable progression path" % mode)
+		var fallback: Dictionary = ProgressionStore.load_saved_run()
+		_assert(fallback == terminal_run, "%s failure fallback must preserve the unprocessed terminal snapshot" % mode)
+		_assert(_run_engine.held_embers(fallback) == held, "%s failure fallback must preserve held embers" % mode)
+		_run_scene.call("_save_run_progress")
+		_assert(ProgressionStore.load_saved_run() == terminal_run, "%s Save & Quit retry must not clear the fallback while progression remains unwritable" % mode)
+
+		ProgressionStore.set_storage_path(PROGRESSION_PATH)
+		_recreate_run_scene_from_saved(fallback)
+		if mode == "victory":
+			_run_scene.call("_process_victory_carry")
+		else:
+			_run_scene.call("_process_defeat_loss")
+		_assert(bool(_run_scene.call("_persist_committed_boundary", "terminal_%s_retry" % mode)), "%s should finalize after storage recovers" % mode)
+		_assert(not ProgressionStore.has_saved_run(), "%s retry should clear the resumable fallback only after durable progression" % mode)
+		var recovered_progression: Dictionary = ProgressionStore.load_data()
+		if mode == "victory":
+			_assert(int(recovered_progression.get("embers", -1)) == held, "Victory retry should bank held embers exactly once")
+		else:
+			_assert(int(ProgressionStore.recovery_marker(recovered_progression).get("amount", -1)) == held, "Defeat retry should preserve the recovery marker exactly once")
+		_matrix_rows.append("terminal/%s_io_retry" % mode)
+	ProgressionStore.set_storage_path(PROGRESSION_PATH)
+
+func _test_campfire_failure_preserves_run(base_run: Dictionary) -> void:
+	var campfire_run: Dictionary = base_run.duplicate(true)
+	campfire_run["held_embers"] = 37
+	campfire_run["unbanked_embers"] = 37
+	ProgressionStore.set_storage_path(PROGRESSION_PATH)
+	ProgressionStore.clear_saved_run()
+	_assert(ProgressionStore.save_run_state(campfire_run), "Campfire failure fixture should write a resumable run")
+	ProgressionStore.set_storage_path(UNWRITABLE_PROGRESSION_PATH)
+	_run_scene.call("_release_committed_run_state")
+	_run_scene.set("_progression", ProgressionStore.default_data())
+	_run_scene.set("_run_state", campfire_run.duplicate(true))
+	_run_scene.set("_combat_state", (campfire_run.get("combat_state", {}) as Dictionary).duplicate(true))
+	_run_scene.call("_on_campfire_embrace_pressed")
+	_assert(ProgressionStore.load_saved_run() == campfire_run, "Failed Campfire Embrace must retain the exact resumable run")
+	_assert(not bool((_run_scene.get("_progression") as Dictionary).get("rested_at_fire", false)), "Failed Campfire Embrace must not commit the rest flag in memory")
+	ProgressionStore.set_storage_path(PROGRESSION_PATH)
+	ProgressionStore.clear_saved_run()
+	_matrix_rows.append("campfire/embrace_io_failure")
+
+func _terminal_run_state(base_run: Dictionary, mode: String, held: int) -> Dictionary:
+	var terminal_run: Dictionary
+	var combat_state: Dictionary
+	if mode == "victory":
+		terminal_run = _run_engine.create_debug_boss_run(ProgressionStore.default_data())
+		combat_state = (terminal_run.get("combat_state", {}) as Dictionary).duplicate(true)
+		var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+		for index: int in range(enemies.size()):
+			var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+			enemy["hp"] = 0
+			enemies[index] = enemy
+		combat_state["enemies"] = enemies
+		terminal_run = _run_engine.finish_combat(terminal_run, combat_state)
+		terminal_run["debug_boss_run"] = false
+	else:
+		combat_state = (base_run.get("combat_state", {}) as Dictionary).duplicate(true)
+		var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+		player["hp"] = 0
+		combat_state["player"] = player
+		terminal_run = _run_engine.finish_combat(base_run, combat_state)
+	terminal_run["held_embers"] = held
+	terminal_run["unbanked_embers"] = held
+	return terminal_run
+
 func _normal_combat_run() -> Dictionary:
 	for seed: int in range(88100, 88140):
 		var run_state: Dictionary = _run_engine.create_new_run(seed, ProgressionStore.default_data())
@@ -278,6 +417,46 @@ func _first_target(state: Dictionary, action: Dictionary) -> Vector2i:
 	var targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(state, action)
 	_assert(not targets.is_empty(), "Boundary fixture needs a legal target for %s" % str(action.get("type", "action")))
 	return targets[0] if not targets.is_empty() else Vector2i(-1, -1)
+
+func _combat_checkpoint_run_state(base_run: Dictionary, combat_state: Dictionary, remaining_checkpoints: Array) -> Dictionary:
+	var run_state: Dictionary = _run_scene.call("_run_state_for_combat_checkpoint", base_run, combat_state) as Dictionary
+	return _run_scene.call("_run_state_with_combat_checkpoints", run_state, remaining_checkpoints) as Dictionary
+
+func _remaining_checkpoints(checkpoints: Array, start_index: int) -> Array:
+	var remaining: Array = []
+	for index: int in range(start_index, checkpoints.size()):
+		remaining.append((checkpoints[index] as Dictionary).duplicate(true))
+	return remaining
+
+func _assert_playable_continuation(label: String, saved_run: Dictionary, expected_final_run: Dictionary) -> void:
+	ProgressionStore.clear_saved_run()
+	_assert(ProgressionStore.save_run_state(saved_run), "%s should seed the exact committed checkpoint" % label)
+	_recreate_run_scene_from_saved(ProgressionStore.load_saved_run())
+	var safety: int = 0
+	while safety < 100 and bool(_run_scene.call("_consume_next_pending_combat_checkpoint")):
+		safety += 1
+	_run_scene.call("_release_committed_run_state")
+	_assert(safety < 100, "%s continuation should be bounded" % label)
+	var resumed: Dictionary = _run_scene.call("_committed_run_state") as Dictionary
+	_assert(not resumed.has(COMBAT_CONTINUATION_KEY), "%s should consume its continuation cursor" % label)
+	_assert(resumed == expected_final_run, "%s should continue to the exact final state without replay or rollback" % label)
+	var final_combat: Dictionary = (resumed.get("combat_state", {}) as Dictionary)
+	if str(resumed.get("mode", "")) == "combat":
+		_assert(_combat_engine.is_player_turn(final_combat), "%s should resume at a playable player activation" % label)
+	if resumed == expected_final_run:
+		_matrix_rows.append(label)
+
+func _recreate_run_scene_from_saved(saved_run: Dictionary) -> void:
+	if _run_scene != null:
+		_run_scene.free()
+	_run_scene = RunScene.new()
+	var repaired: Dictionary = _run_engine.repair_loaded_run_state(saved_run)
+	_run_scene.set("_progression", ProgressionStore.load_data())
+	_run_scene.set("_run_state", repaired)
+	_run_scene.set("_combat_state", (repaired.get("combat_state", {}) as Dictionary).duplicate(true))
+	_run_scene.set("_victory_carry_processed", false)
+	_run_scene.set("_defeat_loss_processed", false)
+	_run_scene.call("_sync_progression_from_run")
 
 func _assert_combat_resume(label: String, base_run: Dictionary, combat_state: Dictionary) -> void:
 	_run_scene.call("_release_committed_run_state")

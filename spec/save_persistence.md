@@ -5,7 +5,8 @@ Godot `store_var` dictionary for backward compatibility. Writes use a validated
 temporary file and a short-lived `.backup` during replacement so an interrupted
 write can recover the last complete dictionary. Loading prefers the live slot
 and falls back to that backup only when the live value is unreadable or is not a
-dictionary.
+dictionary. A known-valid backup is never removed until either the previous
+valid live slot has replaced it or the new validated temporary file is live.
 
 ## Committed boundaries
 
@@ -34,9 +35,21 @@ save paths read that held dictionary, so they cannot overwrite a newer commit
 with the pre-animation state. Once presentation catches up, the normal run and
 combat dictionaries replace the hold.
 
+Pass and intermediate enemy checkpoints include a bounded
+`pending_combat_checkpoints` continuation cursor. Its entries are already
+resolved, coherent combat snapshots with their post-action RNG state—not an
+action or animation cursor. Continue consumes and persists those snapshots in
+order until the next playable player turn or terminal outcome. This prevents an
+empty actor from becoming a second player activation and prevents relaunch from
+re-running enemy actions, RNG, counters, or start-of-turn effects.
+
 Terminal victory/defeat progression is finalized at the committed boundary
 before the resumable slot is cleared. This prevents a close during the terminal
 animation from restoring the last combat or losing ember banking/recovery data.
+If profile persistence fails, the resumable slot keeps the unprocessed terminal
+snapshot, including held embers, so a later resume can retry exactly once.
+Campfire Embrace likewise clears the run only after the bank/rest profile write
+succeeds; a failed write leaves the previous resumable run unchanged.
 
 ## State intentionally excluded
 
@@ -51,7 +64,9 @@ target decisions have produced its final coherent combat result.
 Resume loads the complete run dictionary and repairs missing legacy defaults
 through `RunEngine.repair_loaded_run_state`. Combat state already contains board
 positions, ordered piles, HP/defenses/statuses, actors, initiative clock/queue,
-action counters, room loot, and `rng_state`; no action is replayed during load.
+action counters, room loot, and `rng_state`. A pending combat continuation
+advances through saved post-action snapshots; it never calls enemy action
+resolution again.
 
 Inspection fixtures use the same relative `user://current_run.save` contract in
 an isolated custom user directory. Running `tools/inspection_fixture.py` again

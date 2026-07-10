@@ -6,7 +6,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/save_resume_inspection_20260709_v10"
+const OUTPUT_DIR: String = "user://probes/save_resume_inspection_20260709_v11"
 
 var _combat_engine: CombatEngine = CombatEngine.new()
 
@@ -67,7 +67,33 @@ func _initialize() -> void:
 	var resumed_deck: Dictionary = ((resumed_state.get("combat_state", {}) as Dictionary).get("deck", {}) as Dictionary)
 	_assert((resumed_deck.get("burned", []) as Array).has("patch_up"), "Resume should keep the committed exhausted card instead of resetting the fixture")
 
-	resumed.queue_free()
+	var continuation_combat: Dictionary = _compound_enemy_continuation_fixture(resumed.get("_combat_state") as Dictionary)
+	var scheduled: Dictionary = _combat_engine.finish_player_activation(continuation_combat)
+	var phase: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled)
+	var checkpoints: Array = resumed.call("_combat_commit_checkpoints", phase.get("steps", [])) as Array
+	var enemy_action_count: int = 0
+	for checkpoint_var: Variant in checkpoints:
+		if str((checkpoint_var as Dictionary).get("boundary", "")) == "enemy_action":
+			enemy_action_count += 1
+	_assert(enemy_action_count >= 2, "Inspection continuation should contain a compound enemy action")
+	var scheduled_run: Dictionary = resumed.call("_run_state_for_combat_checkpoint", resumed_state, scheduled) as Dictionary
+	scheduled_run = resumed.call("_run_state_with_combat_checkpoints", scheduled_run, checkpoints) as Dictionary
+	var expected_after_enemy_phase: Dictionary = resumed.call("_run_state_for_combat_checkpoint", resumed_state, phase.get("state", {}) as Dictionary) as Dictionary
+	_assert(ProgressionStore.save_run_state(scheduled_run), "Inspection pass checkpoint should persist before relaunch")
+
+	root.remove_child(resumed)
+	resumed.free()
+	await process_frame
+	var continued: Node = await _resume_run_scene()
+	continued.set("_settings", {"reduced_motion": true})
+	continued.call("_close_dialogue")
+	await _settle_ui()
+	var continued_state: Dictionary = (continued.call("_committed_run_state") as Dictionary).duplicate(true)
+	_assert(continued_state == expected_after_enemy_phase, "Continue should consume pending enemy checkpoints exactly once")
+	_assert(not continued_state.has("pending_combat_checkpoints"), "Completed enemy continuation should clear its serialized cursor")
+	_assert(_combat_engine.is_player_turn(continued.get("_combat_state") as Dictionary), "Enemy continuation should return to a playable player turn")
+
+	continued.queue_free()
 	await process_frame
 	var steam_service: Node = root.get_node_or_null("SteamService")
 	if steam_service != null:
@@ -76,7 +102,7 @@ func _initialize() -> void:
 	AssetLoader._audio_cache.clear()
 	if not functional_only:
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	print("TEST RESULT: PASS — inspection action survives quit/relaunch")
+	print("TEST RESULT: PASS — inspection action and enemy continuation survive quit/relaunch")
 	quit(0)
 
 func _seed_probe_fixture() -> void:
@@ -118,6 +144,41 @@ func _resume_run_scene() -> Node:
 func _empty_targets() -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	return result
+
+func _compound_enemy_continuation_fixture(source: Dictionary) -> Dictionary:
+	var state: Dictionary = source.duplicate(true)
+	var enemies: Array = (state.get("enemies", []) as Array).duplicate(true)
+	_assert(not enemies.is_empty(), "Inspection continuation requires an enemy")
+	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+	enemy["intent"] = {
+		"id": "inspection_save_combo",
+		"name": "Inspection Save Combo",
+		"time": 4,
+		"actions": [
+			{"type": "block", "amount": 2},
+			{"type": "block", "amount": 3}
+		]
+	}
+	enemy["shocked"] = 0
+	enemy["immobilized"] = 0
+	enemies[0] = enemy
+	state["enemies"] = enemies
+	var sequence: int = int(state.get("activation_seq", 0)) + 1
+	state["activation_seq"] = sequence + 1
+	state["turn_queue"] = [{
+		"kind": "enemy",
+		"enemy_id": int(enemy.get("id", 1)),
+		"time": int(state.get("initiative_clock", 0)) + 1,
+		"seq": sequence
+	}]
+	state["current_actor"] = {
+		"kind": "player",
+		"key": "player",
+		"actor_key": "player",
+		"time": int(state.get("initiative_clock", 0)),
+		"seq": 0
+	}
+	return state
 
 func _settle_ui() -> void:
 	for _frame: int in range(10):

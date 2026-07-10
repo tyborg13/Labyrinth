@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T02:32:51Z",
+  "updated_at": "2026-07-10T02:58:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4848,25 +4848,27 @@
       }
     },
     {
-      "id": "mnt_20260710T022303Z_ddb3dfae",
+      "id": "mnt_20260710T025800Z_0aa7241d",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "pitfall",
       "scope": {
         "level": "file",
         "path": "scripts/run_scene.gd",
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Committed saves stay ahead of combat presentation",
-      "details": "RunScene holds the newest coherent run snapshot separately while card, room-travel, and enemy animations render local before/after states; _committed_run_state and close paths must prefer that hold so animation-time quits cannot roll back. CombatEngine commit steps belong before each enemy mutation's presentation and must carry the post-action rng_state plus initiative/turn checkpoints. Never serialize hover, selection, drag, or animation presentation state.",
+      "summary": "Mid-enemy saves require snapshot continuations",
+      "details": "A pass or enemy-action checkpoint is not resumable merely because its dictionary is coherent: empty/transition and enemy actors cannot accept player input, and replaying CombatEngine would duplicate actions, counters, status ticks, or RNG. Persist a bounded pending_combat_checkpoints cursor of already-resolved full combat snapshots, consume/save those snapshots in order after load, and retain an explicit transition actor so legacy saves that omit current_actor can still default safely to a player turn.",
       "status": "active",
-      "created_at": "2026-07-10T02:23:03Z",
-      "updated_at": "2026-07-10T02:23:03Z",
+      "created_at": "2026-07-10T02:58:00Z",
+      "updated_at": "2026-07-10T02:58:00Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260710T022303Z_ddb3dfae"
+      ],
       "source": {
         "branch": "codex/ui-save-every-action-v2",
-        "commit": "ada58b5"
+        "commit": "cbe9f4b"
       }
     }
   ]

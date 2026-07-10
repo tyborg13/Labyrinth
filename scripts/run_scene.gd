@@ -963,6 +963,7 @@ const TURN_ORDER_PORTRAITS := {
 }
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
+const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 @onready var top_bar: HBoxContainer = $Backdrop/Margin/MainVBox/TopBar
 @onready var title_box: VBoxContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
@@ -5387,6 +5388,8 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_board_presentation.clear()
 	action_banner.visible = false
 	_refresh_ui()
+	if _has_pending_combat_checkpoints():
+		call_deferred("_resume_pending_combat_checkpoints")
 
 func _start_run() -> void:
 	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
@@ -10960,12 +10963,19 @@ func _resolve_enemy_round() -> void:
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
-	_hold_committed_run_state(_run_state_for_combat_checkpoint(previous_run_state, scheduled_state), "player_activation_finished")
+	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
+	var commit_checkpoints: Array = _combat_commit_checkpoints(phase_result.get("steps", []))
+	_hold_committed_run_state(
+		_run_state_with_combat_checkpoints(
+			_run_state_for_combat_checkpoint(previous_run_state, scheduled_state),
+			commit_checkpoints
+		),
+		"player_activation_finished"
+	)
 	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
-	var phase_result: Dictionary = _combat_engine.advance_to_next_player_turn_with_steps(scheduled_state)
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
-	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state)
+	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state, commit_checkpoints)
 	_board_presentation.clear()
 	_set_action_banner("")
 	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
@@ -10996,18 +11006,23 @@ func _resolve_enemy_round() -> void:
 		_queue_hand_ready_wave("player_turn_start")
 	_refresh_ui()
 
-func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_run_state: Dictionary) -> void:
+func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_run_state: Dictionary, commit_checkpoints: Array) -> void:
 	if steps.is_empty():
 		return
+	var commit_index: int = 0
 	for step_var: Variant in steps:
 		var step: Dictionary = step_var
 		if str(step.get("kind", "")) == "commit":
 			var checkpoint_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
 			if not checkpoint_state.is_empty():
 				_hold_committed_run_state(
-					_run_state_for_combat_checkpoint(base_run_state, checkpoint_state),
+					_run_state_with_combat_checkpoints(
+						_run_state_for_combat_checkpoint(base_run_state, checkpoint_state),
+						_remaining_combat_checkpoints(commit_checkpoints, commit_index + 1)
+					),
 					str(step.get("boundary", "enemy_checkpoint"))
 				)
+			commit_index += 1
 			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
@@ -12037,9 +12052,12 @@ func _on_campfire_sit_pressed() -> void:
 func _on_campfire_embrace_pressed() -> void:
 	_sync_progression_from_run()
 	var held: int = _run_engine.held_embers(_run_state)
-	_progression = ProgressionStore.set_embers(_progression, held)
-	_progression = ProgressionStore.mark_rested_at_fire(_progression)
-	ProgressionStore.save_data(_progression)
+	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression, held)
+	committed_progression = ProgressionStore.mark_rested_at_fire(committed_progression)
+	if not ProgressionStore.save_data(committed_progression):
+		push_error("Failed to persist campfire Embrace; the run remains resumable.")
+		return
+	_progression = committed_progression
 	ProgressionStore.clear_saved_run()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -12347,9 +12365,91 @@ func _committed_run_state() -> Dictionary:
 	return state
 
 func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	var base_state: Dictionary = base_run_state.duplicate(true)
+	base_state.erase(COMBAT_CONTINUATION_KEY)
 	if _combat_engine.combat_outcome(combat_state).is_empty():
-		return _run_engine.set_combat_state(base_run_state, combat_state)
-	return _run_engine.finish_combat(base_run_state, combat_state)
+		return _run_engine.set_combat_state(base_state, combat_state)
+	return _run_engine.finish_combat(base_state, combat_state)
+
+func _combat_commit_checkpoints(steps: Array) -> Array:
+	var checkpoints: Array = []
+	for step_var: Variant in steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		if str(step.get("kind", "")) != "commit":
+			continue
+		var combat_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
+		if combat_state.is_empty():
+			continue
+		checkpoints.append({
+			"boundary": str(step.get("boundary", "enemy_checkpoint")),
+			"state": combat_state
+		})
+	return checkpoints
+
+func _remaining_combat_checkpoints(checkpoints: Array, start_index: int) -> Array:
+	var remaining: Array = []
+	for index: int in range(maxi(0, start_index), checkpoints.size()):
+		if typeof(checkpoints[index]) == TYPE_DICTIONARY:
+			remaining.append((checkpoints[index] as Dictionary).duplicate(true))
+	return remaining
+
+func _run_state_with_combat_checkpoints(run_state: Dictionary, checkpoints: Array) -> Dictionary:
+	var state: Dictionary = run_state.duplicate(true)
+	state.erase(COMBAT_CONTINUATION_KEY)
+	if not checkpoints.is_empty() and str(state.get("mode", "")) == "combat":
+		state[COMBAT_CONTINUATION_KEY] = checkpoints.duplicate(true)
+	return state
+
+func _pending_combat_checkpoints() -> Array:
+	var stored: Variant = _run_state.get(COMBAT_CONTINUATION_KEY, [])
+	if typeof(stored) != TYPE_ARRAY:
+		return []
+	var checkpoints: Array = []
+	var stored_array: Array = stored as Array
+	for checkpoint_var: Variant in stored_array:
+		if typeof(checkpoint_var) != TYPE_DICTIONARY:
+			continue
+		var checkpoint: Dictionary = checkpoint_var as Dictionary
+		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
+			continue
+		checkpoints.append(checkpoint.duplicate(true))
+	return checkpoints
+
+func _has_pending_combat_checkpoints() -> bool:
+	return str(_run_state.get("mode", "")) == "combat" and not _pending_combat_checkpoints().is_empty()
+
+func _consume_next_pending_combat_checkpoint() -> bool:
+	if not _has_pending_combat_checkpoints():
+		return false
+	var checkpoints: Array = _pending_combat_checkpoints()
+	var checkpoint: Dictionary = checkpoints[0] as Dictionary
+	var combat_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)
+	if combat_state.is_empty():
+		_run_state = _run_state_with_combat_checkpoints(_run_state, _remaining_combat_checkpoints(checkpoints, 1))
+		return true
+	var next_run_state: Dictionary = _run_state_with_combat_checkpoints(
+		_run_state_for_combat_checkpoint(_run_state, combat_state),
+		_remaining_combat_checkpoints(checkpoints, 1)
+	)
+	next_run_state = _hold_committed_run_state(next_run_state, str(checkpoint.get("boundary", "resumed_enemy_checkpoint")))
+	_run_state = next_run_state
+	_sync_combat_state_from_run()
+	return true
+
+func _resume_pending_combat_checkpoints() -> void:
+	if not _has_pending_combat_checkpoints() or _animation_lock:
+		return
+	_animation_lock = true
+	while _consume_next_pending_combat_checkpoint():
+		if str(_run_state.get("mode", "")) != "combat":
+			break
+	_release_committed_run_state()
+	_board_presentation.clear()
+	_set_action_banner("")
+	_animation_lock = false
+	_refresh_ui()
 
 func _persist_committed_boundary(boundary: String = "") -> bool:
 	return bool(_persist_run_state_snapshot(_committed_run_state(), false, boundary).get("saved", false))
@@ -12370,12 +12470,13 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	var mode: String = str(state.get("mode", ""))
 	var saved: bool = false
 	if mode in ["victory", "defeat"]:
+		var terminal_resume_state: Dictionary = state.duplicate(true)
 		state = _finalize_terminal_committed_state(state)
 		saved = ProgressionStore.save_data(_progression)
 		if saved:
 			ProgressionStore.clear_saved_run()
 		else:
-			ProgressionStore.save_run_state(state)
+			ProgressionStore.save_run_state(terminal_resume_state)
 	else:
 		saved = ProgressionStore.save_run_state(state)
 	if hold_for_animation:
@@ -12419,8 +12520,10 @@ func _save_run_progress() -> void:
 		return
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode in ["victory", "defeat"] or _run_state.is_empty():
-		ProgressionStore.save_data(_progression)
-		ProgressionStore.clear_saved_run()
+		if ProgressionStore.save_data(_progression):
+			ProgressionStore.clear_saved_run()
+		else:
+			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
 		return
 	var saved_progression: Dictionary = _progression.duplicate(true)
 	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)

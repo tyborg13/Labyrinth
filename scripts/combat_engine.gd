@@ -506,7 +506,7 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 		+ maxi(0, int(next_state.get("player_turn_time_spent", 0)))
 	)
 	_schedule_actor(next_state, _player_actor_entry(scheduled_time, 0))
-	next_state["current_actor"] = {}
+	next_state["current_actor"] = {"kind": "transition"}
 	return next_state
 
 func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
@@ -553,7 +553,7 @@ func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
 					var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 					if int(enemy.get("hp", 0)) > 0:
 						_schedule_enemy_after_turn(next_state, enemy, int(turn_result.get("time_cost", 0)))
-				next_state["current_actor"] = {}
+				next_state["current_actor"] = {"kind": "transition"}
 				_append_commit_step(steps, before_reschedule_state, next_state, "initiative_reschedule")
 				_append_turn_order_step(steps, before_reschedule_state, next_state, "reschedule")
 			_:
