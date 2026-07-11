@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T20:40:32Z",
+  "updated_at": "2026-07-11T03:20:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4981,6 +4981,28 @@
       "source": {
         "branch": "codex/broad-runtime-performance-optimization-pass",
         "commit": "28ee6ca"
+      }
+    },
+    {
+      "id": "mnt_20260711T032032Z_e558afe0",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pooled card proxy widgets must clear stretch anchors after configure",
+      "details": "A reused CardWidget child under CardProxy can silently double from 250x352 to 500x704 when FULL_RECT anchors resolve again during configure, even while the proxy scale itself reports the correct value. Keep the CardWidget at fixed native top-left geometry, reapply _prepare_native_card_widget after configure/display overrides, and let the proxy parent own all drag/play/draw/discard scaling. Visual probes should assert the child widget size across multiple pool reuse cycles, not only the proxy scale.",
+      "status": "active",
+      "created_at": "2026-07-11T03:20:32Z",
+      "updated_at": "2026-07-11T03:20:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/overhaul-card-play-draw-discard-animations-and-fix-giant-cards",
+        "commit": "d4769e2"
       }
     }
   ]

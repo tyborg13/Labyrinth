@@ -452,7 +452,7 @@ func _capture_defense_heal_cast_fx(instance: Node) -> void:
 		"tile": Vector2i(5, 4),
 		"amount": 4
 	}
-	instance.call("_animate_enemy_phase_steps", enemy_before, [enemy_step])
+	instance.call("_animate_enemy_phase_steps", enemy_before, [enemy_step], instance.get("_run_state"), [])
 	await create_timer(0.13).timeout
 	await process_frame
 	await _save_root_screenshot("user://motion_probes/motion_33_enemy_stoneskin_ring.png")
