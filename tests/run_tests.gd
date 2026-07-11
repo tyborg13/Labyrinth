@@ -1835,6 +1835,7 @@ func _test_missed_equipment_resolution_and_persistence(default_progression: Dict
 
 	var resolved_combat: Dictionary = combat_engine.resolve_missed_equipment_after_victory(combat_state)
 	_assert((resolved_combat.get("missed_equipment", []) as Array) == ["ward_kite"], "Victory should classify only still-unclaimed equipment as missed")
+	_assert(not GrimoireLibrary.entry_ids_for_combat_state(resolved_combat).has(GrimoireLibrary.equipment_entry_id("ward_kite")), "Resolved missed equipment should remain excluded from Grimoire discovery")
 	var resolved_loot: Array = resolved_combat.get("loot", []) as Array
 	for loot_var: Variant in resolved_loot:
 		var loot: Dictionary = loot_var as Dictionary
