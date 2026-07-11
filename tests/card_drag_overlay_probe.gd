@@ -29,7 +29,7 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	_position_drag_proxy(instance, Vector2(640.0, 420.0), "play")
 	await process_frame
-	_assert_drag_proxy_size(instance, "first drag")
+	_assert_drag_proxy_size(instance, "first drag", Vector2(640.0, 420.0))
 	await _save_root_screenshot("%s/playable_zones.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
@@ -39,7 +39,7 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	_position_drag_proxy(instance, Vector2(640.0, 458.0), "move")
 	await process_frame
-	_assert_drag_proxy_size(instance, "reused fallback drag")
+	_assert_drag_proxy_size(instance, "reused fallback drag", Vector2(640.0, 458.0))
 	await _save_root_screenshot("%s/fallback_only_zones.png" % OUTPUT_DIR)
 	await instance.call("_animate_drag_cancel_to_source")
 	await process_frame
@@ -49,7 +49,7 @@ func _capture_drag_overlay_frames() -> void:
 	await process_frame
 	_position_drag_proxy(instance, Vector2(122.0, 118.0), "")
 	await process_frame
-	_assert_drag_proxy_size(instance, "reused invalid-drop drag")
+	_assert_drag_proxy_size(instance, "reused invalid-drop drag", Vector2(122.0, 118.0))
 	await _save_root_screenshot("%s/invalid_drop_before_release.png" % OUTPUT_DIR)
 	await instance.call("_commit_drag_drop", "")
 	await process_frame
@@ -106,6 +106,23 @@ func _capture_card_motion_frames(instance: Node) -> void:
 	await _save_root_screenshot("%s/draw_second_settle.png" % OUTPUT_DIR)
 	await create_timer(0.16).timeout
 
+	var previous_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	instance.set("_settings", {"reduced_motion": true})
+	instance.call("_animate_card_consumed_fx", card_id, source_rect.size)
+	await create_timer(0.04).timeout
+	var reduced_proxy: Control = _first_card_fx_proxy(instance)
+	if reduced_proxy == null:
+		push_error("Reduced-motion consume proof should have an active proxy")
+	else:
+		_assert_native_proxy_widget(reduced_proxy.get_child(0) as Control, "reduced-motion consume")
+		if not is_zero_approx(reduced_proxy.rotation):
+			push_error("Reduced-motion consume should not rotate the card")
+	await _save_root_screenshot("%s/consume_reduced_motion.png" % OUTPUT_DIR)
+	await create_timer(0.16).timeout
+	if _first_card_fx_proxy(instance) != null:
+		push_error("Reduced-motion consume should finish on its shortened duration")
+	instance.set("_settings", previous_settings)
+
 func _load_combat_fixture(instance: Node, player_pos: Vector2i, enemy_pos: Vector2i, seed: int) -> void:
 	instance.call("_cancel_drag_play")
 	instance.call("_reset_card_resolution")
@@ -143,19 +160,22 @@ func _position_drag_proxy(instance: Node, mouse_position: Vector2, hover_zone: S
 	instance.call("_update_drag_proxy_position", mouse_position)
 	instance.call("_update_drag_overlay_hover", hover_zone)
 
-func _assert_drag_proxy_size(instance: Node, context: String) -> void:
+func _assert_drag_proxy_size(instance: Node, context: String, expected_center: Vector2) -> void:
 	var proxy: Control = instance.get("_drag_card_proxy") as Control
 	var source_rect: Rect2 = instance.get("_drag_card_source_rect")
 	if proxy == null or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
 		push_error("%s should have a mounted drag proxy and source geometry" % context)
 		return
-	var visual_size: Vector2 = proxy.size * proxy.get_global_transform().get_scale().abs()
-	var maximum_size: Vector2 = source_rect.size * 1.08
+	var bounds: Rect2 = _transformed_control_bounds(proxy)
+	var maximum_size: Vector2 = source_rect.size * 1.18
+	var actual_center: Vector2 = proxy.get_global_transform() * proxy.pivot_offset
 	var widget: Control = proxy.get_child(0) as Control
-	print("DRAG PROXY SIZE %s: visual=%s local_scale=%s global_scale=%s source=%s widget_size=%s widget_scale=%s widget_global_scale=%s" % [context, visual_size, proxy.scale, proxy.get_global_transform().get_scale(), source_rect.size, widget.size, widget.scale, widget.get_global_transform().get_scale()])
+	print("DRAG PROXY GEOMETRY %s: bounds=%s center=%s expected_center=%s source=%s widget_size=%s" % [context, bounds, actual_center, expected_center, source_rect.size, widget.size])
 	_assert_native_proxy_widget(widget, context)
-	if visual_size.x > maximum_size.x or visual_size.y > maximum_size.y:
-		push_error("%s proxy grew beyond the lifted-card limit: %s from source %s" % [context, visual_size, source_rect.size])
+	if actual_center.distance_to(expected_center) > 1.0:
+		push_error("%s proxy center missed the cursor grab point: %s versus %s" % [context, actual_center, expected_center])
+	if bounds.size.x > maximum_size.x or bounds.size.y > maximum_size.y:
+		push_error("%s transformed proxy bounds grew beyond the lifted-card limit: %s from source %s" % [context, bounds.size, source_rect.size])
 
 func _assert_card_fx_proxy_sizes(instance: Node, context: String) -> void:
 	var fx_layer: Control = instance.get("_card_fx_layer") as Control
@@ -169,6 +189,29 @@ func _assert_card_fx_proxy_sizes(instance: Node, context: String) -> void:
 func _assert_native_proxy_widget(widget: Control, context: String) -> void:
 	if widget == null or widget.size != Vector2(250.0, 352.0):
 		push_error("%s proxy widget must remain 250x352 after pooling, got %s" % [context, widget.size if widget != null else Vector2.ZERO])
+
+func _first_card_fx_proxy(instance: Node) -> Control:
+	var fx_layer: Control = instance.get("_card_fx_layer") as Control
+	if fx_layer == null:
+		return null
+	for child: Node in fx_layer.get_children():
+		if child is Control and child.name == "CardProxy":
+			return child as Control
+	return null
+
+func _transformed_control_bounds(control: Control) -> Rect2:
+	var transform: Transform2D = control.get_global_transform()
+	var points: Array = [
+		transform * Vector2.ZERO,
+		transform * Vector2(control.size.x, 0.0),
+		transform * control.size,
+		transform * Vector2(0.0, control.size.y)
+	]
+	var bounds := Rect2(points[0], Vector2.ZERO)
+	for point_var: Variant in points:
+		var point: Vector2 = point_var
+		bounds = bounds.expand(point)
+	return bounds
 
 func _drag_room_layout(player_pos: Vector2i, enemy_pos: Vector2i) -> Dictionary:
 	return {

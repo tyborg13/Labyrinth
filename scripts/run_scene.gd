@@ -4525,7 +4525,8 @@ func _mouse_event_position(event: InputEvent) -> Vector2:
 func _update_drag_proxy_position(mouse_position: Vector2) -> void:
 	if _drag_card_proxy == null:
 		return
-	_drag_card_proxy.position = mouse_position - _drag_card_grab_offset
+	var visual_rect := Rect2(mouse_position - _drag_card_grab_offset, _drag_card_source_rect.size)
+	_drag_card_proxy.position = _card_proxy_position_for_rect(visual_rect)
 	if _reduced_motion_enabled():
 		_drag_card_proxy.rotation = 0.0
 		_drag_card_proxy.scale = _drag_card_base_scale
@@ -4589,7 +4590,7 @@ func _mount_card_proxy(proxy: Control, parent: Node, rect: Rect2) -> void:
 	# This keeps drag motion independent from hand layout while avoiding the stale
 	# parent transform that pooled proxies carried when mounted before reparenting.
 	proxy.top_level = true
-	proxy.position = rect.position
+	proxy.position = _card_proxy_position_for_rect(rect)
 	proxy.size = CARD_WIDGET_BASE_SIZE
 	proxy.pivot_offset = CARD_WIDGET_BASE_SIZE * 0.5
 	proxy.scale = Vector2.ONE * _card_widget_scale_for_size(_normalized_card_size(rect.size))
@@ -4602,11 +4603,13 @@ func _mount_card_proxy(proxy: Control, parent: Node, rect: Rect2) -> void:
 func _card_proxy_scale_for_size(size_hint: Vector2) -> Vector2:
 	return Vector2.ONE * _card_widget_scale_for_size(_normalized_card_size(size_hint))
 
+func _card_proxy_position_for_rect(rect: Rect2) -> Vector2:
+	return rect.get_center() - CARD_WIDGET_BASE_SIZE * 0.5
+
 func _card_proxy_arc_position(from_rect: Rect2, to_rect: Rect2, arc_height: float, progress: float = 0.5) -> Vector2:
 	var center: Vector2 = from_rect.get_center().lerp(to_rect.get_center(), progress)
 	center.y -= arc_height
-	var size_at_progress: Vector2 = from_rect.size.lerp(to_rect.size, progress)
-	return center - size_at_progress * 0.5
+	return center - CARD_WIDGET_BASE_SIZE * 0.5
 
 func _reset_card_proxy_widget_transients(widget: Control) -> void:
 	# These values are zeroed by a fresh CardWidget instance. Reset them explicitly so
@@ -4635,7 +4638,10 @@ func _take_pooled_card_proxy() -> Control:
 		return proxy
 	return null
 
-func _release_card_proxy(proxy: Control) -> void:
+func _release_card_proxy(proxy) -> void:
+	# Animation coroutines can resume while their scene is being torn down. Keep the
+	# argument untyped so a previously freed proxy reaches the liveness guard instead
+	# of failing GDScript's typed-argument check before this function can run.
 	if not _node_is_alive(proxy):
 		return
 	var active_tween: Variant = proxy.get_meta("active_card_proxy_tween") if proxy.has_meta("active_card_proxy_tween") else null
@@ -4670,7 +4676,7 @@ func _animate_card_proxy_to_rect(proxy: Control, target_rect: Rect2, duration: f
 		return
 	var tween: Tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	proxy.set_meta("active_card_proxy_tween", tween)
-	tween.tween_property(proxy, "position", target_rect.position, duration)
+	tween.tween_property(proxy, "position", _card_proxy_position_for_rect(target_rect), duration)
 	if bool(proxy.get_meta("scaled_card_proxy", false)):
 		tween.parallel().tween_property(proxy, "scale", Vector2.ONE * _card_widget_scale_for_size(_normalized_card_size(target_rect.size)), duration)
 	else:
@@ -11036,7 +11042,7 @@ func _animate_card_play_fx(card_id: String, source_rect: Rect2, size_hint: Vecto
 		lift_tween.tween_property(proxy, "position", midpoint_position, duration * 0.58)
 		lift_tween.parallel().tween_property(proxy, "scale", target_scale * CARD_MOTION_OVERSHOOT_SCALE, duration * 0.58)
 		lift_tween.parallel().tween_property(proxy, "rotation", deg_to_rad(-2.5), duration * 0.58)
-		lift_tween.tween_property(proxy, "position", target_rect.position, duration * 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		lift_tween.tween_property(proxy, "position", _card_proxy_position_for_rect(target_rect), duration * 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		lift_tween.parallel().tween_property(proxy, "scale", target_scale, duration * 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		lift_tween.parallel().tween_property(proxy, "rotation", 0.0, duration * 0.42)
 		await lift_tween.finished
@@ -11080,11 +11086,11 @@ func _animate_card_to_pile_fx(card_id: String, pile_kind: String, size_hint: Vec
 		tween.tween_property(proxy, "position", midpoint_position, duration * 0.52)
 		tween.parallel().tween_property(proxy, "scale", proxy.scale.lerp(target_scale, 0.44), duration * 0.52)
 		tween.parallel().tween_property(proxy, "rotation", deg_to_rad(5.0 * direction), duration * 0.52)
-		tween.tween_property(proxy, "position", target_rect.position, duration * 0.48).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(proxy, "position", _card_proxy_position_for_rect(target_rect), duration * 0.48).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 		tween.parallel().tween_property(proxy, "scale", target_scale, duration * 0.48)
 		tween.parallel().tween_property(proxy, "rotation", deg_to_rad(12.0 * direction), duration * 0.48)
 	else:
-		tween.tween_property(proxy, "position", target_rect.position, duration)
+		tween.tween_property(proxy, "position", _card_proxy_position_for_rect(target_rect), duration)
 		tween.parallel().tween_property(proxy, "scale", target_scale, duration)
 	tween.parallel().tween_property(proxy, "modulate", Color(1.0, 0.94, 0.84, 0.10), duration)
 	await tween.finished
@@ -11101,11 +11107,18 @@ func _animate_card_consumed_fx(card_id: String, size_hint: Vector2) -> void:
 	_mount_card_proxy(proxy, _card_fx_layer, start_rect)
 	proxy.modulate = Color(1.0, 1.0, 1.0, 0.82)
 	var start_scale: Vector2 = proxy.scale
+	var reduced_motion: bool = _reduced_motion_enabled()
+	var duration: float = CARD_PILE_SECONDS * (0.55 if reduced_motion else 1.0)
 	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(proxy, "scale", start_scale * 0.42, CARD_PILE_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	tween.tween_property(proxy, "rotation", deg_to_rad(-9.0), CARD_PILE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(proxy, "position:y", proxy.position.y - 24.0, CARD_PILE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(proxy, "modulate", Color(1.0, 0.84, 0.46, 0.0), CARD_PILE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	if reduced_motion:
+		tween.tween_property(proxy, "scale", start_scale * 0.54, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(proxy, "position:y", proxy.position.y - 6.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(proxy, "modulate", Color(1.0, 0.90, 0.70, 0.0), duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	else:
+		tween.tween_property(proxy, "scale", start_scale * 0.42, duration).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		tween.tween_property(proxy, "rotation", deg_to_rad(-9.0), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(proxy, "position:y", proxy.position.y - 24.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(proxy, "modulate", Color(1.0, 0.84, 0.46, 0.0), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	await tween.finished
 	_release_card_proxy(proxy)
 
@@ -11152,7 +11165,7 @@ func _animate_draw_cards_fx(draw_entries: Array) -> void:
 			tween.parallel().tween_property(proxy, "scale", target_scale * CARD_MOTION_OVERSHOOT_SCALE, duration * 0.62)
 			tween.parallel().tween_property(proxy, "rotation", target_rotation - deg_to_rad(2.0), duration * 0.62)
 			tween.parallel().tween_property(proxy, "modulate", Color.WHITE, duration * 0.34)
-			tween.tween_property(proxy, "position", target_rect.position, duration * 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tween.tween_property(proxy, "position", _card_proxy_position_for_rect(target_rect), duration * 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(proxy, "scale", target_scale, duration * 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(proxy, "rotation", target_rotation, duration * 0.38)
 			await tween.finished

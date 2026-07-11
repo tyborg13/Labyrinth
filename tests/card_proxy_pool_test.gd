@@ -16,6 +16,7 @@ func _run() -> void:
 	var first_proxy: Control = run_scene.call("_spawn_card_proxy", "quick_stab", source_rect) as Control
 	run_scene.call("_mount_card_proxy", first_proxy, root, source_rect)
 	await process_frame
+	_assert(_vector2_near(_proxy_visual_center(first_proxy), source_rect.get_center(), 0.5), "A fresh mounted proxy should share the source card center")
 	var first_widget: Control = first_proxy.get_child(0) as Control
 	var first_proxy_id: int = first_proxy.get_instance_id()
 	var first_widget_id: int = first_widget.get_instance_id()
@@ -45,9 +46,9 @@ func _run() -> void:
 	_assert(reused_widget.get_instance_id() == first_widget_id, "Proxy reuse should retain the expensive CardWidget subtree")
 	run_scene.call("_mount_card_proxy", reused_proxy, root, source_rect)
 	_assert(reused_proxy.visible and reused_proxy.top_level and reused_proxy.process_mode == Node.PROCESS_MODE_INHERIT, "Mounted proxies should restore visible top-level effect processing")
-	_assert(reused_proxy.position == source_rect.position, "Reacquired proxies should use the new effect origin")
 	_assert(_vector2_near(reused_proxy.size * reused_proxy.scale, source_rect.size, 1.0), "A reused proxy should mount at the requested visual size instead of inheriting a giant parent transform")
 	_assert(reused_widget.size == Vector2(250.0, 352.0), "A reused proxy widget should remain at its native geometry instead of doubling through stale stretch anchors")
+	_assert(_vector2_near(_proxy_visual_center(reused_proxy), source_rect.get_center(), 0.5), "A reused mounted proxy should remain centered over its source rect")
 	_assert(is_zero_approx(reused_proxy.rotation) and reused_proxy.pivot_offset == reused_proxy.size * 0.5, "Reacquired proxies should clear consumed-card rotation and restore a centered motion pivot")
 	_assert(reused_proxy.modulate == Color.WHITE and reused_proxy.self_modulate == Color.WHITE, "Reacquired proxies should clear prior fade/tint state")
 	_assert(not bool(reused_widget.get("_interactive")), "FX proxies should remain noninteractive after reuse")
@@ -66,6 +67,7 @@ func _run() -> void:
 	await process_frame
 	_assert(_vector2_near(reused_proxy.size * reused_proxy.scale, next_rect.size, 1.0), "Repeated proxy reuse should preserve the requested card dimensions")
 	_assert(reused_widget.size == Vector2(250.0, 352.0), "Repeated proxy reuse should keep the CardWidget native rect stable")
+	_assert(_vector2_near(_proxy_visual_center(reused_proxy), next_rect.get_center(), 0.5), "Repeated proxy reuse should preserve destination center geometry")
 	_assert(reused_widget.mouse_entered.get_connections().size() == mouse_connection_count, "Reusing a CardWidget should not duplicate its input signal connections")
 	var title_label: Label = reused_widget.get_node("Margin/VBox/TopRow/Title") as Label
 	_assert(title_label.text == "Guarded Step", "Reused proxy visuals should display the newly configured card")
@@ -114,3 +116,6 @@ func _assert(condition: bool, message: String) -> void:
 
 func _vector2_near(actual: Vector2, expected: Vector2, tolerance: float) -> bool:
 	return absf(actual.x - expected.x) <= tolerance and absf(actual.y - expected.y) <= tolerance
+
+func _proxy_visual_center(proxy: Control) -> Vector2:
+	return proxy.get_global_transform() * proxy.pivot_offset
