@@ -72,31 +72,34 @@ func _capture_card_motion_frames(instance: Node) -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	instance.call("_animate_card_play_fx", card_id, source_rect, source_rect.size)
-	await create_timer(0.14).timeout
+	await create_timer(0.12).timeout
 	_assert_card_fx_proxy_sizes(instance, "play arc")
 	await _save_root_screenshot("%s/play_arc.png" % OUTPUT_DIR)
-	await create_timer(0.26).timeout
+	await create_timer(0.19).timeout
 	var staged_proxy: Control = _first_card_fx_proxy(instance)
 	if staged_proxy == null:
-		push_error("Played card should remain staged at center for a readable hold")
+		push_error("Played card should reach center for a short readable beat")
 	else:
 		_assert_play_proxy_grew(staged_proxy, source_rect.size)
 	await _save_root_screenshot("%s/play_center_grown.png" % OUTPUT_DIR)
-	await create_timer(0.20).timeout
-	await _save_root_screenshot("%s/play_center_hold.png" % OUTPUT_DIR)
 	await create_timer(0.08).timeout
+	await _save_root_screenshot("%s/play_center_beat.png" % OUTPUT_DIR)
+	await create_timer(0.04).timeout
 
 	var staged_proxy_id: int = staged_proxy.get_instance_id() if staged_proxy != null else 0
 	instance.call("_animate_card_to_pile_fx", card_id, "discard", source_rect.size, staged_proxy)
-	await create_timer(0.14).timeout
+	await create_timer(0.11).timeout
 	_assert_card_fx_proxy_sizes(instance, "discard arc")
 	var discard_proxy: Control = _first_card_fx_proxy(instance)
 	if discard_proxy == null or discard_proxy.get_instance_id() != staged_proxy_id:
 		push_error("Discard flight should continue with the exact staged play proxy")
 	await _save_root_screenshot("%s/discard_arc.png" % OUTPUT_DIR)
-	await create_timer(0.18).timeout
+	await create_timer(0.12).timeout
 	await _save_root_screenshot("%s/discard_tuck.png" % OUTPUT_DIR)
-	await create_timer(0.10).timeout
+	await create_timer(0.08).timeout
+	if _first_card_fx_proxy(instance) != null:
+		push_error("Played card should leave the board before action animations begin")
+	await _save_root_screenshot("%s/action_stage_clear.png" % OUTPUT_DIR)
 
 	instance.set("_animating_hand_card_index", -1)
 	var draw_entries: Array = [
@@ -106,12 +109,13 @@ func _capture_card_motion_frames(instance: Node) -> void:
 	instance.call("_animate_draw_cards_fx", draw_entries)
 	await create_timer(0.08).timeout
 	_assert_card_fx_proxy_sizes(instance, "first draw arc")
-	await _save_root_screenshot("%s/draw_first_arc.png" % OUTPUT_DIR)
-	await create_timer(0.15).timeout
-	await _save_root_screenshot("%s/draw_first_settle.png" % OUTPUT_DIR)
-	await create_timer(0.14).timeout
-	await _save_root_screenshot("%s/draw_second_arc.png" % OUTPUT_DIR)
+	_assert_streamed_draw_launch(instance)
+	await _save_root_screenshot("%s/draw_first_launch.png" % OUTPUT_DIR)
+	await create_timer(0.12).timeout
+	await _save_root_screenshot("%s/draw_stream_handoff.png" % OUTPUT_DIR)
 	await create_timer(0.16).timeout
+	await _save_root_screenshot("%s/draw_second_flight.png" % OUTPUT_DIR)
+	await create_timer(0.14).timeout
 	await _save_root_screenshot("%s/draw_second_settle.png" % OUTPUT_DIR)
 	if _card_fx_proxy_count(instance) != 2:
 		push_error("Both drawn cards should remain staged in their fan slots until the authoritative hand refresh")
@@ -209,6 +213,20 @@ func _assert_play_proxy_grew(proxy: Control, source_size: Vector2) -> void:
 	if not _vector2_near(actual_size, expected_size, 2.0):
 		push_error("Staged played card should grow smoothly to 108%% of hand size: got %s, expected %s" % [actual_size, expected_size])
 
+func _assert_streamed_draw_launch(instance: Node) -> void:
+	var proxies: Array[Control] = _card_fx_proxies(instance)
+	if proxies.size() != 2:
+		push_error("Streamed draw proof requires two card proxies, got %d" % proxies.size())
+		return
+	var draw_rect: Rect2 = instance.call("_pile_global_rect", "draw")
+	var pile_center: Vector2 = draw_rect.get_center()
+	var first_distance: float = _proxy_visual_center(proxies[0]).distance_to(pile_center)
+	var second_distance: float = _proxy_visual_center(proxies[1]).distance_to(pile_center)
+	if first_distance < 20.0:
+		push_error("The first drawn card should visibly lead the stream after 80ms")
+	if second_distance > 2.0:
+		push_error("The second drawn card should still be waiting at the pile during the first card's launch")
+
 func _first_card_fx_proxy(instance: Node) -> Control:
 	var fx_layer: Control = instance.get("_card_fx_layer") as Control
 	if fx_layer == null:
@@ -219,14 +237,20 @@ func _first_card_fx_proxy(instance: Node) -> Control:
 	return null
 
 func _card_fx_proxy_count(instance: Node) -> int:
+	return _card_fx_proxies(instance).size()
+
+func _card_fx_proxies(instance: Node) -> Array[Control]:
+	var proxies: Array[Control] = []
 	var fx_layer: Control = instance.get("_card_fx_layer") as Control
 	if fx_layer == null:
-		return 0
-	var count: int = 0
+		return proxies
 	for child: Node in fx_layer.get_children():
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
-			count += 1
-	return count
+			proxies.append(child as Control)
+	return proxies
+
+func _proxy_visual_center(proxy: Control) -> Vector2:
+	return proxy.get_global_transform() * proxy.pivot_offset
 
 func _transformed_control_bounds(control: Control) -> Rect2:
 	var transform: Transform2D = control.get_global_transform()

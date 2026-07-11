@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-11T04:08:33Z",
+  "updated_at": "2026-07-11T11:46:17Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5006,7 +5006,7 @@
       }
     },
     {
-      "id": "mnt_20260711T040833Z_5116d20b",
+      "id": "mnt_20260711T114617Z_56a7b50f",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5015,16 +5015,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card motion should be continuous, readable, and physically staged",
-      "details": "Played cards should use one persistent proxy from hand through a modest grow into center, a readable hold, and a smooth shrinking flight into the destination pile; do not fade/release and respawn between those legs. Play, draw, discard, consume, and snapback should favor continuous zero-speed-endpoint easing over segmented Back-eased tweens. Multi-card draws should overlap with a short stagger and remain in their fan slots until the authoritative hand refresh replaces them.",
+      "summary": "Card motion should be continuous, brief, and action-first",
+      "details": "A played card should use one persistent proxy, grow modestly into center for only a short identification beat, then complete its shrink-and-pile flight before any card action animation starts so it never covers movement, damage, block, or other resolution visuals. Keep the full pre-action cadence quick. Multi-card draws should remain smooth and overlapping but launch as a readable stream with enough stagger to perceive one card, then the next, rather than appearing simultaneous.",
       "status": "active",
-      "created_at": "2026-07-11T04:08:33Z",
-      "updated_at": "2026-07-11T04:08:33Z",
+      "created_at": "2026-07-11T11:46:17Z",
+      "updated_at": "2026-07-11T11:46:17Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260711T040833Z_5116d20b"
+      ],
       "source": {
         "branch": "codex/overhaul-card-play-draw-discard-animations-and-fix-giant-cards",
-        "commit": "b04ddfd"
+        "commit": "8b33ddc"
       }
     }
   ]

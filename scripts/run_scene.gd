@@ -775,11 +775,11 @@ const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
 const ATTACK_FRAMES: int = 6
 const ATTACK_FRAME_SECONDS: float = 0.04
-const DRAW_FRAME_SECONDS: float = 0.34
-const DRAW_STAGGER_SECONDS: float = 0.065
-const CARD_PLAY_SECONDS: float = 0.38
-const CARD_PLAY_HOLD_SECONDS: float = 0.26
-const CARD_PILE_SECONDS: float = 0.38
+const DRAW_FRAME_SECONDS: float = 0.32
+const DRAW_STAGGER_SECONDS: float = 0.16
+const CARD_PLAY_SECONDS: float = 0.30
+const CARD_PLAY_HOLD_SECONDS: float = 0.11
+const CARD_PILE_SECONDS: float = 0.28
 const CARD_SNAPBACK_SECONDS: float = 0.16
 const CARD_DRAW_ARC_HEIGHT: float = 54.0
 const CARD_PLAY_ARC_HEIGHT: float = 58.0
@@ -11076,6 +11076,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
+	await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -11085,14 +11086,9 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, resolved_state, actions, selected_targets)
-	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
-	if outcome == "":
-		await _animate_card_to_pile_fx(card_id, pile_kind, card_size, staged_card_proxy)
-	else:
-		await _animate_card_terminal_fade_fx(staged_card_proxy)
 	_animation_lock = false
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
@@ -11192,16 +11188,6 @@ func _animate_card_consumed_fx(card_id: String, size_hint: Vector2, staged_proxy
 		tween.tween_property(proxy, "rotation", deg_to_rad(-9.0), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_property(proxy, "position:y", proxy.position.y - 24.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		tween.tween_property(proxy, "modulate", Color(1.0, 0.84, 0.46, 0.0), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	await tween.finished
-	_release_card_proxy(proxy)
-
-func _animate_card_terminal_fade_fx(proxy) -> void:
-	if not _node_is_alive(proxy):
-		return
-	var duration: float = 0.12 if _reduced_motion_enabled() else 0.20
-	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(proxy, "scale", proxy.scale * 0.88, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(proxy, "modulate", Color(1.0, 0.94, 0.82, 0.0), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
 	_release_card_proxy(proxy)
 
