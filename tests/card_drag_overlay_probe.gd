@@ -72,22 +72,31 @@ func _capture_card_motion_frames(instance: Node) -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	instance.call("_animate_card_play_fx", card_id, source_rect, source_rect.size)
-	await create_timer(0.09).timeout
+	await create_timer(0.14).timeout
 	_assert_card_fx_proxy_sizes(instance, "play arc")
 	await _save_root_screenshot("%s/play_arc.png" % OUTPUT_DIR)
-	await create_timer(0.13).timeout
-	await _save_root_screenshot("%s/play_settle.png" % OUTPUT_DIR)
-	await create_timer(0.07).timeout
-	await _save_root_screenshot("%s/play_resolve_fade.png" % OUTPUT_DIR)
-	await create_timer(0.12).timeout
-
-	instance.call("_animate_card_to_pile_fx", card_id, "discard", source_rect.size)
+	await create_timer(0.26).timeout
+	var staged_proxy: Control = _first_card_fx_proxy(instance)
+	if staged_proxy == null:
+		push_error("Played card should remain staged at center for a readable hold")
+	else:
+		_assert_play_proxy_grew(staged_proxy, source_rect.size)
+	await _save_root_screenshot("%s/play_center_grown.png" % OUTPUT_DIR)
+	await create_timer(0.20).timeout
+	await _save_root_screenshot("%s/play_center_hold.png" % OUTPUT_DIR)
 	await create_timer(0.08).timeout
-	_assert_card_fx_proxy_sizes(instance, "discard arc")
-	await _save_root_screenshot("%s/discard_arc.png" % OUTPUT_DIR)
-	await create_timer(0.13).timeout
-	await _save_root_screenshot("%s/discard_tuck.png" % OUTPUT_DIR)
+
+	var staged_proxy_id: int = staged_proxy.get_instance_id() if staged_proxy != null else 0
+	instance.call("_animate_card_to_pile_fx", card_id, "discard", source_rect.size, staged_proxy)
 	await create_timer(0.14).timeout
+	_assert_card_fx_proxy_sizes(instance, "discard arc")
+	var discard_proxy: Control = _first_card_fx_proxy(instance)
+	if discard_proxy == null or discard_proxy.get_instance_id() != staged_proxy_id:
+		push_error("Discard flight should continue with the exact staged play proxy")
+	await _save_root_screenshot("%s/discard_arc.png" % OUTPUT_DIR)
+	await create_timer(0.18).timeout
+	await _save_root_screenshot("%s/discard_tuck.png" % OUTPUT_DIR)
+	await create_timer(0.10).timeout
 
 	instance.set("_animating_hand_card_index", -1)
 	var draw_entries: Array = [
@@ -104,7 +113,11 @@ func _capture_card_motion_frames(instance: Node) -> void:
 	await _save_root_screenshot("%s/draw_second_arc.png" % OUTPUT_DIR)
 	await create_timer(0.16).timeout
 	await _save_root_screenshot("%s/draw_second_settle.png" % OUTPUT_DIR)
+	if _card_fx_proxy_count(instance) != 2:
+		push_error("Both drawn cards should remain staged in their fan slots until the authoritative hand refresh")
 	await create_timer(0.16).timeout
+	instance.call("_clear_idle_card_fx_layer")
+	await process_frame
 
 	var previous_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	instance.set("_settings", {"reduced_motion": true})
@@ -118,7 +131,7 @@ func _capture_card_motion_frames(instance: Node) -> void:
 		if not is_zero_approx(reduced_proxy.rotation):
 			push_error("Reduced-motion consume should not rotate the card")
 	await _save_root_screenshot("%s/consume_reduced_motion.png" % OUTPUT_DIR)
-	await create_timer(0.16).timeout
+	await create_timer(0.20).timeout
 	if _first_card_fx_proxy(instance) != null:
 		push_error("Reduced-motion consume should finish on its shortened duration")
 	instance.set("_settings", previous_settings)
@@ -190,14 +203,30 @@ func _assert_native_proxy_widget(widget: Control, context: String) -> void:
 	if widget == null or widget.size != Vector2(250.0, 352.0):
 		push_error("%s proxy widget must remain 250x352 after pooling, got %s" % [context, widget.size if widget != null else Vector2.ZERO])
 
+func _assert_play_proxy_grew(proxy: Control, source_size: Vector2) -> void:
+	var actual_size: Vector2 = proxy.size * proxy.get_global_transform().get_scale().abs()
+	var expected_size: Vector2 = source_size * 1.08
+	if not _vector2_near(actual_size, expected_size, 2.0):
+		push_error("Staged played card should grow smoothly to 108%% of hand size: got %s, expected %s" % [actual_size, expected_size])
+
 func _first_card_fx_proxy(instance: Node) -> Control:
 	var fx_layer: Control = instance.get("_card_fx_layer") as Control
 	if fx_layer == null:
 		return null
 	for child: Node in fx_layer.get_children():
-		if child is Control and child.name == "CardProxy":
+		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
 			return child as Control
 	return null
+
+func _card_fx_proxy_count(instance: Node) -> int:
+	var fx_layer: Control = instance.get("_card_fx_layer") as Control
+	if fx_layer == null:
+		return 0
+	var count: int = 0
+	for child: Node in fx_layer.get_children():
+		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
+			count += 1
+	return count
 
 func _transformed_control_bounds(control: Control) -> Rect2:
 	var transform: Transform2D = control.get_global_transform()
@@ -212,6 +241,9 @@ func _transformed_control_bounds(control: Control) -> Rect2:
 		var point: Vector2 = point_var
 		bounds = bounds.expand(point)
 	return bounds
+
+func _vector2_near(actual: Vector2, expected: Vector2, tolerance: float) -> bool:
+	return absf(actual.x - expected.x) <= tolerance and absf(actual.y - expected.y) <= tolerance
 
 func _drag_room_layout(player_pos: Vector2i, enemy_pos: Vector2i) -> Dictionary:
 	return {
