@@ -26,6 +26,7 @@ const MERCHANT_ROOM_CANDIDATE_PERCENT: int = 22
 const MERCHANT_ROOM_MIN_DEPTH: int = 2
 const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
+const MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear crumbles to ash."
 const MERCHANT_BLACKSMITH: String = "blacksmith"
 const MERCHANT_ARCANIST: String = "arcanist"
 const MERCHANT_SCAVENGER: String = "scavenger"
@@ -450,11 +451,15 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	return next_state
 
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = set_combat_state(run_state, combat_state)
-	next_state["current_room_layout"] = _room_layout_from_combat_state(combat_state)
-	next_state["combat_state"] = {}
-	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	var outcome: String = _combat_engine.combat_outcome(combat_state)
+	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
+	if outcome == "victory":
+		resolved_combat_state = _combat_engine.resolve_missed_equipment_after_victory(resolved_combat_state)
+	var missed_equipment: Array = resolved_combat_state.get("missed_equipment", []) as Array
+	var next_state: Dictionary = set_combat_state(run_state, resolved_combat_state)
+	next_state["current_room_layout"] = _room_layout_from_combat_state(resolved_combat_state)
+	next_state["combat_state"] = {}
+	next_state["player_hp"] = int((resolved_combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	if outcome == "defeat":
 		next_state["mode"] = "defeat"
 		next_state["game_over"] = true
@@ -487,6 +492,8 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			next_state["victory"] = false
 			next_state["mode"] = "room"
 			next_state["notice"] = "The labyrinth opens outward."
+		if not missed_equipment.is_empty():
+			next_state["notice"] = MISSED_EQUIPMENT_NOTICE
 		return next_state
 	next_state["pending_reward"] = {
 		"cards": _generate_card_rewards(next_state, current_room),
@@ -494,6 +501,8 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		"ember_amount": total_embers
 	}
 	next_state["mode"] = "reward"
+	if not missed_equipment.is_empty():
+		next_state["notice"] = MISSED_EQUIPMENT_NOTICE
 	return next_state
 
 func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:

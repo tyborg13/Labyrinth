@@ -99,6 +99,7 @@ func _initialize() -> void:
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
+	_test_missed_equipment_resolution_and_persistence(default_progression)
 	_test_merchant_room_placement_and_trading(default_progression)
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
@@ -408,7 +409,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 		"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}],
 		"collected_equipment": ["iron_cleaver"]
 	})
-	_assert(combat_loot_entries.has("equipment:ward_kite"), "Visible combat equipment loot should unlock equipment entries before pickup")
+	_assert(not combat_loot_entries.has("equipment:ward_kite"), "Unclaimed combat equipment should not unlock equipment entries before pickup")
 	_assert(combat_loot_entries.has("equipment:iron_cleaver"), "Combat-state collected equipment should unlock equipment entries before run sync")
 	var engine := RunEngine.new()
 	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
@@ -421,7 +422,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var run_with_visible_loot: Dictionary = run_state.duplicate(true)
 	run_with_visible_loot["combat_state"] = {"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}]}
 	var run_visible_loot_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(run_with_visible_loot)
-	_assert(run_visible_loot_entries.has("equipment:ward_kite"), "Run-state combat loot should unlock visible equipment entries")
+	_assert(not run_visible_loot_entries.has("equipment:ward_kite"), "Run-state unclaimed combat loot should not unlock equipment entries")
 	var reward_offer_state: Dictionary = run_state.duplicate(true)
 	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
@@ -1795,6 +1796,104 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 	_assert((run_state.get("equipment_inventory", []) as Array).has("splintered_shield"), "Equipping collected gear should move the replaced starter item into inventory")
 	_assert(post_equip_deck.has("kite_bash") and post_equip_deck.has("warded_advance"), "Equipping collected gear should add its cards to the active deck")
 	_assert(not post_equip_deck.has("brace") and not post_equip_deck.has("guarded_step"), "Equipping collected gear should remove the previous slot's cards from the active deck")
+
+func _test_missed_equipment_resolution_and_persistence(default_progression: Dictionary) -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var combat_engine: CombatEngine = CombatEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(7401, default_progression)
+	var deck_before: Array = (run_state.get("deck_cards", []) as Array).duplicate()
+	var layout: Dictionary = _simple_room_layout()
+	layout["loot"] = [
+		{"id": "missed_gear", "kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(5, 3)},
+		{"id": "collected_gear", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 4), "claimed": true},
+		{"id": "mixed_heal", "kind": "healing_vial", "amount": 40, "pos": Vector2i(4, 3)},
+		{"id": "mixed_shield", "kind": "rusty_shield", "amount": 30, "pos": Vector2i(4, 4)},
+		{"id": "mixed_embers", "kind": "dropped_embers", "amount": 17, "pos": Vector2i(5, 4)}
+	]
+	var combat_state: Dictionary = combat_engine.create_combat(7401, layout, {
+		"hp": int(run_state.get("player_hp", 1)),
+		"max_hp": int(run_state.get("player_max_hp", 1)),
+		"deck_cards": deck_before,
+		"relics": [],
+		"hand_size": int(run_state.get("hand_size", 5)),
+		"heal_bonus": int(run_state.get("heal_bonus", 0)),
+		"cards_per_turn": 2,
+		"draw_per_turn": 2,
+		"card_upgrades": {},
+		"card_mods": {}
+	})
+	combat_state["collected_equipment"] = ["iron_cleaver"]
+	var enemies: Array = combat_state.get("enemies", []) as Array
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		enemy["hp"] = 0
+		enemies[index] = enemy
+	combat_state["enemies"] = enemies
+	var visible_entries: Array[String] = GrimoireLibrary.entry_ids_for_combat_state(combat_state)
+	_assert(not visible_entries.has(GrimoireLibrary.equipment_entry_id("ward_kite")), "Merely seeing unclaimed equipment should not discover it in the Grimoire")
+	_assert(visible_entries.has(GrimoireLibrary.equipment_entry_id("iron_cleaver")), "Collected equipment should still be eligible for Grimoire discovery")
+
+	var resolved_combat: Dictionary = combat_engine.resolve_missed_equipment_after_victory(combat_state)
+	_assert((resolved_combat.get("missed_equipment", []) as Array) == ["ward_kite"], "Victory should classify only still-unclaimed equipment as missed")
+	var resolved_loot: Array = resolved_combat.get("loot", []) as Array
+	for loot_var: Variant in resolved_loot:
+		var loot: Dictionary = loot_var as Dictionary
+		if str(loot.get("id", "")) == "missed_gear":
+			_assert(bool(loot.get("claimed", false)) and str(loot.get("resolution", "")) == "missed", "Missed equipment should be visibly resolved instead of remaining actionable")
+		elif str(loot.get("id", "")) == "collected_gear":
+			_assert(str(loot.get("resolution", "")) != "missed", "Already collected equipment should not be replayed or classified as missed")
+		elif str(loot.get("id", "")).begins_with("mixed_"):
+			_assert(not bool(loot.get("claimed", false)), "Victory should leave non-equipment tactical pickup state unchanged")
+
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	run_state = run_engine.set_combat_state(run_state, combat_state)
+	_assert((run_state.get("equipment_inventory", []) as Array).count("iron_cleaver") == 1, "Collected gear should be awarded once before victory")
+	var reward_state: Dictionary = run_engine.finish_combat(run_state, combat_state)
+	_assert(str(reward_state.get("mode", "")) == "reward", "Missed-equipment victory should still reach the normal reward boundary")
+	_assert(str(reward_state.get("notice", "")) == RunEngine.MISSED_EQUIPMENT_NOTICE, "Reward state should show the terse missed-gear notice")
+	_assert((reward_state.get("equipment_inventory", []) as Array).count("iron_cleaver") == 1, "Finishing combat should not award already collected gear twice")
+	_assert(not (reward_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Unclaimed equipment should never enter inventory")
+	_assert(not (reward_state.get("collected_equipment", []) as Array).has("ward_kite"), "Unclaimed equipment should never enter collected ownership")
+	_assert((reward_state.get("deck_cards", []) as Array) == deck_before, "Missed equipment should never alter the deck")
+	_assert(not GrimoireLibrary.entry_ids_for_run_state(reward_state).has(GrimoireLibrary.equipment_entry_id("ward_kite")), "Missed equipment should never enter Grimoire discovery through the reward state")
+	var cleared_layout: Dictionary = reward_state.get("current_room_layout", {}) as Dictionary
+	var unclaimed_equipment_count: int = 0
+	for loot_var: Variant in cleared_layout.get("loot", []):
+		var loot: Dictionary = loot_var as Dictionary
+		if str(loot.get("kind", "")) == "equipment" and not bool(loot.get("claimed", false)):
+			unclaimed_equipment_count += 1
+	_assert(unclaimed_equipment_count == 0, "Cleared current_room_layout should contain no stale actionable equipment pickup")
+	for mixed_id: String in ["mixed_heal", "mixed_shield", "mixed_embers"]:
+		var mixed_loot: Dictionary = {}
+		for loot_var: Variant in cleared_layout.get("loot", []):
+			if str((loot_var as Dictionary).get("id", "")) == mixed_id:
+				mixed_loot = loot_var as Dictionary
+				break
+		_assert(not mixed_loot.is_empty() and not bool(mixed_loot.get("claimed", false)), "Cleared layout should preserve non-equipment pickup %s unchanged" % mixed_id)
+
+	_assert(ProgressionStore.save_run_state(reward_state), "Reward-boundary missed-equipment state should save")
+	var resumed_state: Dictionary = run_engine.repair_loaded_run_state(ProgressionStore.load_saved_run())
+	_assert((resumed_state.get("equipment_inventory", []) as Array).count("iron_cleaver") == 1, "Reward-boundary resume should preserve collected gear exactly once")
+	_assert(not (resumed_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Reward-boundary resume should not restore missed gear")
+	var resumed_layout: Dictionary = resumed_state.get("current_room_layout", {}) as Dictionary
+	for loot_var: Variant in resumed_layout.get("loot", []):
+		var loot: Dictionary = loot_var as Dictionary
+		_assert(str(loot.get("kind", "")) != "equipment" or bool(loot.get("claimed", false)), "Reward-boundary resume should not restore stale equipment pickups")
+	ProgressionStore.clear_saved_run()
+
+	AnalyticsStore.clear_storage()
+	var analytics_scene: Node = RunSceneScript.new()
+	analytics_scene.set("_run_state", reward_state)
+	analytics_scene.call("_analytics_log_combat_ended", resolved_combat, "missed_equipment_test")
+	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
+	var combat_end_events: Array[Dictionary] = _analytics_events_by_type(events, "combat_ended")
+	_assert(combat_end_events.size() == 1, "Missed-equipment victory should emit one combat_ended event")
+	if not combat_end_events.is_empty():
+		var payload: Dictionary = (combat_end_events[0] as Dictionary).get("payload", {}) as Dictionary
+		_assert((payload.get("missed_equipment", []) as Array) == ["ward_kite"], "combat_ended should include the additive missed_equipment id list")
+		_assert((payload.get("collected_equipment", []) as Array) == ["iron_cleaver"], "combat_ended should keep collected equipment separate from missed equipment")
+	analytics_scene.free()
 
 func _test_merchant_room_placement_and_trading(default_progression: Dictionary) -> void:
 	var run_engine: RunEngine = RunEngine.new()

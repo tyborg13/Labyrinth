@@ -81,6 +81,8 @@ func _parse_args() -> Dictionary:
 		"min_enemies": 0,
 		"enemy_types": "",
 		"enemy_intents": "",
+		"enemy_hp": -1,
+		"equipment_drop": "",
 		"notice": "",
 		"summary": ""
 	}
@@ -171,6 +173,12 @@ func _parse_args() -> Dictionary:
 			"--enemy-intents":
 				index += 1
 				parsed["enemy_intents"] = _required_arg(args, index, arg)
+			"--enemy-hp":
+				index += 1
+				parsed["enemy_hp"] = int(_required_arg(args, index, arg))
+			"--equipment-drop":
+				index += 1
+				parsed["equipment_drop"] = _required_arg(args, index, arg)
 			"--notice":
 				index += 1
 				parsed["notice"] = _required_arg(args, index, arg)
@@ -207,6 +215,7 @@ func _print_help() -> void:
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --elemental-intensity fire=2,ice=2,lightning=2,air=2,earth=2")
 	print("  --enemy-types enemy_a,enemy_b --enemy-intents intent_a,intent_b")
+	print("  --enemy-hp N --equipment-drop equipment_id")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
 	print("Pre-battle options:")
@@ -512,11 +521,53 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 		combat_state = _apply_enemy_overrides(combat_state)
 		if _failed:
 			return state
+	if int(_options.get("enemy_hp", -1)) >= 0:
+		var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+		if enemies.is_empty():
+			_fail("--enemy-hp requires at least one enemy")
+			return state
+		var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
+		enemy["hp"] = clampi(int(_options.get("enemy_hp", 1)), 1, int(enemy.get("max_hp", 1)))
+		enemies[0] = enemy
+		combat_state["enemies"] = enemies
+	var equipment_drop: String = str(_options.get("equipment_drop", "")).strip_edges()
+	if not equipment_drop.is_empty():
+		if not _validate_equipment_ids(_string_array([equipment_drop]), "--equipment-drop"):
+			return state
+		var loot: Array = []
+		for loot_var: Variant in combat_state.get("loot", []):
+			if typeof(loot_var) == TYPE_DICTIONARY and str((loot_var as Dictionary).get("kind", "")) == "equipment":
+				continue
+			loot.append((loot_var as Dictionary).duplicate(true) if typeof(loot_var) == TYPE_DICTIONARY else loot_var)
+		loot.append({
+			"id": "inspection_equipment_%s" % equipment_drop,
+			"kind": "equipment",
+			"equipment_id": equipment_drop,
+			"pos": _inspection_equipment_drop_tile(combat_state)
+		})
+		combat_state["loot"] = loot
 	combat_state["relics"] = state.get("relics", []).duplicate(true)
 	state["combat_state"] = combat_state
+	var current_layout: Dictionary = (state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	current_layout["loot"] = (combat_state.get("loot", []) as Array).duplicate(true)
+	state["current_room_layout"] = current_layout
 	state["player_hp"] = int(player.get("hp", state.get("player_hp", 1)))
 	state["mode"] = "combat"
 	return state
+
+func _inspection_equipment_drop_tile(combat_state: Dictionary) -> Vector2i:
+	var occupied: Dictionary = {}
+	occupied[(combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)] = true
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			occupied[(enemy_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY and int((terrain_var as Dictionary).get("hp", 0)) > 0:
+			occupied[(terrain_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for tile: Vector2i in _vector2i_array([Vector2i(4, 3), Vector2i(3, 4), Vector2i(4, 4), Vector2i(3, 3), Vector2i(5, 3)]):
+		if not occupied.has(tile):
+			return tile
+	return Vector2i(4, 3)
 
 func _elemental_intensity_override(combat_state: Dictionary) -> Dictionary:
 	var raw: String = str(_options.get("elemental_intensity", ""))

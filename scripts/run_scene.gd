@@ -775,6 +775,8 @@ const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
 const ATTACK_FRAMES: int = 6
 const ATTACK_FRAME_SECONDS: float = 0.04
+const MISSED_EQUIPMENT_FRAMES: int = 10
+const MISSED_EQUIPMENT_FRAME_SECONDS: float = 0.045
 const DRAW_FRAME_SECONDS: float = 0.23
 const CARD_PLAY_SECONDS: float = 0.14
 const CARD_PILE_SECONDS: float = 0.18
@@ -10923,6 +10925,10 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	await _animate_card_play_fx(card_id, source_rect, card_size)
 	await _animate_player_card_resolution(previous_combat_state, card_id, actions, selected_targets)
+	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
+	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
+	if outcome == "victory":
+		transition_combat_state = await _animate_missed_equipment_resolution(committed_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
 	_run_state = committed_run_state
@@ -10931,8 +10937,6 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
 	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, resolved_state, actions, selected_targets)
-	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
-	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
 	if outcome == "":
@@ -11405,6 +11409,25 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
+func _animate_missed_equipment_resolution(victory_state: Dictionary) -> Dictionary:
+	var resolved_state: Dictionary = _combat_engine.resolve_missed_equipment_after_victory(victory_state)
+	var missed_equipment: Array = resolved_state.get("missed_equipment", []) as Array
+	if missed_equipment.is_empty():
+		return resolved_state
+	_set_action_banner(RunEngineScript.MISSED_EQUIPMENT_NOTICE)
+	log_label.text = RunEngineScript.MISSED_EQUIPMENT_NOTICE
+	log_overlay.visible = true
+	for frame: int in range(MISSED_EQUIPMENT_FRAMES + 1):
+		var progress: float = float(frame) / float(MISSED_EQUIPMENT_FRAMES)
+		_render_board_state(victory_state, {
+			"missed_equipment_ids": missed_equipment,
+			"missed_equipment_progress": progress
+		})
+		await get_tree().create_timer(MISSED_EQUIPMENT_FRAME_SECONDS).timeout
+	_render_board_state(resolved_state, {})
+	await get_tree().create_timer(0.08).timeout
+	return resolved_state
+
 func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	var impact_presentation: Dictionary = base_presentation.duplicate(true)
 	var effect: Dictionary = impact_presentation.get("effect", {})
@@ -11739,9 +11762,13 @@ func _resolve_enemy_round() -> void:
 	_mark_combat_preview_state_changed()
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
 	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state, commit_checkpoints)
+	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
+	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
+	if outcome == "victory":
+		transition_combat_state = await _animate_missed_equipment_resolution(final_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
-	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
 	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
 	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
 		final_run_state = _hold_committed_run_state(final_run_state, "enemy_round_complete")
@@ -11751,7 +11778,6 @@ func _resolve_enemy_round() -> void:
 	_sync_combat_state_from_run()
 	_release_committed_run_state()
 	_analytics_log_enemy_status_ticks(phase_result)
-	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
@@ -11762,7 +11788,6 @@ func _resolve_enemy_round() -> void:
 			await _animate_fatigue_damage(_combat_state, fatigue_events)
 		await _animate_draw_cards_fx(_draw_entries_between_states(before_draw_state, _combat_state))
 		outcome = _combat_engine.combat_outcome(_combat_state)
-	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
 	_analytics_log_combat_transition(previous_run_state, "enemy_round", transition_combat_state)
 	_animation_lock = false
 	if outcome == "":
@@ -16408,6 +16433,7 @@ func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> vo
 		"room_embers": int(combat_state.get("room_embers", 0)),
 		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
 		"collected_equipment": (combat_state.get("collected_equipment", []) as Array).duplicate(true),
+		"missed_equipment": (combat_state.get("missed_equipment", []) as Array).duplicate(true),
 		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0))
 	})
 

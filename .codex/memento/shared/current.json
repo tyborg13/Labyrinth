@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T20:40:32Z",
+  "updated_at": "2026-07-11T12:57:04Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4981,6 +4981,28 @@
       "source": {
         "branch": "codex/broad-runtime-performance-optimization-pass",
         "commit": "28ee6ca"
+      }
+    },
+    {
+      "id": "mnt_20260711T125704Z_9ccdcb55",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Victory resolves missed equipment before clearing combat",
+      "details": "RunEngine.finish_combat must resolve every unclaimed equipment loot entry into claimed/resolution=missed and carry missed_equipment ids before combat_state is cleared. RunScene may retain the pre-resolution victory snapshot only long enough to animate the ash disintegration, then transitions with the resolved snapshot for analytics and persistence. Grimoire discovery for floor equipment begins on collection, not mere visibility, so missed gear never becomes discovered.",
+      "status": "active",
+      "created_at": "2026-07-11T12:57:04Z",
+      "updated_at": "2026-07-11T12:57:04Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/post-combat-missed-equipment-resolution",
+        "commit": "d4769e2"
       }
     }
   ]
