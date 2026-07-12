@@ -69,7 +69,7 @@ const KEYWORDS: Dictionary = {
 	},
 	"flurry": {
 		"label": "Flurry",
-		"description": "Spends all current card plays and repeats this card once for each play spent.",
+		"description": "Spends all current card plays. Repeats printed actions and health cost once per play spent; pays Time once.",
 		"path": "%s/flurry.png" % ICON_ROOT
 	},
 	"time": {

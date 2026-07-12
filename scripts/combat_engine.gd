@@ -571,7 +571,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 		next_state = _lose_player_health(next_state, health_cost, true, false)
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
-	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + card_time_cost_from_def(card) * safe_plays_spent
+	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + card_time_cost_from_def(card)
 	next_state = _apply_pending_player_trap_restriction(next_state)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):

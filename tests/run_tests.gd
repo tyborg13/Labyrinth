@@ -289,6 +289,7 @@ func _initialize() -> void:
 	await _test_run_scene_campfire_choice_press_is_single_shot()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
+	await _test_run_scene_flurry_utility_resolves_without_attack_target()
 	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
@@ -1580,25 +1581,45 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	state["deck"] = deck
 	state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
 	state["enemies"] = [
-		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 30, "max_hp": 30, "block": 0, "stoneskin": 0},
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 10, "max_hp": 10, "block": 0, "stoneskin": 0},
 		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
 	]
 	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
-	_assert(actions.size() == 2, "Flurry should repeat its printed action once for each of the two base card plays")
+	_assert(actions.size() == 4, "Flurry should repeat its full printed action package once for each of the two base card plays")
 	_assert(combat.card_plays_spent_for_actions(actions) == 2, "Repeated Flurry actions should preserve the snapshotted spend count")
-	state = combat.apply_player_action(state, actions[0] as Dictionary, Vector2i(3, 4))
-	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(4, 4))
+	state = combat.apply_player_action(state, actions[0] as Dictionary)
+	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(3, 4))
+	state = combat.apply_player_action(state, actions[2] as Dictionary)
+	state = combat.apply_player_action(state, actions[3] as Dictionary, Vector2i(4, 4))
 	state = combat.finish_player_card(state, 0, combat.card_plays_spent_for_actions(actions))
 	_assert(int(state.get("cards_played_this_turn", 0)) == 2, "Flurry should spend every card play it snapshotted")
-	_assert(int(state.get("player_turn_time_spent", 0)) == 8, "Flurry should pay printed time once per repeated play")
+	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
 	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
-	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 170, "Each Flurry copy should resolve its attack against the selected target")
+	_assert(int((state.get("elemental_intensity", {}) as Dictionary).get("fire", 0)) == 2, "Each Flurry copy should resolve its intensity action")
+	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 190, "Each Flurry copy should resolve its attack against the selected target")
 	var bonus_state: Dictionary = state.duplicate(true)
 	bonus_state["cards_played_this_turn"] = 0
 	bonus_state["death_bonus_card_plays_this_turn"] = 0
 	bonus_state["card_play_bonus_this_turn"] = 1
 	var bonus_actions: Array = combat.card_play_actions("cinder_fusillade", bonus_state)
-	_assert(bonus_actions.size() == 3, "Card-play bonuses should directly increase a later Flurry's repeat count")
+	_assert(bonus_actions.size() == 6, "Card-play bonuses should directly increase every action in a later Flurry's repeat count")
+	var cost_state: Dictionary = combat.create_combat(15113, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["bloody_lunge"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var cost_deck: Dictionary = (cost_state.get("deck", {}) as Dictionary).duplicate(true)
+	cost_deck["hand"] = ["bloody_lunge"]
+	cost_deck["draw"] = []
+	cost_deck["discard"] = []
+	cost_state["deck"] = cost_deck
+	cost_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	cost_state = combat.finish_player_card(cost_state, 0, 2)
+	_assert(int((cost_state.get("player", {}) as Dictionary).get("hp", 0)) == 220, "A two-copy Flurry commit should pay a printed health cost for both copies")
+	_assert(int(cost_state.get("player_turn_time_spent", 0)) == 8, "A two-copy Flurry commit should still pay the printed Time only once")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	var valid_card_rarities: Dictionary = {
@@ -6442,7 +6463,7 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
 	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("cinder_fusillade"))
 	_assert(flurry_cost_rows.size() == 1 and str(((flurry_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "flurry", "Flurry cards should show their dedicated cost icon")
-	_assert(ActionIcons.tooltip("flurry").contains("repeats this card"), "Flurry tooltip should explain repeat and spend behavior")
+	_assert(ActionIcons.tooltip("flurry").contains("pays Time once"), "Flurry tooltip should distinguish repeated effects from its single time payment")
 	var flurry_icon := Image.new()
 	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
 	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 64 and flurry_icon.get_height() == 64, "Flurry should ship a dedicated 64x64 action icon")
@@ -8818,6 +8839,41 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 		1
 	)
 	_assert(bool(next_preview.get("complete", false)), "The follow-up attack should auto-skip when it has no valid target")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Flurry utility coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(15112, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["blade_dance"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["blade_dance"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["player"] = {"pos": Vector2i(1, 7), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(7, 1), "hp": 100, "max_hp": 100, "block": 0, "stoneskin": 0}
+	]
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	_assert(bool(preview.get("complete", false)) and bool(preview.get("playable", false)), "Blade Dance should remain playable for its repeated block when no melee target is in range")
+	var preview_player: Dictionary = (preview.get("state", {}) as Dictionary).get("player", {})
+	_assert(int(preview_player.get("block", 0)) == GameData.fixed_point_amount(4), "Blade Dance should preview both copies of its printed block without requiring an attack target")
 	instance.queue_free()
 	await process_frame
 

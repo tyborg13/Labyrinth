@@ -88,7 +88,10 @@ class HeuristicWeights:
     draw_per_point: float = 0.85
     card_play_per_point: float = 0.75
     flurry_expected_plays: int = 2
-    flurry_extra_play_penalty: float = 0.75
+    flurry_saved_card_value: float = 0.85
+    flurry_saved_time_payment_value: float = 0.75
+    flurry_retargeting_value: float = 0.25
+    flurry_extra_play_penalty: float = 0.55
     intensity_gain_per_point: float = 0.70
     intensity_same_element_synergy: float = 0.18
     intensity_gate_synergy: float = 0.30
@@ -143,6 +146,7 @@ class ScoreBreakdown:
     synergy: float = 0.0
     health_cost: float = 0.0
     burn_card_penalty: float = 0.0
+    flurry_compression_bonus: float = 0.0
     flurry_commitment_penalty: float = 0.0
     tempo: float = 0.0
     total: float = 0.0
@@ -548,6 +552,12 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             "synergy",
         ):
             setattr(breakdown, field, getattr(breakdown, field) * flurry_multiplier)
+        extra_copies = flurry_multiplier - 1
+        breakdown.flurry_compression_bonus = extra_copies * (
+            weights.flurry_saved_card_value
+            + weights.flurry_saved_time_payment_value
+            + weights.flurry_retargeting_value
+        )
         breakdown.flurry_commitment_penalty = (flurry_multiplier - 1) * weights.flurry_extra_play_penalty
 
     breakdown.health_cost = int(card.get("health_cost", 0)) * weights.health_cost_per_point * flurry_multiplier
@@ -557,7 +567,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             weights.burn_card_penalty - draw_amount * weights.burn_card_draw_offset_per_card,
         )
     card_time = max(1, min(10, int(card.get("time", weights.baseline_card_time))))
-    breakdown.tempo = (weights.baseline_card_time - card_time) * weights.time_delta_value * flurry_multiplier
+    breakdown.tempo = (weights.baseline_card_time - card_time) * weights.time_delta_value
 
     breakdown.total = round(
         breakdown.offense
@@ -568,6 +578,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.mobility
         + breakdown.synergy
         + breakdown.tempo
+        + breakdown.flurry_compression_bonus
         - breakdown.health_cost
         - breakdown.burn_card_penalty
         - breakdown.flurry_commitment_penalty,
@@ -823,6 +834,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"tempo={breakdown['tempo']:.2f}",
                         f"health_cost={breakdown['health_cost']:.2f}",
                         f"exhaust_penalty={breakdown['burn_card_penalty']:.2f}",
+                        f"flurry_compression={breakdown['flurry_compression_bonus']:.2f}",
                         f"flurry_commitment={breakdown['flurry_commitment_penalty']:.2f}",
                     ]
                 )

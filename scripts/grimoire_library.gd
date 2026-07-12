@@ -766,7 +766,7 @@ static func _card_entry_body(card: Dictionary) -> Array:
 	if bool(card.get("consume_on_play", false)):
 		notes.append("Consumed after use")
 	if bool(card.get("flurry", false)):
-		notes.append("Spends every current card play and repeats once per play spent")
+		notes.append("Spends every current card play; repeats actions and health cost per play, but pays Time once")
 	if bool(card.get("starter", false)):
 		notes.append("Starter card")
 	elif bool(card.get("reward_pool", true)):

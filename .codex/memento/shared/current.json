@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-12T14:45:33Z",
+  "updated_at": "2026-07-12T19:07:22Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4984,25 +4984,49 @@
       }
     },
     {
-      "id": "mnt_20260712T144533Z_f10533a2",
+      "id": "mnt_20260712T190722Z_7dd07778",
       "layer": "shared",
       "kind": "decision",
       "scope": {
-        "level": "file",
-        "path": "scripts/combat_engine.gd",
+        "level": "project",
+        "path": ".",
         "symbol": null
       },
-      "scope_key": "file:scripts/combat_engine.gd",
-      "summary": "Flurry snapshots card plays before resolution",
-      "details": "Cards with top-level flurry:true expand their printed actions once per card play available when the printed play begins. The commit spends that snapshotted count and multiplies printed time and health cost by it; card-play bonuses or kill refunds earned during repeated actions are not folded back into the repeat count and remain available afterward. Fallback Attack/Move modes do not inherit Flurry.",
+      "scope_key": "project:.",
+      "summary": "Flurry repeats effects but pays Time once",
+      "details": "Cards with top-level flurry:true snapshot all currently available card plays, expand their printed actions once per snapped play, multiply health cost per copy, discard one physical card, and pay the top-level Time cost only once. The commit spends the snapshotted plays; bonuses or kill refunds created during resolution remain afterward. Fallback Attack/Move modes do not inherit Flurry.",
       "status": "active",
-      "created_at": "2026-07-12T14:45:33Z",
-      "updated_at": "2026-07-12T14:45:33Z",
+      "created_at": "2026-07-12T19:07:22Z",
+      "updated_at": "2026-07-12T19:07:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T144533Z_f10533a2"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "b878bb7"
+      }
+    },
+    {
+      "id": "mnt_20260712T190722Z_c8606364",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "data/cards.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/cards.json",
+      "summary": "Flurry cards earn value from copies, not printed rate",
+      "details": "Keep Flurry's individual printed action package deliberately weak and showcase flexible hybrid utility rather than an attack-only cycle. Useful roles include block plus attack, elemental intensity plus attack, draw plus attack, and movement plus attack; the copied two-play result and single-card/single-Time compression are the payoff.",
+      "status": "active",
+      "created_at": "2026-07-12T19:07:22Z",
+      "updated_at": "2026-07-12T19:07:22Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
         "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
-        "commit": "d4769e2"
+        "commit": "b878bb7"
       }
     }
   ]
