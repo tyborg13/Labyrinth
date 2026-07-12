@@ -12,6 +12,7 @@ const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "bone_dart", "sidestep_slash", "patch_up"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
+const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 
 var _run_engine = RunEngine.new()
 var _combat_engine = CombatEngine.new()
@@ -62,6 +63,7 @@ func _parse_args() -> Dictionary:
 		"level": 1,
 		"player_hp": -1,
 		"player_max_hp": -1,
+		"player_position": "",
 		"hand": "",
 		"draw": "",
 		"discard": "",
@@ -80,6 +82,7 @@ func _parse_args() -> Dictionary:
 		"room_coord": "",
 		"min_enemies": 0,
 		"enemy_types": "",
+		"enemy_positions": "",
 		"enemy_intents": "",
 		"enemy_hp": -1,
 		"equipment_drop": "",
@@ -116,6 +119,9 @@ func _parse_args() -> Dictionary:
 			"--player-max-hp":
 				index += 1
 				parsed["player_max_hp"] = int(_required_arg(args, index, arg))
+			"--player-position":
+				index += 1
+				parsed["player_position"] = _required_arg(args, index, arg)
 			"--hand":
 				index += 1
 				parsed["hand"] = _required_arg(args, index, arg)
@@ -170,6 +176,9 @@ func _parse_args() -> Dictionary:
 			"--enemy-types":
 				index += 1
 				parsed["enemy_types"] = _required_arg(args, index, arg)
+			"--enemy-positions":
+				index += 1
+				parsed["enemy_positions"] = _required_arg(args, index, arg)
 			"--enemy-intents":
 				index += 1
 				parsed["enemy_intents"] = _required_arg(args, index, arg)
@@ -179,6 +188,9 @@ func _parse_args() -> Dictionary:
 			"--equipment-drop":
 				index += 1
 				parsed["equipment_drop"] = _required_arg(args, index, arg)
+			"--umbra-stage":
+				index += 1
+				parsed["umbra_stage"] = _required_arg(args, index, arg)
 			"--notice":
 				index += 1
 				parsed["notice"] = _required_arg(args, index, arg)
@@ -206,7 +218,7 @@ func _print_help() -> void:
 	print("Common options:")
 	print("  --seed N")
 	print("  --embers N --held-embers N --level N --stats might=2,vigor=1")
-	print("  --player-hp N --player-max-hp N --relics ember_lens,pilgrim_boots")
+	print("  --player-hp N --player-max-hp N --player-position 2:4 --relics ember_lens,pilgrim_boots")
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
 	print("  --equipment-inventory item_a,item_b")
@@ -214,8 +226,9 @@ func _print_help() -> void:
 	print("Combat options:")
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --elemental-intensity fire=2,ice=2,lightning=2,air=2,earth=2")
-	print("  --enemy-types enemy_a,enemy_b --enemy-intents intent_a,intent_b")
+	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id")
+	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
 	print("Pre-battle options:")
@@ -516,11 +529,31 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 		player["max_hp"] = maxi(1, int(_options.get("player_max_hp", 1)))
 	if int(_options.get("player_hp", -1)) >= 0:
 		player["hp"] = clampi(int(_options.get("player_hp", 1)), 0, int(player.get("max_hp", 1)))
+	var player_position_raw: String = str(_options.get("player_position", "")).strip_edges()
+	if not player_position_raw.is_empty():
+		var player_position: Vector2i = _parse_colon_coord(player_position_raw, "--player-position")
+		if _failed:
+			return state
+		player["pos"] = player_position
+		combat_state = _clear_fixture_occupant_tiles(combat_state, _vector2i_array([player_position]))
 	combat_state["player"] = player
 	if not str(_options.get("enemy_types", "")).strip_edges().is_empty():
 		combat_state = _apply_enemy_overrides(combat_state)
 		if _failed:
 			return state
+	if not str(_options.get("enemy_positions", "")).strip_edges().is_empty():
+		combat_state = _apply_enemy_position_overrides(combat_state)
+		if _failed:
+			return state
+	var umbra_stage: String = str(_options.get("umbra_stage", "")).strip_edges().to_lower()
+	if not umbra_stage.is_empty():
+		if not VALID_UMBRA_STAGES.has(umbra_stage):
+			_fail("Unknown Umbra stage %s. Expected one of: %s" % [umbra_stage, ", ".join(VALID_UMBRA_STAGES)])
+			return state
+		var umbra: Dictionary = (combat_state.get("umbra", {}) as Dictionary).duplicate(true)
+		umbra["stage"] = umbra_stage
+		umbra["stage_reduction"] = 0
+		combat_state["umbra"] = umbra
 	if int(_options.get("enemy_hp", -1)) >= 0:
 		var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
 		if enemies.is_empty():
@@ -628,6 +661,50 @@ func _apply_enemy_overrides(combat_state: Dictionary) -> Dictionary:
 	combat_state["enemies"] = enemies
 	combat_state = _combat_engine.call("_initialize_initiative_queue", combat_state) as Dictionary
 	return combat_state
+
+func _apply_enemy_position_overrides(combat_state: Dictionary) -> Dictionary:
+	var requested_positions: Array[Vector2i] = []
+	for entry: String in _string_list(str(_options.get("enemy_positions", ""))):
+		var pair: PackedStringArray = entry.split(":", false, 2)
+		if pair.size() != 2:
+			_fail("Invalid --enemy-positions entry %s. Use x:y." % entry)
+			return combat_state
+		requested_positions.append(Vector2i(int(pair[0]), int(pair[1])))
+	var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+	if requested_positions.size() > enemies.size():
+		_fail("--enemy-positions supplied %d positions for %d enemies" % [requested_positions.size(), enemies.size()])
+		return combat_state
+	for index: int in range(requested_positions.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		enemy["pos"] = requested_positions[index]
+		enemies[index] = _combat_engine.call("_normalized_enemy", enemy) as Dictionary
+	combat_state = _clear_fixture_occupant_tiles(combat_state, requested_positions)
+	combat_state["enemies"] = enemies
+	return _combat_engine.call("_initialize_initiative_queue", combat_state) as Dictionary
+
+func _clear_fixture_occupant_tiles(combat_state: Dictionary, positions: Array[Vector2i]) -> Dictionary:
+	var state: Dictionary = combat_state.duplicate(true)
+	var occupied: Dictionary = {}
+	for position: Vector2i in positions:
+		occupied[position] = true
+	var terrain: Array = []
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY or not occupied.has((terrain_var as Dictionary).get("pos", INVALID_COORD)):
+			terrain.append((terrain_var as Dictionary).duplicate(true) if typeof(terrain_var) == TYPE_DICTIONARY else terrain_var)
+	state["terrain"] = terrain
+	var traps: Array = []
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY or not occupied.has((trap_var as Dictionary).get("pos", INVALID_COORD)):
+			traps.append((trap_var as Dictionary).duplicate(true) if typeof(trap_var) == TYPE_DICTIONARY else trap_var)
+	state["traps"] = traps
+	return state
+
+func _parse_colon_coord(value: String, source: String) -> Vector2i:
+	var pair: PackedStringArray = value.split(":", false, 2)
+	if pair.size() != 2:
+		_fail("Invalid %s value %s. Use x:y." % [source, value])
+		return INVALID_COORD
+	return Vector2i(int(pair[0]), int(pair[1]))
 
 func _force_combat_room(source_state: Dictionary, coord: Vector2i) -> Dictionary:
 	var state: Dictionary = _run_state_for_room(source_state, coord, "combat", Vector2i(1, 0))

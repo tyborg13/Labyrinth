@@ -77,6 +77,26 @@ const KEYWORDS: Dictionary = {
 		"description": "Creates a stationary copy that enemies can target.",
 		"path": "%s/illusion.png" % ICON_ROOT
 	},
+	"illuminate": {
+		"label": "Illuminate",
+		"description": "Creates a light that reveals nearby Umbra tiles.",
+		"path": "%s/illuminate.png" % ICON_ROOT
+	},
+	"vision": {
+		"label": "Vision",
+		"description": "Expands the light centered on you.",
+		"path": "%s/vision.png" % ICON_ROOT
+	},
+	"truesight": {
+		"label": "Truesight",
+		"description": "Reveals and permits targeting enemies through the Umbra.",
+		"path": "%s/truesight.png" % ICON_ROOT
+	},
+	"dispel_umbra": {
+		"label": "Dispel Umbra",
+		"description": "Reduces this combat's Umbra stage.",
+		"path": "%s/illuminate.png" % ICON_ROOT
+	},
 	"burn": {
 		"label": "Burn",
 		"description": "Fire damage over time. Ticks at the start of turn, then decays.",
@@ -436,6 +456,20 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"illusion":
 			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
+		"illuminate":
+			tokens.append(_token_for_action_field(action, "illuminate", "radius", int(action.get("radius", action.get("amount", 1))), "neutral", "Light radius in tiles."))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Light placement range."))
+			var light_duration: int = int(action.get("duration", 1))
+			tokens.append(token_for("time", "∞" if light_duration < 0 else light_duration, "neutral", "Player activations this light remains."))
+		"vision":
+			tokens.append(_token_for_action_field(action, "vision", "amount", int(action.get("amount", 0))))
+			var vision_duration: int = int(action.get("duration", 1))
+			tokens.append(token_for("time", "∞" if vision_duration < 0 else vision_duration, "neutral", "Player activations this vision remains."))
+		"truesight":
+			var truesight_duration: int = int(action.get("duration", action.get("amount", 1)))
+			tokens.append(token_for("truesight", "∞" if truesight_duration < 0 else truesight_duration))
+		"dispel_umbra":
+			tokens.append(_token_for_action_field(action, "dispel_umbra", "amount", int(action.get("amount", 1))))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))

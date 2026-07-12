@@ -207,13 +207,113 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Deal 4 at range 6, then draw 1.",
+    "description": "Illuminate at range 6. Deal 4 at range 6, then draw 1.",
     "accent": "#d49b42",
     "art_path": "res://assets/art/cards/lantern_shot.png",
     "reward_pool": false,
+    "radiance": true,
     "actions": [
+      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
       { "type": "ranged", "damage": 4, "range": 6 },
       { "type": "draw", "amount": 1 }
+    ]
+  },
+  "guiding_flare": {
+    "name": "Guiding Flare",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Illuminate at range 5, then scorch that tile for 4 and burn 2.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/guiding_flare.png",
+    "radiance": true,
+    "actions": [
+      { "type": "illuminate", "range": 5, "radius": 2, "duration": 2 },
+      { "type": "aoe", "damage": 4, "range": 5, "pattern": [[0, 0]], "burn": 2 }
+    ]
+  },
+  "dawnstep": {
+    "name": "Dawnstep",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 3, then gain 2 vision until your next activation.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/dawnstep.png",
+    "radiance": true,
+    "actions": [
+      { "type": "move", "range": 3 },
+      { "type": "vision", "amount": 2, "duration": 1 }
+    ]
+  },
+  "prism_sight": {
+    "name": "Prism Sight",
+    "element": "ice",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain truesight until your next activation, gain 4 block, and draw 1.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/prism_sight.png",
+    "radiance": true,
+    "actions": [
+      { "type": "truesight", "duration": 1 },
+      { "type": "block", "amount": 4 },
+      { "type": "draw", "amount": 1 }
+    ]
+  },
+  "storm_beacon": {
+    "name": "Storm Beacon",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise Lightning intensity. Illuminate at range 6, then deal 4 with chain 2.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/storm_beacon.png",
+    "radiance": true,
+    "actions": [
+      { "type": "intensity", "element": "lightning", "amount": 1 },
+      { "type": "illuminate", "range": 6, "radius": 2, "duration": 2 },
+      { "type": "ranged", "damage": 4, "range": 6, "chain": 2 }
+    ]
+  },
+  "glowstone_ward": {
+    "name": "Glowstone Ward",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Gain 4 stoneskin and place a lasting light at range 3.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/glowstone_ward.png",
+    "radiance": true,
+    "actions": [
+      { "type": "stoneskin", "amount": 4 },
+      { "type": "illuminate", "range": 3, "radius": 2, "duration": -1 }
+    ]
+  },
+  "daybreak": {
+    "name": "Daybreak",
+    "rarity": "legendary",
+    "burn": true,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Exhaust. Reduce the Umbra by 2 stages, draw 2, and gain 1 card play.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/daybreak.png",
+    "radiance": true,
+    "actions": [
+      { "type": "dispel_umbra", "amount": 2 },
+      { "type": "draw", "amount": 2 },
+      { "type": "card_play", "amount": 1 }
     ]
   },
   "iron_wheel": {

@@ -21,6 +21,32 @@ const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
 const TURN_ORDER_PREVIEW_LIMIT: int = 8
 const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
+const UMBRA_STAGE_CLEAR: String = "clear"
+const UMBRA_STAGE_FRINGE: String = "fringe"
+const UMBRA_STAGE_ADVANCING: String = "advancing"
+const UMBRA_STAGE_PRESSING: String = "pressing"
+const UMBRA_STAGE_DEEP: String = "deep"
+const UMBRA_STAGE_HEART: String = "heart"
+const UMBRA_STAGE_ECLIPSE: String = "eclipse"
+const UMBRA_UNLIMITED_RADIUS: int = 99
+const UMBRA_STAGE_ORDER: Array[String] = [
+	UMBRA_STAGE_CLEAR,
+	UMBRA_STAGE_FRINGE,
+	UMBRA_STAGE_ADVANCING,
+	UMBRA_STAGE_PRESSING,
+	UMBRA_STAGE_DEEP,
+	UMBRA_STAGE_HEART,
+	UMBRA_STAGE_ECLIPSE
+]
+const UMBRA_RADIUS_BY_STAGE := {
+	UMBRA_STAGE_CLEAR: UMBRA_UNLIMITED_RADIUS,
+	UMBRA_STAGE_FRINGE: 6,
+	UMBRA_STAGE_ADVANCING: 5,
+	UMBRA_STAGE_PRESSING: 4,
+	UMBRA_STAGE_DEEP: 3,
+	UMBRA_STAGE_HEART: 2,
+	UMBRA_STAGE_ECLIPSE: 1
+}
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.45
 const ENEMY_HP_FLAT_BONUS_PER_SEQUENCE: int = 40
 const ENEMY_DAMAGE_BONUS_PER_SEQUENCE: int = 20
@@ -83,6 +109,139 @@ static func normalized_run_stats(value: Variant) -> Dictionary:
 		RUN_STAT_DAMAGE_RECEIVED: maxi(0, int(source.get(RUN_STAT_DAMAGE_RECEIVED, 0)))
 	}
 
+static func umbra_stage_for_section(section_index: int) -> String:
+	# Five elemental-dragon sections build toward the separate Shadow Dragon
+	# section. Eclipse is reserved for authored boss actions/fixtures.
+	return UMBRA_STAGE_ORDER[clampi(section_index, 0, UMBRA_STAGE_ORDER.size() - 2)]
+
+static func umbra_stage_for_room_depth(room_depth: int) -> String:
+	return umbra_stage_for_section(int((maxi(1, room_depth) - 1) / DEPTHS_PER_SEQUENCE))
+
+static func umbra_stage_index(stage_id: String) -> int:
+	var index: int = UMBRA_STAGE_ORDER.find(str(stage_id))
+	return index if index >= 0 else 0
+
+static func umbra_radius_for_stage(stage_id: String) -> int:
+	return int(UMBRA_RADIUS_BY_STAGE.get(str(stage_id), UMBRA_UNLIMITED_RADIUS))
+
+static func umbra_stage_display_name(stage_id: String) -> String:
+	match str(stage_id):
+		UMBRA_STAGE_FRINGE:
+			return "Fringe"
+		UMBRA_STAGE_ADVANCING:
+			return "Advancing"
+		UMBRA_STAGE_PRESSING:
+			return "Pressing"
+		UMBRA_STAGE_DEEP:
+			return "Deep"
+		UMBRA_STAGE_HEART:
+			return "Heart"
+		UMBRA_STAGE_ECLIPSE:
+			return "Eclipse"
+	return "Clear"
+
+func _initial_umbra_state(room_layout: Dictionary) -> Dictionary:
+	var room_depth: int = int(room_layout.get("depth", 1))
+	var room_type: String = str(room_layout.get("type", "combat"))
+	var stage_id: String = UMBRA_STAGE_CLEAR
+	if room_type in ["combat", "boss"]:
+		stage_id = umbra_stage_for_room_depth(room_depth)
+	if room_layout.has("umbra_stage"):
+		stage_id = str(room_layout.get("umbra_stage", stage_id))
+	var source: Dictionary = room_layout.get("umbra", {}) as Dictionary
+	if source.has("stage"):
+		stage_id = str(source.get("stage", stage_id))
+	if not UMBRA_STAGE_ORDER.has(stage_id):
+		stage_id = UMBRA_STAGE_CLEAR
+	return {
+		"stage": stage_id,
+		"stage_reduction": maxi(0, int(source.get("stage_reduction", 0))),
+		"vision_bonus": maxi(0, int(source.get("vision_bonus", 0))),
+		"vision_bonus_activations": int(source.get("vision_bonus_activations", 0)),
+		"truesight_activations": int(source.get("truesight_activations", 0)),
+		"light_sources": (source.get("light_sources", []) as Array).duplicate(true),
+		"next_light_source_id": maxi(1, int(source.get("next_light_source_id", 1))),
+		"movement_interrupted_total": maxi(0, int(source.get("movement_interrupted_total", 0))),
+		"tiles_illuminated_total": maxi(0, int(source.get("tiles_illuminated_total", 0))),
+		"enemies_revealed_total": maxi(0, int(source.get("enemies_revealed_total", 0))),
+		"hidden_attack_damage_received_total": maxi(0, int(source.get("hidden_attack_damage_received_total", 0)))
+	}
+
+func effective_umbra_stage(state: Dictionary) -> String:
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	var base_index: int = umbra_stage_index(str(umbra.get("stage", UMBRA_STAGE_CLEAR)))
+	var reduction: int = maxi(0, int(umbra.get("stage_reduction", 0)))
+	return UMBRA_STAGE_ORDER[maxi(0, base_index - reduction)]
+
+func effective_umbra_radius(state: Dictionary) -> int:
+	var stage_id: String = effective_umbra_stage(state)
+	var base_radius: int = umbra_radius_for_stage(stage_id)
+	if base_radius >= UMBRA_UNLIMITED_RADIUS:
+		return UMBRA_UNLIMITED_RADIUS
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	return base_radius + maxi(0, int(umbra.get("vision_bonus", 0)))
+
+func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var grid: Array = state.get("grid", [])
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var personal_radius: int = effective_umbra_radius(state)
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	var sources: Array = umbra.get("light_sources", []) as Array
+	for y: int in range(grid.size()):
+		var row: Array = grid[y] as Array
+		for x: int in range(row.size()):
+			var tile := Vector2i(x, y)
+			var visible: bool = personal_radius >= UMBRA_UNLIMITED_RADIUS or PathUtils.manhattan(player_pos, tile) <= personal_radius
+			if not visible:
+				for source_var: Variant in sources:
+					if typeof(source_var) != TYPE_DICTIONARY:
+						continue
+					var source: Dictionary = source_var as Dictionary
+					var source_pos: Vector2i = source.get("pos", Vector2i(-999, -999))
+					if PathUtils.manhattan(source_pos, tile) <= maxi(0, int(source.get("radius", 0))):
+						visible = true
+						break
+			if visible:
+				result.append(tile)
+	return result
+
+func is_tile_visible_to_player(state: Dictionary, tile: Vector2i) -> bool:
+	if effective_umbra_radius(state) >= UMBRA_UNLIMITED_RADIUS:
+		return true
+	return umbra_visible_tiles(state).has(tile)
+
+func is_enemy_visible_to_player(state: Dictionary, enemy: Dictionary) -> bool:
+	if int(enemy.get("hp", 0)) <= 0:
+		return false
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	if int(umbra.get("truesight_activations", 0)) != 0:
+		return true
+	for tile: Vector2i in _enemy_footprint_tiles(enemy):
+		if is_tile_visible_to_player(state, tile):
+			return true
+	return false
+
+func visible_enemy_ids(state: Dictionary) -> Array[int]:
+	var result: Array[int] = []
+	for enemy: Dictionary in _live_enemies(state):
+		if is_enemy_visible_to_player(state, enemy):
+			result.append(int(enemy.get("id", -1)))
+	return result
+
+func umbra_shadow_tiles(state: Dictionary) -> Array[Vector2i]:
+	var visible_lookup: Dictionary = {}
+	for tile: Vector2i in umbra_visible_tiles(state):
+		visible_lookup[tile] = true
+	var result: Array[Vector2i] = []
+	var grid: Array = state.get("grid", [])
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile := Vector2i(x, y)
+			if not visible_lookup.has(tile):
+				result.append(tile)
+	return result
+
 func run_stats(state: Dictionary) -> Dictionary:
 	return normalized_run_stats(state.get("run_stats", {}))
 
@@ -124,6 +283,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"traps": room_layout.get("traps", []).duplicate(true),
 		"loot": room_layout.get("loot", []).duplicate(true),
 		"terrain": room_layout.get("terrain", []).duplicate(true),
+		"umbra": _initial_umbra_state(room_layout),
 		"relics": relic_ids,
 		"card_upgrades": (player_snapshot.get("card_upgrades", {}) as Dictionary).duplicate(true),
 		"card_mods": (player_snapshot.get("card_mods", {}) as Dictionary).duplicate(true),
@@ -214,7 +374,7 @@ func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
 	if action_type == "aoe":
 		return int(action.get("range", 0)) > 0
-	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion"]
+	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"]
 
 func player_action_needs_orientation(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -246,7 +406,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 	var targets: Array[Vector2i] = []
 	match action_type:
 		"move":
-			occupied = _occupied_actor_tiles(state)
+			occupied = _known_actor_tiles_for_player(state)
 			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
 			targets = PathUtils.reachable_tiles(state.get("grid", []), player_pos, move_range, occupied)
 		"blink":
@@ -259,6 +419,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					continue
 				if not PathUtils.is_passable(state.get("grid", []), tile):
 					continue
+				if not is_tile_visible_to_player(state, tile):
+					continue
 				targets.append(tile)
 		"illusion":
 			occupied = _occupied_actor_tiles(state)
@@ -269,10 +431,22 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					continue
 				if not PathUtils.is_passable(state.get("grid", []), tile):
 					continue
+				if not is_tile_visible_to_player(state, tile):
+					continue
+				targets.append(tile)
+		"illuminate":
+			var illuminate_range: int = int(action.get("range", 0))
+			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, illuminate_range, state.get("grid", [])):
+				if not PathUtils.is_passable(state.get("grid", []), tile):
+					continue
+				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
+					continue
 				targets.append(tile)
 		"melee":
 			var melee_range: int = int(action.get("range", 1))
 			for enemy: Dictionary in _live_enemies(state):
+				if not is_enemy_visible_to_player(state, enemy):
+					continue
 				if _enemy_distance_to_tile(enemy, player_pos) <= melee_range:
 					var enemy_tile: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 					if not targets.has(enemy_tile):
@@ -288,6 +462,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 		"ranged":
 			var ranged_range: int = int(action.get("range", 1))
 			for enemy: Dictionary in _live_enemies(state):
+				if not is_enemy_visible_to_player(state, enemy):
+					continue
 				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 				if PathUtils.manhattan(player_pos, enemy_pos) > ranged_range:
 					continue
@@ -313,7 +489,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					targets.append(trap_pos)
 		"aoe":
 			var aoe_range: int = int(action.get("range", 0))
-			var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state)
+			var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state, aoe_range <= 0)
 			var pattern_specs: Array[Dictionary] = _aoe_pattern_specs_for_legality(action, aoe_range > 0)
 			if aoe_range <= 0:
 				if _aoe_pattern_specs_hit_attackable(player_pos, pattern_specs, attackable_tiles):
@@ -325,6 +501,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					if not PathUtils.is_passable(state.get("grid", []), tile):
 						continue
 					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
+						continue
+					if not is_tile_visible_to_player(state, tile):
 						continue
 					if not _aoe_pattern_specs_hit_attackable(tile, pattern_specs, attackable_tiles):
 						continue
@@ -338,6 +516,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			for enemy_index: int in range((state.get("enemies", []) as Array).size()):
 				var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 				if int(enemy.get("hp", 0)) <= 0:
+					continue
+				if not is_enemy_visible_to_player(state, enemy):
 					continue
 				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
 				if PathUtils.manhattan(player_pos, enemy_pos) > forced_range:
@@ -386,7 +566,7 @@ func movement_plan_for_player_action(state: Dictionary, action: Dictionary, prev
 		state.get("grid", []),
 		player_pos,
 		move_range,
-		_occupied_actor_tiles(state),
+		_known_actor_tiles_for_player(state),
 		_trap_tiles_lookup(state)
 	)
 	var came_from: Dictionary = navigation.get("came_from", {})
@@ -476,6 +656,15 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			var element_id: String = _action_intensity_element(action)
 			var amount: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state = _gain_elemental_intensity(next_state, element_id, amount)
+		"illuminate":
+			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				next_state = _create_umbra_light_source(next_state, target_tile, resolved_action)
+		"vision":
+			next_state = _apply_umbra_vision(next_state, resolved_action)
+		"truesight":
+			next_state = _apply_umbra_truesight(next_state, resolved_action)
+		"dispel_umbra":
+			next_state = _dispel_umbra(next_state, resolved_action)
 		"illusion":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
@@ -485,9 +674,10 @@ func _apply_player_move_along_path(next_state: Dictionary, resolved_action: Dict
 	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 	if combat_outcome(next_state) == "defeat":
 		return next_state
-	next_state = _move_player_along_path(next_state, movement_path)
+	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path)
+	next_state = _move_player_along_path(next_state, resolved_path)
 	_mark_first_move_used(next_state)
-	next_state = _trigger_long_move_relics(next_state, movement_path.size() - 1)
+	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	return next_state
 
@@ -503,7 +693,7 @@ func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Diction
 	if movement_path.size() - 1 > move_range:
 		return false
 	var grid: Array = state.get("grid", [])
-	var occupied: Dictionary = _occupied_actor_tiles(state)
+	var occupied: Dictionary = _known_actor_tiles_for_player(state)
 	for index: int in range(1, movement_path.size()):
 		var previous_tile: Vector2i = movement_path[index - 1]
 		var tile: Vector2i = movement_path[index]
@@ -569,7 +759,7 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 	var current_actor: Dictionary = _resolved_actor_entry(state, state.get("current_actor", {}))
 	if not current_actor.is_empty():
 		current_actor["active"] = true
-		result.append(current_actor)
+		result.append(_umbra_presented_turn_order_entry(state, current_actor))
 	var queue: Array = _sorted_turn_queue(state.get("turn_queue", []))
 	var preview_queue: Array = []
 	for entry_var: Variant in queue:
@@ -593,8 +783,26 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 			continue
 		entry["active"] = false
 		entry["eta"] = maxi(0, int(entry.get("time", clock)) - clock)
-		result.append(entry)
+		result.append(_umbra_presented_turn_order_entry(state, entry))
 	return result
+
+func _umbra_presented_turn_order_entry(state: Dictionary, entry: Dictionary) -> Dictionary:
+	var presented: Dictionary = entry.duplicate(true)
+	if str(presented.get("kind", "")) != "enemy":
+		return presented
+	var enemy_index: int = _enemy_index_for_id(state, int(presented.get("enemy_id", -1)))
+	if enemy_index < 0:
+		return presented
+	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+	if is_enemy_visible_to_player(state, enemy):
+		return presented
+	presented["hidden_by_umbra"] = true
+	presented["name"] = "Unknown Presence"
+	presented["type"] = "umbra_presence"
+	presented["pos"] = Vector2i(-1, -1)
+	presented.erase("intent_time_cost")
+	presented.erase("base_initiative")
+	return presented
 
 func finish_player_activation(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
@@ -781,13 +989,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	intent = enemy.get("intent", {})
 	if not intent.is_empty():
-		steps.append({
-			"kind": "intent",
-			"actor_key": _enemy_key(enemy),
-			"actor_name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
-			"tile": enemy.get("pos", Vector2i.ZERO),
-			"intent_name": str(intent.get("name", "Action"))
-		})
+		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 		var actions: Array = intent.get("actions", [])
 		for action_index: int in range(actions.size()):
 			var action_var: Variant = actions[action_index]
@@ -806,11 +1008,13 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
 			var bleed_steps: Array[Dictionary] = []
 			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+			_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
+			_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 			next_state["rng_state"] = rng.state
 			if include_commit_steps:
 				_append_commit_step(steps, before_state, next_state, "enemy_action")
 			steps.append_array(bleed_steps)
-			var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
+			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action), int(enemy.get("id", -1)))
 			if not step.is_empty():
 				steps.append(step)
 	var before_turn_complete: Dictionary = next_state.duplicate(true)
@@ -836,6 +1040,8 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		return {"move": [], "attack": []}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
+		return {"move": [], "attack": []}
+	if not is_enemy_visible_to_player(state, enemy):
 		return {"move": [], "attack": []}
 	var intent: Dictionary = enemy.get("intent", {})
 	if intent.is_empty():
@@ -900,13 +1106,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 		var intent: Dictionary = enemy.get("intent", {})
 		if not intent.is_empty():
-			steps.append({
-				"kind": "intent",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"intent_name": str(intent.get("name", "Action"))
-			})
+			steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 			var actions: Array = intent.get("actions", [])
 			for action_index: int in range(actions.size()):
 				var action_var: Variant = actions[action_index]
@@ -925,8 +1125,10 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 					followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
 				var bleed_steps: Array[Dictionary] = []
 				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+				_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
+				_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 				steps.append_array(bleed_steps)
-				var step: Dictionary = _enemy_action_step(before_state, next_state, enemy_index, action)
+				var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action), int(enemy.get("id", -1)))
 				if not step.is_empty():
 					steps.append(step)
 		if combat_outcome(next_state) == "":
@@ -947,6 +1149,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
+	next_state = _tick_umbra_player_activation(next_state)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	player["block"] = 0
 	next_state["player"] = player
@@ -1139,15 +1342,83 @@ func resolve_missed_equipment_after_victory(state: Dictionary) -> Dictionary:
 func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemy: Dictionary = ((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
-	_log(next_state, "%s prepares %s." % [
-		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
-		str(intent.get("name", "an action"))
-	])
+	if is_enemy_visible_to_player(next_state, enemy):
+		_log(next_state, "%s prepares %s." % [
+			str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+			str(intent.get("name", "an action"))
+		])
+	else:
+		_log(next_state, "Something stirs in the Umbra.")
 	for action: Dictionary in intent.get("actions", []):
 		if combat_outcome(next_state) != "":
 			break
+		var before_action: Dictionary = next_state.duplicate(true)
 		next_state = _resolve_enemy_action(next_state, enemy_index, action)
+		_anonymize_hidden_enemy_action_logs(before_action, next_state, int(enemy.get("id", -1)), action)
+		_record_hidden_umbra_attack_damage(before_action, next_state, int(enemy.get("id", -1)))
 	return next_state
+
+func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	var hidden: bool = not is_enemy_visible_to_player(state, enemy)
+	return {
+		"kind": "intent",
+		"actor_key": _enemy_key(enemy),
+		"actor_name": "Unknown Presence" if hidden else str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+		"tile": Vector2i(-1, -1) if hidden else enemy.get("pos", Vector2i.ZERO),
+		"intent_name": "Hidden Intent" if hidden else str(intent.get("name", "Action")),
+		"hidden_by_umbra": hidden
+	}
+
+func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dictionary, step: Dictionary, enemy_id: int) -> Dictionary:
+	if step.is_empty():
+		return step
+	var enemy_index: int = _enemy_index_for_id(before_state, enemy_id)
+	if enemy_index < 0:
+		return step
+	var before_enemy: Dictionary = _normalized_enemy((before_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+	if is_enemy_visible_to_player(before_state, before_enemy):
+		return step
+	var presented: Dictionary = step.duplicate(true)
+	presented["hidden_by_umbra"] = true
+	var after_index: int = _enemy_index_for_id(after_state, enemy_id)
+	var revealed_after: bool = false
+	if after_index >= 0:
+		var after_enemy: Dictionary = _normalized_enemy((after_state.get("enemies", []) as Array)[after_index] as Dictionary)
+		revealed_after = is_enemy_visible_to_player(after_state, after_enemy)
+	presented["revealed_after_action"] = revealed_after
+	return presented
+
+func _anonymize_hidden_enemy_action_logs(before_state: Dictionary, after_state: Dictionary, enemy_id: int, action: Dictionary) -> void:
+	var enemy_index: int = _enemy_index_for_id(before_state, enemy_id)
+	if enemy_index < 0:
+		return
+	var enemy: Dictionary = _normalized_enemy((before_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+	if is_enemy_visible_to_player(before_state, enemy):
+		return
+	var before_logs: Array = before_state.get("log", []) as Array
+	var logs: Array = (after_state.get("log", []) as Array).duplicate()
+	if logs.size() <= before_logs.size():
+		return
+	logs.resize(before_logs.size())
+	var action_type: String = str(action.get("type", ""))
+	logs.append("A hidden presence attacks." if action_type in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"] else "Something shifts in the Umbra.")
+	after_state["log"] = logs
+
+func _record_hidden_umbra_attack_damage(before_state: Dictionary, after_state: Dictionary, enemy_id: int) -> void:
+	var enemy_index: int = _enemy_index_for_id(before_state, enemy_id)
+	if enemy_index < 0:
+		return
+	var enemy: Dictionary = _normalized_enemy((before_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
+	if is_enemy_visible_to_player(before_state, enemy):
+		return
+	var before_hp: int = int((before_state.get("player", {}) as Dictionary).get("hp", 0))
+	var after_hp: int = int((after_state.get("player", {}) as Dictionary).get("hp", before_hp))
+	var hp_loss: int = maxi(0, before_hp - after_hp)
+	if hp_loss <= 0:
+		return
+	var umbra: Dictionary = (after_state.get("umbra", {}) as Dictionary).duplicate(true)
+	umbra["hidden_attack_damage_received_total"] = int(umbra.get("hidden_attack_damage_received_total", 0)) + hp_loss
+	after_state["umbra"] = umbra
 
 func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
 	var before_enemies: Array = before_state.get("enemies", [])
@@ -1923,6 +2194,12 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		return next_state
 	var affected_tiles: Array[Vector2i] = _best_aoe_tiles_for_target(next_state, action, center, false)
 	var affected: Array[int] = _enemy_indices_in_tiles(next_state, affected_tiles)
+	var hidden_enemy_affected: bool = false
+	for affected_enemy_index: int in affected:
+		var affected_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[affected_enemy_index] as Dictionary)
+		if not is_enemy_visible_to_player(next_state, affected_enemy):
+			hidden_enemy_affected = true
+			break
 	var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
 	var affected_traps: Array[Vector2i] = _trap_tiles_in_tiles(next_state, affected_tiles)
 	if affected.is_empty() and affected_terrain.is_empty() and affected_traps.is_empty():
@@ -1948,7 +2225,10 @@ func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) 
 		last_damage = terrain_damage
 		next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
 	next_state = _trigger_traps_on_tiles(next_state, affected_traps)
-	_log(next_state, "Area attack hits %d target(s) for %d." % [affected.size() + affected_terrain.size() + affected_traps.size(), last_damage])
+	if hidden_enemy_affected:
+		_log(next_state, "Area attack strikes through the Umbra.")
+	else:
+		_log(next_state, "Area attack hits %d target(s) for %d." % [affected.size() + affected_terrain.size() + affected_traps.size(), last_damage])
 	return next_state
 
 func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true, bypass_defense: bool = false) -> Dictionary:
@@ -2117,6 +2397,145 @@ func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictiona
 	next_state["illusions"] = illusions
 	next_state["next_illusion_id"] = illusion_id + 1
 	_log(next_state, "Illusion appears.")
+	return next_state
+
+func _visible_enemy_id_lookup(state: Dictionary) -> Dictionary:
+	var lookup: Dictionary = {}
+	for enemy_id: int in visible_enemy_ids(state):
+		lookup[enemy_id] = true
+	return lookup
+
+func _record_umbra_reveal_delta(state: Dictionary, before_visible: Dictionary, before_tiles: Dictionary) -> void:
+	var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
+	var newly_visible_enemies: int = 0
+	for enemy_id: int in visible_enemy_ids(state):
+		if not before_visible.has(enemy_id):
+			newly_visible_enemies += 1
+	var newly_visible_tiles: int = 0
+	for tile: Vector2i in umbra_visible_tiles(state):
+		if not before_tiles.has(tile):
+			newly_visible_tiles += 1
+	umbra["enemies_revealed_total"] = int(umbra.get("enemies_revealed_total", 0)) + newly_visible_enemies
+	umbra["tiles_illuminated_total"] = int(umbra.get("tiles_illuminated_total", 0)) + newly_visible_tiles
+	state["umbra"] = umbra
+
+func _umbra_visible_tile_lookup(state: Dictionary) -> Dictionary:
+	var lookup: Dictionary = {}
+	for tile: Vector2i in umbra_visible_tiles(state):
+		lookup[tile] = true
+	return lookup
+
+func _create_umbra_light_source(state: Dictionary, pos: Vector2i, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
+	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
+	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+	var sources: Array = (umbra.get("light_sources", []) as Array).duplicate(true)
+	var radius: int = maxi(1, int(action.get("radius", action.get("amount", 1))))
+	var duration: int = int(action.get("duration", 1))
+	var refreshed: bool = false
+	for index: int in range(sources.size()):
+		if typeof(sources[index]) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = (sources[index] as Dictionary).duplicate(true)
+		if source.get("pos", Vector2i(-1, -1)) != pos:
+			continue
+		source["radius"] = maxi(int(source.get("radius", 0)), radius)
+		if int(source.get("remaining_activations", 0)) < 0 or duration < 0:
+			source["remaining_activations"] = -1
+		else:
+			source["remaining_activations"] = maxi(int(source.get("remaining_activations", 0)), duration)
+		sources[index] = source
+		refreshed = true
+		break
+	if not refreshed:
+		var source_id: int = maxi(1, int(umbra.get("next_light_source_id", 1)))
+		sources.append({
+			"id": source_id,
+			"pos": pos,
+			"radius": radius,
+			"remaining_activations": duration
+		})
+		umbra["next_light_source_id"] = source_id + 1
+	umbra["light_sources"] = sources
+	next_state["umbra"] = umbra
+	_record_umbra_reveal_delta(next_state, before_visible, before_tiles)
+	_log(next_state, "Light blooms through the Umbra.")
+	return next_state
+
+func _apply_umbra_vision(state: Dictionary, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
+	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
+	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+	umbra["vision_bonus"] = int(umbra.get("vision_bonus", 0)) + maxi(0, int(action.get("amount", 0)))
+	var duration: int = int(action.get("duration", 1))
+	if int(umbra.get("vision_bonus_activations", 0)) < 0 or duration < 0:
+		umbra["vision_bonus_activations"] = -1
+	else:
+		umbra["vision_bonus_activations"] = maxi(int(umbra.get("vision_bonus_activations", 0)), duration)
+	next_state["umbra"] = umbra
+	_record_umbra_reveal_delta(next_state, before_visible, before_tiles)
+	_log(next_state, "Vision pushes back the Umbra.")
+	return next_state
+
+func _apply_umbra_truesight(state: Dictionary, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
+	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
+	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+	var duration: int = int(action.get("duration", action.get("amount", 1)))
+	if int(umbra.get("truesight_activations", 0)) < 0 or duration < 0:
+		umbra["truesight_activations"] = -1
+	else:
+		umbra["truesight_activations"] = maxi(int(umbra.get("truesight_activations", 0)), duration)
+	next_state["umbra"] = umbra
+	_record_umbra_reveal_delta(next_state, before_visible, before_tiles)
+	_log(next_state, "Truesight pierces the Umbra.")
+	return next_state
+
+func _dispel_umbra(state: Dictionary, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var before_visible: Dictionary = _visible_enemy_id_lookup(next_state)
+	var before_tiles: Dictionary = _umbra_visible_tile_lookup(next_state)
+	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+	var amount: int = maxi(0, int(action.get("amount", 1)))
+	umbra["stage_reduction"] = mini(
+		umbra_stage_index(str(umbra.get("stage", UMBRA_STAGE_CLEAR))),
+		int(umbra.get("stage_reduction", 0)) + amount
+	)
+	next_state["umbra"] = umbra
+	_record_umbra_reveal_delta(next_state, before_visible, before_tiles)
+	_log(next_state, "Daybreak drives the Umbra back.")
+	return next_state
+
+func _tick_umbra_player_activation(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+	var vision_duration: int = int(umbra.get("vision_bonus_activations", 0))
+	if vision_duration > 0:
+		vision_duration -= 1
+		umbra["vision_bonus_activations"] = vision_duration
+		if vision_duration <= 0:
+			umbra["vision_bonus"] = 0
+	var truesight_duration: int = int(umbra.get("truesight_activations", 0))
+	if truesight_duration > 0:
+		umbra["truesight_activations"] = truesight_duration - 1
+	var remaining_sources: Array = []
+	for source_var: Variant in umbra.get("light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = (source_var as Dictionary).duplicate(true)
+		var remaining: int = int(source.get("remaining_activations", 0))
+		if remaining < 0:
+			remaining_sources.append(source)
+			continue
+		remaining -= 1
+		if remaining > 0:
+			source["remaining_activations"] = remaining
+			remaining_sources.append(source)
+	umbra["light_sources"] = remaining_sources
+	next_state["umbra"] = umbra
 	return next_state
 
 func _normalized_player(player_value: Variant) -> Dictionary:
@@ -2455,9 +2874,9 @@ func _estimated_card_time_cost(card: Dictionary) -> int:
 			continue
 		var action: Dictionary = action_var
 		match str(action.get("type", "")):
-			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity":
+			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity", "illuminate", "vision":
 				total += 1
-			"heal", "illusion":
+			"heal", "illusion", "truesight", "dispel_umbra":
 				total += 2
 			"melee", "ranged", "push", "pull":
 				total += 2
@@ -2798,6 +3217,8 @@ func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dict
 			continue
 		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if not is_enemy_visible_to_player(state, enemy):
 			continue
 		var distance: int = PathUtils.manhattan(from_tile, enemy.get("pos", Vector2i.ZERO))
 		if distance > max_distance:
@@ -3200,6 +3621,24 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictio
 			break
 	return next_state
 
+func _player_path_until_hidden_collision(state: Dictionary, path: Array[Vector2i]) -> Array[Vector2i]:
+	var resolved: Array[Vector2i] = []
+	if path.is_empty():
+		return resolved
+	resolved.append(path[0])
+	var all_enemy_tiles: Dictionary = _occupied_enemy_tiles(state)
+	var visible_enemy_tiles: Dictionary = _occupied_visible_enemy_tiles(state)
+	for index: int in range(1, path.size()):
+		var tile: Vector2i = path[index]
+		if all_enemy_tiles.has(tile) and not visible_enemy_tiles.has(tile):
+			var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
+			umbra["movement_interrupted_total"] = int(umbra.get("movement_interrupted_total", 0)) + 1
+			state["umbra"] = umbra
+			_log(state, "Something in the Umbra blocks the way.")
+			break
+		resolved.append(tile)
+	return resolved
+
 func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vector2i, max_distance: int) -> Array[Vector2i]:
 	if max_distance <= 0:
 		return []
@@ -3208,7 +3647,7 @@ func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vect
 		start,
 		goal,
 		max_distance,
-		_occupied_actor_tiles(state),
+		_known_actor_tiles_for_player(state),
 		_trap_tiles_lookup(state)
 	)
 
@@ -4023,6 +4462,15 @@ func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionar
 			occupied[tile] = true
 	return occupied
 
+func _occupied_visible_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
+	var occupied: Dictionary = {}
+	for enemy: Dictionary in _live_enemies(state):
+		if int(enemy.get("id", -1)) == exclude_id or not is_enemy_visible_to_player(state, enemy):
+			continue
+		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			occupied[tile] = true
+	return occupied
+
 func _occupied_illusion_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = {}
 	for illusion: Dictionary in _live_illusions(state):
@@ -4040,6 +4488,14 @@ func _occupied_terrain_tiles(state: Dictionary) -> Dictionary:
 func _occupied_actor_tiles(state: Dictionary, exclude_enemy_id: int = -1, exclude_illusion_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = _occupied_enemy_tiles(state, exclude_enemy_id)
 	for tile_var: Variant in _occupied_illusion_tiles(state, exclude_illusion_id).keys():
+		occupied[tile_var] = true
+	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
+		occupied[tile_var] = true
+	return occupied
+
+func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
+	var occupied: Dictionary = _occupied_visible_enemy_tiles(state)
+	for tile_var: Variant in _occupied_illusion_tiles(state).keys():
 		occupied[tile_var] = true
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
@@ -4387,10 +4843,12 @@ func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_ti
 			best_tiles = tiles
 	return best_tiles
 
-func _player_attackable_tiles_lookup(state: Dictionary) -> Dictionary:
+func _player_attackable_tiles_lookup(state: Dictionary, include_hidden_enemies: bool = false) -> Dictionary:
 	var lookup: Dictionary = {}
 	var grid: Array = state.get("grid", [])
 	for enemy: Dictionary in _live_enemies(state):
+		if not include_hidden_enemies and not is_enemy_visible_to_player(state, enemy):
+			continue
 		for tile: Vector2i in _enemy_footprint_tiles(enemy):
 			if PathUtils.is_passable(grid, tile):
 				lookup[tile] = true

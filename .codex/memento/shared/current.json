@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-12T03:10:11Z",
+  "updated_at": "2026-07-12T21:54:52Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5071,6 +5071,72 @@
       "source": {
         "branch": "codex/post-combat-missed-equipment-resolution",
         "commit": "ffa15c7"
+      }
+    },
+    {
+      "id": "mnt_20260712T212756Z_e5da05d7",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Umbra pressure advances by elemental-dragon section, not absolute room count",
+      "details": "Section 1 is Clear, followed by Fringe, Advancing, Pressing, Deep, then Heart for the Shadow Dragon section. Eclipse is reserved for authored final encounters. Current four-depth sections are only the adapter; preserve the section mapping if boss intervals are compressed.",
+      "status": "active",
+      "created_at": "2026-07-12T21:27:56Z",
+      "updated_at": "2026-07-12T21:27:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
+        "commit": "4b45a7c"
+      }
+    },
+    {
+      "id": "mnt_20260712T212756Z_b5c41905",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Umbra hiding must cover every player-facing information surface",
+      "details": "Filtering only enemy sprites is insufficient. Hidden enemies must also be removed from direct targets and threat previews; anonymized in initiative, logs, intent/action animation banners, pass-risk forecasts, and floating combat text; and ignored during movement planning until collision. Preserve visible outcomes without leaking hidden identity, position, intent, or damage forecasts.",
+      "status": "active",
+      "created_at": "2026-07-12T21:27:56Z",
+      "updated_at": "2026-07-12T21:27:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
+        "commit": "4b45a7c"
+      }
+    },
+    {
+      "id": "mnt_20260712T212756Z_f9b631da",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Radiance effects share activation-based Umbra duration semantics",
+      "details": "Illuminate creates ranged circular light sources, Vision extends the player's Manhattan radius, Truesight reveals enemies without lighting tiles, and Dispel reduces the effective stage. Duration -1 is persistent; positive durations tick on the player's next activation.",
+      "status": "active",
+      "created_at": "2026-07-12T21:27:56Z",
+      "updated_at": "2026-07-12T21:27:56Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
+        "commit": "4b45a7c"
       }
     }
   ]

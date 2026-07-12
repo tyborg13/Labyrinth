@@ -2118,6 +2118,13 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	chip.add_child(title)
 	var meta := Label.new()
 	meta.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	if combat_state.has("umbra"):
+		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
+		if umbra_stage != "clear":
+			meta.text += "  ·  Umbra %s  ·  Vision %d" % [
+				CombatEngineScript.umbra_stage_display_name(umbra_stage),
+				_combat_engine.effective_umbra_radius(combat_state)
+			]
 	meta.clip_text = true
 	UiTypography.apply_label_role(meta, UiTypography.ROLE_BODY_LARGE)
 	meta.add_theme_color_override("font_color", accent.lightened(0.28))
@@ -5414,6 +5421,47 @@ func _setup_elemental_intensity_bar() -> void:
 		count.add_theme_constant_override("outline_size", 4)
 		content.add_child(count)
 		_intensity_labels[element_id] = count
+	var umbra_badge := TooltipPanelContainer.new()
+	umbra_badge.name = "UmbraIntensityBadge"
+	umbra_badge.custom_minimum_size = INTENSITY_BADGE_SIZE
+	umbra_badge.size = INTENSITY_BADGE_SIZE
+	umbra_badge.mouse_filter = Control.MOUSE_FILTER_STOP
+	umbra_badge.mouse_default_cursor_shape = Control.CURSOR_HELP
+	umbra_badge.add_theme_stylebox_override("panel", _umbra_badge_style(false))
+	_intensity_bar.add_child(umbra_badge)
+	_intensity_badges["umbra"] = umbra_badge
+	var umbra_content := Control.new()
+	umbra_content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	umbra_content.anchor_right = 1.0
+	umbra_content.anchor_bottom = 1.0
+	umbra_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	umbra_badge.add_child(umbra_content)
+	var umbra_icon := TextureRect.new()
+	umbra_icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	umbra_icon.anchor_right = 1.0
+	umbra_icon.anchor_bottom = 1.0
+	umbra_icon.offset_left = INTENSITY_ICON_INSET
+	umbra_icon.offset_top = INTENSITY_ICON_INSET
+	umbra_icon.offset_right = -INTENSITY_ICON_INSET
+	umbra_icon.offset_bottom = -INTENSITY_ICON_INSET
+	umbra_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	umbra_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	umbra_icon.texture = AssetLoader.load_texture("res://assets/art/icons/umbra_presence.png")
+	umbra_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	umbra_content.add_child(umbra_icon)
+	var umbra_count := Label.new()
+	umbra_count.set_anchors_preset(Control.PRESET_FULL_RECT)
+	umbra_count.anchor_right = 1.0
+	umbra_count.anchor_bottom = 1.0
+	umbra_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	umbra_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	umbra_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(umbra_count, UiTypography.SIZE_SMALL)
+	umbra_count.add_theme_color_override("font_color", Color("f6e9ff"))
+	umbra_count.add_theme_color_override("font_outline_color", Color("160d20"))
+	umbra_count.add_theme_constant_override("outline_size", 4)
+	umbra_content.add_child(umbra_count)
+	_intensity_labels["umbra"] = umbra_count
 	_layout_intensity_badges()
 	_refresh_elemental_intensity_bar()
 
@@ -5436,7 +5484,7 @@ func _intensity_bar_size() -> Vector2:
 func _intensity_badge_position(index: int) -> Vector2:
 	var row: int = 0 if index < 3 else 1
 	var column: int = index if row == 0 else index - 3
-	var row_count: int = 3 if row == 0 else 2
+	var row_count: int = 3
 	var row_width: float = INTENSITY_BADGE_SIZE.x * float(row_count) + 9.0 * float(maxi(0, row_count - 1))
 	var x_offset: float = (_intensity_bar_size().x - row_width) * 0.5
 	return Vector2(
@@ -6054,7 +6102,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.size = slot_size
 	frame.clip_contents = false
 	frame.mouse_filter = Control.MOUSE_FILTER_STOP
-	frame.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if str(entry.get("kind", "")) == "enemy" else Control.CURSOR_ARROW
+	frame.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)) else Control.CURSOR_ARROW
 	frame.tooltip_text = _turn_order_tooltip(entry, index)
 	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
 	frame.set_meta("turn_order_size", slot_size)
@@ -6094,7 +6142,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	var badge_text: String = _turn_order_clock_badge_text(entry)
 	frame.set_meta("turn_order_badge_text", badge_text)
 	frame.add_child(_turn_order_number_badge(badge_text, entry, active))
-	if str(entry.get("kind", "")) == "enemy":
+	if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)):
 		var tile: Vector2i = entry.get("pos", Vector2i(-1, -1))
 		var actor_key: String = str(entry.get("actor_key", ""))
 		frame.mouse_entered.connect(_on_turn_order_enemy_hovered.bind(tile, actor_key))
@@ -6307,6 +6355,8 @@ func _turn_order_relative_time(entry: Dictionary) -> int:
 	return maxi(0, int(entry.get("time", 0)) - int(_combat_state.get("initiative_clock", 0)))
 
 func _turn_order_portrait_path(entry: Dictionary) -> String:
+	if bool(entry.get("hidden_by_umbra", false)):
+		return "res://assets/art/icons/umbra_presence.png"
 	var key: String = "player" if str(entry.get("kind", "")) == "player" else str(entry.get("type", ""))
 	if TURN_ORDER_PORTRAITS.has(key):
 		return str(TURN_ORDER_PORTRAITS.get(key, ""))
@@ -7157,6 +7207,9 @@ func _update_action_context_risk() -> void:
 			values.append("-%d BLOCK" % int(summary.get("block_loss", 0)))
 		if int(summary.get("hp_loss", 0)) > 0:
 			values.append("-%d HP" % int(summary.get("hp_loss", 0)))
+		if bool(summary.get("umbra_unknown_before_player", false)):
+			values.append("+ ? UMBRA")
+			tone = "warning"
 		if not values.is_empty():
 			risk_text = "TURN END · %s" % " ".join(values)
 		elif bool(summary.get("unrevealed_before_player", false)):
@@ -7503,6 +7556,21 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 		if badge != null:
 			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
 			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value > 0))
+	var umbra_stage: String = _combat_engine.effective_umbra_stage(state)
+	var umbra_radius: int = _combat_engine.effective_umbra_radius(state)
+	var stage_initial: String = _combat_engine.umbra_stage_display_name(umbra_stage).left(1).to_upper()
+	var umbra_label: Label = _intensity_labels.get("umbra", null)
+	if umbra_label != null:
+		umbra_label.text = "%s%s" % [stage_initial, "∞" if umbra_radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else str(umbra_radius)]
+	var umbra_badge: PanelContainer = _intensity_badges.get("umbra", null)
+	if umbra_badge != null:
+		var shadowed: bool = umbra_stage != CombatEngineScript.UMBRA_STAGE_CLEAR
+		umbra_badge.modulate = Color.WHITE if shadowed else Color(1.0, 1.0, 1.0, 0.44)
+		umbra_badge.tooltip_text = "Umbra: %s\nVision radius %s. Light sources and Radiance can reveal more." % [
+			_combat_engine.umbra_stage_display_name(umbra_stage),
+			"unlimited" if umbra_radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else str(umbra_radius)
+		]
+		umbra_badge.add_theme_stylebox_override("panel", _umbra_badge_style(shadowed))
 
 func _intensity_tooltip(element_id: String) -> String:
 	return "%s Intensity\nRoom-wide %s power. Some %s card effects need this value." % [
@@ -7530,6 +7598,23 @@ func _intensity_badge_style(element_id: String, active: bool) -> StyleBoxFlat:
 	style.content_margin_top = 0
 	style.content_margin_right = 0
 	style.content_margin_bottom = 0
+	return style
+
+func _umbra_badge_style(active: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var accent := Color("8c63b8")
+	style.bg_color = Color(0.055, 0.035, 0.075, 0.90 if active else 0.52)
+	style.border_color = accent.lightened(0.18) if active else Color(accent.r, accent.g, accent.b, 0.42)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_color = Color(0.11, 0.03, 0.16, 0.38 if active else 0.12)
+	style.shadow_size = 8 if active else 3
 	return style
 
 func _displayed_ember_count() -> int:
@@ -7694,7 +7779,7 @@ func _add_pass_preview_chip() -> void:
 	var chip := TooltipPanelContainer.new()
 	chip.name = "PassPreviewChip"
 	var chip_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
-	if bool(summary.get("unrevealed_before_player", false)):
+	if bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)):
 		chip_size.y = PASS_PREVIEW_DANGER_CHIP_HEIGHT
 	chip.custom_minimum_size = chip_size
 	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -7738,7 +7823,8 @@ func _add_pass_preview_chip() -> void:
 	else:
 		var entries: Array = summary.get("entries", [])
 		if entries.is_empty():
-			damage_row.add_child(_pass_preview_damage_label("SAFE", "PassPreviewSafe", Color("8fcf7d"), true))
+			var unknown_umbra: bool = bool(summary.get("umbra_unknown_before_player", false))
+			damage_row.add_child(_pass_preview_damage_label("UNKNOWN" if unknown_umbra else "SAFE", "PassPreviewUmbraUnknown" if unknown_umbra else "PassPreviewSafe", Color("c89be3") if unknown_umbra else Color("8fcf7d"), true))
 		else:
 			for entry_var: Variant in entries:
 				if typeof(entry_var) != TYPE_DICTIONARY:
@@ -7752,10 +7838,10 @@ func _add_pass_preview_chip() -> void:
 					str(entry.get("icon_path", ""))
 				))
 
-	if bool(summary.get("unrevealed_before_player", false)):
+	if bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)):
 		var danger_label := Label.new()
 		danger_label.name = "PassPreviewDanger"
-		danger_label.text = "DANGER!"
+		danger_label.text = "UMBRA INTENT UNKNOWN" if bool(summary.get("umbra_unknown_before_player", false)) else "DANGER!"
 		danger_label.custom_minimum_size = Vector2(chip_size.x - 28.0, 30.0)
 		danger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		danger_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -7935,13 +8021,14 @@ func _pass_preview_summary() -> Dictionary:
 	var losses: Dictionary = _pass_preview_player_damage_losses(phase_result.get("steps", []) as Array)
 	var outcome: String = _combat_engine.combat_outcome(after_state)
 	var source_player: Dictionary = (source_state.get("player", {}) as Dictionary)
-	var defeat: bool = outcome == "defeat" or int(source_player.get("hp", 0)) - int(losses.get("hp", 0)) <= 0
+	var umbra_unknown_before_player: bool = _pass_preview_has_hidden_umbra_action(phase_result.get("steps", []) as Array)
+	var defeat: bool = not umbra_unknown_before_player and (outcome == "defeat" or int(source_player.get("hp", 0)) - int(losses.get("hp", 0)) <= 0)
 	var unrevealed_before_player: bool = bool(phase_result.get("unrevealed_before_player", false))
 	var entries: Array[Dictionary] = _pass_preview_damage_entries(losses)
 	var tone: String = "safe"
 	if defeat or int(losses.get("hp", 0)) > 0:
 		tone = "danger"
-	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player:
+	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player or umbra_unknown_before_player:
 		tone = "warning"
 	var summary: Dictionary = {
 		"tone": tone,
@@ -7951,6 +8038,7 @@ func _pass_preview_summary() -> Dictionary:
 		"block_loss": int(losses.get("block", 0)),
 		"stoneskin_loss": int(losses.get("stoneskin", 0)),
 		"unrevealed_before_player": unrevealed_before_player,
+		"umbra_unknown_before_player": umbra_unknown_before_player,
 		"outcome": outcome
 	}
 	_cache_pass_preview(cache_key, summary)
@@ -7962,6 +8050,8 @@ func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
 		var step: Dictionary = step_var
+		if bool(step.get("hidden_by_umbra", false)):
+			continue
 		var target_losses: Array = step.get("target_losses", [])
 		if target_losses.is_empty():
 			if int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0:
@@ -7979,6 +8069,15 @@ func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
 			losses["block"] = int(losses.get("block", 0)) + maxi(0, int(loss.get("block_loss", 0)))
 			losses["stoneskin"] = int(losses.get("stoneskin", 0)) + maxi(0, int(loss.get("stoneskin_loss", 0)))
 	return losses
+
+func _pass_preview_has_hidden_umbra_action(steps: Array) -> bool:
+	for step_var: Variant in steps:
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) == "intent":
+			return true
+	return false
 
 func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	var entries: Array[Dictionary] = []
@@ -8009,6 +8108,8 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	return entries
 
 func _pass_preview_tooltip(summary: Dictionary) -> String:
+	if bool(summary.get("umbra_unknown_before_player", false)):
+		return "One or more hidden presences act before your next turn. Their intents and possible damage are unknown."
 	if bool(summary.get("unrevealed_before_player", false)):
 		return "Enemies have unrevealed actions before your next turn, you may take additional damage."
 	return ""
@@ -9375,6 +9476,13 @@ func _refresh_stage_view() -> void:
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
 	var presentation: Dictionary = _board_presentation.duplicate(false)
+	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
+		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
+		presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
+		presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
+		presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
+		presentation["umbra_light_sources"] = ((display_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
+		presentation["umbra_truesight"] = int((display_state.get("umbra", {}) as Dictionary).get("truesight_activations", 0)) != 0
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
@@ -9481,6 +9589,8 @@ func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 	for enemy_index: int in range((display_state.get("enemies", []) as Array).size()):
 		var enemy: Dictionary = (display_state.get("enemies", []) as Array)[enemy_index]
 		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if not _combat_engine.is_enemy_visible_to_player(display_state, enemy):
 			continue
 		if not _enemy_footprint_tiles(enemy).has(_hovered_board_tile):
 			continue
@@ -10009,12 +10119,14 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	}
 	var action: Dictionary = preview.get("action", {})
 	var action_type: String = str(action.get("type", ""))
-	result["focus_actor_color"] = PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "illusion"] else PLAYER_ATTACK_FOCUS
+	result["focus_actor_color"] = Color("ffe394") if action_type in ["illuminate", "vision", "truesight", "dispel_umbra"] else PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "illusion"] else PLAYER_ATTACK_FOCUS
 	var focus_tiles: Array[Vector2i] = _focus_tiles_for_preview(preview)
 	if not focus_tiles.is_empty():
 		result["focus_tiles"] = focus_tiles
 		if action_type == "illusion":
 			result["focus_color"] = Color(0.42, 0.88, 0.42, 0.22)
+		elif action_type == "illuminate":
+			result["focus_color"] = Color(1.0, 0.84, 0.38, 0.28)
 		else:
 			result["focus_color"] = Color(0.42, 0.84, 0.93, 0.24) if action_type in ["move", "blink"] else Color(0.95, 0.62, 0.37, 0.22)
 	var path_tiles: Array[Vector2i] = _path_tiles_for_preview(preview)
@@ -11812,6 +11924,40 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			}))
+		"illuminate":
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			for frame: int in range(1, ATTACK_FRAMES + 1):
+				var t: float = float(frame) / float(ATTACK_FRAMES)
+				_render_board_state(after_state, {
+					"focus_actor_keys": ["player"],
+					"focus_actor_color": Color("ffe394"),
+					"focus_tiles": [target_tile],
+					"focus_color": Color(1.0, 0.82, 0.34, 0.16 + 0.22 * sin(t * PI))
+				})
+				await get_tree().create_timer(ATTACK_FRAME_SECONDS).timeout
+			await _animate_floating_text_presentation(after_state, {
+				"focus_tiles": [target_tile],
+				"focus_color": Color(1.0, 0.84, 0.42, 0.30),
+				"floating_texts": [{
+					"tile": target_tile,
+					"text": "Light %d" % int(action.get("radius", action.get("amount", 1))),
+					"color": Color("ffe394"),
+					"offset": -8.0
+				}]
+			})
+		"vision", "truesight", "dispel_umbra":
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
+			await _animate_floating_text_presentation(after_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": Color("ffe394"),
+				"floating_texts": [{
+					"tile": player_after_tile,
+					"text": light_text,
+					"color": Color("ffe394"),
+					"offset": -8.0
+				}]
+			})
 		"melee", "ranged", "aoe", "push", "pull":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
@@ -12025,6 +12171,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				)
 			commit_index += 1
 			continue
+		if bool(step.get("hidden_by_umbra", false)):
+			await _animate_hidden_umbra_enemy_step(animated_state, step)
+			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
@@ -12101,6 +12250,60 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"floating_texts": _floating_texts_for_step(step)
 				})))
 				await _animate_enemy_deaths(before_attack_step_state, animated_state)
+
+func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictionary) -> void:
+	var kind: String = str(step.get("kind", ""))
+	if kind == "intent":
+		_clear_enemy_block_by_key(animated_state, str(step.get("actor_key", "")))
+		_set_action_banner("Unknown Presence: Hidden Intent")
+		_render_board_state(animated_state, {})
+		await get_tree().create_timer(0.16).timeout
+		return
+	var before_step_state: Dictionary = animated_state.duplicate(true)
+	_apply_animation_step(animated_state, step)
+	if bool(step.get("revealed_after_action", false)):
+		_set_action_banner("A presence emerges from the Umbra.")
+	else:
+		_set_action_banner("A hidden presence attacks." if kind in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"] else "Something stirs in the Umbra.")
+	var focus_tiles: Array[Vector2i] = []
+	for tile: Vector2i in _vector2i_array([step.get("tile", Vector2i(-1, -1)), step.get("to", Vector2i(-1, -1))] + (step.get("tiles", []) as Array)):
+		if tile.x >= 0 and _combat_engine.is_tile_visible_to_player(animated_state, tile) and not focus_tiles.has(tile):
+			focus_tiles.append(tile)
+	var impact_actor_keys: Array = step.get("impact_actor_keys", [])
+	if impact_actor_keys.is_empty() and (int(step.get("hp_loss", 0)) > 0 or int(step.get("block_loss", 0)) > 0 or int(step.get("stoneskin_loss", 0)) > 0):
+		impact_actor_keys = ["player"]
+	await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_step_state, animated_state, {
+		"focus_actor_keys": impact_actor_keys,
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"focus_tiles": focus_tiles,
+		"focus_color": Color(0.66, 0.42, 0.80, 0.17),
+		"impact_actor_keys": impact_actor_keys,
+		"floating_texts": _visible_umbra_floating_texts(animated_state, _floating_texts_for_step(step))
+	}))
+	await _animate_enemy_deaths(before_step_state, animated_state)
+	await get_tree().create_timer(0.06).timeout
+
+func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
+	var visible: Array[Dictionary] = []
+	for value: Variant in values:
+		if typeof(value) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = value
+		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+		if tile.x >= 0 and _umbra_information_tile_visible(state, tile):
+			visible.append(entry.duplicate(true))
+	return visible
+
+func _umbra_information_tile_visible(state: Dictionary, tile: Vector2i) -> bool:
+	if _combat_engine.is_tile_visible_to_player(state, tile):
+		return true
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if _combat_engine.is_enemy_visible_to_player(state, enemy) and _enemy_footprint_tiles(enemy).has(tile):
+			return true
+	return false
 
 func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var from_tile: Vector2i = step.get("from", Vector2i.ZERO)
@@ -12232,6 +12435,7 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
+	_apply_umbra_board_presentation(display_state, rendered_presentation)
 	rendered_presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	rendered_presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
@@ -12246,6 +12450,18 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		{},
 		rendered_presentation
 	)
+
+func _apply_umbra_board_presentation(display_state: Dictionary, target_presentation: Dictionary) -> void:
+	if display_state.is_empty() or not display_state.has("umbra"):
+		return
+	target_presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
+	target_presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
+	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
+	target_presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
+	target_presentation["umbra_light_sources"] = ((display_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
+	target_presentation["umbra_truesight"] = int((display_state.get("umbra", {}) as Dictionary).get("truesight_activations", 0)) != 0
+	if target_presentation.has("floating_texts"):
+		target_presentation["floating_texts"] = _visible_umbra_floating_texts(display_state, target_presentation.get("floating_texts", []) as Array)
 
 func _equipped_equipment_for_board() -> Dictionary:
 	return _run_state.get("equipped_equipment", {}) as Dictionary
@@ -12726,7 +12942,7 @@ func _room_hover_hint() -> String:
 
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
-		"move", "blink", "illusion":
+		"move", "blink", "illusion", "illuminate":
 			return "Tile"
 		"aoe":
 			return "Tile" if int(action.get("range", 0)) > 0 else "Resolve"
@@ -16435,6 +16651,9 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	}
 	if not combat_state.is_empty():
 		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
+		context["umbra_stage"] = _combat_engine.effective_umbra_stage(combat_state)
+		context["umbra_radius"] = _combat_engine.effective_umbra_radius(combat_state)
+		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
 	return context
 
 func _combat_recovery_marker_amount(combat_state: Dictionary) -> int:
@@ -16470,11 +16689,11 @@ func _analytics_log_run_started() -> void:
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
 		"starting_deck": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
-			"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
-			"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
-			"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
-			"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
-			"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
+		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
+		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
+		"equipped_items": (_run_state.get("equipped_items", []) as Array).duplicate(true),
+		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
+		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
 		"collected_equipment": (_run_state.get("collected_equipment", []) as Array).duplicate(true),
 		"recovery_marker_active": not recovery_marker.is_empty(),
@@ -16630,6 +16849,9 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"recovery_marker_present": _combat_recovery_marker_amount(_combat_state) > 0,
 		"recovery_marker_amount": _combat_recovery_marker_amount(_combat_state),
 		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
+		"umbra_stage": _combat_engine.effective_umbra_stage(_combat_state),
+		"umbra_radius": _combat_engine.effective_umbra_radius(_combat_state),
+		"visible_enemy_count": _combat_engine.visible_enemy_ids(_combat_state).size(),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true),
 		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
 			"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
@@ -16653,7 +16875,11 @@ func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> vo
 		"recovered_embers": int(combat_state.get("recovered_embers_total", 0)),
 		"collected_equipment": (combat_state.get("collected_equipment", []) as Array).duplicate(true),
 		"missed_equipment": (combat_state.get("missed_equipment", []) as Array).duplicate(true),
-		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0))
+		"remaining_player_hp": int((combat_state.get("player", {}) as Dictionary).get("hp", 0)),
+		"umbra_tiles_illuminated": int((combat_state.get("umbra", {}) as Dictionary).get("tiles_illuminated_total", 0)),
+		"umbra_enemies_revealed": int((combat_state.get("umbra", {}) as Dictionary).get("enemies_revealed_total", 0)),
+		"umbra_movement_interruptions": int((combat_state.get("umbra", {}) as Dictionary).get("movement_interrupted_total", 0)),
+		"umbra_hidden_attack_damage_received": int((combat_state.get("umbra", {}) as Dictionary).get("hidden_attack_damage_received_total", 0))
 	})
 
 func _analytics_log_reward_offered(combat_state: Dictionary, reason: String) -> void:
@@ -16927,6 +17153,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	if JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
+	var before_umbra: Dictionary = before_state.get("umbra", {}) as Dictionary
+	var after_umbra: Dictionary = resolved_state.get("umbra", {}) as Dictionary
 	return {
 		"play_mode": play_mode,
 			"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -16968,6 +17196,15 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"sunder_actions": _analytics_attack_keyword_action_count(actions, "sunder"),
 		"illusions_created": illusions_created,
 		"illusion_health_created": illusion_health_created,
+		"radiance_card": bool(printed_card.get("radiance", false)),
+		"umbra_stage_before": _combat_engine.effective_umbra_stage(before_state),
+		"umbra_stage_after": _combat_engine.effective_umbra_stage(resolved_state),
+		"umbra_radius_before": _combat_engine.effective_umbra_radius(before_state),
+		"umbra_radius_after": _combat_engine.effective_umbra_radius(resolved_state),
+		"umbra_tiles_illuminated": maxi(0, int(after_umbra.get("tiles_illuminated_total", 0)) - int(before_umbra.get("tiles_illuminated_total", 0))),
+		"umbra_enemies_revealed": maxi(0, int(after_umbra.get("enemies_revealed_total", 0)) - int(before_umbra.get("enemies_revealed_total", 0))),
+		"umbra_light_sources_created": maxi(0, (after_umbra.get("light_sources", []) as Array).size() - (before_umbra.get("light_sources", []) as Array).size()),
+		"umbra_movement_interruptions": maxi(0, int(after_umbra.get("movement_interrupted_total", 0)) - int(before_umbra.get("movement_interrupted_total", 0))),
 		"enemy_status_applied": {
 			"burn": enemy_burn_applied,
 			"bleed": enemy_bleed_applied,

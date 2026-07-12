@@ -93,6 +93,13 @@ class HeuristicWeights:
     kill_card_play_value: float = 0.45
     illusion_health_per_point: float = 0.48
     illusion_range_per_tile: float = 0.12
+    illuminate_radius_per_tile: float = 0.55
+    illuminate_duration_per_activation: float = 0.25
+    illuminate_range_per_tile: float = 0.06
+    vision_per_radius_activation: float = 0.50
+    truesight_per_activation: float = 1.40
+    dispel_umbra_per_stage: float = 2.20
+    umbra_relevance: float = 0.65
     pure_move_per_tile: float = 0.25
     pure_blink_per_tile: float = 0.33
     attack_move_followthrough_per_tile: float = 0.08
@@ -138,6 +145,7 @@ class ScoreBreakdown:
     flow: float = 0.0
     elemental_intensity: float = 0.0
     mobility: float = 0.0
+    radiance: float = 0.0
     synergy: float = 0.0
     health_cost: float = 0.0
     burn_card_penalty: float = 0.0
@@ -503,6 +511,34 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             has_defense = True
             continue
 
+        if action_type == "illuminate":
+            radius = max(1, int(action.get("radius", action.get("amount", 1))))
+            duration = int(action.get("duration", 1))
+            duration_value = 3 if duration < 0 else max(1, duration)
+            breakdown.radiance += (
+                radius * weights.illuminate_radius_per_tile
+                + duration_value * weights.illuminate_duration_per_activation
+                + int(action.get("range", 0)) * weights.illuminate_range_per_tile
+            ) * weights.umbra_relevance
+            continue
+
+        if action_type == "vision":
+            amount = max(0, int(action.get("amount", 0)))
+            duration = int(action.get("duration", 1))
+            duration_value = 3 if duration < 0 else max(1, duration)
+            breakdown.radiance += amount * duration_value * weights.vision_per_radius_activation * weights.umbra_relevance
+            continue
+
+        if action_type == "truesight":
+            duration = int(action.get("duration", action.get("amount", 1)))
+            duration_value = 3 if duration < 0 else max(1, duration)
+            breakdown.radiance += duration_value * weights.truesight_per_activation * weights.umbra_relevance
+            continue
+
+        if action_type == "dispel_umbra":
+            breakdown.radiance += max(0, int(action.get("amount", 1))) * weights.dispel_umbra_per_stage * weights.umbra_relevance
+            continue
+
     if has_attack:
         breakdown.mobility += move_tiles * weights.attack_move_followthrough_per_tile
         breakdown.mobility += blink_tiles * weights.attack_blink_followthrough_per_tile
@@ -549,6 +585,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.flow
         + breakdown.elemental_intensity
         + breakdown.mobility
+        + breakdown.radiance
         + breakdown.synergy
         + breakdown.tempo
         - breakdown.health_cost
@@ -798,6 +835,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"flow={breakdown['flow']:.2f}",
                         f"intensity={breakdown['elemental_intensity']:.2f}",
                         f"mobility={breakdown['mobility']:.2f}",
+                        f"radiance={breakdown['radiance']:.2f}",
                         f"synergy={breakdown['synergy']:.2f}",
                         f"tempo={breakdown['tempo']:.2f}",
                         f"health_cost={breakdown['health_cost']:.2f}",

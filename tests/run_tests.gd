@@ -105,6 +105,11 @@ func _initialize() -> void:
 	_test_elemental_intensity_actions_gate_effects()
 	_test_elemental_intensity_icons_surface_card_requirements()
 	_test_elemental_intensity_bonus_modifies_single_attack()
+	_test_umbra_curve_tracks_dragon_sections()
+	_test_umbra_hides_targets_intents_and_turn_order_identity()
+	_test_radiance_actions_reveal_and_reduce_umbra()
+	_test_hidden_enemy_movement_collision_does_not_leak_position()
+	_test_radiance_cards_and_icons_are_integrated()
 	_test_cards_do_not_define_multiple_player_attacks()
 	_test_illusion_action_creates_decoy_and_redirects_enemy()
 	_test_enemy_target_ties_randomize_between_player_side_actors()
@@ -7971,6 +7976,16 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(danger_chip != null and danger_chip.tooltip_text == "Enemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
 
+	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("umbra"))
+	await process_frame
+	await process_frame
+	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "Umbra-hidden pass")
+	var umbra_summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(bool(umbra_summary.get("umbra_unknown_before_player", false)), "Pass preview should flag a hidden presence acting before the player")
+	_assert(int(umbra_summary.get("hp_loss", 0)) == 0, "Pass preview should not leak hidden-intent damage")
+	var umbra_danger_label: Label = instance.find_child("PassPreviewDanger", true, false) as Label
+	_assert(umbra_danger_label != null and umbra_danger_label.text == "UMBRA INTENT UNKNOWN", "Hidden pass preview should explain why its value is unknown")
+
 	_install_pass_preview_chip_state(instance, danger_state)
 	await process_frame
 	await process_frame
@@ -10054,21 +10069,21 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	if intensity_bar != null and intensity_bar.get_child_count() > 0:
 		var first_badge: Control = intensity_bar.get_child(0) as Control
 		_assert(first_badge.custom_minimum_size.x >= 86.0 and first_badge.custom_minimum_size.y >= 86.0, "Elemental intensity badges should be visibly larger than relic badges")
-		_assert(intensity_bar.get_child_count() == 5, "Elemental intensity HUD should show all five elements")
+		_assert(intensity_bar.get_child_count() == 6, "Combat room-pressure HUD should show all five elements plus Umbra")
 		var top_y: float = first_badge.position.y
 		var second_row_y: float = (intensity_bar.get_child(3) as Control).position.y
 		for index: int in range(3):
 			var badge: Control = intensity_bar.get_child(index) as Control
 			_assert(absf(badge.position.y - top_y) <= 1.0, "Elemental intensity HUD should keep the first three icons on the top row")
-		for index: int in range(3, 5):
+		for index: int in range(3, 6):
 			var badge: Control = intensity_bar.get_child(index) as Control
-			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Elemental intensity HUD should center the final two icons on the second row")
+			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Room-pressure HUD should keep the final three icons on the second row")
 		var top_middle: Control = intensity_bar.get_child(1) as Control
 		var bottom_left: Control = intensity_bar.get_child(3) as Control
-		var bottom_right: Control = intensity_bar.get_child(4) as Control
+		var bottom_right: Control = intensity_bar.get_child(5) as Control
 		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
 		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
-		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Elemental intensity HUD second row should be centered under the top row")
+		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Room-pressure HUD second row should be centered under the top row")
 		var relic_bottom: float = float(instance.call("_relic_bar_visible_bottom_y"))
 		var gap: float = intensity_bar.global_position.y - relic_bottom
 		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the relic row without a stale layout gap")
@@ -10701,6 +10716,9 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("triggered_trap_damage"), "Card play analytics should include triggered trap damage")
 	_assert(play_payload.has("pickups_collected"), "Card play analytics should include collected battlefield pickups")
 	_assert(play_payload.has("consume_on_play") and play_payload.has("item_card"), "Card play analytics should include consumable item flags")
+	_assert(play_event.has("umbra_stage") and play_event.has("umbra_radius") and play_event.has("visible_enemy_count"), "Combat analytics context should include Umbra visibility state")
+	_assert(play_payload.has("radiance_card") and play_payload.has("umbra_stage_before") and play_payload.has("umbra_stage_after"), "Card play analytics should classify Radiance and stage changes")
+	_assert(play_payload.has("umbra_tiles_illuminated") and play_payload.has("umbra_enemies_revealed") and play_payload.has("umbra_light_sources_created"), "Card play analytics should include observed Radiance results")
 	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
 	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
@@ -11031,6 +11049,118 @@ func _combat_log_contains(state: Dictionary, text: String) -> bool:
 		if str(line_var).find(text) >= 0:
 			return true
 	return false
+
+func _test_umbra_curve_tracks_dragon_sections() -> void:
+	var expected: Array[String] = ["clear", "fringe", "advancing", "pressing", "deep", "heart"]
+	for section_index: int in range(expected.size()):
+		_assert(CombatEngine.umbra_stage_for_section(section_index) == expected[section_index], "Umbra stage should advance by elemental-dragon section")
+		var first_depth: int = section_index * 4 + 1
+		_assert(CombatEngine.umbra_stage_for_room_depth(first_depth) == expected[section_index], "Umbra depth mapping should use four-depth section boundaries")
+	_assert(CombatEngine.umbra_radius_for_stage("fringe") == 6, "Fringe Umbra should use radius 6")
+	_assert(CombatEngine.umbra_radius_for_stage("heart") == 2, "Heart Umbra should use radius 2")
+	_assert(CombatEngine.umbra_radius_for_stage("eclipse") == 1, "Eclipse Umbra should use radius 1")
+
+func _test_umbra_hides_targets_intents_and_turn_order_identity() -> void:
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	var state: Dictionary = combat.create_combat(44001, layout, {
+		"hp": 100,
+		"max_hp": 100,
+		"deck_cards": ["lantern_shot"],
+		"hand_size": 1
+	})
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	_assert(not combat.is_enemy_visible_to_player(state, enemy), "Heart Umbra should hide a distant enemy")
+	var ranged_targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, {"type": "ranged", "damage": 4, "range": 7})
+	_assert(not ranged_targets.has(enemy.get("pos", Vector2i.ZERO)), "Hidden enemies should not be valid direct attack targets")
+	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
+	_assert((threat.get("move", []) as Array).is_empty() and (threat.get("attack", []) as Array).is_empty(), "Hidden enemy intents should not expose threat tiles")
+	var order: Array[Dictionary] = combat.current_turn_order(state, 8)
+	var found_hidden_entry: bool = false
+	for entry: Dictionary in order:
+		if str(entry.get("kind", "")) != "enemy":
+			continue
+		found_hidden_entry = true
+		_assert(bool(entry.get("hidden_by_umbra", false)), "Hidden enemy initiative entries should be anonymized")
+		_assert(str(entry.get("name", "")) == "Unknown Presence", "Hidden initiative entries should not reveal enemy identity")
+		_assert(not entry.has("intent_time_cost"), "Hidden initiative entries should not reveal intent timing")
+	_assert(found_hidden_entry, "Turn order should retain an anonymous hidden presence")
+	var hidden_intent_step: Dictionary = combat.call("_enemy_intent_step_for_player", state, enemy, {"name": "Hidden Shot"}) as Dictionary
+	_assert(bool(hidden_intent_step.get("hidden_by_umbra", false)), "Hidden enemy animation intent steps should carry their presentation guard")
+	_assert(str(hidden_intent_step.get("actor_name", "")) == "Unknown Presence" and str(hidden_intent_step.get("intent_name", "")) == "Hidden Intent", "Hidden intent animation steps should be anonymized")
+	_assert((hidden_intent_step.get("tile", Vector2i.ZERO) as Vector2i).x < 0, "Hidden intent animation steps should not expose the source tile")
+	var hp_before: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
+	var attacked_state: Dictionary = combat.call("_resolve_enemy_intent", state, 0, {
+		"name": "Hidden Shot",
+		"actions": [{"type": "ranged", "damage": 40, "range": 9}]
+	}) as Dictionary
+	var hp_after: int = int((attacked_state.get("player", {}) as Dictionary).get("hp", hp_before))
+	_assert(hp_after < hp_before, "The hidden-attack fixture should deal player HP damage")
+	_assert(int((attacked_state.get("umbra", {}) as Dictionary).get("hidden_attack_damage_received_total", 0)) == hp_before - hp_after, "Damage from a hidden attacker should be attributed exactly once")
+	var hidden_logs: Array = attacked_state.get("log", []) as Array
+	var latest_hidden_log: String = str(hidden_logs[hidden_logs.size() - 1]) if not hidden_logs.is_empty() else ""
+	_assert(latest_hidden_log == "A hidden presence attacks.", "Hidden enemy action logs should replace identity and intent with generic Umbra copy")
+
+func _test_radiance_actions_reveal_and_reduce_umbra() -> void:
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	var state: Dictionary = combat.create_combat(44002, layout, {
+		"hp": 100,
+		"max_hp": 100,
+		"deck_cards": ["guiding_flare"],
+		"hand_size": 1
+	})
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
+	var enemy_pos: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var illuminate := {"type": "illuminate", "range": 7, "radius": 2, "duration": 2}
+	_assert(combat.valid_targets_for_player_action(state, illuminate).has(enemy_pos), "Illuminate should be targetable inside the Umbra")
+	var lit_state: Dictionary = combat.apply_player_action(state, illuminate, enemy_pos)
+	_assert(combat.is_enemy_visible_to_player(lit_state, enemy), "A light source should reveal enemies in its radius")
+	_assert(combat.valid_targets_for_player_action(lit_state, {"type": "ranged", "damage": 4, "range": 7}).has(enemy_pos), "Illuminated enemies should become targetable")
+	var vision_state: Dictionary = combat.apply_player_action(state, {"type": "vision", "amount": 3, "duration": 1})
+	_assert(combat.effective_umbra_radius(vision_state) == 5, "Vision should add to the personal Umbra radius")
+	var truesight_state: Dictionary = combat.apply_player_action(state, {"type": "truesight", "duration": 1})
+	_assert(combat.is_enemy_visible_to_player(truesight_state, enemy), "Truesight should reveal enemies without lighting their tiles")
+	_assert(not combat.is_tile_visible_to_player(truesight_state, enemy_pos), "Truesight should not illuminate the enemy tile")
+	var dispelled_state: Dictionary = combat.apply_player_action(state, {"type": "dispel_umbra", "amount": 2})
+	_assert(combat.effective_umbra_stage(dispelled_state) == "pressing", "Dispel Umbra should reduce Heart by two stages")
+	_assert(combat.effective_umbra_radius(dispelled_state) == 4, "Dispel Umbra should apply the reduced stage radius")
+
+func _test_hidden_enemy_movement_collision_does_not_leak_position() -> void:
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "eclipse"
+	(layout.get("enemies", []) as Array)[0]["pos"] = Vector2i(4, 4)
+	var state: Dictionary = combat.create_combat(44003, layout, {
+		"hp": 100,
+		"max_hp": 100,
+		"deck_cards": ["dawnstep"],
+		"hand_size": 1
+	})
+	var move := {"type": "move", "range": 4}
+	var target := Vector2i(5, 4)
+	var targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, move)
+	_assert(targets.has(target), "Movement highlights should optimistically pass through hidden occupancy")
+	var moved: Dictionary = combat.apply_player_action(state, move, target)
+	_assert((moved.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(3, 4), "Movement should stop before colliding with a hidden enemy")
+	_assert(int((moved.get("umbra", {}) as Dictionary).get("movement_interrupted_total", 0)) == 1, "Hidden collision should be recorded")
+	var hidden_enemy: Dictionary = (moved.get("enemies", []) as Array)[0]
+	_assert(combat.is_enemy_visible_to_player(moved, hidden_enemy), "The blocking enemy should become visible when movement stops adjacent")
+	var blink_targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, {"type": "blink", "range": 5})
+	_assert(not blink_targets.has(target), "Blink should not target shrouded destinations")
+
+func _test_radiance_cards_and_icons_are_integrated() -> void:
+	for card_id: String in ["lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
+		var card: Dictionary = GameData.card_def(card_id)
+		_assert(not card.is_empty(), "%s should load" % card_id)
+		_assert(bool(card.get("radiance", false)), "%s should carry the Radiance school tag" % card_id)
+		_assert(not ActionIcons.rows_for_card(card).is_empty(), "%s should render action icon rows" % card_id)
+	var all_rewards: Dictionary = GameData.reward_card_pool_by_rarity("", true)
+	_assert((all_rewards.get("legendary", []) as Array).has("daybreak"), "Neutral Radiance cards should enter the general elemental reward slot")
+	for icon_key: String in ["illuminate", "vision", "truesight", "dispel_umbra"]:
+		_assert(ActionIcons.all_icon_keys().has(icon_key), "%s should have a shared action icon" % icon_key)
 
 func _simple_room_layout() -> Dictionary:
 	return {
@@ -11390,6 +11520,8 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		enemy_intent = {"name": "Crush", "time": 1, "actions": [{"type": "melee", "damage": 30, "range": 1}]}
 	elif kind == "unrevealed":
 		enemy_pos = Vector2i(6, 4)
+	elif kind == "umbra":
+		enemy_pos = Vector2i(6, 4)
 	state["player"] = {
 		"pos": Vector2i(2, 4),
 		"hp": 24,
@@ -11463,6 +11595,11 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		"seq": 1,
 		"pos": enemy_pos
 	}]
+	if kind == "umbra":
+		var umbra: Dictionary = (state.get("umbra", {}) as Dictionary).duplicate(true)
+		umbra["stage"] = "eclipse"
+		umbra["stage_reduction"] = 0
+		state["umbra"] = umbra
 	return state
 
 func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) -> void:
@@ -11561,6 +11698,7 @@ func _pass_preview_chip_label_is_value(label: Label) -> bool:
 		"PassPreviewBlockLoss",
 		"PassPreviewHpLoss",
 		"PassPreviewSafe",
+		"PassPreviewUmbraUnknown",
 		"PassPreviewDefeat"
 	].has(str(label.name))
 

@@ -61,6 +61,16 @@ These assumptions are baked into the current coefficients:
 - Illusions are stationary, have only health, and redirect enemies that are
   closer to the illusion than to the player. If player-side actors are tied at
   the same distance, enemies choose randomly among the tied targets.
+- Umbra pressure is tied to completed elemental-dragon sections rather than an
+  absolute room count. The first section is Clear, followed by Fringe,
+  Advancing, Pressing, Deep, and then Heart for the Shadow Dragon section.
+  Eclipse is reserved for authored final encounters. This keeps the curve
+  stable if the number of rooms between bosses is compressed later.
+- Umbra radius is measured by Manhattan distance from the player: unlimited in
+  Clear, then `6/5/4/3/2/1` for Fringe through Eclipse. Hidden enemies cannot
+  be directly targeted and do not reveal their intent or turn-order identity.
+  Radiance cards therefore gain encounter-dependent value by revealing tiles,
+  extending vision, granting enemy-only truesight, or reducing Umbra stages.
 
 Encounter calibration is also important:
 
@@ -149,7 +159,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + elemental_intensity + mobility + synergy + tempo - health_cost - exhaust_card_penalty`
+`EV = offense + control + defense + flow + elemental_intensity + mobility + radiance + synergy + tempo - health_cost - exhaust_card_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -171,6 +181,14 @@ These are the current default weights used by `tools/card_heuristic.py`:
   playability, and target count
 - Illusion health: `0.48` per point
 - Illusion placement range: `0.12` per tile
+- Illuminate: `0.55` per light radius, `0.25` per activation of duration, and
+  `0.06` per placement-range tile
+- Vision: `0.50` per added-radius activation
+- Truesight: `1.40` per activation
+- Dispel Umbra: `2.20` per reduced stage
+- Umbra relevance multiplier: `0.65` for all Radiance-only value, reflecting
+  that the opening elemental-dragon section is Clear and not every draw occurs
+  in a shadowed combat
 - Pure move: `0.25` per tile
 - Pure blink: `0.33` per tile
 - Move on an attacking card: `0.08` per tile

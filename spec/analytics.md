@@ -23,6 +23,9 @@ available:
 - `initiative_clock`
 - `current_actor_kind`
 - `current_actor_key`
+- `umbra_stage`
+- `umbra_radius`
+- `visible_enemy_count`
 
 ## Current Event Types
 
@@ -96,6 +99,9 @@ The current event stream is enough to derive:
   immobilize, and poison
 - actual resolved action list and chosen targets
 - consumable item flags via `item_card` and `consume_on_play`
+- Radiance and visibility context: `radiance_card`, Umbra stage and radius
+  before/after, tiles illuminated, enemies newly revealed, light sources
+  created, and hidden-enemy movement interruptions caused during resolution
 
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and
@@ -112,12 +118,15 @@ value-model work, but it is not yet card-source attributed.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
-`equipment_drops`. `combat_ended` includes `recovered_embers`, the total embers
+`equipment_drops`, plus the opening Umbra stage, effective vision radius, and
+visible enemy count. `combat_ended` includes `recovered_embers`, the total embers
 reclaimed from dropped piles during that combat, and `collected_equipment`, the
 equipment ids picked up during that combat. Its additive `missed_equipment` list
 contains equipment ids that were still unclaimed at victory and were resolved
 from the cleared room without entering inventory, ownership, discovery, or deck
-state.
+state. It also records the combat-wide Umbra totals for tiles illuminated,
+enemies revealed, movement interruptions against unseen bodies, and damage
+received from attacks whose source was hidden when the attack began.
 
 `equipment_equipped` fires when the character overlay equips an owned item
 outside combat. Its payload records `slot`, `previous_equipment_id`,
@@ -207,6 +216,8 @@ Update analytics instrumentation when changes affect:
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
 - elemental intensity production, gating, or room-start rules
+- Umbra stage progression, visibility, hidden-enemy information, or Radiance
+  actions
 - card actions that create, remove, or redirect combat actors
 - combat outcome flow
 - status timing or turn sequencing

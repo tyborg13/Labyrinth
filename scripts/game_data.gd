@@ -214,7 +214,7 @@ static func reward_card_pool_by_rarity(element_filter: String = "", elemental_on
 			continue
 		var rarity: String = card_rarity_from_def(card)
 		var card_element: String = card_element_from_def(card)
-		if elemental_only and not ElementData.is_elemental(card_element):
+		if elemental_only and not ElementData.is_elemental(card_element) and not bool(card.get("radiance", false)):
 			continue
 		if not element_filter.is_empty() and card_element != element_filter:
 			continue
@@ -1512,6 +1512,19 @@ static func _action_value(action: Dictionary) -> float:
 		"illusion":
 			value += float(int(action.get("health", action.get("amount", 0)))) * 0.95
 			value += float(int(action.get("range", 0))) * 0.28
+		"illuminate":
+			var light_duration: int = int(action.get("duration", 1))
+			value += float(int(action.get("radius", action.get("amount", 1)))) * 0.85
+			value += float(int(action.get("range", 0))) * 0.10
+			value += float(3 if light_duration < 0 else maxi(1, light_duration)) * 0.30
+		"vision":
+			var vision_duration: int = int(action.get("duration", 1))
+			value += float(int(action.get("amount", 0))) * float(3 if vision_duration < 0 else maxi(1, vision_duration)) * 0.75
+		"truesight":
+			var truesight_duration: int = int(action.get("duration", action.get("amount", 1)))
+			value += float(3 if truesight_duration < 0 else maxi(1, truesight_duration)) * 2.2
+		"dispel_umbra":
+			value += float(int(action.get("amount", 1))) * 2.4
 	value += float(int(action.get("burn", 0))) * 1.15
 	value += float(int(action.get("bleed", 0))) * 1.05
 	value += float(int(action.get("expose", 0))) * 0.95

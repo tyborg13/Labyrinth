@@ -427,6 +427,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 		return true
 	if _equipment_pickup_beacon_active():
 		return true
+	if str(presentation.get("umbra_stage", "clear")) != "clear":
+		return true
 	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
 		return true
 	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
@@ -556,7 +558,11 @@ func _rebuild_submission_caches() -> void:
 		"death_animation_units": presentation.get("death_animation_units", []),
 		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
 		"damage_preview": presentation.get("damage_preview", {}),
-		"effect_damage_preview": effect.get("damage_preview", {})
+		"effect_damage_preview": effect.get("damage_preview", {}),
+		"visible_enemy_ids": presentation.get("visible_enemy_ids", []),
+		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", []),
+		"umbra_light_sources": presentation.get("umbra_light_sources", []),
+		"umbra_stage": presentation.get("umbra_stage", "clear")
 	}
 	if _submission_cache_initialized and cache_source == _submission_cache_source_snapshot:
 		_submission_cache_valid = true
@@ -698,6 +704,7 @@ func _draw_dynamic_board() -> void:
 	_draw_impact_decals()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_umbra_overlay(tiles)
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
@@ -705,6 +712,67 @@ func _draw_dynamic_board() -> void:
 	_draw_movement_risk_chips()
 	_draw_status_text()
 	_draw_floating_texts()
+
+func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
+	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
+	if stage_id == "clear" or tiles.is_empty():
+		return
+	var visible_lookup: Dictionary = {}
+	for tile_var: Variant in presentation.get("umbra_visible_tiles", []):
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			visible_lookup[tile_var] = true
+	var stage_alpha: float = {
+		"fringe": 0.60,
+		"advancing": 0.65,
+		"pressing": 0.69,
+		"deep": 0.73,
+		"heart": 0.77,
+		"eclipse": 0.82
+	}.get(stage_id, 0.66)
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for tile: Vector2i in tiles:
+		if visible_lookup.has(tile):
+			continue
+		var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
+		var breath: float = 0.5 + 0.5 * sin(time_seconds * (0.46 + _ambient_hash01(seed + 3) * 0.22) + _ambient_hash01(seed + 7) * TAU)
+		var polygon: PackedVector2Array = _tile_polygon(tile)
+		draw_colored_polygon(polygon, Color(0.012, 0.009, 0.026, stage_alpha + breath * 0.035))
+		var center: Vector2 = _tile_center(tile)
+		var drift := Vector2(
+			sin(time_seconds * 0.38 + _ambient_hash01(seed + 11) * TAU) * _tile_width() * 0.10,
+			cos(time_seconds * 0.31 + _ambient_hash01(seed + 13) * TAU) * _tile_height() * 0.15
+		)
+		for lobe_index: int in range(3):
+			var lobe_seed: int = seed + lobe_index * 43
+			var lobe_center: Vector2 = center + drift * (0.45 + float(lobe_index) * 0.25)
+			lobe_center += Vector2(
+				(_ambient_hash01(lobe_seed + 17) - 0.5) * _tile_width() * 0.42,
+				(_ambient_hash01(lobe_seed + 19) - 0.5) * _tile_height() * 0.62
+			)
+			var radius: float = _tile_width() * (0.30 + _ambient_hash01(lobe_seed + 23) * 0.18)
+			draw_set_transform(lobe_center, -0.08, Vector2(1.25, 0.42))
+			draw_circle(Vector2.ZERO, radius, Color(0.055, 0.035, 0.095, 0.075 + breath * 0.025))
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_draw_umbra_light_sources(time_seconds)
+
+func _draw_umbra_light_sources(time_seconds: float) -> void:
+	for source_var: Variant in presentation.get("umbra_light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+		var pulse: float = 0.88 + 0.12 * sin(time_seconds * 2.2 + float(int(source.get("id", 0))))
+		_draw_campfire_soft_ellipse(
+			_tile_center(tile) + Vector2(0.0, _tile_height() * 0.08),
+			_tile_width() * (0.62 + float(radius_tiles) * 0.20),
+			Vector2(1.48, 0.64),
+			-0.06,
+			Color(1.0, 0.82, 0.42, 0.24 * pulse),
+			14
+		)
 
 func _draw_empty_state() -> void:
 	var font: Font = get_theme_default_font()
@@ -2475,8 +2543,12 @@ func _build_visible_units() -> Array[Dictionary]:
 			"poison": {},
 			"preview": true
 		})
+	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
+	var filter_enemies_for_umbra: bool = presentation.has("visible_enemy_ids")
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if filter_enemies_for_umbra and not visible_enemy_ids.has(int(enemy.get("id", -1))):
 			continue
 		units_to_draw.append({
 			"key": "enemy_%d" % int(enemy.get("id", -1)),
