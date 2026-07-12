@@ -74,24 +74,34 @@ func _capture_card_fx(instance: Node) -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	instance.call("_animate_card_play_fx", card_id, source_rect, card_size)
-	await create_timer(0.05).timeout
-	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_10_card_play_lift.png")
 	await create_timer(0.12).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_11_card_play_fade.png")
-	await create_timer(0.25).timeout
+	await _save_root_screenshot("user://motion_probes/motion_10_card_play_lift.png")
+	await create_timer(0.20).timeout
+	await process_frame
+	await _save_root_screenshot("user://motion_probes/motion_11_card_play_beat.png")
+	await create_timer(0.13).timeout
 	await process_frame
 
-	instance.call("_animate_card_to_pile_fx", card_id, "discard", card_size)
-	await create_timer(0.07).timeout
+	var staged_proxy: Control = _first_card_fx_proxy(instance)
+	instance.call("_animate_card_to_pile_fx", card_id, "discard", card_size, staged_proxy)
+	await create_timer(0.11).timeout
 	await process_frame
 	await _save_root_screenshot("user://motion_probes/motion_12_card_to_pile_mid.png")
-	await create_timer(0.28).timeout
+	await create_timer(0.20).timeout
 	await process_frame
 	instance.set("_animating_hand_card_index", -1)
 	instance.call("_refresh_ui")
 	await process_frame
+
+func _first_card_fx_proxy(instance: Node) -> Control:
+	var fx_layer: Control = instance.get("_card_fx_layer") as Control
+	if fx_layer == null:
+		return null
+	for child: Node in fx_layer.get_children():
+		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
+			return child as Control
+	return null
 
 func _capture_draw_fx(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -452,7 +462,7 @@ func _capture_defense_heal_cast_fx(instance: Node) -> void:
 		"tile": Vector2i(5, 4),
 		"amount": 4
 	}
-	instance.call("_animate_enemy_phase_steps", enemy_before, [enemy_step])
+	instance.call("_animate_enemy_phase_steps", enemy_before, [enemy_step], instance.get("_run_state"), [])
 	await create_timer(0.13).timeout
 	await process_frame
 	await _save_root_screenshot("user://motion_probes/motion_33_enemy_stoneskin_ring.png")

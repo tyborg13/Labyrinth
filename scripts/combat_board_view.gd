@@ -2143,10 +2143,72 @@ func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Text
 	var glow_color: Color = _equipment_pickup_glow_color(accent)
 	var pulse: float = _equipment_pickup_pulse(tile, loot)
 	var bobbed_rect: Rect2 = Rect2(loot_rect.position + _equipment_pickup_bob_offset(pulse), loot_rect.size)
+	var disintegration_progress: float = _missed_equipment_disintegration_progress(loot)
+	if disintegration_progress >= 0.0:
+		_draw_missed_equipment_disintegration(tile, bobbed_rect, loot_texture, loot, disintegration_progress)
+		return
 	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
 	_draw_rect_ground_shadow(tile, loot_rect, 0.54, 0.15, 0.10)
 	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
 	draw_texture_rect(loot_texture, bobbed_rect, false)
+
+func _missed_equipment_disintegration_progress(loot: Dictionary) -> float:
+	var equipment_id: String = str(loot.get("equipment_id", ""))
+	if equipment_id.is_empty() or not (presentation.get("missed_equipment_ids", []) as Array).has(equipment_id):
+		return -1.0
+	return clampf(float(presentation.get("missed_equipment_progress", 0.0)), 0.0, 1.0)
+
+func _draw_missed_equipment_disintegration(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary, progress: float) -> void:
+	var corruption: float = smoothstep(0.0, 0.58, progress)
+	var fade: float = 1.0 - smoothstep(0.28, 1.0, progress)
+	var jitter: float = sin(progress * 31.0 + _equipment_loot_phase(tile, loot)) * _tile_width() * 0.018 * corruption
+	var corrupted_rect: Rect2 = Rect2(loot_rect.position + Vector2(jitter, -progress * _tile_height() * 0.05), loot_rect.size)
+	_draw_tile_diamond_fill(tile, Color(0.18, 0.10, 0.17, 0.18 * (1.0 - progress)), 0.64 - progress * 0.12)
+	_draw_rect_ground_shadow(tile, loot_rect, 0.48 * fade, 0.14, 0.08)
+	if fade > 0.01:
+		var tint: Color = Color(1.0, 1.0, 1.0, fade).lerp(Color(0.24, 0.16, 0.22, fade), corruption)
+		_draw_disintegrating_equipment_texture(loot_texture, corrupted_rect, tint, progress)
+	_draw_missed_equipment_ash(tile, loot_rect, loot, progress)
+
+func _draw_disintegrating_equipment_texture(texture: Texture2D, draw_rect: Rect2, tint: Color, progress: float) -> void:
+	var source_size: Vector2 = texture.get_size()
+	if source_size.x <= 0.0 or source_size.y <= 0.0:
+		return
+	var slice_count: int = 7
+	for index: int in range(slice_count):
+		var source_y: float = source_size.y * float(index) / float(slice_count)
+		var next_source_y: float = source_size.y * float(index + 1) / float(slice_count)
+		var dest_y: float = draw_rect.position.y + draw_rect.size.y * float(index) / float(slice_count)
+		var next_dest_y: float = draw_rect.position.y + draw_rect.size.y * float(index + 1) / float(slice_count)
+		var slice_progress: float = clampf((progress - float(index) * 0.035) / 0.78, 0.0, 1.0)
+		var side: float = -1.0 if index % 2 == 0 else 1.0
+		var drift := Vector2(side * draw_rect.size.x * 0.12 * slice_progress, -draw_rect.size.y * 0.16 * slice_progress * slice_progress)
+		var slice_tint: Color = tint
+		slice_tint.a *= 1.0 - smoothstep(0.52, 1.0, slice_progress)
+		draw_texture_rect_region(
+			texture,
+			Rect2(Vector2(draw_rect.position.x, dest_y) + drift, Vector2(draw_rect.size.x, next_dest_y - dest_y + 1.0)),
+			Rect2(Vector2(0.0, source_y), Vector2(source_size.x, next_source_y - source_y)),
+			slice_tint
+		)
+
+func _draw_missed_equipment_ash(tile: Vector2i, loot_rect: Rect2, loot: Dictionary, progress: float) -> void:
+	var center: Vector2 = loot_rect.get_center()
+	var phase: float = _equipment_loot_phase(tile, loot)
+	for index: int in range(24):
+		var start: float = float(index % 9) / 12.0
+		var particle_progress: float = clampf((progress - start * 0.42) / 0.72, 0.0, 1.0)
+		if particle_progress <= 0.0:
+			continue
+		var angle: float = phase + float(index) * 2.399
+		var spread: float = loot_rect.size.x * (0.10 + float((index * 7) % 13) / 13.0 * 0.44)
+		var drift := Vector2(cos(angle) * spread * particle_progress, -loot_rect.size.y * (0.12 + 0.80 * particle_progress))
+		drift.x += sin(particle_progress * 8.0 + angle) * loot_rect.size.x * 0.08
+		var particle_size: float = maxf(3.0, loot_rect.size.x * (0.035 + float(index % 4) * 0.010)) * (1.0 - particle_progress * 0.38)
+		var alpha: float = sin(particle_progress * PI) * (0.72 + float(index % 3) * 0.12)
+		var ash_color: Color = Color("c05b38").lerp(Color("4a3a43"), particle_progress)
+		ash_color.a = alpha
+		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), ash_color)
 
 func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
 	var accent_glow: Color = accent.lightened(0.36)
