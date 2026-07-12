@@ -2255,12 +2255,12 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Deal 2 at range 7 for each card play spent.",
+    "description": "Flurry. Deal 3 at range 7 for each card play spent.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/windlass_volley.png",
     "reward_pool": false,
     "actions": [
-      { "type": "ranged", "damage": 2, "range": 7 }
+      { "type": "ranged", "damage": 3, "range": 7 }
     ]
   },
   "crank_reload": {
@@ -2285,13 +2285,13 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Gain 2 block, then strike for 2, for each card play spent.",
+    "description": "Flurry. Gain 2 block, then strike for 4, for each card play spent.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/blade_dance.png",
     "reward_pool": false,
     "actions": [
       { "type": "block", "amount": 2 },
-      { "type": "melee", "damage": 2, "range": 1 }
+      { "type": "melee", "damage": 4, "range": 1 }
     ]
   },
   "gathering_rhythm": {
@@ -2300,14 +2300,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 2, draw 1, and gain 1 card play.",
+    "description": "Move 2, draw 1, and gain 2 card plays.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/gathering_rhythm.png",
     "reward_pool": false,
     "actions": [
       { "type": "move", "range": 2 },
       { "type": "draw", "amount": 1 },
-      { "type": "card_play", "amount": 1 }
+      { "type": "card_play", "amount": 2 }
     ]
   },
   "cinder_fusillade": {
@@ -2318,12 +2318,12 @@
     "flurry": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Flurry. Gain 1 fire intensity, then deal 1 at range 6, for each card play spent.",
+    "description": "Flurry. Gain 1 fire intensity, then deal 2 at range 6, for each card play spent.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_fusillade.png",
     "actions": [
       { "type": "intensity", "element": "fire", "amount": 1 },
-      { "type": "ranged", "damage": 1, "range": 6 }
+      { "type": "ranged", "damage": 2, "range": 6 }
     ]
   },
   "storm_salvo": {
@@ -2334,11 +2334,11 @@
     "flurry": true,
     "health_cost": 0,
     "time": 6,
-    "description": "Flurry. Deal 1 at range 6 with chain 1, then draw 1, for each card play spent.",
+    "description": "Flurry. Deal 2 at range 6 with chain 1, then draw 1, for each card play spent.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_salvo.png",
     "actions": [
-      { "type": "ranged", "damage": 1, "range": 6, "chain": 1 },
+      { "type": "ranged", "damage": 2, "range": 6, "chain": 1 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -2350,12 +2350,12 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Move 1, then deal 1 at range 5 and push 1, for each card play spent.",
+    "description": "Flurry. Move 1, then deal 2 at range 5 and push 1, for each card play spent.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/razor_gale.png",
     "actions": [
       { "type": "move", "range": 1 },
-      { "type": "ranged", "damage": 1, "range": 5, "push": 1 }
+      { "type": "ranged", "damage": 2, "range": 5, "push": 1 }
     ]
   }
 }

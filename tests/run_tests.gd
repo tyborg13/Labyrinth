@@ -586,6 +586,8 @@ func _test_equipment_data_rarity_and_starter_deck() -> void:
 		_assert(int(slot_counts.get(slot, 0)) >= 3, "%s slot should have multiple equipment options" % slot.capitalize())
 	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "far_draw"], "Windlass Repeater should package a Flurry payoff with draw/play setup")
 	_assert(GameData.equipment_cards("war_dancer_sash") == ["blade_dance", "gathering_rhythm"], "War-Dancer Sash should package a melee Flurry payoff with rhythm setup")
+	var rhythm_actions: Array = GameData.card_def("gathering_rhythm").get("actions", [])
+	_assert(rhythm_actions.size() == 3 and int((rhythm_actions[2] as Dictionary).get("amount", 0)) == 2, "Gathering Rhythm should grant 2 card plays for a larger Flurry setup turn")
 	for reward_card_id: String in ["cinder_fusillade", "storm_salvo", "razor_gale"]:
 		_assert(bool(GameData.card_def(reward_card_id).get("flurry", false)), "%s should use the Flurry mechanic" % reward_card_id)
 		_assert(bool(GameData.card_def(reward_card_id).get("reward_pool", true)), "%s should enter the collectible spell pool" % reward_card_id)
@@ -1596,7 +1598,7 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
 	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
 	_assert(int((state.get("elemental_intensity", {}) as Dictionary).get("fire", 0)) == 2, "Each Flurry copy should resolve its intensity action")
-	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 190, "Each Flurry copy should resolve its attack against the selected target")
+	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 180, "Each Flurry copy should resolve its attack against the selected target")
 	var bonus_state: Dictionary = state.duplicate(true)
 	bonus_state["cards_played_this_turn"] = 0
 	bonus_state["death_bonus_card_plays_this_turn"] = 0

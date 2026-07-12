@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-12T19:07:22Z",
+  "updated_at": "2026-07-12T19:41:28Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5008,7 +5008,7 @@
       }
     },
     {
-      "id": "mnt_20260712T190722Z_c8606364",
+      "id": "mnt_20260712T194128Z_a10cf661",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5017,16 +5017,40 @@
         "symbol": null
       },
       "scope_key": "file:data/cards.json",
-      "summary": "Flurry cards earn value from copies, not printed rate",
-      "details": "Keep Flurry's individual printed action package deliberately weak and showcase flexible hybrid utility rather than an attack-only cycle. Useful roles include block plus attack, elemental intensity plus attack, draw plus attack, and movement plus attack; the copied two-play result and single-card/single-Time compression are the payoff.",
+      "summary": "Flurry cards should be modest per copy but premium in total",
+      "details": "Do not overcorrect Flurry by making each printed package anemic. Keep each repeat below the rate of a normal standalone card, but tune the baseline two-copy result into the premium build-around band; the July 2026 midpoint pass landed the five payoffs around 4.6-5.7. Card-play enablers may be strong enough to make the setup exciting, including Gathering Rhythm granting 2 plays.",
       "status": "active",
-      "created_at": "2026-07-12T19:07:22Z",
-      "updated_at": "2026-07-12T19:07:22Z",
+      "created_at": "2026-07-12T19:41:28Z",
+      "updated_at": "2026-07-12T19:41:28Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T190722Z_c8606364"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "bc7ba2d"
+      }
+    },
+    {
+      "id": "mnt_20260712T194128Z_c129001f",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "assets/art/icons/flurry.png",
+        "symbol": null
+      },
+      "scope_key": "file:assets/art/icons/flurry.png",
+      "summary": "Flurry icon must not resemble the Draw stack",
+      "details": "Avoid upright fans or stacks of three complete cards because Draw already uses that silhouette. Prefer a single large landscape card moving sideways with compact afterimage trails, while preserving the dark-fantasy parchment, ink, crimson, and gold icon style and checking it at native CardWidget size.",
+      "status": "active",
+      "created_at": "2026-07-12T19:41:28Z",
+      "updated_at": "2026-07-12T19:41:28Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
         "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
-        "commit": "b878bb7"
+        "commit": "bc7ba2d"
       }
     }
   ]
