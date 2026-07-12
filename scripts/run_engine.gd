@@ -59,6 +59,8 @@ const MERCHANT_REFILL_COUNT_KEY: String = "merchant_refill_count"
 const MODE_PRE_BATTLE: String = "pre_battle"
 const UNREAD_LOADOUT_EQUIPMENT_KEY: String = "unread_loadout_equipment"
 const UNREAD_LOADOUT_MAGIC_KEY: String = "unread_loadout_magic"
+const NEW_LOADOUT_EQUIPMENT_KEY: String = "new_loadout_equipment"
+const NEW_LOADOUT_MAGIC_KEY: String = "new_loadout_magic"
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -104,6 +106,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"collected_equipment": GameData.starter_equipment_ids(),
 		UNREAD_LOADOUT_EQUIPMENT_KEY: [],
 		UNREAD_LOADOUT_MAGIC_KEY: [],
+		NEW_LOADOUT_EQUIPMENT_KEY: [],
+		NEW_LOADOUT_MAGIC_KEY: [],
 		"equipment_drop_misses": 0,
 		"relics": [],
 		"player_hp": max_hp,
@@ -914,6 +918,8 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 		next_state["equipment_inventory"] = []
 	next_state[UNREAD_LOADOUT_EQUIPMENT_KEY] = _string_array(next_state.get(UNREAD_LOADOUT_EQUIPMENT_KEY, []))
 	next_state[UNREAD_LOADOUT_MAGIC_KEY] = _string_array(next_state.get(UNREAD_LOADOUT_MAGIC_KEY, []))
+	next_state[NEW_LOADOUT_EQUIPMENT_KEY] = _string_array(next_state.get(NEW_LOADOUT_EQUIPMENT_KEY, []))
+	next_state[NEW_LOADOUT_MAGIC_KEY] = _string_array(next_state.get(NEW_LOADOUT_MAGIC_KEY, []))
 	if not next_state.has("collected_equipment"):
 		var collected: Array = []
 		for slot: String in GameData.equipment_slots():
@@ -2210,6 +2216,25 @@ func clear_loadout_unread(run_state: Dictionary, mode: String) -> Dictionary:
 		next_state[key] = []
 	return next_state
 
+func loadout_new_asset_ids(run_state: Dictionary, mode: String) -> Array:
+	var key: String = _loadout_new_asset_key(mode)
+	if key.is_empty():
+		return []
+	return _string_array(run_state.get(key, []))
+
+func loadout_asset_is_new(run_state: Dictionary, mode: String, asset_id: String) -> bool:
+	return not asset_id.is_empty() and loadout_new_asset_ids(run_state, mode).has(asset_id)
+
+func mark_loadout_asset_seen(run_state: Dictionary, mode: String, asset_id: String) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var key: String = _loadout_new_asset_key(mode)
+	if key.is_empty() or asset_id.is_empty():
+		return next_state
+	var new_asset_ids: Array = _string_array(next_state.get(key, []))
+	new_asset_ids.erase(asset_id)
+	next_state[key] = new_asset_ids
+	return next_state
+
 func _mark_loadout_unread(run_state: Dictionary, mode: String, asset_id: String) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var key: String = _loadout_unread_key(mode)
@@ -2219,6 +2244,11 @@ func _mark_loadout_unread(run_state: Dictionary, mode: String, asset_id: String)
 	if not unread.has(asset_id):
 		unread.append(asset_id)
 	next_state[key] = unread
+	var new_asset_key: String = _loadout_new_asset_key(mode)
+	var new_asset_ids: Array = _string_array(next_state.get(new_asset_key, []))
+	if not new_asset_ids.has(asset_id):
+		new_asset_ids.append(asset_id)
+	next_state[new_asset_key] = new_asset_ids
 	return next_state
 
 func _loadout_unread_key(mode: String) -> String:
@@ -2226,6 +2256,13 @@ func _loadout_unread_key(mode: String) -> String:
 		return UNREAD_LOADOUT_EQUIPMENT_KEY
 	if mode == "magic":
 		return UNREAD_LOADOUT_MAGIC_KEY
+	return ""
+
+func _loadout_new_asset_key(mode: String) -> String:
+	if mode == "equipment":
+		return NEW_LOADOUT_EQUIPMENT_KEY
+	if mode == "magic":
+		return NEW_LOADOUT_MAGIC_KEY
 	return ""
 
 func _clear_recovery_marker_on_current_room(run_state: Dictionary) -> void:

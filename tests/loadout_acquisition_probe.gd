@@ -27,6 +27,7 @@ func _initialize() -> void:
 	quit(1 if _failed else 0)
 
 func _capture_acquisitions() -> void:
+	print("PROBE: loading run scene")
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	if packed == null:
 		_fail("Run scene should load")
@@ -34,6 +35,7 @@ func _capture_acquisitions() -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle()
+	print("PROBE: run scene ready")
 	instance.call("_close_dialogue")
 
 	var engine := RunEngine.new()
@@ -46,6 +48,7 @@ func _capture_acquisitions() -> void:
 	}
 	instance.call("_load_run_state", reward_state)
 	await _settle()
+	print("PROBE: reward fixture ready")
 	_suppress_room_dialogue(instance)
 	var reward_widget: Control = _reward_widget(instance, "spark_dart")
 	if reward_widget == null:
@@ -55,10 +58,24 @@ func _capture_acquisitions() -> void:
 		create_timer(0.68).timeout.connect(_capture_named_phase.bind(instance, "magic", "ray"))
 		await instance.call("_on_reward_card_pressed", "spark_dart", reward_widget)
 		await _settle()
+		print("PROBE: reward acquisition complete")
 		var badge: Control = instance.get("_loadout_badge") as Control
 		if badge == null or not badge.visible:
 			_fail("Claimed spell should leave the loadout badge visible")
 		await _save_root_screenshot("%s/magic_after_badge.png" % OUTPUT_DIR)
+		instance.call("_on_loadout_button_pressed")
+		await _settle()
+		var magic_new_tag: Control = _loadout_new_tag(instance, "magic", "spark_dart")
+		if magic_new_tag == null or not magic_new_tag.visible:
+			_fail("Claimed spell should show a NEW tag in Learned Magic")
+		await _save_root_screenshot("%s/magic_new_tag_before_hover.png" % OUTPUT_DIR)
+		instance.call("_on_loadout_asset_hovered", "magic", "spark_dart")
+		await _settle()
+		if magic_new_tag != null and magic_new_tag.visible:
+			_fail("Spell NEW tag should hide after hover")
+		await _save_root_screenshot("%s/magic_new_tag_after_hover.png" % OUTPUT_DIR)
+		instance.call("_close_card_upgrade_overlay")
+		print("PROBE: magic NEW hover complete")
 
 	var room_state: Dictionary = engine.create_new_run(9138, ProgressionStore.default_data())
 	var combat_engine := CombatEngine.new()
@@ -80,6 +97,7 @@ func _capture_acquisitions() -> void:
 	room_state["combat_state"] = before_combat
 	instance.call("_load_run_state", room_state)
 	await _settle()
+	print("PROBE: equipment fixture ready")
 	_suppress_room_dialogue(instance)
 	var blink_action: Dictionary = {"type": "blink", "range": 99}
 	var after_combat: Dictionary = combat_engine.apply_player_action(before_combat, blink_action, equipment_tile)
@@ -88,6 +106,7 @@ func _capture_acquisitions() -> void:
 	create_timer(0.56).timeout.connect(_capture_named_phase.bind(instance, "equipment", "flair"))
 	create_timer(1.08).timeout.connect(_capture_named_phase.bind(instance, "equipment", "ray"))
 	await instance.call("_animate_player_action_step", before_combat, after_combat, "threaded_path", blink_action, equipment_tile)
+	print("PROBE: equipment acquisition complete")
 	room_state = engine.set_combat_state(room_state, after_combat)
 	instance.set("_run_state", room_state)
 	instance.set("_combat_state", after_combat)
@@ -96,6 +115,18 @@ func _capture_acquisitions() -> void:
 	if engine.loadout_unread_ids(room_state, "equipment") != ["ward_kite"]:
 		_fail("Production run-state merge should mark Ward Kite unread")
 	await _save_root_screenshot("%s/equipment_after_badge.png" % OUTPUT_DIR)
+	instance.call("_on_loadout_button_pressed")
+	await _settle()
+	var equipment_new_tag: Control = _loadout_new_tag(instance, "equipment", "ward_kite")
+	if equipment_new_tag == null or not equipment_new_tag.visible:
+		_fail("Collected equipment should show a NEW tag in Gear")
+	await _save_root_screenshot("%s/equipment_new_tag_before_hover.png" % OUTPUT_DIR)
+	instance.call("_on_loadout_asset_hovered", "equipment", "ward_kite")
+	await _settle()
+	if equipment_new_tag != null and equipment_new_tag.visible:
+		_fail("Equipment NEW tag should hide after hover")
+	await _save_root_screenshot("%s/equipment_new_tag_after_hover.png" % OUTPUT_DIR)
+	print("PROBE: equipment NEW hover complete")
 
 	instance.queue_free()
 	await process_frame
@@ -112,6 +143,15 @@ func _reward_widget(instance: Node, card_id: String) -> Control:
 		if str(child.get_meta("reward_card_id", "")) != card_id:
 			continue
 		return child.find_child("CardWidget", true, false) as Control
+	return null
+
+func _loadout_new_tag(instance: Node, mode: String, asset_id: String) -> Control:
+	var scrim: Node = instance.get("_upgrade_scrim") as Node
+	if scrim == null:
+		return null
+	for tag_var: Node in scrim.find_children("LoadoutNewTag", "", true, false):
+		if str(tag_var.get_meta("loadout_mode", "")) == mode and str(tag_var.get_meta("asset_id", "")) == asset_id:
+			return tag_var as Control
 	return null
 
 func _equipment_combat_layout(equipment_tile: Vector2i) -> Dictionary:

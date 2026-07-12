@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-12T13:13:00Z",
+  "updated_at": "2026-07-12T18:52:59Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4984,7 +4984,7 @@
       }
     },
     {
-      "id": "mnt_20260712T131300Z_4f288954",
+      "id": "mnt_20260712T185259Z_3f7ab54b",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -4993,16 +4993,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_engine.gd",
-      "summary": "Loadout notifications use per-category durable unread ids",
-      "details": "New equipment/items append to unread_loadout_equipment and new reward/merchant spells append to unread_loadout_magic. RunScene derives both the header count and Gear/Magic tab badges from these arrays, and clears only the category whose character tab was opened so save/resume and mixed acquisitions stay honest.",
+      "summary": "Loadout discovery uses separate navigation and per-asset states",
+      "details": "Acquired equipment, consumable items, and magic ids are recorded in both unread_loadout_* for the top-bar/tab notification and new_loadout_* for item-level NEW tags. Opening Gear or Magic clears only its navigation unread list; hovering the specific asset clears and persists only that asset's NEW state, so the panel can guide the eye after its tab badge has already been acknowledged.",
       "status": "active",
-      "created_at": "2026-07-12T13:13:00Z",
-      "updated_at": "2026-07-12T13:13:00Z",
+      "created_at": "2026-07-12T18:52:59Z",
+      "updated_at": "2026-07-12T18:52:59Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260712T131300Z_4f288954"
+      ],
       "source": {
         "branch": "codex/animate-card-and-equipment-gains-to-character-loadout",
-        "commit": "d4769e2"
+        "commit": "5c2b14d"
       }
     }
   ]

@@ -1649,15 +1649,23 @@ func _draw_header_gear_icon(image: Image, ink: Color) -> void:
 	_draw_image_ring(image, center, 3.8, 6.0, ink)
 
 func _draw_header_loadout_icon(image: Image, ink: Color) -> void:
-	_draw_image_ring(image, Vector2i(24, 15), 5.0, 8.0, ink)
-	_draw_image_line(image, Vector2i(12, 37), Vector2i(15, 27), ink, 3)
-	_draw_image_line(image, Vector2i(15, 27), Vector2i(21, 24), ink, 3)
-	_draw_image_line(image, Vector2i(21, 24), Vector2i(24, 29), ink, 3)
-	_draw_image_line(image, Vector2i(24, 29), Vector2i(27, 24), ink, 3)
-	_draw_image_line(image, Vector2i(27, 24), Vector2i(33, 27), ink, 3)
-	_draw_image_line(image, Vector2i(33, 27), Vector2i(36, 37), ink, 3)
-	_draw_image_line(image, Vector2i(12, 37), Vector2i(36, 37), ink, 3)
-	_draw_image_ring(image, Vector2i(38, 13), 2.0, 4.0, ink.darkened(0.12))
+	# A compact paper-doll silhouette paired with a sword reads as character loadout
+	# at header scale while keeping the same hand-drawn line weight as its neighbors.
+	_draw_image_ring(image, Vector2i(20, 14), 4.5, 7.5, ink)
+	_draw_image_line(image, Vector2i(9, 37), Vector2i(12, 27), ink, 3)
+	_draw_image_line(image, Vector2i(12, 27), Vector2i(17, 23), ink, 3)
+	_draw_image_line(image, Vector2i(17, 23), Vector2i(20, 27), ink, 3)
+	_draw_image_line(image, Vector2i(20, 27), Vector2i(23, 23), ink, 3)
+	_draw_image_line(image, Vector2i(23, 23), Vector2i(29, 27), ink, 3)
+	_draw_image_line(image, Vector2i(29, 27), Vector2i(31, 37), ink, 3)
+	_draw_image_line(image, Vector2i(9, 37), Vector2i(31, 37), ink, 3)
+	_draw_image_line(image, Vector2i(14, 31), Vector2i(26, 31), ink.darkened(0.12), 2)
+	_draw_image_line(image, Vector2i(38, 8), Vector2i(38, 33), ink, 3)
+	_draw_image_line(image, Vector2i(38, 8), Vector2i(35, 13), ink, 2)
+	_draw_image_line(image, Vector2i(38, 8), Vector2i(41, 13), ink, 2)
+	_draw_image_line(image, Vector2i(33, 31), Vector2i(43, 31), ink, 3)
+	_draw_image_line(image, Vector2i(38, 33), Vector2i(38, 40), ink, 3)
+	_draw_image_ring(image, Vector2i(38, 42), 1.0, 3.0, ink)
 
 func _draw_image_ring(image: Image, center: Vector2i, inner_radius: float, outer_radius: float, color: Color) -> void:
 	var min_x: int = maxi(0, int(floor(float(center.x) - outer_radius - 1.0)))
@@ -13954,6 +13962,59 @@ func _clear_open_loadout_tab_unread(mode: String) -> void:
 	_persist_committed_boundary("loadout_tab_seen")
 	_refresh_loadout_badge()
 
+func _add_loadout_new_tag(tile: Control, mode: String, asset_id: String) -> void:
+	if not _run_engine.loadout_asset_is_new(_run_state, mode, asset_id):
+		return
+	var overlay := MarginContainer.new()
+	overlay.name = "LoadoutNewTagOverlay"
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_theme_constant_override("margin_left", 6)
+	overlay.add_theme_constant_override("margin_top", 5)
+	overlay.add_theme_constant_override("margin_right", 6)
+	overlay.add_theme_constant_override("margin_bottom", 5)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(column)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_END
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(row)
+	var badge := PanelContainer.new()
+	badge.name = "LoadoutNewTag"
+	badge.set_meta("loadout_mode", mode)
+	badge.set_meta("asset_id", asset_id)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.custom_minimum_size = Vector2(42.0, 19.0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("c83f32")
+	style.border_color = Color("ffe0a2")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	badge.add_theme_stylebox_override("panel", style)
+	var label := Label.new()
+	label.text = "NEW"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 9)
+	label.add_theme_color_override("font_color", Color("fff7d8"))
+	label.add_theme_color_override("font_outline_color", Color("35130e"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	row.add_child(badge)
+	tile.add_child(overlay)
+	tile.mouse_entered.connect(_on_loadout_asset_hovered.bind(mode, asset_id))
+
+func _on_loadout_asset_hovered(mode: String, asset_id: String) -> void:
+	if not _run_engine.loadout_asset_is_new(_run_state, mode, asset_id):
+		return
+	_run_state = _run_engine.mark_loadout_asset_seen(_run_state, mode, asset_id)
+	if _upgrade_scrim != null:
+		for tag_var: Node in _upgrade_scrim.find_children("LoadoutNewTag", "", true, false):
+			if str(tag_var.get_meta("loadout_mode", "")) == mode and str(tag_var.get_meta("asset_id", "")) == asset_id:
+				tag_var.visible = false
+	_persist_committed_boundary("loadout_asset_seen")
+
 func _apply_character_tab_style(button: Button, active: bool) -> void:
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED if active else UiSkin.VARIANT_STANDARD)
 	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
@@ -14516,6 +14577,7 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	card_label.add_theme_color_override("font_color", Color("d7c6aa"))
 	text_box.add_child(card_label)
 	_make_equipment_tile_content_passive(margin)
+	_add_loadout_new_tag(tile, "equipment", equipment_id)
 	if not _equipment_overlay_can_change():
 		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
 	return tile
@@ -14618,6 +14680,7 @@ func _build_magic_card_tile(card_id: String, source_kind: String, index: int, ti
 	elif source_kind == "inventory":
 		_magic_inventory_tiles[index] = tile
 	tile.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
+	_add_loadout_new_tag(tile, "magic", card_id)
 	return tile
 
 func _build_item_card_tile(card_id: String, source_kind: String, index: int, tile_size: Vector2) -> Control:
@@ -14659,6 +14722,7 @@ func _build_item_card_tile(card_id: String, source_kind: String, index: int, til
 	elif source_kind == "inventory":
 		_item_inventory_tiles[index] = tile
 	tile.add_child(_build_item_card_tile_body(card_id))
+	_add_loadout_new_tag(tile, "equipment", card_id)
 	return tile
 
 func _build_item_card_tile_body(card_id: String) -> Control:
