@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T20:40:32Z",
+  "updated_at": "2026-07-12T13:13:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4981,6 +4981,28 @@
       "source": {
         "branch": "codex/broad-runtime-performance-optimization-pass",
         "commit": "28ee6ca"
+      }
+    },
+    {
+      "id": "mnt_20260712T131300Z_4f288954",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "Loadout notifications use per-category durable unread ids",
+      "details": "New equipment/items append to unread_loadout_equipment and new reward/merchant spells append to unread_loadout_magic. RunScene derives both the header count and Gear/Magic tab badges from these arrays, and clears only the category whose character tab was opened so save/resume and mixed acquisitions stay honest.",
+      "status": "active",
+      "created_at": "2026-07-12T13:13:00Z",
+      "updated_at": "2026-07-12T13:13:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/animate-card-and-equipment-gains-to-character-loadout",
+        "commit": "d4769e2"
       }
     }
   ]

@@ -1603,6 +1603,7 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	_assert((run_state.get("equipment_inventory", []) as Array).is_empty(), "Fresh runs should not duplicate equipped starter gear into inventory")
 	_assert((run_state.get("item_inventory", []) as Array).is_empty(), "Fresh runs should start with no consumable item inventory")
 	_assert((run_state.get("equipped_items", []) as Array).is_empty(), "Fresh runs should start with no equipped consumable items")
+	_assert(engine.loadout_unread_count(run_state) == 0, "Fresh runs should not badge the starter loadout as new")
 	_assert(int(run_state.get("equipment_drop_misses", -1)) == 0, "Fresh runs should start equipment pity from zero misses")
 	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
 	for slot: String in GameData.equipment_slots():
@@ -1629,6 +1630,10 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	var reward_state: Dictionary = engine.claim_card_reward(run_state, "spark_dart")
 	_assert((reward_state.get("reward_cards", []) as Array) == ["spark_dart"], "Claimed card rewards should still append to reward_cards for collection history")
 	_assert((reward_state.get("magic_inventory", []) as Array) == ["spark_dart"], "Claimed card rewards should enter reserve magic")
+	_assert(engine.loadout_unread_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should mark the Magic loadout tab unread")
+	_assert(engine.loadout_unread_count(reward_state) == 1, "A claimed reward spell should add one loadout notification")
+	var reward_seen_state: Dictionary = engine.clear_loadout_unread(reward_state, "magic")
+	_assert(engine.loadout_unread_count(reward_seen_state) == 0, "Opening Magic should clear its loadout notifications")
 	_assert(not (reward_state.get("deck_cards", []) as Array).has("spark_dart"), "Claimed rewards should stay inactive until attuned")
 	_assert((reward_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size(), "Claimed reserve magic should not grow the active deck")
 	var attuned_state: Dictionary = engine.swap_magic_card(reward_state, 0, 0)
@@ -1784,6 +1789,8 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 	run_state = run_engine.set_combat_state(run_state, combat_state)
 	_assert((run_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Collected combat equipment should merge into run inventory")
 	_assert((run_state.get("collected_equipment", []) as Array).has("ward_kite"), "Collected combat equipment should be remembered for duplicate-drop exclusion")
+	_assert(run_engine.loadout_unread_ids(run_state, "equipment") == ["ward_kite"], "Combat equipment pickups should mark the Gear loadout tab unread")
+	_assert(run_engine.loadout_unread_count(run_state) == 1, "A combat equipment pickup should add one loadout notification")
 	var pre_equip_deck: Array = run_state.get("deck_cards", []) as Array
 	_assert(pre_equip_deck.has("brace") and pre_equip_deck.has("guarded_step"), "Picking up equipment should not rebuild the deck until it is equipped")
 	_assert(not pre_equip_deck.has("kite_bash"), "Picked-up equipment cards should stay inactive while the item is only in inventory")
@@ -10021,6 +10028,32 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_progression", progression)
 	instance.call("_close_dialogue")
+	var loadout_button: Button = instance.get_node("Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Button
+	var loadout_badge: PanelContainer = instance.get("_loadout_badge") as PanelContainer
+	var loadout_badge_label: Label = instance.get("_loadout_badge_label") as Label
+	_assert(loadout_button != null and loadout_button.icon != null, "The top-right HUD should expose an icon-only character loadout button")
+	_assert(loadout_button.tooltip_text == "Character Loadout", "The loadout header button should identify its destination")
+	run_state[RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY] = ["iron_cleaver"]
+	run_state[RunEngine.UNREAD_LOADOUT_MAGIC_KEY] = ["spark_dart"]
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_loadout_badge")
+	_assert(loadout_badge != null and loadout_badge.visible, "New gear or magic should show a loadout notification badge")
+	_assert(loadout_badge_label != null and loadout_badge_label.text == "2", "The loadout badge should count unseen gear and magic")
+	instance.call("_on_loadout_button_pressed")
+	await process_frame
+	_assert(str(instance.get("_progression_overlay_mode")) == "equipment", "The loadout button should prioritize the unread Gear tab")
+	var gear_seen_state: Dictionary = instance.get("_run_state")
+	_assert((gear_seen_state.get(RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY, []) as Array).is_empty(), "Opening Gear should clear new equipment notifications")
+	_assert((gear_seen_state.get(RunEngine.UNREAD_LOADOUT_MAGIC_KEY, []) as Array) == ["spark_dart"], "Opening Gear should preserve unseen Magic notifications")
+	_assert(loadout_badge.visible and loadout_badge_label.text == "1", "The loadout badge should remain for an unseen spell")
+	var unread_magic_tab: Button = _button_with_text(instance.get("_upgrade_scrim") as Node, "Magic")
+	_assert(unread_magic_tab != null and unread_magic_tab.find_child("MagicLoadoutTabBadge", true, false) != null, "The unopened Magic tab should show its own notification badge")
+	instance.call("_close_card_upgrade_overlay")
+	instance.call("_on_loadout_button_pressed")
+	await process_frame
+	_assert(str(instance.get("_progression_overlay_mode")) == "magic", "The loadout button should route directly to Magic when only spells are unseen")
+	_assert(not loadout_badge.visible, "Opening Magic should clear the final loadout notification")
+	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_card_upgrade_overlay")
 	await process_frame
 	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")

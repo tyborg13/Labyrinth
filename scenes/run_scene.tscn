@@ -69,6 +69,11 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "Stats"
 
+[node name="LoadoutButton" type="Button" parent="Backdrop/Margin/MainVBox/TopBar"]
+custom_minimum_size = Vector2(68, 56)
+layout_mode = 2
+tooltip_text = "Character Loadout"
+
 [node name="GrimoireButton" type="Button" parent="Backdrop/Margin/MainVBox/TopBar"]
 custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
@@ -295,6 +300,7 @@ layout_mode = 2
 script = ExtResource("4_hand")
 
 [connection signal="pressed" from="Backdrop/Margin/MainVBox/TopBar/GrimoireButton" to="." method="_on_grimoire_button_pressed"]
+[connection signal="pressed" from="Backdrop/Margin/MainVBox/TopBar/LoadoutButton" to="." method="_on_loadout_button_pressed"]
 [connection signal="pressed" from="Backdrop/Margin/MainVBox/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]
 [connection signal="tile_clicked" from="Backdrop/Margin/MainVBox/StageRoot/CombatBoard" to="." method="_on_board_tile_clicked"]
 [connection signal="tile_hovered" from="Backdrop/Margin/MainVBox/StageRoot/CombatBoard" to="." method="_on_board_tile_hovered"]

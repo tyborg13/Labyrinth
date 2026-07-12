@@ -770,6 +770,45 @@ class RelicAcquisitionMote:
 			alpha
 		)
 
+class LoadoutAcquisitionBurst:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var kind: String = "magic"
+	var progress: float = 0.0:
+		set(value):
+			progress = clampf(value, 0.0, 1.0)
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		if progress <= 0.0 or progress >= 1.0:
+			return
+		var center: Vector2 = size * 0.5
+		var flare: float = sin(progress * PI)
+		var radius: float = lerpf(22.0, 94.0, 1.0 - pow(1.0 - progress, 3.0))
+		var ring_color := Color(accent.r, accent.g, accent.b, 0.72 * flare)
+		var core_color := Color(1.0, 0.96, 0.78, 0.92 * flare)
+		draw_arc(center, radius, 0.0, TAU, 64, ring_color, 4.0 if kind == "equipment" else 2.5, true)
+		if kind == "magic":
+			draw_arc(center, radius * 0.68, progress * 2.8, progress * 2.8 + PI * 1.45, 40, core_color, 2.0, true)
+			for index: int in range(12):
+				var angle: float = TAU * float(index) / 12.0 - progress * 2.2
+				var rune_center: Vector2 = center + Vector2(cos(angle), sin(angle)) * radius * 0.82
+				var tangent := Vector2(-sin(angle), cos(angle))
+				var radial := Vector2(cos(angle), sin(angle))
+				draw_line(rune_center - tangent * 5.0, rune_center + radial * 6.0, ring_color, 2.0, true)
+		else:
+			for index: int in range(8):
+				var angle: float = TAU * float(index) / 8.0 + 0.18
+				var direction := Vector2(cos(angle), sin(angle))
+				var start: Vector2 = center + direction * radius * 0.48
+				var finish: Vector2 = center + direction * radius * (0.88 + 0.10 * float(index % 2))
+				draw_line(start, finish, ring_color, 5.0, true)
+				draw_line(start, finish, core_color, 1.5, true)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -882,6 +921,9 @@ const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acqu
 const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
+const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
+const LOADOUT_ACQUISITION_RAY_SECONDS: float = 0.42
+const LOADOUT_ACQUISITION_MOTES: int = 10
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
 const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
@@ -980,6 +1022,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
 @onready var header_spacer: Control = $Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $Backdrop/Margin/MainVBox/TopBar/StatsLabel
+@onready var loadout_button: Button = $Backdrop/Margin/MainVBox/TopBar/LoadoutButton
 @onready var grimoire_button: Button = $Backdrop/Margin/MainVBox/TopBar/GrimoireButton
 @onready var menu_button: Button = $Backdrop/Margin/MainVBox/TopBar/MenuButton
 @onready var board_view = $Backdrop/Margin/MainVBox/StageRoot/CombatBoard
@@ -1060,6 +1103,8 @@ var _grimoire_detail_body: RichTextLabel
 var _grimoire_detail_content: VBoxContainer
 var _grimoire_badge: PanelContainer
 var _grimoire_badge_label: Label
+var _loadout_badge: PanelContainer
+var _loadout_badge_label: Label
 var _grimoire_selected_section: String = ""
 var _grimoire_selected_group: String = ""
 var _grimoire_selected_entry: String = ""
@@ -1124,6 +1169,7 @@ var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
 var _campfire_choice_action_pending: bool = false
 var _relic_claim_in_progress: bool = false
+var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
@@ -1431,6 +1477,7 @@ func _apply_style() -> void:
 	action_banner.add_theme_constant_override("outline_size", 2)
 	choice_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_setup_header_icon_button(grimoire_button, "book", "Grimoire")
+	_setup_header_icon_button(loadout_button, "loadout", "Character Loadout")
 	_setup_header_icon_button(menu_button, "gear", "Menu")
 	UiTypography.set_rich_text_size(log_label, UiTypography.SIZE_SMALL)
 	log_label.add_theme_color_override("default_color", Color("f2e7d4"))
@@ -1487,6 +1534,8 @@ func _setup_header_icon_button(button: Button, icon_kind: String, tooltip: Strin
 	button.modulate = Color.WHITE
 	if button == grimoire_button:
 		_ensure_grimoire_badge()
+	elif button == loadout_button:
+		_ensure_loadout_badge()
 
 func _ensure_grimoire_badge() -> void:
 	if grimoire_button == null or _grimoire_badge != null:
@@ -1526,6 +1575,38 @@ func _ensure_grimoire_badge() -> void:
 	grimoire_button.add_child(_grimoire_badge)
 	_refresh_grimoire_badge()
 
+func _ensure_loadout_badge() -> void:
+	if loadout_button == null or _loadout_badge != null:
+		return
+	_loadout_badge = PanelContainer.new()
+	_loadout_badge.name = "LoadoutBadge"
+	_loadout_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loadout_badge.custom_minimum_size = GRIMOIRE_BADGE_SIZE
+	_loadout_badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_loadout_badge.anchor_left = 1.0
+	_loadout_badge.anchor_right = 1.0
+	_loadout_badge.offset_left = -18.0
+	_loadout_badge.offset_top = -3.0
+	_loadout_badge.offset_right = 0.0
+	_loadout_badge.offset_bottom = 15.0
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("d64a3a")
+	badge_style.border_color = Color("ffe0a2")
+	badge_style.set_border_width_all(1)
+	badge_style.set_corner_radius_all(6)
+	_loadout_badge.add_theme_stylebox_override("panel", badge_style)
+	_loadout_badge_label = Label.new()
+	_loadout_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_loadout_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_loadout_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_loadout_badge_label, 8)
+	_loadout_badge_label.add_theme_color_override("font_color", Color("fff7d8"))
+	_loadout_badge_label.add_theme_color_override("font_outline_color", Color("2b130e"))
+	_loadout_badge_label.add_theme_constant_override("outline_size", 1)
+	_loadout_badge.add_child(_loadout_badge_label)
+	loadout_button.add_child(_loadout_badge)
+	_refresh_loadout_badge()
+
 func _header_icon_texture(icon_kind: String) -> Texture2D:
 	if _header_icon_textures.has(icon_kind):
 		return _header_icon_textures[icon_kind]
@@ -1535,6 +1616,8 @@ func _header_icon_texture(icon_kind: String) -> Texture2D:
 	match icon_kind:
 		"gear":
 			_draw_header_gear_icon(image, ink)
+		"loadout":
+			_draw_header_loadout_icon(image, ink)
 		_:
 			_draw_header_book_icon(image, ink)
 	var texture := ImageTexture.create_from_image(image)
@@ -1564,6 +1647,17 @@ func _draw_header_gear_icon(image: Image, ink: Color) -> void:
 		_draw_image_line(image, start, finish, ink, 4)
 	_draw_image_ring(image, center, 10.0, 14.0, ink)
 	_draw_image_ring(image, center, 3.8, 6.0, ink)
+
+func _draw_header_loadout_icon(image: Image, ink: Color) -> void:
+	_draw_image_ring(image, Vector2i(24, 15), 5.0, 8.0, ink)
+	_draw_image_line(image, Vector2i(12, 37), Vector2i(15, 27), ink, 3)
+	_draw_image_line(image, Vector2i(15, 27), Vector2i(21, 24), ink, 3)
+	_draw_image_line(image, Vector2i(21, 24), Vector2i(24, 29), ink, 3)
+	_draw_image_line(image, Vector2i(24, 29), Vector2i(27, 24), ink, 3)
+	_draw_image_line(image, Vector2i(27, 24), Vector2i(33, 27), ink, 3)
+	_draw_image_line(image, Vector2i(33, 27), Vector2i(36, 37), ink, 3)
+	_draw_image_line(image, Vector2i(12, 37), Vector2i(36, 37), ink, 3)
+	_draw_image_ring(image, Vector2i(38, 13), 2.0, 4.0, ink.darkened(0.12))
 
 func _draw_image_ring(image: Image, center: Vector2i, inner_radius: float, outer_radius: float, color: Color) -> void:
 	var min_x: int = maxi(0, int(floor(float(center.x) - outer_radius - 1.0)))
@@ -3769,6 +3863,14 @@ func _refresh_grimoire_badge() -> void:
 	if _grimoire_badge_label != null:
 		_grimoire_badge_label.text = str(mini(9, unread.size()))
 
+func _refresh_loadout_badge() -> void:
+	if _loadout_badge == null:
+		return
+	var unread_count: int = _run_engine.loadout_unread_count(_run_state)
+	_loadout_badge.visible = unread_count > 0
+	if _loadout_badge_label != null:
+		_loadout_badge_label.text = str(mini(9, unread_count))
+
 func _first_unlocked_grimoire_section(unlocked: Array[String]) -> String:
 	for section_var: Variant in GrimoireLibrary.sections():
 		if typeof(section_var) != TYPE_DICTIONARY:
@@ -5655,6 +5757,7 @@ func _refresh_ui() -> void:
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
 	_refresh_grimoire_badge()
+	_refresh_loadout_badge()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
 	_refresh_contextual_combat_tutorial()
@@ -8952,7 +9055,7 @@ func _refresh_hand_panel() -> void:
 			widget.custom_minimum_size = reward_card_size
 			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
 			widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
-			widget.activated.connect(_on_reward_card_pressed.bind(card_id))
+			widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
 			hand_box.add_child(_reward_card_choice_slot(widget, card_id, reward_card_size))
 		if heal_amount > 0:
 			hand_box.add_child(_reward_heal_choice_slot(heal_amount, reward_card_size))
@@ -11717,6 +11820,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await get_tree().create_timer(0.08).timeout
 	await _animate_enemy_deaths(before_state, after_state)
 	await _animate_death_rewards(before_state, after_state)
+	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if str(loot.get("kind", "")) != "equipment":
+			continue
+		var loot_tile: Vector2i = loot.get("pos", player_after_tile)
+		await _animate_equipment_pickup_acquisition_flair(
+			str(loot.get("equipment_id", "")),
+			loot_tile
+		)
 
 func _resolve_enemy_round() -> void:
 	_animation_lock = true
@@ -12803,13 +12917,28 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		await get_tree().create_timer(DOOR_OPENING_FRAME_SECONDS).timeout
 	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
 
-func _on_reward_card_pressed(card_id: String) -> void:
+func _on_reward_card_pressed(card_id: String, source_control: Control = null) -> void:
+	if _loadout_acquisition_in_progress:
+		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	if not (reward_state.get("cards", []) as Array).has(card_id):
+		return
+	_loadout_acquisition_in_progress = true
+	_animation_lock = true
+	var source_rect: Rect2 = source_control.get_global_rect() if _node_is_alive(source_control) else Rect2()
+	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	if _node_is_alive(source_control):
+		source_control.modulate = Color(1.0, 1.0, 1.0, 0.18)
+	await _animate_magic_reward_acquisition_flair(card_id, source_rect, accent)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
 	_run_state = _run_engine.claim_card_reward(_run_state, card_id)
 	_sync_combat_state_from_run()
 	_analytics_log_reward_choice("card", reward_state, card_id, player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
 	_persist_committed_boundary("reward_card_claimed")
+	_refresh_ui()
+	await _animate_loadout_acquisition_ray(source_rect.get_center(), accent)
+	_animation_lock = false
+	_loadout_acquisition_in_progress = false
 	_refresh_ui()
 
 func _on_skip_reward_pressed() -> void:
@@ -12934,6 +13063,175 @@ func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, ite
 	tween.parallel().tween_property(row, "position", start_position + Vector2(10.0 if buying else -10.0, 0.0), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	await tween.finished
 
+func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2, accent: Color) -> void:
+	if _card_fx_layer == null or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		return
+	var center: Vector2 = source_rect.get_center()
+	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "magic")
+	var banner: Label = _spawn_loadout_acquisition_banner("SPELL LEARNED", center + Vector2(0.0, -source_rect.size.y * 0.58), accent)
+	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+	proxy.z_index = 1602
+	proxy.pivot_offset = proxy.size * 0.5
+	var base_scale: Vector2 = proxy.scale
+	proxy.rotation = -0.055
+	var burst_tween: Tween = create_tween()
+	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	var banner_tween: Tween = create_tween()
+	banner.modulate.a = 0.0
+	banner_tween.tween_property(banner, "modulate:a", 1.0, 0.10)
+	banner_tween.tween_interval(0.22)
+	banner_tween.tween_property(banner, "modulate:a", 0.0, 0.14)
+	var tween: Tween = create_tween()
+	tween.tween_property(proxy, "scale", base_scale * 1.20, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(proxy, "rotation", 0.035, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(proxy, "modulate", Color(1.20, 1.16, 0.96, 1.0), 0.10)
+	tween.tween_property(proxy, "scale", base_scale * 1.03, 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(proxy, "rotation", 0.0, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(proxy, "position", proxy.position + Vector2(0.0, -28.0), 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(proxy, "modulate", Color.WHITE, 0.20)
+	await tween.finished
+	_release_card_proxy(proxy)
+	_queue_free_node_now(burst)
+	_queue_free_node_now(banner)
+
+func _animate_equipment_pickup_acquisition_flair(equipment_id: String, tile: Vector2i) -> void:
+	if _card_fx_layer == null or equipment_id.is_empty():
+		return
+	var equipment: Dictionary = GameData.equipment_def(equipment_id)
+	if equipment.is_empty():
+		return
+	var center: Vector2 = _board_global_position_for_tile(tile)
+	var accent := Color(GameData.equipment_accent(equipment_id))
+	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
+	var banner: Label = _spawn_loadout_acquisition_banner("GEAR FOUND", center + Vector2(0.0, -92.0), accent)
+	var icon := TextureRect.new()
+	icon.name = "EquipmentAcquisitionIcon"
+	icon.texture = AssetLoader.load_texture(str(equipment.get("icon_path", "")))
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.size = Vector2(112.0, 112.0)
+	icon.position = center - icon.size * 0.5
+	icon.pivot_offset = icon.size * 0.5
+	icon.scale = Vector2.ONE * 0.36
+	icon.rotation = -0.20
+	icon.modulate = Color(1.18, 1.10, 0.82, 0.0)
+	icon.z_index = 1602
+	_card_fx_layer.add_child(icon)
+	var burst_tween: Tween = create_tween()
+	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	var banner_tween: Tween = create_tween()
+	banner.modulate.a = 0.0
+	banner_tween.tween_property(banner, "modulate:a", 1.0, 0.08)
+	banner_tween.tween_interval(0.24)
+	banner_tween.tween_property(banner, "modulate:a", 0.0, 0.14)
+	var tween: Tween = create_tween()
+	tween.tween_property(icon, "modulate:a", 1.0, 0.06)
+	tween.parallel().tween_property(icon, "scale", Vector2.ONE * 1.24, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(icon, "rotation", 0.045, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(icon, "scale", Vector2.ONE * 0.94, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(icon, "rotation", 0.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(icon, "position", icon.position + Vector2(0.0, -18.0), 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	await _animate_loadout_acquisition_ray(center, accent)
+	_queue_free_node_now(icon)
+	_queue_free_node_now(burst)
+	_queue_free_node_now(banner)
+
+func _spawn_loadout_acquisition_burst(center: Vector2, accent: Color, kind: String) -> LoadoutAcquisitionBurst:
+	var burst := LoadoutAcquisitionBurst.new()
+	burst.name = "LoadoutAcquisitionBurst"
+	burst.size = Vector2(220.0, 220.0)
+	burst.position = center - burst.size * 0.5
+	burst.accent = accent
+	burst.kind = kind
+	burst.z_index = 1600
+	_card_fx_layer.add_child(burst)
+	return burst
+
+func _spawn_loadout_acquisition_banner(text: String, center: Vector2, accent: Color) -> Label:
+	var banner := Label.new()
+	banner.name = "LoadoutAcquisitionBanner"
+	banner.text = text
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	banner.position = center - Vector2(170.0, 24.0)
+	banner.size = Vector2(340.0, 48.0)
+	UiTypography.apply_label_role(banner, UiTypography.ROLE_TITLE)
+	banner.add_theme_color_override("font_color", Color("fff2c7").lerp(accent.lightened(0.32), 0.34))
+	banner.add_theme_color_override("font_outline_color", Color("1b0f0a"))
+	banner.add_theme_constant_override("outline_size", 7)
+	banner.z_index = 1603
+	_card_fx_layer.add_child(banner)
+	return banner
+
+func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color) -> void:
+	if _card_fx_layer == null or loadout_button == null:
+		return
+	await get_tree().process_frame
+	if not _node_is_alive(_card_fx_layer) or not _node_is_alive(loadout_button):
+		return
+	var target_global: Vector2 = loadout_button.get_global_rect().get_center()
+	var local_start: Vector2 = source_global - _card_fx_layer.global_position
+	var local_target: Vector2 = target_global - _card_fx_layer.global_position
+	var beam := RelicAcquisitionBeam.new()
+	beam.name = "LoadoutAcquisitionBeam"
+	beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
+	beam.accent = accent
+	beam.start = local_start
+	beam.target = local_target
+	beam.modulate = Color(1.0, 1.0, 1.0, 0.76)
+	beam.z_index = 1600
+	_card_fx_layer.add_child(beam)
+	var beam_tween: Tween = create_tween().set_parallel(true)
+	beam_tween.tween_property(beam, "progress", 1.0, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(LOADOUT_ACQUISITION_RAY_SECONDS * 0.72)
+	for mote_index: int in range(LOADOUT_ACQUISITION_MOTES):
+		_spawn_loadout_acquisition_mote(local_start, local_target, accent, mote_index)
+	await get_tree().create_timer(LOADOUT_ACQUISITION_RAY_SECONDS + 0.04).timeout
+	_queue_free_node_now(beam)
+	await _animate_loadout_button_arrival(accent)
+
+func _spawn_loadout_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
+	if _card_fx_layer == null:
+		return
+	var mote := RelicAcquisitionMote.new()
+	mote.name = "LoadoutAcquisitionMote"
+	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
+	mote.accent = accent
+	var mote_size: float = 17.0 + float(mote_index % 4) * 2.5
+	mote.size = Vector2(mote_size, mote_size)
+	mote.pivot_offset = mote.size * 0.5
+	var start_angle: float = -0.95 + 1.9 * (float(mote_index) / float(maxi(1, LOADOUT_ACQUISITION_MOTES - 1)))
+	var start_spread: Vector2 = Vector2(cos(start_angle), sin(start_angle)) * (12.0 + float((mote_index * 7) % 16))
+	var end_jitter := Vector2(float((mote_index % 5) - 2) * 3.5, float((mote_index % 3) - 1) * 3.0)
+	mote.position = local_start + start_spread - mote.size * 0.5
+	mote.scale = Vector2.ONE * (0.78 + float(mote_index % 3) * 0.07)
+	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	mote.z_index = 1601
+	_card_fx_layer.add_child(mote)
+	var delay: float = float(mote_index) * 0.015
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, LOADOUT_ACQUISITION_RAY_SECONDS * 0.88).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(mote, "scale", Vector2.ONE * 0.28, LOADOUT_ACQUISITION_RAY_SECONDS * 0.88).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(mote, "modulate:a", 1.0, 0.05).set_delay(delay)
+	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + LOADOUT_ACQUISITION_RAY_SECONDS * 0.66)
+	tween.finished.connect(_queue_free_node_now.bind(mote))
+
+func _animate_loadout_button_arrival(accent: Color) -> void:
+	if loadout_button == null:
+		return
+	loadout_button.pivot_offset = loadout_button.size * 0.5
+	loadout_button.modulate = Color(1.0, 1.0, 1.0, 1.0).lerp(accent.lightened(0.35), 0.34)
+	var tween := create_tween()
+	tween.set_loops(2)
+	tween.tween_property(loadout_button, "scale", Vector2(1.16, 1.16), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(loadout_button, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await tween.finished
+	loadout_button.scale = Vector2.ONE
+	loadout_button.modulate = Color.WHITE
+
 func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
 	if _card_fx_layer == null:
 		return
@@ -13048,6 +13346,14 @@ func _on_grimoire_button_pressed() -> void:
 	if _dialogue_active or _animation_lock:
 		return
 	_open_grimoire_overlay()
+
+func _on_loadout_button_pressed() -> void:
+	if _dialogue_active or _animation_lock:
+		return
+	var mode: String = "equipment"
+	if _run_engine.loadout_unread_ids(_run_state, "equipment").is_empty() and not _run_engine.loadout_unread_ids(_run_state, "magic").is_empty():
+		mode = "magic"
+	_open_character_overlay(mode)
 
 func _on_pass_turn_pressed() -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -13421,6 +13727,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_close_pile_view()
 	_close_menu_overlay()
 	_progression_overlay_mode = mode if mode in ["equipment", "magic", "stats"] else "equipment"
+	_clear_open_loadout_tab_unread(_progression_overlay_mode)
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
@@ -13588,17 +13895,60 @@ func _build_character_overlay_tabs() -> Control:
 		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		_apply_character_tab_style(button, button.button_pressed)
 		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
+		var unread_count: int = _run_engine.loadout_unread_ids(_run_state, mode).size()
+		if unread_count > 0:
+			_add_loadout_tab_badge(button, mode, unread_count)
 		if _progression_overlay_mode != mode:
 			button.pressed.connect(_switch_character_overlay_mode.bind(mode))
 		row.add_child(button)
 	return row
 
+func _add_loadout_tab_badge(button: Button, mode: String, unread_count: int) -> void:
+	var badge := PanelContainer.new()
+	badge.name = "%sLoadoutTabBadge" % mode.capitalize()
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.custom_minimum_size = GRIMOIRE_BADGE_SIZE
+	badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	badge.anchor_left = 1.0
+	badge.anchor_right = 1.0
+	badge.offset_left = -16.0
+	badge.offset_top = -5.0
+	badge.offset_right = 2.0
+	badge.offset_bottom = 13.0
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("d64a3a")
+	badge_style.border_color = Color("ffe0a2")
+	badge_style.set_border_width_all(1)
+	badge_style.set_corner_radius_all(6)
+	badge.add_theme_stylebox_override("panel", badge_style)
+	var label := Label.new()
+	label.text = str(mini(9, unread_count))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 8)
+	label.add_theme_color_override("font_color", Color("fff7d8"))
+	label.add_theme_color_override("font_outline_color", Color("2b130e"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	button.add_child(badge)
+
 func _switch_character_overlay_mode(mode: String) -> void:
 	if not (mode in ["equipment", "magic", "stats"]):
 		return
 	_progression_overlay_mode = mode
+	_clear_open_loadout_tab_unread(mode)
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
+
+func _clear_open_loadout_tab_unread(mode: String) -> void:
+	if mode not in ["equipment", "magic"]:
+		return
+	if _run_engine.loadout_unread_ids(_run_state, mode).is_empty():
+		return
+	_run_state = _run_engine.clear_loadout_unread(_run_state, mode)
+	_persist_committed_boundary("loadout_tab_seen")
+	_refresh_loadout_badge()
 
 func _apply_character_tab_style(button: Button, active: bool) -> void:
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED if active else UiSkin.VARIANT_STANDARD)
