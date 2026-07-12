@@ -9265,6 +9265,8 @@ func _clear_idle_card_fx_layer() -> void:
 	_clear_children_now(_card_fx_layer)
 
 func _on_reward_heal_choice_gui_input(event: InputEvent) -> void:
+	if _animation_lock or _loadout_acquisition_in_progress:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		_on_skip_reward_pressed()
 
@@ -12918,7 +12920,7 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
 
 func _on_reward_card_pressed(card_id: String, source_control: Control = null) -> void:
-	if _loadout_acquisition_in_progress:
+	if _animation_lock or _loadout_acquisition_in_progress:
 		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	if not (reward_state.get("cards", []) as Array).has(card_id):
@@ -12942,6 +12944,8 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 	_refresh_ui()
 
 func _on_skip_reward_pressed() -> void:
+	if _animation_lock or _loadout_acquisition_in_progress:
+		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
 	_run_state = _run_engine.skip_reward_for_heal(_run_state)

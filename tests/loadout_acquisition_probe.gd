@@ -1,6 +1,7 @@
 extends SceneTree
 
 const ElementData = preload("res://scripts/element_data.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -60,18 +61,40 @@ func _capture_acquisitions() -> void:
 		await _save_root_screenshot("%s/magic_after_badge.png" % OUTPUT_DIR)
 
 	var room_state: Dictionary = engine.create_new_run(9138, ProgressionStore.default_data())
-	room_state["mode"] = "room"
+	var combat_engine := CombatEngine.new()
+	var equipment_tile := Vector2i(3, 4)
+	var layout: Dictionary = _equipment_combat_layout(equipment_tile)
+	var before_combat: Dictionary = combat_engine.create_combat(9138, layout, {
+		"hp": int(room_state.get("player_hp", 1)),
+		"max_hp": int(room_state.get("player_max_hp", 1)),
+		"deck_cards": (room_state.get("deck_cards", []) as Array).duplicate(),
+		"relics": [],
+		"hand_size": int(room_state.get("hand_size", 5)),
+		"heal_bonus": int(room_state.get("heal_bonus", 0)),
+		"cards_per_turn": 2,
+		"draw_per_turn": 2,
+		"card_upgrades": {},
+		"card_mods": {}
+	})
+	room_state["mode"] = "combat"
+	room_state["combat_state"] = before_combat
 	instance.call("_load_run_state", room_state)
 	await _settle()
 	_suppress_room_dialogue(instance)
-	create_timer(0.16).timeout.connect(_capture_named_phase.bind(instance, "equipment", "flair"))
-	create_timer(0.68).timeout.connect(_capture_named_phase.bind(instance, "equipment", "ray"))
-	await instance.call("_animate_equipment_pickup_acquisition_flair", "ward_kite", Vector2i(4, 4))
-	room_state = instance.get("_run_state") as Dictionary
-	room_state[RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY] = ["ward_kite"]
+	var blink_action: Dictionary = {"type": "blink", "range": 99}
+	var after_combat: Dictionary = combat_engine.apply_player_action(before_combat, blink_action, equipment_tile)
+	if not (after_combat.get("collected_equipment", []) as Array).has("ward_kite"):
+		_fail("Production combat pickup should collect Ward Kite")
+	create_timer(0.56).timeout.connect(_capture_named_phase.bind(instance, "equipment", "flair"))
+	create_timer(1.08).timeout.connect(_capture_named_phase.bind(instance, "equipment", "ray"))
+	await instance.call("_animate_player_action_step", before_combat, after_combat, "threaded_path", blink_action, equipment_tile)
+	room_state = engine.set_combat_state(room_state, after_combat)
 	instance.set("_run_state", room_state)
+	instance.set("_combat_state", after_combat)
 	instance.call("_refresh_loadout_badge")
 	await _settle()
+	if engine.loadout_unread_ids(room_state, "equipment") != ["ward_kite"]:
+		_fail("Production run-state merge should mark Ward Kite unread")
 	await _save_root_screenshot("%s/equipment_after_badge.png" % OUTPUT_DIR)
 
 	instance.queue_free()
@@ -90,6 +113,36 @@ func _reward_widget(instance: Node, card_id: String) -> Control:
 			continue
 		return child.find_child("CardWidget", true, false) as Control
 	return null
+
+func _equipment_combat_layout(equipment_tile: Vector2i) -> Dictionary:
+	return {
+		"name": "Acquisition Proof",
+		"coord": Vector2i(1, 0),
+		"type": "combat",
+		"grid": [
+			["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
+			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
+		],
+		"player_start": Vector2i(2, 4),
+		"enemies": [{
+			"id": 1,
+			"type": "crawler",
+			"pos": Vector2i(6, 2),
+			"hp": 14,
+			"max_hp": 14,
+			"block": 0
+		}],
+		"loot": [{
+			"kind": "equipment",
+			"equipment_id": "ward_kite",
+			"pos": equipment_tile
+		}]
+	}
 
 func _suppress_room_dialogue(instance: Node) -> void:
 	instance.call("_close_dialogue")

@@ -281,6 +281,7 @@ func _initialize() -> void:
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
+	await _test_run_scene_reward_acquisition_is_single_choice()
 	await _test_run_scene_reward_decision_support_matches_claims()
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
@@ -8309,6 +8310,49 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 		_assert(heal_labels.size() == 2, "Recover should contain only the amount and HP projection text")
 		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
 		_assert(hand_box.get_child_count() == 4 and hand_box.get_child(3) == heal_slot, "Reward heal choice should sit immediately to the right of the offered cards")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_reward_acquisition_is_single_choice() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for reward acquisition race coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	reward_state["mode"] = "reward"
+	reward_state["player_hp"] = 180
+	reward_state["player_max_hp"] = 360
+	reward_state["pending_reward"] = {
+		"cards": ["spark_dart", "frostbolt"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", reward_state)
+	instance.set("_loadout_acquisition_in_progress", true)
+	instance.set("_animation_lock", true)
+	instance.call("_on_skip_reward_pressed")
+	var locked_state: Dictionary = instance.get("_run_state")
+	_assert(str(locked_state.get("mode", "")) == "reward", "Recover should not resolve while a reward-card acquisition animation owns the choice")
+	_assert(int(locked_state.get("player_hp", 0)) == 180, "A blocked Recover click should not heal during reward-card acquisition")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	instance.call("_on_reward_heal_choice_gui_input", click)
+	locked_state = instance.get("_run_state")
+	_assert(str(locked_state.get("mode", "")) == "reward", "The Recover tile input path should also stay blocked during reward-card acquisition")
+	instance.call("_on_reward_card_pressed", "frostbolt")
+	locked_state = instance.get("_run_state")
+	_assert(not (locked_state.get("magic_inventory", []) as Array).has("frostbolt"), "A second reward card should not resolve while another acquisition owns the choice")
+	instance.set("_loadout_acquisition_in_progress", false)
+	instance.set("_animation_lock", false)
+	instance.call("_on_skip_reward_pressed")
+	var resolved_state: Dictionary = instance.get("_run_state")
+	_assert(str(resolved_state.get("mode", "")) == "room", "Recover should resolve normally after the acquisition lock releases")
+	_assert(int(resolved_state.get("player_hp", 0)) == 240, "Exactly one unlocked Recover choice should apply its offered healing")
+	_assert(not (resolved_state.get("magic_inventory", []) as Array).has("frostbolt"), "Resolving Recover should leave the mutually exclusive reward spell unclaimed")
 	instance.queue_free()
 	await process_frame
 
