@@ -577,6 +577,8 @@ static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary
 		wanted["keyword:exhaust"] = true
 	if bool(card.get("consume_on_play", false)):
 		wanted["keyword:consume"] = true
+	if bool(card.get("flurry", false)):
+		wanted["keyword:flurry"] = true
 	if int(card.get("health_cost", 0)) > 0:
 		wanted["keyword:health_cost"] = true
 	if card.has("requires_intensity") or card.has("intensity_bonus"):
@@ -763,6 +765,8 @@ static func _card_entry_body(card: Dictionary) -> Array:
 		notes.append("Exhausts for the rest of combat after use")
 	if bool(card.get("consume_on_play", false)):
 		notes.append("Consumed after use")
+	if bool(card.get("flurry", false)):
+		notes.append("Spends every current card play and repeats once per play spent")
 	if bool(card.get("starter", false)):
 		notes.append("Starter card")
 	elif bool(card.get("reward_pool", true)):

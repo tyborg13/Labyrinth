@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-10T20:40:32Z",
+  "updated_at": "2026-07-12T14:45:33Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4981,6 +4981,28 @@
       "source": {
         "branch": "codex/broad-runtime-performance-optimization-pass",
         "commit": "28ee6ca"
+      }
+    },
+    {
+      "id": "mnt_20260712T144533Z_f10533a2",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Flurry snapshots card plays before resolution",
+      "details": "Cards with top-level flurry:true expand their printed actions once per card play available when the printed play begins. The commit spends that snapshotted count and multiplies printed time and health cost by it; card-play bonuses or kill refunds earned during repeated actions are not folded back into the repeat count and remain available afterward. Fallback Attack/Move modes do not inherit Flurry.",
+      "status": "active",
+      "created_at": "2026-07-12T14:45:33Z",
+      "updated_at": "2026-07-12T14:45:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "d4769e2"
       }
     }
   ]

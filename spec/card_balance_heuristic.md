@@ -40,6 +40,10 @@ These assumptions are baked into the current coefficients:
   readable.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
+- Flurry cards snapshot all card plays available when they begin, repeat their
+  printed actions once per snapped play, and spend that many plays plus that
+  many copies of their printed time. Plays gained during resolution remain
+  available after the Flurry commits.
 - Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
 - Each combat tracks room-wide elemental intensity for fire, ice, lightning,
   air, and earth. The room's element starts at intensity `1`; other elements
@@ -149,7 +153,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + elemental_intensity + mobility + synergy + tempo - health_cost - exhaust_card_penalty`
+`EV = offense + control + defense + flow + elemental_intensity + mobility + synergy + tempo - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -166,6 +170,11 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Heal: `0.90` per point
 - Draw: `0.85` per card
 - Card Play: `0.75` per added card play this turn
+- Flurry: score the printed action package at the baseline `2` available plays,
+  multiply printed time and health costs by `2`, then subtract `0.75` for the
+  additional play committed beyond a normal single-card play. This reports the
+  baseline whole-turn payload while preserving the opportunity cost of locking
+  every current play into one card.
 - Elemental intensity gain: `0.70` per point
 - High-damage kill-card-play premium: up to `0.45`, scaled by damage,
   playability, and target count
@@ -298,6 +307,8 @@ This heuristic is intentionally conservative about:
   one element
 - Exact initiative snowballing from multi-enemy queues, especially where a
   fast enemy acts twice before a slow, high-time player build comes back online
+- Flurry scaling above the baseline two plays, target-by-target retargeting,
+  and resources or kill refunds created between repeated actions
 
 If a card is intentionally better than its standalone score because of one of
 those factors, note that explicitly in review or commit context.

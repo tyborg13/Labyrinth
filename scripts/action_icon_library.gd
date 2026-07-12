@@ -67,6 +67,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Adds card plays for this turn.",
 		"path": "%s/card_play.png" % ICON_ROOT
 	},
+	"flurry": {
+		"label": "Flurry",
+		"description": "Spends all current card plays and repeats this card once for each play spent.",
+		"path": "%s/flurry.png" % ICON_ROOT
+	},
 	"time": {
 		"label": "Time",
 		"description": "Adds to the initiative delay before your next turn.",
@@ -351,6 +356,8 @@ static func cost_rows_for_card(card: Dictionary) -> Array:
 		row.append(token_for("exhaust"))
 	if bool(card.get("consume_on_play", false)):
 		row.append(token_for("consume"))
+	if bool(card.get("flurry", false)):
+		row.append(token_for("flurry"))
 	var health_cost: int = int(card.get("health_cost", 0))
 	if health_cost > 0:
 		row.append(token_for("health_cost", "-%d" % health_cost))

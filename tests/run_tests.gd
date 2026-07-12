@@ -96,6 +96,7 @@ func _initialize() -> void:
 	_test_agility_reduces_player_base_initiative()
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
+	_test_flurry_repeats_and_spends_snapshotted_card_plays()
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
@@ -383,6 +384,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
 	_assert(not defaults.has("keyword:bleed"), "Bleed should remain context-unlocked instead of static-default")
+	_assert(defaults.has("keyword:flurry"), "Flurry should be documented as a default card mechanic")
 	var equipment_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
 	_assert(not equipment_card_entries.has("magick:sawtooth_flurry"), "Equipment-derived cards should not unlock Magick entries")
 	_assert(equipment_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
@@ -390,6 +392,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
 	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	_assert(GrimoireLibrary.entry_ids_for_card_id("cinder_fusillade").has("keyword:flurry"), "Flurry cards should unlock the Flurry grimoire entry")
 	var item_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("crimson_draught")
 	_assert(item_card_entries.has("item:crimson_draught"), "Scavenger consumables should unlock item entries")
 	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("sawtooth_knife")
@@ -580,6 +583,16 @@ func _test_equipment_data_rarity_and_starter_deck() -> void:
 			_assert(icon_path.begins_with("res://assets/art/equipment/"), "%s starter equipment should use custom equipment art, not reused relic art" % equipment_id)
 	for slot: String in GameData.equipment_slots():
 		_assert(int(slot_counts.get(slot, 0)) >= 3, "%s slot should have multiple equipment options" % slot.capitalize())
+	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "far_draw"], "Windlass Repeater should package a Flurry payoff with draw/play setup")
+	_assert(GameData.equipment_cards("war_dancer_sash") == ["blade_dance", "gathering_rhythm"], "War-Dancer Sash should package a melee Flurry payoff with rhythm setup")
+	for reward_card_id: String in ["cinder_fusillade", "storm_salvo", "razor_gale"]:
+		_assert(bool(GameData.card_def(reward_card_id).get("flurry", false)), "%s should use the Flurry mechanic" % reward_card_id)
+		_assert(bool(GameData.card_def(reward_card_id).get("reward_pool", true)), "%s should enter the collectible spell pool" % reward_card_id)
+	for new_card_id: String in ["windlass_volley", "crank_reload", "blade_dance", "gathering_rhythm", "cinder_fusillade", "storm_salvo", "razor_gale"]:
+		var art_path: String = str(GameData.card_def(new_card_id).get("art_path", ""))
+		var art_image := Image.new()
+		var art_error: Error = art_image.load(art_path)
+		_assert(art_error == OK and art_image.get_width() == 256 and art_image.get_height() == 144, "%s should ship generated 256x144 card art" % new_card_id)
 	var equipped: Dictionary = GameData.starting_equipped_equipment()
 	for slot: String in GameData.equipment_slots():
 		_assert(not str(equipped.get(slot, "")).is_empty(), "Starting equipment should define %s" % slot)
@@ -1549,6 +1562,43 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(combat.cards_remaining_this_turn(state) == 2, "Finishing the card should spend one play while preserving the action bonus")
 	state = combat.prepare_next_player_turn(state)
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
+
+func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(15111, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["cinder_fusillade"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["cinder_fusillade"]
+	deck["draw"] = []
+	deck["discard"] = []
+	state["deck"] = deck
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 30, "max_hp": 30, "block": 0, "stoneskin": 0},
+		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
+	]
+	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
+	_assert(actions.size() == 2, "Flurry should repeat its printed action once for each of the two base card plays")
+	_assert(combat.card_plays_spent_for_actions(actions) == 2, "Repeated Flurry actions should preserve the snapshotted spend count")
+	state = combat.apply_player_action(state, actions[0] as Dictionary, Vector2i(3, 4))
+	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(4, 4))
+	state = combat.finish_player_card(state, 0, combat.card_plays_spent_for_actions(actions))
+	_assert(int(state.get("cards_played_this_turn", 0)) == 2, "Flurry should spend every card play it snapshotted")
+	_assert(int(state.get("player_turn_time_spent", 0)) == 8, "Flurry should pay printed time once per repeated play")
+	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
+	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 170, "Each Flurry copy should resolve its attack against the selected target")
+	var bonus_state: Dictionary = state.duplicate(true)
+	bonus_state["cards_played_this_turn"] = 0
+	bonus_state["death_bonus_card_plays_this_turn"] = 0
+	bonus_state["card_play_bonus_this_turn"] = 1
+	var bonus_actions: Array = combat.card_play_actions("cinder_fusillade", bonus_state)
+	_assert(bonus_actions.size() == 3, "Card-play bonuses should directly increase a later Flurry's repeat count")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	var valid_card_rarities: Dictionary = {
@@ -6390,6 +6440,12 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
 	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
+	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("cinder_fusillade"))
+	_assert(flurry_cost_rows.size() == 1 and str(((flurry_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "flurry", "Flurry cards should show their dedicated cost icon")
+	_assert(ActionIcons.tooltip("flurry").contains("repeats this card"), "Flurry tooltip should explain repeat and spend behavior")
+	var flurry_icon := Image.new()
+	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
+	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 64 and flurry_icon.get_height() == 64, "Flurry should ship a dedicated 64x64 action icon")
 	var illusion_row: Array = ActionIcons.tokens_for_action({"type": "illusion", "health": 4, "range": 3})
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
@@ -10573,6 +10629,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("triggered_trap_damage"), "Card play analytics should include triggered trap damage")
 	_assert(play_payload.has("pickups_collected"), "Card play analytics should include collected battlefield pickups")
 	_assert(play_payload.has("consume_on_play") and play_payload.has("item_card"), "Card play analytics should include consumable item flags")
+	_assert(play_payload.has("flurry") and play_payload.has("flurry_plays_spent"), "Card play analytics should expose Flurry use and its repeat count")
 	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
 	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]
