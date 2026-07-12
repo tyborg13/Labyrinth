@@ -107,6 +107,7 @@ func _initialize() -> void:
 	_test_elemental_intensity_bonus_modifies_single_attack()
 	_test_umbra_curve_tracks_dragon_sections()
 	_test_umbra_hides_targets_intents_and_turn_order_identity()
+	_test_hidden_enemy_status_steps_do_not_leak_identity_or_tile()
 	_test_radiance_actions_reveal_and_reduce_umbra()
 	_test_hidden_enemy_movement_collision_does_not_leak_position()
 	_test_radiance_cards_and_icons_are_integrated()
@@ -310,6 +311,7 @@ func _initialize() -> void:
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
 	await _test_run_scene_move_previews_avoid_traps_when_possible()
+	await _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets()
 	await _test_run_scene_hovered_enemy_shows_threat_overlay()
 	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
 	await _test_run_scene_discard_pile_is_face_up_without_count()
@@ -11059,6 +11061,12 @@ func _test_umbra_curve_tracks_dragon_sections() -> void:
 	_assert(CombatEngine.umbra_radius_for_stage("fringe") == 6, "Fringe Umbra should use radius 6")
 	_assert(CombatEngine.umbra_radius_for_stage("heart") == 2, "Heart Umbra should use radius 2")
 	_assert(CombatEngine.umbra_radius_for_stage("eclipse") == 1, "Eclipse Umbra should use radius 1")
+	var combat = CombatEngine.new()
+	var compressed_layout: Dictionary = _simple_room_layout()
+	compressed_layout["depth"] = 2
+	compressed_layout["section_index"] = 4
+	var compressed_state: Dictionary = combat.create_combat(44000, compressed_layout, {"hp": 20, "max_hp": 20, "deck_cards": ["quick_stab"], "hand_size": 1})
+	_assert(combat.effective_umbra_stage(compressed_state) == "deep", "Explicit section progression should override fixed depth boundaries when sections compress")
 
 func _test_umbra_hides_targets_intents_and_turn_order_identity() -> void:
 	var combat = CombatEngine.new()
@@ -11101,6 +11109,100 @@ func _test_umbra_hides_targets_intents_and_turn_order_identity() -> void:
 	var hidden_logs: Array = attacked_state.get("log", []) as Array
 	var latest_hidden_log: String = str(hidden_logs[hidden_logs.size() - 1]) if not hidden_logs.is_empty() else ""
 	_assert(latest_hidden_log == "A hidden presence attacks.", "Hidden enemy action logs should replace identity and intent with generic Umbra copy")
+
+func _test_hidden_enemy_status_steps_do_not_leak_identity_or_tile() -> void:
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	var state: Dictionary = combat.create_combat(44004, layout, {"hp": 100, "max_hp": 100, "deck_cards": ["quick_stab"], "hand_size": 1})
+	var enemy: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary).duplicate(true)
+	enemy["burn"] = 1
+	enemy["bleed"] = 1
+	enemy["intent"] = {"id": "hidden_test", "name": "Hidden Test", "actions": [{"type": "ranged", "damage": 1, "range": 9}]}
+	(state.get("enemies", []) as Array)[0] = enemy
+	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0, false)
+	var hidden_status_count: int = 0
+	for step_var: Variant in result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		if str(step.get("kind", "")) != "status_damage":
+			continue
+		hidden_status_count += 1
+		_assert(bool(step.get("hidden_by_umbra", false)), "Hidden enemy status damage should use the Umbra presentation guard")
+		_assert(str(step.get("actor_name", "")) == "Unknown Presence", "Hidden enemy status damage should not reveal identity")
+		_assert((step.get("tile", Vector2i.ZERO) as Vector2i).x < 0, "Hidden enemy status damage should not reveal its tile")
+	_assert(hidden_status_count >= 2, "The hidden status fixture should cover start-of-turn Burn and action-triggered Bleed")
+
+func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Umbra shortcut coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["umbra_stage"] = "heart"
+	layout["player_start"] = Vector2i(2, 4)
+	(layout.get("enemies", []) as Array)[0]["pos"] = Vector2i(5, 4)
+	var state: Dictionary = combat.create_combat(44005, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["quick_stab"], "hand_size": 1})
+	var run_state: Dictionary = instance.get("_run_state")
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", state)
+	var actions: Array = [{"type": "move", "range": 2}, {"type": "melee", "damage": 4, "range": 1}]
+	var preview: Dictionary = instance.call("_card_preview_from_state", "umbra_move_attack", state, actions, 0)
+	var targets: Array[Vector2i] = instance.call("_vector2i_array", preview.get("target_tiles", []))
+	_assert(targets.has(Vector2i(3, 4)) and targets.has(Vector2i(2, 3)), "Umbra movement preview should keep symmetric destinations legal without inspecting hidden follow-up targets")
+	var shortcuts: Dictionary = instance.call("_preview_shortcuts_for_current_action", preview)
+	_assert(shortcuts.is_empty(), "Umbra movement shortcuts should wait until movement resolves instead of exposing newly discovered enemies")
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_action_index", 0)
+	instance.set("_pending_actions", actions)
+	instance.set("_preview_combat_state", state)
+	instance.set("_pending_target_tiles", targets)
+	instance.set("_hovered_board_tile", Vector2i(4, 4))
+	instance.set("_dialogue_active", false)
+	instance.set("_animation_lock", false)
+	instance.set("_drag_card_index", -1)
+	_assert(targets.has(Vector2i(4, 4)), "The irreversible Umbra movement fixture should expose its chosen destination")
+	_assert(bool(instance.call("_umbra_defers_movement_followup_preview", state, actions[0] as Dictionary, actions, 0)), "The Umbra movement fixture should require deferred follow-up targeting")
+	_assert((instance.call("_pass_preview_confirmed_hover_state") as Dictionary).is_empty(), "Umbra movement hover should not simulate hidden collisions or newly visible intents")
+	var move_path: Array[Vector2i] = combat.path_for_player_action(state, actions[0] as Dictionary, Vector2i(4, 4))
+	_assert((instance.call("_movement_risk_chips_for_preview", preview, move_path) as Array).is_empty(), "Umbra movement hover should not leak a blocker through risk-chip deltas")
+	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
+	_assert(bool(instance.get("_pending_umbra_commit_locked")), "Moving into new Umbra information should make the pending card choice irreversible")
+	instance.call("_cancel_card_selection")
+	_assert(int(instance.get("_selected_card_index")) == 0, "An Umbra movement reveal should not be cancellable back to the untouched combat state")
+	instance.call("_reset_card_resolution")
+	var radiance_state: Dictionary = combat.create_combat(44006, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["guiding_flare"], "hand_size": 1})
+	var radiance_actions: Array = (GameData.card_def("guiding_flare").get("actions", []) as Array).duplicate(true)
+	var enemy_tile: Vector2i = ((radiance_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)
+	var lit_state: Dictionary = combat.apply_player_action(radiance_state, radiance_actions[0] as Dictionary, enemy_tile)
+	instance.set("_combat_state", radiance_state)
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", radiance_actions)
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [enemy_tile]))
+	instance.set("_pending_action_index", 0)
+	instance.set("_preview_combat_state", radiance_state)
+	instance.set("_pending_target_tiles", combat.valid_targets_for_player_action(radiance_state, radiance_actions[0] as Dictionary))
+	instance.set("_hovered_board_tile", enemy_tile)
+	_assert((instance.call("_pass_preview_confirmed_hover_state") as Dictionary).is_empty(), "Illuminate hover should not reveal enemy-dependent pass forecasts before the card commits")
+	var attack_preview: Dictionary = instance.call("_card_preview_from_state", "guiding_flare", lit_state, radiance_actions, 1, true)
+	_assert(combat.valid_targets_for_player_action(lit_state, radiance_actions[1] as Dictionary).has(enemy_tile), "Guiding Flare's illuminated tile should be a valid follow-up target")
+	_assert(not bool(attack_preview.get("complete", false)), "Guiding Flare should reach its reused-target follow-up before automatic resolution")
+	var resolved_preview: Dictionary = instance.call("_resolve_reused_target_preview_actions", attack_preview)
+	_assert(bool(resolved_preview.get("complete", false)), "Illuminate-and-attack cards should commit their follow-up without opening a cancellable revealed-state preview")
+	_assert((instance.call("_last_resolved_pending_target") as Vector2i) == enemy_tile, "Guiding Flare should keep the illuminated tile as its automatic follow-up target")
+	var direct_attack_state: Dictionary = combat.apply_player_action(lit_state, radiance_actions[1] as Dictionary, enemy_tile)
+	var initial_enemy_hp: int = int(((lit_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	var direct_enemy_hp: int = int(((direct_attack_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	_assert(direct_enemy_hp < initial_enemy_hp, "Guiding Flare's reused ranged action should damage the illuminated enemy")
+	instance.queue_free()
+	await process_frame
 
 func _test_radiance_actions_reveal_and_reduce_umbra() -> void:
 	var combat = CombatEngine.new()

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-12T21:54:52Z",
+  "updated_at": "2026-07-12T22:47:27Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5137,6 +5137,28 @@
       "source": {
         "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
         "commit": "4b45a7c"
+      }
+    },
+    {
+      "id": "mnt_20260712T224727Z_292e1c13",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_on_board_tile_clicked"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_on_board_tile_clicked",
+      "summary": "Umbra discovery must occur only after an irreversible choice",
+      "details": "Speculative hover, risk, shortcut, and continuation previews must never resolve hidden collision or visibility. If a multi-step movement card reveals new Umbra information after click, lock cancellation and card switching until its remaining actions resolve or are skipped; Illuminate-and-attack cards reuse the clicked light target and commit without a second cancellable reveal step.",
+      "status": "active",
+      "created_at": "2026-07-12T22:47:27Z",
+      "updated_at": "2026-07-12T22:47:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
+        "commit": "64f0f4e"
       }
     }
   ]

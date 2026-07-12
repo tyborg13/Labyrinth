@@ -145,7 +145,12 @@ func _initial_umbra_state(room_layout: Dictionary) -> Dictionary:
 	var room_type: String = str(room_layout.get("type", "combat"))
 	var stage_id: String = UMBRA_STAGE_CLEAR
 	if room_type in ["combat", "boss"]:
-		stage_id = umbra_stage_for_room_depth(room_depth)
+		if room_layout.has("umbra_section_index"):
+			stage_id = umbra_stage_for_section(int(room_layout.get("umbra_section_index", 0)))
+		elif room_layout.has("section_index"):
+			stage_id = umbra_stage_for_section(int(room_layout.get("section_index", 0)))
+		else:
+			stage_id = umbra_stage_for_room_depth(room_depth)
 	if room_layout.has("umbra_stage"):
 		stage_id = str(room_layout.get("umbra_stage", stage_id))
 	var source: Dictionary = room_layout.get("umbra", {}) as Dictionary
@@ -968,7 +973,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		_append_commit_step(steps, before_turn_setup, next_state, "enemy_turn_start")
 	for step_var: Variant in turn_setup.get("steps", []):
 		if typeof(step_var) == TYPE_DICTIONARY:
-			steps.append(step_var)
+			steps.append(_umbra_marked_enemy_status_step(before_turn_setup, next_state, step_var as Dictionary, int(enemy.get("id", -1))))
 	if combat_outcome(next_state) != "":
 		next_state["rng_state"] = rng.state
 		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
@@ -1013,7 +1018,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			next_state["rng_state"] = rng.state
 			if include_commit_steps:
 				_append_commit_step(steps, before_state, next_state, "enemy_action")
-			steps.append_array(bleed_steps)
+			for bleed_step: Dictionary in bleed_steps:
+				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
 			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action), int(enemy.get("id", -1)))
 			if not step.is_empty():
 				steps.append(step)
@@ -1087,10 +1093,12 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 			continue
 		enemy["block"] = 0
 		(next_state.get("enemies", []) as Array)[enemy_index] = enemy
+		var before_turn_setup: Dictionary = next_state.duplicate(true)
 		var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
 		next_state = (turn_setup.get("state", next_state) as Dictionary).duplicate(true)
 		for step_var: Variant in turn_setup.get("steps", []):
-			steps.append(step_var)
+			if typeof(step_var) == TYPE_DICTIONARY:
+				steps.append(_umbra_marked_enemy_status_step(before_turn_setup, next_state, step_var as Dictionary, int(enemy.get("id", -1))))
 		if combat_outcome(next_state) != "":
 			break
 		if bool(turn_setup.get("skip_all", false)):
@@ -1127,7 +1135,8 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
 				_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 				_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
-				steps.append_array(bleed_steps)
+				for bleed_step: Dictionary in bleed_steps:
+					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
 				var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action), int(enemy.get("id", -1)))
 				if not step.is_empty():
 					steps.append(step)
@@ -1386,6 +1395,14 @@ func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dict
 		var after_enemy: Dictionary = _normalized_enemy((after_state.get("enemies", []) as Array)[after_index] as Dictionary)
 		revealed_after = is_enemy_visible_to_player(after_state, after_enemy)
 	presented["revealed_after_action"] = revealed_after
+	return presented
+
+func _umbra_marked_enemy_status_step(before_state: Dictionary, after_state: Dictionary, step: Dictionary, enemy_id: int) -> Dictionary:
+	var presented: Dictionary = _umbra_marked_enemy_action_step(before_state, after_state, step, enemy_id)
+	if not bool(presented.get("hidden_by_umbra", false)):
+		return presented
+	presented["actor_name"] = "Unknown Presence"
+	presented["tile"] = Vector2i(-1, -1)
 	return presented
 
 func _anonymize_hidden_enemy_action_logs(before_state: Dictionary, after_state: Dictionary, enemy_id: int, action: Dictionary) -> void:

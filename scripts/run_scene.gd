@@ -1044,6 +1044,7 @@ var _pending_action_index: int = 0
 var _pending_action_can_skip: bool = false
 var _pending_target_tiles: Array[Vector2i] = []
 var _pending_selected_targets: Array[Vector2i] = []
+var _pending_umbra_commit_locked: bool = false
 var _pending_orientation_target_tile: Vector2i = INVALID_TARGET_TILE
 var _aoe_aim_orientation: Vector2i = Vector2i(1, 0)
 var _victory_carry_processed: bool = false
@@ -6879,7 +6880,8 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
 	if _current_action_can_skip():
 		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
-	_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
+	if not _pending_umbra_commit_locked:
+		_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	if _card_action_mode_selector == null or context_mode != "choice":
@@ -7943,6 +7945,9 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 		return {}
 	if _hovered_board_tile.x < 0:
 		return {}
+	var pending_action: Dictionary = _pending_actions[_pending_action_index]
+	if _umbra_hover_preview_would_reveal_information(_preview_combat_state, pending_action):
+		return {}
 	if _orientation_pending():
 		return _pass_preview_confirmed_orientation_state(_hovered_board_tile)
 	var preview: Dictionary = _active_card_preview()
@@ -7962,6 +7967,11 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var next_preview: Dictionary = _card_preview_from_state(card_id, resolved_state, _pending_actions, _pending_action_index + 1)
 	return _pass_preview_state_after_pending_preview(next_preview)
+
+func _umbra_hover_preview_would_reveal_information(state: Dictionary, action: Dictionary) -> bool:
+	if _combat_engine.effective_umbra_radius(state) >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		return false
+	return str(action.get("type", "")) in ["move", "blink", "illuminate"]
 
 func _pass_preview_confirmed_orientation_state(click_tile: Vector2i) -> Dictionary:
 	if _pending_orientation_target_tile.x < 0:
@@ -10004,6 +10014,18 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 			if skip_allowed:
 				skip_playable = bool(_card_preview_from_state(card_id, working_state, actions, cursor + 1, effect_seen, use_position_only_move_legality).get("playable", false))
 			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action)
+			if _umbra_defers_movement_followup_preview(working_state, action, actions, cursor):
+				return {
+					"card_id": card_id,
+					"state": working_state,
+					"actions": actions,
+					"action_index": cursor,
+					"target_tiles": _vector2i_array(candidate_targets),
+					"complete": false,
+					"playable": not candidate_targets.is_empty(),
+					"action": action,
+					"skip_allowed": skip_playable
+				}
 			if _remaining_actions_are_targetless(actions, cursor + 1):
 				if candidate_targets.is_empty() and skip_playable:
 					cursor += 1
@@ -10072,6 +10094,16 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 		"action": {},
 		"skip_allowed": false
 	}
+
+func _umbra_defers_movement_followup_preview(state: Dictionary, action: Dictionary, actions: Array, action_index: int) -> bool:
+	if str(action.get("type", "")) not in ["move", "blink"]:
+		return false
+	if _combat_engine.effective_umbra_radius(state) >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		return false
+	for index: int in range(action_index + 1, actions.size()):
+		if typeof(actions[index]) == TYPE_DICTIONARY and _combat_engine.player_action_needs_target(actions[index] as Dictionary):
+			return true
+	return false
 
 func _preview_trap_tiles_lookup(state: Dictionary) -> Dictionary:
 	var lookup: Dictionary = {}
@@ -10347,6 +10379,10 @@ func _preview_shortcuts_for_current_action(preview: Dictionary, skip_spatial_pre
 	var preview_state: Dictionary = preview.get("state", {}) as Dictionary
 	if preview_state.is_empty():
 		return {}
+	# Under Umbra, simulating movement and then exposing the discovered follow-up
+	# target would reveal an enemy before the player commits to moving.
+	if _combat_engine.effective_umbra_radius(preview_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
+		return {}
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var plans: Dictionary = {}
 	var move_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
@@ -10484,6 +10520,8 @@ func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vec
 		return []
 	var before_state: Dictionary = preview.get("state", {}) as Dictionary
 	if before_state.is_empty():
+		return []
+	if _combat_engine.effective_umbra_radius(before_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS:
 		return []
 	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, _hovered_board_tile)
 	return _movement_risk_chips_for_states(before_state, after_state, path_tiles)
@@ -10830,6 +10868,8 @@ func _on_card_pressed(index: int) -> void:
 		return
 	if _drag_card_index >= 0:
 		return
+	if _pending_umbra_commit_locked and _selected_card_index >= 0:
+		return
 	if _selected_card_index == index:
 		_cancel_card_selection()
 		return
@@ -10849,6 +10889,8 @@ func _on_card_drag_started(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+		return
+	if _pending_umbra_commit_locked:
 		return
 	if _card_action_choice_index >= 0:
 		_clear_card_action_choice_state()
@@ -10891,6 +10933,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_pending_action_can_skip = false
 		_pending_target_tiles.clear()
 		_pending_selected_targets.clear()
+		_pending_umbra_commit_locked = false
 		_pending_orientation_target_tile = INVALID_TARGET_TILE
 		_aoe_aim_orientation = Vector2i(1, 0)
 		_append_skipped_target_placeholders(0, _pending_action_index)
@@ -10910,6 +10953,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_action_can_skip = bool(preview.get("skip_allowed", false))
 	_pending_target_tiles = _vector2i_array(preview.get("target_tiles", []))
 	_pending_selected_targets.clear()
+	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	if _pending_action_index < _pending_actions.size():
 		_reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
@@ -11022,6 +11066,8 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		_refresh_stage_view()
 		return
 	_pending_selected_targets.append(tile)
+	if _umbra_defers_movement_followup_preview(_preview_combat_state, action, _pending_actions, _pending_action_index):
+		_pending_umbra_commit_locked = true
 	_preview_combat_state = _combat_engine.apply_player_action(_preview_combat_state, action, tile)
 	_mark_preview_selection_changed()
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
@@ -11097,6 +11143,8 @@ func _on_large_map_room_selected(coord: Vector2i) -> void:
 func _cancel_card_selection() -> void:
 	if _selected_card_index < 0:
 		return
+	if _pending_umbra_commit_locked:
+		return
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.CANCEL_OPTIONAL)
 	_reset_card_resolution()
 	_refresh_ui()
@@ -11160,16 +11208,46 @@ func _load_pending_preview_state(preview: Dictionary) -> void:
 	_mark_preview_selection_changed()
 
 func _apply_pending_preview_result(next_preview: Dictionary) -> void:
-	if bool(next_preview.get("complete", false)):
+	var resolved_preview: Dictionary = _resolve_reused_target_preview_actions(next_preview)
+	if bool(resolved_preview.get("complete", false)):
 		await _play_player_card(
 			_selected_card_index,
-			(next_preview.get("state", {}) as Dictionary).duplicate(true),
+			(resolved_preview.get("state", {}) as Dictionary).duplicate(true),
 			_pending_actions.duplicate(true),
 			_vector2i_array(_pending_selected_targets)
 		)
 		return
-	_load_pending_preview_state(next_preview)
+	_load_pending_preview_state(resolved_preview)
 	_refresh_ui()
+
+func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dictionary:
+	var preview: Dictionary = source_preview
+	while not bool(preview.get("complete", false)):
+		var action_index: int = int(preview.get("action_index", -1))
+		if action_index < 0 or action_index >= _pending_actions.size():
+			break
+		var action: Dictionary = _pending_actions[action_index]
+		if not bool(action.get("reuse_previous_target", false)):
+			break
+		var target_tile: Vector2i = _last_resolved_pending_target()
+		var state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
+		if target_tile.x >= 0 and _combat_engine.valid_targets_for_player_action(state, action).has(target_tile):
+			_pending_selected_targets.append(target_tile)
+			state = _combat_engine.apply_player_action(state, action, target_tile)
+		else:
+			_pending_selected_targets.append(INVALID_TARGET_TILE)
+		var card_id: String = _card_id_for_hand_index(_selected_card_index)
+		var next_preview: Dictionary = _card_preview_from_state(card_id, state, _pending_actions, action_index + 1)
+		_append_skipped_target_placeholders(action_index + 1, int(next_preview.get("action_index", 0)))
+		preview = next_preview
+	return preview
+
+func _last_resolved_pending_target() -> Vector2i:
+	for index: int in range(_pending_selected_targets.size() - 1, -1, -1):
+		var tile: Vector2i = _pending_selected_targets[index]
+		if tile.x >= 0:
+			return tile
+	return INVALID_TARGET_TILE
 
 func _append_skipped_target_placeholders(start_action_index: int, end_action_index: int) -> void:
 	var safe_start: int = maxi(0, start_action_index)
@@ -11856,7 +11934,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	}
 	match action_type:
 		"move":
-			var move_path: Array[Vector2i] = PathUtils.find_path(before_state.get("grid", []), player_before_tile, player_after_tile, _enemy_occupied_tiles(before_state))
+			var move_path: Array[Vector2i] = _combat_engine.path_for_player_action(before_state, action, player_after_tile)
 			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
 			var to_point: Vector2 = board_view.world_position_for_tile(player_after_tile)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -13500,7 +13578,7 @@ func _on_restart_pressed() -> void:
 	_start_run()
 
 func _on_menu_button_pressed() -> void:
-	if _dialogue_active or _animation_lock:
+	if _dialogue_active or _animation_lock or _pending_umbra_commit_locked:
 		return
 	_open_menu_overlay()
 
@@ -13510,7 +13588,7 @@ func _on_grimoire_button_pressed() -> void:
 	_open_grimoire_overlay()
 
 func _on_pass_turn_pressed() -> void:
-	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
+	if _animation_lock or _pending_umbra_commit_locked or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if not _combat_engine.is_player_turn(_combat_state):
 		return
@@ -16561,6 +16639,7 @@ func _clear_active_card_preview_state() -> void:
 	_pending_action_can_skip = false
 	_pending_target_tiles.clear()
 	_pending_selected_targets.clear()
+	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	_aoe_aim_orientation = Vector2i(1, 0)
 	_preview_combat_state.clear()
