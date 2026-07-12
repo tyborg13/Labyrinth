@@ -1397,13 +1397,19 @@ func _apply_style() -> void:
 	if not mini_map_overlay.gui_input.is_connected(_on_mini_map_overlay_gui_input):
 		mini_map_overlay.gui_input.connect(_on_mini_map_overlay_gui_input)
 	var log_style := StyleBoxFlat.new()
-	log_style.bg_color = Color(0.09, 0.06, 0.05, 0.74)
-	log_style.corner_radius_top_left = 8
-	log_style.corner_radius_top_right = 8
-	log_style.corner_radius_bottom_right = 8
-	log_style.corner_radius_bottom_left = 8
-	log_style.shadow_color = Color(0.0, 0.0, 0.0, 0.22)
-	log_style.shadow_size = 8
+	log_style.bg_color = Color(0.055, 0.032, 0.024, 0.96)
+	log_style.border_color = Color("c9914e")
+	log_style.border_width_left = 5
+	log_style.border_width_top = 2
+	log_style.border_width_right = 2
+	log_style.border_width_bottom = 2
+	log_style.corner_radius_top_left = 10
+	log_style.corner_radius_top_right = 10
+	log_style.corner_radius_bottom_right = 10
+	log_style.corner_radius_bottom_left = 10
+	log_style.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
+	log_style.shadow_size = 18
+	log_style.shadow_offset = Vector2(0.0, 6.0)
 	log_overlay.add_theme_stylebox_override("panel", log_style)
 	for pile_panel: PanelContainer in [draw_pile, discard_pile, burn_pile]:
 		pile_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
@@ -1434,8 +1440,11 @@ func _apply_style() -> void:
 	choice_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_setup_header_icon_button(grimoire_button, "book", "Grimoire")
 	_setup_header_icon_button(menu_button, "gear", "Menu")
-	UiTypography.set_rich_text_size(log_label, UiTypography.SIZE_SMALL)
-	log_label.add_theme_color_override("default_color", Color("f2e7d4"))
+	UiTypography.set_rich_text_size(log_label, UiTypography.SIZE_BODY_LARGE)
+	log_label.add_theme_color_override("default_color", Color("fff3dc"))
+	log_label.add_theme_color_override("font_outline_color", Color("21140f"))
+	log_label.add_theme_constant_override("outline_size", 2)
+	log_label.add_theme_constant_override("line_separation", 3)
 	log_label.fit_content = true
 	log_label.scroll_following = false
 	log_label.scroll_active = false
@@ -11414,9 +11423,7 @@ func _animate_missed_equipment_resolution(victory_state: Dictionary) -> Dictiona
 	var missed_equipment: Array = resolved_state.get("missed_equipment", []) as Array
 	if missed_equipment.is_empty():
 		return resolved_state
-	_set_action_banner(RunEngineScript.MISSED_EQUIPMENT_NOTICE)
-	log_label.text = RunEngineScript.MISSED_EQUIPMENT_NOTICE
-	log_overlay.visible = true
+	_show_combat_log_message(RunEngineScript.MISSED_EQUIPMENT_NOTICE)
 	for frame: int in range(MISSED_EQUIPMENT_FRAMES + 1):
 		var progress: float = float(frame) / float(MISSED_EQUIPMENT_FRAMES)
 		_render_board_state(victory_state, {
@@ -12666,6 +12673,12 @@ func _log_text() -> String:
 	if not grimoire_notice.is_empty():
 		return grimoire_notice
 	return ""
+
+func _show_combat_log_message(message: String) -> void:
+	if log_label == null or log_overlay == null:
+		return
+	log_label.text = message
+	log_overlay.visible = not message.is_empty()
 
 func _pre_battle_preview_for_current_room() -> Dictionary:
 	var preview_state: Dictionary = _run_engine.pre_battle_preview_state(_run_state)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-11T12:57:04Z",
+  "updated_at": "2026-07-12T01:54:09Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5003,6 +5003,28 @@
       "source": {
         "branch": "codex/post-combat-missed-equipment-resolution",
         "commit": "d4769e2"
+      }
+    },
+    {
+      "id": "mnt_20260712T015409Z_97425bfa",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat log should be prominent and own missed-gear copy",
+      "details": "Keep the combat log as a larger high-contrast framed panel with body-large outlined text; missed-equipment disintegration copy belongs only in the combat log, not the action banner.",
+      "status": "active",
+      "created_at": "2026-07-12T01:54:09Z",
+      "updated_at": "2026-07-12T01:54:09Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/post-combat-missed-equipment-resolution",
+        "commit": "ffa15c7"
       }
     }
   ]

@@ -86,7 +86,6 @@ func _initialize() -> void:
 	instance.set("_animation_lock", true)
 	instance.call("_refresh_ui")
 	_hide_contextual_prompt(instance)
-	instance.call("_set_action_banner", RunEngine.MISSED_EQUIPMENT_NOTICE)
 	instance.call("_render_board_state", victory_state, {
 		"missed_equipment_ids": (resolved_state.get("missed_equipment", []) as Array).duplicate(),
 		"missed_equipment_progress": 0.52
@@ -97,7 +96,6 @@ func _initialize() -> void:
 	var reward_state: Dictionary = _run_engine.finish_combat(run_state, victory_state)
 	_show_state(instance, reward_state, {})
 	instance.set("_animation_lock", false)
-	instance.call("_set_action_banner", "")
 	instance.call("_refresh_ui")
 	await _settle()
 	_assert(str(reward_state.get("mode", "")) == "reward", "Post-kill frame should reach reward state")

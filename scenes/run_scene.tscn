@@ -152,18 +152,18 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -256.0
-offset_top = -62.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = -410.0
+offset_top = -118.0
+offset_right = -12.0
+offset_bottom = -12.0
 mouse_filter = 2
 
 [node name="LogMargin" type="MarginContainer" parent="Backdrop/Margin/MainVBox/StageRoot/LogOverlay"]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
 
 [node name="Log" type="RichTextLabel" parent="Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin"]
 layout_mode = 2

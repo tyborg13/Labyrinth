@@ -269,6 +269,7 @@ func _initialize() -> void:
 	_test_default_theme_uses_pixel_font()
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
+	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
 	await _test_run_scene_pre_battle_five_enemy_layout_compacts()
@@ -7521,6 +7522,33 @@ func _test_main_scenes_instantiate() -> void:
 	root.add_child(run_scene_instance)
 	await process_frame
 	run_scene_instance.queue_free()
+	await process_frame
+
+func _test_run_scene_combat_log_prominence() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for combat-log prominence coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	instance.call("_close_dialogue")
+	var log_overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/LogOverlay") as PanelContainer
+	var log_label: RichTextLabel = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
+	var action_banner: Label = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ActionBanner") as Label
+	action_banner.text = "Existing action"
+	action_banner.visible = false
+	instance.call("_show_combat_log_message", RunEngine.MISSED_EQUIPMENT_NOTICE)
+	await process_frame
+	var log_style: StyleBoxFlat = log_overlay.get_theme_stylebox("panel") as StyleBoxFlat
+	_assert(log_overlay.size.x >= 390.0 and log_overlay.size.y >= 100.0, "Combat log should have a prominent readable footprint")
+	_assert(log_style != null and log_style.bg_color.a >= 0.94, "Combat log should use a high-opacity background")
+	_assert(log_style != null and log_style.border_width_left >= 5 and log_style.border_width_top >= 2, "Combat log should use an obvious framed accent")
+	_assert(log_label.get_theme_font_size("normal_font_size") >= UiTypography.SIZE_BODY_LARGE, "Combat log should use body-large text")
+	_assert(log_label.get_theme_constant("outline_size") >= 2, "Combat log text should retain a strong outline against the board")
+	_assert(log_overlay.visible and log_label.text == RunEngine.MISSED_EQUIPMENT_NOTICE, "Combat-log messages should be visible and exact")
+	_assert(not action_banner.visible and action_banner.text == "Existing action", "Missed-equipment notice should not use or mutate the action banner")
+	instance.queue_free()
 	await process_frame
 
 func _test_run_scene_minimap_click_opens_large_map() -> void:
