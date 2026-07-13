@@ -7403,6 +7403,28 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(options.is_empty(), "Legacy unlocked progression should not keep the old touch option alive")
+	var first_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	var first_run_index: int = int(first_run_progression.get("run_counter", 0))
+	first_run_progression = ProgressionStore.record_first_umbra_reach(first_run_progression, first_run_index)
+	_assert(not ProgressionStore.umbra_warning_is_due(first_run_progression, first_run_index), "Reaching the Umbra should not show the warning during the discovery run")
+	_assert(int(first_run_progression.get(ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)) == first_run_index + 1, "The first Umbra reach should queue its warning for the following run")
+	var repeated_reach: Dictionary = ProgressionStore.record_first_umbra_reach(first_run_progression, first_run_index + 4)
+	_assert(int(repeated_reach.get(ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)) == first_run_index + 1, "Later shadowed rooms should not postpone the already queued warning")
+	var next_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(first_run_progression)
+	var next_run_index: int = int(next_run_progression.get("run_counter", 0))
+	_assert(ProgressionStore.umbra_warning_is_due(next_run_progression, next_run_index), "The Umbra warning should become due on the next run")
+	var warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index}, next_run_progression)
+	var warning_lines: Array = warning_dialogue.get("lines", [])
+	_assert(bool(warning_dialogue.get("marks_umbra_warning_seen", false)), "The one-time Umbra warning should mark itself consumed after dialogue closes")
+	_assert(warning_lines.size() == 3, "The Emaciated Man's Umbra warning should contain the requested three lines")
+	_assert(str((warning_lines[0] as Dictionary).get("text", "")) == "You reached his shadow. It will only get stronger the further you stray from this place.", "The Umbra warning should preserve its opening line")
+	_assert(str((warning_lines[0] as Dictionary).get("bbcode", "")).contains("[i]his[/i] shadow"), "The Umbra warning should italicize his in the first line")
+	_assert(str((warning_lines[1] as Dictionary).get("bbcode", "")).contains("[i]his[/i] power"), "The Umbra warning should italicize his in the second line")
+	_assert(str((warning_lines[2] as Dictionary).get("text", "")) == "After all this time, I can but provide this small measure of safety. The rest is up to you...", "The Umbra warning should preserve its closing line")
+	var seen_progression: Dictionary = ProgressionStore.mark_umbra_warning_seen(next_run_progression)
+	_assert(not ProgressionStore.umbra_warning_is_due(seen_progression, next_run_index + 1), "The Umbra warning should never repeat after it has been seen")
+	var post_warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index + 1}, seen_progression)
+	_assert(str(((post_warning_dialogue.get("lines", []) as Array)[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Later runs should return to the Emaciated Man's default dialogue")
 	for merchant_id: String in ["blacksmith", "arcanist", "scavenger"]:
 		var merchant_dialogue: Dictionary = dialogue_engine.build_room_dialogue({
 			"coord": Vector2i(2, 1),
@@ -10158,6 +10180,24 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
 	_assert(not bool(instance.get("_dialogue_active")), "Advancing after the last NPC line should close the dialogue overlay")
+	var first_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	first_run_progression = ProgressionStore.record_first_umbra_reach(first_run_progression, int(first_run_progression.get("run_counter", 0)))
+	var next_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(first_run_progression)
+	var warning_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	warning_run_state["run_index"] = int(next_run_progression.get("run_counter", 0))
+	warning_run_state["progression"] = next_run_progression.duplicate(true)
+	instance.set("_progression", next_run_progression)
+	instance.set("_run_state", warning_run_state)
+	instance.set("_last_auto_dialogue_key", "")
+	instance.call("_refresh_ui")
+	_assert(bool(instance.get("_dialogue_active")), "A run after the first Umbra reach should auto-trigger the Emaciated Man's warning")
+	_assert(text_label != null and text_label.text.contains("[i]his[/i] shadow"), "The opening warning line should render his with italic BBCode")
+	for _line_index: int in range(3):
+		instance.call("_complete_current_dialogue_line")
+		instance.call("_advance_dialogue")
+	_assert(not bool(instance.get("_dialogue_active")), "Advancing through the Umbra warning should close the dialogue overlay")
+	var consumed_progression: Dictionary = instance.get("_progression") as Dictionary
+	_assert(bool(consumed_progression.get(ProgressionStore.UMBRA_WARNING_SEEN_KEY, false)), "Closing the Umbra warning should persist its one-time seen marker")
 	instance.queue_free()
 	await process_frame
 
@@ -11173,8 +11213,17 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "combat"
 	run_state["combat_state"] = state
+	var discovery_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	run_state["run_index"] = int(discovery_progression.get("run_counter", 0))
+	run_state["progression"] = discovery_progression.duplicate(true)
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", state)
+	instance.set("_progression", discovery_progression)
+	instance.call("_sync_umbra_warning_progression")
+	var queued_warning_progression: Dictionary = instance.get("_progression") as Dictionary
+	_assert(int(queued_warning_progression.get(ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)) == int(run_state.get("run_index", 0)) + 1, "Entering the first non-clear Umbra combat should queue the warning for the next run")
+	instance.call("_sync_umbra_warning_progression")
+	_assert(int((instance.get("_progression") as Dictionary).get(ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)) == int(run_state.get("run_index", 0)) + 1, "Repeated Umbra refreshes should not reschedule the warning")
 	var actions: Array = [{"type": "move", "range": 2}, {"type": "melee", "damage": 4, "range": 1}]
 	var preview: Dictionary = instance.call("_card_preview_from_state", "umbra_move_attack", state, actions, 0)
 	var targets: Array[Vector2i] = instance.call("_vector2i_array", preview.get("target_tiles", []))
@@ -11338,6 +11387,14 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
 	_assert(lantern_segments.size() == 1, "CardWidget should not wrap a shared-target action group into multiple apparent target lines")
 	card_widget.free()
+	var visual_board := CombatBoardView.new()
+	var previous_umbra_alpha: float = 0.0
+	for stage_id: String in ["fringe", "advancing", "pressing", "deep", "heart", "eclipse"]:
+		var stage_alpha: float = float(visual_board.call("_umbra_stage_fill_alpha", stage_id))
+		_assert(stage_alpha > previous_umbra_alpha, "%s Umbra should darken the tile veil beyond the preceding stage" % stage_id.capitalize())
+		previous_umbra_alpha = stage_alpha
+	_assert(float(visual_board.call("_umbra_stage_fill_alpha", "fringe")) >= 0.50, "Even Fringe Umbra should visibly distinguish shadowed tiles from lit tiles")
+	visual_board.free()
 
 func _simple_room_layout() -> Dictionary:
 	return {

@@ -12,6 +12,8 @@ const RUN_BESTS_KEY: String = "run_bests"
 const LAST_RUN_RESULT_KEY: String = "last_run_result"
 const RUN_RESULT_LEDGER_KEY: String = "completed_run_results"
 const RUN_RESULT_LEDGER_LIMIT: int = 32
+const UMBRA_WARNING_AVAILABLE_RUN_KEY: String = "umbra_warning_available_run"
+const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
 const RUN_RESULT_STAT_IDS := [
 	"enemies_killed",
 	"damage_dealt",
@@ -51,6 +53,8 @@ static func default_data() -> Dictionary:
 		"card_upgrades_unlocked": false,
 		"pending_fire_rest_dialogue": false,
 		"fire_rest_dialogue_seen": false,
+		UMBRA_WARNING_AVAILABLE_RUN_KEY: 0,
+		UMBRA_WARNING_SEEN_KEY: false,
 		"run_counter": 0,
 		"recovery_marker": {},
 		RUN_BESTS_KEY: {},
@@ -98,6 +102,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data["pending_fire_rest_dialogue"] = false
 	if not data.has("fire_rest_dialogue_seen"):
 		data["fire_rest_dialogue_seen"] = false
+	data[UMBRA_WARNING_AVAILABLE_RUN_KEY] = maxi(0, int(data.get(UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)))
+	data[UMBRA_WARNING_SEEN_KEY] = bool(data.get(UMBRA_WARNING_SEEN_KEY, false))
 	if not data.has("run_counter"):
 		data["run_counter"] = 0
 	if not data.has("recovery_marker"):
@@ -470,6 +476,24 @@ static func mark_fire_rest_dialogue_seen(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	next_data["pending_fire_rest_dialogue"] = false
 	next_data["fire_rest_dialogue_seen"] = true
+	return next_data
+
+static func record_first_umbra_reach(data: Dictionary, current_run_index: int) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	if bool(next_data.get(UMBRA_WARNING_SEEN_KEY, false)) or int(next_data.get(UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)) > 0:
+		return next_data
+	next_data[UMBRA_WARNING_AVAILABLE_RUN_KEY] = maxi(1, current_run_index + 1)
+	return next_data
+
+static func umbra_warning_is_due(data: Dictionary, current_run_index: int) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	var available_run: int = int(normalized.get(UMBRA_WARNING_AVAILABLE_RUN_KEY, 0))
+	return not bool(normalized.get(UMBRA_WARNING_SEEN_KEY, false)) and available_run > 0 and current_run_index >= available_run
+
+static func mark_umbra_warning_seen(data: Dictionary) -> Dictionary:
+	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	next_data[UMBRA_WARNING_AVAILABLE_RUN_KEY] = 0
+	next_data[UMBRA_WARNING_SEEN_KEY] = true
 	return next_data
 
 static func prepare_for_new_run(data: Dictionary) -> Dictionary:

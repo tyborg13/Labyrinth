@@ -780,14 +780,7 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	for tile_var: Variant in presentation.get("umbra_visible_tiles", []):
 		if typeof(tile_var) == TYPE_VECTOR2I:
 			visible_lookup[tile_var] = true
-	var stage_alpha: float = {
-		"fringe": 0.28,
-		"advancing": 0.32,
-		"pressing": 0.36,
-		"deep": 0.40,
-		"heart": 0.44,
-		"eclipse": 0.48
-	}.get(stage_id, 0.34)
+	var stage_alpha: float = _umbra_stage_fill_alpha(stage_id)
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
 	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
 	var hidden_lookup: Dictionary = {}
@@ -799,41 +792,52 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 		hidden_tiles.append(tile)
 		hidden_lookup[tile] = true
 		return_progress_by_tile[tile] = return_progress
-		draw_colored_polygon(_tile_polygon(tile), Color(0.014, 0.009, 0.030, stage_alpha * return_progress))
+		draw_colored_polygon(_tile_polygon(tile), Color(0.012, 0.008, 0.026, stage_alpha * return_progress))
 	for tile: Vector2i in hidden_tiles:
 		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
 		if return_progress <= 0.0:
 			continue
-		var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
-		var phase: float = _ambient_hash01(seed + 7) * TAU
-		var breath: float = 0.5 + 0.5 * sin(time_seconds * (0.34 + _ambient_hash01(seed + 3) * 0.18) + phase)
-		var center: Vector2 = _tile_center(tile)
-		var drift := Vector2(
-			sin(time_seconds * 0.46 + _ambient_hash01(seed + 11) * TAU) * _tile_width() * 0.36,
-			cos(time_seconds * 0.39 + _ambient_hash01(seed + 13) * TAU) * _tile_height() * 0.52
-		)
-		var cloud_density: float = _ambient_hash01(seed + 37)
-		if cloud_density > 0.62 - stage_alpha * 0.40:
-			_draw_umbra_soft_lobe(
-				center + drift,
-				_tile_width() * (0.92 + breath * 0.22),
-				Vector2(1.42 + _ambient_hash01(seed + 17) * 0.48, 0.52 + _ambient_hash01(seed + 19) * 0.20),
-				lerpf(-0.30, 0.30, _ambient_hash01(seed + 23)),
-				Color(0.036, 0.012, 0.070, 0.94 * return_progress),
-				13
-			)
-		if cloud_density > 0.78:
-			var counter_drift := Vector2(-drift.x * 0.72, drift.y * 0.44)
-			_draw_umbra_soft_lobe(
-				center + counter_drift + Vector2(0.0, -_tile_height() * 0.18),
-				_tile_width() * (0.56 + (1.0 - breath) * 0.14),
-				Vector2(1.82, 0.36),
-				lerpf(-0.42, 0.42, _ambient_hash01(seed + 31)),
-				Color(0.115, 0.042, 0.175, 0.62 * return_progress),
-				9
-			)
-	_draw_umbra_boundary_wisps(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
+		_draw_umbra_tile_billows(tile, time_seconds, stage_alpha, return_progress)
+	_draw_umbra_boundary_billows(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
 	_draw_umbra_light_sources(time_seconds)
+
+func _umbra_stage_fill_alpha(stage_id: String) -> float:
+	return {
+		"fringe": 0.54,
+		"advancing": 0.58,
+		"pressing": 0.62,
+		"deep": 0.66,
+		"heart": 0.70,
+		"eclipse": 0.74
+	}.get(stage_id, 0.60)
+
+func _draw_umbra_tile_billows(tile: Vector2i, time_seconds: float, stage_alpha: float, return_progress: float) -> void:
+	var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
+	var flow_phase: float = time_seconds * 0.58 + float(tile.x) * 0.73 + float(tile.y) * 0.51
+	var counter_phase: float = time_seconds * 0.44 - float(tile.x) * 0.39 + float(tile.y) * 0.67
+	var swell: float = 0.5 + 0.5 * sin(flow_phase + _ambient_hash01(seed + 7) * 0.8)
+	var center: Vector2 = _tile_center(tile)
+	var flow := Vector2(
+		sin(flow_phase) * _tile_width() * 0.15,
+		cos(counter_phase) * _tile_height() * 0.24
+	)
+	_draw_umbra_soft_lobe(
+		center + flow,
+		_tile_width() * (0.48 + swell * 0.07),
+		Vector2(1.14 + _ambient_hash01(seed + 11) * 0.14, 0.76 + _ambient_hash01(seed + 13) * 0.14),
+		lerpf(-0.22, 0.22, _ambient_hash01(seed + 17)),
+		Color(0.018, 0.006, 0.042, (0.78 + stage_alpha * 0.16) * return_progress),
+		10
+	)
+	var counter_flow := Vector2(-flow.x * 0.78, -flow.y * 0.46) + Vector2(0.0, -_tile_height() * 0.08)
+	_draw_umbra_soft_lobe(
+		center + counter_flow,
+		_tile_width() * (0.34 + (1.0 - swell) * 0.07),
+		Vector2(1.04 + _ambient_hash01(seed + 19) * 0.14, 0.80 + _ambient_hash01(seed + 23) * 0.12),
+		lerpf(-0.30, 0.30, _ambient_hash01(seed + 29)),
+		Color(0.165, 0.048, 0.235, (0.46 + stage_alpha * 0.14) * return_progress),
+		9
+	)
 
 func _umbra_return_progress(tile: Vector2i, time_seconds: float) -> float:
 	if not _umbra_return_start_by_tile.has(tile):
@@ -847,7 +851,7 @@ func _umbra_return_progress(tile: Vector2i, time_seconds: float) -> float:
 	var linear_progress: float = elapsed / UMBRA_RETURN_FADE_SECONDS
 	return smoothstep(0.0, 1.0, linear_progress)
 
-func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: Dictionary, hidden_lookup: Dictionary, return_progress_by_tile: Dictionary, time_seconds: float, stage_alpha: float) -> void:
+func _draw_umbra_boundary_billows(hidden_tiles: Array[Vector2i], visible_lookup: Dictionary, hidden_lookup: Dictionary, return_progress_by_tile: Dictionary, time_seconds: float, stage_alpha: float) -> void:
 	var neighbor_offsets: Array[Vector2i] = _vector2i_array([
 		Vector2i.LEFT,
 		Vector2i.RIGHT,
@@ -867,28 +871,47 @@ func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: D
 			var edge_center: Vector2 = hidden_center.lerp(visible_center, 0.48)
 			var seed: int = tile.x * 81173 + tile.y * 46349 + neighbor_offset.x * 719 + neighbor_offset.y * 1237
 			var phase: float = _ambient_hash01(seed + 5) * TAU
-			var roll: float = sin(time_seconds * (0.40 + _ambient_hash01(seed + 7) * 0.22) + phase)
+			var roll: float = sin(time_seconds * (0.44 + _ambient_hash01(seed + 7) * 0.16) + phase)
 			var tangent: Vector2 = (visible_center - hidden_center).orthogonal().normalized()
 			var inward: Vector2 = (hidden_center - visible_center).normalized()
-			var wisp_center: Vector2 = edge_center + tangent * roll * _tile_width() * 0.22 + inward * _tile_width() * (0.03 + 0.04 * cos(time_seconds * 0.31 + phase))
+			var boundary_center: Vector2 = edge_center + tangent * roll * _tile_width() * 0.08 + inward * _tile_width() * (0.025 + 0.02 * cos(time_seconds * 0.27 + phase))
 			var boundary_angle: float = (visible_center - hidden_center).angle() + PI * 0.5
-			_draw_umbra_soft_lobe(
-				wisp_center,
-				_tile_width() * (0.46 + absf(roll) * 0.10),
-				Vector2(1.82, 0.38),
-				boundary_angle,
-				Color(0.075, 0.032, 0.128, (0.82 + stage_alpha * 0.12) * return_progress),
-				13
-			)
-			var leading_center: Vector2 = hidden_center.lerp(visible_center, 0.60) - tangent * roll * _tile_width() * 0.16
-			_draw_umbra_soft_lobe(
-				leading_center,
-				_tile_width() * (0.24 + 0.05 * sin(time_seconds * 0.53 + phase)),
-				Vector2(1.52, 0.30),
-				boundary_angle + roll * 0.18,
-				Color(0.125, 0.052, 0.185, 0.56 * return_progress),
-				9
-			)
+			for puff_index: int in range(2):
+				var puff_side: float = -1.0 if puff_index == 0 else 1.0
+				var puff_center: Vector2 = boundary_center + tangent * puff_side * _tile_width() * (0.08 + 0.025 * roll)
+				var puff_swell: float = 0.5 + 0.5 * sin(time_seconds * 0.58 + phase + float(puff_index) * 1.7)
+				_draw_umbra_soft_lobe(
+					puff_center,
+					_tile_width() * (0.28 + puff_swell * 0.07),
+					Vector2(1.14 + puff_swell * 0.12, 0.74 + (1.0 - puff_swell) * 0.12),
+					boundary_angle + roll * 0.10,
+					Color(0.145, 0.044, 0.215, (0.56 + stage_alpha * 0.14) * return_progress),
+					9
+				)
+			var edge_points: PackedVector2Array = _umbra_boundary_edge(tile, neighbor_offset)
+			if edge_points.size() == 2:
+				draw_line(edge_points[0], edge_points[1], Color(0.008, 0.005, 0.020, 0.86 * return_progress), 3.4, true)
+				draw_line(edge_points[0], edge_points[1], Color(0.20, 0.105, 0.285, (0.30 + stage_alpha * 0.10) * return_progress), 1.1, true)
+
+func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVector2Array:
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var edge := PackedVector2Array()
+	if polygon.size() < 4:
+		return edge
+	match neighbor_offset:
+		Vector2i.UP:
+			edge.append(polygon[0])
+			edge.append(polygon[1])
+		Vector2i.RIGHT:
+			edge.append(polygon[1])
+			edge.append(polygon[2])
+		Vector2i.DOWN:
+			edge.append(polygon[2])
+			edge.append(polygon[3])
+		Vector2i.LEFT:
+			edge.append(polygon[3])
+			edge.append(polygon[0])
+	return edge
 
 func _draw_umbra_soft_lobe(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
 	if layer_count <= 0 or color.a <= 0.0:

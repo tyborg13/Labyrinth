@@ -2,6 +2,7 @@ extends RefCounted
 class_name DialogueEngine
 
 const GameData = preload("res://scripts/game_data.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 func build_room_dialogue(room: Dictionary, run_state: Dictionary, progression: Dictionary) -> Dictionary:
 	var npcs: Array = room.get("npcs", [])
@@ -51,10 +52,35 @@ func _default_npc_dialogue(npc: Dictionary, room: Dictionary, _run_state: Dictio
 		"lines": lines
 	}
 
-func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, _run_state: Dictionary, _progression: Dictionary) -> Dictionary:
+func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, run_state: Dictionary, progression: Dictionary) -> Dictionary:
 	var npc_id: String = str(npc.get("id", "emaciated_man"))
 	var npc_def: Dictionary = GameData.npc_def(npc_id)
 	var speaker: String = str(npc_def.get("name", npc.get("name", "Emaciated Man")))
+	var run_index: int = int(run_state.get("run_index", progression.get("run_counter", 0)))
+	if ProgressionStore.umbra_warning_is_due(progression, run_index):
+		return {
+			"id": "room_%d_%d_%s_umbra_warning" % [int(room.get("coord", Vector2i.ZERO).x), int(room.get("coord", Vector2i.ZERO).y), npc_id],
+			"npc_id": npc_id,
+			"speaker": speaker,
+			"accent": str(npc_def.get("accent", npc.get("accent", "#b8aa90"))),
+			"marks_umbra_warning_seen": true,
+			"lines": [
+				{
+					"speaker": speaker,
+					"text": "You reached his shadow. It will only get stronger the further you stray from this place.",
+					"bbcode": "You reached [i]his[/i] shadow. It will only get stronger the further you stray from this place."
+				},
+				{
+					"speaker": speaker,
+					"text": "Once, long ago, I was nearly a match for his power.",
+					"bbcode": "Once, long ago, I was nearly a match for [i]his[/i] power."
+				},
+				{
+					"speaker": speaker,
+					"text": "After all this time, I can but provide this small measure of safety. The rest is up to you..."
+				}
+			]
+		}
 	var lines: Array = [
 		{
 			"speaker": speaker,

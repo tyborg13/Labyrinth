@@ -58,6 +58,7 @@ func _parse_args() -> Dictionary:
 		"seed": DEFAULT_SEED,
 		"show_help": false,
 		"allow_live_user_dir": false,
+		"umbra_warning": false,
 		"embers": 0,
 		"held_embers": -1,
 		"level": 1,
@@ -98,6 +99,8 @@ func _parse_args() -> Dictionary:
 				parsed["show_help"] = true
 			"--allow-live-user-dir":
 				parsed["allow_live_user_dir"] = true
+			"--umbra-warning":
+				parsed["umbra_warning"] = true
 			"--scenario":
 				index += 1
 				parsed["scenario"] = _required_arg(args, index, arg)
@@ -220,6 +223,7 @@ func _print_help() -> void:
 	print("Scenarios: %s" % ", ".join(VALID_SCENARIOS))
 	print("Common options:")
 	print("  --seed N")
+	print("  --umbra-warning (start with the one-time Emaciated Man Umbra warning due)")
 	print("  --embers N --held-embers N --level N --stats might=2,vigor=1")
 	print("  --player-hp N --player-max-hp N --player-position 2:4 --relics ember_lens,pilgrim_boots")
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
@@ -259,6 +263,10 @@ func _build_progression() -> Dictionary:
 		0,
 		GameData.progression_stat_points_for_level(int(progression.get("level", 1))) - GameData.spent_progression_stat_points(progression.get("stats", {}))
 	)
+	if bool(_options.get("umbra_warning", false)):
+		progression = ProgressionStore.prepare_for_new_run(progression)
+		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
+		progression = ProgressionStore.prepare_for_new_run(progression)
 	return progression
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:

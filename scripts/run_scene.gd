@@ -4342,6 +4342,7 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 func _close_dialogue() -> void:
 	var should_restore_choices := _dialogue_active and _dialogue_suppresses_choices
 	_maybe_mark_fire_rest_dialogue_seen()
+	_maybe_mark_umbra_warning_seen()
 	_dialogue_active = false
 	_dialogue_suppresses_choices = false
 	_dialogue_script.clear()
@@ -4365,6 +4366,15 @@ func _maybe_mark_fire_rest_dialogue_seen() -> void:
 	if not _run_state.is_empty():
 		_run_state["progression"] = _progression.duplicate(true)
 		_persist_committed_boundary("fire_dialogue_seen")
+
+func _maybe_mark_umbra_warning_seen() -> void:
+	if _dialogue_script.is_empty() or not bool(_dialogue_script.get("marks_umbra_warning_seen", false)):
+		return
+	_progression = ProgressionStore.mark_umbra_warning_seen(_progression)
+	ProgressionStore.save_data(_progression)
+	if not _run_state.is_empty():
+		_run_state["progression"] = _progression.duplicate(true)
+		_persist_committed_boundary("umbra_warning_seen")
 
 func _current_dialogue_line() -> Dictionary:
 	if not _dialogue_active or _dialogue_line_index < 0:
@@ -5793,6 +5803,7 @@ func _refresh_ui() -> void:
 	if str(_run_state.get("mode", "room")) == "defeat" and not _defeat_loss_processed:
 		_process_defeat_loss()
 	_sync_progression_from_run()
+	_sync_umbra_warning_progression()
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_sync_grimoire_discoveries()
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
@@ -17411,6 +17422,21 @@ func _sync_progression_from_run() -> void:
 		return
 	_progression = ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
+func _sync_umbra_warning_progression() -> void:
+	if _is_debug_boss_run() or _combat_state.is_empty():
+		return
+	var umbra: Dictionary = _combat_state.get("umbra", {}) as Dictionary
+	if str(umbra.get("stage", "clear")) == "clear":
+		return
+	var previous_available_run: int = int(_progression.get(ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, 0))
+	var next_progression: Dictionary = ProgressionStore.record_first_umbra_reach(_progression, int(_run_state.get("run_index", 0)))
+	if int(next_progression.get(ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)) == previous_available_run:
+		return
+	_progression = next_progression
+	_run_state["progression"] = _progression.duplicate(true)
+	ProgressionStore.save_data(_progression)
+	_persist_committed_boundary("umbra_first_reached")
+
 func _run_state_with_profile_grimoire(next_run_state: Dictionary) -> Dictionary:
 	if _progression.is_empty():
 		return next_run_state
@@ -17432,6 +17458,9 @@ func _run_state_with_profile_grimoire(next_run_state: Dictionary) -> Dictionary:
 			embedded_progression[profile_key] = (_progression.get(profile_key) as Dictionary).duplicate(true)
 	if _progression.has(ProgressionStore.RUN_RESULT_LEDGER_KEY) and typeof(_progression.get(ProgressionStore.RUN_RESULT_LEDGER_KEY)) == TYPE_ARRAY:
 		embedded_progression[ProgressionStore.RUN_RESULT_LEDGER_KEY] = (_progression.get(ProgressionStore.RUN_RESULT_LEDGER_KEY) as Array).duplicate(true)
+	for profile_key: String in [ProgressionStore.UMBRA_WARNING_AVAILABLE_RUN_KEY, ProgressionStore.UMBRA_WARNING_SEEN_KEY]:
+		if _progression.has(profile_key):
+			embedded_progression[profile_key] = _progression.get(profile_key)
 	var prompt_states: Dictionary = ContextualCombatTutorial.merged_states(_progression, embedded_progression)
 	if not prompt_states.is_empty():
 		embedded_progression[ContextualCombatTutorial.PROGRESSION_KEY] = prompt_states

@@ -59,6 +59,7 @@ func _capture_umbra_stages_and_cards() -> void:
 	var instance: Node = packed.instantiate()
 	root.add_child(instance)
 	await _settle_ui()
+	await _capture_umbra_warning_dialogue(instance)
 	for stage: String in STAGES:
 		await _load_stage(instance, stage)
 		var board: Control = instance.get_node(BOARD_PATH) as Control
@@ -84,6 +85,35 @@ func _capture_umbra_stages_and_cards() -> void:
 	await _capture_card_gallery(instance)
 	instance.queue_free()
 	await process_frame
+
+func _capture_umbra_warning_dialogue(instance: Node) -> void:
+	instance.call("_close_dialogue")
+	var discovery_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
+	discovery_progression = ProgressionStore.record_first_umbra_reach(discovery_progression, int(discovery_progression.get("run_counter", 0)))
+	var warning_progression: Dictionary = ProgressionStore.prepare_for_new_run(discovery_progression)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "room"
+	run_state["current_room"] = Vector2i.ZERO
+	run_state["combat_state"] = {}
+	run_state["run_index"] = int(warning_progression.get("run_counter", 0))
+	run_state["progression"] = warning_progression.duplicate(true)
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", {})
+	instance.set("_progression", warning_progression)
+	instance.set("_last_auto_dialogue_key", "")
+	instance.call("_refresh_ui")
+	await _settle_ui()
+	_assert(bool(instance.get("_dialogue_active")), "The run after first reaching Umbra should open with the Emaciated Man's warning")
+	var dialogue_script: Dictionary = instance.get("_dialogue_script") as Dictionary
+	var dialogue_lines: Array = dialogue_script.get("lines", [])
+	_assert(bool(dialogue_script.get("marks_umbra_warning_seen", false)) and dialogue_lines.size() == 3, "The Umbra warning should remain a one-time three-line dialogue")
+	var text_label: RichTextLabel = instance.get("_dialogue_text_label") as RichTextLabel
+	_assert(text_label != null and text_label.text.contains("[i]his[/i] shadow"), "The warning should visually emphasize his in italics")
+	instance.call("_complete_current_dialogue_line")
+	await _settle_ui()
+	await _save_root_screenshot("%s/umbra_warning_dialogue.png" % OUTPUT_DIR)
+	instance.call("_close_dialogue")
+	await _settle_ui()
 
 func _load_stage(instance: Node, stage: String) -> void:
 	instance.call("_cancel_drag_play")

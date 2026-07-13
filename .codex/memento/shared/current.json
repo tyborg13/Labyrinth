@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T21:36:39Z",
+  "updated_at": "2026-07-13T23:11:44Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5229,6 +5229,28 @@
       "source": {
         "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
         "commit": "3fd527d"
+      }
+    },
+    {
+      "id": "mnt_20260713T231143Z_ae455fd5",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Umbra should read as filled, billowing tile shadow",
+      "details": "Keep every concealed tile clearly darkened for tactical readability, then layer coherent rounded violet-black cloud lobes with visible slow drift. Boundary contours should stay thin and subordinate; avoid long narrow ribbons or zig-zag bands that make the effect look like linework.",
+      "status": "active",
+      "created_at": "2026-07-13T23:11:43Z",
+      "updated_at": "2026-07-13T23:11:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
+        "commit": "63077b5"
       }
     }
   ]
