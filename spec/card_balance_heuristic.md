@@ -61,11 +61,13 @@ These assumptions are baked into the current coefficients:
 - Illusions are stationary, have only health, and redirect enemies that are
   closer to the illusion than to the player. If player-side actors are tied at
   the same distance, enemies choose randomly among the tied targets.
-- Umbra pressure is tied to completed elemental-dragon sections rather than an
-  absolute room count. The first section is Clear, followed by Fringe,
-  Advancing, Pressing, Deep, and then Heart for the Shadow Dragon section.
-  Eclipse is reserved for authored final encounters. This keeps the curve
-  stable if the number of rooms between bosses is compressed later.
+- Umbra pressure primarily advances with completed elemental-dragon sections.
+  The first depth is Clear, then Fringe begins on depths `2` and `3` before the
+  first elemental dragon and remains for its boss room. Later sections use
+  Fringe, Advancing, Pressing, Deep, and then Heart for the Shadow Dragon
+  section. Eclipse is reserved for authored final encounters. Section-aware
+  layouts preserve this curve if the number of rooms between bosses is
+  compressed later.
 - Umbra radius is measured by Manhattan distance from the player: unlimited in
   Clear, then `6/5/4/3/2/1` for Fringe through Eclipse. Hidden enemies cannot
   be directly targeted and do not reveal their intent or turn-order identity.
@@ -186,9 +188,9 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Vision: `0.50` per added-radius activation
 - Truesight: `1.40` per activation
 - Dispel Umbra: `2.20` per reduced stage
-- Umbra relevance multiplier: `0.65` for all Radiance-only value, reflecting
-  that the opening elemental-dragon section is Clear and not every draw occurs
-  in a shadowed combat
+- Umbra relevance multiplier: `0.75` for all Radiance-only value, reflecting
+  that only the first depth is guaranteed Clear while some draws still occur
+  outside shadowed combats
 - Pure move: `0.25` per tile
 - Pure blink: `0.33` per tile
 - Move on an attacking card: `0.08` per tile

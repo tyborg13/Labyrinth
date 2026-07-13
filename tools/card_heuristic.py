@@ -99,7 +99,7 @@ class HeuristicWeights:
     vision_per_radius_activation: float = 0.50
     truesight_per_activation: float = 1.40
     dispel_umbra_per_stage: float = 2.20
-    umbra_relevance: float = 0.65
+    umbra_relevance: float = 0.75
     pure_move_per_tile: float = 0.25
     pure_blink_per_tile: float = 0.33
     attack_move_followthrough_per_tile: float = 0.08

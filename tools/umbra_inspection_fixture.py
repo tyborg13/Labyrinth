@@ -22,6 +22,7 @@ class Fixture:
     stage: str
     hand: str
     summary: str
+    draw: str = "brace,threaded_path,quick_stab"
 
 
 FIXTURES: dict[str, Fixture] = {
@@ -33,6 +34,12 @@ FIXTURES: dict[str, Fixture] = {
         )
         for stage in ("clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse")
     },
+    "grimoire_intro": Fixture(
+        "fringe",
+        "lantern_shot,guiding_flare,dawnstep,prism_sight,storm_beacon",
+        "Continue opens an introductory Fringe Umbra combat with every Radiance card discoverable in the Grimoire.",
+        "glowstone_ward,daybreak",
+    ),
     "card_lantern_shot": Fixture("deep", "lantern_shot,brace,threaded_path", "Continue opens a Deep Umbra combat with Lantern Shot ready."),
     "card_guiding_flare": Fixture("deep", "guiding_flare,brace,threaded_path", "Continue opens a Deep Umbra combat with Guiding Flare ready."),
     "card_dawnstep": Fixture("deep", "dawnstep,brace,threaded_path", "Continue opens a Deep Umbra combat with Dawnstep ready."),
@@ -85,7 +92,7 @@ def fixture_command(project: Path, task_id: str, name: str, dry_run: bool) -> li
         "--hand",
         fixture.hand,
         "--draw",
-        "brace,threaded_path,quick_stab",
+        fixture.draw,
         "--elemental-intensity",
         "fire=3,ice=3,lightning=3,air=3,earth=3",
         "--equipment-drop",

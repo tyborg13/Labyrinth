@@ -386,8 +386,10 @@ func _test_ui_skin_button_system() -> void:
 func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(GrimoireLibrary.sections().size() == 8, "Grimoire should expose the planned navigation sections")
 	var entries: Dictionary = GrimoireLibrary.entry_map()
-	for required_id: String in ["basic:run", "combat:turn_clock", "combat:summons", "keyword:bleed", "magick:pale_spark", "magick:spark_dart", "equipment:training_sword", "item:crimson_draught", "character:emaciated_man", "enemy:crawler", "enemy:zekarion"]:
+	for required_id: String in ["basic:run", "combat:turn_clock", "combat:summons", "combat:umbra", "keyword:bleed", "keyword:radiance", "keyword:illuminate", "keyword:vision", "keyword:truesight", "keyword:dispel_umbra", "magick:pale_spark", "magick:spark_dart", "equipment:training_sword", "item:crimson_draught", "character:emaciated_man", "enemy:crawler", "enemy:zekarion"]:
 		_assert(entries.has(required_id), "Grimoire should include %s" % required_id)
+	for radiance_card_id: String in ["lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
+		_assert(entries.has(GrimoireLibrary.magick_entry_id(radiance_card_id)), "Every Radiance card should have a Grimoire card entry: %s" % radiance_card_id)
 	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
@@ -399,6 +401,12 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
 	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	var lantern_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("lantern_shot")
+	_assert(lantern_entries.has("magick:lantern_shot"), "Starter Lantern Shot should unlock its Radiance card entry")
+	_assert(lantern_entries.has("keyword:radiance") and lantern_entries.has("keyword:illuminate"), "Radiance cards should unlock their school and printed light effects")
+	_assert(GrimoireLibrary.entry_ids_for_card_id("dawnstep").has("keyword:vision"), "Dawnstep should unlock Vision")
+	_assert(GrimoireLibrary.entry_ids_for_card_id("prism_sight").has("keyword:truesight"), "Prism Sight should unlock Truesight")
+	_assert(GrimoireLibrary.entry_ids_for_card_id("daybreak").has("keyword:dispel_umbra"), "Daybreak should unlock Dispel Umbra")
 	var item_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("crimson_draught")
 	_assert(item_card_entries.has("item:crimson_draught"), "Scavenger consumables should unlock item entries")
 	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("sawtooth_knife")
@@ -419,6 +427,8 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	})
 	_assert(not combat_loot_entries.has("equipment:ward_kite"), "Unclaimed combat equipment should not unlock equipment entries before pickup")
 	_assert(combat_loot_entries.has("equipment:iron_cleaver"), "Combat-state collected equipment should unlock equipment entries before run sync")
+	_assert(not GrimoireLibrary.entry_ids_for_combat_state({"umbra": {"stage": "clear"}}).has("combat:umbra"), "Clear rooms should not discover the Umbra entry before the mechanic appears")
+	_assert(GrimoireLibrary.entry_ids_for_combat_state({"umbra": {"stage": "fringe"}}).has("combat:umbra"), "The first shadowed room should discover the Umbra entry")
 	var engine := RunEngine.new()
 	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
 	_assert((run_state.get(GrimoireLibrary.UNLOCKED_KEY, []) as Array).has("basic:run"), "New runs should carry default Grimoire entries")
@@ -11057,7 +11067,12 @@ func _test_umbra_curve_tracks_dragon_sections() -> void:
 	for section_index: int in range(expected.size()):
 		_assert(CombatEngine.umbra_stage_for_section(section_index) == expected[section_index], "Umbra stage should advance by elemental-dragon section")
 		var first_depth: int = section_index * 4 + 1
-		_assert(CombatEngine.umbra_stage_for_room_depth(first_depth) == expected[section_index], "Umbra depth mapping should use four-depth section boundaries")
+		if section_index > 0:
+			_assert(CombatEngine.umbra_stage_for_room_depth(first_depth) == expected[section_index], "Umbra depth mapping should use four-depth section boundaries after the introductory section")
+	_assert(CombatEngine.umbra_stage_for_room_depth(1) == "clear", "The opening depth should remain free of Umbra")
+	_assert(CombatEngine.umbra_stage_for_room_depth(2) == "fringe", "The second depth should introduce Fringe Umbra before the first dragon")
+	_assert(CombatEngine.umbra_stage_for_room_depth(3) == "fringe", "The final pre-boss depth should retain Fringe Umbra")
+	_assert(CombatEngine.umbra_stage_for_room_depth(4) == "fringe", "The first dragon room should not shed the Fringe Umbra introduced before it")
 	_assert(CombatEngine.umbra_radius_for_stage("fringe") == 6, "Fringe Umbra should use radius 6")
 	_assert(CombatEngine.umbra_radius_for_stage("heart") == 2, "Heart Umbra should use radius 2")
 	_assert(CombatEngine.umbra_radius_for_stage("eclipse") == 1, "Eclipse Umbra should use radius 1")
@@ -11067,6 +11082,9 @@ func _test_umbra_curve_tracks_dragon_sections() -> void:
 	compressed_layout["section_index"] = 4
 	var compressed_state: Dictionary = combat.create_combat(44000, compressed_layout, {"hp": 20, "max_hp": 20, "deck_cards": ["quick_stab"], "hand_size": 1})
 	_assert(combat.effective_umbra_stage(compressed_state) == "deep", "Explicit section progression should override fixed depth boundaries when sections compress")
+	compressed_layout["section_index"] = 0
+	var introductory_state: Dictionary = combat.create_combat(44000, compressed_layout, {"hp": 20, "max_hp": 20, "deck_cards": ["quick_stab"], "hand_size": 1})
+	_assert(combat.effective_umbra_stage(introductory_state) == "fringe", "Depth-aware section layouts should preserve the first-section Umbra introduction")
 
 func _test_umbra_hides_targets_intents_and_turn_order_identity() -> void:
 	var combat = CombatEngine.new()

@@ -206,6 +206,16 @@
 			]
 		},
 		{
+			"id": "combat:umbra",
+			"section": "combat",
+			"title": "The Umbra",
+			"icon": "dispel_umbra",
+			"body": [
+				"The Umbra hides board tiles beyond your current vision. Enemies concealed within it cannot be directly targeted, and their identities, intents, and threat previews remain hidden.",
+				"Umbra stages grow more severe deeper in the labyrinth. Radiance effects create light, extend your vision, reveal hidden enemies, or reduce the room's Umbra stage."
+			]
+		},
+		{
 			"id": "keyword:melee",
 			"section": "keywords",
 			"title": "Melee",
@@ -471,6 +481,56 @@
 			"icon": "consume",
 			"body": [
 				"Consume removes the played item card from the run after resolution."
+			]
+		},
+		{
+			"id": "keyword:radiance",
+			"section": "keywords",
+			"title": "Radiance",
+			"icon": "illuminate",
+			"body": [
+				"Radiance cards carry light into the Umbra. Their effects include Illuminate, Vision, Truesight, and Dispel Umbra.",
+				"Radiance cards still follow their printed element, targeting, time, and card-play rules."
+			]
+		},
+		{
+			"id": "keyword:illuminate",
+			"section": "keywords",
+			"title": "Illuminate",
+			"icon": "illuminate",
+			"body": [
+				"Illuminate places a light source on the targeted tile and reveals Umbra within its printed radius.",
+				"Its counter shows how many player activations remain. A lasting light displays an infinity symbol instead."
+			]
+		},
+		{
+			"id": "keyword:vision",
+			"section": "keywords",
+			"title": "Vision",
+			"icon": "vision",
+			"body": [
+				"Vision temporarily increases the radius of light centered on the player by the printed amount.",
+				"The bonus counts down on player activations; when it ends, the Umbra gradually closes over newly hidden tiles."
+			]
+		},
+		{
+			"id": "keyword:truesight",
+			"section": "keywords",
+			"title": "Truesight",
+			"icon": "truesight",
+			"body": [
+				"Truesight reveals enemies through the Umbra and permits direct attacks against them even while their tiles remain dark.",
+				"Its player-HUD counter shows how many player activations remain. Truesight does not illuminate board tiles."
+			]
+		},
+		{
+			"id": "keyword:dispel_umbra",
+			"section": "keywords",
+			"title": "Dispel Umbra",
+			"icon": "dispel_umbra",
+			"body": [
+				"Dispel Umbra reduces the room's effective Umbra stage by the printed number of steps for the rest of combat.",
+				"It cannot reduce the effective stage below Clear."
 			]
 		},
 		{

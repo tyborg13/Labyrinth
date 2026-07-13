@@ -21,6 +21,7 @@ const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
 const TURN_ORDER_PREVIEW_LIMIT: int = 8
 const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
+const FIRST_SECTION_UMBRA_START_STEP: int = DEPTHS_PER_SEQUENCE - 2
 const UMBRA_STAGE_CLEAR: String = "clear"
 const UMBRA_STAGE_FRINGE: String = "fringe"
 const UMBRA_STAGE_ADVANCING: String = "advancing"
@@ -114,8 +115,18 @@ static func umbra_stage_for_section(section_index: int) -> String:
 	# section. Eclipse is reserved for authored boss actions/fixtures.
 	return UMBRA_STAGE_ORDER[clampi(section_index, 0, UMBRA_STAGE_ORDER.size() - 2)]
 
+static func umbra_stage_for_section_depth(section_index: int, room_depth: int) -> String:
+	var section_stage: String = umbra_stage_for_section(section_index)
+	if section_index != 0:
+		return section_stage
+	var section_step: int = posmod(maxi(1, room_depth) - 1, DEPTHS_PER_SEQUENCE) + 1
+	if section_step >= FIRST_SECTION_UMBRA_START_STEP:
+		return UMBRA_STAGE_FRINGE
+	return section_stage
+
 static func umbra_stage_for_room_depth(room_depth: int) -> String:
-	return umbra_stage_for_section(int((maxi(1, room_depth) - 1) / DEPTHS_PER_SEQUENCE))
+	var section_index: int = int((maxi(1, room_depth) - 1) / DEPTHS_PER_SEQUENCE)
+	return umbra_stage_for_section_depth(section_index, room_depth)
 
 static func umbra_stage_index(stage_id: String) -> int:
 	var index: int = UMBRA_STAGE_ORDER.find(str(stage_id))
@@ -148,7 +159,7 @@ func _initial_umbra_state(room_layout: Dictionary) -> Dictionary:
 		if room_layout.has("umbra_section_index"):
 			stage_id = umbra_stage_for_section(int(room_layout.get("umbra_section_index", 0)))
 		elif room_layout.has("section_index"):
-			stage_id = umbra_stage_for_section(int(room_layout.get("section_index", 0)))
+			stage_id = umbra_stage_for_section_depth(int(room_layout.get("section_index", 0)), room_depth)
 		else:
 			stage_id = umbra_stage_for_room_depth(room_depth)
 	if room_layout.has("umbra_stage"):

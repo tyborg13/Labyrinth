@@ -67,6 +67,10 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"draw": "keyword:draw",
 	"card_play": "keyword:card_play",
 	"illusion": "keyword:illusion",
+	"illuminate": "keyword:illuminate",
+	"vision": "keyword:vision",
+	"truesight": "keyword:truesight",
+	"dispel_umbra": "keyword:dispel_umbra",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
 	"intensity": "combat:intensity",
@@ -573,6 +577,8 @@ static func entry_ids_for_card_def(card: Dictionary) -> Array[String]:
 	return _ordered_entry_ids_from_set(wanted)
 
 static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary) -> void:
+	if bool(card.get("radiance", false)):
+		wanted["keyword:radiance"] = true
 	if bool(card.get("burn", false)):
 		wanted["keyword:exhaust"] = true
 	if bool(card.get("consume_on_play", false)):
@@ -615,6 +621,10 @@ static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictiona
 
 static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String]:
 	var wanted: Dictionary = {}
+	var umbra: Dictionary = combat_state.get("umbra", {}) as Dictionary
+	var umbra_stage: String = str(umbra.get("stage", "clear"))
+	if not umbra_stage.is_empty() and umbra_stage != "clear":
+		wanted["combat:umbra"] = true
 	if not (combat_state.get("traps", []) as Array).is_empty():
 		wanted["combat:traps"] = true
 	var enemy_types_seen: Dictionary = {}
@@ -752,6 +762,8 @@ static func _card_entry_body(card: Dictionary) -> Array:
 	var element: String = str(GameData.card_element_from_def(card))
 	if not element.is_empty() and element != "none":
 		facts.append("Element: %s" % element.capitalize())
+	if bool(card.get("radiance", false)):
+		facts.append("School: Radiance")
 	if card.has("time"):
 		facts.append("Time: %d" % int(card.get("time", 0)))
 	if int(card.get("health_cost", 0)) > 0:
@@ -824,6 +836,8 @@ static func is_magick_card_id(card_id: String) -> bool:
 	var card: Dictionary = GameData.card_def(card_id)
 	if card.is_empty():
 		return false
+	if bool(card.get("radiance", false)):
+		return true
 	if GameData.starting_magic_cards().has(card_id):
 		return true
 	return bool(card.get("reward_pool", true))

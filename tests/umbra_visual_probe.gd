@@ -5,6 +5,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
+const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const OUTPUT_DIR: String = "user://probes/umbra_visual"
@@ -78,6 +79,7 @@ func _capture_umbra_stages_and_cards() -> void:
 			RenderingServer.force_draw()
 			await process_frame
 			await _save_root_screenshot("%s/stage_deep_billow.png" % OUTPUT_DIR)
+	await _capture_grimoire_entries(instance)
 	await _capture_active_effect_feedback(instance)
 	await _capture_card_gallery(instance)
 	instance.queue_free()
@@ -119,6 +121,36 @@ func _load_stage(instance: Node, stage: String) -> void:
 	instance.set("_combat_state", combat_state)
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
+	await _settle_ui()
+
+func _capture_grimoire_entries(instance: Node) -> void:
+	var discovery_ids: Array[String] = GrimoireLibrary.entry_ids_for_card_ids(RADIANCE_CARDS)
+	if not discovery_ids.has("combat:umbra"):
+		discovery_ids.append("combat:umbra")
+	instance.call("_unlock_grimoire_entries", discovery_ids)
+	await _capture_grimoire_entry(instance, "combat:umbra", "The Umbra", "Enemies concealed within it", "grimoire_umbra.png")
+	await _capture_grimoire_entry(instance, "keyword:radiance", "Radiance", "Illuminate, Vision, Truesight", "grimoire_radiance.png")
+	await _capture_grimoire_entry(instance, "keyword:truesight", "Truesight", "permits direct attacks", "grimoire_truesight.png")
+	await _capture_grimoire_entry(instance, "magick:lantern_shot", "Lantern Shot", "School: Radiance", "grimoire_lantern_shot.png")
+
+func _capture_grimoire_entry(instance: Node, entry_id: String, expected_title: String, expected_body: String, file_name: String) -> void:
+	instance.call("_open_grimoire_overlay")
+	await _settle_ui()
+	instance.call("_on_grimoire_entry_pressed", entry_id)
+	await _settle_ui()
+	var title: Label = instance.get("_grimoire_detail_title") as Label
+	var body: RichTextLabel = instance.get("_grimoire_detail_body") as RichTextLabel
+	_assert(title != null and title.text == expected_title, "%s should render its Grimoire title" % entry_id)
+	var definition: Dictionary = GrimoireLibrary.entry_def(entry_id)
+	var catalog_body: String = "\n".join(definition.get("body", []) as Array)
+	_assert(catalog_body.contains(expected_body), "%s should carry its explanatory Grimoire body" % entry_id)
+	if str(definition.get("card_id", "")).is_empty():
+		_assert(body != null and body.visible and body.text.contains(expected_body), "%s should render its explanatory Grimoire body" % entry_id)
+	else:
+		var detail_content: VBoxContainer = instance.get("_grimoire_detail_content") as VBoxContainer
+		_assert(detail_content != null and detail_content.get_child_count() > 0, "%s should render its card preview in the Grimoire" % entry_id)
+	await _save_root_screenshot("%s/%s" % [OUTPUT_DIR, file_name])
+	instance.call("_close_grimoire_overlay")
 	await _settle_ui()
 
 func _capture_active_effect_feedback(instance: Node) -> void:
