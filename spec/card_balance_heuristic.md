@@ -41,9 +41,9 @@ These assumptions are baked into the current coefficients:
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
 - Flurry cards snapshot all card plays available when they begin, repeat their
-  printed actions once per snapped play, and spend that many plays plus that
-  many copies of their printed time. Plays gained during resolution remain
-  available after the Flurry commits.
+  printed actions and health cost once per snapped play, and spend all snapped
+  plays. The physical card's top-level Time cost is paid once. Plays gained
+  during resolution remain available after the Flurry commits.
 - Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
 - Each combat tracks room-wide elemental intensity for fire, ice, lightning,
   air, and earth. The room's element starts at intensity `1`; other elements
