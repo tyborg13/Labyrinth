@@ -35,6 +35,7 @@ func _capture_action_step_tracker_frames() -> void:
 	instance.call("_on_card_pressed", 0)
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["current", "remaining"], "move-attack selection")
+	_assert_tracker_copy_is_compact(instance, "move-attack selection")
 	_assert_tracker_layout(instance, "move-attack selection", piles_y_before)
 	await _save_root_screenshot("%s/move_attack_selected.png" % OUTPUT_DIR)
 
@@ -195,6 +196,19 @@ func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: flo
 	if tracker.global_position.y + tracker.size.y > anchor_y + 1.0:
 		_fail("%s tracker overlaps controls: tracker bottom %.1f, anchor %.1f" % [label, tracker.global_position.y + tracker.size.y, anchor_y])
 		return
+
+func _assert_tracker_copy_is_compact(instance: Node, label: String) -> void:
+	var detail_row: Control = instance.get("_action_context_detail_row") as Control
+	var status_row: Control = instance.get("_action_context_status_row") as Control
+	var mode_selector: Control = instance.get("_card_action_mode_selector") as Control
+	if detail_row == null or detail_row.visible:
+		_fail("%s should omit the redundant action-description row" % label)
+		return
+	if status_row == null or status_row.visible:
+		_fail("%s should omit target-validity and turn-end copy" % label)
+		return
+	if mode_selector == null or not mode_selector.visible:
+		_fail("%s should keep the card-mode selector directly below the title" % label)
 
 func _control_rect(instance: Node, path: String) -> Rect2:
 	var control: Control = instance.get_node_or_null(path) as Control

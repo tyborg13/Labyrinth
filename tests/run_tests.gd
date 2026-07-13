@@ -8067,11 +8067,13 @@ func _test_run_scene_action_selection_buttons_are_large() -> void:
 	await process_frame
 	await process_frame
 	var context: Control = instance.get("_action_step_tracker") as Control
-	var context_verb: Label = instance.get("_action_context_verb_label") as Label
+	var detail_row: Control = instance.get("_action_context_detail_row") as Control
+	var status_row: Control = instance.get("_action_context_status_row") as Control
 	var skip_button: Button = _button_with_text(context, "Skip")
 	var cancel_button: Button = _button_with_text(context, "Cancel")
 	_assert(context != null and context.visible, "Action selection should show one coherent context rail")
-	_assert(_label_text_fits(context_verb), "Action-selection instruction should fit without ellipsis")
+	_assert(detail_row != null and not detail_row.visible, "Action selection should omit the redundant action-description row")
+	_assert(status_row != null and not status_row.visible, "Action selection should omit target-validity and turn-end copy")
 	_assert(skip_button != null, "Action context should show Skip when the current action can be skipped")
 	_assert(cancel_button != null, "Action context should show Cancel while a card action is selected")
 	if skip_button != null:

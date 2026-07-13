@@ -200,10 +200,12 @@ func _assert_drag_state(instance: Node) -> void:
 func _assert_context(instance: Node, verb_fragment: String, step_text: String, label: String) -> void:
 	var context: Control = instance.get("_action_step_tracker") as Control
 	var step_label: Label = instance.get("_action_context_step_label") as Label
-	var verb_label: Label = instance.get("_action_context_verb_label") as Label
+	var detail_row: Control = instance.get("_action_context_detail_row") as Control
+	var status_row: Control = instance.get("_action_context_status_row") as Control
 	_assert(context.visible, "%s should show action context" % label)
 	_assert(str(context.get_meta("action_verb", "")).contains(verb_fragment), "%s should show verb %s" % [label, verb_fragment])
-	_assert(_label_text_fits(verb_label), "%s action instruction should fit without ellipsis" % label)
+	_assert(detail_row != null and not detail_row.visible, "%s should omit the redundant action-description row" % label)
+	_assert(status_row != null and not status_row.visible, "%s should omit target-validity and turn-end copy" % label)
 	_assert(step_label != null and step_label.text == step_text, "%s should show %s" % [label, step_text])
 	var cancel_button: Button = _button_with_text(context, "Cancel")
 	_assert(cancel_button != null, "%s should keep Cancel in context" % label)

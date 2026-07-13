@@ -1140,6 +1140,8 @@ var _play_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
 var _action_step_tracker_title: Label
 var _action_context_step_label: Label
+var _action_context_detail_row: HBoxContainer
+var _action_context_status_row: HBoxContainer
 var _action_context_verb_label: Label
 var _action_context_target_label: Label
 var _action_context_risk_panel: PanelContainer
@@ -5287,49 +5289,51 @@ func _setup_action_step_tracker() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 5)
+	vbox.add_theme_constant_override("separation", 7)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
 	var header := VBoxContainer.new()
 	header.name = "ActionContextHeader"
-	header.custom_minimum_size = Vector2(0.0, 44.0)
+	header.custom_minimum_size = Vector2(0.0, 26.0)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_theme_constant_override("separation", 0)
 	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(header)
 
 	var title_row := HBoxContainer.new()
-	title_row.custom_minimum_size = Vector2(0.0, 22.0)
+	title_row.custom_minimum_size = Vector2(0.0, 26.0)
 	title_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_theme_constant_override("separation", 4)
 	title_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(title_row)
 
-	var detail_row := HBoxContainer.new()
-	detail_row.custom_minimum_size = Vector2(0.0, 22.0)
-	detail_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_row.add_theme_constant_override("separation", 4)
-	detail_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(detail_row)
+	_action_context_detail_row = HBoxContainer.new()
+	_action_context_detail_row.name = "ActionContextDetailRow"
+	_action_context_detail_row.custom_minimum_size = Vector2(0.0, 22.0)
+	_action_context_detail_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_action_context_detail_row.add_theme_constant_override("separation", 4)
+	_action_context_detail_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(_action_context_detail_row)
 
-	var status_row := HBoxContainer.new()
-	status_row.custom_minimum_size = Vector2(0.0, 22.0)
-	status_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	status_row.add_theme_constant_override("separation", 4)
-	status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(status_row)
+	_action_context_status_row = HBoxContainer.new()
+	_action_context_status_row.name = "ActionContextStatusRow"
+	_action_context_status_row.custom_minimum_size = Vector2(0.0, 22.0)
+	_action_context_status_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_action_context_status_row.add_theme_constant_override("separation", 4)
+	_action_context_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(_action_context_status_row)
 
 	_action_step_tracker_title = Label.new()
 	_action_step_tracker_title.name = "ActionStepTitle"
-	_action_step_tracker_title.custom_minimum_size = Vector2(0.0, 22.0)
+	_action_step_tracker_title.custom_minimum_size = Vector2(0.0, 26.0)
 	_action_step_tracker_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_action_step_tracker_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_action_step_tracker_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_action_step_tracker_title.clip_text = true
 	_action_step_tracker_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_action_step_tracker_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_action_step_tracker_title, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(_action_step_tracker_title, UiTypography.SIZE_BODY)
 	_action_step_tracker_title.add_theme_color_override("font_color", Color("fff1d5"))
 	_action_step_tracker_title.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_step_tracker_title.add_theme_constant_override("outline_size", 2)
@@ -5337,7 +5341,7 @@ func _setup_action_step_tracker() -> void:
 
 	_action_context_step_label = Label.new()
 	_action_context_step_label.name = "ActionContextStep"
-	_action_context_step_label.custom_minimum_size = Vector2(64.0, 22.0)
+	_action_context_step_label.custom_minimum_size = Vector2(64.0, 26.0)
 	_action_context_step_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_action_context_step_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_action_context_step_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -5359,7 +5363,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_verb_label.add_theme_color_override("font_color", Color("fff0ce"))
 	_action_context_verb_label.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_context_verb_label.add_theme_constant_override("outline_size", 2)
-	detail_row.add_child(_action_context_verb_label)
+	_action_context_detail_row.add_child(_action_context_verb_label)
 
 	_action_context_target_label = Label.new()
 	_action_context_target_label.name = "ActionContextTarget"
@@ -5371,14 +5375,14 @@ func _setup_action_step_tracker() -> void:
 	_action_context_target_label.add_theme_color_override("font_color", Color("9ed7df"))
 	_action_context_target_label.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_context_target_label.add_theme_constant_override("outline_size", 1)
-	status_row.add_child(_action_context_target_label)
+	_action_context_status_row.add_child(_action_context_target_label)
 
 	_action_context_risk_panel = PanelContainer.new()
 	_action_context_risk_panel.name = "ActionContextRisk"
 	_action_context_risk_panel.custom_minimum_size = Vector2(96.0, 22.0)
 	_action_context_risk_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_action_context_risk_panel.add_theme_stylebox_override("panel", _action_context_risk_style("safe"))
-	status_row.add_child(_action_context_risk_panel)
+	_action_context_status_row.add_child(_action_context_risk_panel)
 
 	_action_context_risk_label = Label.new()
 	_action_context_risk_label.name = "ActionContextRiskLabel"
@@ -6710,6 +6714,10 @@ func _refresh_action_step_tracker() -> void:
 	var current_index: int = int(tracker_state.get("action_index", 0))
 	var context_mode: String = str(tracker_state.get("mode", "selection"))
 	var compact_header_mode: bool = context_mode == "drag"
+	if _action_context_detail_row != null:
+		_action_context_detail_row.visible = compact_header_mode
+	if _action_context_status_row != null:
+		_action_context_status_row.visible = false
 	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
 	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
 	var current_number: int = clampi(current_index + 1, 1, maxi(1, actions.size()))
@@ -6718,12 +6726,6 @@ func _refresh_action_step_tracker() -> void:
 	if _action_context_step_label != null:
 		_action_context_step_label.visible = not compact_header_mode
 		_action_context_step_label.text = "STEP %d/%d" % [current_number, maxi(1, actions.size())]
-	if _action_context_target_label != null:
-		var status_row: Control = _action_context_target_label.get_parent() as Control
-		if status_row != null:
-			status_row.visible = not compact_header_mode
-	if _action_context_risk_panel != null:
-		_action_context_risk_panel.visible = not compact_header_mode
 	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
 	var statuses: Array = []
 	var action_types: Array = []
