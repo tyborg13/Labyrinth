@@ -301,6 +301,7 @@ func _initialize() -> void:
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
 	await _test_card_widget_active_intensity_condition_glows()
+	await _test_card_widget_flurry_icon_uses_wide_slot()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
@@ -6468,7 +6469,7 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(ActionIcons.tooltip("flurry").contains("pays Time once"), "Flurry tooltip should distinguish repeated effects from its single time payment")
 	var flurry_icon := Image.new()
 	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
-	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 64 and flurry_icon.get_height() == 64, "Flurry should ship a dedicated 64x64 action icon")
+	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 112 and flurry_icon.get_height() == 64, "Flurry should ship its dedicated wide 112x64 action icon")
 	var illusion_row: Array = ActionIcons.tokens_for_action({"type": "illusion", "health": 4, "range": 3})
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
@@ -9438,6 +9439,44 @@ func _test_card_widget_active_intensity_condition_glows() -> void:
 	widget.set_display_overrides(str(inactive_display.get("summary_bbcode", "")), inactive_display.get("modifier_lines", []), inactive_display.get("summary_rows", []))
 	await process_frame
 	_assert(glow != null and not glow.visible, "A card below its elemental intensity threshold should hide the full-card glow")
+	widget.queue_free()
+	instance.queue_free()
+	await process_frame
+
+func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
+	if run_scene == null or card_scene == null:
+		_failures.append("Run scene and CardWidget scene should load for Flurry icon layout coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var widget := card_scene.instantiate() as CardWidget
+	widget.custom_minimum_size = Vector2(250.0, 352.0)
+	widget.size = Vector2(250.0, 352.0)
+	root.add_child(widget)
+	await process_frame
+	var display: Dictionary = instance.call("_card_widget_display", "blade_dance", {})
+	widget.configure("blade_dance", false, false, true, false, false, true, GameData.card_def("blade_dance"))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+	await process_frame
+	var summary_box: VBoxContainer = widget.get("_summary_icon_box") as VBoxContainer
+	var wide_icon: TextureRect
+	var regular_icon: TextureRect
+	for texture_rect: TextureRect in _texture_rects_under(summary_box):
+		var minimum_size: Vector2 = texture_rect.custom_minimum_size
+		if minimum_size.x > minimum_size.y * 1.5:
+			wide_icon = texture_rect
+		elif regular_icon == null and is_equal_approx(minimum_size.x, minimum_size.y):
+			regular_icon = texture_rect
+	_assert(wide_icon != null, "Flurry should render in a dedicated wide summary-token slot")
+	_assert(regular_icon != null, "Blade Dance should retain regular square action-token slots beside Flurry")
+	if wide_icon != null and regular_icon != null:
+		var wide_size: Vector2 = wide_icon.custom_minimum_size
+		var regular_size: Vector2 = regular_icon.custom_minimum_size
+		_assert(wide_size.x >= regular_size.x * 1.75 and wide_size.x <= regular_size.x * 1.85, "Flurry should render at about 1.8x normal token width")
+		_assert(wide_size.y <= regular_size.y * 1.10, "Flurry's wide slot should not create a doubled-height row gap")
 	widget.queue_free()
 	instance.queue_free()
 	await process_frame
