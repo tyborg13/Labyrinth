@@ -196,6 +196,15 @@ func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: flo
 	if tracker.global_position.y + tracker.size.y > anchor_y + 1.0:
 		_fail("%s tracker overlaps controls: tracker bottom %.1f, anchor %.1f" % [label, tracker.global_position.y + tracker.size.y, anchor_y])
 		return
+	var card_anchor: Rect2 = instance.call("_action_step_tracker_anchor_rect") as Rect2
+	var tracker_rect: Rect2 = tracker.get_global_rect()
+	if absf(tracker_rect.get_center().x - card_anchor.get_center().x) > 2.0:
+		_fail("%s tracker should stay horizontally connected to its active card" % label)
+		return
+	var card_gap: float = card_anchor.position.y - tracker_rect.end.y
+	if card_gap < -1.0 or card_gap > 24.0:
+		_fail("%s tracker should sit directly above the hand, got gap %.1f" % [label, card_gap])
+		return
 
 func _assert_tracker_copy_is_compact(instance: Node, label: String) -> void:
 	var detail_row: Control = instance.get("_action_context_detail_row") as Control

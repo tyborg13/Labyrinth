@@ -6846,15 +6846,14 @@ func _layout_action_step_tracker() -> void:
 	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
 	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
 		return
-	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
-	var target_x: float = ACTION_CONTEXT_EDGE_MARGIN
-	if board_bounds.size.x > 0.0:
-		target_x = board_bounds.position.x - tracker_size.x - CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP
+	var target_x: float = anchor_rect.get_center().x - tracker_size.x * 0.5
 	target_x = clampf(target_x, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.x - tracker_size.x - ACTION_CONTEXT_EDGE_MARGIN))
-	var target_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
+	var minimum_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	if _intensity_bar != null and _intensity_bar.visible:
-		target_y = maxf(target_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
-	target_y = minf(target_y, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN))
+		minimum_y = maxf(minimum_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
+	var target_y: float = anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP
+	var maximum_y: float = maxf(minimum_y, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN)
+	target_y = clampf(target_y, minimum_y, maximum_y)
 	_action_step_tracker.global_position = Vector2(target_x, target_y)
 	if _action_context_connector != null:
 		_action_context_connector.visible = false

@@ -228,6 +228,9 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	var selected_card: Control = _hand_card_control(hand_box, int(instance.get("_selected_card_index")))
 	var hand_visual_top: float = _hand_visual_top(hand_box)
 	_assert(selected_card != null and context_rect.end.y <= hand_visual_top + 1.0, "Action context should sit above the entire rendered hand, including rotated card titles and ornaments")
+	var card_anchor: Rect2 = instance.call("_action_step_tracker_anchor_rect") as Rect2
+	_assert(absf(context_rect.get_center().x - card_anchor.get_center().x) <= 48.0, "Action context should remain visually connected to the active hand card")
+	_assert(card_anchor.position.y - context_rect.end.y <= 24.0, "Action context should stay close to the cards instead of floating beside the board")
 
 func _hand_card_control(hand_box: Control, index: int) -> Control:
 	if hand_box == null or index < 0 or index >= hand_box.get_child_count():
