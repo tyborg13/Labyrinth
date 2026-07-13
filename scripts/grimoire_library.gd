@@ -133,6 +133,7 @@ static func _entries_ref() -> Array:
 	var result: Array = (data().get("entries", []) as Array).duplicate(true)
 	result.append_array(magick_entries())
 	result.append_array(equipment_entries())
+	result.append_array(equipment_radiance_card_entries())
 	result.append_array(item_entries())
 	result.append_array(character_entries())
 	_entries_cache = result
@@ -170,6 +171,26 @@ static func equipment_entries() -> Array:
 			"group": GameData.equipment_slot(equipment_id),
 			"group_title": str(EQUIPMENT_SLOT_TITLES.get(GameData.equipment_slot(equipment_id), GameData.equipment_slot(equipment_id).capitalize())),
 			"body": _equipment_entry_body(equipment_id, item)
+		})
+	return result
+
+static func equipment_radiance_card_entries() -> Array:
+	var result: Array = []
+	for card_id: String in GameData.cards().keys():
+		if not _is_equipment_radiance_card_id(card_id):
+			continue
+		var card: Dictionary = GameData.card_def(card_id)
+		var equipment_id: String = _first_equipment_id_for_card(card_id)
+		var slot: String = GameData.equipment_slot(equipment_id)
+		result.append({
+			"id": equipment_card_entry_id(card_id),
+			"section": SECTION_EQUIPMENT,
+			"title": str(card.get("name", card_id)),
+			"card_id": card_id,
+			"equipment_id": equipment_id,
+			"group": slot,
+			"group_title": str(EQUIPMENT_SLOT_TITLES.get(slot, slot.capitalize())),
+			"body": _card_entry_body(card)
 		})
 	return result
 
@@ -212,6 +233,9 @@ static func item_entry_id(card_id: String) -> String:
 
 static func equipment_entry_id(equipment_id: String) -> String:
 	return "equipment:%s" % equipment_id
+
+static func equipment_card_entry_id(card_id: String) -> String:
+	return "equipment_card:%s" % card_id
 
 static func character_entry_id(npc_id: String) -> String:
 	return "character:%s" % npc_id
@@ -514,6 +538,8 @@ static func _entry_ids_for_card_id_ref(card_id: String) -> Array:
 		wanted[item_entry_id(card_id)] = true
 	elif is_magick_card_id(card_id):
 		wanted[magick_entry_id(card_id)] = true
+	elif _is_equipment_radiance_card_id(card_id):
+		wanted[equipment_card_entry_id(card_id)] = true
 	_collect_entry_ids_for_card_def(card, wanted)
 	var result: Array[String] = _ordered_entry_ids_from_set(wanted)
 	_card_entry_ids_cache[card_id] = result
@@ -836,11 +862,20 @@ static func is_magick_card_id(card_id: String) -> bool:
 	var card: Dictionary = GameData.card_def(card_id)
 	if card.is_empty():
 		return false
-	if bool(card.get("radiance", false)):
-		return true
 	if GameData.starting_magic_cards().has(card_id):
 		return true
 	return bool(card.get("reward_pool", true))
+
+static func _is_equipment_radiance_card_id(card_id: String) -> bool:
+	var card: Dictionary = GameData.card_def(card_id)
+	return not card.is_empty() and bool(card.get("radiance", false)) and not is_magick_card_id(card_id) and not _first_equipment_id_for_card(card_id).is_empty()
+
+static func _first_equipment_id_for_card(card_id: String) -> String:
+	for equipment_id_var: Variant in GameData.equipment_ids():
+		var equipment_id: String = str(equipment_id_var)
+		if GameData.equipment_cards(equipment_id).has(card_id):
+			return equipment_id
+	return ""
 
 static func _truthy_value(value: Variant) -> bool:
 	match typeof(value):

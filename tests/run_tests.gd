@@ -388,8 +388,9 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var entries: Dictionary = GrimoireLibrary.entry_map()
 	for required_id: String in ["basic:run", "combat:turn_clock", "combat:summons", "combat:umbra", "keyword:bleed", "keyword:radiance", "keyword:illuminate", "keyword:vision", "keyword:truesight", "keyword:dispel_umbra", "magick:pale_spark", "magick:spark_dart", "equipment:training_sword", "item:crimson_draught", "character:emaciated_man", "enemy:crawler", "enemy:zekarion"]:
 		_assert(entries.has(required_id), "Grimoire should include %s" % required_id)
-	for radiance_card_id: String in ["lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
-		_assert(entries.has(GrimoireLibrary.magick_entry_id(radiance_card_id)), "Every Radiance card should have a Grimoire card entry: %s" % radiance_card_id)
+	_assert(entries.has(GrimoireLibrary.equipment_card_entry_id("lantern_shot")), "Equipment-provided Lantern Shot should have a Grimoire card entry")
+	for radiance_card_id: String in ["guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
+		_assert(entries.has(GrimoireLibrary.magick_entry_id(radiance_card_id)), "Every Radiance Magick should have a Grimoire card entry: %s" % radiance_card_id)
 	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
@@ -402,7 +403,8 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
 	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
 	var lantern_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("lantern_shot")
-	_assert(lantern_entries.has("magick:lantern_shot"), "Starter Lantern Shot should unlock its Radiance card entry")
+	_assert(lantern_entries.has("equipment_card:lantern_shot"), "Starter Lantern Shot should unlock its equipment-provenance card entry")
+	_assert(not lantern_entries.has("magick:lantern_shot"), "Equipment-provided Lantern Shot should not be misclassified as a Magick")
 	_assert(lantern_entries.has("keyword:radiance") and lantern_entries.has("keyword:illuminate"), "Radiance cards should unlock their school and printed light effects")
 	_assert(GrimoireLibrary.entry_ids_for_card_id("dawnstep").has("keyword:vision"), "Dawnstep should unlock Vision")
 	_assert(GrimoireLibrary.entry_ids_for_card_id("prism_sight").has("keyword:truesight"), "Prism Sight should unlock Truesight")
@@ -412,6 +414,8 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("sawtooth_knife")
 	_assert(equipment_entries.has("equipment:sawtooth_knife"), "Discovered equipment should unlock its equipment entry")
 	_assert(equipment_entries.has("keyword:bleed"), "Equipment should unlock keywords from granted cards")
+	var lantern_equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("cracked_lantern")
+	_assert(lantern_equipment_entries.has("equipment_card:lantern_shot"), "Cracked Lantern should unlock its Radiance card page under Equipment")
 	var npc_entries: Array[String] = GrimoireLibrary.entry_ids_for_npc_ids(["blacksmith"])
 	_assert(npc_entries.has("character:blacksmith"), "Seen NPCs should unlock character entries")
 	var crawler_entries: Array[String] = GrimoireLibrary.entry_ids_for_enemy_types(["crawler"])

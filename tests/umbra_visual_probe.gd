@@ -131,7 +131,7 @@ func _capture_grimoire_entries(instance: Node) -> void:
 	await _capture_grimoire_entry(instance, "combat:umbra", "The Umbra", "Enemies concealed within it", "grimoire_umbra.png")
 	await _capture_grimoire_entry(instance, "keyword:radiance", "Radiance", "Illuminate, Vision, Truesight", "grimoire_radiance.png")
 	await _capture_grimoire_entry(instance, "keyword:truesight", "Truesight", "permits direct attacks", "grimoire_truesight.png")
-	await _capture_grimoire_entry(instance, "magick:lantern_shot", "Lantern Shot", "School: Radiance", "grimoire_lantern_shot.png")
+	await _capture_grimoire_entry(instance, "equipment_card:lantern_shot", "Lantern Shot", "School: Radiance", "grimoire_lantern_shot.png")
 
 func _capture_grimoire_entry(instance: Node, entry_id: String, expected_title: String, expected_body: String, file_name: String) -> void:
 	instance.call("_open_grimoire_overlay")
