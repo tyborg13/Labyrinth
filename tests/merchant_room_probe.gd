@@ -7,19 +7,17 @@ const GameData = preload("res://scripts/game_data.gd")
 
 const OUTPUT_DIR: String = "user://merchant_room_probe"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1280, 720)
+const FULL_HD_VIEWPORT: Vector2i = Vector2i(1920, 1080)
+const MERCHANT_VIEWPORT_SAFE_MARGIN: float = 20.0
+const VIEWPORT_EDGE_TOLERANCE: float = 1.0
 
 var _failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	root.mode = Window.MODE_WINDOWED
-	root.content_scale_size = PROBE_VIEWPORT
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	root.size = PROBE_VIEWPORT
-	await process_frame
-	await process_frame
-	root.size = PROBE_VIEWPORT
-	await process_frame
+	await _set_probe_viewport(PROBE_VIEWPORT)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	ProgressionStore.set_storage_path("user://labyrinth_progression_merchant_room_probe.json")
@@ -76,6 +74,9 @@ func _capture_merchant_rooms() -> void:
 	await _settle_visuals()
 	instance.call("_close_dialogue")
 	await _settle_visuals()
+	if not _merchant_panel_has_safe_viewport_margin(instance, PROBE_VIEWPORT):
+		_fail("Arcanist interface should fit fully inside the 1280x720 viewport")
+		return
 	await _save_root_screenshot("%s/arcanist_trade.png" % OUTPUT_DIR)
 
 	base_state = _run_with_room_type(probe_run_engine, progression, "scavenger")
@@ -91,8 +92,33 @@ func _capture_merchant_rooms() -> void:
 	await _settle_visuals()
 	instance.call("_close_dialogue")
 	await _settle_visuals()
+	if not _merchant_panel_has_safe_viewport_margin(instance, PROBE_VIEWPORT):
+		_fail("Scavenger interface should fit fully inside the 1280x720 viewport")
+		return
 	await _save_root_screenshot("%s/scavenger_trade.png" % OUTPUT_DIR)
 
+	instance.queue_free()
+	await process_frame
+	await _capture_full_hd_blacksmith(packed, blacksmith_state)
+
+func _capture_full_hd_blacksmith(packed: PackedScene, blacksmith_state: Dictionary) -> void:
+	await _set_probe_viewport(FULL_HD_VIEWPORT)
+	var instance: Node = packed.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	if not root.get_viewport().get_visible_rect().size.is_equal_approx(Vector2(FULL_HD_VIEWPORT)):
+		_fail("Full HD merchant probe should use a 1920x1080 logical viewport")
+		return
+	instance.call("_load_run_state", blacksmith_state)
+	await _settle_visuals()
+	instance.call("_close_dialogue")
+	await _settle_visuals()
+	var trade_panel: Control = instance.find_child("MerchantTradePanel", true, false) as Control
+	if trade_panel == null or not _control_has_safe_viewport_margin(trade_panel, FULL_HD_VIEWPORT):
+		_fail("Merchant interface should fit fully inside the 1920x1080 viewport")
+		return
+	await _save_root_screenshot("%s/blacksmith_trade_full_hd.png" % OUTPUT_DIR, FULL_HD_VIEWPORT)
 	instance.queue_free()
 	await process_frame
 
@@ -139,11 +165,22 @@ func _settle_visuals() -> void:
 	await create_timer(0.18).timeout
 	await process_frame
 
+func _set_probe_viewport(viewport_size: Vector2i) -> void:
+	root.content_scale_size = viewport_size
+	root.size = viewport_size
+	await process_frame
+	await process_frame
+	root.size = viewport_size
+	await process_frame
+
 func _verify_merchant_door_access(instance: Node, probe_run_engine: RunEngine) -> void:
 	var trade_panel: Control = instance.find_child("MerchantTradePanel", true, false) as Control
-	var show_doors_button: Button = instance.find_child("MerchantShowDoorsButton", true, false) as Button
-	if trade_panel == null or show_doors_button == null:
-		_fail("Merchant shop should provide a Show Doors action")
+	var hide_button: Button = instance.find_child("MerchantHideButton", true, false) as Button
+	if trade_panel == null or hide_button == null or hide_button.text != "Hide":
+		_fail("Merchant shop should provide a terse Hide action")
+		return
+	if not _control_has_safe_viewport_margin(trade_panel, PROBE_VIEWPORT):
+		_fail("Merchant interface should fit fully inside the 1280x720 viewport")
 		return
 	var board: Control = instance.get("board_view") as Control
 	var run_state: Dictionary = instance.get("_run_state") as Dictionary
@@ -160,10 +197,10 @@ func _verify_merchant_door_access(instance: Node, probe_run_engine: RunEngine) -
 		_fail("1280x720 merchant fixture should reproduce a valid door covered by the open shop")
 		return
 
-	show_doors_button.pressed.emit()
+	hide_button.pressed.emit()
 	await _settle_visuals()
 	if instance.find_child("MerchantTradePanel", true, false) != null:
-		_fail("Show Doors should remove the blocking merchant panel")
+		_fail("Hide should remove the blocking merchant interface")
 		return
 	var return_to_shop_button: Button = _button_with_text(instance, "Return to Shop")
 	if return_to_shop_button == null or not return_to_shop_button.is_visible_in_tree():
@@ -190,8 +227,8 @@ func _verify_merchant_door_access(instance: Node, probe_run_engine: RunEngine) -
 	return_to_shop_button.pressed.emit()
 	await _settle_visuals()
 	var reopened_panel: Control = instance.find_child("MerchantTradePanel", true, false) as Control
-	var reopened_show_doors: Button = instance.find_child("MerchantShowDoorsButton", true, false) as Button
-	if reopened_panel == null or reopened_show_doors == null:
+	var reopened_hide: Button = instance.find_child("MerchantHideButton", true, false) as Button
+	if reopened_panel == null or reopened_hide == null:
 		_fail("Return to Shop should restore the merchant trade panel")
 		return
 	await instance.call("_on_cancel_requested")
@@ -204,7 +241,22 @@ func _verify_merchant_door_access(instance: Node, probe_run_engine: RunEngine) -
 	await process_frame
 	var moved_state: Dictionary = instance.get("_run_state") as Dictionary
 	if moved_state.get("current_room", Vector2i(999, 999)) != destination:
-		_fail("A door previously covered by the merchant panel should be clickable after Show Doors")
+		_fail("A door previously covered by the merchant interface should be clickable after Hide")
+
+func _merchant_panel_has_safe_viewport_margin(instance: Node, viewport_size: Vector2i) -> bool:
+	var trade_panel: Control = instance.find_child("MerchantTradePanel", true, false) as Control
+	return _control_has_safe_viewport_margin(trade_panel, viewport_size)
+
+func _control_has_safe_viewport_margin(control: Control, viewport_size: Vector2i) -> bool:
+	if control == null:
+		return false
+	var rect: Rect2 = control.get_global_rect()
+	return (
+		rect.position.x >= MERCHANT_VIEWPORT_SAFE_MARGIN - VIEWPORT_EDGE_TOLERANCE
+		and rect.position.y >= MERCHANT_VIEWPORT_SAFE_MARGIN - VIEWPORT_EDGE_TOLERANCE
+		and rect.end.x <= float(viewport_size.x) - MERCHANT_VIEWPORT_SAFE_MARGIN + VIEWPORT_EDGE_TOLERANCE
+		and rect.end.y <= float(viewport_size.y) - MERCHANT_VIEWPORT_SAFE_MARGIN + VIEWPORT_EDGE_TOLERANCE
+	)
 
 func _send_board_left_click(board: Control, position: Vector2) -> void:
 	var press := InputEventMouseButton.new()
@@ -232,10 +284,10 @@ func _button_with_text(root_node: Node, text: String) -> Button:
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
-func _save_root_screenshot(output_path: String) -> void:
+func _save_root_screenshot(output_path: String, expected_size: Vector2i = PROBE_VIEWPORT) -> void:
 	var image: Image = root.get_viewport().get_texture().get_image()
-	if image.get_size() != PROBE_VIEWPORT:
-		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
+	if image.get_size() != expected_size:
+		image.resize(expected_size.x, expected_size.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
 
 func _clear_probe_output(output_dir: String) -> void:

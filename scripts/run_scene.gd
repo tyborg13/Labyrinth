@@ -3063,7 +3063,10 @@ func _layout_relic_choice_overlay() -> void:
 		var max_width: float = minf(RELIC_CHOICE_OVERLAY_SIZE.x, maxf(360.0, stage_size.x - 24.0))
 		var min_width: float = minf(640.0, max_width)
 		var width: float = clampf(stage_size.x * 0.90, min_width, max_width)
-		var height: float = RELIC_CHOICE_OVERLAY_SIZE.y
+		var content_height: float = 0.0
+		if _relic_choice_bar != null:
+			content_height = _relic_choice_bar.get_combined_minimum_size().y
+		var height: float = maxf(RELIC_CHOICE_OVERLAY_SIZE.y, content_height)
 		var left: float = (stage_size.x - width) * 0.5
 		var top: float = stage_size.y - height - RELIC_CHOICE_BOTTOM_MARGIN
 		_relic_choice_host.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -8426,7 +8429,7 @@ func _sync_merchant_shop_room() -> void:
 	_merchant_shop_room_coord = current_coord
 	_merchant_shop_open = true
 
-func _on_merchant_show_doors_pressed() -> void:
+func _on_merchant_hide_pressed() -> void:
 	if not _merchant_shop_open or _current_room_merchant_kind().is_empty():
 		return
 	_close_pinned_tooltip()
@@ -8523,16 +8526,16 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 	ember_label.add_theme_constant_override("outline_size", 1)
 	top_row.add_child(ember_label)
 
-	var show_doors_button := Button.new()
-	show_doors_button.name = "MerchantShowDoorsButton"
-	show_doors_button.text = "Show Doors"
-	show_doors_button.tooltip_text = "Hide the shop panel and reveal every door."
-	_ui_skin.apply_button_stylebox_overrides(show_doors_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(show_doors_button)
-	UiTypography.set_button_size(show_doors_button, UiTypography.SIZE_SMALL)
-	_ui_skin.apply_button_native_size(show_doors_button, UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, UiSkin.VARIANT_STANDARD)
-	show_doors_button.pressed.connect(_on_merchant_show_doors_pressed)
-	top_row.add_child(show_doors_button)
+	var hide_button := Button.new()
+	hide_button.name = "MerchantHideButton"
+	hide_button.text = "Hide"
+	hide_button.tooltip_text = "Hide the merchant interface and reveal every door."
+	_ui_skin.apply_button_stylebox_overrides(hide_button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(hide_button)
+	UiTypography.set_button_size(hide_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(hide_button, UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, UiSkin.VARIANT_STANDARD)
+	hide_button.pressed.connect(_on_merchant_hide_pressed)
+	top_row.add_child(hide_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -11137,7 +11140,7 @@ func _on_cancel_requested() -> void:
 		_cancel_card_selection()
 		return
 	if _merchant_shop_open and not _current_room_merchant_kind().is_empty():
-		_on_merchant_show_doors_pressed()
+		_on_merchant_hide_pressed()
 		return
 	_open_menu_overlay()
 
