@@ -447,5 +447,28 @@
       "thorn_crown_pact",
       "royal_bramble"
     ]
+  },
+  "windlass_repeater": {
+    "name": "Windlass Repeater",
+    "slot": "weapon",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/windlass_repeater.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "windlass_volley",
+      "crank_reload",
+      "far_draw"
+    ]
+  },
+  "war_dancer_sash": {
+    "name": "War-Dancer Sash",
+    "slot": "trinket",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/war_dancer_sash.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "blade_dance",
+      "gathering_rhythm"
+    ]
   }
 }

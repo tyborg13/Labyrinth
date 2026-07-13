@@ -4984,6 +4984,78 @@
       }
     },
     {
+      "id": "mnt_20260712T190722Z_7dd07778",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Flurry repeats effects but pays Time once",
+      "details": "Cards with top-level flurry:true snapshot all currently available card plays, expand their printed actions once per snapped play, multiply health cost per copy, discard one physical card, and pay the top-level Time cost only once. The commit spends the snapshotted plays; bonuses or kill refunds created during resolution remain afterward. Fallback Attack/Move modes do not inherit Flurry.",
+      "status": "active",
+      "created_at": "2026-07-12T19:07:22Z",
+      "updated_at": "2026-07-12T19:07:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T144533Z_f10533a2"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "b878bb7"
+      }
+    },
+    {
+      "id": "mnt_20260712T194128Z_a10cf661",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "data/cards.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/cards.json",
+      "summary": "Flurry cards should be modest per copy but premium in total",
+      "details": "Do not overcorrect Flurry by making each printed package anemic. Keep each repeat below the rate of a normal standalone card, but tune the baseline two-copy result into the premium build-around band; the July 2026 midpoint pass landed the five payoffs around 4.6-5.7. Card-play enablers may be strong enough to make the setup exciting, including Gathering Rhythm granting 2 plays.",
+      "status": "active",
+      "created_at": "2026-07-12T19:41:28Z",
+      "updated_at": "2026-07-12T19:41:28Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T190722Z_c8606364"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "bc7ba2d"
+      }
+    },
+    {
+      "id": "mnt_20260713T165313Z_01d07089",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "assets/art/icons/flurry.png",
+        "symbol": null
+      },
+      "scope_key": "file:assets/art/icons/flurry.png",
+      "summary": "Flurry uses a wide timeline icon with a shallow card-row slot",
+      "details": "The approved direction is a 112x64 transparent timeline: two crimson outline card echoes progress along a gold baseline into one fully rendered parchment card. CardWidget gives the Flurry token about 1.8x normal width but only 1.05x normal height; doubling a square slot made the following row gaps visibly too large. Keep it distinct from Draw's upright stacked-card silhouette and validate at native 250x352 card size.",
+      "status": "active",
+      "created_at": "2026-07-13T16:53:13Z",
+      "updated_at": "2026-07-13T16:53:13Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T194128Z_c129001f"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "86696eb"
+      }
+    },
+    {
       "id": "mnt_20260711T032032Z_e558afe0",
       "layer": "shared",
       "kind": "pitfall",
@@ -5165,6 +5237,28 @@
       "source": {
         "branch": "codex/simplify-move-contextual-card-widget",
         "commit": "39afef2"
+      }
+    },
+    {
+      "id": "mnt_20260713T214111Z_ebb836bc",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/flurry_card_pack_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/flurry_card_pack_probe.gd",
+      "summary": "Hidden RunScene probes must also hide nested CanvasLayers",
+      "details": "Setting the RunScene root Control invisible does not suppress children moved under BoardUnderlay or UiLayer CanvasLayers. Isolated card-art probes that instantiate RunScene for helper methods must explicitly hide nested CanvasLayer nodes, or startup UI can cover the proof while image-dimension checks still pass.",
+      "status": "active",
+      "created_at": "2026-07-13T21:41:11Z",
+      "updated_at": "2026-07-13T21:41:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "da8db64"
       }
     }
   ]

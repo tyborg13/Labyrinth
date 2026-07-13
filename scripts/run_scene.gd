@@ -1173,6 +1173,7 @@ var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
+var _card_play_resolution_spend: int = 0
 var _choice_button_overlay: HBoxContainer
 var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
@@ -6766,7 +6767,7 @@ func _action_step_tracker_state() -> Dictionary:
 		var printed_preview: Dictionary = _drag_card_options.get("play", {})
 		var drag_actions: Array = printed_preview.get("actions", [])
 		if drag_actions.is_empty():
-			drag_actions = (_card_def(_card_id_for_hand_index(_drag_card_index), _combat_state).get("actions", []) as Array).duplicate(true)
+			drag_actions = _combat_engine.card_play_actions(_card_id_for_hand_index(_drag_card_index), _combat_state)
 		return {
 			"active": true,
 			"mode": "drag",
@@ -6782,7 +6783,7 @@ func _action_step_tracker_state() -> Dictionary:
 		var active_preview: Dictionary = _card_action_choice_options.get(_card_action_choice_mode, {})
 		var choice_actions: Array = active_preview.get("actions", [])
 		if choice_actions.is_empty():
-			choice_actions = (_card_def(choice_card_id, _combat_state).get("actions", []) as Array).duplicate(true)
+			choice_actions = _combat_engine.card_play_actions(choice_card_id, _combat_state)
 		var choice_action_index: int = int(active_preview.get("action_index", 0))
 		var choice_targets: Array[Vector2i] = []
 		if _selected_card_index == _card_action_choice_index and not _pending_actions.is_empty():
@@ -7619,15 +7620,16 @@ func _displayed_card_play_count() -> int:
 func _card_play_count_for_resolution_state(state: Dictionary) -> int:
 	var cards_left: int = _combat_engine.cards_remaining_this_turn(state)
 	if _card_play_count_override >= 0:
-		cards_left -= 1
+		cards_left -= maxi(1, _card_play_resolution_spend)
 	return maxi(0, cards_left)
 
 func _set_card_play_count_override(cards_left: int) -> void:
 	_card_play_count_override = maxi(0, cards_left)
 	_refresh_card_play_meter()
 
-func _begin_card_play_meter_spend_preview() -> void:
-	_set_card_play_count_override(maxi(0, _combat_engine.cards_remaining_this_turn(_combat_state) - 1))
+func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
+	_card_play_resolution_spend = maxi(1, plays_spent)
+	_set_card_play_count_override(maxi(0, _combat_engine.cards_remaining_this_turn(_combat_state) - _card_play_resolution_spend))
 
 func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 	if _intensity_bar == null:
@@ -8060,7 +8062,7 @@ func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionar
 	if resolved_state.is_empty():
 		return {}
 	if bool(preview.get("complete", false)):
-		return _combat_engine.finish_player_card(resolved_state, _selected_card_index)
+		return _combat_engine.finish_player_card(resolved_state, _selected_card_index, _combat_engine.card_plays_spent_for_actions(preview.get("actions", []) as Array))
 	return resolved_state
 
 func _pass_preview_summary() -> Dictionary:
@@ -9718,7 +9720,7 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	if _card_preview_cache.has(cache_key):
 		return _card_preview_cache.get(cache_key, {}) as Dictionary
 	var card_id: String = str(hand[index])
-	var preview: Dictionary = _card_preview_from_state(card_id, _combat_state, _card_def(card_id, _combat_state).get("actions", []), 0)
+	var preview: Dictionary = _card_preview_from_state(card_id, _combat_state, _combat_engine.card_play_actions(card_id, _combat_state), 0)
 	_card_preview_cache[cache_key] = preview
 	return preview
 
@@ -11227,13 +11229,14 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
+	var plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
 	_lock_action_step_tracker_position_for_resolution()
 	_animating_hand_card_index = hand_index
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true
-	_begin_card_play_meter_spend_preview()
+	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
-	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(resolved_state, hand_index)
+	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(resolved_state, hand_index, plays_spent)
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
 	if GameData.card_consumes_on_play(card_id):
 		committed_run_state = _run_engine.consume_equipped_item_card(committed_run_state, card_id)
@@ -11253,12 +11256,13 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
-	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, resolved_state, actions, selected_targets)
+	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
 	_animation_lock = false
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
+	_card_play_resolution_spend = 0
 	_reset_card_resolution()
 	_hovered_card_index = -1
 	_refresh_ui()
@@ -17382,15 +17386,19 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
 	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
-	if JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
+	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
+	if flurry_plays_spent <= 1 and JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
+	var flurry_played: bool = bool(printed_card.get("flurry", false)) and play_mode == "printed"
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
 		"play_mode": play_mode,
-			"printed_health_cost": int(printed_card.get("health_cost", 0)),
-			"consume_on_play": GameData.card_consumes_on_play(card_id),
-			"item_card": GameData.card_is_item(card_id),
-			"enemy_hp_damage": enemy_hp_damage,
+		"flurry": flurry_played,
+		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
+		"printed_health_cost": int(printed_card.get("health_cost", 0)),
+		"consume_on_play": GameData.card_consumes_on_play(card_id),
+		"item_card": GameData.card_is_item(card_id),
+		"enemy_hp_damage": enemy_hp_damage,
 		"enemy_block_removed": enemy_block_removed,
 		"enemy_stoneskin_removed": enemy_stoneskin_removed,
 		"enemy_defense_bypassed": _analytics_enemy_defense_bypassed(before_state, resolved_state, actions),
@@ -17416,7 +17424,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
 		"card_time": _combat_engine.card_time_cost_from_def(printed_card),
 		"turn_time_spent_before": int(before_state.get("player_turn_time_spent", 0)),
-		"turn_time_spent_after": int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card),
+		"turn_time_spent_after": int(resolved_state.get("player_turn_time_spent", int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card))),
 		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
 		"elemental_intensity_before": intensity_before,
 		"elemental_intensity_after": intensity_after,
@@ -17457,6 +17465,8 @@ func _analytics_actions_without_runtime_orientation(actions: Array) -> Array:
 		var action: Dictionary = (action_var as Dictionary).duplicate(true)
 		action.erase("orientation")
 		action.erase("force_direction")
+		action.erase("_flurry_repeat_index")
+		action.erase("_flurry_repeat_count")
 		result.append(action)
 	return result
 
