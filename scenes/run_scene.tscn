@@ -55,6 +55,11 @@ text = "Room"
 layout_mode = 2
 text = "Depth"
 
+[node name="UmbraSubtitle" type="Label" parent="Backdrop/Margin/MainVBox/TopBar/TitleBox"]
+visible = false
+layout_mode = 2
+text = "Deep Umbra"
+
 [node name="RelicBar" type="HFlowContainer" parent="Backdrop/Margin/MainVBox/TopBar/TitleBox"]
 visible = false
 layout_mode = 2

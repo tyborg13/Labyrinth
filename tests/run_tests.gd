@@ -10071,18 +10071,18 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	if intensity_bar != null and intensity_bar.get_child_count() > 0:
 		var first_badge: Control = intensity_bar.get_child(0) as Control
 		_assert(first_badge.custom_minimum_size.x >= 86.0 and first_badge.custom_minimum_size.y >= 86.0, "Elemental intensity badges should be visibly larger than relic badges")
-		_assert(intensity_bar.get_child_count() == 6, "Combat room-pressure HUD should show all five elements plus Umbra")
+		_assert(intensity_bar.get_child_count() == 5, "Combat intensity HUD should show only the five elements")
 		var top_y: float = first_badge.position.y
 		var second_row_y: float = (intensity_bar.get_child(3) as Control).position.y
 		for index: int in range(3):
 			var badge: Control = intensity_bar.get_child(index) as Control
 			_assert(absf(badge.position.y - top_y) <= 1.0, "Elemental intensity HUD should keep the first three icons on the top row")
-		for index: int in range(3, 6):
+		for index: int in range(3, 5):
 			var badge: Control = intensity_bar.get_child(index) as Control
-			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Room-pressure HUD should keep the final three icons on the second row")
+			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Elemental intensity HUD should keep the final two icons on the second row")
 		var top_middle: Control = intensity_bar.get_child(1) as Control
 		var bottom_left: Control = intensity_bar.get_child(3) as Control
-		var bottom_right: Control = intensity_bar.get_child(5) as Control
+		var bottom_right: Control = intensity_bar.get_child(4) as Control
 		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
 		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
 		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Room-pressure HUD second row should be centered under the top row")

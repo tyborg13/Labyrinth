@@ -9,6 +9,7 @@ const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const OUTPUT_DIR: String = "user://probes/umbra_visual"
 const BOARD_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/CombatBoard"
+const UMBRA_SUBTITLE_PATH: String = "Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle"
 const STAGES: Array[String] = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const EXPECTED_VISIBLE: Dictionary = {
 	"clear": 6,
@@ -19,7 +20,15 @@ const EXPECTED_VISIBLE: Dictionary = {
 	"heart": 2,
 	"eclipse": 1
 }
-const EXPECTED_BADGE: Dictionary = {"clear": "C∞", "fringe": "F6", "advancing": "A5", "pressing": "P4", "deep": "D3", "heart": "H2", "eclipse": "E1"}
+const EXPECTED_SUBTITLE: Dictionary = {
+	"clear": "",
+	"fringe": "Fringe Umbra",
+	"advancing": "Advancing Umbra",
+	"pressing": "Pressing Umbra",
+	"deep": "Deep Umbra",
+	"heart": "Heart Umbra",
+	"eclipse": "Eclipse Umbra"
+}
 const RADIANCE_CARDS: Array[String] = [
 	"lantern_shot",
 	"guiding_flare",
@@ -55,9 +64,18 @@ func _capture_umbra_stages_and_cards() -> void:
 		var presentation: Dictionary = board.get("presentation") as Dictionary
 		var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", [])
 		_assert(visible_enemy_ids.size() == int(EXPECTED_VISIBLE.get(stage, -1)), "%s should expose exactly %d enemies" % [stage, int(EXPECTED_VISIBLE.get(stage, -1))])
-		var umbra_badge_label: Label = (instance.get("_intensity_labels") as Dictionary).get("umbra", null) as Label
-		_assert(umbra_badge_label != null and umbra_badge_label.text == str(EXPECTED_BADGE.get(stage, "")), "%s should show its compact Umbra stage/radius badge" % stage)
+		var umbra_subtitle: Label = instance.get_node(UMBRA_SUBTITLE_PATH) as Label
+		var expected_subtitle: String = str(EXPECTED_SUBTITLE.get(stage, ""))
+		_assert(umbra_subtitle != null and umbra_subtitle.text == expected_subtitle, "%s should show its dedicated Umbra room subtitle" % stage)
+		_assert(umbra_subtitle.visible == not expected_subtitle.is_empty(), "%s should use the expected Umbra subtitle visibility" % stage)
+		_assert(not (instance.get("_intensity_labels") as Dictionary).has("umbra"), "Umbra should not be represented as an elemental intensity")
+		_assert((instance.get("_intensity_bar") as Control).get_child_count() == 5, "Intensity bar should contain only the five elements")
 		await _save_root_screenshot("%s/stage_%s.png" % [OUTPUT_DIR, stage])
+		if stage == "deep":
+			await create_timer(0.65).timeout
+			RenderingServer.force_draw()
+			await process_frame
+			await _save_root_screenshot("%s/stage_deep_billow.png" % OUTPUT_DIR)
 	await _capture_card_gallery(instance)
 	instance.queue_free()
 	await process_frame
@@ -165,7 +183,11 @@ func _room_layout() -> Dictionary:
 		"enemies": enemies,
 		"traps": [],
 		"terrain": [],
-		"loot": []
+		"loot": [{
+			"kind": "equipment",
+			"equipment_id": "iron_cleaver",
+			"pos": Vector2i(6, 5)
+		}]
 	}
 
 func _simple_grid() -> Array:

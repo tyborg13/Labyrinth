@@ -986,6 +986,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 @onready var title_box: VBoxContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox
 @onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
 @onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
+@onready var umbra_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
 @onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
 @onready var header_spacer: Control = $Backdrop/Margin/MainVBox/TopBar/Spacer
 @onready var stats_label: Label = $Backdrop/Margin/MainVBox/TopBar/StatsLabel
@@ -1425,12 +1426,16 @@ func _apply_style() -> void:
 		pile_panel.clip_contents = true
 	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE + 3)
 	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
+	UiTypography.set_label_size(umbra_subtitle, UiTypography.SIZE_BODY_LARGE)
 	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
 	room_title.add_theme_color_override("font_color", Color("f0e6d2"))
 	room_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	room_title.add_theme_constant_override("outline_size", 2)
 	room_subtitle.add_theme_color_override("font_color", Color("cdbca2"))
+	umbra_subtitle.add_theme_color_override("font_color", Color("b994d0"))
+	umbra_subtitle.add_theme_color_override("font_outline_color", Color("160d20"))
+	umbra_subtitle.add_theme_constant_override("outline_size", 2)
 	stats_label.add_theme_color_override("font_color", Color("f0c978"))
 	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	stats_label.add_theme_constant_override("outline_size", 2)
@@ -2122,7 +2127,7 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	if combat_state.has("umbra"):
 		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
 		if umbra_stage != "clear":
-			meta.text += "  ·  Umbra %s  ·  Vision %d" % [
+			meta.text += "  ·  %s Umbra  ·  Vision %d" % [
 				CombatEngineScript.umbra_stage_display_name(umbra_stage),
 				_combat_engine.effective_umbra_radius(combat_state)
 			]
@@ -5422,52 +5427,11 @@ func _setup_elemental_intensity_bar() -> void:
 		count.add_theme_constant_override("outline_size", 4)
 		content.add_child(count)
 		_intensity_labels[element_id] = count
-	var umbra_badge := TooltipPanelContainer.new()
-	umbra_badge.name = "UmbraIntensityBadge"
-	umbra_badge.custom_minimum_size = INTENSITY_BADGE_SIZE
-	umbra_badge.size = INTENSITY_BADGE_SIZE
-	umbra_badge.mouse_filter = Control.MOUSE_FILTER_STOP
-	umbra_badge.mouse_default_cursor_shape = Control.CURSOR_HELP
-	umbra_badge.add_theme_stylebox_override("panel", _umbra_badge_style(false))
-	_intensity_bar.add_child(umbra_badge)
-	_intensity_badges["umbra"] = umbra_badge
-	var umbra_content := Control.new()
-	umbra_content.set_anchors_preset(Control.PRESET_FULL_RECT)
-	umbra_content.anchor_right = 1.0
-	umbra_content.anchor_bottom = 1.0
-	umbra_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	umbra_badge.add_child(umbra_content)
-	var umbra_icon := TextureRect.new()
-	umbra_icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	umbra_icon.anchor_right = 1.0
-	umbra_icon.anchor_bottom = 1.0
-	umbra_icon.offset_left = INTENSITY_ICON_INSET
-	umbra_icon.offset_top = INTENSITY_ICON_INSET
-	umbra_icon.offset_right = -INTENSITY_ICON_INSET
-	umbra_icon.offset_bottom = -INTENSITY_ICON_INSET
-	umbra_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	umbra_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	umbra_icon.texture = AssetLoader.load_texture("res://assets/art/icons/umbra_presence.png")
-	umbra_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	umbra_content.add_child(umbra_icon)
-	var umbra_count := Label.new()
-	umbra_count.set_anchors_preset(Control.PRESET_FULL_RECT)
-	umbra_count.anchor_right = 1.0
-	umbra_count.anchor_bottom = 1.0
-	umbra_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	umbra_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	umbra_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(umbra_count, UiTypography.SIZE_SMALL)
-	umbra_count.add_theme_color_override("font_color", Color("f6e9ff"))
-	umbra_count.add_theme_color_override("font_outline_color", Color("160d20"))
-	umbra_count.add_theme_constant_override("outline_size", 4)
-	umbra_content.add_child(umbra_count)
-	_intensity_labels["umbra"] = umbra_count
 	_layout_intensity_badges()
 	_refresh_elemental_intensity_bar()
 
 func _connect_header_layout_signals() -> void:
-	for control_var: Variant in [title_box, room_title, room_subtitle, relic_bar]:
+	for control_var: Variant in [title_box, room_title, room_subtitle, umbra_subtitle, relic_bar]:
 		var control: Control = control_var as Control
 		if control == null:
 			continue
@@ -5485,7 +5449,7 @@ func _intensity_bar_size() -> Vector2:
 func _intensity_badge_position(index: int) -> Vector2:
 	var row: int = 0 if index < 3 else 1
 	var column: int = index if row == 0 else index - 3
-	var row_count: int = 3
+	var row_count: int = 3 if row == 0 else 2
 	var row_width: float = INTENSITY_BADGE_SIZE.x * float(row_count) + 9.0 * float(maxi(0, row_count - 1))
 	var x_offset: float = (_intensity_bar_size().x - row_width) * 0.5
 	return Vector2(
@@ -5507,6 +5471,8 @@ func _layout_header_hud() -> void:
 	if title_box == null:
 		return
 	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
+	if umbra_subtitle != null and umbra_subtitle.visible:
+		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
 	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	if intensity_active:
 		min_width = maxf(min_width, _intensity_bar_size().x)
@@ -5554,7 +5520,10 @@ func _layout_elemental_intensity_bar() -> void:
 	_intensity_bar.size = _intensity_bar_size()
 	_layout_intensity_badges()
 	var title_rect: Rect2 = room_title.get_global_rect()
-	var y: float = room_subtitle.get_global_rect().end.y + ELEMENTAL_INTENSITY_HEADER_GAP
+	var subtitle_bottom: float = room_subtitle.get_global_rect().end.y
+	if umbra_subtitle != null and umbra_subtitle.visible:
+		subtitle_bottom = umbra_subtitle.get_global_rect().end.y
+	var y: float = subtitle_bottom + ELEMENTAL_INTENSITY_HEADER_GAP
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
 	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
@@ -5837,6 +5806,7 @@ func _refresh_ui() -> void:
 	room_subtitle.add_theme_color_override("font_color", title_color.lightened(0.28) if ElementData.is_elemental(room_element) else Color("cdbca2"))
 	room_title.text = _room_title_text(display_room)
 	room_subtitle.text = _room_subtitle_text(display_room)
+	_refresh_umbra_subtitle()
 	_set_stats_label_text(_displayed_ember_count())
 	_refresh_relic_bar()
 	_refresh_turn_order_bar()
@@ -7558,21 +7528,26 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 		if badge != null:
 			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
 			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value > 0))
-	var umbra_stage: String = _combat_engine.effective_umbra_stage(state)
-	var umbra_radius: int = _combat_engine.effective_umbra_radius(state)
-	var stage_initial: String = _combat_engine.umbra_stage_display_name(umbra_stage).left(1).to_upper()
-	var umbra_label: Label = _intensity_labels.get("umbra", null)
-	if umbra_label != null:
-		umbra_label.text = "%s%s" % [stage_initial, "∞" if umbra_radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else str(umbra_radius)]
-	var umbra_badge: PanelContainer = _intensity_badges.get("umbra", null)
-	if umbra_badge != null:
-		var shadowed: bool = umbra_stage != CombatEngineScript.UMBRA_STAGE_CLEAR
-		umbra_badge.modulate = Color.WHITE if shadowed else Color(1.0, 1.0, 1.0, 0.44)
-		umbra_badge.tooltip_text = "Umbra: %s\nVision radius %s. Light sources and Radiance can reveal more." % [
-			_combat_engine.umbra_stage_display_name(umbra_stage),
-			"unlimited" if umbra_radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else str(umbra_radius)
-		]
-		umbra_badge.add_theme_stylebox_override("panel", _umbra_badge_style(shadowed))
+
+func _refresh_umbra_subtitle() -> void:
+	if umbra_subtitle == null:
+		return
+	var active_combat: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty() and _combat_state.has("umbra")
+	if not active_combat:
+		umbra_subtitle.visible = false
+		umbra_subtitle.text = ""
+		return
+	var stage_id: String = _combat_engine.effective_umbra_stage(_combat_state)
+	if stage_id == CombatEngineScript.UMBRA_STAGE_CLEAR:
+		umbra_subtitle.visible = false
+		umbra_subtitle.text = ""
+		return
+	var radius: int = _combat_engine.effective_umbra_radius(_combat_state)
+	umbra_subtitle.text = "%s Umbra" % _combat_engine.umbra_stage_display_name(stage_id)
+	umbra_subtitle.tooltip_text = "Vision radius %s. Light sources and Radiance can reveal more." % [
+		"unlimited" if radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else str(radius)
+	]
+	umbra_subtitle.visible = true
 
 func _intensity_tooltip(element_id: String) -> String:
 	return "%s Intensity\nRoom-wide %s power. Some %s card effects need this value." % [
@@ -7600,23 +7575,6 @@ func _intensity_badge_style(element_id: String, active: bool) -> StyleBoxFlat:
 	style.content_margin_top = 0
 	style.content_margin_right = 0
 	style.content_margin_bottom = 0
-	return style
-
-func _umbra_badge_style(active: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var accent := Color("8c63b8")
-	style.bg_color = Color(0.055, 0.035, 0.075, 0.90 if active else 0.52)
-	style.border_color = accent.lightened(0.18) if active else Color(accent.r, accent.g, accent.b, 0.42)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.11, 0.03, 0.16, 0.38 if active else 0.12)
-	style.shadow_size = 8 if active else 3
 	return style
 
 func _displayed_ember_count() -> int:
