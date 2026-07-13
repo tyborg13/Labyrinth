@@ -152,6 +152,8 @@ const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
 const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
 const COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE: float = 0.040
 const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
+const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
+const UMBRA_RETURN_FADE_SECONDS: float = 0.46
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
 const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
@@ -305,6 +307,7 @@ var _is_dynamic_render_layer: bool = false
 var _dynamic_render_layer: Control = null
 var _static_draw_count: int = 0
 var _dynamic_draw_count: int = 0
+var _umbra_return_start_by_tile: Dictionary = {}
 
 func _ready() -> void:
 	if _is_dynamic_render_layer:
@@ -371,7 +374,8 @@ func _sync_dynamic_render_state(layout_changed: bool = false) -> void:
 		"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
 		"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 		"_ability_tiles_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
-		"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed"
+		"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
+		"_umbra_return_start_by_tile"
 	]:
 		layer.set(field, get(field))
 
@@ -505,6 +509,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var layout_changed: bool = next_layout_signature != _board_layout_signature
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
+	_update_umbra_return_transition(combat_state, presentation, next_state, next_presentation, layout_changed)
 	_submission_cache_valid = false
 	# Combat and presentation dictionaries are copy-on-write snapshots owned by
 	# the caller. CombatBoardView only reads them and stores derived render data,
@@ -534,6 +539,59 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or floor_changed or moss_changed or _dynamic_render_layer == null:
 		queue_redraw()
 	_queue_dynamic_redraw()
+
+func _update_umbra_return_transition(previous_state: Dictionary, previous_presentation: Dictionary, next_state: Dictionary, next_presentation: Dictionary, layout_changed: bool) -> void:
+	if layout_changed or str(next_presentation.get("umbra_stage", "clear")) == "clear":
+		_umbra_return_start_by_tile.clear()
+		return
+	var next_visible_lookup: Dictionary = {}
+	for tile_var: Variant in next_presentation.get("umbra_visible_tiles", []):
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			next_visible_lookup[tile_var] = true
+			_umbra_return_start_by_tile.erase(tile_var)
+	if previous_state.is_empty() or int(next_state.get("turn", 0)) <= int(previous_state.get("turn", 0)):
+		return
+	var previous_visible_tiles: Array[Vector2i] = _vector2i_array(previous_presentation.get("umbra_visible_tiles", []))
+	var lost_tiles: Array[Vector2i] = _vector2i_array([])
+	for tile: Vector2i in previous_visible_tiles:
+		if not next_visible_lookup.has(tile):
+			lost_tiles.append(tile)
+	if lost_tiles.is_empty():
+		return
+	var centers: Array[Vector2i] = _vector2i_array([])
+	var next_source_ids: Dictionary = {}
+	for source_var: Variant in next_presentation.get("umbra_light_sources", []):
+		if typeof(source_var) == TYPE_DICTIONARY:
+			next_source_ids[int((source_var as Dictionary).get("id", -1))] = true
+	for source_var: Variant in previous_presentation.get("umbra_light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		if next_source_ids.has(int(source.get("id", -1))):
+			continue
+		var source_pos: Vector2i = source.get("pos", Vector2i(-1, -1))
+		if source_pos.x >= 0:
+			centers.append(source_pos)
+	var previous_vision_duration: int = int(previous_presentation.get("umbra_vision_bonus_activations", 0))
+	var next_vision_duration: int = int(next_presentation.get("umbra_vision_bonus_activations", 0))
+	if previous_vision_duration != 0 and next_vision_duration == 0:
+		var player: Dictionary = next_state.get("player", {})
+		centers.append(player.get("pos", Vector2i.ZERO))
+	if centers.is_empty():
+		return
+	var maximum_distance: int = 0
+	var distance_by_tile: Dictionary = {}
+	for tile: Vector2i in lost_tiles:
+		var closest_distance: int = 9999
+		for center: Vector2i in centers:
+			closest_distance = mini(closest_distance, absi(tile.x - center.x) + absi(tile.y - center.y))
+		distance_by_tile[tile] = closest_distance
+		maximum_distance = maxi(maximum_distance, closest_distance)
+	var now_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for tile: Vector2i in lost_tiles:
+		var normalized_distance: float = float(int(distance_by_tile.get(tile, 0))) / float(maxi(1, maximum_distance))
+		var delay: float = (1.0 - normalized_distance) * UMBRA_RETURN_STAGGER_SECONDS
+		_umbra_return_start_by_tile[tile] = now_seconds + delay
 
 func _rebuild_submission_caches() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
@@ -705,6 +763,7 @@ func _draw_dynamic_board() -> void:
 	_draw_umbra_overlay(tiles)
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 	_draw_campfire_ember_motes()
 	_draw_unit_huds(units_to_draw)
@@ -732,13 +791,19 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
 	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
 	var hidden_lookup: Dictionary = {}
+	var return_progress_by_tile: Dictionary = {}
 	for tile: Vector2i in tiles:
 		if visible_lookup.has(tile):
 			continue
+		var return_progress: float = _umbra_return_progress(tile, time_seconds)
 		hidden_tiles.append(tile)
 		hidden_lookup[tile] = true
-		draw_colored_polygon(_tile_polygon(tile), Color(0.014, 0.009, 0.030, stage_alpha))
+		return_progress_by_tile[tile] = return_progress
+		draw_colored_polygon(_tile_polygon(tile), Color(0.014, 0.009, 0.030, stage_alpha * return_progress))
 	for tile: Vector2i in hidden_tiles:
+		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
+		if return_progress <= 0.0:
+			continue
 		var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
 		var phase: float = _ambient_hash01(seed + 7) * TAU
 		var breath: float = 0.5 + 0.5 * sin(time_seconds * (0.34 + _ambient_hash01(seed + 3) * 0.18) + phase)
@@ -754,7 +819,7 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 				_tile_width() * (0.92 + breath * 0.22),
 				Vector2(1.42 + _ambient_hash01(seed + 17) * 0.48, 0.52 + _ambient_hash01(seed + 19) * 0.20),
 				lerpf(-0.30, 0.30, _ambient_hash01(seed + 23)),
-				Color(0.036, 0.012, 0.070, 0.94),
+				Color(0.036, 0.012, 0.070, 0.94 * return_progress),
 				13
 			)
 		if cloud_density > 0.78:
@@ -764,13 +829,25 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 				_tile_width() * (0.56 + (1.0 - breath) * 0.14),
 				Vector2(1.82, 0.36),
 				lerpf(-0.42, 0.42, _ambient_hash01(seed + 31)),
-				Color(0.115, 0.042, 0.175, 0.62),
+				Color(0.115, 0.042, 0.175, 0.62 * return_progress),
 				9
 			)
-	_draw_umbra_boundary_wisps(hidden_tiles, visible_lookup, hidden_lookup, time_seconds, stage_alpha)
+	_draw_umbra_boundary_wisps(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
 	_draw_umbra_light_sources(time_seconds)
 
-func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: Dictionary, hidden_lookup: Dictionary, time_seconds: float, stage_alpha: float) -> void:
+func _umbra_return_progress(tile: Vector2i, time_seconds: float) -> float:
+	if not _umbra_return_start_by_tile.has(tile):
+		return 1.0
+	var elapsed: float = time_seconds - float(_umbra_return_start_by_tile[tile])
+	if elapsed <= 0.0:
+		return 0.0
+	if elapsed >= UMBRA_RETURN_FADE_SECONDS:
+		_umbra_return_start_by_tile.erase(tile)
+		return 1.0
+	var linear_progress: float = elapsed / UMBRA_RETURN_FADE_SECONDS
+	return smoothstep(0.0, 1.0, linear_progress)
+
+func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: Dictionary, hidden_lookup: Dictionary, return_progress_by_tile: Dictionary, time_seconds: float, stage_alpha: float) -> void:
 	var neighbor_offsets: Array[Vector2i] = _vector2i_array([
 		Vector2i.LEFT,
 		Vector2i.RIGHT,
@@ -778,6 +855,9 @@ func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: D
 		Vector2i.DOWN
 	])
 	for tile: Vector2i in hidden_tiles:
+		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
+		if return_progress <= 0.0:
+			continue
 		var hidden_center: Vector2 = _tile_center(tile)
 		for neighbor_offset: Vector2i in neighbor_offsets:
 			var neighbor: Vector2i = tile + neighbor_offset
@@ -797,7 +877,7 @@ func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: D
 				_tile_width() * (0.46 + absf(roll) * 0.10),
 				Vector2(1.82, 0.38),
 				boundary_angle,
-				Color(0.075, 0.032, 0.128, 0.82 + stage_alpha * 0.12),
+				Color(0.075, 0.032, 0.128, (0.82 + stage_alpha * 0.12) * return_progress),
 				13
 			)
 			var leading_center: Vector2 = hidden_center.lerp(visible_center, 0.60) - tangent * roll * _tile_width() * 0.16
@@ -806,7 +886,7 @@ func _draw_umbra_boundary_wisps(hidden_tiles: Array[Vector2i], visible_lookup: D
 				_tile_width() * (0.24 + 0.05 * sin(time_seconds * 0.53 + phase)),
 				Vector2(1.52, 0.30),
 				boundary_angle + roll * 0.18,
-				Color(0.125, 0.052, 0.185, 0.56),
+				Color(0.125, 0.052, 0.185, 0.56 * return_progress),
 				9
 			)
 
@@ -840,6 +920,43 @@ func _draw_umbra_light_sources(time_seconds: float) -> void:
 			Color(1.0, 0.82, 0.42, 0.24 * pulse),
 			14
 		)
+
+func _draw_umbra_light_source_markers(time_seconds: float) -> void:
+	var font: Font = get_theme_default_font()
+	for source_var: Variant in presentation.get("umbra_light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+		var remaining: int = int(source.get("remaining_activations", 0))
+		var pulse: float = 0.92 + 0.08 * sin(time_seconds * 3.2 + float(int(source.get("id", 0))))
+		var orb_center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.11)
+		var orb_radius: float = clampf(_tile_width() * 0.095, 10.0, 18.0)
+		_draw_campfire_soft_ellipse(
+			orb_center,
+			orb_radius * 3.2 * pulse,
+			Vector2(1.12, 0.72),
+			0.0,
+			Color(1.0, 0.76, 0.25, 0.55),
+			12
+		)
+		draw_circle(orb_center, orb_radius * 1.10, Color(0.34, 0.17, 0.04, 0.96))
+		draw_circle(orb_center, orb_radius * 0.86 * pulse, Color("ffc94f"))
+		draw_circle(orb_center - Vector2(orb_radius * 0.22, orb_radius * 0.24), orb_radius * 0.36, Color("fff4bd"))
+		draw_arc(orb_center, orb_radius * 1.30, 0.0, TAU, 24, Color(1.0, 0.88, 0.48, 0.72), 1.8)
+		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
+		var chip_rect := Rect2(orb_center + Vector2(orb_radius * 0.55, orb_radius * 0.36), Vector2(18.0, 16.0))
+		draw_rect(chip_rect, Color(0.075, 0.047, 0.025, 0.96), true)
+		draw_rect(chip_rect, Color("ffd66b"), false, 1.4)
+		if font != null:
+			draw_string(font, chip_rect.position + Vector2(0.0, 12.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff7d5"))
+		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player activation%s remaining." % [remaining, "" if remaining == 1 else "s"]
+		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
+		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.35, orb_radius * 1.35), Vector2(orb_radius * 2.7, orb_radius * 2.7)).merge(chip_rect)
+		_register_tooltip(marker_rect, tooltip)
 
 func _draw_empty_state() -> void:
 	var font: Font = get_theme_default_font()
@@ -3392,7 +3509,8 @@ func _unit_status_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rec
 	for index: int in range(badges.size()):
 		var center := Vector2(start_x + float(index) * spacing, center_y)
 		var badge_rect := Rect2(center - Vector2(10.0, 10.0), Vector2(20.0, 20.0))
-		if int((badges[index] as Dictionary).get("count", 0)) > 0:
+		var badge: Dictionary = badges[index] as Dictionary
+		if int(badge.get("count", 0)) > 0 or not str(badge.get("count_text", "")).is_empty():
 			badge_rect = badge_rect.merge(Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0)))
 		rects.append(badge_rect)
 	return rects
@@ -6045,6 +6163,17 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = []
+	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
+	if str(unit.get("role", "")) == "player" and truesight_activations != 0:
+		var duration_text: String = "Lasts for this combat." if truesight_activations < 0 else "%d player activation%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
+		badges.append({
+			"icon": "truesight",
+			"count_text": "∞" if truesight_activations < 0 else str(truesight_activations),
+			"fill": Color("3c285f"),
+			"border": Color("8eefff"),
+			"icon_tint": Color.WHITE,
+			"tooltip": "True Sight\nEnemies remain visible through Umbra and reveal their intents.\n%s" % duration_text
+		})
 	if int(unit.get("burn", 0)) > 0:
 		badges.append({
 			"icon": "burn",
@@ -6115,23 +6244,29 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 	var icon_key: String = str(badge.get("icon", ""))
 	var badge_rect := Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0))
 	var icon_tint: Color = badge.get("icon_tint", Color("1f1812"))
-	_draw_keyword_icon(icon_key, Rect2(center - Vector2(6.5, 6.5), Vector2(13.0, 13.0)), ActionIcons.tooltip(icon_key), icon_tint)
-	_register_tooltip(badge_rect, ActionIcons.tooltip(icon_key))
+	var tooltip: String = str(badge.get("tooltip", ActionIcons.tooltip(icon_key)))
+	_draw_keyword_icon(icon_key, Rect2(center - Vector2(6.5, 6.5), Vector2(13.0, 13.0)), tooltip, icon_tint)
 	var count: int = int(badge.get("count", 0))
-	if count <= 0:
+	var count_text: String = str(badge.get("count_text", ""))
+	if count_text.is_empty() and count > 0:
+		count_text = str(count)
+	if count_text.is_empty():
+		_register_tooltip(badge_rect, tooltip)
 		return
 	var chip_rect := Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0))
+	badge_rect = badge_rect.merge(chip_rect)
 	draw_rect(chip_rect, Color(0.09, 0.07, 0.05, 0.96), true)
 	draw_rect(chip_rect, badge.get("border", Color.WHITE), false, 1.0)
 	draw_string(
 		font,
 		chip_rect.position + Vector2(0.0, 9.0),
-		str(count),
+		count_text,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		chip_rect.size.x,
 		9,
 		Color("fff4dc")
 	)
+	_register_tooltip(badge_rect, tooltip)
 
 func _update_cursor_shape() -> void:
 	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile) or _ability_tiles().has(_hover_tile)

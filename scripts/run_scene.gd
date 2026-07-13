@@ -1436,6 +1436,8 @@ func _apply_style() -> void:
 	umbra_subtitle.add_theme_color_override("font_color", Color("b994d0"))
 	umbra_subtitle.add_theme_color_override("font_outline_color", Color("160d20"))
 	umbra_subtitle.add_theme_constant_override("outline_size", 2)
+	umbra_subtitle.mouse_filter = Control.MOUSE_FILTER_STOP
+	umbra_subtitle.mouse_default_cursor_shape = Control.CURSOR_HELP
 	stats_label.add_theme_color_override("font_color", Color("f0c978"))
 	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	stats_label.add_theme_constant_override("outline_size", 2)
@@ -7536,16 +7538,21 @@ func _refresh_umbra_subtitle() -> void:
 	if not active_combat:
 		umbra_subtitle.visible = false
 		umbra_subtitle.text = ""
+		umbra_subtitle.tooltip_text = ""
 		return
 	var stage_id: String = _combat_engine.effective_umbra_stage(_combat_state)
 	if stage_id == CombatEngineScript.UMBRA_STAGE_CLEAR:
 		umbra_subtitle.visible = false
 		umbra_subtitle.text = ""
+		umbra_subtitle.tooltip_text = ""
 		return
 	var radius: int = _combat_engine.effective_umbra_radius(_combat_state)
-	umbra_subtitle.text = "%s Umbra" % _combat_engine.umbra_stage_display_name(stage_id)
-	umbra_subtitle.tooltip_text = "Vision radius %s. Light sources and Radiance can reveal more." % [
-		"unlimited" if radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else str(radius)
+	var stage_name: String = _combat_engine.umbra_stage_display_name(stage_id)
+	var radius_text: String = "unlimited" if radius >= CombatEngineScript.UMBRA_UNLIMITED_RADIUS else "%d tile%s" % [radius, "" if radius == 1 else "s"]
+	umbra_subtitle.text = "%s Umbra" % stage_name
+	umbra_subtitle.tooltip_text = "%s Umbra\nPersonal vision: %s.\nTiles outside your vision or a light source are obscured. Hidden enemies cannot be targeted and conceal their intents.\nRadiance can reveal them or drive the Umbra back." % [
+		stage_name,
+		radius_text
 	]
 	umbra_subtitle.visible = true
 
@@ -9450,7 +9457,10 @@ func _refresh_stage_view() -> void:
 		presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
 		presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
 		presentation["umbra_light_sources"] = ((display_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
-		presentation["umbra_truesight"] = int((display_state.get("umbra", {}) as Dictionary).get("truesight_activations", 0)) != 0
+		var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
+		presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
+		presentation["umbra_truesight"] = int(presentation["umbra_truesight_activations"]) != 0
+		presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
 	var preview: Dictionary = {}
 	if str(_run_state.get("mode", "room")) == "combat" and not _animation_lock:
 		preview = _active_card_preview()
@@ -12495,7 +12505,10 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	target_presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
 	target_presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
 	target_presentation["umbra_light_sources"] = ((display_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
-	target_presentation["umbra_truesight"] = int((display_state.get("umbra", {}) as Dictionary).get("truesight_activations", 0)) != 0
+	var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
+	target_presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
+	target_presentation["umbra_truesight"] = int(target_presentation["umbra_truesight_activations"]) != 0
+	target_presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
 	if target_presentation.has("floating_texts"):
 		target_presentation["floating_texts"] = _visible_umbra_floating_texts(display_state, target_presentation.get("floating_texts", []) as Array)
 

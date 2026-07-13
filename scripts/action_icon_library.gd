@@ -95,7 +95,7 @@ const KEYWORDS: Dictionary = {
 	"dispel_umbra": {
 		"label": "Dispel Umbra",
 		"description": "Reduces this combat's Umbra stage.",
-		"path": "%s/illuminate.png" % ICON_ROOT
+		"path": "%s/dispel_umbra.png" % ICON_ROOT
 	},
 	"burn": {
 		"label": "Burn",

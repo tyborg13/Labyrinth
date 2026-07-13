@@ -68,6 +68,8 @@ func _capture_umbra_stages_and_cards() -> void:
 		var expected_subtitle: String = str(EXPECTED_SUBTITLE.get(stage, ""))
 		_assert(umbra_subtitle != null and umbra_subtitle.text == expected_subtitle, "%s should show its dedicated Umbra room subtitle" % stage)
 		_assert(umbra_subtitle.visible == not expected_subtitle.is_empty(), "%s should use the expected Umbra subtitle visibility" % stage)
+		if stage != "clear":
+			_assert(umbra_subtitle.tooltip_text.contains("Hidden enemies cannot be targeted"), "%s should explain its targeting and intent rules on hover" % stage)
 		_assert(not (instance.get("_intensity_labels") as Dictionary).has("umbra"), "Umbra should not be represented as an elemental intensity")
 		_assert((instance.get("_intensity_bar") as Control).get_child_count() == 5, "Intensity bar should contain only the five elements")
 		await _save_root_screenshot("%s/stage_%s.png" % [OUTPUT_DIR, stage])
@@ -76,6 +78,7 @@ func _capture_umbra_stages_and_cards() -> void:
 			RenderingServer.force_draw()
 			await process_frame
 			await _save_root_screenshot("%s/stage_deep_billow.png" % OUTPUT_DIR)
+	await _capture_active_effect_feedback(instance)
 	await _capture_card_gallery(instance)
 	instance.queue_free()
 	await process_frame
@@ -117,6 +120,64 @@ func _load_stage(instance: Node, stage: String) -> void:
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 	await _settle_ui()
+
+func _capture_active_effect_feedback(instance: Node) -> void:
+	await _load_stage(instance, "heart")
+	var active_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var active_umbra: Dictionary = (active_state.get("umbra", {}) as Dictionary).duplicate(true)
+	active_umbra["light_sources"] = [{
+		"id": 901,
+		"pos": Vector2i(5, 5),
+		"radius": 2,
+		"remaining_activations": 2
+	}]
+	active_umbra["truesight_activations"] = 2
+	active_state["umbra"] = active_umbra
+	_set_combat_state(instance, active_state)
+	await _settle_ui()
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	_assert(int(presentation.get("umbra_truesight_activations", 0)) == 2, "True Sight should expose its remaining activation count to the player HUD")
+	_assert((presentation.get("umbra_light_sources", []) as Array).size() == 1, "Active light sources should be exposed to the board presentation")
+	var tooltip_regions: Array = board.get("_tooltip_regions") as Array
+	_assert(_has_tooltip_containing(tooltip_regions, "Light Source"), "The glowing light-source marker should have a hover tooltip")
+	_assert(_has_tooltip_containing(tooltip_regions, "True Sight"), "The player True Sight badge should have a hover tooltip")
+	await _save_root_screenshot("%s/active_effect_feedback.png" % OUTPUT_DIR)
+
+	var expired_state: Dictionary = active_state.duplicate(true)
+	var expired_umbra: Dictionary = (expired_state.get("umbra", {}) as Dictionary).duplicate(true)
+	expired_umbra["light_sources"] = []
+	expired_umbra["truesight_activations"] = 0
+	expired_state["umbra"] = expired_umbra
+	expired_state["turn"] = int(active_state.get("turn", 0)) + 1
+	_set_combat_state(instance, expired_state)
+	await process_frame
+	_assert(not (board.get("_umbra_return_start_by_tile") as Dictionary).is_empty(), "Expired light should start a staggered Umbra return instead of snapping")
+	RenderingServer.force_draw()
+	await process_frame
+	await _save_root_screenshot("%s/umbra_return_start.png" % OUTPUT_DIR)
+	await create_timer(0.48).timeout
+	RenderingServer.force_draw()
+	await process_frame
+	await _save_root_screenshot("%s/umbra_return_mid.png" % OUTPUT_DIR)
+	await create_timer(0.65).timeout
+	RenderingServer.force_draw()
+	await process_frame
+	_assert((board.get("_umbra_return_start_by_tile") as Dictionary).is_empty(), "Umbra return should finish in about one second")
+	await _save_root_screenshot("%s/umbra_return_end.png" % OUTPUT_DIR)
+
+func _set_combat_state(instance: Node, combat_state: Dictionary) -> void:
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+
+func _has_tooltip_containing(regions: Array, text: String) -> bool:
+	for region_var: Variant in regions:
+		if typeof(region_var) == TYPE_DICTIONARY and str((region_var as Dictionary).get("tooltip", "")).contains(text):
+			return true
+	return false
 
 func _capture_card_gallery(instance: Node) -> void:
 	(instance as CanvasItem).visible = false

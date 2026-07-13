@@ -11221,11 +11221,17 @@ func _test_radiance_actions_reveal_and_reduce_umbra() -> void:
 	var lit_state: Dictionary = combat.apply_player_action(state, illuminate, enemy_pos)
 	_assert(combat.is_enemy_visible_to_player(lit_state, enemy), "A light source should reveal enemies in its radius")
 	_assert(combat.valid_targets_for_player_action(lit_state, {"type": "ranged", "damage": 4, "range": 7}).has(enemy_pos), "Illuminated enemies should become targetable")
+	var lit_next_activation: Dictionary = combat.prepare_next_player_turn(lit_state)
+	_assert(int((((lit_next_activation.get("umbra", {}) as Dictionary).get("light_sources", []) as Array)[0] as Dictionary).get("remaining_activations", 0)) == 1, "Temporary light sources should expose an accurate remaining-activation counter")
+	var lit_expired: Dictionary = combat.prepare_next_player_turn(lit_next_activation)
+	_assert(((lit_expired.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).is_empty(), "Temporary light sources should disappear when their counter reaches zero")
 	var vision_state: Dictionary = combat.apply_player_action(state, {"type": "vision", "amount": 3, "duration": 1})
 	_assert(combat.effective_umbra_radius(vision_state) == 5, "Vision should add to the personal Umbra radius")
 	var truesight_state: Dictionary = combat.apply_player_action(state, {"type": "truesight", "duration": 1})
 	_assert(combat.is_enemy_visible_to_player(truesight_state, enemy), "Truesight should reveal enemies without lighting their tiles")
 	_assert(not combat.is_tile_visible_to_player(truesight_state, enemy_pos), "Truesight should not illuminate the enemy tile")
+	var truesight_expired: Dictionary = combat.prepare_next_player_turn(truesight_state)
+	_assert(int((truesight_expired.get("umbra", {}) as Dictionary).get("truesight_activations", -1)) == 0, "True Sight should clear when its displayed activation counter reaches zero")
 	var dispelled_state: Dictionary = combat.apply_player_action(state, {"type": "dispel_umbra", "amount": 2})
 	_assert(combat.effective_umbra_stage(dispelled_state) == "pressing", "Dispel Umbra should reduce Heart by two stages")
 	_assert(combat.effective_umbra_radius(dispelled_state) == 4, "Dispel Umbra should apply the reduced stage radius")
@@ -11263,6 +11269,12 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	_assert((all_rewards.get("legendary", []) as Array).has("daybreak"), "Neutral Radiance cards should enter the general elemental reward slot")
 	for icon_key: String in ["illuminate", "vision", "truesight", "dispel_umbra"]:
 		_assert(ActionIcons.all_icon_keys().has(icon_key), "%s should have a shared action icon" % icon_key)
+	var radiance_icon_paths: Dictionary = {}
+	for icon_key: String in ["illuminate", "vision", "truesight", "dispel_umbra"]:
+		var icon_path: String = ActionIcons.icon_path(icon_key)
+		_assert(icon_path.ends_with("/%s.png" % icon_key), "%s should use its own purpose-built icon asset" % icon_key)
+		radiance_icon_paths[icon_path] = true
+	_assert(radiance_icon_paths.size() == 4, "Radiance mechanics should remain visually distinguishable at card size")
 
 func _simple_room_layout() -> Dictionary:
 	return {
