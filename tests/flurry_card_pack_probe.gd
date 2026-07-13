@@ -37,6 +37,7 @@ func _initialize() -> void:
 	root.add_child(_run_scene)
 	if _run_scene is CanvasItem:
 		(_run_scene as CanvasItem).visible = false
+	_hide_canvas_layers(_run_scene)
 	await process_frame
 	await process_frame
 	await _capture_card_widgets()
@@ -46,6 +47,12 @@ func _initialize() -> void:
 	_run_scene.queue_free()
 	await process_frame
 	quit()
+
+func _hide_canvas_layers(node: Node) -> void:
+	for child: Node in node.get_children():
+		if child is CanvasLayer:
+			(child as CanvasLayer).visible = false
+		_hide_canvas_layers(child)
 
 func _capture_card_widgets() -> void:
 	_add_background(Color("18110d"))

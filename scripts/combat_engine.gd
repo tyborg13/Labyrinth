@@ -1144,6 +1144,28 @@ func combat_outcome(state: Dictionary) -> String:
 		return "victory"
 	return ""
 
+func resolve_missed_equipment_after_victory(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	if combat_outcome(next_state) != "victory":
+		return next_state
+	var missed_equipment: Array = next_state.get("missed_equipment", []).duplicate()
+	var loot_entries: Array = next_state.get("loot", []).duplicate(true)
+	for index: int in range(loot_entries.size()):
+		if typeof(loot_entries[index]) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = (loot_entries[index] as Dictionary).duplicate(true)
+		if str(loot.get("kind", "")) != "equipment" or bool(loot.get("claimed", false)):
+			continue
+		var equipment_id: String = str(loot.get("equipment_id", ""))
+		if not equipment_id.is_empty() and not missed_equipment.has(equipment_id):
+			missed_equipment.append(equipment_id)
+		loot["claimed"] = true
+		loot["resolution"] = "missed"
+		loot_entries[index] = loot
+	next_state["loot"] = loot_entries
+	next_state["missed_equipment"] = missed_equipment
+	return next_state
+
 func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemy: Dictionary = ((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)

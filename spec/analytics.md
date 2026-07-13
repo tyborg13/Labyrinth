@@ -119,7 +119,10 @@ value-model work, but it is not yet card-source attributed.
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`. `combat_ended` includes `recovered_embers`, the total embers
 reclaimed from dropped piles during that combat, and `collected_equipment`, the
-equipment ids picked up during that combat.
+equipment ids picked up during that combat. Its additive `missed_equipment` list
+contains equipment ids that were still unclaimed at victory and were resolved
+from the cleared room without entering inventory, ownership, discovery, or deck
+state.
 
 `equipment_equipped` fires when the character overlay equips an owned item
 outside combat. Its payload records `slot`, `previous_equipment_id`,

@@ -382,7 +382,7 @@ func _assert_tutorial_geometry_stable(instance: Node, label: String) -> void:
 		instance.call("_layout_contextual_combat_prompt_overlay")
 		await _settle_ui()
 		var during: Dictionary = _combat_geometry(instance)
-		_assert(host.get_parent() == instance, "%s %s should use a root overlay" % [label, prompt_id])
+		_assert(host.get_parent() == instance.get("ui_root"), "%s %s should use a fixed UI overlay" % [label, prompt_id])
 		_assert(bool(host.get_meta("safe_layout_found", false)), "%s %s should place prompt size %s in non-interactive overlay space within %s around %s" % [label, prompt_id, host.get_meta("prompt_size", Vector2.ZERO), host.get_meta("safe_area", Rect2()), host.get_meta("protected_rects", [])])
 		var prompt_size: Vector2 = host.get_meta("prompt_size", Vector2.ZERO)
 		_assert(prompt_size.x >= 299.0 and prompt_size.y >= 103.0, "%s %s should retain the full readable prompt geometry, got %s" % [label, prompt_id, prompt_size])

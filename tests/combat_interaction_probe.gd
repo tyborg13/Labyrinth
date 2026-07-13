@@ -5,10 +5,10 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v2"
-const BOARD_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/CombatBoard"
-const HAND_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
-const MINI_MAP_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
-const LOG_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
+const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
+const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
+const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
+const LOG_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()

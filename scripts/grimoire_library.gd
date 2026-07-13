@@ -634,7 +634,7 @@ static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
 		var loot: Dictionary = loot_var as Dictionary
-		if str(loot.get("kind", "")) != "equipment":
+		if str(loot.get("kind", "")) != "equipment" or not bool(loot.get("claimed", false)) or str(loot.get("resolution", "")) == "missed":
 			continue
 		var loot_equipment_id: String = str(loot.get("equipment_id", ""))
 		if not loot_equipment_id.is_empty():

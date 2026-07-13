@@ -26,9 +26,9 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScript = CardWidget
-const ACTION_STEP_TRACKER_PATH: String = "ActionStepTracker"
-const ACTION_STEP_CHOICE_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
-const ACTION_STEP_PILES_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
+const ACTION_STEP_TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
+const ACTION_STEP_CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
+const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
 class FakeSteam:
 	extends Object
@@ -100,6 +100,7 @@ func _initialize() -> void:
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
+	_test_missed_equipment_resolution_and_persistence(default_progression)
 	_test_merchant_room_placement_and_trading(default_progression)
 	_test_elemental_intensity_starts_from_room_element()
 	_test_elemental_intensity_actions_gate_effects()
@@ -269,6 +270,7 @@ func _initialize() -> void:
 	_test_default_theme_uses_pixel_font()
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
+	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
 	await _test_run_scene_pre_battle_five_enemy_layout_compacts()
@@ -282,6 +284,7 @@ func _initialize() -> void:
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
+	await _test_run_scene_reward_acquisition_is_single_choice()
 	await _test_run_scene_reward_decision_support_matches_claims()
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
@@ -413,7 +416,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 		"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}],
 		"collected_equipment": ["iron_cleaver"]
 	})
-	_assert(combat_loot_entries.has("equipment:ward_kite"), "Visible combat equipment loot should unlock equipment entries before pickup")
+	_assert(not combat_loot_entries.has("equipment:ward_kite"), "Unclaimed combat equipment should not unlock equipment entries before pickup")
 	_assert(combat_loot_entries.has("equipment:iron_cleaver"), "Combat-state collected equipment should unlock equipment entries before run sync")
 	var engine := RunEngine.new()
 	var run_state: Dictionary = engine.create_new_run(24680, default_progression)
@@ -426,7 +429,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	var run_with_visible_loot: Dictionary = run_state.duplicate(true)
 	run_with_visible_loot["combat_state"] = {"loot": [{"kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(3, 3)}]}
 	var run_visible_loot_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(run_with_visible_loot)
-	_assert(run_visible_loot_entries.has("equipment:ward_kite"), "Run-state combat loot should unlock visible equipment entries")
+	_assert(not run_visible_loot_entries.has("equipment:ward_kite"), "Run-state unclaimed combat loot should not unlock equipment entries")
 	var reward_offer_state: Dictionary = run_state.duplicate(true)
 	reward_offer_state["pending_reward"] = {"cards": ["spark_dart"]}
 	var reward_offer_entries: Array[String] = GrimoireLibrary.entry_ids_for_run_state(reward_offer_state)
@@ -1677,6 +1680,9 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	_assert((run_state.get("equipment_inventory", []) as Array).is_empty(), "Fresh runs should not duplicate equipped starter gear into inventory")
 	_assert((run_state.get("item_inventory", []) as Array).is_empty(), "Fresh runs should start with no consumable item inventory")
 	_assert((run_state.get("equipped_items", []) as Array).is_empty(), "Fresh runs should start with no equipped consumable items")
+	_assert(engine.loadout_unread_count(run_state) == 0, "Fresh runs should not badge the starter loadout as new")
+	_assert(engine.loadout_new_asset_ids(run_state, "equipment").is_empty(), "Fresh runs should not tag starter equipment as new")
+	_assert(engine.loadout_new_asset_ids(run_state, "magic").is_empty(), "Fresh runs should not tag starter magic as new")
 	_assert(int(run_state.get("equipment_drop_misses", -1)) == 0, "Fresh runs should start equipment pity from zero misses")
 	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
 	for slot: String in GameData.equipment_slots():
@@ -1703,6 +1709,14 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	var reward_state: Dictionary = engine.claim_card_reward(run_state, "spark_dart")
 	_assert((reward_state.get("reward_cards", []) as Array) == ["spark_dart"], "Claimed card rewards should still append to reward_cards for collection history")
 	_assert((reward_state.get("magic_inventory", []) as Array) == ["spark_dart"], "Claimed card rewards should enter reserve magic")
+	_assert(engine.loadout_unread_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should mark the Magic loadout tab unread")
+	_assert(engine.loadout_new_asset_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should tag the learned spell as new")
+	_assert(engine.loadout_unread_count(reward_state) == 1, "A claimed reward spell should add one loadout notification")
+	var reward_seen_state: Dictionary = engine.clear_loadout_unread(reward_state, "magic")
+	_assert(engine.loadout_unread_count(reward_seen_state) == 0, "Opening Magic should clear its loadout notifications")
+	_assert(engine.loadout_asset_is_new(reward_seen_state, "magic", "spark_dart"), "Opening Magic should preserve the spell's NEW tag until that spell is hovered")
+	var reward_hovered_state: Dictionary = engine.mark_loadout_asset_seen(reward_seen_state, "magic", "spark_dart")
+	_assert(not engine.loadout_asset_is_new(reward_hovered_state, "magic", "spark_dart"), "Hovering a new spell should clear only its asset tag")
 	_assert(not (reward_state.get("deck_cards", []) as Array).has("spark_dart"), "Claimed rewards should stay inactive until attuned")
 	_assert((reward_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size(), "Claimed reserve magic should not grow the active deck")
 	var attuned_state: Dictionary = engine.swap_magic_card(reward_state, 0, 0)
@@ -1858,6 +1872,9 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 	run_state = run_engine.set_combat_state(run_state, combat_state)
 	_assert((run_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Collected combat equipment should merge into run inventory")
 	_assert((run_state.get("collected_equipment", []) as Array).has("ward_kite"), "Collected combat equipment should be remembered for duplicate-drop exclusion")
+	_assert(run_engine.loadout_unread_ids(run_state, "equipment") == ["ward_kite"], "Combat equipment pickups should mark the Gear loadout tab unread")
+	_assert(run_engine.loadout_new_asset_ids(run_state, "equipment") == ["ward_kite"], "Combat equipment pickups should tag the collected gear as new")
+	_assert(run_engine.loadout_unread_count(run_state) == 1, "A combat equipment pickup should add one loadout notification")
 	var pre_equip_deck: Array = run_state.get("deck_cards", []) as Array
 	_assert(pre_equip_deck.has("brace") and pre_equip_deck.has("guarded_step"), "Picking up equipment should not rebuild the deck until it is equipped")
 	_assert(not pre_equip_deck.has("kite_bash"), "Picked-up equipment cards should stay inactive while the item is only in inventory")
@@ -1869,6 +1886,105 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 	_assert((run_state.get("equipment_inventory", []) as Array).has("splintered_shield"), "Equipping collected gear should move the replaced starter item into inventory")
 	_assert(post_equip_deck.has("kite_bash") and post_equip_deck.has("warded_advance"), "Equipping collected gear should add its cards to the active deck")
 	_assert(not post_equip_deck.has("brace") and not post_equip_deck.has("guarded_step"), "Equipping collected gear should remove the previous slot's cards from the active deck")
+
+func _test_missed_equipment_resolution_and_persistence(default_progression: Dictionary) -> void:
+	var run_engine: RunEngine = RunEngine.new()
+	var combat_engine: CombatEngine = CombatEngine.new()
+	var run_state: Dictionary = run_engine.create_new_run(7401, default_progression)
+	var deck_before: Array = (run_state.get("deck_cards", []) as Array).duplicate()
+	var layout: Dictionary = _simple_room_layout()
+	layout["loot"] = [
+		{"id": "missed_gear", "kind": "equipment", "equipment_id": "ward_kite", "pos": Vector2i(5, 3)},
+		{"id": "collected_gear", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(3, 4), "claimed": true},
+		{"id": "mixed_heal", "kind": "healing_vial", "amount": 40, "pos": Vector2i(4, 3)},
+		{"id": "mixed_shield", "kind": "rusty_shield", "amount": 30, "pos": Vector2i(4, 4)},
+		{"id": "mixed_embers", "kind": "dropped_embers", "amount": 17, "pos": Vector2i(5, 4)}
+	]
+	var combat_state: Dictionary = combat_engine.create_combat(7401, layout, {
+		"hp": int(run_state.get("player_hp", 1)),
+		"max_hp": int(run_state.get("player_max_hp", 1)),
+		"deck_cards": deck_before,
+		"relics": [],
+		"hand_size": int(run_state.get("hand_size", 5)),
+		"heal_bonus": int(run_state.get("heal_bonus", 0)),
+		"cards_per_turn": 2,
+		"draw_per_turn": 2,
+		"card_upgrades": {},
+		"card_mods": {}
+	})
+	combat_state["collected_equipment"] = ["iron_cleaver"]
+	var enemies: Array = combat_state.get("enemies", []) as Array
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		enemy["hp"] = 0
+		enemies[index] = enemy
+	combat_state["enemies"] = enemies
+	var visible_entries: Array[String] = GrimoireLibrary.entry_ids_for_combat_state(combat_state)
+	_assert(not visible_entries.has(GrimoireLibrary.equipment_entry_id("ward_kite")), "Merely seeing unclaimed equipment should not discover it in the Grimoire")
+	_assert(visible_entries.has(GrimoireLibrary.equipment_entry_id("iron_cleaver")), "Collected equipment should still be eligible for Grimoire discovery")
+
+	var resolved_combat: Dictionary = combat_engine.resolve_missed_equipment_after_victory(combat_state)
+	_assert((resolved_combat.get("missed_equipment", []) as Array) == ["ward_kite"], "Victory should classify only still-unclaimed equipment as missed")
+	_assert(not GrimoireLibrary.entry_ids_for_combat_state(resolved_combat).has(GrimoireLibrary.equipment_entry_id("ward_kite")), "Resolved missed equipment should remain excluded from Grimoire discovery")
+	var resolved_loot: Array = resolved_combat.get("loot", []) as Array
+	for loot_var: Variant in resolved_loot:
+		var loot: Dictionary = loot_var as Dictionary
+		if str(loot.get("id", "")) == "missed_gear":
+			_assert(bool(loot.get("claimed", false)) and str(loot.get("resolution", "")) == "missed", "Missed equipment should be visibly resolved instead of remaining actionable")
+		elif str(loot.get("id", "")) == "collected_gear":
+			_assert(str(loot.get("resolution", "")) != "missed", "Already collected equipment should not be replayed or classified as missed")
+		elif str(loot.get("id", "")).begins_with("mixed_"):
+			_assert(not bool(loot.get("claimed", false)), "Victory should leave non-equipment tactical pickup state unchanged")
+
+	run_state["mode"] = "combat"
+	run_state["combat_state"] = combat_state
+	run_state = run_engine.set_combat_state(run_state, combat_state)
+	_assert((run_state.get("equipment_inventory", []) as Array).count("iron_cleaver") == 1, "Collected gear should be awarded once before victory")
+	var reward_state: Dictionary = run_engine.finish_combat(run_state, combat_state)
+	_assert(str(reward_state.get("mode", "")) == "reward", "Missed-equipment victory should still reach the normal reward boundary")
+	_assert(str(reward_state.get("notice", "")) == RunEngine.MISSED_EQUIPMENT_NOTICE, "Reward state should show the terse missed-gear notice")
+	_assert((reward_state.get("equipment_inventory", []) as Array).count("iron_cleaver") == 1, "Finishing combat should not award already collected gear twice")
+	_assert(not (reward_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Unclaimed equipment should never enter inventory")
+	_assert(not (reward_state.get("collected_equipment", []) as Array).has("ward_kite"), "Unclaimed equipment should never enter collected ownership")
+	_assert((reward_state.get("deck_cards", []) as Array) == deck_before, "Missed equipment should never alter the deck")
+	_assert(not GrimoireLibrary.entry_ids_for_run_state(reward_state).has(GrimoireLibrary.equipment_entry_id("ward_kite")), "Missed equipment should never enter Grimoire discovery through the reward state")
+	var cleared_layout: Dictionary = reward_state.get("current_room_layout", {}) as Dictionary
+	var unclaimed_equipment_count: int = 0
+	for loot_var: Variant in cleared_layout.get("loot", []):
+		var loot: Dictionary = loot_var as Dictionary
+		if str(loot.get("kind", "")) == "equipment" and not bool(loot.get("claimed", false)):
+			unclaimed_equipment_count += 1
+	_assert(unclaimed_equipment_count == 0, "Cleared current_room_layout should contain no stale actionable equipment pickup")
+	for mixed_id: String in ["mixed_heal", "mixed_shield", "mixed_embers"]:
+		var mixed_loot: Dictionary = {}
+		for loot_var: Variant in cleared_layout.get("loot", []):
+			if str((loot_var as Dictionary).get("id", "")) == mixed_id:
+				mixed_loot = loot_var as Dictionary
+				break
+		_assert(not mixed_loot.is_empty() and not bool(mixed_loot.get("claimed", false)), "Cleared layout should preserve non-equipment pickup %s unchanged" % mixed_id)
+
+	_assert(ProgressionStore.save_run_state(reward_state), "Reward-boundary missed-equipment state should save")
+	var resumed_state: Dictionary = run_engine.repair_loaded_run_state(ProgressionStore.load_saved_run())
+	_assert((resumed_state.get("equipment_inventory", []) as Array).count("iron_cleaver") == 1, "Reward-boundary resume should preserve collected gear exactly once")
+	_assert(not (resumed_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Reward-boundary resume should not restore missed gear")
+	var resumed_layout: Dictionary = resumed_state.get("current_room_layout", {}) as Dictionary
+	for loot_var: Variant in resumed_layout.get("loot", []):
+		var loot: Dictionary = loot_var as Dictionary
+		_assert(str(loot.get("kind", "")) != "equipment" or bool(loot.get("claimed", false)), "Reward-boundary resume should not restore stale equipment pickups")
+	ProgressionStore.clear_saved_run()
+
+	AnalyticsStore.clear_storage()
+	var analytics_scene: Node = RunSceneScript.new()
+	analytics_scene.set("_run_state", reward_state)
+	analytics_scene.call("_analytics_log_combat_ended", resolved_combat, "missed_equipment_test")
+	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
+	var combat_end_events: Array[Dictionary] = _analytics_events_by_type(events, "combat_ended")
+	_assert(combat_end_events.size() == 1, "Missed-equipment victory should emit one combat_ended event")
+	if not combat_end_events.is_empty():
+		var payload: Dictionary = (combat_end_events[0] as Dictionary).get("payload", {}) as Dictionary
+		_assert((payload.get("missed_equipment", []) as Array) == ["ward_kite"], "combat_ended should include the additive missed_equipment id list")
+		_assert((payload.get("collected_equipment", []) as Array) == ["iron_cleaver"], "combat_ended should keep collected equipment separate from missed equipment")
+	analytics_scene.free()
 
 func _test_merchant_room_placement_and_trading(default_progression: Dictionary) -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -7503,6 +7619,33 @@ func _test_main_scenes_instantiate() -> void:
 	run_scene_instance.queue_free()
 	await process_frame
 
+func _test_run_scene_combat_log_prominence() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for combat-log prominence coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	instance.call("_close_dialogue")
+	var log_overlay: PanelContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay") as PanelContainer
+	var log_label: RichTextLabel = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
+	var action_banner: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ActionBanner") as Label
+	action_banner.text = "Existing action"
+	action_banner.visible = false
+	instance.call("_show_combat_log_message", RunEngine.MISSED_EQUIPMENT_NOTICE)
+	await process_frame
+	var log_style: StyleBoxFlat = log_overlay.get_theme_stylebox("panel") as StyleBoxFlat
+	_assert(log_overlay.size.x >= 390.0 and log_overlay.size.y >= 100.0, "Combat log should have a prominent readable footprint")
+	_assert(log_style != null and log_style.bg_color.a >= 0.94, "Combat log should use a high-opacity background")
+	_assert(log_style != null and log_style.border_width_left >= 5 and log_style.border_width_top >= 2, "Combat log should use an obvious framed accent")
+	_assert(log_label.get_theme_font_size("normal_font_size") >= UiTypography.SIZE_BODY_LARGE, "Combat log should use body-large text")
+	_assert(log_label.get_theme_constant("outline_size") >= 2, "Combat log text should retain a strong outline against the board")
+	_assert(log_overlay.visible and log_label.text == RunEngine.MISSED_EQUIPMENT_NOTICE, "Combat-log messages should be visible and exact")
+	_assert(not action_banner.visible and action_banner.text == "Existing action", "Missed-equipment notice should not use or mutate the action banner")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -7511,8 +7654,8 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
 	await process_frame
-	var mini_map_overlay: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay") as Control
-	var mini_map: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap") as Control
+	var mini_map_overlay: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay") as Control
+	var mini_map: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap") as Control
 	_assert(mini_map_overlay.mouse_filter == Control.MOUSE_FILTER_STOP, "Minimap overlay should receive clicks")
 	_assert(mini_map.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Embedded minimap should not consume clicks before the overlay can open the large map")
 	instance.call("_close_dialogue")
@@ -7700,7 +7843,7 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	var started_deck: Array = _combat_deck_card_ids(started_state.get("combat_state", {}) as Dictionary)
 	started_deck.sort()
 	_assert(started_deck == expected_deck, "Pre-battle Start should use the exact equipment- and attunement-refreshed deck")
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var ready_wave_count: int = 0
 	for widget: CardWidget in _card_widgets_under(hand_box):
 		if str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
@@ -7822,7 +7965,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	if pass_button != null:
 		_assert_button_uses_variant(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, UiSkin.VARIANT_LARGE, "Combat Pass button should use the large themed variant")
 	var overlay: Control = instance.get("_choice_button_overlay") as Control
-	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
 	if overlay != null and piles_bar != null:
 		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat Pass overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
@@ -8036,10 +8179,10 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.call("_refresh_choice_bar")
 	instance.call("_refresh_visibility")
 	await process_frame
-	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
-	var left_action_stack: VBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var left_action_stack: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
+	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	var pass_hand_x: float = hand_scroll.global_position.x
 	var pass_action_width: float = left_action_stack.size.x
 	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE).x
@@ -8129,17 +8272,17 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
 	var move_detail: Label = detail_labels.get("move", null) as Label
 	_assert(move_detail != null and move_detail.text == "RANGE 2", "Available fallback move zones should keep a concise, non-redundant movement label")
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var hidden_source: Control = null
 	if hand_box.get_child_count() > 0:
 		hidden_source = hand_box.get_child(0) as Control
 	_assert(hidden_source != null and not hidden_source.visible, "Card drag should hide the source card while the proxy is held")
-	var board_view: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as Control
+	var board_view: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	_assert(str(instance.call("_drag_zone_at", board_view.get_global_rect().get_center())) == "", "An unavailable full card should not make the battlefield a valid drop target")
 	await instance.call("_commit_drag_drop", "")
 	await process_frame
 	_assert(int(instance.get("_drag_card_index")) == -1 and not overlay.visible, "Dropping outside every valid target should snap the card back and clear drag state")
-	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	hand_box = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var restored_source: Control = hand_box.get_child(0) as Control if hand_box.get_child_count() > 0 else null
 	_assert(restored_source != null and restored_source.visible, "Invalid drag drops should restore the source card")
 	instance.call("_on_card_drag_started", 0)
@@ -8318,7 +8461,7 @@ func _test_run_scene_ready_wave_marks_only_playable_hand_cards() -> void:
 	instance.call("_queue_hand_ready_wave", "test_ready_wave")
 	instance.call("_refresh_hand_panel")
 	await process_frame
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var widgets: Array[CardWidget] = _card_widgets_under(hand_box)
 	_assert(widgets.size() >= 2, "Ready-wave test should render both hand cards")
 	if widgets.size() >= 2:
@@ -8359,8 +8502,8 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	instance.call("_refresh_hand_panel")
 	instance.call("_refresh_visibility")
 	await process_frame
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward heal choice should not appear in the combat choice bar")
 	var heal_slot: Node = hand_box.get_child(3) if hand_box.get_child_count() >= 4 else null
 	var heal_choice: PanelContainer = null
@@ -8382,6 +8525,49 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 		_assert(heal_labels.size() == 2, "Recover should contain only the amount and HP projection text")
 		_assert(heal_slot != null and heal_slot.get_parent() == hand_box, "Reward heal choice should be parented as a hand choice slot")
 		_assert(hand_box.get_child_count() == 4 and hand_box.get_child(3) == heal_slot, "Reward heal choice should sit immediately to the right of the offered cards")
+	instance.queue_free()
+	await process_frame
+
+func _test_run_scene_reward_acquisition_is_single_choice() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for reward acquisition race coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	reward_state["mode"] = "reward"
+	reward_state["player_hp"] = 180
+	reward_state["player_max_hp"] = 360
+	reward_state["pending_reward"] = {
+		"cards": ["spark_dart", "frostbolt"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", reward_state)
+	instance.set("_loadout_acquisition_in_progress", true)
+	instance.set("_animation_lock", true)
+	instance.call("_on_skip_reward_pressed")
+	var locked_state: Dictionary = instance.get("_run_state")
+	_assert(str(locked_state.get("mode", "")) == "reward", "Recover should not resolve while a reward-card acquisition animation owns the choice")
+	_assert(int(locked_state.get("player_hp", 0)) == 180, "A blocked Recover click should not heal during reward-card acquisition")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	instance.call("_on_reward_heal_choice_gui_input", click)
+	locked_state = instance.get("_run_state")
+	_assert(str(locked_state.get("mode", "")) == "reward", "The Recover tile input path should also stay blocked during reward-card acquisition")
+	instance.call("_on_reward_card_pressed", "frostbolt")
+	locked_state = instance.get("_run_state")
+	_assert(not (locked_state.get("magic_inventory", []) as Array).has("frostbolt"), "A second reward card should not resolve while another acquisition owns the choice")
+	instance.set("_loadout_acquisition_in_progress", false)
+	instance.set("_animation_lock", false)
+	instance.call("_on_skip_reward_pressed")
+	var resolved_state: Dictionary = instance.get("_run_state")
+	_assert(str(resolved_state.get("mode", "")) == "room", "Recover should resolve normally after the acquisition lock releases")
+	_assert(int(resolved_state.get("player_hp", 0)) == 240, "Exactly one unlocked Recover choice should apply its offered healing")
+	_assert(not (resolved_state.get("magic_inventory", []) as Array).has("frostbolt"), "Resolving Recover should leave the mutually exclusive reward spell unclaimed")
 	instance.queue_free()
 	await process_frame
 
@@ -8412,8 +8598,8 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	instance.call("_refresh_visibility")
 	await process_frame
 	await process_frame
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
 	var owned_slot: Control = null
 	var new_slot: Control = null
 	for slot_var: Node in hand_box.get_children():
@@ -8676,8 +8862,8 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_progression", ProgressionStore.default_data())
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var context_overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
+	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var context_overlay: PanelContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
 	var relic_overlay: Control = instance.get("_relic_choice_overlay") as Control
 	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
@@ -8784,7 +8970,7 @@ func _test_run_scene_campfire_bonfire_persists_after_leave() -> void:
 	run_state["current_room_layout"] = run_engine.call("_display_layout_for_room", int(run_state.get("seed", 0)), campfire_room, Vector2i.ZERO)
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_stage_view")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var scene_props: Array = board_view.get("presentation").get("scene_props", [])
 	var found_bonfire: bool = false
 	for prop_var: Variant in scene_props:
@@ -9065,7 +9251,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	await instance.call("_begin_card_preview", 0, preview)
 	var enemy_tile := Vector2i(5, 5)
 	instance.call("_on_board_tile_hovered", enemy_tile)
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(attack_tiles.has(enemy_tile), "Move-attack previews should let the player click a reachable enemy directly")
 	_assert(bool(board_view.get("presentation").get("pulse_attack_tiles", false)), "Player attack targets should request pulsing attack highlights")
@@ -9125,7 +9311,7 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	var action_context: Control = instance.get("_action_step_tracker") as Control
 	_assert(_button_with_text(action_context, "Rotate") != null, "Rotatable AOE targeting should compose Rotate into the action context")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var focus_tiles: Array = presentation.get("focus_tiles", [])
 	_assert(focus_tiles.has(Vector2i(4, 4)) and focus_tiles.has(Vector2i(6, 4)), "Default line AOE aim should show the full centered east pattern before clicking")
@@ -9178,7 +9364,7 @@ func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var ability_tiles: Array = presentation.get("ability_tiles", [])
 	_assert(not ability_tiles.has(Vector2i(2, 4)), "Push direction selection should not show the protagonist tile as a valid closer direction")
@@ -9575,7 +9761,7 @@ func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
 	var active_preview: Dictionary = instance.call("_active_card_preview")
 	var active_targets: Array = active_preview.get("target_tiles", [])
 	_assert(active_targets.size() == 1 and active_targets[0] == target_tile, "Run scene previews should preserve Vector2i target tiles when dictionaries provide plain arrays")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	_assert(move_tiles.has(target_tile), "Stage refresh should accept untyped preview target arrays and surface them on the combat board")
 	instance.queue_free()
@@ -9613,7 +9799,7 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 	await instance.call("_begin_card_preview", 0, preview)
 	var target_tile := Vector2i(3, 4)
 	instance.call("_on_board_tile_hovered", target_tile)
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var preview_units: Array = presentation.get("preview_units", [])
 	var ability_tiles: Array = presentation.get("ability_tiles", [])
@@ -9760,7 +9946,7 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.set("_hovered_board_tile", Vector2i(5, 2))
 	instance.call("_refresh_stage_view")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(move_tiles.has(Vector2i(4, 2)), "Hovering an enemy should surface its movement threat tiles on the board")
@@ -9811,7 +9997,7 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.set("_hovered_board_tile", Vector2i(2, 2))
 	instance.call("_refresh_stage_view")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(move_tiles.has(Vector2i(2, 4)), "RunScene should surface the Frostglass Lancer's sideways setup movement on board hover")
@@ -9864,7 +10050,7 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.set("_animation_lock", true)
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var animated_state: Dictionary = combat_state.duplicate(true)
 	var animated_enemies: Array = (animated_state.get("enemies", []) as Array).duplicate(true)
 	var animated_enemy: Dictionary = (animated_enemies[0] as Dictionary).duplicate(true)
@@ -10024,7 +10210,7 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	run_state["relics"] = ["ember_lens", "pilgrim_boots", "mirror_shard"]
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_ui")
-	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: HFlowContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
 	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
 	_assert(relic_bar.get_child_count() == 3, "The run HUD should render one icon per owned relic")
 	instance.queue_free()
@@ -10067,7 +10253,7 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: HFlowContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
 	_assert(relic_bar.visible and relic_bar.get_child_count() == relic_ids.size(), "Relic HUD should render all owned relic icons")
 	if relic_bar.get_child_count() > 0:
 		var first_row_y: float = (relic_bar.get_child(0) as Control).global_position.y
@@ -10174,6 +10360,51 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_progression", progression)
 	instance.call("_close_dialogue")
+	var loadout_button: Button = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Button
+	var loadout_badge: PanelContainer = instance.get("_loadout_badge") as PanelContainer
+	var loadout_badge_label: Label = instance.get("_loadout_badge_label") as Label
+	_assert(loadout_button != null and loadout_button.icon != null, "The top-right HUD should expose an icon-only character loadout button")
+	_assert(loadout_button.tooltip_text == "Character Loadout", "The loadout header button should identify its destination")
+	run_state["equipment_inventory"] = ["ward_kite"]
+	var notification_collected_equipment: Array = (run_state.get("collected_equipment", []) as Array).duplicate()
+	if not notification_collected_equipment.has("ward_kite"):
+		notification_collected_equipment.append("ward_kite")
+	run_state["collected_equipment"] = notification_collected_equipment
+	run_state["magic_inventory"] = ["spark_dart"]
+	run_state[RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY] = ["ward_kite"]
+	run_state[RunEngine.UNREAD_LOADOUT_MAGIC_KEY] = ["spark_dart"]
+	run_state[RunEngine.NEW_LOADOUT_EQUIPMENT_KEY] = ["ward_kite"]
+	run_state[RunEngine.NEW_LOADOUT_MAGIC_KEY] = ["spark_dart"]
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_loadout_badge")
+	_assert(loadout_badge != null and loadout_badge.visible, "New gear or magic should show a loadout notification badge")
+	_assert(loadout_badge_label != null and loadout_badge_label.text == "2", "The loadout badge should count unseen gear and magic")
+	instance.call("_on_loadout_button_pressed")
+	await process_frame
+	_assert(str(instance.get("_progression_overlay_mode")) == "equipment", "The loadout button should prioritize the unread Gear tab")
+	var gear_seen_state: Dictionary = instance.get("_run_state")
+	_assert((gear_seen_state.get(RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY, []) as Array).is_empty(), "Opening Gear should clear new equipment notifications")
+	_assert((gear_seen_state.get(RunEngine.UNREAD_LOADOUT_MAGIC_KEY, []) as Array) == ["spark_dart"], "Opening Gear should preserve unseen Magic notifications")
+	_assert((gear_seen_state.get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array) == ["ward_kite"], "Opening Gear should preserve the new gear's item-level tag")
+	_assert(loadout_badge.visible and loadout_badge_label.text == "1", "The loadout badge should remain for an unseen spell")
+	var gear_new_tag: Control = (instance.get("_upgrade_scrim") as Node).find_child("LoadoutNewTag", true, false) as Control
+	_assert(gear_new_tag != null and str(gear_new_tag.get_meta("asset_id", "")) == "ward_kite", "New equipment should show a NEW tag in the Gear inventory")
+	instance.call("_on_loadout_asset_hovered", "equipment", "ward_kite")
+	_assert(not ((instance.get("_run_state") as Dictionary).get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array).has("ward_kite"), "Hovering new equipment should clear its persistent NEW state")
+	_assert(gear_new_tag != null and not gear_new_tag.visible, "Hovering new equipment should immediately hide its NEW tag")
+	var unread_magic_tab: Button = _button_with_text(instance.get("_upgrade_scrim") as Node, "Magic")
+	_assert(unread_magic_tab != null and unread_magic_tab.find_child("MagicLoadoutTabBadge", true, false) != null, "The unopened Magic tab should show its own notification badge")
+	instance.call("_close_card_upgrade_overlay")
+	instance.call("_on_loadout_button_pressed")
+	await process_frame
+	_assert(str(instance.get("_progression_overlay_mode")) == "magic", "The loadout button should route directly to Magic when only spells are unseen")
+	_assert(not loadout_badge.visible, "Opening Magic should clear the final loadout notification")
+	var magic_new_tag: Control = (instance.get("_upgrade_scrim") as Node).find_child("LoadoutNewTag", true, false) as Control
+	_assert(magic_new_tag != null and str(magic_new_tag.get_meta("asset_id", "")) == "spark_dart", "New spells should show a NEW tag in Learned Magic")
+	instance.call("_on_loadout_asset_hovered", "magic", "spark_dart")
+	_assert(not ((instance.get("_run_state") as Dictionary).get(RunEngine.NEW_LOADOUT_MAGIC_KEY, []) as Array).has("spark_dart"), "Hovering a new spell should clear its persistent NEW state")
+	_assert(magic_new_tag != null and not magic_new_tag.visible, "Hovering a new spell should immediately hide its NEW tag")
+	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_card_upgrade_overlay")
 	await process_frame
 	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")
@@ -10545,7 +10776,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var equipped_deck: Array = equipped_state.get("deck_cards", []) as Array
 	_assert(equipped_deck.has("cleaver_hook") and equipped_deck.has("needle_flurry") and equipped_deck.has("butcher_chop"), "Equipping from the gear overlay should add the new weapon cards")
 	_assert(not equipped_deck.has("whirlwind_slash") and not equipped_deck.has("bloody_lunge"), "Equipping from the gear overlay should remove the previous weapon cards")
-	var board_view: CombatBoardView = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as CombatBoardView
+	var board_view: CombatBoardView = instance.get_node("BoardUnderlay/CombatBoard") as CombatBoardView
 	var board_presentation: Dictionary = board_view.get("presentation") if board_view != null else {}
 	_assert(str((board_presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Equipping gear should refresh board presentation for future player equipment art")
 	instance.call("_switch_character_overlay_mode", "stats")
@@ -11531,7 +11762,7 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
 		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
-		var piles_bar: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
+		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
 		var action_step_tracker: Control = instance.find_child(ACTION_STEP_TRACKER_PATH, true, false) as Control
 		if preview_overlay != null and preview_overlay.visible and choice_host != null and piles_bar != null:
 			var choice_rect: Rect2 = choice_host.get_global_rect()
@@ -11708,7 +11939,7 @@ func _run_scene_choice_button_host(instance: Node) -> Node:
 	var overlay: Node = instance.get("_choice_button_overlay") as Node
 	if overlay != null and overlay.get_child_count() > 0:
 		return overlay
-	return instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	return instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 
 func _assert_button_text_centered(button: Button, message: String) -> void:
 	_assert(button.alignment == HORIZONTAL_ALIGNMENT_CENTER, "%s text should be mathematically centered" % message)

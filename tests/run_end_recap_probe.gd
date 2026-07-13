@@ -93,7 +93,7 @@ func _install_state(instance: Node, progression: Dictionary, state: Dictionary) 
 	var recap: Control = instance.get("_run_end_recap") as Control
 	if recap == null or not recap.visible:
 		_fail("Terminal state should display the recap overlay")
-	var board: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as Control
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	if board == null or not board.visible:
 		_fail("Terminal state should keep the final tactical room visible")
 

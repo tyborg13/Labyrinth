@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T16:53:13Z",
+  "updated_at": "2026-07-13T21:41:11Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5053,6 +5053,188 @@
       "source": {
         "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
         "commit": "86696eb"
+      }
+    },
+    {
+      "id": "mnt_20260711T032032Z_e558afe0",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pooled card proxy widgets must clear stretch anchors after configure",
+      "details": "A reused CardWidget child under CardProxy can silently double from 250x352 to 500x704 when FULL_RECT anchors resolve again during configure, even while the proxy scale itself reports the correct value. Keep the CardWidget at fixed native top-left geometry, reapply _prepare_native_card_widget after configure/display overrides, and let the proxy parent own all drag/play/draw/discard scaling. Visual probes should assert the child widget size across multiple pool reuse cycles, not only the proxy scale.",
+      "status": "active",
+      "created_at": "2026-07-11T03:20:32Z",
+      "updated_at": "2026-07-11T03:20:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/overhaul-card-play-draw-discard-animations-and-fix-giant-cards",
+        "commit": "d4769e2"
+      }
+    },
+    {
+      "id": "mnt_20260711T114617Z_56a7b50f",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Card motion should be continuous, brief, and action-first",
+      "details": "A played card should use one persistent proxy, grow modestly into center for only a short identification beat, then complete its shrink-and-pile flight before any card action animation starts so it never covers movement, damage, block, or other resolution visuals. Keep the full pre-action cadence quick. Multi-card draws should remain smooth and overlapping but launch as a readable stream with enough stagger to perceive one card, then the next, rather than appearing simultaneous.",
+      "status": "active",
+      "created_at": "2026-07-11T11:46:17Z",
+      "updated_at": "2026-07-11T11:46:17Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260711T040833Z_5116d20b"
+      ],
+      "source": {
+        "branch": "codex/overhaul-card-play-draw-discard-animations-and-fix-giant-cards",
+        "commit": "8b33ddc"
+      }
+    },
+    {
+      "id": "mnt_20260711T125704Z_9ccdcb55",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Victory resolves missed equipment before clearing combat",
+      "details": "RunEngine.finish_combat must resolve every unclaimed equipment loot entry into claimed/resolution=missed and carry missed_equipment ids before combat_state is cleared. RunScene may retain the pre-resolution victory snapshot only long enough to animate the ash disintegration, then transitions with the resolved snapshot for analytics and persistence. Grimoire discovery for floor equipment begins on collection, not mere visibility, so missed gear never becomes discovered.",
+      "status": "active",
+      "created_at": "2026-07-11T12:57:04Z",
+      "updated_at": "2026-07-11T12:57:04Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/post-combat-missed-equipment-resolution",
+        "commit": "d4769e2"
+      }
+    },
+    {
+      "id": "mnt_20260712T015409Z_97425bfa",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat log should be prominent and own missed-gear copy",
+      "details": "Keep the combat log as a larger high-contrast framed panel with body-large outlined text; missed-equipment disintegration copy belongs only in the combat log, not the action banner.",
+      "status": "active",
+      "created_at": "2026-07-12T01:54:09Z",
+      "updated_at": "2026-07-12T01:54:09Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/post-combat-missed-equipment-resolution",
+        "commit": "ffa15c7"
+      }
+    },
+    {
+      "id": "mnt_20260712T185259Z_3f7ab54b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "Loadout discovery uses separate navigation and per-asset states",
+      "details": "Acquired equipment, consumable items, and magic ids are recorded in both unread_loadout_* for the top-bar/tab notification and new_loadout_* for item-level NEW tags. Opening Gear or Magic clears only its navigation unread list; hovering the specific asset clears and persists only that asset's NEW state, so the panel can guide the eye after its tab badge has already been acknowledged.",
+      "status": "active",
+      "created_at": "2026-07-12T18:52:59Z",
+      "updated_at": "2026-07-12T18:52:59Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T131300Z_4f288954"
+      ],
+      "source": {
+        "branch": "codex/animate-card-and-equipment-gains-to-character-loadout",
+        "commit": "5c2b14d"
+      }
+    },
+    {
+      "id": "mnt_20260713T134536Z_cd009650",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scenes/run_scene.tscn",
+        "symbol": null
+      },
+      "scope_key": "file:scenes/run_scene.tscn",
+      "summary": "Combat board renders on a HUD underlay canvas",
+      "details": "The navigable board must remain unclipped so its art can flow beneath the bottom controls. Keep the board and base backdrop in BoardUnderlay below UiLayer, align the board's interactive rect to StageRoot, and leave broad UI layout controls mouse-filtered to IGNORE so input still reaches the board.",
+      "status": "active",
+      "created_at": "2026-07-13T13:45:36Z",
+      "updated_at": "2026-07-13T13:45:36Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260713T125529Z_07b469e8"
+      ],
+      "source": {
+        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
+        "commit": "0358fa8"
+      }
+    },
+    {
+      "id": "mnt_20260713T134536Z_c5bb4745",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_connect_board_aim_signals"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_connect_board_aim_signals",
+      "summary": "Combat notes stay fixed while the board moves",
+      "details": "Board zoom and pan must not trigger contextual combat prompt relayout. The note is fixed HUD information; navigation_changed should remain a board signal but should not be connected to prompt placement.",
+      "status": "active",
+      "created_at": "2026-07-13T13:45:36Z",
+      "updated_at": "2026-07-13T13:45:36Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
+        "commit": "0358fa8"
+      }
+    },
+    {
+      "id": "mnt_20260713T214111Z_ebb836bc",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/flurry_card_pack_probe.gd",
+        "symbol": null
+      },
+      "scope_key": "file:tests/flurry_card_pack_probe.gd",
+      "summary": "Hidden RunScene probes must also hide nested CanvasLayers",
+      "details": "Setting the RunScene root Control invisible does not suppress children moved under BoardUnderlay or UiLayer CanvasLayers. Isolated card-art probes that instantiate RunScene for helper methods must explicitly hide nested CanvasLayer nodes, or startup UI can cover the proof while image-dimension checks still pass.",
+      "status": "active",
+      "created_at": "2026-07-13T21:41:11Z",
+      "updated_at": "2026-07-13T21:41:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "da8db64"
       }
     }
   ]
