@@ -845,6 +845,7 @@ const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
+const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
 const FALLBACK_MOVE_RANGE: int = 2
@@ -1276,6 +1277,8 @@ var _merchant_hovered_kind: String = ""
 var _merchant_hovered_item_id: String = ""
 var _merchant_hovered_row: Control
 var _merchant_trade_animation_active: bool = false
+var _merchant_shop_open: bool = true
+var _merchant_shop_room_coord: Vector2i = INVALID_ROOM_COORD
 var _pre_battle_scrim: ColorRect
 var _pre_battle_panel: PanelContainer
 var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
@@ -5849,6 +5852,8 @@ func _boot_run() -> void:
 func _load_run_state(next_run_state: Dictionary) -> void:
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
+	_merchant_shop_room_coord = INVALID_ROOM_COORD
+	_merchant_shop_open = true
 	_committed_run_state_override.clear()
 	var merged_run_state: Dictionary = _run_state_with_profile_grimoire(next_run_state)
 	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(merged_run_state))
@@ -7717,6 +7722,7 @@ func _refresh_choice_bar() -> void:
 		_pass_preview_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
+	_sync_merchant_shop_room()
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode not in ["victory", "defeat"] and _run_end_recap != null:
 		_run_end_recap.reset()
@@ -7733,8 +7739,11 @@ func _refresh_choice_bar() -> void:
 		"room":
 			var merchant_kind: String = _current_room_merchant_kind()
 			if not merchant_kind.is_empty():
-				_set_relic_choice_title(_merchant_title_text(merchant_kind))
-				_add_merchant_trade_panel(merchant_kind)
+				if _merchant_shop_open:
+					_set_relic_choice_title(_merchant_title_text(merchant_kind))
+					_add_merchant_trade_panel(merchant_kind)
+				else:
+					_add_merchant_return_to_shop_button()
 		"campfire":
 			_add_campfire_choice(
 				"linger",
@@ -8410,6 +8419,40 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 func _current_room_merchant_kind() -> String:
 	return _run_engine.merchant_kind_for_current_room(_run_state)
 
+func _sync_merchant_shop_room() -> void:
+	var current_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
+	if current_coord == _merchant_shop_room_coord:
+		return
+	_merchant_shop_room_coord = current_coord
+	_merchant_shop_open = true
+
+func _on_merchant_show_doors_pressed() -> void:
+	if not _merchant_shop_open or _current_room_merchant_kind().is_empty():
+		return
+	_close_pinned_tooltip()
+	_merchant_shop_open = false
+	_refresh_ui()
+
+func _on_merchant_return_to_shop_pressed() -> void:
+	if _merchant_shop_open or _current_room_merchant_kind().is_empty():
+		return
+	_merchant_shop_open = true
+	_refresh_ui()
+
+func _add_merchant_return_to_shop_button() -> void:
+	if _relic_choice_bar == null:
+		return
+	var button := Button.new()
+	button.name = "MerchantReturnToShopButton"
+	button.text = "Return to Shop"
+	button.tooltip_text = "Open the merchant's stock again."
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 0.0, true, UiSkin.VARIANT_LARGE)
+	button.pressed.connect(_on_merchant_return_to_shop_pressed)
+	_relic_choice_bar.add_child(button)
+
 func _merchant_title_text(merchant_kind: String) -> String:
 	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
 		return MERCHANT_TITLE_BLACKSMITH
@@ -8479,6 +8522,17 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 	ember_label.add_theme_color_override("font_outline_color", Color("241912"))
 	ember_label.add_theme_constant_override("outline_size", 1)
 	top_row.add_child(ember_label)
+
+	var show_doors_button := Button.new()
+	show_doors_button.name = "MerchantShowDoorsButton"
+	show_doors_button.text = "Show Doors"
+	show_doors_button.tooltip_text = "Hide the shop panel and reveal every door."
+	_ui_skin.apply_button_stylebox_overrides(show_doors_button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(show_doors_button)
+	UiTypography.set_button_size(show_doors_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(show_doors_button, UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, UiSkin.VARIANT_STANDARD)
+	show_doors_button.pressed.connect(_on_merchant_show_doors_pressed)
+	top_row.add_child(show_doors_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -11081,6 +11135,9 @@ func _on_cancel_requested() -> void:
 		return
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
+		return
+	if _merchant_shop_open and not _current_room_merchant_kind().is_empty():
+		_on_merchant_show_doors_pressed()
 		return
 	_open_menu_overlay()
 

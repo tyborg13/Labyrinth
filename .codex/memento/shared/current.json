@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T13:45:36Z",
+  "updated_at": "2026-07-13T22:47:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5141,6 +5141,28 @@
       "source": {
         "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
         "commit": "0358fa8"
+      }
+    },
+    {
+      "id": "mnt_20260713T224700Z_7ba64c18",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Merchant trade overlays can cover legal doors at 1280x720",
+      "details": "The fixed 940x290 merchant panel can fully hide and intercept lower board exits even though RunEngine.available_moves and map travel remain correct. Keep an explicit Show Doors collapse action with a non-blocking Return to Shop control, Escape support, and merchant_room_probe coverage that clicks a formerly covered door at a 1280x720 logical viewport.",
+      "status": "active",
+      "created_at": "2026-07-13T22:47:00Z",
+      "updated_at": "2026-07-13T22:47:00Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-merchant-blocking-room-doors",
+        "commit": "c6a65a0"
       }
     }
   ]
