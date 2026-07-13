@@ -8992,26 +8992,35 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Targetless follow-up actions should remain visible after the current move step")
 	_assert_action_step_tracker_layout(instance, piles_y_before, "Targetless follow-up tracker should occupy overlay space above controls")
+	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
+	var tracker_position_before_resolution: Vector2 = tracker.global_position if tracker != null else Vector2.ZERO
+	instance.call("_lock_action_step_tracker_position_for_resolution")
 	instance.set("_animation_lock", true)
+	instance.set("_animating_hand_card_index", 0)
 	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)])
+	instance.call("_refresh_animation_lock_ui")
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Execution should keep tracker visible during the move animation step")
+	_assert(tracker != null and tracker.global_position.is_equal_approx(tracker_position_before_resolution), "Execution should keep the tracker at its pre-animation position when the hand reflows")
 	instance.call("_set_action_step_resolution_index", 1)
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["done", "current", "remaining"], "Execution should advance tracker to targetless block step")
+	_assert(tracker != null and tracker.global_position.is_equal_approx(tracker_position_before_resolution), "Execution tracker should remain fixed through the block step")
 	instance.call("_set_action_step_resolution_index", 2)
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["done", "done", "current"], "Execution should advance tracker to targetless card-play step")
+	_assert(tracker != null and tracker.global_position.is_equal_approx(tracker_position_before_resolution), "Execution tracker should remain fixed through the card-play step")
 	instance.call("_set_action_step_resolution_index", 3)
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["done", "done", "done"], "Execution should show all steps done through final card resolution")
 	instance.call("_clear_action_step_resolution_tracker")
 	instance.set("_animation_lock", false)
+	instance.set("_animating_hand_card_index", -1)
 
 	_load_action_step_tracker_fixture(instance, "quick_stab", Vector2i(2, 4), [Vector2i(3, 4)])
 	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
-	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
+	tracker = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
 	_assert(tracker != null and tracker.visible, "Single-action cards should use the same coherent action context")
 	_assert_action_step_tracker_statuses(instance, ["current"], "Single-action context should show its current step")
 	_assert(str(tracker.get_meta("action_verb", "")).contains("MELEE"), "Single-action context should surface a terse action verb")

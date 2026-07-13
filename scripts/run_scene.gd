@@ -1153,6 +1153,8 @@ var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
 var _action_context_command_bar: HBoxContainer
 var _action_context_connector: ColorRect
+var _action_step_tracker_position_locked: bool = false
+var _action_step_tracker_locked_position: Vector2 = Vector2.ZERO
 var _action_step_resolution_active: bool = false
 var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
@@ -6843,6 +6845,14 @@ func _layout_action_step_tracker() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	tracker_size.x = minf(maxf(ACTION_STEP_TRACKER_MIN_SIZE.x, tracker_size.x), viewport_size.x - ACTION_CONTEXT_EDGE_MARGIN * 2.0)
 	_action_step_tracker.size = tracker_size
+	if _action_step_tracker_position_locked:
+		_action_step_tracker.global_position = Vector2(
+			clampf(_action_step_tracker_locked_position.x, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.x - tracker_size.x - ACTION_CONTEXT_EDGE_MARGIN)),
+			clampf(_action_step_tracker_locked_position.y, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN))
+		)
+		_layout_contextual_combat_prompt_overlay()
+		call_deferred("_layout_contextual_combat_prompt_overlay")
+		return
 	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
 	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
 		return
@@ -7339,6 +7349,14 @@ func _begin_action_step_resolution_tracker(card_id: String, actions: Array, sele
 	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
 	_refresh_action_step_tracker()
 
+func _lock_action_step_tracker_position_for_resolution() -> void:
+	if _action_step_tracker == null or not _action_step_tracker.visible:
+		return
+	_layout_action_step_tracker()
+	_action_step_tracker_locked_position = _action_step_tracker.global_position
+	_action_step_tracker_position_locked = true
+	_action_step_tracker.set_meta("position_locked", true)
+
 func _set_action_step_resolution_index(index: int) -> void:
 	if not _action_step_resolution_active:
 		return
@@ -7346,12 +7364,15 @@ func _set_action_step_resolution_index(index: int) -> void:
 	_refresh_action_step_tracker()
 
 func _clear_action_step_resolution_tracker() -> void:
+	_action_step_tracker_position_locked = false
+	_action_step_tracker_locked_position = Vector2.ZERO
 	_action_step_resolution_active = false
 	_action_step_resolution_card_id = ""
 	_action_step_resolution_actions.clear()
 	_action_step_resolution_index = 0
 	_action_step_resolution_targets.clear()
 	if _action_step_tracker != null:
+		_action_step_tracker.set_meta("position_locked", false)
 		_action_step_tracker.visible = false
 	if _action_context_connector != null:
 		_action_context_connector.visible = false
@@ -11206,6 +11227,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
+	_lock_action_step_tracker_position_for_resolution()
 	_animating_hand_card_index = hand_index
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true

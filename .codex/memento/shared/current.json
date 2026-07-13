@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T23:00:17Z",
+  "updated_at": "2026-07-13T23:18:55Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5144,7 +5144,7 @@
       }
     },
     {
-      "id": "mnt_20260713T230017Z_4c15cd57",
+      "id": "mnt_20260713T231855Z_386d663b",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5153,18 +5153,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card action context stays compact and anchored to the active card",
-      "details": "For normal card targeting and the Printed/Attack/Move choice, place the card title and step count directly above the exclusive mode selector without action-type or target-validity/turn-end-risk rows. Position the contextual widget directly above and horizontally aligned with the active hand card so it reads as part of the card interaction; retain drag-only release guidance.",
+      "summary": "Card action context stays compact, card-anchored, and motion-stable",
+      "details": "For normal card targeting and the Printed/Attack/Move choice, omit action-type and target-validity/turn-end-risk rows. Position the contextual widget directly above the active hand card. When play commits, lock the widget's exact screen position through card-flight and action-resolution animations so hand rebuilding or reflow cannot shift it; retain drag-only release guidance.",
       "status": "active",
-      "created_at": "2026-07-13T23:00:17Z",
-      "updated_at": "2026-07-13T23:00:17Z",
+      "created_at": "2026-07-13T23:18:55Z",
+      "updated_at": "2026-07-13T23:18:55Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260713T224721Z_c0d0dff9"
+        "mnt_20260713T230017Z_4c15cd57"
       ],
       "source": {
         "branch": "codex/simplify-move-contextual-card-widget",
-        "commit": "091c771"
+        "commit": "39afef2"
       }
     }
   ]

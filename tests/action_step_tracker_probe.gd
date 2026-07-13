@@ -66,24 +66,33 @@ func _capture_action_step_tracker_frames() -> void:
 	_assert_tracker_layout(instance, "targetless follow-up selection", piles_y_before)
 	await _save_root_screenshot("%s/targetless_followups_selected.png" % OUTPUT_DIR)
 
+	var tracker: Control = instance.get_node_or_null(TRACKER_PATH) as Control
+	var tracker_position_before_resolution: Vector2 = tracker.global_position if tracker != null else Vector2.ZERO
+	instance.call("_lock_action_step_tracker_position_for_resolution")
 	instance.set("_animation_lock", true)
+	instance.set("_animating_hand_card_index", 0)
 	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)])
+	instance.call("_refresh_animation_lock_ui")
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["current", "remaining", "remaining"], "execution move step")
 	_assert_tracker_layout(instance, "execution move step", piles_y_before)
+	_assert_tracker_position(instance, tracker_position_before_resolution, "execution move step")
 	await _save_root_screenshot("%s/execution_move_current.png" % OUTPUT_DIR)
 	instance.call("_set_action_step_resolution_index", 1)
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["done", "current", "remaining"], "execution block step")
 	_assert_tracker_layout(instance, "execution block step", piles_y_before)
+	_assert_tracker_position(instance, tracker_position_before_resolution, "execution block step")
 	await _save_root_screenshot("%s/execution_block_current.png" % OUTPUT_DIR)
 	instance.call("_set_action_step_resolution_index", 2)
 	await _settle_ui()
 	_assert_tracker_statuses(instance, ["done", "done", "current"], "execution card-play step")
 	_assert_tracker_layout(instance, "execution card-play step", piles_y_before)
+	_assert_tracker_position(instance, tracker_position_before_resolution, "execution card-play step")
 	await _save_root_screenshot("%s/execution_card_play_current.png" % OUTPUT_DIR)
 	instance.call("_clear_action_step_resolution_tracker")
 	instance.set("_animation_lock", false)
+	instance.set("_animating_hand_card_index", -1)
 
 	instance.queue_free()
 	await process_frame
@@ -196,15 +205,24 @@ func _assert_tracker_layout(instance: Node, label: String, expected_piles_y: flo
 	if tracker.global_position.y + tracker.size.y > anchor_y + 1.0:
 		_fail("%s tracker overlaps controls: tracker bottom %.1f, anchor %.1f" % [label, tracker.global_position.y + tracker.size.y, anchor_y])
 		return
-	var card_anchor: Rect2 = instance.call("_action_step_tracker_anchor_rect") as Rect2
-	var tracker_rect: Rect2 = tracker.get_global_rect()
-	if absf(tracker_rect.get_center().x - card_anchor.get_center().x) > 2.0:
-		_fail("%s tracker should stay horizontally connected to its active card" % label)
+	if not bool(tracker.get_meta("position_locked", false)):
+		var card_anchor: Rect2 = instance.call("_action_step_tracker_anchor_rect") as Rect2
+		var tracker_rect: Rect2 = tracker.get_global_rect()
+		if absf(tracker_rect.get_center().x - card_anchor.get_center().x) > 2.0:
+			_fail("%s tracker should stay horizontally connected to its active card" % label)
+			return
+		var card_gap: float = card_anchor.position.y - tracker_rect.end.y
+		if card_gap < -1.0 or card_gap > 24.0:
+			_fail("%s tracker should sit directly above the hand, got gap %.1f" % [label, card_gap])
+			return
+
+func _assert_tracker_position(instance: Node, expected: Vector2, label: String) -> void:
+	var tracker: Control = instance.get_node_or_null(TRACKER_PATH) as Control
+	if tracker == null:
+		_fail("Missing action step tracker for %s position check" % label)
 		return
-	var card_gap: float = card_anchor.position.y - tracker_rect.end.y
-	if card_gap < -1.0 or card_gap > 24.0:
-		_fail("%s tracker should sit directly above the hand, got gap %.1f" % [label, card_gap])
-		return
+	if not tracker.global_position.is_equal_approx(expected):
+		_fail("%s moved tracker from %s to %s during resolution" % [label, str(expected), str(tracker.global_position)])
 
 func _assert_tracker_copy_is_compact(instance: Node, label: String) -> void:
 	var detail_row: Control = instance.get("_action_context_detail_row") as Control
