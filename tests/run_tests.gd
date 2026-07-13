@@ -283,6 +283,7 @@ func _initialize() -> void:
 	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
 	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
 	await _test_run_scene_reward_heal_choice_sits_with_cards()
+	await _test_run_scene_reward_acquisition_is_single_choice()
 	await _test_run_scene_reward_decision_support_matches_claims()
 	await _test_run_scene_selection_prompts_clear_after_pick()
 	await _test_run_scene_fatigue_damage_visual_event()
@@ -1605,6 +1606,9 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	_assert((run_state.get("equipment_inventory", []) as Array).is_empty(), "Fresh runs should not duplicate equipped starter gear into inventory")
 	_assert((run_state.get("item_inventory", []) as Array).is_empty(), "Fresh runs should start with no consumable item inventory")
 	_assert((run_state.get("equipped_items", []) as Array).is_empty(), "Fresh runs should start with no equipped consumable items")
+	_assert(engine.loadout_unread_count(run_state) == 0, "Fresh runs should not badge the starter loadout as new")
+	_assert(engine.loadout_new_asset_ids(run_state, "equipment").is_empty(), "Fresh runs should not tag starter equipment as new")
+	_assert(engine.loadout_new_asset_ids(run_state, "magic").is_empty(), "Fresh runs should not tag starter magic as new")
 	_assert(int(run_state.get("equipment_drop_misses", -1)) == 0, "Fresh runs should start equipment pity from zero misses")
 	var equipped: Dictionary = run_state.get("equipped_equipment", {}) as Dictionary
 	for slot: String in GameData.equipment_slots():
@@ -1631,6 +1635,14 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	var reward_state: Dictionary = engine.claim_card_reward(run_state, "spark_dart")
 	_assert((reward_state.get("reward_cards", []) as Array) == ["spark_dart"], "Claimed card rewards should still append to reward_cards for collection history")
 	_assert((reward_state.get("magic_inventory", []) as Array) == ["spark_dart"], "Claimed card rewards should enter reserve magic")
+	_assert(engine.loadout_unread_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should mark the Magic loadout tab unread")
+	_assert(engine.loadout_new_asset_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should tag the learned spell as new")
+	_assert(engine.loadout_unread_count(reward_state) == 1, "A claimed reward spell should add one loadout notification")
+	var reward_seen_state: Dictionary = engine.clear_loadout_unread(reward_state, "magic")
+	_assert(engine.loadout_unread_count(reward_seen_state) == 0, "Opening Magic should clear its loadout notifications")
+	_assert(engine.loadout_asset_is_new(reward_seen_state, "magic", "spark_dart"), "Opening Magic should preserve the spell's NEW tag until that spell is hovered")
+	var reward_hovered_state: Dictionary = engine.mark_loadout_asset_seen(reward_seen_state, "magic", "spark_dart")
+	_assert(not engine.loadout_asset_is_new(reward_hovered_state, "magic", "spark_dart"), "Hovering a new spell should clear only its asset tag")
 	_assert(not (reward_state.get("deck_cards", []) as Array).has("spark_dart"), "Claimed rewards should stay inactive until attuned")
 	_assert((reward_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size(), "Claimed reserve magic should not grow the active deck")
 	var attuned_state: Dictionary = engine.swap_magic_card(reward_state, 0, 0)
@@ -1786,6 +1798,9 @@ func _test_equipment_collection_to_equip_deck_flow(default_progression: Dictiona
 	run_state = run_engine.set_combat_state(run_state, combat_state)
 	_assert((run_state.get("equipment_inventory", []) as Array).has("ward_kite"), "Collected combat equipment should merge into run inventory")
 	_assert((run_state.get("collected_equipment", []) as Array).has("ward_kite"), "Collected combat equipment should be remembered for duplicate-drop exclusion")
+	_assert(run_engine.loadout_unread_ids(run_state, "equipment") == ["ward_kite"], "Combat equipment pickups should mark the Gear loadout tab unread")
+	_assert(run_engine.loadout_new_asset_ids(run_state, "equipment") == ["ward_kite"], "Combat equipment pickups should tag the collected gear as new")
+	_assert(run_engine.loadout_unread_count(run_state) == 1, "A combat equipment pickup should add one loadout notification")
 	var pre_equip_deck: Array = run_state.get("deck_cards", []) as Array
 	_assert(pre_equip_deck.has("brace") and pre_equip_deck.has("guarded_step"), "Picking up equipment should not rebuild the deck until it is equipped")
 	_assert(not pre_equip_deck.has("kite_bash"), "Picked-up equipment cards should stay inactive while the item is only in inventory")
@@ -8433,6 +8448,49 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_reward_acquisition_is_single_choice() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for reward acquisition race coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	reward_state["mode"] = "reward"
+	reward_state["player_hp"] = 180
+	reward_state["player_max_hp"] = 360
+	reward_state["pending_reward"] = {
+		"cards": ["spark_dart", "frostbolt"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 0
+	}
+	instance.set("_run_state", reward_state)
+	instance.set("_loadout_acquisition_in_progress", true)
+	instance.set("_animation_lock", true)
+	instance.call("_on_skip_reward_pressed")
+	var locked_state: Dictionary = instance.get("_run_state")
+	_assert(str(locked_state.get("mode", "")) == "reward", "Recover should not resolve while a reward-card acquisition animation owns the choice")
+	_assert(int(locked_state.get("player_hp", 0)) == 180, "A blocked Recover click should not heal during reward-card acquisition")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	instance.call("_on_reward_heal_choice_gui_input", click)
+	locked_state = instance.get("_run_state")
+	_assert(str(locked_state.get("mode", "")) == "reward", "The Recover tile input path should also stay blocked during reward-card acquisition")
+	instance.call("_on_reward_card_pressed", "frostbolt")
+	locked_state = instance.get("_run_state")
+	_assert(not (locked_state.get("magic_inventory", []) as Array).has("frostbolt"), "A second reward card should not resolve while another acquisition owns the choice")
+	instance.set("_loadout_acquisition_in_progress", false)
+	instance.set("_animation_lock", false)
+	instance.call("_on_skip_reward_pressed")
+	var resolved_state: Dictionary = instance.get("_run_state")
+	_assert(str(resolved_state.get("mode", "")) == "room", "Recover should resolve normally after the acquisition lock releases")
+	_assert(int(resolved_state.get("player_hp", 0)) == 240, "Exactly one unlocked Recover choice should apply its offered healing")
+	_assert(not (resolved_state.get("magic_inventory", []) as Array).has("frostbolt"), "Resolving Recover should leave the mutually exclusive reward spell unclaimed")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -10149,6 +10207,51 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_progression", progression)
 	instance.call("_close_dialogue")
+	var loadout_button: Button = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Button
+	var loadout_badge: PanelContainer = instance.get("_loadout_badge") as PanelContainer
+	var loadout_badge_label: Label = instance.get("_loadout_badge_label") as Label
+	_assert(loadout_button != null and loadout_button.icon != null, "The top-right HUD should expose an icon-only character loadout button")
+	_assert(loadout_button.tooltip_text == "Character Loadout", "The loadout header button should identify its destination")
+	run_state["equipment_inventory"] = ["ward_kite"]
+	var notification_collected_equipment: Array = (run_state.get("collected_equipment", []) as Array).duplicate()
+	if not notification_collected_equipment.has("ward_kite"):
+		notification_collected_equipment.append("ward_kite")
+	run_state["collected_equipment"] = notification_collected_equipment
+	run_state["magic_inventory"] = ["spark_dart"]
+	run_state[RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY] = ["ward_kite"]
+	run_state[RunEngine.UNREAD_LOADOUT_MAGIC_KEY] = ["spark_dart"]
+	run_state[RunEngine.NEW_LOADOUT_EQUIPMENT_KEY] = ["ward_kite"]
+	run_state[RunEngine.NEW_LOADOUT_MAGIC_KEY] = ["spark_dart"]
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_loadout_badge")
+	_assert(loadout_badge != null and loadout_badge.visible, "New gear or magic should show a loadout notification badge")
+	_assert(loadout_badge_label != null and loadout_badge_label.text == "2", "The loadout badge should count unseen gear and magic")
+	instance.call("_on_loadout_button_pressed")
+	await process_frame
+	_assert(str(instance.get("_progression_overlay_mode")) == "equipment", "The loadout button should prioritize the unread Gear tab")
+	var gear_seen_state: Dictionary = instance.get("_run_state")
+	_assert((gear_seen_state.get(RunEngine.UNREAD_LOADOUT_EQUIPMENT_KEY, []) as Array).is_empty(), "Opening Gear should clear new equipment notifications")
+	_assert((gear_seen_state.get(RunEngine.UNREAD_LOADOUT_MAGIC_KEY, []) as Array) == ["spark_dart"], "Opening Gear should preserve unseen Magic notifications")
+	_assert((gear_seen_state.get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array) == ["ward_kite"], "Opening Gear should preserve the new gear's item-level tag")
+	_assert(loadout_badge.visible and loadout_badge_label.text == "1", "The loadout badge should remain for an unseen spell")
+	var gear_new_tag: Control = (instance.get("_upgrade_scrim") as Node).find_child("LoadoutNewTag", true, false) as Control
+	_assert(gear_new_tag != null and str(gear_new_tag.get_meta("asset_id", "")) == "ward_kite", "New equipment should show a NEW tag in the Gear inventory")
+	instance.call("_on_loadout_asset_hovered", "equipment", "ward_kite")
+	_assert(not ((instance.get("_run_state") as Dictionary).get(RunEngine.NEW_LOADOUT_EQUIPMENT_KEY, []) as Array).has("ward_kite"), "Hovering new equipment should clear its persistent NEW state")
+	_assert(gear_new_tag != null and not gear_new_tag.visible, "Hovering new equipment should immediately hide its NEW tag")
+	var unread_magic_tab: Button = _button_with_text(instance.get("_upgrade_scrim") as Node, "Magic")
+	_assert(unread_magic_tab != null and unread_magic_tab.find_child("MagicLoadoutTabBadge", true, false) != null, "The unopened Magic tab should show its own notification badge")
+	instance.call("_close_card_upgrade_overlay")
+	instance.call("_on_loadout_button_pressed")
+	await process_frame
+	_assert(str(instance.get("_progression_overlay_mode")) == "magic", "The loadout button should route directly to Magic when only spells are unseen")
+	_assert(not loadout_badge.visible, "Opening Magic should clear the final loadout notification")
+	var magic_new_tag: Control = (instance.get("_upgrade_scrim") as Node).find_child("LoadoutNewTag", true, false) as Control
+	_assert(magic_new_tag != null and str(magic_new_tag.get_meta("asset_id", "")) == "spark_dart", "New spells should show a NEW tag in Learned Magic")
+	instance.call("_on_loadout_asset_hovered", "magic", "spark_dart")
+	_assert(not ((instance.get("_run_state") as Dictionary).get(RunEngine.NEW_LOADOUT_MAGIC_KEY, []) as Array).has("spark_dart"), "Hovering a new spell should clear its persistent NEW state")
+	_assert(magic_new_tag != null and not magic_new_tag.visible, "Hovering a new spell should immediately hide its NEW tag")
+	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_card_upgrade_overlay")
 	await process_frame
 	var upgrade_scrim: ColorRect = instance.get("_upgrade_scrim")
