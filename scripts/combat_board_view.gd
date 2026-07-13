@@ -290,6 +290,7 @@ var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_frame_key: String = ""
 var _board_layout_cache_valid: bool = false
+var _board_layout_content_cache_valid: bool = false
 var _board_layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
 var _board_layout_cache_tiles: Array[Vector2i] = []
 var _board_layout_cache_extents: Dictionary = {}
@@ -321,6 +322,7 @@ var _is_dynamic_render_layer: bool = false
 var _dynamic_render_layer: Control = null
 var _static_draw_count: int = 0
 var _dynamic_draw_count: int = 0
+var _board_layout_content_rebuild_count: int = 0
 
 func _ready() -> void:
 	if _is_dynamic_render_layer:
@@ -408,7 +410,8 @@ func render_instrumentation_snapshot() -> Dictionary:
 		"static_draw_count": _static_draw_count,
 		"dynamic_draw_count": dynamic_count,
 		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
-		"loaded_unit_asset_type_count": _unit_assets_loaded.size()
+		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
+		"layout_content_rebuild_count": _board_layout_content_rebuild_count
 	}
 
 func _process(delta: float) -> void:
@@ -809,8 +812,10 @@ func _clear_hover_for_navigation() -> void:
 	_queue_dynamic_redraw()
 
 func _navigation_transform_changed(update_hover: bool) -> void:
-	_invalidate_board_layout_cache()
-	_sync_dynamic_render_state(true)
+	_invalidate_board_layout_cache(false)
+	_sync_dynamic_render_state(false)
+	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
+		_dynamic_render_layer.call("_invalidate_board_layout_cache", false)
 	queue_redraw()
 	_queue_dynamic_redraw()
 	if update_hover:
@@ -5894,22 +5899,31 @@ func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
 		"max_sum": max_sum
 	}
 
-func _invalidate_board_layout_cache() -> void:
+func _invalidate_board_layout_cache(content_changed: bool = true) -> void:
 	_board_layout_cache_valid = false
 	_board_layout_cache_tile_centers.clear()
 	_board_layout_cache_tile_polygons.clear()
+	if content_changed:
+		_board_layout_content_cache_valid = false
+		_board_layout_cache_tiles.clear()
+		_board_layout_cache_extents.clear()
 
 func _ensure_board_layout_cache() -> void:
 	if _board_layout_cache_valid and _board_layout_cache_size == size:
 		return
-	var grid: Array = combat_state.get("grid", [])
-	var tiles: Array[Vector2i] = _tiles_in_draw_order(grid)
-	var extents: Dictionary = _board_layout_extents_for_tiles(tiles)
+	var tiles: Array[Vector2i] = _board_layout_cache_tiles
+	var extents: Dictionary = _board_layout_cache_extents
+	if not _board_layout_content_cache_valid:
+		var grid: Array = combat_state.get("grid", [])
+		tiles = _tiles_in_draw_order(grid)
+		extents = _board_layout_extents_for_tiles(tiles)
+		_board_layout_content_rebuild_count += 1
+		_board_layout_cache_tiles = tiles
+		_board_layout_cache_extents = extents
+		_board_layout_content_cache_valid = true
 	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
 	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
 	_board_layout_cache_size = size
-	_board_layout_cache_tiles = tiles
-	_board_layout_cache_extents = extents
 	_board_layout_cache_tile_width = tile_width
 	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width)
 	_board_layout_cache_tile_centers = {}

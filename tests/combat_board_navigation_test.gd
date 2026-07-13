@@ -23,6 +23,7 @@ func _initialize() -> void:
 	var state: Dictionary = _board_state(Vector2i(2, 3))
 	board.set_combat_state(state)
 	await process_frame
+	_test_navigation_reuses_content_cache(board)
 	_test_bounded_zoom_and_hit_testing(board)
 	_test_wheel_zoom(board)
 	_test_click_without_drag(board)
@@ -40,6 +41,16 @@ func _initialize() -> void:
 			push_error(error)
 		print("COMBAT BOARD NAVIGATION TEST: FAIL (%d errors)" % _errors.size())
 		quit(1)
+
+func _test_navigation_reuses_content_cache(board: Control) -> void:
+	board.call("navigation_snapshot")
+	var before_count: int = int((board.call("render_instrumentation_snapshot") as Dictionary).get("layout_content_rebuild_count", -1))
+	board.call("set_navigation_zoom", 1.20, board.size * 0.5)
+	board.call("set_navigation_pan", Vector2(28.0, -18.0))
+	board.call("world_position_for_tile", Vector2i(4, 3))
+	var after_count: int = int((board.call("render_instrumentation_snapshot") as Dictionary).get("layout_content_rebuild_count", -1))
+	_expect(after_count == before_count, "Pan and zoom should reuse cached tile order/extents instead of rebuilding room content each frame")
+	board.call("reset_navigation")
 
 func _test_bounded_zoom_and_hit_testing(board: Control) -> void:
 	var focus_tile := Vector2i(4, 3)

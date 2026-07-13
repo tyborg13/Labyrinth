@@ -1366,6 +1366,8 @@ func _connect_board_aim_signals() -> void:
 		board_view.navigation_changed.connect(_on_board_navigation_changed)
 
 func _on_board_navigation_changed() -> void:
+	if _active_contextual_combat_prompt_id.is_empty():
+		return
 	_layout_contextual_combat_prompt_overlay()
 
 func _notification(what: int) -> void:
