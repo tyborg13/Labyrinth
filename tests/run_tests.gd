@@ -96,6 +96,7 @@ func _initialize() -> void:
 	_test_agility_reduces_player_base_initiative()
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
+	_test_flurry_repeats_and_spends_snapshotted_card_plays()
 	_test_starting_deck_uses_hamstring_shot_over_bone_dart()
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
@@ -291,6 +292,7 @@ func _initialize() -> void:
 	await _test_run_scene_campfire_choice_press_is_single_shot()
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
+	await _test_run_scene_flurry_utility_resolves_without_attack_target()
 	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
@@ -302,6 +304,7 @@ func _initialize() -> void:
 	await _test_run_scene_damage_display_matches_bonus()
 	await _test_run_scene_intensity_condition_rows_mark_activity()
 	await _test_card_widget_active_intensity_condition_glows()
+	await _test_card_widget_flurry_icon_uses_wide_slot()
 	await _test_run_scene_ranged_cards_show_range()
 	await _test_run_scene_preview_normalizes_untyped_target_tiles()
 	await _test_run_scene_illusion_hover_surfaces_preview_unit()
@@ -386,6 +389,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
 	_assert(not defaults.has("keyword:bleed"), "Bleed should remain context-unlocked instead of static-default")
+	_assert(defaults.has("keyword:flurry"), "Flurry should be documented as a default card mechanic")
 	var equipment_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("sawtooth_flurry")
 	_assert(not equipment_card_entries.has("magick:sawtooth_flurry"), "Equipment-derived cards should not unlock Magick entries")
 	_assert(equipment_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
@@ -393,6 +397,7 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
 	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
 	_assert(spark_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	_assert(GrimoireLibrary.entry_ids_for_card_id("cinder_fusillade").has("keyword:flurry"), "Flurry cards should unlock the Flurry grimoire entry")
 	var item_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("crimson_draught")
 	_assert(item_card_entries.has("item:crimson_draught"), "Scavenger consumables should unlock item entries")
 	var equipment_entries: Array[String] = GrimoireLibrary.entry_ids_for_equipment_id("sawtooth_knife")
@@ -583,6 +588,18 @@ func _test_equipment_data_rarity_and_starter_deck() -> void:
 			_assert(icon_path.begins_with("res://assets/art/equipment/"), "%s starter equipment should use custom equipment art, not reused relic art" % equipment_id)
 	for slot: String in GameData.equipment_slots():
 		_assert(int(slot_counts.get(slot, 0)) >= 3, "%s slot should have multiple equipment options" % slot.capitalize())
+	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "far_draw"], "Windlass Repeater should package a Flurry payoff with draw/play setup")
+	_assert(GameData.equipment_cards("war_dancer_sash") == ["blade_dance", "gathering_rhythm"], "War-Dancer Sash should package a melee Flurry payoff with rhythm setup")
+	var rhythm_actions: Array = GameData.card_def("gathering_rhythm").get("actions", [])
+	_assert(rhythm_actions.size() == 3 and int((rhythm_actions[2] as Dictionary).get("amount", 0)) == 2, "Gathering Rhythm should grant 2 card plays for a larger Flurry setup turn")
+	for reward_card_id: String in ["cinder_fusillade", "storm_salvo", "razor_gale"]:
+		_assert(bool(GameData.card_def(reward_card_id).get("flurry", false)), "%s should use the Flurry mechanic" % reward_card_id)
+		_assert(bool(GameData.card_def(reward_card_id).get("reward_pool", true)), "%s should enter the collectible spell pool" % reward_card_id)
+	for new_card_id: String in ["windlass_volley", "crank_reload", "blade_dance", "gathering_rhythm", "cinder_fusillade", "storm_salvo", "razor_gale"]:
+		var art_path: String = str(GameData.card_def(new_card_id).get("art_path", ""))
+		var art_image := Image.new()
+		var art_error: Error = art_image.load(art_path)
+		_assert(art_error == OK and art_image.get_width() == 256 and art_image.get_height() == 144, "%s should ship generated 256x144 card art" % new_card_id)
 	var equipped: Dictionary = GameData.starting_equipped_equipment()
 	for slot: String in GameData.equipment_slots():
 		_assert(not str(equipped.get(slot, "")).is_empty(), "Starting equipment should define %s" % slot)
@@ -1552,6 +1569,63 @@ func _test_card_play_action_grants_bonus_play() -> void:
 	_assert(combat.cards_remaining_this_turn(state) == 2, "Finishing the card should spend one play while preserving the action bonus")
 	state = combat.prepare_next_player_turn(state)
 	_assert(int(state.get("card_play_bonus_this_turn", 0)) == 0, "Card-play action bonuses should reset on a new player turn")
+
+func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(15111, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["cinder_fusillade"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["cinder_fusillade"]
+	deck["draw"] = []
+	deck["discard"] = []
+	state["deck"] = deck
+	state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 10, "max_hp": 10, "block": 0, "stoneskin": 0},
+		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
+	]
+	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
+	_assert(actions.size() == 4, "Flurry should repeat its full printed action package once for each of the two base card plays")
+	_assert(combat.card_plays_spent_for_actions(actions) == 2, "Repeated Flurry actions should preserve the snapshotted spend count")
+	state = combat.apply_player_action(state, actions[0] as Dictionary)
+	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(3, 4))
+	state = combat.apply_player_action(state, actions[2] as Dictionary)
+	state = combat.apply_player_action(state, actions[3] as Dictionary, Vector2i(4, 4))
+	state = combat.finish_player_card(state, 0, combat.card_plays_spent_for_actions(actions))
+	_assert(int(state.get("cards_played_this_turn", 0)) == 2, "Flurry should spend every card play it snapshotted")
+	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
+	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
+	_assert(int((state.get("elemental_intensity", {}) as Dictionary).get("fire", 0)) == 2, "Each Flurry copy should resolve its intensity action")
+	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 180, "Each Flurry copy should resolve its attack against the selected target")
+	var bonus_state: Dictionary = state.duplicate(true)
+	bonus_state["cards_played_this_turn"] = 0
+	bonus_state["death_bonus_card_plays_this_turn"] = 0
+	bonus_state["card_play_bonus_this_turn"] = 1
+	var bonus_actions: Array = combat.card_play_actions("cinder_fusillade", bonus_state)
+	_assert(bonus_actions.size() == 6, "Card-play bonuses should directly increase every action in a later Flurry's repeat count")
+	var cost_state: Dictionary = combat.create_combat(15113, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["bloody_lunge"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var cost_deck: Dictionary = (cost_state.get("deck", {}) as Dictionary).duplicate(true)
+	cost_deck["hand"] = ["bloody_lunge"]
+	cost_deck["draw"] = []
+	cost_deck["discard"] = []
+	cost_state["deck"] = cost_deck
+	cost_state["player"] = {"pos": Vector2i(2, 4), "hp": 240, "max_hp": 240, "block": 0, "stoneskin": 0}
+	cost_state = combat.finish_player_card(cost_state, 0, 2)
+	_assert(int((cost_state.get("player", {}) as Dictionary).get("hp", 0)) == 220, "A two-copy Flurry commit should pay a printed health cost for both copies")
+	_assert(int(cost_state.get("player_turn_time_spent", 0)) == 8, "A two-copy Flurry commit should still pay the printed Time only once")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	var valid_card_rarities: Dictionary = {
@@ -6506,6 +6580,12 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
 	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
+	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("cinder_fusillade"))
+	_assert(flurry_cost_rows.size() == 1 and str(((flurry_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "flurry", "Flurry cards should show their dedicated cost icon")
+	_assert(ActionIcons.tooltip("flurry").contains("pays Time once"), "Flurry tooltip should distinguish repeated effects from its single time payment")
+	var flurry_icon := Image.new()
+	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
+	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 112 and flurry_icon.get_height() == 64, "Flurry should ship its dedicated wide 112x64 action icon")
 	var illusion_row: Array = ActionIcons.tokens_for_action({"type": "illusion", "health": 4, "range": 3})
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
@@ -8951,6 +9031,41 @@ func _test_run_scene_optional_followup_attack_stays_playable() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	if run_scene == null:
+		_failures.append("Run scene should load for Flurry utility coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var combat: CombatEngine = CombatEngine.new()
+	var combat_state: Dictionary = combat.create_combat(15112, _simple_room_layout(), {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["blade_dance"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["blade_dance"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	combat_state["deck"] = deck
+	combat_state["player"] = {"pos": Vector2i(1, 7), "hp": 200, "max_hp": 200, "block": 0, "stoneskin": 0}
+	combat_state["enemies"] = [
+		{"id": 1, "type": "crawler", "pos": Vector2i(7, 1), "hp": 100, "max_hp": 100, "block": 0, "stoneskin": 0}
+	]
+	instance.set("_combat_state", combat_state)
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	_assert(bool(preview.get("complete", false)) and bool(preview.get("playable", false)), "Blade Dance should remain playable for its repeated block when no melee target is in range")
+	var preview_player: Dictionary = (preview.get("state", {}) as Dictionary).get("player", {})
+	_assert(int(preview_player.get("block", 0)) == GameData.fixed_point_amount(4), "Blade Dance should preview both copies of its printed block without requiring an attack target")
+	instance.queue_free()
+	await process_frame
+
 func _test_run_scene_action_step_tracker_states() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -9510,6 +9625,44 @@ func _test_card_widget_active_intensity_condition_glows() -> void:
 	widget.set_display_overrides(str(inactive_display.get("summary_bbcode", "")), inactive_display.get("modifier_lines", []), inactive_display.get("summary_rows", []))
 	await process_frame
 	_assert(glow != null and not glow.visible, "A card below its elemental intensity threshold should hide the full-card glow")
+	widget.queue_free()
+	instance.queue_free()
+	await process_frame
+
+func _test_card_widget_flurry_icon_uses_wide_slot() -> void:
+	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
+	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
+	if run_scene == null or card_scene == null:
+		_failures.append("Run scene and CardWidget scene should load for Flurry icon layout coverage")
+		return
+	var instance: Node = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	var widget := card_scene.instantiate() as CardWidget
+	widget.custom_minimum_size = Vector2(250.0, 352.0)
+	widget.size = Vector2(250.0, 352.0)
+	root.add_child(widget)
+	await process_frame
+	var display: Dictionary = instance.call("_card_widget_display", "blade_dance", {})
+	widget.configure("blade_dance", false, false, true, false, false, true, GameData.card_def("blade_dance"))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+	await process_frame
+	var summary_box: VBoxContainer = widget.get("_summary_icon_box") as VBoxContainer
+	var wide_icon: TextureRect
+	var regular_icon: TextureRect
+	for texture_rect: TextureRect in _texture_rects_under(summary_box):
+		var minimum_size: Vector2 = texture_rect.custom_minimum_size
+		if minimum_size.x > minimum_size.y * 1.5:
+			wide_icon = texture_rect
+		elif regular_icon == null and is_equal_approx(minimum_size.x, minimum_size.y):
+			regular_icon = texture_rect
+	_assert(wide_icon != null, "Flurry should render in a dedicated wide summary-token slot")
+	_assert(regular_icon != null, "Blade Dance should retain regular square action-token slots beside Flurry")
+	if wide_icon != null and regular_icon != null:
+		var wide_size: Vector2 = wide_icon.custom_minimum_size
+		var regular_size: Vector2 = regular_icon.custom_minimum_size
+		_assert(wide_size.x >= regular_size.x * 1.75 and wide_size.x <= regular_size.x * 1.85, "Flurry should render at about 1.8x normal token width")
+		_assert(wide_size.y <= regular_size.y * 1.10, "Flurry's wide slot should not create a doubled-height row gap")
 	widget.queue_free()
 	instance.queue_free()
 	await process_frame
@@ -10804,6 +10957,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("triggered_trap_damage"), "Card play analytics should include triggered trap damage")
 	_assert(play_payload.has("pickups_collected"), "Card play analytics should include collected battlefield pickups")
 	_assert(play_payload.has("consume_on_play") and play_payload.has("item_card"), "Card play analytics should include consumable item flags")
+	_assert(play_payload.has("flurry") and play_payload.has("flurry_plays_spent"), "Card play analytics should expose Flurry use and its repeat count")
 	_assert(bool((play_payload.get("enemy_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include enemy immobilize application")
 	_assert(bool((play_payload.get("player_status_applied", {}) as Dictionary).has("immobilize")), "Card play analytics should include player immobilize application")
 	var reward_event: Dictionary = reward_events[reward_events.size() - 1]

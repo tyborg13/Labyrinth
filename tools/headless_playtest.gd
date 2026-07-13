@@ -730,7 +730,7 @@ func _actions_for_card_mode(card_id: String, mode: String) -> Array:
 		"move":
 			return _fallback_move_actions()
 		_:
-			return (_card_def(card_id, _combat_state).get("actions", []) as Array).duplicate(true)
+			return _combat_engine.card_play_actions(card_id, _combat_state)
 
 func _fallback_attack_actions() -> Array:
 	return [{"type": "melee", "damage": GameData.fixed_point_amount(FALLBACK_ATTACK_BASE_DAMAGE), "range": 1}]
@@ -1121,7 +1121,7 @@ func _commit_pending() -> void:
 	var instance_id: String = _analytics_hand_instance_id(hand_index)
 	var actions: Array = (_pending.get("actions", []) as Array).duplicate(true)
 	var targets: Array[Vector2i] = _vector2i_array(_pending.get("targets", []))
-	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index)
+	_combat_state = _combat_engine.finish_player_card(resolved_state, hand_index, _combat_engine.card_plays_spent_for_actions(actions))
 	if GameData.card_consumes_on_play(card_id):
 		_run_state = _run_engine.consume_equipped_item_card(_run_state, card_id)
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
@@ -1692,11 +1692,16 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
 	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
 	var play_mode: String = "printed"
-	if JSON.stringify(actions) != JSON.stringify(printed_actions):
-		play_mode = "attack" if JSON.stringify(actions) == JSON.stringify(_fallback_attack_actions()) else "move" if JSON.stringify(actions) == JSON.stringify(_fallback_move_actions()) else "custom"
+	var comparable_actions: Array = _analytics_comparable_actions(actions)
+	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
+	if flurry_plays_spent <= 1 and JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
+		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_attack_actions()) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_move_actions()) else "custom"
+	var flurry_played: bool = bool(printed_card.get("flurry", false)) and play_mode == "printed"
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	return {
 		"play_mode": play_mode,
+		"flurry": flurry_played,
+		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
 		"consume_on_play": GameData.card_consumes_on_play(card_id),
 		"item_card": GameData.card_is_item(card_id),
@@ -1724,7 +1729,7 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
 		"card_time": _combat_engine.card_time_cost_from_def(printed_card),
 		"turn_time_spent_before": int(before_state.get("player_turn_time_spent", 0)),
-		"turn_time_spent_after": int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card),
+		"turn_time_spent_after": int(resolved_state.get("player_turn_time_spent", int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card))),
 		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
 		"pierce_actions": _pierce_action_count(actions),
 		"enemy_defense_bypassed": _enemy_defense_bypassed_between(before_state, resolved_state, actions),
@@ -1738,6 +1743,20 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"selected_targets": targets.duplicate(true),
 		"actions": actions.duplicate(true)
 	}
+
+func _analytics_comparable_actions(actions: Array) -> Array:
+	var result: Array = []
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			result.append(action_var)
+			continue
+		var action: Dictionary = (action_var as Dictionary).duplicate(true)
+		action.erase("orientation")
+		action.erase("force_direction")
+		action.erase("_flurry_repeat_index")
+		action.erase("_flurry_repeat_count")
+		result.append(action)
+	return result
 
 func _print_analytics_summary() -> void:
 	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
