@@ -730,7 +730,7 @@ func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 		"eclipse": 0.48
 	}.get(stage_id, 0.34)
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
-	var hidden_tiles: Array[Vector2i] = []
+	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
 	var hidden_lookup: Dictionary = {}
 	for tile: Vector2i in tiles:
 		if visible_lookup.has(tile):
