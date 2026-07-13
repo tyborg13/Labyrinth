@@ -5260,6 +5260,30 @@
         "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
         "commit": "da8db64"
       }
+    },
+    {
+      "id": "mnt_20260713T231727Z_e6ea0ebd",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Merchant trade overlay must size its host to real content",
+      "details": "Merchant panel content is taller than the generic 248px relic-choice host; centering oversized content can clip the panel bottom at 1280x720 and leave it unsafe near laptop/full-HD viewport edges. Size the host from _relic_choice_bar.get_combined_minimum_size().y, keep the merchant control labeled Hide with Return to Shop and Escape as reversible access, and cover fresh 720p and 1080p launches in merchant_room_probe.",
+      "status": "active",
+      "created_at": "2026-07-13T23:17:27Z",
+      "updated_at": "2026-07-13T23:17:27Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260713T224700Z_7ba64c18"
+      ],
+      "source": {
+        "branch": "codex/fix-merchant-blocking-room-doors",
+        "commit": "062b98b"
+      }
     }
   ]
 }
