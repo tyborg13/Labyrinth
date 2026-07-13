@@ -204,7 +204,7 @@ func _assert_prompt_geometry_stable(instance: Node, label: String) -> void:
 	await _settle_ui()
 	_assert(str(instance.get("_active_contextual_combat_prompt_id")) == active_id, "%s should restore the same prompt after a visibility cycle" % label)
 	var during: Dictionary = _combat_geometry(instance)
-	_assert(host.get_parent() == instance, "%s should be a root overlay, not a reflowing container child" % label)
+	_assert(host.get_parent() == instance.get("ui_root"), "%s should be a fixed UI overlay, not a reflowing container child" % label)
 	_assert(bool(host.get_meta("safe_layout_found", false)), "%s should find non-interactive overlay space" % label)
 	_assert_healthy_board_scale(instance, "%s visible note" % label)
 	prompt.call("clear_prompt")

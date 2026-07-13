@@ -6,9 +6,9 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
 const OUTPUT_DIR: String = "user://probes/action_step_tracker"
-const TRACKER_PATH: String = "ActionStepTracker"
-const CHOICE_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
-const PILES_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
+const TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
+const CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
+const PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
 var _last_statuses: Array = []
 

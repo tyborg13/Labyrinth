@@ -144,8 +144,8 @@ func _freeze_reward_title(instance: Node) -> void:
 
 func _assert_reward_layout(instance: Node, resolution: Vector2i) -> Dictionary:
 	var slots: Dictionary = {}
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
 	if hand_box.get_child_count() != 5:
 		_fail("%s should show four reward cards plus Recover" % resolution)
 		return slots
@@ -180,7 +180,7 @@ func _assert_reward_layout(instance: Node, resolution: Vector2i) -> Dictionary:
 		_fail("Reward surface should not render attunement/loadout context")
 	if instance.find_child("RewardDestinationBadge", true, false) != null:
 		_fail("Reward surface should not render destination badges")
-	var stage_root: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot") as Control
+	var stage_root: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot") as Control
 	if stage_root.size.y < float(resolution.y) * 0.32:
 		_fail("%s reward choices should preserve meaningful room-state height" % resolution)
 	return slots
@@ -319,7 +319,7 @@ func _save_root_screenshot(output_path: String, instance: Node, resolution: Vect
 		_fail("Failed to save screenshot: %s" % output_path)
 
 func _assert_screenshot_regions(instance: Node, image: Image) -> void:
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	for child: Node in hand_box.get_children():
 		var slot: Control = child as Control
 		if slot == null:

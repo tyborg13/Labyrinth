@@ -6,7 +6,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 
 const OUTPUT_DIR: String = "user://combat_board_navigation_probe"
-const BOARD_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/CombatBoard"
+const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 
 var _errors: Array[String] = []
@@ -80,6 +80,43 @@ func _capture_navigation_states() -> void:
 		_errors.append("Navigation probe should find the combat board")
 		instance.queue_free()
 		return
+	var stage: Control = instance.get("stage_root") as Control
+	var bottom_stack: Control = instance.get("bottom_stack") as Control
+	var top_bar: Control = instance.get("top_bar") as Control
+	var prompt_host: Control = instance.get("_contextual_combat_prompt_host") as Control
+	_expect(stage != null and not stage.clip_contents, "Stage should allow board art to flow beneath the surrounding HUD")
+	_expect(not board.clip_contents, "Board render layers should share the unclipped HUD-underlay canvas")
+	var board_layer: CanvasLayer = board.get_parent() as CanvasLayer
+	var ui_layer: CanvasLayer = instance.get_node("UiLayer") as CanvasLayer
+	_expect(board_layer != null and ui_layer != null and board_layer.layer < ui_layer.layer, "Board should render on a dedicated canvas beneath the HUD")
+	_expect(top_bar != null and bottom_stack != null, "Navigation proof should expose both fixed HUD regions")
+	_expect(prompt_host != null and prompt_host.visible, "Navigation proof should expose the combat note stability check")
+	var prompt_position_before_navigation: Vector2 = prompt_host.global_position if prompt_host != null else Vector2.ZERO
+	var routed_drag_start: Vector2 = board.global_position + board.size * 0.5
+	var routed_press := InputEventMouseButton.new()
+	routed_press.button_index = MOUSE_BUTTON_MIDDLE
+	routed_press.pressed = true
+	routed_press.position = routed_drag_start
+	routed_press.global_position = routed_drag_start
+	Input.parse_input_event(routed_press)
+	await process_frame
+	var routed_motion := InputEventMouseMotion.new()
+	routed_motion.position = routed_drag_start + Vector2(60.0, 0.0)
+	routed_motion.global_position = routed_motion.position
+	routed_motion.relative = Vector2(60.0, 0.0)
+	routed_motion.button_mask = MOUSE_BUTTON_MASK_MIDDLE
+	Input.parse_input_event(routed_motion)
+	await process_frame
+	var routed_release := InputEventMouseButton.new()
+	routed_release.button_index = MOUSE_BUTTON_MIDDLE
+	routed_release.pressed = false
+	routed_release.position = routed_motion.position
+	routed_release.global_position = routed_motion.position
+	Input.parse_input_event(routed_release)
+	await _settle_ui()
+	_expect(((board.call("navigation_snapshot") as Dictionary).get("pan", Vector2.ZERO) as Vector2).length() > 20.0, "Viewport-routed drag input should reach the underlay board through transparent HUD layout controls")
+	board.call("reset_navigation")
+	await _settle_ui()
 	await _save_root_screenshot("%s/01_default_fit.png" % OUTPUT_DIR)
 	var default_snapshot: Dictionary = board.call("navigation_snapshot")
 	_expect(is_equal_approx(float(default_snapshot.get("zoom", 0.0)), 1.0), "Board should begin at its fitted default zoom")
@@ -99,8 +136,8 @@ func _capture_navigation_states() -> void:
 	press.position = drag_start
 	board.call("_gui_input", press)
 	var motion := InputEventMouseMotion.new()
-	motion.position = drag_start + Vector2(-150.0, 70.0)
-	motion.relative = Vector2(-150.0, 70.0)
+	motion.position = drag_start + Vector2(-150.0, 260.0)
+	motion.relative = Vector2(-150.0, 260.0)
 	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
 	board.call("_gui_input", motion)
 	var release := InputEventMouseButton.new()
@@ -114,6 +151,10 @@ func _capture_navigation_states() -> void:
 	_expect((focused_snapshot.get("pan", Vector2.ZERO) as Vector2).length() > 20.0, "Left-drag should move the zoomed board")
 	var visible_focus_position: Vector2 = board.call("world_position_for_tile", focus_tile)
 	_expect(board.call("_tile_at_point", visible_focus_position) == focus_tile, "Panned and zoomed board should retain accurate tile hit testing")
+	var rendered_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
+	_expect(stage != null and rendered_bounds.end.y > stage.get_global_rect().end.y + 20.0, "Pulled-down board art should extend below the stage boundary")
+	_expect(bottom_stack != null and rendered_bounds.intersects(bottom_stack.get_global_rect()), "Pulled-down board art should continue behind the bottom HUD")
+	_expect(prompt_host != null and prompt_host.global_position == prompt_position_before_navigation, "Combat note should stay anchored while the board is navigated")
 	await _save_root_screenshot("%s/02_zoomed_and_panned.png" % OUTPUT_DIR)
 
 	for _step: int in range(12):

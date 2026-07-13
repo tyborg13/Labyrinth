@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T12:57:16Z",
+  "updated_at": "2026-07-13T13:45:36Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5074,25 +5074,49 @@
       }
     },
     {
-      "id": "mnt_20260713T125529Z_07b469e8",
+      "id": "mnt_20260713T134536Z_cd009650",
       "layer": "shared",
-      "kind": "pitfall",
+      "kind": "decision",
       "scope": {
         "level": "file",
         "path": "scenes/run_scene.tscn",
         "symbol": null
       },
       "scope_key": "file:scenes/run_scene.tscn",
-      "summary": "StageRoot must clip the navigable combat board",
-      "details": "CombatBoardView custom drawing is not clipped by the board Control's own clip_contents setting. Keep Backdrop/Margin/MainVBox/StageRoot.clip_contents enabled so zoomed or panned tiles cannot paint over the top HUD or hand; the board's clip_contents still clips its dynamic child layer.",
+      "summary": "Combat board renders on a HUD underlay canvas",
+      "details": "The navigable board must remain unclipped so its art can flow beneath the bottom controls. Keep the board and base backdrop in BoardUnderlay below UiLayer, align the board's interactive rect to StageRoot, and leave broad UI layout controls mouse-filtered to IGNORE so input still reaches the board.",
       "status": "active",
-      "created_at": "2026-07-13T12:55:29Z",
-      "updated_at": "2026-07-13T12:55:29Z",
+      "created_at": "2026-07-13T13:45:36Z",
+      "updated_at": "2026-07-13T13:45:36Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260713T125529Z_07b469e8"
+      ],
+      "source": {
+        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
+        "commit": "0358fa8"
+      }
+    },
+    {
+      "id": "mnt_20260713T134536Z_c5bb4745",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_connect_board_aim_signals"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_connect_board_aim_signals",
+      "summary": "Combat notes stay fixed while the board moves",
+      "details": "Board zoom and pan must not trigger contextual combat prompt relayout. The note is fixed HUD information; navigation_changed should remain a board signal but should not be connected to prompt placement.",
+      "status": "active",
+      "created_at": "2026-07-13T13:45:36Z",
+      "updated_at": "2026-07-13T13:45:36Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
         "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
-        "commit": "4b45a7c"
+        "commit": "0358fa8"
       }
     }
   ]

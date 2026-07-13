@@ -982,34 +982,36 @@ const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const PASS_PREVIEW_CACHE_LIMIT: int = 64
-@onready var top_bar: HBoxContainer = $Backdrop/Margin/MainVBox/TopBar
-@onready var title_box: VBoxContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox
-@onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
-@onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
-@onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
-@onready var header_spacer: Control = $Backdrop/Margin/MainVBox/TopBar/Spacer
-@onready var stats_label: Label = $Backdrop/Margin/MainVBox/TopBar/StatsLabel
-@onready var grimoire_button: Button = $Backdrop/Margin/MainVBox/TopBar/GrimoireButton
-@onready var menu_button: Button = $Backdrop/Margin/MainVBox/TopBar/MenuButton
-@onready var board_view = $Backdrop/Margin/MainVBox/StageRoot/CombatBoard
-@onready var action_banner: Label = $Backdrop/Margin/MainVBox/StageRoot/ActionBanner
-@onready var mini_map_overlay: PanelContainer = $Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay
-@onready var mini_map = $Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap
-@onready var log_overlay: PanelContainer = $Backdrop/Margin/MainVBox/StageRoot/LogOverlay
-@onready var log_label: RichTextLabel = $Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log
-@onready var bottom_stack: VBoxContainer = $Backdrop/Margin/MainVBox/BottomStack
-@onready var left_action_stack: VBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack
-@onready var choice_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar
-@onready var hand_row: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow
-@onready var piles_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar
-@onready var draw_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile
-@onready var discard_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile
-@onready var burn_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile
-@onready var draw_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
-@onready var discard_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
-@onready var burn_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
-@onready var hand_scroll: ScrollContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
-@onready var hand_box: HandFanContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
+@onready var ui_root: Control = $UiLayer/UiRoot
+@onready var top_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar
+@onready var title_box: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox
+@onready var room_title: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
+@onready var room_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
+@onready var relic_bar: HFlowContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var header_spacer: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/Spacer
+@onready var stats_label: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel
+@onready var grimoire_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton
+@onready var menu_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton
+@onready var stage_root: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot
+@onready var board_view = $BoardUnderlay/CombatBoard
+@onready var action_banner: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ActionBanner
+@onready var mini_map_overlay: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay
+@onready var mini_map = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap
+@onready var log_overlay: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay
+@onready var log_label: RichTextLabel = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log
+@onready var bottom_stack: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack
+@onready var left_action_stack: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack
+@onready var choice_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar
+@onready var hand_row: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow
+@onready var piles_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar
+@onready var draw_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile
+@onready var discard_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile
+@onready var burn_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile
+@onready var draw_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
+@onready var discard_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
+@onready var burn_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
+@onready var hand_scroll: ScrollContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
+@onready var hand_box: HandFanContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
@@ -1240,6 +1242,10 @@ func _ready() -> void:
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
 	set_process(false)
+	_sync_board_view_rect()
+	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
+		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
+	call_deferred("_sync_board_view_rect")
 	_apply_style()
 	_layout_mini_map_overlay()
 	_build_overlay_ui()
@@ -1362,19 +1368,22 @@ func _connect_board_aim_signals() -> void:
 		board_view.tile_dragged.connect(_on_board_tile_dragged)
 	if board_view.has_signal("tile_drag_released") and not board_view.tile_drag_released.is_connected(_on_board_tile_drag_released):
 		board_view.tile_drag_released.connect(_on_board_tile_drag_released)
-	if board_view.has_signal("navigation_changed") and not board_view.navigation_changed.is_connected(_on_board_navigation_changed):
-		board_view.navigation_changed.connect(_on_board_navigation_changed)
 
-func _on_board_navigation_changed() -> void:
-	if _active_contextual_combat_prompt_id.is_empty():
+func _queue_board_view_rect_sync() -> void:
+	call_deferred("_sync_board_view_rect")
+
+func _sync_board_view_rect() -> void:
+	if board_view == null or stage_root == null or not board_view.is_inside_tree() or not stage_root.is_inside_tree():
 		return
-	_layout_contextual_combat_prompt_overlay()
+	board_view.position = stage_root.global_position
+	board_view.size = stage_root.size
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save_run_progress()
 		get_tree().quit()
 	elif what == NOTIFICATION_RESIZED:
+		_sync_board_view_rect()
 		_layout_mini_map_overlay()
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
@@ -1391,7 +1400,7 @@ func _notification(what: int) -> void:
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
-	$Backdrop.color = Color("18120f")
+	$BoardUnderlay/BaseBackdrop.color = Color("18120f")
 	var mini_map_style := StyleBoxFlat.new()
 	mini_map_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	mini_map_style.corner_radius_top_left = 10
@@ -1477,9 +1486,9 @@ func _apply_style() -> void:
 	piles_bar.add_theme_constant_override("separation", 18)
 	hand_row.custom_minimum_size = Vector2(0.0, 352.0)
 	for pile_label: Label in [
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
+		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
+		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
+		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
 		draw_count,
 		discard_count,
 		burn_count
@@ -1652,7 +1661,7 @@ func _build_choice_button_overlay() -> void:
 	_choice_button_overlay.z_as_relative = false
 	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
-	add_child(_choice_button_overlay)
+	ui_root.add_child(_choice_button_overlay)
 	_pass_preview_overlay = CenterContainer.new()
 	_pass_preview_overlay.name = "PassPreviewOverlay"
 	_pass_preview_overlay.visible = false
@@ -1660,7 +1669,7 @@ func _build_choice_button_overlay() -> void:
 	_pass_preview_overlay.clip_contents = false
 	_pass_preview_overlay.z_index = 121
 	_pass_preview_overlay.z_as_relative = false
-	add_child(_pass_preview_overlay)
+	ui_root.add_child(_pass_preview_overlay)
 
 func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim = ColorRect.new()
@@ -1672,7 +1681,7 @@ func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim.z_as_relative = false
 	_pinned_tooltip_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pinned_tooltip_scrim.gui_input.connect(_on_pinned_tooltip_scrim_gui_input)
-	add_child(_pinned_tooltip_scrim)
+	ui_root.add_child(_pinned_tooltip_scrim)
 
 	_pinned_tooltip_host = Control.new()
 	_pinned_tooltip_host.name = "PinnedTooltipHost"
@@ -1886,7 +1895,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_large_map_scrim.anchor_right = 1.0
 	_large_map_scrim.anchor_bottom = 1.0
-	add_child(_large_map_scrim)
+	ui_root.add_child(_large_map_scrim)
 
 	var frame_margin := MarginContainer.new()
 	frame_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1971,7 +1980,7 @@ func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim.z_index = 1130
 	_pre_battle_scrim.z_as_relative = false
 	_pre_battle_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_pre_battle_scrim)
+	ui_root.add_child(_pre_battle_scrim)
 
 	var center := CenterContainer.new()
 	center.name = "PreBattleCenter"
@@ -2822,7 +2831,6 @@ func _animate_pre_battle_badge_lift(badge: Control, delay: float) -> void:
 	tween.tween_property(badge, "modulate:a", 1.0, 0.18).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _build_context_choice_overlay() -> void:
-	var stage_root: Control = board_view.get_parent()
 	if stage_root == null:
 		return
 	_context_choice_overlay = PanelContainer.new()
@@ -2867,7 +2875,6 @@ func _build_context_choice_overlay() -> void:
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
 		return
-	var stage_root: Control = board_view.get_parent()
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
 	var width: float = clampf(stage_size.x * 0.52, 360.0, CAMPFIRE_ACTION_OVERLAY_SIZE.x)
 	var height: float = CAMPFIRE_ACTION_OVERLAY_SIZE.y
@@ -2928,7 +2935,6 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_overlay == null:
 		return
-	var stage_root: Control = board_view.get_parent()
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
 	_relic_choice_overlay.anchor_left = 0.0
 	_relic_choice_overlay.anchor_top = 0.0
@@ -2978,13 +2984,13 @@ func _build_card_fx_layer() -> void:
 	_card_fx_layer.anchors_preset = Control.PRESET_FULL_RECT
 	_card_fx_layer.anchor_right = 1.0
 	_card_fx_layer.anchor_bottom = 1.0
-	add_child(_card_fx_layer)
+	ui_root.add_child(_card_fx_layer)
 	_card_proxy_pool_host = Control.new()
 	_card_proxy_pool_host.name = "CardProxyPool"
 	_card_proxy_pool_host.visible = false
 	_card_proxy_pool_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_card_proxy_pool_host.set_process(false)
-	add_child(_card_proxy_pool_host)
+	ui_root.add_child(_card_proxy_pool_host)
 
 func _build_equipment_fx_layer() -> void:
 	_equipment_fx_layer = Control.new()
@@ -2995,7 +3001,7 @@ func _build_equipment_fx_layer() -> void:
 	_equipment_fx_layer.anchor_bottom = 1.0
 	_equipment_fx_layer.z_index = 1300
 	_equipment_fx_layer.z_as_relative = false
-	add_child(_equipment_fx_layer)
+	ui_root.add_child(_equipment_fx_layer)
 
 func _build_fatigue_edge_overlay() -> void:
 	_fatigue_edge_overlay = FatigueEdgeOverlay.new()
@@ -3005,7 +3011,7 @@ func _build_fatigue_edge_overlay() -> void:
 	_fatigue_edge_overlay.anchor_bottom = 1.0
 	_fatigue_edge_overlay.z_index = 210
 	_fatigue_edge_overlay.z_as_relative = false
-	add_child(_fatigue_edge_overlay)
+	ui_root.add_child(_fatigue_edge_overlay)
 
 func _build_menu_overlay() -> void:
 	_menu_scrim = ColorRect.new()
@@ -3016,7 +3022,7 @@ func _build_menu_overlay() -> void:
 	_menu_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_menu_scrim.anchor_right = 1.0
 	_menu_scrim.anchor_bottom = 1.0
-	add_child(_menu_scrim)
+	ui_root.add_child(_menu_scrim)
 
 	_menu_dialog = PanelContainer.new()
 	_menu_dialog.name = "MenuDialog"
@@ -3099,7 +3105,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_scrim.z_index = 255
 	_grimoire_scrim.z_as_relative = false
 	_grimoire_scrim.gui_input.connect(_on_grimoire_scrim_gui_input)
-	add_child(_grimoire_scrim)
+	ui_root.add_child(_grimoire_scrim)
 
 	var center := CenterContainer.new()
 	center.anchors_preset = Control.PRESET_FULL_RECT
@@ -3842,7 +3848,7 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_overlay.anchor_right = 1.0
 	_dialogue_overlay.anchor_bottom = 1.0
 	_dialogue_overlay.gui_input.connect(_on_dialogue_overlay_gui_input)
-	add_child(_dialogue_overlay)
+	ui_root.add_child(_dialogue_overlay)
 
 	var scrim := ColorRect.new()
 	scrim.color = Color(0.01, 0.01, 0.01, 0.18)
@@ -3951,7 +3957,7 @@ func _build_pile_overlay() -> void:
 	_pile_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_pile_scrim.anchor_right = 1.0
 	_pile_scrim.anchor_bottom = 1.0
-	add_child(_pile_scrim)
+	ui_root.add_child(_pile_scrim)
 
 	var center := CenterContainer.new()
 	center.anchors_preset = Control.PRESET_FULL_RECT
@@ -4046,7 +4052,7 @@ func _build_card_upgrade_overlay() -> void:
 	_upgrade_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_upgrade_scrim.anchor_right = 1.0
 	_upgrade_scrim.anchor_bottom = 1.0
-	add_child(_upgrade_scrim)
+	ui_root.add_child(_upgrade_scrim)
 
 	var center := CenterContainer.new()
 	center.anchors_preset = Control.PRESET_FULL_RECT
@@ -4189,7 +4195,7 @@ func _build_drag_overlay() -> void:
 	_drag_overlay.anchors_preset = Control.PRESET_FULL_RECT
 	_drag_overlay.anchor_right = 1.0
 	_drag_overlay.anchor_bottom = 1.0
-	add_child(_drag_overlay)
+	ui_root.add_child(_drag_overlay)
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
@@ -4918,7 +4924,7 @@ func _setup_contextual_combat_tutorial() -> void:
 	_contextual_combat_prompt_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_contextual_combat_prompt_host.z_index = 122
 	_contextual_combat_prompt_host.z_as_relative = false
-	add_child(_contextual_combat_prompt_host)
+	ui_root.add_child(_contextual_combat_prompt_host)
 
 	_contextual_combat_prompt = ContextualCombatPromptScene.new()
 	_contextual_combat_prompt_host.add_child(_contextual_combat_prompt)
@@ -4939,8 +4945,7 @@ func _layout_contextual_combat_prompt_overlay() -> void:
 	if prompt_size.x <= 0.0 or prompt_size.y <= 0.0:
 		return
 	var viewport_rect := Rect2(Vector2.ZERO, get_viewport_rect().size)
-	var stage: Control = board_view.get_parent() as Control
-	var stage_rect: Rect2 = stage.get_global_rect() if stage != null else viewport_rect
+	var stage_rect: Rect2 = stage_root.get_global_rect() if stage_root != null else viewport_rect
 	var safe_top: float = maxf(stage_rect.position.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	var safe_bottom: float = viewport_rect.end.y - CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN
 	var safe_area := Rect2(
@@ -5147,7 +5152,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_connector.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_action_context_connector.z_index = 123
 	_action_context_connector.z_as_relative = false
-	add_child(_action_context_connector)
+	ui_root.add_child(_action_context_connector)
 
 	_action_step_tracker = PanelContainer.new()
 	_action_step_tracker.name = "ActionStepTracker"
@@ -5158,7 +5163,7 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker.z_as_relative = false
 	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_PASS
 	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
-	add_child(_action_step_tracker)
+	ui_root.add_child(_action_step_tracker)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -5374,7 +5379,7 @@ func _setup_elemental_intensity_bar() -> void:
 	_intensity_bar.custom_minimum_size = _intensity_bar_size()
 	_intensity_bar.size = _intensity_bar_size()
 	_intensity_bar.z_index = 30
-	add_child(_intensity_bar)
+	ui_root.add_child(_intensity_bar)
 	for element_id: String in ElementData.all_elements():
 		var badge := TooltipPanelContainer.new()
 		badge.custom_minimum_size = INTENSITY_BADGE_SIZE
@@ -5918,7 +5923,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_anchor.visible = false
 	_turn_order_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_order_anchor.z_index = 35
-	add_child(_turn_order_anchor)
+	ui_root.add_child(_turn_order_anchor)
 	_layout_turn_order_anchor()
 	_turn_order_panel = PanelContainer.new()
 	_turn_order_panel.name = "TurnOrderPanel"

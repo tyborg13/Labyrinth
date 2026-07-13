@@ -331,7 +331,9 @@ func _ready() -> void:
 		set_process(false)
 		return
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	clip_contents = true
+	# The board's input rect remains stage-sized, but its art may flow beneath the
+	# surrounding HUD. The scene keeps fixed HUD controls above this canvas.
+	clip_contents = false
 	custom_minimum_size = Vector2(960.0, 680.0)
 	set_process(true)
 	_load_assets(false)

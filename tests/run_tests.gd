@@ -26,9 +26,9 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScript = CardWidget
-const ACTION_STEP_TRACKER_PATH: String = "ActionStepTracker"
-const ACTION_STEP_CHOICE_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
-const ACTION_STEP_PILES_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
+const ACTION_STEP_TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
+const ACTION_STEP_CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
+const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
 class FakeSteam:
 	extends Object
@@ -7533,9 +7533,9 @@ func _test_run_scene_combat_log_prominence() -> void:
 	root.add_child(instance)
 	await process_frame
 	instance.call("_close_dialogue")
-	var log_overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/LogOverlay") as PanelContainer
-	var log_label: RichTextLabel = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
-	var action_banner: Label = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ActionBanner") as Label
+	var log_overlay: PanelContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay") as PanelContainer
+	var log_label: RichTextLabel = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
+	var action_banner: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ActionBanner") as Label
 	action_banner.text = "Existing action"
 	action_banner.visible = false
 	instance.call("_show_combat_log_message", RunEngine.MISSED_EQUIPMENT_NOTICE)
@@ -7559,8 +7559,8 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
 	await process_frame
-	var mini_map_overlay: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay") as Control
-	var mini_map: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap") as Control
+	var mini_map_overlay: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay") as Control
+	var mini_map: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap") as Control
 	_assert(mini_map_overlay.mouse_filter == Control.MOUSE_FILTER_STOP, "Minimap overlay should receive clicks")
 	_assert(mini_map.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Embedded minimap should not consume clicks before the overlay can open the large map")
 	instance.call("_close_dialogue")
@@ -7748,7 +7748,7 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	var started_deck: Array = _combat_deck_card_ids(started_state.get("combat_state", {}) as Dictionary)
 	started_deck.sort()
 	_assert(started_deck == expected_deck, "Pre-battle Start should use the exact equipment- and attunement-refreshed deck")
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var ready_wave_count: int = 0
 	for widget: CardWidget in _card_widgets_under(hand_box):
 		if str(widget.get_meta("ready_wave_reason", "")) == "combat_start":
@@ -7870,7 +7870,7 @@ func _test_run_scene_offers_pass_during_combat() -> void:
 	if pass_button != null:
 		_assert_button_uses_variant(pass_button, UiSkin.BUTTON_HEIGHT_ACTION, UiSkin.VARIANT_LARGE, "Combat Pass button should use the large themed variant")
 	var overlay: Control = instance.get("_choice_button_overlay") as Control
-	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	_assert(overlay != null and overlay.visible, "Combat Pass button should render in the stable overlay host")
 	if overlay != null and piles_bar != null:
 		_assert(overlay.global_position.y >= piles_bar.global_position.y - overlay.size.y - 10.0 and overlay.global_position.y < piles_bar.global_position.y, "Combat Pass overlay should stay directly above the pile widgets instead of jumping near the top of the screen")
@@ -8084,10 +8084,10 @@ func _test_run_scene_action_selection_keeps_hand_layout_stable() -> void:
 	instance.call("_refresh_choice_bar")
 	instance.call("_refresh_visibility")
 	await process_frame
-	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
-	var left_action_stack: VBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var piles_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
+	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var left_action_stack: VBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack")
+	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var piles_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar")
 	var pass_hand_x: float = hand_scroll.global_position.x
 	var pass_action_width: float = left_action_stack.size.x
 	var single_action_width: float = UiSkin.new().button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE).x
@@ -8177,17 +8177,17 @@ func _test_run_scene_combat_interaction_context_paths() -> void:
 	var detail_labels: Dictionary = instance.get("_drag_zone_detail_labels")
 	var move_detail: Label = detail_labels.get("move", null) as Label
 	_assert(move_detail != null and move_detail.text == "RANGE 2", "Available fallback move zones should keep a concise, non-redundant movement label")
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var hidden_source: Control = null
 	if hand_box.get_child_count() > 0:
 		hidden_source = hand_box.get_child(0) as Control
 	_assert(hidden_source != null and not hidden_source.visible, "Card drag should hide the source card while the proxy is held")
-	var board_view: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as Control
+	var board_view: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	_assert(str(instance.call("_drag_zone_at", board_view.get_global_rect().get_center())) == "", "An unavailable full card should not make the battlefield a valid drop target")
 	await instance.call("_commit_drag_drop", "")
 	await process_frame
 	_assert(int(instance.get("_drag_card_index")) == -1 and not overlay.visible, "Dropping outside every valid target should snap the card back and clear drag state")
-	hand_box = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	hand_box = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var restored_source: Control = hand_box.get_child(0) as Control if hand_box.get_child_count() > 0 else null
 	_assert(restored_source != null and restored_source.visible, "Invalid drag drops should restore the source card")
 	instance.call("_on_card_drag_started", 0)
@@ -8366,7 +8366,7 @@ func _test_run_scene_ready_wave_marks_only_playable_hand_cards() -> void:
 	instance.call("_queue_hand_ready_wave", "test_ready_wave")
 	instance.call("_refresh_hand_panel")
 	await process_frame
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	var widgets: Array[CardWidget] = _card_widgets_under(hand_box)
 	_assert(widgets.size() >= 2, "Ready-wave test should render both hand cards")
 	if widgets.size() >= 2:
@@ -8407,8 +8407,8 @@ func _test_run_scene_reward_heal_choice_sits_with_cards() -> void:
 	instance.call("_refresh_hand_panel")
 	instance.call("_refresh_visibility")
 	await process_frame
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
 	_assert(not choice_bar.visible and choice_bar.get_child_count() == 0, "Reward heal choice should not appear in the combat choice bar")
 	var heal_slot: Node = hand_box.get_child(3) if hand_box.get_child_count() >= 4 else null
 	var heal_choice: PanelContainer = null
@@ -8460,8 +8460,8 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	instance.call("_refresh_visibility")
 	await process_frame
 	await process_frame
-	var hand_box: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
-	var hand_scroll: ScrollContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
+	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox")
+	var hand_scroll: ScrollContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll")
 	var owned_slot: Control = null
 	var new_slot: Control = null
 	for slot_var: Node in hand_box.get_children():
@@ -8724,8 +8724,8 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	instance.set("_run_state", run_state)
 	instance.set("_progression", ProgressionStore.default_data())
 	instance.call("_refresh_choice_bar")
-	var choice_bar: HBoxContainer = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
-	var context_overlay: PanelContainer = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
+	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	var context_overlay: PanelContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
 	var relic_overlay: Control = instance.get("_relic_choice_overlay") as Control
 	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
@@ -8832,7 +8832,7 @@ func _test_run_scene_campfire_bonfire_persists_after_leave() -> void:
 	run_state["current_room_layout"] = run_engine.call("_display_layout_for_room", int(run_state.get("seed", 0)), campfire_room, Vector2i.ZERO)
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_stage_view")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var scene_props: Array = board_view.get("presentation").get("scene_props", [])
 	var found_bonfire: bool = false
 	for prop_var: Variant in scene_props:
@@ -9078,7 +9078,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	await instance.call("_begin_card_preview", 0, preview)
 	var enemy_tile := Vector2i(5, 5)
 	instance.call("_on_board_tile_hovered", enemy_tile)
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(attack_tiles.has(enemy_tile), "Move-attack previews should let the player click a reachable enemy directly")
 	_assert(bool(board_view.get("presentation").get("pulse_attack_tiles", false)), "Player attack targets should request pulsing attack highlights")
@@ -9138,7 +9138,7 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	var action_context: Control = instance.get("_action_step_tracker") as Control
 	_assert(_button_with_text(action_context, "Rotate") != null, "Rotatable AOE targeting should compose Rotate into the action context")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var focus_tiles: Array = presentation.get("focus_tiles", [])
 	_assert(focus_tiles.has(Vector2i(4, 4)) and focus_tiles.has(Vector2i(6, 4)), "Default line AOE aim should show the full centered east pattern before clicking")
@@ -9191,7 +9191,7 @@ func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
 	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var ability_tiles: Array = presentation.get("ability_tiles", [])
 	_assert(not ability_tiles.has(Vector2i(2, 4)), "Push direction selection should not show the protagonist tile as a valid closer direction")
@@ -9550,7 +9550,7 @@ func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
 	var active_preview: Dictionary = instance.call("_active_card_preview")
 	var active_targets: Array = active_preview.get("target_tiles", [])
 	_assert(active_targets.size() == 1 and active_targets[0] == target_tile, "Run scene previews should preserve Vector2i target tiles when dictionaries provide plain arrays")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	_assert(move_tiles.has(target_tile), "Stage refresh should accept untyped preview target arrays and surface them on the combat board")
 	instance.queue_free()
@@ -9588,7 +9588,7 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 	await instance.call("_begin_card_preview", 0, preview)
 	var target_tile := Vector2i(3, 4)
 	instance.call("_on_board_tile_hovered", target_tile)
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var preview_units: Array = presentation.get("preview_units", [])
 	var ability_tiles: Array = presentation.get("ability_tiles", [])
@@ -9735,7 +9735,7 @@ func _test_run_scene_hovered_enemy_shows_threat_overlay() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.set("_hovered_board_tile", Vector2i(5, 2))
 	instance.call("_refresh_stage_view")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(move_tiles.has(Vector2i(4, 2)), "Hovering an enemy should surface its movement threat tiles on the board")
@@ -9786,7 +9786,7 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.set("_hovered_board_tile", Vector2i(2, 2))
 	instance.call("_refresh_stage_view")
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(move_tiles.has(Vector2i(2, 4)), "RunScene should surface the Frostglass Lancer's sideways setup movement on board hover")
@@ -9839,7 +9839,7 @@ func _test_run_scene_animation_lock_preserves_board_animation_presentation() -> 
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
 	instance.set("_animation_lock", true)
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var animated_state: Dictionary = combat_state.duplicate(true)
 	var animated_enemies: Array = (animated_state.get("enemies", []) as Array).duplicate(true)
 	var animated_enemy: Dictionary = (animated_enemies[0] as Dictionary).duplicate(true)
@@ -9999,7 +9999,7 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	run_state["relics"] = ["ember_lens", "pilgrim_boots", "mirror_shard"]
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_ui")
-	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: HFlowContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
 	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
 	_assert(relic_bar.get_child_count() == 3, "The run HUD should render one icon per owned relic")
 	instance.queue_free()
@@ -10042,7 +10042,7 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var relic_bar: HFlowContainer = instance.get_node("Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
+	var relic_bar: HFlowContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar")
 	_assert(relic_bar.visible and relic_bar.get_child_count() == relic_ids.size(), "Relic HUD should render all owned relic icons")
 	if relic_bar.get_child_count() > 0:
 		var first_row_y: float = (relic_bar.get_child(0) as Control).global_position.y
@@ -10520,7 +10520,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var equipped_deck: Array = equipped_state.get("deck_cards", []) as Array
 	_assert(equipped_deck.has("cleaver_hook") and equipped_deck.has("needle_flurry") and equipped_deck.has("butcher_chop"), "Equipping from the gear overlay should add the new weapon cards")
 	_assert(not equipped_deck.has("whirlwind_slash") and not equipped_deck.has("bloody_lunge"), "Equipping from the gear overlay should remove the previous weapon cards")
-	var board_view: CombatBoardView = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as CombatBoardView
+	var board_view: CombatBoardView = instance.get_node("BoardUnderlay/CombatBoard") as CombatBoardView
 	var board_presentation: Dictionary = board_view.get("presentation") if board_view != null else {}
 	_assert(str((board_presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Equipping gear should refresh board presentation for future player equipment art")
 	instance.call("_switch_character_overlay_mode", "stats")
@@ -11505,7 +11505,7 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		_assert(chip_rect.size.x >= 120.0 and chip_rect.size.y >= 40.0, "%s pass preview chip should have visible on-screen size" % context)
 		var preview_overlay: Control = instance.get("_pass_preview_overlay") as Control
 		var choice_host: Control = _run_scene_choice_button_host(instance) as Control
-		var piles_bar: Control = instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
+		var piles_bar: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar") as Control
 		var action_step_tracker: Control = instance.find_child(ACTION_STEP_TRACKER_PATH, true, false) as Control
 		if preview_overlay != null and preview_overlay.visible and choice_host != null and piles_bar != null:
 			var choice_rect: Rect2 = choice_host.get_global_rect()
@@ -11682,7 +11682,7 @@ func _run_scene_choice_button_host(instance: Node) -> Node:
 	var overlay: Node = instance.get("_choice_button_overlay") as Node
 	if overlay != null and overlay.get_child_count() > 0:
 		return overlay
-	return instance.get_node("Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
+	return instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 
 func _assert_button_text_centered(button: Button, message: String) -> void:
 	_assert(button.alignment == HORIZONTAL_ALIGNMENT_CENTER, "%s text should be mathematically centered" % message)
