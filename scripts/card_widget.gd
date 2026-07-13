@@ -1242,16 +1242,20 @@ func _card_visual_width() -> float:
 func _summary_token_segments(tokens: Array) -> Array:
 	var clean_tokens: Array = []
 	var contains_pattern: bool = false
+	var keep_row_together: bool = false
 	var valued_tokens: int = 0
 	for token_var: Variant in tokens:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var
 		clean_tokens.append(token)
+		keep_row_together = keep_row_together or bool(token.get("keep_row_together", false))
 		if str(token.get("kind", "")) == "aoe_pattern":
 			contains_pattern = true
 		if token.has("value"):
 			valued_tokens += 1
+	if keep_row_together:
+		return [clean_tokens]
 	if clean_tokens.size() <= 3 and not contains_pattern:
 		return [clean_tokens]
 	var max_tokens_per_segment: int = 2 if contains_pattern or valued_tokens >= 3 else 3

@@ -11223,6 +11223,25 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var initial_enemy_hp: int = int(((lit_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
 	var direct_enemy_hp: int = int(((direct_attack_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
 	_assert(direct_enemy_hp < initial_enemy_hp, "Guiding Flare's reused ranged action should damage the illuminated enemy")
+	var lantern_state: Dictionary = combat.create_combat(44007, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["lantern_shot"], "hand_size": 1})
+	var lantern_actions: Array = (GameData.card_def("lantern_shot").get("actions", []) as Array).duplicate(true)
+	var lantern_enemy_tile: Vector2i = ((lantern_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)
+	var lantern_lit_state: Dictionary = combat.apply_player_action(lantern_state, lantern_actions[0] as Dictionary, lantern_enemy_tile)
+	instance.set("_combat_state", lantern_state)
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", lantern_actions)
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [lantern_enemy_tile]))
+	var lantern_attack_preview: Dictionary = instance.call("_card_preview_from_state", "lantern_shot", lantern_lit_state, lantern_actions, 1, true)
+	var resolved_lantern_preview: Dictionary = instance.call("_resolve_reused_target_preview_actions", lantern_attack_preview)
+	var resolved_lantern_state: Dictionary = resolved_lantern_preview.get("state", {})
+	var lantern_initial_enemy_hp: int = int(((lantern_lit_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	var lantern_resolved_enemy_hp: int = int(((resolved_lantern_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
+	_assert(bool(resolved_lantern_preview.get("complete", false)), "Lantern Shot should resolve its ranged hit and draw after one tile selection")
+	_assert(lantern_resolved_enemy_hp < lantern_initial_enemy_hp, "Lantern Shot should damage an enemy on the illuminated tile without asking for a second target")
+	var lantern_display: Dictionary = instance.call("_card_widget_display", "lantern_shot", lantern_state)
+	var lantern_display_rows: Array = lantern_display.get("summary_rows", [])
+	_assert(lantern_display_rows.size() == 2, "Lantern Shot's live card display should show its shared-target effects on one line and draw on the next")
+	_assert((lantern_display_rows[0] as Array).size() == 4, "Lantern Shot's live shared-target line should omit the duplicate range token")
 	instance.queue_free()
 	await process_frame
 
@@ -11297,6 +11316,28 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 		_assert(icon_path.ends_with("/%s.png" % icon_key), "%s should use its own purpose-built icon asset" % icon_key)
 		radiance_icon_paths[icon_path] = true
 	_assert(radiance_icon_paths.size() == 4, "Radiance mechanics should remain visually distinguishable at card size")
+	var lantern_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("lantern_shot").get("actions", []))
+	_assert(lantern_rows.size() == 2, "Lantern Shot should render one shared-target line plus its draw line")
+	var lantern_target_row: Array = lantern_rows[0] as Array
+	var lantern_target_icons: PackedStringArray = []
+	var lantern_range_tokens: int = 0
+	for token_var: Variant in lantern_target_row:
+		var token: Dictionary = token_var
+		var token_icon: String = str(token.get("icon", ""))
+		lantern_target_icons.append(token_icon)
+		if token_icon == "range":
+			lantern_range_tokens += 1
+		_assert(bool(token.get("keep_row_together", false)), "Shared-target action tokens should preserve their logical line in CardWidget")
+	_assert(lantern_target_icons == PackedStringArray(["illuminate", "range", "time", "ranged"]), "Lantern Shot's shared-target line should read as light placement followed by its ranged hit")
+	_assert(lantern_range_tokens == 1, "Shared-target actions with matching ranges should show that range only once")
+	var guiding_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("guiding_flare").get("actions", []))
+	_assert(guiding_rows.size() == 1 and (guiding_rows[0] as Array).size() == 5, "Guiding Flare should keep illuminate, ranged damage, and burn on one target line")
+	var storm_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("storm_beacon").get("actions", []))
+	_assert(storm_rows.size() == 2 and (storm_rows[1] as Array).size() == 5, "Storm Beacon should keep its intensity line separate and its shared-target effects together")
+	var card_widget := CardWidget.new()
+	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
+	_assert(lantern_segments.size() == 1, "CardWidget should not wrap a shared-target action group into multiple apparent target lines")
+	card_widget.free()
 
 func _simple_room_layout() -> Dictionary:
 	return {

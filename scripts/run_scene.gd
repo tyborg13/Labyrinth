@@ -9792,36 +9792,36 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
+	var previous_action_row_index: int = -1
 	for action_var: Variant in card.get("actions", []):
 		var action: Dictionary = action_var
 		var action_type: String = str(action.get("type", ""))
+		var row: Array = []
 		match action_type:
 			"melee", "ranged", "aoe":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
 				var attack_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(attack_damage_modifiers)
-				var attack_row: Array = ActionIcons.tokens_for_action(action, {
+				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers),
 					"damage_modifiers": attack_visible_modifiers
 				})
-				summary_rows.append(_annotate_intensity_condition_row(attack_row, _combat_engine.action_intensity_requirement_met(preview_state, action)))
 				_consume_preview_damage_modifiers(preview_state, action)
 			"push", "pull":
 				var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
 				var shove_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(shove_damage_modifiers)
-				var shove_row: Array = ActionIcons.tokens_for_action(action, {
+				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers),
 					"damage_modifiers": shove_visible_modifiers
 				})
-				summary_rows.append(_annotate_intensity_condition_row(shove_row, _combat_engine.action_intensity_requirement_met(preview_state, action)))
 				_consume_preview_damage_modifiers(preview_state, action)
 			_:
-				var row: Array = ActionIcons.tokens_for_action(action)
-				if not row.is_empty():
-					summary_rows.append(_annotate_intensity_condition_row(row, _combat_engine.action_intensity_requirement_met(preview_state, action)))
+				row = ActionIcons.tokens_for_action(action)
+		var annotated_row: Array = _annotate_intensity_condition_row(row, _combat_engine.action_intensity_requirement_met(preview_state, action))
+		previous_action_row_index = ActionIcons.append_action_row(summary_rows, action, annotated_row, previous_action_row_index)
 		if action_type == "intensity" and _combat_engine.player_action_can_resolve(preview_state, action):
 			preview_state = _combat_engine.apply_player_action(preview_state, action)
 		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)

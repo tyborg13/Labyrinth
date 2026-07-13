@@ -346,19 +346,51 @@ static func _modifier_tooltip_lines(token: Dictionary) -> PackedStringArray:
 
 static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Array:
 	var rows: Array = []
+	var previous_action_row_index: int = -1
 	for index: int in range(actions.size()):
 		if typeof(actions[index]) != TYPE_DICTIONARY:
 			continue
+		var action: Dictionary = actions[index] as Dictionary
 		var options: Dictionary = {}
 		if index < options_by_index.size() and typeof(options_by_index[index]) == TYPE_DICTIONARY:
 			options = options_by_index[index]
-		var row: Array = tokens_for_action(actions[index] as Dictionary, options)
-		if not row.is_empty():
-			rows.append(row)
-		var bonus_row: Array = tokens_for_intensity_bonus(actions[index] as Dictionary)
+		var row: Array = tokens_for_action(action, options)
+		previous_action_row_index = append_action_row(rows, action, row, previous_action_row_index)
+		var bonus_row: Array = tokens_for_intensity_bonus(action)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
 	return rows
+
+static func append_action_row(rows: Array, action: Dictionary, row: Array, previous_action_row_index: int = -1) -> int:
+	if row.is_empty():
+		return previous_action_row_index
+	if bool(action.get("reuse_previous_target", false)) and previous_action_row_index >= 0 and previous_action_row_index < rows.size():
+		var shared_row: Array = (rows[previous_action_row_index] as Array).duplicate(true)
+		for token_var: Variant in row:
+			if typeof(token_var) == TYPE_DICTIONARY and _duplicates_shared_range(shared_row, token_var as Dictionary):
+				continue
+			shared_row.append(token_var)
+		for token_index: int in range(shared_row.size()):
+			if typeof(shared_row[token_index]) != TYPE_DICTIONARY:
+				continue
+			var token: Dictionary = (shared_row[token_index] as Dictionary).duplicate(true)
+			token["keep_row_together"] = true
+			shared_row[token_index] = token
+		rows[previous_action_row_index] = shared_row
+		return previous_action_row_index
+	rows.append(row)
+	return rows.size() - 1
+
+static func _duplicates_shared_range(row: Array, candidate: Dictionary) -> bool:
+	if str(candidate.get("icon", "")) != "range":
+		return false
+	for existing_var: Variant in row:
+		if typeof(existing_var) != TYPE_DICTIONARY:
+			continue
+		var existing: Dictionary = existing_var
+		if str(existing.get("icon", "")) == "range" and existing.get("value", null) == candidate.get("value", null):
+			return true
+	return false
 
 static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Array:
 	var rows: Array = cost_rows_for_card(card)
