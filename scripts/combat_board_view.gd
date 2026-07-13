@@ -14,6 +14,7 @@ signal tile_hovered(tile: Vector2i)
 signal tile_dragged(start_tile: Vector2i, current_tile: Vector2i)
 signal tile_drag_released(start_tile: Vector2i, current_tile: Vector2i)
 signal cancel_requested
+signal navigation_changed
 
 const GRID_OUTLINE: Color = Color("1f1713")
 const MOVE_HIGHLIGHT: Color = Color(0.28, 0.75, 0.86, 0.20)
@@ -80,6 +81,13 @@ const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
 const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
 const BOARD_VERTICAL_BIAS: float = 0.28
 const BOARD_MAX_TILE_WIDTH: float = 184.0
+const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
+const BOARD_MAX_NAVIGATION_ZOOM: float = 1.40
+const BOARD_ZOOM_STEP: float = 1.10
+const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
+const BOARD_PAN_OVERSCROLL_FRACTION: float = 0.08
+const BOARD_PAN_OVERSCROLL_MAX: float = 72.0
+const BOARD_TRACKPAD_PAN_SCALE: float = 18.0
 const DOOR_FRAME_WIDTH_SCALE: float = 1.4
 const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
 const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
@@ -229,6 +237,14 @@ var presentation: Dictionary = {}
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_moved: bool = false
+var _navigation_zoom: float = 1.0
+var _navigation_pan: Vector2 = Vector2.ZERO
+var _navigation_content_signature: String = ""
+var _navigation_pointer_button: int = MOUSE_BUTTON_NONE
+var _navigation_pointer_start: Vector2 = Vector2.ZERO
+var _navigation_pan_start: Vector2 = Vector2.ZERO
+var _navigation_pan_active: bool = false
+var _last_pointer_position: Vector2 = Vector2.ZERO
 var _tile_textures: Dictionary = {}
 var _floor_texture_variants: Dictionary = {}
 var _floor_variant_by_tile: Dictionary = {}
@@ -313,7 +329,7 @@ func _ready() -> void:
 		set_process(false)
 		return
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	clip_contents = false
+	clip_contents = true
 	custom_minimum_size = Vector2(960.0, 680.0)
 	set_process(true)
 	_load_assets(false)
@@ -366,6 +382,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false) -> void:
 	for field: String in [
 		"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
 		"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile",
+		"_navigation_zoom", "_navigation_pan", "_navigation_content_signature",
 		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
 		"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
 		"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
@@ -497,6 +514,10 @@ func _any_idle_animation_active() -> bool:
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}) -> void:
 	var next_room_grid_signature: String = _room_grid_signature(next_state)
+	var next_navigation_content_signature: String = "%s|%s" % [
+		next_room_grid_signature,
+		str(next_state.get("room_coord", Vector2i(-1, -1)))
+	]
 	var next_layout_signature: String = _layout_signature_for_state(next_state, next_exit_tiles, next_presentation, next_room_grid_signature)
 	var next_floor_signature: String = next_room_grid_signature
 	var next_moss_signature: String = _moss_signature_for_state(next_state)
@@ -516,6 +537,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
+		_navigation_pan = Vector2.ZERO
+	_navigation_content_signature = next_navigation_content_signature
 	_ensure_unit_assets_for_submission(combat_state, presentation)
 	if layout_changed:
 		_board_layout_signature = next_layout_signature
@@ -624,32 +648,175 @@ func _entries_for_tile(index: Dictionary, entries: Array, tile_key: String, tile
 	return matching
 
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMagnifyGesture:
+		_last_pointer_position = event.position
+		set_navigation_zoom(_navigation_zoom * event.factor, event.position)
+		accept_event()
+		return
+	if event is InputEventPanGesture:
+		_last_pointer_position = event.position
+		set_navigation_pan(_navigation_pan - event.delta * BOARD_TRACKPAD_PAN_SCALE, false)
+		_update_hover_at(event.position)
+		accept_event()
+		return
 	if event is InputEventMouseMotion:
-		var next_hover: Vector2i = _tile_at_point(event.position)
-		if next_hover != _hover_tile:
-			_hover_tile = next_hover
-			tile_hovered.emit(_hover_tile)
-			_update_cursor_shape()
-			_queue_dynamic_redraw()
-		if _left_drag_start_tile.x >= 0 and next_hover.x >= 0 and (int(event.button_mask) & MOUSE_BUTTON_MASK_LEFT) != 0:
+		_last_pointer_position = event.position
+		if _navigation_pointer_button != MOUSE_BUTTON_NONE and _mouse_button_is_held(event, _navigation_pointer_button):
+			var drag_delta: Vector2 = event.position - _navigation_pointer_start
+			if not _navigation_pan_active and drag_delta.length() >= BOARD_PAN_DRAG_THRESHOLD:
+				_navigation_pan_active = true
+				_clear_hover_for_navigation()
+			if _navigation_pan_active:
+				set_navigation_pan(_navigation_pan_start + drag_delta, false)
+				_update_cursor_shape()
+				accept_event()
+				return
+		var next_hover: Vector2i = _update_hover_at(event.position)
+		if _navigation_pointer_button == MOUSE_BUTTON_NONE and _tile_drag_aiming_active() and _left_drag_start_tile.x >= 0 and next_hover.x >= 0 and (int(event.button_mask) & MOUSE_BUTTON_MASK_LEFT) != 0:
 			if next_hover != _left_drag_start_tile:
 				_left_drag_moved = true
 			if _left_drag_moved:
 				tile_dragged.emit(_left_drag_start_tile, next_hover)
-	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		return
+	if not event is InputEventMouseButton:
+		return
+	_last_pointer_position = event.position
+	if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		var zoom_direction: float = 1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1.0
+		var wheel_factor: float = maxf(0.25, event.factor)
+		set_navigation_zoom(_navigation_zoom * pow(BOARD_ZOOM_STEP, zoom_direction * wheel_factor), event.position)
+		accept_event()
+		return
+	if event.button_index == MOUSE_BUTTON_MIDDLE:
+		if event.pressed and event.double_click:
+			reset_navigation()
+			accept_event()
+			return
+		if event.pressed:
+			_begin_navigation_pan(MOUSE_BUTTON_MIDDLE, event.position, true)
+		elif _navigation_pointer_button == MOUSE_BUTTON_MIDDLE:
+			_end_navigation_pan(event.position)
+		accept_event()
+		return
+	if event.button_index == MOUSE_BUTTON_LEFT:
 		var clicked: Vector2i = _tile_at_point(event.position)
 		if event.pressed:
 			_left_drag_start_tile = clicked
 			_left_drag_moved = false
-		elif _left_drag_start_tile.x >= 0:
+			if not _tile_drag_aiming_active() or Input.is_key_pressed(KEY_SPACE):
+				_begin_navigation_pan(MOUSE_BUTTON_LEFT, event.position, false)
+			return
+		var completed_navigation_pan: bool = false
+		if _navigation_pointer_button == MOUSE_BUTTON_LEFT:
+			completed_navigation_pan = _navigation_pan_active
+			_end_navigation_pan(event.position)
+		if not completed_navigation_pan and _left_drag_start_tile.x >= 0:
 			if clicked.x >= 0 and _left_drag_moved:
 				tile_drag_released.emit(_left_drag_start_tile, clicked)
 			elif clicked.x >= 0:
 				tile_clicked.emit(clicked)
-			_left_drag_start_tile = Vector2i(-1, -1)
-			_left_drag_moved = false
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		_left_drag_start_tile = Vector2i(-1, -1)
+		_left_drag_moved = false
+		if completed_navigation_pan:
+			accept_event()
+		return
+	if event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		cancel_requested.emit()
+
+func set_navigation_zoom(next_zoom: float, focus_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	var clamped_zoom: float = clampf(next_zoom, BOARD_MIN_NAVIGATION_ZOOM, BOARD_MAX_NAVIGATION_ZOOM)
+	if is_equal_approx(clamped_zoom, _navigation_zoom):
+		return
+	if focus_position.x < 0.0 or focus_position.y < 0.0:
+		focus_position = size * 0.5
+	_ensure_board_layout_cache()
+	var previous_zoom: float = _navigation_zoom
+	var zoom_anchor: Vector2 = _navigation_zoom_anchor()
+	var zoom_ratio: float = clamped_zoom / maxf(0.001, previous_zoom)
+	var anchored_pan: Vector2 = focus_position - zoom_anchor - (focus_position - zoom_anchor - _navigation_pan) * zoom_ratio
+	_navigation_zoom = clamped_zoom
+	var next_tile_width: float = _tile_width_for_extents(_board_layout_cache_extents) * _navigation_zoom
+	_navigation_pan = _clamped_navigation_pan_for_layout(anchored_pan, _board_layout_cache_extents, next_tile_width)
+	_navigation_transform_changed(true)
+
+func set_navigation_pan(next_pan: Vector2, update_hover: bool = true) -> void:
+	_ensure_board_layout_cache()
+	var clamped_pan: Vector2 = _clamped_navigation_pan_for_layout(next_pan, _board_layout_cache_extents, _board_layout_cache_tile_width)
+	if clamped_pan.is_equal_approx(_navigation_pan):
+		return
+	_navigation_pan = clamped_pan
+	_navigation_transform_changed(update_hover)
+
+func reset_navigation() -> void:
+	var changed: bool = not is_equal_approx(_navigation_zoom, 1.0) or not _navigation_pan.is_zero_approx()
+	_navigation_zoom = 1.0
+	_navigation_pan = Vector2.ZERO
+	if changed:
+		_navigation_transform_changed(true)
+
+func navigation_snapshot() -> Dictionary:
+	_ensure_board_layout_cache()
+	var limits: Rect2 = _navigation_pan_limits(_board_layout_cache_extents, _board_layout_cache_tile_width)
+	return {
+		"zoom": _navigation_zoom,
+		"pan": _navigation_pan,
+		"min_zoom": BOARD_MIN_NAVIGATION_ZOOM,
+		"max_zoom": BOARD_MAX_NAVIGATION_ZOOM,
+		"pan_limits": limits,
+		"content_rect": _navigation_content_rect(_board_layout_cache_extents, _board_layout_cache_tile_width, _navigation_pan)
+	}
+
+func _begin_navigation_pan(button: int, pointer_position: Vector2, begin_immediately: bool) -> void:
+	_navigation_pointer_button = button
+	_navigation_pointer_start = pointer_position
+	_navigation_pan_start = _navigation_pan
+	_navigation_pan_active = begin_immediately
+	if begin_immediately:
+		_clear_hover_for_navigation()
+	_update_cursor_shape()
+
+func _end_navigation_pan(pointer_position: Vector2) -> void:
+	_navigation_pointer_button = MOUSE_BUTTON_NONE
+	_navigation_pan_active = false
+	_update_hover_at(pointer_position)
+	_update_cursor_shape()
+
+func _mouse_button_is_held(event: InputEventMouseMotion, button: int) -> bool:
+	if button == MOUSE_BUTTON_LEFT:
+		return (int(event.button_mask) & MOUSE_BUTTON_MASK_LEFT) != 0
+	if button == MOUSE_BUTTON_MIDDLE:
+		return (int(event.button_mask) & MOUSE_BUTTON_MASK_MIDDLE) != 0
+	return false
+
+func _tile_drag_aiming_active() -> bool:
+	return bool(presentation.get("tile_drag_aiming", false))
+
+func _update_hover_at(pointer_position: Vector2) -> Vector2i:
+	var next_hover: Vector2i = _tile_at_point(pointer_position)
+	if next_hover == _hover_tile:
+		return next_hover
+	_hover_tile = next_hover
+	tile_hovered.emit(_hover_tile)
+	_update_cursor_shape()
+	_queue_dynamic_redraw()
+	return next_hover
+
+func _clear_hover_for_navigation() -> void:
+	if _hover_tile.x < 0:
+		return
+	_hover_tile = Vector2i(-1, -1)
+	tile_hovered.emit(_hover_tile)
+	_queue_dynamic_redraw()
+
+func _navigation_transform_changed(update_hover: bool) -> void:
+	_invalidate_board_layout_cache()
+	_sync_dynamic_render_state(true)
+	queue_redraw()
+	_queue_dynamic_redraw()
+	if update_hover:
+		_update_hover_at(_last_pointer_position)
+	_update_cursor_shape()
+	navigation_changed.emit()
 
 func _get_tooltip(at_position: Vector2) -> String:
 	for index: int in range(_tooltip_regions.size() - 1, -1, -1):
@@ -5381,12 +5548,64 @@ func _board_origin_for_extents(extents: Dictionary, tile_width: float) -> Vector
 	var content_height: float = _board_layout_height_units(extents) * tile_width
 	var available_width: float = maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0)
 	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
-	var content_left: float = BOARD_SIDE_MARGIN + maxf(0.0, (available_width - content_width) * 0.5)
-	var content_top: float = BOARD_VERTICAL_MARGIN + maxf(0.0, (available_height - content_height) * BOARD_VERTICAL_BIAS)
+	var content_left: float = BOARD_SIDE_MARGIN + (available_width - content_width) * 0.5
+	var content_top: float = BOARD_VERTICAL_MARGIN + (available_height - content_height) * BOARD_VERTICAL_BIAS
 	var target_center_x: float = content_left + content_width * 0.5
 	var origin_x: float = target_center_x - ((min_diag + max_diag) * 0.5 * half_width)
 	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
-	return Vector2(origin_x, origin_y)
+	return Vector2(origin_x, origin_y) + _navigation_pan
+
+func _navigation_zoom_anchor() -> Vector2:
+	var available_height: float = maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	return Vector2(
+		size.x * 0.5,
+		BOARD_VERTICAL_MARGIN + available_height * BOARD_VERTICAL_BIAS
+	)
+
+func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
+	var content_size := Vector2(
+		_board_layout_width_units(extents) * tile_width,
+		_board_layout_height_units(extents) * tile_width
+	)
+	var available_size := Vector2(
+		maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0),
+		maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+	)
+	var content_position := Vector2(
+		BOARD_SIDE_MARGIN + (available_size.x - content_size.x) * 0.5,
+		BOARD_VERTICAL_MARGIN + (available_size.y - content_size.y) * BOARD_VERTICAL_BIAS
+	)
+	return Rect2(content_position + pan, content_size)
+
+func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
+	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)
+	var available_rect := Rect2(
+		Vector2(BOARD_SIDE_MARGIN, BOARD_VERTICAL_MARGIN),
+		Vector2(
+			maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0),
+			maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
+		)
+	)
+	var overscroll := Vector2(
+		minf(BOARD_PAN_OVERSCROLL_MAX, available_rect.size.x * BOARD_PAN_OVERSCROLL_FRACTION),
+		minf(BOARD_PAN_OVERSCROLL_MAX, available_rect.size.y * BOARD_PAN_OVERSCROLL_FRACTION)
+	)
+	var minimum := Vector2(
+		minf(0.0, available_rect.end.x - content_rect.end.x) - overscroll.x,
+		minf(0.0, available_rect.end.y - content_rect.end.y) - overscroll.y
+	)
+	var maximum := Vector2(
+		maxf(0.0, available_rect.position.x - content_rect.position.x) + overscroll.x,
+		maxf(0.0, available_rect.position.y - content_rect.position.y) + overscroll.y
+	)
+	return Rect2(minimum, maximum - minimum)
+
+func _clamped_navigation_pan_for_layout(candidate: Vector2, extents: Dictionary, tile_width: float) -> Vector2:
+	var limits: Rect2 = _navigation_pan_limits(extents, tile_width)
+	return Vector2(
+		clampf(candidate.x, limits.position.x, limits.end.x),
+		clampf(candidate.y, limits.position.y, limits.end.y)
+	)
 
 func _tile_at_point(point: Vector2) -> Vector2i:
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
@@ -5686,7 +5905,8 @@ func _ensure_board_layout_cache() -> void:
 	var grid: Array = combat_state.get("grid", [])
 	var tiles: Array[Vector2i] = _tiles_in_draw_order(grid)
 	var extents: Dictionary = _board_layout_extents_for_tiles(tiles)
-	var tile_width: float = _tile_width_for_extents(extents)
+	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
+	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
 	_board_layout_cache_size = size
 	_board_layout_cache_tiles = tiles
 	_board_layout_cache_extents = extents
@@ -5995,8 +6215,16 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 	)
 
 func _update_cursor_shape() -> void:
+	if _navigation_pan_active:
+		mouse_default_cursor_shape = Control.CURSOR_DRAG
+		return
 	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile) or _ability_tiles().has(_hover_tile)
-	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if is_hot else Control.CURSOR_ARROW
+	if is_hot:
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	elif _tile_drag_aiming_active():
+		mouse_default_cursor_shape = Control.CURSOR_ARROW
+	else:
+		mouse_default_cursor_shape = Control.CURSOR_MOVE
 
 func _draw_trap_blast_effects(trap_effects: Array, progress: float) -> void:
 	for trap_var: Variant in trap_effects:

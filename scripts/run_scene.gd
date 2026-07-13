@@ -1362,6 +1362,11 @@ func _connect_board_aim_signals() -> void:
 		board_view.tile_dragged.connect(_on_board_tile_dragged)
 	if board_view.has_signal("tile_drag_released") and not board_view.tile_drag_released.is_connected(_on_board_tile_drag_released):
 		board_view.tile_drag_released.connect(_on_board_tile_drag_released)
+	if board_view.has_signal("navigation_changed") and not board_view.navigation_changed.is_connected(_on_board_navigation_changed):
+		board_view.navigation_changed.connect(_on_board_navigation_changed)
+
+func _on_board_navigation_changed() -> void:
+	_layout_contextual_combat_prompt_overlay()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -9465,6 +9470,11 @@ func _refresh_stage_view() -> void:
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	presentation["equipped_equipment"] = _equipped_equipment_for_board()
+	presentation["tile_drag_aiming"] = (
+		str(_run_state.get("mode", "room")) == "combat"
+		and not _animation_lock
+		and _current_action_is_aimed_aoe()
+	)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
