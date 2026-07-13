@@ -188,6 +188,9 @@ func _parse_args() -> Dictionary:
 			"--equipment-drop":
 				index += 1
 				parsed["equipment_drop"] = _required_arg(args, index, arg)
+			"--equipment-drop-position":
+				index += 1
+				parsed["equipment_drop_position"] = _required_arg(args, index, arg)
 			"--umbra-stage":
 				index += 1
 				parsed["umbra_stage"] = _required_arg(args, index, arg)
@@ -227,7 +230,7 @@ func _print_help() -> void:
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --elemental-intensity fire=2,ice=2,lightning=2,air=2,earth=2")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
-	print("  --enemy-hp N --equipment-drop equipment_id")
+	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
 	print("  --umbra-stage clear|fringe|advancing|pressing|deep|heart|eclipse")
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
@@ -567,6 +570,12 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 	if not equipment_drop.is_empty():
 		if not _validate_equipment_ids(_string_array([equipment_drop]), "--equipment-drop"):
 			return state
+		var equipment_drop_tile: Vector2i = _inspection_equipment_drop_tile(combat_state)
+		var equipment_drop_position: String = str(_options.get("equipment_drop_position", "")).strip_edges()
+		if not equipment_drop_position.is_empty():
+			equipment_drop_tile = _parse_colon_coord(equipment_drop_position, "--equipment-drop-position")
+			if _failed:
+				return state
 		var loot: Array = []
 		for loot_var: Variant in combat_state.get("loot", []):
 			if typeof(loot_var) == TYPE_DICTIONARY and str((loot_var as Dictionary).get("kind", "")) == "equipment":
@@ -576,7 +585,7 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 			"id": "inspection_equipment_%s" % equipment_drop,
 			"kind": "equipment",
 			"equipment_id": equipment_drop,
-			"pos": _inspection_equipment_drop_tile(combat_state)
+			"pos": equipment_drop_tile
 		})
 		combat_state["loot"] = loot
 	combat_state["relics"] = state.get("relics", []).duplicate(true)
