@@ -79,6 +79,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--verify", dest="verify", action="store_true", default=True)
     parser.add_argument("--no-verify", dest="verify", action="store_false")
     parser.add_argument("--launch", action="store_true", help="Regenerate, verify, and then launch the game.")
+    parser.add_argument(
+        "--allow-steam",
+        action="store_true",
+        help="Enable Steam only for the final interactive launch; fixture generation and verification remain deterministic.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print commands without running Godot.")
     return parser
 
@@ -140,11 +145,10 @@ def main(argv: list[str] | None = None) -> int:
         run_id,
         "--godot-home-root",
         args.godot_home_root,
-        "--",
-        args.godot,
-        "--path",
-        ".",
     ]
+    if args.allow_steam:
+        direct_launch_command.append("--allow-steam")
+    direct_launch_command.extend(["--", args.godot, "--path", "."])
     manifest_path = Path(args.manifest).expanduser().resolve() if args.manifest else (
         Path("/private/tmp/labyrinth-inspection-manifests") / (run_id + ".json")
     )
@@ -163,9 +167,10 @@ def main(argv: list[str] | None = None) -> int:
         args.godot_home_root,
         "--manifest",
         str(manifest_path),
-        "--launch",
-        *fixture_args,
     ]
+    if args.allow_steam:
+        self_healing_command.append("--allow-steam")
+    self_healing_command.extend(["--launch", *fixture_args])
     scenario = value_after(fixture_args, "--scenario", "combat")
     summary = value_after(fixture_args, "--summary", "")
     generator_command_text = worktree_command(project, generator_command)

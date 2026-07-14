@@ -38,6 +38,32 @@ class InspectionFixtureTests(unittest.TestCase):
         self.assertIn("--launch --scenario reward", result.stdout)
         self.assertIn("regenerates and verifies the pre-action state first", result.stdout)
 
+    def test_self_healing_launch_can_enable_steam_for_interactive_inspection(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project",
+                str(ROOT),
+                "--task-id",
+                "steam-fixture-test",
+                "--run-id",
+                "steam-fixture-test-run",
+                "--allow-steam",
+                "--dry-run",
+                "--scenario",
+                "start",
+                "--summary",
+                "Inspect Steam integration.",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--allow-steam --launch --scenario start", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

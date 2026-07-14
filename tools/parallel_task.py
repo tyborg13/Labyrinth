@@ -355,7 +355,7 @@ def command_preflight(args: argparse.Namespace) -> int:
         raise CommandError("Refusing to overwrite Git-write smoke-test ref %s" % smoke_ref)
     head_commit = ref_commit(root, "HEAD")
     try:
-        run_git(root, ["update-ref", smoke_ref, head_commit, "0" * 40])
+        run_git(root, ["update-ref", smoke_ref, head_commit, "0" * len(head_commit)])
         if ref_commit(root, smoke_ref) != head_commit:
             raise CommandError("Git-write smoke-test ref did not resolve to HEAD")
     finally:

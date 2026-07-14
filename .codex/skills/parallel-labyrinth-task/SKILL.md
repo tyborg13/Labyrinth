@@ -122,6 +122,8 @@ Use the fixture whenever a playable state can make the change easier to inspect.
 
 The fixture must open at the beginning of the inspectable moment, before the user makes the relevant choice or action. The wrapper generates the save, hashes the complete persisted run and progression state, reloads and verifies its embedded contract in a second Godot process, writes a structured manifest, and reports a self-healing launch command that regenerates the pre-action state before opening the game. Use that command for every handoff, including follow-up inspection. The queue handoff and completion commands independently rerun that standard verifier; a hand-authored `verified` field is not evidence.
 
+For Steam-specific user inspection, pass `--allow-steam` to `inspection_fixture.py`. Fixture generation and verification still disable Steam; only the final interactive launch receives the opt-in.
+
 Report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, inspection fixture scenario and launch command or not-applicable reason, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, repeat peer review, and regenerate the inspection fixture before handing it back again.
 
 When reporting an inspection launch command, include the worktree change-directory prefix, for example:
