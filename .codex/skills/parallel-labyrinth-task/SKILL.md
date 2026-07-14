@@ -10,6 +10,7 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 ## Invariants
 
 - Start each fresh substantive task from the tip of `master` in its own worktree/branch.
+- Record an acceptance/proof/risk contract and pass the worker-owned Git preflight before implementation.
 - Work only inside that task worktree after it exists.
 - Keep Godot runtime state parallel-safe by setting `LABYRINTH_TASK_ID` or using `tools/visual_probe_runner.py`.
 - Commit finished work, get explicit signoff from a peer-review sub-agent, create a user-inspection fixture or document why none applies, then stop for user inspection.
@@ -18,11 +19,11 @@ Use this skill to turn an ordinary Labyrinth coding request into an isolated tas
 - After approval, land the task branch onto `master`, push `master`, then remove the task worktree.
 - Any user-facing task runner, visual probe, inspection launch, or other worktree-local command must be a single copy-paste command that starts with `cd <task-worktree> && ...`.
 - If the task came from `.codex/tasks` with a queue id, keep the queue record in sync before ending each lifecycle turn. Use `tools/labyrinth_task_queue.py complete` for ready-for-user handoff, `tools/labyrinth_task_queue.py landed` after approved publish to `master`, and `tools/labyrinth_task_queue.py mark <task-id> abandoned|blocked|rejected` when work is stopped. If the worker cannot update the queue because of permissions or missing host access, report the exact command the orchestrator must run.
-- In app-created worktrees, Git branch, index, and ref writes must work from the worker sandbox before implementation begins. After adoption, run `git update-index --refresh` as a Git-write smoke check. If adoption, the smoke check, staging, or commit fails with `Operation not permitted`, `.git/refs`, or `.git/worktrees/*/index.lock`, stop before further implementation and report the exact blocked command; the worker is not autonomous under that creation mode. Queue JSON writes may still be orchestrator-owned because they target the primary checkout's `.codex/tasks`. Do not create alternate Git directories, detached-HEAD commits, or ad hoc metadata workarounds.
+- In app-created worktrees, `parallel_task.py preflight` must prove branch, object-database, and index writes from the worker sandbox before implementation. If adoption, preflight, staging, or commit fails with Git metadata permissions, stop and report the exact blocked command; do not create alternate Git directories, detached-HEAD commits, or ad hoc metadata workarounds.
 
 ## Starting A Task
 
-If the Codex app thread is being created for this task, prefer the app's project `worktree` environment starting from the default branch. In that new clean app worktree, adopt the checkout before editing:
+If an orchestrator is creating a Codex app task, it should first run `parallel_task.py prepare-worker` and create the app worktree from the returned branch `starting_state`. In that new clean app worktree, adopt the checkout before editing:
 
 ```bash
 python3 tools/parallel_task.py adopt --task "<short task description>"
@@ -30,15 +31,14 @@ python3 tools/parallel_task.py adopt --task "<short task description>"
 
 `adopt` fast-forwards the current clean worktree to the local `master` tip, renames the branch to `codex/<task-id>` when needed, and writes private task metadata. To use the remote tracking branch explicitly, pass `--fetch --base origin/master`.
 
-If an app-created worktree is detached and `adopt` cannot rename the current branch, or if `git switch -c codex/<task-id>` cannot create refs because of sandbox permissions, stop before edits and ask the orchestrator for the host-side Git bridge. The expected bridge is to attach the clean worktree to `codex/<task-id>` from the host side, rerun `python3 tools/parallel_task.py adopt --task-id <task-id> --task "<short task description>"`, then tell the worker to continue.
-
-After any app-worktree adoption or host-side branch repair, run:
+Record the acceptance contract supplied by the user or queue, then run the combined worker-owned preflight:
 
 ```bash
-git update-index --refresh
+python3 tools/parallel_task.py contract --risk-tier <low|standard|high> --acceptance "<observable result>" --required-proof "<proof>" --inspection-expectation "<fixture or not-applicable reason>"
+python3 tools/parallel_task.py preflight
 ```
 
-If that command cannot create or refresh the Git index, stop before editing. A worker that cannot pass this smoke check will almost certainly fail later at `git add`, `parallel_task.py commit`, or follow-up commits.
+`preflight` refreshes the index, writes a real Git object, adds/removes a temporary index entry, and proves the index tree was restored. If adoption or preflight fails with ref/index/object permission errors, stop before editing and ask the orchestrator to recreate the app task from the branch returned by `prepare-worker`. Do not plan on a host-side commit bridge for a new worker.
 
 If you are already inside a shared checkout and need to create the isolated task yourself, run:
 
@@ -57,6 +57,8 @@ python3 tools/parallel_task.py start --base <ref> --task "<short task descriptio
 After the worktree exists, move all implementation, tests, probes, and commits into that worktree. Do not edit the original shared checkout for the task.
 
 ## During Work
+
+Use the risk-tier proof rules in `spec/development_workflow.md`. Peer review remains mandatory at every tier; the tier controls focused/full/visual proof breadth.
 
 Begin in the task worktree:
 
@@ -82,7 +84,7 @@ cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --displ
 cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 tests/motion_probe.gd --task-id <task-id>
 ```
 
-The visual runner uses the same temp-home isolation, assigns a unique `user://` namespace per process, validates emitted PNGs, and retries blank or near-blank screenshots. If a probe still fails under the default renderer, retry with an explicit backend such as:
+The visual runner uses the same temp-home isolation, disables Steam, assigns a unique `user://` namespace per process, serializes non-headless GUI renderer access, rejects generated `.import`/`.uid` noise, validates emitted PNGs, and retries blank or near-blank screenshots. Use repeatable `--expect-size`, `--proof-contract`, and `--result-manifest` for exact-resolution and semantic proof. If a probe still fails under the default renderer, retry with an explicit backend such as:
 
 ```bash
 cd <task-worktree> && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --rendering-driver opengl3_angle tests/ui_probe.gd --task-id <task-id>
@@ -118,27 +120,23 @@ python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Conti
 
 Use the fixture whenever a playable state can make the change easier to inspect. Common scenarios are `combat`, `reward`, `campfire`, `treasure`, `character`, `boss`, `start`, `victory`, and `defeat`. Add focused options such as `--hand`, `--reward-cards`, `--relics`, `--attuned-magic`, `--magic-inventory`, `--equip`, `--equipment-inventory`, `--player-hp`, or `--room-coord` so the Continue button lands near the changed behavior. If the task is tooling-only, analytics-only, data-only with no meaningful playable state, or otherwise not inspectable in-game, record a concise not-applicable reason instead of forcing a fake fixture.
 
-The fixture must open at the beginning of the inspectable moment, before the user makes the relevant choice or action. For example, reward and treasure fixtures should open before the reward card, relic, campfire, or door choice is taken. When the user asks for follow-up after inspecting, assume the existing saved fixture may already be advanced; rerun `tools/inspection_fixture.py` with the same task/run fixture target so Continue resets to the pre-choice/pre-action state before handing it back again.
+The fixture must open at the beginning of the inspectable moment, before the user makes the relevant choice or action. The wrapper generates the save, reloads and verifies its embedded state contract in a second Godot process, writes a manifest, and reports a self-healing launch command that regenerates the pre-action state before opening the game. Use that command for every handoff, including follow-up inspection.
 
 Report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, inspection fixture scenario and launch command or not-applicable reason, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, repeat peer review, and regenerate the inspection fixture before handing it back again.
 
 When reporting an inspection launch command, include the worktree change-directory prefix, for example:
 
 ```bash
-cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --run-id <run-id> --godot-home-root /private/tmp/labyrinth-godot-home -- godot --path .
+cd <task-worktree> && python3 tools/inspection_fixture.py --task-id <task-id> --run-id <run-id> --launch --scenario <scenario> --summary "<what opens>" <fixture-options>
 ```
 
-For queued tasks, run the queue handoff before reporting ready-for-user when access permits:
+For queued tasks, package the handoff once after signoff:
 
 ```bash
-python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-scenario "<scenario>" --inspection-run-id "<run-id>" --inspection-summary "<what Continue opens>" --inspection-launch "<launch command>"
+python3 tools/labyrinth_task_queue.py handoff <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --inspection-manifest <fixture-manifest>
 ```
 
-For changes without a playable inspection fixture, use:
-
-```bash
-python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-not-applicable "<reason>"
-```
+For changes without a playable inspection fixture, replace the manifest flag with `--inspection-not-applicable "<reason>"`. The helper writes one JSON handoff and prints the single `complete --handoff-file` command for the orchestrator. Queue JSON remains orchestrator-owned.
 
 ## Peer Review Gate
 
@@ -190,7 +188,7 @@ Only after explicit user approval to publish, land the approved task branch on `
 python3 tools/parallel_task.py push
 ```
 
-`push` publishes to `origin/master`; it does not publish a remote task branch. It fetches remote `master` first and refuses to land if that `master` is not contained in the task branch. If that happens, integrate `master` into the task branch, rerun relevant proof, repeat the peer-review gate if the reviewed diff changed materially, and ask the user for approval again.
+`push` publishes to `origin/master`; it does not publish a remote task branch. It fetches remote `master` first. When master advanced, it mechanically integrates master and compares the stable effective task patch. If that patch is unchanged, existing review and publication approval remain valid and push continues. If the task patch changed or the merge conflicts, push stops; rerun affected proof and peer review, then request approval for the changed branch. A dirty primary checkout only skips the optional local-master fast-forward and does not block remote publication.
 
 Then remove the task worktree:
 

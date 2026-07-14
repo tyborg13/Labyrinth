@@ -19,7 +19,7 @@ Use this skill to turn reviewed queue items into parallel Codex work. Invoking t
 - Do not use hidden sub-agents as implementation workers. Hidden sub-agents are appropriate for scout review and implementation peer review.
 - Do not push, land, or clean up completed task work until the user explicitly approves.
 - Keep queue state current as part of orchestration, not as a later audit. When a worker reports reviewer signoff and inspection handoff, run `tools/labyrinth_task_queue.py complete`; when the user abandons or blocks work, run `mark abandoned` or `mark blocked`; when approved work lands on `master`, run `landed` before cleanup/reporting. If permissions prevent a queue update, report the exact command still needed.
-- App-visible worker threads are valid for autonomous implementation only after the worker itself proves it can write the task worktree Git index. Host-side branch/adopt repair can prepare state, but it does not prove the worker sandbox can later stage or commit. Do not let implementation begin until the worker passes the Git-write smoke check in the workflow below. Queue JSON writes may remain orchestrator-owned because they target the primary checkout queue.
+- App-visible worker threads are valid for autonomous implementation only after the worker itself passes `parallel_task.py preflight`, which performs reversible object-database and index writes. Queue JSON may remain orchestrator-owned; worker handoff is transferred as one verified JSON file.
 
 ## Host Tool Requirements
 
@@ -65,62 +65,34 @@ python3 tools/labyrinth_task_queue.py select --limit <N> --json
    - Confirm the discovered tools are callable in the current session before changing queue state.
    - If any of the three required operations are missing, do not lease tasks, do not create worktrees, and do not spawn sub-agents as implementation workers. Report a blocker with the missing operations and the exact user-side requirement: restart or enable a Codex app/session that exposes app thread management tools.
    - Create user-visible app threads directly rather than asking the user to create worker threads manually. The skill invocation/request to run the queue is the needed instruction to create these background threads.
-   - Prefer a short standby initial prompt until the app returns a thread id and worktree path. Do not send the full implementation prompt until the host-side branch/adopt preflight below succeeds.
-   - Record the returned app thread id and worktree path. If either is unavailable, stop and report the blocker before leasing.
-
-4. Run the app-worktree preflight before leasing or sending the full task prompt.
-   - App-created project worktrees often start on detached `HEAD`; do not ask the worker sandbox to repair that state.
-   - Prefer creating the task branch before `create_thread`, then create the app worktree from that existing branch with `startingState: {type: "branch", branchName: "codex/<task-id>"}` when the host tool supports it. Do not use `startingState` to invent a branch name; create the branch first if using this path.
-   - In the returned worktree, verify it is clean and at the expected base:
+   - Before `create_thread`, run:
 
 ```bash
-git -C <thread-worktree-path> status --short --branch
-git -C <thread-worktree-path> rev-parse HEAD
-git -C <thread-worktree-path> rev-parse master
+python3 tools/parallel_task.py prepare-worker --task-id <task-id> --task "<title>"
 ```
 
-   - If the worktree is detached and clean at the expected base, attach it from the host side:
+   - Pass the returned `starting_state` to `create_thread`. This avoids detached-head adoption and branch-ref repair.
+   - Send the full worker prompt at creation time. Its first actions must be `adopt`, `contract`, and `preflight`; it continues to implementation only after they succeed. This removes the standby/bootstrap round trip while keeping the capability gate worker-owned.
+   - Record the returned thread id and worktree path. If either is unavailable, or the worker reports preflight failure, do not lease the task. Abandon/recreate the thread or report the host limitation; do not use a planned host-side commit bridge.
 
-```bash
-git -C <thread-worktree-path> switch -c codex/<task-id> master
-```
-
-   - Then run the normal adoption helper from that worktree:
-
-```bash
-cd <thread-worktree-path> && python3 tools/parallel_task.py adopt --task-id <task-id> --task "<title>"
-cd <thread-worktree-path> && python3 tools/parallel_task.py status
-```
-
-   - If the full worker prompt was already sent and the worker reports `needs Git bridge`, run this same preflight/repair, then send a continuation message telling the worker the branch/adopt state is fixed.
-   - Before leasing or sending the implementation prompt, send a standby smoke-check prompt to the worker and require it to run these commands itself from the app worktree:
-
-```bash
-python3 tools/parallel_task.py status
-git status --short --branch
-git update-index --refresh
-```
-
-   - `git update-index --refresh` is the minimum non-content Git-write check. If it fails with `Operation not permitted`, `.git/refs`, or `.git/worktrees/*/index.lock`, the worker is not autonomous. Do not proceed with implementation in that thread. Abandon/recreate the worker with a different creation mode, or stop and report that the current Codex app host is not exposing writable Git metadata to app worktree workers.
-
-5. Lease the task after the thread exists and the worker-side Git-write smoke check succeeds.
+5. Lease the task after the thread exists and the worker reports successful `preflight`.
 
 ```bash
 python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-id> --branch codex/<task-id> --worktree <thread-worktree-path>
 ```
 
-6. Send the full task prompt.
-   - Give each thread the task JSON, queue id, acceptance criteria, proof requirements, and the instruction to use `$parallel-labyrinth-task`.
-   - Tell the worker that the app worktree has passed the Git-write smoke check and that the worker owns normal task-branch staging/commits.
-   - Tell the worker to report queue-complete details if queue JSON writes are blocked; the orchestrator may run queue bookkeeping from the primary checkout.
+6. Confirm the task contract from the creation prompt.
+   - Give each thread the task JSON, queue id, risk tier, acceptance criteria, proof requirements, and the instruction to use `$parallel-labyrinth-task`.
+   - The worker records those fields with `parallel_task.py contract`; high-risk tasks also declare the playable inspection target or why it is not applicable.
+   - The worker owns normal task-branch staging/commits and packages final queue details with `labyrinth_task_queue.py handoff`; the orchestrator consumes its single `complete --handoff-file` command.
 
 7. Monitor progress.
    - Read worker threads periodically.
    - Use queue `heartbeat` or `mark` when a worker reports meaningful state changes.
    - If a worker stalls or collides with newer work, mark `blocked` with a note rather than silently relaunching duplicate work.
    - Do not leave a task in `leased` after a worker has clearly finished, been abandoned, or landed. Reconcile the queue in the same turn you observe the state transition.
-   - If a worker reports that staging or committing is blocked by `.git/worktrees/*/index.lock` or another shared-Git permission error after the smoke check passed, treat it as a host/sandbox regression, not normal workflow. Pause the task, inspect why the smoke check was insufficient, and only use a host-side commit bridge as an emergency unblock for already-completed work. Do not launch additional workers under the same creation mode until the Git-write smoke check is reliable again.
-   - If a worker reports that queue writes are blocked, run the exact `tools/labyrinth_task_queue.py` command from the orchestrator side once the required handoff details are available.
+   - If a worker reports that staging or committing is blocked after `preflight` passed, treat it as a host/sandbox regression. Pause the task and only use a host-side commit bridge as an emergency unblock for already-completed work. Do not launch additional workers under that creation mode until diagnosed.
+   - When a worker reports its handoff file, run the exact single `complete --handoff-file` command from the primary checkout.
 
 8. Require implementation peer review before user handoff.
    - The worker's `$parallel-labyrinth-task` flow requires a reviewer sub-agent.
@@ -150,7 +122,7 @@ python3 tools/labyrinth_task_queue.py mark <task-id> abandoned --note "<user-fac
 10. Land approved work to `master`.
    - Ask the worker thread that owns the worktree to run the approved publish step, or run it yourself in that worktree if the worker is unavailable.
    - `python3 tools/parallel_task.py push` lands the task branch to `origin/master`; it does not push a remote task branch.
-   - If `master` moved and is not contained in the task branch, the command refuses. The worker must integrate `master`, rerun relevant proof, repeat implementation peer review, then request approval again if the reviewed diff changed materially.
+   - If `master` moved, `push` integrates it and compares the stable effective task patch. An unchanged task patch preserves review and approval; a changed patch or conflict stops publication for renewed proof, review, and approval.
 
 ```bash
 python3 tools/parallel_task.py push
@@ -175,14 +147,14 @@ Task proposal:
 Parallel-safety notes:
 <parallel_safety JSON or concise equivalent>
 
-Before editing, confirm the app-created clean worktree is adopted and Git-writable:
-python3 tools/parallel_task.py status
-git status --short --branch
-git update-index --refresh
+Before editing, adopt the prepared branch, record the supplied contract, and prove Git writes:
+python3 tools/parallel_task.py adopt --task-id <task-id> --task "<title>"
+python3 tools/parallel_task.py contract --risk-tier <tier> --acceptance "<criterion>" --required-proof "<proof>" --inspection-expectation "<fixture or reason>"
+python3 tools/parallel_task.py preflight
 
-If it is not on `codex/<task-id>` or the Git-write smoke check fails, stop before editing and report the exact blocked command. Do not invent alternate Git metadata workarounds.
+If it is not on `codex/<task-id>` or preflight fails, stop before editing and report the exact blocked command. Do not invent alternate Git metadata workarounds.
 
-Implement only this task's scope. Commit the finished branch yourself, run the mandatory peer-review gate from $parallel-labyrinth-task, resolve any reviewer feedback, then create a user-inspection fixture with `python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Continue opens>" ...` or explain why no playable fixture applies. Stop for user inspection after reviewer SIGNOFF and the inspection-fixture step. Provide branch, worktree path, head commit, proof run, screenshots/artifacts if relevant, inspection fixture launch command or not-applicable reason, residual risks, and the reviewer signoff summary. If queue completion is blocked, provide the exact queue `complete` command for the orchestrator to run.
+Implement only this task's scope using the risk-tier proof rules in `spec/development_workflow.md`. Commit the finished branch yourself, run the mandatory peer-review gate, resolve findings, then create and verify a user-inspection fixture or explain why none applies. Package the final state with `labyrinth_task_queue.py handoff` and provide its single `complete --handoff-file` command. Stop for user inspection; do not push or clean up.
 
 Do not push or clean up. After user approval, the work must land on master, not a remote task branch.
 ```

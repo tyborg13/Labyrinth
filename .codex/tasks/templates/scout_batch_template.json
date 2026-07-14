@@ -9,6 +9,7 @@
           "The implementation can be reviewed and verified in isolation."
         ],
         "estimated_size": "small",
+        "risk_tier": "standard",
         "impact": "The task improves a known workflow, bug, balance issue, or development loop.",
         "problem": "A specific issue discovered by the scout.",
         "proposed_change": "A focused change that should fit in one worker thread.",
@@ -26,7 +27,10 @@
       },
       "parallel_safety": {
         "avoid_parallel_with": [],
-        "likely_touched_files": [],
+        "likely_touched_files": [
+          "scripts/example.gd",
+          "tests/example_probe.gd"
+        ],
         "notes": "",
         "safe_parallel_neighbors": [],
         "shared_state_risks": []

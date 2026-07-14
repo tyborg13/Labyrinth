@@ -6,7 +6,8 @@
       "The visible behavior or data change is implemented.",
       "Existing affected workflows still work."
     ],
-    "estimated_size": "small|medium|large",
+    "estimated_size": "small",
+    "risk_tier": "standard",
     "impact": "Who or what benefits from this task.",
     "problem": "The concrete problem or opportunity.",
     "proposed_change": "The smallest coherent change that addresses the problem.",

@@ -55,6 +55,15 @@ class GodotTaskRunnerTests(unittest.TestCase):
         self.assertIn("stdout ok", result.stdout)
         self.assertIn("runner-success", result.stdout)
 
+    def test_runner_disables_steam_initialization(self) -> None:
+        result = self.run_fake_command(
+            "runner-steam-disabled",
+            "import os\nprint(os.environ['LABYRINTH_DISABLE_STEAM'])\n",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("\n1\n", result.stdout)
+
     def test_nonzero_exit_is_returned(self) -> None:
         result = self.run_fake_command(
             "runner-nonzero",

@@ -177,6 +177,7 @@ def command_run(args: argparse.Namespace) -> int:
     env["HOME"] = str(home_dir)
     env["LABYRINTH_TASK_ID"] = run_id
     env["LABYRINTH_USER_DIR_NAME"] = "Labyrinth of Ash Parallel %s" % run_id
+    env["LABYRINTH_DISABLE_STEAM"] = "1"
 
     print("Running task-local command:")
     print("  task: %s" % task_id)

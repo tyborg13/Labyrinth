@@ -8,7 +8,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
-const SteamServiceScript = preload("res://scripts/steam_service.gd")
+const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -30,25 +30,6 @@ const ACTION_STEP_TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
 const ACTION_STEP_CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
 const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
 
-class FakeSteam:
-	extends Object
-
-	var logged_on: bool = true
-	var steam_id: String = "76561198027391269"
-	var persona: String = "Ashfarer"
-
-	func loggedOn() -> bool:
-		return logged_on
-
-	func getSteamID() -> String:
-		return steam_id
-
-	func getPersonaName() -> String:
-		return persona
-
-	func run_callbacks() -> void:
-		pass
-
 var _failures: Array[String] = []
 
 func _initialize() -> void:
@@ -66,7 +47,7 @@ func _initialize() -> void:
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
-	_test_steam_service_fallback_and_cloud_paths()
+	SteamServiceSuite.run(Callable(self, "_assert"))
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -7598,26 +7579,6 @@ func _test_run_state_save_and_load() -> void:
 	_assert(int(loaded.get("hand_size", 0)) == 5, "Saved runs should preserve the base hand size")
 	ProgressionStore.clear_saved_run()
 	_assert(not ProgressionStore.has_saved_run(), "Clearing the saved run should remove the save slot")
-
-func _test_steam_service_fallback_and_cloud_paths() -> void:
-	var service: Node = SteamServiceScript.new()
-	_assert(str(service.call("profile_label_text")) == "Profile Reaver", "Steam profile label should fall back cleanly without an active Steam user")
-	_assert(str(service.call("steam_cloud_subdirectory_template")) == "Escape the Umbra/steam/{64BitSteamID}", "Steam Cloud setup should use the same account-scoped subdirectory as the runtime")
-	var success: Dictionary = service.call("_normalized_init_result", {"status": 0})
-	_assert(bool(success.get("ok", false)), "GodotSteam steamInitEx status 0 should be treated as initialized")
-	for failed_status: int in [1, 2, 3]:
-		var failed: Dictionary = service.call("_normalized_init_result", {"status": failed_status})
-		_assert(not bool(failed.get("ok", true)), "GodotSteam steamInitEx failure status %d should not initialize Steam" % failed_status)
-	var fake_steam := FakeSteam.new()
-	service.call("_initialize_with_steam_for_test", fake_steam, {"status": 0})
-	_assert(bool(service.call("is_steam_active")), "A successful logged-in Steam user should make SteamService active")
-	_assert(str(service.call("profile_label_text")) == "Profile Ashfarer", "Steam profile label should use the Steam persona name")
-	_assert(str(service.call("steam_user_dir_name")) == "Escape the Umbra/steam/76561198027391269", "Steam user data should be scoped to the 64-bit Steam ID")
-	var failed_service: Node = SteamServiceScript.new()
-	failed_service.call("_initialize_with_steam_for_test", fake_steam, {"status": 1})
-	_assert(not bool(failed_service.call("is_steam_active")), "Failed Steam initialization should not make SteamService active")
-	failed_service.queue_free()
-	service.queue_free()
 
 func _test_default_theme_uses_pixel_font() -> void:
 	var theme: Theme = load("res://themes/default_theme.tres")

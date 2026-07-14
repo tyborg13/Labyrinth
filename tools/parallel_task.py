@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 from typing import Any
@@ -16,6 +17,7 @@ from typing import Any
 
 BRANCH_PREFIX = "codex/"
 METADATA_NAME = "labyrinth-parallel-task.json"
+RISK_TIERS = ("low", "standard", "high")
 
 
 class CommandError(RuntimeError):
@@ -24,12 +26,19 @@ class CommandError(RuntimeError):
         self.result = result
 
 
-def run_git(repo: Path, args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+def run_git(
+    repo: Path,
+    args: list[str],
+    *,
+    check: bool = True,
+    input_text: str | None = None,
+) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
         ["git", "-C", str(repo), *args],
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        input=input_text,
     )
     if check and result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip()
@@ -44,7 +53,10 @@ def repo_root(path: Path) -> Path:
 
 def git_path(repo: Path, name: str) -> Path:
     result = run_git(repo, ["rev-parse", "--git-path", name])
-    return Path(result.stdout.strip()).resolve()
+    path = Path(result.stdout.strip())
+    if not path.is_absolute():
+        path = repo / path
+    return path.resolve()
 
 
 def current_branch(repo: Path) -> str:
@@ -92,6 +104,39 @@ def write_metadata(worktree: Path, metadata: dict[str, Any]) -> None:
     path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
 
 
+def empty_contract() -> dict[str, Any]:
+    return {
+        "risk_tier": "standard",
+        "acceptance_criteria": [],
+        "required_proof": [],
+        "inspection_expectation": "",
+    }
+
+
+def normalized_contract(value: Any) -> dict[str, Any]:
+    raw = value if isinstance(value, dict) else {}
+    risk_tier = str(raw.get("risk_tier", "standard")).strip().lower()
+    if risk_tier not in RISK_TIERS:
+        risk_tier = "standard"
+    return {
+        "risk_tier": risk_tier,
+        "acceptance_criteria": [str(item).strip() for item in raw.get("acceptance_criteria", []) if str(item).strip()],
+        "required_proof": [str(item).strip() for item in raw.get("required_proof", []) if str(item).strip()],
+        "inspection_expectation": str(raw.get("inspection_expectation", "")).strip(),
+    }
+
+
+def contract_problems(contract: dict[str, Any]) -> list[str]:
+    problems: list[str] = []
+    if not contract.get("acceptance_criteria"):
+        problems.append("at least one observable acceptance criterion is required")
+    if not contract.get("required_proof"):
+        problems.append("at least one required proof item is required")
+    if contract.get("risk_tier") == "high" and not contract.get("inspection_expectation"):
+        problems.append("high-risk tasks must declare an inspection expectation or why inspection is not applicable")
+    return problems
+
+
 def default_worktree_root(root: Path) -> Path:
     return root.parent / ("%s.worktrees" % root.name)
 
@@ -117,6 +162,7 @@ def command_start(args: argparse.Namespace) -> int:
         "base_commit": base_commit,
         "worktree_path": str(path),
         "created_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "contract": empty_contract(),
     }
     if args.dry_run:
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -165,6 +211,7 @@ def command_adopt(args: argparse.Namespace) -> int:
         "base_commit": base_commit,
         "worktree_path": str(root),
         "adopted_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "contract": normalized_contract(metadata_for(root).get("contract", {})),
     }
     if args.dry_run:
         payload["current_branch"] = branch
@@ -198,6 +245,7 @@ def command_status(args: argparse.Namespace) -> int:
     metadata = metadata_for(root)
     branch = current_branch(root)
     status = run_git(root, ["status", "--short"]).stdout.splitlines()
+    contract = normalized_contract(metadata.get("contract", {}))
     payload = {
         "repo": str(root),
         "branch": branch,
@@ -206,6 +254,123 @@ def command_status(args: argparse.Namespace) -> int:
         "base_commit": metadata.get("base_commit", ""),
         "dirty": bool(status),
         "status": status,
+        "contract": contract,
+        "contract_ready": not contract_problems(contract),
+        "contract_problems": contract_problems(contract),
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def command_contract(args: argparse.Namespace) -> int:
+    root = repo_root(Path(args.repo).resolve())
+    require_task_branch(root)
+    metadata = metadata_for(root)
+    existing = normalized_contract(metadata.get("contract", {}))
+    contract = {
+        "risk_tier": args.risk_tier or existing["risk_tier"],
+        "acceptance_criteria": args.acceptance if args.acceptance is not None else existing["acceptance_criteria"],
+        "required_proof": args.required_proof if args.required_proof is not None else existing["required_proof"],
+        "inspection_expectation": (
+            args.inspection_expectation
+            if args.inspection_expectation is not None
+            else existing["inspection_expectation"]
+        ),
+    }
+    contract = normalized_contract(contract)
+    problems = contract_problems(contract)
+    if problems:
+        raise CommandError("Incomplete task acceptance contract: %s" % "; ".join(problems))
+    metadata["contract"] = contract
+    metadata["contract_updated_at_utc"] = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    write_metadata(root, metadata)
+    print(json.dumps({"ok": True, "contract": contract}, indent=2, sort_keys=True))
+    return 0
+
+
+def command_prepare_worker(args: argparse.Namespace) -> int:
+    root = repo_root(Path(args.repo).resolve())
+    task_id = slugify(args.task_id or args.task or "task")
+    branch = args.branch or (BRANCH_PREFIX + task_id)
+    if not branch.startswith(BRANCH_PREFIX):
+        raise CommandError("Task branches must use %s*: %s" % (BRANCH_PREFIX, branch))
+    if args.fetch:
+        run_git(root, ["fetch", "origin", "master"])
+    base_ref = args.base or "master"
+    base_commit = ref_commit(root, base_ref)
+    if not base_commit:
+        raise CommandError("Could not resolve base ref %r" % base_ref)
+    existing_commit = ref_commit(root, branch)
+    if existing_commit:
+        if not args.reuse or existing_commit != base_commit:
+            raise CommandError(
+                "Branch %s already exists at %s; expected %s. Pass --reuse only for an exact prepared branch."
+                % (branch, existing_commit[:12], base_commit[:12])
+            )
+    elif not args.dry_run:
+        run_git(root, ["branch", branch, base_ref])
+    payload = {
+        "task_id": task_id,
+        "branch": branch,
+        "base_ref": base_ref,
+        "base_commit": base_commit,
+        "starting_state": {"type": "branch", "branchName": branch},
+        "dry_run": bool(args.dry_run),
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
+def command_preflight(args: argparse.Namespace) -> int:
+    root = repo_root(Path(args.repo).resolve())
+    branch = require_task_branch(root)
+    metadata = metadata_for(root)
+    status = run_git(root, ["status", "--short"]).stdout.strip()
+    if status and not args.allow_dirty:
+        raise CommandError("Git-write preflight requires a clean worktree; found:\n%s" % status)
+    contract = normalized_contract(metadata.get("contract", {}))
+    problems = contract_problems(contract)
+    if problems and not args.allow_draft_contract:
+        raise CommandError("Task acceptance contract is incomplete: %s" % "; ".join(problems))
+
+    refresh = run_git(root, ["update-index", "--refresh"], check=False)
+    if refresh.returncode != 0 and not args.allow_dirty:
+        detail = refresh.stderr.strip() or refresh.stdout.strip()
+        raise CommandError("git update-index --refresh failed: %s" % detail)
+    tree_before = run_git(root, ["write-tree"]).stdout.strip()
+    smoke_path = ".codex/.git-write-smoke-%d" % os.getpid()
+    if run_git(root, ["ls-files", "--error-unmatch", smoke_path], check=False).returncode == 0:
+        raise CommandError("Refusing to overwrite tracked smoke-test path %s" % smoke_path)
+    blob = run_git(root, ["hash-object", "-w", "--stdin"], input_text="labyrinth git write smoke\n").stdout.strip()
+    try:
+        run_git(root, ["update-index", "--add", "--cacheinfo", "100644,%s,%s" % (blob, smoke_path)])
+        run_git(root, ["write-tree"])
+    finally:
+        run_git(root, ["update-index", "--force-remove", smoke_path], check=False)
+    tree_after = run_git(root, ["write-tree"]).stdout.strip()
+    if tree_after != tree_before:
+        raise CommandError("Git-write smoke test did not restore the original index tree")
+    master_commit = ref_commit(root, args.master_ref)
+    if not master_commit:
+        raise CommandError("Could not resolve master ref %r" % args.master_ref)
+    counts = run_git(root, ["rev-list", "--left-right", "--count", "%s...HEAD" % args.master_ref]).stdout.strip().split()
+    behind = int(counts[0]) if len(counts) == 2 else 0
+    ahead = int(counts[1]) if len(counts) == 2 else 0
+    payload = {
+        "ok": True,
+        "repo": str(root),
+        "branch": branch,
+        "head": ref_commit(root, "HEAD"),
+        "master_ref": args.master_ref,
+        "master_commit": master_commit,
+        "ahead": ahead,
+        "behind": behind,
+        "master_contained": is_ancestor(root, args.master_ref, "HEAD"),
+        "head_contained_by_master": is_ancestor(root, "HEAD", args.master_ref),
+        "index_tree": tree_after,
+        "contract": contract,
+        "contract_ready": not problems,
+        "checks": ["clean_worktree", "update_index_refresh", "object_write", "index_add_remove", "index_restored"],
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
@@ -251,6 +416,93 @@ def first_landed_ref(repo: Path, branch: str, refs: list[str]) -> str:
         if ref_commit(repo, ref) and is_ancestor(repo, branch, ref):
             return ref
     return ""
+
+
+def stable_patch_id(repo: Path, base_ref: str, head_ref: str = "HEAD") -> str:
+    patch = run_git(repo, ["diff", "--binary", "--full-index", "%s..%s" % (base_ref, head_ref)]).stdout
+    if not patch.strip():
+        return "empty"
+    result = run_git(repo, ["patch-id", "--stable"], input_text=patch)
+    line = result.stdout.strip().splitlines()
+    if not line:
+        raise CommandError("Could not calculate a stable task patch id")
+    return line[0].split()[0]
+
+
+def ensure_memento_merge_driver(root: Path) -> None:
+    attributes = root / ".gitattributes"
+    if not attributes.exists() or "merge=memento" not in attributes.read_text():
+        return
+    configured = run_git(root, ["config", "--local", "--get", "merge.memento.driver"], check=False)
+    if configured.returncode == 0 and configured.stdout.strip():
+        return
+    executable = shutil.which("memento")
+    if not executable:
+        raise CommandError("Memento merge attributes are present but the `memento` command is unavailable. Install Memento and run `memento configure-merge`.")
+    result = subprocess.run(
+        [executable, "configure-merge", "--repo", str(root)],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise CommandError("Could not configure the Memento merge driver: %s" % detail)
+
+
+def integrate_ref(root: Path, required_master: str) -> dict[str, Any]:
+    branch = require_task_branch(root)
+    status = run_git(root, ["status", "--short"]).stdout.strip()
+    if status:
+        raise CommandError("Refusing to integrate into dirty worktree %s" % root)
+    before_head = ref_commit(root, "HEAD")
+    before_base = run_git(root, ["merge-base", required_master, "HEAD"]).stdout.strip()
+    before_patch_id = stable_patch_id(root, before_base)
+    if not is_ancestor(root, required_master, "HEAD"):
+        ensure_memento_merge_driver(root)
+        result = run_git(root, ["merge", "--no-edit", required_master], check=False)
+        if result.returncode != 0:
+            detail = result.stderr.strip() or result.stdout.strip()
+            raise CommandError(
+                "Integration stopped with conflicts. Resolve them in the task worktree, rerun proof, and use `integrate` again: %s"
+                % detail,
+                result,
+            )
+    after_head = ref_commit(root, "HEAD")
+    after_patch_id = stable_patch_id(root, required_master)
+    report = {
+        "branch": branch,
+        "integrated_ref": required_master,
+        "before_head": before_head,
+        "after_head": after_head,
+        "before_patch_id": before_patch_id,
+        "after_patch_id": after_patch_id,
+        "task_patch_unchanged": before_patch_id == after_patch_id,
+        "approval_still_valid": before_patch_id == after_patch_id,
+    }
+    metadata = metadata_for(root)
+    metadata["last_integration"] = {
+        **report,
+        "integrated_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    }
+    write_metadata(root, metadata)
+    return report
+
+
+def command_integrate(args: argparse.Namespace) -> int:
+    root = repo_root(Path(args.repo).resolve())
+    if args.fetch:
+        run_git(root, ["fetch", args.remote, "master"])
+    required_master = args.master_ref or ("%s/master" % args.remote if args.fetch else "master")
+    if not ref_commit(root, required_master):
+        raise CommandError("Could not resolve master ref %r" % required_master)
+    report = integrate_ref(root, required_master)
+    print(json.dumps(report, indent=2, sort_keys=True))
+    if report["task_patch_unchanged"]:
+        print("Task patch is unchanged; existing review and publication approval remain valid.")
+    else:
+        print("Task patch changed during integration; rerun relevant proof and peer review before requesting publication approval.")
+    return 0
 
 
 def try_update_local_master(repo: Path, branch: str) -> str:
@@ -299,11 +551,20 @@ def command_push(args: argparse.Namespace) -> int:
         raise CommandError("Could not resolve master ref %r" % required_master)
     branch_commit = ref_commit(root, branch)
     if not is_ancestor(root, required_master, branch):
-        raise CommandError(
-            "Refusing to push %s to master because %s (%s) is not contained in the task branch. "
-            "Integrate master into the task branch, rerun relevant proof, repeat peer review, then push again."
-            % (branch, required_master, master_commit[:12])
-        )
+        if not args.auto_integrate:
+            raise CommandError(
+                "Refusing to push %s because %s (%s) is not contained. Run `parallel_task.py integrate`."
+                % (branch, required_master, master_commit[:12])
+            )
+        report = integrate_ref(root, required_master)
+        print(json.dumps({"integration": report}, indent=2, sort_keys=True))
+        if not report["task_patch_unchanged"]:
+            raise CommandError(
+                "Integrated %s, but the effective task patch changed. The branch was not pushed; rerun relevant proof and peer review, then obtain publication approval for the updated branch."
+                % required_master
+            )
+        print("Integrated %s mechanically; the approved task patch is unchanged." % required_master)
+        branch_commit = ref_commit(root, branch)
     run_git(root, ["push", args.remote, "%s:master" % branch])
     run_git(root, ["update-ref", "refs/remotes/%s/master" % args.remote, branch_commit], check=False)
     print("Pushed %s (%s) to %s/master" % (branch, branch_commit[:12], args.remote))
@@ -378,8 +639,31 @@ def build_parser() -> argparse.ArgumentParser:
     adopt.add_argument("--dry-run", action="store_true")
     adopt.set_defaults(func=command_adopt)
 
+    prepare_worker = sub.add_parser("prepare-worker", help="Create a task branch before an app-visible worker thread is created.")
+    prepare_worker.add_argument("--task", default="", help="Human task description used to derive an id.")
+    prepare_worker.add_argument("--task-id", default="", help="Stable task id.")
+    prepare_worker.add_argument("--branch", default="", help="Explicit branch name; must start with codex/.")
+    prepare_worker.add_argument("--base", default="", help="Base ref. Defaults to local master.")
+    prepare_worker.add_argument("--fetch", action="store_true", default=False)
+    prepare_worker.add_argument("--reuse", action="store_true", help="Reuse the branch only when it still equals the requested base.")
+    prepare_worker.add_argument("--dry-run", action="store_true")
+    prepare_worker.set_defaults(func=command_prepare_worker)
+
     status = sub.add_parser("status", help="Report task/worktree status.")
     status.set_defaults(func=command_status)
+
+    contract = sub.add_parser("contract", help="Record the task's acceptance, proof, and inspection contract.")
+    contract.add_argument("--risk-tier", choices=RISK_TIERS, default="")
+    contract.add_argument("--acceptance", action="append", default=None, help="Observable acceptance criterion; repeatable.")
+    contract.add_argument("--required-proof", action="append", default=None, help="Required proof item; repeatable.")
+    contract.add_argument("--inspection-expectation", default=None, help="Playable inspection target or a not-applicable reason.")
+    contract.set_defaults(func=command_contract)
+
+    preflight = sub.add_parser("preflight", help="Prove task branch, contract, object database, and Git index writes before editing.")
+    preflight.add_argument("--allow-dirty", action="store_true", help="Allow a dirty worktree for diagnostic use.")
+    preflight.add_argument("--allow-draft-contract", action="store_true", help="Do not fail when the acceptance contract is incomplete.")
+    preflight.add_argument("--master-ref", default="master", help="Master ref used for ahead/behind and containment reporting.")
+    preflight.set_defaults(func=command_preflight)
 
     env = sub.add_parser("env", help="Print environment variables for parallel-safe Godot runs.")
     env.add_argument("--task-id", default="", help="Override task id.")
@@ -391,11 +675,20 @@ def build_parser() -> argparse.ArgumentParser:
     commit.add_argument("--allow-empty", action="store_true")
     commit.set_defaults(func=command_commit)
 
+    integrate = sub.add_parser("integrate", help="Integrate current master and report whether the effective task patch changed.")
+    integrate.add_argument("--remote", default="origin")
+    integrate.add_argument("--master-ref", default="")
+    integrate.add_argument("--fetch", dest="fetch", action="store_true", default=True)
+    integrate.add_argument("--no-fetch", dest="fetch", action="store_false")
+    integrate.set_defaults(func=command_integrate)
+
     push = sub.add_parser("push", help="Land the approved task branch on remote master.")
     push.add_argument("--remote", default="origin")
     push.add_argument("--master-ref", default="", help="Ref that must be contained in the task branch. Defaults to remote/master after fetch.")
     push.add_argument("--fetch", dest="fetch", action="store_true", default=True, help="Fetch remote master before landing.")
     push.add_argument("--no-fetch", dest="fetch", action="store_false", help="Do not fetch before landing.")
+    push.add_argument("--auto-integrate", dest="auto_integrate", action="store_true", default=True, help="Mechanically integrate newer master when the effective task patch stays unchanged.")
+    push.add_argument("--no-auto-integrate", dest="auto_integrate", action="store_false")
     push.add_argument("--update-local-master", dest="update_local_master", action="store_true", default=True, help="Fast-forward the primary local master checkout when it is clean.")
     push.add_argument("--no-update-local-master", dest="update_local_master", action="store_false", help="Do not update the primary local master checkout after pushing.")
     push.set_defaults(func=command_push)

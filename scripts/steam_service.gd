@@ -10,6 +10,7 @@ const PROFILE_PREFIX: String = "Profile"
 const STEAM_USER_DIR_PREFIX: String = "Escape the Umbra/steam"
 const STEAM_ID_TEMPLATE: String = "{64BitSteamID}"
 const PROFILE_REFRESH_INTERVAL: float = 1.5
+const DISABLE_STEAM_ENV: String = "LABYRINTH_DISABLE_STEAM"
 
 var _steam: Object = null
 var _initialized: bool = false
@@ -64,6 +65,9 @@ func init_result() -> Dictionary:
 	return _init_result.duplicate(true)
 
 func _initialize_steam() -> void:
+	if OS.get_environment(DISABLE_STEAM_ENV).strip_edges().to_lower() in ["1", "true", "yes"]:
+		_init_result = {"ok": false, "reason": "Steam initialization disabled by %s" % DISABLE_STEAM_ENV}
+		return
 	if not Engine.has_singleton("Steam"):
 		_init_result = {"ok": false, "reason": "GodotSteam singleton is not available"}
 		return

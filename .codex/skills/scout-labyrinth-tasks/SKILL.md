@@ -50,6 +50,7 @@ Use `.codex/tasks/templates/scout_batch_template.json` as the starting shape. A 
 - `proposal.impact`: expected player, workflow, maintainability, or performance benefit.
 - `proposal.risk`: primary regression or complexity risk.
 - `proposal.estimated_size`: small, medium, or large.
+- `proposal.risk_tier`: `low`, `standard`, or `high` under `spec/development_workflow.md`; this controls proof breadth, not whether peer review happens.
 - `proposal.acceptance_criteria`: observable requirements the worker must satisfy.
 - `proposal.required_proof`: tests, probes, screenshots, or explanations expected from the worker.
 - `proposal.rejection_conditions`: reasons a reviewer or orchestrator should reject the task.
@@ -96,7 +97,7 @@ Check all of these areas:
 1. Value and fit: Is each task likely to improve Labyrinth in a way that matches the user's priorities and the current project state?
 2. Specificity: Can a worker understand exactly what to change without inventing broad product direction?
 3. Instruction fidelity: Does the proposed work respect the user's request for autonomous, parallel, isolated work with final user approval?
-4. Proofability: Are acceptance criteria and required proof strong enough that a reviewer can decide whether the task is complete?
+4. Proofability: Are acceptance criteria, risk tier, required proof, and inspection expectation strong enough that a reviewer can decide whether the task is complete?
 5. Collision awareness: Does the task name concrete likely touched files and shared-state risks, and avoid broad collision groups?
 6. Queue quality: Is the task small enough for one worker and distinct from other active or ready tasks?
 

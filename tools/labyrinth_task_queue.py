@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import subprocess
 import sys
 from typing import Any
@@ -41,6 +42,9 @@ SCOUT_REVIEW_RESULTS = {
     "rejected": "rejected",
 }
 DEFAULT_QUEUE_ROOT_ENV = "LABYRINTH_TASK_QUEUE_ROOT"
+RISK_TIERS = {"low", "standard", "high"}
+ESTIMATED_SIZES = {"small", "medium", "large"}
+CURRENT_SCHEMA_VERSION = 2
 
 
 class QueueError(RuntimeError):
@@ -200,6 +204,9 @@ def normalize_parallel_safety(value: Any) -> dict[str, Any]:
 
 def normalize_proposal(value: Any) -> dict[str, Any]:
     raw = value if isinstance(value, dict) else {}
+    risk_tier = str(raw.get("risk_tier", "standard")).strip().lower()
+    if not risk_tier:
+        risk_tier = "standard"
     return {
         "problem": str(raw.get("problem", "")).strip(),
         "why_now": str(raw.get("why_now", "")).strip(),
@@ -207,6 +214,7 @@ def normalize_proposal(value: Any) -> dict[str, Any]:
         "impact": str(raw.get("impact", "")).strip(),
         "risk": str(raw.get("risk", "")).strip(),
         "estimated_size": str(raw.get("estimated_size", "")).strip(),
+        "risk_tier": risk_tier,
         "acceptance_criteria": text_list(raw.get("acceptance_criteria")),
         "required_proof": text_list(raw.get("required_proof")),
         "rejection_conditions": text_list(raw.get("rejection_conditions")),
@@ -246,7 +254,7 @@ def normalize_task(raw: dict[str, Any], queue_root: Path, *, default_status: str
         raise QueueError("Unknown task status %r for %s" % (status, task_id))
     now = utc_now()
     task: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": CURRENT_SCHEMA_VERSION,
         "id": task_id,
         "title": title,
         "status": status,
@@ -278,8 +286,9 @@ def validate_task(task: dict[str, Any]) -> None:
     for key in ("schema_version", "id", "title", "status", "priority", "proposal", "parallel_safety", "history"):
         if key not in task:
             raise QueueError("Task missing required field: %s" % key)
-    if task["schema_version"] != 1:
+    if task["schema_version"] not in {1, CURRENT_SCHEMA_VERSION}:
         raise QueueError("Unsupported schema_version for %s: %r" % (task.get("id"), task.get("schema_version")))
+    strict_contract = task["schema_version"] >= CURRENT_SCHEMA_VERSION
     if task["status"] not in STATUSES:
         raise QueueError("Unknown status for %s: %r" % (task["id"], task["status"]))
     if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{0,71}", str(task["id"])):
@@ -292,12 +301,29 @@ def validate_task(task: dict[str, Any]) -> None:
     for key in ("acceptance_criteria", "required_proof", "rejection_conditions"):
         if not isinstance(proposal.get(key), list):
             raise QueueError("Task %s proposal.%s must be a list" % (task["id"], key))
+    if proposal.get("risk_tier", "standard") not in RISK_TIERS:
+        raise QueueError("Task %s proposal.risk_tier must be one of %s" % (task["id"], ", ".join(sorted(RISK_TIERS))))
+    if strict_contract:
+        for key in ("problem", "why_now", "proposed_change", "impact", "risk"):
+            if not str(proposal.get(key, "")).strip():
+                raise QueueError("Task %s proposal.%s must not be empty" % (task["id"], key))
+        if proposal.get("estimated_size") not in ESTIMATED_SIZES:
+            raise QueueError("Task %s proposal.estimated_size must be one of %s" % (task["id"], ", ".join(sorted(ESTIMATED_SIZES))))
+        for key, label in (
+            ("acceptance_criteria", "observable acceptance criteria"),
+            ("required_proof", "required proof"),
+            ("rejection_conditions", "rejection conditions"),
+        ):
+            if not proposal.get(key):
+                raise QueueError("Task %s needs %s" % (task["id"], label))
     safety = task["parallel_safety"]
     if not isinstance(safety, dict):
         raise QueueError("Task %s parallel_safety must be an object" % task["id"])
     for key in ("likely_touched_files", "shared_state_risks", "safe_parallel_neighbors", "avoid_parallel_with"):
         if not isinstance(safety.get(key), list):
             raise QueueError("Task %s parallel_safety.%s must be a list" % (task["id"], key))
+    if strict_contract and not safety.get("likely_touched_files"):
+        raise QueueError("Task %s needs concrete parallel_safety.likely_touched_files" % task["id"])
     if task["status"] == "ready" and task.get("scout_review", {}).get("status") != "approved":
         raise QueueError("Task %s is ready without approved scout_review" % task["id"])
 
@@ -546,37 +572,119 @@ def command_mark(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_handoff(args: argparse.Namespace) -> int:
+    repo = repo_root(Path(args.repo))
+    commit = args.commit or run_git(repo, ["rev-parse", "HEAD"]).stdout.strip()
+    branch = run_git(repo, ["branch", "--show-current"]).stdout.strip()
+    if args.inspection_manifest:
+        fixture_manifest = load_json(Path(args.inspection_manifest).expanduser().resolve())
+        if not isinstance(fixture_manifest, dict) or not fixture_manifest.get("verified"):
+            raise QueueError("Inspection manifest must be a verified fixture manifest")
+        if str(fixture_manifest.get("task_id", "")) != args.task_id:
+            raise QueueError("Inspection manifest task id %r does not match %r" % (fixture_manifest.get("task_id"), args.task_id))
+        inspection_fixture = {
+            "applicable": True,
+            "scenario": str(fixture_manifest.get("scenario", "")),
+            "run_id": str(fixture_manifest.get("run_id", "")),
+            "summary": str(fixture_manifest.get("summary", "")),
+            "launch_command": str(fixture_manifest.get("launch_command", "")),
+            "manifest": str(Path(args.inspection_manifest).expanduser().resolve()),
+        }
+        if not inspection_fixture["summary"] or not inspection_fixture["launch_command"]:
+            raise QueueError("Verified inspection manifest needs summary and launch_command")
+    elif args.inspection_not_applicable:
+        inspection_fixture = {"applicable": False, "reason": args.inspection_not_applicable}
+    else:
+        raise QueueError("Handoff needs --inspection-manifest or --inspection-not-applicable")
+    payload = {
+        "schema_version": 1,
+        "task_id": args.task_id,
+        "branch": branch,
+        "commit": commit,
+        "reviewer": args.reviewer,
+        "signoff": args.signoff,
+        "proof": args.proof,
+        "residual_risks": args.residual_risk,
+        "inspection_fixture": inspection_fixture,
+        "created_at_utc": utc_now(),
+    }
+    output = Path(args.output).expanduser().resolve() if args.output else (
+        Path("/private/tmp/labyrinth-task-handoffs") / (slugify(args.task_id) + ".json")
+    )
+    write_json(output, payload)
+    print("Wrote verified task handoff: %s" % output)
+    print(
+        "Queue completion command: python3 tools/labyrinth_task_queue.py complete %s --handoff-file %s"
+        % (shlex.quote(args.task_id), shlex.quote(str(output)))
+    )
+    return 0
+
+
 def command_complete(args: argparse.Namespace) -> int:
     queue_root = Path(args.queue_root).expanduser().resolve() if args.queue_root else default_queue_root(Path(args.repo))
     task = load_task(queue_root, args.task_id)
+    handoff: dict[str, Any] = {}
+    if args.handoff_file:
+        raw_handoff = load_json(Path(args.handoff_file).expanduser().resolve())
+        if not isinstance(raw_handoff, dict):
+            raise QueueError("--handoff-file must contain a JSON object")
+        if str(raw_handoff.get("task_id", "")) != args.task_id:
+            raise QueueError("Handoff task id %r does not match %r" % (raw_handoff.get("task_id"), args.task_id))
+        handoff = raw_handoff
+    reviewer = str(handoff.get("reviewer", args.reviewer)).strip()
+    signoff = str(handoff.get("signoff", args.signoff)).strip()
+    proof_value = handoff.get("proof", args.proof)
+    proof = "; ".join(str(item) for item in proof_value) if isinstance(proof_value, list) else str(proof_value).strip()
+    commit = str(handoff.get("commit", args.commit)).strip()
+    residual_risks = handoff.get("residual_risks", [])
+    if not reviewer or not signoff or not proof or not commit:
+        raise QueueError("Ready-for-user handoff needs reviewer, signoff, proof, and commit")
+    repo = repo_root(Path(args.repo))
+    resolved_commit = run_git(repo, ["rev-parse", "--verify", "%s^{commit}" % commit], check=False)
+    if resolved_commit.returncode != 0:
+        raise QueueError("Handoff commit %r does not resolve in %s" % (commit, repo))
+    commit = resolved_commit.stdout.strip()
+    handoff_branch = str(handoff.get("branch", "")).strip()
+    if handoff_branch:
+        branch_commit = run_git(repo, ["rev-parse", "--verify", "%s^{commit}" % handoff_branch], check=False)
+        if branch_commit.returncode != 0 or branch_commit.stdout.strip() != commit:
+            raise QueueError("Handoff branch %r does not point to reviewed commit %s" % (handoff_branch, commit[:12]))
+    handoff_fixture = handoff.get("inspection_fixture", {})
+    if not isinstance(handoff_fixture, dict):
+        raise QueueError("Handoff inspection_fixture must be an object")
     inspection_recorded_at = utc_now()
-    if args.inspection_not_applicable:
+    not_applicable_reason = str(handoff_fixture.get("reason", "")) if handoff_fixture.get("applicable") is False else args.inspection_not_applicable
+    if not_applicable_reason:
         inspection_fixture = {
             "applicable": False,
             "recorded_at_utc": inspection_recorded_at,
-            "reason": args.inspection_not_applicable,
+            "reason": not_applicable_reason,
         }
     else:
-        if not args.inspection_summary.strip():
+        inspection_summary = str(handoff_fixture.get("summary", args.inspection_summary)).strip()
+        inspection_launch = str(handoff_fixture.get("launch_command", args.inspection_launch)).strip()
+        if not inspection_summary:
             raise QueueError("Ready-for-user handoff needs --inspection-summary, or --inspection-not-applicable with a reason.")
-        if not args.inspection_launch.strip():
+        if not inspection_launch:
             raise QueueError("Ready-for-user handoff needs --inspection-launch, or --inspection-not-applicable with a reason.")
         inspection_fixture = {
             "applicable": True,
             "recorded_at_utc": inspection_recorded_at,
-            "scenario": args.inspection_scenario,
-            "run_id": args.inspection_run_id,
-            "summary": args.inspection_summary,
-            "launch_command": args.inspection_launch,
+            "scenario": str(handoff_fixture.get("scenario", args.inspection_scenario)),
+            "run_id": str(handoff_fixture.get("run_id", args.inspection_run_id)),
+            "summary": inspection_summary,
+            "launch_command": inspection_launch,
+            "manifest": str(handoff_fixture.get("manifest", "")),
         }
     task["status"] = "ready_for_user"
     task["implementation_review"] = {
         "status": "signoff",
-        "reviewer": args.reviewer,
+        "reviewer": reviewer,
         "reviewed_at_utc": utc_now(),
-        "signoff_summary": args.signoff,
-        "proof_summary": args.proof,
-        "head_commit": args.commit,
+        "signoff_summary": signoff,
+        "proof_summary": proof,
+        "head_commit": commit,
+        "residual_risks": residual_risks,
     }
     task["inspection_fixture"] = inspection_fixture
     append_history(task, actor=args.actor, status="ready_for_user", note="implementation reviewed and ready for user")
@@ -687,13 +795,26 @@ def build_parser() -> argparse.ArgumentParser:
     mark.add_argument("--note", required=True)
     mark.set_defaults(func=command_mark)
 
+    handoff = sub.add_parser("handoff", help="Build one verified worker handoff file for orchestrator-owned queue completion.")
+    handoff.add_argument("task_id")
+    handoff.add_argument("--reviewer", required=True)
+    handoff.add_argument("--signoff", required=True)
+    handoff.add_argument("--proof", action="append", required=True)
+    handoff.add_argument("--commit", default="", help="Defaults to current HEAD.")
+    handoff.add_argument("--residual-risk", action="append", default=[])
+    handoff.add_argument("--inspection-manifest", default="")
+    handoff.add_argument("--inspection-not-applicable", default="")
+    handoff.add_argument("--output", default="")
+    handoff.set_defaults(func=command_handoff)
+
     complete = sub.add_parser("complete", help="Mark an implementation-reviewed task ready for user inspection.")
     complete.add_argument("task_id")
     complete.add_argument("--actor", default="orchestrator")
-    complete.add_argument("--reviewer", required=True)
-    complete.add_argument("--signoff", required=True)
-    complete.add_argument("--proof", required=True)
-    complete.add_argument("--commit", required=True)
+    complete.add_argument("--handoff-file", default="", help="Verified worker handoff JSON; replaces the individual flags below.")
+    complete.add_argument("--reviewer", default="")
+    complete.add_argument("--signoff", default="")
+    complete.add_argument("--proof", default="")
+    complete.add_argument("--commit", default="")
     complete.add_argument("--inspection-scenario", default="")
     complete.add_argument("--inspection-run-id", default="")
     complete.add_argument("--inspection-summary", default="")
