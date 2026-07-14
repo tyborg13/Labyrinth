@@ -389,7 +389,9 @@ def parse_size(value: str) -> tuple[int, int]:
 def rendering_driver_candidates(args: argparse.Namespace) -> list[str]:
     if args.rendering_driver:
         requested = [args.rendering_driver, *args.fallback_rendering_driver]
-    elif not args.headless and args.display_driver == "macos":
+    elif not args.headless and (
+        args.display_driver == "macos" or (not args.display_driver and sys.platform == "darwin")
+    ):
         # ANGLE has been the most reliable capture path on macOS; retain the
         # native default as an automatic fallback for host-specific failures.
         requested = ["opengl3_angle", "", *args.fallback_rendering_driver]

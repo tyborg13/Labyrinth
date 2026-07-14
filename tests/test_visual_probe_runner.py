@@ -6,6 +6,7 @@ import argparse
 import struct
 import tempfile
 import unittest
+from unittest import mock
 import zlib
 
 
@@ -130,6 +131,16 @@ class VisualProbeRunnerTests(unittest.TestCase):
             display_driver="macos",
         )
         self.assertEqual(VISUAL.rendering_driver_candidates(args), ["opengl3_angle", ""])
+
+    def test_macos_host_defaults_to_angle_without_display_driver_flag(self) -> None:
+        args = argparse.Namespace(
+            rendering_driver="",
+            fallback_rendering_driver=[],
+            headless=False,
+            display_driver="",
+        )
+        with mock.patch.object(VISUAL.sys, "platform", "darwin"):
+            self.assertEqual(VISUAL.rendering_driver_candidates(args), ["opengl3_angle", ""])
 
 
 if __name__ == "__main__":
