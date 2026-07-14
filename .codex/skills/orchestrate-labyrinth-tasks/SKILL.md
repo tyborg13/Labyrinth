@@ -75,18 +75,18 @@ python3 tools/parallel_task.py prepare-worker --task-id <task-id> --task "<title
    - Send the full worker prompt at creation time. Its first actions must be `adopt`, `contract`, and `preflight`; it continues to implementation only after they succeed. This removes the standby/bootstrap round trip while keeping the capability gate worker-owned.
    - Record the returned thread id and worktree path. If either is unavailable, or the worker reports preflight failure, do not lease the task. Abandon/recreate the thread or report the host limitation; do not use a planned host-side commit bridge.
 
-5. Lease the task after the thread exists and the worker reports successful `preflight`.
+4. Lease the task after the thread exists and the worker reports successful `preflight`.
 
 ```bash
 python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-id> --branch codex/<task-id> --worktree <thread-worktree-path>
 ```
 
-6. Confirm the task contract from the creation prompt.
+5. Confirm the task contract from the creation prompt.
    - Give each thread the task JSON, queue id, risk tier, acceptance criteria, proof requirements, and the instruction to use `$parallel-labyrinth-task`.
    - The worker records those fields with `parallel_task.py contract`; high-risk tasks also declare the playable inspection target or why it is not applicable.
    - The worker owns normal task-branch staging/commits and packages final queue details with `labyrinth_task_queue.py handoff`; the orchestrator consumes its single `complete --handoff-file` command.
 
-7. Monitor progress.
+6. Monitor progress.
    - Read worker threads periodically.
    - Use queue `heartbeat` or `mark` when a worker reports meaningful state changes.
    - If a worker stalls or collides with newer work, mark `blocked` with a note rather than silently relaunching duplicate work.
@@ -94,7 +94,7 @@ python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-
    - If a worker reports that staging or committing is blocked after `preflight` passed, treat it as a host/sandbox regression. Pause the task and only use a host-side commit bridge as an emergency unblock for already-completed work. Do not launch additional workers under that creation mode until diagnosed.
    - When a worker reports its handoff file, run the exact single `complete --handoff-file` command from the primary checkout.
 
-8. Require implementation peer review before user handoff.
+7. Require implementation peer review before user handoff.
    - The worker's `$parallel-labyrinth-task` flow requires a reviewer sub-agent.
    - The worker must resolve reviewer findings and only report back after reviewer `SIGNOFF`.
    - After reviewer `SIGNOFF`, the worker must run `tools/inspection_fixture.py` for a playable inspection state, or provide a clear not-applicable reason for tooling/data-only changes.
@@ -112,7 +112,7 @@ python3 tools/labyrinth_task_queue.py handoff <task-id> --reviewer "<reviewer>" 
 # Then run the exact `complete <task-id> --handoff-file ...` command printed by `handoff` from the primary checkout.
 ```
 
-9. Wait for user approval.
+8. Wait for user approval.
    - Present branch, worktree, commit, reviewer signoff, proof, inspection fixture launch command or not-applicable reason, and residual risks.
    - Do not land or push until the user explicitly says to push, land, publish, merge, or otherwise gives approval.
    - If the user abandons the task, mark it immediately:
@@ -121,7 +121,7 @@ python3 tools/labyrinth_task_queue.py handoff <task-id> --reviewer "<reviewer>" 
 python3 tools/labyrinth_task_queue.py mark <task-id> abandoned --note "<user-facing reason>"
 ```
 
-10. Land approved work to `master`.
+9. Land approved work to `master`.
    - Ask the worker thread that owns the worktree to run the approved publish step, or run it yourself in that worktree if the worker is unavailable.
    - `python3 tools/parallel_task.py push` lands the task branch to `origin/master`; it does not push a remote task branch.
    - If `master` moved, `push` integrates it and compares the stable effective task patch. An unchanged task patch preserves review and approval; a changed patch or conflict stops publication for renewed proof, review, and approval.
@@ -135,7 +135,7 @@ python3 tools/parallel_task.py cleanup --delete-branch
 
 ## Worker Thread Prompt
 
-When sending the full worker prompt after host-side preflight, use this shape:
+When sending the full worker prompt at thread creation, use this shape:
 
 ```text
 Use $parallel-labyrinth-task for this Labyrinth task.
