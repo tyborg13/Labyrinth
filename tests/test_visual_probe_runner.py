@@ -35,6 +35,19 @@ def write_checker_png(path: Path, width: int = 40, height: int = 40) -> None:
     path.write_bytes(data)
 
 
+def write_solid_png(path: Path, width: int, height: int, value: int = 80) -> None:
+    rows = bytearray()
+    for _y in range(height):
+        rows.append(0)
+        for _x in range(width):
+            rows.extend((value, value, value, 255))
+    data = VISUAL.PNG_SIGNATURE
+    data += png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0))
+    data += png_chunk(b"IDAT", zlib.compress(bytes(rows)))
+    data += png_chunk(b"IEND", b"")
+    path.write_bytes(data)
+
+
 class VisualProbeRunnerTests(unittest.TestCase):
     def test_exact_sizes_and_semantic_regions_are_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -82,6 +95,25 @@ class VisualProbeRunnerTests(unittest.TestCase):
                 ]
             }
             VISUAL.validate_pngs([small, large], 2, [(40, 40), (80, 80)], contract)
+
+    def test_semantic_region_cannot_be_supplied_by_wrong_resolution(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            small = Path(raw) / "proof-small.png"
+            large = Path(raw) / "proof-large.png"
+            write_checker_png(small, 40, 40)
+            write_solid_png(large, 80, 80)
+            contract = {
+                "required_images": [
+                    {
+                        "pattern": "proof-*.png",
+                        "width": 80,
+                        "height": 80,
+                        "regions": [{"rect": [5, 5, 20, 20], "min_luma_range": 100}],
+                    }
+                ]
+            }
+            with self.assertRaises(VISUAL.ProbeError):
+                VISUAL.validate_pngs([small, large], 2, [(40, 40), (80, 80)], contract)
 
     def test_result_manifest_requires_fresh_path_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

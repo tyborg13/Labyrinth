@@ -19,7 +19,7 @@ Use this skill to turn reviewed queue items into parallel Codex work. Invoking t
 - Do not use hidden sub-agents as implementation workers. Hidden sub-agents are appropriate for scout review and implementation peer review.
 - Do not push, land, or clean up completed task work until the user explicitly approves.
 - Keep queue state current as part of orchestration, not as a later audit. When a worker reports reviewer signoff and inspection handoff, run `tools/labyrinth_task_queue.py complete`; when the user abandons or blocks work, run `mark abandoned` or `mark blocked`; when approved work lands on `master`, run `landed` before cleanup/reporting. If permissions prevent a queue update, report the exact command still needed.
-- App-visible worker threads are valid for autonomous implementation only after the worker itself passes `parallel_task.py preflight`, which performs reversible object-database and index writes. Queue JSON may remain orchestrator-owned; worker handoff is transferred as one verified JSON file.
+- App-visible worker threads are valid for autonomous implementation only after the worker itself passes `parallel_task.py preflight`, which performs reversible object-database, index, and task-branch ref writes. Queue JSON may remain orchestrator-owned; worker handoff is transferred as one independently verified JSON file.
 
 ## Host Tool Requirements
 
@@ -125,6 +125,7 @@ python3 tools/labyrinth_task_queue.py mark <task-id> abandoned --note "<user-fac
    - If `master` moved, `push` integrates it and compares the stable effective task patch. An unchanged task patch preserves review and approval; a changed patch or conflict stops publication for renewed proof, review, and approval.
 
 ```bash
+python3 tools/parallel_task.py authorize-publish --reviewer "<reviewer>" --user-approval "<approval reference>"
 python3 tools/parallel_task.py push
 python3 tools/labyrinth_task_queue.py landed <task-id> --commit <master-commit> --archive
 python3 tools/parallel_task.py cleanup --delete-branch

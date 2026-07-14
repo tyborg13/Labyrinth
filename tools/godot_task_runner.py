@@ -177,12 +177,16 @@ def command_run(args: argparse.Namespace) -> int:
     env["HOME"] = str(home_dir)
     env["LABYRINTH_TASK_ID"] = run_id
     env["LABYRINTH_USER_DIR_NAME"] = "Labyrinth of Ash Parallel %s" % run_id
-    env["LABYRINTH_DISABLE_STEAM"] = "1"
+    if args.allow_steam:
+        env.pop("LABYRINTH_DISABLE_STEAM", None)
+    else:
+        env["LABYRINTH_DISABLE_STEAM"] = "1"
 
     print("Running task-local command:")
     print("  task: %s" % task_id)
     print("  run: %s" % run_id)
     print("  HOME: %s" % home_dir)
+    print("  Steam: %s" % ("enabled" if args.allow_steam else "disabled"))
     print("  command: %s" % " ".join(shell_quote(part) for part in command))
     timeout = args.timeout if args.timeout > 0 else None
     print("  timeout: %s" % ("%ss" % format_seconds(args.timeout) if timeout is not None else "disabled"))
@@ -219,6 +223,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--stream",
         action="store_true",
         help="Tee command output live while preserving captured output for failure-marker scanning.",
+    )
+    parser.add_argument(
+        "--allow-steam",
+        action="store_true",
+        help="Permit Steam initialization for Steam-specific inspection. Steam is disabled by default for isolated tests and visual proof.",
     )
     parser.add_argument("command", nargs=argparse.REMAINDER, help="Command to run after --.")
     parser.set_defaults(func=command_run)

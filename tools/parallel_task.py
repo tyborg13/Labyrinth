@@ -350,6 +350,18 @@ def command_preflight(args: argparse.Namespace) -> int:
     tree_after = run_git(root, ["write-tree"]).stdout.strip()
     if tree_after != tree_before:
         raise CommandError("Git-write smoke test did not restore the original index tree")
+    smoke_ref = "refs/heads/codex/git-write-smoke-%d" % os.getpid()
+    if ref_commit(root, smoke_ref):
+        raise CommandError("Refusing to overwrite Git-write smoke-test ref %s" % smoke_ref)
+    head_commit = ref_commit(root, "HEAD")
+    try:
+        run_git(root, ["update-ref", smoke_ref, head_commit, "0" * 40])
+        if ref_commit(root, smoke_ref) != head_commit:
+            raise CommandError("Git-write smoke-test ref did not resolve to HEAD")
+    finally:
+        run_git(root, ["update-ref", "-d", smoke_ref], check=False)
+    if ref_commit(root, smoke_ref):
+        raise CommandError("Git-write smoke test did not remove temporary branch ref %s" % smoke_ref)
     master_commit = ref_commit(root, args.master_ref)
     if not master_commit:
         raise CommandError("Could not resolve master ref %r" % args.master_ref)
@@ -360,7 +372,7 @@ def command_preflight(args: argparse.Namespace) -> int:
         "ok": True,
         "repo": str(root),
         "branch": branch,
-        "head": ref_commit(root, "HEAD"),
+        "head": head_commit,
         "master_ref": args.master_ref,
         "master_commit": master_commit,
         "ahead": ahead,
@@ -370,7 +382,15 @@ def command_preflight(args: argparse.Namespace) -> int:
         "index_tree": tree_after,
         "contract": contract,
         "contract_ready": not problems,
-        "checks": ["clean_worktree", "update_index_refresh", "object_write", "index_add_remove", "index_restored"],
+        "checks": [
+            "clean_worktree",
+            "update_index_refresh",
+            "object_write",
+            "index_add_remove",
+            "index_restored",
+            "temporary_branch_ref_write",
+            "temporary_branch_ref_removed",
+        ],
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
@@ -455,7 +475,15 @@ def integrate_ref(root: Path, required_master: str) -> dict[str, Any]:
     status = run_git(root, ["status", "--short"]).stdout.strip()
     if status:
         raise CommandError("Refusing to integrate into dirty worktree %s" % root)
+    metadata = metadata_for(root)
     before_head = ref_commit(root, "HEAD")
+    authorization = metadata.get("publication_authorization", {})
+    authorization_matches_before = (
+        isinstance(authorization, dict)
+        and str(authorization.get("commit", "")) == before_head
+        and bool(str(authorization.get("reviewer", "")).strip())
+        and bool(str(authorization.get("user_approval", "")).strip())
+    )
     before_base = run_git(root, ["merge-base", required_master, "HEAD"]).stdout.strip()
     before_patch_id = stable_patch_id(root, before_base)
     if not is_ancestor(root, required_master, "HEAD"):
@@ -478,9 +506,24 @@ def integrate_ref(root: Path, required_master: str) -> dict[str, Any]:
         "before_patch_id": before_patch_id,
         "after_patch_id": after_patch_id,
         "task_patch_unchanged": before_patch_id == after_patch_id,
-        "approval_still_valid": before_patch_id == after_patch_id,
+        "approval_still_valid": before_patch_id == after_patch_id and authorization_matches_before,
     }
-    metadata = metadata_for(root)
+    if report["task_patch_unchanged"] and authorization_matches_before:
+        metadata["publication_authorization"] = {
+            **authorization,
+            "commit": after_head,
+            "mechanically_integrated_from": before_head,
+            "mechanically_integrated_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        }
+        metadata.pop("publication_invalidated", None)
+    elif not report["task_patch_unchanged"]:
+        metadata.pop("publication_authorization", None)
+        metadata["publication_invalidated"] = {
+            "commit": after_head,
+            "previous_commit": before_head,
+            "reason": "effective task patch changed during integration",
+            "invalidated_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        }
     metadata["last_integration"] = {
         **report,
         "integrated_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
@@ -498,8 +541,10 @@ def command_integrate(args: argparse.Namespace) -> int:
         raise CommandError("Could not resolve master ref %r" % required_master)
     report = integrate_ref(root, required_master)
     print(json.dumps(report, indent=2, sort_keys=True))
-    if report["task_patch_unchanged"]:
+    if report["approval_still_valid"]:
         print("Task patch is unchanged; existing review and publication approval remain valid.")
+    elif report["task_patch_unchanged"]:
+        print("Task patch is unchanged; no current publication authorization was recorded.")
     else:
         print("Task patch changed during integration; rerun relevant proof and peer review before requesting publication approval.")
     return 0
@@ -537,12 +582,52 @@ def command_commit(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_authorize_publish(args: argparse.Namespace) -> int:
+    root = repo_root(Path(args.repo).resolve())
+    branch = require_task_branch(root)
+    status = run_git(root, ["status", "--short"]).stdout.strip()
+    if status:
+        raise CommandError("Publication authorization requires a clean worktree; found:\n%s" % status)
+    head = ref_commit(root, "HEAD")
+    metadata = metadata_for(root)
+    metadata["publication_authorization"] = {
+        "commit": head,
+        "branch": branch,
+        "reviewer": args.reviewer.strip(),
+        "user_approval": args.user_approval.strip(),
+        "authorized_at_utc": _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    }
+    metadata.pop("publication_invalidated", None)
+    write_metadata(root, metadata)
+    print(json.dumps({"ok": True, "publication_authorization": metadata["publication_authorization"]}, indent=2, sort_keys=True))
+    return 0
+
+
+def require_publication_authorization(root: Path) -> dict[str, Any]:
+    metadata = metadata_for(root)
+    head = ref_commit(root, "HEAD")
+    authorization = metadata.get("publication_authorization", {})
+    if not isinstance(authorization, dict) or str(authorization.get("commit", "")) != head:
+        invalidated = metadata.get("publication_invalidated", {})
+        detail = ""
+        if isinstance(invalidated, dict) and invalidated:
+            detail = " Last authorization was invalidated: %s." % str(invalidated.get("reason", "unknown reason"))
+        raise CommandError(
+            "Refusing publication of %s without authorization for the exact HEAD. After proof, peer signoff, and explicit user approval, run `parallel_task.py authorize-publish --reviewer ... --user-approval ...`.%s"
+            % (head[:12], detail)
+        )
+    if not str(authorization.get("reviewer", "")).strip() or not str(authorization.get("user_approval", "")).strip():
+        raise CommandError("Publication authorization is incomplete for %s" % head[:12])
+    return authorization
+
+
 def command_push(args: argparse.Namespace) -> int:
     root = repo_root(Path(args.repo).resolve())
     branch = require_task_branch(root)
     status = run_git(root, ["status", "--short"]).stdout.strip()
     if status:
         raise CommandError("Refusing to land dirty worktree %s. Commit or clean changes first." % root)
+    require_publication_authorization(root)
     if args.fetch:
         run_git(root, ["fetch", args.remote, "master"])
     required_master = args.master_ref or ("%s/master" % args.remote if args.fetch else "master")
@@ -563,6 +648,7 @@ def command_push(args: argparse.Namespace) -> int:
                 "Integrated %s, but the effective task patch changed. The branch was not pushed; rerun relevant proof and peer review, then obtain publication approval for the updated branch."
                 % required_master
             )
+        require_publication_authorization(root)
         print("Integrated %s mechanically; the approved task patch is unchanged." % required_master)
         branch_commit = ref_commit(root, branch)
     run_git(root, ["push", args.remote, "%s:master" % branch])
@@ -674,6 +760,11 @@ def build_parser() -> argparse.ArgumentParser:
     commit.add_argument("-m", "--message", required=True)
     commit.add_argument("--allow-empty", action="store_true")
     commit.set_defaults(func=command_commit)
+
+    authorize_publish = sub.add_parser("authorize-publish", help="Record peer signoff and explicit user approval for the exact current HEAD.")
+    authorize_publish.add_argument("--reviewer", required=True, help="Peer reviewer identity that signed off on this HEAD.")
+    authorize_publish.add_argument("--user-approval", required=True, help="Reference or concise note for the user's explicit publication approval.")
+    authorize_publish.set_defaults(func=command_authorize_publish)
 
     integrate = sub.add_parser("integrate", help="Integrate current master and report whether the effective task patch changed.")
     integrate.add_argument("--remote", default="origin")

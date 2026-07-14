@@ -49,7 +49,23 @@ func _initialize() -> void:
 	if not ProgressionStore.save_run_state(run_state):
 		_fail("Could not save current_run.save")
 		return
-	_print_result(scenario, user_namespace, run_state)
+	var persisted_run: Dictionary = ProgressionStore.load_saved_run()
+	var persisted_progression: Dictionary = ProgressionStore.load_data()
+	var persisted_metadata: Dictionary = persisted_run.get("inspection_fixture", {}) as Dictionary
+	persisted_metadata["state_contract"] = _fixture_state_contract(persisted_run, persisted_progression)
+	persisted_run["inspection_fixture"] = persisted_metadata
+	if not ProgressionStore.save_run_state(persisted_run):
+		_fail("Could not save certified current_run.save")
+		return
+	var certified_run: Dictionary = ProgressionStore.load_saved_run()
+	var certified_progression: Dictionary = ProgressionStore.load_data()
+	var certified_metadata: Dictionary = certified_run.get("inspection_fixture", {}) as Dictionary
+	var expected_contract: Dictionary = certified_metadata.get("state_contract", {}) as Dictionary
+	var actual_contract: Dictionary = _fixture_state_contract(certified_run, certified_progression)
+	if expected_contract != actual_contract:
+		_fail("Fixture state contract was not stable after serialization")
+		return
+	_print_result(scenario, user_namespace, certified_run)
 	quit(0)
 
 func _parse_args() -> Dictionary:
@@ -909,11 +925,13 @@ func _fixture_metadata(scenario: String, user_namespace: String, run_state: Dict
 		"namespace": user_namespace,
 		"seed": int(run_state.get("seed", requested_seed)),
 		"requested_seed": requested_seed,
-		"state_contract": _fixture_state_contract(run_state),
+		"state_contract": {},
 		"created_at_unix": Time.get_unix_time_from_system()
 	}
 
-func _fixture_state_contract(run_state: Dictionary) -> Dictionary:
+func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> Dictionary:
+	var contract_run_state: Dictionary = run_state.duplicate(true)
+	contract_run_state.erase("inspection_fixture")
 	var combat_state: Dictionary = run_state.get("combat_state", {}) as Dictionary
 	var deck: Dictionary = combat_state.get("deck", {}) as Dictionary
 	var enemy_types: Array[String] = []
@@ -923,13 +941,23 @@ func _fixture_state_contract(run_state: Dictionary) -> Dictionary:
 	var reward: Dictionary = run_state.get("pending_reward", {}) as Dictionary
 	var current_room: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	return {
+		"run_state_sha256": _variant_sha256(contract_run_state),
+		"progression_sha256": _variant_sha256(progression),
 		"mode": str(run_state.get("mode", "")),
 		"current_room": "%d,%d" % [current_room.x, current_room.y],
 		"hand": _string_array(deck.get("hand", []) as Array),
 		"enemy_types": enemy_types,
 		"reward_cards": _string_array(reward.get("cards", []) as Array),
-		"relic_choices": _string_array(run_state.get("pending_relics", []) as Array)
+		"relic_choices": _string_array(run_state.get("pending_relics", []) as Array),
+		"progression_level": int(progression.get("level", 1)),
+		"progression_embers": int(progression.get("embers", 0))
 	}
+
+func _variant_sha256(value: Variant) -> String:
+	var context: HashingContext = HashingContext.new()
+	context.start(HashingContext.HASH_SHA256)
+	context.update(var_to_bytes(value))
+	return context.finish().hex_encode()
 
 func _print_result(scenario: String, user_namespace: String, run_state: Dictionary) -> void:
 	var mode: String = str(run_state.get("mode", ""))

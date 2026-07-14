@@ -37,7 +37,9 @@ The orchestrator creates the branch before the app-visible task:
 python3 tools/parallel_task.py prepare-worker --task-id <task-id> --task "<title>"
 ```
 
-Its JSON output includes the app `starting_state`. Inside the created worktree the worker adopts the prepared branch, records the queue contract, and runs `preflight`. Preflight requires a task branch and complete contract, refreshes the index, writes a real Git object, adds and removes a temporary index entry, and proves the original index tree was restored. This is the worker-owned staging/commit capability check; a host-side commit bridge is an emergency recovery path, not a launch strategy.
+Its JSON output includes the app `starting_state`. Inside the created worktree the worker adopts the prepared branch, records the queue contract, and runs `preflight`. Preflight requires a task branch and complete contract, refreshes the index, writes a real Git object, adds and removes a temporary index entry, proves the original index tree was restored, and creates then deletes a temporary `refs/heads/codex/*` branch ref. This is the worker-owned staging/commit capability check; a host-side commit bridge is an emergency recovery path, not a launch strategy.
+
+The task runner disables Steam by default for deterministic tests and fixtures. Steam-specific inspection remains available through the same mandatory runner with `--allow-steam`.
 
 ## Visual Proof
 
@@ -75,7 +77,7 @@ Region checks are intentionally generic pixel contracts. Probe scripts remain re
 
 ## Inspection And Queue Handoff
 
-`tools/inspection_fixture.py` now generates the save, reloads it in a second Godot process, verifies a state contract embedded in the save, and writes a JSON manifest. The reported launch command calls the fixture wrapper with `--launch`, so every inspection regenerates and verifies the original pre-choice/pre-action state before opening the game.
+`tools/inspection_fixture.py` now generates the save, reloads it in a second Godot process, hashes the complete persisted run and progression state, verifies that contract, and writes a structured JSON manifest. The reported launch command calls the fixture wrapper with `--launch`, so every inspection regenerates and verifies the original pre-choice/pre-action state before opening the game.
 
 After peer signoff, package review and inspection metadata once:
 
@@ -87,14 +89,23 @@ python3 tools/labyrinth_task_queue.py handoff <task-id> \
   --inspection-manifest <fixture-manifest>
 ```
 
-The orchestrator consumes the printed single `complete --handoff-file ...` command. This keeps queue JSON orchestrator-owned without copying a long collection of flags between tasks.
+The handoff helper independently reruns the standard verifier against the clean reviewed commit and records the manifest digest. Queue completion reloads the same manifest, checks that digest and metadata, and reruns verification again. The orchestrator consumes the printed single `complete --handoff-file ...` command. This keeps queue JSON orchestrator-owned without trusting copied booleans or a long collection of flags between tasks.
 
 ## Publication Approval
 
-After user approval, `parallel_task.py push` fetches current remote `master`. If master advanced, it integrates it and compares stable patch IDs for the effective task diff before and after integration.
+After peer signoff and explicit user approval, bind both to the exact reviewed commit before publishing:
+
+```bash
+python3 tools/parallel_task.py authorize-publish \
+  --reviewer "<reviewer>" \
+  --user-approval "<approval reference>"
+python3 tools/parallel_task.py push
+```
+
+`push` refuses every unapproved or stale HEAD, then fetches current remote `master`. If master advanced, it integrates it and compares stable patch IDs for the effective task diff before and after integration.
 
 - Unchanged effective task patch: existing peer review and user publication approval remain valid; publication continues.
-- Changed effective task patch or merge conflict: publication stops. Resolve, rerun affected proof, repeat peer review, and request approval for the changed branch.
+- Changed effective task patch or merge conflict: publication authorization is persistently invalidated and every later push remains blocked. Resolve, rerun affected proof, repeat peer review, request approval for the changed branch, and run `authorize-publish` again for that exact HEAD.
 
 A dirty primary checkout never blocks remote publication; local `master` update is skipped and reported.
 

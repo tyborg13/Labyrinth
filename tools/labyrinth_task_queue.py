@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -572,23 +573,104 @@ def command_mark(args: argparse.Namespace) -> int:
     return 0
 
 
+def verify_fixture_manifest(
+    manifest_path: Path,
+    expected_task_id: str,
+    *,
+    expected_commit: str = "",
+    expected_branch: str = "",
+) -> tuple[dict[str, Any], str]:
+    path = manifest_path.expanduser().resolve()
+    try:
+        raw_bytes = path.read_bytes()
+    except OSError as exc:
+        raise QueueError("Could not read inspection manifest %s: %s" % (path, exc)) from exc
+    fixture_manifest = load_json(path)
+    if not isinstance(fixture_manifest, dict) or fixture_manifest.get("schema_version") != 2:
+        raise QueueError("Inspection manifest must use schema_version 2 with structured verification metadata")
+    if str(fixture_manifest.get("task_id", "")) != expected_task_id:
+        raise QueueError("Inspection manifest task id %r does not match %r" % (fixture_manifest.get("task_id"), expected_task_id))
+    required_text = ("run_id", "scenario", "summary", "launch_command", "project")
+    missing = [key for key in required_text if not str(fixture_manifest.get(key, "")).strip()]
+    if missing:
+        raise QueueError("Inspection manifest is missing required field(s): %s" % ", ".join(missing))
+    verification = fixture_manifest.get("verification", {})
+    if not isinstance(verification, dict):
+        raise QueueError("Inspection manifest verification must be an object")
+    if verification.get("runner") != "tools/godot_task_runner.py" or verification.get("script") != "tools/inspection_fixture_verify.gd":
+        raise QueueError("Inspection manifest does not name the standard fixture verifier")
+    godot = str(verification.get("godot", "")).strip()
+    if Path(godot).name.lower() not in {"godot", "godot4"}:
+        raise QueueError("Inspection manifest Godot executable must be godot or godot4")
+    godot_home_root = str(verification.get("godot_home_root", "")).strip()
+    if not godot_home_root:
+        raise QueueError("Inspection manifest needs verification.godot_home_root")
+    project = Path(str(fixture_manifest["project"])).expanduser().resolve()
+    if not (project / "tools" / "godot_task_runner.py").is_file() or not (project / "tools" / "inspection_fixture_verify.gd").is_file():
+        raise QueueError("Inspection manifest project does not contain the standard fixture verifier: %s" % project)
+    status = run_git(project, ["status", "--short"], check=False)
+    if status.returncode != 0 or status.stdout.strip():
+        raise QueueError("Inspection fixture project must be a clean Git worktree before verification")
+    project_head = run_git(project, ["rev-parse", "HEAD"]).stdout.strip()
+    if expected_commit and project_head != expected_commit:
+        raise QueueError("Inspection fixture project HEAD %s does not match reviewed commit %s" % (project_head[:12], expected_commit[:12]))
+    project_branch = run_git(project, ["branch", "--show-current"]).stdout.strip()
+    if expected_branch and project_branch != expected_branch:
+        raise QueueError("Inspection fixture project branch %r does not match reviewed branch %r" % (project_branch, expected_branch))
+    command = [
+        sys.executable,
+        str(project / "tools" / "godot_task_runner.py"),
+        "--project",
+        str(project),
+        "--task-id",
+        expected_task_id,
+        "--run-id",
+        str(fixture_manifest["run_id"]),
+        "--godot-home-root",
+        godot_home_root,
+        "--",
+        godot,
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tools/inspection_fixture_verify.gd",
+    ]
+    try:
+        result = subprocess.run(command, cwd=str(project), text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError as exc:
+        raise QueueError("Could not run the standard inspection verifier: %s" % exc) from exc
+    combined = result.stdout + "\n" + result.stderr
+    if result.returncode != 0 or "INSPECTION_FIXTURE_VERIFIED " not in combined:
+        detail = combined.strip()[-2000:]
+        raise QueueError("Inspection manifest state evidence failed independent verification: %s" % detail)
+    return fixture_manifest, hashlib.sha256(raw_bytes).hexdigest()
+
+
 def command_handoff(args: argparse.Namespace) -> int:
     repo = repo_root(Path(args.repo))
-    commit = args.commit or run_git(repo, ["rev-parse", "HEAD"]).stdout.strip()
+    commit_ref = args.commit or "HEAD"
+    resolved_commit = run_git(repo, ["rev-parse", "--verify", "%s^{commit}" % commit_ref], check=False)
+    if resolved_commit.returncode != 0:
+        raise QueueError("Handoff commit %r does not resolve in %s" % (commit_ref, repo))
+    commit = resolved_commit.stdout.strip()
     branch = run_git(repo, ["branch", "--show-current"]).stdout.strip()
     if args.inspection_manifest:
-        fixture_manifest = load_json(Path(args.inspection_manifest).expanduser().resolve())
-        if not isinstance(fixture_manifest, dict) or not fixture_manifest.get("verified"):
-            raise QueueError("Inspection manifest must be a verified fixture manifest")
-        if str(fixture_manifest.get("task_id", "")) != args.task_id:
-            raise QueueError("Inspection manifest task id %r does not match %r" % (fixture_manifest.get("task_id"), args.task_id))
+        manifest_path = Path(args.inspection_manifest).expanduser().resolve()
+        fixture_manifest, manifest_sha256 = verify_fixture_manifest(
+            manifest_path,
+            args.task_id,
+            expected_commit=commit,
+            expected_branch=branch,
+        )
         inspection_fixture = {
             "applicable": True,
             "scenario": str(fixture_manifest.get("scenario", "")),
             "run_id": str(fixture_manifest.get("run_id", "")),
             "summary": str(fixture_manifest.get("summary", "")),
             "launch_command": str(fixture_manifest.get("launch_command", "")),
-            "manifest": str(Path(args.inspection_manifest).expanduser().resolve()),
+            "manifest": str(manifest_path),
+            "manifest_sha256": manifest_sha256,
         }
         if not inspection_fixture["summary"] or not inspection_fixture["launch_command"]:
             raise QueueError("Verified inspection manifest needs summary and launch_command")
@@ -661,6 +743,23 @@ def command_complete(args: argparse.Namespace) -> int:
             "reason": not_applicable_reason,
         }
     else:
+        if not args.handoff_file:
+            raise QueueError("Applicable inspection fixtures require --handoff-file built from a verified manifest")
+        fixture_manifest_path = str(handoff_fixture.get("manifest", "")).strip()
+        expected_manifest_sha256 = str(handoff_fixture.get("manifest_sha256", "")).strip()
+        if not fixture_manifest_path or not expected_manifest_sha256:
+            raise QueueError("Applicable inspection handoff needs manifest and manifest_sha256 evidence")
+        fixture_manifest, actual_manifest_sha256 = verify_fixture_manifest(
+            Path(fixture_manifest_path),
+            args.task_id,
+            expected_commit=commit,
+            expected_branch=handoff_branch,
+        )
+        if actual_manifest_sha256 != expected_manifest_sha256:
+            raise QueueError("Inspection manifest changed after worker handoff was created")
+        for key in ("scenario", "run_id", "summary", "launch_command"):
+            if str(handoff_fixture.get(key, "")) != str(fixture_manifest.get(key, "")):
+                raise QueueError("Inspection handoff field %s does not match its verified manifest" % key)
         inspection_summary = str(handoff_fixture.get("summary", args.inspection_summary)).strip()
         inspection_launch = str(handoff_fixture.get("launch_command", args.inspection_launch)).strip()
         if not inspection_summary:
@@ -675,6 +774,7 @@ def command_complete(args: argparse.Namespace) -> int:
             "summary": inspection_summary,
             "launch_command": inspection_launch,
             "manifest": str(handoff_fixture.get("manifest", "")),
+            "manifest_sha256": actual_manifest_sha256,
         }
     task["status"] = "ready_for_user"
     task["implementation_review"] = {

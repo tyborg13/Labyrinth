@@ -72,6 +72,8 @@ class ParallelTaskTests(unittest.TestCase):
         self.assertEqual(payload["ahead"], 0)
         self.assertEqual(payload["behind"], 0)
         self.assertTrue(payload["master_contained"])
+        self.assertIn("temporary_branch_ref_write", payload["checks"])
+        self.assertEqual(self.git("for-each-ref", "--format=%(refname)", "refs/heads/codex/git-write-smoke-*"), "")
 
     def test_preflight_reports_stale_task_branch(self) -> None:
         base = self.git("rev-parse", "HEAD")
@@ -114,6 +116,14 @@ class ParallelTaskTests(unittest.TestCase):
         (self.repo / "task.txt").write_text("task\n")
         self.git("add", "task.txt")
         self.git("commit", "-q", "-m", "task")
+        authorized = self.runner(
+            "authorize-publish",
+            "--reviewer",
+            "peer-reviewer",
+            "--user-approval",
+            "User approved publication.",
+        )
+        self.assertEqual(authorized.returncode, 0, authorized.stderr)
 
         report = PARALLEL_TASK.integrate_ref(self.repo, "master")
 
@@ -121,6 +131,79 @@ class ParallelTaskTests(unittest.TestCase):
         self.assertTrue(report["approval_still_valid"])
         self.assertEqual((self.repo / "task.txt").read_text(), "task\n")
         self.assertEqual((self.repo / "upstream.txt").read_text(), "upstream\n")
+        metadata = PARALLEL_TASK.metadata_for(self.repo)
+        self.assertEqual(metadata["publication_authorization"]["commit"], self.git("rev-parse", "HEAD"))
+
+    def test_push_requires_authorization_for_exact_head(self) -> None:
+        remote_temp = tempfile.TemporaryDirectory()
+        self.addCleanup(remote_temp.cleanup)
+        remote = Path(remote_temp.name) / "remote.git"
+        subprocess.run(["git", "init", "-q", "--bare", str(remote)], check=True)
+        self.git("remote", "add", "origin", str(remote))
+        self.git("push", "-q", "origin", "master")
+        self.git("switch", "-q", "-c", "codex/unauthorized")
+        (self.repo / "task.txt").write_text("task\n")
+        self.git("add", "task.txt")
+        self.git("commit", "-q", "-m", "task")
+
+        result = self.runner("push", "--no-update-local-master")
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("without authorization for the exact HEAD", result.stderr)
+        self.assertEqual(self.git("rev-parse", "origin/master"), self.git("rev-parse", "master"))
+
+    def test_changed_integration_blocks_repeated_push_until_reauthorized(self) -> None:
+        remote_temp = tempfile.TemporaryDirectory()
+        self.addCleanup(remote_temp.cleanup)
+        remote = Path(remote_temp.name) / "remote.git"
+        upstream = Path(remote_temp.name) / "upstream"
+        subprocess.run(["git", "init", "-q", "--bare", str(remote)], check=True)
+        self.git("remote", "add", "origin", str(remote))
+        (self.repo / "shared.txt").write_text("one\ntwo\nthree\nfour\n")
+        self.git("add", "shared.txt")
+        self.git("commit", "-q", "-m", "shared base")
+        self.git("push", "-q", "origin", "master")
+        self.git("switch", "-q", "-c", "codex/approval-bypass")
+        (self.repo / "shared.txt").write_text("ONE\ntwo\nthree\nfour\n")
+        self.git("add", "shared.txt")
+        self.git("commit", "-q", "-m", "task change")
+        authorized = self.runner(
+            "authorize-publish",
+            "--reviewer",
+            "peer-reviewer",
+            "--user-approval",
+            "User approved original HEAD.",
+        )
+        self.assertEqual(authorized.returncode, 0, authorized.stderr)
+
+        subprocess.run(["git", "clone", "-q", "-b", "master", str(remote), str(upstream)], check=True)
+        subprocess.run(["git", "-C", str(upstream), "config", "user.email", "workflow-tests@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(upstream), "config", "user.name", "Workflow Tests"], check=True)
+        (upstream / "shared.txt").write_text("one\ntwo\nthree\nFOUR\n")
+        subprocess.run(["git", "-C", str(upstream), "add", "shared.txt"], check=True)
+        subprocess.run(["git", "-C", str(upstream), "commit", "-q", "-m", "upstream change"], check=True)
+        subprocess.run(["git", "-C", str(upstream), "push", "-q", "origin", "master"], check=True)
+
+        first = self.runner("push", "--no-update-local-master")
+        self.assertNotEqual(first.returncode, 0)
+        self.assertIn("effective task patch changed", first.stderr)
+        first_head = self.git("rev-parse", "HEAD")
+        second = self.runner("push", "--no-update-local-master")
+        self.assertNotEqual(second.returncode, 0)
+        self.assertIn("without authorization for the exact HEAD", second.stderr)
+        self.assertEqual(self.git("rev-parse", "HEAD"), first_head)
+
+        reauthorized = self.runner(
+            "authorize-publish",
+            "--reviewer",
+            "peer-reviewer-second-pass",
+            "--user-approval",
+            "User approved the integrated HEAD.",
+        )
+        self.assertEqual(reauthorized.returncode, 0, reauthorized.stderr)
+        final = self.runner("push", "--no-update-local-master")
+        self.assertEqual(final.returncode, 0, final.stderr)
+        self.assertEqual(self.git("rev-parse", "origin/master"), first_head)
 
 
 if __name__ == "__main__":

@@ -120,7 +120,7 @@ class LabyrinthTaskQueueTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("proposal.problem", result.stderr)
 
-    def test_handoff_accepts_matching_verified_fixture_manifest(self) -> None:
+    def test_handoff_rejects_boolean_only_fixture_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             manifest = root / "fixture.json"
@@ -154,10 +154,69 @@ class LabyrinthTaskQueueTests(unittest.TestCase):
                 "--output",
                 str(handoff_path),
             )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            payload = json.loads(handoff_path.read_text())
-            self.assertTrue(payload["inspection_fixture"]["applicable"])
-            self.assertEqual(payload["inspection_fixture"]["run_id"], "fixture-run")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("schema_version 2", result.stderr)
+            self.assertFalse(handoff_path.exists())
+
+    def test_complete_rejects_hand_authored_applicable_fixture_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            queue_root = root / "tasks"
+            proposal_path = root / "proposal.json"
+            proposal_path.write_text(
+                json.dumps(
+                    {
+                        "id": "direct-fixture",
+                        "title": "Direct fixture rejection",
+                        "priority": 3,
+                        "proposal": {
+                            "problem": "Hand-authored fixture fields are not proof.",
+                            "why_now": "Completion must independently validate state.",
+                            "proposed_change": "Require a verified manifest handoff.",
+                            "impact": "Fixture evidence is trustworthy.",
+                            "risk": "Invalid fixtures could reach users.",
+                            "estimated_size": "small",
+                            "risk_tier": "standard",
+                            "acceptance_criteria": ["Direct fixture flags are rejected."],
+                            "required_proof": ["Queue unit test."],
+                            "rejection_conditions": ["Accept hand-authored fixture state."],
+                        },
+                        "parallel_safety": {"likely_touched_files": ["tools/labyrinth_task_queue.py"]},
+                    }
+                )
+            )
+            imported = self.run_queue(
+                queue_root,
+                "import",
+                "--file",
+                str(proposal_path),
+                "--status",
+                "ready",
+                "--reviewer",
+                "scout",
+                "--review-summary",
+                "ready",
+            )
+            self.assertEqual(imported.returncode, 0, imported.stderr)
+            completed = self.run_queue(
+                queue_root,
+                "complete",
+                "direct-fixture",
+                "--reviewer",
+                "peer",
+                "--signoff",
+                "signed off",
+                "--proof",
+                "claimed fixture",
+                "--commit",
+                HEAD,
+                "--inspection-summary",
+                "Inspect it.",
+                "--inspection-launch",
+                "godot --path .",
+            )
+            self.assertNotEqual(completed.returncode, 0)
+            self.assertIn("require --handoff-file", completed.stderr)
 
 
 if __name__ == "__main__":

@@ -64,6 +64,17 @@ class GodotTaskRunnerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("\n1\n", result.stdout)
 
+    def test_allow_steam_removes_the_forced_disable_flag(self) -> None:
+        result = self.run_fake_command(
+            "runner-steam-enabled",
+            "import os\nprint(os.environ.get('LABYRINTH_DISABLE_STEAM', 'missing'))\n",
+            "--allow-steam",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Steam: enabled", result.stdout)
+        self.assertIn("\nmissing\n", result.stdout)
+
     def test_nonzero_exit_is_returned(self) -> None:
         result = self.run_fake_command(
             "runner-nonzero",

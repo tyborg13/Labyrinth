@@ -287,16 +287,23 @@ def validate_proof_contract(paths: list[Path], stats: list[dict[str, Any]], cont
             raise ProbeError("proof contract required_images[%d] must be an object" % index)
         pattern = str(requirement.get("pattern", "*")).strip() or "*"
         matches = [path for path in paths if fnmatch.fnmatch(path.name, pattern) or fnmatch.fnmatch(str(path), pattern)]
-        min_count = int(requirement.get("min_count", 1))
-        if len(matches) < min_count:
-            raise ProbeError("Semantic proof requires %d image(s) matching %r; found %d." % (min_count, pattern, len(matches)))
         if ("width" in requirement) != ("height" in requirement):
             raise ProbeError("Semantic proof image %r must specify width and height together." % pattern)
+        eligible_matches = matches
         if "width" in requirement and "height" in requirement:
             width = int(requirement.get("width", -1))
             height = int(requirement.get("height", -1))
-            if not any(item["path"] in {str(path) for path in matches} and item["width"] == width and item["height"] == height for item in stats):
-                raise ProbeError("Semantic proof image %r did not include exact size %dx%d." % (pattern, width, height))
+            eligible_paths = {
+                item["path"] for item in stats if item["width"] == width and item["height"] == height
+            }
+            eligible_matches = [path for path in matches if str(path) in eligible_paths]
+        min_count = int(requirement.get("min_count", 1))
+        if len(eligible_matches) < min_count:
+            size_detail = " at exact size %dx%d" % (width, height) if "width" in requirement else ""
+            raise ProbeError(
+                "Semantic proof requires %d image(s) matching %r%s; found %d."
+                % (min_count, pattern, size_detail, len(eligible_matches))
+            )
         regions = requirement.get("regions", [])
         if not isinstance(regions, list):
             raise ProbeError("Semantic proof regions for %r must be a list" % pattern)
@@ -307,7 +314,7 @@ def validate_proof_contract(paths: list[Path], stats: list[dict[str, Any]], cont
             minimum_range = float(region.get("min_luma_range", 3.0))
             minimum_stdev = float(region.get("min_luma_stdev", 0.75))
             region_valid = False
-            for path in matches:
+            for path in eligible_matches:
                 decoded = decoded_cache.get(path)
                 if decoded is None:
                     decoded = decode_png(path)

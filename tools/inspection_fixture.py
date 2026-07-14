@@ -203,13 +203,20 @@ def main(argv: list[str] | None = None) -> int:
     manifest_path.write_text(
         json.dumps(
             {
-                "schema_version": 1,
+                "schema_version": 2,
                 "task_id": task_id,
                 "run_id": run_id,
                 "scenario": scenario,
                 "summary": summary,
                 "fixture_args": fixture_args,
                 "verified": bool(args.verify),
+                "project": str(project),
+                "verification": {
+                    "runner": "tools/godot_task_runner.py",
+                    "script": "tools/inspection_fixture_verify.gd",
+                    "godot": args.godot,
+                    "godot_home_root": str(Path(args.godot_home_root).expanduser().resolve()),
+                },
                 "generated_at_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
                 "generator_command": generator_command_text,
                 "verifier_command": verifier_command_text if args.verify else "",

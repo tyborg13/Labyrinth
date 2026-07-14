@@ -38,7 +38,7 @@ python3 tools/parallel_task.py contract --risk-tier <low|standard|high> --accept
 python3 tools/parallel_task.py preflight
 ```
 
-`preflight` refreshes the index, writes a real Git object, adds/removes a temporary index entry, and proves the index tree was restored. If adoption or preflight fails with ref/index/object permission errors, stop before editing and ask the orchestrator to recreate the app task from the branch returned by `prepare-worker`. Do not plan on a host-side commit bridge for a new worker.
+`preflight` refreshes the index, writes a real Git object, adds/removes a temporary index entry, proves the index tree was restored, and creates/removes a temporary `refs/heads/codex/*` ref. If adoption or preflight fails with ref/index/object permission errors, stop before editing and ask the orchestrator to recreate the app task from the branch returned by `prepare-worker`. Do not plan on a host-side commit bridge for a new worker.
 
 If you are already inside a shared checkout and need to create the isolated task yourself, run:
 
@@ -120,7 +120,7 @@ python3 tools/inspection_fixture.py --scenario <scenario> --summary "<what Conti
 
 Use the fixture whenever a playable state can make the change easier to inspect. Common scenarios are `combat`, `reward`, `campfire`, `treasure`, `character`, `boss`, `start`, `victory`, and `defeat`. Add focused options such as `--hand`, `--reward-cards`, `--relics`, `--attuned-magic`, `--magic-inventory`, `--equip`, `--equipment-inventory`, `--player-hp`, or `--room-coord` so the Continue button lands near the changed behavior. If the task is tooling-only, analytics-only, data-only with no meaningful playable state, or otherwise not inspectable in-game, record a concise not-applicable reason instead of forcing a fake fixture.
 
-The fixture must open at the beginning of the inspectable moment, before the user makes the relevant choice or action. The wrapper generates the save, reloads and verifies its embedded state contract in a second Godot process, writes a manifest, and reports a self-healing launch command that regenerates the pre-action state before opening the game. Use that command for every handoff, including follow-up inspection.
+The fixture must open at the beginning of the inspectable moment, before the user makes the relevant choice or action. The wrapper generates the save, hashes the complete persisted run and progression state, reloads and verifies its embedded contract in a second Godot process, writes a structured manifest, and reports a self-healing launch command that regenerates the pre-action state before opening the game. Use that command for every handoff, including follow-up inspection. The queue handoff and completion commands independently rerun that standard verifier; a hand-authored `verified` field is not evidence.
 
 Report the commit hash(es), branch, worktree path, reviewer signoff summary, tests/probes/proofs run, inspection fixture scenario and launch command or not-applicable reason, and any residual risk. Stop there. The user inspects the committed branch and may ask for more changes; if so, continue in the same worktree, create follow-up commits, repeat peer review, and regenerate the inspection fixture before handing it back again.
 
@@ -185,10 +185,11 @@ If the acting agent disagrees with a reviewer finding, it may respond with evide
 Only after explicit user approval to publish, land the approved task branch on `master`:
 
 ```bash
+python3 tools/parallel_task.py authorize-publish --reviewer "<reviewer>" --user-approval "<approval reference>"
 python3 tools/parallel_task.py push
 ```
 
-`push` publishes to `origin/master`; it does not publish a remote task branch. It fetches remote `master` first. When master advanced, it mechanically integrates master and compares the stable effective task patch. If that patch is unchanged, existing review and publication approval remain valid and push continues. If the task patch changed or the merge conflicts, push stops; rerun affected proof and peer review, then request approval for the changed branch. A dirty primary checkout only skips the optional local-master fast-forward and does not block remote publication.
+`authorize-publish` binds peer signoff and explicit user approval to the exact current HEAD. `push` publishes to `origin/master`; it does not publish a remote task branch. It fetches remote `master` first. When master advanced, it mechanically integrates master and compares the stable effective task patch. If that patch is unchanged, authorization transfers to the mechanical merge commit and push continues. If the task patch changed or the merge conflicts, authorization is invalidated and every later push stays blocked; rerun affected proof and peer review, request approval for the changed branch, and authorize the new HEAD. A dirty primary checkout only skips the optional local-master fast-forward and does not block remote publication.
 
 Then remove the task worktree:
 
