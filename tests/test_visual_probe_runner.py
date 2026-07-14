@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+import argparse
 import struct
 import tempfile
 import unittest
@@ -88,6 +89,15 @@ class VisualProbeRunnerTests(unittest.TestCase):
             VISUAL.write_result_manifest(str(path), {"ok": True})
             with self.assertRaises(VISUAL.ProbeError):
                 VISUAL.write_result_manifest(str(path), {"ok": False})
+
+    def test_macos_gui_probes_default_to_angle_with_native_fallback(self) -> None:
+        args = argparse.Namespace(
+            rendering_driver="",
+            fallback_rendering_driver=[],
+            headless=False,
+            display_driver="macos",
+        )
+        self.assertEqual(VISUAL.rendering_driver_candidates(args), ["opengl3_angle", ""])
 
 
 if __name__ == "__main__":

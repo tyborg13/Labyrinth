@@ -46,6 +46,7 @@ Its JSON output includes the app `starting_state`. Inside the created worktree t
 - process-unique `HOME` and `user://` names;
 - Steam initialization disabled for probes;
 - a serialized GUI-renderer lease for non-headless macOS captures;
+- ANGLE as the stable default macOS capture renderer, with native rendering as automatic fallback;
 - exact-resolution checks via repeatable `--expect-size WIDTHxHEIGHT`;
 - semantic image/region validation via `--proof-contract`;
 - a result manifest via `--result-manifest`;

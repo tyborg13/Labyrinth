@@ -379,6 +379,18 @@ def parse_size(value: str) -> tuple[int, int]:
     return width, height
 
 
+def rendering_driver_candidates(args: argparse.Namespace) -> list[str]:
+    if args.rendering_driver:
+        requested = [args.rendering_driver, *args.fallback_rendering_driver]
+    elif not args.headless and args.display_driver == "macos":
+        # ANGLE has been the most reliable capture path on macOS; retain the
+        # native default as an automatic fallback for host-specific failures.
+        requested = ["opengl3_angle", "", *args.fallback_rendering_driver]
+    else:
+        requested = ["", *args.fallback_rendering_driver]
+    return list(dict.fromkeys(requested))
+
+
 def generated_metadata_snapshot(project: Path) -> dict[str, str]:
     result = subprocess.run(
         ["git", "-C", str(project), "ls-files", "-co", "--exclude-standard", "-z", "--", "*.import", "*.uid"],
@@ -456,7 +468,7 @@ def command_run(args: argparse.Namespace) -> int:
         raise ProbeError("Refusing to overwrite existing visual proof manifest %s; use a fresh path or --overwrite-result-manifest." % Path(args.result_manifest).expanduser().resolve())
     task_id = slugify(args.task_id or infer_task_id(project))
     script_stem = slugify(Path(args.script).stem)
-    drivers = [args.rendering_driver] + args.fallback_rendering_driver
+    drivers = rendering_driver_candidates(args)
     proof_contract = load_proof_contract(args.proof_contract)
     raw_contract_sizes = proof_contract.get("expected_sizes", [])
     if not isinstance(raw_contract_sizes, list):
