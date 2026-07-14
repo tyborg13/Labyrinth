@@ -98,16 +98,18 @@ python3 tools/labyrinth_task_queue.py lease <task-id> --thread-id <codex-thread-
    - The worker's `$parallel-labyrinth-task` flow requires a reviewer sub-agent.
    - The worker must resolve reviewer findings and only report back after reviewer `SIGNOFF`.
    - After reviewer `SIGNOFF`, the worker must run `tools/inspection_fixture.py` for a playable inspection state, or provide a clear not-applicable reason for tooling/data-only changes.
-   - Mark the queue item `ready_for_user` only when the worker provides the signed-off branch, commit, proof summary, residual risks, and inspection fixture metadata.
+   - Mark the queue item `ready_for_user` only by consuming the worker's verified handoff file. Do not reconstruct applicable fixture evidence with direct `complete --inspection-*` flags.
 
 ```bash
-python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-scenario "<scenario>" --inspection-run-id "<run-id>" --inspection-summary "<what Continue opens>" --inspection-launch "<launch command>"
+python3 tools/labyrinth_task_queue.py handoff <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-manifest <fixture-manifest>
+# Then run the exact `complete <task-id> --handoff-file ...` command printed by `handoff` from the primary checkout.
 ```
 
 For changes without a useful playable inspection state:
 
 ```bash
-python3 tools/labyrinth_task_queue.py complete <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-not-applicable "<reason>"
+python3 tools/labyrinth_task_queue.py handoff <task-id> --reviewer "<reviewer>" --signoff "<summary>" --proof "<tests/probes/screenshots>" --commit <head-commit> --inspection-not-applicable "<reason>"
+# Then run the exact `complete <task-id> --handoff-file ...` command printed by `handoff` from the primary checkout.
 ```
 
 9. Wait for user approval.
