@@ -40,6 +40,10 @@ These assumptions are baked into the current coefficients:
   readable.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
+- Flurry cards snapshot all card plays available when they begin, repeat their
+  printed actions and health cost once per snapped play, and spend all snapped
+  plays. The physical card's top-level Time cost is paid once. Plays gained
+  during resolution remain available after the Flurry commits.
 - Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
 - Each combat tracks room-wide elemental intensity for fire, ice, lightning,
   air, and earth. The room's element starts at intensity `1`; other elements
@@ -161,7 +165,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + elemental_intensity + mobility + radiance + synergy + tempo - health_cost - exhaust_card_penalty`
+`EV = offense + control + defense + flow + elemental_intensity + mobility + radiance + synergy + tempo + flurry_compression_bonus - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -178,6 +182,13 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Heal: `0.90` per point
 - Draw: `0.85` per card
 - Card Play: `0.75` per added card play this turn
+- Flurry: score the printed action package and health cost at the baseline `2`
+  available plays, but score printed time only once. For each extra copy, add
+  `0.85` for saving a card/draw, `0.75` for saving a separate time payment, and
+  `0.25` for target-by-target retargeting, then subtract `0.55` for committing
+  another available play to the same printed package. This deliberately makes
+  the single-card/single-time compression visible in the score so Flurry cards
+  must be under-rate before their copies are counted.
 - Elemental intensity gain: `0.70` per point
 - High-damage kill-card-play premium: up to `0.45`, scaled by damage,
   playability, and target count
@@ -318,6 +329,9 @@ This heuristic is intentionally conservative about:
   one element
 - Exact initiative snowballing from multi-enemy queues, especially where a
   fast enemy acts twice before a slow, high-time player build comes back online
+- Flurry scaling above the baseline two plays and resources or kill refunds
+  created between repeated actions; baseline retargeting is represented only by
+  a small fixed proxy
 
 If a card is intentionally better than its standalone score because of one of
 those factors, note that explicitly in review or commit context.

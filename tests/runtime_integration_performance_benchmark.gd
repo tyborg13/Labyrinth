@@ -45,7 +45,7 @@ func _initialize() -> void:
 		"hand_card_count": HAND.size(),
 		"initial_node_count": _subtree_node_count(instance)
 	}
-	var board: Control = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard") as Control
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	var render_counts_before: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 	for _iteration: int in range(5):
 		instance.call("_refresh_stage_view")

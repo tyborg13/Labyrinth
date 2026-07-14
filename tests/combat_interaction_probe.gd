@@ -5,10 +5,10 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v2"
-const BOARD_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/CombatBoard"
-const HAND_PATH: String = "Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
-const MINI_MAP_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
-const LOG_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
+const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
+const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
+const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
+const LOG_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay"
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -200,10 +200,12 @@ func _assert_drag_state(instance: Node) -> void:
 func _assert_context(instance: Node, verb_fragment: String, step_text: String, label: String) -> void:
 	var context: Control = instance.get("_action_step_tracker") as Control
 	var step_label: Label = instance.get("_action_context_step_label") as Label
-	var verb_label: Label = instance.get("_action_context_verb_label") as Label
+	var detail_row: Control = instance.get("_action_context_detail_row") as Control
+	var status_row: Control = instance.get("_action_context_status_row") as Control
 	_assert(context.visible, "%s should show action context" % label)
 	_assert(str(context.get_meta("action_verb", "")).contains(verb_fragment), "%s should show verb %s" % [label, verb_fragment])
-	_assert(_label_text_fits(verb_label), "%s action instruction should fit without ellipsis" % label)
+	_assert(detail_row != null and not detail_row.visible, "%s should omit the redundant action-description row" % label)
+	_assert(status_row != null and not status_row.visible, "%s should omit target-validity and turn-end copy" % label)
 	_assert(step_label != null and step_label.text == step_text, "%s should show %s" % [label, step_text])
 	var cancel_button: Button = _button_with_text(context, "Cancel")
 	_assert(cancel_button != null, "%s should keep Cancel in context" % label)
@@ -226,6 +228,9 @@ func _assert_hud_collision_free(instance: Node) -> void:
 	var selected_card: Control = _hand_card_control(hand_box, int(instance.get("_selected_card_index")))
 	var hand_visual_top: float = _hand_visual_top(hand_box)
 	_assert(selected_card != null and context_rect.end.y <= hand_visual_top + 1.0, "Action context should sit above the entire rendered hand, including rotated card titles and ornaments")
+	var card_anchor: Rect2 = instance.call("_action_step_tracker_anchor_rect") as Rect2
+	_assert(absf(context_rect.get_center().x - card_anchor.get_center().x) <= 48.0, "Action context should remain visually connected to the active hand card")
+	_assert(card_anchor.position.y - context_rect.end.y <= 24.0, "Action context should stay close to the cards instead of floating beside the board")
 
 func _hand_card_control(hand_box: Control, index: int) -> Control:
 	if hand_box == null or index < 0 or index >= hand_box.get_child_count():

@@ -42,6 +42,8 @@ const ART_MAX_HEIGHT: float = 118.0
 const DETAILS_MIN_HEIGHT: float = 92.0
 const DETAILS_MAX_HEIGHT: float = 142.0
 const SUMMARY_VERTICAL_PADDING: float = 10.0
+const FLURRY_ICON_WIDTH_SCALE: float = 1.80
+const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = 10
 const TITLE_FIT_RELIEF: int = 2
 const TITLE_MAX_RENDER_SIZE: int = 15
@@ -1094,7 +1096,7 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		row.add_child(pattern_view)
 		return
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(icon_size, icon_size)
+	icon.custom_minimum_size = _summary_icon_box_size(token, icon_size)
 	icon.texture = ActionIcons.icon_texture(str(token.get("icon", "")))
 	icon.expand_mode = 1
 	icon.stretch_mode = 5
@@ -1157,7 +1159,7 @@ func _summary_layout_metrics(rendered_rows: Array) -> Dictionary:
 		var icon_size: float = float(candidate_var)
 		var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
 		var row_gap: int = _summary_row_gap(icon_size, row_count)
-		if _summary_height_estimate(row_count, icon_size, label_size, row_gap) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_width:
+		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap) <= available_width:
 			return {
 				"icon_size": icon_size,
 				"label_size": label_size,
@@ -1182,14 +1184,25 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 func _summary_min_label_size() -> int:
 	return _scaled_card_font_size(12, 7)
 
-func _summary_height_estimate(row_count: int, icon_size: float, label_size: int, row_gap: int) -> float:
+func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var font: Font = UiTypography.default_font(self)
 	var scaled_label_size: int = UiTypography.scaled_size(self, label_size)
 	var label_height: float = float(scaled_label_size)
 	if font != null:
 		label_height = font.get_height(scaled_label_size)
-	var row_height: float = maxf(icon_size, label_height)
-	return row_height * float(row_count) + float(maxi(0, row_count - 1) * row_gap)
+	var total_height: float = 0.0
+	for segment_var: Variant in rendered_rows:
+		var row_height: float = maxf(icon_size, label_height)
+		if typeof(segment_var) == TYPE_ARRAY:
+			for token_var: Variant in segment_var as Array:
+				if typeof(token_var) != TYPE_DICTIONARY:
+					continue
+				var token: Dictionary = token_var
+				if str(token.get("kind", "")) == "aoe_pattern":
+					continue
+				row_height = maxf(row_height, _summary_icon_box_size(token, icon_size).y)
+		total_height += row_height
+	return total_height + float(maxi(0, rendered_rows.size() - 1) * row_gap)
 
 func _summary_width_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int) -> float:
 	var widest: float = 0.0
@@ -1210,7 +1223,7 @@ func _summary_segment_width_estimate(segment: Array, icon_size: float, label_siz
 			child_width += maxf(_scaled_card_value(34.0, 18.0), icon_size * 1.5)
 			child_count += 1
 			continue
-		child_width += icon_size
+		child_width += _summary_icon_box_size(token, icon_size).x
 		child_count += 1
 		var value_text: String = ActionIcons.token_value_text(token)
 		if not value_text.is_empty():
@@ -1220,6 +1233,11 @@ func _summary_segment_width_estimate(segment: Array, icon_size: float, label_siz
 			child_width += _summary_text_width("+", maxi(10, label_size - 1))
 			child_count += 1
 	return child_width + float(maxi(0, child_count - 1) * row_gap)
+
+func _summary_icon_box_size(token: Dictionary, icon_size: float) -> Vector2:
+	if str(token.get("icon", "")) == "flurry":
+		return Vector2(icon_size * FLURRY_ICON_WIDTH_SCALE, icon_size * FLURRY_ICON_HEIGHT_SCALE)
+	return Vector2(icon_size, icon_size)
 
 func _summary_text_width(text: String, label_size: int) -> float:
 	var scaled_label_size: int = UiTypography.scaled_size(self, label_size)

@@ -90,6 +90,11 @@ The current event stream is enough to derive:
 - card play economy during resolution: plays spent, remaining plays before/after,
   net remaining-play delta, total play capacity gained, kill-granted plays, and
   card-action-granted plays
+- Flurry identification via `flurry` plus the snapped repeat/spend count in
+  `flurry_plays_spent`; the resolved action list contains every printed action
+  for every repeat so realized utility, damage, and target selection remain
+  observable. Initiative fields record the single top-level time payment rather
+  than multiplying it by `flurry_plays_spent`.
 - initiative timing: printed `card_time`, player turn time spent before/after
   the play, and the current `player_base_initiative`
 - elemental intensity before/after resolution, gross positive per-element

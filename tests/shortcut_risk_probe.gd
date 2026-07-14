@@ -89,7 +89,7 @@ func _capture_movement_risk_previews(instance: Node) -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 	await process_frame
-	var board_view: Node = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/CombatBoard")
+	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	await _assert_plain_movement_risk_preview(instance, board_view)
 	if _failed:
 		return

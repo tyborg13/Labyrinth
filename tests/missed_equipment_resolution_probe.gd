@@ -101,7 +101,7 @@ func _initialize() -> void:
 	_assert(str(reward_state.get("mode", "")) == "reward", "Post-kill frame should reach reward state")
 	_assert(str(reward_state.get("notice", "")) == RunEngine.MISSED_EQUIPMENT_NOTICE, "Reward frame should show the missed-gear notice")
 	_assert(not _has_unclaimed_equipment(reward_state.get("current_room_layout", {}) as Dictionary), "Reward frame should contain no stale equipment pickup")
-	var log_label: RichTextLabel = instance.get_node("Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
+	var log_label: RichTextLabel = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log") as RichTextLabel
 	_assert(log_label != null and log_label.text.contains(RunEngine.MISSED_EQUIPMENT_NOTICE), "Reward screenshot should visibly include the terse notice")
 	await _save_root_screenshot("%s/03_reward_notice_no_stale_equipment.png" % OUTPUT_DIR)
 

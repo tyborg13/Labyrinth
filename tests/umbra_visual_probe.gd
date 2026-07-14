@@ -9,8 +9,8 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const OUTPUT_DIR: String = "user://probes/umbra_visual"
-const BOARD_PATH: String = "Backdrop/Margin/MainVBox/StageRoot/CombatBoard"
-const UMBRA_SUBTITLE_PATH: String = "Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle"
+const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
+const UMBRA_SUBTITLE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle"
 const STAGES: Array[String] = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const EXPECTED_VISIBLE: Dictionary = {
 	"clear": 6,

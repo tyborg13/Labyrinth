@@ -321,6 +321,17 @@
 			]
 		},
 		{
+			"id": "keyword:flurry",
+			"section": "keywords",
+			"title": "Flurry",
+			"default": true,
+			"icon": "flurry",
+			"body": [
+				"Flurry snapshots every card play available when the card begins.",
+				"It repeats the card's printed actions and health cost once per play spent, but pays the card's Time only once. Card plays gained during resolution remain available afterward."
+			]
+		},
+		{
 			"id": "keyword:illusion",
 			"section": "keywords",
 			"title": "Illusion",

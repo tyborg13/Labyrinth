@@ -386,6 +386,35 @@ func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dicti
 func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 	return GameData.card_def_for_progression(card_id, state)
 
+func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
+	var card: Dictionary = card_def(card_id, state)
+	var printed_actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	if not bool(card.get("flurry", false)):
+		return printed_actions
+	var repeat_count: int = flurry_plays_for_card(card_id, state)
+	var repeated_actions: Array = []
+	for repeat_index: int in range(repeat_count):
+		for action_var: Variant in printed_actions:
+			if typeof(action_var) != TYPE_DICTIONARY:
+				continue
+			var action: Dictionary = (action_var as Dictionary).duplicate(true)
+			action["_flurry_repeat_index"] = repeat_index
+			action["_flurry_repeat_count"] = repeat_count
+			repeated_actions.append(action)
+	return repeated_actions
+
+func flurry_plays_for_card(card_id: String, state: Dictionary = {}) -> int:
+	if not bool(card_def(card_id, state).get("flurry", false)):
+		return 1
+	return maxi(1, cards_remaining_this_turn(state))
+
+func card_plays_spent_for_actions(actions: Array) -> int:
+	for action_var: Variant in actions:
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		return maxi(1, int((action_var as Dictionary).get("_flurry_repeat_count", 1)))
+	return 1
+
 func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
 	if action_type == "aoe":
@@ -719,7 +748,7 @@ func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Diction
 			return false
 	return true
 
-func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
+func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array).duplicate()
 	if hand_index < 0 or hand_index >= hand.size():
@@ -742,11 +771,12 @@ func finish_player_card(state: Dictionary, hand_index: int) -> Dictionary:
 		discard.append(card_id)
 		deck["discard"] = discard
 	next_state["deck"] = deck
-	var health_cost: int = int(card.get("health_cost", 0))
+	var safe_plays_spent: int = maxi(1, plays_spent)
+	var health_cost: int = int(card.get("health_cost", 0)) * safe_plays_spent
 	if health_cost > 0:
 		next_state = _lose_player_health(next_state, health_cost, true, false)
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
-	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + 1
+	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
 	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + card_time_cost_from_def(card)
 	next_state = _apply_pending_player_trap_restriction(next_state)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})

@@ -87,6 +87,11 @@ class HeuristicWeights:
     heal_per_point: float = 0.90
     draw_per_point: float = 0.85
     card_play_per_point: float = 0.75
+    flurry_expected_plays: int = 2
+    flurry_saved_card_value: float = 0.85
+    flurry_saved_time_payment_value: float = 0.75
+    flurry_retargeting_value: float = 0.25
+    flurry_extra_play_penalty: float = 0.55
     intensity_gain_per_point: float = 0.70
     intensity_same_element_synergy: float = 0.18
     intensity_gate_synergy: float = 0.30
@@ -149,6 +154,8 @@ class ScoreBreakdown:
     synergy: float = 0.0
     health_cost: float = 0.0
     burn_card_penalty: float = 0.0
+    flurry_compression_bonus: float = 0.0
+    flurry_commitment_penalty: float = 0.0
     tempo: float = 0.0
     total: float = 0.0
 
@@ -569,7 +576,27 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     if has_intensity_gain and has_intensity_gate:
         breakdown.synergy += weights.intensity_gate_synergy
 
-    breakdown.health_cost = int(card.get("health_cost", 0)) * weights.health_cost_per_point
+    flurry_multiplier = weights.flurry_expected_plays if bool(card.get("flurry", False)) else 1
+    if flurry_multiplier > 1:
+        for field in (
+            "offense",
+            "control",
+            "defense",
+            "flow",
+            "elemental_intensity",
+            "mobility",
+            "synergy",
+        ):
+            setattr(breakdown, field, getattr(breakdown, field) * flurry_multiplier)
+        extra_copies = flurry_multiplier - 1
+        breakdown.flurry_compression_bonus = extra_copies * (
+            weights.flurry_saved_card_value
+            + weights.flurry_saved_time_payment_value
+            + weights.flurry_retargeting_value
+        )
+        breakdown.flurry_commitment_penalty = (flurry_multiplier - 1) * weights.flurry_extra_play_penalty
+
+    breakdown.health_cost = int(card.get("health_cost", 0)) * weights.health_cost_per_point * flurry_multiplier
     if bool(card.get("burn", False)):
         breakdown.burn_card_penalty = max(
             0.0,
@@ -588,8 +615,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.radiance
         + breakdown.synergy
         + breakdown.tempo
+        + breakdown.flurry_compression_bonus
         - breakdown.health_cost
-        - breakdown.burn_card_penalty,
+        - breakdown.burn_card_penalty
+        - breakdown.flurry_commitment_penalty,
         4,
     )
     return breakdown
@@ -683,6 +712,7 @@ def scored_rows(
                 "rarity": card.get("rarity", "common"),
                 "element": card.get("element", "none"),
                 "burn": bool(card.get("burn", False)),
+                "flurry": bool(card.get("flurry", False)),
                 "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
                 "time": int(card.get("time", weights.baseline_card_time)),
@@ -817,6 +847,8 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
             tag_bits.append("source=" + "/".join(str(tag) for tag in row["source_tags"]))
         if row["burn"]:
             tag_bits.append("exhaust-card")
+        if row["flurry"]:
+            tag_bits.append("flurry")
         if row["health_cost"] > 0:
             tag_bits.append(f"hp-cost={row['health_cost']}")
         tag_bits.append(f"time={row['time']}")
@@ -840,6 +872,8 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"tempo={breakdown['tempo']:.2f}",
                         f"health_cost={breakdown['health_cost']:.2f}",
                         f"exhaust_penalty={breakdown['burn_card_penalty']:.2f}",
+                        f"flurry_compression={breakdown['flurry_compression_bonus']:.2f}",
+                        f"flurry_commitment={breakdown['flurry_commitment_penalty']:.2f}",
                     ]
                 )
             )

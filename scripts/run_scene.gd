@@ -770,6 +770,45 @@ class RelicAcquisitionMote:
 			alpha
 		)
 
+class LoadoutAcquisitionBurst:
+	extends Control
+
+	var accent: Color = Color("f0c978")
+	var kind: String = "magic"
+	var progress: float = 0.0:
+		set(value):
+			progress = clampf(value, 0.0, 1.0)
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		if progress <= 0.0 or progress >= 1.0:
+			return
+		var center: Vector2 = size * 0.5
+		var flare: float = sin(progress * PI)
+		var radius: float = lerpf(22.0, 94.0, 1.0 - pow(1.0 - progress, 3.0))
+		var ring_color := Color(accent.r, accent.g, accent.b, 0.72 * flare)
+		var core_color := Color(1.0, 0.96, 0.78, 0.92 * flare)
+		draw_arc(center, radius, 0.0, TAU, 64, ring_color, 4.0 if kind == "equipment" else 2.5, true)
+		if kind == "magic":
+			draw_arc(center, radius * 0.68, progress * 2.8, progress * 2.8 + PI * 1.45, 40, core_color, 2.0, true)
+			for index: int in range(12):
+				var angle: float = TAU * float(index) / 12.0 - progress * 2.2
+				var rune_center: Vector2 = center + Vector2(cos(angle), sin(angle)) * radius * 0.82
+				var tangent := Vector2(-sin(angle), cos(angle))
+				var radial := Vector2(cos(angle), sin(angle))
+				draw_line(rune_center - tangent * 5.0, rune_center + radial * 6.0, ring_color, 2.0, true)
+		else:
+			for index: int in range(8):
+				var angle: float = TAU * float(index) / 8.0 + 0.18
+				var direction := Vector2(cos(angle), sin(angle))
+				var start: Vector2 = center + direction * radius * 0.48
+				var finish: Vector2 = center + direction * radius * (0.88 + 0.10 * float(index % 2))
+				draw_line(start, finish, ring_color, 5.0, true)
+				draw_line(start, finish, core_color, 1.5, true)
+
 const STEP_DELAY_SECONDS: float = 0.26
 const MOVE_STEP_FRAMES: int = 8
 const MOVE_FRAME_SECONDS: float = 0.045
@@ -806,6 +845,7 @@ const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
+const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
 const FALLBACK_MOVE_RANGE: int = 2
@@ -891,6 +931,9 @@ const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acqu
 const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
+const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
+const LOADOUT_ACQUISITION_RAY_SECONDS: float = 0.42
+const LOADOUT_ACQUISITION_MOTES: int = 10
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
 const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
@@ -982,35 +1025,38 @@ const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 const COMBAT_CONTINUATION_KEY: String = "pending_combat_checkpoints"
 const PASS_PREVIEW_CACHE_LIMIT: int = 64
-@onready var top_bar: HBoxContainer = $Backdrop/Margin/MainVBox/TopBar
-@onready var title_box: VBoxContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox
-@onready var room_title: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
-@onready var room_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
-@onready var umbra_subtitle: Label = $Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
-@onready var relic_bar: HFlowContainer = $Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
-@onready var header_spacer: Control = $Backdrop/Margin/MainVBox/TopBar/Spacer
-@onready var stats_label: Label = $Backdrop/Margin/MainVBox/TopBar/StatsLabel
-@onready var grimoire_button: Button = $Backdrop/Margin/MainVBox/TopBar/GrimoireButton
-@onready var menu_button: Button = $Backdrop/Margin/MainVBox/TopBar/MenuButton
-@onready var board_view = $Backdrop/Margin/MainVBox/StageRoot/CombatBoard
-@onready var action_banner: Label = $Backdrop/Margin/MainVBox/StageRoot/ActionBanner
-@onready var mini_map_overlay: PanelContainer = $Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay
-@onready var mini_map = $Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap
-@onready var log_overlay: PanelContainer = $Backdrop/Margin/MainVBox/StageRoot/LogOverlay
-@onready var log_label: RichTextLabel = $Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log
-@onready var bottom_stack: VBoxContainer = $Backdrop/Margin/MainVBox/BottomStack
-@onready var left_action_stack: VBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack
-@onready var choice_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar
-@onready var hand_row: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow
-@onready var piles_bar: HBoxContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar
-@onready var draw_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile
-@onready var discard_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile
-@onready var burn_pile: PanelContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile
-@onready var draw_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
-@onready var discard_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
-@onready var burn_count: Label = $Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
-@onready var hand_scroll: ScrollContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
-@onready var hand_box: HandFanContainer = $Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
+@onready var ui_root: Control = $UiLayer/UiRoot
+@onready var top_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar
+@onready var title_box: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox
+@onready var room_title: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomTitle
+@onready var room_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle
+@onready var umbra_subtitle: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/UmbraSubtitle
+@onready var relic_bar: HFlowContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RelicBar
+@onready var header_spacer: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/Spacer
+@onready var stats_label: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel
+@onready var loadout_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton
+@onready var grimoire_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/GrimoireButton
+@onready var menu_button: Button = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/MenuButton
+@onready var stage_root: Control = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot
+@onready var board_view = $BoardUnderlay/CombatBoard
+@onready var action_banner: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ActionBanner
+@onready var mini_map_overlay: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay
+@onready var mini_map = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay/MiniMapMargin/MiniMap
+@onready var log_overlay: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay
+@onready var log_label: RichTextLabel = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/LogOverlay/LogMargin/Log
+@onready var bottom_stack: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack
+@onready var left_action_stack: VBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack
+@onready var choice_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar
+@onready var hand_row: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow
+@onready var piles_bar: HBoxContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar
+@onready var draw_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile
+@onready var discard_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile
+@onready var burn_pile: PanelContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile
+@onready var draw_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawCount
+@onready var discard_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardCount
+@onready var burn_count: Label = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnCount
+@onready var hand_scroll: ScrollContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll
+@onready var hand_box: HandFanContainer = $UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
@@ -1071,6 +1117,8 @@ var _grimoire_detail_body: RichTextLabel
 var _grimoire_detail_content: VBoxContainer
 var _grimoire_badge: PanelContainer
 var _grimoire_badge_label: Label
+var _loadout_badge: PanelContainer
+var _loadout_badge_label: Label
 var _grimoire_selected_section: String = ""
 var _grimoire_selected_group: String = ""
 var _grimoire_selected_entry: String = ""
@@ -1095,6 +1143,8 @@ var _play_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
 var _action_step_tracker_title: Label
 var _action_context_step_label: Label
+var _action_context_detail_row: HBoxContainer
+var _action_context_status_row: HBoxContainer
 var _action_context_verb_label: Label
 var _action_context_target_label: Label
 var _action_context_risk_panel: PanelContainer
@@ -1106,6 +1156,8 @@ var _contextual_combat_prompt: Control
 var _active_contextual_combat_prompt_id: String = ""
 var _action_context_command_bar: HBoxContainer
 var _action_context_connector: ColorRect
+var _action_step_tracker_position_locked: bool = false
+var _action_step_tracker_locked_position: Vector2 = Vector2.ZERO
 var _action_step_resolution_active: bool = false
 var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
@@ -1124,6 +1176,7 @@ var _intensity_badges: Dictionary = {}
 var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
+var _card_play_resolution_spend: int = 0
 var _choice_button_overlay: HBoxContainer
 var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
@@ -1135,6 +1188,7 @@ var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
 var _campfire_choice_action_pending: bool = false
 var _relic_claim_in_progress: bool = false
+var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
@@ -1230,6 +1284,8 @@ var _merchant_hovered_kind: String = ""
 var _merchant_hovered_item_id: String = ""
 var _merchant_hovered_row: Control
 var _merchant_trade_animation_active: bool = false
+var _merchant_shop_open: bool = true
+var _merchant_shop_room_coord: Vector2i = INVALID_ROOM_COORD
 var _pre_battle_scrim: ColorRect
 var _pre_battle_panel: PanelContainer
 var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
@@ -1242,6 +1298,10 @@ func _ready() -> void:
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
 	set_process(false)
+	_sync_board_view_rect()
+	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
+		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
+	call_deferred("_sync_board_view_rect")
 	_apply_style()
 	_layout_mini_map_overlay()
 	_build_overlay_ui()
@@ -1365,11 +1425,21 @@ func _connect_board_aim_signals() -> void:
 	if board_view.has_signal("tile_drag_released") and not board_view.tile_drag_released.is_connected(_on_board_tile_drag_released):
 		board_view.tile_drag_released.connect(_on_board_tile_drag_released)
 
+func _queue_board_view_rect_sync() -> void:
+	call_deferred("_sync_board_view_rect")
+
+func _sync_board_view_rect() -> void:
+	if board_view == null or stage_root == null or not board_view.is_inside_tree() or not stage_root.is_inside_tree():
+		return
+	board_view.position = stage_root.global_position
+	board_view.size = stage_root.size
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save_run_progress()
 		get_tree().quit()
 	elif what == NOTIFICATION_RESIZED:
+		_sync_board_view_rect()
 		_layout_mini_map_overlay()
 		_layout_context_choice_overlay()
 		_layout_relic_choice_overlay()
@@ -1386,7 +1456,7 @@ func _notification(what: int) -> void:
 
 func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
-	$Backdrop.color = Color("18120f")
+	$BoardUnderlay/BaseBackdrop.color = Color("18120f")
 	var mini_map_style := StyleBoxFlat.new()
 	mini_map_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	mini_map_style.corner_radius_top_left = 10
@@ -1455,6 +1525,7 @@ func _apply_style() -> void:
 	action_banner.add_theme_constant_override("outline_size", 2)
 	choice_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_setup_header_icon_button(grimoire_button, "book", "Grimoire")
+	_setup_header_icon_button(loadout_button, "loadout", "Character Loadout")
 	_setup_header_icon_button(menu_button, "gear", "Menu")
 	UiTypography.set_rich_text_size(log_label, UiTypography.SIZE_BODY_LARGE)
 	log_label.add_theme_color_override("default_color", Color("fff3dc"))
@@ -1478,9 +1549,9 @@ func _apply_style() -> void:
 	piles_bar.add_theme_constant_override("separation", 18)
 	hand_row.custom_minimum_size = Vector2(0.0, 352.0)
 	for pile_label: Label in [
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
-		$Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
+		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile/DrawMargin/DrawVBox/DrawTitle,
+		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile/DiscardMargin/DiscardVBox/DiscardTitle,
+		$UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile/BurnMargin/BurnVBox/BurnTitle,
 		draw_count,
 		discard_count,
 		burn_count
@@ -1514,6 +1585,8 @@ func _setup_header_icon_button(button: Button, icon_kind: String, tooltip: Strin
 	button.modulate = Color.WHITE
 	if button == grimoire_button:
 		_ensure_grimoire_badge()
+	elif button == loadout_button:
+		_ensure_loadout_badge()
 
 func _ensure_grimoire_badge() -> void:
 	if grimoire_button == null or _grimoire_badge != null:
@@ -1553,6 +1626,38 @@ func _ensure_grimoire_badge() -> void:
 	grimoire_button.add_child(_grimoire_badge)
 	_refresh_grimoire_badge()
 
+func _ensure_loadout_badge() -> void:
+	if loadout_button == null or _loadout_badge != null:
+		return
+	_loadout_badge = PanelContainer.new()
+	_loadout_badge.name = "LoadoutBadge"
+	_loadout_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_loadout_badge.custom_minimum_size = GRIMOIRE_BADGE_SIZE
+	_loadout_badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_loadout_badge.anchor_left = 1.0
+	_loadout_badge.anchor_right = 1.0
+	_loadout_badge.offset_left = -18.0
+	_loadout_badge.offset_top = -3.0
+	_loadout_badge.offset_right = 0.0
+	_loadout_badge.offset_bottom = 15.0
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("d64a3a")
+	badge_style.border_color = Color("ffe0a2")
+	badge_style.set_border_width_all(1)
+	badge_style.set_corner_radius_all(6)
+	_loadout_badge.add_theme_stylebox_override("panel", badge_style)
+	_loadout_badge_label = Label.new()
+	_loadout_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_loadout_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_loadout_badge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_loadout_badge_label, 8)
+	_loadout_badge_label.add_theme_color_override("font_color", Color("fff7d8"))
+	_loadout_badge_label.add_theme_color_override("font_outline_color", Color("2b130e"))
+	_loadout_badge_label.add_theme_constant_override("outline_size", 1)
+	_loadout_badge.add_child(_loadout_badge_label)
+	loadout_button.add_child(_loadout_badge)
+	_refresh_loadout_badge()
+
 func _header_icon_texture(icon_kind: String) -> Texture2D:
 	if _header_icon_textures.has(icon_kind):
 		return _header_icon_textures[icon_kind]
@@ -1562,6 +1667,8 @@ func _header_icon_texture(icon_kind: String) -> Texture2D:
 	match icon_kind:
 		"gear":
 			_draw_header_gear_icon(image, ink)
+		"loadout":
+			_draw_header_loadout_icon(image, ink)
 		_:
 			_draw_header_book_icon(image, ink)
 	var texture := ImageTexture.create_from_image(image)
@@ -1591,6 +1698,25 @@ func _draw_header_gear_icon(image: Image, ink: Color) -> void:
 		_draw_image_line(image, start, finish, ink, 4)
 	_draw_image_ring(image, center, 10.0, 14.0, ink)
 	_draw_image_ring(image, center, 3.8, 6.0, ink)
+
+func _draw_header_loadout_icon(image: Image, ink: Color) -> void:
+	# A compact paper-doll silhouette paired with a sword reads as character loadout
+	# at header scale while keeping the same hand-drawn line weight as its neighbors.
+	_draw_image_ring(image, Vector2i(20, 14), 4.5, 7.5, ink)
+	_draw_image_line(image, Vector2i(9, 37), Vector2i(12, 27), ink, 3)
+	_draw_image_line(image, Vector2i(12, 27), Vector2i(17, 23), ink, 3)
+	_draw_image_line(image, Vector2i(17, 23), Vector2i(20, 27), ink, 3)
+	_draw_image_line(image, Vector2i(20, 27), Vector2i(23, 23), ink, 3)
+	_draw_image_line(image, Vector2i(23, 23), Vector2i(29, 27), ink, 3)
+	_draw_image_line(image, Vector2i(29, 27), Vector2i(31, 37), ink, 3)
+	_draw_image_line(image, Vector2i(9, 37), Vector2i(31, 37), ink, 3)
+	_draw_image_line(image, Vector2i(14, 31), Vector2i(26, 31), ink.darkened(0.12), 2)
+	_draw_image_line(image, Vector2i(38, 8), Vector2i(38, 33), ink, 3)
+	_draw_image_line(image, Vector2i(38, 8), Vector2i(35, 13), ink, 2)
+	_draw_image_line(image, Vector2i(38, 8), Vector2i(41, 13), ink, 2)
+	_draw_image_line(image, Vector2i(33, 31), Vector2i(43, 31), ink, 3)
+	_draw_image_line(image, Vector2i(38, 33), Vector2i(38, 40), ink, 3)
+	_draw_image_ring(image, Vector2i(38, 42), 1.0, 3.0, ink)
 
 func _draw_image_ring(image: Image, center: Vector2i, inner_radius: float, outer_radius: float, color: Color) -> void:
 	var min_x: int = maxi(0, int(floor(float(center.x) - outer_radius - 1.0)))
@@ -1653,7 +1779,7 @@ func _build_choice_button_overlay() -> void:
 	_choice_button_overlay.z_as_relative = false
 	_choice_button_overlay.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_choice_button_overlay.add_theme_constant_override("separation", int(choice_bar.get_theme_constant("separation")))
-	add_child(_choice_button_overlay)
+	ui_root.add_child(_choice_button_overlay)
 	_pass_preview_overlay = CenterContainer.new()
 	_pass_preview_overlay.name = "PassPreviewOverlay"
 	_pass_preview_overlay.visible = false
@@ -1661,7 +1787,7 @@ func _build_choice_button_overlay() -> void:
 	_pass_preview_overlay.clip_contents = false
 	_pass_preview_overlay.z_index = 121
 	_pass_preview_overlay.z_as_relative = false
-	add_child(_pass_preview_overlay)
+	ui_root.add_child(_pass_preview_overlay)
 
 func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim = ColorRect.new()
@@ -1673,7 +1799,7 @@ func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim.z_as_relative = false
 	_pinned_tooltip_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pinned_tooltip_scrim.gui_input.connect(_on_pinned_tooltip_scrim_gui_input)
-	add_child(_pinned_tooltip_scrim)
+	ui_root.add_child(_pinned_tooltip_scrim)
 
 	_pinned_tooltip_host = Control.new()
 	_pinned_tooltip_host.name = "PinnedTooltipHost"
@@ -1887,7 +2013,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_large_map_scrim.anchor_right = 1.0
 	_large_map_scrim.anchor_bottom = 1.0
-	add_child(_large_map_scrim)
+	ui_root.add_child(_large_map_scrim)
 
 	var frame_margin := MarginContainer.new()
 	frame_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1972,7 +2098,7 @@ func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim.z_index = 1130
 	_pre_battle_scrim.z_as_relative = false
 	_pre_battle_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_pre_battle_scrim)
+	ui_root.add_child(_pre_battle_scrim)
 
 	var center := CenterContainer.new()
 	center.name = "PreBattleCenter"
@@ -2830,7 +2956,6 @@ func _animate_pre_battle_badge_lift(badge: Control, delay: float) -> void:
 	tween.tween_property(badge, "modulate:a", 1.0, 0.18).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _build_context_choice_overlay() -> void:
-	var stage_root: Control = board_view.get_parent()
 	if stage_root == null:
 		return
 	_context_choice_overlay = PanelContainer.new()
@@ -2875,7 +3000,6 @@ func _build_context_choice_overlay() -> void:
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
 		return
-	var stage_root: Control = board_view.get_parent()
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
 	var width: float = clampf(stage_size.x * 0.52, 360.0, CAMPFIRE_ACTION_OVERLAY_SIZE.x)
 	var height: float = CAMPFIRE_ACTION_OVERLAY_SIZE.y
@@ -2936,7 +3060,6 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 func _layout_relic_choice_overlay() -> void:
 	if _relic_choice_overlay == null:
 		return
-	var stage_root: Control = board_view.get_parent()
 	var stage_size: Vector2 = stage_root.size if stage_root != null else get_viewport_rect().size
 	_relic_choice_overlay.anchor_left = 0.0
 	_relic_choice_overlay.anchor_top = 0.0
@@ -2960,7 +3083,10 @@ func _layout_relic_choice_overlay() -> void:
 		var max_width: float = minf(RELIC_CHOICE_OVERLAY_SIZE.x, maxf(360.0, stage_size.x - 24.0))
 		var min_width: float = minf(640.0, max_width)
 		var width: float = clampf(stage_size.x * 0.90, min_width, max_width)
-		var height: float = RELIC_CHOICE_OVERLAY_SIZE.y
+		var content_height: float = 0.0
+		if _relic_choice_bar != null:
+			content_height = _relic_choice_bar.get_combined_minimum_size().y
+		var height: float = maxf(RELIC_CHOICE_OVERLAY_SIZE.y, content_height)
 		var left: float = (stage_size.x - width) * 0.5
 		var top: float = stage_size.y - height - RELIC_CHOICE_BOTTOM_MARGIN
 		_relic_choice_host.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -2986,13 +3112,13 @@ func _build_card_fx_layer() -> void:
 	_card_fx_layer.anchors_preset = Control.PRESET_FULL_RECT
 	_card_fx_layer.anchor_right = 1.0
 	_card_fx_layer.anchor_bottom = 1.0
-	add_child(_card_fx_layer)
+	ui_root.add_child(_card_fx_layer)
 	_card_proxy_pool_host = Control.new()
 	_card_proxy_pool_host.name = "CardProxyPool"
 	_card_proxy_pool_host.visible = false
 	_card_proxy_pool_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_card_proxy_pool_host.set_process(false)
-	add_child(_card_proxy_pool_host)
+	ui_root.add_child(_card_proxy_pool_host)
 
 func _build_equipment_fx_layer() -> void:
 	_equipment_fx_layer = Control.new()
@@ -3003,7 +3129,7 @@ func _build_equipment_fx_layer() -> void:
 	_equipment_fx_layer.anchor_bottom = 1.0
 	_equipment_fx_layer.z_index = 1300
 	_equipment_fx_layer.z_as_relative = false
-	add_child(_equipment_fx_layer)
+	ui_root.add_child(_equipment_fx_layer)
 
 func _build_fatigue_edge_overlay() -> void:
 	_fatigue_edge_overlay = FatigueEdgeOverlay.new()
@@ -3013,7 +3139,7 @@ func _build_fatigue_edge_overlay() -> void:
 	_fatigue_edge_overlay.anchor_bottom = 1.0
 	_fatigue_edge_overlay.z_index = 210
 	_fatigue_edge_overlay.z_as_relative = false
-	add_child(_fatigue_edge_overlay)
+	ui_root.add_child(_fatigue_edge_overlay)
 
 func _build_menu_overlay() -> void:
 	_menu_scrim = ColorRect.new()
@@ -3024,7 +3150,7 @@ func _build_menu_overlay() -> void:
 	_menu_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_menu_scrim.anchor_right = 1.0
 	_menu_scrim.anchor_bottom = 1.0
-	add_child(_menu_scrim)
+	ui_root.add_child(_menu_scrim)
 
 	_menu_dialog = PanelContainer.new()
 	_menu_dialog.name = "MenuDialog"
@@ -3107,7 +3233,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_scrim.z_index = 255
 	_grimoire_scrim.z_as_relative = false
 	_grimoire_scrim.gui_input.connect(_on_grimoire_scrim_gui_input)
-	add_child(_grimoire_scrim)
+	ui_root.add_child(_grimoire_scrim)
 
 	var center := CenterContainer.new()
 	center.anchors_preset = Control.PRESET_FULL_RECT
@@ -3803,6 +3929,14 @@ func _refresh_grimoire_badge() -> void:
 	if _grimoire_badge_label != null:
 		_grimoire_badge_label.text = str(mini(9, unread.size()))
 
+func _refresh_loadout_badge() -> void:
+	if _loadout_badge == null:
+		return
+	var unread_count: int = _run_engine.loadout_unread_count(_run_state)
+	_loadout_badge.visible = unread_count > 0
+	if _loadout_badge_label != null:
+		_loadout_badge_label.text = str(mini(9, unread_count))
+
 func _first_unlocked_grimoire_section(unlocked: Array[String]) -> String:
 	for section_var: Variant in GrimoireLibrary.sections():
 		if typeof(section_var) != TYPE_DICTIONARY:
@@ -3850,7 +3984,7 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_overlay.anchor_right = 1.0
 	_dialogue_overlay.anchor_bottom = 1.0
 	_dialogue_overlay.gui_input.connect(_on_dialogue_overlay_gui_input)
-	add_child(_dialogue_overlay)
+	ui_root.add_child(_dialogue_overlay)
 
 	var scrim := ColorRect.new()
 	scrim.color = Color(0.01, 0.01, 0.01, 0.18)
@@ -3959,7 +4093,7 @@ func _build_pile_overlay() -> void:
 	_pile_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_pile_scrim.anchor_right = 1.0
 	_pile_scrim.anchor_bottom = 1.0
-	add_child(_pile_scrim)
+	ui_root.add_child(_pile_scrim)
 
 	var center := CenterContainer.new()
 	center.anchors_preset = Control.PRESET_FULL_RECT
@@ -4054,7 +4188,7 @@ func _build_card_upgrade_overlay() -> void:
 	_upgrade_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_upgrade_scrim.anchor_right = 1.0
 	_upgrade_scrim.anchor_bottom = 1.0
-	add_child(_upgrade_scrim)
+	ui_root.add_child(_upgrade_scrim)
 
 	var center := CenterContainer.new()
 	center.anchors_preset = Control.PRESET_FULL_RECT
@@ -4197,7 +4331,7 @@ func _build_drag_overlay() -> void:
 	_drag_overlay.anchors_preset = Control.PRESET_FULL_RECT
 	_drag_overlay.anchor_right = 1.0
 	_drag_overlay.anchor_bottom = 1.0
-	add_child(_drag_overlay)
+	ui_root.add_child(_drag_overlay)
 	_drag_zone_panels.clear()
 	_drag_zone_labels.clear()
 	_drag_zone_detail_labels.clear()
@@ -4936,7 +5070,7 @@ func _setup_contextual_combat_tutorial() -> void:
 	_contextual_combat_prompt_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_contextual_combat_prompt_host.z_index = 122
 	_contextual_combat_prompt_host.z_as_relative = false
-	add_child(_contextual_combat_prompt_host)
+	ui_root.add_child(_contextual_combat_prompt_host)
 
 	_contextual_combat_prompt = ContextualCombatPromptScene.new()
 	_contextual_combat_prompt_host.add_child(_contextual_combat_prompt)
@@ -4957,8 +5091,7 @@ func _layout_contextual_combat_prompt_overlay() -> void:
 	if prompt_size.x <= 0.0 or prompt_size.y <= 0.0:
 		return
 	var viewport_rect := Rect2(Vector2.ZERO, get_viewport_rect().size)
-	var stage: Control = board_view.get_parent() as Control
-	var stage_rect: Rect2 = stage.get_global_rect() if stage != null else viewport_rect
+	var stage_rect: Rect2 = stage_root.get_global_rect() if stage_root != null else viewport_rect
 	var safe_top: float = maxf(stage_rect.position.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	var safe_bottom: float = viewport_rect.end.y - CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN
 	var safe_area := Rect2(
@@ -5165,7 +5298,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_connector.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_action_context_connector.z_index = 123
 	_action_context_connector.z_as_relative = false
-	add_child(_action_context_connector)
+	ui_root.add_child(_action_context_connector)
 
 	_action_step_tracker = PanelContainer.new()
 	_action_step_tracker.name = "ActionStepTracker"
@@ -5176,7 +5309,7 @@ func _setup_action_step_tracker() -> void:
 	_action_step_tracker.z_as_relative = false
 	_action_step_tracker.mouse_filter = Control.MOUSE_FILTER_PASS
 	_action_step_tracker.add_theme_stylebox_override("panel", _action_step_tracker_style())
-	add_child(_action_step_tracker)
+	ui_root.add_child(_action_step_tracker)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -5190,49 +5323,51 @@ func _setup_action_step_tracker() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 5)
+	vbox.add_theme_constant_override("separation", 7)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
 	var header := VBoxContainer.new()
 	header.name = "ActionContextHeader"
-	header.custom_minimum_size = Vector2(0.0, 44.0)
+	header.custom_minimum_size = Vector2(0.0, 26.0)
 	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_theme_constant_override("separation", 0)
 	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(header)
 
 	var title_row := HBoxContainer.new()
-	title_row.custom_minimum_size = Vector2(0.0, 22.0)
+	title_row.custom_minimum_size = Vector2(0.0, 26.0)
 	title_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_theme_constant_override("separation", 4)
 	title_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_child(title_row)
 
-	var detail_row := HBoxContainer.new()
-	detail_row.custom_minimum_size = Vector2(0.0, 22.0)
-	detail_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_row.add_theme_constant_override("separation", 4)
-	detail_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(detail_row)
+	_action_context_detail_row = HBoxContainer.new()
+	_action_context_detail_row.name = "ActionContextDetailRow"
+	_action_context_detail_row.custom_minimum_size = Vector2(0.0, 22.0)
+	_action_context_detail_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_action_context_detail_row.add_theme_constant_override("separation", 4)
+	_action_context_detail_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(_action_context_detail_row)
 
-	var status_row := HBoxContainer.new()
-	status_row.custom_minimum_size = Vector2(0.0, 22.0)
-	status_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	status_row.add_theme_constant_override("separation", 4)
-	status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(status_row)
+	_action_context_status_row = HBoxContainer.new()
+	_action_context_status_row.name = "ActionContextStatusRow"
+	_action_context_status_row.custom_minimum_size = Vector2(0.0, 22.0)
+	_action_context_status_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_action_context_status_row.add_theme_constant_override("separation", 4)
+	_action_context_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(_action_context_status_row)
 
 	_action_step_tracker_title = Label.new()
 	_action_step_tracker_title.name = "ActionStepTitle"
-	_action_step_tracker_title.custom_minimum_size = Vector2(0.0, 22.0)
+	_action_step_tracker_title.custom_minimum_size = Vector2(0.0, 26.0)
 	_action_step_tracker_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_action_step_tracker_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_action_step_tracker_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_action_step_tracker_title.clip_text = true
 	_action_step_tracker_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_action_step_tracker_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_action_step_tracker_title, UiTypography.SIZE_SMALL)
+	UiTypography.set_label_size(_action_step_tracker_title, UiTypography.SIZE_BODY)
 	_action_step_tracker_title.add_theme_color_override("font_color", Color("fff1d5"))
 	_action_step_tracker_title.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_step_tracker_title.add_theme_constant_override("outline_size", 2)
@@ -5240,7 +5375,7 @@ func _setup_action_step_tracker() -> void:
 
 	_action_context_step_label = Label.new()
 	_action_context_step_label.name = "ActionContextStep"
-	_action_context_step_label.custom_minimum_size = Vector2(64.0, 22.0)
+	_action_context_step_label.custom_minimum_size = Vector2(64.0, 26.0)
 	_action_context_step_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_action_context_step_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_action_context_step_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -5262,7 +5397,7 @@ func _setup_action_step_tracker() -> void:
 	_action_context_verb_label.add_theme_color_override("font_color", Color("fff0ce"))
 	_action_context_verb_label.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_context_verb_label.add_theme_constant_override("outline_size", 2)
-	detail_row.add_child(_action_context_verb_label)
+	_action_context_detail_row.add_child(_action_context_verb_label)
 
 	_action_context_target_label = Label.new()
 	_action_context_target_label.name = "ActionContextTarget"
@@ -5274,14 +5409,14 @@ func _setup_action_step_tracker() -> void:
 	_action_context_target_label.add_theme_color_override("font_color", Color("9ed7df"))
 	_action_context_target_label.add_theme_color_override("font_outline_color", Color("20140d"))
 	_action_context_target_label.add_theme_constant_override("outline_size", 1)
-	status_row.add_child(_action_context_target_label)
+	_action_context_status_row.add_child(_action_context_target_label)
 
 	_action_context_risk_panel = PanelContainer.new()
 	_action_context_risk_panel.name = "ActionContextRisk"
 	_action_context_risk_panel.custom_minimum_size = Vector2(96.0, 22.0)
 	_action_context_risk_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_action_context_risk_panel.add_theme_stylebox_override("panel", _action_context_risk_style("safe"))
-	status_row.add_child(_action_context_risk_panel)
+	_action_context_status_row.add_child(_action_context_risk_panel)
 
 	_action_context_risk_label = Label.new()
 	_action_context_risk_label.name = "ActionContextRiskLabel"
@@ -5392,7 +5527,7 @@ func _setup_elemental_intensity_bar() -> void:
 	_intensity_bar.custom_minimum_size = _intensity_bar_size()
 	_intensity_bar.size = _intensity_bar_size()
 	_intensity_bar.z_index = 30
-	add_child(_intensity_bar)
+	ui_root.add_child(_intensity_bar)
 	for element_id: String in ElementData.all_elements():
 		var badge := TooltipPanelContainer.new()
 		badge.custom_minimum_size = INTENSITY_BADGE_SIZE
@@ -5757,6 +5892,8 @@ func _boot_run() -> void:
 func _load_run_state(next_run_state: Dictionary) -> void:
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
+	_merchant_shop_room_coord = INVALID_ROOM_COORD
+	_merchant_shop_open = true
 	_committed_run_state_override.clear()
 	var merged_run_state: Dictionary = _run_state_with_profile_grimoire(next_run_state)
 	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(merged_run_state))
@@ -5842,6 +5979,7 @@ func _refresh_ui() -> void:
 	_layout_action_step_tracker()
 	call_deferred("_layout_action_step_tracker")
 	_refresh_grimoire_badge()
+	_refresh_loadout_badge()
 	log_label.text = _log_text()
 	log_overlay.visible = not log_label.text.is_empty()
 	_refresh_contextual_combat_tutorial()
@@ -5943,7 +6081,7 @@ func _setup_turn_order_bar() -> void:
 	_turn_order_anchor.visible = false
 	_turn_order_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_order_anchor.z_index = 35
-	add_child(_turn_order_anchor)
+	ui_root.add_child(_turn_order_anchor)
 	_layout_turn_order_anchor()
 	_turn_order_panel = PanelContainer.new()
 	_turn_order_panel.name = "TurnOrderPanel"
@@ -6621,6 +6759,10 @@ func _refresh_action_step_tracker() -> void:
 	var current_index: int = int(tracker_state.get("action_index", 0))
 	var context_mode: String = str(tracker_state.get("mode", "selection"))
 	var compact_header_mode: bool = context_mode == "drag"
+	if _action_context_detail_row != null:
+		_action_context_detail_row.visible = compact_header_mode
+	if _action_context_status_row != null:
+		_action_context_status_row.visible = false
 	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
 	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
 	var current_number: int = clampi(current_index + 1, 1, maxi(1, actions.size()))
@@ -6629,12 +6771,6 @@ func _refresh_action_step_tracker() -> void:
 	if _action_context_step_label != null:
 		_action_context_step_label.visible = not compact_header_mode
 		_action_context_step_label.text = "STEP %d/%d" % [current_number, maxi(1, actions.size())]
-	if _action_context_target_label != null:
-		var status_row: Control = _action_context_target_label.get_parent() as Control
-		if status_row != null:
-			status_row.visible = not compact_header_mode
-	if _action_context_risk_panel != null:
-		_action_context_risk_panel.visible = not compact_header_mode
 	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
 	var statuses: Array = []
 	var action_types: Array = []
@@ -6673,7 +6809,7 @@ func _action_step_tracker_state() -> Dictionary:
 		var printed_preview: Dictionary = _drag_card_options.get("play", {})
 		var drag_actions: Array = printed_preview.get("actions", [])
 		if drag_actions.is_empty():
-			drag_actions = (_card_def(_card_id_for_hand_index(_drag_card_index), _combat_state).get("actions", []) as Array).duplicate(true)
+			drag_actions = _combat_engine.card_play_actions(_card_id_for_hand_index(_drag_card_index), _combat_state)
 		return {
 			"active": true,
 			"mode": "drag",
@@ -6689,7 +6825,7 @@ func _action_step_tracker_state() -> Dictionary:
 		var active_preview: Dictionary = _card_action_choice_options.get(_card_action_choice_mode, {})
 		var choice_actions: Array = active_preview.get("actions", [])
 		if choice_actions.is_empty():
-			choice_actions = (_card_def(choice_card_id, _combat_state).get("actions", []) as Array).duplicate(true)
+			choice_actions = _combat_engine.card_play_actions(choice_card_id, _combat_state)
 		var choice_action_index: int = int(active_preview.get("action_index", 0))
 		var choice_targets: Array[Vector2i] = []
 		if _selected_card_index == _card_action_choice_index and not _pending_actions.is_empty():
@@ -6752,18 +6888,25 @@ func _layout_action_step_tracker() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	tracker_size.x = minf(maxf(ACTION_STEP_TRACKER_MIN_SIZE.x, tracker_size.x), viewport_size.x - ACTION_CONTEXT_EDGE_MARGIN * 2.0)
 	_action_step_tracker.size = tracker_size
+	if _action_step_tracker_position_locked:
+		_action_step_tracker.global_position = Vector2(
+			clampf(_action_step_tracker_locked_position.x, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.x - tracker_size.x - ACTION_CONTEXT_EDGE_MARGIN)),
+			clampf(_action_step_tracker_locked_position.y, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN))
+		)
+		_layout_contextual_combat_prompt_overlay()
+		call_deferred("_layout_contextual_combat_prompt_overlay")
+		return
 	var anchor_rect: Rect2 = _action_step_tracker_anchor_rect()
 	if anchor_rect.size.x <= 0.0 and anchor_rect.size.y <= 0.0:
 		return
-	var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
-	var target_x: float = ACTION_CONTEXT_EDGE_MARGIN
-	if board_bounds.size.x > 0.0:
-		target_x = board_bounds.position.x - tracker_size.x - CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP
+	var target_x: float = anchor_rect.get_center().x - tracker_size.x * 0.5
 	target_x = clampf(target_x, ACTION_CONTEXT_EDGE_MARGIN, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.x - tracker_size.x - ACTION_CONTEXT_EDGE_MARGIN))
-	var target_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
+	var minimum_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	if _intensity_bar != null and _intensity_bar.visible:
-		target_y = maxf(target_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
-	target_y = minf(target_y, maxf(ACTION_CONTEXT_EDGE_MARGIN, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN))
+		minimum_y = maxf(minimum_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
+	var target_y: float = anchor_rect.position.y - tracker_size.y - ACTION_STEP_TRACKER_GAP
+	var maximum_y: float = maxf(minimum_y, viewport_size.y - tracker_size.y - ACTION_CONTEXT_EDGE_MARGIN)
+	target_y = clampf(target_y, minimum_y, maximum_y)
 	_action_step_tracker.global_position = Vector2(target_x, target_y)
 	if _action_context_connector != null:
 		_action_context_connector.visible = false
@@ -7253,6 +7396,14 @@ func _begin_action_step_resolution_tracker(card_id: String, actions: Array, sele
 	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
 	_refresh_action_step_tracker()
 
+func _lock_action_step_tracker_position_for_resolution() -> void:
+	if _action_step_tracker == null or not _action_step_tracker.visible:
+		return
+	_layout_action_step_tracker()
+	_action_step_tracker_locked_position = _action_step_tracker.global_position
+	_action_step_tracker_position_locked = true
+	_action_step_tracker.set_meta("position_locked", true)
+
 func _set_action_step_resolution_index(index: int) -> void:
 	if not _action_step_resolution_active:
 		return
@@ -7260,12 +7411,15 @@ func _set_action_step_resolution_index(index: int) -> void:
 	_refresh_action_step_tracker()
 
 func _clear_action_step_resolution_tracker() -> void:
+	_action_step_tracker_position_locked = false
+	_action_step_tracker_locked_position = Vector2.ZERO
 	_action_step_resolution_active = false
 	_action_step_resolution_card_id = ""
 	_action_step_resolution_actions.clear()
 	_action_step_resolution_index = 0
 	_action_step_resolution_targets.clear()
 	if _action_step_tracker != null:
+		_action_step_tracker.set_meta("position_locked", false)
 		_action_step_tracker.visible = false
 	if _action_context_connector != null:
 		_action_context_connector.visible = false
@@ -7512,15 +7666,16 @@ func _displayed_card_play_count() -> int:
 func _card_play_count_for_resolution_state(state: Dictionary) -> int:
 	var cards_left: int = _combat_engine.cards_remaining_this_turn(state)
 	if _card_play_count_override >= 0:
-		cards_left -= 1
+		cards_left -= maxi(1, _card_play_resolution_spend)
 	return maxi(0, cards_left)
 
 func _set_card_play_count_override(cards_left: int) -> void:
 	_card_play_count_override = maxi(0, cards_left)
 	_refresh_card_play_meter()
 
-func _begin_card_play_meter_spend_preview() -> void:
-	_set_card_play_count_override(maxi(0, _combat_engine.cards_remaining_this_turn(_combat_state) - 1))
+func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
+	_card_play_resolution_spend = maxi(1, plays_spent)
+	_set_card_play_count_override(maxi(0, _combat_engine.cards_remaining_this_turn(_combat_state) - _card_play_resolution_spend))
 
 func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 	if _intensity_bar == null:
@@ -7657,6 +7812,7 @@ func _refresh_choice_bar() -> void:
 		_pass_preview_overlay.visible = false
 	_clear_context_choice_overlay()
 	_clear_relic_choice_overlay()
+	_sync_merchant_shop_room()
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode not in ["victory", "defeat"] and _run_end_recap != null:
 		_run_end_recap.reset()
@@ -7673,8 +7829,11 @@ func _refresh_choice_bar() -> void:
 		"room":
 			var merchant_kind: String = _current_room_merchant_kind()
 			if not merchant_kind.is_empty():
-				_set_relic_choice_title(_merchant_title_text(merchant_kind))
-				_add_merchant_trade_panel(merchant_kind)
+				if _merchant_shop_open:
+					_set_relic_choice_title(_merchant_title_text(merchant_kind))
+					_add_merchant_trade_panel(merchant_kind)
+				else:
+					_add_merchant_return_to_shop_button()
 		"campfire":
 			_add_campfire_choice(
 				"linger",
@@ -7987,7 +8146,7 @@ func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionar
 	if resolved_state.is_empty():
 		return {}
 	if bool(preview.get("complete", false)):
-		return _combat_engine.finish_player_card(resolved_state, _selected_card_index)
+		return _combat_engine.finish_player_card(resolved_state, _selected_card_index, _combat_engine.card_plays_spent_for_actions(preview.get("actions", []) as Array))
 	return resolved_state
 
 func _pass_preview_summary() -> Dictionary:
@@ -8374,6 +8533,40 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 func _current_room_merchant_kind() -> String:
 	return _run_engine.merchant_kind_for_current_room(_run_state)
 
+func _sync_merchant_shop_room() -> void:
+	var current_coord: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
+	if current_coord == _merchant_shop_room_coord:
+		return
+	_merchant_shop_room_coord = current_coord
+	_merchant_shop_open = true
+
+func _on_merchant_hide_pressed() -> void:
+	if not _merchant_shop_open or _current_room_merchant_kind().is_empty():
+		return
+	_close_pinned_tooltip()
+	_merchant_shop_open = false
+	_refresh_ui()
+
+func _on_merchant_return_to_shop_pressed() -> void:
+	if _merchant_shop_open or _current_room_merchant_kind().is_empty():
+		return
+	_merchant_shop_open = true
+	_refresh_ui()
+
+func _add_merchant_return_to_shop_button() -> void:
+	if _relic_choice_bar == null:
+		return
+	var button := Button.new()
+	button.name = "MerchantReturnToShopButton"
+	button.text = "Return to Shop"
+	button.tooltip_text = "Open the merchant's stock again."
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
+	_ui_skin.apply_button_native_size(button, UiSkin.BUTTON_HEIGHT_LARGE, 0.0, true, UiSkin.VARIANT_LARGE)
+	button.pressed.connect(_on_merchant_return_to_shop_pressed)
+	_relic_choice_bar.add_child(button)
+
 func _merchant_title_text(merchant_kind: String) -> String:
 	if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH:
 		return MERCHANT_TITLE_BLACKSMITH
@@ -8443,6 +8636,17 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 	ember_label.add_theme_color_override("font_outline_color", Color("241912"))
 	ember_label.add_theme_constant_override("outline_size", 1)
 	top_row.add_child(ember_label)
+
+	var hide_button := Button.new()
+	hide_button.name = "MerchantHideButton"
+	hide_button.text = "Hide"
+	hide_button.tooltip_text = "Hide the merchant interface and reveal every door."
+	_ui_skin.apply_button_stylebox_overrides(hide_button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(hide_button)
+	UiTypography.set_button_size(hide_button, UiTypography.SIZE_SMALL)
+	_ui_skin.apply_button_native_size(hide_button, UiSkin.BUTTON_HEIGHT_STANDARD, 0.0, true, UiSkin.VARIANT_STANDARD)
+	hide_button.pressed.connect(_on_merchant_hide_pressed)
+	top_row.add_child(hide_button)
 
 	var columns := HBoxContainer.new()
 	columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -9194,7 +9398,7 @@ func _refresh_hand_panel() -> void:
 			widget.custom_minimum_size = reward_card_size
 			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
 			widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
-			widget.activated.connect(_on_reward_card_pressed.bind(card_id))
+			widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
 			hand_box.add_child(_reward_card_choice_slot(widget, card_id, reward_card_size))
 		if heal_amount > 0:
 			hand_box.add_child(_reward_heal_choice_slot(heal_amount, reward_card_size))
@@ -9413,6 +9617,8 @@ func _clear_idle_card_fx_layer() -> void:
 	_clear_children_now(_card_fx_layer)
 
 func _on_reward_heal_choice_gui_input(event: InputEvent) -> void:
+	if _animation_lock or _loadout_acquisition_in_progress:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		_on_skip_reward_pressed()
 
@@ -9562,6 +9768,11 @@ func _refresh_stage_view() -> void:
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	presentation["equipped_equipment"] = _equipped_equipment_for_board()
+	presentation["tile_drag_aiming"] = (
+		str(_run_state.get("mode", "room")) == "combat"
+		and not _animation_lock
+		and _current_action_is_aimed_aoe()
+	)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -9665,7 +9876,7 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	if _card_preview_cache.has(cache_key):
 		return _card_preview_cache.get(cache_key, {}) as Dictionary
 	var card_id: String = str(hand[index])
-	var preview: Dictionary = _card_preview_from_state(card_id, _combat_state, _card_def(card_id, _combat_state).get("actions", []), 0)
+	var preview: Dictionary = _card_preview_from_state(card_id, _combat_state, _combat_engine.card_play_actions(card_id, _combat_state), 0)
 	_card_preview_cache[cache_key] = preview
 	return preview
 
@@ -11089,6 +11300,9 @@ func _on_cancel_requested() -> void:
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 		return
+	if _merchant_shop_open and not _current_room_merchant_kind().is_empty():
+		_on_merchant_hide_pressed()
+		return
 	_open_menu_overlay()
 
 func _on_mini_map_overlay_gui_input(event: InputEvent) -> void:
@@ -11244,12 +11458,14 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var played_instance_id: String = _analytics_hand_instance_id(hand_index)
+	var plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
+	_lock_action_step_tracker_position_for_resolution()
 	_animating_hand_card_index = hand_index
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
 	_animation_lock = true
-	_begin_card_play_meter_spend_preview()
+	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
-	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(resolved_state, hand_index)
+	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(resolved_state, hand_index, plays_spent)
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
 	if GameData.card_consumes_on_play(card_id):
 		committed_run_state = _run_engine.consume_equipped_item_card(committed_run_state, card_id)
@@ -11269,12 +11485,13 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
-	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, resolved_state, actions, selected_targets)
+	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
 	_animation_lock = false
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
+	_card_play_resolution_spend = 0
 	_reset_card_resolution()
 	_hovered_card_index = -1
 	_refresh_ui()
@@ -12156,6 +12373,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await get_tree().create_timer(0.08).timeout
 	await _animate_enemy_deaths(before_state, after_state)
 	await _animate_death_rewards(before_state, after_state)
+	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if str(loot.get("kind", "")) != "equipment":
+			continue
+		var loot_tile: Vector2i = loot.get("pos", player_after_tile)
+		await _animate_equipment_pickup_acquisition_flair(
+			str(loot.get("equipment_id", "")),
+			loot_tile
+		)
 
 func _resolve_enemy_round() -> void:
 	_animation_lock = true
@@ -13323,16 +13551,33 @@ func _play_door_opening_animation(door_tile: Vector2i) -> void:
 		await get_tree().create_timer(DOOR_OPENING_FRAME_SECONDS).timeout
 	await get_tree().create_timer(DOOR_OPENING_SETTLE_SECONDS).timeout
 
-func _on_reward_card_pressed(card_id: String) -> void:
+func _on_reward_card_pressed(card_id: String, source_control: Control = null) -> void:
+	if _animation_lock or _loadout_acquisition_in_progress:
+		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	if not (reward_state.get("cards", []) as Array).has(card_id):
+		return
+	_loadout_acquisition_in_progress = true
+	_animation_lock = true
+	var source_rect: Rect2 = source_control.get_global_rect() if _node_is_alive(source_control) else Rect2()
+	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+	if _node_is_alive(source_control):
+		source_control.modulate = Color(1.0, 1.0, 1.0, 0.18)
+	await _animate_magic_reward_acquisition_flair(card_id, source_rect, accent)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
 	_run_state = _run_engine.claim_card_reward(_run_state, card_id)
 	_sync_combat_state_from_run()
 	_analytics_log_reward_choice("card", reward_state, card_id, player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
 	_persist_committed_boundary("reward_card_claimed")
 	_refresh_ui()
+	await _animate_loadout_acquisition_ray(source_rect.get_center(), accent)
+	_animation_lock = false
+	_loadout_acquisition_in_progress = false
+	_refresh_ui()
 
 func _on_skip_reward_pressed() -> void:
+	if _animation_lock or _loadout_acquisition_in_progress:
+		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
 	_run_state = _run_engine.skip_reward_for_heal(_run_state)
@@ -13454,6 +13699,175 @@ func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, ite
 	tween.parallel().tween_property(row, "position", start_position + Vector2(10.0 if buying else -10.0, 0.0), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	await tween.finished
 
+func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2, accent: Color) -> void:
+	if _card_fx_layer == null or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		return
+	var center: Vector2 = source_rect.get_center()
+	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "magic")
+	var banner: Label = _spawn_loadout_acquisition_banner("SPELL LEARNED", center + Vector2(0.0, -source_rect.size.y * 0.58), accent)
+	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
+	proxy.z_index = 1602
+	proxy.pivot_offset = proxy.size * 0.5
+	var base_scale: Vector2 = proxy.scale
+	proxy.rotation = -0.055
+	var burst_tween: Tween = create_tween()
+	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	var banner_tween: Tween = create_tween()
+	banner.modulate.a = 0.0
+	banner_tween.tween_property(banner, "modulate:a", 1.0, 0.10)
+	banner_tween.tween_interval(0.22)
+	banner_tween.tween_property(banner, "modulate:a", 0.0, 0.14)
+	var tween: Tween = create_tween()
+	tween.tween_property(proxy, "scale", base_scale * 1.20, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(proxy, "rotation", 0.035, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(proxy, "modulate", Color(1.20, 1.16, 0.96, 1.0), 0.10)
+	tween.tween_property(proxy, "scale", base_scale * 1.03, 0.24).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(proxy, "rotation", 0.0, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(proxy, "position", proxy.position + Vector2(0.0, -28.0), 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(proxy, "modulate", Color.WHITE, 0.20)
+	await tween.finished
+	_release_card_proxy(proxy)
+	_queue_free_node_now(burst)
+	_queue_free_node_now(banner)
+
+func _animate_equipment_pickup_acquisition_flair(equipment_id: String, tile: Vector2i) -> void:
+	if _card_fx_layer == null or equipment_id.is_empty():
+		return
+	var equipment: Dictionary = GameData.equipment_def(equipment_id)
+	if equipment.is_empty():
+		return
+	var center: Vector2 = _board_global_position_for_tile(tile)
+	var accent := Color(GameData.equipment_accent(equipment_id))
+	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
+	var banner: Label = _spawn_loadout_acquisition_banner("GEAR FOUND", center + Vector2(0.0, -92.0), accent)
+	var icon := TextureRect.new()
+	icon.name = "EquipmentAcquisitionIcon"
+	icon.texture = AssetLoader.load_texture(str(equipment.get("icon_path", "")))
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.size = Vector2(112.0, 112.0)
+	icon.position = center - icon.size * 0.5
+	icon.pivot_offset = icon.size * 0.5
+	icon.scale = Vector2.ONE * 0.36
+	icon.rotation = -0.20
+	icon.modulate = Color(1.18, 1.10, 0.82, 0.0)
+	icon.z_index = 1602
+	_card_fx_layer.add_child(icon)
+	var burst_tween: Tween = create_tween()
+	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	var banner_tween: Tween = create_tween()
+	banner.modulate.a = 0.0
+	banner_tween.tween_property(banner, "modulate:a", 1.0, 0.08)
+	banner_tween.tween_interval(0.24)
+	banner_tween.tween_property(banner, "modulate:a", 0.0, 0.14)
+	var tween: Tween = create_tween()
+	tween.tween_property(icon, "modulate:a", 1.0, 0.06)
+	tween.parallel().tween_property(icon, "scale", Vector2.ONE * 1.24, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(icon, "rotation", 0.045, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(icon, "scale", Vector2.ONE * 0.94, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(icon, "rotation", 0.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(icon, "position", icon.position + Vector2(0.0, -18.0), 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	await _animate_loadout_acquisition_ray(center, accent)
+	_queue_free_node_now(icon)
+	_queue_free_node_now(burst)
+	_queue_free_node_now(banner)
+
+func _spawn_loadout_acquisition_burst(center: Vector2, accent: Color, kind: String) -> LoadoutAcquisitionBurst:
+	var burst := LoadoutAcquisitionBurst.new()
+	burst.name = "LoadoutAcquisitionBurst"
+	burst.size = Vector2(220.0, 220.0)
+	burst.position = center - burst.size * 0.5
+	burst.accent = accent
+	burst.kind = kind
+	burst.z_index = 1600
+	_card_fx_layer.add_child(burst)
+	return burst
+
+func _spawn_loadout_acquisition_banner(text: String, center: Vector2, accent: Color) -> Label:
+	var banner := Label.new()
+	banner.name = "LoadoutAcquisitionBanner"
+	banner.text = text
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	banner.position = center - Vector2(170.0, 24.0)
+	banner.size = Vector2(340.0, 48.0)
+	UiTypography.apply_label_role(banner, UiTypography.ROLE_TITLE)
+	banner.add_theme_color_override("font_color", Color("fff2c7").lerp(accent.lightened(0.32), 0.34))
+	banner.add_theme_color_override("font_outline_color", Color("1b0f0a"))
+	banner.add_theme_constant_override("outline_size", 7)
+	banner.z_index = 1603
+	_card_fx_layer.add_child(banner)
+	return banner
+
+func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color) -> void:
+	if _card_fx_layer == null or loadout_button == null:
+		return
+	await get_tree().process_frame
+	if not _node_is_alive(_card_fx_layer) or not _node_is_alive(loadout_button):
+		return
+	var target_global: Vector2 = loadout_button.get_global_rect().get_center()
+	var local_start: Vector2 = source_global - _card_fx_layer.global_position
+	var local_target: Vector2 = target_global - _card_fx_layer.global_position
+	var beam := RelicAcquisitionBeam.new()
+	beam.name = "LoadoutAcquisitionBeam"
+	beam.texture = AssetLoader.load_texture(RELIC_ACQUISITION_BEAM_PATH)
+	beam.accent = accent
+	beam.start = local_start
+	beam.target = local_target
+	beam.modulate = Color(1.0, 1.0, 1.0, 0.76)
+	beam.z_index = 1600
+	_card_fx_layer.add_child(beam)
+	var beam_tween: Tween = create_tween().set_parallel(true)
+	beam_tween.tween_property(beam, "progress", 1.0, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(LOADOUT_ACQUISITION_RAY_SECONDS * 0.72)
+	for mote_index: int in range(LOADOUT_ACQUISITION_MOTES):
+		_spawn_loadout_acquisition_mote(local_start, local_target, accent, mote_index)
+	await get_tree().create_timer(LOADOUT_ACQUISITION_RAY_SECONDS + 0.04).timeout
+	_queue_free_node_now(beam)
+	await _animate_loadout_button_arrival(accent)
+
+func _spawn_loadout_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
+	if _card_fx_layer == null:
+		return
+	var mote := RelicAcquisitionMote.new()
+	mote.name = "LoadoutAcquisitionMote"
+	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
+	mote.accent = accent
+	var mote_size: float = 17.0 + float(mote_index % 4) * 2.5
+	mote.size = Vector2(mote_size, mote_size)
+	mote.pivot_offset = mote.size * 0.5
+	var start_angle: float = -0.95 + 1.9 * (float(mote_index) / float(maxi(1, LOADOUT_ACQUISITION_MOTES - 1)))
+	var start_spread: Vector2 = Vector2(cos(start_angle), sin(start_angle)) * (12.0 + float((mote_index * 7) % 16))
+	var end_jitter := Vector2(float((mote_index % 5) - 2) * 3.5, float((mote_index % 3) - 1) * 3.0)
+	mote.position = local_start + start_spread - mote.size * 0.5
+	mote.scale = Vector2.ONE * (0.78 + float(mote_index % 3) * 0.07)
+	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	mote.z_index = 1601
+	_card_fx_layer.add_child(mote)
+	var delay: float = float(mote_index) * 0.015
+	var tween: Tween = create_tween().set_parallel(true)
+	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, LOADOUT_ACQUISITION_RAY_SECONDS * 0.88).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(mote, "scale", Vector2.ONE * 0.28, LOADOUT_ACQUISITION_RAY_SECONDS * 0.88).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(mote, "modulate:a", 1.0, 0.05).set_delay(delay)
+	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + LOADOUT_ACQUISITION_RAY_SECONDS * 0.66)
+	tween.finished.connect(_queue_free_node_now.bind(mote))
+
+func _animate_loadout_button_arrival(accent: Color) -> void:
+	if loadout_button == null:
+		return
+	loadout_button.pivot_offset = loadout_button.size * 0.5
+	loadout_button.modulate = Color(1.0, 1.0, 1.0, 1.0).lerp(accent.lightened(0.35), 0.34)
+	var tween := create_tween()
+	tween.set_loops(2)
+	tween.tween_property(loadout_button, "scale", Vector2(1.16, 1.16), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(loadout_button, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await tween.finished
+	loadout_button.scale = Vector2.ONE
+	loadout_button.modulate = Color.WHITE
+
 func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
 	if _card_fx_layer == null:
 		return
@@ -13568,6 +13982,14 @@ func _on_grimoire_button_pressed() -> void:
 	if _dialogue_active or _animation_lock:
 		return
 	_open_grimoire_overlay()
+
+func _on_loadout_button_pressed() -> void:
+	if _dialogue_active or _animation_lock:
+		return
+	var mode: String = "equipment"
+	if _run_engine.loadout_unread_ids(_run_state, "equipment").is_empty() and not _run_engine.loadout_unread_ids(_run_state, "magic").is_empty():
+		mode = "magic"
+	_open_character_overlay(mode)
 
 func _on_pass_turn_pressed() -> void:
 	if _animation_lock or _pending_umbra_commit_locked or str(_run_state.get("mode", "room")) != "combat":
@@ -13941,6 +14363,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_close_pile_view()
 	_close_menu_overlay()
 	_progression_overlay_mode = mode if mode in ["equipment", "magic", "stats"] else "equipment"
+	_clear_open_loadout_tab_unread(_progression_overlay_mode)
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
@@ -14108,17 +14531,113 @@ func _build_character_overlay_tabs() -> Control:
 		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		_apply_character_tab_style(button, button.button_pressed)
 		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
+		var unread_count: int = _run_engine.loadout_unread_ids(_run_state, mode).size()
+		if unread_count > 0:
+			_add_loadout_tab_badge(button, mode, unread_count)
 		if _progression_overlay_mode != mode:
 			button.pressed.connect(_switch_character_overlay_mode.bind(mode))
 		row.add_child(button)
 	return row
 
+func _add_loadout_tab_badge(button: Button, mode: String, unread_count: int) -> void:
+	var badge := PanelContainer.new()
+	badge.name = "%sLoadoutTabBadge" % mode.capitalize()
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.custom_minimum_size = GRIMOIRE_BADGE_SIZE
+	badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	badge.anchor_left = 1.0
+	badge.anchor_right = 1.0
+	badge.offset_left = -16.0
+	badge.offset_top = -5.0
+	badge.offset_right = 2.0
+	badge.offset_bottom = 13.0
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("d64a3a")
+	badge_style.border_color = Color("ffe0a2")
+	badge_style.set_border_width_all(1)
+	badge_style.set_corner_radius_all(6)
+	badge.add_theme_stylebox_override("panel", badge_style)
+	var label := Label.new()
+	label.text = str(mini(9, unread_count))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 8)
+	label.add_theme_color_override("font_color", Color("fff7d8"))
+	label.add_theme_color_override("font_outline_color", Color("2b130e"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	button.add_child(badge)
+
 func _switch_character_overlay_mode(mode: String) -> void:
 	if not (mode in ["equipment", "magic", "stats"]):
 		return
 	_progression_overlay_mode = mode
+	_clear_open_loadout_tab_unread(mode)
 	_progression_pending_stats.clear()
 	_rebuild_progression_overlay()
+
+func _clear_open_loadout_tab_unread(mode: String) -> void:
+	if mode not in ["equipment", "magic"]:
+		return
+	if _run_engine.loadout_unread_ids(_run_state, mode).is_empty():
+		return
+	_run_state = _run_engine.clear_loadout_unread(_run_state, mode)
+	_persist_committed_boundary("loadout_tab_seen")
+	_refresh_loadout_badge()
+
+func _add_loadout_new_tag(tile: Control, mode: String, asset_id: String) -> void:
+	if not _run_engine.loadout_asset_is_new(_run_state, mode, asset_id):
+		return
+	var overlay := MarginContainer.new()
+	overlay.name = "LoadoutNewTagOverlay"
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_theme_constant_override("margin_left", 6)
+	overlay.add_theme_constant_override("margin_top", 5)
+	overlay.add_theme_constant_override("margin_right", 6)
+	overlay.add_theme_constant_override("margin_bottom", 5)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(column)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_END
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(row)
+	var badge := PanelContainer.new()
+	badge.name = "LoadoutNewTag"
+	badge.set_meta("loadout_mode", mode)
+	badge.set_meta("asset_id", asset_id)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.custom_minimum_size = Vector2(42.0, 19.0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("c83f32")
+	style.border_color = Color("ffe0a2")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	badge.add_theme_stylebox_override("panel", style)
+	var label := Label.new()
+	label.text = "NEW"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, 9)
+	label.add_theme_color_override("font_color", Color("fff7d8"))
+	label.add_theme_color_override("font_outline_color", Color("35130e"))
+	label.add_theme_constant_override("outline_size", 1)
+	badge.add_child(label)
+	row.add_child(badge)
+	tile.add_child(overlay)
+	tile.mouse_entered.connect(_on_loadout_asset_hovered.bind(mode, asset_id))
+
+func _on_loadout_asset_hovered(mode: String, asset_id: String) -> void:
+	if not _run_engine.loadout_asset_is_new(_run_state, mode, asset_id):
+		return
+	_run_state = _run_engine.mark_loadout_asset_seen(_run_state, mode, asset_id)
+	if _upgrade_scrim != null:
+		for tag_var: Node in _upgrade_scrim.find_children("LoadoutNewTag", "", true, false):
+			if str(tag_var.get_meta("loadout_mode", "")) == mode and str(tag_var.get_meta("asset_id", "")) == asset_id:
+				tag_var.visible = false
+	_persist_committed_boundary("loadout_asset_seen")
 
 func _apply_character_tab_style(button: Button, active: bool) -> void:
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED if active else UiSkin.VARIANT_STANDARD)
@@ -14682,6 +15201,7 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	card_label.add_theme_color_override("font_color", Color("d7c6aa"))
 	text_box.add_child(card_label)
 	_make_equipment_tile_content_passive(margin)
+	_add_loadout_new_tag(tile, "equipment", equipment_id)
 	if not _equipment_overlay_can_change():
 		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
 	return tile
@@ -14784,6 +15304,7 @@ func _build_magic_card_tile(card_id: String, source_kind: String, index: int, ti
 	elif source_kind == "inventory":
 		_magic_inventory_tiles[index] = tile
 	tile.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
+	_add_loadout_new_tag(tile, "magic", card_id)
 	return tile
 
 func _build_item_card_tile(card_id: String, source_kind: String, index: int, tile_size: Vector2) -> Control:
@@ -14825,6 +15346,7 @@ func _build_item_card_tile(card_id: String, source_kind: String, index: int, til
 	elif source_kind == "inventory":
 		_item_inventory_tiles[index] = tile
 	tile.add_child(_build_item_card_tile_body(card_id))
+	_add_loadout_new_tag(tile, "equipment", card_id)
 	return tile
 
 func _build_item_card_tile_body(card_id: String) -> Control:
@@ -17211,17 +17733,21 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
 	var comparable_actions: Array = _analytics_actions_without_runtime_orientation(actions)
-	if JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
+	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
+	if flurry_plays_spent <= 1 and JSON.stringify(comparable_actions) != JSON.stringify(printed_actions):
 		play_mode = "attack" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("attack")) else "move" if JSON.stringify(comparable_actions) == JSON.stringify(_fallback_actions("move")) else "custom"
+	var flurry_played: bool = bool(printed_card.get("flurry", false)) and play_mode == "printed"
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	var before_umbra: Dictionary = before_state.get("umbra", {}) as Dictionary
 	var after_umbra: Dictionary = resolved_state.get("umbra", {}) as Dictionary
 	return {
 		"play_mode": play_mode,
-			"printed_health_cost": int(printed_card.get("health_cost", 0)),
-			"consume_on_play": GameData.card_consumes_on_play(card_id),
-			"item_card": GameData.card_is_item(card_id),
-			"enemy_hp_damage": enemy_hp_damage,
+		"flurry": flurry_played,
+		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
+		"printed_health_cost": int(printed_card.get("health_cost", 0)),
+		"consume_on_play": GameData.card_consumes_on_play(card_id),
+		"item_card": GameData.card_is_item(card_id),
+		"enemy_hp_damage": enemy_hp_damage,
 		"enemy_block_removed": enemy_block_removed,
 		"enemy_stoneskin_removed": enemy_stoneskin_removed,
 		"enemy_defense_bypassed": _analytics_enemy_defense_bypassed(before_state, resolved_state, actions),
@@ -17247,7 +17773,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"card_action_plays_gained": maxi(0, int(resolved_state.get("card_play_bonus_this_turn", 0)) - int(before_state.get("card_play_bonus_this_turn", 0))),
 		"card_time": _combat_engine.card_time_cost_from_def(printed_card),
 		"turn_time_spent_before": int(before_state.get("player_turn_time_spent", 0)),
-		"turn_time_spent_after": int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card),
+		"turn_time_spent_after": int(resolved_state.get("player_turn_time_spent", int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card))),
 		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
 		"elemental_intensity_before": intensity_before,
 		"elemental_intensity_after": intensity_after,
@@ -17297,6 +17823,8 @@ func _analytics_actions_without_runtime_orientation(actions: Array) -> Array:
 		var action: Dictionary = (action_var as Dictionary).duplicate(true)
 		action.erase("orientation")
 		action.erase("force_direction")
+		action.erase("_flurry_repeat_index")
+		action.erase("_flurry_repeat_count")
 		result.append(action)
 	return result
 
