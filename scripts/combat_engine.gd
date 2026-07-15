@@ -5470,7 +5470,10 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"route": future_route,
 		"destination": destination,
 		"route_cost": route_cost,
-		"attack_available": not attack_disabled and attack_available and (target_reachable or pattern_attack_index >= 0),
+		"attack_available": not attack_disabled and (
+			(attack_index >= 0 and attack_available and target_reachable)
+			or (attack_index < 0 and pattern_attack_index >= 0 and attack_available)
+		),
 		"blocking_terrain_index": terrain_index,
 		"trap_attack_index": trap_index,
 		"trap_attack_tile": trap_tile,

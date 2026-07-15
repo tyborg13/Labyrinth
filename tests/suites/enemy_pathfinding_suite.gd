@@ -145,6 +145,17 @@ static func _test_attackless_retreat_moves_away_without_projection(expect: Calla
 	var resolved_enemy: Dictionary = (resolved.get("enemies", []) as Array)[0]
 	expect.call(resolved_enemy.get("pos", Vector2i.ZERO) == destination and int(resolved_enemy.get("block", 0)) == 3, "Attackless retreat resolution should use the pure retreat plan and still resolve support")
 
+	var advance_support_intent: Dictionary = {
+		"name": "Coil",
+		"actions": [
+			{"type": "move_toward", "range": 2},
+			{"type": "block", "amount": 3}
+		]
+	}
+	var advance_support_state: Dictionary = _state(combat, 243, Vector2i(2, 4), [_enemy(Vector2i(3, 4), advance_support_intent)])
+	var advance_support_plan: Dictionary = combat.enemy_intent_plan(advance_support_state, 0)
+	expect.call(not bool(advance_support_plan.get("attack_available", true)) and _tiles(advance_support_plan.get("projected_attack", [])).is_empty(), "Attackless move_toward support intents should not report fallback melee as a real attack")
+
 static func _test_shorter_trapped_attack_route_beats_longer_safe_route(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
