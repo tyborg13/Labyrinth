@@ -46,6 +46,14 @@ func _initialize() -> void:
 		"03_one_step_path.png",
 		3
 	)
+	await _capture(
+		viewport,
+		board,
+		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]),
+		"04_ground_item_layering.png",
+		4,
+		true
+	)
 
 	if _errors.is_empty():
 		print("MOVEMENT PATH ARROW PROBE: PASS")
@@ -73,19 +81,20 @@ func _verify_style_contract(board: Control) -> void:
 	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
-	_expect(shaft_ratio >= 0.38 and shaft_ratio <= 0.43, "Arrow shaft should be about fifteen percent narrower than the prior half-tile pass")
-	_expect(head_width_ratio >= 0.47 and head_width_ratio <= 0.53, "Arrow head should scale down proportionately with the narrower shaft")
-	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.49 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.56, "Arrow head length should scale down while its tip remains on the destination edge")
-	_expect(absf(head_tip_reach_ratio - projected_tile_edge_ratio) <= 0.02, "Arrow tip should stop at the destination tile's far edge instead of pointing toward the next tile")
+	_expect(shaft_ratio >= 0.35 and shaft_ratio <= 0.39, "Arrow shaft should be about ten percent narrower than the 0.41-tile pass")
+	_expect(head_width_ratio >= 0.42 and head_width_ratio <= 0.47, "Arrow head should scale down about ten percent with the narrower shaft")
+	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.44 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.50, "Arrow head length should scale down with the rest of the silhouette")
+	_expect(projected_tile_edge_ratio - head_tip_reach_ratio >= 0.015 and projected_tile_edge_ratio - head_tip_reach_ratio <= 0.05, "Smaller arrow tip should stop just inside the destination tile's far edge")
 	_expect(shadow_offset_ratio >= 0.025 and shadow_offset_ratio <= 0.05, "Arrow should retain a restrained cast shadow without inflating its silhouette")
 	_expect(outline_width_ratio >= 1.08 and outline_width_ratio <= 1.16, "Arrow outline should define the ribbon without making it substantially wider")
 	_expect(glow_width_ratio >= 1.16 and glow_width_ratio <= 1.30, "Arrow bloom should stay soft and close to the ribbon")
 	_expect(gradient_layers >= 12, "Arrow shaft should blend its face through enough narrow gradient layers to avoid crude bands")
-	_expect(body_alpha >= 0.80 and body_alpha <= 0.90, "Arrow head should be subtly translucent without losing tactical readability")
+	_expect(body_alpha >= 0.80 and body_alpha <= 0.90, "Single-tile path marker should be subtly translucent without losing tactical readability")
 	_expect(gradient_base_alpha >= 0.64 and gradient_base_alpha <= 0.76, "Arrow shaft base should leave board texture visible through its shaded edge")
 	_expect(gradient_layer_alpha >= 0.035 and gradient_layer_alpha <= 0.075, "Arrow shaft highlight layers should build translucency gradually instead of becoming opaque through overdraw")
 	_expect(gradient_segments >= 20, "Single-tile path markers should use enough interpolated gradient segments to avoid visible color bands")
 	_verify_unified_arrow_geometry(board)
+	_verify_layering_contract(board)
 
 func _verify_unified_arrow_geometry(board: Control) -> void:
 	var from_point := Vector2(120.0, 140.0)
@@ -95,7 +104,16 @@ func _verify_unified_arrow_geometry(board: Control) -> void:
 	var head_geometry: Dictionary = board.call("_path_arrow_geometry", from_point, to_point, tile_width, shaft_width)
 	var head_polygon: PackedVector2Array = head_geometry.get("polygon", PackedVector2Array())
 	var direction: Vector2 = head_geometry.get("direction", Vector2.ZERO)
+	var perpendicular := Vector2(-direction.y, direction.x)
 	var tail_center: Vector2 = head_geometry.get("tail_center", to_point)
+	var tip: Vector2 = head_geometry.get("tip", Vector2.ZERO)
+	var plus_shoulder: Vector2 = head_geometry.get("plus_shoulder", Vector2.ZERO)
+	var minus_shoulder: Vector2 = head_geometry.get("minus_shoulder", Vector2.ZERO)
+	var shoulder_midpoint: Vector2 = plus_shoulder.lerp(minus_shoulder, 0.5)
+	_expect(head_polygon.size() == 3, "Arrow head should begin as a true triangle before unifying with the shaft")
+	_expect(absf((plus_shoulder - shoulder_midpoint).length() - (minus_shoulder - shoulder_midpoint).length()) <= 0.001, "Arrow head shoulders should be symmetric around the path axis")
+	_expect(absf((plus_shoulder - minus_shoulder).dot(direction)) <= 0.001, "Arrow head rear edge should run straight across the path axis")
+	_expect(absf((tip - shoulder_midpoint).dot(perpendicular)) <= 0.001, "Arrow tip should be centered between its shoulders")
 	var shaft_points := PackedVector2Array([
 		from_point,
 		tail_center + direction * shaft_width * 0.18
@@ -106,12 +124,24 @@ func _verify_unified_arrow_geometry(board: Control) -> void:
 	var unified_area: float = absf(float(board.call("_path_polygon_signed_area", unified)))
 	_expect(unified_area > head_area * 1.5, "Unified arrow polygon should contain both the head and a substantial shaft")
 
-func _capture(viewport: SubViewport, board: Control, path_tiles: Array[Vector2i], file_name: String, capture_index: int) -> void:
+func _verify_layering_contract(board: Control) -> void:
+	_expect(bool(board.call("_loot_renders_below_path", {"kind": "healing_vial"})), "Ground potions should render below the movement path")
+	_expect(bool(board.call("_loot_renders_below_path", {"kind": "rusty_shield"})), "Ground shields should render below the movement path")
+	_expect(not bool(board.call("_loot_renders_below_path", {"kind": "equipment"})), "Floating equipment should render above the movement path")
+
+func _capture(
+	viewport: SubViewport,
+	board: Control,
+	path_tiles: Array[Vector2i],
+	file_name: String,
+	capture_index: int,
+	include_layering_fixture: bool = false
+) -> void:
 	var move_tiles: Array[Vector2i] = path_tiles.duplicate()
 	move_tiles.pop_front()
 	board.call(
 		"set_combat_state",
-		_probe_state(Vector2i(7 + capture_index, -3)),
+		_probe_state(Vector2i(7 + capture_index, -3), include_layering_fixture),
 		move_tiles,
 		_vector2i_array([]),
 		path_tiles[path_tiles.size() - 1],
@@ -135,8 +165,8 @@ func _capture(viewport: SubViewport, board: Control, path_tiles: Array[Vector2i]
 	if image != null:
 		_expect(image.save_png(output_path) == OK, "%s should save successfully" % file_name)
 
-func _probe_state(room_coord: Vector2i) -> Dictionary:
-	return {
+func _probe_state(room_coord: Vector2i, include_layering_fixture: bool = false) -> Dictionary:
+	var state: Dictionary = {
 		"name": "Movement Arrow Proof Hall",
 		"room_coord": room_coord,
 		"room_element": "none",
@@ -159,6 +189,16 @@ func _probe_state(room_coord: Vector2i) -> Dictionary:
 		"traps": [],
 		"player_turn_restrictions": {}
 	}
+	if include_layering_fixture:
+		state["loot"] = [
+			{"id": "probe_potion", "kind": "healing_vial", "amount": 40, "pos": Vector2i(3, 4)},
+			{"id": "probe_shield", "kind": "rusty_shield", "amount": 40, "pos": Vector2i(5, 4)},
+			{"id": "probe_equipment", "kind": "equipment", "equipment_id": "iron_cleaver", "pos": Vector2i(6, 4)}
+		]
+		state["traps"] = [
+			{"id": "probe_trap", "pos": Vector2i(4, 4), "element": "fire", "damage": 40}
+		]
+	return state
 
 func _probe_grid() -> Array:
 	return [

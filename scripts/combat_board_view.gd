@@ -25,10 +25,10 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
-const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.41
-const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.50
-const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.28
-const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.24
+const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.37
+const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.45
+const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.25
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.22
 const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.038
 const MOVE_PATH_OUTLINE_WIDTH_RATIO: float = 1.12
 const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
@@ -968,6 +968,7 @@ func _draw_dynamic_board() -> void:
 	_draw_ambient_particles(tiles)
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
+	_draw_ground_items_below_path(tiles)
 	_draw_path_preview()
 	_draw_impact_decals()
 	_draw_umbra_overlay(tiles)
@@ -1965,6 +1966,28 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_tile_props(grid, tile, obstruction_entries)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
 
+func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
+	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
+	# over them. Floating equipment remains in _draw_tile_props with units and is
+	# intentionally painted after the route.
+	for tile: Vector2i in tiles:
+		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			if bool(loot.get("claimed", false)) or not _loot_renders_below_path(loot):
+				continue
+			var loot_texture: Texture2D = _loot_texture(loot)
+			if loot_texture == null:
+				continue
+			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
+			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
+			draw_texture_rect(loot_texture, loot_rect, false)
+			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
+		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
+			if typeof(trap_var) == TYPE_DICTIONARY:
+				_draw_trap_marker(trap_var as Dictionary)
+
 func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
 	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
 		if typeof(prop_var) != TYPE_DICTIONARY:
@@ -2199,18 +2222,10 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if loot_texture == null:
 			continue
 		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
-		if _is_equipment_loot(loot):
-			_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
-			_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
-		else:
-			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
-			draw_texture_rect(loot_texture, loot_rect, false)
-			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
-	for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
-		if typeof(trap_var) != TYPE_DICTIONARY:
+		if _loot_renders_below_path(loot):
 			continue
-		var trap: Dictionary = trap_var
-		_draw_trap_marker(trap)
+		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
+		_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
 
 func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
 	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries)
@@ -2629,6 +2644,9 @@ func _door_is_visible(tile: Vector2i) -> bool:
 
 func _is_equipment_loot(loot: Dictionary) -> bool:
 	return str(loot.get("kind", "")) == "equipment"
+
+func _loot_renders_below_path(loot: Dictionary) -> bool:
+	return not _is_equipment_loot(loot)
 
 func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary) -> void:
 	var accent: Color = _equipment_loot_accent(loot)
@@ -4995,37 +5013,22 @@ func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: fl
 		return {}
 	var perp := Vector2(-dir.y, dir.x)
 	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
-	var shaft_half_width: float = shaft_width * 0.50
 	var tip: Vector2 = to_point + dir * tile_width * MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO
-	var shoulder_center: Vector2 = to_point - dir * tile_width * 0.080
-	var neck_center: Vector2 = to_point - dir * tile_width * 0.170
 	var tail_center: Vector2 = to_point - dir * tile_width * MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO
-	var plus_shoulder: Vector2 = shoulder_center + perp * half_width
-	var minus_shoulder: Vector2 = shoulder_center - perp * half_width
-	var plus_control: Vector2 = to_point + dir * tile_width * 0.035 + perp * half_width * 0.76
-	var minus_control: Vector2 = to_point + dir * tile_width * 0.035 - perp * half_width * 0.76
-	var plus_edge := PackedVector2Array([tip])
-	var minus_edge := PackedVector2Array([tip])
-	for step: int in range(1, 5):
-		var progress: float = float(step) / 4.0
-		plus_edge.append(_quadratic_path_point(tip, plus_control, plus_shoulder, progress))
-		minus_edge.append(_quadratic_path_point(tip, minus_control, minus_shoulder, progress))
-	plus_edge.append(neck_center + perp * shaft_half_width * 1.10)
-	plus_edge.append(tail_center + perp * shaft_half_width)
-	minus_edge.append(neck_center - perp * shaft_half_width * 1.10)
-	minus_edge.append(tail_center - perp * shaft_half_width)
-	var polygon: PackedVector2Array = plus_edge.duplicate()
-	for index: int in range(minus_edge.size() - 1, 0, -1):
-		polygon.append(minus_edge[index])
+	var plus_shoulder: Vector2 = tail_center + perp * half_width
+	var minus_shoulder: Vector2 = tail_center - perp * half_width
+	# A true symmetric triangle gives the head straight rear shoulders. Merging it
+	# with the overlapping shaft turns those shoulders into clean, subtly concave
+	# joins without a separate cap, convex bulge, or internal seam.
+	var polygon := PackedVector2Array([tip, plus_shoulder, minus_shoulder])
 	return {
 		"polygon": polygon,
 		"tail_center": tail_center,
-		"direction": dir
+		"direction": dir,
+		"tip": tip,
+		"plus_shoulder": plus_shoulder,
+		"minus_shoulder": minus_shoulder
 	}
-
-func _quadratic_path_point(start: Vector2, control: Vector2, finish: Vector2, progress: float) -> Vector2:
-	var inverse: float = 1.0 - progress
-	return start * inverse * inverse + control * 2.0 * inverse * progress + finish * progress * progress
 
 func _unified_path_arrow_polygon(
 	shaft_points: PackedVector2Array,
@@ -5087,17 +5090,18 @@ func _draw_gradient_path_polygon(polygon: PackedVector2Array, width: float, colo
 	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
 		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
 		var eased: float = smoothstep(0.0, 1.0, progress)
-		var layer_width_ratio: float = lerpf(0.96, 0.22, progress)
-		var inset: float = width * (1.0 - layer_width_ratio) * 0.5
-		var layer_offset: Vector2 = light_direction * width * 0.29 * progress
+		var layer_offset: Vector2 = light_direction * width * 0.46 * progress
 		var layer_color: Color = edge_color.lerp(light_color, eased)
 		layer_color.a = color.a * MOVE_PATH_GRADIENT_LAYER_ALPHA
-		var inset_polygons: Array[PackedVector2Array] = Geometry2D.offset_polygon(
-			polygon,
-			-inset,
-			Geometry2D.JOIN_ROUND
-		)
-		_draw_path_polygons(inset_polygons, layer_offset, layer_color)
+		var shifted: PackedVector2Array = _shifted_path_polygon(polygon, layer_offset)
+		var lit_polygons: Array[PackedVector2Array] = Geometry2D.intersect_polygons(polygon, shifted)
+		_draw_path_polygons(lit_polygons, Vector2.ZERO, layer_color)
+
+func _shifted_path_polygon(polygon: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
+	var shifted := PackedVector2Array()
+	for point: Vector2 in polygon:
+		shifted.append(point + offset)
+	return shifted
 
 func _draw_path_polygons(polygons: Array[PackedVector2Array], offset: Vector2, color: Color) -> void:
 	for polygon: PackedVector2Array in polygons:
