@@ -2441,6 +2441,14 @@ func _damage_terrain(state: Dictionary, terrain_index: int, damage: int) -> Dict
 		_log(next_state, "Terrain breaks.")
 	return next_state
 
+func _damage_terrain_indices(state: Dictionary, terrain_indices: Array[int], damage: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if damage <= 0:
+		return next_state
+	for terrain_index: int in terrain_indices:
+		next_state = _damage_terrain(next_state, terrain_index, damage)
+	return next_state
+
 func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictionary:
 	var next_state: Dictionary = state
 	var illusion_health: int = maxi(1, health)
@@ -3312,18 +3320,17 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", Vector2i.ZERO))
 		if int(action.get("range", 0)) > 0:
 			center = target.get("pos", Vector2i.ZERO)
-		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true))
-		if affected_targets.is_empty():
+		var affected_tiles: Array[Vector2i] = _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true)
+		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, affected_tiles)
+		var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
+		if affected_targets.is_empty() and affected_terrain.is_empty():
 			return next_state
 		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 			return next_state
 		enemies = next_state.get("enemies", [])
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		for affected_target: Dictionary in affected_targets:
-			if damage > 0:
-				next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action))
-			next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
+		next_state = _damage_enemy_aoe_occupants(next_state, enemy_index, action, affected_tiles)
 	else:
 		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
@@ -3340,6 +3347,19 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	])
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	return next_state
+
+func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Dictionary, affected_tiles: Array[Vector2i]) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var damage: int = int(action.get("damage", 0))
+	for affected_target: Dictionary in _actor_targets_in_tiles(next_state, affected_tiles):
+		if damage > 0:
+			next_state = _damage_actor_target(next_state, affected_target, damage, _action_pierces_defense(action))
+		next_state = _apply_action_keywords_to_target(next_state, affected_target, action, _closest_enemy_tile_to(enemy, affected_target.get("pos", Vector2i.ZERO)))
+	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), damage)
 
 func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = []) -> Dictionary:
 	var next_state: Dictionary = state
@@ -3391,9 +3411,18 @@ func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action:
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 		return next_state
 	var damage: int = int(action.get("damage", 0))
-	next_state = _damage_terrain(next_state, terrain_index, damage)
 	var enemies: Array = next_state.get("enemies", [])
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if str(action.get("type", "")) == "aoe":
+		var terrain_entries: Array = next_state.get("terrain", [])
+		var blocking_terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index])
+		var blocking_tile: Vector2i = blocking_terrain.get("pos", Vector2i.ZERO)
+		var center: Vector2i = blocking_tile if int(action.get("range", 0)) > 0 else enemy.get("pos", Vector2i.ZERO)
+		var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, blocking_tile)
+		var affected_tiles: Array[Vector2i] = _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true)
+		next_state = _damage_enemy_aoe_occupants(next_state, enemy_index, action, affected_tiles)
+	else:
+		next_state = _damage_terrain(next_state, terrain_index, damage)
 	_log(next_state, "%s breaks through terrain for %d." % [
 		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
 		damage
@@ -3429,7 +3458,8 @@ func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dicti
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(next_state, enemy, action)
 	var targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, strike_tiles)
-	if targets.is_empty():
+	var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, strike_tiles)
+	if targets.is_empty() and affected_terrain.is_empty():
 		return next_state
 	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
@@ -3439,6 +3469,7 @@ func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dicti
 	for target: Dictionary in targets:
 		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
+	next_state = _damage_terrain_indices(next_state, affected_terrain, int(action.get("damage", 0)))
 	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
@@ -3852,6 +3883,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int) -> Dictionary:
 			next_state = _damage_enemy(next_state, enemy_index, damage)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
 			next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, trap.get("pos", Vector2i.ZERO), false)
+	next_state = _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, blast_tiles), damage)
 	_log(next_state, _trap_trigger_log(trap))
 	return next_state
 

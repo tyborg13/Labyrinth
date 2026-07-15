@@ -837,6 +837,8 @@ const FLOAT_TEXT_FRAME_SECONDS: float = 0.05
 const ENEMY_DEATH_MIN_FRAMES: int = 8
 const ENEMY_DEATH_FALLBACK_FRAMES: int = 16
 const ENEMY_DEATH_FALLBACK_FRAME_SECONDS: float = 0.065
+const TERRAIN_DESTRUCTION_FALLBACK_FRAMES: int = 16
+const TERRAIN_DESTRUCTION_FALLBACK_FRAME_SECONDS: float = 0.065
 const IMPACT_DECAL_MAX_TILES: int = 7
 const FATIGUE_EFFECT_FRAMES: int = 9
 const FATIGUE_EFFECT_FRAME_SECONDS: float = 0.045
@@ -942,6 +944,7 @@ const DIALOGUE_HINT_FOOTER_HEIGHT: float = 34.0
 const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
 const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
+const MENU_OVERLAY_Z_INDEX: int = 2000
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
@@ -3149,6 +3152,10 @@ func _build_menu_overlay() -> void:
 	_menu_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_menu_scrim.anchor_right = 1.0
 	_menu_scrim.anchor_bottom = 1.0
+	# Pause and its settings view share one absolute canvas plane above every combat
+	# HUD, hand-card fan, and transient gameplay effect.
+	_menu_scrim.z_index = MENU_OVERLAY_Z_INDEX
+	_menu_scrim.z_as_relative = false
 	ui_root.add_child(_menu_scrim)
 
 	_menu_dialog = PanelContainer.new()
@@ -11790,9 +11797,10 @@ func _animate_floating_text_presentation(display_state: Dictionary, base_present
 		_render_board_state(display_state, presentation)
 		await get_tree().create_timer(frame_seconds).timeout
 
-func _animate_enemy_deaths(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> void:
+func _animate_defeats_and_terrain_destruction(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> void:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
-	if death_units.is_empty():
+	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
+	if death_units.is_empty() and destroyed_terrain.is_empty():
 		return
 	var frame_count: int = ENEMY_DEATH_MIN_FRAMES
 	var frame_seconds: float = ENEMY_DEATH_FALLBACK_FRAME_SECONDS
@@ -11800,6 +11808,10 @@ func _animate_enemy_deaths(before_state: Dictionary, after_state: Dictionary, ba
 		var unit_frame_count: int = _enemy_death_frame_count_for_unit(unit)
 		frame_count = maxi(frame_count, unit_frame_count)
 		frame_seconds = minf(frame_seconds, _enemy_death_frame_seconds_for_unit(unit))
+	for terrain: Dictionary in destroyed_terrain:
+		var terrain_frame_count: int = _terrain_destruction_frame_count_for_unit(terrain)
+		frame_count = maxi(frame_count, terrain_frame_count)
+		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
 	for frame: int in range(frame_count):
 		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
@@ -11811,8 +11823,19 @@ func _animate_enemy_deaths(before_state: Dictionary, after_state: Dictionary, ba
 			animated_unit["death_frame"] = clampi(death_frame, 0, maxi(0, unit_frame_count - 1))
 			animated_unit["death_progress"] = progress
 			animated_units.append(animated_unit)
+		var animated_terrain: Array[Dictionary] = []
+		for terrain: Dictionary in destroyed_terrain:
+			var animated_prop: Dictionary = terrain.duplicate(true)
+			var terrain_frame_count: int = _terrain_destruction_frame_count_for_unit(animated_prop)
+			var destruction_frame: int = int(round(progress * float(maxi(1, terrain_frame_count) - 1)))
+			animated_prop["destruction_frame"] = clampi(destruction_frame, 0, maxi(0, terrain_frame_count - 1))
+			animated_prop["destruction_progress"] = progress
+			animated_terrain.append(animated_prop)
 		var presentation: Dictionary = base_presentation.duplicate(true)
-		presentation["death_animation_units"] = animated_units
+		if not animated_units.is_empty():
+			presentation["death_animation_units"] = animated_units
+		if not animated_terrain.is_empty():
+			presentation["terrain_destruction_units"] = animated_terrain
 		_render_board_state(after_state, presentation)
 		await get_tree().create_timer(frame_seconds).timeout
 	_render_board_state(after_state, {})
@@ -11820,7 +11843,8 @@ func _animate_enemy_deaths(before_state: Dictionary, after_state: Dictionary, ba
 
 func _death_hold_presentation(before_state: Dictionary, after_state: Dictionary, base_presentation: Dictionary = {}) -> Dictionary:
 	var death_units: Array[Dictionary] = _defeated_enemy_units_between_states(before_state, after_state)
-	if death_units.is_empty():
+	var destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
+	if death_units.is_empty() and destroyed_terrain.is_empty():
 		return base_presentation
 	var presentation: Dictionary = base_presentation.duplicate(true)
 	var hold_units: Array[Dictionary] = []
@@ -11829,7 +11853,16 @@ func _death_hold_presentation(before_state: Dictionary, after_state: Dictionary,
 		hold_unit["death_frame"] = 0
 		hold_unit["death_progress"] = 0.0
 		hold_units.append(hold_unit)
-	presentation["death_animation_units"] = hold_units
+	if not hold_units.is_empty():
+		presentation["death_animation_units"] = hold_units
+	var held_terrain: Array[Dictionary] = []
+	for terrain: Dictionary in destroyed_terrain:
+		var held_prop: Dictionary = terrain.duplicate(true)
+		held_prop["destruction_frame"] = 0
+		held_prop["destruction_progress"] = 0.0
+		held_terrain.append(held_prop)
+	if not held_terrain.is_empty():
+		presentation["terrain_destruction_units"] = held_terrain
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
@@ -11849,6 +11882,18 @@ func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
 	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))
 	return maxf(0.01, float(definition.get("death_frame_seconds", ENEMY_DEATH_FALLBACK_FRAME_SECONDS)))
+
+func _terrain_destruction_frame_count_for_unit(terrain: Dictionary) -> int:
+	if board_view != null and board_view.has_method("_terrain_destruction_frame_count"):
+		var board_count: int = int(board_view.call("_terrain_destruction_frame_count", terrain))
+		if board_count > 0:
+			return board_count
+	return TERRAIN_DESTRUCTION_FALLBACK_FRAMES
+
+func _terrain_destruction_frame_seconds_for_unit(terrain: Dictionary) -> float:
+	if board_view != null and board_view.has_method("_terrain_destruction_frame_seconds"):
+		return maxf(0.01, float(board_view.call("_terrain_destruction_frame_seconds", terrain)))
+	return TERRAIN_DESTRUCTION_FALLBACK_FRAME_SECONDS
 
 func _fatigue_damage_events_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var before_deck: Dictionary = before_state.get("deck", {})
@@ -12325,7 +12370,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			}))
 			await _animate_intensity_gain(element_id, after_value)
 			await get_tree().create_timer(0.08).timeout
-	await _animate_enemy_deaths(before_state, after_state)
+	await _animate_defeats_and_terrain_destruction(before_state, after_state)
 	await _animate_death_rewards(before_state, after_state)
 	for loot_var: Variant in _movement_picked_loot_between(before_state, after_state):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -12444,7 +12489,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"effect": step,
 					"floating_texts": _floating_texts_for_step(step)
 				}))
-				await _animate_enemy_deaths(before_status_step_state, animated_state)
+				await _animate_defeats_and_terrain_destruction(before_status_step_state, animated_state)
 			"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 				var focus_tiles: Array[Vector2i] = _vector2i_array([step.get("to", Vector2i(-1, -1))])
 				if str(step.get("kind", "")) in ["aoe", "lightning_strikes"]:
@@ -12488,7 +12533,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 					"impact_actor_keys": impact_actor_keys,
 					"floating_texts": _floating_texts_for_step(step)
 				})))
-				await _animate_enemy_deaths(before_attack_step_state, animated_state)
+				await _animate_defeats_and_terrain_destruction(before_attack_step_state, animated_state)
 
 func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var kind: String = str(step.get("kind", ""))
@@ -12519,7 +12564,7 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		"impact_actor_keys": impact_actor_keys,
 		"floating_texts": _visible_umbra_floating_texts(animated_state, _floating_texts_for_step(step))
 	}))
-	await _animate_enemy_deaths(before_step_state, animated_state)
+	await _animate_defeats_and_terrain_destruction(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
 
 func _visible_umbra_floating_texts(state: Dictionary, values: Array) -> Array[Dictionary]:
@@ -13105,6 +13150,38 @@ func _defeated_enemy_units_between_states(before_state: Dictionary, after_state:
 			"death_animation": true
 		})
 	return units
+
+func _destroyed_terrain_units_between_states(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var after_by_id: Dictionary = {}
+	for after_var: Variant in after_state.get("terrain", []):
+		if typeof(after_var) != TYPE_DICTIONARY:
+			continue
+		var after_terrain: Dictionary = after_var
+		after_by_id[str(after_terrain.get("id", ""))] = after_terrain
+	var destroyed: Array[Dictionary] = []
+	for before_var: Variant in before_state.get("terrain", []):
+		if typeof(before_var) != TYPE_DICTIONARY:
+			continue
+		var before_terrain: Dictionary = before_var
+		var terrain_id: String = str(before_terrain.get("id", ""))
+		if terrain_id.is_empty() or int(before_terrain.get("hp", 0)) <= 0:
+			continue
+		var after_terrain: Dictionary = after_by_id.get(terrain_id, {})
+		if not after_terrain.is_empty() and int(after_terrain.get("hp", 0)) > 0:
+			continue
+		var terrain_kind: String = str(before_terrain.get("kind", ""))
+		if terrain_kind.is_empty():
+			continue
+		var final_terrain: Dictionary = after_terrain if not after_terrain.is_empty() else before_terrain
+		destroyed.append({
+			"key": "terrain_%s" % terrain_id,
+			"id": terrain_id,
+			"kind": terrain_kind,
+			"pos": final_terrain.get("pos", before_terrain.get("pos", Vector2i.ZERO)),
+			"destruction_frame": 0,
+			"destruction_progress": 0.0
+		})
+	return destroyed
 
 func _enemy_footprint_for_animation(enemy: Dictionary, definition: Dictionary) -> Vector2i:
 	var footprint_value: Variant = enemy.get("footprint", Vector2i.ONE)

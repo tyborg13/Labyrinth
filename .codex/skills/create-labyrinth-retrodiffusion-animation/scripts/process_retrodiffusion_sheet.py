@@ -111,6 +111,8 @@ def main() -> int:
     parser.add_argument("--columns", type=int, default=4)
     parser.add_argument("--rows", type=int, default=4)
     parser.add_argument("--expected-cell", type=int, default=255)
+    parser.add_argument("--expected-cell-width", type=int)
+    parser.add_argument("--expected-cell-height", type=int)
     parser.add_argument("--cleanup-passes", type=int, default=3)
     parser.add_argument("--neighbor-radius", type=int, default=2)
     parser.add_argument("--contact-sheet", type=Path)
@@ -119,7 +121,9 @@ def main() -> int:
     args = parser.parse_args()
 
     image = Image.open(args.input).convert("RGBA")
-    expected = (args.columns * args.expected_cell, args.rows * args.expected_cell)
+    cell_width = args.expected_cell_width if args.expected_cell_width is not None else args.expected_cell
+    cell_height = args.expected_cell_height if args.expected_cell_height is not None else args.expected_cell
+    expected = (args.columns * cell_width, args.rows * cell_height)
     if image.size != expected:
         raise SystemExit(f"Expected sheet size {expected}, got {image.size}")
 
@@ -138,7 +142,7 @@ def main() -> int:
         "size": list(image.size),
         "columns": args.columns,
         "rows": args.rows,
-        "frame_size": [args.expected_cell, args.expected_cell],
+        "frame_size": [cell_width, cell_height],
         "frames": args.columns * args.rows,
         "removed_matte_pixels": removed,
         "remaining_bright_edge_matte_pixels": len(remaining_edge),

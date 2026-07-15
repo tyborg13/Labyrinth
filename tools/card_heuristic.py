@@ -41,7 +41,10 @@ Depth 1-2 fire traps use shallow burn before depth-3 fire/earth trap statuses
 cap at 2. Every room places a 4 HP potion and
 4 block shield, and combat rooms scatter 5-7 low-HP boxes/crates across eligible
 passable floor tiles, including edge-band tiles when connectivity stays intact.
-Those crates block movement without blocking line of sight.
+Those crates block movement without blocking line of sight and take damage from
+area effects, deterministic lightning strikes, and adjacent trap blasts. The
+existing AOE tile multiplier represents that conditional clearing upside rather
+than adding a layout-independent terrain coefficient.
 Enemies killed by a card add a bonus card play for the turn, so large damage and
 broad damage get a small execute-tempo premium.
 Player flow assumes 2 cards per turn, 2 draw per turn, and a 7-card max hand;

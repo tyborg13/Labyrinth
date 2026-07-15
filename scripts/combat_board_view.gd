@@ -72,6 +72,25 @@ const IDLE_SHEET_ROWS: int = 2
 const DEATH_FRAME_SECONDS: float = 0.065
 const DEATH_SHEET_COLUMNS: int = 4
 const DEATH_SHEET_ROWS: int = 4
+const TERRAIN_DESTRUCTION_FRAME_SECONDS: float = 0.065
+const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
+	"wooden_box": {
+		"path": "res://assets/art/tiles/wooden_box_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
+	},
+	"wooden_crate": {
+		"path": "res://assets/art/tiles/wooden_crate_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
+	}
+}
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
 const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
 const OUTER_WALL_RENDERING_ENABLED: bool = false
@@ -274,6 +293,7 @@ var _ambient_air_wisp_soft_textures: Dictionary = {}
 var _ambient_air_wisp_glow_textures: Dictionary = {}
 var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
+var _terrain_destruction_frames_by_kind: Dictionary = {}
 var _unit_textures: Dictionary = {}
 var _unit_assets_loaded: Dictionary = {}
 var _element_textures: Dictionary = {}
@@ -371,7 +391,8 @@ func _sync_dynamic_render_assets() -> void:
 		"_ambient_particle_textures", "_ambient_particle_glow_textures",
 		"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
 		"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
-		"_loot_textures", "_terrain_textures", "_unit_textures", "_unit_assets_loaded",
+		"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
+		"_unit_textures", "_unit_assets_loaded",
 		"_element_textures", "_trap_textures", "_trap_blast_textures",
 		"_door_icon_textures", "_keyword_icon_textures", "_unit_shadow_polygon_cache",
 		"_unit_shadow_bottom_ratio_cache", "_door_opening_frames", "_door_opening_flipped_frames",
@@ -643,6 +664,7 @@ func _rebuild_submission_caches() -> void:
 		"ability_tiles": presentation.get("ability_tiles", []),
 		"preview_units": presentation.get("preview_units", []),
 		"death_animation_units": presentation.get("death_animation_units", []),
+		"terrain_destruction_units": presentation.get("terrain_destruction_units", []),
 		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
 		"damage_preview": presentation.get("damage_preview", {}),
 		"effect_damage_preview": effect.get("damage_preview", {}),
@@ -2146,6 +2168,13 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if int(terrain.get("hp", 0)) <= 0:
 			continue
 		_draw_terrain_object(terrain, obstruction_entries)
+	for destruction_var: Variant in presentation.get("terrain_destruction_units", []):
+		if typeof(destruction_var) != TYPE_DICTIONARY:
+			continue
+		var destroyed_terrain: Dictionary = destruction_var
+		if destroyed_terrain.get("pos", Vector2i(-1, -1)) != tile:
+			continue
+		_draw_terrain_destruction(destroyed_terrain, obstruction_entries)
 	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
@@ -2758,6 +2787,22 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	draw_texture_rect(texture, terrain_rect, false, tint)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
+
+func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array = []) -> void:
+	var texture: Texture2D = _terrain_destruction_texture(terrain)
+	if texture == null:
+		return
+	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+	if tile.x < 0:
+		return
+	var terrain_kind: String = str(terrain.get("kind", ""))
+	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
+	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
+	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
+	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
+	if progress < 0.84:
+		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
+	draw_texture_rect(texture, terrain_rect, false, tint)
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
 	var draw_width: float = _tile_width() * _terrain_draw_width_scale(terrain_kind)
@@ -5305,6 +5350,11 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
 		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png")
 	}
+	_terrain_destruction_frames_by_kind.clear()
+	for terrain_kind: String in TERRAIN_DESTRUCTION_SHEET_LAYOUTS.keys():
+		var destruction_frames: Array[Texture2D] = _load_terrain_destruction_frames(terrain_kind)
+		if not destruction_frames.is_empty():
+			_terrain_destruction_frames_by_kind[terrain_kind] = destruction_frames
 	_element_textures.clear()
 	for element_id: String in ElementData.all_elements():
 		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
@@ -5406,6 +5456,39 @@ func _load_sprite_sheet_frames(path: String, columns: int, rows: int) -> Array[T
 		"order": IDLE_SHEET_ORDER_ROW_MAJOR,
 		"ping_pong": false
 	}))
+
+func _load_terrain_destruction_frames(terrain_kind: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(terrain_kind, {})
+	if layout.is_empty():
+		return frames
+	var sheet: Texture2D = AssetLoader.load_texture(str(layout.get("path", "")))
+	if sheet == null:
+		return frames
+	var columns: int = maxi(1, int(layout.get("columns", 1)))
+	var rows: int = maxi(1, int(layout.get("rows", 1)))
+	var frame_size := Vector2i(int(sheet.get_width() / columns), int(sheet.get_height() / rows))
+	return AssetLoader.build_sprite_sheet_frames(sheet, frame_size, _idle_frame_indices(layout))
+
+func _terrain_destruction_frames_for_kind(terrain_kind: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	for frame_var: Variant in _terrain_destruction_frames_by_kind.get(terrain_kind, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
+
+func _terrain_destruction_frame_count(terrain: Dictionary) -> int:
+	return _terrain_destruction_frames_for_kind(str(terrain.get("kind", ""))).size()
+
+func _terrain_destruction_frame_seconds(terrain: Dictionary) -> float:
+	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(str(terrain.get("kind", "")), {})
+	return maxf(0.01, float(layout.get("frame_seconds", TERRAIN_DESTRUCTION_FRAME_SECONDS)))
+
+func _terrain_destruction_texture(terrain: Dictionary) -> Texture2D:
+	var frames: Array[Texture2D] = _terrain_destruction_frames_for_kind(str(terrain.get("kind", "")))
+	if frames.is_empty():
+		return null
+	return frames[clampi(int(terrain.get("destruction_frame", 0)), 0, frames.size() - 1)]
 
 func _texture_for_scene_prop(prop: Dictionary) -> Texture2D:
 	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))

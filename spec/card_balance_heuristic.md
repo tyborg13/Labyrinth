@@ -154,7 +154,10 @@ Encounter calibration is also important:
   floor pickups. Combat rooms also scatter `5-7` low-HP boxes/crates across
   eligible passable floor tiles, including edge-band and corner floor tiles when
   connectivity stays intact. They block movement, do not block line of sight,
-  and can be destroyed by player or enemy attacks.
+  and can be destroyed by player or enemy attacks, area effects, deterministic
+  lightning strikes, and adjacent trap blasts. The heuristic's existing AOE
+  tile multiplier represents this conditional terrain-clearing upside; there is
+  no separate terrain coefficient because the value depends on the live layout.
 
 The heuristic still rewards cards that compress setup and payoff into the same
 play, but early reach assumptions should be reprobed before making fine-grained

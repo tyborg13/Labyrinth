@@ -79,9 +79,10 @@ The current event stream is enough to derive:
   count as removable block until that enemy resolves the block action
 - pierce actions resolved, sunder actions resolved, and enemy defense bypassed
   by observed HP damage
-- terrain HP damage, terrain destroyed, traps triggered, summed triggered trap
-  damage, and battlefield pickups collected, including dropped ember piles
-  reclaimed through `embers_recovered`
+- terrain HP damage and terrain destroyed from the full resolved transition,
+  including incidental AOE and triggered-trap blast damage; traps triggered,
+  summed triggered trap damage, and battlefield pickups collected, including
+  dropped ember piles reclaimed through `embers_recovered`
 - kills secured
 - player HP delta
 - block, stoneskin, and healing gained

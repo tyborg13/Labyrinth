@@ -43,6 +43,8 @@ python3 .codex/skills/create-labyrinth-retrodiffusion-animation/scripts/process_
 
 The script validates dimensions, preserves the native sheet size, removes only exterior magenta/purple matte residue, writes the destination PNG, and creates a checkerboard contact sheet. Inspect the contact sheet before continuing.
 
+When Retro Diffusion preserves a non-square source sprite's native dimensions, pass `--expected-cell-width` and `--expected-cell-height` instead of relying on the square `--expected-cell` default.
+
 For the prior Retro Diffusion 16-frame idle sheets:
 
 - output size: `1020x1020`
