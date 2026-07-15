@@ -156,6 +156,7 @@ func _initialize() -> void:
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_close_aoe_still_hits_player()
 	_test_enemy_aoe_damages_incidental_terrain()
+	_test_enemy_aoe_blocker_damages_incidental_terrain()
 	_test_frostglass_lancer_line_thrust_preview_and_resolution()
 	_test_enemy_threat_tiles_follow_intent()
 	_test_run_scene_frostglass_lancer_line_threat_overlay()
@@ -4792,6 +4793,48 @@ func _test_enemy_aoe_damages_incidental_terrain() -> void:
 	_assert(int(terrain.get("hp", 0)) == 0, "Enemy AOE should destroy destructible terrain on incidental affected squares")
 	var steps: Array = phase.get("steps", [])
 	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("terrain_losses", []) as Array).is_empty(), "Enemy AOE animation steps should report incidental terrain damage")
+
+func _test_enemy_aoe_blocker_damages_incidental_terrain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(4, 1)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(4, 5),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0
+	}]
+	layout["terrain"] = [
+		{"id": "aoe_blocker", "kind": "wooden_crate", "pos": Vector2i(4, 4), "hp": 3, "max_hp": 3},
+		{"id": "aoe_incidental", "kind": "wooden_box", "pos": Vector2i(5, 4), "hp": 3, "max_hp": 3}
+	]
+	var state: Dictionary = combat.create_combat(17822, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(state, 0, {
+		"name": "Blocked Ground Slam",
+		"actions": [{"type": "aoe", "damage": 3, "range": 0, "pattern": [[0, -1], [1, -1]], "rotate": false}]
+	})
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_terrain: Array = (phase.get("state", {}) as Dictionary).get("terrain", [])
+	_assert(after_terrain.size() == 2, "Terrain-only enemy AOE fixture should preserve both terrain entries")
+	if after_terrain.size() == 2:
+		_assert(int((after_terrain[0] as Dictionary).get("hp", 0)) == 0, "Terrain-only enemy AOE should destroy the directly attacked blocker")
+		_assert(int((after_terrain[1] as Dictionary).get("hp", 0)) == 0, "Terrain-only enemy AOE should also destroy props on incidental pattern squares")
+	_assert(int(((phase.get("state", {}) as Dictionary).get("player", {}) as Dictionary).get("hp", 0)) == 24, "Terrain-only enemy AOE regression should not rely on hitting an actor")
+	var terrain_loss_count: int = 0
+	for step_var: Variant in phase.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY or str((step_var as Dictionary).get("kind", "")) != "aoe":
+			continue
+		terrain_loss_count = ((step_var as Dictionary).get("terrain_losses", []) as Array).size()
+	_assert(terrain_loss_count == 2, "Terrain-only enemy AOE animation step should emit both terrain losses")
 
 func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	var combat: CombatEngine = CombatEngine.new()
