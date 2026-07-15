@@ -68,6 +68,9 @@ func _verify_style_contract(board: Control) -> void:
 	var outline_width_ratio: float = float(constants.get("MOVE_PATH_OUTLINE_WIDTH_RATIO", 0.0))
 	var glow_width_ratio: float = float(constants.get("MOVE_PATH_GLOW_WIDTH_RATIO", 0.0))
 	var gradient_layers: int = int(constants.get("MOVE_PATH_GRADIENT_LAYER_COUNT", 0))
+	var body_alpha: float = float(constants.get("MOVE_PATH_BODY_ALPHA", 1.0))
+	var gradient_base_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_BASE_ALPHA", 1.0))
+	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
 	_expect(shaft_ratio >= 0.44 and shaft_ratio <= 0.52, "Arrow shaft should occupy about half of a projected board square's height")
@@ -78,6 +81,9 @@ func _verify_style_contract(board: Control) -> void:
 	_expect(outline_width_ratio >= 1.08 and outline_width_ratio <= 1.16, "Arrow outline should define the ribbon without making it substantially wider")
 	_expect(glow_width_ratio >= 1.16 and glow_width_ratio <= 1.30, "Arrow bloom should stay soft and close to the ribbon")
 	_expect(gradient_layers >= 12, "Arrow shaft should blend its face through enough narrow gradient layers to avoid crude bands")
+	_expect(body_alpha >= 0.80 and body_alpha <= 0.90, "Arrow head should be subtly translucent without losing tactical readability")
+	_expect(gradient_base_alpha >= 0.64 and gradient_base_alpha <= 0.76, "Arrow shaft base should leave board texture visible through its shaded edge")
+	_expect(gradient_layer_alpha >= 0.035 and gradient_layer_alpha <= 0.075, "Arrow shaft highlight layers should build translucency gradually instead of becoming opaque through overdraw")
 	_expect(gradient_segments >= 20, "Single-tile path markers should use enough interpolated gradient segments to avoid visible color bands")
 
 func _capture(viewport: SubViewport, board: Control, path_tiles: Array[Vector2i], file_name: String, capture_index: int) -> void:

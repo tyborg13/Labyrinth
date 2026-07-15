@@ -35,6 +35,9 @@ const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
 const MOVE_PATH_GRADIENT_DARKEN: float = 0.34
 const MOVE_PATH_GRADIENT_LIGHTEN: float = 0.30
 const MOVE_PATH_GRADIENT_LAYER_COUNT: int = 16
+const MOVE_PATH_BODY_ALPHA: float = 0.86
+const MOVE_PATH_GRADIENT_BASE_ALPHA: float = 0.70
+const MOVE_PATH_GRADIENT_LAYER_ALPHA: float = 0.055
 const MOVE_PATH_GRADIENT_DISC_SEGMENTS: int = 24
 const MOVE_PATH_LIGHT_DIRECTION: Vector2 = Vector2(-0.42, -0.91)
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
@@ -5014,13 +5017,21 @@ func _blink_preview_effect_active() -> bool:
 	var effect: Dictionary = presentation.get("effect", {})
 	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
 
-func _draw_rounded_path_stroke(points: PackedVector2Array, color: Color, width: float, include_end_cap: bool = true) -> void:
+func _draw_rounded_path_stroke(
+	points: PackedVector2Array,
+	color: Color,
+	width: float,
+	include_end_cap: bool = true,
+	include_joint_discs: bool = true
+) -> void:
 	if points.size() < 2 or width <= 0.0:
 		return
 	draw_polyline(points, color, width, true)
 	var radius: float = width * 0.5
 	for index: int in range(points.size()):
 		if not include_end_cap and index == points.size() - 1:
+			continue
+		if not include_joint_discs and index > 0:
 			continue
 		draw_circle(points[index], radius, color, true, -1.0, true)
 
@@ -5095,17 +5106,21 @@ func _draw_gradient_path_fill(points: PackedVector2Array, width: float, color: C
 		return
 	var edge_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN)
 	var light_color: Color = color.lightened(MOVE_PATH_GRADIENT_LIGHTEN)
+	edge_color.a = color.a * MOVE_PATH_GRADIENT_BASE_ALPHA
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
-	_draw_rounded_path_stroke(points, edge_color, width, false)
+	_draw_rounded_path_stroke(points, edge_color, width, false, false)
 	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
 		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
 		var eased: float = smoothstep(0.0, 1.0, progress)
 		var layer_width: float = width * lerpf(0.96, 0.22, progress)
 		var layer_offset: Vector2 = light_direction * width * 0.29 * progress
+		var layer_color: Color = edge_color.lerp(light_color, eased)
+		layer_color.a = color.a * MOVE_PATH_GRADIENT_LAYER_ALPHA
 		_draw_rounded_path_stroke(
 			_offset_path_points(points, layer_offset),
-			edge_color.lerp(light_color, eased),
+			layer_color,
 			layer_width,
+			false,
 			false
 		)
 
@@ -5149,7 +5164,9 @@ func _path_gradient_color(offset: Vector2, radius: float, color: Color) -> Color
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
 	var light_amount: float = clampf(0.5 + offset.dot(light_direction) / maxf(radius * 2.0, 0.001), 0.0, 1.0)
 	light_amount = smoothstep(0.0, 1.0, light_amount)
-	return color.darkened(MOVE_PATH_GRADIENT_DARKEN).lerp(color.lightened(MOVE_PATH_GRADIENT_LIGHTEN), light_amount)
+	var gradient_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN).lerp(color.lightened(MOVE_PATH_GRADIENT_LIGHTEN), light_amount)
+	gradient_color.a = color.a * MOVE_PATH_BODY_ALPHA
+	return gradient_color
 
 func _scaled_path_polygon(points: PackedVector2Array, center: Vector2, scale: float, offset: Vector2) -> PackedVector2Array:
 	var scaled := PackedVector2Array()
