@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T04:11:12Z",
+  "updated_at": "2026-07-15T12:38:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5510,7 +5510,7 @@
       }
     },
     {
-      "id": "mnt_20260715T041112Z_ee882c85",
+      "id": "mnt_20260715T123830Z_8c692c0d",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5519,16 +5519,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Movement paths should use fat elevated arrow ribbons",
-      "details": "The preferred movement preview is a very thick cyan route ribbon occupying more than half the projected tile height, with one proportionately large classic destination head. Preserve blended highlight and bevel layers plus a visibly offset cast shadow so it reads above the board; avoid thin linework, tiny repeated segment heads, and waypoint-dot styling.",
+      "summary": "Movement arrows should be half-tile blended ribbons with seamless heads",
+      "details": "Inspection feedback refined the initial fat-arrow direction: keep the shaft near half the projected tile height after outline/glow, use smoothly interpolated shading instead of visible color bands, and form the large terminal head as an open-backed continuation of the shaft so no rear outline or rounded cap creates a pasted-on seam, especially after turns.",
       "status": "active",
-      "created_at": "2026-07-15T04:11:12Z",
-      "updated_at": "2026-07-15T04:11:12Z",
+      "created_at": "2026-07-15T12:38:30Z",
+      "updated_at": "2026-07-15T12:38:30Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260715T041112Z_ee882c85"
+      ],
       "source": {
         "branch": "codex/beautify-movement-path-arrows",
-        "commit": "9ca2cbe"
+        "commit": "54aabc0"
       }
     }
   ]
