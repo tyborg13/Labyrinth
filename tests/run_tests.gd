@@ -133,6 +133,7 @@ func _initialize() -> void:
 	_test_enemy_block_applies_on_actor_turn_only()
 	_test_aoe_hits_multiple_targets()
 	_test_close_aoe_hits_adjacent_targets()
+	_test_player_aoe_damages_incidental_terrain()
 	_test_rotated_line_aoe_uses_selected_orientation()
 	_test_combat_board_orders_line_aoe_preview_tiles()
 	_test_forced_movement_uses_selected_straight_line()
@@ -146,6 +147,7 @@ func _initialize() -> void:
 	_test_move_paths_only_cross_required_traps()
 	_test_terrain_blocks_movement_without_blocking_line_of_sight()
 	_test_attacking_trap_blasts_adjacent_tiles()
+	_test_trap_blasts_damage_incidental_terrain()
 	_test_enemy_attacks_profitable_trap_without_self_damage()
 	_test_enemy_breaks_blocking_terrain()
 	_test_enemy_moves_toward_breakable_chokepoint()
@@ -153,6 +155,7 @@ func _initialize() -> void:
 	_test_statuses_tick_on_affected_actor_turn()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_close_aoe_still_hits_player()
+	_test_enemy_aoe_damages_incidental_terrain()
 	_test_frostglass_lancer_line_thrust_preview_and_resolution()
 	_test_enemy_threat_tiles_follow_intent()
 	_test_run_scene_frostglass_lancer_line_threat_overlay()
@@ -160,6 +163,7 @@ func _initialize() -> void:
 	_test_enemy_threat_tiles_include_enemy_triggered_trap_blasts()
 	_test_large_enemy_threat_tiles_use_footprint()
 	_test_lightning_strikes_threat_tiles_are_previewed()
+	_test_lightning_strikes_damage_incidental_terrain()
 	_test_zekarion_tempest_breath_leaves_corner_safety()
 	_test_zekarion_summons_wisps_when_alone()
 	_test_summoned_wisps_receive_preview_intents()
@@ -199,6 +203,7 @@ func _initialize() -> void:
 	_test_cinder_enemies_have_turn_order_portraits()
 	_test_final_art_units_use_16_frame_idle_sheets()
 	_test_enemy_death_sheets_load_for_full_roster()
+	_test_terrain_destruction_sheets_load_for_full_prop_roster()
 	_test_final_art_idle_shadows_keep_silhouettes_for_every_frame()
 	_test_emaciated_man_uses_matching_idle_sheet()
 	_test_merchant_assets_load_for_board()
@@ -226,6 +231,7 @@ func _initialize() -> void:
 	_test_combat_board_loads_defense_heal_cast_frames()
 	_test_combat_board_draw_order_tracks_moving_unit_world_position()
 	_test_run_scene_surfaces_defeated_enemy_death_units()
+	_test_run_scene_surfaces_destroyed_terrain_units()
 	_test_keyword_icon_library_surfaces_tooltips()
 	_test_room_icon_library_covers_door_room_types()
 	_test_minimap_uses_door_icons_and_greys_cleared_rooms()
@@ -3904,6 +3910,35 @@ func _test_close_aoe_hits_adjacent_targets() -> void:
 	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 20, "Close AOE should hit the eastern adjacent tile")
 	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 120, "Close AOE should not hit diagonal tiles")
 
+func _test_player_aoe_damages_incidental_terrain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(4, 4)
+	layout["terrain"] = [{
+		"id": "aoe_box",
+		"kind": "wooden_box",
+		"pos": Vector2i(4, 3),
+		"hp": 5,
+		"max_hp": 5
+	}]
+	var state: Dictionary = combat.create_combat(41001, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["whirlwind_slash"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {
+		"type": "aoe",
+		"damage": 3,
+		"range": 0,
+		"pattern": [[0, -1], [1, 0]],
+		"rotate": false
+	})
+	var terrain: Dictionary = (state.get("terrain", []) as Array)[0]
+	_assert(int(terrain.get("hp", 0)) == 2, "Player AOE should damage destructible terrain on every affected square without directly targeting it")
+
 func _test_rotated_line_aoe_uses_selected_orientation() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(4101, _simple_room_layout(), {
@@ -4343,6 +4378,36 @@ func _test_attacking_trap_blasts_adjacent_tiles() -> void:
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
 	_assert(int(enemy.get("hp", 0)) == 7, "Trap blasts should damage enemies on adjacent tiles")
 
+func _test_trap_blasts_damage_incidental_terrain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(2, 4)
+	layout["terrain"] = [{
+		"id": "blast_crate",
+		"kind": "wooden_crate",
+		"pos": Vector2i(4, 4),
+		"hp": 3,
+		"max_hp": 3
+	}]
+	layout["traps"] = [{
+		"id": "trap_3_4",
+		"pos": Vector2i(3, 4),
+		"element": ElementData.FIRE,
+		"damage": 3,
+		"burn": 1
+	}]
+	var state: Dictionary = combat.create_combat(1651, layout, {
+		"hp": 20,
+		"max_hp": 20,
+		"deck_cards": ["spark_dart"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 0, "range": 2}, Vector2i(3, 4))
+	var terrain: Dictionary = (state.get("terrain", []) as Array)[0]
+	_assert(int(terrain.get("hp", 0)) == 0, "Trap blasts should destroy destructible terrain on incidental blast squares")
+
 func _test_enemy_attacks_profitable_trap_without_self_damage() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
@@ -4690,6 +4755,44 @@ func _test_enemy_close_aoe_still_hits_player() -> void:
 	var steps: Array = phase.get("steps", [])
 	_assert(not steps.is_empty() and str((steps.back() as Dictionary).get("kind", "")) == "aoe", "Close enemy AOE hits should still enqueue an impact step")
 
+func _test_enemy_aoe_damages_incidental_terrain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var layout: Dictionary = _simple_room_layout()
+	layout["player_start"] = Vector2i(4, 4)
+	layout["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"pos": Vector2i(4, 5),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0
+	}]
+	layout["terrain"] = [{
+		"id": "enemy_aoe_box",
+		"kind": "wooden_box",
+		"pos": Vector2i(5, 4),
+		"hp": 3,
+		"max_hp": 3
+	}]
+	var state: Dictionary = combat.create_combat(17821, layout, {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	_set_enemy_intent(state, 0, {
+		"name": "Wide Ground Slam",
+		"actions": [{"type": "aoe", "damage": 3, "range": 0, "pattern": [[0, -1], [1, -1]], "rotate": false}]
+	})
+	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
+	var after_state: Dictionary = phase.get("state", {})
+	var terrain: Dictionary = (after_state.get("terrain", []) as Array)[0]
+	_assert(int(terrain.get("hp", 0)) == 0, "Enemy AOE should destroy destructible terrain on incidental affected squares")
+	var steps: Array = phase.get("steps", [])
+	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("terrain_losses", []) as Array).is_empty(), "Enemy AOE animation steps should report incidental terrain damage")
+
 func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
@@ -5013,6 +5116,47 @@ func _test_lightning_strikes_threat_tiles_are_previewed() -> void:
 	_assert(attack_tiles.size() == expected_tiles.size(), "Lightning strike previews should show the deterministic strike tiles instead of hiding the attack")
 	for tile: Vector2i in expected_tiles:
 		_assert(attack_tiles.has(tile), "Lightning strike previews should include every deterministic strike tile")
+
+func _test_lightning_strikes_damage_incidental_terrain() -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(1821, _simple_room_layout(), {
+		"hp": 24,
+		"max_hp": 24,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var action: Dictionary = {"type": "lightning_strikes", "damage": 4, "count": 6, "shock": 1}
+	var enemy: Dictionary = {
+		"id": 1,
+		"type": "zekarion",
+		"pos": Vector2i(4, 3),
+		"footprint": Vector2i(2, 2),
+		"hp": 720,
+		"max_hp": 720,
+		"block": 0,
+		"intent": {"name": "Skybreak", "actions": [action]}
+	}
+	state["enemies"] = [enemy]
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var strike_tiles: Array[Vector2i] = combat.call("_lightning_strike_tiles", state, enemy, action)
+	var terrain_tile := Vector2i(-1, -1)
+	for tile: Vector2i in strike_tiles:
+		if tile != player_pos:
+			terrain_tile = tile
+			break
+	_assert(terrain_tile.x >= 0, "Lightning terrain regression fixture should find a non-player strike square")
+	state["terrain"] = [{
+		"id": "storm_crate",
+		"kind": "wooden_crate",
+		"pos": terrain_tile,
+		"hp": 4,
+		"max_hp": 4
+	}]
+	var after_state: Dictionary = combat.call("_resolve_enemy_intent", state, 0, {"name": "Skybreak", "actions": [action]})
+	var terrain: Dictionary = (after_state.get("terrain", []) as Array)[0]
+	_assert(int(terrain.get("hp", 0)) == 0, "Deterministic lightning strikes should destroy terrain on incidental strike squares even when no actor occupies them")
 
 func _test_zekarion_tempest_breath_leaves_corner_safety() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -5952,6 +6096,35 @@ func _test_enemy_death_sheets_load_for_full_roster() -> void:
 		_assert(bool(visible_unit.get("death_animation", false)), "Death presentation units should be marked for dissolve rendering")
 		_assert(int(visible_unit.get("hp", 0)) > 0, "Death presentation units should stay drawable even when combat state HP is zero")
 	_assert(found_death_unit, "Combat board should surface presentation-only death animation units")
+	board.free()
+
+func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
+	var board := CombatBoardView.new()
+	board.visible = true
+	board.call("_load_assets")
+	for terrain_kind: String in ["wooden_box", "wooden_crate"]:
+		var expected_frame_size: Vector2 = Vector2(128.0, 128.0) if terrain_kind == "wooden_box" else Vector2(120.0, 152.0)
+		var expected_last_origin: Vector2 = Vector2(expected_frame_size.x * 3.0, expected_frame_size.y * 3.0)
+		var destruction_path: String = "res://assets/art/tiles/%s_destroy.png" % terrain_kind
+		var terrain := {
+			"id": "%s_test" % terrain_kind,
+			"kind": terrain_kind,
+			"pos": Vector2i(4, 4),
+			"destruction_frame": 5,
+			"destruction_progress": 0.42
+		}
+		var destruction_frames: Array = board.call("_terrain_destruction_frames_for_kind", terrain_kind)
+		_assert(FileAccess.file_exists(destruction_path), "%s should have a dedicated destruction sheet beside its base art" % terrain_kind)
+		_assert(destruction_frames.size() == 16, "%s destruction sheet should load all 16 advanced-animation frames" % terrain_kind)
+		if destruction_frames.size() >= 16:
+			var first_frame: AtlasTexture = destruction_frames[0] as AtlasTexture
+			var last_frame: AtlasTexture = destruction_frames[destruction_frames.size() - 1] as AtlasTexture
+			_assert((destruction_frames[0] as Texture2D).get_size() == expected_frame_size, "%s destruction frames should preserve the native prop canvas" % terrain_kind)
+			_assert(first_frame != null and last_frame != null, "%s destruction frames should be atlas-backed slices" % terrain_kind)
+			_assert(first_frame.region.position == Vector2.ZERO, "%s destruction animation should begin at the intact source frame" % terrain_kind)
+			_assert(last_frame.region.position == expected_last_origin, "%s destruction animation should include the final 4x4 source frame" % terrain_kind)
+			_assert(board.call("_terrain_destruction_texture", terrain) == destruction_frames[5], "%s destruction presentation should select the requested frame" % terrain_kind)
+		_assert(is_equal_approx(float(board.call("_terrain_destruction_frame_seconds", terrain)), 0.065), "%s destruction animation should use the configured frame cadence" % terrain_kind)
 	board.free()
 
 func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
@@ -10155,6 +10328,43 @@ func _test_run_scene_surfaces_defeated_enemy_death_units() -> void:
 		_assert(hold_unit.get("pos", Vector2i.ZERO) == Vector2i(6, 4), "Death hold units should keep forced-movement deaths on the final tile")
 		_assert(int(hold_unit.get("death_frame", -1)) == 0, "Death hold units should start on the first death frame")
 		_assert(is_equal_approx(float(hold_unit.get("death_progress", -1.0)), 0.0), "Death hold units should not advance dissolve progress during impact text")
+	instance.free()
+
+func _test_run_scene_surfaces_destroyed_terrain_units() -> void:
+	var instance := RunSceneScript.new()
+	var before_state: Dictionary = {
+		"terrain": [{
+			"id": "box_a",
+			"kind": "wooden_box",
+			"pos": Vector2i(4, 4),
+			"hp": 3,
+			"max_hp": 3
+		}]
+	}
+	var after_state: Dictionary = before_state.duplicate(true)
+	var terrain_entries: Array = (after_state.get("terrain", []) as Array).duplicate(true)
+	var terrain: Dictionary = (terrain_entries[0] as Dictionary).duplicate(true)
+	terrain["hp"] = 0
+	terrain_entries[0] = terrain
+	after_state["terrain"] = terrain_entries
+	var destroyed: Array = instance.call("_destroyed_terrain_units_between_states", before_state, after_state)
+	_assert(destroyed.size() == 1, "RunScene should produce a destruction presentation unit for terrain crossing to zero HP")
+	if not destroyed.is_empty():
+		var destroyed_prop: Dictionary = destroyed[0]
+		_assert(str(destroyed_prop.get("key", "")) == "terrain_box_a", "Terrain destruction units should preserve stable terrain keys")
+		_assert(str(destroyed_prop.get("kind", "")) == "wooden_box", "Terrain destruction units should preserve kind for sheet lookup")
+		_assert(destroyed_prop.get("pos", Vector2i.ZERO) == Vector2i(4, 4), "Terrain destruction units should stay on the destroyed square")
+	var hold_presentation: Dictionary = instance.call("_death_hold_presentation", before_state, after_state, {
+		"focus_actor_keys": ["player"],
+		"floating_texts": []
+	})
+	var held_terrain: Array = hold_presentation.get("terrain_destruction_units", [])
+	_assert(held_terrain.size() == 1, "Post-lethal impact presentations should keep destroyed terrain visible on frame zero before breakup starts")
+	_assert(hold_presentation.get("focus_actor_keys", []) == ["player"], "Terrain destruction holds should preserve existing impact presentation keys")
+	if not held_terrain.is_empty():
+		var held_prop: Dictionary = held_terrain[0]
+		_assert(int(held_prop.get("destruction_frame", -1)) == 0, "Terrain destruction holds should start on the first sheet frame")
+		_assert(is_equal_approx(float(held_prop.get("destruction_progress", -1.0)), 0.0), "Terrain destruction holds should not advance during impact text")
 	instance.free()
 
 func _test_run_scene_discard_pile_is_face_up_without_count() -> void:

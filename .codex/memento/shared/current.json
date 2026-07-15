@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T23:18:55Z",
+  "updated_at": "2026-07-15T03:05:59Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5463,6 +5463,28 @@
       "source": {
         "branch": "codex/fix-merchant-blocking-room-doors",
         "commit": "062b98b"
+      }
+    },
+    {
+      "id": "mnt_20260715T030559Z_e9824b45",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Terrain destruction presentation is transition-driven",
+      "details": "Zero-HP terrain is hidden by normal board drawing, so RunScene diffs before/after terrain state, holds destruction frame 0 during impact/floating-text presentation, then supplies presentation-only terrain_destruction_units through the animation. Tile-scoped damage sources such as player/enemy AOE, deterministic lightning strikes, and trap blasts should apply the same damage to destructible terrain on every affected tile.",
+      "status": "active",
+      "created_at": "2026-07-15T03:05:59Z",
+      "updated_at": "2026-07-15T03:05:59Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/dynamic-destructible-terrain",
+        "commit": "622a15f"
       }
     }
   ]
