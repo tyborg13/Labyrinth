@@ -14,6 +14,7 @@ func _initialize() -> void:
 	_clear_probe_output(OUTPUT_DIR)
 	var viewport := SubViewport.new()
 	viewport.size = VIEWPORT_SIZE
+	viewport.msaa_2d = int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", Viewport.MSAA_DISABLED))
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ALWAYS
 	viewport.disable_3d = true
@@ -22,7 +23,7 @@ func _initialize() -> void:
 	board.size = Vector2(VIEWPORT_SIZE)
 	viewport.add_child(board)
 	board.set_process(false)
-	_verify_style_contract(board)
+	_verify_style_contract(board, viewport)
 	await process_frame
 
 	await _capture(
@@ -65,7 +66,7 @@ func _initialize() -> void:
 		print("MOVEMENT PATH ARROW PROBE: FAIL (%d errors)" % _errors.size())
 		quit(1)
 
-func _verify_style_contract(board: Control) -> void:
+func _verify_style_contract(board: Control, viewport: SubViewport) -> void:
 	var board_script: Script = board.get_script()
 	var constants: Dictionary = board_script.get_script_constant_map()
 	var shaft_ratio: float = float(constants.get("MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO", 0.0))
@@ -81,7 +82,8 @@ func _verify_style_contract(board: Control) -> void:
 	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
-	_expect(int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", 0)) >= 2, "Real display renderers should use at least 4x project-wide 2D MSAA")
+	_expect(int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", 0)) >= Viewport.MSAA_4X, "Real display renderers should use at least 4x project-wide 2D MSAA")
+	_expect(viewport.msaa_2d >= Viewport.MSAA_4X, "Focused arrow captures should render their offscreen viewport with at least 4x 2D MSAA")
 	_expect(shaft_ratio >= 0.32 and shaft_ratio <= 0.345, "Arrow shaft should be about ten percent narrower than the 0.37-tile pass")
 	_expect(head_width_ratio >= 0.39 and head_width_ratio <= 0.42, "Arrow head should scale down about ten percent with the narrower shaft")
 	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.41 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.435, "Arrow head should be about ten percent shorter than the 0.47-tile pass")
