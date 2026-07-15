@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T03:30:11Z",
+  "updated_at": "2026-07-15T03:50:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5466,7 +5466,7 @@
       }
     },
     {
-      "id": "mnt_20260715T033011Z_8e0bbd45",
+      "id": "mnt_20260715T035054Z_afec9747",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -5475,16 +5475,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_engine.gd",
-      "summary": "Enemy activations use one deterministic target and route plan for movement, attack, preview, and analytics.",
-      "details": "For move-plus-attack intents, prefer the shortest safe path to the first attack-enabling endpoint; move_away may maximize separation only while preserving the attack. If no same-turn attack exists, future routing gives finite costs to destructible terrain and allied congestion and a high finite cost to traps. Resolution keeps the selected target for the full activation, and exact path data is reused by animation and hover projections.",
+      "summary": "Enemy activations share one deterministic plan across resolution, preview, animation, and analytics.",
+      "details": "Targeted move-plus-attack intents minimize movement to an attack-enabling endpoint first, then prefer safer equal-length paths; move-away attacks preserve the attack, while attackless retreats maximize safe separation. Future routing uses finite terrain-clearing and trap costs, treats allies as hard current but temporary future blockers, and credits an immediately traversable prefix to avoid needless stalls. Exact hover projections reuse the plan and honor freeze, shock, immobilize, and deterministic lightning tiles.",
       "status": "active",
-      "created_at": "2026-07-15T03:30:11Z",
-      "updated_at": "2026-07-15T03:30:11Z",
+      "created_at": "2026-07-15T03:50:54Z",
+      "updated_at": "2026-07-15T03:50:54Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260715T033011Z_8e0bbd45"
+      ],
       "source": {
         "branch": "codex/deterministic-coherent-enemy-pathfinding-targeting-and-previews",
-        "commit": "622a15f"
+        "commit": "a3b6598"
       }
     }
   ]

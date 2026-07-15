@@ -11,12 +11,17 @@ static func run(expect: Callable) -> void:
 	_test_ranged_moves_to_line_of_sight(expect)
 	_test_directional_aoe_uses_attack_enabling_endpoint(expect)
 	_test_retreat_preserves_followup_attack(expect)
+	_test_attackless_retreat_moves_away_without_projection(expect)
+	_test_shorter_trapped_attack_route_beats_longer_safe_route(expect)
 	_test_safe_route_beats_equal_length_trap_route(expect)
 	_test_forced_choke_crosses_and_triggers_trap(expect)
 	_test_blocking_terrain_is_cleared(expect)
 	_test_enemy_congestion_is_a_hard_current_blocker(expect)
+	_test_open_detour_beats_avoidable_allied_stall(expect)
 	_test_large_footprint_stops_when_attack_is_available(expect)
 	_test_threat_exposes_exact_plan_beside_conservative_union(expect)
+	_test_lightning_projection_matches_deterministic_strikes(expect)
+	_test_exact_projection_respects_action_denying_statuses(expect)
 	_test_enemy_action_analytics_retains_path(expect)
 
 static func _test_deterministic_illusion_tie(expect: Callable) -> void:
@@ -122,6 +127,38 @@ static func _test_retreat_preserves_followup_attack(expect: Callable) -> void:
 	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
 	expect.call(int((resolved.get("player", {}) as Dictionary).get("hp", 0)) == 20, "A kiting enemy should preserve and execute its follow-up attack")
 
+static func _test_attackless_retreat_moves_away_without_projection(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Retreat and Brace",
+		"actions": [
+			{"type": "move_away", "range": 2},
+			{"type": "block", "amount": 3}
+		]
+	}
+	var state: Dictionary = _state(combat, 241, Vector2i(2, 4), [_enemy(Vector2i(4, 4), intent, "harrier")])
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var destination: Vector2i = plan.get("destination", Vector2i.ZERO)
+	expect.call(destination.distance_to(Vector2i(2, 4)) > Vector2i(4, 4).distance_to(Vector2i(2, 4)), "Attackless move_away intents should deterministically increase separation instead of routing toward fake melee range")
+	expect.call(not bool(plan.get("attack_available", true)) and _tiles(plan.get("projected_attack", [])).is_empty(), "Attackless retreat intents should not expose a fake exact attack")
+	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0).get("state", {})
+	var resolved_enemy: Dictionary = (resolved.get("enemies", []) as Array)[0]
+	expect.call(resolved_enemy.get("pos", Vector2i.ZERO) == destination and int(resolved_enemy.get("block", 0)) == 3, "Attackless retreat resolution should use the pure retreat plan and still resolve support")
+
+static func _test_shorter_trapped_attack_route_beats_longer_safe_route(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Shortest Claw",
+		"actions": [
+			{"type": "move_toward", "range": 3},
+			{"type": "melee", "damage": 3, "range": 1}
+		]
+	}
+	var traps: Array = [{"id": "trap_3_4", "pos": Vector2i(3, 4), "element": "fire", "damage": 2}]
+	var state: Dictionary = _state(combat, 242, Vector2i(2, 4), [_enemy(Vector2i(4, 4), intent)], [], traps)
+	var path: Array[Vector2i] = _tiles(combat.enemy_intent_plan(state, 0).get("path", []))
+	expect.call(path == _tiles([Vector2i(4, 4), Vector2i(3, 4)]), "Same-turn attacks should use the minimum-step route even when a longer safe route also reaches an attack tile")
+
 static func _test_safe_route_beats_equal_length_trap_route(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
@@ -199,6 +236,26 @@ static func _test_enemy_congestion_is_a_hard_current_blocker(expect: Callable) -
 	var clear_plan: Dictionary = combat.enemy_intent_plan(state, 0)
 	expect.call(_tiles(clear_plan.get("path", [])).size() > 1, "Enemies should resume progress deterministically once congestion clears")
 
+static func _test_open_detour_beats_avoidable_allied_stall(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Detour Advance",
+		"actions": [
+			{"type": "move_toward", "range": 1},
+			{"type": "melee", "damage": 3, "range": 1}
+		]
+	}
+	var enemies: Array = [
+		_enemy(Vector2i(2, 4), intent),
+		_enemy(Vector2i(3, 4), {"name": "Wait", "actions": []}, "crawler", 2)
+	]
+	var state: Dictionary = _state(combat, 281, Vector2i(5, 4), enemies)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	var path: Array[Vector2i] = _tiles(plan.get("path", []))
+	expect.call(path.size() == 2 and path[1] != Vector2i(3, 4), "An enemy should begin an open future-attack detour instead of stalling behind an ally")
+	var route: Array[Vector2i] = _tiles(plan.get("route", []))
+	expect.call(not route.has(Vector2i(3, 4)) and route[route.size() - 1].distance_to(Vector2i(5, 4)) == 1.0, "The open detour should remain a coherent route to a future attack position")
+
 static func _test_large_footprint_stops_when_attack_is_available(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var intent: Dictionary = {
@@ -232,6 +289,52 @@ static func _test_threat_exposes_exact_plan_beside_conservative_union(expect: Ca
 	expect.call(_tiles(threat.get("projected_path", [])) == _tiles(plan.get("path", [])), "Threat preview should expose the exact current projected path")
 	expect.call(threat.get("projected_destination", Vector2i.ZERO) == plan.get("destination", Vector2i.ZERO), "Threat preview should distinguish the exact destination")
 	expect.call(_tiles(threat.get("projected_attack", [])) == _tiles(plan.get("projected_attack", [])), "Threat preview should expose the exact projected attack separately")
+
+static func _test_lightning_projection_matches_deterministic_strikes(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Skybreak",
+		"actions": [{"type": "lightning_strikes", "damage": 7, "count": 6, "shock": 1}]
+	}
+	var state: Dictionary = _state(combat, 301, Vector2i(2, 4), [_enemy(Vector2i(4, 4), intent, "zekarion")])
+	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
+	var exact: Array[Vector2i] = _tiles(threat.get("projected_attack", []))
+	expect.call(not exact.is_empty(), "Lightning strikes should expose their deterministic exact strike tiles")
+	var conservative: Array[Vector2i] = _tiles(threat.get("attack", []))
+	expect.call(exact.size() == conservative.size() and conservative.all(func(tile: Vector2i) -> bool: return exact.has(tile)), "Exact lightning projection should match the deterministic strike set used by conservative threat")
+
+static func _test_exact_projection_respects_action_denying_statuses(expect: Callable) -> void:
+	var combat: CombatEngine = CombatEngine.new()
+	var intent: Dictionary = {
+		"name": "Status Claw",
+		"actions": [
+			{"type": "move_toward", "range": 2},
+			{"type": "melee", "damage": 3, "range": 1}
+		]
+	}
+	var frozen_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
+	frozen_enemy["freeze"] = 1
+	var frozen_state: Dictionary = _state(combat, 302, Vector2i(2, 4), [frozen_enemy])
+	var frozen_threat: Dictionary = combat.enemy_threat_tiles(frozen_state, 0)
+	expect.call(_tiles(frozen_threat.get("projected_path", [])).size() == 1 and _tiles(frozen_threat.get("projected_attack", [])).is_empty(), "Frozen enemies should show no exact movement or attack for the skipped activation")
+	var frozen_resolved: Dictionary = combat.resolve_enemy_turn_with_steps(frozen_state, 0).get("state", {})
+	expect.call(((frozen_resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4) and int((frozen_resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Frozen exact projection should match skipped resolution")
+
+	var shocked_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
+	shocked_enemy["shock"] = 1
+	var shocked_state: Dictionary = _state(combat, 303, Vector2i(2, 4), [shocked_enemy])
+	var shocked_threat: Dictionary = combat.enemy_threat_tiles(shocked_state, 0)
+	expect.call(_tiles(shocked_threat.get("projected_path", [])).size() > 1 and _tiles(shocked_threat.get("projected_attack", [])).is_empty(), "Shocked enemies should retain exact movement but suppress the skipped attack projection")
+	var shocked_resolved: Dictionary = combat.resolve_enemy_turn_with_steps(shocked_state, 0).get("state", {})
+	expect.call(((shocked_resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == shocked_threat.get("projected_destination", Vector2i.ZERO) and int((shocked_resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Shocked exact projection should match movement-only resolution")
+
+	var immobilized_enemy: Dictionary = _enemy(Vector2i(5, 4), intent)
+	immobilized_enemy["immobilize"] = true
+	var immobilized_state: Dictionary = _state(combat, 304, Vector2i(2, 4), [immobilized_enemy])
+	var immobilized_threat: Dictionary = combat.enemy_threat_tiles(immobilized_state, 0)
+	expect.call(_tiles(immobilized_threat.get("projected_path", [])).size() == 1 and _tiles(immobilized_threat.get("projected_attack", [])).is_empty(), "Immobilized enemies should show no exact movement and no out-of-range attack")
+	var immobilized_resolved: Dictionary = combat.resolve_enemy_turn_with_steps(immobilized_state, 0).get("state", {})
+	expect.call(((immobilized_resolved.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4) and int((immobilized_resolved.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Immobilized exact projection should match stationary out-of-range resolution")
 
 static func _test_enemy_action_analytics_retains_path(expect: Callable) -> void:
 	var previous_storage_dir: String = AnalyticsStore.storage_dir()

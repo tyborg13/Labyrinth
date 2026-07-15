@@ -1039,7 +1039,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	if not intent.is_empty():
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 		var actions: Array = intent.get("actions", [])
-		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized)
+		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked)
 		for action_index: int in range(actions.size()):
 			var action_var: Variant = actions[action_index]
 			if typeof(action_var) != TYPE_DICTIONARY:
@@ -1098,7 +1098,10 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var intent: Dictionary = enemy.get("intent", {})
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
-	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent)
+	var frozen: bool = int(enemy.get("freeze", 0)) > 0
+	var shocked: bool = int(enemy.get("shock", 0)) > 0
+	var immobilized: bool = bool(enemy.get("immobilize", false))
+	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent, frozen or immobilized, frozen or shocked)
 	var occupied: Dictionary = _enemy_threat_path_blockers(state, enemy, true, true)
 	var blocked_target: Vector2i = Vector2i(-999, -999)
 	var frontier: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
@@ -1168,7 +1171,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		if not intent.is_empty():
 			steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 			var actions: Array = intent.get("actions", [])
-			var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized)
+			var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked)
 			for action_index: int in range(actions.size()):
 				var action_var: Variant = actions[action_index]
 				if typeof(action_var) != TYPE_DICTIONARY:
@@ -5370,7 +5373,7 @@ func _preview_block_for_intent(intent: Dictionary) -> int:
 			total += int(action.get("amount", 0))
 	return total
 
-func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false) -> Dictionary:
+func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return {}
@@ -5381,6 +5384,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var actions: Array = intent.get("actions", [])
 	var movement_index: int = -1
 	var attack_index: int = -1
+	var pattern_attack_index: int = -1
 	for index: int in range(actions.size()):
 		if typeof(actions[index]) != TYPE_DICTIONARY:
 			continue
@@ -5389,6 +5393,8 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 			movement_index = index
 		if attack_index < 0 and action_type in ATTACK_ACTION_TYPES:
 			attack_index = index
+		if pattern_attack_index < 0 and action_type == "lightning_strikes":
+			pattern_attack_index = index
 	var movement_action: Dictionary = {}
 	if movement_index >= 0:
 		movement_action = (actions[movement_index] as Dictionary).duplicate(true)
@@ -5401,7 +5407,8 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var move_range: int = 0 if movement_disabled else int(movement_action.get("range", 0))
 	var movement_type: String = str(movement_action.get("type", "move_toward"))
 	var actual_records: Array[Dictionary] = _enemy_actual_path_records(state, enemy, move_range)
-	var direct_candidate: Dictionary = _best_enemy_direct_attack_candidate(state, enemy, planning_attack, actual_records, movement_type)
+	var pure_retreat: bool = movement_type == "move_away" and movement_index >= 0 and attack_index < 0
+	var direct_candidate: Dictionary = _best_enemy_retreat_candidate(state, enemy, actual_records) if pure_retreat else _best_enemy_direct_attack_candidate(state, enemy, planning_attack, actual_records, movement_type)
 	var target: Dictionary = {}
 	var actual_path: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
 	var future_route: Array[Vector2i] = actual_path.duplicate()
@@ -5412,9 +5419,9 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		actual_path = _vector2i_values(direct_candidate.get("path", []))
 		future_route = actual_path.duplicate()
 		route_cost = int(direct_candidate.get("cost", 0))
-		attack_available = true
+		attack_available = not pure_retreat
 	else:
-		var future_candidate: Dictionary = _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
+		var future_candidate: Dictionary = {} if pure_retreat else _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
 		if not future_candidate.is_empty():
 			target = (future_candidate.get("target", {}) as Dictionary).duplicate(true)
 			future_route = _vector2i_values(future_candidate.get("route", []))
@@ -5430,20 +5437,27 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var terrain_index: int = -1
 	var trap_index: int = -1
 	var trap_tile: Vector2i = INVALID_TILE
-	if attack_index >= 0:
+	if attack_index >= 0 and not attack_disabled:
 		trap_index = _best_enemy_trap_attack_index(preview_state, enemy_index, planning_attack)
 		if trap_index >= 0:
 			trap_tile = ((preview_state.get("traps", []) as Array)[trap_index] as Dictionary).get("pos", INVALID_TILE)
 		if trap_index < 0 and not target_reachable:
 			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
-	var projected_attack_tiles: Array[Vector2i] = _enemy_projected_attack_tiles(
-		preview_state,
-		preview_enemy,
-		planning_attack,
-		target if target_reachable else {},
-		terrain_index,
-		trap_index
-	)
+	var projected_attack_tiles: Array[Vector2i] = _vector2i_values([])
+	if attack_index >= 0 and not attack_disabled:
+		projected_attack_tiles = _enemy_projected_attack_tiles(
+			preview_state,
+			preview_enemy,
+			planning_attack,
+			target if target_reachable else {},
+			terrain_index,
+			trap_index
+		)
+	elif pattern_attack_index >= 0 and not attack_disabled:
+		var pattern_action: Dictionary = actions[pattern_attack_index]
+		projected_attack_tiles = _lightning_strike_tiles(preview_state, preview_enemy, pattern_action)
+		attack_available = not _actor_targets_in_tiles(preview_state, projected_attack_tiles).is_empty()
+		target = {}
 	return {
 		"enemy_index": enemy_index,
 		"enemy_key": _enemy_key(enemy),
@@ -5456,7 +5470,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"route": future_route,
 		"destination": destination,
 		"route_cost": route_cost,
-		"attack_available": attack_available and target_reachable,
+		"attack_available": not attack_disabled and attack_available and (target_reachable or pattern_attack_index >= 0),
 		"blocking_terrain_index": terrain_index,
 		"trap_attack_index": trap_index,
 		"trap_attack_tile": trap_tile,
@@ -5508,6 +5522,47 @@ func _enemy_actual_record_precedes(candidate: Dictionary, incumbent: Dictionary)
 		return candidate_cost < incumbent_cost
 	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
 
+func _best_enemy_retreat_candidate(state: Dictionary, enemy: Dictionary, path_records: Array[Dictionary]) -> Dictionary:
+	var target: Dictionary = _closest_enemy_target(state, enemy)
+	if target.is_empty():
+		return {}
+	var best: Dictionary = {}
+	for record: Dictionary in path_records:
+		var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
+		var candidate_enemy: Dictionary = enemy.duplicate(true)
+		candidate_enemy["pos"] = destination
+		var candidate: Dictionary = {
+			"target": target,
+			"path": record.get("path", []),
+			"destination": destination,
+			"trap_cost": int(record.get("trap_cost", 0)),
+			"steps": int(record.get("steps", 0)),
+			"separation": _enemy_distance_to_tile(candidate_enemy, target.get("pos", Vector2i.ZERO)),
+			"cost": int(record.get("trap_cost", 0)) + int(record.get("steps", 0))
+		}
+		if best.is_empty() or _enemy_retreat_candidate_precedes(candidate, best):
+			best = candidate
+	return best
+
+func _enemy_retreat_candidate_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
+	var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
+	if candidate_trap_cost != incumbent_trap_cost:
+		return candidate_trap_cost < incumbent_trap_cost
+	var candidate_separation: int = int(candidate.get("separation", 0))
+	var incumbent_separation: int = int(incumbent.get("separation", 0))
+	if candidate_separation != incumbent_separation:
+		return candidate_separation > incumbent_separation
+	var candidate_steps: int = int(candidate.get("steps", 0))
+	var incumbent_steps: int = int(incumbent.get("steps", 0))
+	if candidate_steps != incumbent_steps:
+		return candidate_steps < incumbent_steps
+	var candidate_destination: Vector2i = candidate.get("destination", INVALID_TILE)
+	var incumbent_destination: Vector2i = incumbent.get("destination", INVALID_TILE)
+	if candidate_destination != incumbent_destination:
+		return _tile_precedes(candidate_destination, incumbent_destination)
+	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+
 func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, path_records: Array[Dictionary], movement_type: String) -> Dictionary:
 	var best: Dictionary = {}
 	for target: Dictionary in _actor_targets(state):
@@ -5533,11 +5588,11 @@ func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, a
 	return best
 
 func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: Dictionary, movement_type: String) -> bool:
-	var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
-	var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
-	if candidate_trap_cost != incumbent_trap_cost:
-		return candidate_trap_cost < incumbent_trap_cost
 	if movement_type == "move_away":
+		var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
+		var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
+		if candidate_trap_cost != incumbent_trap_cost:
+			return candidate_trap_cost < incumbent_trap_cost
 		var candidate_target_distance: int = int(candidate.get("target_distance", 9999))
 		var incumbent_target_distance: int = int(incumbent.get("target_distance", 9999))
 		if candidate_target_distance != incumbent_target_distance:
@@ -5558,6 +5613,10 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 		var incumbent_steps: int = int(incumbent.get("steps", 0))
 		if candidate_steps != incumbent_steps:
 			return candidate_steps < incumbent_steps
+		var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
+		var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
+		if candidate_trap_cost != incumbent_trap_cost:
+			return candidate_trap_cost < incumbent_trap_cost
 		var candidate_target_distance: int = int(candidate.get("target_distance", 9999))
 		var incumbent_target_distance: int = int(incumbent.get("target_distance", 9999))
 		if candidate_target_distance != incumbent_target_distance:
@@ -5587,6 +5646,14 @@ func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, at
 func _enemy_future_route_candidate_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
 	var candidate_cost: int = int(candidate.get("cost", 999999))
 	var incumbent_cost: int = int(incumbent.get("cost", 999999))
+	var candidate_open_prefix: int = int(candidate.get("open_prefix_steps", 0))
+	var incumbent_open_prefix: int = int(incumbent.get("open_prefix_steps", 0))
+	var candidate_priority_cost: int = candidate_cost - candidate_open_prefix
+	var incumbent_priority_cost: int = incumbent_cost - incumbent_open_prefix
+	if candidate_priority_cost != incumbent_priority_cost:
+		return candidate_priority_cost < incumbent_priority_cost
+	if candidate_open_prefix != incumbent_open_prefix:
+		return candidate_open_prefix > incumbent_open_prefix
 	if candidate_cost != incumbent_cost:
 		return candidate_cost < incumbent_cost
 	var candidate_distance: int = int(candidate.get("target_distance", 9999))
@@ -5602,7 +5669,7 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	var start_path: Array[Vector2i] = _vector2i_values([start])
 	var open: Array[Dictionary]
-	open.append({"tile": start, "cost": 0, "steps": 0, "route": start_path})
+	open.append({"tile": start, "cost": 0, "steps": 0, "route": start_path, "open_prefix_steps": 0, "prefix_blocked": false})
 	var best_by_tile: Dictionary = {start: open[0]}
 	var closed: Dictionary = {}
 	while not open.is_empty():
@@ -5630,11 +5697,20 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 				continue
 			var next_route: Array[Vector2i] = route.duplicate()
 			next_route.append(next_tile)
+			var prefix_blocked: bool = bool(current.get("prefix_blocked", false))
+			var open_prefix_steps: int = int(current.get("open_prefix_steps", 0))
+			if not prefix_blocked and open_prefix_steps < move_range:
+				if _enemy_anchor_is_dynamically_open(state, enemy, next_tile):
+					open_prefix_steps += 1
+				else:
+					prefix_blocked = true
 			var next_record: Dictionary = {
 				"tile": next_tile,
 				"cost": int(current.get("cost", 0)) + step_cost,
 				"steps": int(current.get("steps", 0)) + 1,
-				"route": next_route
+				"route": next_route,
+				"open_prefix_steps": open_prefix_steps,
+				"prefix_blocked": prefix_blocked
 			}
 			if best_by_tile.has(next_tile) and not _enemy_route_record_precedes(next_record, best_by_tile[next_tile] as Dictionary):
 				continue
@@ -5652,6 +5728,14 @@ func _enemy_best_open_route_index(open: Array[Dictionary]) -> int:
 func _enemy_route_record_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
 	var candidate_cost: int = int(candidate.get("cost", 999999))
 	var incumbent_cost: int = int(incumbent.get("cost", 999999))
+	var candidate_open_prefix: int = int(candidate.get("open_prefix_steps", 0))
+	var incumbent_open_prefix: int = int(incumbent.get("open_prefix_steps", 0))
+	var candidate_priority_cost: int = candidate_cost - candidate_open_prefix
+	var incumbent_priority_cost: int = incumbent_cost - incumbent_open_prefix
+	if candidate_priority_cost != incumbent_priority_cost:
+		return candidate_priority_cost < incumbent_priority_cost
+	if candidate_open_prefix != incumbent_open_prefix:
+		return candidate_open_prefix > incumbent_open_prefix
 	if candidate_cost != incumbent_cost:
 		return candidate_cost < incumbent_cost
 	var candidate_steps: int = int(candidate.get("steps", 9999))
