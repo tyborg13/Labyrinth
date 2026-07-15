@@ -35,7 +35,7 @@ func _initialize() -> void:
 	await _capture(
 		viewport,
 		board,
-		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(5, 3)]),
+		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(4, 2)]),
 		"02_turning_path.png",
 		2
 	)
@@ -83,8 +83,10 @@ func _verify_style_contract(board: Control) -> void:
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
 	_expect(shaft_ratio >= 0.35 and shaft_ratio <= 0.39, "Arrow shaft should be about ten percent narrower than the 0.41-tile pass")
 	_expect(head_width_ratio >= 0.42 and head_width_ratio <= 0.47, "Arrow head should scale down about ten percent with the narrower shaft")
-	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.44 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.50, "Arrow head length should scale down with the rest of the silhouette")
-	_expect(projected_tile_edge_ratio - head_tip_reach_ratio >= 0.015 and projected_tile_edge_ratio - head_tip_reach_ratio <= 0.05, "Smaller arrow tip should stop just inside the destination tile's far edge")
+	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.44 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.50, "Arrow head should preserve its approved overall length")
+	_expect(projected_tile_edge_ratio - head_tip_reach_ratio >= 0.08 and projected_tile_edge_ratio - head_tip_reach_ratio <= 0.12, "Arrow tip should land clearly inside the destination tile instead of near the next tile")
+	_expect(head_tail_reach_ratio - projected_tile_edge_ratio >= 0.0 and head_tail_reach_ratio - projected_tile_edge_ratio <= 0.035, "Arrow head base should just cross the destination tile's near edge")
+	_expect(absf((head_tip_reach_ratio - head_tail_reach_ratio) * 0.5) <= 0.065, "Arrow head bounds should remain centered near the destination tile")
 	_expect(shadow_offset_ratio >= 0.025 and shadow_offset_ratio <= 0.05, "Arrow should retain a restrained cast shadow without inflating its silhouette")
 	_expect(outline_width_ratio >= 1.08 and outline_width_ratio <= 1.16, "Arrow outline should define the ribbon without making it substantially wider")
 	_expect(glow_width_ratio >= 1.16 and glow_width_ratio <= 1.30, "Arrow bloom should stay soft and close to the ribbon")
@@ -97,23 +99,35 @@ func _verify_style_contract(board: Control) -> void:
 	_verify_layering_contract(board)
 
 func _verify_unified_arrow_geometry(board: Control) -> void:
-	var from_point := Vector2(120.0, 140.0)
-	var to_point := Vector2(220.0, 190.0)
 	var tile_width: float = 100.0
 	var shaft_width: float = 22.0
+	var to_point := Vector2(220.0, 190.0)
+	var from_point: Vector2 = to_point - Vector2(tile_width * 0.5, tile_width * 0.25)
 	var head_geometry: Dictionary = board.call("_path_arrow_geometry", from_point, to_point, tile_width, shaft_width)
 	var head_polygon: PackedVector2Array = head_geometry.get("polygon", PackedVector2Array())
 	var direction: Vector2 = head_geometry.get("direction", Vector2.ZERO)
-	var perpendicular := Vector2(-direction.y, direction.x)
 	var tail_center: Vector2 = head_geometry.get("tail_center", to_point)
-	var tip: Vector2 = head_geometry.get("tip", Vector2.ZERO)
-	var plus_shoulder: Vector2 = head_geometry.get("plus_shoulder", Vector2.ZERO)
-	var minus_shoulder: Vector2 = head_geometry.get("minus_shoulder", Vector2.ZERO)
-	var shoulder_midpoint: Vector2 = plus_shoulder.lerp(minus_shoulder, 0.5)
 	_expect(head_polygon.size() == 3, "Arrow head should begin as a true triangle before unifying with the shaft")
-	_expect(absf((plus_shoulder - shoulder_midpoint).length() - (minus_shoulder - shoulder_midpoint).length()) <= 0.001, "Arrow head shoulders should be symmetric around the path axis")
-	_expect(absf((plus_shoulder - minus_shoulder).dot(direction)) <= 0.001, "Arrow head rear edge should run straight across the path axis")
-	_expect(absf((tip - shoulder_midpoint).dot(perpendicular)) <= 0.001, "Arrow tip should be centered between its shoulders")
+	_verify_board_perspective_geometry(
+		from_point,
+		to_point,
+		tile_width,
+		Vector2(-0.5, 0.25).normalized(),
+		head_geometry
+	)
+	_verify_board_perspective_geometry(
+		to_point - Vector2(tile_width * 0.5, -tile_width * 0.25),
+		to_point,
+		tile_width,
+		Vector2(-0.5, -0.25).normalized(),
+		board.call(
+			"_path_arrow_geometry",
+			to_point - Vector2(tile_width * 0.5, -tile_width * 0.25),
+			to_point,
+			tile_width,
+			shaft_width
+		) as Dictionary
+	)
 	var shaft_points := PackedVector2Array([
 		from_point,
 		tail_center + direction * shaft_width * 0.18
@@ -123,6 +137,38 @@ func _verify_unified_arrow_geometry(board: Control) -> void:
 	var head_area: float = absf(float(board.call("_path_polygon_signed_area", head_polygon)))
 	var unified_area: float = absf(float(board.call("_path_polygon_signed_area", unified)))
 	_expect(unified_area > head_area * 1.5, "Unified arrow polygon should contain both the head and a substantial shaft")
+
+func _verify_board_perspective_geometry(
+	from_point: Vector2,
+	to_point: Vector2,
+	tile_width: float,
+	expected_cross: Vector2,
+	head_geometry: Dictionary
+) -> void:
+	var direction: Vector2 = head_geometry.get("direction", Vector2.ZERO)
+	var board_cross: Vector2 = head_geometry.get("board_cross_direction", Vector2.ZERO)
+	var tip: Vector2 = head_geometry.get("tip", Vector2.ZERO)
+	var tail_center: Vector2 = head_geometry.get("tail_center", Vector2.ZERO)
+	var plus_shoulder: Vector2 = head_geometry.get("plus_shoulder", Vector2.ZERO)
+	var minus_shoulder: Vector2 = head_geometry.get("minus_shoulder", Vector2.ZERO)
+	var shoulder_midpoint: Vector2 = plus_shoulder.lerp(minus_shoulder, 0.5)
+	var rear_direction: Vector2 = (plus_shoulder - minus_shoulder).normalized()
+	var tile_height: float = tile_width * 0.5
+	var destination_tile := PackedVector2Array([
+		to_point + Vector2(0.0, -tile_height * 0.5),
+		to_point + Vector2(tile_width * 0.5, 0.0),
+		to_point + Vector2(0.0, tile_height * 0.5),
+		to_point + Vector2(-tile_width * 0.5, 0.0)
+	])
+	_expect(absf(rear_direction.cross(expected_cross)) <= 0.001, "Arrow head rear edge should run parallel to the board's cross-grid axis")
+	_expect(absf(board_cross.cross(expected_cross)) <= 0.001, "Arrow head should expose the isometric cross-grid direction it used")
+	_expect(shoulder_midpoint.distance_to(tail_center) <= 0.001, "Arrow head shoulders should remain symmetric around their board-space center")
+	_expect(absf((tip - tail_center).normalized().cross(direction)) <= 0.001, "Arrow tip should stay centered on the movement axis")
+	_expect(Geometry2D.is_point_in_polygon(tip, destination_tile), "Arrow tip should finish inside the destination tile")
+	_expect(not Geometry2D.is_point_in_polygon(tail_center, destination_tile), "Arrow head base should straddle the destination tile's near edge")
+	var bounds_midpoint: Vector2 = tip.lerp(tail_center, 0.5)
+	_expect(absf((bounds_midpoint - to_point).dot(direction)) <= tile_width * 0.065, "Arrow head longitudinal bounds should center near the destination tile")
+	_expect(from_point.distance_to(to_point) > 0.0, "Perspective fixture should use a nonzero isometric step")
 
 func _verify_layering_contract(board: Control) -> void:
 	_expect(bool(board.call("_loot_renders_below_path", {"kind": "healing_vial"})), "Ground potions should render below the movement path")

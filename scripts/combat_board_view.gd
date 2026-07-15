@@ -27,8 +27,8 @@ const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
 const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.37
 const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.45
-const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.25
-const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.22
+const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.18
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.29
 const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.038
 const MOVE_PATH_OUTLINE_WIDTH_RATIO: float = 1.12
 const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
@@ -5007,28 +5007,37 @@ func _draw_single_path_marker(center: Vector2, color: Color, tile_width: float) 
 	draw_circle(center, marker_radius * MOVE_PATH_OUTLINE_WIDTH_RATIO, Color(0.015, 0.105, 0.15, 0.92), true, -1.0, true)
 	_draw_gradient_disc(center, marker_radius, color)
 
-func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: float, shaft_width: float) -> Dictionary:
+func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: float, _shaft_width: float) -> Dictionary:
 	var dir: Vector2 = (to_point - from_point).normalized()
 	if dir.length_squared() <= 0.0:
 		return {}
-	var perp := Vector2(-dir.y, dir.x)
+	var board_cross_direction: Vector2 = _path_board_cross_direction(dir)
 	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
 	var tip: Vector2 = to_point + dir * tile_width * MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO
 	var tail_center: Vector2 = to_point - dir * tile_width * MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO
-	var plus_shoulder: Vector2 = tail_center + perp * half_width
-	var minus_shoulder: Vector2 = tail_center - perp * half_width
-	# A true symmetric triangle gives the head straight rear shoulders. Merging it
-	# with the overlapping shaft turns those shoulders into clean, subtly concave
-	# joins without a separate cap, convex bulge, or internal seam.
+	var plus_shoulder: Vector2 = tail_center + board_cross_direction * half_width
+	var minus_shoulder: Vector2 = tail_center - board_cross_direction * half_width
+	# Build the triangle in isometric board space instead of rotating the screen
+	# direction by 90 degrees. Its rear edge now follows the board's other grid
+	# axis, while the base/tip straddle the destination's near edge so the route
+	# visibly lands on that tile instead of pointing through it.
 	var polygon := PackedVector2Array([tip, plus_shoulder, minus_shoulder])
 	return {
 		"polygon": polygon,
 		"tail_center": tail_center,
 		"direction": dir,
+		"board_cross_direction": board_cross_direction,
 		"tip": tip,
 		"plus_shoulder": plus_shoulder,
 		"minus_shoulder": minus_shoulder
 	}
+
+func _path_board_cross_direction(direction: Vector2) -> Vector2:
+	if direction.length_squared() <= 0.0:
+		return Vector2.ZERO
+	# Isometric cardinal steps are (±0.5, ±0.25) in tile-width units. Flipping
+	# only x maps either movement axis to the other family of board grid lines.
+	return Vector2(-direction.x, direction.y).normalized()
 
 func _unified_path_arrow_polygon(
 	shaft_points: PackedVector2Array,

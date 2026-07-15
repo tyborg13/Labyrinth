@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T13:46:14Z",
+  "updated_at": "2026-07-15T14:18:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5510,7 +5510,7 @@
       }
     },
     {
-      "id": "mnt_20260715T134614Z_59841125",
+      "id": "mnt_20260715T141832Z_2a01d6c7",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5519,18 +5519,18 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Movement arrows use a symmetric triangular head and explicit floor-item layering",
-      "details": "The approved direction after the 0.41/0.50 pass is a roughly 0.37 projected-tile-height shaft with a 0.45-tile-wide symmetric triangular head. Keep the head and shaft merged before all rendering, use straight rear shoulders or subtly concave shaft joins rather than convex flares, and carry one clipped directional light sweep across the unified silhouette so the head shares the tail's face plane. Render the raised arrow over traps and ordinary ground loot, but under units and floating equipment pickups.",
+      "summary": "Movement arrow heads follow isometric grid perspective and straddle the landing tile edge",
+      "details": "Keep the approved roughly 0.37 shaft/0.45 head silhouette, seamless union, clipped lighting, and item layering, but construct the head's rear shoulder edge along the board's other isometric grid axis rather than a Euclidean screen-space perpendicular. Place the head so its base just crosses the destination tile's near edge and its tip ends clearly inside that tile (current reach ratios 0.29 back and 0.18 forward), making the route read as landing on the highlighted square rather than pointing to the next one.",
       "status": "active",
-      "created_at": "2026-07-15T13:46:14Z",
-      "updated_at": "2026-07-15T13:46:14Z",
+      "created_at": "2026-07-15T14:18:32Z",
+      "updated_at": "2026-07-15T14:18:32Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260715T131349Z_a34a0199"
+        "mnt_20260715T134614Z_59841125"
       ],
       "source": {
         "branch": "codex/beautify-movement-path-arrows",
-        "commit": "0740e45"
+        "commit": "9990e65"
       }
     }
   ]
