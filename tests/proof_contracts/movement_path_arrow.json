@@ -1,0 +1,30 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1280x720"],
+  "required_images": [
+    {
+      "pattern": "*01_straight_path.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20}
+      ]
+    },
+    {
+      "pattern": "*02_turning_path.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20}
+      ]
+    },
+    {
+      "pattern": "*03_one_step_path.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [280, 260, 450, 300], "min_luma_range": 80, "min_luma_stdev": 20}
+      ]
+    }
+  ]
+}

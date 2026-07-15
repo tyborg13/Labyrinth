@@ -25,7 +25,11 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
-const MOVE_PATH_SHADOW: Color = Color(0.02, 0.03, 0.03, 0.35)
+const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.72
+const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.80
+const MOVE_PATH_HEAD_LENGTH_TILE_RATIO: float = 1.04
+const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.065
+const MOVE_PATH_HIGHLIGHT_WIDTH_RATIO: float = 0.52
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
 const MOVE_RISK_CHIP_HEIGHT: float = 18.0
 const MOVE_RISK_CHIP_GAP: float = 3.0
@@ -4902,42 +4906,130 @@ func _draw_path_preview() -> void:
 	if path_tiles.is_empty():
 		return
 	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
-	var point_offset := Vector2(0.0, -10.0)
+	var tile_width: float = _tile_width()
+	var point_offset := Vector2(0.0, -tile_width * 0.075)
 	if path_tiles.size() == 1:
-		var single_center: Vector2 = _tile_center(path_tiles[0]) + point_offset
-		draw_circle(single_center, 9.0, Color(color.r, color.g, color.b, 0.18))
-		draw_arc(single_center, 12.0, 0.0, TAU, 24, Color(color.r, color.g, color.b, 0.74), 2.2, true)
+		_draw_single_path_marker(_tile_center(path_tiles[0]) + point_offset, color, tile_width)
 		return
-	for index: int in range(path_tiles.size() - 1):
-		var from_point: Vector2 = _tile_center(path_tiles[index]) + point_offset
-		var to_point: Vector2 = _tile_center(path_tiles[index + 1]) + point_offset
-		draw_line(from_point, to_point, MOVE_PATH_SHADOW, 9.0, true)
-		draw_line(from_point, to_point, Color(color.r, color.g, color.b, 0.30), 6.0, true)
-		draw_line(from_point, to_point, color, 2.4, true)
-		_draw_path_arrowhead(from_point, to_point, color)
+	var points := PackedVector2Array()
 	for tile: Vector2i in path_tiles:
-		var center: Vector2 = _tile_center(tile) + point_offset
-		draw_circle(center, 5.8, Color(0.05, 0.05, 0.04, 0.78))
-		draw_circle(center, 3.3, color)
+		points.append(_tile_center(tile) + point_offset)
+	var shaft_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	var light_offset := Vector2(-tile_width * 0.014, -tile_width * 0.025)
+	var outline_color := Color(0.015, 0.12, 0.18, 0.94)
+	var lower_bevel: Color = color.darkened(0.55)
+	var body_color: Color = color.darkened(0.16)
+	var highlight_color: Color = color.lightened(0.48)
+
+	# Wide translucent and offset layers make the route read as a raised ribbon
+	# instead of a flat debug line. Each pass uses rounded joints so hard grid
+	# turns retain the same generous width as straight segments.
+	_draw_rounded_path_stroke(
+		_offset_path_points(points, shadow_offset * 1.25),
+		Color(0.0, 0.0, 0.0, 0.18),
+		shaft_width * 1.48
+	)
+	_draw_rounded_path_stroke(
+		_offset_path_points(points, shadow_offset),
+		Color(0.005, 0.018, 0.025, 0.56),
+		shaft_width * 1.25
+	)
+	_draw_rounded_path_stroke(points, Color(color.r, color.g, color.b, 0.16), shaft_width * 1.48)
+	_draw_rounded_path_stroke(points, outline_color, shaft_width * 1.20)
+	_draw_rounded_path_stroke(
+		_offset_path_points(points, Vector2(0.0, tile_width * 0.018)),
+		Color(lower_bevel.r, lower_bevel.g, lower_bevel.b, 0.98),
+		shaft_width * 1.06
+	)
+	_draw_rounded_path_stroke(points, Color(body_color.r, body_color.g, body_color.b, 0.98), shaft_width)
+	_draw_rounded_path_stroke(
+		_offset_path_points(points, light_offset),
+		Color(highlight_color.r, highlight_color.g, highlight_color.b, 0.92),
+		shaft_width * MOVE_PATH_HIGHLIGHT_WIDTH_RATIO
+	)
+	_draw_rounded_path_stroke(
+		_offset_path_points(points, light_offset * 1.35),
+		Color(0.95, 1.0, 1.0, 0.55),
+		shaft_width * 0.15
+	)
+	_draw_path_arrowhead(points[points.size() - 2], points[points.size() - 1], color, tile_width)
 
 func _blink_preview_effect_active() -> bool:
 	var effect: Dictionary = presentation.get("effect", {})
 	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
 
-func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color) -> void:
+func _draw_rounded_path_stroke(points: PackedVector2Array, color: Color, width: float) -> void:
+	if points.size() < 2 or width <= 0.0:
+		return
+	draw_polyline(points, color, width, true)
+	var radius: float = width * 0.5
+	for point: Vector2 in points:
+		draw_circle(point, radius, color, true, -1.0, true)
+
+func _offset_path_points(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
+	var shifted := PackedVector2Array()
+	for point: Vector2 in points:
+		shifted.append(point + offset)
+	return shifted
+
+func _draw_single_path_marker(center: Vector2, color: Color, tile_width: float) -> void:
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	draw_circle(center + shadow_offset * 1.25, tile_width * 0.25, Color(0.0, 0.0, 0.0, 0.18), true, -1.0, true)
+	draw_circle(center + shadow_offset, tile_width * 0.22, Color(0.005, 0.018, 0.025, 0.56), true, -1.0, true)
+	draw_circle(center, tile_width * 0.25, Color(color.r, color.g, color.b, 0.16), true, -1.0, true)
+	draw_circle(center, tile_width * 0.205, Color(0.015, 0.12, 0.18, 0.94), true, -1.0, true)
+	draw_circle(center, tile_width * 0.175, color.darkened(0.16), true, -1.0, true)
+	draw_circle(center + Vector2(-tile_width * 0.016, -tile_width * 0.026), tile_width * 0.10, color.lightened(0.48), true, -1.0, true)
+	draw_circle(center + Vector2(-tile_width * 0.025, -tile_width * 0.039), tile_width * 0.032, Color(0.95, 1.0, 1.0, 0.72), true, -1.0, true)
+
+func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color, tile_width: float) -> void:
 	var dir: Vector2 = (to_point - from_point).normalized()
 	if dir.length_squared() <= 0.0:
 		return
 	var perp := Vector2(-dir.y, dir.x)
-	var center: Vector2 = from_point.lerp(to_point, 0.62)
-	var arrow_size: float = 8.0
+	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
+	var head_length: float = tile_width * MOVE_PATH_HEAD_LENGTH_TILE_RATIO
+	var shaft_half_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO * 0.50
+	var tip: Vector2 = to_point + dir * head_length * 0.52
+	var shoulder_center: Vector2 = to_point - dir * head_length * 0.04
+	var notch_center: Vector2 = to_point - dir * head_length * 0.20
+	var tail_center: Vector2 = to_point - dir * head_length * 0.48
 	var points := PackedVector2Array([
-		center + dir * arrow_size,
-		center - dir * arrow_size * 0.55 + perp * arrow_size * 0.48,
-		center - dir * arrow_size * 0.55 - perp * arrow_size * 0.48
+		tip,
+		shoulder_center + perp * half_width,
+		notch_center + perp * shaft_half_width,
+		tail_center + perp * shaft_half_width,
+		tail_center - perp * shaft_half_width,
+		notch_center - perp * shaft_half_width,
+		shoulder_center - perp * half_width
 	])
-	draw_colored_polygon(points, Color(0.02, 0.03, 0.03, 0.45))
-	draw_colored_polygon(points, Color(color.r, color.g, color.b, 0.86))
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	var light_offset := Vector2(-tile_width * 0.014, -tile_width * 0.025)
+	var outline_color := Color(0.015, 0.12, 0.18, 0.96)
+	var lower_bevel: Color = color.darkened(0.55)
+	var body_color: Color = color.darkened(0.16)
+	var highlight_color: Color = color.lightened(0.48)
+	draw_colored_polygon(_scaled_path_polygon(points, to_point, 1.12, shadow_offset * 1.25), Color(0.0, 0.0, 0.0, 0.18))
+	draw_colored_polygon(_scaled_path_polygon(points, to_point, 1.07, shadow_offset), Color(0.005, 0.018, 0.025, 0.58))
+	draw_colored_polygon(_scaled_path_polygon(points, to_point, 1.13, Vector2.ZERO), Color(color.r, color.g, color.b, 0.16))
+	draw_colored_polygon(_scaled_path_polygon(points, to_point, 1.07, Vector2.ZERO), outline_color)
+	draw_colored_polygon(_scaled_path_polygon(points, to_point, 1.02, Vector2(0.0, tile_width * 0.018)), lower_bevel)
+	draw_colored_polygon(points, body_color)
+	draw_colored_polygon(_scaled_path_polygon(points, to_point, 0.78, light_offset), Color(highlight_color.r, highlight_color.g, highlight_color.b, 0.94))
+	var upper_wing: Vector2 = points[1] if points[1].y < points[6].y else points[6]
+	draw_polyline(
+		PackedVector2Array([upper_wing + light_offset * 0.6, tip + light_offset * 0.2]),
+		Color(0.95, 1.0, 1.0, 0.62),
+		maxf(2.0, tile_width * 0.024),
+		true
+	)
+
+func _scaled_path_polygon(points: PackedVector2Array, center: Vector2, scale: float, offset: Vector2) -> PackedVector2Array:
+	var scaled := PackedVector2Array()
+	for point: Vector2 in points:
+		scaled.append(center + (point - center) * scale + offset)
+	return scaled
 
 func _draw_movement_risk_chips() -> void:
 	var chips: Array = presentation.get("movement_risk_chips", [])

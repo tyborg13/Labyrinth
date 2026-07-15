@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T03:05:59Z",
+  "updated_at": "2026-07-15T04:11:12Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5507,6 +5507,28 @@
       "source": {
         "branch": "codex/dynamic-destructible-terrain",
         "commit": "622a15f"
+      }
+    },
+    {
+      "id": "mnt_20260715T041112Z_ee882c85",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Movement paths should use fat elevated arrow ribbons",
+      "details": "The preferred movement preview is a very thick cyan route ribbon occupying more than half the projected tile height, with one proportionately large classic destination head. Preserve blended highlight and bevel layers plus a visibly offset cast shadow so it reads above the board; avoid thin linework, tiny repeated segment heads, and waypoint-dot styling.",
+      "status": "active",
+      "created_at": "2026-07-15T04:11:12Z",
+      "updated_at": "2026-07-15T04:11:12Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/beautify-movement-path-arrows",
+        "commit": "9ca2cbe"
       }
     }
   ]
