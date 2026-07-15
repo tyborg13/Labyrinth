@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T03:05:59Z",
+  "updated_at": "2026-07-15T18:37:14Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5507,6 +5507,28 @@
       "source": {
         "branch": "codex/dynamic-destructible-terrain",
         "commit": "622a15f"
+      }
+    },
+    {
+      "id": "mnt_20260715T183714Z_fb15ee94",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Character Gear loadout must scroll inside the fixed body",
+      "details": "The five gear slots plus item slots exceed the fixed character body at supported viewports. Leaving that column unscrolled raises the shared HBox minimum height, so every Gear subpanel extends beneath CharacterBodyFrame and is clipped. Keep the outer dialog/tab bounds fixed and contain the loadout list in its own vertical ScrollContainer.",
+      "status": "active",
+      "created_at": "2026-07-15T18:37:14Z",
+      "updated_at": "2026-07-15T18:37:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-character-gear-tab-panel-clipping-without-resizing-menu",
+        "commit": "9ca2cbe"
       }
     }
   ]

@@ -14760,6 +14760,7 @@ func _build_magic_overlay_body() -> Control:
 
 func _fixed_character_body_frame(content: Control) -> Control:
 	var frame := Control.new()
+	frame.name = "CharacterBodyFrame"
 	var dialog_height: float = _upgrade_dialog.custom_minimum_size.y if _upgrade_dialog != null else CHARACTER_DIALOG_SIZE.y
 	var chrome_height: float = 150.0 if _progression_overlay_mode == "level_up" else 194.0
 	frame.custom_minimum_size = Vector2(0.0, maxf(CHARACTER_BODY_MIN_HEIGHT, dialog_height - chrome_height))
@@ -14774,6 +14775,7 @@ func _fixed_character_body_frame(content: Control) -> Control:
 
 func _build_equipment_character_column() -> Control:
 	var panel := PanelContainer.new()
+	panel.name = "EquipmentLoadoutPanel"
 	panel.custom_minimum_size = Vector2(338.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
@@ -14798,12 +14800,18 @@ func _build_equipment_character_column() -> Control:
 	vbox.add_child(title)
 	vbox.add_child(_build_equipment_portrait_panel())
 
+	var loadout_scroll := ScrollContainer.new()
+	loadout_scroll.name = "EquipmentLoadoutScroll"
+	loadout_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	loadout_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	loadout_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(loadout_scroll)
+
 	var loadout := VBoxContainer.new()
 	loadout.name = "EquipmentLoadoutList"
 	loadout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	loadout.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	loadout.add_theme_constant_override("separation", 6)
-	vbox.add_child(loadout)
+	loadout_scroll.add_child(loadout)
 
 	var gear_label := Label.new()
 	gear_label.text = "Gear"
@@ -14958,6 +14966,7 @@ func _build_equipment_slot_panel(slot: String, equipment_id: String) -> Control:
 
 func _build_equipment_inventory_column() -> Control:
 	var panel := PanelContainer.new()
+	panel.name = "EquipmentInventoryPanel"
 	panel.custom_minimum_size = Vector2(374.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
@@ -15072,6 +15081,7 @@ func _build_equipment_inventory_column() -> Control:
 
 func _build_magic_attuned_column() -> Control:
 	var panel := PanelContainer.new()
+	panel.name = "MagicAttunedPanel"
 	_magic_attuned_drop_panel = panel
 	panel.custom_minimum_size = Vector2(326.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -15124,6 +15134,7 @@ func _build_magic_attuned_column() -> Control:
 
 func _build_magic_inventory_column() -> Control:
 	var panel := PanelContainer.new()
+	panel.name = "MagicInventoryPanel"
 	_magic_inventory_drop_panel = panel
 	panel.custom_minimum_size = Vector2(374.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -15186,6 +15197,7 @@ func _build_magic_inventory_column() -> Control:
 
 func _build_current_deck_column() -> Control:
 	var panel := PanelContainer.new()
+	panel.name = "CurrentDeckPanel"
 	panel.custom_minimum_size = Vector2(344.0, 0.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
