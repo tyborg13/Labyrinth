@@ -943,6 +943,7 @@ const DIALOGUE_HINT_FOOTER_HEIGHT: float = 34.0
 const DIALOGUE_OPTION_BUTTON_HEIGHT: float = 58.0
 const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
+const MENU_OVERLAY_Z_INDEX: int = 2000
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
 const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
@@ -3150,6 +3151,10 @@ func _build_menu_overlay() -> void:
 	_menu_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_menu_scrim.anchor_right = 1.0
 	_menu_scrim.anchor_bottom = 1.0
+	# Pause and its settings view share one absolute canvas plane above every combat
+	# HUD, hand-card fan, and transient gameplay effect.
+	_menu_scrim.z_index = MENU_OVERLAY_Z_INDEX
+	_menu_scrim.z_as_relative = false
 	ui_root.add_child(_menu_scrim)
 
 	_menu_dialog = PanelContainer.new()
