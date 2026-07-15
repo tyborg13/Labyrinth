@@ -25,7 +25,21 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
-const MOVE_PATH_SHADOW: Color = Color(0.02, 0.03, 0.03, 0.35)
+const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.333
+const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.405
+const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.138
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.285
+const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.038
+const MOVE_PATH_OUTLINE_WIDTH_RATIO: float = 1.12
+const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
+const MOVE_PATH_GRADIENT_DARKEN: float = 0.34
+const MOVE_PATH_GRADIENT_LIGHTEN: float = 0.30
+const MOVE_PATH_GRADIENT_LAYER_COUNT: int = 16
+const MOVE_PATH_BODY_ALPHA: float = 0.86
+const MOVE_PATH_GRADIENT_BASE_ALPHA: float = 0.70
+const MOVE_PATH_GRADIENT_LAYER_ALPHA: float = 0.055
+const MOVE_PATH_GRADIENT_DISC_SEGMENTS: int = 24
+const MOVE_PATH_LIGHT_DIRECTION: Vector2 = Vector2(-0.42, -0.91)
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
 const MOVE_RISK_CHIP_HEIGHT: float = 18.0
 const MOVE_RISK_CHIP_GAP: float = 3.0
@@ -954,6 +968,7 @@ func _draw_dynamic_board() -> void:
 	_draw_ambient_particles(tiles)
 	for tile: Vector2i in tiles:
 		_draw_tile_overlays(tile)
+	_draw_ground_items_below_path(tiles)
 	_draw_path_preview()
 	_draw_impact_decals()
 	_draw_umbra_overlay(tiles)
@@ -1909,6 +1924,12 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		draw_colored_polygon(polygon, ATTACK_HIGHLIGHT)
 		if bool(presentation.get("pulse_attack_tiles", false)):
 			_draw_attack_target_pulse(tile)
+	var projected_attack_tiles: Array[Vector2i] = _vector2i_array(presentation.get("projected_attack_tiles", []))
+	if projected_attack_tiles.has(tile):
+		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
+		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
+	if tile == presentation.get("projected_destination", Vector2i(-999, -999)):
+		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile:
@@ -1950,6 +1971,28 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
+
+func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
+	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
+	# over them. Floating equipment remains in _draw_tile_props with units and is
+	# intentionally painted after the route.
+	for tile: Vector2i in tiles:
+		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			if bool(loot.get("claimed", false)) or not _loot_renders_below_path(loot):
+				continue
+			var loot_texture: Texture2D = _loot_texture(loot)
+			if loot_texture == null:
+				continue
+			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
+			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
+			draw_texture_rect(loot_texture, loot_rect, false)
+			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
+		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
+			if typeof(trap_var) == TYPE_DICTIONARY:
+				_draw_trap_marker(trap_var as Dictionary)
 
 func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
 	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
@@ -2185,18 +2228,10 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		if loot_texture == null:
 			continue
 		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
-		if _is_equipment_loot(loot):
-			_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
-			_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
-		else:
-			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
-			draw_texture_rect(loot_texture, loot_rect, false)
-			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
-	for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
-		if typeof(trap_var) != TYPE_DICTIONARY:
+		if _loot_renders_below_path(loot):
 			continue
-		var trap: Dictionary = trap_var
-		_draw_trap_marker(trap)
+		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
+		_register_tooltip(loot_rect.grow(8.0), _loot_tooltip_text(loot))
 
 func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
 	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries)
@@ -2615,6 +2650,9 @@ func _door_is_visible(tile: Vector2i) -> bool:
 
 func _is_equipment_loot(loot: Dictionary) -> bool:
 	return str(loot.get("kind", "")) == "equipment"
+
+func _loot_renders_below_path(loot: Dictionary) -> bool:
+	return not _is_equipment_loot(loot)
 
 func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary) -> void:
 	var accent: Color = _equipment_loot_accent(loot)
@@ -4902,42 +4940,224 @@ func _draw_path_preview() -> void:
 	if path_tiles.is_empty():
 		return
 	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
-	var point_offset := Vector2(0.0, -10.0)
+	var tile_width: float = _tile_width()
+	var point_offset := Vector2(0.0, -tile_width * 0.075)
 	if path_tiles.size() == 1:
-		var single_center: Vector2 = _tile_center(path_tiles[0]) + point_offset
-		draw_circle(single_center, 9.0, Color(color.r, color.g, color.b, 0.18))
-		draw_arc(single_center, 12.0, 0.0, TAU, 24, Color(color.r, color.g, color.b, 0.74), 2.2, true)
+		_draw_single_path_marker(_tile_center(path_tiles[0]) + point_offset, color, tile_width)
 		return
-	for index: int in range(path_tiles.size() - 1):
-		var from_point: Vector2 = _tile_center(path_tiles[index]) + point_offset
-		var to_point: Vector2 = _tile_center(path_tiles[index + 1]) + point_offset
-		draw_line(from_point, to_point, MOVE_PATH_SHADOW, 9.0, true)
-		draw_line(from_point, to_point, Color(color.r, color.g, color.b, 0.30), 6.0, true)
-		draw_line(from_point, to_point, color, 2.4, true)
-		_draw_path_arrowhead(from_point, to_point, color)
+	var points := PackedVector2Array()
 	for tile: Vector2i in path_tiles:
-		var center: Vector2 = _tile_center(tile) + point_offset
-		draw_circle(center, 5.8, Color(0.05, 0.05, 0.04, 0.78))
-		draw_circle(center, 3.3, color)
+		points.append(_tile_center(tile) + point_offset)
+	var shaft_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO
+	var arrow_geometry: Dictionary = _path_arrow_geometry(
+		points[points.size() - 2],
+		points[points.size() - 1],
+		tile_width,
+		shaft_width
+	)
+	if arrow_geometry.is_empty():
+		return
+	var arrow_points: PackedVector2Array = arrow_geometry.get("polygon", PackedVector2Array())
+	var shaft_points: PackedVector2Array = points.duplicate()
+	var final_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+	shaft_points[shaft_points.size() - 1] = (
+		arrow_geometry.get("tail_center", points[points.size() - 1])
+		+ final_direction * shaft_width * 0.18
+	)
+	var unified_arrow: PackedVector2Array = _unified_path_arrow_polygon(shaft_points, arrow_points, shaft_width)
+	if unified_arrow.is_empty():
+		return
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	var outline_color: Color = _path_outline_color(color)
+
+	# Every layer starts from the same merged shaft-and-head silhouette. There is
+	# no internal head boundary left for the renderer to shade, outline, or
+	# double-composite, so the head inherits the ribbon's exact depth treatment.
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * 0.15,
+		shadow_offset * 1.55,
+		Color(0.0, 0.0, 0.0, 0.13)
+	)
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * 0.07,
+		shadow_offset,
+		Color(0.005, 0.018, 0.025, 0.48)
+	)
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * (MOVE_PATH_GLOW_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
+		Color(color.r, color.g, color.b, 0.09)
+	)
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * (MOVE_PATH_OUTLINE_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
+		outline_color
+	)
+	_draw_gradient_path_polygon(unified_arrow, shaft_width, color)
 
 func _blink_preview_effect_active() -> bool:
 	var effect: Dictionary = presentation.get("effect", {})
 	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
 
-func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color) -> void:
+func _draw_single_path_marker(center: Vector2, color: Color, tile_width: float) -> void:
+	var marker_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO
+	var marker_radius: float = marker_width * 0.5
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	draw_circle(center + shadow_offset * 1.55, marker_radius * 1.30, Color(0.0, 0.0, 0.0, 0.13), true, -1.0, true)
+	draw_circle(center + shadow_offset, marker_radius * 1.14, Color(0.005, 0.018, 0.025, 0.48), true, -1.0, true)
+	draw_circle(center, marker_radius * MOVE_PATH_GLOW_WIDTH_RATIO, Color(color.r, color.g, color.b, 0.09), true, -1.0, true)
+	draw_circle(center, marker_radius * MOVE_PATH_OUTLINE_WIDTH_RATIO, _path_outline_color(color), true, -1.0, true)
+	_draw_gradient_disc(center, marker_radius, color)
+
+func _path_outline_color(color: Color) -> Color:
+	var outline_color: Color = color.darkened(0.87)
+	outline_color.a = 0.92
+	return outline_color
+
+func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: float, _shaft_width: float) -> Dictionary:
 	var dir: Vector2 = (to_point - from_point).normalized()
 	if dir.length_squared() <= 0.0:
+		return {}
+	var board_cross_direction: Vector2 = _path_board_cross_direction(dir)
+	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
+	var tip: Vector2 = to_point + dir * tile_width * MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO
+	var tail_center: Vector2 = to_point - dir * tile_width * MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO
+	var plus_shoulder: Vector2 = tail_center + board_cross_direction * half_width
+	var minus_shoulder: Vector2 = tail_center - board_cross_direction * half_width
+	# Build the triangle in isometric board space instead of rotating the screen
+	# direction by 90 degrees. Its rear edge now follows the board's other grid
+	# axis, while the base/tip straddle the destination's near edge so the route
+	# visibly lands on that tile instead of pointing through it.
+	var polygon := PackedVector2Array([tip, plus_shoulder, minus_shoulder])
+	return {
+		"polygon": polygon,
+		"tail_center": tail_center,
+		"direction": dir,
+		"board_cross_direction": board_cross_direction,
+		"tip": tip,
+		"plus_shoulder": plus_shoulder,
+		"minus_shoulder": minus_shoulder
+	}
+
+func _path_board_cross_direction(direction: Vector2) -> Vector2:
+	if direction.length_squared() <= 0.0:
+		return Vector2.ZERO
+	# Isometric cardinal steps are (±0.5, ±0.25) in tile-width units. Flipping
+	# only x maps either movement axis to the other family of board grid lines.
+	return Vector2(-direction.x, direction.y).normalized()
+
+func _unified_path_arrow_polygon(
+	shaft_points: PackedVector2Array,
+	head_points: PackedVector2Array,
+	shaft_width: float
+) -> PackedVector2Array:
+	if shaft_points.size() < 2 or head_points.size() < 3 or shaft_width <= 0.0:
+		return PackedVector2Array()
+	var shaft_polygons: Array[PackedVector2Array] = Geometry2D.offset_polyline(
+		shaft_points,
+		shaft_width * 0.5,
+		Geometry2D.JOIN_ROUND,
+		Geometry2D.END_ROUND
+	)
+	if shaft_polygons.is_empty():
+		return PackedVector2Array()
+	var merged: Array[PackedVector2Array] = Geometry2D.merge_polygons(shaft_polygons[0], head_points)
+	return _largest_path_polygon(merged)
+
+func _largest_path_polygon(polygons: Array[PackedVector2Array]) -> PackedVector2Array:
+	var largest := PackedVector2Array()
+	var largest_area: float = 0.0
+	for polygon: PackedVector2Array in polygons:
+		var area: float = absf(_path_polygon_signed_area(polygon))
+		if area > largest_area:
+			largest_area = area
+			largest = polygon
+	return largest
+
+func _path_polygon_signed_area(polygon: PackedVector2Array) -> float:
+	var twice_area: float = 0.0
+	for index: int in range(polygon.size()):
+		var current: Vector2 = polygon[index]
+		var next: Vector2 = polygon[(index + 1) % polygon.size()]
+		twice_area += current.x * next.y - next.x * current.y
+	return twice_area * 0.5
+
+func _draw_expanded_path_polygon(
+	polygon: PackedVector2Array,
+	expansion: float,
+	offset: Vector2,
+	color: Color
+) -> void:
+	var expanded: Array[PackedVector2Array] = Geometry2D.offset_polygon(
+		polygon,
+		expansion,
+		Geometry2D.JOIN_ROUND
+	)
+	_draw_path_polygons(expanded, offset, color)
+
+func _draw_gradient_path_polygon(polygon: PackedVector2Array, width: float, color: Color) -> void:
+	if polygon.size() < 3 or width <= 0.0:
 		return
-	var perp := Vector2(-dir.y, dir.x)
-	var center: Vector2 = from_point.lerp(to_point, 0.62)
-	var arrow_size: float = 8.0
-	var points := PackedVector2Array([
-		center + dir * arrow_size,
-		center - dir * arrow_size * 0.55 + perp * arrow_size * 0.48,
-		center - dir * arrow_size * 0.55 - perp * arrow_size * 0.48
-	])
-	draw_colored_polygon(points, Color(0.02, 0.03, 0.03, 0.45))
-	draw_colored_polygon(points, Color(color.r, color.g, color.b, 0.86))
+	var edge_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN)
+	var light_color: Color = color.lightened(MOVE_PATH_GRADIENT_LIGHTEN)
+	edge_color.a = color.a * MOVE_PATH_GRADIENT_BASE_ALPHA
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	draw_colored_polygon(polygon, edge_color)
+	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
+		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
+		var eased: float = smoothstep(0.0, 1.0, progress)
+		var layer_offset: Vector2 = light_direction * width * 0.46 * progress
+		var layer_color: Color = edge_color.lerp(light_color, eased)
+		layer_color.a = color.a * MOVE_PATH_GRADIENT_LAYER_ALPHA
+		var shifted: PackedVector2Array = _shifted_path_polygon(polygon, layer_offset)
+		var lit_polygons: Array[PackedVector2Array] = Geometry2D.intersect_polygons(polygon, shifted)
+		_draw_path_polygons(lit_polygons, Vector2.ZERO, layer_color)
+
+func _shifted_path_polygon(polygon: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
+	var shifted := PackedVector2Array()
+	for point: Vector2 in polygon:
+		shifted.append(point + offset)
+	return shifted
+
+func _draw_path_polygons(polygons: Array[PackedVector2Array], offset: Vector2, color: Color) -> void:
+	for polygon: PackedVector2Array in polygons:
+		if polygon.size() < 3:
+			continue
+		var shifted := PackedVector2Array()
+		for point: Vector2 in polygon:
+			shifted.append(point + offset)
+		draw_colored_polygon(shifted, color)
+
+func _draw_gradient_disc(center: Vector2, radius: float, color: Color) -> void:
+	if radius <= 0.0:
+		return
+	var center_color: Color = _path_gradient_color(Vector2.ZERO, radius, color)
+	for index: int in range(MOVE_PATH_GRADIENT_DISC_SEGMENTS):
+		var angle_a: float = TAU * float(index) / float(MOVE_PATH_GRADIENT_DISC_SEGMENTS)
+		var angle_b: float = TAU * float(index + 1) / float(MOVE_PATH_GRADIENT_DISC_SEGMENTS)
+		var offset_a := Vector2(cos(angle_a), sin(angle_a)) * radius
+		var offset_b := Vector2(cos(angle_b), sin(angle_b)) * radius
+		draw_primitive(
+			PackedVector2Array([center, center + offset_a, center + offset_b]),
+			PackedColorArray([
+				center_color,
+				_path_gradient_color(offset_a, radius, color),
+				_path_gradient_color(offset_b, radius, color)
+			]),
+			PackedVector2Array()
+		)
+
+func _path_gradient_color(offset: Vector2, radius: float, color: Color) -> Color:
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	var light_amount: float = clampf(0.5 + offset.dot(light_direction) / maxf(radius * 2.0, 0.001), 0.0, 1.0)
+	light_amount = smoothstep(0.0, 1.0, light_amount)
+	var gradient_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN).lerp(color.lightened(MOVE_PATH_GRADIENT_LIGHTEN), light_amount)
+	gradient_color.a = color.a * MOVE_PATH_BODY_ALPHA
+	return gradient_color
 
 func _draw_movement_risk_chips() -> void:
 	var chips: Array = presentation.get("movement_risk_chips", [])

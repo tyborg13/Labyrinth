@@ -6,6 +6,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -846,6 +847,7 @@ const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
+const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
@@ -888,7 +890,6 @@ const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
 const CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN: float = 4.0
 const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
-const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
@@ -897,7 +898,6 @@ const HEADER_RELIC_WRAP_MARGIN: float = 24.0
 const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
 const INTENSITY_ICON_INSET: float = 8.0
-const MAX_EMBER_REWARD_MOTES: int = 20
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const CAMPFIRE_LINGER_HEAL_AMOUNT: int = 100
 const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
@@ -9716,6 +9716,10 @@ func _refresh_stage_view() -> void:
 			var threat_preview: Dictionary = _hovered_enemy_threat(display_state)
 			move_tiles = _vector2i_array(threat_preview.get("move", []))
 			attack_tiles = _vector2i_array(threat_preview.get("attack", []))
+			presentation["path_tiles"] = _vector2i_array(threat_preview.get("projected_path", []))
+			presentation["path_color"] = ENEMY_PATH_PREVIEW_COLOR
+			presentation["projected_destination"] = threat_preview.get("projected_destination", INVALID_TARGET_TILE)
+			presentation["projected_attack_tiles"] = _vector2i_array(threat_preview.get("projected_attack", []))
 			if threat_preview.has("enemy_key"):
 				presentation["focus_actor_keys"] = [str(threat_preview.get("enemy_key", ""))]
 				presentation["focus_actor_color"] = Color("f2ddb2")
@@ -11699,17 +11703,15 @@ func _animate_death_rewards(before_state: Dictionary, after_state: Dictionary) -
 		return
 	var displayed_embers: int = _run_engine.held_embers(_run_state) + int(before_state.get("room_embers", 0))
 	var displayed_card_plays: int = _card_play_count_for_resolution_state(before_state)
+	var gained_embers: int = EmberRewardFeedback.total_amount(rewards)
 	_ember_count_override = displayed_embers
 	_set_stats_label_text(displayed_embers)
 	for reward: Dictionary in rewards:
 		if int(reward.get("card_plays", 0)) > 0:
 			displayed_card_plays += int(reward.get("card_plays", 0))
 			await _animate_card_play_reward(displayed_card_plays)
-		var ember_amount: int = int(reward.get("embers", 0))
-		if ember_amount > 0:
-			var next_displayed_embers: int = displayed_embers + ember_amount
-			await _animate_ember_reward(reward.get("tile", Vector2i.ZERO), ember_amount, displayed_embers, next_displayed_embers)
-			displayed_embers = next_displayed_embers
+	if gained_embers > 0:
+		await _animate_ember_reward(Vector2i.ZERO, gained_embers, displayed_embers, displayed_embers + gained_embers)
 	_ember_count_override = -1
 
 func _animate_card_play_reward(displayed_card_plays: int) -> void:
@@ -11756,67 +11758,24 @@ func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
 	await settle.finished
 	label.add_theme_color_override("font_color", Color("fff7df"))
 
-func _animate_ember_reward(source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
-	if _card_fx_layer == null:
-		return
-	var icon_texture: Texture2D = AssetLoader.load_texture(EMBER_ICON_PATH)
-	var start: Vector2 = _board_global_position_for_tile(source_tile)
-	var target: Vector2 = _ember_counter_target_global_position()
-	var mote_count: int = clampi(amount, 1, MAX_EMBER_REWARD_MOTES)
-	for mote_index: int in range(mote_count):
-		await _animate_ember_mote(icon_texture, start, target, mote_index, mote_count)
-		var count_progress: float = float(mote_index + 1) / float(mote_count)
-		_ember_count_override = int(round(lerpf(float(from_count), float(to_count), count_progress)))
-		_set_stats_label_text(_ember_count_override)
-	await _pulse_ember_counter()
+func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
+	await EmberRewardFeedback.play(
+		self,
+		_card_fx_layer,
+		stats_label,
+		amount,
+		from_count,
+		to_count,
+		_reduced_motion_enabled(),
+		Callable(self, "_set_ember_reward_display_count")
+	)
 
-func _animate_ember_mote(icon_texture: Texture2D, start: Vector2, target: Vector2, mote_index: int, mote_count: int) -> void:
-	_play_sfx(AttackSfxLibrary.entry_for_ember_collect())
-	var icon := Sprite2D.new()
-	var mote_size: float = 40.0 + float(mote_index % 4) * 3.0
-	var texture_size: Vector2 = icon_texture.get_size() if icon_texture != null else Vector2.ONE
-	icon.texture = icon_texture
-	icon.centered = true
-	var source_size: float = maxf(1.0, maxf(texture_size.x, texture_size.y))
-	icon.scale = Vector2.ONE * (mote_size / source_size)
-	var spread_angle: float = -0.95 + 1.9 * (float(mote_index % 7) / 6.0)
-	var spread_radius: float = 8.0 + float((mote_index * 5) % 13)
-	var local_start: Vector2 = start - _card_fx_layer.global_position + Vector2(cos(spread_angle), sin(spread_angle)) * spread_radius
-	var local_target: Vector2 = target - _card_fx_layer.global_position + Vector2(float((mote_index % 5) - 2) * 3.0, float((mote_index % 3) - 1) * 2.0)
-	icon.position = local_start
-	_card_fx_layer.add_child(icon)
-	var frames: int = 5
-	var arc_height: float = 36.0 + float((mote_index * 11) % 22)
-	for frame: int in range(frames + 1):
-		var t: float = float(frame) / float(frames)
-		var eased: float = 1.0 - pow(1.0 - t, 3.0)
-		var arc: Vector2 = Vector2(0.0, -arc_height * sin(t * PI))
-		var center: Vector2 = local_start.lerp(local_target, eased) + arc
-		icon.position = center
-		icon.modulate = Color(1.0, 1.0, 1.0, 1.0 - maxf(0.0, t - 0.86) / 0.14)
-		await get_tree().create_timer(0.010).timeout
-	icon.queue_free()
-	if mote_index < mote_count - 1:
-		await get_tree().create_timer(0.006).timeout
-
-func _pulse_ember_counter() -> void:
-	stats_label.pivot_offset = stats_label.size * 0.5
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(stats_label, "scale", Vector2(1.06, 1.06), 0.08)
-	tween.tween_property(stats_label, "modulate", Color(1.0, 0.86, 0.50, 1.0), 0.08)
-	await tween.finished
-	var settle := create_tween()
-	settle.set_parallel(true)
-	settle.tween_property(stats_label, "scale", Vector2.ONE, 0.16)
-	settle.tween_property(stats_label, "modulate", Color.WHITE, 0.16)
-	await settle.finished
+func _set_ember_reward_display_count(value: int) -> void:
+	_ember_count_override = value
+	_set_stats_label_text(value)
 
 func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 	return board_view.global_position + board_view.world_position_for_tile(tile)
-
-func _ember_counter_target_global_position() -> Vector2:
-	return stats_label.global_position + stats_label.size * 0.5
 
 func _animate_floating_text_presentation(display_state: Dictionary, base_presentation: Dictionary, frames: int = FLOAT_TEXT_FRAMES, frame_seconds: float = FLOAT_TEXT_FRAME_SECONDS) -> void:
 	var base_texts: Array = (base_presentation.get("floating_texts", []) as Array).duplicate(true)
@@ -12467,6 +12426,7 @@ func _resolve_enemy_round() -> void:
 	_sync_combat_state_from_run()
 	_release_committed_run_state()
 	_analytics_log_enemy_status_ticks(phase_result)
+	_analytics_log_enemy_actions(phase_result)
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
@@ -12640,22 +12600,42 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
 	var actor_unit: Dictionary = _animation_actor_unit(animated_state, actor_key)
-	var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, from_tile)
-	var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, to_tile)
-	var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, to_tile)
-	_apply_animation_step(animated_state, step)
+	var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
+	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
+		path = _vector2i_array([from_tile, to_tile])
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
-	for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-		var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-		_render_board_state(animated_state, {
-			"focus_actor_keys": [actor_key],
+	for path_index: int in range(path.size() - 1):
+		var segment_from: Vector2i = path[path_index]
+		var segment_to: Vector2i = path[path_index + 1]
+		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
+		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
+		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
+		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
+			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
+			_render_board_state(animated_state, {
+				"focus_actor_keys": [actor_key],
+				"focus_actor_color": PLAYER_ATTACK_FOCUS,
+				"focus_tiles": [segment_to],
+				"focus_color": Color(0.95, 0.62, 0.37, 0.18),
+				"path_tiles": path,
+				"path_color": ENEMY_PATH_PREVIEW_COLOR,
+				"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
+				"unit_draw_tiles": {actor_key: draw_tile}
+			})
+			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+	var before_move_state: Dictionary = animated_state.duplicate(true)
+	_apply_animation_step(animated_state, step)
+	if not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
+		await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_move_state, animated_state, {
+			"focus_actor_keys": step.get("impact_actor_keys", [actor_key]),
 			"focus_actor_color": PLAYER_ATTACK_FOCUS,
 			"focus_tiles": [to_tile],
 			"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-			"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
-			"unit_draw_tiles": {actor_key: draw_tile}
-		})
-		await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+			"trap_effects": step.get("triggered_traps", []),
+			"impact_actor_keys": step.get("impact_actor_keys", []),
+			"floating_texts": _floating_texts_for_step(step)
+		}))
+		await _animate_defeats_and_terrain_destruction(before_move_state, animated_state)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
 
@@ -12803,6 +12783,10 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 	match str(step.get("kind", "")):
 		"move":
 			_set_enemy_pos_by_key(animated_state, str(step.get("actor_key", "")), step.get("to", Vector2i.ZERO))
+			_apply_actor_losses(animated_state, step.get("target_losses", []))
+			_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
+			_apply_terrain_losses(animated_state, step.get("terrain_losses", []))
+			_remove_triggered_traps(animated_state, step.get("triggered_traps", []))
 		"block":
 			_add_enemy_block_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"stoneskin":
@@ -12824,6 +12808,12 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 
 func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 	match str(step.get("kind", "")):
+		"move":
+			var movement_floats: Array[Dictionary]
+			movement_floats.append_array(_floating_texts_for_target_losses(step.get("target_losses", [])))
+			movement_floats.append_array(_floating_texts_for_target_losses(step.get("enemy_losses", [])))
+			movement_floats.append_array(_floating_texts_for_terrain_losses(step.get("terrain_losses", [])))
+			return movement_floats
 		"block":
 			return [{
 				"tile": step.get("tile", Vector2i.ZERO),
@@ -13081,6 +13071,22 @@ func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
 				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
 			"illusion":
 				_apply_illusion_loss_by_key(state, str(loss.get("key", "")), int(loss.get("hp_loss", 0)))
+
+func _apply_enemy_losses(state: Dictionary, enemy_losses: Array) -> void:
+	for loss_var: Variant in enemy_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		var actor_key: String = str(loss.get("key", ""))
+		for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+			var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+			if _enemy_key(enemy) != actor_key:
+				continue
+			enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - int(loss.get("hp_loss", 0)))
+			enemy["block"] = maxi(0, int(enemy.get("block", 0)) - int(loss.get("block_loss", 0)))
+			enemy["stoneskin"] = maxi(0, int(enemy.get("stoneskin", 0)) - int(loss.get("stoneskin_loss", 0)))
+			(state.get("enemies", []) as Array)[enemy_index] = enemy
+			break
 
 func _apply_terrain_losses(state: Dictionary, terrain_losses: Array) -> void:
 	if terrain_losses.is_empty():
@@ -18027,6 +18033,31 @@ func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 			"trigger": str(step.get("trigger", "turn_start")),
 			"action_type": str(step.get("action_type", "")),
 			"tile": step.get("tile", Vector2i(-1, -1))
+		})
+
+func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
+	for step_var: Variant in phase_result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		var kind: String = str(step.get("kind", ""))
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"]:
+			continue
+		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
+		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
+			"action_type": kind,
+			"actor_key": str(step.get("actor_key", "")),
+			"actor_name": str(step.get("actor_name", "")),
+			"label": str(step.get("label", "")),
+			"from": step.get("from", step.get("tile", Vector2i(-1, -1))),
+			"to": step.get("to", step.get("tile", Vector2i(-1, -1))),
+			"path": path,
+			"path_steps": maxi(0, path.size() - 1),
+			"target_key": str(step.get("target_key", "")),
+			"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
+			"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
+			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
+			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true)
 		})
 
 func _sync_combat_state_from_run() -> void:

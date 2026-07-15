@@ -142,6 +142,54 @@ class VisualProbeRunnerTests(unittest.TestCase):
         with mock.patch.object(VISUAL.sys, "platform", "darwin"):
             self.assertEqual(VISUAL.rendering_driver_candidates(args), ["opengl3_angle", ""])
 
+    def test_project_msaa_automatically_selects_native_macos_gpu(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw)
+            (project / "project.godot").write_text(
+                '[rendering]\nanti_aliasing/quality/msaa_2d=2\nrenderer/rendering_method="mobile"\n'
+            )
+            args = argparse.Namespace(
+                headless=None,
+                display_driver="",
+                rendering_driver="",
+                rendering_method="",
+            )
+            VISUAL.resolve_probe_rendering_mode(args, project, platform="darwin", environment={})
+            self.assertFalse(args.headless)
+            self.assertEqual(args.display_driver, "macos")
+            self.assertEqual(args.rendering_driver, "metal")
+            self.assertEqual(args.rendering_method, "mobile")
+
+    def test_explicit_headless_msaa_probe_fails_with_capability_error(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw)
+            (project / "project.godot").write_text(
+                "[rendering]\nanti_aliasing/quality/msaa_2d=2\n"
+            )
+            args = argparse.Namespace(
+                headless=True,
+                display_driver="",
+                rendering_driver="",
+                rendering_method="",
+            )
+            with self.assertRaisesRegex(VISUAL.ProbeError, "dummy headless renderer"):
+                VISUAL.resolve_probe_rendering_mode(args, project, platform="darwin", environment={})
+
+    def test_project_without_msaa_retains_headless_default(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            project = Path(raw)
+            (project / "project.godot").write_text(
+                '[rendering]\nrenderer/rendering_method="mobile"\n'
+            )
+            args = argparse.Namespace(
+                headless=None,
+                display_driver="",
+                rendering_driver="",
+                rendering_method="",
+            )
+            VISUAL.resolve_probe_rendering_mode(args, project, platform="linux", environment={})
+            self.assertTrue(args.headless)
+
 
 if __name__ == "__main__":
     unittest.main()

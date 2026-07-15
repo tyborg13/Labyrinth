@@ -136,6 +136,19 @@ Encounter calibration is also important:
   adjacent pileups and same-corner clusters, but no longer pushes enemies to
   the far side by default. This should make turn-1 reach and early enemy threat
   more variable than the old far-spawn calibration.
+- Revealed enemy execution is deterministic from the current board and intent.
+  Advancing attack intents stop at the first reachable attack-enabling tile,
+  with movement length ahead of trap exposure and safe routing used to break
+  equally short ties. Retreat attacks maximize separation only while preserving
+  their follow-up, while attackless retreats maximize safe separation.
+  Equal-distance player-side target ties prefer illusions so decoys are
+  reliable. When an attack is not reachable this activation, route scoring
+  treats destructible terrain as finite clearing time, allied congestion as a
+  temporary hard blocker while crediting immediately traversable detours, and
+  traps as high-cost but traversable when no safe route exists. Conservative
+  threat unions remain visible, with the exact current route, destination, and
+  projected attack shown separately; exact projections also honor freeze,
+  shock, immobilize, and deterministic lightning-strike tiles.
 - Elemental combat rooms seed `2-3` traps across eligible passable floor tiles,
   including the playable edge band, while still avoiding occupied tiles and the
   player's entry halo. Traps blast adjacent tiles when stepped on or attacked,
@@ -351,6 +364,7 @@ following change:
 - status behavior
 - damage, block, stoneskin, or healing semantics
 - enemy preview rules
+- enemy target selection, path cost, obstacle clearing, or attack-position rules
 - room size, enemy spacing, trap count/placement, or spawn selection
 - enemy roster or intent pacing
 - AOE, chain, push, or pull behavior

@@ -78,6 +78,8 @@ def build_command(args: argparse.Namespace, rendering_driver: str, log_file: Pat
         cmd.extend(["--display-driver", args.display_driver])
     if args.audio_driver:
         cmd.extend(["--audio-driver", args.audio_driver])
+    if args.rendering_method:
+        cmd.extend(["--rendering-method", args.rendering_method])
     if rendering_driver:
         cmd.extend(["--rendering-driver", rendering_driver])
     cmd.extend(["--path", str(Path(args.project).resolve()), "--script", args.script])
@@ -400,6 +402,72 @@ def rendering_driver_candidates(args: argparse.Namespace) -> list[str]:
     return list(dict.fromkeys(requested))
 
 
+def project_rendering_settings(project: Path) -> dict[str, str]:
+    project_file = project / "project.godot"
+    try:
+        lines = project_file.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        raise ProbeError("Could not read %s: %s" % (project_file, exc)) from exc
+    section = ""
+    settings: dict[str, str] = {}
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line or line.startswith(";"):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1].strip()
+            continue
+        if section != "rendering" or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        settings[key.strip()] = value.strip().strip('"')
+    return settings
+
+
+def resolve_probe_rendering_mode(
+    args: argparse.Namespace,
+    project: Path,
+    *,
+    platform: str | None = None,
+    environment: dict[str, str] | None = None,
+) -> None:
+    platform_name = sys.platform if platform is None else platform
+    host_environment = os.environ if environment is None else environment
+    settings = project_rendering_settings(project)
+    try:
+        msaa_2d = int(settings.get("anti_aliasing/quality/msaa_2d", "0"))
+    except ValueError as exc:
+        raise ProbeError("rendering/anti_aliasing/quality/msaa_2d must be an integer") from exc
+    requires_gpu = msaa_2d > 0
+    explicitly_headless = args.headless is True
+    if args.headless is None:
+        if not requires_gpu:
+            args.headless = True
+        elif platform_name == "darwin" or platform_name.startswith("win"):
+            args.headless = False
+        elif host_environment.get("DISPLAY") or host_environment.get("WAYLAND_DISPLAY"):
+            args.headless = False
+        else:
+            raise ProbeError(
+                "Project-wide 2D MSAA requires a GPU-backed display for visual probes, "
+                "but this host has no display session. Configure a real/virtual display "
+                "and rerun with --no-headless; Godot's dummy renderer cannot validate MSAA."
+            )
+    if explicitly_headless and requires_gpu:
+        raise ProbeError(
+            "Project-wide 2D MSAA cannot be captured by Godot's dummy headless renderer. "
+            "Use --no-headless with a native GPU-backed display."
+        )
+    if not args.headless and requires_gpu:
+        if not args.rendering_method:
+            args.rendering_method = settings.get("renderer/rendering_method", "")
+        if platform_name == "darwin":
+            if not args.display_driver:
+                args.display_driver = "macos"
+            if not args.rendering_driver:
+                args.rendering_driver = "metal"
+
+
 def generated_metadata_snapshot(project: Path) -> dict[str, str]:
     result = subprocess.run(
         ["git", "-C", str(project), "ls-files", "-co", "--exclude-standard", "-z", "--", "*.import", "*.uid"],
@@ -473,6 +541,7 @@ def write_result_manifest(path_value: str, payload: dict[str, Any], *, overwrite
 
 def command_run(args: argparse.Namespace) -> int:
     project = Path(args.project).resolve()
+    resolve_probe_rendering_mode(args, project)
     if args.result_manifest and Path(args.result_manifest).expanduser().resolve().exists() and not args.overwrite_result_manifest:
         raise ProbeError("Refusing to overwrite existing visual proof manifest %s; use a fresh path or --overwrite-result-manifest." % Path(args.result_manifest).expanduser().resolve())
     task_id = slugify(args.task_id or infer_task_id(project))
@@ -555,6 +624,7 @@ def command_run(args: argparse.Namespace) -> int:
                     "script": args.script,
                     "command": build_command(args, driver, None),
                     "rendering_driver": driver,
+                    "rendering_method": args.rendering_method,
                     "expected_sizes": [list(size) for size in expected_sizes],
                     "proof_contract": str(Path(args.proof_contract).resolve()) if args.proof_contract else "",
                     "images": stats,
@@ -597,10 +667,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--proof-contract", default="", help="JSON contract with expected_sizes and semantic required_images/regions.")
     parser.add_argument("--result-manifest", "--report-json", dest="result_manifest", default="", help="Write validated proof and attempt metadata to a fresh JSON path.")
     parser.add_argument("--overwrite-result-manifest", action="store_true")
-    parser.add_argument("--headless", dest="headless", action="store_true", default=True)
+    parser.add_argument("--headless", dest="headless", action="store_true")
     parser.add_argument("--no-headless", dest="headless", action="store_false")
+    parser.set_defaults(headless=None)
     parser.add_argument("--display-driver", default="")
     parser.add_argument("--audio-driver", default="")
+    parser.add_argument("--rendering-method", default="")
     parser.add_argument("--rendering-driver", default="")
     parser.add_argument("--fallback-rendering-driver", action="append", default=[])
     parser.add_argument("--isolated-home", dest="isolated_home", action="store_true", default=True)

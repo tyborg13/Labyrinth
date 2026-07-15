@@ -1,0 +1,39 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1280x720"],
+  "required_images": [
+    {
+      "pattern": "*01_straight_path.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20},
+        {"rect": [500, 120, 180, 120], "min_luma_range": 30, "min_luma_stdev": 6},
+        {"rect": [930, 300, 180, 160], "min_luma_range": 30, "min_luma_stdev": 6},
+        {"rect": [600, 540, 220, 120], "min_luma_range": 30, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*02_turning_path.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20},
+        {"rect": [500, 120, 180, 120], "min_luma_range": 30, "min_luma_stdev": 6},
+        {"rect": [930, 300, 180, 160], "min_luma_range": 30, "min_luma_stdev": 6},
+        {"rect": [600, 540, 220, 120], "min_luma_range": 30, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*03_one_step_path.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [280, 260, 450, 300], "min_luma_range": 80, "min_luma_stdev": 20},
+        {"rect": [500, 120, 180, 120], "min_luma_range": 30, "min_luma_stdev": 6},
+        {"rect": [930, 300, 180, 160], "min_luma_range": 30, "min_luma_stdev": 6},
+        {"rect": [600, 540, 220, 120], "min_luma_range": 30, "min_luma_stdev": 6}
+      ]
+    }
+  ]
+}

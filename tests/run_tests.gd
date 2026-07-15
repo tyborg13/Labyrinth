@@ -9,6 +9,8 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
+const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
+const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -48,6 +50,7 @@ func _initialize() -> void:
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	SteamServiceSuite.run(Callable(self, "_assert"))
+	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -95,7 +98,7 @@ func _initialize() -> void:
 	_test_radiance_cards_and_icons_are_integrated()
 	_test_cards_do_not_define_multiple_player_attacks()
 	_test_illusion_action_creates_decoy_and_redirects_enemy()
-	_test_enemy_target_ties_randomize_between_player_side_actors()
+	_test_enemy_target_ties_prefer_illusions_deterministically()
 	_test_enemy_death_grants_card_play_and_embers()
 	_test_summoned_enemy_death_does_not_grant_card_play()
 	_test_cinder_ooze_splits_deterministically()
@@ -264,6 +267,7 @@ func _initialize() -> void:
 	_test_default_theme_uses_pixel_font()
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
+	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
@@ -2449,7 +2453,7 @@ func _test_illusion_action_creates_decoy_and_redirects_enemy() -> void:
 				saw_illusion_loss_step = true
 	_assert(saw_illusion_loss_step, "Enemy animation steps should report illusion damage as target loss")
 
-func _test_enemy_target_ties_randomize_between_player_side_actors() -> void:
+func _test_enemy_target_ties_prefer_illusions_deterministically() -> void:
 	var saw_player_hit: bool = false
 	var saw_illusion_hit: bool = false
 	for seed: int in range(400, 432):
@@ -2490,7 +2494,7 @@ func _test_enemy_target_ties_randomize_between_player_side_actors() -> void:
 			saw_illusion_hit = true
 		if saw_player_hit and saw_illusion_hit:
 			break
-	_assert(saw_player_hit and saw_illusion_hit, "Equal-distance player-side targets should be selected by deterministic random tie-breaks instead of always preferring the player")
+	_assert(not saw_player_hit and saw_illusion_hit, "Equal-distance player-side targets should deterministically prefer the illusion so decoys are reliable")
 
 func _test_enemy_death_grants_card_play_and_embers() -> void:
 	var combat: CombatEngine = CombatEngine.new()
