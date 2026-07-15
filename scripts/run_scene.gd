@@ -28,6 +28,7 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
+const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -1476,6 +1477,7 @@ func _apply_style() -> void:
 	mini_map_overlay.add_theme_stylebox_override("panel", mini_map_style)
 	mini_map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	mini_map_overlay.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	mini_map_overlay.set_meta("cursor_feedback_context_provider", _mini_map_cursor_feedback_context)
 	mini_map_overlay.tooltip_text = "Map"
 	if not mini_map_overlay.gui_input.is_connected(_on_mini_map_overlay_gui_input):
 		mini_map_overlay.gui_input.connect(_on_mini_map_overlay_gui_input)
@@ -1510,7 +1512,7 @@ func _apply_style() -> void:
 	umbra_subtitle.add_theme_color_override("font_outline_color", Color("160d20"))
 	umbra_subtitle.add_theme_constant_override("outline_size", 2)
 	umbra_subtitle.mouse_filter = Control.MOUSE_FILTER_STOP
-	umbra_subtitle.mouse_default_cursor_shape = Control.CURSOR_HELP
+	umbra_subtitle.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 	stats_label.add_theme_color_override("font_color", Color("f0c978"))
 	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	stats_label.add_theme_constant_override("outline_size", 2)
@@ -1798,6 +1800,7 @@ func _build_pinned_tooltip_overlay() -> void:
 	_pinned_tooltip_scrim.visible = false
 	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.0)
 	_pinned_tooltip_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pinned_tooltip_scrim.set_meta("cursor_feedback_context_provider", _pinned_tooltip_cursor_feedback_context)
 	_pinned_tooltip_scrim.z_index = 1240
 	_pinned_tooltip_scrim.z_as_relative = false
 	_pinned_tooltip_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -1896,6 +1899,14 @@ func _on_pinned_tooltip_scrim_gui_input(event: InputEvent) -> void:
 				return
 			_close_pinned_tooltip()
 			_pinned_tooltip_scrim.accept_event()
+
+func _pinned_tooltip_cursor_feedback_context(local_position: Vector2) -> String:
+	if _pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible:
+		return "inert"
+	var global_position: Vector2 = _pinned_tooltip_scrim.get_global_transform_with_canvas() * local_position
+	if _pinned_tooltip_panel != null and _pinned_tooltip_panel.get_global_rect().has_point(global_position):
+		return "inert"
+	return "action"
 
 func _suppress_pinned_tooltip_source(source_row: Control) -> void:
 	_restore_pinned_tooltip_source()
@@ -3239,6 +3250,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_scrim.anchor_bottom = 1.0
 	_grimoire_scrim.z_index = 255
 	_grimoire_scrim.z_as_relative = false
+	_grimoire_scrim.set_meta("cursor_feedback_context_provider", _grimoire_scrim_cursor_feedback_context)
 	_grimoire_scrim.gui_input.connect(_on_grimoire_scrim_gui_input)
 	ui_root.add_child(_grimoire_scrim)
 
@@ -3981,6 +3993,14 @@ func _on_grimoire_scrim_gui_input(event: InputEvent) -> void:
 		_close_grimoire_overlay()
 		accept_event()
 
+func _grimoire_scrim_cursor_feedback_context(local_position: Vector2) -> String:
+	if _grimoire_scrim == null or not _grimoire_scrim.visible:
+		return "inert"
+	var global_position: Vector2 = _grimoire_scrim.get_global_transform_with_canvas() * local_position
+	if _grimoire_dialog != null and _grimoire_dialog.get_global_rect().has_point(global_position):
+		return "inert"
+	return "action"
+
 func _build_dialogue_overlay() -> void:
 	_dialogue_overlay = Control.new()
 	_dialogue_overlay.name = "DialogueOverlay"
@@ -3990,6 +4010,7 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_overlay.anchors_preset = Control.PRESET_FULL_RECT
 	_dialogue_overlay.anchor_right = 1.0
 	_dialogue_overlay.anchor_bottom = 1.0
+	_dialogue_overlay.set_meta("cursor_feedback_context_provider", _dialogue_cursor_feedback_context)
 	_dialogue_overlay.gui_input.connect(_on_dialogue_overlay_gui_input)
 	ui_root.add_child(_dialogue_overlay)
 
@@ -4394,6 +4415,14 @@ func _on_dialogue_overlay_gui_input(event: InputEvent) -> void:
 			return
 		accept_event()
 		_advance_dialogue()
+
+func _dialogue_cursor_feedback_context(local_position: Vector2) -> String:
+	if not _dialogue_active or _dialogue_overlay == null:
+		return "inert"
+	var global_position: Vector2 = _dialogue_overlay.get_global_transform_with_canvas() * local_position
+	if _has_current_dialogue_options() and _dialogue_choice_bar != null and _dialogue_choice_bar.get_global_rect().has_point(global_position):
+		return "inert"
+	return "action"
 
 func _start_dialogue(dialogue: Dictionary) -> void:
 	if dialogue.is_empty():
@@ -5540,7 +5569,7 @@ func _setup_elemental_intensity_bar() -> void:
 		badge.custom_minimum_size = INTENSITY_BADGE_SIZE
 		badge.size = INTENSITY_BADGE_SIZE
 		badge.mouse_filter = Control.MOUSE_FILTER_STOP
-		badge.mouse_default_cursor_shape = Control.CURSOR_HELP
+		badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 		badge.tooltip_text = _intensity_tooltip(element_id)
 		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, false))
 		_intensity_bar.add_child(badge)
@@ -5768,6 +5797,7 @@ func _build_pile_widget(spec: Dictionary) -> void:
 	content.add_child(badge)
 	_pile_badges[kind] = badge
 
+	panel.set_meta("cursor_feedback_context_provider", _pile_cursor_feedback_context.bind(kind))
 	panel.gui_input.connect(_on_pile_gui_input.bind(kind))
 
 func _pile_panel_for_kind(kind: String) -> PanelContainer:
@@ -6038,7 +6068,7 @@ func _refresh_relic_bar() -> void:
 				str(relic.get("name", relic_id)),
 				str(relic.get("description", ""))
 		]
-		frame.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 		frame.add_theme_stylebox_override("panel", _pile_card_style(
 				Color("261b14"),
 				Color(GameData.relic_accent(relic_id)),
@@ -6231,7 +6261,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.size = slot_size
 	frame.clip_contents = false
 	frame.mouse_filter = Control.MOUSE_FILTER_STOP
-	frame.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)) else Control.CURSOR_ARROW
+	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)) else Control.CURSOR_ARROW
 	frame.tooltip_text = _turn_order_tooltip(entry, index)
 	frame.set_meta("turn_order_key", _turn_order_entry_key(entry))
 	frame.set_meta("turn_order_size", slot_size)
@@ -7930,7 +7960,7 @@ func _add_pass_preview_chip() -> void:
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	chip.mouse_filter = Control.MOUSE_FILTER_STOP
 	var tooltip_text: String = _pass_preview_tooltip(summary)
-	chip.mouse_default_cursor_shape = Control.CURSOR_HELP if not tooltip_text.is_empty() else Control.CURSOR_ARROW
+	chip.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE if not tooltip_text.is_empty() else Control.CURSOR_ARROW
 	chip.tooltip_text = tooltip_text
 	chip.add_theme_stylebox_override("panel", _pass_preview_chip_style(summary))
 
@@ -9538,6 +9568,7 @@ func _reward_heal_choice_slot(heal_amount: int, slot_size: Vector2) -> Control:
 	panel.custom_minimum_size = slot_size
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.set_meta("cursor_feedback_context_provider", _reward_heal_cursor_feedback_context)
 	panel.tooltip_text = ""
 	panel.set_meta("reward_heal_amount", heal_amount)
 	panel.set_meta("reward_heal_current_hp", current_hp)
@@ -9628,6 +9659,9 @@ func _on_reward_heal_choice_gui_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		_on_skip_reward_pressed()
+
+func _reward_heal_cursor_feedback_context(_local_position: Vector2) -> String:
+	return "action" if not _animation_lock and not _loadout_acquisition_in_progress else "inert"
 
 func _set_reward_heal_choice_hovered(panel: PanelContainer, hovered: bool) -> void:
 	if panel == null:
@@ -11322,6 +11356,9 @@ func _on_mini_map_overlay_gui_input(event: InputEvent) -> void:
 			return
 		_open_large_map()
 		get_viewport().set_input_as_handled()
+
+func _mini_map_cursor_feedback_context(_local_position: Vector2) -> String:
+	return "action" if not _dialogue_active and not _animation_lock and _large_map_scrim != null else "inert"
 
 func _open_large_map() -> void:
 	if _large_map_scrim == null:
@@ -14397,10 +14434,24 @@ func _change_scene_to_file(path: String) -> void:
 	get_tree().change_scene_to_file(path)
 
 func _on_pile_gui_input(event: InputEvent, pile_kind: String) -> void:
-	if _animation_lock or str(_run_state.get("mode", "room")) != "combat" or _selected_card_index >= 0 or _drag_card_index >= 0:
+	if pile_cursor_feedback_context_for_state(_animation_lock, str(_run_state.get("mode", "room")), _selected_card_index, _drag_card_index, _pile_scrim != null) != "action":
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_open_pile_view(pile_kind)
+
+func _pile_cursor_feedback_context(_local_position: Vector2, _pile_kind: String) -> String:
+	return pile_cursor_feedback_context_for_state(
+		_animation_lock,
+		str(_run_state.get("mode", "room")),
+		_selected_card_index,
+		_drag_card_index,
+		_pile_scrim != null
+	)
+
+static func pile_cursor_feedback_context_for_state(animation_locked: bool, mode: String, selected_card_index: int, drag_card_index: int, overlay_ready: bool) -> String:
+	if animation_locked or mode != "combat" or selected_card_index >= 0 or drag_card_index >= 0 or not overlay_ready:
+		return "inert"
+	return "action"
 
 func _open_pile_view(pile_kind: String) -> void:
 	if _pile_scrim == null:

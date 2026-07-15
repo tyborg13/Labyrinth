@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T19:48:33Z",
+  "updated_at": "2026-07-15T20:07:30Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5602,7 +5602,7 @@
       }
     },
     {
-      "id": "mnt_20260715T194833Z_085d2e3e",
+      "id": "mnt_20260715T200730Z_db3e4a80",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -5611,16 +5611,18 @@
         "symbol": null
       },
       "scope_key": "folder:scripts",
-      "summary": "Global cursor feedback is semantic and autoload-owned",
-      "details": "CursorFeedback hides the native pointer and maps Control cursor shapes plus cursor_feedback_context/cursor_feedback_drag_source metadata into forged idle, action, press, drag, invalid, and loading states. New custom click/drag controls should expose those semantics instead of drawing their own cursor. Scene changes from MainMenu and RunScene route through CursorFeedback.change_scene_to_file so the loading ward renders before and just after synchronous transitions; click sounds are procedural PCM on the SFX bus.",
+      "summary": "Global cursor feedback separates hover help from actual click validity",
+      "details": "CursorFeedback owns the hidden native pointer, forged cursor states, procedural SFX-bus click sounds, and scene-transition loading ward. CURSOR_HELP is hover information only and must produce dull click feedback; custom point-dependent actions should expose cursor_feedback_context_at(local_position), while dynamically guarded Controls can provide a Callable in cursor_feedback_context_provider. cursor_feedback_context/cursor_feedback_drag_source remain appropriate for static action and drag semantics. Keep provider guards identical to the actual input handler guards.",
       "status": "active",
-      "created_at": "2026-07-15T19:48:33Z",
-      "updated_at": "2026-07-15T19:48:33Z",
+      "created_at": "2026-07-15T20:07:30Z",
+      "updated_at": "2026-07-15T20:07:30Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260715T194833Z_085d2e3e"
+      ],
       "source": {
         "branch": "codex/custom-contextual-cursor-and-click-feedback",
-        "commit": "75fb76d"
+        "commit": "b537173"
       }
     }
   ]

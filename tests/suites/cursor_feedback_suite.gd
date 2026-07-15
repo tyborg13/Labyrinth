@@ -2,10 +2,13 @@ extends RefCounted
 
 const CursorFeedbackScript = preload("res://scripts/cursor_feedback.gd")
 const CustomCursorGlyphScript = preload("res://scripts/custom_cursor_glyph.gd")
+const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
+const RunSceneScript = preload("res://scripts/run_scene.gd")
 
 static func run(expect: Callable) -> void:
 	_test_visual_state_contract(expect)
 	_test_context_resolution(expect)
+	_test_production_context_resolution(expect)
 	_test_click_audio_contract(expect)
 	_test_global_installation(expect)
 
@@ -53,8 +56,64 @@ static func _test_context_resolution(expect: Callable) -> void:
 	inert_control.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	inert_control.set_meta("cursor_feedback_context", "inert")
 	var inert_context: Dictionary = CursorFeedbackScript.context_for_control(inert_control)
-	expect.call(bool(inert_context.get("invalid", false)) and not bool(inert_context.get("actionable", true)), "Explicit inert metadata should override a stale native pointing-hand request")
+	expect.call(not bool(inert_context.get("invalid", false)) and not bool(inert_context.get("actionable", true)), "Explicit inert metadata should override a stale native pointing-hand request without advertising a forbidden hover state")
 	inert_control.free()
+
+	var help_control := Control.new()
+	help_control.mouse_default_cursor_shape = RunSceneScript.TOOLTIP_ONLY_CURSOR_SHAPE
+	var help_context: Dictionary = CursorFeedbackScript.context_for_control(help_control)
+	expect.call(RunSceneScript.TOOLTIP_ONLY_CURSOR_SHAPE == Control.CURSOR_HELP, "Production tooltip-only controls should use the non-click help semantic")
+	expect.call(not bool(help_context.get("actionable", true)) and not bool(help_context.get("drag_source", true)), "Help-shaped tooltip surfaces should remain click-inert")
+	expect.call(CursorFeedbackScript.state_for_context(help_context, true, false) == "pressed_invalid", "Clicking hover-only help should use dull feedback")
+	help_control.free()
+
+static func _test_production_context_resolution(expect: Callable) -> void:
+	var map: Control = LabyrinthMapViewScript.new()
+	map.size = Vector2(900.0, 600.0)
+	map.set("show_legend", false)
+	map.call("set_run_state", _map_cursor_fixture())
+	var reachable_point: Vector2 = map.call("_coord_position", Vector2i(1, 0))
+	var unavailable_point: Vector2 = map.call("_coord_position", Vector2i(0, 1))
+	var reachable_context: Dictionary = CursorFeedbackScript.context_for_control(map, reachable_point)
+	var unavailable_context: Dictionary = CursorFeedbackScript.context_for_control(map, unavailable_point)
+	var background_context: Dictionary = CursorFeedbackScript.context_for_control(map, Vector2(8.0, 8.0))
+	expect.call(bool(reachable_context.get("actionable", false)), "A reachable production map room should resolve as a valid custom click target")
+	expect.call(not bool(unavailable_context.get("actionable", true)), "A sealed production map room should resolve as inert")
+	expect.call(not bool(background_context.get("actionable", true)), "Production map background should resolve as inert")
+	map.free()
+
+	expect.call(RunSceneScript.pile_cursor_feedback_context_for_state(false, "combat", -1, -1, true) == "action", "A production pile should resolve valid when its click handler can open the overlay")
+	expect.call(RunSceneScript.pile_cursor_feedback_context_for_state(true, "combat", -1, -1, true) == "inert", "An animation-locked pile should resolve inert")
+	expect.call(RunSceneScript.pile_cursor_feedback_context_for_state(false, "room", -1, -1, true) == "inert", "A pile outside combat should resolve inert")
+	expect.call(RunSceneScript.pile_cursor_feedback_context_for_state(false, "combat", 0, -1, true) == "inert", "A pile should resolve inert while a card action owns the pointer")
+
+static func _map_cursor_fixture() -> Dictionary:
+	return {
+		"mode": "room",
+		"current_room": Vector2i.ZERO,
+		"rooms": {
+			"0,0": {
+				"coord": Vector2i.ZERO,
+				"depth": 0,
+				"revealed": true,
+				"visited": true,
+				"connections": [{"coord": Vector2i(1, 0)}, {"coord": Vector2i(0, 1)}]
+			},
+			"1,0": {
+				"coord": Vector2i(1, 0),
+				"depth": 1,
+				"revealed": true,
+				"connections": [{"coord": Vector2i.ZERO}]
+			},
+			"0,1": {
+				"coord": Vector2i(0, 1),
+				"depth": 1,
+				"revealed": true,
+				"sealed": true,
+				"connections": [{"coord": Vector2i.ZERO}]
+			}
+		}
+	}
 
 static func _test_click_audio_contract(expect: Callable) -> void:
 	var contract: Dictionary = CursorFeedbackScript.click_feedback_contract()

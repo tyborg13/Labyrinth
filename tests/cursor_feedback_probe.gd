@@ -2,6 +2,7 @@ extends SceneTree
 
 const CustomCursorGlyphScript = preload("res://scripts/custom_cursor_glyph.gd")
 const CursorFeedbackScript = preload("res://scripts/cursor_feedback.gd")
+const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
 const OUTPUT_DIR: String = "user://cursor_feedback_probe"
@@ -28,6 +29,7 @@ func _initialize() -> void:
 	for viewport_size: Vector2i in PROOF_SIZES:
 		await _capture_gallery(viewport_size)
 	await _capture_runtime_menu_states()
+	await _capture_runtime_map_contexts()
 	if _errors.is_empty():
 		print("CURSOR FEEDBACK PROBE: PASS")
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -111,6 +113,100 @@ func _capture_runtime_menu_states() -> void:
 		music_player.stream = null
 	viewport.queue_free()
 	await process_frame
+
+func _capture_runtime_map_contexts() -> void:
+	await _capture_runtime_map_context(true)
+	await _capture_runtime_map_context(false)
+
+func _capture_runtime_map_context(valid_target: bool) -> void:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1920, 1080)
+	viewport.msaa_2d = int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", Viewport.MSAA_DISABLED))
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ALWAYS
+	viewport.disable_3d = true
+	root.add_child(viewport)
+
+	var stage := Control.new()
+	stage.size = Vector2(viewport.size)
+	viewport.add_child(stage)
+	var background := ColorRect.new()
+	background.color = Color("100d11")
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(background)
+	var map_panel := PanelContainer.new()
+	map_panel.position = Vector2(230.0, 110.0)
+	map_panel.size = Vector2(1460.0, 860.0)
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color("17110f")
+	panel_style.border_color = Color("9d7a50")
+	panel_style.set_border_width_all(3)
+	panel_style.set_corner_radius_all(12)
+	map_panel.add_theme_stylebox_override("panel", panel_style)
+	stage.add_child(map_panel)
+	var map: Control = LabyrinthMapViewScript.new()
+	map.name = "ProductionLargeMapProof"
+	map.position = Vector2(20.0, 20.0)
+	map.size = map_panel.size - Vector2(40.0, 40.0)
+	map.set("interactive", true)
+	map.set("show_legend", true)
+	map.set("draw_background", false)
+	map.call("set_run_state", _map_cursor_fixture())
+	map_panel.add_child(map)
+
+	var title := Label.new()
+	title.text = "THE LABYRINTH ANSWERS ONLY ON OPEN PATHS"
+	title.position = Vector2(0.0, 44.0)
+	title.size = Vector2(viewport.size.x, 42.0)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title.add_theme_font_override("font", load("res://fonts/LabyrinthCrumble-Header.tres"))
+	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_color_override("font_color", Color("f2d394"))
+	title.add_theme_color_override("font_outline_color", Color("120a09"))
+	title.add_theme_constant_override("outline_size", 5)
+	stage.add_child(title)
+
+	var controller: CanvasLayer = CursorFeedbackScript.new()
+	controller.name = "RuntimeMapCursorFeedback"
+	viewport.add_child(controller)
+	for _frame: int in range(5):
+		await process_frame
+	controller.set("_loading_until_msec", 0)
+	var pointer_local: Vector2 = map.call("_coord_position", Vector2i(1, 0)) if valid_target else Vector2(12.0, 12.0)
+	var pointer_global: Vector2 = map.get_global_transform_with_canvas() * pointer_local
+	await _move_runtime_pointer(viewport, controller, pointer_global)
+	var glyph: Control = controller.call("glyph_for_test") as Control
+	if valid_target:
+		_expect(glyph != null and str(glyph.get("cursor_state")) == "action", "Runtime controller should resolve a reachable production map room as valid")
+		await _save_viewport_image(viewport, "cursor_runtime_map_valid_1920x1080.png")
+	else:
+		_expect(glyph != null and str(glyph.get("cursor_state")) == "idle", "Runtime controller should keep production map background click-inert")
+		await _save_viewport_image(viewport, "cursor_runtime_map_inert_1920x1080.png")
+	viewport.queue_free()
+	await process_frame
+
+func _move_runtime_pointer(viewport: SubViewport, controller: CanvasLayer, pointer_position: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = pointer_position
+	motion.global_position = pointer_position
+	viewport.push_input(motion, true)
+	await process_frame
+	controller.call("_process", 0.0)
+
+func _map_cursor_fixture() -> Dictionary:
+	return {
+		"mode": "room",
+		"current_room": Vector2i.ZERO,
+		"rooms": {
+			"0,0": {"coord": Vector2i.ZERO, "depth": 0, "type": "start", "revealed": true, "visited": true, "connections": [{"coord": Vector2i(1, 0)}, {"coord": Vector2i(0, 1)}]},
+			"1,0": {"coord": Vector2i(1, 0), "depth": 1, "type": "combat", "element": "fire", "revealed": true, "connections": [{"coord": Vector2i.ZERO}, {"coord": Vector2i(2, 0)}]},
+			"0,1": {"coord": Vector2i(0, 1), "depth": 1, "type": "treasure", "revealed": true, "sealed": true, "connections": [{"coord": Vector2i.ZERO}]},
+			"2,0": {"coord": Vector2i(2, 0), "depth": 2, "type": "campfire", "revealed": true, "connections": [{"coord": Vector2i(1, 0)}]},
+			"2,-1": {"coord": Vector2i(2, -1), "depth": 2, "type": "boss", "revealed": true, "connections": [{"coord": Vector2i(1, 0)}]}
+		}
+	}
 
 func _save_viewport_image(viewport: SubViewport, file_name: String) -> void:
 	for _frame: int in range(2):

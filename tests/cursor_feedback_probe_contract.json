@@ -1,5 +1,5 @@
 {
-  "min_images": 4,
+  "min_images": 6,
   "expected_sizes": ["1280x720", "1920x1080"],
   "required_images": [
     {
@@ -32,6 +32,22 @@
       "height": 1080,
       "regions": [
         {"rect": [40, 40, 880, 900], "min_luma_range": 100, "min_luma_stdev": 18}
+      ]
+    },
+    {
+      "pattern": "*cursor_runtime_map_valid_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [220, 100, 1480, 880], "min_luma_range": 100, "min_luma_stdev": 14}
+      ]
+    },
+    {
+      "pattern": "*cursor_runtime_map_inert_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [220, 100, 1480, 880], "min_luma_range": 100, "min_luma_stdev": 14}
       ]
     }
   ]

@@ -6,6 +6,8 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 
 const CONTEXT_META: String = "cursor_feedback_context"
 const DRAG_SOURCE_META: String = "cursor_feedback_drag_source"
+const CONTEXT_PROVIDER_META: String = "cursor_feedback_context_provider"
+const CONTEXT_AT_METHOD: String = "cursor_feedback_context_at"
 const DRAG_THRESHOLD: float = 7.0
 const AUDIO_MIX_RATE: int = 44100
 const VALID_CLICK_SECONDS: float = 0.082
@@ -61,7 +63,7 @@ func _process(_delta: float) -> void:
 	var window: Window = get_window()
 	var pointer_inside: bool = viewport.get_visible_rect().grow(2.0).has_point(pointer_position)
 	_glyph.visible = pointer_inside and (window == null or window.has_focus())
-	_glyph.set_cursor_state(_resolved_cursor_state(viewport.gui_get_hovered_control()))
+	_glyph.set_cursor_state(_resolved_cursor_state(viewport.gui_get_hovered_control(), pointer_position))
 
 func _input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton and not event is InputEventMouseMotion:
@@ -115,19 +117,19 @@ func feedback_counts() -> Dictionary:
 func glyph_for_test() -> CustomCursorGlyph:
 	return _glyph
 
-func _resolved_cursor_state(hovered: Control) -> String:
+func _resolved_cursor_state(hovered: Control, pointer_position: Variant = null) -> String:
 	if is_loading():
 		return CustomCursorGlyph.STATE_LOADING
 	if _left_pressed:
 		if _press_drag_source and _drag_started:
 			return CustomCursorGlyph.STATE_DRAGGING
 		return CustomCursorGlyph.STATE_PRESSED_VALID if _press_actionable or _press_drag_source else CustomCursorGlyph.STATE_PRESSED_INVALID
-	return state_for_context(context_for_control(hovered), false, false)
+	return state_for_context(context_for_control(hovered, pointer_position), false, false)
 
 func _begin_pointer_press(position: Vector2) -> void:
 	if _left_pressed or is_loading():
 		return
-	var context: Dictionary = context_for_control(get_viewport().gui_get_hovered_control())
+	var context: Dictionary = context_for_control(get_viewport().gui_get_hovered_control(), position)
 	_begin_pointer_press_with_context(position, context)
 
 func _begin_pointer_press_with_context(position: Vector2, context: Dictionary) -> void:
@@ -186,71 +188,99 @@ func _create_audio_players() -> void:
 		add_child(player)
 		_audio_players.append(player)
 
-static func context_for_control(hovered: Control) -> Dictionary:
-	var context: Dictionary = {
+static func context_for_control(hovered: Control, pointer_position: Variant = null) -> Dictionary:
+	var context: Dictionary = _empty_context()
+	if hovered == null:
+		return context
+	var current: Control = hovered
+	while current != null:
+		var explicit_context: String = _context_provider_value(current, pointer_position)
+		if explicit_context.is_empty():
+			explicit_context = str(current.get_meta(CONTEXT_META, ""))
+		if not explicit_context.is_empty():
+			return _context_from_semantic(explicit_context, current.mouse_default_cursor_shape, bool(current.get_meta(DRAG_SOURCE_META, false)))
+
+		if current is BaseButton:
+			var button := current as BaseButton
+			return _context_from_semantic("invalid" if button.disabled else "action", current.mouse_default_cursor_shape)
+		if current is LineEdit or current is TextEdit:
+			return _context_from_semantic("action", Control.CURSOR_IBEAM)
+		if current is Range:
+			return _context_from_semantic("action_drag", current.mouse_default_cursor_shape)
+		if bool(current.get_meta(DRAG_SOURCE_META, false)):
+			return _context_from_semantic("drag", current.mouse_default_cursor_shape)
+
+		var shape: int = current.mouse_default_cursor_shape
+		if shape != Control.CURSOR_ARROW:
+			return _context_from_shape(shape)
+		var parent_control: Control = current.get_parent() as Control
+		current = parent_control
+	return context
+
+static func _empty_context() -> Dictionary:
+	return {
 		"actionable": false,
 		"drag_source": false,
 		"invalid": false,
 		"loading": false,
 		"shape": Control.CURSOR_ARROW
 	}
-	if hovered == null:
-		return context
-	var current: Control = hovered
-	var inherited_shape: int = hovered.mouse_default_cursor_shape
-	while current != null:
-		var explicit_context: String = str(current.get_meta(CONTEXT_META, ""))
-		match explicit_context:
-			"action":
-				context["actionable"] = true
-			"drag":
-				context["actionable"] = true
-				context["drag_source"] = true
-			"action_drag":
-				context["actionable"] = true
-				context["drag_source"] = true
-			"invalid", "inert":
-				context["invalid"] = true
-				context["actionable"] = false
-				context["drag_source"] = false
-			"loading":
-				context["loading"] = true
-		if bool(current.get_meta(DRAG_SOURCE_META, false)):
-			context["drag_source"] = true
-		if current is BaseButton:
-			var button := current as BaseButton
-			if button.disabled:
-				context["invalid"] = true
-				context["actionable"] = false
-			else:
-				context["actionable"] = true
-		if current is LineEdit or current is TextEdit:
-			context["actionable"] = true
-		if current is Range:
-			context["actionable"] = true
-			context["drag_source"] = true
-		if inherited_shape == Control.CURSOR_ARROW and current.mouse_default_cursor_shape != Control.CURSOR_ARROW:
-			inherited_shape = current.mouse_default_cursor_shape
-		var parent_control: Control = current.get_parent() as Control
-		current = parent_control
 
-	context["shape"] = inherited_shape
-	match inherited_shape:
-		Control.CURSOR_POINTING_HAND, Control.CURSOR_HELP:
+static func _context_provider_value(control: Control, pointer_position: Variant) -> String:
+	var has_method_provider: bool = control.has_method(CONTEXT_AT_METHOD)
+	var has_meta_provider: bool = control.has_meta(CONTEXT_PROVIDER_META)
+	if not has_method_provider and not has_meta_provider:
+		return ""
+	var local_position: Vector2 = Vector2.ZERO
+	if pointer_position is Vector2:
+		local_position = control.get_global_transform_with_canvas().affine_inverse() * (pointer_position as Vector2)
+	elif control.is_inside_tree():
+		local_position = control.get_local_mouse_position()
+	if has_method_provider:
+		return str(control.call(CONTEXT_AT_METHOD, local_position))
+	var provider_var: Variant = control.get_meta(CONTEXT_PROVIDER_META)
+	if provider_var is Callable:
+		var provider: Callable = provider_var
+		if provider.is_valid():
+			return str(provider.call(local_position))
+	return ""
+
+static func _context_from_semantic(semantic: String, shape: int = Control.CURSOR_ARROW, force_drag: bool = false) -> Dictionary:
+	var context: Dictionary = _empty_context()
+	context["shape"] = shape
+	match semantic:
+		"action":
 			context["actionable"] = true
-		Control.CURSOR_DRAG, Control.CURSOR_CAN_DROP:
+		"drag":
+			context["drag_source"] = true
+		"action_drag":
 			context["actionable"] = true
 			context["drag_source"] = true
-		Control.CURSOR_MOVE, Control.CURSOR_HSIZE, Control.CURSOR_VSIZE, Control.CURSOR_BDIAGSIZE, Control.CURSOR_FDIAGSIZE:
-			context["drag_source"] = true
-		Control.CURSOR_FORBIDDEN:
+		"invalid":
 			context["invalid"] = true
-			context["actionable"] = false
-			context["drag_source"] = false
-	if bool(context.get("invalid", false)):
-		context["actionable"] = false
-		context["drag_source"] = false
+		"loading":
+			context["loading"] = true
+		"inert", "help":
+			pass
+	if force_drag and not bool(context.get("invalid", false)):
+		context["drag_source"] = true
 	return context
+
+static func _context_from_shape(shape: int) -> Dictionary:
+	match shape:
+		Control.CURSOR_POINTING_HAND:
+			return _context_from_semantic("action", shape)
+		Control.CURSOR_HELP:
+			# Help means that hover information exists; it does not promise that a
+			# click performs an action.
+			return _context_from_semantic("help", shape)
+		Control.CURSOR_DRAG, Control.CURSOR_CAN_DROP:
+			return _context_from_semantic("drag", shape)
+		Control.CURSOR_MOVE, Control.CURSOR_HSIZE, Control.CURSOR_VSIZE, Control.CURSOR_BDIAGSIZE, Control.CURSOR_FDIAGSIZE:
+			return _context_from_semantic("drag", shape)
+		Control.CURSOR_FORBIDDEN:
+			return _context_from_semantic("invalid", shape)
+	return _empty_context()
 
 static func state_for_context(context: Dictionary, pressed: bool, dragged: bool) -> String:
 	if bool(context.get("loading", false)):
