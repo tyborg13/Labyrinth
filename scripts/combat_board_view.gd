@@ -6838,7 +6838,7 @@ func _update_cursor_shape() -> void:
 	if is_hot:
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	elif _tile_drag_aiming_active():
-		mouse_default_cursor_shape = Control.CURSOR_ARROW
+		mouse_default_cursor_shape = Control.CURSOR_DRAG
 	else:
 		mouse_default_cursor_shape = Control.CURSOR_MOVE
 

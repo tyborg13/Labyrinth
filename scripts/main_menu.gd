@@ -752,14 +752,14 @@ func _begin_new_game() -> void:
 	ProgressionStore.clear_saved_run()
 	_saved_run_preview = {}
 	if scene_tree != null:
-		scene_tree.change_scene_to_file("res://scenes/run_scene.tscn")
+		_change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_continue_button_pressed() -> void:
 	_refresh_saved_run_preview()
 	if continue_button.disabled:
 		return
 	get_tree().root.set_meta("labyrinth_resume_saved_run", true)
-	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
+	_change_scene_to_file("res://scenes/run_scene.tscn")
 
 func _on_settings_button_pressed() -> void:
 	if settings_panel.has_method("open"):
@@ -787,4 +787,11 @@ func _on_boss_button_pressed() -> void:
 	if get_tree().root.has_meta("labyrinth_resume_saved_run"):
 		get_tree().root.remove_meta("labyrinth_resume_saved_run")
 	get_tree().root.set_meta("labyrinth_debug_boss_run", true)
-	get_tree().change_scene_to_file("res://scenes/run_scene.tscn")
+	_change_scene_to_file("res://scenes/run_scene.tscn")
+
+func _change_scene_to_file(path: String) -> void:
+	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
+		cursor_feedback.call("change_scene_to_file", path)
+		return
+	get_tree().change_scene_to_file(path)

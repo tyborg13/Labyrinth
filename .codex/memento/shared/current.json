@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T18:47:37Z",
+  "updated_at": "2026-07-15T19:48:33Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5599,6 +5599,28 @@
       "source": {
         "branch": "codex/beautify-movement-path-arrows",
         "commit": "c3a4e2a"
+      }
+    },
+    {
+      "id": "mnt_20260715T194833Z_085d2e3e",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Global cursor feedback is semantic and autoload-owned",
+      "details": "CursorFeedback hides the native pointer and maps Control cursor shapes plus cursor_feedback_context/cursor_feedback_drag_source metadata into forged idle, action, press, drag, invalid, and loading states. New custom click/drag controls should expose those semantics instead of drawing their own cursor. Scene changes from MainMenu and RunScene route through CursorFeedback.change_scene_to_file so the loading ward renders before and just after synchronous transitions; click sounds are procedural PCM on the SFX bus.",
+      "status": "active",
+      "created_at": "2026-07-15T19:48:33Z",
+      "updated_at": "2026-07-15T19:48:33Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/custom-contextual-cursor-and-click-feedback",
+        "commit": "75fb76d"
       }
     }
   ]

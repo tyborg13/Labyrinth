@@ -1,0 +1,38 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1280x720", "1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*cursor_gallery_1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [260, 130, 760, 450], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*cursor_gallery_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [580, 225, 760, 450], "min_luma_range": 80, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*cursor_runtime_action_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [40, 40, 880, 900], "min_luma_range": 100, "min_luma_stdev": 18}
+      ]
+    },
+    {
+      "pattern": "*cursor_runtime_pressed_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [40, 40, 880, 900], "min_luma_range": 100, "min_luma_stdev": 18}
+      ]
+    }
+  ]
+}

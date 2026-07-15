@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.6")
 [autoload]
 
 SteamService="*res://scripts/steam_service.gd"
+CursorFeedback="*res://scripts/cursor_feedback.gd"
 
 [display]
 

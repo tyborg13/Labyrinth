@@ -13683,7 +13683,7 @@ func _on_campfire_embrace_pressed() -> void:
 		return
 	_progression = committed_progression
 	ProgressionStore.clear_saved_run()
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_campfire_linger_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
@@ -14047,7 +14047,7 @@ func _relic_frame_for_id(relic_id: String) -> Control:
 func _on_back_to_menu_pressed() -> void:
 	if not _is_debug_boss_run():
 		ProgressionStore.clear_saved_run()
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_restart_pressed() -> void:
 	if _is_debug_boss_run():
@@ -14366,7 +14366,7 @@ func _save_run_progress() -> void:
 func _on_save_and_quit_pressed() -> void:
 	_close_menu_overlay()
 	_save_run_progress()
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_exit_to_desktop_pressed() -> void:
 	_close_menu_overlay()
@@ -14387,7 +14387,14 @@ func _on_abandon_run_pressed() -> void:
 		)
 		ProgressionStore.save_data(_progression)
 		ProgressionStore.clear_saved_run()
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	_change_scene_to_file("res://scenes/main_menu.tscn")
+
+func _change_scene_to_file(path: String) -> void:
+	var cursor_feedback: Node = get_node_or_null("/root/CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
+		cursor_feedback.call("change_scene_to_file", path)
+		return
+	get_tree().change_scene_to_file(path)
 
 func _on_pile_gui_input(event: InputEvent, pile_kind: String) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat" or _selected_card_index >= 0 or _drag_card_index >= 0:
