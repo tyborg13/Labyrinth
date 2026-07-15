@@ -4,7 +4,6 @@ class_name AttackSfxLibrary
 const MELEE_SFX_ID: String = "attack.melee"
 const RANGED_SFX_ID: String = "attack.ranged"
 const BLOCK_SFX_ID: String = "action.block"
-const EMBER_COLLECT_SFX_ID: String = "reward.ember_collect"
 
 const SFX: Dictionary = {
 	MELEE_SFX_ID: {
@@ -21,11 +20,6 @@ const SFX: Dictionary = {
 		"path": "res://assets/audio/sfx/action_block.wav",
 		"duration": 0.50,
 		"volume_db": -3.0
-	},
-	EMBER_COLLECT_SFX_ID: {
-		"path": "res://assets/audio/sfx/ember_collect.wav",
-		"duration": 0.45,
-		"volume_db": -17.0
 	}
 }
 
@@ -69,9 +63,6 @@ static func entry_for_block_action(card: Dictionary, action: Dictionary) -> Dict
 	if sfx_id.is_empty():
 		sfx_id = BLOCK_SFX_ID
 	return entry(sfx_id)
-
-static func entry_for_ember_collect() -> Dictionary:
-	return entry(EMBER_COLLECT_SFX_ID)
 
 static func entry(sfx_id: String) -> Dictionary:
 	if not SFX.has(sfx_id):

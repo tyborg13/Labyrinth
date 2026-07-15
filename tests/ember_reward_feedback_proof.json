@@ -1,0 +1,24 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["3024x1898"],
+  "required_images": [
+    {
+      "pattern": "*ember_counter_roll.png",
+      "width": 3024,
+      "height": 1898,
+      "regions": [
+        {"rect": [2260, 0, 764, 140], "min_luma_range": 8, "min_luma_stdev": 2},
+        {"rect": [420, 180, 2020, 1040], "min_luma_range": 50, "min_luma_stdev": 12}
+      ]
+    },
+    {
+      "pattern": "*ember_counter_settled.png",
+      "width": 3024,
+      "height": 1898,
+      "regions": [
+        {"rect": [2260, 0, 764, 140], "min_luma_range": 8, "min_luma_stdev": 2},
+        {"rect": [420, 180, 2020, 1040], "min_luma_range": 50, "min_luma_stdev": 12}
+      ]
+    }
+  ]
+}

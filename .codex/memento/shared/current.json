@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T03:50:54Z",
+  "updated_at": "2026-07-15T03:53:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -4376,72 +4376,6 @@
       }
     },
     {
-      "id": "mnt_20260702T151151Z_519dd3d9",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Selection prompt depth effects should be glyph-shaped",
-      "details": "For large non-combat selection prompts such as GROW YOUR POWER and CLAIM YOUR TREASURE, avoid simple geometric halos, underlines, sweep parallelograms, or other obvious decorative shapes behind the text. Keep depth/life treatments tied to the letterforms themselves: text-shaped shadow, glow, bevel/highlight, or similarly professional glyph-based effects.",
-      "status": "active",
-      "created_at": "2026-07-02T15:11:51Z",
-      "updated_at": "2026-07-02T15:11:51Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/polish-non-combat-room-title-text",
-        "commit": "87f32c4"
-      }
-    },
-    {
-      "id": "mnt_20260702T215925Z_fee527ff",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "folder",
-        "path": "assets/art",
-        "symbol": null
-      },
-      "scope_key": "folder:assets/art",
-      "summary": "Retro Diffusion advanced idle sheets use native 4x4 cells",
-      "details": "The July 2026 Retro Diffusion Advanced Animations -> Idle flow produced 16-frame PNG sheets at 1020x1020 total for 255x255 unit art, i.e. 4x4 cells at native 255x255 frame size. Configure these sheets with idle_sheet_columns:4, idle_sheet_rows:4, idle_sheet_order:row_major, idle_sheet_ping_pong:false. Older placeholder/anime trial idle sheets may be 4080px-wide 4x-upscaled sheets with different ping-pong metadata, so do not infer one convention from the other.",
-      "status": "active",
-      "created_at": "2026-07-02T21:59:25Z",
-      "updated_at": "2026-07-02T21:59:25Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
-        "commit": "a7b3907"
-      }
-    },
-    {
-      "id": "mnt_20260702T222108Z_3e7c86d7",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Unit shadow simplification can drop generated idle frames",
-      "details": "Retro Diffusion 255px idle frames can produce opaque bounds but non-triangulatable silhouette polygons at the broad UNIT_SHADOW_SIMPLIFY_EPSILON=3.0 pass, which makes _draw_unit_shadow fall back to the old oval for those frames. Keep the finer retry path in _unit_shadow_data_for_texture before using an oval fallback.",
-      "status": "active",
-      "created_at": "2026-07-02T22:21:08Z",
-      "updated_at": "2026-07-02T22:21:08Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
-        "commit": "5052ce8"
-      }
-    },
-    {
       "id": "mnt_20260702T124538Z_715d500d",
       "layer": "shared",
       "kind": "user_preference",
@@ -4486,6 +4420,28 @@
       }
     },
     {
+      "id": "mnt_20260702T151151Z_519dd3d9",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Selection prompt depth effects should be glyph-shaped",
+      "details": "For large non-combat selection prompts such as GROW YOUR POWER and CLAIM YOUR TREASURE, avoid simple geometric halos, underlines, sweep parallelograms, or other obvious decorative shapes behind the text. Keep depth/life treatments tied to the letterforms themselves: text-shaped shadow, glow, bevel/highlight, or similarly professional glyph-based effects.",
+      "status": "active",
+      "created_at": "2026-07-02T15:11:51Z",
+      "updated_at": "2026-07-02T15:11:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/polish-non-combat-room-title-text",
+        "commit": "87f32c4"
+      }
+    },
+    {
       "id": "mnt_20260702T192213Z_67905c06",
       "layer": "shared",
       "kind": "user_preference",
@@ -4527,6 +4483,50 @@
       "source": {
         "branch": "codex/add-subtle-torch-ember-particles",
         "commit": "702b937"
+      }
+    },
+    {
+      "id": "mnt_20260702T215925Z_fee527ff",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "assets/art",
+        "symbol": null
+      },
+      "scope_key": "folder:assets/art",
+      "summary": "Retro Diffusion advanced idle sheets use native 4x4 cells",
+      "details": "The July 2026 Retro Diffusion Advanced Animations -> Idle flow produced 16-frame PNG sheets at 1020x1020 total for 255x255 unit art, i.e. 4x4 cells at native 255x255 frame size. Configure these sheets with idle_sheet_columns:4, idle_sheet_rows:4, idle_sheet_order:row_major, idle_sheet_ping_pong:false. Older placeholder/anime trial idle sheets may be 4080px-wide 4x-upscaled sheets with different ping-pong metadata, so do not infer one convention from the other.",
+      "status": "active",
+      "created_at": "2026-07-02T21:59:25Z",
+      "updated_at": "2026-07-02T21:59:25Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
+        "commit": "a7b3907"
+      }
+    },
+    {
+      "id": "mnt_20260702T222108Z_3e7c86d7",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Unit shadow simplification can drop generated idle frames",
+      "details": "Retro Diffusion 255px idle frames can produce opaque bounds but non-triangulatable silhouette polygons at the broad UNIT_SHADOW_SIMPLIFY_EPSILON=3.0 pass, which makes _draw_unit_shadow fall back to the old oval for those frames. Keep the finer retry path in _unit_shadow_data_for_texture before using an oval fallback.",
+      "status": "active",
+      "created_at": "2026-07-02T22:21:08Z",
+      "updated_at": "2026-07-02T22:21:08Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/generate-missing-character-idle-animations-with-retro-diffusion",
+        "commit": "5052ce8"
       }
     },
     {
@@ -4826,6 +4826,28 @@
       }
     },
     {
+      "id": "mnt_20260710T024532Z_b8515d56",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ui_skin.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ui_skin.gd",
+      "summary": "Command buttons use scalable UiSkin variants, not state bitmaps",
+      "details": "Player-facing command/action Buttons and OptionButtons should use UiSkin compact, standard, large, destructive, selected, or icon StyleBoxFlat variants plus the non-interactive themed ornament. Do not reintroduce stretched per-state bitmap buttons. Card widgets and parchment navigation lists are intentional non-command exceptions. Styling must preserve existing focus modes, neighbors, controller traversal, and bindings.",
+      "status": "active",
+      "created_at": "2026-07-10T02:45:32Z",
+      "updated_at": "2026-07-10T02:45:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/ui-button-system-overhaul-v2",
+        "commit": "ada58b5"
+      }
+    },
+    {
       "id": "mnt_20260710T025800Z_0aa7241d",
       "layer": "shared",
       "kind": "pitfall",
@@ -4847,28 +4869,6 @@
       "source": {
         "branch": "codex/ui-save-every-action-v2",
         "commit": "cbe9f4b"
-      }
-    },
-    {
-      "id": "mnt_20260710T024532Z_b8515d56",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/ui_skin.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/ui_skin.gd",
-      "summary": "Command buttons use scalable UiSkin variants, not state bitmaps",
-      "details": "Player-facing command/action Buttons and OptionButtons should use UiSkin compact, standard, large, destructive, selected, or icon StyleBoxFlat variants plus the non-interactive themed ornament. Do not reintroduce stretched per-state bitmap buttons. Card widgets and parchment navigation lists are intentional non-command exceptions. Styling must preserve existing focus modes, neighbors, controller traversal, and bindings.",
-      "status": "active",
-      "created_at": "2026-07-10T02:45:32Z",
-      "updated_at": "2026-07-10T02:45:32Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/ui-button-system-overhaul-v2",
-        "commit": "ada58b5"
       }
     },
     {
@@ -4962,78 +4962,6 @@
       }
     },
     {
-      "id": "mnt_20260712T190722Z_7dd07778",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "project",
-        "path": ".",
-        "symbol": null
-      },
-      "scope_key": "project:.",
-      "summary": "Flurry repeats effects but pays Time once",
-      "details": "Cards with top-level flurry:true snapshot all currently available card plays, expand their printed actions once per snapped play, multiply health cost per copy, discard one physical card, and pay the top-level Time cost only once. The commit spends the snapshotted plays; bonuses or kill refunds created during resolution remain afterward. Fallback Attack/Move modes do not inherit Flurry.",
-      "status": "active",
-      "created_at": "2026-07-12T19:07:22Z",
-      "updated_at": "2026-07-12T19:07:22Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260712T144533Z_f10533a2"
-      ],
-      "source": {
-        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
-        "commit": "b878bb7"
-      }
-    },
-    {
-      "id": "mnt_20260712T194128Z_a10cf661",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "data/cards.json",
-        "symbol": null
-      },
-      "scope_key": "file:data/cards.json",
-      "summary": "Flurry cards should be modest per copy but premium in total",
-      "details": "Do not overcorrect Flurry by making each printed package anemic. Keep each repeat below the rate of a normal standalone card, but tune the baseline two-copy result into the premium build-around band; the July 2026 midpoint pass landed the five payoffs around 4.6-5.7. Card-play enablers may be strong enough to make the setup exciting, including Gathering Rhythm granting 2 plays.",
-      "status": "active",
-      "created_at": "2026-07-12T19:41:28Z",
-      "updated_at": "2026-07-12T19:41:28Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260712T190722Z_c8606364"
-      ],
-      "source": {
-        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
-        "commit": "bc7ba2d"
-      }
-    },
-    {
-      "id": "mnt_20260713T165313Z_01d07089",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "assets/art/icons/flurry.png",
-        "symbol": null
-      },
-      "scope_key": "file:assets/art/icons/flurry.png",
-      "summary": "Flurry uses a wide timeline icon with a shallow card-row slot",
-      "details": "The approved direction is a 112x64 transparent timeline: two crimson outline card echoes progress along a gold baseline into one fully rendered parchment card. CardWidget gives the Flurry token about 1.8x normal width but only 1.05x normal height; doubling a square slot made the following row gaps visibly too large. Keep it distinct from Draw's upright stacked-card silhouette and validate at native 250x352 card size.",
-      "status": "active",
-      "created_at": "2026-07-13T16:53:13Z",
-      "updated_at": "2026-07-13T16:53:13Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260712T194128Z_c129001f"
-      ],
-      "source": {
-        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
-        "commit": "86696eb"
-      }
-    },
-    {
       "id": "mnt_20260711T032032Z_e558afe0",
       "layer": "shared",
       "kind": "pitfall",
@@ -5121,6 +5049,78 @@
       "source": {
         "branch": "codex/post-combat-missed-equipment-resolution",
         "commit": "ffa15c7"
+      }
+    },
+    {
+      "id": "mnt_20260712T185259Z_3f7ab54b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "Loadout discovery uses separate navigation and per-asset states",
+      "details": "Acquired equipment, consumable items, and magic ids are recorded in both unread_loadout_* for the top-bar/tab notification and new_loadout_* for item-level NEW tags. Opening Gear or Magic clears only its navigation unread list; hovering the specific asset clears and persists only that asset's NEW state, so the panel can guide the eye after its tab badge has already been acknowledged.",
+      "status": "active",
+      "created_at": "2026-07-12T18:52:59Z",
+      "updated_at": "2026-07-12T18:52:59Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T131300Z_4f288954"
+      ],
+      "source": {
+        "branch": "codex/animate-card-and-equipment-gains-to-character-loadout",
+        "commit": "5c2b14d"
+      }
+    },
+    {
+      "id": "mnt_20260712T190722Z_7dd07778",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Flurry repeats effects but pays Time once",
+      "details": "Cards with top-level flurry:true snapshot all currently available card plays, expand their printed actions once per snapped play, multiply health cost per copy, discard one physical card, and pay the top-level Time cost only once. The commit spends the snapshotted plays; bonuses or kill refunds created during resolution remain afterward. Fallback Attack/Move modes do not inherit Flurry.",
+      "status": "active",
+      "created_at": "2026-07-12T19:07:22Z",
+      "updated_at": "2026-07-12T19:07:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T144533Z_f10533a2"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "b878bb7"
+      }
+    },
+    {
+      "id": "mnt_20260712T194128Z_a10cf661",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "data/cards.json",
+        "symbol": null
+      },
+      "scope_key": "file:data/cards.json",
+      "summary": "Flurry cards should be modest per copy but premium in total",
+      "details": "Do not overcorrect Flurry by making each printed package anemic. Keep each repeat below the rate of a normal standalone card, but tune the baseline two-copy result into the premium build-around band; the July 2026 midpoint pass landed the five payoffs around 4.6-5.7. Card-play enablers may be strong enough to make the setup exciting, including Gathering Rhythm granting 2 plays.",
+      "status": "active",
+      "created_at": "2026-07-12T19:41:28Z",
+      "updated_at": "2026-07-12T19:41:28Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T190722Z_c8606364"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "bc7ba2d"
       }
     },
     {
@@ -5236,6 +5236,76 @@
       }
     },
     {
+      "id": "mnt_20260713T134536Z_c5bb4745",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_connect_board_aim_signals"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_connect_board_aim_signals",
+      "summary": "Combat notes stay fixed while the board moves",
+      "details": "Board zoom and pan must not trigger contextual combat prompt relayout. The note is fixed HUD information; navigation_changed should remain a board signal but should not be connected to prompt placement.",
+      "status": "active",
+      "created_at": "2026-07-13T13:45:36Z",
+      "updated_at": "2026-07-13T13:45:36Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
+        "commit": "0358fa8"
+      }
+    },
+    {
+      "id": "mnt_20260713T134536Z_cd009650",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scenes/run_scene.tscn",
+        "symbol": null
+      },
+      "scope_key": "file:scenes/run_scene.tscn",
+      "summary": "Combat board renders on a HUD underlay canvas",
+      "details": "The navigable board must remain unclipped so its art can flow beneath the bottom controls. Keep the board and base backdrop in BoardUnderlay below UiLayer, align the board's interactive rect to StageRoot, and leave broad UI layout controls mouse-filtered to IGNORE so input still reaches the board.",
+      "status": "active",
+      "created_at": "2026-07-13T13:45:36Z",
+      "updated_at": "2026-07-13T13:45:36Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260713T125529Z_07b469e8"
+      ],
+      "source": {
+        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
+        "commit": "0358fa8"
+      }
+    },
+    {
+      "id": "mnt_20260713T165313Z_01d07089",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "assets/art/icons/flurry.png",
+        "symbol": null
+      },
+      "scope_key": "file:assets/art/icons/flurry.png",
+      "summary": "Flurry uses a wide timeline icon with a shallow card-row slot",
+      "details": "The approved direction is a 112x64 transparent timeline: two crimson outline card echoes progress along a gold baseline into one fully rendered parchment card. CardWidget gives the Flurry token about 1.8x normal width but only 1.05x normal height; doubling a square slot made the following row gaps visibly too large. Keep it distinct from Draw's upright stacked-card silhouette and validate at native 250x352 card size.",
+      "status": "active",
+      "created_at": "2026-07-13T16:53:13Z",
+      "updated_at": "2026-07-13T16:53:13Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260712T194128Z_c129001f"
+      ],
+      "source": {
+        "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
+        "commit": "86696eb"
+      }
+    },
+    {
       "id": "mnt_20260713T165508Z_cce213ae",
       "layer": "shared",
       "kind": "user_preference",
@@ -5304,122 +5374,6 @@
       }
     },
     {
-      "id": "mnt_20260713T231143Z_ae455fd5",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Umbra should read as filled, billowing tile shadow",
-      "details": "Keep every concealed tile clearly darkened for tactical readability, then layer coherent rounded violet-black cloud lobes with visible slow drift. Boundary contours should stay thin and subordinate; avoid long narrow ribbons or zig-zag bands that make the effect look like linework.",
-      "status": "active",
-      "created_at": "2026-07-13T23:11:43Z",
-      "updated_at": "2026-07-13T23:11:43Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
-        "commit": "63077b5"
-      }
-    },
-    {
-      "id": "mnt_20260712T185259Z_3f7ab54b",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_engine.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_engine.gd",
-      "summary": "Loadout discovery uses separate navigation and per-asset states",
-      "details": "Acquired equipment, consumable items, and magic ids are recorded in both unread_loadout_* for the top-bar/tab notification and new_loadout_* for item-level NEW tags. Opening Gear or Magic clears only its navigation unread list; hovering the specific asset clears and persists only that asset's NEW state, so the panel can guide the eye after its tab badge has already been acknowledged.",
-      "status": "active",
-      "created_at": "2026-07-12T18:52:59Z",
-      "updated_at": "2026-07-12T18:52:59Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260712T131300Z_4f288954"
-      ],
-      "source": {
-        "branch": "codex/animate-card-and-equipment-gains-to-character-loadout",
-        "commit": "5c2b14d"
-      }
-    },
-    {
-      "id": "mnt_20260713T134536Z_cd009650",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scenes/run_scene.tscn",
-        "symbol": null
-      },
-      "scope_key": "file:scenes/run_scene.tscn",
-      "summary": "Combat board renders on a HUD underlay canvas",
-      "details": "The navigable board must remain unclipped so its art can flow beneath the bottom controls. Keep the board and base backdrop in BoardUnderlay below UiLayer, align the board's interactive rect to StageRoot, and leave broad UI layout controls mouse-filtered to IGNORE so input still reaches the board.",
-      "status": "active",
-      "created_at": "2026-07-13T13:45:36Z",
-      "updated_at": "2026-07-13T13:45:36Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260713T125529Z_07b469e8"
-      ],
-      "source": {
-        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
-        "commit": "0358fa8"
-      }
-    },
-    {
-      "id": "mnt_20260713T134536Z_c5bb4745",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "symbol",
-        "path": "scripts/run_scene.gd",
-        "symbol": "_connect_board_aim_signals"
-      },
-      "scope_key": "symbol:scripts/run_scene.gd#_connect_board_aim_signals",
-      "summary": "Combat notes stay fixed while the board moves",
-      "details": "Board zoom and pan must not trigger contextual combat prompt relayout. The note is fixed HUD information; navigation_changed should remain a board signal but should not be connected to prompt placement.",
-      "status": "active",
-      "created_at": "2026-07-13T13:45:36Z",
-      "updated_at": "2026-07-13T13:45:36Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/add-bounded-zoom-and-drag-controls-to-the-combat-board",
-        "commit": "0358fa8"
-      }
-    },
-    {
-      "id": "mnt_20260713T231855Z_386d663b",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/run_scene.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/run_scene.gd",
-      "summary": "Card action context stays compact, card-anchored, and motion-stable",
-      "details": "For normal card targeting and the Printed/Attack/Move choice, omit action-type and target-validity/turn-end-risk rows. Position the contextual widget directly above the active hand card. When play commits, lock the widget's exact screen position through card-flight and action-resolution animations so hand rebuilding or reflow cannot shift it; retain drag-only release guidance.",
-      "status": "active",
-      "created_at": "2026-07-13T23:18:55Z",
-      "updated_at": "2026-07-13T23:18:55Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260713T230017Z_4c15cd57"
-      ],
-      "source": {
-        "branch": "codex/simplify-move-contextual-card-widget",
-        "commit": "39afef2"
-      }
-    },
-    {
       "id": "mnt_20260713T214111Z_ebb836bc",
       "layer": "shared",
       "kind": "pitfall",
@@ -5439,6 +5393,28 @@
       "source": {
         "branch": "codex/add-consume-all-card-plays-flurry-mechanic-and-synergy-cards",
         "commit": "da8db64"
+      }
+    },
+    {
+      "id": "mnt_20260713T231143Z_ae455fd5",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Umbra should read as filled, billowing tile shadow",
+      "details": "Keep every concealed tile clearly darkened for tactical readability, then layer coherent rounded violet-black cloud lobes with visible slow drift. Boundary contours should stay thin and subordinate; avoid long narrow ribbons or zig-zag bands that make the effect look like linework.",
+      "status": "active",
+      "created_at": "2026-07-13T23:11:43Z",
+      "updated_at": "2026-07-13T23:11:43Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-umbra-fog-radiance-cards-and-inspection-fixtures",
+        "commit": "63077b5"
       }
     },
     {
@@ -5466,6 +5442,74 @@
       }
     },
     {
+      "id": "mnt_20260713T231855Z_386d663b",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Card action context stays compact, card-anchored, and motion-stable",
+      "details": "For normal card targeting and the Printed/Attack/Move choice, omit action-type and target-validity/turn-end-risk rows. Position the contextual widget directly above the active hand card. When play commits, lock the widget's exact screen position through card-flight and action-resolution animations so hand rebuilding or reflow cannot shift it; retain drag-only release guidance.",
+      "status": "active",
+      "created_at": "2026-07-13T23:18:55Z",
+      "updated_at": "2026-07-13T23:18:55Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260713T230017Z_4c15cd57"
+      ],
+      "source": {
+        "branch": "codex/simplify-move-contextual-card-widget",
+        "commit": "39afef2"
+      }
+    },
+    {
+      "id": "mnt_20260715T030234Z_90fe7a66",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Pause and settings scrim must use an absolute top gameplay z-order",
+      "details": "RunScene combat HUDs, fanned hand cards, and transient effects use positive or absolute z-index values up to the 1600s. A modal scrim left at z=0 will dim only lower siblings while cards and turn/pass widgets render over it. Keep MenuScrim z_as_relative=false above gameplay surfaces; both the pause dialog and in-run SettingsPanel stay descendants of that scrim.",
+      "status": "active",
+      "created_at": "2026-07-15T03:02:34Z",
+      "updated_at": "2026-07-15T03:02:34Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-pause-menu-overlay-layering",
+        "commit": "622a15f"
+      }
+    },
+    {
+      "id": "mnt_20260715T030559Z_e9824b45",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Terrain destruction presentation is transition-driven",
+      "details": "Zero-HP terrain is hidden by normal board drawing, so RunScene diffs before/after terrain state, holds destruction frame 0 during impact/floating-text presentation, then supplies presentation-only terrain_destruction_units through the animation. Tile-scoped damage sources such as player/enemy AOE, deterministic lightning strikes, and trap blasts should apply the same damage to destructible terrain on every affected tile.",
+      "status": "active",
+      "created_at": "2026-07-15T03:05:59Z",
+      "updated_at": "2026-07-15T03:05:59Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/dynamic-destructible-terrain",
+        "commit": "622a15f"
+      }
+    },
+    {
       "id": "mnt_20260715T035054Z_afec9747",
       "layer": "shared",
       "kind": "decision",
@@ -5487,6 +5531,28 @@
       "source": {
         "branch": "codex/deterministic-coherent-enemy-pathfinding-targeting-and-previews",
         "commit": "a3b6598"
+      }
+    },
+    {
+      "id": "mnt_20260715T035332Z_38a5d68b",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ember_reward_feedback.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ember_reward_feedback.gd",
+      "summary": "Enemy ember gains should be quiet, brief, and header-local",
+      "details": "On enemy death, do not play the ember-collect sample or launch board-traveling currency motes. Combine simultaneous kill rewards into one exact counter gain, roll the header count in about 0.2 seconds, and limit flair to a restrained warm pulse plus a terse +N beside the counter; reduced-motion should remain supported.",
+      "status": "active",
+      "created_at": "2026-07-15T03:53:32Z",
+      "updated_at": "2026-07-15T03:53:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/subtle-ember-counter-feedback",
+        "commit": "622a15f"
       }
     }
   ]
