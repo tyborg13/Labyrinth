@@ -40,6 +40,7 @@ available:
 - `card_drawn`
 - `card_became_playable`
 - `card_played`
+- `enemy_action_resolved`
 - `enemy_status_tick`
 - `progression_level_up`
 - `equipment_equipped`
@@ -121,6 +122,13 @@ use `trigger: "turn_start"` when the affected enemy's initiative activation
 starts; bleed can use `trigger: "action"` plus `action_type` when a wounded enemy
 resolves a move or attack action during that activation. It is useful for later
 value-model work, but it is not yet card-source attributed.
+
+`enemy_action_resolved` records each resolved enemy movement, attack, defense,
+heal, or summon step. Movement payloads include the exact ordered `path`,
+`path_steps`, selected `target_key`, actor/terrain losses caused by hazards, and
+triggered traps. Attack payloads retain target, terrain, and trap consequences.
+This makes route choice, obstacle-clearing efficiency, voluntary trap exposure,
+and realized enemy pressure observable without changing the append-only schema.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
