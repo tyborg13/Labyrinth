@@ -25,10 +25,10 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
-const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.48
-const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.58
+const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.41
+const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.50
 const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.28
-const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.32
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.24
 const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.038
 const MOVE_PATH_OUTLINE_WIDTH_RATIO: float = 1.12
 const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
@@ -4938,108 +4938,46 @@ func _draw_path_preview() -> void:
 	var final_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
 	shaft_points[shaft_points.size() - 1] = (
 		arrow_geometry.get("tail_center", points[points.size() - 1])
-		+ final_direction * shaft_width * 0.22
+		+ final_direction * shaft_width * 0.18
 	)
+	var unified_arrow: PackedVector2Array = _unified_path_arrow_polygon(shaft_points, arrow_points, shaft_width)
+	if unified_arrow.is_empty():
+		return
 	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
 	var outline_color := Color(0.015, 0.105, 0.15, 0.92)
 
-	# Shadows and a restrained bloom establish elevation without making the
-	# route's apparent width approach a whole tile.
-	_draw_rounded_path_stroke(
-		_offset_path_points(shaft_points, shadow_offset * 1.55),
-		Color(0.0, 0.0, 0.0, 0.13),
-		shaft_width * 1.30,
-		false
-	)
-	draw_colored_polygon(
-		_scaled_path_polygon(arrow_points, points[points.size() - 1], 1.10, shadow_offset * 1.55),
+	# Every layer starts from the same merged shaft-and-head silhouette. There is
+	# no internal head boundary left for the renderer to shade, outline, or
+	# double-composite, so the head inherits the ribbon's exact depth treatment.
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * 0.15,
+		shadow_offset * 1.55,
 		Color(0.0, 0.0, 0.0, 0.13)
 	)
-	_draw_rounded_path_stroke(
-		_offset_path_points(shaft_points, shadow_offset),
-		Color(0.005, 0.018, 0.025, 0.48),
-		shaft_width * 1.14,
-		false
-	)
-	draw_colored_polygon(
-		_scaled_path_polygon(arrow_points, points[points.size() - 1], 1.055, shadow_offset),
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * 0.07,
+		shadow_offset,
 		Color(0.005, 0.018, 0.025, 0.48)
 	)
-	_draw_rounded_path_stroke(
-		shaft_points,
-		Color(color.r, color.g, color.b, 0.09),
-		shaft_width * MOVE_PATH_GLOW_WIDTH_RATIO,
-		false
-	)
-	draw_colored_polygon(
-		_scaled_path_polygon(arrow_points, points[points.size() - 1], 1.065, Vector2.ZERO),
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * (MOVE_PATH_GLOW_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
 		Color(color.r, color.g, color.b, 0.09)
 	)
-
-	# One dark silhouette binds the shaft and head. The head's rear edge is not
-	# stroked later, so the continuous fill can cover this construction seam.
-	_draw_rounded_path_stroke(shaft_points, outline_color, shaft_width * MOVE_PATH_OUTLINE_WIDTH_RATIO, false)
-	draw_colored_polygon(
-		_scaled_path_polygon(arrow_points, points[points.size() - 1], 1.055, Vector2.ZERO),
+	_draw_expanded_path_polygon(
+		unified_arrow,
+		shaft_width * (MOVE_PATH_OUTLINE_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
 		outline_color
 	)
-
-	# The head uses interpolated vertex color while the shaft uses many narrow,
-	# gently offset steps. Together they read as one soft cross-ribbon gradient
-	# at gameplay scale instead of a few hard highlight bands.
-	_draw_gradient_polygon(
-		arrow_points,
-		points[points.size() - 1],
-		float(arrow_geometry.get("gradient_radius", tile_width * 0.30)),
-		color
-	)
-	_draw_gradient_path_fill(shaft_points, shaft_width, color)
-
-	# Reinforce only the exposed head boundary. Leaving the tail open is what
-	# makes the broad head flare organically out of the ribbon instead of
-	# looking like a second icon pasted over it.
-	var open_boundary: PackedVector2Array = arrow_geometry.get("boundary", PackedVector2Array())
-	draw_polyline(
-		open_boundary,
-		outline_color,
-		maxf(2.0, tile_width * 0.020),
-		true
-	)
-	var lit_edge: PackedVector2Array = arrow_geometry.get("lit_edge", PackedVector2Array())
-	draw_polyline(
-		lit_edge,
-		Color(0.90, 1.0, 1.0, 0.27),
-		maxf(1.0, tile_width * 0.010),
-		true
-	)
+	_draw_gradient_path_polygon(unified_arrow, shaft_width, color)
 
 func _blink_preview_effect_active() -> bool:
 	var effect: Dictionary = presentation.get("effect", {})
 	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
-
-func _draw_rounded_path_stroke(
-	points: PackedVector2Array,
-	color: Color,
-	width: float,
-	include_end_cap: bool = true,
-	include_joint_discs: bool = true
-) -> void:
-	if points.size() < 2 or width <= 0.0:
-		return
-	draw_polyline(points, color, width, true)
-	var radius: float = width * 0.5
-	for index: int in range(points.size()):
-		if not include_end_cap and index == points.size() - 1:
-			continue
-		if not include_joint_discs and index > 0:
-			continue
-		draw_circle(points[index], radius, color, true, -1.0, true)
-
-func _offset_path_points(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
-	var shifted := PackedVector2Array()
-	for point: Vector2 in points:
-		shifted.append(point + offset)
-	return shifted
 
 func _draw_single_path_marker(center: Vector2, color: Color, tile_width: float) -> void:
 	var marker_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO
@@ -5059,13 +4997,13 @@ func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: fl
 	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
 	var shaft_half_width: float = shaft_width * 0.50
 	var tip: Vector2 = to_point + dir * tile_width * MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO
-	var shoulder_center: Vector2 = to_point - dir * tile_width * 0.095
-	var neck_center: Vector2 = to_point - dir * tile_width * 0.225
+	var shoulder_center: Vector2 = to_point - dir * tile_width * 0.080
+	var neck_center: Vector2 = to_point - dir * tile_width * 0.170
 	var tail_center: Vector2 = to_point - dir * tile_width * MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO
 	var plus_shoulder: Vector2 = shoulder_center + perp * half_width
 	var minus_shoulder: Vector2 = shoulder_center - perp * half_width
-	var plus_control: Vector2 = to_point + dir * tile_width * 0.04 + perp * half_width * 0.76
-	var minus_control: Vector2 = to_point + dir * tile_width * 0.04 - perp * half_width * 0.76
+	var plus_control: Vector2 = to_point + dir * tile_width * 0.035 + perp * half_width * 0.76
+	var minus_control: Vector2 = to_point + dir * tile_width * 0.035 - perp * half_width * 0.76
 	var plus_edge := PackedVector2Array([tip])
 	var minus_edge := PackedVector2Array([tip])
 	for step: int in range(1, 5):
@@ -5079,50 +5017,96 @@ func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: fl
 	var polygon: PackedVector2Array = plus_edge.duplicate()
 	for index: int in range(minus_edge.size() - 1, 0, -1):
 		polygon.append(minus_edge[index])
-	var boundary := PackedVector2Array()
-	for index: int in range(plus_edge.size() - 1, -1, -1):
-		boundary.append(plus_edge[index])
-	for index: int in range(1, minus_edge.size()):
-		boundary.append(minus_edge[index])
-	var lit_source: PackedVector2Array = plus_edge if plus_shoulder.y < minus_shoulder.y else minus_edge
-	var lit_edge := PackedVector2Array()
-	for index: int in range(lit_source.size() - 1, -1, -1):
-		lit_edge.append(lit_source[index])
 	return {
 		"polygon": polygon,
-		"boundary": boundary,
-		"lit_edge": lit_edge,
 		"tail_center": tail_center,
-		"direction": dir,
-		"gradient_radius": half_width
+		"direction": dir
 	}
 
 func _quadratic_path_point(start: Vector2, control: Vector2, finish: Vector2, progress: float) -> Vector2:
 	var inverse: float = 1.0 - progress
 	return start * inverse * inverse + control * 2.0 * inverse * progress + finish * progress * progress
 
-func _draw_gradient_path_fill(points: PackedVector2Array, width: float, color: Color) -> void:
-	if points.size() < 2 or width <= 0.0:
+func _unified_path_arrow_polygon(
+	shaft_points: PackedVector2Array,
+	head_points: PackedVector2Array,
+	shaft_width: float
+) -> PackedVector2Array:
+	if shaft_points.size() < 2 or head_points.size() < 3 or shaft_width <= 0.0:
+		return PackedVector2Array()
+	var shaft_polygons: Array[PackedVector2Array] = Geometry2D.offset_polyline(
+		shaft_points,
+		shaft_width * 0.5,
+		Geometry2D.JOIN_ROUND,
+		Geometry2D.END_ROUND
+	)
+	if shaft_polygons.is_empty():
+		return PackedVector2Array()
+	var merged: Array[PackedVector2Array] = Geometry2D.merge_polygons(shaft_polygons[0], head_points)
+	return _largest_path_polygon(merged)
+
+func _largest_path_polygon(polygons: Array[PackedVector2Array]) -> PackedVector2Array:
+	var largest := PackedVector2Array()
+	var largest_area: float = 0.0
+	for polygon: PackedVector2Array in polygons:
+		var area: float = absf(_path_polygon_signed_area(polygon))
+		if area > largest_area:
+			largest_area = area
+			largest = polygon
+	return largest
+
+func _path_polygon_signed_area(polygon: PackedVector2Array) -> float:
+	var twice_area: float = 0.0
+	for index: int in range(polygon.size()):
+		var current: Vector2 = polygon[index]
+		var next: Vector2 = polygon[(index + 1) % polygon.size()]
+		twice_area += current.x * next.y - next.x * current.y
+	return twice_area * 0.5
+
+func _draw_expanded_path_polygon(
+	polygon: PackedVector2Array,
+	expansion: float,
+	offset: Vector2,
+	color: Color
+) -> void:
+	var expanded: Array[PackedVector2Array] = Geometry2D.offset_polygon(
+		polygon,
+		expansion,
+		Geometry2D.JOIN_ROUND
+	)
+	_draw_path_polygons(expanded, offset, color)
+
+func _draw_gradient_path_polygon(polygon: PackedVector2Array, width: float, color: Color) -> void:
+	if polygon.size() < 3 or width <= 0.0:
 		return
 	var edge_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN)
 	var light_color: Color = color.lightened(MOVE_PATH_GRADIENT_LIGHTEN)
 	edge_color.a = color.a * MOVE_PATH_GRADIENT_BASE_ALPHA
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
-	_draw_rounded_path_stroke(points, edge_color, width, false, false)
+	draw_colored_polygon(polygon, edge_color)
 	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
 		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
 		var eased: float = smoothstep(0.0, 1.0, progress)
-		var layer_width: float = width * lerpf(0.96, 0.22, progress)
+		var layer_width_ratio: float = lerpf(0.96, 0.22, progress)
+		var inset: float = width * (1.0 - layer_width_ratio) * 0.5
 		var layer_offset: Vector2 = light_direction * width * 0.29 * progress
 		var layer_color: Color = edge_color.lerp(light_color, eased)
 		layer_color.a = color.a * MOVE_PATH_GRADIENT_LAYER_ALPHA
-		_draw_rounded_path_stroke(
-			_offset_path_points(points, layer_offset),
-			layer_color,
-			layer_width,
-			false,
-			false
+		var inset_polygons: Array[PackedVector2Array] = Geometry2D.offset_polygon(
+			polygon,
+			-inset,
+			Geometry2D.JOIN_ROUND
 		)
+		_draw_path_polygons(inset_polygons, layer_offset, layer_color)
+
+func _draw_path_polygons(polygons: Array[PackedVector2Array], offset: Vector2, color: Color) -> void:
+	for polygon: PackedVector2Array in polygons:
+		if polygon.size() < 3:
+			continue
+		var shifted := PackedVector2Array()
+		for point: Vector2 in polygon:
+			shifted.append(point + offset)
+		draw_colored_polygon(shifted, color)
 
 func _draw_gradient_disc(center: Vector2, radius: float, color: Color) -> void:
 	if radius <= 0.0:
@@ -5143,23 +5127,6 @@ func _draw_gradient_disc(center: Vector2, radius: float, color: Color) -> void:
 			PackedVector2Array()
 		)
 
-func _draw_gradient_polygon(points: PackedVector2Array, center: Vector2, gradient_radius: float, color: Color) -> void:
-	if points.size() < 3 or gradient_radius <= 0.0:
-		return
-	var center_color: Color = _path_gradient_color(Vector2.ZERO, gradient_radius, color)
-	for index: int in range(points.size()):
-		var point_a: Vector2 = points[index]
-		var point_b: Vector2 = points[(index + 1) % points.size()]
-		draw_primitive(
-			PackedVector2Array([center, point_a, point_b]),
-			PackedColorArray([
-				center_color,
-				_path_gradient_color(point_a - center, gradient_radius, color),
-				_path_gradient_color(point_b - center, gradient_radius, color)
-			]),
-			PackedVector2Array()
-		)
-
 func _path_gradient_color(offset: Vector2, radius: float, color: Color) -> Color:
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
 	var light_amount: float = clampf(0.5 + offset.dot(light_direction) / maxf(radius * 2.0, 0.001), 0.0, 1.0)
@@ -5167,12 +5134,6 @@ func _path_gradient_color(offset: Vector2, radius: float, color: Color) -> Color
 	var gradient_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN).lerp(color.lightened(MOVE_PATH_GRADIENT_LIGHTEN), light_amount)
 	gradient_color.a = color.a * MOVE_PATH_BODY_ALPHA
 	return gradient_color
-
-func _scaled_path_polygon(points: PackedVector2Array, center: Vector2, scale: float, offset: Vector2) -> PackedVector2Array:
-	var scaled := PackedVector2Array()
-	for point: Vector2 in points:
-		scaled.append(center + (point - center) * scale + offset)
-	return scaled
 
 func _draw_movement_risk_chips() -> void:
 	var chips: Array = presentation.get("movement_risk_chips", [])

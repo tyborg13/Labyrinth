@@ -73,9 +73,9 @@ func _verify_style_contract(board: Control) -> void:
 	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
-	_expect(shaft_ratio >= 0.44 and shaft_ratio <= 0.52, "Arrow shaft should occupy about half of a projected board square's height")
-	_expect(head_width_ratio >= 0.54 and head_width_ratio <= 0.66, "Arrow head should remain large without filling its destination tile")
-	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.56 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.66, "Arrow head should be proportionate to the narrower shaft")
+	_expect(shaft_ratio >= 0.38 and shaft_ratio <= 0.43, "Arrow shaft should be about fifteen percent narrower than the prior half-tile pass")
+	_expect(head_width_ratio >= 0.47 and head_width_ratio <= 0.53, "Arrow head should scale down proportionately with the narrower shaft")
+	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.49 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.56, "Arrow head length should scale down while its tip remains on the destination edge")
 	_expect(absf(head_tip_reach_ratio - projected_tile_edge_ratio) <= 0.02, "Arrow tip should stop at the destination tile's far edge instead of pointing toward the next tile")
 	_expect(shadow_offset_ratio >= 0.025 and shadow_offset_ratio <= 0.05, "Arrow should retain a restrained cast shadow without inflating its silhouette")
 	_expect(outline_width_ratio >= 1.08 and outline_width_ratio <= 1.16, "Arrow outline should define the ribbon without making it substantially wider")
@@ -85,6 +85,26 @@ func _verify_style_contract(board: Control) -> void:
 	_expect(gradient_base_alpha >= 0.64 and gradient_base_alpha <= 0.76, "Arrow shaft base should leave board texture visible through its shaded edge")
 	_expect(gradient_layer_alpha >= 0.035 and gradient_layer_alpha <= 0.075, "Arrow shaft highlight layers should build translucency gradually instead of becoming opaque through overdraw")
 	_expect(gradient_segments >= 20, "Single-tile path markers should use enough interpolated gradient segments to avoid visible color bands")
+	_verify_unified_arrow_geometry(board)
+
+func _verify_unified_arrow_geometry(board: Control) -> void:
+	var from_point := Vector2(120.0, 140.0)
+	var to_point := Vector2(220.0, 190.0)
+	var tile_width: float = 100.0
+	var shaft_width: float = 22.0
+	var head_geometry: Dictionary = board.call("_path_arrow_geometry", from_point, to_point, tile_width, shaft_width)
+	var head_polygon: PackedVector2Array = head_geometry.get("polygon", PackedVector2Array())
+	var direction: Vector2 = head_geometry.get("direction", Vector2.ZERO)
+	var tail_center: Vector2 = head_geometry.get("tail_center", to_point)
+	var shaft_points := PackedVector2Array([
+		from_point,
+		tail_center + direction * shaft_width * 0.18
+	])
+	var unified: PackedVector2Array = board.call("_unified_path_arrow_polygon", shaft_points, head_polygon, shaft_width)
+	_expect(not unified.is_empty(), "Arrow renderer should merge shaft and head into one polygon")
+	var head_area: float = absf(float(board.call("_path_polygon_signed_area", head_polygon)))
+	var unified_area: float = absf(float(board.call("_path_polygon_signed_area", unified)))
+	_expect(unified_area > head_area * 1.5, "Unified arrow polygon should contain both the head and a substantial shaft")
 
 func _capture(viewport: SubViewport, board: Control, path_tiles: Array[Vector2i], file_name: String, capture_index: int) -> void:
 	var move_tiles: Array[Vector2i] = path_tiles.duplicate()
