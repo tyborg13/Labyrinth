@@ -32,6 +32,7 @@ theme/custom="res://themes/default_theme.tres"
 
 [rendering]
 
+anti_aliasing/quality/msaa_2d=2
 renderer/rendering_method="mobile"
 textures/vram_compression/import_s3tc_bptc=true
 textures/vram_compression/import_etc2_astc=true

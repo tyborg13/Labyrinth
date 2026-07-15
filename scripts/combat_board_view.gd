@@ -25,10 +25,10 @@ const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
 const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
 const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
-const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.37
-const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.45
-const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.18
-const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.29
+const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.333
+const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.405
+const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.138
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.285
 const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.038
 const MOVE_PATH_OUTLINE_WIDTH_RATIO: float = 1.12
 const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
@@ -4968,7 +4968,7 @@ func _draw_path_preview() -> void:
 	if unified_arrow.is_empty():
 		return
 	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
-	var outline_color := Color(0.015, 0.105, 0.15, 0.92)
+	var outline_color: Color = _path_outline_color(color)
 
 	# Every layer starts from the same merged shaft-and-head silhouette. There is
 	# no internal head boundary left for the renderer to shade, outline, or
@@ -5010,8 +5010,13 @@ func _draw_single_path_marker(center: Vector2, color: Color, tile_width: float) 
 	draw_circle(center + shadow_offset * 1.55, marker_radius * 1.30, Color(0.0, 0.0, 0.0, 0.13), true, -1.0, true)
 	draw_circle(center + shadow_offset, marker_radius * 1.14, Color(0.005, 0.018, 0.025, 0.48), true, -1.0, true)
 	draw_circle(center, marker_radius * MOVE_PATH_GLOW_WIDTH_RATIO, Color(color.r, color.g, color.b, 0.09), true, -1.0, true)
-	draw_circle(center, marker_radius * MOVE_PATH_OUTLINE_WIDTH_RATIO, Color(0.015, 0.105, 0.15, 0.92), true, -1.0, true)
+	draw_circle(center, marker_radius * MOVE_PATH_OUTLINE_WIDTH_RATIO, _path_outline_color(color), true, -1.0, true)
 	_draw_gradient_disc(center, marker_radius, color)
+
+func _path_outline_color(color: Color) -> Color:
+	var outline_color: Color = color.darkened(0.87)
+	outline_color.a = 0.92
+	return outline_color
 
 func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: float, _shaft_width: float) -> Dictionary:
 	var dir: Vector2 = (to_point - from_point).normalized()

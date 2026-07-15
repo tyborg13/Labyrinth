@@ -4,7 +4,7 @@ const CombatBoardViewScript = preload("res://scripts/combat_board_view.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
 const OUTPUT_DIR: String = "user://movement_path_arrow_probe"
-const VIEWPORT_SIZE: Vector2i = Vector2i(1280, 720)
+const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 
 var _errors: Array[String] = []
 
@@ -81,12 +81,13 @@ func _verify_style_contract(board: Control) -> void:
 	var gradient_layer_alpha: float = float(constants.get("MOVE_PATH_GRADIENT_LAYER_ALPHA", 1.0))
 	var gradient_segments: int = int(constants.get("MOVE_PATH_GRADIENT_DISC_SEGMENTS", 0))
 	var projected_tile_edge_ratio: float = Vector2(0.5, 0.25).length() * 0.5
-	_expect(shaft_ratio >= 0.35 and shaft_ratio <= 0.39, "Arrow shaft should be about ten percent narrower than the 0.41-tile pass")
-	_expect(head_width_ratio >= 0.42 and head_width_ratio <= 0.47, "Arrow head should scale down about ten percent with the narrower shaft")
-	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.44 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.50, "Arrow head should preserve its approved overall length")
-	_expect(projected_tile_edge_ratio - head_tip_reach_ratio >= 0.08 and projected_tile_edge_ratio - head_tip_reach_ratio <= 0.12, "Arrow tip should land clearly inside the destination tile instead of near the next tile")
+	_expect(int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", 0)) >= 2, "Real display renderers should use at least 4x project-wide 2D MSAA")
+	_expect(shaft_ratio >= 0.32 and shaft_ratio <= 0.345, "Arrow shaft should be about ten percent narrower than the 0.37-tile pass")
+	_expect(head_width_ratio >= 0.39 and head_width_ratio <= 0.42, "Arrow head should scale down about ten percent with the narrower shaft")
+	_expect(head_tip_reach_ratio + head_tail_reach_ratio >= 0.41 and head_tip_reach_ratio + head_tail_reach_ratio <= 0.435, "Arrow head should be about ten percent shorter than the 0.47-tile pass")
+	_expect(projected_tile_edge_ratio - head_tip_reach_ratio >= 0.13 and projected_tile_edge_ratio - head_tip_reach_ratio <= 0.15, "Arrow tip should land clearly inside the destination tile instead of near the next tile")
 	_expect(head_tail_reach_ratio - projected_tile_edge_ratio >= 0.0 and head_tail_reach_ratio - projected_tile_edge_ratio <= 0.035, "Arrow head base should just cross the destination tile's near edge")
-	_expect(absf((head_tip_reach_ratio - head_tail_reach_ratio) * 0.5) <= 0.065, "Arrow head bounds should remain centered near the destination tile")
+	_expect(absf((head_tip_reach_ratio - head_tail_reach_ratio) * 0.5) <= 0.075, "Arrow head bounds should remain centered near the destination tile")
 	_expect(shadow_offset_ratio >= 0.025 and shadow_offset_ratio <= 0.05, "Arrow should retain a restrained cast shadow without inflating its silhouette")
 	_expect(outline_width_ratio >= 1.08 and outline_width_ratio <= 1.16, "Arrow outline should define the ribbon without making it substantially wider")
 	_expect(glow_width_ratio >= 1.16 and glow_width_ratio <= 1.30, "Arrow bloom should stay soft and close to the ribbon")
@@ -167,7 +168,7 @@ func _verify_board_perspective_geometry(
 	_expect(Geometry2D.is_point_in_polygon(tip, destination_tile), "Arrow tip should finish inside the destination tile")
 	_expect(not Geometry2D.is_point_in_polygon(tail_center, destination_tile), "Arrow head base should straddle the destination tile's near edge")
 	var bounds_midpoint: Vector2 = tip.lerp(tail_center, 0.5)
-	_expect(absf((bounds_midpoint - to_point).dot(direction)) <= tile_width * 0.065, "Arrow head longitudinal bounds should center near the destination tile")
+	_expect(absf((bounds_midpoint - to_point).dot(direction)) <= tile_width * 0.075, "Arrow head longitudinal bounds should center near the destination tile")
 	_expect(from_point.distance_to(to_point) > 0.0, "Perspective fixture should use a nonzero isometric step")
 
 func _verify_layering_contract(board: Control) -> void:

@@ -47,8 +47,9 @@ The task runner disables Steam by default for deterministic tests and fixtures. 
 
 - process-unique `HOME` and `user://` names;
 - Steam initialization disabled for probes;
+- automatic native GPU rendering when project-wide 2D MSAA is enabled, with a clear capability error instead of a false headless proof when no display is available;
 - a serialized GUI-renderer lease for non-headless macOS captures;
-- ANGLE as the stable default macOS capture renderer, with native rendering as automatic fallback;
+- ANGLE as the stable default macOS capture renderer for non-MSAA projects, while MSAA projects select native Metal;
 - exact-resolution checks via repeatable `--expect-size WIDTHxHEIGHT`;
 - semantic image/region validation via `--proof-contract`;
 - a result manifest via `--result-manifest`;

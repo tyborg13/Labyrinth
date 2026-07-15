@@ -847,6 +847,7 @@ const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
+const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
 const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
@@ -9716,7 +9717,7 @@ func _refresh_stage_view() -> void:
 			move_tiles = _vector2i_array(threat_preview.get("move", []))
 			attack_tiles = _vector2i_array(threat_preview.get("attack", []))
 			presentation["path_tiles"] = _vector2i_array(threat_preview.get("projected_path", []))
-			presentation["path_color"] = Color("f2c879")
+			presentation["path_color"] = ENEMY_PATH_PREVIEW_COLOR
 			presentation["projected_destination"] = threat_preview.get("projected_destination", INVALID_TARGET_TILE)
 			presentation["projected_attack_tiles"] = _vector2i_array(threat_preview.get("projected_attack", []))
 			if threat_preview.has("enemy_key"):
@@ -12617,7 +12618,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 				"focus_tiles": [segment_to],
 				"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 				"path_tiles": path,
-				"path_color": Color("f2c879"),
+				"path_color": ENEMY_PATH_PREVIEW_COLOR,
 				"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
 				"unit_draw_tiles": {actor_key: draw_tile}
 			})

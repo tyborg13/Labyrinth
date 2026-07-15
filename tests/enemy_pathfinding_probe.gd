@@ -9,6 +9,7 @@ const OUTPUT_DIR: String = "user://probes/enemy_pathfinding"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const INVALID_TILE: Vector2i = Vector2i(-999, -999)
+const EXPECTED_ENEMY_PATH_COLOR: Color = Color("b78cff")
 
 var _errors: Array[String]
 var _move_animation_complete: bool = false
@@ -109,6 +110,8 @@ func _capture_mid_route_animation(instance: Node, combat_state: Dictionary, plan
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	var world_positions: Dictionary = presentation.get("unit_world_positions", {}) as Dictionary
 	_expect(_vector2i_array(presentation.get("path_tiles", [])) == path, "Mid-animation frame should retain the full ordered multi-segment path")
+	var path_color: Color = presentation.get("path_color", Color.TRANSPARENT)
+	_expect(path_color.is_equal_approx(EXPECTED_ENEMY_PATH_COLOR), "Mid-animation enemy path should use the purple shared-arrow treatment")
 	_expect(world_positions.has(actor_key), "Mid-animation frame should place the enemy between segment endpoints")
 	await _save_root_screenshot("%s/02_multisegment_animation.png" % OUTPUT_DIR)
 	var wait_frames: int = 0
@@ -147,6 +150,8 @@ func _assert_board_projection(instance: Node, plan: Dictionary, scenario: String
 		return
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	_expect(_vector2i_array(presentation.get("path_tiles", [])) == _vector2i_array(plan.get("path", [])), "%s should render the exact planned path" % scenario)
+	var path_color: Color = presentation.get("path_color", Color.TRANSPARENT)
+	_expect(path_color.is_equal_approx(EXPECTED_ENEMY_PATH_COLOR), "%s should shade the shared movement arrows purple" % scenario)
 	_expect(presentation.get("projected_destination", INVALID_TILE) == plan.get("destination", INVALID_TILE), "%s should render the exact planned destination" % scenario)
 	_expect(_vector2i_array(presentation.get("projected_attack_tiles", [])) == _vector2i_array(plan.get("projected_attack", [])), "%s should render the exact projected attack tiles" % scenario)
 	if require_move_union:
