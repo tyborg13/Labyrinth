@@ -9709,6 +9709,10 @@ func _refresh_stage_view() -> void:
 			var threat_preview: Dictionary = _hovered_enemy_threat(display_state)
 			move_tiles = _vector2i_array(threat_preview.get("move", []))
 			attack_tiles = _vector2i_array(threat_preview.get("attack", []))
+			presentation["path_tiles"] = _vector2i_array(threat_preview.get("projected_path", []))
+			presentation["path_color"] = Color("f2c879")
+			presentation["projected_destination"] = threat_preview.get("projected_destination", INVALID_TARGET_TILE)
+			presentation["projected_attack_tiles"] = _vector2i_array(threat_preview.get("projected_attack", []))
 			if threat_preview.has("enemy_key"):
 				presentation["focus_actor_keys"] = [str(threat_preview.get("enemy_key", ""))]
 				presentation["focus_actor_color"] = Color("f2ddb2")
@@ -12422,6 +12426,7 @@ func _resolve_enemy_round() -> void:
 	_sync_combat_state_from_run()
 	_release_committed_run_state()
 	_analytics_log_enemy_status_ticks(phase_result)
+	_analytics_log_enemy_actions(phase_result)
 	var before_draw_state: Dictionary = (phase_result.get("player_turn_before_state", {}) as Dictionary).duplicate(true)
 	if outcome == "" and not before_draw_state.is_empty():
 		var fatigue_events: Array[Dictionary] = _fatigue_damage_events_between_states(before_draw_state, _combat_state)
@@ -12595,22 +12600,42 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
 	var actor_unit: Dictionary = _animation_actor_unit(animated_state, actor_key)
-	var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, from_tile)
-	var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, to_tile)
-	var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, to_tile)
-	_apply_animation_step(animated_state, step)
+	var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
+	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
+		path = _vector2i_array([from_tile, to_tile])
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
-	for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-		var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-		_render_board_state(animated_state, {
-			"focus_actor_keys": [actor_key],
+	for path_index: int in range(path.size() - 1):
+		var segment_from: Vector2i = path[path_index]
+		var segment_to: Vector2i = path[path_index + 1]
+		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
+		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
+		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
+		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
+			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
+			_render_board_state(animated_state, {
+				"focus_actor_keys": [actor_key],
+				"focus_actor_color": PLAYER_ATTACK_FOCUS,
+				"focus_tiles": [segment_to],
+				"focus_color": Color(0.95, 0.62, 0.37, 0.18),
+				"path_tiles": path,
+				"path_color": Color("f2c879"),
+				"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
+				"unit_draw_tiles": {actor_key: draw_tile}
+			})
+			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+	var before_move_state: Dictionary = animated_state.duplicate(true)
+	_apply_animation_step(animated_state, step)
+	if not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
+		await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_move_state, animated_state, {
+			"focus_actor_keys": step.get("impact_actor_keys", [actor_key]),
 			"focus_actor_color": PLAYER_ATTACK_FOCUS,
 			"focus_tiles": [to_tile],
 			"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-			"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
-			"unit_draw_tiles": {actor_key: draw_tile}
-		})
-		await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+			"trap_effects": step.get("triggered_traps", []),
+			"impact_actor_keys": step.get("impact_actor_keys", []),
+			"floating_texts": _floating_texts_for_step(step)
+		}))
+		await _animate_enemy_deaths(before_move_state, animated_state)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
 
@@ -12758,6 +12783,10 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 	match str(step.get("kind", "")):
 		"move":
 			_set_enemy_pos_by_key(animated_state, str(step.get("actor_key", "")), step.get("to", Vector2i.ZERO))
+			_apply_actor_losses(animated_state, step.get("target_losses", []))
+			_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
+			_apply_terrain_losses(animated_state, step.get("terrain_losses", []))
+			_remove_triggered_traps(animated_state, step.get("triggered_traps", []))
 		"block":
 			_add_enemy_block_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"stoneskin":
@@ -12779,6 +12808,12 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 
 func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 	match str(step.get("kind", "")):
+		"move":
+			var movement_floats: Array[Dictionary]
+			movement_floats.append_array(_floating_texts_for_target_losses(step.get("target_losses", [])))
+			movement_floats.append_array(_floating_texts_for_target_losses(step.get("enemy_losses", [])))
+			movement_floats.append_array(_floating_texts_for_terrain_losses(step.get("terrain_losses", [])))
+			return movement_floats
 		"block":
 			return [{
 				"tile": step.get("tile", Vector2i.ZERO),
@@ -13036,6 +13071,22 @@ func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
 				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
 			"illusion":
 				_apply_illusion_loss_by_key(state, str(loss.get("key", "")), int(loss.get("hp_loss", 0)))
+
+func _apply_enemy_losses(state: Dictionary, enemy_losses: Array) -> void:
+	for loss_var: Variant in enemy_losses:
+		if typeof(loss_var) != TYPE_DICTIONARY:
+			continue
+		var loss: Dictionary = loss_var
+		var actor_key: String = str(loss.get("key", ""))
+		for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+			var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+			if _enemy_key(enemy) != actor_key:
+				continue
+			enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - int(loss.get("hp_loss", 0)))
+			enemy["block"] = maxi(0, int(enemy.get("block", 0)) - int(loss.get("block_loss", 0)))
+			enemy["stoneskin"] = maxi(0, int(enemy.get("stoneskin", 0)) - int(loss.get("stoneskin_loss", 0)))
+			(state.get("enemies", []) as Array)[enemy_index] = enemy
+			break
 
 func _apply_terrain_losses(state: Dictionary, terrain_losses: Array) -> void:
 	if terrain_losses.is_empty():
@@ -17938,6 +17989,31 @@ func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 			"trigger": str(step.get("trigger", "turn_start")),
 			"action_type": str(step.get("action_type", "")),
 			"tile": step.get("tile", Vector2i(-1, -1))
+		})
+
+func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
+	for step_var: Variant in phase_result.get("steps", []):
+		if typeof(step_var) != TYPE_DICTIONARY:
+			continue
+		var step: Dictionary = step_var
+		var kind: String = str(step.get("kind", ""))
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"]:
+			continue
+		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
+		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
+			"action_type": kind,
+			"actor_key": str(step.get("actor_key", "")),
+			"actor_name": str(step.get("actor_name", "")),
+			"label": str(step.get("label", "")),
+			"from": step.get("from", step.get("tile", Vector2i(-1, -1))),
+			"to": step.get("to", step.get("tile", Vector2i(-1, -1))),
+			"path": path,
+			"path_steps": maxi(0, path.size() - 1),
+			"target_key": str(step.get("target_key", "")),
+			"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
+			"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
+			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
+			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true)
 		})
 
 func _sync_combat_state_from_run() -> void:

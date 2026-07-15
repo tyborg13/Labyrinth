@@ -26,6 +26,13 @@ slow attrition end at about 19 initiative and use a radius-2 poison diamond for
 their main area-denial intent. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
 attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
+Revealed enemy execution is deterministic: advancing attack intents stop at the
+first reachable attack-enabling tile, retreat intents preserve their follow-up
+attack, and equal-distance player-side target ties prefer illusions. Future-turn
+route scoring treats destructible terrain as finite clearing time, allied
+congestion as a current hard blocker, and traps as high-cost but traversable
+when no safe route exists. Conservative threat unions are supplemented by the
+exact current route, destination, and projected attack.
 Bleed pressure only opens on resolved move or attack actions, not skipped or
 blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP and intent baselines. Zekarion's 2x2

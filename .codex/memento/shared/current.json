@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T23:18:55Z",
+  "updated_at": "2026-07-15T03:30:11Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5463,6 +5463,28 @@
       "source": {
         "branch": "codex/fix-merchant-blocking-room-doors",
         "commit": "062b98b"
+      }
+    },
+    {
+      "id": "mnt_20260715T033011Z_8e0bbd45",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Enemy activations use one deterministic target and route plan for movement, attack, preview, and analytics.",
+      "details": "For move-plus-attack intents, prefer the shortest safe path to the first attack-enabling endpoint; move_away may maximize separation only while preserving the attack. If no same-turn attack exists, future routing gives finite costs to destructible terrain and allied congestion and a high finite cost to traps. Resolution keeps the selected target for the full activation, and exact path data is reused by animation and hover projections.",
+      "status": "active",
+      "created_at": "2026-07-15T03:30:11Z",
+      "updated_at": "2026-07-15T03:30:11Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/deterministic-coherent-enemy-pathfinding-targeting-and-previews",
+        "commit": "622a15f"
       }
     }
   ]

@@ -72,6 +72,8 @@ const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["move_toward", "move_away", "melee", 
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
+const ENEMY_PATH_TEMPORARY_BLOCKER_TURN_COST: int = 1
+const ENEMY_PATH_TRAP_BASE_PENALTY: int = 1000
 const DEFAULT_AOE_PATTERN: Array = [
 	[0, 0],
 	[1, 0],
@@ -1037,6 +1039,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	if not intent.is_empty():
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 		var actions: Array = intent.get("actions", [])
+		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized)
 		for action_index: int in range(actions.size()):
 			var action_var: Variant = actions[action_index]
 			if typeof(action_var) != TYPE_DICTIONARY:
@@ -1052,8 +1055,10 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var followup_action: Dictionary = {}
 			if not shocked:
 				followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
+			var action_context: Dictionary = activation_plan.duplicate(true)
+			action_context["action_index"] = action_index
 			var bleed_steps: Array[Dictionary] = []
-			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+			next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
 			_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 			_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 			next_state["rng_state"] = rng.state
@@ -1061,7 +1066,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 				_append_commit_step(steps, before_state, next_state, "enemy_action")
 			for bleed_step: Dictionary in bleed_steps:
 				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
-			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action), int(enemy.get("id", -1)))
+			var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action, action_context), int(enemy.get("id", -1)))
 			if not step.is_empty():
 				steps.append(step)
 	var before_turn_complete: Dictionary = next_state.duplicate(true)
@@ -1084,15 +1089,16 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
-		return {"move": [], "attack": []}
+		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
-		return {"move": [], "attack": []}
+		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	if not is_enemy_visible_to_player(state, enemy):
-		return {"move": [], "attack": []}
+		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	var intent: Dictionary = enemy.get("intent", {})
 	if intent.is_empty():
-		return {"move": [], "attack": []}
+		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
+	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent)
 	var occupied: Dictionary = _enemy_threat_path_blockers(state, enemy, true, true)
 	var blocked_target: Vector2i = Vector2i(-999, -999)
 	var frontier: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
@@ -1118,7 +1124,12 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 						attack_lookup[attack_tile] = true
 	return {
 		"move": _sorted_tiles_from_lookup(move_lookup),
-		"attack": _sorted_tiles_from_lookup(attack_lookup)
+		"attack": _sorted_tiles_from_lookup(attack_lookup),
+		"projected_path": _vector2i_values(plan.get("path", [])),
+		"projected_route": _vector2i_values(plan.get("route", [])),
+		"projected_destination": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
+		"projected_attack": _vector2i_values(plan.get("projected_attack", [])),
+		"projected_target_key": str(plan.get("target_key", ""))
 	}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
@@ -1157,6 +1168,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		if not intent.is_empty():
 			steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 			var actions: Array = intent.get("actions", [])
+			var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized)
 			for action_index: int in range(actions.size()):
 				var action_var: Variant = actions[action_index]
 				if typeof(action_var) != TYPE_DICTIONARY:
@@ -1172,13 +1184,15 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var followup_action: Dictionary = {}
 				if not shocked:
 					followup_action = _next_enemy_followup_attack_action(actions, action_index + 1)
+				var action_context: Dictionary = activation_plan.duplicate(true)
+				action_context["action_index"] = action_index
 				var bleed_steps: Array[Dictionary] = []
-				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps)
+				next_state = _resolve_enemy_action(next_state, enemy_index, action, rng, followup_action, bleed_steps, action_context)
 				_anonymize_hidden_enemy_action_logs(before_state, next_state, int(enemy.get("id", -1)), action)
 				_record_hidden_umbra_attack_damage(before_state, next_state, int(enemy.get("id", -1)))
 				for bleed_step: Dictionary in bleed_steps:
 					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, bleed_step, int(enemy.get("id", -1))))
-				var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action), int(enemy.get("id", -1)))
+				var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action, action_context), int(enemy.get("id", -1)))
 				if not step.is_empty():
 					steps.append(step)
 		if combat_outcome(next_state) == "":
@@ -1399,11 +1413,18 @@ func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictiona
 		])
 	else:
 		_log(next_state, "Something stirs in the Umbra.")
-	for action: Dictionary in intent.get("actions", []):
+	var actions: Array = intent.get("actions", [])
+	var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent)
+	for action_index: int in range(actions.size()):
+		if typeof(actions[action_index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = actions[action_index]
 		if combat_outcome(next_state) != "":
 			break
 		var before_action: Dictionary = next_state.duplicate(true)
-		next_state = _resolve_enemy_action(next_state, enemy_index, action)
+		var action_context: Dictionary = activation_plan.duplicate(true)
+		action_context["action_index"] = action_index
+		next_state = _resolve_enemy_action(next_state, enemy_index, action, null, {}, [], action_context)
 		_anonymize_hidden_enemy_action_logs(before_action, next_state, int(enemy.get("id", -1)), action)
 		_record_hidden_umbra_attack_damage(before_action, next_state, int(enemy.get("id", -1)))
 	return next_state
@@ -1478,7 +1499,7 @@ func _record_hidden_umbra_attack_damage(before_state: Dictionary, after_state: D
 	umbra["hidden_attack_damage_received_total"] = int(umbra.get("hidden_attack_damage_received_total", 0)) + hp_loss
 	after_state["umbra"] = umbra
 
-func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
 	var before_enemies: Array = before_state.get("enemies", [])
 	var after_enemies: Array = after_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= before_enemies.size() or enemy_index >= after_enemies.size():
@@ -1495,12 +1516,26 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			var to_tile: Vector2i = after_enemy.get("pos", Vector2i.ZERO)
 			if from_tile == to_tile:
 				return {}
+			var resolved_path: Array[Vector2i] = _vector2i_values(action_context.get("resolved_path", action_context.get("path", [])))
+			if resolved_path.is_empty():
+				resolved_path = _vector2i_values([from_tile, to_tile])
+			var target_losses: Array[Dictionary] = _actor_target_losses(before_state, after_state)
+			var enemy_losses: Array[Dictionary] = _enemy_target_losses(before_state, after_state)
+			var terrain_losses: Array[Dictionary] = _terrain_target_losses(before_state, after_state)
+			var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
 			return {
 				"kind": "move",
 				"actor_key": _enemy_key(after_enemy),
 				"actor_name": actor_name,
 				"from": from_tile,
 				"to": to_tile,
+				"path": resolved_path,
+				"target_key": str(action_context.get("target_key", "")),
+				"target_losses": target_losses,
+				"enemy_losses": enemy_losses,
+				"terrain_losses": terrain_losses,
+				"triggered_traps": triggered_traps,
+				"impact_actor_keys": _target_loss_keys(target_losses) + _target_loss_keys(enemy_losses),
 				"label": "Advance" if action_type == "move_toward" else "Retreat"
 			}
 		"block":
@@ -1630,6 +1665,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"terrain_losses": terrain_losses,
 				"triggered_traps": triggered_traps,
 				"impact_actor_keys": _target_loss_keys(target_losses),
+				"target_key": str(action_context.get("target_key", "")),
 				"status_text": status_text,
 				"range": int(action.get("range", 0)),
 				"sfx_id": str(action.get("sfx_id", action.get("attack_sfx_id", ""))),
@@ -1653,7 +1689,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 			return {}
 
 func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
-	var losses: Array[Dictionary] = []
+	var losses: Array[Dictionary]
 	var before_player: Dictionary = _normalized_player(before_state.get("player", {}))
 	var after_player: Dictionary = _normalized_player(after_state.get("player", {}))
 	var player_hp_loss: int = maxi(0, int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)))
@@ -1696,6 +1732,39 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 			"stoneskin_loss": 0,
 			"amount": hp_loss
 			})
+	return losses
+
+func _enemy_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var losses: Array[Dictionary]
+	var after_by_id: Dictionary = {}
+	for after_enemy_var: Variant in after_state.get("enemies", []):
+		if typeof(after_enemy_var) != TYPE_DICTIONARY:
+			continue
+		var after_enemy: Dictionary = _normalized_enemy(after_enemy_var as Dictionary)
+		after_by_id[int(after_enemy.get("id", -1))] = after_enemy
+	for before_enemy_var: Variant in before_state.get("enemies", []):
+		if typeof(before_enemy_var) != TYPE_DICTIONARY:
+			continue
+		var before_enemy: Dictionary = _normalized_enemy(before_enemy_var as Dictionary)
+		if int(before_enemy.get("hp", 0)) <= 0:
+			continue
+		var enemy_id: int = int(before_enemy.get("id", -1))
+		var after_enemy: Dictionary = after_by_id.get(enemy_id, before_enemy)
+		var hp_loss: int = maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0)))
+		var block_loss: int = maxi(0, int(before_enemy.get("block", 0)) - int(after_enemy.get("block", 0)))
+		var stoneskin_loss: int = maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
+		if hp_loss <= 0 and block_loss <= 0 and stoneskin_loss <= 0:
+			continue
+		losses.append({
+			"key": _enemy_key(before_enemy),
+			"kind": "enemy",
+			"id": enemy_id,
+			"tile": after_enemy.get("pos", before_enemy.get("pos", Vector2i.ZERO)),
+			"hp_loss": hp_loss,
+			"block_loss": block_loss,
+			"stoneskin_loss": stoneskin_loss,
+			"amount": hp_loss + block_loss + stoneskin_loss
+		})
 	return losses
 
 func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
@@ -1815,15 +1884,35 @@ func _closest_enemy_target_for_action(state: Dictionary, enemy: Dictionary, acti
 			best_targets.append(target)
 	return _choose_actor_target_candidate(best_targets, rng)
 
-func _choose_actor_target_candidate(candidates: Array, rng: RandomNumberGenerator = null) -> Dictionary:
+func _choose_actor_target_candidate(candidates: Array, _rng: RandomNumberGenerator = null) -> Dictionary:
 	if candidates.is_empty():
 		return {}
-	var index: int = 0
-	if candidates.size() > 1 and rng != null:
-		index = rng.randi_range(0, candidates.size() - 1)
-	if typeof(candidates[index]) != TYPE_DICTIONARY:
+	var best_target: Dictionary = {}
+	for candidate_var: Variant in candidates:
+		if typeof(candidate_var) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = candidate_var
+		if best_target.is_empty() or _actor_target_precedes(candidate, best_target):
+			best_target = candidate
+	if best_target.is_empty():
 		return {}
-	return (candidates[index] as Dictionary).duplicate(true)
+	return best_target.duplicate(true)
+
+func _actor_target_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	var candidate_priority: int = _actor_target_priority(candidate)
+	var incumbent_priority: int = _actor_target_priority(incumbent)
+	if candidate_priority != incumbent_priority:
+		return candidate_priority < incumbent_priority
+	var candidate_id: int = int(candidate.get("id", -1))
+	var incumbent_id: int = int(incumbent.get("id", -1))
+	if candidate_id != incumbent_id:
+		return candidate_id < incumbent_id
+	return str(candidate.get("key", "")) < str(incumbent.get("key", ""))
+
+func _actor_target_priority(target: Dictionary) -> int:
+	# Illusions win exact-distance ties so a deliberately placed decoy redirects
+	# reliably. The player remains preferred whenever strictly closer.
+	return 0 if str(target.get("kind", "")) == "illusion" else 1
 
 func _enemy_support_target_index(state: Dictionary, source_enemy_index: int, action: Dictionary) -> int:
 	var enemies: Array = state.get("enemies", [])
@@ -2089,7 +2178,7 @@ func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, act
 		return state
 	return _apply_action_keywords_to_player(state, action, source_pos)
 
-func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -2099,35 +2188,29 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
-	var target: Dictionary = _closest_enemy_target(next_state, enemy, rng)
+	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context)
+	if target.is_empty() and action_context.is_empty():
+		target = _closest_enemy_target(next_state, enemy, rng)
 	var target_pos: Vector2i = target.get("pos", player_pos)
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move_toward":
-			var toward_tile: Vector2i = _best_move_toward_for_followup(next_state, enemy_index, target_pos, int(action.get("range", 0)), followup_action)
-			if toward_tile == INVALID_TILE:
-				toward_tile = _best_move_toward(next_state, enemy_index, target_pos, int(action.get("range", 0)))
-			if toward_tile == enemy.get("pos", Vector2i.ZERO):
+			var toward_path: Array[Vector2i] = _planned_enemy_movement_path(next_state, enemy, enemy_index, action, followup_action, action_context, target_pos, true)
+			if toward_path.size() <= 1:
 				return next_state
 			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 				return next_state
-			enemies = next_state.get("enemies", [])
-			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-			enemy["pos"] = toward_tile
-			enemies[enemy_index] = enemy
+			next_state = _move_enemy_along_planned_path(next_state, enemy_index, toward_path, action_context)
 			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"move_away":
-			var away_tile: Vector2i = _best_move_away(next_state, enemy_index, target_pos, int(action.get("range", 0)))
-			if away_tile == enemy.get("pos", Vector2i.ZERO):
+			var away_path: Array[Vector2i] = _planned_enemy_movement_path(next_state, enemy, enemy_index, action, followup_action, action_context, target_pos, false)
+			if away_path.size() <= 1:
 				return next_state
 			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 				return next_state
-			enemies = next_state.get("enemies", [])
-			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-			enemy["pos"] = away_tile
-			enemies[enemy_index] = enemy
+			next_state = _move_enemy_along_planned_path(next_state, enemy_index, away_path, action_context)
 			_log(next_state, "%s falls back." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"block":
 			enemy["block"] = int(enemy.get("block", 0)) + int(action.get("amount", 0))
@@ -2178,20 +2261,75 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				int(action.get("amount", 0))
 			])
 		"melee":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng, bleed_steps)
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng, bleed_steps, action_context)
 		"ranged":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires", rng, bleed_steps)
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "fires", rng, bleed_steps, action_context)
 		"aoe":
-			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area", rng, bleed_steps)
+			next_state = _enemy_attack_target(next_state, enemy_index, action, "sweeps the area", rng, bleed_steps, action_context)
 		"lightning_strikes":
 			next_state = _enemy_lightning_strikes(next_state, enemy_index, action, bleed_steps)
 		"push":
-			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true, rng, bleed_steps)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, true, rng, bleed_steps, action_context)
 		"pull":
-			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng, bleed_steps)
+			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng, bleed_steps, action_context)
 		"summon_minions":
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
 	return next_state
+
+func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_index: int, action: Dictionary, followup_action: Dictionary, action_context: Dictionary, target_pos: Vector2i, toward: bool) -> Array[Vector2i]:
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	if int(action_context.get("action_index", -1)) == int(action_context.get("movement_action_index", -2)):
+		var planned_path: Array[Vector2i] = _vector2i_values(action_context.get("path", []))
+		if not planned_path.is_empty() and planned_path[0] == start:
+			return planned_path
+	var destination: Vector2i = start
+	if toward:
+		destination = _best_move_toward_for_followup(state, enemy_index, target_pos, int(action.get("range", 0)), followup_action)
+		if destination == INVALID_TILE:
+			destination = _best_move_toward(state, enemy_index, target_pos, int(action.get("range", 0)))
+	else:
+		destination = _best_move_away(state, enemy_index, target_pos, int(action.get("range", 0)))
+	if destination == start:
+		return _vector2i_values([start])
+	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, false)
+	var fallback_path: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), start, destination, occupied)
+	if fallback_path.is_empty():
+		return _vector2i_values([start, destination])
+	return fallback_path
+
+func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned_path: Array[Vector2i], action_context: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var resolved_path: Array[Vector2i] = _vector2i_values([])
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	resolved_path.append(enemy.get("pos", Vector2i.ZERO))
+	for path_index: int in range(1, planned_path.size()):
+		enemies = next_state.get("enemies", [])
+		if enemy_index < 0 or enemy_index >= enemies.size():
+			break
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		if int(enemy.get("hp", 0)) <= 0:
+			break
+		enemy["pos"] = planned_path[path_index]
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+		resolved_path.append(planned_path[path_index])
+		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
+		if combat_outcome(next_state) != "":
+			break
+	action_context["resolved_path"] = resolved_path
+	return next_state
+
+func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionary) -> Dictionary:
+	var target_key: String = str(action_context.get("target_key", ""))
+	if target_key.is_empty():
+		return {}
+	for target: Dictionary in _actor_targets(state):
+		if str(target.get("key", "")) == target_key:
+			return target
+	return {}
 
 func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
@@ -3286,26 +3424,40 @@ func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dict
 			best_index = index
 	return best_index
 
-func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var action_type: String = str(action.get("type", ""))
-	var trap_attack_index: int = _best_enemy_trap_attack_index(next_state, enemy_index, action)
-	if trap_attack_index >= 0:
+	var has_plan: bool = int(action_context.get("action_index", -1)) == int(action_context.get("attack_action_index", -2))
+	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
+	if not target.is_empty() and not _enemy_action_reaches_target(next_state, enemy, action, target):
+		target = {}
+	var planned_trap_index: int = _trap_index_at_tile(next_state, action_context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
+	if planned_trap_index >= 0:
 		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 			return next_state
 		enemies = next_state.get("enemies", [])
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
+		next_state = _trigger_trap_at_index(next_state, planned_trap_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
-	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps)
+		var trap_attack_index: int = -1 if has_plan else _best_enemy_trap_attack_index(next_state, enemy_index, action)
+		if trap_attack_index >= 0:
+			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+				return next_state
+			enemies = next_state.get("enemies", [])
+			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+			next_state = _trigger_trap_at_index(next_state, trap_attack_index)
+			_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+			return next_state
+		var terrain_override: int = int(action_context.get("blocking_terrain_index", -1)) if has_plan else -2
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_override)
 	var damage: int = int(action.get("damage", 0))
 	if action_type == "aoe":
 		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
@@ -3341,25 +3493,39 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 	return next_state
 
-func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var trap_attack_index: int = _best_enemy_trap_attack_index(next_state, enemy_index, action)
-	if trap_attack_index >= 0:
+	var has_plan: bool = int(action_context.get("action_index", -1)) == int(action_context.get("attack_action_index", -2))
+	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
+	if not target.is_empty() and not _enemy_action_reaches_target(next_state, enemy, action, target):
+		target = {}
+	var planned_trap_index: int = _trap_index_at_tile(next_state, action_context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
+	if planned_trap_index >= 0:
 		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 			return next_state
 		enemies = next_state.get("enemies", [])
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		next_state = _trigger_trap_at_index(next_state, trap_attack_index)
+		next_state = _trigger_trap_at_index(next_state, planned_trap_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
-	var target: Dictionary = _closest_enemy_target_for_action(next_state, enemy, action, rng)
 	if target.is_empty():
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps)
+		var trap_attack_index: int = -1 if has_plan else _best_enemy_trap_attack_index(next_state, enemy_index, action)
+		if trap_attack_index >= 0:
+			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+				return next_state
+			enemies = next_state.get("enemies", [])
+			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+			next_state = _trigger_trap_at_index(next_state, trap_attack_index)
+			_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+			return next_state
+		var terrain_override: int = int(action_context.get("blocking_terrain_index", -1)) if has_plan else -2
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_override)
 	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
 	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
 	var damage: int = int(action.get("damage", 0))
@@ -3380,11 +3546,11 @@ func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dic
 	])
 	return next_state
 
-func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
+func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = [], terrain_index_override: int = -2) -> Dictionary:
 	var next_state: Dictionary = state
 	if int(action.get("damage", 0)) <= 0:
 		return next_state
-	var terrain_index: int = _blocking_terrain_index_for_enemy_action(next_state, enemy_index, action)
+	var terrain_index: int = terrain_index_override if terrain_index_override >= -1 else _blocking_terrain_index_for_enemy_action(next_state, enemy_index, action)
 	if terrain_index < 0:
 		return next_state
 	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
@@ -5203,6 +5369,430 @@ func _preview_block_for_intent(intent: Dictionary) -> int:
 		if str(action.get("type", "")) == "block":
 			total += int(action.get("amount", 0))
 	return total
+
+func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return {}
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if int(enemy.get("hp", 0)) <= 0:
+		return {}
+	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
+	var actions: Array = intent.get("actions", [])
+	var movement_index: int = -1
+	var attack_index: int = -1
+	for index: int in range(actions.size()):
+		if typeof(actions[index]) != TYPE_DICTIONARY:
+			continue
+		var action_type: String = str((actions[index] as Dictionary).get("type", ""))
+		if movement_index < 0 and action_type in ["move_toward", "move_away"]:
+			movement_index = index
+		if attack_index < 0 and action_type in ATTACK_ACTION_TYPES:
+			attack_index = index
+	var movement_action: Dictionary = {}
+	if movement_index >= 0:
+		movement_action = (actions[movement_index] as Dictionary).duplicate(true)
+	var attack_action: Dictionary = {}
+	if attack_index >= 0:
+		attack_action = (actions[attack_index] as Dictionary).duplicate(true)
+	var planning_attack: Dictionary = attack_action
+	if planning_attack.is_empty():
+		planning_attack = {"type": "melee", "range": 1, "damage": 0}
+	var move_range: int = 0 if movement_disabled else int(movement_action.get("range", 0))
+	var movement_type: String = str(movement_action.get("type", "move_toward"))
+	var actual_records: Array[Dictionary] = _enemy_actual_path_records(state, enemy, move_range)
+	var direct_candidate: Dictionary = _best_enemy_direct_attack_candidate(state, enemy, planning_attack, actual_records, movement_type)
+	var target: Dictionary = {}
+	var actual_path: Array[Vector2i] = _vector2i_values([enemy.get("pos", Vector2i.ZERO)])
+	var future_route: Array[Vector2i] = actual_path.duplicate()
+	var route_cost: int = 0
+	var attack_available: bool = false
+	if not direct_candidate.is_empty():
+		target = (direct_candidate.get("target", {}) as Dictionary).duplicate(true)
+		actual_path = _vector2i_values(direct_candidate.get("path", []))
+		future_route = actual_path.duplicate()
+		route_cost = int(direct_candidate.get("cost", 0))
+		attack_available = true
+	else:
+		var future_candidate: Dictionary = _best_enemy_future_route_candidate(state, enemy, planning_attack, move_range)
+		if not future_candidate.is_empty():
+			target = (future_candidate.get("target", {}) as Dictionary).duplicate(true)
+			future_route = _vector2i_values(future_candidate.get("route", []))
+			actual_path = _enemy_actual_prefix_for_route(state, enemy, future_route, move_range)
+			route_cost = int(future_candidate.get("cost", 0))
+	if target.is_empty():
+		target = _closest_enemy_target(state, enemy)
+	var destination: Vector2i = actual_path[actual_path.size() - 1] if not actual_path.is_empty() else enemy.get("pos", Vector2i.ZERO)
+	var preview_enemy: Dictionary = enemy.duplicate(true)
+	preview_enemy["pos"] = destination
+	var preview_state: Dictionary = _state_with_enemy_anchor(state, preview_enemy, destination)
+	var target_reachable: bool = not target.is_empty() and _enemy_action_reaches_target(preview_state, preview_enemy, planning_attack, target)
+	var terrain_index: int = -1
+	var trap_index: int = -1
+	var trap_tile: Vector2i = INVALID_TILE
+	if attack_index >= 0:
+		trap_index = _best_enemy_trap_attack_index(preview_state, enemy_index, planning_attack)
+		if trap_index >= 0:
+			trap_tile = ((preview_state.get("traps", []) as Array)[trap_index] as Dictionary).get("pos", INVALID_TILE)
+		if trap_index < 0 and not target_reachable:
+			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
+	var projected_attack_tiles: Array[Vector2i] = _enemy_projected_attack_tiles(
+		preview_state,
+		preview_enemy,
+		planning_attack,
+		target if target_reachable else {},
+		terrain_index,
+		trap_index
+	)
+	return {
+		"enemy_index": enemy_index,
+		"enemy_key": _enemy_key(enemy),
+		"movement_action_index": movement_index,
+		"attack_action_index": attack_index,
+		"target": target,
+		"target_key": str(target.get("key", "")),
+		"target_tile": target.get("pos", INVALID_TILE),
+		"path": actual_path,
+		"route": future_route,
+		"destination": destination,
+		"route_cost": route_cost,
+		"attack_available": attack_available and target_reachable,
+		"blocking_terrain_index": terrain_index,
+		"trap_attack_index": trap_index,
+		"trap_attack_tile": trap_tile,
+		"projected_attack": projected_attack_tiles
+	}
+
+func _enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range: int) -> Array[Dictionary]:
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var start_path: Array[Vector2i] = _vector2i_values([start])
+	var records: Array[Dictionary]
+	records.append({"tile": start, "path": start_path, "trap_cost": 0, "steps": 0})
+	if move_range <= 0:
+		return records
+	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, false)
+	var frontier: Array[Dictionary]
+	frontier.append(records[0].duplicate(true))
+	for step: int in range(1, move_range + 1):
+		var next_by_tile: Dictionary = {}
+		for record: Dictionary in frontier:
+			var current: Vector2i = record.get("tile", start)
+			var current_path: Array[Vector2i] = _vector2i_values(record.get("path", []))
+			for direction: Vector2i in PathUtils.DIRS_4:
+				var candidate_tile: Vector2i = current + direction
+				if current_path.has(candidate_tile):
+					continue
+				if not _enemy_can_occupy_anchor(state, enemy, candidate_tile, occupied):
+					continue
+				var candidate_path: Array[Vector2i] = current_path.duplicate()
+				candidate_path.append(candidate_tile)
+				var candidate: Dictionary = {
+					"tile": candidate_tile,
+					"path": candidate_path,
+					"trap_cost": int(record.get("trap_cost", 0)) + _enemy_anchor_trap_penalty(state, enemy, candidate_tile),
+					"steps": step
+				}
+				if not next_by_tile.has(candidate_tile) or _enemy_actual_record_precedes(candidate, next_by_tile[candidate_tile] as Dictionary):
+					next_by_tile[candidate_tile] = candidate
+		frontier.clear()
+		for tile: Vector2i in _sorted_tiles_from_lookup(next_by_tile):
+			var next_record: Dictionary = next_by_tile[tile]
+			frontier.append(next_record)
+			records.append(next_record)
+	return records
+
+func _enemy_actual_record_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	var candidate_cost: int = int(candidate.get("trap_cost", 0))
+	var incumbent_cost: int = int(incumbent.get("trap_cost", 0))
+	if candidate_cost != incumbent_cost:
+		return candidate_cost < incumbent_cost
+	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+
+func _best_enemy_direct_attack_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, path_records: Array[Dictionary], movement_type: String) -> Dictionary:
+	var best: Dictionary = {}
+	for target: Dictionary in _actor_targets(state):
+		for record: Dictionary in path_records:
+			var destination: Vector2i = record.get("tile", enemy.get("pos", Vector2i.ZERO))
+			var candidate_enemy: Dictionary = enemy.duplicate(true)
+			candidate_enemy["pos"] = destination
+			var candidate_state: Dictionary = _state_with_enemy_anchor(state, candidate_enemy, destination)
+			if not _enemy_action_reaches_target(candidate_state, candidate_enemy, attack_action, target):
+				continue
+			var candidate: Dictionary = {
+				"target": target,
+				"path": record.get("path", []),
+				"destination": destination,
+				"trap_cost": int(record.get("trap_cost", 0)),
+				"steps": int(record.get("steps", 0)),
+				"target_distance": _enemy_distance_to_tile(enemy, target.get("pos", Vector2i.ZERO)),
+				"separation": _enemy_distance_to_tile(candidate_enemy, target.get("pos", Vector2i.ZERO)),
+				"cost": int(record.get("trap_cost", 0)) + int(record.get("steps", 0))
+			}
+			if best.is_empty() or _enemy_direct_attack_candidate_precedes(candidate, best, movement_type):
+				best = candidate
+	return best
+
+func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: Dictionary, movement_type: String) -> bool:
+	var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
+	var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))
+	if candidate_trap_cost != incumbent_trap_cost:
+		return candidate_trap_cost < incumbent_trap_cost
+	if movement_type == "move_away":
+		var candidate_target_distance: int = int(candidate.get("target_distance", 9999))
+		var incumbent_target_distance: int = int(incumbent.get("target_distance", 9999))
+		if candidate_target_distance != incumbent_target_distance:
+			return candidate_target_distance < incumbent_target_distance
+		var target_order: int = _compare_actor_targets(candidate.get("target", {}), incumbent.get("target", {}))
+		if target_order != 0:
+			return target_order < 0
+		var candidate_separation: int = int(candidate.get("separation", 0))
+		var incumbent_separation: int = int(incumbent.get("separation", 0))
+		if candidate_separation != incumbent_separation:
+			return candidate_separation > incumbent_separation
+		var candidate_steps: int = int(candidate.get("steps", 0))
+		var incumbent_steps: int = int(incumbent.get("steps", 0))
+		if candidate_steps != incumbent_steps:
+			return candidate_steps < incumbent_steps
+	else:
+		var candidate_steps: int = int(candidate.get("steps", 0))
+		var incumbent_steps: int = int(incumbent.get("steps", 0))
+		if candidate_steps != incumbent_steps:
+			return candidate_steps < incumbent_steps
+		var candidate_target_distance: int = int(candidate.get("target_distance", 9999))
+		var incumbent_target_distance: int = int(incumbent.get("target_distance", 9999))
+		if candidate_target_distance != incumbent_target_distance:
+			return candidate_target_distance < incumbent_target_distance
+		var target_order: int = _compare_actor_targets(candidate.get("target", {}), incumbent.get("target", {}))
+		if target_order != 0:
+			return target_order < 0
+	var candidate_destination: Vector2i = candidate.get("destination", INVALID_TILE)
+	var incumbent_destination: Vector2i = incumbent.get("destination", INVALID_TILE)
+	if candidate_destination != incumbent_destination:
+		return _tile_precedes(candidate_destination, incumbent_destination)
+	return _enemy_path_precedes(_vector2i_values(candidate.get("path", [])), _vector2i_values(incumbent.get("path", [])))
+
+func _best_enemy_future_route_candidate(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, move_range: int) -> Dictionary:
+	var best: Dictionary = {}
+	for target: Dictionary in _actor_targets(state):
+		var route_record: Dictionary = _enemy_future_route_to_attack(state, enemy, attack_action, target, move_range)
+		if route_record.is_empty():
+			continue
+		var candidate: Dictionary = route_record.duplicate(true)
+		candidate["target"] = target
+		candidate["target_distance"] = _enemy_distance_to_tile(enemy, target.get("pos", Vector2i.ZERO))
+		if best.is_empty() or _enemy_future_route_candidate_precedes(candidate, best):
+			best = candidate
+	return best
+
+func _enemy_future_route_candidate_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	var candidate_cost: int = int(candidate.get("cost", 999999))
+	var incumbent_cost: int = int(incumbent.get("cost", 999999))
+	if candidate_cost != incumbent_cost:
+		return candidate_cost < incumbent_cost
+	var candidate_distance: int = int(candidate.get("target_distance", 9999))
+	var incumbent_distance: int = int(incumbent.get("target_distance", 9999))
+	if candidate_distance != incumbent_distance:
+		return candidate_distance < incumbent_distance
+	var target_order: int = _compare_actor_targets(candidate.get("target", {}), incumbent.get("target", {}))
+	if target_order != 0:
+		return target_order < 0
+	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
+
+func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, target: Dictionary, move_range: int) -> Dictionary:
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var start_path: Array[Vector2i] = _vector2i_values([start])
+	var open: Array[Dictionary]
+	open.append({"tile": start, "cost": 0, "steps": 0, "route": start_path})
+	var best_by_tile: Dictionary = {start: open[0]}
+	var closed: Dictionary = {}
+	while not open.is_empty():
+		var best_open_index: int = _enemy_best_open_route_index(open)
+		var current: Dictionary = open[best_open_index]
+		open.remove_at(best_open_index)
+		var current_tile: Vector2i = current.get("tile", start)
+		if closed.has(current_tile):
+			continue
+		closed[current_tile] = true
+		var candidate_enemy: Dictionary = enemy.duplicate(true)
+		candidate_enemy["pos"] = current_tile
+		var candidate_state: Dictionary = _state_with_enemy_anchor(state, candidate_enemy, current_tile)
+		if _enemy_anchor_is_dynamically_open(state, enemy, current_tile) and _enemy_action_reaches_target(candidate_state, candidate_enemy, attack_action, target):
+			return current
+		for direction: Vector2i in PathUtils.DIRS_4:
+			var next_tile: Vector2i = current_tile + direction
+			if closed.has(next_tile) or not _enemy_anchor_is_in_grid(state, enemy, next_tile):
+				continue
+			var step_cost: int = _enemy_future_anchor_step_cost(state, enemy, next_tile, attack_action, target, move_range)
+			if step_cost < 0:
+				continue
+			var route: Array[Vector2i] = _vector2i_values(current.get("route", []))
+			if route.has(next_tile):
+				continue
+			var next_route: Array[Vector2i] = route.duplicate()
+			next_route.append(next_tile)
+			var next_record: Dictionary = {
+				"tile": next_tile,
+				"cost": int(current.get("cost", 0)) + step_cost,
+				"steps": int(current.get("steps", 0)) + 1,
+				"route": next_route
+			}
+			if best_by_tile.has(next_tile) and not _enemy_route_record_precedes(next_record, best_by_tile[next_tile] as Dictionary):
+				continue
+			best_by_tile[next_tile] = next_record
+			open.append(next_record)
+	return {}
+
+func _enemy_best_open_route_index(open: Array[Dictionary]) -> int:
+	var best_index: int = 0
+	for index: int in range(1, open.size()):
+		if _enemy_route_record_precedes(open[index], open[best_index]):
+			best_index = index
+	return best_index
+
+func _enemy_route_record_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	var candidate_cost: int = int(candidate.get("cost", 999999))
+	var incumbent_cost: int = int(incumbent.get("cost", 999999))
+	if candidate_cost != incumbent_cost:
+		return candidate_cost < incumbent_cost
+	var candidate_steps: int = int(candidate.get("steps", 9999))
+	var incumbent_steps: int = int(incumbent.get("steps", 9999))
+	if candidate_steps != incumbent_steps:
+		return candidate_steps < incumbent_steps
+	var candidate_tile: Vector2i = candidate.get("tile", INVALID_TILE)
+	var incumbent_tile: Vector2i = incumbent.get("tile", INVALID_TILE)
+	if candidate_tile != incumbent_tile:
+		return _tile_precedes(candidate_tile, incumbent_tile)
+	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
+
+func _enemy_future_anchor_step_cost(state: Dictionary, enemy: Dictionary, anchor: Vector2i, attack_action: Dictionary, _target: Dictionary, move_range: int) -> int:
+	if _enemy_anchor_overlaps_any_actor_target(state, enemy, anchor):
+		return -1
+	var cost: int = 1 + _enemy_anchor_trap_penalty(state, enemy, anchor)
+	var terrain_indices: Array[int] = _enemy_anchor_terrain_indices(state, enemy, anchor)
+	if not terrain_indices.is_empty():
+		var damage: int = int(attack_action.get("damage", 0))
+		if damage <= 0:
+			return -1
+		for terrain_index: int in terrain_indices:
+			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
+			var hits: int = ceili(float(int(terrain.get("hp", 0))) / float(damage))
+			cost += maxi(1, hits) * maxi(1, move_range)
+	var blocking_enemy_count: int = _enemy_anchor_blocking_enemy_count(state, enemy, anchor)
+	cost += blocking_enemy_count * ENEMY_PATH_TEMPORARY_BLOCKER_TURN_COST * maxi(1, move_range)
+	return cost
+
+func _enemy_anchor_is_in_grid(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		if not PathUtils.is_passable(state.get("grid", []), tile):
+			return false
+	return true
+
+func _enemy_anchor_is_dynamically_open(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
+	return _enemy_anchor_terrain_indices(state, enemy, anchor).is_empty() and _enemy_anchor_blocking_enemy_count(state, enemy, anchor) == 0 and not _enemy_anchor_overlaps_any_actor_target(state, enemy, anchor)
+
+func _enemy_anchor_overlaps_any_actor_target(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
+	var footprint: Array[Vector2i] = _enemy_footprint_tiles(enemy, anchor)
+	for actor_target: Dictionary in _actor_targets(state):
+		if footprint.has(actor_target.get("pos", INVALID_TILE)):
+			return true
+	return false
+
+func _enemy_anchor_blocking_enemy_count(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> int:
+	var footprint_lookup: Dictionary = {}
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		footprint_lookup[tile] = true
+	var count: int = 0
+	for other_var: Variant in state.get("enemies", []):
+		if typeof(other_var) != TYPE_DICTIONARY:
+			continue
+		var other: Dictionary = _normalized_enemy(other_var as Dictionary)
+		if int(other.get("hp", 0)) <= 0 or int(other.get("id", -1)) == int(enemy.get("id", -1)):
+			continue
+		for tile: Vector2i in _enemy_footprint_tiles(other):
+			if footprint_lookup.has(tile):
+				count += 1
+				break
+	return count
+
+func _enemy_anchor_terrain_indices(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> Array[int]:
+	var indices: Array[int]
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		var terrain_index: int = _terrain_index_at_tile(state, tile)
+		if terrain_index >= 0 and not indices.has(terrain_index):
+			indices.append(terrain_index)
+	return indices
+
+func _enemy_anchor_trap_penalty(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> int:
+	var penalty: int = 0
+	var seen_indices: Array[int]
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		var trap_index: int = _trap_index_at_tile(state, tile)
+		if trap_index < 0 or seen_indices.has(trap_index):
+			continue
+		seen_indices.append(trap_index)
+		var trap: Dictionary = (state.get("traps", []) as Array)[trap_index]
+		penalty += ENEMY_PATH_TRAP_BASE_PENALTY + maxi(0, int(trap.get("damage", 0)))
+	return penalty
+
+func _enemy_actual_prefix_for_route(state: Dictionary, enemy: Dictionary, route: Array[Vector2i], move_range: int) -> Array[Vector2i]:
+	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
+	var path: Array[Vector2i] = _vector2i_values([start])
+	if move_range <= 0 or route.is_empty():
+		return path
+	for route_index: int in range(1, route.size()):
+		if path.size() - 1 >= move_range:
+			break
+		var anchor: Vector2i = route[route_index]
+		if not _enemy_anchor_is_dynamically_open(state, enemy, anchor):
+			break
+		path.append(anchor)
+	return path
+
+func _planned_blocking_terrain_index(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, route: Array[Vector2i]) -> int:
+	for anchor: Vector2i in route:
+		for terrain_index: int in _enemy_anchor_terrain_indices(state, enemy, anchor):
+			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
+			if _enemy_action_reaches_tile(state, enemy, attack_action, terrain.get("pos", INVALID_TILE)):
+				return terrain_index
+			return -1
+	return -1
+
+func _enemy_projected_attack_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary, terrain_index: int, trap_index: int) -> Array[Vector2i]:
+	if trap_index >= 0:
+		return _trap_blast_tiles(state, (state.get("traps", []) as Array)[trap_index])
+	if not target.is_empty():
+		var target_pos: Vector2i = target.get("pos", INVALID_TILE)
+		if str(action.get("type", "")) == "aoe":
+			var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
+			var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target_pos)
+			if int(action.get("range", 0)) > 0:
+				center = target_pos
+			return _enemy_aoe_tiles_for_target(state, enemy, resolved_action, center, true)
+		return _vector2i_values([target_pos])
+	if terrain_index >= 0:
+		var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
+		return _vector2i_values([terrain.get("pos", INVALID_TILE)])
+	return []
+
+func _compare_actor_targets(first: Dictionary, second: Dictionary) -> int:
+	if _actor_target_precedes(first, second):
+		return -1
+	if _actor_target_precedes(second, first):
+		return 1
+	return 0
+
+func _tile_precedes(first: Vector2i, second: Vector2i) -> bool:
+	if first.y != second.y:
+		return first.y < second.y
+	return first.x < second.x
+
+func _enemy_path_precedes(first: Array[Vector2i], second: Array[Vector2i]) -> bool:
+	var compare_count: int = mini(first.size(), second.size())
+	for index: int in range(compare_count):
+		if first[index] == second[index]:
+			continue
+		return _tile_precedes(first[index], second[index])
+	return first.size() < second.size()
 
 func _best_move_toward(state: Dictionary, enemy_index: int, target: Vector2i, move_range: int) -> Vector2i:
 	var enemies: Array = state.get("enemies", [])

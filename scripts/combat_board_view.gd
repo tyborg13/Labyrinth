@@ -1887,6 +1887,12 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		draw_colored_polygon(polygon, ATTACK_HIGHLIGHT)
 		if bool(presentation.get("pulse_attack_tiles", false)):
 			_draw_attack_target_pulse(tile)
+	var projected_attack_tiles: Array[Vector2i] = _vector2i_array(presentation.get("projected_attack_tiles", []))
+	if projected_attack_tiles.has(tile):
+		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
+		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
+	if tile == presentation.get("projected_destination", Vector2i(-999, -999)):
+		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if tile == selected_tile:
 		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
 	if tile == _hover_tile:
