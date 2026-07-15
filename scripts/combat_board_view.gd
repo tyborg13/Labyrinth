@@ -27,7 +27,8 @@ const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
 const MOVE_PATH_COLOR: Color = Color("80e4f2")
 const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.72
 const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.80
-const MOVE_PATH_HEAD_LENGTH_TILE_RATIO: float = 1.04
+const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.28
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.50
 const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.065
 const MOVE_PATH_HIGHLIGHT_WIDTH_RATIO: float = 0.52
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
@@ -4989,12 +4990,11 @@ func _draw_path_arrowhead(from_point: Vector2, to_point: Vector2, color: Color, 
 		return
 	var perp := Vector2(-dir.y, dir.x)
 	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
-	var head_length: float = tile_width * MOVE_PATH_HEAD_LENGTH_TILE_RATIO
 	var shaft_half_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO * 0.50
-	var tip: Vector2 = to_point + dir * head_length * 0.52
-	var shoulder_center: Vector2 = to_point - dir * head_length * 0.04
-	var notch_center: Vector2 = to_point - dir * head_length * 0.20
-	var tail_center: Vector2 = to_point - dir * head_length * 0.48
+	var tip: Vector2 = to_point + dir * tile_width * MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO
+	var shoulder_center: Vector2 = to_point - dir * tile_width * 0.11
+	var notch_center: Vector2 = to_point - dir * tile_width * 0.22
+	var tail_center: Vector2 = to_point - dir * tile_width * MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO
 	var points := PackedVector2Array([
 		tip,
 		shoulder_center + perp * half_width,

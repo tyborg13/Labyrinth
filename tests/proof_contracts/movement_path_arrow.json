@@ -7,7 +7,8 @@
       "width": 1280,
       "height": 720,
       "regions": [
-        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20}
+        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20},
+        {"rect": [340, 70, 130, 100], "min_luma_range": 30, "min_luma_stdev": 6}
       ]
     },
     {
@@ -15,7 +16,8 @@
       "width": 1280,
       "height": 720,
       "regions": [
-        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20}
+        {"rect": [280, 260, 600, 330], "min_luma_range": 80, "min_luma_stdev": 20},
+        {"rect": [340, 70, 130, 100], "min_luma_range": 30, "min_luma_stdev": 6}
       ]
     },
     {
@@ -23,7 +25,8 @@
       "width": 1280,
       "height": 720,
       "regions": [
-        {"rect": [280, 260, 450, 300], "min_luma_range": 80, "min_luma_stdev": 20}
+        {"rect": [280, 260, 450, 300], "min_luma_range": 80, "min_luma_stdev": 20},
+        {"rect": [340, 70, 130, 100], "min_luma_range": 30, "min_luma_stdev": 6}
       ]
     }
   ]
