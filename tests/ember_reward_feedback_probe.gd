@@ -40,12 +40,13 @@ func _capture_feedback() -> void:
 	var stats: Label = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/StatsLabel") as Label
 	var sprite_count_before: int = _direct_sprite_count(fx_layer)
 	var sfx_count_before: int = (instance.get("_sfx_players") as Array).size()
-	instance.call("_animate_ember_reward", Vector2i(4, 4), 8, 40, 48)
+	var death_states: Dictionary = _aggregated_death_reward_states(instance)
+	instance.call("_animate_death_rewards", death_states.get("before", {}), death_states.get("after", {}))
 	await create_timer(0.07).timeout
 	await process_frame
 	var gain_label: Label = _ember_gain_label(fx_layer)
-	if gain_label == null or gain_label.text != "+8":
-		_fail("Expected one +8 header label during ember roll")
+	if gain_label == null or gain_label.text != "+18":
+		_fail("Expected one combined +18 header label for two death rewards")
 		return
 	if not stats.get_global_rect().grow(20.0).intersects(gain_label.get_global_rect()):
 		_fail("Ember gain label was not attached to the header counter")
@@ -59,8 +60,9 @@ func _capture_feedback() -> void:
 	_save_root_screenshot("user://ember_reward_feedback_probe/ember_counter_roll.png")
 	await create_timer(0.28).timeout
 	await process_frame
-	if not stats.text.ends_with("EMBERS 48"):
-		_fail("Ember counter did not settle on 48")
+	var expected_total: int = int(death_states.get("expected_total", 58))
+	if not stats.text.ends_with("EMBERS %d" % expected_total):
+		_fail("Ember counter did not settle on the combined total of %d" % expected_total)
 		return
 	if _ember_gain_label(fx_layer) != null:
 		_fail("Ember gain label lingered after the brief counter roll")
@@ -69,6 +71,20 @@ func _capture_feedback() -> void:
 	print(ProjectSettings.globalize_path("user://ember_reward_feedback_probe"))
 	instance.queue_free()
 	await process_frame
+
+func _aggregated_death_reward_states(instance: Node) -> Dictionary:
+	var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var run_engine = instance.get("_run_engine")
+	var held_embers: int = int(run_engine.call("held_embers", instance.get("_run_state")))
+	before_state["room_embers"] = 40
+	before_state["death_rewards"] = []
+	var after_state: Dictionary = before_state.duplicate(true)
+	after_state["room_embers"] = 58
+	after_state["death_rewards"] = [
+		{"embers": 8, "card_plays": 0, "tile": Vector2i(3, 4)},
+		{"embers": 10, "card_plays": 0, "tile": Vector2i(5, 4)}
+	]
+	return {"before": before_state, "after": after_state, "expected_total": held_embers + 58}
 
 func _direct_sprite_count(node: Node) -> int:
 	var count: int = 0
