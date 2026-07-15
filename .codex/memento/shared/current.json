@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-13T23:18:55Z",
+  "updated_at": "2026-07-15T03:53:32Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5463,6 +5463,28 @@
       "source": {
         "branch": "codex/fix-merchant-blocking-room-doors",
         "commit": "062b98b"
+      }
+    },
+    {
+      "id": "mnt_20260715T035332Z_38a5d68b",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ember_reward_feedback.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ember_reward_feedback.gd",
+      "summary": "Enemy ember gains should be quiet, brief, and header-local",
+      "details": "On enemy death, do not play the ember-collect sample or launch board-traveling currency motes. Combine simultaneous kill rewards into one exact counter gain, roll the header count in about 0.2 seconds, and limit flair to a restrained warm pulse plus a terse +N beside the counter; reduced-motion should remain supported.",
+      "status": "active",
+      "created_at": "2026-07-15T03:53:32Z",
+      "updated_at": "2026-07-15T03:53:32Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/subtle-ember-counter-feedback",
+        "commit": "622a15f"
       }
     }
   ]

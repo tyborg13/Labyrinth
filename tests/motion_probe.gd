@@ -499,12 +499,12 @@ func _capture_enemy_phase_fx(instance: Node) -> void:
 
 func _capture_ember_fx(instance: Node) -> void:
 	instance.call("_animate_ember_reward", Vector2i(4, 4), 8, 0, 8)
-	await create_timer(0.10).timeout
+	await create_timer(0.07).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_30_ember_motes_mid.png")
-	await create_timer(0.55).timeout
+	await _save_root_screenshot("user://motion_probes/motion_30_ember_counter_roll.png")
+	await create_timer(0.19).timeout
 	await process_frame
-	await _save_root_screenshot("user://motion_probes/motion_31_ember_counter_pulse.png")
+	await _save_root_screenshot("user://motion_probes/motion_31_ember_counter_settled.png")
 
 func _capture_fatigue_fx(instance: Node) -> void:
 	var combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
