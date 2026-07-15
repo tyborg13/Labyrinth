@@ -7,37 +7,44 @@ const OUTPUT_DIR: String = "user://movement_path_arrow_probe"
 const VIEWPORT_SIZE: Vector2i = Vector2i(1280, 720)
 
 var _errors: Array[String] = []
-var _capture_index: int = 0
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
-	DisplayServer.window_set_size(VIEWPORT_SIZE)
-	root.size = VIEWPORT_SIZE
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
-	await process_frame
-
+	var viewport := SubViewport.new()
+	viewport.size = VIEWPORT_SIZE
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ALWAYS
+	viewport.disable_3d = true
+	root.add_child(viewport)
 	var board: Control = CombatBoardViewScript.new()
 	board.size = Vector2(VIEWPORT_SIZE)
-	root.add_child(board)
+	viewport.add_child(board)
 	board.set_process(false)
 	_verify_style_contract(board)
 	await process_frame
 
 	await _capture(
+		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(5, 4), Vector2i(6, 4)]),
-		"01_straight_path.png"
+		"01_straight_path.png",
+		1
 	)
 	await _capture(
+		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4), Vector2i(4, 4), Vector2i(4, 3), Vector2i(5, 3)]),
-		"02_turning_path.png"
+		"02_turning_path.png",
+		2
 	)
 	await _capture(
+		viewport,
 		board,
 		_vector2i_array([Vector2i(2, 4), Vector2i(3, 4)]),
-		"03_one_step_path.png"
+		"03_one_step_path.png",
+		3
 	)
 
 	if _errors.is_empty():
@@ -67,13 +74,12 @@ func _verify_style_contract(board: Control) -> void:
 	_expect(shadow_offset_ratio >= 0.04, "Arrow should have enough cast-shadow offset to read above the board")
 	_expect(highlight_width_ratio > 0.30 and highlight_width_ratio < 0.75, "Arrow highlight should create a broad blended face without flattening the shaded bevel")
 
-func _capture(board: Control, path_tiles: Array[Vector2i], file_name: String) -> void:
-	_capture_index += 1
+func _capture(viewport: SubViewport, board: Control, path_tiles: Array[Vector2i], file_name: String, capture_index: int) -> void:
 	var move_tiles: Array[Vector2i] = path_tiles.duplicate()
 	move_tiles.pop_front()
 	board.call(
 		"set_combat_state",
-		_probe_state(Vector2i(7 + _capture_index, -3)),
+		_probe_state(Vector2i(7 + capture_index, -3)),
 		move_tiles,
 		_vector2i_array([]),
 		path_tiles[path_tiles.size() - 1],
@@ -86,15 +92,14 @@ func _capture(board: Control, path_tiles: Array[Vector2i], file_name: String) ->
 			"path_tiles": path_tiles
 		}
 	)
-	# Presentation-only submissions normally preserve the retained static floor;
-	# force it to redraw here so each standalone proof image contains the board
-	# context that the route is meant to sit above.
 	board.queue_redraw()
-	for _frame: int in range(3):
+	for _frame: int in range(4):
 		await process_frame
-	var image: Image = root.get_texture().get_image()
+	var image: Image = viewport.get_texture().get_image()
 	var output_path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
 	_expect(image != null and image.get_size() == VIEWPORT_SIZE, "%s should capture at the fixed gameplay proof size" % file_name)
+	var instrumentation: Dictionary = board.call("render_instrumentation_snapshot")
+	_expect(int(instrumentation.get("static_draw_count", 0)) >= 1, "%s should render the complete static board context" % file_name)
 	if image != null:
 		_expect(image.save_png(output_path) == OK, "%s should save successfully" % file_name)
 
