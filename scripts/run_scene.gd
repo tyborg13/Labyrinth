@@ -115,6 +115,9 @@ class PreBattleEnemyCard:
 			return
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
+				accept_event()
+				return
 			host.call("_open_pinned_pre_battle_inspection", "enemy", str(enemy.get("type", "")), self, enemy)
 			accept_event()
 
@@ -131,6 +134,9 @@ class PreBattleEquipmentChip:
 			return
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
+				accept_event()
+				return
 			host.call("_open_pinned_pre_battle_inspection", "equipment", equipment_id, self)
 			accept_event()
 
@@ -149,6 +155,9 @@ class PreBattleCardBadge:
 			return
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
+				accept_event()
+				return
 			host.call("_open_pinned_pre_battle_inspection", "card", card_id, self)
 			accept_event()
 
@@ -1215,6 +1224,7 @@ var _large_map_view: Control
 var _pinned_tooltip_scrim: ColorRect
 var _pinned_tooltip_host: Control
 var _pinned_tooltip_panel: Control
+var _pinned_tooltip_close_button: Button
 var _pinned_tooltip_source_row: Control
 var _pinned_tooltip_source_text: String = ""
 var _pinned_pre_battle_tooltip_sources: Dictionary = {}
@@ -1363,7 +1373,17 @@ func _input(event: InputEvent) -> void:
 		if _is_shift_press_event(event) or event.is_action_pressed("ui_cancel"):
 			_close_pinned_tooltip()
 			get_viewport().set_input_as_handled()
-			return
+		elif event is InputEventMouseButton and _pinned_pre_battle_enemy_inspection_active():
+			var mouse_event: InputEventMouseButton = event
+			# RunScene's stretched viewport transforms raw input positions into the same canvas space as Control global rects.
+			var canvas_position: Vector2 = get_viewport().get_final_transform() * mouse_event.position
+			if mouse_event.button_index == MOUSE_BUTTON_LEFT \
+					and mouse_event.pressed \
+					and _node_is_alive(_pinned_tooltip_close_button) \
+					and _pinned_tooltip_close_button.get_global_rect().has_point(canvas_position):
+				_close_pinned_tooltip()
+			get_viewport().set_input_as_handled()
+		return
 	elif _is_merchant_tooltip_pin_event(event):
 		_open_pinned_merchant_tooltip(_merchant_hovered_kind, _merchant_hovered_item_id)
 		get_viewport().set_input_as_handled()
@@ -1869,6 +1889,7 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 		return
 	for child: Node in _pinned_tooltip_host.get_children():
 		child.queue_free()
+	_pinned_tooltip_close_button = null
 	_suppress_pinned_tooltip_source(source_control)
 	_suppress_pre_battle_hover_sources()
 	_dismiss_pre_battle_tooltip_popups(_pre_battle_panel)
@@ -1895,14 +1916,29 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 		maxf(12.0, (viewport_size.x - panel_size.x) * 0.5),
 		maxf(12.0, (viewport_size.y - panel_size.y) * 0.5)
 	)
+	_pinned_tooltip_close_button = _pinned_tooltip_panel.find_child("PreBattleInspectionCloseButton", true, false) as Button if kind == "enemy" else null
 	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.66)
 	_pinned_tooltip_scrim.visible = true
+	_pinned_tooltip_scrim.move_to_front()
 	call_deferred("_refresh_pinned_tooltip_hover_owner")
 
 func _pre_battle_hover_inspections_enabled() -> bool:
+	return _pre_battle_summary_inspections_enabled()
+
+func _pre_battle_click_inspections_enabled() -> bool:
+	return _pre_battle_summary_inspections_enabled()
+
+func _pre_battle_summary_inspections_enabled() -> bool:
 	return _pre_battle_scrim != null \
 		and _pre_battle_scrim.visible \
 		and (_pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible)
+
+func _pinned_pre_battle_enemy_inspection_active() -> bool:
+	return _pinned_tooltip_scrim != null \
+		and _pinned_tooltip_scrim.visible \
+		and _pinned_tooltip_panel != null \
+		and _pinned_tooltip_panel.name == "PinnedPreBattleInspection" \
+		and str(_pinned_tooltip_panel.get_meta("inspection_kind", "")) == "enemy"
 
 func _suppressed_pre_battle_tooltip() -> Control:
 	var suppressed := Control.new()
@@ -1948,6 +1984,7 @@ func _refresh_pinned_tooltip_hover_owner() -> void:
 func _close_pinned_tooltip() -> void:
 	_restore_pinned_tooltip_source()
 	_restore_pre_battle_hover_sources()
+	_pinned_tooltip_close_button = null
 	if _pinned_tooltip_scrim != null:
 		_pinned_tooltip_scrim.visible = false
 		_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.0)
@@ -1962,8 +1999,11 @@ func _on_pinned_tooltip_scrim_gui_input(event: InputEvent) -> void:
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			if _pinned_tooltip_panel != null and _pinned_tooltip_panel.get_global_rect().has_point(mouse_event.global_position):
 				return
+			if _pinned_pre_battle_enemy_inspection_active():
+				accept_event()
+				return
 			_close_pinned_tooltip()
-			_pinned_tooltip_scrim.accept_event()
+			accept_event()
 
 func _suppress_pinned_tooltip_source(source_row: Control) -> void:
 	_restore_pinned_tooltip_source()

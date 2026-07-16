@@ -8022,13 +8022,36 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 			_assert(blocked_hover is Control and not (blocked_hover as Control).visible, "Pinned pre-battle inspection should disable every underlying enemy, equipment, and card hover panel")
 			if blocked_hover is Control:
 				(blocked_hover as Control).free()
+			var blocked_click := InputEventMouseButton.new()
+			blocked_click.button_index = MOUSE_BUTTON_LEFT
+			blocked_click.pressed = true
+			blocked_source.call("_gui_input", blocked_click)
+			_assert(instance.get("_pinned_tooltip_panel") == pinned_inspection, "Pinned pre-battle inspection should reject every underlying enemy, equipment, and card click target")
 		_assert(str((instance.get("_run_state") as Dictionary).get("mode", "")) == RunEngine.MODE_PRE_BATTLE, "Inspecting pre-battle details should keep the room committed")
 		_assert((instance.get("_exit_destinations_by_tile") as Dictionary).is_empty(), "Inspecting pre-battle details should not reveal exits")
 		if index == 0 and pinned_inspection != null:
 			var inspection_close: Button = pinned_inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button
 			_assert(inspection_close != null and inspection_close.visible, "Focused enemy inspection should provide a dedicated visible X close button")
+			var pinned_host: Control = instance.get("_pinned_tooltip_host") as Control
+			_assert(pinned_host != null and pinned_host.mouse_filter == Control.MOUSE_FILTER_PASS, "Pinned tooltip host should propagate background pointer input to the stopping scrim")
+			var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim") as Control
+			_assert(pinned_scrim != null and pinned_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Focused pre-battle inspection scrim should own pointer input above every underlying click target")
 			if inspection_close != null:
-				inspection_close.emit_signal("pressed")
+				var close_press := InputEventMouseButton.new()
+				close_press.button_index = MOUSE_BUTTON_LEFT
+				close_press.pressed = true
+				close_press.position = inspection_close.get_global_rect().get_center()
+				close_press.global_position = close_press.position
+				Input.parse_input_event(close_press)
+				await process_frame
+				var close_release := InputEventMouseButton.new()
+				close_release.button_index = MOUSE_BUTTON_LEFT
+				close_release.pressed = false
+				close_release.position = close_press.position
+				close_release.global_position = close_press.position
+				Input.parse_input_event(close_release)
+				await process_frame
+				_assert(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "The focused enemy X button should close through real pointer routing")
 			else:
 				instance.call("_close_pinned_tooltip")
 		else:

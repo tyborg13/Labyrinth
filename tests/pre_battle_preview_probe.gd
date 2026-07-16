@@ -134,10 +134,28 @@ func _capture_loadout_refresh_and_inspections() -> void:
 				_fail("Compound Warden moves should use melee/block semantics instead of their incidental movement icons: %s" % str(move_icons))
 			if close_button == null or not close_button.visible or close_button.text != "X":
 				_fail("Focused enemy inspection should expose a visible dedicated X close button")
+			var pinned_host: Control = instance.get("_pinned_tooltip_host") as Control
+			var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim") as Control
+			if pinned_host == null or pinned_host.mouse_filter != Control.MOUSE_FILTER_PASS:
+				_fail("Pinned tooltip host should propagate background pointer input to the stopping scrim")
+			if pinned_scrim == null or pinned_scrim.mouse_filter != Control.MOUSE_FILTER_STOP:
+				_fail("Focused enemy inspection scrim should own pointer input above the pre-battle widgets")
+			var blocked_sources: Array[Control] = []
+			for source_name: String in ["PreBattleEnemyCard", "PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
+				var blocked_source: Control = panel.find_child(source_name, true, false) as Control
+				if blocked_source != null and blocked_source != enemy_card:
+					blocked_sources.append(blocked_source)
+			for blocked_source: Control in blocked_sources:
+				await _click_control_via_viewport(blocked_source)
+				var active_panel: Control = instance.get("_pinned_tooltip_panel") as Control
+				if active_panel != pinned_enemy or str(active_panel.get_meta("inspection_kind", "")) != "enemy":
+					_fail("Focused enemy inspection should swallow underlying %s clicks" % blocked_source.name)
 		await _save_root_screenshot("%s/expanded_enemy_known_moves_v2.png" % OUTPUT_DIR)
 		var dismissal_button: Button = pinned_enemy.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_enemy != null else null
 		if dismissal_button != null:
-			dismissal_button.emit_signal("pressed")
+			await _click_control_via_viewport(dismissal_button)
+			if (instance.get("_pinned_tooltip_scrim") as Control).visible:
+				_fail("Focused enemy X button should close through real pointer routing")
 		else:
 			instance.call("_close_pinned_tooltip")
 		await process_frame
@@ -401,6 +419,32 @@ func _click_control(control: Control) -> void:
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
 	control.call("_gui_input", click)
+
+func _click_control_via_viewport(control: Control) -> void:
+	if control == null:
+		return
+	var click_position: Vector2 = control.get_global_rect().get_center()
+	Input.warp_mouse(click_position)
+	await process_frame
+	var motion := InputEventMouseMotion.new()
+	motion.position = click_position
+	motion.global_position = click_position
+	Input.parse_input_event(motion)
+	await process_frame
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = click_position
+	press.global_position = click_position
+	Input.parse_input_event(press)
+	await process_frame
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = click_position
+	release.global_position = click_position
+	Input.parse_input_event(release)
+	await process_frame
 
 func _control_with_meta(node: Node, meta_key: String, expected_value: String, source_kind: String = "") -> Control:
 	if node == null:

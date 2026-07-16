@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T02:09:04Z",
+  "updated_at": "2026-07-16T03:27:48Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5602,28 +5602,6 @@
       }
     },
     {
-      "id": "mnt_20260716T020904Z_928f35ed",
-      "layer": "shared",
-      "kind": "pitfall",
-      "scope": {
-        "level": "symbol",
-        "path": "scripts/run_scene.gd",
-        "symbol": "_open_pinned_pre_battle_inspection"
-      },
-      "scope_key": "symbol:scripts/run_scene.gd#_open_pinned_pre_battle_inspection",
-      "summary": "Focused pre-battle inspections must suppress tooltip sources and retire existing tooltip popups",
-      "details": "In Godot 4.6, returning null from _make_custom_tooltip can fall back to raw tooltip text and Viewport.cancel_tooltip is not GDScript-bound. The focused inspection therefore clears/restores every pre-battle source tooltip, returns an invisible custom tooltip while modal, removes TooltipPanel windows, and refreshes hover ownership.",
-      "status": "active",
-      "created_at": "2026-07-16T02:09:04Z",
-      "updated_at": "2026-07-16T02:09:04Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
-        "commit": "75fb76d"
-      }
-    },
-    {
       "id": "mnt_20260716T020904Z_035d6b6a",
       "layer": "shared",
       "kind": "decision",
@@ -5643,6 +5621,30 @@
       "source": {
         "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
         "commit": "75fb76d"
+      }
+    },
+    {
+      "id": "mnt_20260716T032748Z_021f797b",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_open_pinned_pre_battle_inspection"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_open_pinned_pre_battle_inspection",
+      "summary": "Focused pre-battle enemy inspections must own hover and pointer input",
+      "details": "Bring the pinned scrim to the front when opening, suppress and restore source tooltips, and reject enemy/card/equipment click handlers while focused. RunScene receives modal mouse positions before viewport stretch while Control global rects are in stretched canvas space, so X hit testing must apply Viewport.get_final_transform() before comparing coordinates; all non-X mouse buttons stay handled by the enemy modal.",
+      "status": "active",
+      "created_at": "2026-07-16T03:27:48Z",
+      "updated_at": "2026-07-16T03:27:48Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260716T020904Z_928f35ed"
+      ],
+      "source": {
+        "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
+        "commit": "d1b4780"
       }
     }
   ]
