@@ -4911,7 +4911,7 @@ func _commit_drag_drop(zone: String) -> void:
 				destination_rect = _rect_from_center(command_panel.get_global_rect().get_center(), _drag_card_source_rect.size)
 		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
 	_cancel_drag_play()
-	await _begin_card_preview(hand_index, preview, label_override)
+	await _begin_card_preview(hand_index, preview, label_override, true)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
 	for zone: String in ["attack", "move"]:
@@ -7252,8 +7252,24 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
 	if _current_action_can_skip():
 		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
+	if _pending_card_requires_confirmation():
+		_add_card_play_confirmation_button()
 	if not _pending_umbra_commit_locked:
 		_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
+
+func _add_card_play_confirmation_button() -> void:
+	if _action_context_command_bar == null:
+		return
+	var button := Button.new()
+	button.name = "ActionContextPlayCard"
+	button.text = "Play Card"
+	button.tooltip_text = "Confirm this card without choosing a board target"
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
+	_ui_skin.apply_button_native_size(button, 36.0, 88.0, true, UiSkin.VARIANT_SELECTED)
+	button.pressed.connect(_on_confirm_card_play_pressed)
+	_action_context_command_bar.add_child(button)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	if _card_action_mode_selector == null or context_mode != "choice":
@@ -7496,7 +7512,11 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 		var action_name: String = _action_step_action_name(action).to_upper()
 		if not _selected_card_label_override.is_empty():
 			action_name = _selected_card_label_override.to_upper()
-		if _orientation_pending():
+		if _pending_card_requires_confirmation():
+			verb_text = "READY · PLAY CARD"
+			target_text = "NO TARGET REQUIRED"
+			target_tone = "valid"
+		elif _orientation_pending():
 			verb_text = "SET DIRECTION · CHOOSE ARROW"
 			target_text = "DIRECTION"
 			target_tone = "valid"
@@ -11362,7 +11382,7 @@ func _on_card_drag_started(index: int) -> void:
 	if source_widget != null:
 		source_widget.visible = false
 
-func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "") -> void:
+func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
 		return
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
@@ -11383,12 +11403,8 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
 		_refresh_ui()
-		await _play_player_card(
-			index,
-			(preview.get("state", {}) as Dictionary).duplicate(true),
-			(preview.get("actions", []) as Array).duplicate(true),
-			_vector2i_array(_pending_selected_targets)
-		)
+		if complete_play_confirmed:
+			await _on_confirm_card_play_pressed()
 		return
 	_selected_card_index = index
 	_preview_combat_state = (preview.get("state", {}) as Dictionary).duplicate(true)
@@ -11405,6 +11421,24 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_append_skipped_target_placeholders(0, _pending_action_index)
 	_mark_preview_selection_changed()
 	_refresh_ui()
+
+func _pending_card_requires_confirmation() -> bool:
+	return (
+		_selected_card_index >= 0
+		and not _pending_actions.is_empty()
+		and _pending_action_index >= _pending_actions.size()
+		and not _preview_combat_state.is_empty()
+	)
+
+func _on_confirm_card_play_pressed() -> void:
+	if _animation_lock or not _pending_card_requires_confirmation():
+		return
+	await _play_player_card(
+		_selected_card_index,
+		_preview_combat_state.duplicate(true),
+		_pending_actions.duplicate(true),
+		_vector2i_array(_pending_selected_targets)
+	)
 
 func _on_card_hover_started(index: int) -> void:
 	if _animation_lock or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":

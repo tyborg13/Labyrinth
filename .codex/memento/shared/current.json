@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T15:16:07Z",
+  "updated_at": "2026-07-16T16:40:07Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5757,6 +5757,28 @@
       "source": {
         "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
         "commit": "ae74f90"
+      }
+    },
+    {
+      "id": "mnt_20260716T164006Z_1e2589d0",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Targetless card clicks require card-anchored confirmation",
+      "details": "Clicking a playable card may arm and preview its Printed mode, but a card whose preview completes without a board target must not resolve until the highlighted Play Card action in the compact card-anchored rail is pressed. Keep Printed/Attack/Move switchable before commitment; Cancel or selecting another card must not spend, resolve, or emit card-play analytics. Drag-to-board remains confirmed by its explicit drop.",
+      "status": "active",
+      "created_at": "2026-07-16T16:40:06Z",
+      "updated_at": "2026-07-16T16:40:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/require-confirmation-for-every-card-play",
+        "commit": "869edc7"
       }
     }
   ]
