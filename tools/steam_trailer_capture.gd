@@ -85,11 +85,16 @@ func _capture_prebattle() -> void:
 
 func _capture_trap_combo() -> void:
 	var layout: Dictionary = _base_combat_layout("The Ember Snare", "fire", 7)
+	var trap_grid: Array = _simple_grid()
+	(trap_grid[3] as Array)[4] = "wall"
+	(trap_grid[5] as Array)[4] = "wall"
+	layout["grid"] = trap_grid
 	layout["player_start"] = Vector2i(3, 4)
 	layout["enemies"] = [
-		_enemy(1, "warden", Vector2i(4, 4), 36),
-		_enemy(2, "crawler", Vector2i(5, 3), 30),
-		_enemy(3, "acolyte", Vector2i(5, 5), 30)
+		_enemy(1, "crawler", Vector2i(4, 4), 36),
+		_enemy(2, "harrier", Vector2i(5, 3), 30),
+		_enemy(3, "acolyte", Vector2i(5, 5), 30),
+		_enemy(4, "grave_surgeon", Vector2i(7, 6), 48)
 	]
 	layout["traps"] = [{
 		"id": "trailer_fire_snare",
@@ -113,6 +118,10 @@ func _capture_trap_combo() -> void:
 		"_card_element": "neutral"
 	}
 	var after_state: Dictionary = _combat_engine.apply_player_action(state.duplicate(true), action, Vector2i(4, 4))
+	_assert_capture((after_state.get("traps", []) as Array).is_empty(), "Cleaver Hook must consume the fire trap")
+	_assert_capture(_live_enemy_count(after_state) == 1, "Cleaver Hook fire-trap blast must kill exactly three showcase enemies")
+	_assert_capture(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) > 0, "Cleaver Hook trap combo must leave the player alive")
+	print("STEAM_TRAILER_TRAP_RESULT trap_consumed=true enemies_killed=3 player_alive=true")
 	await _run_scene.call("_animate_player_action_step", state.duplicate(true), after_state, "cleaver_hook", action, Vector2i(4, 4))
 	_apply_combat_state(layout, after_state)
 	await _settle(1.7)
@@ -277,9 +286,23 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 		result.append(value as Vector2i)
 	return result
 
+func _live_enemy_count(combat_state: Dictionary) -> int:
+	var live_count: int = 0
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		if int((enemy_var as Dictionary).get("hp", 0)) > 0:
+			live_count += 1
+	return live_count
+
+func _assert_capture(condition: bool, message: String) -> void:
+	if condition:
+		return
+	push_error(message)
+	get_tree().quit(2)
+
 func _settle(seconds: float) -> void:
 	if seconds > 0.0:
 		await get_tree().create_timer(seconds).timeout
 	await get_tree().process_frame
 	await get_tree().process_frame
-
