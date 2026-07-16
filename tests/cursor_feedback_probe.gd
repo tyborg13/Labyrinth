@@ -362,8 +362,10 @@ func _verify_contract() -> void:
 	_expect((contract.get("states", PackedStringArray()) as PackedStringArray).size() == STATE_LABELS.size(), "Probe should cover every cursor state")
 	_expect((contract.get("layers", []) as Array).size() >= 6, "Cursor proof should exercise the full layered-art contract")
 	_expect(bool(contract.get("single_silhouette", false)) and not bool(contract.get("context_glyphs", true)), "Cursor proof should use one coherent silhouette without a context-glyph language")
+	_expect(not bool(contract.get("center_stripe", true)), "Cursor proof should use joined forged facets instead of a bright stripe down the blade")
 	_expect(bool(contract.get("press_holds", false)) and bool(contract.get("release_rebounds", false)), "Cursor proof should cover held compression and release rebound")
 	_expect(bool(contract.get("loading_spins", false)) and str(contract.get("loading_integration", "")) == "heel_bearing", "Cursor proof should include the integrated spinning heel bearing")
+	_expect(str(contract.get("pommel_detail", "")) == "faceted_socket_and_bearing", "Cursor proof should include the detailed pommel socket and inset bearing")
 	_expect(int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", 0)) >= Viewport.MSAA_4X, "Cursor edges should use the same project-wide 4x MSAA standard as the movement arrows")
 
 func _verify_native_cursor_suppression() -> void:

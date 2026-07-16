@@ -25,6 +25,8 @@ const BRASS_DARK: Color = Color("68431f")
 const BRASS: Color = Color("b87a32")
 const EMBER: Color = Color("efa84a")
 const EMBER_CORE: Color = Color("ffe3a0")
+const GRIP_DARK: Color = Color("302a29")
+const GRIP_MID: Color = Color("51433b")
 const INVALID_DARK: Color = Color("4e3937")
 const INVALID_MID: Color = Color("7d5a52")
 const INVALID_GLOW: Color = Color("ba6b58")
@@ -144,11 +146,13 @@ static func visual_contract() -> Dictionary:
 		"states": state_names(),
 		"single_silhouette": true,
 		"context_glyphs": false,
+		"center_stripe": false,
 		"press_holds": true,
 		"release_rebounds": true,
 		"loading_spins": true,
 		"loading_integration": "heel_bearing",
-		"layers": ["contact_shadow", "forged_outline", "iron_facets", "brass_seam", "integrated_bearing", "material_response"]
+		"pommel_detail": "faceted_socket_and_bearing",
+		"layers": ["contact_shadow", "forged_outline", "joined_blade_facets", "edge_bevels", "wrapped_handle", "pommel_housing", "bearing_race", "material_response"]
 	}
 
 func _draw() -> void:
@@ -166,47 +170,122 @@ func _draw() -> void:
 
 	var inner_base: Color = INVALID_DARK.lightened(0.06) if invalid_state else IRON_DARK
 	draw_colored_polygon(inner, inner_base)
-	var left_facet := PackedVector2Array([inner[0], inner[5], inner[6]])
-	var right_facet := PackedVector2Array([inner[0], inner[1], inner[2], inner[5]])
+	var ridge: Vector2 = _transform_point(Vector2(11.15, 25.65))
+	var left_facet := PackedVector2Array([inner[0], ridge, inner[5], inner[6]])
+	var right_facet := PackedVector2Array([inner[0], inner[1], inner[2], ridge])
+	var shoulder_facet := PackedVector2Array([ridge, inner[2], inner[5]])
 	var heel_facet := PackedVector2Array([inner[2], inner[3], inner[4], inner[5]])
 	draw_colored_polygon(left_facet, INVALID_MID if invalid_state else ASH_FACE)
-	draw_colored_polygon(right_facet, Color("6b514c") if invalid_state else IRON_MID)
-	draw_colored_polygon(heel_facet, Color("493836") if invalid_state else Color("656360"))
+	draw_colored_polygon(right_facet, Color("715752") if invalid_state else IRON_MID)
+	draw_colored_polygon(shoulder_facet, Color("5d4542") if invalid_state else Color("737069"))
+	draw_colored_polygon(heel_facet, GRIP_DARK.darkened(0.04) if invalid_state else GRIP_DARK)
+
+	var tip_plane := PackedVector2Array([
+		inner[0],
+		_transform_point(Vector2(8.45, 11.4)),
+		_transform_point(Vector2(7.55, 17.0))
+	])
+	draw_colored_polygon(tip_plane, Color(0.94, 0.72, 0.63, 0.48) if invalid_state else Color(0.97, 0.91, 0.80, 0.48))
 
 	var edge_strength: float = 0.94 if held_valid or cursor_state == STATE_LOADING else (0.78 if engaged else 0.62)
-	draw_line(inner[0], inner[5], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, edge_strength), 1.05, true)
-	draw_line(inner[5], inner[4], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, 0.38), 0.72, true)
-	draw_line(inner[0], inner[1], Color(0.98, 0.91, 0.78, 0.22 + rebound * 0.28), 0.72, true)
+	draw_line(inner[0], inner[6], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, edge_strength), 0.95, true)
+	draw_line(inner[6], inner[5], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, 0.30), 0.68, true)
+	draw_line(inner[0], inner[1], Color(0.98, 0.91, 0.78, 0.24 + rebound * 0.26), 0.74, true)
+	draw_line(inner[1], inner[2], Color(0.10, 0.09, 0.09, 0.68), 0.72, true)
 
-	var seam_color: Color = INVALID_GLOW if invalid_state else (EMBER if engaged else BRASS)
-	var seam_core: Color = Color(0.95, 0.61, 0.46, 0.58) if invalid_state else (EMBER_CORE if held_valid or cursor_state == STATE_LOADING else Color("d6aa6a"))
-	var seam_tip: Vector2 = _transform_point(Vector2(6.4, 8.3))
-	var seam_joint: Vector2 = _transform_point(Vector2(12.0, 26.7))
-	var seam_heel: Vector2 = _transform_point(BEARING_CENTER)
-	draw_line(seam_tip, seam_joint, Color(seam_color.r, seam_color.g, seam_color.b, 0.88), 2.0, true)
-	draw_line(seam_tip, seam_joint, Color(seam_core.r, seam_core.g, seam_core.b, 0.72), 0.66, true)
-	draw_line(seam_joint, seam_heel, Color(seam_color.r, seam_color.g, seam_color.b, 0.72), 1.55, true)
-
-	_draw_integrated_bearing(seam_color, seam_core, invalid_state)
+	var accent_color: Color = INVALID_GLOW if invalid_state else (EMBER if engaged else BRASS)
+	var accent_core: Color = Color(0.95, 0.61, 0.46, 0.58) if invalid_state else (EMBER_CORE if held_valid or cursor_state == STATE_LOADING else Color("d6aa6a"))
+	_draw_wrapped_handle(accent_color, invalid_state)
+	_draw_integrated_pommel(accent_color, accent_core, invalid_state)
 	if held_valid:
 		var tip_glint_end: Vector2 = _transform_point(Vector2(9.0, 9.4))
 		draw_line(inner[0], tip_glint_end, Color(EMBER_CORE.r, EMBER_CORE.g, EMBER_CORE.b, 0.74), 1.25, true)
 
-func _draw_integrated_bearing(seam_color: Color, seam_core: Color, invalid_state: bool) -> void:
+func _draw_wrapped_handle(accent_color: Color, invalid_state: bool) -> void:
+	var collar_outer := _transformed_points(PackedVector2Array([
+		Vector2(11.15, 26.35),
+		Vector2(14.55, 24.95),
+		Vector2(16.15, 28.65),
+		Vector2(12.75, 30.05)
+	]))
+	var collar_inner := _transformed_points(PackedVector2Array([
+		Vector2(11.95, 26.65),
+		Vector2(14.15, 25.75),
+		Vector2(15.18, 28.35),
+		Vector2(13.02, 29.25)
+	]))
+	draw_colored_polygon(collar_outer, INVALID_DARK if invalid_state else OUTLINE)
+	draw_colored_polygon(collar_inner, Color("5c3f39") if invalid_state else BRASS_DARK.darkened(0.08))
+	draw_line(collar_inner[0], collar_inner[1], Color(accent_color.r, accent_color.g, accent_color.b, 0.38), 0.58, true)
+	var bracket_left_start: Vector2 = _transform_point(Vector2(12.95, 29.05))
+	var bracket_left_end: Vector2 = _transform_point(Vector2(13.55, 31.45))
+	var bracket_right_start: Vector2 = _transform_point(Vector2(15.18, 28.25))
+	var bracket_right_end: Vector2 = _transform_point(Vector2(16.15, 30.7))
+	var bracket_color: Color = INVALID_DARK if invalid_state else BRASS_DARK
+	draw_line(bracket_left_start, bracket_left_end, bracket_color, 1.55, true)
+	draw_line(bracket_right_start, bracket_right_end, bracket_color, 1.55, true)
+	draw_line(bracket_left_start, bracket_left_end, Color(accent_color.r, accent_color.g, accent_color.b, 0.46), 0.52, true)
+	draw_line(bracket_right_start, bracket_right_end, Color(accent_color.r, accent_color.g, accent_color.b, 0.46), 0.52, true)
+
+	var grip_plane := _transformed_points(PackedVector2Array([
+		Vector2(12.9, 29.35),
+		Vector2(15.3, 28.45),
+		Vector2(18.25, 37.45),
+		Vector2(16.15, 38.55)
+	]))
+	draw_colored_polygon(grip_plane, Color("493532") if invalid_state else GRIP_MID)
+	draw_line(grip_plane[1], grip_plane[2], Color(0.72, 0.55, 0.42, 0.34), 0.72, true)
+	for band_y: float in [31.2, 34.1, 36.9]:
+		var left: Vector2 = _transform_point(Vector2(13.45 + (band_y - 31.2) * 0.31, band_y))
+		var right: Vector2 = _transform_point(Vector2(16.0 + (band_y - 31.2) * 0.31, band_y - 0.9))
+		draw_line(left, right, Color(0.08, 0.06, 0.06, 0.78), 0.92, true)
+		draw_line(left + Vector2(0.35, -0.25), right + Vector2(0.35, -0.25), Color(0.68, 0.49, 0.35, 0.28), 0.48, true)
+	var end_cap := _transformed_points(PackedVector2Array([
+		Vector2(15.15, 37.85),
+		Vector2(18.35, 36.75),
+		Vector2(18.95, 38.65),
+		Vector2(15.85, 40.05)
+	]))
+	draw_colored_polygon(end_cap, INVALID_DARK if invalid_state else OUTLINE)
+	draw_line(end_cap[0], end_cap[1], Color(accent_color.r, accent_color.g, accent_color.b, 0.54), 0.82, true)
+
+func _draw_integrated_pommel(accent_color: Color, accent_core: Color, invalid_state: bool) -> void:
 	var center: Vector2 = _transform_point(BEARING_CENTER)
 	var radius_scale: float = 1.0 - press_depth * 0.07 + _release_rebound_amount() * 0.06
-	var outer_radius: float = (4.65 if cursor_state == STATE_LOADING else 3.25) * radius_scale
-	draw_circle(center, outer_radius + 0.75, Color(0.055, 0.038, 0.03, 0.92))
-	draw_circle(center, outer_radius, BRASS_DARK if not invalid_state else INVALID_DARK)
-	draw_circle(center, maxf(1.25, outer_radius - 1.35), Color("393538") if not invalid_state else Color("4a3533"))
+	var housing_radius: float = (5.15 if cursor_state == STATE_LOADING else 4.35) * radius_scale
+	var housing: PackedVector2Array = _regular_transformed_polygon(BEARING_CENTER, housing_radius, 6, -0.27)
+	var housing_inset: PackedVector2Array = _regular_transformed_polygon(BEARING_CENTER, housing_radius - 0.82, 6, -0.27)
+	draw_colored_polygon(housing, Color(0.045, 0.031, 0.028, 0.96))
+	draw_colored_polygon(housing_inset, INVALID_DARK if invalid_state else BRASS_DARK)
+	for rivet_index: int in range(3):
+		var rivet_angle: float = -0.27 + float(rivet_index) * TAU / 3.0
+		var rivet_position: Vector2 = _transform_point(BEARING_CENTER + Vector2.from_angle(rivet_angle) * (housing_radius - 1.18))
+		draw_circle(rivet_position, 0.31, Color(0.08, 0.055, 0.045, 0.88))
+	var outer_radius: float = (3.62 if cursor_state == STATE_LOADING else 3.12) * radius_scale
+	draw_circle(center, outer_radius, Color("4b3431") if invalid_state else Color("292729"))
+	draw_arc(center, outer_radius - 0.18, 0.0, TAU, 24, Color(accent_color.r, accent_color.g, accent_color.b, 0.58), 0.68, true)
+	var socket: PackedVector2Array = _regular_transformed_polygon(BEARING_CENTER, 1.48 * radius_scale, 6, 0.24)
+	draw_colored_polygon(socket, Color("4b3432") if invalid_state else Color("716c65"))
 	if cursor_state == STATE_LOADING:
 		var turn: float = animation_phase * TAU
-		draw_arc(center, outer_radius - 0.58, turn, turn + 1.72, 14, seam_core, 1.4, true)
-		draw_arc(center, outer_radius - 0.58, turn + PI, turn + PI + 0.92, 10, Color(seam_color.r, seam_color.g, seam_color.b, 0.72), 1.0, true)
-		draw_circle(center, 0.92, EMBER_CORE)
+		var sweep_radius: float = outer_radius - 0.62
+		draw_arc(center, sweep_radius, turn, turn + 1.82, 15, accent_core, 1.18, true)
+		draw_arc(center, sweep_radius, turn - 0.72, turn - 0.16, 7, Color(accent_color.r, accent_color.g, accent_color.b, 0.36), 0.78, true)
+		var sweep_tip: Vector2 = center + Vector2.from_angle(turn + 1.82) * sweep_radius
+		draw_circle(sweep_tip, 0.54, accent_core)
+		draw_circle(center, 0.58, Color("211f21"))
+		draw_circle(center + Vector2(-0.12, -0.16), 0.28, EMBER_CORE)
 	else:
-		draw_circle(center, 1.15, seam_core)
-		draw_arc(center, outer_radius - 0.55, -2.7, -0.42, 10, Color(seam_color.r, seam_color.g, seam_color.b, 0.72), 0.75, true)
+		draw_circle(center, 0.76, Color(0.06, 0.045, 0.04, 0.96))
+		draw_circle(center, 0.48, accent_core)
+		draw_circle(center + Vector2(-0.12, -0.16), 0.18, Color(1.0, 0.94, 0.78, 0.72))
+
+func _regular_transformed_polygon(center: Vector2, radius: float, sides: int, rotation: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for index: int in range(sides):
+		var angle: float = rotation + float(index) * TAU / float(sides)
+		points.append(_transform_point(center + Vector2.from_angle(angle) * radius))
+	return points
 
 func _outer_points() -> PackedVector2Array:
 	return PackedVector2Array([
