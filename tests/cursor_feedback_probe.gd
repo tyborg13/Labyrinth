@@ -9,13 +9,13 @@ const OUTPUT_DIR: String = "user://cursor_feedback_probe"
 const PROOF_SIZES: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1920, 1080)]
 const STATE_LABELS: Array[String] = [
 	"IDLE",
-	"VALID TARGET",
-	"VALID PRESS",
-	"DULL PRESS",
+	"READY",
+	"PRESS / HOLD",
+	"DULL HOLD",
 	"DRAG READY",
-	"DRAGGING",
+	"DRAG HELD",
 	"LOADING",
-	"INVALID"
+	"UNAVAILABLE"
 ]
 
 var _errors: Array[String] = []
@@ -63,6 +63,10 @@ func _capture_gallery(viewport_size: Vector2i) -> void:
 	await process_frame
 
 func _capture_runtime_menu_states() -> void:
+	for proof_state: String in ["action", "pressed", "release"]:
+		await _capture_runtime_menu_state(proof_state)
+
+func _capture_runtime_menu_state(proof_state: String) -> void:
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1920, 1080)
 	viewport.msaa_2d = int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", Viewport.MSAA_DISABLED))
@@ -94,19 +98,44 @@ func _capture_runtime_menu_states() -> void:
 	var glyph: Control = controller.call("glyph_for_test") as Control
 	_expect(glyph != null and str(glyph.get("cursor_state")) == "action", "Global controller should resolve a production menu button as a valid target")
 	_expect(glyph != null and (glyph.position + CustomCursorGlyphScript.HOTSPOT).distance_to(pointer_position) <= 1.0, "Runtime cursor tip should land exactly on the production UI hotspot")
-	await _save_viewport_image(viewport, "cursor_runtime_action_1920x1080.png")
-
-	var press := InputEventMouseButton.new()
-	press.position = pointer_position
-	press.global_position = pointer_position
-	press.button_index = MOUSE_BUTTON_LEFT
-	press.pressed = true
-	viewport.push_input(press, true)
-	await process_frame
-	controller.call("_process", 0.0)
-	_expect(glyph != null and str(glyph.get("cursor_state")) == "pressed_valid", "Global controller should resolve a production button press as valid feedback")
-	await _save_viewport_image(viewport, "cursor_runtime_pressed_1920x1080.png")
-	controller.call("_end_pointer_press")
+	if proof_state == "action":
+		await _save_viewport_image(viewport, "cursor_runtime_action_1920x1080.png", Vector2i(200, 100))
+	else:
+		var press := InputEventMouseButton.new()
+		press.position = pointer_position
+		press.global_position = pointer_position
+		press.button_index = MOUSE_BUTTON_LEFT
+		press.pressed = true
+		viewport.push_input(press, true)
+		for _frame: int in range(7):
+			await process_frame
+			if glyph != null:
+				glyph.call("_process", 0.02)
+		controller.call("_process", 0.0)
+		_expect(glyph != null and str(glyph.get("cursor_state")) == "pressed_valid", "Global controller should resolve a production button press as valid feedback")
+		var held_response: Dictionary = glyph.call("response_snapshot") if glyph != null else {}
+		_expect(float(held_response.get("press_depth", 0.0)) > 0.90 and not bool(held_response.get("rebound_active", true)), "A production press should remain compressed for as long as the button is held")
+		if proof_state == "pressed":
+			glyph.set_process(false)
+			await _save_viewport_image(viewport, "cursor_runtime_pressed_1920x1080.png", Vector2i(200, 100))
+		else:
+			var release := InputEventMouseButton.new()
+			release.position = Vector2(viewport.size) - Vector2(80.0, 80.0)
+			release.global_position = release.position
+			release.button_index = MOUSE_BUTTON_LEFT
+			release.pressed = false
+			viewport.push_input(release, true)
+			await process_frame
+			await _move_runtime_pointer(viewport, controller, pointer_position)
+			if glyph != null:
+				glyph.call("_process", 0.035)
+			var release_response: Dictionary = glyph.call("response_snapshot") if glyph != null else {}
+			_expect(bool(release_response.get("rebound_active", false)), "Releasing a production click should start the cursor rebound")
+			if glyph != null:
+				glyph.set_process(false)
+				glyph.call("set_pose_for_test", float(release_response.get("press_depth", 0.35)), 0.32)
+			await _save_viewport_image(viewport, "cursor_runtime_release_1920x1080.png", Vector2i(200, 100))
+		controller.call("_end_pointer_press")
 	var music_player: AudioStreamPlayer = menu.get_node_or_null("MusicPlayer") as AudioStreamPlayer
 	if music_player != null:
 		music_player.stop()
@@ -208,14 +237,42 @@ func _map_cursor_fixture() -> Dictionary:
 		}
 	}
 
-func _save_viewport_image(viewport: SubViewport, file_name: String) -> void:
-	for _frame: int in range(2):
-		await process_frame
-	var image: Image = viewport.get_texture().get_image()
+func _save_viewport_image(viewport: SubViewport, file_name: String, expected_lit_point: Vector2i = Vector2i(-1, -1)) -> void:
+	var image: Image = null
 	var output_path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
+	var capture_complete := false
+	for _attempt: int in range(6):
+		_queue_canvas_redraw(viewport)
+		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		for _frame: int in range(6):
+			await process_frame
+		image = viewport.get_texture().get_image()
+		if image == null:
+			continue
+		if expected_lit_point.x < 0:
+			capture_complete = true
+			break
+		if image.save_png(output_path) != OK:
+			continue
+		var saved_image := Image.load_from_file(output_path)
+		if saved_image != null and _image_has_point(saved_image, expected_lit_point) and saved_image.get_pixelv(expected_lit_point).get_luminance() > 0.035:
+			image = saved_image
+			capture_complete = true
+			break
 	_expect(image != null and image.get_size() == viewport.size, "%s should capture at the exact production viewport size" % file_name)
-	if image != null:
+	if image != null and expected_lit_point.x >= 0:
+		_expect(capture_complete, "%s should retain the complete production scene rather than a partial Metal frame" % file_name)
+	if image != null and expected_lit_point.x < 0:
 		_expect(image.save_png(output_path) == OK, "%s should save successfully" % file_name)
+
+func _queue_canvas_redraw(node: Node) -> void:
+	if node is CanvasItem:
+		(node as CanvasItem).queue_redraw()
+	for child: Node in node.get_children():
+		_queue_canvas_redraw(child)
+
+func _image_has_point(image: Image, point: Vector2i) -> bool:
+	return point.x >= 0 and point.y >= 0 and point.x < image.get_width() and point.y < image.get_height()
 
 func _build_gallery(viewport_size: Vector2i) -> Control:
 	var root_control := Control.new()
@@ -239,7 +296,7 @@ func _build_gallery(viewport_size: Vector2i) -> Control:
 	root_control.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "IRON, ASH, AND EMBER — ONE LANGUAGE FOR EVERY POINTER STATE"
+	subtitle.text = "ONE FORGED POINTER — MATERIAL, MOTION, AND PRESSURE"
 	subtitle.position = title.position + Vector2(0.0, 40.0)
 	subtitle.size = Vector2(viewport_size.x, 28.0)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -280,6 +337,10 @@ func _build_gallery(viewport_size: Vector2i) -> Control:
 		glyph.name = "StateGlyph%d" % index
 		glyph.position = Vector2(56.0, 34.0)
 		glyph.set_cursor_state(states[index])
+		if states[index] in ["pressed_valid", "pressed_invalid"]:
+			glyph.call("set_pose_for_test", 1.0)
+		elif states[index] == "dragging":
+			glyph.call("set_pose_for_test", 0.92, 1.0, Vector2(1.0, 0.25), 0.88)
 		glyph.set_animation_phase(0.17 if states[index] == "dragging" else 0.31)
 		glyph.set_process(false)
 		panel.add_child(glyph)
@@ -300,7 +361,9 @@ func _verify_contract() -> void:
 	var contract: Dictionary = CustomCursorGlyphScript.visual_contract()
 	_expect((contract.get("states", PackedStringArray()) as PackedStringArray).size() == STATE_LABELS.size(), "Probe should cover every cursor state")
 	_expect((contract.get("layers", []) as Array).size() >= 6, "Cursor proof should exercise the full layered-art contract")
-	_expect(bool(contract.get("loading_spins", false)), "Cursor proof should include the spinning loading ward")
+	_expect(bool(contract.get("single_silhouette", false)) and not bool(contract.get("context_glyphs", true)), "Cursor proof should use one coherent silhouette without a context-glyph language")
+	_expect(bool(contract.get("press_holds", false)) and bool(contract.get("release_rebounds", false)), "Cursor proof should cover held compression and release rebound")
+	_expect(bool(contract.get("loading_spins", false)) and str(contract.get("loading_integration", "")) == "heel_bearing", "Cursor proof should include the integrated spinning heel bearing")
 	_expect(int(ProjectSettings.get_setting("rendering/anti_aliasing/quality/msaa_2d", 0)) >= Viewport.MSAA_4X, "Cursor edges should use the same project-wide 4x MSAA standard as the movement arrows")
 
 func _verify_native_cursor_suppression() -> void:
@@ -313,6 +376,17 @@ func _verify_native_cursor_suppression() -> void:
 	await process_frame
 	controller.call("_process", 0.0)
 	_expect(Input.get_mouse_mode() == Input.MOUSE_MODE_HIDDEN, "GPU runtime should hide every native system cursor while the forged cursor is active")
+	var suppression: Dictionary = controller.call("native_suppression_snapshot_for_test")
+	var installed_shapes: PackedInt32Array = suppression.get("installed_shapes", PackedInt32Array())
+	var expected_shapes: PackedInt32Array = suppression.get("expected_shapes", PackedInt32Array())
+	_expect(installed_shapes == expected_shapes and installed_shapes.size() == 17, "GPU runtime should install a transparent fallback for every Godot native cursor shape")
+	_expect(float(suppression.get("transparent_alpha_max", 1.0)) <= 0.0, "Native cursor fallback texture should be fully transparent")
+	for shape: int in expected_shapes:
+		Input.call("set_default_cursor_shape", shape)
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		controller.call("_process", CursorFeedbackScript.NATIVE_CURSOR_REFRESH_SECONDS)
+		_expect(Input.get_mouse_mode() == Input.MOUSE_MODE_HIDDEN, "Cursor suppression should recover after native shape %d and visible-mode resets" % shape)
+	Input.call("set_default_cursor_shape", Control.CURSOR_ARROW)
 	var glyph: Control = controller.call("glyph_for_test") as Control
 	_expect(glyph != null and glyph.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Global cursor glyph should render above UI without stealing target input")
 	if owns_controller:
@@ -332,7 +406,7 @@ func _verify_gallery_pixels(image: Image, gallery: Control) -> void:
 		var metrics: Dictionary = _region_metrics(region)
 		_expect(float(metrics.get("luma_range", 0.0)) >= 0.48, "%s cursor should retain a crisp dark-to-light forged-metal range" % STATE_LABELS[index])
 		_expect(int(metrics.get("warm_pixels", 0)) >= 8, "%s cursor should retain visible brass or ember inlay" % STATE_LABELS[index])
-	_expect(unique_hashes.size() >= 7, "Contextual cursor states should remain visually distinct rather than reusing one crude silhouette")
+	_expect(unique_hashes.size() >= 6, "Material and motion reactions should remain legible while sharing one coherent silhouette")
 
 func _region_metrics(image: Image) -> Dictionary:
 	var minimum_luma: float = 1.0

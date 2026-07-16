@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-15T20:07:30Z",
+  "updated_at": "2026-07-16T02:36:22Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5602,7 +5602,31 @@
       }
     },
     {
-      "id": "mnt_20260715T200730Z_db3e4a80",
+      "id": "mnt_20260716T023604Z_26252851",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Custom cursor uses one reactive forged silhouette, never context glyphs",
+      "details": "Cursor states should deform, tilt, trail, or recolor the same physical pointer. A press compresses toward its fixed hotspot and stays compressed while held; release produces a brief rebound. Loading animation belongs inside the heel bearing. Native suppression uses hidden mode plus transparent fallbacks for every system cursor shape.",
+      "status": "active",
+      "created_at": "2026-07-16T02:36:04Z",
+      "updated_at": "2026-07-16T02:36:04Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260715T200730Z_db3e4a80"
+      ],
+      "source": {
+        "branch": "codex/custom-contextual-cursor-and-click-feedback",
+        "commit": "c693d85"
+      }
+    },
+    {
+      "id": "mnt_20260716T023622Z_161bd9d8",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -5611,18 +5635,16 @@
         "symbol": null
       },
       "scope_key": "folder:scripts",
-      "summary": "Global cursor feedback separates hover help from actual click validity",
-      "details": "CursorFeedback owns the hidden native pointer, forged cursor states, procedural SFX-bus click sounds, and scene-transition loading ward. CURSOR_HELP is hover information only and must produce dull click feedback; custom point-dependent actions should expose cursor_feedback_context_at(local_position), while dynamically guarded Controls can provide a Callable in cursor_feedback_context_provider. cursor_feedback_context/cursor_feedback_drag_source remain appropriate for static action and drag semantics. Keep provider guards identical to the actual input handler guards.",
+      "summary": "Cursor feedback classifies real activation separately from hover help",
+      "details": "CURSOR_HELP is informational and produces dull click feedback. Point-dependent actions expose cursor_feedback_context_at(local_position); dynamically guarded Controls use cursor_feedback_context_provider with guards matching their real input handlers. Static targets may use cursor_feedback_context and cursor_feedback_drag_source. CursorFeedback owns exact-once procedural click sounds and scene-transition loading feedback.",
       "status": "active",
-      "created_at": "2026-07-15T20:07:30Z",
-      "updated_at": "2026-07-15T20:07:30Z",
+      "created_at": "2026-07-16T02:36:22Z",
+      "updated_at": "2026-07-16T02:36:22Z",
       "expires_at": null,
-      "supersedes": [
-        "mnt_20260715T194833Z_085d2e3e"
-      ],
+      "supersedes": [],
       "source": {
         "branch": "codex/custom-contextual-cursor-and-click-feedback",
-        "commit": "b537173"
+        "commit": "c693d85"
       }
     }
   ]

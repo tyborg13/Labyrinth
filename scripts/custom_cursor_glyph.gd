@@ -10,25 +10,32 @@ const STATE_DRAGGING: String = "dragging"
 const STATE_LOADING: String = "loading"
 const STATE_INVALID: String = "invalid"
 
-const GLYPH_SIZE: Vector2 = Vector2(58.0, 58.0)
-const HOTSPOT: Vector2 = Vector2(4.0, 3.0)
-const WARD_CENTER: Vector2 = Vector2(19.0, 25.5)
+const GLYPH_SIZE: Vector2 = Vector2(52.0, 52.0)
+const HOTSPOT: Vector2 = Vector2(3.5, 3.0)
+const BEARING_CENTER: Vector2 = Vector2(15.5, 33.7)
+const RELEASE_REBOUND_SECONDS: float = 0.19
 
-const SHADOW: Color = Color(0.025, 0.018, 0.016, 0.78)
-const IRON_EDGE: Color = Color("242124")
-const IRON_DARK: Color = Color("4b4b4d")
-const IRON_MID: Color = Color("8c8982")
-const IRON_LIGHT: Color = Color("e2d5b9")
-const ASH_FACE: Color = Color("bbb09d")
-const BRASS_DARK: Color = Color("6b431f")
-const BRASS: Color = Color("b97931")
-const EMBER: Color = Color("efad51")
-const EMBER_CORE: Color = Color("ffe5a2")
-const INVALID_DARK: Color = Color("4d2927")
-const INVALID: Color = Color("9a5141")
+const SHADOW: Color = Color(0.018, 0.013, 0.014, 0.82)
+const OUTLINE: Color = Color("211f22")
+const IRON_DARK: Color = Color("4a494b")
+const IRON_MID: Color = Color("8b877f")
+const IRON_LIGHT: Color = Color("e4d8bf")
+const ASH_FACE: Color = Color("bcb19d")
+const BRASS_DARK: Color = Color("68431f")
+const BRASS: Color = Color("b87a32")
+const EMBER: Color = Color("efa84a")
+const EMBER_CORE: Color = Color("ffe3a0")
+const INVALID_DARK: Color = Color("4e3937")
+const INVALID_MID: Color = Color("7d5a52")
+const INVALID_GLOW: Color = Color("ba6b58")
 
 var cursor_state: String = STATE_IDLE
 var animation_phase: float = 0.0
+var press_depth: float = 0.0
+var rebound_phase: float = 1.0
+var rebound_strength: float = 0.0
+var drag_direction: Vector2 = Vector2.ZERO
+var drag_energy: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -39,22 +46,81 @@ func _ready() -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
-	if not state_requires_animation(cursor_state):
-		return
-	animation_phase = fmod(animation_phase + delta * (1.55 if cursor_state == STATE_LOADING else 0.72), 1.0)
-	queue_redraw()
+	var held: bool = _state_is_held(cursor_state)
+	var target_depth: float = 1.0 if held else 0.0
+	var response_speed: float = 24.0 if held else 15.0
+	var previous_depth: float = press_depth
+	press_depth = lerpf(press_depth, target_depth, 1.0 - exp(-delta * response_speed))
+	if absf(press_depth - target_depth) < 0.001:
+		press_depth = target_depth
+
+	var previous_rebound_phase: float = rebound_phase
+	if rebound_phase < 1.0:
+		rebound_phase = minf(1.0, rebound_phase + delta / RELEASE_REBOUND_SECONDS)
+
+	var previous_animation_phase: float = animation_phase
+	if cursor_state == STATE_LOADING:
+		animation_phase = fmod(animation_phase + delta * 1.42, 1.0)
+	elif cursor_state == STATE_DRAGGING:
+		animation_phase = fmod(animation_phase + delta * 0.58, 1.0)
+
+	var previous_drag_energy: float = drag_energy
+	if cursor_state == STATE_DRAGGING:
+		drag_energy = move_toward(drag_energy, 0.42, delta * 1.8)
+	else:
+		drag_energy = move_toward(drag_energy, 0.0, delta * 5.5)
+		drag_direction = drag_direction.lerp(Vector2.ZERO, 1.0 - exp(-delta * 10.0))
+
+	if not is_equal_approx(previous_depth, press_depth) \
+		or not is_equal_approx(previous_rebound_phase, rebound_phase) \
+		or not is_equal_approx(previous_animation_phase, animation_phase) \
+		or not is_equal_approx(previous_drag_energy, drag_energy):
+		queue_redraw()
 
 func set_cursor_state(next_state: String) -> void:
 	if not state_names().has(next_state):
 		next_state = STATE_IDLE
 	if cursor_state == next_state:
 		return
+	var was_held: bool = _state_is_held(cursor_state)
+	var will_hold: bool = _state_is_held(next_state)
+	if was_held and not will_hold:
+		rebound_phase = 0.0
+		rebound_strength = maxf(0.64, press_depth)
+	elif will_hold:
+		rebound_phase = 1.0
+		rebound_strength = 0.0
 	cursor_state = next_state
+	queue_redraw()
+
+func push_pointer_motion(relative_motion: Vector2, dragging: bool) -> void:
+	if not dragging or relative_motion.length_squared() <= 0.01:
+		return
+	var direction: Vector2 = relative_motion.normalized()
+	drag_direction = drag_direction.lerp(direction, 0.48)
+	drag_energy = maxf(drag_energy, clampf(relative_motion.length() / 13.0, 0.28, 1.0))
 	queue_redraw()
 
 func set_animation_phase(next_phase: float) -> void:
 	animation_phase = fposmod(next_phase, 1.0)
 	queue_redraw()
+
+func set_pose_for_test(next_press_depth: float, next_rebound_phase: float = 1.0, next_drag_direction: Vector2 = Vector2.ZERO, next_drag_energy: float = 0.0) -> void:
+	press_depth = clampf(next_press_depth, 0.0, 1.0)
+	rebound_phase = clampf(next_rebound_phase, 0.0, 1.0)
+	rebound_strength = 1.0 if rebound_phase < 1.0 else 0.0
+	drag_direction = next_drag_direction.normalized() if next_drag_direction.length_squared() > 0.01 else Vector2.ZERO
+	drag_energy = clampf(next_drag_energy, 0.0, 1.0)
+	queue_redraw()
+
+func response_snapshot() -> Dictionary:
+	return {
+		"press_depth": press_depth,
+		"held": _state_is_held(cursor_state),
+		"rebound_active": rebound_phase < 1.0,
+		"rebound_amount": _release_rebound_amount(),
+		"drag_energy": drag_energy
+	}
 
 static func state_names() -> PackedStringArray:
 	return PackedStringArray([
@@ -76,164 +142,122 @@ static func visual_contract() -> Dictionary:
 		"size": GLYPH_SIZE,
 		"hotspot": HOTSPOT,
 		"states": state_names(),
+		"single_silhouette": true,
+		"context_glyphs": false,
+		"press_holds": true,
+		"release_rebounds": true,
 		"loading_spins": true,
-		"layers": ["shadow", "context_ward", "forged_edge", "iron_facets", "brass_inlay", "state_accent"]
+		"loading_integration": "heel_bearing",
+		"layers": ["contact_shadow", "forged_outline", "iron_facets", "brass_seam", "integrated_bearing", "material_response"]
 	}
 
 func _draw() -> void:
-	match cursor_state:
-		STATE_LOADING:
-			_draw_loading_ward()
-		STATE_DRAG_READY:
-			_draw_drag_ward(false)
-		STATE_DRAGGING:
-			_draw_drag_ward(true)
-		STATE_ACTION, STATE_PRESSED_VALID:
-			_draw_action_ward()
-		STATE_INVALID, STATE_PRESSED_INVALID:
-			_draw_invalid_ward()
-
-	_draw_pointer_blade()
-
-	if cursor_state == STATE_PRESSED_VALID:
-		_draw_valid_impact()
-	elif cursor_state == STATE_PRESSED_INVALID:
-		_draw_invalid_impact()
-
-func _draw_action_ward() -> void:
-	draw_circle(WARD_CENTER + Vector2(1.5, 2.0), 9.8, Color(0.0, 0.0, 0.0, 0.34))
-	draw_arc(WARD_CENTER, 9.0, -0.55, 4.55, 28, Color(EMBER.r, EMBER.g, EMBER.b, 0.23), 4.5, true)
-	draw_arc(WARD_CENTER, 8.0, -0.55, 4.55, 28, Color(EMBER_CORE.r, EMBER_CORE.g, EMBER_CORE.b, 0.82), 1.25, true)
-	for angle: float in [-0.55, 1.02, 2.59, 4.16]:
-		var inner: Vector2 = WARD_CENTER + Vector2.from_angle(angle) * 10.0
-		var outer: Vector2 = WARD_CENTER + Vector2.from_angle(angle) * 13.0
-		draw_line(inner, outer, Color(EMBER.r, EMBER.g, EMBER.b, 0.78), 1.4, true)
-
-func _draw_drag_ward(active: bool) -> void:
-	var turn: float = animation_phase * TAU * (0.24 if active else 0.0)
-	var radius: float = 12.0 if active else 11.0
-	draw_circle(WARD_CENTER + Vector2(1.8, 2.4), radius + 2.0, Color(0.0, 0.0, 0.0, 0.36))
-	draw_arc(WARD_CENTER, radius, 0.0, TAU, 40, Color(BRASS_DARK.r, BRASS_DARK.g, BRASS_DARK.b, 0.92), 3.8, true)
-	draw_arc(WARD_CENTER, radius, -2.55 + turn, 0.72 + turn, 26, Color(EMBER.r, EMBER.g, EMBER.b, 0.92 if active else 0.72), 1.65, true)
-	for index: int in range(4):
-		var angle: float = turn + float(index) * TAU / 4.0
-		var direction: Vector2 = Vector2.from_angle(angle)
-		var side: Vector2 = direction.orthogonal()
-		var base: Vector2 = WARD_CENTER + direction * (radius - 1.0)
-		var tip: Vector2 = WARD_CENTER + direction * (radius + (6.4 if active else 5.2))
-		var hook := PackedVector2Array([base - side * 3.1, tip, base + side * 3.1])
-		draw_colored_polygon(hook, SHADOW)
-		var inset := PackedVector2Array([base - side * 1.8, tip - direction * 1.5, base + side * 1.8])
-		draw_colored_polygon(inset, EMBER if active else BRASS)
-	if active:
-		for index: int in range(3):
-			var mote_angle: float = turn * 1.7 + float(index) * TAU / 3.0
-			var mote_position: Vector2 = WARD_CENTER + Vector2.from_angle(mote_angle) * (16.5 + float(index % 2) * 2.0)
-			draw_circle(mote_position, 1.25, Color(EMBER_CORE.r, EMBER_CORE.g, EMBER_CORE.b, 0.82))
-
-func _draw_loading_ward() -> void:
-	var turn: float = animation_phase * TAU
-	draw_circle(WARD_CENTER + Vector2(1.8, 2.4), 16.0, Color(0.0, 0.0, 0.0, 0.34))
-	draw_arc(WARD_CENTER, 13.1, 0.0, TAU, 46, Color(BRASS_DARK.r, BRASS_DARK.g, BRASS_DARK.b, 0.58), 1.3, true)
-	for index: int in range(3):
-		var start: float = turn + float(index) * TAU / 3.0
-		var color: Color = EMBER_CORE if index == 0 else EMBER
-		var alpha: float = 0.95 - float(index) * 0.20
-		draw_arc(WARD_CENTER, 13.1, start, start + 0.76, 12, Color(color.r, color.g, color.b, alpha), 3.1 - float(index) * 0.45, true)
-		var cinder: Vector2 = WARD_CENTER + Vector2.from_angle(start + 0.76) * 13.1
-		draw_circle(cinder, 1.7 - float(index) * 0.25, Color(color.r, color.g, color.b, alpha))
-	var counter_turn: float = -turn * 0.62
-	for index: int in range(4):
-		var mote_angle: float = counter_turn + float(index) * TAU / 4.0
-		var mote: Vector2 = WARD_CENTER + Vector2.from_angle(mote_angle) * (17.0 + float(index % 2) * 1.5)
-		draw_circle(mote, 0.95, Color(EMBER.r, EMBER.g, EMBER.b, 0.55))
-
-func _draw_invalid_ward() -> void:
-	draw_circle(WARD_CENTER + Vector2(1.4, 1.8), 10.6, Color(0.0, 0.0, 0.0, 0.30))
-	draw_arc(WARD_CENTER, 9.7, 0.2, 5.0, 28, Color(INVALID.r, INVALID.g, INVALID.b, 0.38), 2.7, true)
-	draw_line(WARD_CENTER + Vector2(-6.5, 6.5), WARD_CENTER + Vector2(6.5, -6.5), Color(INVALID.r, INVALID.g, INVALID.b, 0.86), 2.1, true)
-	draw_line(WARD_CENTER + Vector2(-5.5, 6.0), WARD_CENTER + Vector2(5.0, -4.5), Color(0.93, 0.60, 0.45, 0.46), 0.8, true)
-
-func _draw_pointer_blade() -> void:
-	var pressed: bool = cursor_state in [STATE_PRESSED_VALID, STATE_PRESSED_INVALID]
-	var scale_factor: float = 0.94 if pressed else 1.0
-	var shift: Vector2 = Vector2(0.0, 1.0) if pressed else Vector2.ZERO
+	var outer: PackedVector2Array = _transformed_points(_outer_points())
+	var inner: PackedVector2Array = _transformed_points(_inner_points())
 	var invalid_state: bool = cursor_state in [STATE_INVALID, STATE_PRESSED_INVALID]
-	var bright_state: bool = cursor_state in [STATE_ACTION, STATE_PRESSED_VALID, STATE_DRAG_READY, STATE_DRAGGING, STATE_LOADING]
+	var engaged: bool = cursor_state in [STATE_ACTION, STATE_PRESSED_VALID, STATE_DRAG_READY, STATE_DRAGGING, STATE_LOADING]
+	var held_valid: bool = cursor_state in [STATE_PRESSED_VALID, STATE_DRAGGING]
+	var rebound: float = _release_rebound_amount()
 
-	var outer: PackedVector2Array = _transformed_blade_points(PackedVector2Array([
-		Vector2(4.0, 3.0),
-		Vector2(24.5, 27.0),
-		Vector2(16.4, 27.6),
-		Vector2(20.2, 40.0),
-		Vector2(14.1, 42.1),
-		Vector2(10.1, 29.4),
-		Vector2(4.1, 34.2)
-	]), scale_factor, shift)
-	var inner: PackedVector2Array = _transformed_blade_points(PackedVector2Array([
-		Vector2(5.9, 7.0),
-		Vector2(20.8, 24.8),
-		Vector2(13.5, 25.1),
-		Vector2(17.6, 38.0),
-		Vector2(15.2, 38.9),
-		Vector2(11.1, 26.2),
-		Vector2(6.4, 30.0)
-	]), scale_factor, shift)
-	var shadow_points: PackedVector2Array = _offset_points(outer, Vector2(2.0, 2.8))
-	draw_colored_polygon(shadow_points, SHADOW)
-	draw_colored_polygon(outer, IRON_EDGE if not invalid_state else INVALID_DARK)
-	draw_polyline(_closed_points(outer), Color(0.02, 0.015, 0.018, 0.96), 1.25, true)
-	draw_colored_polygon(inner, IRON_DARK if not invalid_state else Color("563b38"))
+	var shadow_offset := Vector2(2.0, 3.0) * (1.0 - press_depth * 0.34) + Vector2(0.5, 0.7) * rebound
+	draw_colored_polygon(_offset_points(outer, shadow_offset), SHADOW)
+	draw_colored_polygon(outer, INVALID_DARK if invalid_state else OUTLINE)
+	draw_polyline(_closed_points(outer), Color(0.01, 0.008, 0.01, 0.96), 1.2, true)
 
+	var inner_base: Color = INVALID_DARK.lightened(0.06) if invalid_state else IRON_DARK
+	draw_colored_polygon(inner, inner_base)
 	var left_facet := PackedVector2Array([inner[0], inner[5], inner[6]])
 	var right_facet := PackedVector2Array([inner[0], inner[1], inner[2], inner[5]])
-	var tang_facet := PackedVector2Array([inner[2], inner[3], inner[4], inner[5]])
-	draw_colored_polygon(left_facet, ASH_FACE.darkened(0.20) if invalid_state else ASH_FACE)
-	draw_colored_polygon(right_facet, Color("65504b") if invalid_state else IRON_MID)
-	draw_colored_polygon(tang_facet, Color("4b3938") if invalid_state else Color("696764"))
-	draw_line(inner[0], inner[5], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, 0.86 if bright_state else 0.62), 1.05, true)
-	draw_line(inner[5], inner[4], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, 0.38), 0.75, true)
+	var heel_facet := PackedVector2Array([inner[2], inner[3], inner[4], inner[5]])
+	draw_colored_polygon(left_facet, INVALID_MID if invalid_state else ASH_FACE)
+	draw_colored_polygon(right_facet, Color("6b514c") if invalid_state else IRON_MID)
+	draw_colored_polygon(heel_facet, Color("493836") if invalid_state else Color("656360"))
 
-	var inlay_color: Color = INVALID if invalid_state else (EMBER if bright_state else BRASS)
-	var inlay_core: Color = Color(0.96, 0.65, 0.43, 0.50) if invalid_state else (EMBER_CORE if bright_state else Color("d0a063"))
-	var inlay_start: Vector2 = _transform_blade_point(Vector2(6.9, 9.4), scale_factor, shift)
-	var inlay_end: Vector2 = _transform_blade_point(Vector2(12.0, 27.2), scale_factor, shift)
-	draw_line(inlay_start, inlay_end, Color(inlay_color.r, inlay_color.g, inlay_color.b, 0.92), 2.15, true)
-	draw_line(inlay_start, inlay_end, Color(inlay_core.r, inlay_core.g, inlay_core.b, 0.82), 0.75, true)
+	var edge_strength: float = 0.94 if held_valid or cursor_state == STATE_LOADING else (0.78 if engaged else 0.62)
+	draw_line(inner[0], inner[5], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, edge_strength), 1.05, true)
+	draw_line(inner[5], inner[4], Color(IRON_LIGHT.r, IRON_LIGHT.g, IRON_LIGHT.b, 0.38), 0.72, true)
+	draw_line(inner[0], inner[1], Color(0.98, 0.91, 0.78, 0.22 + rebound * 0.28), 0.72, true)
 
-	var rune_center: Vector2 = _transform_blade_point(Vector2(12.2, 26.8), scale_factor, shift)
-	var rune := PackedVector2Array([
-		rune_center + Vector2(0.0, -3.3),
-		rune_center + Vector2(3.1, 0.0),
-		rune_center + Vector2(0.0, 3.3),
-		rune_center + Vector2(-3.1, 0.0)
+	var seam_color: Color = INVALID_GLOW if invalid_state else (EMBER if engaged else BRASS)
+	var seam_core: Color = Color(0.95, 0.61, 0.46, 0.58) if invalid_state else (EMBER_CORE if held_valid or cursor_state == STATE_LOADING else Color("d6aa6a"))
+	var seam_tip: Vector2 = _transform_point(Vector2(6.4, 8.3))
+	var seam_joint: Vector2 = _transform_point(Vector2(12.0, 26.7))
+	var seam_heel: Vector2 = _transform_point(BEARING_CENTER)
+	draw_line(seam_tip, seam_joint, Color(seam_color.r, seam_color.g, seam_color.b, 0.88), 2.0, true)
+	draw_line(seam_tip, seam_joint, Color(seam_core.r, seam_core.g, seam_core.b, 0.72), 0.66, true)
+	draw_line(seam_joint, seam_heel, Color(seam_color.r, seam_color.g, seam_color.b, 0.72), 1.55, true)
+
+	_draw_integrated_bearing(seam_color, seam_core, invalid_state)
+	if held_valid:
+		var tip_glint_end: Vector2 = _transform_point(Vector2(9.0, 9.4))
+		draw_line(inner[0], tip_glint_end, Color(EMBER_CORE.r, EMBER_CORE.g, EMBER_CORE.b, 0.74), 1.25, true)
+
+func _draw_integrated_bearing(seam_color: Color, seam_core: Color, invalid_state: bool) -> void:
+	var center: Vector2 = _transform_point(BEARING_CENTER)
+	var radius_scale: float = 1.0 - press_depth * 0.07 + _release_rebound_amount() * 0.06
+	var outer_radius: float = (4.65 if cursor_state == STATE_LOADING else 3.25) * radius_scale
+	draw_circle(center, outer_radius + 0.75, Color(0.055, 0.038, 0.03, 0.92))
+	draw_circle(center, outer_radius, BRASS_DARK if not invalid_state else INVALID_DARK)
+	draw_circle(center, maxf(1.25, outer_radius - 1.35), Color("393538") if not invalid_state else Color("4a3533"))
+	if cursor_state == STATE_LOADING:
+		var turn: float = animation_phase * TAU
+		draw_arc(center, outer_radius - 0.58, turn, turn + 1.72, 14, seam_core, 1.4, true)
+		draw_arc(center, outer_radius - 0.58, turn + PI, turn + PI + 0.92, 10, Color(seam_color.r, seam_color.g, seam_color.b, 0.72), 1.0, true)
+		draw_circle(center, 0.92, EMBER_CORE)
+	else:
+		draw_circle(center, 1.15, seam_core)
+		draw_arc(center, outer_radius - 0.55, -2.7, -0.42, 10, Color(seam_color.r, seam_color.g, seam_color.b, 0.72), 0.75, true)
+
+func _outer_points() -> PackedVector2Array:
+	return PackedVector2Array([
+		HOTSPOT,
+		Vector2(25.1, 26.4),
+		Vector2(17.7, 27.5),
+		Vector2(21.8, 40.0),
+		Vector2(15.7, 42.5),
+		Vector2(11.1, 30.1),
+		Vector2(5.5, 35.0)
 	])
-	draw_colored_polygon(rune, BRASS_DARK if invalid_state else inlay_color)
-	var rune_inner := PackedVector2Array([
-		rune_center + Vector2(0.0, -1.5),
-		rune_center + Vector2(1.4, 0.0),
-		rune_center + Vector2(0.0, 1.5),
-		rune_center + Vector2(-1.4, 0.0)
+
+func _inner_points() -> PackedVector2Array:
+	return PackedVector2Array([
+		Vector2(5.6, 7.0),
+		Vector2(21.4, 24.7),
+		Vector2(14.6, 25.3),
+		Vector2(18.6, 38.3),
+		Vector2(16.1, 39.3),
+		Vector2(11.8, 26.8),
+		Vector2(7.1, 30.8)
 	])
-	draw_colored_polygon(rune_inner, inlay_core)
 
-func _draw_valid_impact() -> void:
-	draw_arc(HOTSPOT + Vector2(1.0, 1.0), 5.5, -0.15, 1.18, 10, Color(EMBER_CORE.r, EMBER_CORE.g, EMBER_CORE.b, 0.94), 1.5, true)
-	draw_line(HOTSPOT + Vector2(5.2, 0.8), HOTSPOT + Vector2(8.4, -0.3), Color(EMBER.r, EMBER.g, EMBER.b, 0.84), 1.2, true)
-	draw_line(HOTSPOT + Vector2(3.6, 4.4), HOTSPOT + Vector2(5.8, 7.3), Color(EMBER.r, EMBER.g, EMBER.b, 0.72), 1.1, true)
-
-func _draw_invalid_impact() -> void:
-	draw_arc(HOTSPOT + Vector2(2.0, 2.0), 6.2, 0.1, 1.36, 10, Color(INVALID.r, INVALID.g, INVALID.b, 0.70), 2.2, true)
-	draw_circle(HOTSPOT + Vector2(5.5, 4.0), 1.35, Color(0.32, 0.20, 0.18, 0.90))
-
-func _transformed_blade_points(points: PackedVector2Array, scale_factor: float, shift: Vector2) -> PackedVector2Array:
+func _transformed_points(points: PackedVector2Array) -> PackedVector2Array:
 	var transformed := PackedVector2Array()
 	for point: Vector2 in points:
-		transformed.append(_transform_blade_point(point, scale_factor, shift))
+		transformed.append(_transform_point(point))
 	return transformed
 
-func _transform_blade_point(point: Vector2, scale_factor: float, shift: Vector2) -> Vector2:
-	return HOTSPOT + (point - HOTSPOT) * scale_factor + shift
+func _transform_point(point: Vector2) -> Vector2:
+	var rebound: float = _release_rebound_amount()
+	var scale_vector := Vector2(
+		1.0 - press_depth * 0.085 + rebound * 0.042,
+		1.0 - press_depth * 0.145 + rebound * 0.058
+	)
+	var local: Vector2 = point - HOTSPOT
+	local *= scale_vector
+	if drag_direction.length_squared() > 0.01 and drag_energy > 0.01:
+		var distance_weight: float = clampf(local.length() / 40.0, 0.0, 1.0)
+		local -= drag_direction * drag_energy * 2.25 * distance_weight
+	var tilt: float = deg_to_rad(-2.0 * press_depth + drag_direction.x * drag_energy * 1.4)
+	local = local.rotated(tilt)
+	return HOTSPOT + local
+
+func _release_rebound_amount() -> float:
+	if rebound_phase >= 1.0:
+		return 0.0
+	return sin(rebound_phase * PI) * (1.0 - rebound_phase * 0.38) * rebound_strength
+
+func _state_is_held(state: String) -> bool:
+	return state in [STATE_PRESSED_VALID, STATE_PRESSED_INVALID, STATE_DRAGGING]
 
 func _offset_points(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
 	var shifted := PackedVector2Array()

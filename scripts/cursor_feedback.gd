@@ -16,6 +16,8 @@ const VALID_CLICK_VOLUME_DB: float = -7.0
 const INVALID_CLICK_VOLUME_DB: float = -10.0
 const SCENE_TRANSITION_LEAD_SECONDS: float = 0.11
 const SCENE_TRANSITION_MINIMUM_SECONDS: float = 0.44
+const NATIVE_CURSOR_REFRESH_SECONDS: float = 0.24
+const TRANSPARENT_CURSOR_SIZE: int = 16
 
 var _glyph: CustomCursorGlyph
 var _audio_players: Array[AudioStreamPlayer] = []
@@ -33,6 +35,9 @@ var _loading_until_msec: int = 0
 var _transition_generation: int = 0
 var _last_feedback_kind: String = ""
 var _feedback_counts: Dictionary = {"valid": 0, "invalid": 0}
+var _transparent_native_cursor: ImageTexture
+var _installed_native_shapes: PackedInt32Array = PackedInt32Array()
+var _native_cursor_refresh_elapsed: float = 0.0
 
 func _ready() -> void:
 	layer = 120
@@ -43,18 +48,25 @@ func _ready() -> void:
 	_create_audio_players()
 	_valid_click_stream = build_click_stream(true)
 	_invalid_click_stream = build_click_stream(false)
-	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	_install_transparent_native_cursors()
+	_enforce_native_cursor_suppression(false)
+	var window: Window = get_window()
+	if window != null and not window.focus_entered.is_connected(_on_window_focus_entered):
+		window.focus_entered.connect(_on_window_focus_entered)
 	show_loading_for(0.34)
 	set_process(true)
 
 func _exit_tree() -> void:
+	_clear_transparent_native_cursors()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
-func _process(_delta: float) -> void:
-	# Controls are free to request any native shape; the OS cursor remains hidden
-	# and those semantic requests are translated into the forged cursor below.
-	if Input.get_mouse_mode() != Input.MOUSE_MODE_HIDDEN:
-		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+func _process(delta: float) -> void:
+	# Hidden mode is the primary suppression path. Transparent replacements for
+	# every native cursor shape are the fallback if the platform momentarily
+	# resurrects an OS cursor after focus or input-shape changes.
+	_native_cursor_refresh_elapsed += delta
+	if Input.get_mouse_mode() != Input.MOUSE_MODE_HIDDEN or _native_cursor_refresh_elapsed >= NATIVE_CURSOR_REFRESH_SECONDS:
+		_enforce_native_cursor_suppression(_native_cursor_refresh_elapsed >= NATIVE_CURSOR_REFRESH_SECONDS)
 	if _glyph == null:
 		return
 	var viewport: Viewport = get_viewport()
@@ -69,7 +81,10 @@ func _input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton and not event is InputEventMouseMotion:
 		return
 	if event is InputEventMouseMotion:
-		_update_drag_from_motion(event as InputEventMouseMotion)
+		var motion_event := event as InputEventMouseMotion
+		_update_drag_from_motion(motion_event)
+		if _glyph != null:
+			_glyph.push_pointer_motion(motion_event.relative, _left_pressed and _drag_started)
 		return
 	var mouse_event := event as InputEventMouseButton
 	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
@@ -116,6 +131,80 @@ func feedback_counts() -> Dictionary:
 
 func glyph_for_test() -> CustomCursorGlyph:
 	return _glyph
+
+func native_suppression_snapshot_for_test() -> Dictionary:
+	var maximum_alpha: float = 1.0
+	if _transparent_native_cursor != null:
+		var image: Image = _transparent_native_cursor.get_image()
+		if image != null and not image.is_empty():
+			maximum_alpha = 0.0
+			for y: int in range(image.get_height()):
+				for x: int in range(image.get_width()):
+					maximum_alpha = maxf(maximum_alpha, image.get_pixel(x, y).a)
+	return {
+		"installed_shapes": _installed_native_shapes.duplicate(),
+		"expected_shapes": native_cursor_shape_ids(),
+		"transparent_alpha_max": maximum_alpha,
+		"refresh_seconds": NATIVE_CURSOR_REFRESH_SECONDS,
+		"mouse_mode": Input.get_mouse_mode()
+	}
+
+static func native_cursor_shape_ids() -> PackedInt32Array:
+	return PackedInt32Array([
+		Control.CURSOR_ARROW,
+		Control.CURSOR_IBEAM,
+		Control.CURSOR_POINTING_HAND,
+		Control.CURSOR_CROSS,
+		Control.CURSOR_WAIT,
+		Control.CURSOR_BUSY,
+		Control.CURSOR_DRAG,
+		Control.CURSOR_CAN_DROP,
+		Control.CURSOR_FORBIDDEN,
+		Control.CURSOR_VSIZE,
+		Control.CURSOR_HSIZE,
+		Control.CURSOR_BDIAGSIZE,
+		Control.CURSOR_FDIAGSIZE,
+		Control.CURSOR_MOVE,
+		Control.CURSOR_VSPLIT,
+		Control.CURSOR_HSPLIT,
+		Control.CURSOR_HELP
+	])
+
+static func native_suppression_contract() -> Dictionary:
+	return {
+		"primary": "hidden_mouse_mode",
+		"fallback": "transparent_custom_cursor_all_shapes",
+		"focus_reassertion": true,
+		"periodic_reassertion": true,
+		"refresh_seconds": NATIVE_CURSOR_REFRESH_SECONDS,
+		"shape_ids": native_cursor_shape_ids()
+	}
+
+func _on_window_focus_entered() -> void:
+	_enforce_native_cursor_suppression(true)
+
+func _enforce_native_cursor_suppression(reinstall_shapes: bool) -> void:
+	_native_cursor_refresh_elapsed = 0.0
+	if reinstall_shapes or _installed_native_shapes.size() != native_cursor_shape_ids().size():
+		_install_transparent_native_cursors()
+	# Reassert even when Godot reports HIDDEN: some window-manager focus paths
+	# can restore the platform cursor without updating the cached mouse mode.
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
+func _install_transparent_native_cursors() -> void:
+	if _transparent_native_cursor == null:
+		var image := Image.create(TRANSPARENT_CURSOR_SIZE, TRANSPARENT_CURSOR_SIZE, false, Image.FORMAT_RGBA8)
+		image.fill(Color(0.0, 0.0, 0.0, 0.0))
+		_transparent_native_cursor = ImageTexture.create_from_image(image)
+	_installed_native_shapes.clear()
+	for shape: int in native_cursor_shape_ids():
+		Input.set_custom_mouse_cursor(_transparent_native_cursor, shape, Vector2.ZERO)
+		_installed_native_shapes.append(shape)
+
+func _clear_transparent_native_cursors() -> void:
+	for shape: int in native_cursor_shape_ids():
+		Input.set_custom_mouse_cursor(null, shape)
+	_installed_native_shapes.clear()
 
 func _resolved_cursor_state(hovered: Control, pointer_position: Variant = null) -> String:
 	if is_loading():

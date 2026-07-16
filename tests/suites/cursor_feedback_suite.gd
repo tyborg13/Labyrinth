@@ -19,10 +19,32 @@ static func _test_visual_state_contract(expect: Callable) -> void:
 	for state: String in ["idle", "action", "pressed_valid", "pressed_invalid", "drag_ready", "dragging", "loading", "invalid"]:
 		expect.call(states.has(state), "Custom cursor should expose the %s state" % state)
 	expect.call(bool(visual.get("loading_spins", false)), "Loading cursor should explicitly use an animated spinner")
-	expect.call((visual.get("layers", []) as Array).size() >= 6, "Cursor art should be built from layered shadow, iron, inlay, ward, and accent passes")
+	expect.call(bool(visual.get("single_silhouette", false)), "Every cursor response should retain one coherent forged-pointer silhouette")
+	expect.call(not bool(visual.get("context_glyphs", true)), "Cursor states should react through motion and material rather than a surrounding glyph language")
+	expect.call(bool(visual.get("press_holds", false)) and bool(visual.get("release_rebounds", false)), "Presses should stay compressed while held and rebound only after release")
+	expect.call(str(visual.get("loading_integration", "")) == "heel_bearing", "The loading spin should be integrated into the cursor's physical heel bearing")
+	var layers: Array = visual.get("layers", []) as Array
+	expect.call(layers.size() >= 6 and not layers.has("context_ward"), "Cursor art should use layered forged materials without detached ward shapes")
 	expect.call(CustomCursorGlyphScript.HOTSPOT.x <= 5.0 and CustomCursorGlyphScript.HOTSPOT.y <= 5.0, "Cursor hotspot should remain at the forged pointer tip")
 	expect.call(CustomCursorGlyphScript.state_requires_animation("loading"), "Loading state should continuously animate")
 	expect.call(CustomCursorGlyphScript.state_requires_animation("dragging"), "Active drag state should retain subtle motion")
+
+	var glyph: Control = CustomCursorGlyphScript.new()
+	glyph.call("set_cursor_state", "pressed_valid")
+	for _step: int in range(8):
+		glyph.call("_process", 0.02)
+	var held_snapshot: Dictionary = glyph.call("response_snapshot")
+	expect.call(bool(held_snapshot.get("held", false)) and float(held_snapshot.get("press_depth", 0.0)) > 0.95, "A held press should settle into a visibly compressed pose")
+	for _step: int in range(20):
+		glyph.call("_process", 0.02)
+	held_snapshot = glyph.call("response_snapshot")
+	expect.call(float(held_snapshot.get("press_depth", 0.0)) > 0.99 and not bool(held_snapshot.get("rebound_active", true)), "Holding should latch the compressed pose without bouncing back")
+	glyph.call("set_cursor_state", "action")
+	glyph.call("_process", 0.04)
+	var release_snapshot: Dictionary = glyph.call("response_snapshot")
+	expect.call(bool(release_snapshot.get("rebound_active", false)) and float(release_snapshot.get("rebound_amount", 0.0)) > 0.15, "Releasing a press should begin a visible rebound")
+	expect.call(float(release_snapshot.get("press_depth", 1.0)) < float(held_snapshot.get("press_depth", 0.0)), "Release should move the cursor body back out from the hotspot")
+	glyph.free()
 
 static func _test_context_resolution(expect: Callable) -> void:
 	var button := Button.new()
@@ -159,3 +181,10 @@ static func _test_global_installation(expect: Callable) -> void:
 	expect.call(str(ProjectSettings.get_setting("autoload/CursorFeedback", "")) == "*res://scripts/cursor_feedback.gd", "Cursor feedback should be an always-present autoload across menu and run scenes")
 	expect.call(CursorFeedbackScript.SCENE_TRANSITION_LEAD_SECONDS > 0.0, "Scene changes should leave a visible frame interval for the loading spinner")
 	expect.call(CursorFeedbackScript.SCENE_TRANSITION_MINIMUM_SECONDS >= 0.35, "Scene changes should keep the spinner readable across the transition")
+	var suppression: Dictionary = CursorFeedbackScript.native_suppression_contract()
+	var shape_ids: PackedInt32Array = suppression.get("shape_ids", PackedInt32Array())
+	expect.call(str(suppression.get("primary", "")) == "hidden_mouse_mode", "Native cursor suppression should retain hidden mode as its primary path")
+	expect.call(str(suppression.get("fallback", "")) == "transparent_custom_cursor_all_shapes", "Native cursor suppression should have an independent transparent-cursor fallback")
+	expect.call(shape_ids.size() == 17 and shape_ids.has(Control.CURSOR_HELP) and shape_ids.has(Control.CURSOR_FORBIDDEN), "Transparent fallback should cover every Godot native cursor shape")
+	expect.call(bool(suppression.get("focus_reassertion", false)) and bool(suppression.get("periodic_reassertion", false)), "Native cursor suppression should heal after focus and platform cursor resets")
+	expect.call(float(suppression.get("refresh_seconds", 1.0)) <= 0.25, "Native cursor suppression should reassert quickly during prolonged interaction")
