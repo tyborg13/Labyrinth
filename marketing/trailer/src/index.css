@@ -8,209 +8,179 @@
 
 body {
   margin: 0;
-  background: #0b080d;
-}
-
-.edge-line {
-  position: absolute;
-  left: 38px;
-  right: 38px;
-  height: 1px;
-  opacity: 0.34;
-  background: linear-gradient(90deg, transparent, #d7b85c 18%, #d7b85c 82%, transparent);
-  box-shadow: 0 0 18px rgba(215, 184, 92, 0.26);
-}
-
-.edge-line-top {
-  top: 34px;
-}
-
-.edge-line-bottom {
-  bottom: 34px;
+  background: #08060a;
 }
 
 .opening-copy {
   position: absolute;
-  left: 126px;
-  top: 244px;
-  width: 860px;
-  color: #fff2cf;
+  left: 118px;
+  top: 290px;
+  width: 970px;
+  color: #fff0c8;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.92));
 }
 
-.eyebrow,
-.gameplay-eyebrow,
-.final-promise {
-  color: #d7b85c;
-  font-family: "Umbra Pixel", monospace;
-  font-size: 22px;
-  line-height: 1.5;
-  letter-spacing: 0.08em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+.opening-line-art {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 5px 0 rgba(41, 22, 12, 0.72))
+    drop-shadow(0 10px 26px rgba(0, 0, 0, 0.96));
 }
 
-.hook-line {
-  font-family: "Umbra Crumble Header", serif;
-  font-size: 118px;
-  font-weight: 700;
-  line-height: 0.92;
-  letter-spacing: 0.015em;
-  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 2px #000;
+.opening-accent-art {
+  margin-top: 16px;
 }
 
-.hook-accent {
-  color: #f19a3e;
+.crumbled-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  height: 8px;
+  color: inherit;
 }
 
-.opening-sub {
-  margin-top: 34px;
-  color: #cbbd9e;
-  font-family: "Umbra Crumble", serif;
-  font-size: 40px;
-  letter-spacing: 0.04em;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.95);
+.crumbled-rule span {
+  display: block;
+  height: 4px;
+  background: currentColor;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.72);
+  opacity: 0.78;
+}
+
+.crumbled-rule span:nth-child(1) {
+  width: 88px;
+}
+
+.crumbled-rule span:nth-child(2) {
+  width: 22px;
+  height: 7px;
+  rotate: -3deg;
+}
+
+.crumbled-rule span:nth-child(3) {
+  width: 10px;
+  height: 5px;
+  rotate: 5deg;
+}
+
+.crumbled-rule span:nth-child(4) {
+  width: 4px;
+  height: 4px;
 }
 
 .gameplay-copy {
   position: absolute;
-  width: 680px;
-  padding: 24px 32px 26px;
-  border-left: 4px solid #f19a3e;
-  background: linear-gradient(90deg, rgba(9, 6, 11, 0.88), rgba(9, 6, 11, 0.42) 72%, transparent);
-  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.7));
+  width: 980px;
+  color: #f19a3e;
+  filter: drop-shadow(0 7px 20px rgba(0, 0, 0, 0.94));
 }
 
 .gameplay-copy-left {
   left: 92px;
-  top: 625px;
+  bottom: 106px;
 }
 
 .gameplay-copy-right {
   right: 92px;
-  top: 625px;
+  bottom: 106px;
+  text-align: right;
+}
+
+.gameplay-copy-right .crumbled-rule {
+  justify-content: flex-end;
 }
 
 .gameplay-copy-center {
   left: 50%;
-  bottom: 132px;
-  width: 900px;
+  bottom: 106px;
+  translate: -50% 0;
   text-align: center;
-  transform: translateX(-50%);
 }
 
-.gameplay-eyebrow {
-  margin-bottom: 10px;
-  font-size: 19px;
+.gameplay-copy-center .crumbled-rule {
+  justify-content: center;
 }
 
-.gameplay-headline {
-  color: #fff2cf;
-  font-family: "Umbra Crumble Header", serif;
-  font-size: 70px;
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: 0.018em;
-  text-shadow: 0 5px 22px rgba(0, 0, 0, 0.95), 0 0 2px #000;
+.gameplay-headline-art,
+.dragon-objective-art,
+.steam-cta-art {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 0 rgba(35, 19, 10, 0.68))
+    drop-shadow(0 9px 22px rgba(0, 0, 0, 0.98));
 }
 
-.gameplay-subline {
-  margin-top: 14px;
-  color: #d6cab0;
-  font-family: "Umbra Crumble", serif;
-  font-size: 28px;
-  line-height: 1.2;
-  letter-spacing: 0.025em;
-  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95);
+.gameplay-copy-right .gameplay-headline-art {
+  margin-left: auto;
 }
 
-.gameplay-marker {
+.gameplay-copy-center .gameplay-headline-art {
+  margin-inline: auto;
+}
+
+.dragon-objective {
   position: absolute;
-  left: 66px;
-  top: 54px;
-  display: flex;
-  gap: 13px;
-  align-items: center;
-  color: rgba(255, 242, 207, 0.7);
-  font-family: "Umbra Pixel", monospace;
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  text-shadow: 0 2px 8px #000;
-}
-
-.marker-dot {
-  color: #d7b85c;
-  font-size: 9px;
-}
-
-.marker-frame {
-  min-width: 42px;
-  color: rgba(203, 189, 158, 0.48);
-  text-align: right;
-}
-
-.final-copy {
-  position: absolute;
-  left: 118px;
-  top: 104px;
-  width: 880px;
-  color: #fff2cf;
-}
-
-.final-promise {
-  color: #d7b85c;
-}
-
-.final-dragon {
-  margin-top: 10px;
-  width: 770px;
-  color: #d2c4aa;
-  font-family: "Umbra Crumble", serif;
-  font-size: 32px;
-  letter-spacing: 0.06em;
-  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95);
+  left: 112px;
+  top: 212px;
+  width: 1020px;
+  color: #fff0c8;
 }
 
 .title-lockup {
-  margin-top: 58px;
-  width: 850px;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.92));
+  position: absolute;
+  left: 112px;
+  top: 188px;
+  width: 990px;
+  color: #fff0c8;
+  filter: drop-shadow(0 13px 28px rgba(0, 0, 0, 0.96));
+  transform-origin: left center;
 }
 
-.title-escape,
-.title-umbra {
-  font-family: "Umbra Crumble Header", serif;
-  font-size: 150px;
-  font-weight: 700;
-  line-height: 0.76;
-  letter-spacing: 0.025em;
+.title-escape-art,
+.title-umbra-art {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 0 rgba(35, 19, 10, 0.72))
+    drop-shadow(0 12px 30px rgba(0, 0, 0, 0.98));
 }
 
-.title-escape {
-  color: #fff2cf;
-}
-
-.title-umbra {
-  color: #b689ff;
-  text-shadow: 0 0 42px rgba(126, 67, 197, 0.65), 0 8px 24px rgba(0, 0, 0, 0.95);
-}
-
-.final-loop {
-  margin-top: 56px;
-  color: #d6cab0;
-  font-family: "Umbra Pixel", monospace;
-  font-size: 16px;
-  letter-spacing: 0.03em;
-  text-shadow: 0 2px 8px #000;
+.title-umbra-art {
+  margin-top: 24px;
+  filter: drop-shadow(0 0 40px rgba(126, 67, 197, 0.58))
+    drop-shadow(0 6px 0 rgba(27, 14, 38, 0.78))
+    drop-shadow(0 12px 30px rgba(0, 0, 0, 0.98));
 }
 
 .steam-cta {
-  display: inline-block;
-  margin-top: 28px;
-  padding: 17px 24px 14px;
-  border: 2px solid #d7b85c;
-  color: #fff2cf;
-  background: rgba(9, 6, 11, 0.74);
-  box-shadow: 0 0 28px rgba(215, 184, 92, 0.18), inset 0 0 18px rgba(215, 184, 92, 0.08);
-  font-family: "Umbra Pixel", monospace;
-  font-size: 19px;
-  letter-spacing: 0.045em;
+  position: absolute;
+  left: 118px;
+  top: 722px;
+  color: #e4c36a;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.steam-cta-copy {
+  width: 680px;
+}
+
+.steam-cta-art {
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.96));
+}
+
+.steam-logo {
+  display: block;
+  width: 124px;
+  height: 124px;
+  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.62);
+}
+
+.steam-cta .crumbled-rule {
+  margin-top: 16px;
 }

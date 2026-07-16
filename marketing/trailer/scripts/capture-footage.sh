@@ -5,7 +5,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TASK_ID="${LABYRINTH_TASK_ID:-create-escape-the-umbra-steam-trailer-with-remotion}"
 FOOTAGE_DIR="${REPO_ROOT}/marketing/trailer/public/footage"
-CLIPS=(route prebattle trap_combo aoe umbra reward)
+ALL_CLIPS=(route prebattle trap_combo aoe umbra reward)
+if (( $# > 0 )); then
+  CLIPS=("$@")
+else
+  CLIPS=("${ALL_CLIPS[@]}")
+fi
+
+for clip in "${CLIPS[@]}"; do
+  case " ${ALL_CLIPS[*]} " in
+    *" ${clip} "*) ;;
+    *)
+      printf 'Unknown trailer clip: %s\n' "${clip}" >&2
+      exit 2
+      ;;
+  esac
+done
 
 mkdir -p "${FOOTAGE_DIR}"
 

@@ -1,4 +1,3 @@
-import "./fonts";
 import "./index.css";
 import {TrailerComposition} from "./Composition";
 

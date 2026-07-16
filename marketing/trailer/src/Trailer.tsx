@@ -1,32 +1,35 @@
 import {Audio, Video} from "@remotion/media";
 import {TransitionSeries, linearTiming} from "@remotion/transitions";
 import {fade} from "@remotion/transitions/fade";
-import type {CSSProperties, ReactNode} from "react";
+import type {ReactNode} from "react";
 import {
   AbsoluteFill,
+  Easing,
   Img,
   Sequence,
   interpolate,
-  spring,
   staticFile,
   useCurrentFrame,
 } from "remotion";
 
 const FPS = 30;
-const TRANSITION = 12;
+const TRANSITION = 8;
 
 const SCENE = {
-  opening: 105,
-  route: 195,
-  prebattle: 210,
-  trap: 180,
-  aoe: 210,
-  umbra: 210,
-  reward: 175,
-  final: 225,
+  opening: 90,
+  route: 120,
+  prebattle: 135,
+  trap: 150,
+  aoe: 165,
+  umbra: 174,
+  reward: 135,
+  final: 180,
 } as const;
 
 const START = {
+  opening: 0,
+  route: SCENE.opening - TRANSITION,
+  prebattle: SCENE.opening + SCENE.route - TRANSITION * 2,
   trap:
     SCENE.opening + SCENE.route + SCENE.prebattle - TRANSITION * 3,
   aoe:
@@ -64,10 +67,11 @@ const START = {
 export const TRAILER_DURATION = START.final + SCENE.final;
 
 const PALETTE = {
-  ink: "#0b080d",
+  ink: "#08060a",
   ember: "#f19a3e",
-  gold: "#d7b85c",
-  violet: "#a97cff",
+  gold: "#e4c36a",
+  parchment: "#fff0c8",
+  violet: "#b689ff",
 } as const;
 
 const clamp = {
@@ -81,28 +85,25 @@ const Vignette: React.FC = () => (
   <AbsoluteFill
     style={{
       pointerEvents: "none",
-      boxShadow: "inset 0 0 220px 80px rgba(0,0,0,0.76)",
+      boxShadow: "inset 0 0 210px 72px rgba(0,0,0,0.70)",
       background:
-        "linear-gradient(180deg, rgba(7,4,9,0.42) 0%, transparent 24%, transparent 70%, rgba(6,3,8,0.62) 100%)",
+        "linear-gradient(180deg, rgba(5,3,7,0.30), transparent 25%, transparent 70%, rgba(5,3,7,0.52))",
     }}
   />
 );
 
 const FilmGrain: React.FC = () => {
   const frame = useCurrentFrame();
-  const driftX = (frame * 17) % 96;
-  const driftY = (frame * 11) % 96;
-
   return (
     <AbsoluteFill
       style={{
         pointerEvents: "none",
-        opacity: 0.11,
+        opacity: 0.075,
         mixBlendMode: "screen",
         backgroundImage:
-          "radial-gradient(circle at 20% 30%, rgba(255,255,255,.32) 0 1px, transparent 1.5px), radial-gradient(circle at 75% 65%, rgba(255,194,112,.26) 0 1px, transparent 1.5px)",
+          "radial-gradient(circle at 20% 30%, rgba(255,255,255,.30) 0 1px, transparent 1.5px), radial-gradient(circle at 75% 65%, rgba(255,194,112,.24) 0 1px, transparent 1.5px)",
         backgroundSize: "43px 47px, 61px 59px",
-        backgroundPosition: `${driftX}px ${driftY}px, ${-driftY}px ${driftX}px`,
+        backgroundPosition: `${(frame * 17) % 96}px ${(frame * 11) % 96}px, ${-(frame * 11) % 96}px ${(frame * 17) % 96}px`,
       }}
     />
   );
@@ -110,14 +111,15 @@ const FilmGrain: React.FC = () => {
 
 const EmberField: React.FC<{opacity?: number}> = ({opacity = 1}) => {
   const frame = useCurrentFrame();
-  const particles = Array.from({length: 24}, (_, index) => {
-    const x = (index * 79 + 17) % 100;
-    const phase = (index * 23) % 120;
-    const y = 112 - ((frame * (0.09 + (index % 5) * 0.025) + phase) % 130);
-    const size = 2 + (index % 4);
-    const alpha = 0.22 + ((index * 19) % 55) / 100;
-    return {x, y, size, alpha};
-  });
+  const particles = Array.from({length: 24}, (_, index) => ({
+    x: (index * 79 + 17) % 100,
+    y:
+      112 -
+      ((frame * (0.09 + (index % 5) * 0.025) + (index * 23) % 120) %
+        130),
+    size: 2 + (index % 4),
+    alpha: 0.22 + ((index * 19) % 55) / 100,
+  }));
 
   return (
     <AbsoluteFill style={{pointerEvents: "none", opacity}}>
@@ -134,7 +136,7 @@ const EmberField: React.FC<{opacity?: number}> = ({opacity = 1}) => {
             background: PALETTE.ember,
             opacity: particle.alpha,
             boxShadow: `0 0 ${particle.size * 4}px ${PALETTE.ember}`,
-            transform: `rotate(${index % 2 === 0 ? -14 : 11}deg)`,
+            rotate: index % 2 === 0 ? "-14deg" : "11deg",
           }}
         />
       ))}
@@ -143,47 +145,45 @@ const EmberField: React.FC<{opacity?: number}> = ({opacity = 1}) => {
 };
 
 const EditorialFrame: React.FC<{children: ReactNode}> = ({children}) => (
-  <AbsoluteFill style={{backgroundColor: PALETTE.ink}}>
+  <AbsoluteFill style={{backgroundColor: PALETTE.ink, overflow: "hidden"}}>
     {children}
     <Vignette />
     <FilmGrain />
-    <div className="edge-line edge-line-top" />
-    <div className="edge-line edge-line-bottom" />
   </AbsoluteFill>
 );
 
-const RevealLine: React.FC<{
-  children: ReactNode;
-  from: number;
-  style?: CSSProperties;
-}> = ({children, from, style}) => {
-  const frame = useCurrentFrame();
-  const progress = spring({
-    frame: frame - from,
-    fps: FPS,
-    config: {damping: 170, stiffness: 120, mass: 0.8},
-    durationInFrames: 26,
-  });
-  const opacity = interpolate(frame, [from, from + 10], [0, 1], clamp);
+const CrumbledRule: React.FC = () => (
+  <div className="crumbled-rule" aria-hidden="true">
+    <span />
+    <span />
+    <span />
+    <span />
+  </div>
+);
 
-  return (
-    <div
-      style={{
-        opacity,
-        transform: `translateY(${interpolate(progress, [0, 1], [34, 0])}px)`,
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
+const TITLE_CARD: Record<string, string> = {
+  "PLAN YOUR DESCENT": "plan-your-descent",
+  "READ THE ROOM": "read-the-room",
+  "USE THE LABYRINTH": "use-the-labyrinth",
+  "BUILD THE PERFECT TURN": "build-the-perfect-turn",
+  "BRING LIGHT INTO THE UMBRA": "bring-light-into-the-umbra",
+  "GROW STRONGER": "grow-stronger",
 };
+
+const TitleArt: React.FC<{
+  slug: string;
+  alt: string;
+  className: string;
+}> = ({slug, alt, className}) => (
+  <Img
+    src={staticFile(`title-cards/${slug}.png`)}
+    className={className}
+    alt={alt}
+  />
+);
 
 const OpeningScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const scale = interpolate(frame, [0, SCENE.opening], [1.02, 1.085], clamp);
-  const artOpacity = interpolate(frame, [0, 12, 92, 105], [0, 1, 1, 0.65], clamp);
-
   return (
     <EditorialFrame>
       <Img
@@ -192,64 +192,77 @@ const OpeningScene: React.FC = () => {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          opacity: artOpacity,
-          transform: `scale(${scale}) translateX(1.5%)`,
+          opacity: interpolate(frame, [0, 10, 76, 90], [0, 1, 1, 0.76], clamp),
+          scale: interpolate(frame, [0, SCENE.opening], [1.025, 1.095], {
+            ...clamp,
+            easing: Easing.bezier(0.22, 0.8, 0.36, 1),
+          }),
+          translate: "1.5% 0",
         }}
       />
       <AbsoluteFill
         style={{
           background:
-            "linear-gradient(90deg, rgba(6,4,8,.94) 0%, rgba(6,4,8,.76) 31%, rgba(6,4,8,.16) 59%, rgba(6,4,8,.06) 100%)",
+            "linear-gradient(90deg, rgba(5,3,7,.96) 0%, rgba(5,3,7,.76) 30%, rgba(5,3,7,.13) 62%, transparent 100%)",
         }}
       />
-      <div className="opening-copy">
-        <RevealLine from={12}>
-          <div className="eyebrow">THE WAY OUT IS BELOW</div>
-        </RevealLine>
-        <RevealLine from={27}>
-          <div className="hook-line">THIS PRISON</div>
-        </RevealLine>
-        <RevealLine from={46}>
-          <div className="hook-line hook-accent">HAS NO EXIT.</div>
-        </RevealLine>
-        <RevealLine from={67}>
-          <div className="opening-sub">Only a way deeper.</div>
-        </RevealLine>
+      <div
+        className="opening-copy"
+        style={{
+          opacity: interpolate(frame, [11, 20, 72, 84], [0, 1, 1, 0], clamp),
+          translate: `0 ${interpolate(frame, [11, 25], [38, 0], {
+            ...clamp,
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          })}px`,
+        }}
+      >
+        <TitleArt
+          slug="this-prison"
+          alt="THIS PRISON"
+          className="opening-line-art"
+        />
+        <TitleArt
+          slug="has-no-exit"
+          alt="HAS NO EXIT"
+          className="opening-line-art opening-accent-art"
+        />
+        <CrumbledRule />
       </div>
-      <EmberField opacity={0.62} />
+      <EmberField opacity={0.58} />
     </EditorialFrame>
   );
 };
 
 type CopyPlacement = "left" | "right" | "center";
 
+type CameraCue = {
+  impactFrame: number;
+  focusX: number;
+  focusY: number;
+  hitZoom: number;
+  settleZoom: number;
+  shake: number;
+};
+
 type GameplaySceneProps = {
   clip: string;
   duration: number;
   trimBefore: number;
-  eyebrow: string;
   headline: string;
-  subline: string;
+  copyExitFrame: number;
   placement?: CopyPlacement;
   zoom?: number;
   accent?: "ember" | "violet" | "gold";
+  camera?: CameraCue;
 };
 
-const GameplayCopy: React.FC<{
-  eyebrow: string;
+const GameplayTitle: React.FC<{
   headline: string;
-  subline: string;
+  copyExitFrame: number;
   placement: CopyPlacement;
   accent: "ember" | "violet" | "gold";
-}> = ({eyebrow, headline, subline, placement, accent}) => {
+}> = ({headline, copyExitFrame, placement, accent}) => {
   const frame = useCurrentFrame();
-  const enter = spring({
-    frame: frame - 16,
-    fps: FPS,
-    config: {damping: 180, stiffness: 130, mass: 0.8},
-    durationInFrames: 28,
-  });
-  const leave = interpolate(frame, [145, 172], [1, 0], clamp);
   const accentColor =
     accent === "violet"
       ? PALETTE.violet
@@ -261,16 +274,25 @@ const GameplayCopy: React.FC<{
     <div
       className={`gameplay-copy gameplay-copy-${placement}`}
       style={{
-        opacity: enter * leave,
-        transform: `translateY(${interpolate(enter, [0, 1], [30, 0])}px)`,
-        borderColor: accentColor,
+        opacity: interpolate(
+          frame,
+          [10, 18, copyExitFrame, copyExitFrame + 12],
+          [0, 1, 1, 0],
+          clamp,
+        ),
+        translate: `0 ${interpolate(frame, [10, 24], [32, 0], {
+          ...clamp,
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        })}px`,
+        color: accentColor,
       }}
     >
-      <div className="gameplay-eyebrow" style={{color: accentColor}}>
-        {eyebrow}
-      </div>
-      <div className="gameplay-headline">{headline}</div>
-      <div className="gameplay-subline">{subline}</div>
+      <TitleArt
+        slug={TITLE_CARD[headline]}
+        alt={headline}
+        className="gameplay-headline-art"
+      />
+      <CrumbledRule />
     </div>
   );
 };
@@ -279,15 +301,63 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
   clip,
   duration,
   trimBefore,
-  eyebrow,
   headline,
-  subline,
+  copyExitFrame,
   placement = "left",
-  zoom = 1.04,
+  zoom = 1.025,
   accent = "ember",
+  camera,
 }) => {
   const frame = useCurrentFrame();
-  const scale = interpolate(frame, [0, duration], [zoom, zoom + 0.025], clamp);
+  const scale = camera
+    ? interpolate(
+        frame,
+        [
+          0,
+          camera.impactFrame - 28,
+          camera.impactFrame - 4,
+          camera.impactFrame + 2,
+          camera.impactFrame + 12,
+          camera.impactFrame + 34,
+          duration,
+        ],
+        [
+          zoom,
+          zoom + 0.014,
+          camera.hitZoom - 0.035,
+          camera.hitZoom + 0.018,
+          camera.hitZoom - 0.008,
+          camera.settleZoom,
+          camera.settleZoom + 0.012,
+        ],
+        clamp,
+      )
+    : interpolate(frame, [0, duration], [zoom, zoom + 0.026], {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      });
+  const shakeEnvelope = camera
+    ? interpolate(
+        frame,
+        [camera.impactFrame - 2, camera.impactFrame + 2, camera.impactFrame + 18],
+        [0, 1, 0],
+        clamp,
+      )
+    : 0;
+  const shakeX = camera
+    ? Math.sin(frame * 2.83) * camera.shake * shakeEnvelope
+    : 0;
+  const shakeY = camera
+    ? Math.cos(frame * 3.47) * camera.shake * 0.62 * shakeEnvelope
+    : 0;
+  const impactLight = camera
+    ? interpolate(
+        frame,
+        [camera.impactFrame - 2, camera.impactFrame + 1, camera.impactFrame + 10],
+        [1, 1.2, 1],
+        clamp,
+      )
+    : 1;
 
   return (
     <EditorialFrame>
@@ -300,7 +370,12 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
           style={{
             width: "100%",
             height: "100%",
-            transform: `scale(${scale})`,
+            scale,
+            translate: `${shakeX}px ${shakeY}px`,
+            transformOrigin: camera
+              ? `${camera.focusX}% ${camera.focusY}%`
+              : "50% 50%",
+            filter: `brightness(${impactLight}) saturate(${1.03 + (impactLight - 1) * 0.8})`,
           }}
         />
       </Sequence>
@@ -308,42 +383,24 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
         style={{
           background:
             placement === "right"
-              ? "linear-gradient(90deg, transparent 40%, rgba(7,4,9,.18) 62%, rgba(7,4,9,.74) 100%)"
+              ? "linear-gradient(180deg, transparent 50%, rgba(5,3,7,.12) 66%, rgba(5,3,7,.84) 100%), linear-gradient(90deg, transparent 45%, rgba(5,3,7,.34) 100%)"
               : placement === "center"
-                ? "linear-gradient(180deg, rgba(7,4,9,.30), transparent 34%, transparent 64%, rgba(7,4,9,.68))"
-                : "linear-gradient(90deg, rgba(7,4,9,.72) 0%, rgba(7,4,9,.18) 33%, transparent 58%)",
+                ? "linear-gradient(180deg, rgba(5,3,7,.18), transparent 34%, transparent 58%, rgba(5,3,7,.76))"
+                : "linear-gradient(180deg, transparent 48%, rgba(5,3,7,.12) 64%, rgba(5,3,7,.86) 100%), linear-gradient(90deg, rgba(5,3,7,.36), transparent 44%)",
         }}
       />
-      <Sequence durationInFrames={duration} premountFor={FPS}>
-        <GameplayCopy
-          eyebrow={eyebrow}
-          headline={headline}
-          subline={subline}
-          placement={placement}
-          accent={accent}
-        />
-      </Sequence>
-      <div className="gameplay-marker">
-        <span>ESCAPE THE UMBRA</span>
-        <span className="marker-dot">◆</span>
-        <span>GAMEPLAY</span>
-        <span className="marker-frame">{String(Math.min(frame, 999)).padStart(3, "0")}</span>
-      </div>
+      <GameplayTitle
+        headline={headline}
+        copyExitFrame={copyExitFrame}
+        placement={placement}
+        accent={accent}
+      />
     </EditorialFrame>
   );
 };
 
 const FinalScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const scale = interpolate(frame, [0, SCENE.final], [1.07, 1.015], clamp);
-  const titleProgress = spring({
-    frame: frame - 72,
-    fps: FPS,
-    config: {damping: 180, stiffness: 95, mass: 0.9},
-    durationInFrames: 34,
-  });
-  const ctaOpacity = interpolate(frame, [132, 154], [0, 1], clamp);
-
   return (
     <EditorialFrame>
       <Img
@@ -352,61 +409,94 @@ const FinalScene: React.FC = () => {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          transform: `scale(${scale})`,
+          scale: interpolate(frame, [0, SCENE.final], [1.075, 1.018], {
+            ...clamp,
+            easing: Easing.bezier(0.45, 0, 0.55, 1),
+          }),
         }}
       />
       <AbsoluteFill
         style={{
           background:
-            "linear-gradient(90deg, rgba(5,3,8,.96) 0%, rgba(5,3,8,.84) 35%, rgba(5,3,8,.24) 61%, rgba(5,3,8,.06) 100%)",
+            "linear-gradient(90deg, rgba(4,3,6,.97) 0%, rgba(4,3,6,.82) 34%, rgba(4,3,6,.20) 66%, transparent 100%)",
         }}
       />
-      <div className="final-copy">
-        <RevealLine from={16}>
-          <div className="final-promise">DEEP IN THE SHADOW</div>
-        </RevealLine>
-        <RevealLine from={34}>
-          <div className="final-dragon">A DRAGON GUARDS THE ONLY WAY OUT.</div>
-        </RevealLine>
-        <div
-          className="title-lockup"
-          style={{
-            opacity: titleProgress,
-            transform: `translateY(${interpolate(titleProgress, [0, 1], [42, 0])}px) scale(${interpolate(titleProgress, [0, 1], [0.96, 1])})`,
-          }}
-        >
-          <div className="title-escape">ESCAPE</div>
-          <div className="title-umbra">THE UMBRA</div>
-        </div>
-        <div className="final-loop" style={{opacity: ctaOpacity}}>
-          DESCEND&nbsp;&nbsp;◆&nbsp;&nbsp;FIGHT&nbsp;&nbsp;◆&nbsp;&nbsp;BUILD&nbsp;&nbsp;◆&nbsp;&nbsp;REPEAT
-        </div>
-        <div className="steam-cta" style={{opacity: ctaOpacity}}>
-          WISHLIST ON STEAM
-        </div>
+      <div
+        className="dragon-objective"
+        style={{
+          opacity: interpolate(frame, [10, 20, 66, 78], [0, 1, 1, 0], clamp),
+          translate: `0 ${interpolate(frame, [10, 24], [30, 0], {
+            ...clamp,
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          })}px`,
+        }}
+      >
+        <TitleArt
+          slug="shadow-dragon-waits-below"
+          alt="THE SHADOW DRAGON WAITS BELOW"
+          className="dragon-objective-art"
+        />
+        <CrumbledRule />
       </div>
-      <EmberField opacity={0.82} />
+      <div
+        className="title-lockup"
+        style={{
+          opacity: interpolate(frame, [76, 94], [0, 1], clamp),
+          translate: `0 ${interpolate(frame, [76, 98], [44, 0], {
+            ...clamp,
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          })}px`,
+          scale: interpolate(frame, [76, 102], [0.95, 1], {
+            ...clamp,
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          }),
+        }}
+      >
+        <TitleArt slug="escape" alt="ESCAPE" className="title-escape-art" />
+        <TitleArt
+          slug="the-umbra"
+          alt="THE UMBRA"
+          className="title-umbra-art"
+        />
+      </div>
+      <div
+        className="steam-cta"
+        style={{opacity: interpolate(frame, [112, 132], [0, 1], clamp)}}
+      >
+        <div className="steam-cta-copy">
+          <TitleArt
+            slug="wishlist-now-on"
+            alt="WISHLIST NOW ON"
+            className="steam-cta-art"
+          />
+          <CrumbledRule />
+        </div>
+        <Img
+          src={staticFile("branding/steam-logo-official.jpg")}
+          className="steam-logo"
+          alt="Steam"
+        />
+      </div>
+      <EmberField opacity={0.8} />
     </EditorialFrame>
   );
 };
 
 const ImpactFlash: React.FC<{from: number; color: string}> = ({from, color}) => (
-  <Sequence from={from} durationInFrames={18} premountFor={8}>
+  <Sequence from={from} durationInFrames={16} premountFor={8}>
     <ImpactFlashContents color={color} />
   </Sequence>
 );
 
 const ImpactFlashContents: React.FC<{color: string}> = ({color}) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 2, 8, 18], [0, 0.5, 0.13, 0], clamp);
-  const scale = interpolate(frame, [0, 18], [0.72, 1.35], clamp);
   return (
     <AbsoluteFill
       style={{
         pointerEvents: "none",
-        opacity,
-        transform: `scale(${scale})`,
-        background: `radial-gradient(circle at 52% 48%, ${color} 0%, transparent 56%)`,
+        opacity: interpolate(frame, [0, 2, 7, 16], [0, 0.46, 0.11, 0], clamp),
+        scale: interpolate(frame, [0, 16], [0.72, 1.38], clamp),
+        background: `radial-gradient(circle at 52% 48%, ${color}, transparent 56%)`,
         mixBlendMode: "screen",
       }}
     />
@@ -422,35 +512,35 @@ const Soundtrack: React.FC = () => (
         volume={(frame) =>
           interpolate(
             frame,
-            [0, 32, TRAILER_DURATION - 72, TRAILER_DURATION - 8],
-            [0, 0.48, 0.48, 0],
+            [0, 28, TRAILER_DURATION - 64, TRAILER_DURATION - 8],
+            [0, 0.5, 0.5, 0],
             clamp,
           )
         }
       />
     </Sequence>
-    <Sequence from={START.trap + 88} durationInFrames={36} premountFor={FPS}>
+    <Sequence from={START.trap + 88} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/attack_melee_sword_first.wav")}
-        volume={0.48}
+        volume={0.54}
       />
     </Sequence>
-    <Sequence from={START.aoe + 83} durationInFrames={36} premountFor={FPS}>
+    <Sequence from={START.aoe + 85} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/action_block.wav")}
-        volume={0.36}
-      />
-    </Sequence>
-    <Sequence from={START.umbra + 112} durationInFrames={36} premountFor={FPS}>
-      <Audio
-        src={staticFile("game-assets/audio/sfx/attack_ranged_bow.wav")}
         volume={0.42}
       />
     </Sequence>
-    <Sequence from={START.reward + 42} durationInFrames={45} premountFor={FPS}>
+    <Sequence from={START.umbra + 108} durationInFrames={34} premountFor={FPS}>
+      <Audio
+        src={staticFile("game-assets/audio/sfx/attack_ranged_bow.wav")}
+        volume={0.46}
+      />
+    </Sequence>
+    <Sequence from={START.reward + 36} durationInFrames={42} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/ember_collect.wav")}
-        volume={0.34}
+        volume={0.36}
       />
     </Sequence>
   </>
@@ -467,12 +557,11 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="route"
           duration={SCENE.route}
-          trimBefore={18}
-          eyebrow="DESCEND"
-          headline="CHOOSE THE WAY DOWN"
-          subline="Every door commits the route."
+          trimBefore={36}
+          headline="PLAN YOUR DESCENT"
+          copyExitFrame={102}
           accent="gold"
-          zoom={1.015}
+          zoom={1.018}
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
@@ -480,10 +569,9 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="prebattle"
           duration={SCENE.prebattle}
-          trimBefore={30}
-          eyebrow="PLAN"
+          trimBefore={18}
           headline="READ THE ROOM"
-          subline="Inspect threats. Change equipment. Enter on your terms."
+          copyExitFrame={88}
           accent="gold"
           zoom={1.025}
         />
@@ -494,11 +582,17 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="trap_combo"
           duration={SCENE.trap}
           trimBefore={10}
-          eyebrow="CONTROL"
-          headline="TURN THE LABYRINTH AGAINST THEM"
-          subline="Push. Pull. Trigger the room."
+          headline="USE THE LABYRINTH"
+          copyExitFrame={62}
           accent="ember"
-          zoom={1.065}
+          camera={{
+            impactFrame: 91,
+            focusX: 51,
+            focusY: 47,
+            hitZoom: 1.2,
+            settleZoom: 1.145,
+            shake: 13,
+          }}
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
@@ -507,11 +601,17 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="aoe"
           duration={SCENE.aoe}
           trimBefore={20}
-          eyebrow="COMBINE"
           headline="BUILD THE PERFECT TURN"
-          subline="Raise intensity. Line them up. Erase the board."
+          copyExitFrame={64}
           accent="gold"
-          zoom={1.06}
+          camera={{
+            impactFrame: 88,
+            focusX: 50,
+            focusY: 47,
+            hitZoom: 1.21,
+            settleZoom: 1.15,
+            shake: 11,
+          }}
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
@@ -520,11 +620,17 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="umbra"
           duration={SCENE.umbra}
           trimBefore={10}
-          eyebrow="REVEAL"
-          headline="CARRY LIGHT INTO THE UMBRA"
-          subline="What you cannot see can still kill you."
+          headline="BRING LIGHT INTO THE UMBRA"
+          copyExitFrame={66}
           accent="violet"
-          zoom={1.065}
+          camera={{
+            impactFrame: 90,
+            focusX: 51,
+            focusY: 44,
+            hitZoom: 1.17,
+            settleZoom: 1.12,
+            shake: 7,
+          }}
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
@@ -533,11 +639,10 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="reward"
           duration={SCENE.reward}
           trimBefore={8}
-          eyebrow="ADAPT"
-          headline="TAKE POWER. REBUILD."
-          subline="Claim cards. Sharpen the next descent."
+          headline="GROW STRONGER"
+          copyExitFrame={108}
           accent="ember"
-          zoom={1.035}
+          zoom={1.028}
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
@@ -545,9 +650,9 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <FinalScene />
       </TransitionSeries.Sequence>
     </TransitionSeries>
-    <ImpactFlash from={START.trap + 94} color="rgba(255,112,45,.78)" />
-    <ImpactFlash from={START.aoe + 87} color="rgba(255,232,96,.72)" />
-    <ImpactFlash from={START.umbra + 89} color="rgba(198,151,255,.48)" />
+    <ImpactFlash from={START.trap + 91} color="rgba(255,112,45,.78)" />
+    <ImpactFlash from={START.aoe + 88} color="rgba(255,232,96,.72)" />
+    <ImpactFlash from={START.umbra + 90} color="rgba(198,151,255,.48)" />
     <Soundtrack />
   </AbsoluteFill>
 );

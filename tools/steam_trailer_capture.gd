@@ -8,6 +8,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 const CAPTURE_SEED: int = 126044
 const INVALID_TILE: Vector2i = Vector2i(-1, -1)
+const INVALID_ROOM: Vector2i = Vector2i(999, 999)
 
 var _run_scene: Control
 var _run_engine = RunEngineScript.new()
@@ -61,16 +62,30 @@ func _seed_showcase_run() -> void:
 	progression["embers"] = 22
 	progression["card_upgrades_unlocked"] = true
 	var state: Dictionary = _run_engine.create_new_run(CAPTURE_SEED, progression)
+	if _clip_id == "route":
+		state = _build_deep_route_state(state)
 	state["unbanked_embers"] = 11
 	_run_scene.call("_load_run_state", state)
 	_run_scene.call("_close_dialogue")
 
 func _capture_route() -> void:
-	await _settle(0.8)
+	await _settle(0.65)
 	_run_scene.call("_open_large_map")
-	await _settle(4.4)
+	await _settle(0.55)
+	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var choices: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
+	_assert_capture(not choices.is_empty(), "Deep route capture must expose at least one legal next room")
+	var large_map_view: Control = _run_scene.get("_large_map_view") as Control
+	if large_map_view != null and not choices.is_empty():
+		large_map_view.call("begin_travel_animation", current, choices[0])
+	await _settle(1.35)
+	if large_map_view != null and not choices.is_empty():
+		large_map_view.set("_hover_coord", choices[0])
+		large_map_view.queue_redraw()
+	await _settle(1.35)
 	_run_scene.call("_close_large_map")
-	await _settle(0.8)
+	await _settle(0.45)
 
 func _capture_prebattle() -> void:
 	await _settle(0.75)
@@ -79,9 +94,77 @@ func _capture_prebattle() -> void:
 		push_error("Capture seed has no available combat destination")
 		return
 	await _run_scene.call("_on_map_view_room_selected", destination)
-	await _settle(3.4)
+	await _settle(1.25)
 	_run_scene.call("_on_pre_battle_start_pressed")
-	await _settle(1.9)
+	await _settle(2.15)
+
+func _build_deep_route_state(initial_state: Dictionary) -> Dictionary:
+	var state: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
+	var path: Array[Vector2i] = []
+	path.append(Vector2i.ZERO)
+	var safety: int = 0
+	while _room_depth_for_state(state, state.get("current_room", Vector2i.ZERO)) < 3 and safety < 24:
+		safety += 1
+		var destination: Vector2i = _choose_showcase_route_step(state)
+		_assert_capture(destination != INVALID_ROOM, "Engine-generated route must reach depth 3")
+		if destination == INVALID_ROOM:
+			break
+		state = _advance_showcase_route(state, destination)
+		path.append(destination)
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var current_depth: int = _room_depth_for_state(state, current)
+	var choices: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
+	var cleared_count: int = 0
+	for room_var: Variant in (state.get("rooms", {}) as Dictionary).values():
+		if typeof(room_var) == TYPE_DICTIONARY and bool((room_var as Dictionary).get("cleared", false)):
+			cleared_count += 1
+	_assert_capture(current_depth >= 3, "Engine-generated route capture must reach depth 3")
+	_assert_capture(path.size() >= 5, "Engine-generated route must show a meaningful cleared path")
+	_assert_capture(cleared_count >= path.size(), "Every traveled room in the route capture must be cleared")
+	_assert_capture(not choices.is_empty(), "Deep route capture must leave realistic next-room choices")
+	state["turns_spent"] = path.size() - 1
+	print("STEAM_TRAILER_ROUTE_RESULT depth=%d path=%s choices=%s cleared=%d" % [current_depth, str(path), str(choices), cleared_count])
+	return state
+
+func _choose_showcase_route_step(state: Dictionary) -> Vector2i:
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var current_depth: int = _room_depth_for_state(state, current)
+	var choices: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
+	for choice: Vector2i in choices:
+		if _room_depth_for_state(state, choice) > current_depth:
+			return choice
+	for choice: Vector2i in choices:
+		var room: Dictionary = _run_engine.room_metadata(state, choice)
+		if not bool(room.get("visited", false)):
+			return choice
+	return choices[0] if not choices.is_empty() else INVALID_ROOM
+
+func _advance_showcase_route(state: Dictionary, destination: Vector2i) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var rooms: Dictionary = (next_state.get("rooms", {}) as Dictionary).duplicate(true)
+	var current: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var current_room: Dictionary = _run_engine.room_metadata(next_state, current)
+	current_room["sealed"] = true
+	rooms[_room_key(current)] = current_room
+	var destination_room: Dictionary = _run_engine.room_metadata(next_state, destination)
+	destination_room["revealed"] = true
+	destination_room["visited"] = true
+	destination_room["cleared"] = true
+	destination_room["sealed"] = false
+	rooms[_room_key(destination)] = destination_room
+	next_state["rooms"] = rooms
+	next_state["current_room"] = destination
+	next_state["mode"] = "room"
+	next_state["combat_state"] = {}
+	next_state["pending_reward"] = {}
+	next_state["pending_relics"] = []
+	return _run_engine.repair_loaded_run_state(next_state)
+
+func _room_depth_for_state(state: Dictionary, coord: Vector2i) -> int:
+	return int(_run_engine.room_metadata(state, coord).get("depth", 0))
+
+func _room_key(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
 
 func _capture_trap_combo() -> void:
 	var layout: Dictionary = _base_combat_layout("The Ember Snare", "fire", 7)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T15:45:19Z",
+  "updated_at": "2026-07-16T18:18:46Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5711,6 +5711,28 @@
       "source": {
         "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
         "commit": "ea5df87"
+      }
+    },
+    {
+      "id": "mnt_20260716T181846Z_03ecd59f",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "folder",
+        "path": "marketing/trailer",
+        "symbol": null
+      },
+      "scope_key": "folder:marketing/trailer",
+      "summary": "Pre-render Labyrinth Crumble trailer copy instead of loading the TTF at Remotion runtime",
+      "details": "Chromium FontFace.load() intermittently left @remotion/fonts delayRender handles open during long renders, including with TTF, compact WOFF, embedded data URLs, and single-worker rendering. scripts/render-title-cards.py deterministically rasterizes the finite promo copy from fonts/LabyrinthCrumble-Regular.ttf into transparent PNGs; animate those assets in Remotion and regenerate them when copy or typography changes.",
+      "status": "active",
+      "created_at": "2026-07-16T18:18:46Z",
+      "updated_at": "2026-07-16T18:18:46Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
+        "commit": "4ecd92d"
       }
     }
   ]

@@ -2,10 +2,10 @@
 
 This folder contains the editable Remotion project and deterministic gameplay captures for the first Steam store trailer for **Escape the Umbra**.
 
-The 47.5-second cut is intentionally gameplay-first after a short setting hook. Its sequence is:
+The tightened second cut is intentionally gameplay-first after a short setting hook. Its sequence is:
 
 1. The prison and the objective: the only way out is deeper.
-2. Route choice and room commitment.
+2. A deeper, engine-generated route with cleared history and legal next-room choices.
 3. Pre-battle threat and loadout inspection.
 4. Forced movement into an environmental fire trap.
 5. A Lightning-3 Thunderline multi-kill.
@@ -32,7 +32,15 @@ The Steam master is written to:
 marketing/trailer/out/escape-the-umbra-steam-trailer.mp4
 ```
 
-The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is 47.533 seconds at roughly 10.8 Mbps total bitrate.
+The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is 36.433 seconds at roughly 11.7 Mbps total bitrate.
+
+The production render intentionally uses one deterministic Chromium worker. Trailer text is committed as transparent title artwork generated from the exact game font, avoiding Chromium's unreliable runtime loading of this custom TTF during long renders.
+
+Regenerate that title artwork after changing the copy, size, color, or source font:
+
+```sh
+python3 scripts/render-title-cards.py
+```
 
 ## Refresh gameplay footage
 
@@ -44,7 +52,7 @@ marketing/trailer/scripts/capture-footage.sh
 
 It invokes the production Godot scene through the parallel-safe task runner, renders each clip at 1920x1080/30 fps, and transcodes the Movie Maker intermediates to H.264 edit clips in `public/footage/`.
 
-Available deterministic captures are `route`, `prebattle`, `trap_combo`, `aoe`, `umbra`, and `reward`. The tactical clips use production `CombatEngine` transitions and `RunScene` board animation rather than simulated compositing.
+Available deterministic captures are `route`, `prebattle`, `trap_combo`, `aoe`, `umbra`, and `reward`. The tactical clips use production `CombatEngine` transitions and `RunScene` board animation rather than simulated compositing. Pass one or more clip ids to refresh only those captures, for example `marketing/trailer/scripts/capture-footage.sh route prebattle`.
 
 Set `LABYRINTH_TASK_ID` if the worktree uses a different task id:
 
@@ -56,6 +64,9 @@ LABYRINTH_TASK_ID=my-task-id marketing/trailer/scripts/capture-footage.sh
 
 - Composition id: `EscapeTheUmbraTrailer`
 - Source: `src/Trailer.tsx`
-- Output duration: 1426 frames at 30 fps
-- Fonts, music, sound effects, and key art are linked from the game repository through `public/game-fonts` and `public/game-assets`.
+- Output duration: 1093 frames at 30 fps
+- Promo typography in `public/title-cards/` is generated from the game's readable Labyrinth Crumble font; music, sound effects, and key art are linked through `public/game-assets`.
+- Promo copy uses that single game-native face at large sizes with no pixel-font labels, UI cards, frame counters, or secondary gameplay taglines.
+- Tactical shots use impact-focused zoom, brightness accents, and deterministic screen shake in the Remotion composition.
+- The final CTA uses Valve's approved Steam® logo artwork with clear space and no recoloring or compositing into the game mark. Preserve the legal attribution in `public/branding/README.md` when preparing distribution copy.
 - The old teaser is not an editorial or visual reference for this cut.

@@ -7,7 +7,6 @@
   "private": true,
   "dependencies": {
     "@remotion/cli": "4.0.490",
-    "@remotion/fonts": "4.0.490",
     "@remotion/media": "4.0.490",
     "@remotion/transitions": "4.0.490",
     "react": "19.2.3",
@@ -27,10 +26,8 @@
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
-    "render": "remotion render EscapeTheUmbraTrailer out/escape-the-umbra-steam-trailer.mp4 --codec h264 --crf 14 --audio-codec aac --audio-bitrate 320k",
+    "render": "remotion render EscapeTheUmbraTrailer out/escape-the-umbra-steam-trailer.mp4 --codec h264 --crf 14 --audio-codec aac --audio-bitrate 320k --concurrency=1 --timeout=60000",
     "stills": "remotion still EscapeTheUmbraTrailer"
   },
-  "sideEffects": [
-    "*.css"
-  ]
+  "sideEffects": ["*.css"]
 }
