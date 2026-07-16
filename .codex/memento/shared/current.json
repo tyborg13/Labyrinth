@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T13:27:40Z",
+  "updated_at": "2026-07-16T15:45:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5689,6 +5689,28 @@
       "source": {
         "branch": "codex/custom-contextual-cursor-and-click-feedback",
         "commit": "7d93f5b"
+      }
+    },
+    {
+      "id": "mnt_20260716T154519Z_9644c311",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "marketing/trailer",
+        "symbol": null
+      },
+      "scope_key": "folder:marketing/trailer",
+      "summary": "Escape the Umbra Steam trailer uses deterministic current-game capture and Remotion source",
+      "details": "Editable source lives in marketing/trailer; tools/steam_trailer_capture.gd produces route, prebattle, real CombatEngine trap/AoE/Umbra beats, and reward footage. The shadow-dragon main-menu art is narrative goal imagery only, and the retired teaser is not a creative reference.",
+      "status": "active",
+      "created_at": "2026-07-16T15:45:19Z",
+      "updated_at": "2026-07-16T15:45:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
+        "commit": "ea5df87"
       }
     }
   ]

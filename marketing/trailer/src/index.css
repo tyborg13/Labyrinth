@@ -1,0 +1,216 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0b080d;
+}
+
+.edge-line {
+  position: absolute;
+  left: 38px;
+  right: 38px;
+  height: 1px;
+  opacity: 0.34;
+  background: linear-gradient(90deg, transparent, #d7b85c 18%, #d7b85c 82%, transparent);
+  box-shadow: 0 0 18px rgba(215, 184, 92, 0.26);
+}
+
+.edge-line-top {
+  top: 34px;
+}
+
+.edge-line-bottom {
+  bottom: 34px;
+}
+
+.opening-copy {
+  position: absolute;
+  left: 126px;
+  top: 244px;
+  width: 860px;
+  color: #fff2cf;
+}
+
+.eyebrow,
+.gameplay-eyebrow,
+.final-promise {
+  color: #d7b85c;
+  font-family: "Umbra Pixel", monospace;
+  font-size: 22px;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.hook-line {
+  font-family: "Umbra Crumble Header", serif;
+  font-size: 118px;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: 0.015em;
+  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 0 2px #000;
+}
+
+.hook-accent {
+  color: #f19a3e;
+}
+
+.opening-sub {
+  margin-top: 34px;
+  color: #cbbd9e;
+  font-family: "Umbra Crumble", serif;
+  font-size: 40px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.95);
+}
+
+.gameplay-copy {
+  position: absolute;
+  width: 680px;
+  padding: 24px 32px 26px;
+  border-left: 4px solid #f19a3e;
+  background: linear-gradient(90deg, rgba(9, 6, 11, 0.88), rgba(9, 6, 11, 0.42) 72%, transparent);
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.7));
+}
+
+.gameplay-copy-left {
+  left: 92px;
+  top: 625px;
+}
+
+.gameplay-copy-right {
+  right: 92px;
+  top: 625px;
+}
+
+.gameplay-copy-center {
+  left: 50%;
+  bottom: 132px;
+  width: 900px;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.gameplay-eyebrow {
+  margin-bottom: 10px;
+  font-size: 19px;
+}
+
+.gameplay-headline {
+  color: #fff2cf;
+  font-family: "Umbra Crumble Header", serif;
+  font-size: 70px;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: 0.018em;
+  text-shadow: 0 5px 22px rgba(0, 0, 0, 0.95), 0 0 2px #000;
+}
+
+.gameplay-subline {
+  margin-top: 14px;
+  color: #d6cab0;
+  font-family: "Umbra Crumble", serif;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95);
+}
+
+.gameplay-marker {
+  position: absolute;
+  left: 66px;
+  top: 54px;
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  color: rgba(255, 242, 207, 0.7);
+  font-family: "Umbra Pixel", monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 8px #000;
+}
+
+.marker-dot {
+  color: #d7b85c;
+  font-size: 9px;
+}
+
+.marker-frame {
+  min-width: 42px;
+  color: rgba(203, 189, 158, 0.48);
+  text-align: right;
+}
+
+.final-copy {
+  position: absolute;
+  left: 118px;
+  top: 104px;
+  width: 880px;
+  color: #fff2cf;
+}
+
+.final-promise {
+  color: #d7b85c;
+}
+
+.final-dragon {
+  margin-top: 10px;
+  width: 770px;
+  color: #d2c4aa;
+  font-family: "Umbra Crumble", serif;
+  font-size: 32px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95);
+}
+
+.title-lockup {
+  margin-top: 58px;
+  width: 850px;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.92));
+}
+
+.title-escape,
+.title-umbra {
+  font-family: "Umbra Crumble Header", serif;
+  font-size: 150px;
+  font-weight: 700;
+  line-height: 0.76;
+  letter-spacing: 0.025em;
+}
+
+.title-escape {
+  color: #fff2cf;
+}
+
+.title-umbra {
+  color: #b689ff;
+  text-shadow: 0 0 42px rgba(126, 67, 197, 0.65), 0 8px 24px rgba(0, 0, 0, 0.95);
+}
+
+.final-loop {
+  margin-top: 56px;
+  color: #d6cab0;
+  font-family: "Umbra Pixel", monospace;
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 8px #000;
+}
+
+.steam-cta {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 17px 24px 14px;
+  border: 2px solid #d7b85c;
+  color: #fff2cf;
+  background: rgba(9, 6, 11, 0.74);
+  box-shadow: 0 0 28px rgba(215, 184, 92, 0.18), inset 0 0 18px rgba(215, 184, 92, 0.08);
+  font-family: "Umbra Pixel", monospace;
+  font-size: 19px;
+  letter-spacing: 0.045em;
+}
