@@ -10,6 +10,7 @@ const DEFAULT_SIZE := Vector2i(1280, 720)
 var _viewport_size: Vector2i = DEFAULT_SIZE
 var _phase: String = "after"
 var _validate_layout: bool = true
+var _character_only: bool = false
 var _failures: Array[String] = []
 
 func _initialize() -> void:
@@ -51,6 +52,8 @@ func _parse_args() -> void:
 			_phase = arg.trim_prefix("--phase=").strip_edges()
 		elif arg == "--no-validate":
 			_validate_layout = false
+		elif arg == "--character-only":
+			_character_only = true
 
 func _capture_targeted_surfaces(output_dir: String) -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -79,20 +82,30 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	instance.call("_open_character_stats_overlay")
 	await _settle()
 	await _capture(output_dir, "character_stats")
-	_check_inside_viewport(instance.get("_upgrade_dialog") as Control, "Character dialog", UiTypography.SAFE_MARGIN)
-	_check_descendant_minimum_font(instance.get("_upgrade_dialog") as Control, "Character dialog")
+	var character_dialog: Control = instance.get("_upgrade_dialog") as Control
+	var stats_dialog_rect: Rect2 = character_dialog.get_global_rect() if character_dialog != null else Rect2()
+	_check_inside_viewport(character_dialog, "Character dialog", UiTypography.SAFE_MARGIN)
+	_check_descendant_minimum_font(character_dialog, "Character dialog")
 	_print_dialog_metrics(instance, "stats")
 	instance.call("_switch_character_overlay_mode", "equipment")
 	await _settle()
 	await _capture(output_dir, "character_gear")
-	_check_inside_viewport(instance.get("_upgrade_dialog") as Control, "Character gear dialog", UiTypography.SAFE_MARGIN)
+	_check_inside_viewport(character_dialog, "Character gear dialog", UiTypography.SAFE_MARGIN)
+	_check_same_rect(character_dialog, stats_dialog_rect, "Character gear dialog")
+	_check_character_subpanels(character_dialog, ["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"], "Gear")
 	_print_dialog_metrics(instance, "gear")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await _settle()
 	await _capture(output_dir, "character_magic")
-	_check_inside_viewport(instance.get("_upgrade_dialog") as Control, "Character magic dialog", UiTypography.SAFE_MARGIN)
+	_check_inside_viewport(character_dialog, "Character magic dialog", UiTypography.SAFE_MARGIN)
+	_check_same_rect(character_dialog, stats_dialog_rect, "Character magic dialog")
+	_check_character_subpanels(character_dialog, ["MagicAttunedPanel", "MagicInventoryPanel", "CurrentDeckPanel"], "Magic")
 	_print_dialog_metrics(instance, "magic")
 	instance.call("_close_card_upgrade_overlay")
+	if _character_only:
+		instance.queue_free()
+		await process_frame
+		return
 
 	instance.set("_progression_overlay_mode", "level_up")
 	instance.call("_rebuild_progression_overlay")
@@ -221,6 +234,33 @@ func _check_inside_viewport(control: Control, label: String, safe_margin: float 
 	var viewport_rect := Rect2(Vector2.ONE * safe_margin, viewport_size - Vector2.ONE * safe_margin * 2.0)
 	if rect.position.x < -1.0 or rect.position.y < -1.0 or rect.end.x > viewport_rect.end.x + 1.0 or rect.end.y > viewport_rect.end.y + 1.0:
 		_failures.append("%s should fit viewport; rect=%s viewport=%s" % [label, rect, viewport_rect])
+
+func _check_same_rect(control: Control, expected: Rect2, label: String) -> void:
+	if not _validate_layout:
+		return
+	if control == null:
+		_failures.append("%s should exist" % label)
+		return
+	var actual: Rect2 = control.get_global_rect()
+	if not actual.position.is_equal_approx(expected.position) or not actual.size.is_equal_approx(expected.size):
+		_failures.append("%s should keep the Stats bounds; actual=%s expected=%s" % [label, actual, expected])
+
+func _check_character_subpanels(dialog: Control, panel_names: Array[String], label: String) -> void:
+	if not _validate_layout or dialog == null:
+		return
+	var body_frame: Control = dialog.find_child("CharacterBodyFrame", true, false) as Control
+	if body_frame == null:
+		_failures.append("%s body frame should exist" % label)
+		return
+	var frame_rect: Rect2 = body_frame.get_global_rect()
+	for panel_name: String in panel_names:
+		var panel: Control = body_frame.find_child(panel_name, true, false) as Control
+		if panel == null:
+			_failures.append("%s subpanel %s should exist" % [label, panel_name])
+			continue
+		var panel_rect: Rect2 = panel.get_global_rect()
+		if not frame_rect.encloses(panel_rect):
+			_failures.append("%s subpanel %s should fit its body frame; panel=%s frame=%s" % [label, panel_name, panel_rect, frame_rect])
 
 func _check_descendant_minimum_font(root_control: Control, label: String) -> void:
 	if not _validate_layout or root_control == null:

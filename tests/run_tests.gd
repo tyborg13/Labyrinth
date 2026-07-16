@@ -12,6 +12,7 @@ const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
+const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -53,6 +54,7 @@ func _initialize() -> void:
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
+	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -10789,6 +10791,13 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	instance.call("_on_character_stats_pressed")
 	await process_frame
 	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Stats to Gear should keep the character dialog size stable")
+	var character_body_frame: Control = character_dialog.find_child("CharacterBodyFrame", true, false) as Control if character_dialog != null else null
+	var gear_body_rect: Rect2 = character_body_frame.get_global_rect().grow(1.0) if character_body_frame != null else Rect2()
+	_assert(character_body_frame != null, "The character menu should provide a fixed body frame for every tab")
+	for panel_name: String in ["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"]:
+		var gear_panel: Control = character_body_frame.find_child(panel_name, true, false) as Control if character_body_frame != null else null
+		_assert(gear_panel != null and gear_body_rect.encloses(gear_panel.get_global_rect()), "The Gear %s should fit inside the fixed character body" % panel_name)
+	_assert(character_body_frame != null and character_body_frame.find_child("EquipmentLoadoutScroll", true, false) is ScrollContainer, "The Gear loadout should scroll internally instead of stretching the character body")
 	_assert(_button_with_text(upgrade_scrim, "Gear") != null, "The character menu should expose a Gear tab")
 	_assert(_button_with_text(upgrade_scrim, "Magic") != null, "The character menu should expose a Magic tab")
 	_assert(_button_with_text(upgrade_scrim, "Stats") != null, "The character menu should keep the Stats tab available")
@@ -10822,7 +10831,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_label_with_text(upgrade_scrim, "Static Lash") == null, "The gear overlay deck should not show inactive reserve magic")
 	_assert((instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "The gear overlay should not create reserve magic drag targets")
 	_assert((instance.get("_magic_attuned_tiles") as Dictionary).is_empty(), "The gear overlay should not create attuned magic drag targets")
-	_assert(upgrade_scrim.find_child("EquipmentLoadoutList", true, false) != null, "The gear overlay should fit the left loadout in a direct panel list")
+	_assert(upgrade_scrim.find_child("EquipmentLoadoutList", true, false) != null, "The gear overlay should keep the left loadout in its scrollable panel list")
 	var item_inventory_tiles: Dictionary = instance.get("_item_inventory_tiles")
 	var item_equipped_tiles: Dictionary = instance.get("_item_equipped_tiles")
 	var item_tile: Control = item_inventory_tiles.get(0, null) as Control
@@ -10882,6 +10891,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(not (item_stowed_state.get("deck_cards", []) as Array).has("crimson_draught"), "Dragging an equipped item out should remove the item card from the active deck")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await process_frame
+	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear to Magic should keep the character dialog size stable")
+	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear to Magic should keep the visible character dialog size stable")
 	_assert(_label_with_text(upgrade_scrim, "Attuned Magic") != null, "The magic overlay should show attuned spell slots")
 	_assert(_label_with_text(upgrade_scrim, "Learned Magic") != null, "The magic overlay should show learned reserve spells")
 	_assert(_label_with_text(upgrade_scrim, "Deck") != null, "The magic overlay should show the current deck")

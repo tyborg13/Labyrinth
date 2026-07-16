@@ -470,6 +470,8 @@ var _time_badge: TimeCostBadge
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	set_meta("cursor_feedback_context", "action_drag")
+	set_meta("cursor_feedback_drag_source", true)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = false
 	text = ""
@@ -626,6 +628,8 @@ func _apply_configuration() -> void:
 	_apply_base_style(background, accent, _usable, _previewed, _printed_playable, ElementData.card_art_background(element_id), str(card.get("rarity", "common")), element_id)
 	disabled = false
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _interactive else Control.CURSOR_ARROW
+	set_meta("cursor_feedback_context", "action_drag" if _interactive else "inert")
+	set_meta("cursor_feedback_drag_source", _interactive)
 	var alpha: float = 1.0
 	if not _usable:
 		alpha = 0.56

@@ -5556,6 +5556,28 @@
       }
     },
     {
+      "id": "mnt_20260715T183714Z_fb15ee94",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Character Gear loadout must scroll inside the fixed body",
+      "details": "The five gear slots plus item slots exceed the fixed character body at supported viewports. Leaving that column unscrolled raises the shared HBox minimum height, so every Gear subpanel extends beneath CharacterBodyFrame and is clipped. Keep the outer dialog/tab bounds fixed and contain the loadout list in its own vertical ScrollContainer.",
+      "status": "active",
+      "created_at": "2026-07-15T18:37:14Z",
+      "updated_at": "2026-07-15T18:37:14Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-character-gear-tab-panel-clipping-without-resizing-menu",
+        "commit": "9ca2cbe"
+      }
+    },
+    {
       "id": "mnt_20260715T184729Z_642e0632",
       "layer": "shared",
       "kind": "user_preference",
@@ -5621,6 +5643,74 @@
       "source": {
         "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
         "commit": "75fb76d"
+      }
+    },
+    {
+      "id": "mnt_20260716T023622Z_161bd9d8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Cursor feedback classifies real activation separately from hover help",
+      "details": "CURSOR_HELP is informational and produces dull click feedback. Point-dependent actions expose cursor_feedback_context_at(local_position); dynamically guarded Controls use cursor_feedback_context_provider with guards matching their real input handlers. Static targets may use cursor_feedback_context and cursor_feedback_drag_source. CursorFeedback owns exact-once procedural click sounds and scene-transition loading feedback.",
+      "status": "active",
+      "created_at": "2026-07-16T02:36:22Z",
+      "updated_at": "2026-07-16T02:36:22Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/custom-contextual-cursor-and-click-feedback",
+        "commit": "c693d85"
+      }
+    },
+    {
+      "id": "mnt_20260716T132649Z_7ebb978c",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/custom_cursor_glyph.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/custom_cursor_glyph.gd",
+      "summary": "Custom cursor reacts through its forged body without press-only ornament",
+      "details": "Keep one coherent forged silhouette with broad blade facets, housed pommel bearing, held compression, release rebound, and directional drag deformation. A valid press must not introduce a detached white tip glint, sparkle, glyph, or other overlay; motion and material changes provide the feedback. Loading alone may use a single sweep inside the bearing.",
+      "status": "active",
+      "created_at": "2026-07-16T13:26:49Z",
+      "updated_at": "2026-07-16T13:26:49Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260716T034020Z_c38fa33b"
+      ],
+      "source": {
+        "branch": "codex/custom-contextual-cursor-and-click-feedback",
+        "commit": "7d93f5b"
+      }
+    },
+    {
+      "id": "mnt_20260716T132740Z_98e64c36",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/cursor_feedback.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/cursor_feedback.gd",
+      "summary": "Valid cursor feedback is a dry mechanical click, not a tonal confirmation",
+      "details": "Keep the valid sound short and transient-led: high-frequency contact texture plus a close latch snap, with no low pitched body or ringing tail that reads as a boop. The inert sound remains the longer dull ash-and-wood knock. Preserve exact-once semantic classification and route both through the SFX bus.",
+      "status": "active",
+      "created_at": "2026-07-16T13:27:40Z",
+      "updated_at": "2026-07-16T13:27:40Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/custom-contextual-cursor-and-click-feedback",
+        "commit": "7d93f5b"
       }
     },
     {

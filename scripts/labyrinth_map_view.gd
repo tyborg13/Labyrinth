@@ -365,6 +365,11 @@ func _gui_input(event: InputEvent) -> void:
 		if coord.x > -900:
 			room_selected.emit(coord)
 
+func cursor_feedback_context_at(local_position: Vector2) -> String:
+	if not interactive or run_state.is_empty():
+		return "inert"
+	return "action" if _coord_at_point(local_position).x > -900 else "inert"
+
 func _draw() -> void:
 	if draw_background:
 		if interactive:
