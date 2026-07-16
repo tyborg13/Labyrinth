@@ -14,15 +14,40 @@ import {
 
 const FPS = 30;
 const TRANSITION = 8;
+const PROGRESSION_TRANSITION = 5;
+
+const PROGRESSION_CLIP = {
+  merchant: 60,
+  relic: 78,
+  spell: 78,
+  equipment: 126,
+} as const;
+
+const PROGRESSION_START = {
+  merchant: 0,
+  relic: PROGRESSION_CLIP.merchant - PROGRESSION_TRANSITION,
+  spell:
+    PROGRESSION_CLIP.merchant +
+    PROGRESSION_CLIP.relic -
+    PROGRESSION_TRANSITION * 2,
+  equipment:
+    PROGRESSION_CLIP.merchant +
+    PROGRESSION_CLIP.relic +
+    PROGRESSION_CLIP.spell -
+    PROGRESSION_TRANSITION * 3,
+} as const;
+
+const PROGRESSION_DURATION =
+  PROGRESSION_START.equipment + PROGRESSION_CLIP.equipment;
 
 const SCENE = {
   opening: 90,
-  route: 120,
-  prebattle: 135,
-  trap: 150,
-  aoe: 165,
-  umbra: 174,
-  reward: 135,
+  route: 100,
+  prebattle: 108,
+  trap: 136,
+  aoe: 145,
+  umbra: 155,
+  progression: PROGRESSION_DURATION,
   final: 180,
 } as const;
 
@@ -45,7 +70,7 @@ const START = {
     SCENE.trap +
     SCENE.aoe -
     TRANSITION * 5,
-  reward:
+  progression:
     SCENE.opening +
     SCENE.route +
     SCENE.prebattle +
@@ -60,7 +85,7 @@ const START = {
     SCENE.trap +
     SCENE.aoe +
     SCENE.umbra +
-    SCENE.reward -
+    SCENE.progression -
     TRANSITION * 7,
 } as const;
 
@@ -80,6 +105,9 @@ const clamp = {
 };
 
 const fadeTiming = linearTiming({durationInFrames: TRANSITION});
+const progressionFadeTiming = linearTiming({
+  durationInFrames: PROGRESSION_TRANSITION,
+});
 
 const Vignette: React.FC = () => (
   <AbsoluteFill
@@ -247,7 +275,6 @@ type CameraCue = {
 type GameplaySceneProps = {
   clip: string;
   duration: number;
-  trimBefore: number;
   headline: string;
   copyExitFrame: number;
   placement?: CopyPlacement;
@@ -300,7 +327,6 @@ const GameplayTitle: React.FC<{
 const GameplayScene: React.FC<GameplaySceneProps> = ({
   clip,
   duration,
-  trimBefore,
   headline,
   copyExitFrame,
   placement = "left",
@@ -364,7 +390,7 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
       <Sequence durationInFrames={duration} premountFor={FPS}>
         <Video
           src={staticFile(`footage/${clip}.mp4`)}
-          trimBefore={trimBefore}
+          trimBefore={0}
           muted
           objectFit="cover"
           style={{
@@ -396,6 +422,118 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
         accent={accent}
       />
     </EditorialFrame>
+  );
+};
+
+const ProgressionClip: React.FC<{
+  clip: "merchant" | "relic" | "spell" | "equipment";
+  duration: number;
+  playbackRate: number;
+  focus: string;
+}> = ({clip, duration, playbackRate, focus}) => {
+  const frame = useCurrentFrame();
+  return (
+    <EditorialFrame>
+      <Sequence durationInFrames={duration} premountFor={FPS}>
+        <Video
+          src={staticFile(`footage/${clip}.mp4`)}
+          trimBefore={0}
+          playbackRate={playbackRate}
+          muted
+          objectFit="cover"
+          style={{
+            width: "100%",
+            height: "100%",
+            scale: interpolate(frame, [0, duration], [1.012, 1.042], {
+              ...clamp,
+              easing: Easing.bezier(0.45, 0, 0.55, 1),
+            }),
+            transformOrigin: focus,
+          }}
+        />
+      </Sequence>
+      <AbsoluteFill
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(5,3,7,.20), transparent 28%, transparent 70%, rgba(5,3,7,.36))",
+        }}
+      />
+    </EditorialFrame>
+  );
+};
+
+const ProgressionScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{backgroundColor: PALETTE.ink, overflow: "hidden"}}>
+      <TransitionSeries>
+        <TransitionSeries.Sequence
+          durationInFrames={PROGRESSION_CLIP.merchant}
+        >
+          <ProgressionClip
+            clip="merchant"
+            duration={PROGRESSION_CLIP.merchant}
+            playbackRate={1.25}
+            focus="50% 62%"
+          />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={progressionFadeTiming}
+        />
+        <TransitionSeries.Sequence durationInFrames={PROGRESSION_CLIP.relic}>
+          <ProgressionClip
+            clip="relic"
+            duration={PROGRESSION_CLIP.relic}
+            playbackRate={1.35}
+            focus="50% 64%"
+          />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={progressionFadeTiming}
+        />
+        <TransitionSeries.Sequence durationInFrames={PROGRESSION_CLIP.spell}>
+          <ProgressionClip
+            clip="spell"
+            duration={PROGRESSION_CLIP.spell}
+            playbackRate={1.35}
+            focus="50% 66%"
+          />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={progressionFadeTiming}
+        />
+        <TransitionSeries.Sequence
+          durationInFrames={PROGRESSION_CLIP.equipment}
+        >
+          <ProgressionClip
+            clip="equipment"
+            duration={PROGRESSION_CLIP.equipment}
+            playbackRate={1.35}
+            focus="50% 54%"
+          />
+        </TransitionSeries.Sequence>
+      </TransitionSeries>
+      <div
+        className="progression-copy"
+        style={{
+          opacity: interpolate(frame, [7, 15, 48, 60], [0, 1, 1, 0], clamp),
+          translate: `0 ${interpolate(frame, [7, 20], [28, 0], {
+            ...clamp,
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          })}px`,
+        }}
+      >
+        <TitleArt
+          slug={TITLE_CARD["GROW STRONGER"]}
+          alt="GROW STRONGER"
+          className="gameplay-headline-art"
+        />
+        <CrumbledRule />
+      </div>
+    </AbsoluteFill>
   );
 };
 
@@ -472,7 +610,7 @@ const FinalScene: React.FC = () => {
           <CrumbledRule />
         </div>
         <Img
-          src={staticFile("branding/steam-logo-official.jpg")}
+          src={staticFile("branding/steam-logo-inverse-transparent.png")}
           className="steam-logo"
           alt="Steam"
         />
@@ -519,30 +657,37 @@ const Soundtrack: React.FC = () => (
         }
       />
     </Sequence>
-    <Sequence from={START.trap + 88} durationInFrames={34} premountFor={FPS}>
+    <Sequence from={START.trap + 68} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/attack_melee_sword_first.wav")}
         volume={0.54}
       />
     </Sequence>
-    <Sequence from={START.aoe + 85} durationInFrames={34} premountFor={FPS}>
+    <Sequence from={START.aoe + 75} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/action_block.wav")}
         volume={0.42}
       />
     </Sequence>
-    <Sequence from={START.umbra + 108} durationInFrames={34} premountFor={FPS}>
+    <Sequence from={START.umbra + 106} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/attack_ranged_bow.wav")}
         volume={0.46}
       />
     </Sequence>
-    <Sequence from={START.reward + 36} durationInFrames={42} premountFor={FPS}>
-      <Audio
-        src={staticFile("game-assets/audio/sfx/ember_collect.wav")}
-        volume={0.36}
-      />
-    </Sequence>
+    {[36, 92, 165, 236].map((offset) => (
+      <Sequence
+        key={offset}
+        from={START.progression + offset}
+        durationInFrames={34}
+        premountFor={FPS}
+      >
+        <Audio
+          src={staticFile("game-assets/audio/sfx/ember_collect.wav")}
+          volume={0.24}
+        />
+      </Sequence>
+    ))}
   </>
 );
 
@@ -557,9 +702,8 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="route"
           duration={SCENE.route}
-          trimBefore={36}
           headline="PLAN YOUR DESCENT"
-          copyExitFrame={102}
+          copyExitFrame={80}
           accent="gold"
           zoom={1.018}
         />
@@ -569,9 +713,8 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="prebattle"
           duration={SCENE.prebattle}
-          trimBefore={18}
           headline="READ THE ROOM"
-          copyExitFrame={88}
+          copyExitFrame={72}
           accent="gold"
           zoom={1.025}
         />
@@ -581,12 +724,11 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="trap_combo"
           duration={SCENE.trap}
-          trimBefore={10}
           headline="USE THE LABYRINTH"
-          copyExitFrame={62}
+          copyExitFrame={52}
           accent="ember"
           camera={{
-            impactFrame: 91,
+            impactFrame: 71,
             focusX: 51,
             focusY: 47,
             hitZoom: 1.2,
@@ -600,12 +742,11 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="aoe"
           duration={SCENE.aoe}
-          trimBefore={20}
           headline="BUILD THE PERFECT TURN"
-          copyExitFrame={64}
+          copyExitFrame={56}
           accent="gold"
           camera={{
-            impactFrame: 88,
+            impactFrame: 78,
             focusX: 50,
             focusY: 47,
             hitZoom: 1.21,
@@ -619,12 +760,11 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <GameplayScene
           clip="umbra"
           duration={SCENE.umbra}
-          trimBefore={10}
           headline="BRING LIGHT INTO THE UMBRA"
-          copyExitFrame={66}
+          copyExitFrame={58}
           accent="violet"
           camera={{
-            impactFrame: 90,
+            impactFrame: 70,
             focusX: 51,
             focusY: 44,
             hitZoom: 1.17,
@@ -634,25 +774,17 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
-      <TransitionSeries.Sequence durationInFrames={SCENE.reward}>
-        <GameplayScene
-          clip="reward"
-          duration={SCENE.reward}
-          trimBefore={8}
-          headline="GROW STRONGER"
-          copyExitFrame={108}
-          accent="ember"
-          zoom={1.028}
-        />
+      <TransitionSeries.Sequence durationInFrames={SCENE.progression}>
+        <ProgressionScene />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
       <TransitionSeries.Sequence durationInFrames={SCENE.final}>
         <FinalScene />
       </TransitionSeries.Sequence>
     </TransitionSeries>
-    <ImpactFlash from={START.trap + 91} color="rgba(255,112,45,.78)" />
-    <ImpactFlash from={START.aoe + 88} color="rgba(255,232,96,.72)" />
-    <ImpactFlash from={START.umbra + 90} color="rgba(198,151,255,.48)" />
+    <ImpactFlash from={START.trap + 71} color="rgba(255,112,45,.78)" />
+    <ImpactFlash from={START.aoe + 78} color="rgba(255,232,96,.72)" />
+    <ImpactFlash from={START.umbra + 70} color="rgba(198,151,255,.48)" />
     <Soundtrack />
   </AbsoluteFill>
 );

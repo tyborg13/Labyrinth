@@ -3,6 +3,7 @@ extends Control
 const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const GameDataScript = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
@@ -24,6 +25,7 @@ func _ready() -> void:
 	_clip_id = _requested_clip_id()
 	_run_scene = RunScene.instantiate()
 	_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_run_scene.visible = false
 	add_child(_run_scene)
 	call_deferred("_capture_requested_clip")
 
@@ -48,8 +50,14 @@ func _capture_requested_clip() -> void:
 			await _capture_aoe_combo()
 		"umbra":
 			await _capture_umbra_reveal()
-		"reward":
-			await _capture_reward()
+		"merchant":
+			await _capture_merchant_purchase()
+		"relic":
+			await _capture_relic_claim()
+		"spell":
+			await _capture_spell_reward()
+		"equipment":
+			await _capture_equipment_pickup_and_equip()
 		_:
 			push_error("Unknown Steam trailer clip: %s" % _clip_id)
 			get_tree().quit(2)
@@ -60,15 +68,40 @@ func _capture_requested_clip() -> void:
 func _seed_showcase_run() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()
 	progression["embers"] = 22
+	progression["run_counter"] = 3
 	progression["card_upgrades_unlocked"] = true
 	var state: Dictionary = _run_engine.create_new_run(CAPTURE_SEED, progression)
-	if _clip_id == "route":
-		state = _build_deep_route_state(state)
-	state["unbanked_embers"] = 11
+	match _clip_id:
+		"route":
+			state = _build_deep_route_state(state)
+		"prebattle":
+			state = _build_prebattle_origin_state(state)
+		"merchant":
+			state = _build_target_room_state(state, "merchant", 2)
+			state = _run_engine.set_held_embers(state, 220)
+		"relic":
+			state = _build_target_room_state(state, "relic", 2)
+		"spell":
+			state = _build_post_combat_reward_state(_build_target_room_state(state, "spell", 2))
+		"equipment":
+			state = _build_target_room_state(state, "equipment", 2)
+		_:
+			state["held_embers"] = 11
+			state["unbanked_embers"] = 11
 	_run_scene.call("_load_run_state", state)
+	_suppress_current_room_dialogue()
+
+func _show_run_scene() -> void:
+	_run_scene.visible = true
+
+func _suppress_current_room_dialogue() -> void:
 	_run_scene.call("_close_dialogue")
+	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var room: Dictionary = _run_engine.room_metadata(state, state.get("current_room", Vector2i.ZERO))
+	_run_scene.set("_last_auto_dialogue_key", _run_scene.call("_dialogue_trigger_key", room))
 
 func _capture_route() -> void:
+	_show_run_scene()
 	await _settle(0.65)
 	_run_scene.call("_open_large_map")
 	await _settle(0.55)
@@ -88,6 +121,7 @@ func _capture_route() -> void:
 	await _settle(0.45)
 
 func _capture_prebattle() -> void:
+	_show_run_scene()
 	await _settle(0.75)
 	var destination: Vector2i = _first_combat_destination()
 	if destination == INVALID_TILE:
@@ -97,6 +131,138 @@ func _capture_prebattle() -> void:
 	await _settle(1.25)
 	_run_scene.call("_on_pre_battle_start_pressed")
 	await _settle(2.15)
+
+func _build_prebattle_origin_state(initial_state: Dictionary) -> Dictionary:
+	var route: Dictionary = _find_target_route(initial_state, "spell", 2)
+	_assert_capture(not route.is_empty(), "Engine-generated path must find a non-start combat room for pre-battle capture")
+	var origin: Dictionary = (route.get("origin", initial_state) as Dictionary).duplicate(true)
+	var destination: Vector2i = route.get("destination", INVALID_ROOM)
+	var choices: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(origin))
+	_assert_capture(destination != INVALID_ROOM and choices.has(destination), "Pre-battle destination must be a legal move")
+	_assert_capture(origin.get("current_room", Vector2i.ZERO) != Vector2i.ZERO, "Pre-battle capture must not begin in the starting room")
+	print("STEAM_TRAILER_PREBATTLE_ORIGIN current=%s depth=%d destination=%s path=%s" % [
+		str(origin.get("current_room", Vector2i.ZERO)),
+		_room_depth_for_state(origin, origin.get("current_room", Vector2i.ZERO)),
+		str(destination),
+		str(route.get("path", []))
+	])
+	return origin
+
+func _build_target_room_state(initial_state: Dictionary, target: String, min_depth: int) -> Dictionary:
+	var route: Dictionary = _find_target_route(initial_state, target, min_depth)
+	_assert_capture(not route.is_empty(), "Engine-generated path must find target room: %s" % target)
+	if route.is_empty():
+		return initial_state
+	var origin: Dictionary = (route.get("origin", initial_state) as Dictionary).duplicate(true)
+	var destination: Vector2i = route.get("destination", INVALID_ROOM)
+	if target == "equipment":
+		origin["equipment_drop_misses"] = RunEngineScript.EQUIPMENT_DROP_PITY_MISSES
+	var result: Dictionary = _run_engine.move_to_room(origin, destination)
+	var room: Dictionary = _run_engine.room_metadata(result, destination)
+	_assert_capture(result.get("current_room", Vector2i.ZERO) == destination, "Target room entry must use RunEngine.move_to_room")
+	_assert_capture(destination != Vector2i.ZERO, "Progression capture target must not be the starting room")
+	_assert_capture(_target_room_matches(room, target, min_depth), "Entered room must match requested progression target")
+	if target == "equipment":
+		_assert_capture(_first_unclaimed_equipment_loot(result.get("combat_state", {}) as Dictionary).size() > 0, "Forced-pity combat must contain real equipment loot")
+	print("STEAM_TRAILER_TARGET_RESULT target=%s room=%s depth=%d type=%s path=%s mode=%s" % [
+		target,
+		str(destination),
+		int(room.get("depth", 0)),
+		str(room.get("type", "")),
+		str(route.get("path", [])),
+		str(result.get("mode", ""))
+	])
+	return result
+
+func _find_target_route(initial_state: Dictionary, target: String, min_depth: int) -> Dictionary:
+	var initial: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
+	var queue: Array = []
+	queue.append({"state": initial, "path": [Vector2i.ZERO]})
+	var visited: Dictionary = {_room_key(Vector2i.ZERO): true}
+	var safety: int = 0
+	while not queue.is_empty() and safety < 96:
+		safety += 1
+		var entry: Dictionary = queue.pop_front() as Dictionary
+		var state: Dictionary = entry.get("state", {}) as Dictionary
+		var path: Array = (entry.get("path", []) as Array).duplicate()
+		var moves: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
+		for destination: Vector2i in moves:
+			var room: Dictionary = _run_engine.room_metadata(state, destination)
+			if _target_room_matches(room, target, min_depth):
+				var target_path: Array = path.duplicate()
+				target_path.append(destination)
+				return {"origin": state, "destination": destination, "path": target_path}
+		for destination: Vector2i in moves:
+			var key: String = _room_key(destination)
+			if visited.has(key):
+				continue
+			var traversed: Dictionary = _run_engine.move_to_room(state, destination)
+			traversed = _resolve_search_room(traversed)
+			if str(traversed.get("mode", "")) != "room":
+				continue
+			visited[key] = true
+			var next_path: Array = path.duplicate()
+			next_path.append(destination)
+			queue.append({"state": traversed, "path": next_path})
+	return {}
+
+func _resolve_search_room(state: Dictionary) -> Dictionary:
+	var mode: String = str(state.get("mode", "room"))
+	if mode == "combat":
+		var victory: Dictionary = _victory_combat_state(state.get("combat_state", {}) as Dictionary)
+		var reward_state: Dictionary = _run_engine.finish_combat(state, victory)
+		return _run_engine.skip_reward_for_heal(reward_state) if str(reward_state.get("mode", "")) == "reward" else reward_state
+	if mode == "treasure":
+		var relics: Array = state.get("pending_relics", []) as Array
+		return _run_engine.claim_relic(state, str(relics[0])) if not relics.is_empty() else state
+	if mode == "campfire":
+		return _run_engine.leave_campfire(state)
+	return state
+
+func _target_room_matches(room: Dictionary, target: String, min_depth: int) -> bool:
+	if int(room.get("depth", 0)) < min_depth:
+		return false
+	match target:
+		"merchant":
+			return not _run_engine.merchant_kind_for_room(room).is_empty()
+		"relic":
+			return str(room.get("type", "")) == "treasure"
+		"spell", "equipment":
+			return str(room.get("type", "")) == "combat"
+	return false
+
+func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
+	var victory: Dictionary = combat_state.duplicate(true)
+	var enemies: Array = (victory.get("enemies", []) as Array).duplicate(true)
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		enemy["hp"] = 0
+		enemies[index] = enemy
+	victory["enemies"] = enemies
+	return victory
+
+func _build_post_combat_reward_state(combat_run_state: Dictionary) -> Dictionary:
+	var current: Vector2i = combat_run_state.get("current_room", Vector2i.ZERO)
+	var combat_state: Dictionary = (combat_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	var reward_loot: Array = []
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) == TYPE_DICTIONARY and str((loot_var as Dictionary).get("kind", "")) == "equipment":
+			continue
+		reward_loot.append(loot_var)
+	combat_state["loot"] = reward_loot
+	var reward_state: Dictionary = _run_engine.finish_combat(
+		combat_run_state,
+		_victory_combat_state(combat_state)
+	)
+	var cards: Array = (reward_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array
+	_assert_capture(str(reward_state.get("mode", "")) == "reward", "Post-combat spell capture must enter the real reward mode")
+	_assert_capture(not cards.is_empty(), "Post-combat spell capture must generate real card rewards")
+	print("STEAM_TRAILER_POST_COMBAT_REWARD room=%s depth=%d cards=%s" % [
+		str(current),
+		_room_depth_for_state(reward_state, current),
+		str(cards)
+	])
+	return reward_state
 
 func _build_deep_route_state(initial_state: Dictionary) -> Dictionary:
 	var state: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
@@ -189,6 +355,7 @@ func _capture_trap_combo() -> void:
 	}]
 	var state: Dictionary = _create_showcase_combat(layout, ["cleaver_hook", "sidestep_slash", "brace"])
 	_apply_combat_state(layout, state)
+	_show_run_scene()
 	await _settle(1.15)
 	_preview_card_and_tile(0, Vector2i(4, 4))
 	await _settle(1.15)
@@ -221,6 +388,7 @@ func _capture_aoe_combo() -> void:
 	var state: Dictionary = _create_showcase_combat(layout, ["thunderline", "storm_relay", "updraft"])
 	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 3, "air": 1, "earth": 0}
 	_apply_combat_state(layout, state)
+	_show_run_scene()
 	await _settle(1.15)
 	_preview_card_and_tile(0, Vector2i(4, 4))
 	await _settle(1.15)
@@ -252,6 +420,7 @@ func _capture_umbra_reveal() -> void:
 	]
 	var state: Dictionary = _create_showcase_combat(layout, ["lantern_shot", "guiding_flare", "dawnstep"])
 	_apply_combat_state(layout, state)
+	_show_run_scene()
 	await _settle(1.4)
 	_preview_card_and_tile(0, Vector2i(5, 4))
 	await _settle(1.0)
@@ -267,19 +436,159 @@ func _capture_umbra_reveal() -> void:
 	_apply_combat_state(layout, after_state)
 	await _settle(1.45)
 
-func _capture_reward() -> void:
-	var state: Dictionary = (_run_scene.get("_run_state") as Dictionary).duplicate(true)
-	state["mode"] = "reward"
-	state["pending_reward"] = {
-		"cards": ["cinderburst", "thunderline", "grave_cleave"],
-		"heal_amount": RunEngineScript.REWARD_HEAL,
-		"ember_amount": 12
-	}
-	state["unbanked_embers"] = 27
-	state["combat_state"] = {}
-	_run_scene.call("_load_run_state", state)
-	_run_scene.call("_close_dialogue")
-	await _settle(4.8)
+func _capture_merchant_purchase() -> void:
+	_show_run_scene()
+	await _settle(0.75)
+	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var merchant_kind: String = _run_engine.merchant_kind_for_current_room(state)
+	var offers: Array = _run_engine.merchant_offer_ids(state, merchant_kind)
+	_assert_capture(current != Vector2i.ZERO, "Merchant capture must not use the starting room")
+	_assert_capture(not merchant_kind.is_empty() and not offers.is_empty(), "Merchant capture must expose real stock")
+	var item_id: String = str(offers[0])
+	for offer_var: Variant in offers:
+		var candidate: String = str(offer_var)
+		if _run_engine.merchant_buy_cost(merchant_kind, candidate) < _run_engine.merchant_buy_cost(merchant_kind, item_id):
+			item_id = candidate
+	var tooltip_key: String = ("equipment:" if merchant_kind == RunEngineScript.MERCHANT_BLACKSMITH else "card:") + item_id
+	var source_row: Control = _find_control_with_tooltip(_run_scene, tooltip_key)
+	_assert_capture(source_row != null, "Merchant capture must find the production shop row")
+	var before_embers: int = _run_engine.held_embers(state)
+	_run_scene.call("_on_merchant_row_mouse_entered", merchant_kind, item_id, source_row)
+	await _settle(0.55)
+	await _run_scene.call("_on_merchant_buy_pressed", merchant_kind, item_id, source_row)
+	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var after_embers: int = _run_engine.held_embers(after_state)
+	_assert_capture(after_embers < before_embers, "Merchant purchase must spend held embers")
+	print("STEAM_TRAILER_MERCHANT_RESULT room=%s depth=%d merchant=%s item=%s embers=%d->%d" % [
+		str(current),
+		_room_depth_for_state(after_state, current),
+		merchant_kind,
+		item_id,
+		before_embers,
+		after_embers
+	])
+	await _settle(0.9)
+
+func _capture_relic_claim() -> void:
+	_show_run_scene()
+	await _settle(0.75)
+	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var relics: Array = (state.get("pending_relics", []) as Array).duplicate()
+	_assert_capture(current != Vector2i.ZERO and str(state.get("mode", "")) == "treasure", "Relic capture must use a real non-start treasure room")
+	_assert_capture(not relics.is_empty(), "Relic capture must expose generated relic choices")
+	var relic_id: String = str(relics[0])
+	var source_panel: Control = _find_control_with_meta(_run_scene, "relic_id", relic_id)
+	_assert_capture(source_panel != null, "Relic capture must find the production relic choice panel")
+	await _settle(0.45)
+	await _run_scene.call("_on_relic_pressed", relic_id, source_panel.get_global_rect())
+	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	_assert_capture((after_state.get("relics", []) as Array).has(relic_id), "Relic claim must add the selected relic to the run")
+	print("STEAM_TRAILER_RELIC_RESULT room=%s depth=%d relic=%s mode=%s" % [
+		str(current),
+		_room_depth_for_state(after_state, current),
+		relic_id,
+		str(after_state.get("mode", ""))
+	])
+	await _settle(0.9)
+
+func _capture_spell_reward() -> void:
+	_show_run_scene()
+	await _settle(0.75)
+	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var cards: Array = ((state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array).duplicate()
+	_assert_capture(current != Vector2i.ZERO and str(state.get("mode", "")) == "reward", "Spell capture must use a real post-combat reward state")
+	_assert_capture(not cards.is_empty(), "Spell capture must expose generated reward cards")
+	var card_id: String = str(cards[0])
+	var source_slot: Control = _find_control_with_meta(_run_scene, "reward_card_id", card_id)
+	_assert_capture(source_slot != null, "Spell capture must find the production reward card slot")
+	await _settle(0.45)
+	await _run_scene.call("_on_reward_card_pressed", card_id, source_slot)
+	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	_assert_capture((after_state.get("magic_inventory", []) as Array).has(card_id), "Spell reward must enter learned magic inventory")
+	print("STEAM_TRAILER_SPELL_RESULT room=%s depth=%d card=%s mode=%s" % [
+		str(current),
+		_room_depth_for_state(after_state, current),
+		card_id,
+		str(after_state.get("mode", ""))
+	])
+	await _settle(0.9)
+
+func _capture_equipment_pickup_and_equip() -> void:
+	var run_state: Dictionary = (_run_scene.get("_run_state") as Dictionary).duplicate(true)
+	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = _run_engine.room_metadata(run_state, current)
+	var layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	var before_combat: Dictionary = (run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	var loot: Dictionary = _first_unclaimed_equipment_loot(before_combat)
+	_assert_capture(current != Vector2i.ZERO and str(run_state.get("mode", "")) == "combat", "Equipment capture must use a real non-start combat room")
+	_assert_capture(not loot.is_empty(), "Equipment capture must begin with a real equipment drop")
+	var equipment_id: String = str(loot.get("equipment_id", ""))
+	var equipment_tile: Vector2i = loot.get("pos", INVALID_TILE)
+	var blink_action: Dictionary = {"type": "blink", "range": 99}
+	var after_combat: Dictionary = _combat_engine.apply_player_action(before_combat, blink_action, equipment_tile)
+	_assert_capture((after_combat.get("collected_equipment", []) as Array).has(equipment_id), "Production combat action must collect the equipment drop")
+	_show_run_scene()
+	await _settle(0.75)
+	_preview_card_and_tile(0, equipment_tile)
+	await _settle(0.35)
+	_clear_hover(0)
+	await _run_scene.call("_animate_player_action_step", before_combat, after_combat, "shadow_step", blink_action, equipment_tile)
+	_apply_combat_state(layout, after_combat)
+	await _settle(0.25)
+	run_state = _run_engine.set_combat_state(run_state, after_combat)
+	var reward_state: Dictionary = _run_engine.finish_combat(run_state, _victory_combat_state(after_combat))
+	var room_state: Dictionary = _run_engine.claim_card_reward(reward_state, "") if str(reward_state.get("mode", "")) == "reward" else reward_state
+	_run_scene.call("_load_run_state", room_state)
+	_suppress_current_room_dialogue()
+	_run_scene.call("_open_character_overlay", "equipment")
+	await _settle(0.65)
+	var slot: String = GameDataScript.equipment_slot(equipment_id)
+	var source_rect: Rect2 = _run_scene.call("_equipment_inventory_icon_rect", equipment_id) as Rect2
+	var target_rect: Rect2 = _run_scene.call("_equipment_slot_icon_rect", slot) as Rect2
+	_assert_capture(source_rect.size.x > 0.0 and target_rect.size.x > 0.0, "Equipment capture must render inventory and target slot icons")
+	_run_scene.set("_equipment_drag_source_rect", source_rect)
+	await _run_scene.call("_equip_equipment_from_overlay", equipment_id, slot, target_rect)
+	var equipped_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var equipped: Dictionary = equipped_state.get("equipped_equipment", {}) as Dictionary
+	_assert_capture(str(equipped.get(slot, "")) == equipment_id, "Production equipment swap must equip the collected item")
+	print("STEAM_TRAILER_EQUIPMENT_RESULT room=%s depth=%d room_type=%s equipment=%s slot=%s collected=true equipped=true" % [
+		str(current),
+		int(room.get("depth", 0)),
+		str(room.get("type", "")),
+		equipment_id,
+		slot
+	])
+	await _settle(1.0)
+
+func _first_unclaimed_equipment_loot(combat_state: Dictionary) -> Dictionary:
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if str(loot.get("kind", "")) == "equipment" and not bool(loot.get("claimed", false)):
+			return loot
+	return {}
+
+func _find_control_with_meta(root: Node, key: String, value: String) -> Control:
+	if root is Control and str(root.get_meta(key, "")) == value:
+		return root as Control
+	for child: Node in root.get_children():
+		var match: Control = _find_control_with_meta(child, key, value)
+		if match != null:
+			return match
+	return null
+
+func _find_control_with_tooltip(root: Node, tooltip: String) -> Control:
+	if root is Control and (root as Control).tooltip_text == tooltip:
+		return root as Control
+	for child: Node in root.get_children():
+		var match: Control = _find_control_with_tooltip(child, tooltip)
+		if match != null:
+			return match
+	return null
 
 func _create_showcase_combat(layout: Dictionary, hand: Array[String]) -> Dictionary:
 	var state: Dictionary = _combat_engine.create_combat(CAPTURE_SEED, layout, {

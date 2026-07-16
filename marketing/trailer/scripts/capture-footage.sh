@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 TASK_ID="${LABYRINTH_TASK_ID:-create-escape-the-umbra-steam-trailer-with-remotion}"
 FOOTAGE_DIR="${REPO_ROOT}/marketing/trailer/public/footage"
-ALL_CLIPS=(route prebattle trap_combo aoe umbra reward)
+ALL_CLIPS=(route prebattle trap_combo aoe umbra merchant relic spell equipment)
 if (( $# > 0 )); then
   CLIPS=("$@")
 else
@@ -27,6 +27,11 @@ mkdir -p "${FOOTAGE_DIR}"
 for clip in "${CLIPS[@]}"; do
   raw_path="${FOOTAGE_DIR}/${clip}.avi"
   edit_path="${FOOTAGE_DIR}/${clip}.mp4"
+
+  case "${clip}" in
+    route) trim_frames=42 ;;
+    *) trim_frames=30 ;;
+  esac
 
   python3 "${REPO_ROOT}/tools/godot_task_runner.py" \
     --task-id "${TASK_ID}" \
@@ -50,6 +55,7 @@ for clip in "${CLIPS[@]}"; do
     -loglevel error \
     -i "${raw_path}" \
     -an \
+    -vf "trim=start_frame=${trim_frames},setpts=PTS-STARTPTS" \
     -c:v libx264 \
     -preset medium \
     -crf 15 \
