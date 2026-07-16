@@ -160,9 +160,20 @@ func _capture_loadout_refresh_and_inspections() -> void:
 			native_close_press.global_position = native_close_press.position
 			if not bool(instance.call("_pinned_pre_battle_close_button_hit", native_close_press)):
 				_fail("Focused enemy X hit testing should accept native canvas-space pointer coordinates")
-			await _click_control_via_viewport(dismissal_button)
+			var inverse_transform_position: Vector2 = instance.get_viewport().get_final_transform().affine_inverse() * native_close_press.position
+			if not dismissal_button.get_global_rect().has_point(inverse_transform_position):
+				var false_close_press := InputEventMouseButton.new()
+				false_close_press.button_index = MOUSE_BUTTON_LEFT
+				false_close_press.pressed = true
+				false_close_press.position = inverse_transform_position
+				false_close_press.global_position = inverse_transform_position
+				instance.call("_input", false_close_press)
+				await process_frame
+				if not (instance.get("_pinned_tooltip_scrim") as Control).visible:
+					_fail("Focused enemy inspection should not close from the inverse-transformed false hit region")
+			await _click_control_via_local_viewport(dismissal_button)
 			if (instance.get("_pinned_tooltip_scrim") as Control).visible:
-				_fail("Focused enemy X button should close through real pointer routing")
+				_fail("Focused enemy X button should close through local viewport pointer routing")
 		else:
 			instance.call("_close_pinned_tooltip")
 		await process_frame
@@ -451,6 +462,26 @@ func _click_control_via_viewport(control: Control) -> void:
 	release.position = click_position
 	release.global_position = click_position
 	Input.parse_input_event(release)
+	await process_frame
+
+func _click_control_via_local_viewport(control: Control) -> void:
+	if control == null:
+		return
+	var viewport: Viewport = control.get_viewport()
+	var click_position: Vector2 = control.get_global_rect().get_center()
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = click_position
+	press.global_position = click_position
+	viewport.push_input(press, true)
+	await process_frame
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = click_position
+	release.global_position = click_position
+	viewport.push_input(release, true)
 	await process_frame
 
 func _control_with_meta(node: Node, meta_key: String, expected_value: String, source_kind: String = "") -> Control:

@@ -8037,6 +8037,17 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 			var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim") as Control
 			_assert(pinned_scrim != null and pinned_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Focused pre-battle inspection scrim should own pointer input above every underlying click target")
 			if inspection_close != null:
+				var close_rect: Rect2 = inspection_close.get_global_rect()
+				var inverse_transform_position: Vector2 = instance.get_viewport().get_final_transform().affine_inverse() * close_rect.get_center()
+				if not close_rect.has_point(inverse_transform_position):
+					var false_close_press := InputEventMouseButton.new()
+					false_close_press.button_index = MOUSE_BUTTON_LEFT
+					false_close_press.pressed = true
+					false_close_press.position = inverse_transform_position
+					false_close_press.global_position = inverse_transform_position
+					instance.call("_input", false_close_press)
+					await process_frame
+					_assert((instance.get("_pinned_tooltip_scrim") as Control).visible, "A native click in the inverse-transformed false hit region should remain suppressed")
 				var native_close_press := InputEventMouseButton.new()
 				native_close_press.button_index = MOUSE_BUTTON_LEFT
 				native_close_press.pressed = true
@@ -8049,23 +8060,23 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 				await process_frame
 				pinned_inspection = instance.find_child("PinnedPreBattleInspection", true, false) as Control
 				inspection_close = pinned_inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_inspection != null else null
-				_assert(inspection_close != null and (instance.get("_pinned_tooltip_scrim") as Control).visible, "The enemy inspection should reopen for transformed pointer-path coverage")
+				_assert(inspection_close != null and (instance.get("_pinned_tooltip_scrim") as Control).visible, "The enemy inspection should reopen for local viewport pointer-path coverage")
 			if inspection_close != null:
 				var close_press := InputEventMouseButton.new()
 				close_press.button_index = MOUSE_BUTTON_LEFT
 				close_press.pressed = true
 				close_press.position = inspection_close.get_global_rect().get_center()
 				close_press.global_position = close_press.position
-				Input.parse_input_event(close_press)
+				instance.get_viewport().push_input(close_press, true)
 				await process_frame
 				var close_release := InputEventMouseButton.new()
 				close_release.button_index = MOUSE_BUTTON_LEFT
 				close_release.pressed = false
 				close_release.position = close_press.position
 				close_release.global_position = close_press.position
-				Input.parse_input_event(close_release)
+				instance.get_viewport().push_input(close_release, true)
 				await process_frame
-				_assert(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "The focused enemy X button should close through real pointer routing")
+				_assert(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "The focused enemy X button should close through local viewport pointer routing")
 			else:
 				instance.call("_close_pinned_tooltip")
 		else:

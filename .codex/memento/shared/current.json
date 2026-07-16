@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T14:37:05Z",
+  "updated_at": "2026-07-16T14:43:40Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5624,7 +5624,7 @@
       }
     },
     {
-      "id": "mnt_20260716T143705Z_18e30bcb",
+      "id": "mnt_20260716T144340Z_73abb9ac",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
@@ -5633,18 +5633,18 @@
         "symbol": "_pinned_pre_battle_close_button_hit"
       },
       "scope_key": "symbol:scripts/run_scene.gd#_pinned_pre_battle_close_button_hit",
-      "summary": "Native and injected Godot pointer events use different coordinates",
-      "details": "RunScene native macOS mouse events already arrive in the canvas coordinates used by Control.get_global_rect(), while Input.parse_input_event replay may arrive in window coordinates and require Viewport.get_final_transform(). Modal hit tests that support both native play and injected probes must check the event position directly before checking the transformed position.",
+      "summary": "Modal hit tests must use one canvas coordinate space",
+      "details": "RunScene native macOS mouse events already match Control.get_global_rect() canvas coordinates. Do not also compare Viewport.get_final_transform() * event.position in production: that creates an inverse-transformed second live hit region where unrelated clicks can close the modal. Tests and replay that synthesize canvas coordinates should route them with Viewport.push_input(event, true).",
       "status": "active",
-      "created_at": "2026-07-16T14:37:05Z",
-      "updated_at": "2026-07-16T14:37:05Z",
+      "created_at": "2026-07-16T14:43:40Z",
+      "updated_at": "2026-07-16T14:43:40Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260716T032748Z_021f797b"
+        "mnt_20260716T143705Z_18e30bcb"
       ],
       "source": {
         "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
-        "commit": "b6b90a5"
+        "commit": "9bb0542"
       }
     }
   ]

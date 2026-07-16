@@ -1942,12 +1942,7 @@ func _pinned_pre_battle_close_button_hit(mouse_event: InputEventMouseButton) -> 
 		return false
 	var close_rect: Rect2 = _pinned_tooltip_close_button.get_global_rect()
 	# Native mouse events already arrive in the canvas coordinates used by Control global rects.
-	if close_rect.has_point(mouse_event.position) or close_rect.has_point(mouse_event.global_position):
-		return true
-	# Input.parse_input_event callers provide window coordinates, so preserve that path for tests and input replay.
-	var canvas_transform: Transform2D = get_viewport().get_final_transform()
-	return close_rect.has_point(canvas_transform * mouse_event.position) \
-		or close_rect.has_point(canvas_transform * mouse_event.global_position)
+	return close_rect.has_point(mouse_event.position) or close_rect.has_point(mouse_event.global_position)
 
 func _suppressed_pre_battle_tooltip() -> Control:
 	var suppressed := Control.new()
