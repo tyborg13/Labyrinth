@@ -2016,6 +2016,11 @@ func _pinned_tooltip_cursor_feedback_context(local_position: Vector2) -> String:
 	if _pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible:
 		return "inert"
 	var global_position: Vector2 = _pinned_tooltip_scrim.get_global_transform_with_canvas() * local_position
+	if _pinned_pre_battle_enemy_inspection_active():
+		if _node_is_alive(_pinned_tooltip_close_button) \
+				and _pinned_tooltip_close_button.get_global_rect().has_point(global_position):
+			return "action"
+		return "inert"
 	if _pinned_tooltip_panel != null and _pinned_tooltip_panel.get_global_rect().has_point(global_position):
 		return "inert"
 	return "action"

@@ -11,6 +11,7 @@ static func run(expect: Callable) -> void:
 	var host: Node = RunSceneScript.new()
 	_test_room_umbra_summary(host, expect)
 	_test_enemy_detail_semantics(host, expect)
+	_test_enemy_detail_cursor_feedback(host, expect)
 	_test_known_move_icon_precedence(host, expect)
 	_test_portrait_fitting_for_full_roster(host, expect)
 	host.free()
@@ -51,6 +52,34 @@ static func _test_enemy_detail_semantics(host: Node, expect: Callable) -> void:
 	expect.call(not _labels_text(inspection).contains("Known repertoire") and not _labels_text(inspection).contains("next move concealed"), "Detailed enemy inspection should remove the redundant repertoire/concealment line")
 	expect.call(close_button != null and close_button.text == "X" and close_button.visible, "Interactive enemy inspection should expose a dedicated visible X close button")
 	inspection.free()
+
+static func _test_enemy_detail_cursor_feedback(host: Node, expect: Callable) -> void:
+	var scrim := ColorRect.new()
+	scrim.visible = true
+	scrim.size = Vector2(1000.0, 700.0)
+	host.add_child(scrim)
+	var inspection := Control.new()
+	inspection.name = "PinnedPreBattleInspection"
+	inspection.set_meta("inspection_kind", "enemy")
+	inspection.position = Vector2(300.0, 150.0)
+	inspection.size = Vector2(400.0, 400.0)
+	scrim.add_child(inspection)
+	var close_button := Button.new()
+	close_button.position = Vector2(340.0, 20.0)
+	close_button.size = Vector2(40.0, 40.0)
+	inspection.add_child(close_button)
+	host.set("_pinned_tooltip_scrim", scrim)
+	host.set("_pinned_tooltip_panel", inspection)
+	host.set("_pinned_tooltip_close_button", close_button)
+	expect.call(host.call("_pinned_tooltip_cursor_feedback_context", Vector2(660.0, 190.0)) == "action", "Focused enemy inspection should advertise only its X as actionable")
+	expect.call(host.call("_pinned_tooltip_cursor_feedback_context", Vector2(450.0, 350.0)) == "inert", "Focused enemy inspection body should not advertise a blocked click")
+	expect.call(host.call("_pinned_tooltip_cursor_feedback_context", Vector2(100.0, 100.0)) == "inert", "Focused enemy inspection backdrop should not advertise a suppressed underlying click")
+	inspection.set_meta("inspection_kind", "card")
+	expect.call(host.call("_pinned_tooltip_cursor_feedback_context", Vector2(100.0, 100.0)) == "action", "Other pinned tooltips should retain outside-click dismissal feedback")
+	host.set("_pinned_tooltip_scrim", null)
+	host.set("_pinned_tooltip_panel", null)
+	host.set("_pinned_tooltip_close_button", null)
+	scrim.free()
 
 static func _test_known_move_icon_precedence(host: Node, expect: Callable) -> void:
 	var intent_expectations: Array = [

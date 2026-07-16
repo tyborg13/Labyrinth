@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T14:43:40Z",
+  "updated_at": "2026-07-16T15:16:07Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5735,6 +5735,28 @@
       "source": {
         "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
         "commit": "9bb0542"
+      }
+    },
+    {
+      "id": "mnt_20260716T151607Z_ba8c1afd",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Modal cursor feedback must mirror suppressed input",
+      "details": "When a focused pre-battle enemy inspection is open, the full-screen pinned-tooltip scrim consumes every background click without dismissal. Its cursor_feedback_context_provider must therefore return action only over the live X close-button rect and inert everywhere else; retaining the generic pinned-overlay outside-click action context produces a valid cursor/click sound for an action that will never occur.",
+      "status": "active",
+      "created_at": "2026-07-16T15:16:07Z",
+      "updated_at": "2026-07-16T15:16:07Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-pre-battle-enemy-details-and-portraits",
+        "commit": "ae74f90"
       }
     }
   ]
