@@ -106,6 +106,8 @@ class PreBattleEnemyCard:
 	func _make_custom_tooltip(for_text: String) -> Object:
 		if host == null or enemy.is_empty():
 			return super._make_custom_tooltip(for_text)
+		if host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
+			return host.call("_suppressed_pre_battle_tooltip")
 		return host.call("_build_pre_battle_enemy_inspection_panel", enemy)
 
 	func _gui_input(event: InputEvent) -> void:
@@ -119,6 +121,11 @@ class PreBattleEnemyCard:
 class PreBattleEquipmentChip:
 	extends EquipmentTooltipPanelContainer
 
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if host != null and host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
+			return host.call("_suppressed_pre_battle_tooltip")
+		return super._make_custom_tooltip(for_text)
+
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or equipment_id.is_empty() or not (event is InputEventMouseButton):
 			return
@@ -131,6 +138,11 @@ class PreBattleCardBadge:
 	extends EquipmentCardBadge
 
 	var source_kind: String = "deck"
+
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if host != null and host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
+			return host.call("_suppressed_pre_battle_tooltip")
+		return super._make_custom_tooltip(for_text)
 
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or card_id.is_empty() or not (event is InputEventMouseButton):
@@ -1009,6 +1021,10 @@ const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
+const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
+const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
+const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
+const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -1201,6 +1217,7 @@ var _pinned_tooltip_host: Control
 var _pinned_tooltip_panel: Control
 var _pinned_tooltip_source_row: Control
 var _pinned_tooltip_source_text: String = ""
+var _pinned_pre_battle_tooltip_sources: Dictionary = {}
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -1853,6 +1870,8 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 	for child: Node in _pinned_tooltip_host.get_children():
 		child.queue_free()
 	_suppress_pinned_tooltip_source(source_control)
+	_suppress_pre_battle_hover_sources()
+	_dismiss_pre_battle_tooltip_popups(_pre_battle_panel)
 	match kind:
 		"enemy":
 			_pinned_tooltip_panel = _build_pre_battle_enemy_inspection_panel(enemy, true)
@@ -1862,6 +1881,7 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 			_pinned_tooltip_panel = _build_card_tooltip_panel(content_id, true)
 	if _pinned_tooltip_panel == null:
 		_restore_pinned_tooltip_source()
+		_restore_pre_battle_hover_sources()
 		return
 	_pinned_tooltip_panel.name = "PinnedPreBattleInspection"
 	_pinned_tooltip_panel.set_meta("inspection_kind", kind)
@@ -1877,9 +1897,57 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 	)
 	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.66)
 	_pinned_tooltip_scrim.visible = true
+	call_deferred("_refresh_pinned_tooltip_hover_owner")
+
+func _pre_battle_hover_inspections_enabled() -> bool:
+	return _pre_battle_scrim != null \
+		and _pre_battle_scrim.visible \
+		and (_pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible)
+
+func _suppressed_pre_battle_tooltip() -> Control:
+	var suppressed := Control.new()
+	suppressed.visible = false
+	return suppressed
+
+func _suppress_pre_battle_hover_sources() -> void:
+	_restore_pre_battle_hover_sources()
+	if _pre_battle_panel == null:
+		return
+	for node_var: Variant in _pre_battle_panel.find_children("*", "Control", true, false):
+		var control: Control = node_var as Control
+		if control == null or control.tooltip_text.is_empty() or control == _pinned_tooltip_source_row:
+			continue
+		_pinned_pre_battle_tooltip_sources[control] = control.tooltip_text
+		control.tooltip_text = ""
+
+func _restore_pre_battle_hover_sources() -> void:
+	for control_var: Variant in _pinned_pre_battle_tooltip_sources.keys():
+		var control: Control = control_var as Control
+		if _node_is_alive(control):
+			control.tooltip_text = str(_pinned_pre_battle_tooltip_sources.get(control, ""))
+	_pinned_pre_battle_tooltip_sources.clear()
+
+func _dismiss_pre_battle_tooltip_popups(node: Node) -> void:
+	if node == null:
+		return
+	for child: Node in node.get_children():
+		if child is Window and str(child.get("theme_type_variation")) == "TooltipPanel":
+			child.queue_free()
+			continue
+		_dismiss_pre_battle_tooltip_popups(child)
+
+func _refresh_pinned_tooltip_hover_owner() -> void:
+	if _pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible:
+		return
+	var motion := InputEventMouseMotion.new()
+	var mouse_position: Vector2 = get_viewport().get_mouse_position()
+	motion.position = mouse_position
+	motion.global_position = mouse_position
+	get_viewport().push_input(motion, true)
 
 func _close_pinned_tooltip() -> void:
 	_restore_pinned_tooltip_source()
+	_restore_pre_battle_hover_sources()
 	if _pinned_tooltip_scrim != null:
 		_pinned_tooltip_scrim.visible = false
 		_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.0)
@@ -2253,19 +2321,30 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
 	chip.add_child(title)
-	var meta := Label.new()
-	meta.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	var meta_row := HBoxContainer.new()
+	meta_row.name = "PreBattleRoomMeta"
+	meta_row.add_theme_constant_override("separation", 0)
+	chip.add_child(meta_row)
+	var depth_label := Label.new()
+	depth_label.name = "PreBattleDepthLabel"
+	depth_label.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	UiTypography.apply_label_role(depth_label, UiTypography.ROLE_BODY_LARGE)
+	depth_label.add_theme_color_override("font_color", accent.lightened(0.28))
+	meta_row.add_child(depth_label)
 	if combat_state.has("umbra"):
 		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
 		if umbra_stage != "clear":
-			meta.text += "  ·  %s Umbra  ·  Vision %d" % [
-				CombatEngineScript.umbra_stage_display_name(umbra_stage),
-				_combat_engine.effective_umbra_radius(combat_state)
-			]
-	meta.clip_text = true
-	UiTypography.apply_label_role(meta, UiTypography.ROLE_BODY_LARGE)
-	meta.add_theme_color_override("font_color", accent.lightened(0.28))
-	chip.add_child(meta)
+			var separator := Label.new()
+			separator.text = "  ·  "
+			UiTypography.apply_label_role(separator, UiTypography.ROLE_BODY_LARGE)
+			separator.add_theme_color_override("font_color", accent.lightened(0.28))
+			meta_row.add_child(separator)
+			var umbra_label := Label.new()
+			umbra_label.name = "PreBattleUmbraLabel"
+			umbra_label.text = "%s Umbra" % CombatEngineScript.umbra_stage_display_name(umbra_stage)
+			UiTypography.apply_label_role(umbra_label, UiTypography.ROLE_BODY_LARGE)
+			umbra_label.add_theme_color_override("font_color", PRE_BATTLE_UMBRA_COLOR)
+			meta_row.add_child(umbra_label)
 	return chip
 
 func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
@@ -2555,17 +2634,12 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card.add_child(stack)
 
-	var art := TextureRect.new()
+	var art := _pre_battle_enemy_portrait(enemy_type, enemy_def)
 	art.name = "PreBattleEnemyArt"
-	art.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.offset_left = 6.0
-	art.offset_top = 6.0
-	art.offset_right = -6.0
+	art.offset_left = PRE_BATTLE_PORTRAIT_INSET
+	art.offset_top = 40.0
+	art.offset_right = -PRE_BATTLE_PORTRAIT_INSET
 	art.offset_bottom = -50.0
 	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
 	stack.add_child(art)
@@ -2802,13 +2876,16 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 	portrait_frame.custom_minimum_size = Vector2(138.0, 138.0)
 	portrait_frame.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.025, 0.021, 0.020, 0.98), accent, 6.0, 8))
 	header.add_child(portrait_frame)
-	var portrait := TextureRect.new()
-	portrait.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
-	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_frame.add_child(portrait)
+	var portrait_inset := MarginContainer.new()
+	portrait_inset.name = "PreBattleEnemyPortraitInset"
+	portrait_inset.add_theme_constant_override("margin_left", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_inset.add_theme_constant_override("margin_top", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_inset.add_theme_constant_override("margin_right", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_inset.add_theme_constant_override("margin_bottom", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_frame.add_child(portrait_inset)
+	var portrait := _pre_battle_enemy_portrait(enemy_type, enemy_def)
+	portrait.name = "PreBattleEnemyPortrait"
+	portrait_inset.add_child(portrait)
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	identity.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -2823,21 +2900,45 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 	identity.add_child(name_label)
 	var hp: int = int(enemy.get("hp", enemy_def.get("max_hp", 0)))
 	var max_hp: int = int(enemy.get("max_hp", hp))
-	var meta_label := Label.new()
-	meta_label.text = "HP %d/%d   /   Base initiative %d" % [hp, max_hp, int(enemy_def.get("base_initiative", 0))]
-	UiTypography.set_label_size(meta_label, UiTypography.SIZE_SMALL)
-	meta_label.add_theme_color_override("font_color", Color("d8c9b1"))
-	identity.add_child(meta_label)
+	var stat_row := HBoxContainer.new()
+	stat_row.name = "PreBattleEnemyStatRow"
+	stat_row.add_theme_constant_override("separation", 10)
+	identity.add_child(stat_row)
+	var hp_label := Label.new()
+	hp_label.name = "PreBattleEnemyHpLine"
+	hp_label.text = "HP %d/%d" % [hp, max_hp]
+	UiTypography.set_label_size(hp_label, UiTypography.SIZE_SMALL)
+	hp_label.add_theme_color_override("font_color", PRE_BATTLE_HP_COLOR)
+	stat_row.add_child(hp_label)
+	var stat_separator := Label.new()
+	stat_separator.text = "/"
+	UiTypography.set_label_size(stat_separator, UiTypography.SIZE_SMALL)
+	stat_separator.add_theme_color_override("font_color", Color("a99a83"))
+	stat_row.add_child(stat_separator)
+	var initiative_label := Label.new()
+	initiative_label.name = "PreBattleEnemyInitiativeLine"
+	initiative_label.text = "Base initiative %d" % int(enemy_def.get("base_initiative", 0))
+	UiTypography.set_label_size(initiative_label, UiTypography.SIZE_SMALL)
+	initiative_label.add_theme_color_override("font_color", PRE_BATTLE_INITIATIVE_COLOR)
+	stat_row.add_child(initiative_label)
 	var threat_label := Label.new()
 	threat_label.text = _pre_battle_enemy_threat_summary(enemy_type)
 	UiTypography.set_label_size(threat_label, UiTypography.SIZE_SMALL)
 	threat_label.add_theme_color_override("font_color", accent.lightened(0.36))
 	identity.add_child(threat_label)
-	var visibility_label := Label.new()
-	visibility_label.text = "Known repertoire / next move concealed"
-	UiTypography.set_label_size(visibility_label, UiTypography.SIZE_CAPTION)
-	visibility_label.add_theme_color_override("font_color", Color("a99a83"))
-	identity.add_child(visibility_label)
+	if interactive:
+		var close_button := Button.new()
+		close_button.name = "PreBattleInspectionCloseButton"
+		close_button.text = "X"
+		close_button.tooltip_text = "Close"
+		_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
+		_ui_skin.apply_button_text_overrides(close_button)
+		UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
+		close_button.custom_minimum_size = Vector2(40.0, 40.0)
+		close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+		close_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		close_button.pressed.connect(_close_pinned_tooltip)
+		header.add_child(close_button)
 
 	vbox.add_child(_pre_battle_section_label("Known Moves", ActionIcons.icon_texture("time"), accent))
 	var moves := VBoxContainer.new()
@@ -2866,15 +2967,10 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	row.add_theme_constant_override("separation", 10)
 	row_panel.add_child(row)
 	var actions: Array = intent.get("actions", []) as Array
-	var icon_key: String = "melee"
-	for action_var: Variant in actions:
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var candidate: String = _action_step_icon_key(action_var as Dictionary)
-		if not candidate.is_empty():
-			icon_key = candidate
-			break
+	var icon_key: String = _pre_battle_known_move_icon_key(intent)
 	var icon := TextureRect.new()
+	icon.name = "PreBattleKnownMoveIcon"
+	icon.set_meta("icon_key", icon_key)
 	icon.texture = ActionIcons.icon_texture(icon_key)
 	icon.custom_minimum_size = Vector2(34.0, 34.0)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -2913,11 +3009,75 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	time_chip.add_child(time_label)
 	return row_panel
 
+func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
+	var best_key: String = "melee"
+	var best_priority: int = 1000
+	for action_var: Variant in intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		var action_type: String = str(action.get("type", ""))
+		var candidate: String = ""
+		var priority: int = 100
+		match action_type:
+			"melee":
+				candidate = "melee"
+				priority = 0
+			"ranged", "lightning_strikes":
+				candidate = "ranged"
+				priority = 1
+			"aoe":
+				candidate = "ranged" if int(action.get("range", 0)) > 0 else "melee"
+				priority = 0 if candidate == "melee" else 1
+			"push", "pull":
+				candidate = action_type
+				priority = 2
+			"block", "guard_ally":
+				candidate = "block"
+				priority = 3
+			"stoneskin":
+				candidate = "stoneskin"
+				priority = 3
+			"heal", "heal_self", "heal_ally":
+				candidate = "heal"
+				priority = 4
+			"summon_minions":
+				candidate = "shock"
+				priority = 5
+			"move", "move_toward":
+				candidate = "move"
+				priority = 20
+			"move_away":
+				candidate = "retreat"
+				priority = 20
+			"blink":
+				candidate = "blink"
+				priority = 20
+			_:
+				candidate = _action_step_icon_key(action)
+				priority = 10
+		if not candidate.is_empty() and priority < best_priority:
+			best_key = candidate
+			best_priority = priority
+	return best_key
+
+func _pre_battle_enemy_portrait(enemy_type: String, enemy_def: Dictionary) -> TextureRect:
+	var portrait := TextureRect.new()
+	portrait.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return portrait
+
 func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
+	var art_path: String = str(enemy_def.get("art_path", ""))
+	if not art_path.is_empty():
+		return AssetLoader.load_texture(art_path)
 	var portrait_path: String = str(TURN_ORDER_PORTRAITS.get(enemy_type, ""))
 	if not portrait_path.is_empty():
 		return AssetLoader.load_texture(portrait_path)
-	return AssetLoader.load_texture(str(enemy_def.get("art_path", "")))
+	return null
 
 func _animate_pre_battle_entry() -> void:
 	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:

@@ -11,6 +11,7 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
+const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -51,6 +52,7 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
+	PreBattleUiSuite.run(Callable(self, "_assert"))
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -8015,9 +8017,22 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 		_assert(pinned_inspection != null and pinned_inspection.visible, "Clicking a pre-battle summary entry should pin a readable inspection")
 		if pinned_inspection != null and index < inspection_kinds.size():
 			_assert(str(pinned_inspection.get_meta("inspection_kind", "")) == inspection_kinds[index], "Pinned pre-battle inspection should preserve its content kind")
+		for blocked_source: Control in inspection_sources:
+			var blocked_hover: Variant = blocked_source.call("_make_custom_tooltip", blocked_source.tooltip_text)
+			_assert(blocked_hover is Control and not (blocked_hover as Control).visible, "Pinned pre-battle inspection should disable every underlying enemy, equipment, and card hover panel")
+			if blocked_hover is Control:
+				(blocked_hover as Control).free()
 		_assert(str((instance.get("_run_state") as Dictionary).get("mode", "")) == RunEngine.MODE_PRE_BATTLE, "Inspecting pre-battle details should keep the room committed")
 		_assert((instance.get("_exit_destinations_by_tile") as Dictionary).is_empty(), "Inspecting pre-battle details should not reveal exits")
-		instance.call("_close_pinned_tooltip")
+		if index == 0 and pinned_inspection != null:
+			var inspection_close: Button = pinned_inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button
+			_assert(inspection_close != null and inspection_close.visible, "Focused enemy inspection should provide a dedicated visible X close button")
+			if inspection_close != null:
+				inspection_close.emit_signal("pressed")
+			else:
+				instance.call("_close_pinned_tooltip")
+		else:
+			instance.call("_close_pinned_tooltip")
 		await process_frame
 
 	instance.call("_on_pre_battle_equip_pressed")
