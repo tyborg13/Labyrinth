@@ -1375,12 +1375,9 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		elif event is InputEventMouseButton and _pinned_pre_battle_enemy_inspection_active():
 			var mouse_event: InputEventMouseButton = event
-			# RunScene's stretched viewport transforms raw input positions into the same canvas space as Control global rects.
-			var canvas_position: Vector2 = get_viewport().get_final_transform() * mouse_event.position
 			if mouse_event.button_index == MOUSE_BUTTON_LEFT \
 					and mouse_event.pressed \
-					and _node_is_alive(_pinned_tooltip_close_button) \
-					and _pinned_tooltip_close_button.get_global_rect().has_point(canvas_position):
+					and _pinned_pre_battle_close_button_hit(mouse_event):
 				_close_pinned_tooltip()
 			get_viewport().set_input_as_handled()
 		return
@@ -1939,6 +1936,18 @@ func _pinned_pre_battle_enemy_inspection_active() -> bool:
 		and _pinned_tooltip_panel != null \
 		and _pinned_tooltip_panel.name == "PinnedPreBattleInspection" \
 		and str(_pinned_tooltip_panel.get_meta("inspection_kind", "")) == "enemy"
+
+func _pinned_pre_battle_close_button_hit(mouse_event: InputEventMouseButton) -> bool:
+	if not _node_is_alive(_pinned_tooltip_close_button):
+		return false
+	var close_rect: Rect2 = _pinned_tooltip_close_button.get_global_rect()
+	# Native mouse events already arrive in the canvas coordinates used by Control global rects.
+	if close_rect.has_point(mouse_event.position) or close_rect.has_point(mouse_event.global_position):
+		return true
+	# Input.parse_input_event callers provide window coordinates, so preserve that path for tests and input replay.
+	var canvas_transform: Transform2D = get_viewport().get_final_transform()
+	return close_rect.has_point(canvas_transform * mouse_event.position) \
+		or close_rect.has_point(canvas_transform * mouse_event.global_position)
 
 func _suppressed_pre_battle_tooltip() -> Control:
 	var suppressed := Control.new()

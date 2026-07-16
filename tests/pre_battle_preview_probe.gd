@@ -153,6 +153,13 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		await _save_root_screenshot("%s/expanded_enemy_known_moves_v2.png" % OUTPUT_DIR)
 		var dismissal_button: Button = pinned_enemy.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_enemy != null else null
 		if dismissal_button != null:
+			var native_close_press := InputEventMouseButton.new()
+			native_close_press.button_index = MOUSE_BUTTON_LEFT
+			native_close_press.pressed = true
+			native_close_press.position = dismissal_button.get_global_rect().get_center()
+			native_close_press.global_position = native_close_press.position
+			if not bool(instance.call("_pinned_pre_battle_close_button_hit", native_close_press)):
+				_fail("Focused enemy X hit testing should accept native canvas-space pointer coordinates")
 			await _click_control_via_viewport(dismissal_button)
 			if (instance.get("_pinned_tooltip_scrim") as Control).visible:
 				_fail("Focused enemy X button should close through real pointer routing")

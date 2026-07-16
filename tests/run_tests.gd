@@ -8037,6 +8037,20 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 			var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim") as Control
 			_assert(pinned_scrim != null and pinned_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Focused pre-battle inspection scrim should own pointer input above every underlying click target")
 			if inspection_close != null:
+				var native_close_press := InputEventMouseButton.new()
+				native_close_press.button_index = MOUSE_BUTTON_LEFT
+				native_close_press.pressed = true
+				native_close_press.position = inspection_close.get_global_rect().get_center()
+				native_close_press.global_position = native_close_press.position
+				instance.call("_input", native_close_press)
+				await process_frame
+				_assert(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "The focused enemy X button should close for native canvas-space pointer coordinates")
+				inspection_sources[index].call("_gui_input", click)
+				await process_frame
+				pinned_inspection = instance.find_child("PinnedPreBattleInspection", true, false) as Control
+				inspection_close = pinned_inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_inspection != null else null
+				_assert(inspection_close != null and (instance.get("_pinned_tooltip_scrim") as Control).visible, "The enemy inspection should reopen for transformed pointer-path coverage")
+			if inspection_close != null:
 				var close_press := InputEventMouseButton.new()
 				close_press.button_index = MOUSE_BUTTON_LEFT
 				close_press.pressed = true
