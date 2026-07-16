@@ -363,6 +363,7 @@ func _verify_contract() -> void:
 	_expect((contract.get("layers", []) as Array).size() >= 6, "Cursor proof should exercise the full layered-art contract")
 	_expect(bool(contract.get("single_silhouette", false)) and not bool(contract.get("context_glyphs", true)), "Cursor proof should use one coherent silhouette without a context-glyph language")
 	_expect(not bool(contract.get("center_stripe", true)), "Cursor proof should use joined forged facets instead of a bright stripe down the blade")
+	_expect(not bool(contract.get("press_tip_glint", true)), "Pressed cursor proof should not add a detached white tip glint")
 	_expect(bool(contract.get("press_holds", false)) and bool(contract.get("release_rebounds", false)), "Cursor proof should cover held compression and release rebound")
 	_expect(bool(contract.get("loading_spins", false)) and str(contract.get("loading_integration", "")) == "heel_bearing", "Cursor proof should include the integrated spinning heel bearing")
 	_expect(str(contract.get("pommel_detail", "")) == "faceted_socket_and_bearing", "Cursor proof should include the detailed pommel socket and inset bearing")

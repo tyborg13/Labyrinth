@@ -10,7 +10,7 @@ const CONTEXT_PROVIDER_META: String = "cursor_feedback_context_provider"
 const CONTEXT_AT_METHOD: String = "cursor_feedback_context_at"
 const DRAG_THRESHOLD: float = 7.0
 const AUDIO_MIX_RATE: int = 44100
-const VALID_CLICK_SECONDS: float = 0.082
+const VALID_CLICK_SECONDS: float = 0.045
 const INVALID_CLICK_SECONDS: float = 0.105
 const VALID_CLICK_VOLUME_DB: float = -7.0
 const INVALID_CLICK_VOLUME_DB: float = -10.0
@@ -393,7 +393,9 @@ static func click_feedback_contract() -> Dictionary:
 		"invalid_seconds": INVALID_CLICK_SECONDS,
 		"valid_volume_db": VALID_CLICK_VOLUME_DB,
 		"invalid_volume_db": INVALID_CLICK_VOLUME_DB,
-		"valid_character": "bright forged-metal double tick",
+		"valid_character": "dry forged-metal latch click",
+		"valid_tonal_tail": false,
+		"valid_latch_delay_seconds": 0.0065,
 		"invalid_character": "damped ash-and-wood knock",
 		"bus": SettingsStore.SFX_BUS
 	}
@@ -404,22 +406,33 @@ static func build_click_stream(valid: bool) -> AudioStreamWAV:
 	var bytes := PackedByteArray()
 	bytes.resize(frame_count * 4)
 	var noise_state: int = 739391
+	var previous_noise: float = 0.0
 	for frame: int in range(frame_count):
 		var time: float = float(frame) / float(AUDIO_MIX_RATE)
 		noise_state = posmod(noise_state * 48271, 2147483647)
 		var noise: float = float(noise_state) / 1073741823.5 - 1.0
+		var high_noise: float = noise - previous_noise * 0.72
+		previous_noise = noise
 		var left: float
 		var right: float
 		if valid:
-			var first_envelope: float = exp(-time * 46.0)
-			var first_tone: float = sin(TAU * 1180.0 * time) * 0.34 + sin(TAU * 1760.0 * time + 0.28) * 0.20
-			var body: float = sin(TAU * 390.0 * time) * exp(-time * 31.0) * 0.22
-			var second_time: float = maxf(0.0, time - 0.021)
-			var second_gate: float = 1.0 if time >= 0.021 else 0.0
-			var second: float = sin(TAU * 1450.0 * second_time) * exp(-second_time * 62.0) * 0.19 * second_gate
-			var sample: float = (first_tone * first_envelope + body + second + noise * exp(-time * 78.0) * 0.055) * 0.82
+			var contact_envelope: float = exp(-time * 275.0)
+			var contact: float = high_noise * contact_envelope * 0.31
+			var metal_tick: float = (
+				sin(TAU * 2680.0 * time) * 0.20
+				+ sin(TAU * 4120.0 * time + 0.19) * 0.105
+			) * exp(-time * 235.0)
+			var latch_time: float = maxf(0.0, time - 0.0065)
+			var latch_gate: float = 1.0 if time >= 0.0065 else 0.0
+			var latch_envelope: float = exp(-latch_time * 330.0) * latch_gate
+			var latch: float = (
+				sin(TAU * 1860.0 * latch_time + 0.31) * 0.17
+				+ high_noise * 0.11
+			) * latch_envelope
+			var body: float = sin(TAU * 720.0 * time + 0.12) * exp(-time * 118.0) * 0.052
+			var sample: float = (contact + metal_tick + latch + body) * 0.93
 			left = sample
-			right = sample * 0.94 + sin(TAU * 1240.0 * time + 0.14) * first_envelope * 0.035
+			right = sample * 0.95 + high_noise * contact_envelope * 0.018
 		else:
 			var thump_envelope: float = exp(-time * 27.0)
 			var thump: float = sin(TAU * (168.0 - time * 260.0) * time) * 0.43

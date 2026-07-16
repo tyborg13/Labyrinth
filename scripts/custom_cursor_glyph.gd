@@ -147,6 +147,7 @@ static func visual_contract() -> Dictionary:
 		"single_silhouette": true,
 		"context_glyphs": false,
 		"center_stripe": false,
+		"press_tip_glint": false,
 		"press_holds": true,
 		"release_rebounds": true,
 		"loading_spins": true,
@@ -197,9 +198,6 @@ func _draw() -> void:
 	var accent_core: Color = Color(0.95, 0.61, 0.46, 0.58) if invalid_state else (EMBER_CORE if held_valid or cursor_state == STATE_LOADING else Color("d6aa6a"))
 	_draw_wrapped_handle(accent_color, invalid_state)
 	_draw_integrated_pommel(accent_color, accent_core, invalid_state)
-	if held_valid:
-		var tip_glint_end: Vector2 = _transform_point(Vector2(9.0, 9.4))
-		draw_line(inner[0], tip_glint_end, Color(EMBER_CORE.r, EMBER_CORE.g, EMBER_CORE.b, 0.74), 1.25, true)
 
 func _draw_wrapped_handle(accent_color: Color, invalid_state: bool) -> void:
 	var collar_outer := _transformed_points(PackedVector2Array([

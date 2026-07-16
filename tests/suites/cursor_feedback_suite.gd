@@ -22,6 +22,7 @@ static func _test_visual_state_contract(expect: Callable) -> void:
 	expect.call(bool(visual.get("single_silhouette", false)), "Every cursor response should retain one coherent forged-pointer silhouette")
 	expect.call(not bool(visual.get("context_glyphs", true)), "Cursor states should react through motion and material rather than a surrounding glyph language")
 	expect.call(not bool(visual.get("center_stripe", true)), "Blade construction should read through joined facets rather than an artificial stripe down the middle")
+	expect.call(not bool(visual.get("press_tip_glint", true)), "Valid presses should not add a detached white glint near the cursor tip")
 	expect.call(bool(visual.get("press_holds", false)) and bool(visual.get("release_rebounds", false)), "Presses should stay compressed while held and rebound only after release")
 	expect.call(str(visual.get("loading_integration", "")) == "heel_bearing", "The loading spin should be integrated into the cursor's physical heel bearing")
 	expect.call(str(visual.get("pommel_detail", "")) == "faceted_socket_and_bearing", "The handle bearing should sit inside a detailed faceted pommel socket")
@@ -144,6 +145,9 @@ static func _test_click_audio_contract(expect: Callable) -> void:
 	var contract: Dictionary = CursorFeedbackScript.click_feedback_contract()
 	expect.call(str(contract.get("bus", "")) == "SFX", "Cursor click sounds should honor the existing SFX volume bus")
 	expect.call(float(contract.get("valid_seconds", 0.0)) < float(contract.get("invalid_seconds", 0.0)), "Valid click should be a tighter response than the dull invalid knock")
+	expect.call(float(contract.get("valid_seconds", 1.0)) <= 0.05, "Valid feedback should be short enough to read as a dry click rather than a tonal boop")
+	expect.call(str(contract.get("valid_character", "")).contains("click") and not bool(contract.get("valid_tonal_tail", true)), "Valid feedback should explicitly use a dry click character without a tonal tail")
+	expect.call(float(contract.get("valid_latch_delay_seconds", 1.0)) <= 0.008, "The second mechanical latch transient should follow closely enough to read as one click")
 	expect.call(str(contract.get("valid_character", "")) != str(contract.get("invalid_character", "")), "Valid and invalid feedback should have deliberately different sound characters")
 	var valid_stream: AudioStreamWAV = CursorFeedbackScript.build_click_stream(true)
 	var invalid_stream: AudioStreamWAV = CursorFeedbackScript.build_click_stream(false)
@@ -155,6 +159,10 @@ static func _test_click_audio_contract(expect: Callable) -> void:
 	expect.call(valid_stream.mix_rate == 44100 and invalid_stream.mix_rate == 44100, "Click feedback should use a standard 44.1kHz mix rate")
 	expect.call(valid_stream.data.size() > 4000 and invalid_stream.data.size() > valid_stream.data.size(), "The dull knock should use a longer envelope than the satisfying click")
 	expect.call(valid_stream.data != invalid_stream.data, "Valid and invalid clicks should not share the same waveform")
+	var valid_attack_rms: float = _stream_channel_rms(valid_stream, 0.0, 0.012)
+	var valid_tail_rms: float = _stream_channel_rms(valid_stream, 0.028, CursorFeedbackScript.VALID_CLICK_SECONDS)
+	expect.call(valid_attack_rms > valid_tail_rms * 8.0, "Valid click energy should concentrate in its initial mechanical transient instead of ringing into a boop-like tail")
+	expect.call(_stream_channel_zero_crossings(valid_stream, 0.0, 0.012) >= 70, "Valid click attack should retain crisp high-frequency contact texture")
 
 	var controller: CanvasLayer = CursorFeedbackScript.new()
 	controller.set("_loading_until_msec", 0)
@@ -179,6 +187,29 @@ static func _test_click_audio_contract(expect: Callable) -> void:
 	counts = controller.call("feedback_counts")
 	expect.call(int(counts.get("valid", 0)) == 2 and int(counts.get("invalid", 0)) == 1, "A completed drag should produce one valid gesture sound without a second release sound")
 	controller.free()
+
+static func _stream_channel_rms(stream: AudioStreamWAV, start_seconds: float, end_seconds: float) -> float:
+	var frame_count: int = stream.data.size() >> 2
+	var start_frame: int = clampi(int(floor(start_seconds * float(stream.mix_rate))), 0, frame_count - 1)
+	var end_frame: int = clampi(int(ceil(end_seconds * float(stream.mix_rate))), start_frame + 1, frame_count)
+	var sum_squares: float = 0.0
+	for frame: int in range(start_frame, end_frame):
+		var sample: float = float(stream.data.decode_s16(frame * 4)) / 32768.0
+		sum_squares += sample * sample
+	return sqrt(sum_squares / float(end_frame - start_frame))
+
+static func _stream_channel_zero_crossings(stream: AudioStreamWAV, start_seconds: float, end_seconds: float) -> int:
+	var frame_count: int = stream.data.size() >> 2
+	var start_frame: int = clampi(int(floor(start_seconds * float(stream.mix_rate))), 0, frame_count - 1)
+	var end_frame: int = clampi(int(ceil(end_seconds * float(stream.mix_rate))), start_frame + 1, frame_count)
+	var crossings: int = 0
+	var previous: int = stream.data.decode_s16(start_frame * 4)
+	for frame: int in range(start_frame + 1, end_frame):
+		var sample: int = stream.data.decode_s16(frame * 4)
+		if (sample >= 0) != (previous >= 0):
+			crossings += 1
+		previous = sample
+	return crossings
 
 static func _test_global_installation(expect: Callable) -> void:
 	expect.call(str(ProjectSettings.get_setting("autoload/CursorFeedback", "")) == "*res://scripts/cursor_feedback.gd", "Cursor feedback should be an always-present autoload across menu and run scenes")

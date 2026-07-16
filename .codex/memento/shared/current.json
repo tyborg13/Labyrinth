@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T03:40:20Z",
+  "updated_at": "2026-07-16T13:27:40Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5624,7 +5624,7 @@
       }
     },
     {
-      "id": "mnt_20260716T034020Z_c38fa33b",
+      "id": "mnt_20260716T132649Z_7ebb978c",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5633,18 +5633,40 @@
         "symbol": null
       },
       "scope_key": "file:scripts/custom_cursor_glyph.gd",
-      "summary": "Custom cursor is one reactive forged mechanism without symbolic ornament",
-      "details": "Keep one coherent silhouette: presses compress toward the fixed hotspot and stay held until a brief release rebound; drags deform directionally. Build the blade from broad joined facets and edge bevels with no bright center stripe. House the loading bearing inside a connected throat bracket, wrapped grip, angular pommel, bearing race, and inset socket; use a single loading sweep. Avoid marks that resemble faces, letters, or action glyphs. Native suppression remains hidden mode plus transparent fallbacks for every system shape.",
+      "summary": "Custom cursor reacts through its forged body without press-only ornament",
+      "details": "Keep one coherent forged silhouette with broad blade facets, housed pommel bearing, held compression, release rebound, and directional drag deformation. A valid press must not introduce a detached white tip glint, sparkle, glyph, or other overlay; motion and material changes provide the feedback. Loading alone may use a single sweep inside the bearing.",
       "status": "active",
-      "created_at": "2026-07-16T03:40:20Z",
-      "updated_at": "2026-07-16T03:40:20Z",
+      "created_at": "2026-07-16T13:26:49Z",
+      "updated_at": "2026-07-16T13:26:49Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260716T033921Z_fcf150dd"
+        "mnt_20260716T034020Z_c38fa33b"
       ],
       "source": {
         "branch": "codex/custom-contextual-cursor-and-click-feedback",
-        "commit": "a523542"
+        "commit": "7d93f5b"
+      }
+    },
+    {
+      "id": "mnt_20260716T132740Z_98e64c36",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/cursor_feedback.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/cursor_feedback.gd",
+      "summary": "Valid cursor feedback is a dry mechanical click, not a tonal confirmation",
+      "details": "Keep the valid sound short and transient-led: high-frequency contact texture plus a close latch snap, with no low pitched body or ringing tail that reads as a boop. The inert sound remains the longer dull ash-and-wood knock. Preserve exact-once semantic classification and route both through the SFX bus.",
+      "status": "active",
+      "created_at": "2026-07-16T13:27:40Z",
+      "updated_at": "2026-07-16T13:27:40Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/custom-contextual-cursor-and-click-feedback",
+        "commit": "7d93f5b"
       }
     }
   ]
