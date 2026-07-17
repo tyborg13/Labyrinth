@@ -124,11 +124,16 @@ resolves a move or attack action during that activation. It is useful for later
 value-model work, but it is not yet card-source attributed.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
-heal, or summon step. Movement payloads include the exact ordered `path`,
+heal, summon, or authored dragon-boss mechanic step. Boss mechanics retain the
+specific `action_type`, use `presentation_kind` for their animation family, and
+set `boss_mechanic: true`; they do not also emit misleading
+`enemy_status_tick` events. Movement payloads include the exact ordered `path`,
 `path_steps`, selected `target_key`, actor/terrain losses caused by hazards, and
 triggered traps. Attack payloads retain target, terrain, and trap consequences.
 This makes route choice, obstacle-clearing efficiency, voluntary trap exposure,
-and realized enemy pressure observable without changing the append-only schema.
+Worldspine and cinder-mark pressure, forced Gale movement, crystal armor, Last
+Eclipse pressure, and realized enemy damage observable without changing the
+append-only schema.
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
@@ -163,9 +168,9 @@ succeeds in a non-combat merchant room. Its payload records `action` (`buy` or `
 `held_embers_before`, `held_embers_after`, the current `room`, and the updated
 equipment, magic, item, reward-card, and deck state.
 
-Intermediate boss victories emit `combat_ended` and return the run to room mode
-without `reward_offered` or `run_ended`; only defeat and the final boss victory
-emit `run_ended`.
+Intermediate dragon victories emit `combat_ended` and return the run to room
+mode without `reward_offered` or `run_ended`; only defeat and the depth-24
+Noctyrax victory emit `run_ended`.
 
 `run_ended` includes the canonical cumulative performance snapshot:
 `enemies_killed`, `damage_dealt`, and `damage_received`. Damage fields count

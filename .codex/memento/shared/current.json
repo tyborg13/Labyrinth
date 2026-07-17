@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-17T00:28:30Z",
+  "updated_at": "2026-07-17T11:22:03Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5801,6 +5801,28 @@
       "source": {
         "branch": "codex/fix-post-kill-ember-animation-lock",
         "commit": "22516b0"
+      }
+    },
+    {
+      "id": "mnt_20260717T112203Z_5cda7da9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Dragon bosses use a seeded five-gate roster before Noctyrax at depth 24",
+      "details": "DragonBossLibrary deterministically shuffles Tharokh, Vyraketh, Vaeloryx, Iskaldra, and Zekarion across depths 4/8/12/16/20 without repeats; Noctyrax is fixed at 24. Boss encounters end when the live boss_bar actor dies even if authored hazards or summoned adds remain. Boss health and mechanic payloads use global-depth sequence scaling. Boss-bar actors remain revealed through Umbra so the final boss is readable and targetable while Eclipse still punishes actors outside Radiance.",
+      "status": "active",
+      "created_at": "2026-07-17T11:22:03Z",
+      "updated_at": "2026-07-17T11:22:03Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-five-elemental-dragon-bosses-and-complete-24-depth-victory-pro",
+        "commit": "e4996c7"
       }
     }
   ]

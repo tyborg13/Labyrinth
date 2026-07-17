@@ -2,6 +2,7 @@ extends RefCounted
 class_name RoomGenerator
 
 const ElementData = preload("res://scripts/element_data.gd")
+const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 
@@ -112,7 +113,8 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var moss: Dictionary = _generate_moss_overlays(grid, run_seed, coord, room_type)
 
 	var player_start: Vector2i = entrance_tile
-	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng, room_element)
+	var boss_id: String = str(room.get("boss_id", ""))
+	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
 	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng)
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
@@ -149,11 +151,12 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied)
 
 	return {
-		"name": _room_name(coord, room_type, rng),
+		"name": _room_name(coord, room_type, rng, boss_id),
 		"coord": coord,
 		"depth": depth,
 		"type": room_type,
 		"element": room_element,
+		"boss_id": boss_id,
 		"grid": grid,
 		"moss": moss,
 		"player_start": player_start,
@@ -454,11 +457,14 @@ func _local_enemy_hp_scale(depth: int) -> float:
 		_:
 			return 1.0
 
-func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator, room_element: String = ElementData.NONE) -> Array:
+func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator, room_element: String = ElementData.NONE, boss_id: String = "") -> Array:
 	if room_type == "start" or room_type == "campfire" or room_type == "treasure" or room_type == "blacksmith" or room_type == "arcanist" or room_type == "scavenger":
 		return []
 	if room_type == "boss":
-		return ["zekarion", "lightning_wisp", "lightning_wisp"]
+		var resolved_boss_id: String = boss_id if DragonBossLibrary.is_dragon_boss_id(boss_id) else DragonBossLibrary.LIGHTNING_BOSS_ID
+		if resolved_boss_id == DragonBossLibrary.LIGHTNING_BOSS_ID:
+			return [resolved_boss_id, "lightning_wisp", "lightning_wisp"]
+		return [resolved_boss_id]
 	var pool: Array = _base_encounter_enemy_type_pool(depth)
 	_add_element_locked_enemy_type_pools(pool, depth, room_element)
 	return pool[rng.randi_range(0, pool.size() - 1)].duplicate()
@@ -535,7 +541,7 @@ func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
 	var wisp_index: int = 0
 	for enemy_type_var: Variant in enemy_types:
 		var enemy_type: String = str(enemy_type_var)
-		if enemy_type == "zekarion":
+		if bool(GameData.enemy_def(enemy_type).get("boss_bar", false)):
 			positions.append(Vector2i(4, 3))
 		else:
 			positions.append(wisp_slots[wisp_index % wisp_slots.size()])
@@ -949,9 +955,9 @@ func _enemy_footprint_tiles(enemy: Dictionary) -> Array[Vector2i]:
 			tiles.append(origin + Vector2i(x, y))
 	return tiles
 
-func _room_name(coord: Vector2i, room_type: String, rng: RandomNumberGenerator) -> String:
+func _room_name(coord: Vector2i, room_type: String, rng: RandomNumberGenerator, boss_id: String = "") -> String:
 	if room_type == "boss":
-		return "Tempest God's Perch"
+		return DragonBossLibrary.room_name_for_boss(boss_id)
 	if room_type == "campfire":
 		return "Ashen Campfire"
 	if room_type == "treasure":

@@ -13,7 +13,10 @@ const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
 const PROGRESSION_STATS_PATH: String = "res://data/stats.json"
 const FIXED_POINT_SCALE: int = 10
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
-const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]
+const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = [
+	"melee", "ranged", "aoe", "push", "pull", "lightning_strikes",
+	"terrain_burst", "cinder_marks", "gale_force", "umbra_eclipse"
+]
 const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock"]
 const PROGRESSION_STAT_IDS: Array[String] = [
 	"might",
@@ -662,7 +665,7 @@ static func action_field_uses_fixed_point(action_type: String, field: String) ->
 	if field == "amount":
 		return action_type in ["block", "stoneskin", "heal", "heal_self", "heal_ally", "guard_ally"]
 	if field == "health":
-		return action_type == "illusion"
+		return action_type in ["illusion", "raise_terrain"]
 	return false
 
 static func scaled_action_field_delta(action_type: String, field: String, amount: int) -> int:

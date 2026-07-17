@@ -29,14 +29,15 @@ It intentionally excludes, for now:
 ## Run Structure
 
 - The player starts at `(0, 0)` in a safe central room.
-- The current playable map works outward through two four-depth sequences, with
-  the structure intended to grow to four sequences.
+- The playable map works outward through six four-depth sequences.
 - Depths `1-3` are a mixture of combat, treasure, and checkpoint spaces, and
   depth `4` is the first boss gate.
-- Depths `5-7` repeat the same local room-density curve with a higher enemy
-  baseline, and depth `8` is the temporary final boss gate.
-- Clearing an intermediate boss opens the next sequence; clearing the final
-  placeholder boss wins the run.
+- Each later sequence repeats the same local room-density curve with a higher
+  enemy baseline. Depths `4`, `8`, `12`, `16`, and `20` contain the five
+  elemental dragons (earth, fire, air, ice, and lightning) in a deterministic
+  run-seeded random order without repeats.
+- Clearing an intermediate dragon opens the next sequence. Depth `24` always
+  contains Noctyrax, the shadow dragon; defeating it wins the run.
 - Rooms can be revisited. Cleared rooms stay safe.
 - Lateral movement keeps depth the same, allowing safer farming at the cost of more turns and deck cycles.
 

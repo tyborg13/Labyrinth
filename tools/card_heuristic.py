@@ -6,10 +6,14 @@ stable, reviewable baseline for valuing cards in "health saved equivalent"
 terms without coupling the live game to the balance model.
 
 Current encounter assumptions that shape the coefficients but are not directly
-scored here: combat depths repeat in four-depth sequences with 3/4/5 standard
-enemy density before a boss gate; lateral rooms remain deck-building route
-choices, and emergency outward loop escapes only appear when no revealed,
-unsealed same-depth-or-deeper exits remain. The local combat band is wider:
+scored here: a complete run contains six four-depth sequences with 3/4/5
+standard-enemy density before each boss gate. The first five gates use the five
+non-shadow elemental dragons in seeded random order, including Zekarion, while
+Noctyrax is fixed at depth 24. Boss health, attacks, support, and authored arena
+mechanics use the same completed-sequence scaling as normal rooms. Lateral rooms
+remain deck-building route choices, and emergency outward loop escapes only
+appear when no revealed, unsealed same-depth-or-deeper exits remain. The local
+combat band is wider:
 depth 1 enemies have 85% HP and -1 player-scale damaging/support actions, depth
 2 uses base stats, and depth 3 enemies have 112% HP without an extra generic
 damage/support bump. Standard depths share the same normal-room roster
@@ -75,6 +79,9 @@ DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
 
 DEPTHS_PER_SEQUENCE = 4
+SEQUENCES_PER_RUN = 6
+RANDOMIZED_ELEMENTAL_BOSSES = 5
+FINAL_BOSS_DEPTH = DEPTHS_PER_SEQUENCE * SEQUENCES_PER_RUN
 ENEMY_HP_SCALE_PER_SEQUENCE = 0.45
 ENEMY_HP_FLAT_BONUS_PER_SEQUENCE = 4
 ENEMY_DAMAGE_BONUS_PER_SEQUENCE = 2
@@ -89,6 +96,32 @@ SOURCE_FILTERS = (
     "item",
     "starter",
 )
+
+BOSS_ENCOUNTER_ROLES = {
+    "zekarion": "summoned lightning wisps",
+    "tharokh": "attackable Worldspines and delayed rupture",
+    "vyraketh": "attackable cinder marks and forced detonation",
+    "vaeloryx": "arena-wide damage and forced movement",
+    "iskaldra": "hit-count frost crystal armor",
+    "noctyrax": "Eclipse damage against actors outside Radiance",
+}
+
+
+def encounter_assumptions() -> dict[str, Any]:
+    """Return the run structure that contextualizes card-score coefficients."""
+    return {
+        "depths_per_sequence": DEPTHS_PER_SEQUENCE,
+        "sequences_per_run": SEQUENCES_PER_RUN,
+        "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
+        "final_boss_depth": FINAL_BOSS_DEPTH,
+        "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "sequence_scaling": {
+            "enemy_hp_multiplier_per_completed_sequence": ENEMY_HP_SCALE_PER_SEQUENCE,
+            "enemy_hp_flat_per_completed_sequence": ENEMY_HP_FLAT_BONUS_PER_SEQUENCE,
+            "enemy_damage_per_completed_sequence": ENEMY_DAMAGE_BONUS_PER_SEQUENCE,
+            "enemy_support_per_completed_sequence": ENEMY_SUPPORT_BONUS_PER_SEQUENCE,
+        },
+    }
 
 
 @dataclass(frozen=True)
@@ -768,6 +801,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Emit JSON instead of a text table.",
     )
     parser.add_argument(
+        "--show-assumptions",
+        action="store_true",
+        help="Emit the encounter assumptions behind the coefficients as JSON and exit.",
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=0,
@@ -894,6 +932,9 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
 
 def main() -> int:
     args = build_parser().parse_args()
+    if args.show_assumptions:
+        print(json.dumps(encounter_assumptions(), indent=2))
+        return 0
     cards = load_cards(args.cards_path)
     equipment_sources = equipment_card_sources(args.equipment_path)
     weights = HeuristicWeights()

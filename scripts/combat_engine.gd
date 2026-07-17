@@ -4,6 +4,7 @@ class_name CombatEngine
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 15
 const BASE_CARDS_PER_TURN: int = 2
@@ -59,6 +60,8 @@ const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
 const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -10
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
+const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
+const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
 const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, -1),
@@ -68,9 +71,11 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 ]
 const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "bleed", "expose", "sunder", "chain", "push", "pull"]
 const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull"]
-const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]
+const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
+const DRAGON_SPIRE_KIND: String = "dragon_spire"
+const CINDER_MARK_KIND: String = "cinder_mark"
 const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
 const ENEMY_PATH_TEMPORARY_BLOCKER_TURN_COST: int = 1
 const ENEMY_PATH_TRAP_BASE_PENALTY: int = 1000
@@ -173,6 +178,8 @@ func _initial_umbra_state(room_layout: Dictionary) -> Dictionary:
 		stage_id = UMBRA_STAGE_CLEAR
 	return {
 		"stage": stage_id,
+		"boss_eclipse_stage": str(source.get("boss_eclipse_stage", "")),
+		"boss_eclipse_activations": maxi(0, int(source.get("boss_eclipse_activations", 0))),
 		"stage_reduction": maxi(0, int(source.get("stage_reduction", 0))),
 		"vision_bonus": maxi(0, int(source.get("vision_bonus", 0))),
 		"vision_bonus_activations": int(source.get("vision_bonus_activations", 0)),
@@ -187,7 +194,10 @@ func _initial_umbra_state(room_layout: Dictionary) -> Dictionary:
 
 func effective_umbra_stage(state: Dictionary) -> String:
 	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	var base_index: int = umbra_stage_index(str(umbra.get("stage", UMBRA_STAGE_CLEAR)))
+	var base_stage: String = str(umbra.get("stage", UMBRA_STAGE_CLEAR))
+	if int(umbra.get("boss_eclipse_activations", 0)) > 0:
+		base_stage = str(umbra.get("boss_eclipse_stage", UMBRA_STAGE_ECLIPSE))
+	var base_index: int = umbra_stage_index(base_stage)
 	var reduction: int = maxi(0, int(umbra.get("stage_reduction", 0)))
 	return UMBRA_STAGE_ORDER[maxi(0, base_index - reduction)]
 
@@ -232,6 +242,9 @@ func is_tile_visible_to_player(state: Dictionary, tile: Vector2i) -> bool:
 func is_enemy_visible_to_player(state: Dictionary, enemy: Dictionary) -> bool:
 	if int(enemy.get("hp", 0)) <= 0:
 		return false
+	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+	if bool(definition.get("boss_bar", false)):
+		return true
 	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
 	if int(umbra.get("truesight_activations", 0)) != 0:
 		return true
@@ -288,6 +301,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"room_coord": room_layout.get("coord", Vector2i.ZERO),
 		"room_depth": int(room_layout.get("depth", 1)),
 		"room_type": str(room_layout.get("type", "combat")),
+		"boss_id": str(room_layout.get("boss_id", "")),
 		"room_element": str(room_layout.get("element", ElementData.NONE)),
 		"elemental_intensity": _initial_elemental_intensity(str(room_layout.get("element", ElementData.NONE))),
 		"elemental_intensity_gained_total": _empty_elemental_intensity(),
@@ -1125,6 +1139,9 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 				for start_tile: Vector2i in frontier:
 					for attack_tile: Vector2i in _threat_attack_tiles(state, enemy, start_tile, action):
 						attack_lookup[attack_tile] = true
+			"terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
+				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
+					attack_lookup[attack_tile] = true
 	return {
 		"move": _sorted_tiles_from_lookup(move_lookup),
 		"attack": _sorted_tiles_from_lookup(attack_lookup),
@@ -1377,7 +1394,7 @@ func combat_outcome(state: Dictionary) -> String:
 		return "defeat"
 	if str(state.get("room_type", "")) == "boss":
 		for enemy: Dictionary in _live_enemies(state):
-			if str(enemy.get("type", "")) == ZEKARION_TYPE:
+			if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
 				return ""
 		return "victory"
 	if _live_enemies(state).is_empty():
@@ -1623,6 +1640,79 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"sfx_category": str(action.get("sfx_category", action.get("block_sfx_category", ""))),
 				"label": "Guard Self" if guard_target_index == enemy_index else "Guard Ally"
 			}
+		"raise_terrain", "cinder_marks", "frost_armor":
+			var label_by_type := {
+				"raise_terrain": "Stonewake",
+				"cinder_marks": "Kindle Ground",
+				"frost_armor": "Crystal Mantle"
+			}
+			var focus_tiles: Array[Vector2i] = []
+			if action_type == "raise_terrain":
+				for terrain_var: Variant in after_state.get("terrain", []):
+					if typeof(terrain_var) != TYPE_DICTIONARY:
+						continue
+					var terrain: Dictionary = terrain_var as Dictionary
+					if str(terrain.get("kind", "")) == DRAGON_SPIRE_KIND and not _terrain_id_exists(before_state, str(terrain.get("id", ""))):
+						focus_tiles.append(terrain.get("pos", Vector2i.ZERO))
+			elif action_type == "cinder_marks":
+				for trap: Dictionary in _cinder_mark_traps(after_state, int(after_enemy.get("id", -1))):
+					if _trap_index_at_tile(before_state, trap.get("pos", INVALID_TILE)) < 0:
+						focus_tiles.append(trap.get("pos", Vector2i.ZERO))
+			else:
+				focus_tiles.append(after_enemy.get("pos", Vector2i.ZERO))
+			return {
+				"kind": "status",
+				"action_type": action_type,
+				"boss_mechanic": true,
+				"actor_key": _enemy_key(after_enemy),
+				"actor_name": actor_name,
+				"tile": after_enemy.get("pos", Vector2i.ZERO),
+				"focus_tiles": focus_tiles,
+				"terrain_after": (after_state.get("terrain", []) as Array).duplicate(true),
+				"traps_after": (after_state.get("traps", []) as Array).duplicate(true),
+				"enemy_after": after_enemy.duplicate(true),
+				"amount": focus_tiles.size() if action_type != "frost_armor" else int(after_enemy.get("frost_armor", 0)),
+				"label": str(label_by_type.get(action_type, "Dragon Power")),
+				"text": "%d spires" % focus_tiles.size() if action_type == "raise_terrain" else "%d marks" % focus_tiles.size() if action_type == "cinder_marks" else "%d armor" % int(after_enemy.get("frost_armor", 0))
+			}
+		"terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse":
+			var label_by_type := {
+				"terrain_burst": "Faultline",
+				"detonate_cinders": "Crownfire",
+				"gale_force": "Hollow Gale",
+				"umbra_eclipse": "Last Eclipse"
+			}
+			var target_losses: Array[Dictionary] = _actor_target_losses(before_state, after_state)
+			var terrain_losses: Array[Dictionary] = _terrain_target_losses(before_state, after_state)
+			var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
+			var tiles: Array[Vector2i] = _boss_action_threat_tiles(before_state, before_enemy, action)
+			var target_tile: Vector2i = after_player.get("pos", Vector2i.ZERO)
+			if not target_losses.is_empty():
+				target_tile = (target_losses[0] as Dictionary).get("tile", target_tile)
+			return {
+				"kind": "push" if action_type == "gale_force" else "aoe",
+				"action_type": action_type,
+				"boss_mechanic": true,
+				"actor_key": _enemy_key(after_enemy),
+				"actor_name": actor_name,
+				"from": before_enemy.get("pos", Vector2i.ZERO),
+				"to": target_tile,
+				"center": before_enemy.get("pos", Vector2i.ZERO),
+				"tiles": tiles,
+				"player_from": before_player.get("pos", Vector2i.ZERO),
+				"player_to": after_player.get("pos", Vector2i.ZERO),
+				"target_losses": target_losses,
+				"terrain_losses": terrain_losses,
+				"triggered_traps": triggered_traps,
+				"umbra_after": (after_state.get("umbra", {}) as Dictionary).duplicate(true),
+				"enemy_after": after_enemy.duplicate(true),
+				"impact_actor_keys": _target_loss_keys(target_losses),
+				"amount": _target_loss_amount(target_losses),
+				"hp_loss": int(before_player.get("hp", 0)) - int(after_player.get("hp", 0)),
+				"block_loss": int(before_player.get("block", 0)) - int(after_player.get("block", 0)),
+				"stoneskin_loss": int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)),
+				"label": str(label_by_type.get(action_type, "Dragon Power"))
+			}
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var hp_loss: int = int(before_player.get("hp", 0)) - int(after_player.get("hp", 0))
 			var block_loss: int = int(before_player.get("block", 0)) - int(after_player.get("block", 0))
@@ -1798,6 +1888,12 @@ func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -
 			"amount": hp_loss
 		})
 	return losses
+
+func _terrain_id_exists(state: Dictionary, terrain_id: String) -> bool:
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) == TYPE_DICTIONARY and str((terrain_var as Dictionary).get("id", "")) == terrain_id:
+			return true
+	return false
 
 func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var after_ids: Dictionary = {}
@@ -2277,6 +2373,20 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_push_or_pull_target(next_state, enemy_index, action, false, rng, bleed_steps, action_context)
 		"summon_minions":
 			next_state = _enemy_summon_minions(next_state, enemy_index, action, rng)
+		"raise_terrain":
+			next_state = _enemy_raise_dragon_spires(next_state, enemy_index, action)
+		"terrain_burst":
+			next_state = _enemy_terrain_burst(next_state, enemy_index, action, bleed_steps)
+		"cinder_marks":
+			next_state = _enemy_create_cinder_marks(next_state, enemy_index, action)
+		"detonate_cinders":
+			next_state = _enemy_detonate_cinders(next_state, enemy_index, action, bleed_steps)
+		"gale_force":
+			next_state = _enemy_gale_force(next_state, enemy_index, action, bleed_steps)
+		"frost_armor":
+			next_state = _enemy_gain_frost_armor(next_state, enemy_index, action)
+		"umbra_eclipse":
+			next_state = _enemy_umbra_eclipse(next_state, enemy_index, action, bleed_steps)
 	return next_state
 
 func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_index: int, action: Dictionary, followup_action: Dictionary, action_context: Dictionary, target_pos: Vector2i, toward: bool) -> Array[Vector2i]:
@@ -2439,6 +2549,11 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var total_damage: int = damage
 	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
 		total_damage *= 2
+	if total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
+		enemy["frost_armor"] = int(enemy.get("frost_armor", 0)) - 1
+		enemies[enemy_index] = enemy
+		_log(next_state, "%s's crystal armor shatters a blow." % _enemy_display_name(enemy))
+		return next_state
 	var remaining: int = total_damage
 	if not bypass_defense:
 		var block_amount: int = int(enemy.get("block", 0))
@@ -2728,6 +2843,12 @@ func _tick_umbra_player_activation(state: Dictionary) -> Dictionary:
 	var truesight_duration: int = int(umbra.get("truesight_activations", 0))
 	if truesight_duration > 0:
 		umbra["truesight_activations"] = truesight_duration - 1
+	var eclipse_duration: int = int(umbra.get("boss_eclipse_activations", 0))
+	if eclipse_duration > 0:
+		eclipse_duration -= 1
+		umbra["boss_eclipse_activations"] = eclipse_duration
+		if eclipse_duration <= 0:
+			umbra["boss_eclipse_stage"] = ""
 	var remaining_sources: Array = []
 	for source_var: Variant in umbra.get("light_sources", []):
 		if typeof(source_var) != TYPE_DICTIONARY:
@@ -2771,6 +2892,7 @@ func _normalized_terrain(terrain_value: Variant) -> Dictionary:
 
 func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	var enemy: Dictionary = _normalized_unit(enemy_value)
+	enemy["frost_armor"] = maxi(0, int(enemy.get("frost_armor", 0)))
 	if not enemy.has("element"):
 		enemy["element"] = ElementData.NONE
 	if not enemy.has("footprint"):
@@ -2780,7 +2902,13 @@ func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
 	enemy["footprint"] = Vector2i(maxi(1, footprint.x), maxi(1, footprint.y))
 	for status_id: String in _enemy_status_immunities(enemy):
-		enemy[status_id] = 0
+		match status_id:
+			"poison":
+				enemy[status_id] = {"damage": 0, "delay": 0}
+			"immobilize":
+				enemy[status_id] = false
+			_:
+				enemy[status_id] = 0
 	return enemy
 
 func _normalized_unit(unit_value: Variant) -> Dictionary:
@@ -3067,9 +3195,9 @@ func _enemy_action_time_cost(action: Dictionary) -> int:
 			return 3
 		"aoe", "lightning_strikes":
 			return 4
-		"summon_minions":
+		"summon_minions", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse":
 			return 5
-		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally":
+		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "raise_terrain", "cinder_marks", "frost_armor":
 			return 2
 		_:
 			return DEFAULT_ENEMY_INTENT_TIME_COST
@@ -3680,6 +3808,312 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 	_log(next_state, "%s summons lightning wisps." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
+func _mark_dragon_mechanic_opened(state: Dictionary, enemy_index: int) -> void:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	enemy["boss_mechanic_opened"] = true
+	enemies[enemy_index] = enemy
+	state["enemies"] = enemies
+
+func _all_passable_tiles(state: Dictionary) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	var grid: Array = state.get("grid", [])
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile := Vector2i(x, y)
+			if PathUtils.is_passable(grid, tile):
+				tiles.append(tile)
+	return tiles
+
+func _dragon_spires(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for terrain_var: Variant in state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = _normalized_terrain(terrain_var)
+		if str(terrain.get("kind", "")) == DRAGON_SPIRE_KIND and int(terrain.get("hp", 0)) > 0:
+			result.append(terrain)
+	return result
+
+func _dragon_spire_tiles(state: Dictionary) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = []
+	for terrain: Dictionary in _dragon_spires(state):
+		tiles.append(terrain.get("pos", Vector2i.ZERO))
+	return tiles
+
+func _enemy_raise_dragon_spires(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var candidates: Array[Vector2i] = [
+		Vector2i(2, 2), Vector2i(6, 2), Vector2i(2, 5), Vector2i(6, 5),
+		Vector2i(3, 6), Vector2i(5, 6), Vector2i(2, 4), Vector2i(6, 4)
+	]
+	var occupied: Dictionary = _occupied_actor_tiles(next_state)
+	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var terrain_entries: Array = next_state.get("terrain", []).duplicate(true)
+	var count: int = maxi(1, int(action.get("count", 4)))
+	var health: int = maxi(1, int(action.get("health", GameData.fixed_point_amount(6))))
+	var raised: int = 0
+	var start_index: int = posmod(int(next_state.get("turn", 1)) + int(enemy.get("id", 0)), candidates.size())
+	for offset: int in range(candidates.size()):
+		var tile: Vector2i = candidates[posmod(start_index + offset, candidates.size())]
+		if not PathUtils.is_passable(next_state.get("grid", []), tile):
+			continue
+		if occupied.has(tile) or _terrain_index_at_tile(next_state, tile) >= 0 or _trap_index_at_tile(next_state, tile) >= 0:
+			continue
+		if PathUtils.manhattan(player_pos, tile) <= 1:
+			continue
+		terrain_entries.append({
+			"id": "dragon_spire_%d_%d_%d" % [int(enemy.get("id", 0)), int(next_state.get("turn", 1)), raised],
+			"kind": DRAGON_SPIRE_KIND,
+			"pos": tile,
+			"hp": health,
+			"max_hp": health,
+			"boss_created": true
+		})
+		next_state["terrain"] = terrain_entries
+		raised += 1
+		if raised >= count:
+			break
+	if raised > 0:
+		_mark_dragon_mechanic_opened(next_state, enemy_index)
+		_log(next_state, "%s raises %d Worldspine%s." % [_enemy_display_name(enemy), raised, "s" if raised != 1 else ""])
+	return next_state
+
+func _terrain_burst_tiles(state: Dictionary, radius: int) -> Array[Vector2i]:
+	var lookup: Dictionary = {}
+	for spire_tile: Vector2i in _dragon_spire_tiles(state):
+		for tile: Vector2i in PathUtils.diamond_tiles(spire_tile, maxi(1, radius), state.get("grid", [])):
+			if PathUtils.is_passable(state.get("grid", []), tile):
+				lookup[tile] = true
+	return _sorted_tiles_from_lookup(lookup)
+
+func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var spire_tiles: Array[Vector2i] = _dragon_spire_tiles(next_state)
+	if spire_tiles.is_empty():
+		return next_state
+	var affected_tiles: Array[Vector2i] = _terrain_burst_tiles(next_state, int(action.get("radius", 1)))
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	for target: Dictionary in _actor_targets_in_tiles(next_state, affected_tiles):
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
+	for terrain_index: int in _terrain_indices_in_tiles(next_state, spire_tiles):
+		var terrain: Dictionary = _normalized_terrain((next_state.get("terrain", []) as Array)[terrain_index])
+		next_state = _damage_terrain(next_state, terrain_index, int(terrain.get("hp", 0)))
+	_mark_dragon_mechanic_opened(next_state, enemy_index)
+	_log(next_state, "%s ruptures the Worldspines." % _enemy_display_name(enemy))
+	return next_state
+
+func _cinder_mark_traps(state: Dictionary, owner_enemy_id: int = -1) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for trap_var: Variant in state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		if str(trap.get("boss_hazard_kind", "")) != CINDER_MARK_KIND:
+			continue
+		if owner_enemy_id >= 0 and int(trap.get("owner_enemy_id", -1)) != owner_enemy_id:
+			continue
+		result.append(trap.duplicate(true))
+	return result
+
+func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var occupied: Dictionary = _occupied_actor_tiles(state)
+	for tile: Vector2i in _all_passable_tiles(state):
+		var distance: int = PathUtils.manhattan(player_pos, tile)
+		if distance < 1 or distance > 4:
+			continue
+		if occupied.has(tile) or _terrain_index_at_tile(state, tile) >= 0 or _trap_index_at_tile(state, tile) >= 0:
+			continue
+		candidates.append(tile)
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var a_score: int = PathUtils.manhattan(player_pos, a) * 100 + posmod(a.x * 31 + a.y * 17 + int(enemy.get("id", 0)) * 13 + int(state.get("turn", 1)) * 7, 97)
+		var b_score: int = PathUtils.manhattan(player_pos, b) * 100 + posmod(b.x * 31 + b.y * 17 + int(enemy.get("id", 0)) * 13 + int(state.get("turn", 1)) * 7, 97)
+		if a_score == b_score:
+			return a.y < b.y if a.y != b.y else a.x < b.x
+		return a_score < b_score
+	)
+	var results: Array[Vector2i] = []
+	for tile: Vector2i in candidates:
+		results.append(tile)
+		if results.size() >= count:
+			break
+	return results
+
+func _enemy_create_cinder_marks(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var trap_entries: Array = next_state.get("traps", []).duplicate(true)
+	var candidates: Array[Vector2i] = _cinder_mark_candidate_tiles(next_state, enemy, maxi(1, int(action.get("count", 5))))
+	for index: int in range(candidates.size()):
+		trap_entries.append({
+			"id": "cinder_mark_%d_%d_%d" % [int(enemy.get("id", 0)), int(next_state.get("turn", 1)), index],
+			"pos": candidates[index],
+			"element": ElementData.FIRE,
+			"damage": int(action.get("damage", 0)),
+			"burn": int(action.get("burn", 0)),
+			"owner_enemy_id": int(enemy.get("id", -1)),
+			"boss_hazard_kind": CINDER_MARK_KIND,
+			"armed": true
+		})
+	next_state["traps"] = trap_entries
+	if not candidates.is_empty():
+		enemy["cinder_detonation_pending"] = true
+		enemy["boss_mechanic_opened"] = true
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+		_log(next_state, "%s brands the arena with %d cinder marks." % [_enemy_display_name(enemy), candidates.size()])
+	return next_state
+
+func _cinder_detonation_tiles(state: Dictionary, owner_enemy_id: int) -> Array[Vector2i]:
+	var lookup: Dictionary = {}
+	for trap: Dictionary in _cinder_mark_traps(state, owner_enemy_id):
+		for tile: Vector2i in _trap_blast_tiles(state, trap):
+			lookup[tile] = true
+	return _sorted_tiles_from_lookup(lookup)
+
+func _enemy_detonate_cinders(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var marks: Array[Dictionary] = _cinder_mark_traps(next_state, int(enemy.get("id", -1)))
+	if marks.is_empty():
+		enemy["cinder_detonation_pending"] = false
+		enemies[enemy_index] = enemy
+		return next_state
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	for mark: Dictionary in marks:
+		var trap_index: int = _trap_index_at_tile(next_state, mark.get("pos", INVALID_TILE))
+		if trap_index >= 0:
+			next_state = _trigger_trap_at_index(next_state, trap_index)
+	enemies = next_state.get("enemies", [])
+	if enemy_index < enemies.size():
+		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
+		enemy["cinder_detonation_pending"] = false
+		enemy["boss_mechanic_opened"] = true
+		enemies[enemy_index] = enemy
+		next_state["enemies"] = enemies
+	_log(next_state, "%s detonates every surviving cinder mark." % _enemy_display_name(enemy))
+	return next_state
+
+func _enemy_gale_force(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	for target: Dictionary in _actor_targets(next_state):
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
+	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	next_state = _move_player_from_source(next_state, _closest_enemy_tile_to(enemy, player_pos), int(action.get("amount", 3)), true)
+	_mark_dragon_mechanic_opened(next_state, enemy_index)
+	_log(next_state, "%s unleashes the Hollow Gale." % _enemy_display_name(enemy))
+	return next_state
+
+func _enemy_gain_frost_armor(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var maximum: int = maxi(1, int(action.get("maximum", 3)))
+	enemy["frost_armor"] = mini(maximum, int(enemy.get("frost_armor", 0)) + maxi(1, int(action.get("amount", 2))))
+	enemy["boss_mechanic_opened"] = true
+	enemies[enemy_index] = enemy
+	next_state["enemies"] = enemies
+	_log(next_state, "%s forms %d layers of crystal armor." % [_enemy_display_name(enemy), int(enemy.get("frost_armor", 0))])
+	return next_state
+
+func _light_source_covers_tile(state: Dictionary, tile: Vector2i) -> bool:
+	for source_var: Variant in (state.get("umbra", {}) as Dictionary).get("light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		if PathUtils.manhattan(source.get("pos", INVALID_TILE), tile) <= maxi(0, int(source.get("radius", 0))):
+			return true
+	return false
+
+func _actor_has_radiance_protection(state: Dictionary, target: Dictionary) -> bool:
+	var tile: Vector2i = target.get("pos", INVALID_TILE)
+	if _light_source_covers_tile(state, tile):
+		return true
+	if str(target.get("kind", "")) != "player":
+		return false
+	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
+	return int(umbra.get("vision_bonus", 0)) > 0 or int(umbra.get("truesight_activations", 0)) > 0 or int(umbra.get("stage_reduction", 0)) > 0
+
+func _umbra_eclipse_threat_tiles(state: Dictionary) -> Array[Vector2i]:
+	var lookup: Dictionary = {}
+	for tile: Vector2i in _all_passable_tiles(state):
+		if not _light_source_covers_tile(state, tile):
+			lookup[tile] = true
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	if _actor_has_radiance_protection(state, {"kind": "player", "pos": player.get("pos", INVALID_TILE)}):
+		lookup.erase(player.get("pos", INVALID_TILE))
+	return _sorted_tiles_from_lookup(lookup)
+
+func _enemy_umbra_eclipse(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
+	var next_state: Dictionary = state
+	var enemies: Array = next_state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return next_state
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	var exposed_targets: Array[Dictionary] = []
+	for target: Dictionary in _actor_targets(next_state):
+		if not _actor_has_radiance_protection(next_state, target):
+			exposed_targets.append(target)
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	var umbra: Dictionary = (next_state.get("umbra", {}) as Dictionary).duplicate(true)
+	umbra["boss_eclipse_stage"] = UMBRA_STAGE_ECLIPSE
+	umbra["boss_eclipse_activations"] = maxi(1, int(action.get("duration", 2)))
+	next_state["umbra"] = umbra
+	for target: Dictionary in exposed_targets:
+		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action))
+	_mark_dragon_mechanic_opened(next_state, enemy_index)
+	_log(next_state, "%s swallows the arena in the Last Eclipse." % _enemy_display_name(enemy))
+	return next_state
+
+func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	match str(action.get("type", "")):
+		"terrain_burst":
+			return _terrain_burst_tiles(state, int(action.get("radius", 1)))
+		"cinder_marks":
+			return _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5))))
+		"detonate_cinders":
+			return _cinder_detonation_tiles(state, int(enemy.get("id", -1)))
+		"gale_force":
+			return _all_passable_tiles(state)
+		"umbra_eclipse":
+			return _umbra_eclipse_threat_tiles(state)
+	return []
+
 func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
@@ -4040,6 +4474,8 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int) -> Dictionary:
 	for enemy_index: int in range(enemies.size()):
 		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if int(trap.get("owner_enemy_id", -1)) == int(enemy.get("id", -2)):
 			continue
 		var enemy_hit: bool = false
 		for tile: Vector2i in _enemy_footprint_tiles(enemy):
@@ -5290,6 +5726,23 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		definition.get("intents", []),
 		int(state.get("room_depth", 1))
 	)
+	if enemy_type == DragonBossLibrary.FIRE_BOSS_ID and bool(enemy.get("cinder_detonation_pending", false)) and _cinder_mark_traps(state, int(enemy.get("id", -1))).is_empty():
+		enemy["cinder_detonation_pending"] = false
+		enemies[enemy_index] = enemy
+		state["enemies"] = enemies
+	var forced_intent: Dictionary = _forced_dragon_intent(state, enemy, intents)
+	if not forced_intent.is_empty():
+		enemy["intent"] = forced_intent
+		enemies[enemy_index] = enemy
+		return
+	var available_intents: Array = []
+	for intent_var: Variant in intents:
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = intent_var as Dictionary
+		if _dragon_intent_available(state, enemy, intent):
+			available_intents.append(intent)
+	intents = available_intents
 	if intents.is_empty():
 		return
 	var total_weight: int = 0
@@ -5305,6 +5758,48 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 			return
 	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
 	enemies[enemy_index] = enemy
+
+func _intent_by_id(intents: Array, intent_id: String) -> Dictionary:
+	for intent_var: Variant in intents:
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = intent_var as Dictionary
+		if str(intent.get("id", "")) == intent_id:
+			return intent.duplicate(true)
+	return {}
+
+func _forced_dragon_intent(state: Dictionary, enemy: Dictionary, intents: Array) -> Dictionary:
+	var enemy_type: String = str(enemy.get("type", ""))
+	if not DragonBossLibrary.is_dragon_boss_id(enemy_type) or enemy_type == DragonBossLibrary.LIGHTNING_BOSS_ID:
+		return {}
+	if enemy_type == DragonBossLibrary.FIRE_BOSS_ID and bool(enemy.get("cinder_detonation_pending", false)):
+		var crownfire: Dictionary = _intent_by_id(intents, "crownfire")
+		if not crownfire.is_empty():
+			return crownfire
+	if enemy_type == DragonBossLibrary.EARTH_BOSS_ID and _dragon_spires(state).is_empty():
+		var stonewake: Dictionary = _intent_by_id(intents, "stonewake")
+		if not stonewake.is_empty():
+			return stonewake
+	if bool(enemy.get("boss_mechanic_opened", false)):
+		return {}
+	return _intent_by_id(intents, DragonBossLibrary.opening_intent_id(enemy_type))
+
+func _dragon_intent_available(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> bool:
+	var intent_id: String = str(intent.get("id", ""))
+	match intent_id:
+		"crownfire":
+			return false
+		"stonewake":
+			return _dragon_spires(state).is_empty()
+		"faultline":
+			return not _dragon_spires(state).is_empty()
+		"kindle_ground":
+			return _cinder_mark_traps(state, int(enemy.get("id", -1))).is_empty()
+		"crystal_mantle":
+			return int(enemy.get("frost_armor", 0)) <= 0
+		"last_eclipse":
+			return int((state.get("umbra", {}) as Dictionary).get("boss_eclipse_activations", 0)) <= 0
+	return true
 
 func _scaled_enemy_intents(base_intents: Array, room_depth: int) -> Array:
 	var intents: Array = []
@@ -5345,7 +5840,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	var scaled: Dictionary = action.duplicate(true)
 	var action_type: String = str(scaled.get("type", ""))
 	var damage_delta: int = _local_enemy_damage_delta(room_depth)
-	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes") and scaled.has("damage"):
+	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES) and scaled.has("damage"):
 		scaled["damage"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("damage", 0)) + damage_delta)
 	var support_delta: int = _local_enemy_support_delta(room_depth)
 	if support_delta != 0:
@@ -5356,7 +5851,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	var sequence_index: int = _depth_sequence_index(room_depth)
 	if sequence_index <= 0:
 		return scaled
-	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes":
+	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES:
 		if scaled.has("damage"):
 			scaled["damage"] = int(scaled.get("damage", 0)) + ENEMY_DAMAGE_BONUS_PER_SEQUENCE * sequence_index
 	if action_type == "block" or action_type == "stoneskin" or action_type == "guard_ally":
@@ -5425,7 +5920,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 			movement_index = index
 		if attack_index < 0 and action_type in ATTACK_ACTION_TYPES:
 			attack_index = index
-		if pattern_attack_index < 0 and action_type == "lightning_strikes":
+		if pattern_attack_index < 0 and (action_type == "lightning_strikes" or action_type in BOSS_PATTERN_ACTION_TYPES):
 			pattern_attack_index = index
 	var movement_action: Dictionary = {}
 	if movement_index >= 0:
@@ -5487,7 +5982,10 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		)
 	elif pattern_attack_index >= 0 and not attack_disabled:
 		var pattern_action: Dictionary = actions[pattern_attack_index]
-		projected_attack_tiles = _lightning_strike_tiles(preview_state, preview_enemy, pattern_action)
+		if str(pattern_action.get("type", "")) == "lightning_strikes":
+			projected_attack_tiles = _lightning_strike_tiles(preview_state, preview_enemy, pattern_action)
+		else:
+			projected_attack_tiles = _boss_action_threat_tiles(preview_state, preview_enemy, pattern_action)
 		attack_available = not _actor_targets_in_tiles(preview_state, projected_attack_tiles).is_empty()
 		target = {}
 	return {

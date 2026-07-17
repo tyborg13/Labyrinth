@@ -69,9 +69,9 @@ These assumptions are baked into the current coefficients:
   The first depth is Clear, then Fringe begins on depths `2` and `3` before the
   first elemental dragon and remains for its boss room. Later sections use
   Fringe, Advancing, Pressing, Deep, and then Heart for the Shadow Dragon
-  section. Eclipse is reserved for authored final encounters. Section-aware
-  layouts preserve this curve if the number of rooms between bosses is
-  compressed later.
+  section. Noctyrax authors Eclipse during the final encounter at depth `24`.
+  Section-aware layouts preserve this curve if the number of rooms between
+  bosses is compressed later.
 - Umbra radius is measured by Manhattan distance from the player: unlimited in
   Clear, then `6/5/4/3/2/1` for Fringe through Eclipse. Hidden enemies cannot
   be directly targeted and do not reveal their intent or turn-order identity.
@@ -80,11 +80,13 @@ These assumptions are baked into the current coefficients:
 
 Encounter calibration is also important:
 
-- Standard rooms repeat in four-depth sequences: the first three depths of each
+- A complete run has six four-depth sequences. The first three depths of each
   sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
-  boss gate. Lateral rooms remain a deck-building route choice; the map only
-  opens an emergency outward loop escape when a room has no revealed,
-  unsealed same-depth-or-deeper exit.
+  boss gate. The first five gates draw Zekarion and the earth, fire, air, and
+  ice dragons in a seeded random order without repeats. Noctyrax, the Shadow
+  Dragon, is always the sixth and final gate at depth `24`. Lateral rooms remain
+  a deck-building route choice; the map only opens an emergency outward loop
+  escape when a room has no revealed, unsealed same-depth-or-deeper exit.
 - First-sequence standard rooms now use a wider local band. Depth `1` enemies
   have `85%` HP and their damaging/support actions are shifted down by `1`
   player-scale point, depth `2` uses base stats, and depth `3` enemies have
@@ -131,6 +133,16 @@ Encounter calibration is also important:
   His Tempest Breath is intentionally capped at ranged `3` after a one-tile
   advance so corner repositioning can produce real safe tiles in open boss
   rooms.
+- Every dragon has an authored pressure axis in addition to ordinary intents:
+  Zekarion summons wisps; Tharokh raises attackable Worldspines before rupturing
+  them; Vyraketh plants attackable cinder marks before a forced detonation;
+  Vaeloryx combines arena-wide damage with forced movement; Iskaldra gains
+  hit-count frost crystal armor; and Noctyrax's Eclipse damages actors outside
+  Radiance. Their health, damaging actions, support amounts, and mechanic
+  payloads scale from the global boss depth on the same completed-sequence
+  curve as normal encounters. These mechanics increase encounter-dependent
+  value for area damage, movement, multi-hit sequencing, and Radiance without
+  changing their generic card coefficients.
 - Rooms reserve a small halo around the player's entry tile, then seed enemies
   with weighted randomness across the room. Placement softly discourages
   adjacent pileups and same-corner clusters, but no longer pushes enemies to
@@ -391,6 +403,12 @@ To get machine-readable output:
 
 ```bash
 python3 tools/card_heuristic.py --json
+```
+
+To inspect the encounter and run-structure assumptions used by the coefficients:
+
+```bash
+python3 tools/card_heuristic.py --show-assumptions
 ```
 
 ### Source-Aware Views

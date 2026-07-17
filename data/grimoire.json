@@ -663,6 +663,91 @@
 				"Summoned lightning minion with shock attacks.",
 				"Wisps have low health and enter the normal enemy turn sequence."
 			]
+		},
+		{
+			"id": "combat:worldspines",
+			"section": "combat",
+			"title": "Worldspines",
+			"icon": "stoneskin",
+			"body": [
+				"Tharokh raises attackable stone spires at fixed arena positions.",
+				"Faultline ruptures every tile near a surviving Worldspine, then breaks the spires. Destroy them early to carve safe ground."
+			]
+		},
+		{
+			"id": "combat:cinder_marks",
+			"section": "combat",
+			"title": "Cinder Marks",
+			"icon": "burn",
+			"body": [
+				"Vyraketh brands open tiles with cinder marks that can be attacked and triggered like traps.",
+				"On its next activation, Crownfire detonates every mark that remains. Each blast can overlap adjacent marks."
+			]
+		},
+		{
+			"id": "combat:hollow_gale",
+			"section": "combat",
+			"title": "The Hollow Gale",
+			"icon": "push",
+			"body": [
+				"Vaeloryx's Hollow Gale reaches across the entire arena.",
+				"It damages the player, then pushes them away from the dragon one tile at a time; hazards encountered along the route still trigger."
+			]
+		},
+		{
+			"id": "combat:crystal_armor",
+			"section": "combat",
+			"title": "Crystal Armor",
+			"icon": "freeze",
+			"body": [
+				"Iskaldra forms multiple layers of crystal armor.",
+				"Each damaging hit breaks exactly one layer instead of dealing damage, rewarding flurries and inexpensive multi-hit attacks before a heavy strike."
+			]
+		},
+		{
+			"id": "combat:boss_eclipse",
+			"section": "combat",
+			"title": "The Last Eclipse",
+			"icon": "dispel_umbra",
+			"body": [
+				"Noctyrax temporarily forces the arena to Eclipse and immediately harms actors standing without Radiance.",
+				"Placed light protects every tile in its radius. Personal vision, truesight, and Umbra dispelling protect the player when the Eclipse falls."
+			]
+		},
+		{
+			"id": "enemy:tharokh",
+			"section": "creatures",
+			"enemy_id": "tharokh",
+			"title": "Tharokh, the Worldspine",
+			"body": ["Earth dragon boss whose raised Worldspines reshape the arena.", "Its Faultline intent turns every surviving spire into a local blast center."]
+		},
+		{
+			"id": "enemy:vyraketh",
+			"section": "creatures",
+			"enemy_id": "vyraketh",
+			"title": "Vyraketh, the Cinder Crown",
+			"body": ["Fire dragon boss that covers the arena in cinder marks.", "Crownfire always follows a successful Kindle Ground, creating a one-activation disarm window."]
+		},
+		{
+			"id": "enemy:vaeloryx",
+			"section": "creatures",
+			"enemy_id": "vaeloryx",
+			"title": "Vaeloryx, the Hollow Gale",
+			"body": ["Air dragon boss that weaponizes forced movement.", "Its opening gale sweeps the full arena and can drive the player through hazards."]
+		},
+		{
+			"id": "enemy:iskaldra",
+			"section": "creatures",
+			"enemy_id": "iskaldra",
+			"title": "Iskaldra, the Rime Tyrant",
+			"body": ["Ice dragon boss protected by hit-counted crystal armor.", "Break every layer with separate hits before committing high-damage attacks."]
+		},
+		{
+			"id": "enemy:noctyrax",
+			"section": "creatures",
+			"enemy_id": "noctyrax",
+			"title": "Noctyrax, the Last Eclipse",
+			"body": ["Shadow dragon and final boss of the twenty-fourth depth.", "Its Last Eclipse punishes unlit positions; preserved Radiance creates the intended counterplay."]
 		}
 	]
 }

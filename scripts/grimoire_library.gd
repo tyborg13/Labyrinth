@@ -75,7 +75,14 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"pull": "keyword:pull",
 	"intensity": "combat:intensity",
 	"lightning_strikes": "combat:lightning_strikes",
-	"summon_minions": "combat:summons"
+	"summon_minions": "combat:summons",
+	"raise_terrain": "combat:worldspines",
+	"terrain_burst": "combat:worldspines",
+	"cinder_marks": "combat:cinder_marks",
+	"detonate_cinders": "combat:cinder_marks",
+	"gale_force": "combat:hollow_gale",
+	"frost_armor": "combat:crystal_armor",
+	"umbra_eclipse": "combat:boss_eclipse"
 }
 
 const ACTION_FIELD_ENTRY_IDS := {

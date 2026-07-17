@@ -779,6 +779,342 @@
       }
     ]
   },
+  "tharokh": {
+    "name": "Tharokh, the Worldspine",
+    "element": "earth",
+    "max_hp": 78,
+    "base_initiative": 15,
+    "reward_embers": 80,
+    "accent": "#9faa62",
+    "art_path": "res://assets/art/enemies/tharokh.png",
+    "art_scale": 1.78,
+    "art_offset_y": 14,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
+    "idle_frame_seconds": 0.12,
+    "death_sheet_columns": 4,
+    "death_sheet_rows": 4,
+    "death_sheet_order": "row_major",
+    "death_sheet_ping_pong": false,
+    "death_frame_seconds": 0.08,
+    "footprint": [2, 2],
+    "boss_bar": true,
+    "status_immunities": ["poison"],
+    "intents": [
+      {
+        "id": "stonewake",
+        "name": "Stonewake",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {"type": "raise_terrain", "count": 4, "health": 6}
+        ]
+      },
+      {
+        "id": "worldspine_claw",
+        "name": "Worldspine Claw",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {"type": "move_toward", "range": 2},
+          {"type": "melee", "damage": 12, "range": 1, "sunder": 2}
+        ]
+      },
+      {
+        "id": "faultline",
+        "name": "Faultline",
+        "time": 6,
+        "weight": 4,
+        "actions": [
+          {"type": "terrain_burst", "damage": 8, "radius": 1}
+        ]
+      },
+      {
+        "id": "bedrock_aegis",
+        "name": "Bedrock Aegis",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {"type": "stoneskin", "amount": 9},
+          {"type": "raise_terrain", "count": 2, "health": 6}
+        ]
+      }
+    ]
+  },
+  "vyraketh": {
+    "name": "Vyraketh, the Cinder Crown",
+    "element": "fire",
+    "max_hp": 72,
+    "base_initiative": 13,
+    "reward_embers": 80,
+    "accent": "#e76432",
+    "art_path": "res://assets/art/enemies/vyraketh.png",
+    "art_scale": 1.76,
+    "art_offset_y": 14,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
+    "idle_frame_seconds": 0.11,
+    "death_sheet_columns": 4,
+    "death_sheet_rows": 4,
+    "death_sheet_order": "row_major",
+    "death_sheet_ping_pong": false,
+    "death_frame_seconds": 0.075,
+    "footprint": [2, 2],
+    "boss_bar": true,
+    "status_immunities": ["burn"],
+    "intents": [
+      {
+        "id": "kindle_ground",
+        "name": "Kindle Ground",
+        "time": 4,
+        "weight": 3,
+        "actions": [
+          {"type": "cinder_marks", "count": 5, "damage": 5, "burn": 2}
+        ]
+      },
+      {
+        "id": "crownfire",
+        "name": "Crownfire",
+        "time": 5,
+        "weight": 0,
+        "actions": [
+          {"type": "detonate_cinders"}
+        ]
+      },
+      {
+        "id": "cinder_maw",
+        "name": "Cinder Maw",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {"type": "move_toward", "range": 2},
+          {"type": "melee", "damage": 12, "range": 1, "burn": 2}
+        ]
+      },
+      {
+        "id": "ashfall",
+        "name": "Ashfall",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 7,
+            "range": 4,
+            "burn": 1,
+            "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]],
+            "rotate": false
+          }
+        ]
+      }
+    ]
+  },
+  "vaeloryx": {
+    "name": "Vaeloryx, the Hollow Gale",
+    "element": "air",
+    "max_hp": 68,
+    "base_initiative": 12,
+    "reward_embers": 80,
+    "accent": "#75c8b4",
+    "art_path": "res://assets/art/enemies/vaeloryx.png",
+    "art_scale": 1.82,
+    "art_offset_y": 8,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
+    "idle_frame_seconds": 0.1,
+    "death_sheet_columns": 4,
+    "death_sheet_rows": 4,
+    "death_sheet_order": "row_major",
+    "death_sheet_ping_pong": false,
+    "death_frame_seconds": 0.075,
+    "footprint": [2, 2],
+    "boss_bar": true,
+    "status_immunities": ["immobilize"],
+    "intents": [
+      {
+        "id": "hollow_gale",
+        "name": "Hollow Gale",
+        "time": 6,
+        "weight": 4,
+        "actions": [
+          {"type": "gale_force", "damage": 6, "amount": 3}
+        ]
+      },
+      {
+        "id": "skyhook",
+        "name": "Skyhook",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {"type": "pull", "damage": 7, "range": 5, "amount": 3}
+        ]
+      },
+      {
+        "id": "razor_dive",
+        "name": "Razor Dive",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {"type": "move_toward", "range": 3},
+          {"type": "melee", "damage": 11, "range": 1, "bleed": 2}
+        ]
+      },
+      {
+        "id": "eye_of_storm",
+        "name": "Eye of the Storm",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {"type": "move_away", "range": 2},
+          {"type": "block", "amount": 8}
+        ]
+      }
+    ]
+  },
+  "iskaldra": {
+    "name": "Iskaldra, the Rime Tyrant",
+    "element": "ice",
+    "max_hp": 74,
+    "base_initiative": 14,
+    "reward_embers": 80,
+    "accent": "#8bd9ed",
+    "art_path": "res://assets/art/enemies/iskaldra.png",
+    "art_scale": 1.78,
+    "art_offset_y": 12,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
+    "idle_frame_seconds": 0.13,
+    "death_sheet_columns": 4,
+    "death_sheet_rows": 4,
+    "death_sheet_order": "row_major",
+    "death_sheet_ping_pong": false,
+    "death_frame_seconds": 0.085,
+    "footprint": [2, 2],
+    "boss_bar": true,
+    "status_immunities": ["freeze"],
+    "intents": [
+      {
+        "id": "crystal_mantle",
+        "name": "Crystal Mantle",
+        "time": 4,
+        "weight": 3,
+        "actions": [
+          {"type": "frost_armor", "amount": 2, "maximum": 3}
+        ]
+      },
+      {
+        "id": "rime_talon",
+        "name": "Rime Talon",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {"type": "move_toward", "range": 2},
+          {"type": "melee", "damage": 10, "range": 1, "freeze": 1}
+        ]
+      },
+      {
+        "id": "whiteout_lance",
+        "name": "Whiteout Lance",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {"type": "ranged", "damage": 7, "range": 5, "freeze": 1}
+        ]
+      },
+      {
+        "id": "shatterstorm",
+        "name": "Shatterstorm",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 6,
+            "range": 0,
+            "pattern": [[0, -2], [-1, -1], [0, -1], [1, -1], [-2, 0], [-1, 0], [1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]],
+            "rotate": false
+          }
+        ]
+      }
+    ]
+  },
+  "noctyrax": {
+    "name": "Noctyrax, the Last Eclipse",
+    "element": "shadow",
+    "max_hp": 86,
+    "base_initiative": 14,
+    "reward_embers": 120,
+    "accent": "#a56bd6",
+    "art_path": "res://assets/art/enemies/noctyrax.png",
+    "art_scale": 1.86,
+    "art_offset_y": 10,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 4,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": false,
+    "idle_frame_seconds": 0.12,
+    "death_sheet_columns": 4,
+    "death_sheet_rows": 4,
+    "death_sheet_order": "row_major",
+    "death_sheet_ping_pong": false,
+    "death_frame_seconds": 0.09,
+    "footprint": [2, 2],
+    "boss_bar": true,
+    "intents": [
+      {
+        "id": "last_eclipse",
+        "name": "Last Eclipse",
+        "time": 6,
+        "weight": 4,
+        "actions": [
+          {"type": "umbra_eclipse", "duration": 2, "damage": 8}
+        ]
+      },
+      {
+        "id": "void_claw",
+        "name": "Void Claw",
+        "time": 5,
+        "weight": 4,
+        "actions": [
+          {"type": "move_toward", "range": 2},
+          {"type": "melee", "damage": 14, "range": 1, "expose": 2}
+        ]
+      },
+      {
+        "id": "starless_breath",
+        "name": "Starless Breath",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {"type": "ranged", "damage": 10, "range": 4, "pierce": true}
+        ]
+      },
+      {
+        "id": "night_coil",
+        "name": "Night Coil",
+        "time": 6,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 8,
+            "range": 0,
+            "pull": 1,
+            "pattern": [[0, -1], [1, -1], [2, 0], [1, 1], [0, 1], [-1, 1], [-2, 0], [-1, -1]],
+            "rotate": false
+          }
+        ]
+      }
+    ]
+  },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
     "max_hp": 72,

@@ -1045,6 +1045,11 @@ const TURN_ORDER_PORTRAITS := {
 	"bile_bloomer": "res://assets/art/portraits/bile_bloomer.png",
 	"chainbound_gaoler": "res://assets/art/portraits/chainbound_gaoler.png",
 	"zekarion": "res://assets/art/portraits/zekarion.png",
+	"tharokh": "res://assets/art/portraits/tharokh.png",
+	"vyraketh": "res://assets/art/portraits/vyraketh.png",
+	"vaeloryx": "res://assets/art/portraits/vaeloryx.png",
+	"iskaldra": "res://assets/art/portraits/iskaldra.png",
+	"noctyrax": "res://assets/art/portraits/noctyrax.png",
 	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
 	"frostglass_lancer": "res://assets/art/enemies/frostglass_lancer.png",
 	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
@@ -2881,6 +2886,16 @@ func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
 					tag = "Push"
 				"summon_minions":
 					tag = "Summon"
+				"raise_terrain", "terrain_burst":
+					tag = "Worldspines"
+				"cinder_marks", "detonate_cinders":
+					tag = "Cinder Marks"
+				"gale_force":
+					tag = "Arena Gale"
+				"frost_armor":
+					tag = "Crystal Armor"
+				"umbra_eclipse":
+					tag = "Eclipse"
 				"split":
 					tag = "Split"
 			if not tag.is_empty() and not tags.has(tag):
@@ -3104,6 +3119,21 @@ func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
 			"summon_minions":
 				candidate = "shock"
 				priority = 5
+			"raise_terrain", "terrain_burst":
+				candidate = "stoneskin"
+				priority = 2
+			"cinder_marks", "detonate_cinders":
+				candidate = "burn"
+				priority = 2
+			"gale_force":
+				candidate = "push"
+				priority = 1
+			"frost_armor":
+				candidate = "freeze"
+				priority = 2
+			"umbra_eclipse":
+				candidate = "dispel_umbra"
+				priority = 1
 			"move", "move_toward":
 				candidate = "move"
 				priority = 20
@@ -7792,6 +7822,20 @@ func _action_step_action_name(action: Dictionary) -> String:
 			return "Lightning"
 		"summon_minions":
 			return "Summon"
+		"raise_terrain":
+			return "Raise Worldspines"
+		"terrain_burst":
+			return "Rupture Worldspines"
+		"cinder_marks":
+			return "Kindle Ground"
+		"detonate_cinders":
+			return "Detonate Cinders"
+		"gale_force":
+			return "Hollow Gale"
+		"frost_armor":
+			return "Crystal Armor"
+		"umbra_eclipse":
+			return "Last Eclipse"
 	var icon_key: String = _action_step_icon_key(action)
 	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
 
@@ -7830,6 +7874,16 @@ func _action_step_icon_key(action: Dictionary) -> String:
 			return "health_cost"
 		"summon_minions":
 			return "shock"
+		"raise_terrain", "terrain_burst":
+			return "stoneskin"
+		"cinder_marks", "detonate_cinders":
+			return "burn"
+		"gale_force":
+			return "push"
+		"frost_armor":
+			return "freeze"
+		"umbra_eclipse":
+			return "dispel_umbra"
 	for token_var: Variant in ActionIcons.tokens_for_action(action):
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
@@ -12770,7 +12824,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array, base_r
 				await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_status_step_state, animated_state, {
 					"focus_actor_keys": [step_actor_key],
 					"focus_actor_color": PLAYER_ATTACK_FOCUS,
-					"focus_tiles": [step.get("tile", Vector2i(-1, -1))],
+					"focus_tiles": _vector2i_array(step.get("focus_tiles", [step.get("tile", Vector2i(-1, -1))])),
 					"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 					"effect": step,
 					"floating_texts": _floating_texts_for_step(step)
@@ -13075,6 +13129,13 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			_add_enemy_heal_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
 		"status_damage":
 			_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
+		"status":
+			if step.has("terrain_after"):
+				animated_state["terrain"] = (step.get("terrain_after", []) as Array).duplicate(true)
+			if step.has("traps_after"):
+				animated_state["traps"] = (step.get("traps_after", []) as Array).duplicate(true)
+			if step.has("enemy_after"):
+				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			if target_losses.is_empty():
@@ -13085,6 +13146,10 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				_set_player_pos(animated_state, step.get("player_to", Vector2i.ZERO))
 			_apply_terrain_losses(animated_state, step.get("terrain_losses", []))
 			_remove_triggered_traps(animated_state, step.get("triggered_traps", []))
+			if step.has("umbra_after"):
+				animated_state["umbra"] = (step.get("umbra_after", {}) as Dictionary).duplicate(true)
+			if step.has("enemy_after"):
+				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
 
 func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 	match str(step.get("kind", "")):
@@ -13287,6 +13352,14 @@ func _set_enemy_pos_by_key(state: Dictionary, actor_key: String, pos: Vector2i) 
 			continue
 		enemy["pos"] = pos
 		(state.get("enemies", []) as Array)[enemy_index] = enemy
+		return
+
+func _set_enemy_snapshot_by_key(state: Dictionary, actor_key: String, snapshot: Dictionary) -> void:
+	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
+		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+		if _enemy_key(enemy) != actor_key:
+			continue
+		(state.get("enemies", []) as Array)[enemy_index] = snapshot.duplicate(true)
 		return
 
 func _add_enemy_block_by_key(state: Dictionary, actor_key: String, amount: int) -> void:
@@ -18324,6 +18397,8 @@ func _analytics_log_enemy_status_ticks(phase_result: Dictionary) -> void:
 		var kind: String = str(step.get("kind", ""))
 		if kind not in ["status_damage", "status"]:
 			continue
+		if bool(step.get("boss_mechanic", false)):
+			continue
 		_analytics_store.write_event("enemy_status_tick", _analytics_context_from_states(_run_state, _combat_state), {
 			"kind": kind,
 			"actor_key": str(step.get("actor_key", "")),
@@ -18342,11 +18417,13 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"]:
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
-			"action_type": kind,
+			"action_type": str(step.get("action_type", kind)),
+			"presentation_kind": kind,
+			"boss_mechanic": bool(step.get("boss_mechanic", false)),
 			"actor_key": str(step.get("actor_key", "")),
 			"actor_name": str(step.get("actor_name", "")),
 			"label": str(step.get("label", "")),

@@ -2,6 +2,7 @@ extends RefCounted
 class_name RunEngine
 
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -9,8 +10,8 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
-const PLANNED_DEPTH_SEQUENCES: int = 4
-const ACTIVE_DEPTH_SEQUENCES: int = 2
+const PLANNED_DEPTH_SEQUENCES: int = 6
+const ACTIVE_DEPTH_SEQUENCES: int = 6
 const DEPTHS_PER_SEQUENCE: int = 4
 const MAX_DEPTH: int = ACTIVE_DEPTH_SEQUENCES * DEPTHS_PER_SEQUENCE
 const BASE_MAX_HP: int = 360
@@ -1082,9 +1083,10 @@ func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:
 	var depth: int = _room_depth(coord)
 	var room_type: String = _room_type_for_coord(seed, coord)
 	var element_id: String = _room_element_for_coord(seed, coord, room_type)
+	var boss_id: String = DragonBossLibrary.boss_id_for_depth(seed, depth) if room_type == "boss" else ""
 	var npcs: Array[Dictionary] = _room_npcs_for_coord(seed, coord)
 	var merchant_kind: String = _merchant_kind_for_room_type(room_type)
-	return {
+	var metadata: Dictionary = {
 		"coord": coord,
 		"depth": depth,
 		"type": room_type,
@@ -1097,6 +1099,9 @@ func _build_room_metadata(seed: int, coord: Vector2i) -> Dictionary:
 		"cleared": room_type == "start",
 		"sealed": false
 	}
+	if not boss_id.is_empty():
+		metadata["boss_id"] = boss_id
+	return metadata
 
 func _display_layout_for_room(seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
 	var layout: Dictionary = _room_generator.generate_room(seed, room, travel_dir)
@@ -1123,6 +1128,8 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"coord": combat_state.get("room_coord", Vector2i.ZERO),
 		"type": combat_state.get("room_type", "combat"),
 		"element": combat_state.get("room_element", ElementData.NONE),
+		"depth": int(combat_state.get("room_depth", 1)),
+		"boss_id": str(combat_state.get("boss_id", "")),
 		"grid": combat_state.get("grid", []).duplicate(true),
 		"moss": combat_state.get("moss", {}).duplicate(true),
 		"player_start": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
@@ -1151,7 +1158,7 @@ func _room_type_for_coord(seed: int, coord: Vector2i) -> String:
 
 func _room_element_for_coord(seed: int, coord: Vector2i, room_type: String) -> String:
 	if room_type == "boss":
-		return ElementData.LIGHTNING
+		return DragonBossLibrary.element_for_boss(DragonBossLibrary.boss_id_for_depth(seed, _room_depth(coord)))
 	if room_type != "combat":
 		return ElementData.NONE
 	var roll: int = _coord_hash(seed, coord, 151) % ElementData.all_elements().size()

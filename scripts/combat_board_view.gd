@@ -2852,6 +2852,8 @@ func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: St
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
 func _terrain_draw_width_scale(terrain_kind: String) -> float:
+	if terrain_kind == "dragon_spire":
+		return 0.72
 	if terrain_kind == "wooden_crate":
 		return TERRAIN_CRATE_DRAW_WIDTH_SCALE
 	return TERRAIN_BOX_DRAW_WIDTH_SCALE
@@ -2904,7 +2906,8 @@ func _terrain_key(terrain: Dictionary) -> String:
 	return "terrain_%s" % terrain_id
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
-	var label: String = "Wooden box" if str(terrain.get("kind", "")) == "wooden_box" else "Wooden crate"
+	var terrain_kind: String = str(terrain.get("kind", ""))
+	var label: String = "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
 	return "%s\n%d/%d HP" % [
 		label,
 		int(terrain.get("hp", 0)),
@@ -3028,6 +3031,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"max_hp": int(enemy.get("max_hp", 1)),
 			"block": int(enemy.get("block", 0)),
 			"stoneskin": int(enemy.get("stoneskin", 0)),
+			"frost_armor": int(enemy.get("frost_armor", 0)),
 			"burn": int(enemy.get("burn", 0)),
 			"bleed": int(enemy.get("bleed", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
@@ -5568,7 +5572,8 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	}
 	_terrain_textures = {
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
-		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png")
+		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
+		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
 	}
 	_terrain_destruction_frames_by_kind.clear()
 	for terrain_kind: String in TERRAIN_DESTRUCTION_SHEET_LAYOUTS.keys():
@@ -6764,6 +6769,14 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"count": 0,
 			"fill": STATUS_FREEZE,
 			"border": STATUS_FREEZE.lightened(0.20)
+		})
+	if int(unit.get("frost_armor", 0)) > 0:
+		badges.append({
+			"icon": "freeze",
+			"count": int(unit.get("frost_armor", 0)),
+			"fill": Color("274864"),
+			"border": Color("b9f3ff"),
+			"tooltip": "Crystal Armor\nEach damaging hit breaks one layer instead of dealing damage."
 		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({
