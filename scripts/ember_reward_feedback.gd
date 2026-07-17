@@ -23,7 +23,8 @@ static func play(host: Node, fx_layer: Control, stats_label: Label, amount: int,
 		update_count.call(int(value_var))
 		await host.get_tree().create_timer(step_seconds).timeout
 	update_count.call(to_count)
-	if pulse != null and pulse.is_valid():
+	# Frame-quantized roll timers can outlast the pulse, whose signal has already fired.
+	if pulse != null and pulse.is_valid() and pulse.is_running():
 		await pulse.finished
 	if _node_is_alive(gain_label):
 		gain_label.visible = false

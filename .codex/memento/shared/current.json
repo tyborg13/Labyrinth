@@ -5782,6 +5782,28 @@
       }
     },
     {
+      "id": "mnt_20260717T002830Z_50da47ef",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/ember_reward_feedback.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/ember_reward_feedback.gd",
+      "summary": "Do not await Tween.finished after independent timer awaits unless the tween is still running.",
+      "details": "At fixed frame rates, the ember counter's frame-quantized roll timers can outlast its pulse tween. Connecting to finished after it already fired suspends the coroutine forever and leaves RunScene's card-resolution animation lock set. Guard late awaits with is_valid() and is_running().",
+      "status": "active",
+      "created_at": "2026-07-17T00:28:30Z",
+      "updated_at": "2026-07-17T00:28:30Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/fix-post-kill-ember-animation-lock",
+        "commit": "22516b0"
+      }
+    },
+    {
       "id": "mnt_20260717T005705Z_08d73d13",
       "layer": "shared",
       "kind": "decision",
