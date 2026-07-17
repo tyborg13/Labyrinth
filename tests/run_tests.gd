@@ -34,6 +34,7 @@ const CardWidgetScript = CardWidget
 const ACTION_STEP_TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
 const ACTION_STEP_CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
 const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"
+const MAP_RULE_SCAN_DEPTH: int = 8
 
 var _failures: Array[String] = []
 
@@ -57,6 +58,7 @@ func _initialize() -> void:
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
+	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -7120,31 +7122,34 @@ func _map_visible_coords(map_view: LabyrinthMapView) -> Array[Vector2i]:
 	return coords
 
 func _first_room_coord_of_type(run_engine: RunEngine, run_state: Dictionary, room_type: String) -> Vector2i:
-	for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-		for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-			var coord := Vector2i(x, y)
-			if maxi(absi(coord.x), absi(coord.y)) > RunEngine.MAX_DEPTH:
-				continue
-			if str(run_engine.room_metadata(run_state, coord).get("type", "")) == room_type:
-				return coord
+	for coord: Vector2i in _room_coords_near_to_far():
+		if str(run_engine.room_metadata(run_state, coord).get("type", "")) == room_type:
+			return coord
 	return Vector2i(999, 999)
 
 func _first_reachable_room_of_type(run_engine: RunEngine, run_state: Dictionary, room_type: String) -> Dictionary:
-	for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-		for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-			var coord := Vector2i(x, y)
-			if maxi(absi(coord.x), absi(coord.y)) > RunEngine.MAX_DEPTH:
-				continue
-			if str(run_engine.room_metadata(run_state, coord).get("type", "")) != room_type:
-				continue
-			var route: Array = _find_route_to_coord(run_engine, run_state, coord)
-			if route.is_empty():
-				continue
-			return {
-				"coord": coord,
-				"route": route
-			}
+	for coord: Vector2i in _room_coords_near_to_far():
+		if str(run_engine.room_metadata(run_state, coord).get("type", "")) != room_type:
+			continue
+		var route: Array = _find_route_to_coord(run_engine, run_state, coord)
+		if route.is_empty():
+			continue
+		return {
+			"coord": coord,
+			"route": route
+		}
 	return {}
+
+func _room_coords_near_to_far() -> Array[Vector2i]:
+	var result: Array[Vector2i] = [Vector2i.ZERO]
+	for depth: int in range(1, RunEngine.MAX_DEPTH + 1):
+		for x: int in range(-depth, depth + 1):
+			result.append(Vector2i(x, -depth))
+			result.append(Vector2i(x, depth))
+		for y: int in range(-depth + 1, depth):
+			result.append(Vector2i(-depth, y))
+			result.append(Vector2i(depth, y))
+	return result
 
 func _test_run_map_room_types() -> void:
 	var run_engine: RunEngine = RunEngine.new()
@@ -7154,16 +7159,16 @@ func _test_run_map_room_types() -> void:
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(2, 0)).get("type", "")) == "campfire", "Axis depth-2 rooms should be campfire rooms")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Depth-four rooms should punctuate the first sequence with boss territory")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(6, 0)).get("type", "")) == "campfire", "Axis depth-6 rooms should repeat the campfire beat in the second sequence")
-	_assert(str(run_engine.room_metadata(run_state, Vector2i(8, 0)).get("type", "")) == "boss", "Depth-eight rooms should be the temporary final boss territory")
+	_assert(str(run_engine.room_metadata(run_state, Vector2i(8, 0)).get("type", "")) == "boss", "Depth-eight rooms should punctuate the second sequence with boss territory")
 
 func _test_run_map_two_room_choices_are_like_category_different_type() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	for seed: int in range(1, 21):
 		var base_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
-		for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-			for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
+			for y: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 				var current := Vector2i(x, y)
-				if maxi(absi(current.x), absi(current.y)) > RunEngine.MAX_DEPTH:
+				if maxi(absi(current.x), absi(current.y)) > MAP_RULE_SCAN_DEPTH:
 					continue
 				var base_room: Dictionary = run_engine.room_metadata(base_state, current)
 				if str(base_room.get("type", "")) == "boss":
@@ -7276,10 +7281,10 @@ func _test_run_map_relic_room_spacing_and_density() -> void:
 		var signature_parts: Array[String] = []
 		for exit_coord: Vector2i in [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]:
 			_assert(str(run_engine.room_metadata(run_state, exit_coord).get("type", "")) != "treasure", "Relic rooms should never be direct exits from the start")
-		for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-			for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
+			for y: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 				var coord := Vector2i(x, y)
-				if maxi(absi(coord.x), absi(coord.y)) > RunEngine.MAX_DEPTH:
+				if maxi(absi(coord.x), absi(coord.y)) > MAP_RULE_SCAN_DEPTH:
 					continue
 				var room: Dictionary = run_engine.room_metadata(run_state, coord)
 				var room_type: String = str(room.get("type", "combat"))
@@ -7291,7 +7296,7 @@ func _test_run_map_relic_room_spacing_and_density() -> void:
 				signature_parts.append("%d,%d" % [coord.x, coord.y])
 				for dir: Vector2i in PathUtils.DIRS_4:
 					var neighbor: Vector2i = coord + dir
-					if maxi(absi(neighbor.x), absi(neighbor.y)) > RunEngine.MAX_DEPTH:
+					if maxi(absi(neighbor.x), absi(neighbor.y)) > MAP_RULE_SCAN_DEPTH:
 						continue
 					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) != "treasure", "Relic rooms should not be cardinally adjacent")
 		signature_parts.sort()
@@ -7314,11 +7319,11 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 	for seed: int in range(1, 51):
 		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
 		var signature_parts: Array[String] = []
-		for x: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
-			for y: int in range(-RunEngine.MAX_DEPTH, RunEngine.MAX_DEPTH + 1):
+		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
+			for y: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 				var coord := Vector2i(x, y)
 				var depth: int = maxi(absi(coord.x), absi(coord.y))
-				if depth > RunEngine.MAX_DEPTH:
+				if depth > MAP_RULE_SCAN_DEPTH:
 					continue
 				var room: Dictionary = run_engine.room_metadata(run_state, coord)
 				var room_type: String = str(room.get("type", "combat"))
@@ -7334,7 +7339,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 				_assert(npcs.size() == 1 and str((npcs[0] as Dictionary).get("id", "")) == room_type, "Merchant rooms should carry their matching NPC")
 				for dir: Vector2i in PathUtils.DIRS_4:
 					var neighbor: Vector2i = coord + dir
-					if maxi(absi(neighbor.x), absi(neighbor.y)) > RunEngine.MAX_DEPTH:
+					if maxi(absi(neighbor.x), absi(neighbor.y)) > MAP_RULE_SCAN_DEPTH:
 						continue
 					_assert(str(run_engine.room_metadata(run_state, neighbor).get("type", "")) not in ["blacksmith", "arcanist", "scavenger"], "Merchant rooms should never be cardinally adjacent")
 		signature_parts.sort()
@@ -7635,20 +7640,36 @@ func _test_intermediate_boss_opens_next_sequence() -> void:
 func _test_boss_victory_restores_player_health() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
-	run_state["current_room"] = Vector2i(8, 0)
+	var final_coord := Vector2i(RunEngine.MAX_DEPTH, 0)
+	run_state["current_room"] = final_coord
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
-	var final_boss_room: Dictionary = run_engine.room_metadata(run_state, Vector2i(8, 0))
+	var final_boss_room: Dictionary = run_engine.room_metadata(run_state, final_coord)
 	final_boss_room["revealed"] = true
 	final_boss_room["visited"] = true
 	final_boss_room["cleared"] = false
-	rooms["8,0"] = final_boss_room
+	rooms[_test_room_key(final_coord)] = final_boss_room
 	run_state["rooms"] = rooms
 	run_state["player_hp"] = 9
 	run_state["player_max_hp"] = 36
-	var combat_state: Dictionary = _defeated_zekarion_combat_state(8, Vector2i(8, 0))
+	var final_layout: Dictionary = RoomGenerator.new().generate_room(29, final_boss_room, Vector2i.RIGHT)
+	var combat_state: Dictionary = CombatEngine.new().create_combat(29, final_layout, {
+		"hp": 9,
+		"max_hp": 36,
+		"deck_cards": ["quick_stab"],
+		"relics": [],
+		"hand_size": 1,
+		"heal_bonus": 0
+	})
+	var enemies: Array = (combat_state.get("enemies", []) as Array).duplicate(true)
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = (enemies[index] as Dictionary).duplicate(true)
+		if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
+			enemy["hp"] = 0
+		enemies[index] = enemy
+	combat_state["enemies"] = enemies
 	run_state = run_engine.finish_combat(run_state, combat_state)
-	_assert(str(run_state.get("mode", "")) == "victory", "Defeating the final placeholder Zekarion should end the run in victory")
-	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating the final placeholder Zekarion should restore the player to full health")
+	_assert(str(run_state.get("mode", "")) == "victory", "Defeating Noctyrax at depth 24 should end the run in victory")
+	_assert(int(run_state.get("player_hp", 0)) == int(run_state.get("player_max_hp", 0)), "Defeating Noctyrax should restore the player to full health")
 
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
 	var data: Dictionary = ProgressionStore.add_embers(default_progression, 180)
