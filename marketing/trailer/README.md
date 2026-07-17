@@ -2,7 +2,7 @@
 
 This folder contains the editable Remotion project and deterministic gameplay captures for the first Steam store trailer for **Escape the Umbra**.
 
-The tightened third cut is intentionally gameplay-first after a short setting hook. Its sequence is:
+The paced fourth cut is intentionally gameplay-first after a short setting hook. Its sequence is:
 
 1. The prison and the objective: the only way out is deeper.
 2. A deeper, engine-generated route with cleared history and legal next-room choices.
@@ -32,9 +32,9 @@ The Steam master is written to:
 marketing/trailer/out/escape-the-umbra-steam-trailer.mp4
 ```
 
-The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is 39.5 seconds at roughly 12.8 Mbps total bitrate.
+The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is approximately 50.5 seconds.
 
-The production render intentionally uses one deterministic Chromium worker. Trailer text is committed as transparent title artwork generated from the exact game font, avoiding Chromium's unreliable runtime loading of this custom TTF during long renders.
+The production render intentionally uses one deterministic Chromium worker. Trailer text is committed as transparent title artwork generated from the exact game font, avoiding Chromium's unreliable runtime loading of this custom TTF during long renders. Each card also has a generated `-fill.png` layer: the title arrives with its small Crumble gaps filled, settles, and then sheds those pieces downward to reveal the native face.
 
 Regenerate that title artwork after changing the copy, size, color, or source font:
 
@@ -64,10 +64,10 @@ LABYRINTH_TASK_ID=my-task-id marketing/trailer/scripts/capture-footage.sh
 
 - Composition id: `EscapeTheUmbraTrailer`
 - Source: `src/Trailer.tsx`
-- Output duration: 1185 frames at 30 fps
+- Output duration: 1516 frames at 30 fps
 - Promo typography in `public/title-cards/` is generated from the game's readable Labyrinth Crumble font; music, sound effects, and key art are linked through `public/game-assets`.
 - Promo copy uses that single game-native face at large sizes with no pixel-font labels, UI cards, frame counters, or secondary gameplay taglines.
 - Tactical shots use impact-focused zoom, brightness accents, and deterministic screen shake in the Remotion composition.
-- The `GROW STRONGER` montage crossfades among four legal non-start run states, accelerates only the playback timing, and leaves each production acquisition/equip animation intact.
+- The `GROW STRONGER` montage crossfades among four legal non-start run states at normal playback speed and leaves each production acquisition/equip animation intact.
 - The final CTA uses a transparent inverse-white derivative of Valve's approved Steam® logo artwork with clear space and no colored tile or compositing into the game mark. Preserve the legal attribution in `public/branding/README.md` when preparing distribution copy.
 - The old teaser is not an editorial or visual reference for this cut.

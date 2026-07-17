@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageColor, ImageDraw, ImageFilter, ImageFont
 
 
 TRAILER_DIR = Path(__file__).resolve().parents[1]
@@ -70,6 +70,30 @@ def render_card(slug: str, text: str, size: int, color: str, tracking_em: float)
     final = cropped.resize(output_size, Image.Resampling.LANCZOS)
     final.save(OUTPUT_DIR / f"{slug}.png", optimize=True)
 
+    # Close only the small erosion cuts in the Crumble face. Layering these pixels
+    # over the original art creates a clean, filled arrival while preserving the
+    # large counters in letters such as A, D, O, P, and R. Remotion then drops
+    # this fill layer away in bands to reveal the game-native crumbled silhouette.
+    fill_rgb = ImageColor.getrgb(color)
+    fill_mask = Image.new("L", final.size)
+    fill_mask.putdata(
+        [
+            255
+            if alpha > 24
+            and max(abs(red - fill_rgb[0]), abs(green - fill_rgb[1]), abs(blue - fill_rgb[2])) < 52
+            else 0
+            for red, green, blue, alpha in final.getdata()
+        ]
+    )
+    closing_size = 9 if size <= 80 else 11
+    filled_alpha = fill_mask.filter(ImageFilter.MaxFilter(closing_size)).filter(
+        ImageFilter.MinFilter(closing_size)
+    )
+    fill_alpha = ImageChops.subtract(filled_alpha, fill_mask)
+    fill_layer = Image.new("RGBA", final.size, (*fill_rgb, 0))
+    fill_layer.putalpha(fill_alpha)
+    fill_layer.save(OUTPUT_DIR / f"{slug}-fill.png", optimize=True)
+
 
 def main() -> None:
     if not FONT_PATH.is_file():
@@ -77,7 +101,9 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for card in CARDS:
         render_card(*card)
-    print(f"Rendered {len(CARDS)} title cards to {OUTPUT_DIR}")
+    print(
+        f"Rendered {len(CARDS)} title cards and crumble-fill layers to {OUTPUT_DIR}"
+    )
 
 
 if __name__ == "__main__":

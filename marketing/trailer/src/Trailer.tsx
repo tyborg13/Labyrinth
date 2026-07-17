@@ -1,7 +1,7 @@
-import {Audio, Video} from "@remotion/media";
-import {TransitionSeries, linearTiming} from "@remotion/transitions";
-import {fade} from "@remotion/transitions/fade";
-import type {ReactNode} from "react";
+import { Audio, Video } from "@remotion/media";
+import { TransitionSeries, linearTiming } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import type { ReactNode } from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -13,14 +13,14 @@ import {
 } from "remotion";
 
 const FPS = 30;
-const TRANSITION = 8;
-const PROGRESSION_TRANSITION = 5;
+const TRANSITION = 12;
+const PROGRESSION_TRANSITION = 8;
 
 const PROGRESSION_CLIP = {
-  merchant: 60,
-  relic: 78,
-  spell: 78,
-  equipment: 126,
+  merchant: 88,
+  relic: 120,
+  spell: 120,
+  equipment: 174,
 } as const;
 
 const PROGRESSION_START = {
@@ -41,28 +41,23 @@ const PROGRESSION_DURATION =
   PROGRESSION_START.equipment + PROGRESSION_CLIP.equipment;
 
 const SCENE = {
-  opening: 90,
-  route: 100,
-  prebattle: 108,
-  trap: 136,
-  aoe: 145,
-  umbra: 155,
+  opening: 120,
+  route: 132,
+  prebattle: 144,
+  trap: 168,
+  aoe: 168,
+  umbra: 180,
   progression: PROGRESSION_DURATION,
-  final: 180,
+  final: 210,
 } as const;
 
 const START = {
   opening: 0,
   route: SCENE.opening - TRANSITION,
   prebattle: SCENE.opening + SCENE.route - TRANSITION * 2,
-  trap:
-    SCENE.opening + SCENE.route + SCENE.prebattle - TRANSITION * 3,
+  trap: SCENE.opening + SCENE.route + SCENE.prebattle - TRANSITION * 3,
   aoe:
-    SCENE.opening +
-    SCENE.route +
-    SCENE.prebattle +
-    SCENE.trap -
-    TRANSITION * 4,
+    SCENE.opening + SCENE.route + SCENE.prebattle + SCENE.trap - TRANSITION * 4,
   umbra:
     SCENE.opening +
     SCENE.route +
@@ -104,7 +99,7 @@ const clamp = {
   extrapolateRight: "clamp" as const,
 };
 
-const fadeTiming = linearTiming({durationInFrames: TRANSITION});
+const fadeTiming = linearTiming({ durationInFrames: TRANSITION });
 const progressionFadeTiming = linearTiming({
   durationInFrames: PROGRESSION_TRANSITION,
 });
@@ -137,20 +132,19 @@ const FilmGrain: React.FC = () => {
   );
 };
 
-const EmberField: React.FC<{opacity?: number}> = ({opacity = 1}) => {
+const EmberField: React.FC<{ opacity?: number }> = ({ opacity = 1 }) => {
   const frame = useCurrentFrame();
-  const particles = Array.from({length: 24}, (_, index) => ({
+  const particles = Array.from({ length: 24 }, (_, index) => ({
     x: (index * 79 + 17) % 100,
     y:
       112 -
-      ((frame * (0.09 + (index % 5) * 0.025) + (index * 23) % 120) %
-        130),
+      ((frame * (0.09 + (index % 5) * 0.025) + ((index * 23) % 120)) % 130),
     size: 2 + (index % 4),
     alpha: 0.22 + ((index * 19) % 55) / 100,
   }));
 
   return (
-    <AbsoluteFill style={{pointerEvents: "none", opacity}}>
+    <AbsoluteFill style={{ pointerEvents: "none", opacity }}>
       {particles.map((particle, index) => (
         <div
           key={index}
@@ -172,22 +166,35 @@ const EmberField: React.FC<{opacity?: number}> = ({opacity = 1}) => {
   );
 };
 
-const EditorialFrame: React.FC<{children: ReactNode}> = ({children}) => (
-  <AbsoluteFill style={{backgroundColor: PALETTE.ink, overflow: "hidden"}}>
+const EditorialFrame: React.FC<{ children: ReactNode }> = ({ children }) => (
+  <AbsoluteFill style={{ backgroundColor: PALETTE.ink, overflow: "hidden" }}>
     {children}
     <Vignette />
     <FilmGrain />
   </AbsoluteFill>
 );
 
-const CrumbledRule: React.FC = () => (
-  <div className="crumbled-rule" aria-hidden="true">
-    <span />
-    <span />
-    <span />
-    <span />
-  </div>
-);
+const CrumbledRule: React.FC<{ enterAt?: number }> = ({ enterAt = 0 }) => {
+  const frame = useCurrentFrame();
+  return (
+    <div
+      className="crumbled-rule"
+      aria-hidden="true"
+      style={{
+        opacity: interpolate(frame, [enterAt, enterAt + 10], [0, 1], clamp),
+        translate: `${interpolate(frame, [enterAt, enterAt + 14], [-24, 0], {
+          ...clamp,
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        })}px 0`,
+      }}
+    >
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+  );
+};
 
 const TITLE_CARD: Record<string, string> = {
   "PLAN YOUR DESCENT": "plan-your-descent",
@@ -198,17 +205,73 @@ const TITLE_CARD: Record<string, string> = {
   "GROW STRONGER": "grow-stronger",
 };
 
-const TitleArt: React.FC<{
+const CRUMB_BANDS = 7;
+
+const CrumbleTitleArt: React.FC<{
   slug: string;
   alt: string;
   className: string;
-}> = ({slug, alt, className}) => (
-  <Img
-    src={staticFile(`title-cards/${slug}.png`)}
-    className={className}
-    alt={alt}
-  />
-);
+  enterAt: number;
+  shedAt: number;
+}> = ({ slug, alt, className, enterAt, shedAt }) => {
+  const frame = useCurrentFrame();
+  return (
+    <span
+      className={`crumble-title-art ${className}`}
+      style={{
+        opacity: interpolate(frame, [enterAt, enterAt + 10], [0, 1], clamp),
+        translate: `0 ${interpolate(frame, [enterAt, enterAt + 16], [34, 0], {
+          ...clamp,
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        })}px`,
+        scale: interpolate(frame, [enterAt, enterAt + 18], [0.975, 1], {
+          ...clamp,
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+      }}
+    >
+      <Img
+        src={staticFile(`title-cards/${slug}.png`)}
+        className="crumble-title-base"
+        alt={alt}
+      />
+      {Array.from({ length: CRUMB_BANDS }, (_, index) => {
+        const delay = index % 3;
+        const shed = interpolate(
+          frame,
+          [shedAt + delay, shedAt + 24 + delay],
+          [0, 1],
+          {
+            ...clamp,
+            easing: Easing.in(Easing.cubic),
+          },
+        );
+        const left = (index / CRUMB_BANDS) * 100;
+        const right = 100 - ((index + 1) / CRUMB_BANDS) * 100;
+        return (
+          <Img
+            key={index}
+            src={staticFile(`title-cards/${slug}-fill.png`)}
+            className="crumble-title-fill"
+            alt=""
+            aria-hidden="true"
+            style={{
+              clipPath: `inset(0 ${right}% 0 ${left}%)`,
+              opacity: interpolate(
+                frame,
+                [shedAt + delay, shedAt + 7 + delay, shedAt + 24 + delay],
+                [1, 1, 0],
+                clamp,
+              ),
+              translate: `${(index - 3) * 3.5 * shed}px ${shed * (54 + (index % 4) * 13)}px`,
+              rotate: `${(index % 2 === 0 ? -1 : 1) * shed * (1.5 + index * 0.22)}deg`,
+            }}
+          />
+        );
+      })}
+    </span>
+  );
+};
 
 const OpeningScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -220,7 +283,12 @@ const OpeningScene: React.FC = () => {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          opacity: interpolate(frame, [0, 10, 76, 90], [0, 1, 1, 0.76], clamp),
+          opacity: interpolate(
+            frame,
+            [0, 12, 104, 120],
+            [0, 1, 1, 0.76],
+            clamp,
+          ),
           scale: interpolate(frame, [0, SCENE.opening], [1.025, 1.095], {
             ...clamp,
             easing: Easing.bezier(0.22, 0.8, 0.36, 1),
@@ -237,24 +305,24 @@ const OpeningScene: React.FC = () => {
       <div
         className="opening-copy"
         style={{
-          opacity: interpolate(frame, [11, 20, 72, 84], [0, 1, 1, 0], clamp),
-          translate: `0 ${interpolate(frame, [11, 25], [38, 0], {
-            ...clamp,
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          })}px`,
+          opacity: interpolate(frame, [96, 112], [1, 0], clamp),
         }}
       >
-        <TitleArt
+        <CrumbleTitleArt
           slug="this-prison"
           alt="THIS PRISON"
           className="opening-line-art"
+          enterAt={8}
+          shedAt={29}
         />
-        <TitleArt
+        <CrumbleTitleArt
           slug="has-no-exit"
           alt="HAS NO EXIT"
           className="opening-line-art opening-accent-art"
+          enterAt={14}
+          shedAt={35}
         />
-        <CrumbledRule />
+        <CrumbledRule enterAt={48} />
       </div>
       <EmberField opacity={0.58} />
     </EditorialFrame>
@@ -288,7 +356,7 @@ const GameplayTitle: React.FC<{
   copyExitFrame: number;
   placement: CopyPlacement;
   accent: "ember" | "violet" | "gold";
-}> = ({headline, copyExitFrame, placement, accent}) => {
+}> = ({ headline, copyExitFrame, placement, accent }) => {
   const frame = useCurrentFrame();
   const accentColor =
     accent === "violet"
@@ -303,23 +371,21 @@ const GameplayTitle: React.FC<{
       style={{
         opacity: interpolate(
           frame,
-          [10, 18, copyExitFrame, copyExitFrame + 12],
-          [0, 1, 1, 0],
+          [copyExitFrame, copyExitFrame + 14],
+          [1, 0],
           clamp,
         ),
-        translate: `0 ${interpolate(frame, [10, 24], [32, 0], {
-          ...clamp,
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
-        })}px`,
         color: accentColor,
       }}
     >
-      <TitleArt
+      <CrumbleTitleArt
         slug={TITLE_CARD[headline]}
         alt={headline}
         className="gameplay-headline-art"
+        enterAt={8}
+        shedAt={29}
       />
-      <CrumbledRule />
+      <CrumbledRule enterAt={44} />
     </div>
   );
 };
@@ -365,7 +431,11 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
   const shakeEnvelope = camera
     ? interpolate(
         frame,
-        [camera.impactFrame - 2, camera.impactFrame + 2, camera.impactFrame + 18],
+        [
+          camera.impactFrame - 2,
+          camera.impactFrame + 2,
+          camera.impactFrame + 18,
+        ],
         [0, 1, 0],
         clamp,
       )
@@ -379,7 +449,11 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
   const impactLight = camera
     ? interpolate(
         frame,
-        [camera.impactFrame - 2, camera.impactFrame + 1, camera.impactFrame + 10],
+        [
+          camera.impactFrame - 2,
+          camera.impactFrame + 1,
+          camera.impactFrame + 10,
+        ],
         [1, 1.2, 1],
         clamp,
       )
@@ -430,7 +504,7 @@ const ProgressionClip: React.FC<{
   duration: number;
   playbackRate: number;
   focus: string;
-}> = ({clip, duration, playbackRate, focus}) => {
+}> = ({ clip, duration, playbackRate, focus }) => {
   const frame = useCurrentFrame();
   return (
     <EditorialFrame>
@@ -465,15 +539,13 @@ const ProgressionClip: React.FC<{
 const ProgressionScene: React.FC = () => {
   const frame = useCurrentFrame();
   return (
-    <AbsoluteFill style={{backgroundColor: PALETTE.ink, overflow: "hidden"}}>
+    <AbsoluteFill style={{ backgroundColor: PALETTE.ink, overflow: "hidden" }}>
       <TransitionSeries>
-        <TransitionSeries.Sequence
-          durationInFrames={PROGRESSION_CLIP.merchant}
-        >
+        <TransitionSeries.Sequence durationInFrames={PROGRESSION_CLIP.merchant}>
           <ProgressionClip
             clip="merchant"
             duration={PROGRESSION_CLIP.merchant}
-            playbackRate={1.25}
+            playbackRate={1}
             focus="50% 62%"
           />
         </TransitionSeries.Sequence>
@@ -485,7 +557,7 @@ const ProgressionScene: React.FC = () => {
           <ProgressionClip
             clip="relic"
             duration={PROGRESSION_CLIP.relic}
-            playbackRate={1.35}
+            playbackRate={1}
             focus="50% 64%"
           />
         </TransitionSeries.Sequence>
@@ -497,7 +569,7 @@ const ProgressionScene: React.FC = () => {
           <ProgressionClip
             clip="spell"
             duration={PROGRESSION_CLIP.spell}
-            playbackRate={1.35}
+            playbackRate={1}
             focus="50% 66%"
           />
         </TransitionSeries.Sequence>
@@ -511,7 +583,7 @@ const ProgressionScene: React.FC = () => {
           <ProgressionClip
             clip="equipment"
             duration={PROGRESSION_CLIP.equipment}
-            playbackRate={1.35}
+            playbackRate={1}
             focus="50% 54%"
           />
         </TransitionSeries.Sequence>
@@ -519,19 +591,17 @@ const ProgressionScene: React.FC = () => {
       <div
         className="progression-copy"
         style={{
-          opacity: interpolate(frame, [7, 15, 48, 60], [0, 1, 1, 0], clamp),
-          translate: `0 ${interpolate(frame, [7, 20], [28, 0], {
-            ...clamp,
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          })}px`,
+          opacity: interpolate(frame, [72, 84], [1, 0], clamp),
         }}
       >
-        <TitleArt
+        <CrumbleTitleArt
           slug={TITLE_CARD["GROW STRONGER"]}
           alt="GROW STRONGER"
           className="gameplay-headline-art"
+          enterAt={7}
+          shedAt={28}
         />
-        <CrumbledRule />
+        <CrumbledRule enterAt={43} />
       </div>
     </AbsoluteFill>
   );
@@ -562,57 +632,56 @@ const FinalScene: React.FC = () => {
       <div
         className="dragon-objective"
         style={{
-          opacity: interpolate(frame, [10, 20, 66, 78], [0, 1, 1, 0], clamp),
-          translate: `0 ${interpolate(frame, [10, 24], [30, 0], {
-            ...clamp,
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          })}px`,
+          opacity: interpolate(frame, [72, 84], [1, 0], clamp),
         }}
       >
-        <TitleArt
+        <CrumbleTitleArt
           slug="shadow-dragon-waits-below"
           alt="THE SHADOW DRAGON WAITS BELOW"
           className="dragon-objective-art"
+          enterAt={10}
+          shedAt={31}
         />
-        <CrumbledRule />
+        <CrumbledRule enterAt={46} />
       </div>
-      <div
-        className="title-lockup"
-        style={{
-          opacity: interpolate(frame, [76, 94], [0, 1], clamp),
-          translate: `0 ${interpolate(frame, [76, 98], [44, 0], {
-            ...clamp,
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          })}px`,
-          scale: interpolate(frame, [76, 102], [0.95, 1], {
-            ...clamp,
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-        }}
-      >
-        <TitleArt slug="escape" alt="ESCAPE" className="title-escape-art" />
-        <TitleArt
+      <div className="title-lockup">
+        <CrumbleTitleArt
+          slug="escape"
+          alt="ESCAPE"
+          className="title-escape-art"
+          enterAt={84}
+          shedAt={106}
+        />
+        <CrumbleTitleArt
           slug="the-umbra"
           alt="THE UMBRA"
           className="title-umbra-art"
+          enterAt={90}
+          shedAt={112}
         />
       </div>
-      <div
-        className="steam-cta"
-        style={{opacity: interpolate(frame, [112, 132], [0, 1], clamp)}}
-      >
+      <div className="steam-cta">
         <div className="steam-cta-copy">
-          <TitleArt
+          <CrumbleTitleArt
             slug="wishlist-now-on"
             alt="WISHLIST NOW ON"
             className="steam-cta-art"
+            enterAt={128}
+            shedAt={149}
           />
-          <CrumbledRule />
+          <CrumbledRule enterAt={164} />
         </div>
         <Img
           src={staticFile("branding/steam-logo-inverse-transparent.png")}
           className="steam-logo"
           alt="Steam"
+          style={{
+            opacity: interpolate(frame, [134, 150], [0, 1], clamp),
+            translate: `${interpolate(frame, [134, 154], [32, 0], {
+              ...clamp,
+              easing: Easing.bezier(0.16, 1, 0.3, 1),
+            })}px 0`,
+          }}
         />
       </div>
       <EmberField opacity={0.8} />
@@ -620,13 +689,16 @@ const FinalScene: React.FC = () => {
   );
 };
 
-const ImpactFlash: React.FC<{from: number; color: string}> = ({from, color}) => (
+const ImpactFlash: React.FC<{ from: number; color: string }> = ({
+  from,
+  color,
+}) => (
   <Sequence from={from} durationInFrames={16} premountFor={8}>
     <ImpactFlashContents color={color} />
   </Sequence>
 );
 
-const ImpactFlashContents: React.FC<{color: string}> = ({color}) => {
+const ImpactFlashContents: React.FC<{ color: string }> = ({ color }) => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill
@@ -675,7 +747,7 @@ const Soundtrack: React.FC = () => (
         volume={0.46}
       />
     </Sequence>
-    {[36, 92, 165, 236].map((offset) => (
+    {[52, 115, 237, 354, 439].map((offset) => (
       <Sequence
         key={offset}
         from={START.progression + offset}
@@ -692,7 +764,7 @@ const Soundtrack: React.FC = () => (
 );
 
 export const EscapeTheUmbraTrailer: React.FC = () => (
-  <AbsoluteFill style={{backgroundColor: PALETTE.ink}}>
+  <AbsoluteFill style={{ backgroundColor: PALETTE.ink }}>
     <TransitionSeries>
       <TransitionSeries.Sequence durationInFrames={SCENE.opening}>
         <OpeningScene />
@@ -703,7 +775,7 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="route"
           duration={SCENE.route}
           headline="PLAN YOUR DESCENT"
-          copyExitFrame={80}
+          copyExitFrame={108}
           accent="gold"
           zoom={1.018}
         />
@@ -714,7 +786,7 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="prebattle"
           duration={SCENE.prebattle}
           headline="READ THE ROOM"
-          copyExitFrame={72}
+          copyExitFrame={110}
           accent="gold"
           zoom={1.025}
         />
@@ -725,7 +797,7 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="trap_combo"
           duration={SCENE.trap}
           headline="USE THE LABYRINTH"
-          copyExitFrame={52}
+          copyExitFrame={54}
           accent="ember"
           camera={{
             impactFrame: 71,
@@ -743,7 +815,7 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="aoe"
           duration={SCENE.aoe}
           headline="BUILD THE PERFECT TURN"
-          copyExitFrame={56}
+          copyExitFrame={60}
           accent="gold"
           camera={{
             impactFrame: 78,
@@ -761,7 +833,7 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="umbra"
           duration={SCENE.umbra}
           headline="BRING LIGHT INTO THE UMBRA"
-          copyExitFrame={58}
+          copyExitFrame={62}
           accent="violet"
           camera={{
             impactFrame: 70,

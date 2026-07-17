@@ -101,10 +101,10 @@ func _suppress_current_room_dialogue() -> void:
 	_run_scene.set("_last_auto_dialogue_key", _run_scene.call("_dialogue_trigger_key", room))
 
 func _capture_route() -> void:
-	_show_run_scene()
-	await _settle(0.65)
 	_run_scene.call("_open_large_map")
-	await _settle(0.55)
+	await _settle(1.2)
+	_show_run_scene()
+	await _settle(0.8)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
 	var choices: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
@@ -112,25 +112,21 @@ func _capture_route() -> void:
 	var large_map_view: Control = _run_scene.get("_large_map_view") as Control
 	if large_map_view != null and not choices.is_empty():
 		large_map_view.call("begin_travel_animation", current, choices[0])
-	await _settle(1.35)
+	await _settle(2.0)
 	if large_map_view != null and not choices.is_empty():
 		large_map_view.set("_hover_coord", choices[0])
 		large_map_view.queue_redraw()
-	await _settle(1.35)
-	_run_scene.call("_close_large_map")
-	await _settle(0.45)
+	await _settle(2.2)
 
 func _capture_prebattle() -> void:
-	_show_run_scene()
-	await _settle(0.75)
 	var destination: Vector2i = _first_combat_destination()
 	if destination == INVALID_TILE:
 		push_error("Capture seed has no available combat destination")
 		return
 	await _run_scene.call("_on_map_view_room_selected", destination)
-	await _settle(1.25)
-	_run_scene.call("_on_pre_battle_start_pressed")
-	await _settle(2.15)
+	await _settle(1.8)
+	_show_run_scene()
+	await _settle(5.0)
 
 func _build_prebattle_origin_state(initial_state: Dictionary) -> Dictionary:
 	var route: Dictionary = _find_target_route(initial_state, "spell", 2)

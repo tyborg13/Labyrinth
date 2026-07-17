@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-16T22:00:52Z",
+  "updated_at": "2026-07-17T00:43:00Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5736,7 +5736,7 @@
       }
     },
     {
-      "id": "mnt_20260716T220052Z_d6dfcf9e",
+      "id": "mnt_20260717T004300Z_d9a4b8a1",
       "layer": "shared",
       "kind": "pitfall",
       "scope": {
@@ -5745,16 +5745,18 @@
         "symbol": null
       },
       "scope_key": "folder:marketing/trailer",
-      "summary": "Physically strip Godot Movie Maker pre-roll from every trailer edit clip.",
-      "details": "RunScene initially renders before a requested capture state unless it is hidden, and Remotion trimBefore/poster seeking can still expose those frames during scene transitions. tools/steam_trailer_capture.gd now keeps RunScene hidden until the requested non-start state is loaded, while capture-footage.sh applies FFmpeg trim/setpts so source frame zero is safe. Preserve both layers when adding future clips.",
+      "summary": "Audit deferred Godot trailer UI frame-by-frame before choosing source trims",
+      "details": "A correct non-start RunEngine state does not guarantee the first visible Movie Maker frames are safe: large-map and prebattle overlays can draw several frames after their state-changing calls complete, briefly exposing the underlying room or a half-composed overlay. Keep the RunScene hidden while preparing the requested UI, physically trim each edit source past its measured stable frame, and verify a dense early-frame contact sheet plus every encoded transition. For the deterministic route/prebattle captures, capture-footage.sh currently uses raw-frame trims 27 and 56.",
       "status": "active",
-      "created_at": "2026-07-16T22:00:52Z",
-      "updated_at": "2026-07-16T22:00:52Z",
+      "created_at": "2026-07-17T00:43:00Z",
+      "updated_at": "2026-07-17T00:43:00Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260716T220052Z_d6dfcf9e"
+      ],
       "source": {
         "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
-        "commit": "a97b257"
+        "commit": "58ed5fd"
       }
     }
   ]

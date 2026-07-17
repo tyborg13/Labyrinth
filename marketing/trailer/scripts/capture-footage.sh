@@ -29,7 +29,8 @@ for clip in "${CLIPS[@]}"; do
   edit_path="${FOOTAGE_DIR}/${clip}.mp4"
 
   case "${clip}" in
-    route) trim_frames=42 ;;
+    route) trim_frames=27 ;;
+    prebattle) trim_frames=56 ;;
     *) trim_frames=30 ;;
   esac
 
