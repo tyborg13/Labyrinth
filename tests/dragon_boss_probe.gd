@@ -69,6 +69,27 @@ func _capture_bosses() -> void:
 		await create_timer(0.12).timeout
 		_assert_loaded_boss(instance, boss_id, true)
 		await _capture("%02d_%s_gimmick.png" % [depth, boss_id])
+		if boss_id != DragonBossLibrary.LIGHTNING_BOSS_ID:
+			var before_death: Dictionary = combat_state.duplicate(true)
+			var after_death: Dictionary = combat_state.duplicate(true)
+			var after_enemies: Array = (after_death.get("enemies", []) as Array).duplicate(true)
+			var after_boss: Dictionary = (after_enemies[boss_index] as Dictionary).duplicate(true)
+			after_boss["hp"] = 0
+			after_enemies[boss_index] = after_boss
+			after_death["enemies"] = after_enemies
+			var death_presentation: Dictionary = instance.call("_death_hold_presentation", before_death, after_death, {}) as Dictionary
+			var death_units: Array = death_presentation.get("death_animation_units", [])
+			if death_units.size() != 1 or str((death_units[0] as Dictionary).get("type", "")) != boss_id:
+				_fail("%s should produce its own in-game death presentation unit" % boss_id)
+			else:
+				var death_unit: Dictionary = (death_units[0] as Dictionary).duplicate(true)
+				death_unit["death_frame"] = 7
+				death_unit["death_progress"] = 0.47
+				death_presentation["death_animation_units"] = [death_unit]
+			instance.call("_render_board_state", after_death, death_presentation)
+			await process_frame
+			await process_frame
+			await _capture("%02d_%s_death.png" % [depth, boss_id])
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(_output_dir))
@@ -131,6 +152,10 @@ func _layout_from_combat(combat_state: Dictionary) -> Dictionary:
 
 func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -> void:
 	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
+	var current_layout: Dictionary = (instance.get("_run_state") as Dictionary).get("current_room_layout", {}) as Dictionary
+	var expected_room_name: String = DragonBossLibrary.room_name_for_boss(boss_id)
+	if str(instance.call("_room_title_text", current_layout)) != expected_room_name:
+		_fail("%s proof should surface the authored arena title %s" % [boss_id, expected_room_name])
 	var boss_index: int = _boss_index(combat_state)
 	if boss_index < 0:
 		_fail("%s should remain present in its visual proof" % boss_id)

@@ -17534,7 +17534,7 @@ func _room_title_text(room: Dictionary) -> String:
 	if room_type == "treasure":
 		return "Relic Cache"
 	if room_type == "boss":
-		return "Outer Sanctum"
+		return str(room.get("name", "Outer Sanctum"))
 	return str(room.get("name", "Chamber"))
 
 func _room_subtitle_text(room: Dictionary) -> String:

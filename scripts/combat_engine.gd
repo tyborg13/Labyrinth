@@ -3445,16 +3445,16 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
 	var triggered_statuses: Array[String] = []
-	if int(action.get("burn", 0)) > 0:
+	if int(action.get("burn", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "burn"):
 		enemy["burn"] = int(enemy.get("burn", 0)) + int(action.get("burn", 0))
 		triggered_statuses.append("burn")
-	if int(action.get("bleed", 0)) > 0:
+	if int(action.get("bleed", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "bleed"):
 		enemy["bleed"] = int(enemy.get("bleed", 0)) + int(action.get("bleed", 0))
 		triggered_statuses.append("bleed")
-	if int(action.get("expose", 0)) > 0:
+	if int(action.get("expose", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "expose"):
 		enemy["expose"] = maxi(int(enemy.get("expose", 0)), int(action.get("expose", 0)))
 		triggered_statuses.append("expose")
-	if int(action.get("freeze", 0)) > 0:
+	if int(action.get("freeze", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "freeze"):
 		var before_freeze: int = int(enemy.get("freeze", 0))
 		enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), int(action.get("freeze", 0)))
 		if int(enemy.get("freeze", 0)) > before_freeze:
@@ -3469,7 +3469,7 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		enemy["immobilize"] = true
 		if not before_immobilize:
 			triggered_statuses.append("immobilize")
-	if int(action.get("poison", 0)) > 0:
+	if int(action.get("poison", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "poison"):
 		var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
 		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
 		poison["delay"] = 2
@@ -5848,6 +5848,8 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 			scaled["amount"] = maxi(0, int(scaled.get("amount", 0)) + support_delta)
 		elif action_type == "heal_self" or action_type == "heal_ally":
 			scaled["amount"] = maxi(0, int(scaled.get("amount", 0)) + support_delta)
+		elif action_type == "raise_terrain" and scaled.has("health"):
+			scaled["health"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("health", 0)) + support_delta)
 	var sequence_index: int = _depth_sequence_index(room_depth)
 	if sequence_index <= 0:
 		return scaled
@@ -5858,6 +5860,8 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 		scaled["amount"] = int(scaled.get("amount", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
 	elif action_type == "heal_self" or action_type == "heal_ally":
 		scaled["amount"] = int(scaled.get("amount", 0)) + GameData.fixed_point_amount(sequence_index)
+	elif action_type == "raise_terrain" and scaled.has("health"):
+		scaled["health"] = int(scaled.get("health", 0)) + ENEMY_SUPPORT_BONUS_PER_SEQUENCE * sequence_index
 	return scaled
 
 func _local_enemy_hp_scale(room_depth: int) -> float:
@@ -6850,17 +6854,20 @@ func _apply_status_to_all_live_enemies(state: Dictionary, status_id: String, amo
 			continue
 		match status_id:
 			"burn":
-				enemy["burn"] = int(enemy.get("burn", 0)) + amount
+				if not _enemy_is_immune_to_status(enemy, "burn"):
+					enemy["burn"] = int(enemy.get("burn", 0)) + amount
 			"freeze":
-				enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), amount)
+				if not _enemy_is_immune_to_status(enemy, "freeze"):
+					enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), amount)
 			"shock":
 				if not _enemy_is_immune_to_status(enemy, "shock"):
 					enemy["shock"] = maxi(int(enemy.get("shock", 0)), amount)
 			"poison":
-				var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-				poison["damage"] = int(poison.get("damage", 0)) + amount
-				poison["delay"] = 2
-				enemy["poison"] = poison
+				if not _enemy_is_immune_to_status(enemy, "poison"):
+					var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
+					poison["damage"] = int(poison.get("damage", 0)) + amount
+					poison["delay"] = 2
+					enemy["poison"] = poison
 			_:
 				continue
 		enemies[index] = enemy
