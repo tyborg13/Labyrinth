@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/run_scene.gd" id="1_run"]
 [ext_resource type="Script" path="res://scripts/labyrinth_map_view.gd" id="2_map"]
 [ext_resource type="Script" path="res://scripts/combat_board_view.gd" id="3_board"]
 [ext_resource type="Script" path="res://scripts/hand_fan_container.gd" id="4_hand"]
+[ext_resource type="Script" path="res://scripts/ui_tooltip_button.gd" id="5_tooltip_button"]
+[ext_resource type="Script" path="res://scripts/ui_tooltip_label.gd" id="6_tooltip_label"]
+[ext_resource type="Script" path="res://scripts/ui_tooltip_panel_container.gd" id="7_tooltip_panel"]
 
 [node name="RunScene" type="Control"]
 layout_mode = 3
@@ -93,6 +96,7 @@ text = "Depth"
 visible = false
 layout_mode = 2
 text = "Deep Umbra"
+script = ExtResource("6_tooltip_label")
 
 [node name="RelicBar" type="HFlowContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox"]
 visible = false
@@ -112,16 +116,19 @@ text = "Stats"
 custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
 tooltip_text = "Character Loadout"
+script = ExtResource("5_tooltip_button")
 
 [node name="GrimoireButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
 custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
 tooltip_text = "Grimoire"
+script = ExtResource("5_tooltip_button")
 
 [node name="MenuButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
 custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
 tooltip_text = "Menu"
+script = ExtResource("5_tooltip_button")
 
 [node name="StageRoot" type="Control" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox"]
 layout_mode = 2
@@ -157,6 +164,7 @@ offset_bottom = 216.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 tooltip_text = "Map"
+script = ExtResource("7_tooltip_panel")
 
 [node name="MiniMapMargin" type="Control" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"]
 layout_mode = 1
@@ -236,6 +244,7 @@ theme_override_constants/separation = 6
 [node name="DrawPile" type="PanelContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
+script = ExtResource("7_tooltip_panel")
 
 [node name="DrawMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DrawPile"]
 layout_mode = 2
@@ -263,6 +272,7 @@ text = "0"
 [node name="DiscardPile" type="PanelContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
+script = ExtResource("7_tooltip_panel")
 
 [node name="DiscardMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/DiscardPile"]
 layout_mode = 2
@@ -290,6 +300,7 @@ text = "0"
 [node name="BurnPile" type="PanelContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar"]
 custom_minimum_size = Vector2(62, 84)
 layout_mode = 2
+script = ExtResource("7_tooltip_panel")
 
 [node name="BurnMargin" type="MarginContainer" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/PilesBar/BurnPile"]
 layout_mode = 2

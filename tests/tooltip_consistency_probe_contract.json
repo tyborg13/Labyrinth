@@ -1,0 +1,16 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*tooltip_consistency_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [20, 100, 1080, 960], "min_luma_range": 10, "min_luma_stdev": 2},
+        {"rect": [1140, 100, 750, 650], "min_luma_range": 16, "min_luma_stdev": 3},
+        {"rect": [1220, 770, 520, 250], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    }
+  ]
+}
