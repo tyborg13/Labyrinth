@@ -13,6 +13,7 @@ const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suit
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
+const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -55,6 +56,7 @@ func _initialize() -> void:
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
+	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -5392,8 +5394,8 @@ func _test_pickup_tooltips_describe_effects() -> void:
 		"Dropped ember tooltips should show the exact recoverable amount"
 	)
 	_assert(
-		str(board.call("_loot_tooltip_text", {"kind": "equipment", "equipment_id": "iron_cleaver"})) == "Iron Cleaver: Weapon",
-		"Equipment pickup tooltips should identify the item and slot"
+		str(board.call("_loot_tooltip_text", {"kind": "equipment", "equipment_id": "iron_cleaver"})) == "equipment:iron_cleaver",
+		"Equipment pickup tooltips should route through the shared equipment preview"
 	)
 	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})

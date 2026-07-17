@@ -26,6 +26,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
+const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
@@ -1329,6 +1331,7 @@ func _ready() -> void:
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
 	set_process(false)
+	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
@@ -2197,7 +2200,7 @@ func _build_large_map_overlay() -> void:
 	title.add_theme_constant_override("outline_size", 2)
 	top_row.add_child(title)
 
-	var close_button := Button.new()
+	var close_button := UiTooltipButton.new()
 	close_button.name = "CloseButton"
 	close_button.text = "X"
 	close_button.tooltip_text = "Close"
@@ -2333,7 +2336,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 
-	var gear_button := Button.new()
+	var gear_button := UiTooltipButton.new()
 	gear_button.name = "PreBattleEquipButton"
 	gear_button.text = "Equip"
 	gear_button.tooltip_text = "Character"
@@ -2347,7 +2350,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	gear_button.pressed.connect(_on_pre_battle_equip_pressed)
 	row.add_child(gear_button)
 
-	var start_button := Button.new()
+	var start_button := UiTooltipButton.new()
 	start_button.name = "PreBattleStartButton"
 	start_button.text = "Start"
 	start_button.tooltip_text = "Start combat"
@@ -2987,7 +2990,7 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 	threat_label.add_theme_color_override("font_color", accent.lightened(0.36))
 	identity.add_child(threat_label)
 	if interactive:
-		var close_button := Button.new()
+		var close_button := UiTooltipButton.new()
 		close_button.name = "PreBattleInspectionCloseButton"
 		close_button.text = "X"
 		close_button.tooltip_text = "Close"
@@ -3513,7 +3516,7 @@ func _build_grimoire_overlay() -> void:
 	subtitle.add_theme_color_override("font_color", Color("c9ad7c"))
 	title_stack.add_child(subtitle)
 
-	var close_button := Button.new()
+	var close_button := UiTooltipButton.new()
 	close_button.text = "Close"
 	close_button.tooltip_text = "Close Grimoire"
 	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_COMPACT)
@@ -3881,7 +3884,7 @@ func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	_grimoire_section_list.add_child(wrapper)
 
 func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String) -> Button:
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	var marker: String = "* " if unread else ""
 	button.text = "%s%s" % [marker, label]
 	button.toggle_mode = true
@@ -6465,7 +6468,7 @@ func _turn_order_slot_position(index: int) -> Vector2:
 func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	var active: bool = bool(entry.get("active", false))
 	var slot_size: Vector2 = TURN_ORDER_ACTIVE_SIZE if active else TURN_ORDER_PORTRAIT_SIZE
-	var frame := Control.new()
+	var frame := UiTooltipControl.new()
 	frame.custom_minimum_size = slot_size
 	frame.size = slot_size
 	frame.clip_contents = false
@@ -7260,7 +7263,7 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 func _add_card_play_confirmation_button() -> void:
 	if _action_context_command_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.name = "ActionContextPlayCard"
 	button.text = "Play Card"
 	button.tooltip_text = "Confirm this card without choosing a board target"
@@ -7306,7 +7309,7 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 		))
 
 func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	var active: bool = play_kind == _card_action_choice_mode
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
 	button.text = ""
@@ -7428,7 +7431,7 @@ func _card_action_mode_option_style(fill: Color, accent: Color, state: String, a
 func _add_action_context_button(text: String, callback: Callable, tooltip: String = "", extra_compact: bool = false) -> void:
 	if _action_context_command_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.name = "ActionContext%s" % text.replace(" ", "")
 	button.text = text
 	button.tooltip_text = tooltip
@@ -8160,7 +8163,7 @@ func _refresh_choice_bar() -> void:
 			call_deferred("_layout_relic_choice_overlay")
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.text = text
 	button.tooltip_text = tooltip
 	var large_action_button: bool = _large_action_choice_text(text)
@@ -8560,7 +8563,7 @@ func _large_action_choice_text(text: String) -> bool:
 func _add_context_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	if _context_choice_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.text = text
 	button.tooltip_text = tooltip
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
@@ -8822,7 +8825,7 @@ func _on_merchant_return_to_shop_pressed() -> void:
 func _add_merchant_return_to_shop_button() -> void:
 	if _relic_choice_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.name = "MerchantReturnToShopButton"
 	button.text = "Return to Shop"
 	button.tooltip_text = "Open the merchant's stock again."
@@ -8903,7 +8906,7 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 	ember_label.add_theme_constant_override("outline_size", 1)
 	top_row.add_child(ember_label)
 
-	var hide_button := Button.new()
+	var hide_button := UiTooltipButton.new()
 	hide_button.name = "MerchantHideButton"
 	hide_button.text = "Hide"
 	hide_button.tooltip_text = "Hide the merchant interface and reveal every door."
