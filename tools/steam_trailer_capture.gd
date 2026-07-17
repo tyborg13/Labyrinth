@@ -57,6 +57,8 @@ func _capture_requested_clip() -> void:
 			await _capture_relic_claim()
 		"spell":
 			await _capture_spell_reward()
+		"magic_equip":
+			await _capture_magic_equip()
 		"equipment":
 			await _capture_equipment_pickup_and_equip()
 		_:
@@ -71,7 +73,11 @@ func _seed_showcase_run() -> void:
 	progression["embers"] = 22
 	progression["run_counter"] = 3
 	progression["card_upgrades_unlocked"] = true
+	if _clip_id in ["merchant", "relic", "spell", "magic_equip", "equipment"]:
+		progression["level"] = 7
 	var state: Dictionary = _run_engine.create_new_run(CAPTURE_SEED, progression)
+	if _clip_id in ["merchant", "relic", "spell", "magic_equip", "equipment"]:
+		state = _seed_deep_showcase_loadout(state)
 	match _clip_id:
 		"route":
 			state = _build_deep_route_state(state)
@@ -84,14 +90,18 @@ func _seed_showcase_run() -> void:
 		"umbra":
 			state = _build_target_room_state(state, "spell", 6)
 		"merchant":
-			state = _build_target_room_state(state, "merchant", 2)
-			state = _run_engine.set_held_embers(state, 220)
+			state = _build_target_room_state(state, "merchant", 4)
+			state = _run_engine.set_held_embers(state, 900)
 		"relic":
-			state = _build_target_room_state(state, "relic", 2)
+			state = _build_target_room_state(state, "relic", 4)
 		"spell":
-			state = _build_post_combat_reward_state(_build_target_room_state(state, "spell", 2))
+			state = _build_post_combat_reward_state(_build_target_room_state(state, "spell", 5))
+		"magic_equip":
+			state = _build_magic_equip_state(
+				_build_post_combat_reward_state(_build_target_room_state(state, "spell", 5))
+			)
 		"equipment":
-			state = _build_target_room_state(state, "equipment", 2)
+			state = _build_target_room_state(state, "equipment", 5)
 		_:
 			state["held_embers"] = 11
 			state["unbanked_embers"] = 11
@@ -266,6 +276,102 @@ func _build_post_combat_reward_state(combat_run_state: Dictionary) -> Dictionary
 		str(cards)
 	])
 	return reward_state
+
+func _build_magic_equip_state(reward_state: Dictionary) -> Dictionary:
+	var card_id: String = _showcase_reward_card_id(reward_state)
+	_assert_capture(not card_id.is_empty(), "Magic equip capture must choose a generated post-combat spell")
+	var room_state: Dictionary = _run_engine.claim_card_reward(reward_state, card_id)
+	_assert_capture(str(room_state.get("mode", "")) == "room", "Claimed spell must return the run to a legal room state")
+	_assert_capture((room_state.get("magic_inventory", []) as Array).has(card_id), "Claimed spell must enter reserve magic before attunement")
+	print("STEAM_TRAILER_MAGIC_EQUIP_STATE card=%s rarity=%s attuned=%s reserve=%s" % [
+		card_id,
+		GameDataScript.card_rarity(card_id),
+		str(room_state.get("attuned_magic_cards", [])),
+		str(room_state.get("magic_inventory", []))
+	])
+	return room_state
+
+func _seed_deep_showcase_loadout(initial_state: Dictionary) -> Dictionary:
+	var state: Dictionary = initial_state.duplicate(true)
+	var equipped: Dictionary = {
+		"weapon": "grave_greatsword",
+		"offhand": "chain_guard",
+		"armor": "voidsilk_carapace",
+		"boots": "cloudstep_sandals",
+		"trinket": "rime_locket"
+	}
+	var equipment_inventory: Array = [
+		"duelist_rapier",
+		"mirror_guard",
+		"ashweave_mail",
+		"worldroot_greaves",
+		"ember_hourglass"
+	]
+	var collected_equipment: Array = GameDataScript.starter_equipment_ids().duplicate()
+	for equipment_id_var: Variant in equipped.values():
+		var equipment_id: String = str(equipment_id_var)
+		if not collected_equipment.has(equipment_id):
+			collected_equipment.append(equipment_id)
+	for equipment_id_var: Variant in equipment_inventory:
+		var equipment_id: String = str(equipment_id_var)
+		if not collected_equipment.has(equipment_id):
+			collected_equipment.append(equipment_id)
+	var attuned_magic: Array = [
+		"wildfire_halo",
+		"spike_mantle",
+		"storm_relay",
+		"icebound_chains",
+		"cinder_bloom",
+		"dawnstep"
+	]
+	var magic_inventory: Array = [
+		"prism_sight",
+		"cyclone_seal",
+		"white_silence",
+		"skybreak_current"
+	]
+	var reward_cards: Array = attuned_magic.duplicate()
+	reward_cards.append_array(magic_inventory)
+	state["equipped_equipment"] = equipped
+	state["equipment_inventory"] = equipment_inventory
+	state["collected_equipment"] = collected_equipment
+	state["attuned_magic_cards"] = attuned_magic
+	state["magic_inventory"] = magic_inventory
+	state["reward_cards"] = reward_cards
+	state = _run_engine.repair_loaded_run_state(state)
+	_assert_capture((state.get("equipment_inventory", []) as Array).size() >= 5, "Deep run must show multiple unequipped gear choices")
+	_assert_capture((state.get("magic_inventory", []) as Array).size() >= 4, "Deep run must show multiple reserve spells")
+	_assert_capture(_distinct_equipment_rarity_count(equipped) >= 3, "Deep run must equip mixed gear rarities")
+	_assert_capture(_distinct_card_rarity_count(attuned_magic) >= 4, "Deep run must attune mixed spell rarities")
+	print("STEAM_TRAILER_DEEP_LOADOUT equipment_rarities=%s equipment_inventory=%d magic_rarities=%s magic_inventory=%d" % [
+		str(_equipment_rarities(equipped)),
+		equipment_inventory.size(),
+		str(_card_rarities(attuned_magic)),
+		magic_inventory.size()
+	])
+	return state
+
+func _showcase_reward_card_id(reward_state: Dictionary) -> String:
+	var cards: Array = (reward_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array
+	var selected_id: String = ""
+	var selected_rank: int = -1
+	for card_id_var: Variant in cards:
+		var card_id: String = str(card_id_var)
+		var rank: int = _rarity_rank(GameDataScript.card_rarity(card_id))
+		if rank > selected_rank:
+			selected_rank = rank
+			selected_id = card_id
+	return selected_id
+
+func _rarity_rank(rarity: String) -> int:
+	match rarity:
+		"legendary":
+			return 3
+		"epic":
+			return 2
+		"rare":
+			return 1
+	return 0
 
 func _build_deep_route_state(initial_state: Dictionary) -> Dictionary:
 	var state: Dictionary = _run_engine.repair_loaded_run_state(initial_state)
@@ -512,7 +618,7 @@ func _capture_spell_reward() -> void:
 	var cards: Array = ((state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array).duplicate()
 	_assert_capture(current != Vector2i.ZERO and str(state.get("mode", "")) == "reward", "Spell capture must use a real post-combat reward state")
 	_assert_capture(not cards.is_empty(), "Spell capture must expose generated reward cards")
-	var card_id: String = str(cards[0])
+	var card_id: String = _showcase_reward_card_id(state)
 	var source_slot: Control = _find_control_with_meta(_run_scene, "reward_card_id", card_id)
 	_assert_capture(source_slot != null, "Spell capture must find the production reward card slot")
 	await _settle(0.45)
@@ -526,6 +632,54 @@ func _capture_spell_reward() -> void:
 		str(after_state.get("mode", ""))
 	])
 	await _settle(0.9)
+
+func _capture_magic_equip() -> void:
+	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
+	var new_magic_ids: Array = _run_engine.loadout_new_asset_ids(state, "magic")
+	_assert_capture(current != Vector2i.ZERO and str(state.get("mode", "")) == "room", "Magic equip capture must use a real non-start room after reward claim")
+	_assert_capture(not new_magic_ids.is_empty(), "Magic equip capture must preserve the newly learned spell marker")
+	var card_id: String = str(new_magic_ids[-1])
+	var inventory_before: Array = (state.get("magic_inventory", []) as Array).duplicate()
+	var attuned_before: Array = (state.get("attuned_magic_cards", []) as Array).duplicate()
+	var inventory_index: int = inventory_before.find(card_id)
+	var attuned_index: int = maxi(0, attuned_before.size() - 1)
+	_assert_capture(inventory_index >= 0 and attuned_before.size() == GameDataScript.magic_loadout_limit(), "Newly learned spell must be a legal reserve-to-attuned swap")
+	_run_scene.call("_open_character_overlay", "magic")
+	await _settle(0.8)
+	_show_run_scene()
+	await _settle(0.75)
+	var source_rect: Rect2 = _run_scene.call("_magic_tile_rect", "inventory", inventory_index) as Rect2
+	var target_rect: Rect2 = _run_scene.call("_magic_tile_rect", "attuned", attuned_index) as Rect2
+	var source_control: Control = _run_scene.call("_magic_tile_control", "inventory", inventory_index) as Control
+	_assert_capture(source_control != null and source_rect.size.x > 0.0 and target_rect.size.x > 0.0, "Magic capture must render the reserve spell and attuned target slot")
+	_run_scene.call(
+		"_begin_magic_overlay_drag",
+		"inventory",
+		inventory_index,
+		card_id,
+		source_rect,
+		source_control,
+		source_rect.get_center()
+	)
+	await _settle(0.5)
+	await _run_scene.call("_release_magic_overlay_drag", target_rect.get_center())
+	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var attuned_after: Array = after_state.get("attuned_magic_cards", []) as Array
+	var inventory_after: Array = after_state.get("magic_inventory", []) as Array
+	_assert_capture(str(attuned_after[attuned_index]) == card_id, "Production magic drag must attune the newly learned spell")
+	_assert_capture(inventory_after.has(str(attuned_before[attuned_index])), "Production magic swap must move the replaced spell to reserve")
+	_assert_capture(_distinct_card_rarity_count(attuned_after) >= 3, "Attuned magic must retain varied rarities after the swap")
+	print("STEAM_TRAILER_MAGIC_EQUIP_RESULT room=%s depth=%d card=%s rarity=%s attuned_slot=%d attuned_rarities=%s reserve_count=%d natural_drag=true" % [
+		str(current),
+		_room_depth_for_state(after_state, current),
+		card_id,
+		GameDataScript.card_rarity(card_id),
+		attuned_index,
+		str(_card_rarities(attuned_after)),
+		inventory_after.size()
+	])
+	await _settle(1.25)
 
 func _capture_equipment_pickup_and_equip() -> void:
 	var run_state: Dictionary = (_run_scene.get("_run_state") as Dictionary).duplicate(true)
@@ -565,14 +719,42 @@ func _capture_equipment_pickup_and_equip() -> void:
 	var equipped_state: Dictionary = _run_scene.get("_run_state") as Dictionary
 	var equipped: Dictionary = equipped_state.get("equipped_equipment", {}) as Dictionary
 	_assert_capture(str(equipped.get(slot, "")) == equipment_id, "Production equipment swap must equip the collected item")
-	print("STEAM_TRAILER_EQUIPMENT_RESULT room=%s depth=%d room_type=%s equipment=%s slot=%s collected=true equipped=true" % [
+	var inventory_after: Array = equipped_state.get("equipment_inventory", []) as Array
+	_assert_capture(inventory_after.size() >= 5, "Equipment overlay must retain multiple unequipped gear choices")
+	_assert_capture(_distinct_equipment_rarity_count(equipped) >= 2, "Equipped loadout must retain varied gear rarities after the swap")
+	print("STEAM_TRAILER_EQUIPMENT_RESULT room=%s depth=%d room_type=%s equipment=%s rarity=%s slot=%s collected=true equipped=true equipped_rarities=%s inventory_count=%d" % [
 		str(current),
 		int(room.get("depth", 0)),
 		str(room.get("type", "")),
 		equipment_id,
-		slot
+		GameDataScript.equipment_rarity(equipment_id),
+		slot,
+		str(_equipment_rarities(equipped)),
+		inventory_after.size()
 	])
 	await _settle(1.0)
+
+func _equipment_rarities(equipped: Dictionary) -> Array:
+	var result: Array = []
+	for equipment_id_var: Variant in equipped.values():
+		var rarity: String = GameDataScript.equipment_rarity(str(equipment_id_var))
+		if not result.has(rarity):
+			result.append(rarity)
+	return result
+
+func _card_rarities(card_ids: Array) -> Array:
+	var result: Array = []
+	for card_id_var: Variant in card_ids:
+		var rarity: String = GameDataScript.card_rarity(str(card_id_var))
+		if not result.has(rarity):
+			result.append(rarity)
+	return result
+
+func _distinct_equipment_rarity_count(equipped: Dictionary) -> int:
+	return _equipment_rarities(equipped).size()
+
+func _distinct_card_rarity_count(card_ids: Array) -> int:
+	return _card_rarities(card_ids).size()
 
 func _first_unclaimed_equipment_loot(combat_state: Dictionary) -> Dictionary:
 	for loot_var: Variant in combat_state.get("loot", []):

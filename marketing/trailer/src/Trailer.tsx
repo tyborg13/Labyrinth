@@ -20,6 +20,7 @@ const PROGRESSION_CLIP = {
   merchant: 88,
   relic: 120,
   spell: 120,
+  magicEquip: 120,
   equipment: 174,
 } as const;
 
@@ -30,11 +31,17 @@ const PROGRESSION_START = {
     PROGRESSION_CLIP.merchant +
     PROGRESSION_CLIP.relic -
     PROGRESSION_TRANSITION * 2,
-  equipment:
+  magicEquip:
     PROGRESSION_CLIP.merchant +
     PROGRESSION_CLIP.relic +
     PROGRESSION_CLIP.spell -
     PROGRESSION_TRANSITION * 3,
+  equipment:
+    PROGRESSION_CLIP.merchant +
+    PROGRESSION_CLIP.relic +
+    PROGRESSION_CLIP.spell +
+    PROGRESSION_CLIP.magicEquip -
+    PROGRESSION_TRANSITION * 4,
 } as const;
 
 const PROGRESSION_DURATION =
@@ -48,7 +55,7 @@ const SCENE = {
   aoe: 168,
   umbra: 180,
   progression: PROGRESSION_DURATION,
-  final: 240,
+  final: 300,
 } as const;
 
 const START = {
@@ -104,10 +111,11 @@ const progressionFadeTiming = linearTiming({
   durationInFrames: PROGRESSION_TRANSITION,
 });
 
-const Vignette: React.FC = () => (
+const Vignette: React.FC<{ opacity?: number }> = ({ opacity = 1 }) => (
   <AbsoluteFill
     style={{
       pointerEvents: "none",
+      opacity,
       boxShadow: "inset 0 0 210px 72px rgba(0,0,0,0.70)",
       background:
         "linear-gradient(180deg, rgba(5,3,7,0.30), transparent 25%, transparent 70%, rgba(5,3,7,0.52))",
@@ -166,10 +174,13 @@ const EmberField: React.FC<{ opacity?: number }> = ({ opacity = 1 }) => {
   );
 };
 
-const EditorialFrame: React.FC<{ children: ReactNode }> = ({ children }) => (
+const EditorialFrame: React.FC<{
+  children: ReactNode;
+  vignetteOpacity?: number;
+}> = ({ children, vignetteOpacity = 1 }) => (
   <AbsoluteFill style={{ backgroundColor: PALETTE.ink, overflow: "hidden" }}>
     {children}
-    <Vignette />
+    <Vignette opacity={vignetteOpacity} />
     <FilmGrain />
   </AbsoluteFill>
 );
@@ -344,6 +355,13 @@ type CameraCue = {
   shake: number;
 };
 
+type FocusTrack = {
+  frames: number[];
+  scales: number[];
+  translateX: number[];
+  translateY: number[];
+};
+
 type GameplaySceneProps = {
   clip: string;
   duration: number;
@@ -353,6 +371,8 @@ type GameplaySceneProps = {
   zoom?: number;
   accent?: "ember" | "violet" | "gold";
   camera?: CameraCue;
+  focusTrack?: FocusTrack;
+  vignetteOpacity?: number;
 };
 
 const GameplayTitle: React.FC<{
@@ -403,9 +423,16 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
   zoom = 1.025,
   accent = "ember",
   camera,
+  focusTrack,
+  vignetteOpacity = 1,
 }) => {
   const frame = useCurrentFrame();
-  const scale = camera
+  const scale = focusTrack
+    ? interpolate(frame, focusTrack.frames, focusTrack.scales, {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      })
+    : camera
     ? interpolate(
         frame,
         [
@@ -470,6 +497,18 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
   const shakeY = camera
     ? Math.cos(frame * 3.47) * camera.shake * 0.62 * shakeEnvelope
     : 0;
+  const panX = focusTrack
+    ? interpolate(frame, focusTrack.frames, focusTrack.translateX, {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      })
+    : 0;
+  const panY = focusTrack
+    ? interpolate(frame, focusTrack.frames, focusTrack.translateY, {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      })
+    : 0;
   const impactLight = camera
     ? interpolate(
         frame,
@@ -484,7 +523,7 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
     : 1;
 
   return (
-    <EditorialFrame>
+    <EditorialFrame vignetteOpacity={vignetteOpacity}>
       <Sequence durationInFrames={duration} premountFor={FPS}>
         <Video
           src={staticFile(`footage/${clip}.mp4`)}
@@ -495,7 +534,7 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
             width: "100%",
             height: "100%",
             scale,
-            translate: `${shakeX}px ${shakeY}px`,
+            translate: `${panX + shakeX}px ${panY + shakeY}px`,
             transformOrigin: `${focusX}% ${focusY}%`,
             filter: `brightness(${impactLight}) saturate(${1.03 + (impactLight - 1) * 0.8})`,
           }}
@@ -503,6 +542,12 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
       </Sequence>
       <AbsoluteFill
         style={{
+          opacity: interpolate(
+            frame,
+            [copyExitFrame, copyExitFrame + 14],
+            [1, 0.18],
+            clamp,
+          ),
           background:
             placement === "right"
               ? "linear-gradient(180deg, transparent 50%, rgba(5,3,7,.12) 66%, rgba(5,3,7,.84) 100%), linear-gradient(90deg, transparent 45%, rgba(5,3,7,.34) 100%)"
@@ -522,14 +567,14 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
 };
 
 const ProgressionClip: React.FC<{
-  clip: "merchant" | "relic" | "spell" | "equipment";
+  clip: "merchant" | "relic" | "spell" | "magic_equip" | "equipment";
   duration: number;
   playbackRate: number;
-  focus: string;
-}> = ({ clip, duration, playbackRate, focus }) => {
+  focusTrack: FocusTrack;
+}> = ({ clip, duration, playbackRate, focusTrack }) => {
   const frame = useCurrentFrame();
   return (
-    <EditorialFrame>
+    <EditorialFrame vignetteOpacity={0.42}>
       <Sequence durationInFrames={duration} premountFor={FPS}>
         <Video
           src={staticFile(`footage/${clip}.mp4`)}
@@ -540,11 +585,28 @@ const ProgressionClip: React.FC<{
           style={{
             width: "100%",
             height: "100%",
-            scale: interpolate(frame, [0, duration], [1.012, 1.042], {
+            scale: interpolate(frame, focusTrack.frames, focusTrack.scales, {
               ...clamp,
               easing: Easing.bezier(0.45, 0, 0.55, 1),
             }),
-            transformOrigin: focus,
+            translate: `${interpolate(
+              frame,
+              focusTrack.frames,
+              focusTrack.translateX,
+              {
+                ...clamp,
+                easing: Easing.bezier(0.45, 0, 0.55, 1),
+              },
+            )}px ${interpolate(
+              frame,
+              focusTrack.frames,
+              focusTrack.translateY,
+              {
+                ...clamp,
+                easing: Easing.bezier(0.45, 0, 0.55, 1),
+              },
+            )}px`,
+            transformOrigin: "50% 50%",
           }}
         />
       </Sequence>
@@ -568,7 +630,12 @@ const ProgressionScene: React.FC = () => {
             clip="merchant"
             duration={PROGRESSION_CLIP.merchant}
             playbackRate={1}
-            focus="50% 62%"
+            focusTrack={{
+              frames: [0, 18, 44, 66, 88],
+              scales: [1, 1.08, 1.38, 1.45, 1.34],
+              translateX: [0, 0, 0, 0, 0],
+              translateY: [0, -20, -120, -190, -150],
+            }}
           />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
@@ -580,7 +647,12 @@ const ProgressionScene: React.FC = () => {
             clip="relic"
             duration={PROGRESSION_CLIP.relic}
             playbackRate={1}
-            focus="50% 64%"
+            focusTrack={{
+              frames: [0, 10, 26, 38, 54, 70, 120],
+              scales: [1, 1.05, 1.22, 1.36, 1.18, 1.05, 1.03],
+              translateX: [0, 0, 10, 135, 70, 0, 0],
+              translateY: [0, -20, -230, -330, -180, 0, 0],
+            }}
           />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
@@ -592,7 +664,31 @@ const ProgressionScene: React.FC = () => {
             clip="spell"
             duration={PROGRESSION_CLIP.spell}
             playbackRate={1}
-            focus="50% 66%"
+            focusTrack={{
+              frames: [0, 12, 28, 42, 54, 70, 120],
+              scales: [1, 1.05, 1.2, 1.34, 1.2, 1.05, 1.03],
+              translateX: [0, 0, 0, -60, -40, 0, 0],
+              translateY: [0, -20, -190, -300, -200, 0, 0],
+            }}
+          />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={progressionFadeTiming}
+        />
+        <TransitionSeries.Sequence
+          durationInFrames={PROGRESSION_CLIP.magicEquip}
+        >
+          <ProgressionClip
+            clip="magic_equip"
+            duration={PROGRESSION_CLIP.magicEquip}
+            playbackRate={1}
+            focusTrack={{
+              frames: [0, 30, 55, 80, 100, 120],
+              scales: [1.02, 1.08, 1.2, 1.26, 1.2, 1.1],
+              translateX: [0, -80, -120, 60, 40, 0],
+              translateY: [0, 0, 0, 0, 0, 0],
+            }}
           />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
@@ -606,7 +702,12 @@ const ProgressionScene: React.FC = () => {
             clip="equipment"
             duration={PROGRESSION_CLIP.equipment}
             playbackRate={1}
-            focus="50% 54%"
+            focusTrack={{
+              frames: [0, 45, 85, 105, 125, 150, 174],
+              scales: [1.03, 1.08, 1.12, 1.03, 1.12, 1.18, 1.1],
+              translateX: [0, 0, 0, 0, -40, 120, 40],
+              translateY: [0, 0, 0, 0, 0, 0, 0],
+            }}
           />
         </TransitionSeries.Sequence>
       </TransitionSeries>
@@ -641,7 +742,7 @@ const FinalScene: React.FC = () => {
           objectFit: "cover",
           scale: interpolate(
             frame,
-            [0, 114, 115, SCENE.final],
+            [0, 178, 179, SCENE.final],
             [1.075, 1.105, 1.035, 1.018],
             {
               ...clamp,
@@ -659,7 +760,7 @@ const FinalScene: React.FC = () => {
       <div
         className="dragon-question"
         style={{
-          opacity: interpolate(frame, [58, 68], [1, 0], clamp),
+          opacity: interpolate(frame, [72, 84], [1, 0], clamp),
         }}
       >
         <CrumbleTitleArt
@@ -674,22 +775,22 @@ const FinalScene: React.FC = () => {
       <div
         className="dragon-choice"
         style={{
-          opacity: interpolate(frame, [104, 114], [1, 0], clamp),
+          opacity: interpolate(frame, [166, 178], [1, 0], clamp),
         }}
       >
         <CrumbleTitleArt
           slug="or-will-you"
           alt="OR WILL YOU..."
           className="dragon-choice-art"
-          enterAt={68}
-          shedAt={89}
+          enterAt={88}
+          shedAt={109}
         />
       </div>
       <AbsoluteFill
         style={{
           background:
             "linear-gradient(90deg, rgba(4,3,6,.98) 0%, rgba(4,3,6,.88) 38%, rgba(4,3,6,.30) 70%, rgba(4,3,6,.08) 100%)",
-          opacity: interpolate(frame, [114, 115], [0, 1], clamp),
+          opacity: interpolate(frame, [178, 179], [0, 1], clamp),
         }}
       />
       <div className="title-lockup">
@@ -697,15 +798,15 @@ const FinalScene: React.FC = () => {
           slug="escape"
           alt="ESCAPE"
           className="title-escape-art"
-          enterAt={116}
-          shedAt={138}
+          enterAt={180}
+          shedAt={202}
         />
         <CrumbleTitleArt
           slug="the-umbra"
           alt="THE UMBRA"
           className="title-umbra-art"
-          enterAt={122}
-          shedAt={144}
+          enterAt={186}
+          shedAt={208}
         />
       </div>
       <div className="steam-cta">
@@ -714,8 +815,8 @@ const FinalScene: React.FC = () => {
             slug="wishlist-on"
             alt="WISHLIST ON"
             className="steam-cta-art"
-            enterAt={184}
-            shedAt={205}
+            enterAt={248}
+            shedAt={269}
           />
         </div>
         <Img
@@ -723,8 +824,8 @@ const FinalScene: React.FC = () => {
           className="steam-logo"
           alt="Steam"
           style={{
-            opacity: interpolate(frame, [190, 206], [0, 1], clamp),
-            translate: `${interpolate(frame, [190, 210], [22, 0], {
+            opacity: interpolate(frame, [254, 270], [0, 1], clamp),
+            translate: `${interpolate(frame, [254, 274], [22, 0], {
               ...clamp,
               easing: Easing.bezier(0.16, 1, 0.3, 1),
             })}px 0`,
@@ -794,19 +895,6 @@ const Soundtrack: React.FC = () => (
         volume={0.46}
       />
     </Sequence>
-    {[52, 115, 237, 354, 439].map((offset) => (
-      <Sequence
-        key={offset}
-        from={START.progression + offset}
-        durationInFrames={34}
-        premountFor={FPS}
-      >
-        <Audio
-          src={staticFile("game-assets/audio/sfx/ember_collect.wav")}
-          volume={0.24}
-        />
-      </Sequence>
-    ))}
   </>
 );
 
@@ -822,9 +910,17 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           clip="route"
           duration={SCENE.route}
           headline="PLAN YOUR DESCENT"
-          copyExitFrame={108}
+          copyExitFrame={76}
+          placement="right"
           accent="gold"
-          zoom={1.018}
+          zoom={1}
+          vignetteOpacity={0.55}
+          focusTrack={{
+            frames: [0, 24, 58, 95, 132],
+            scales: [1, 1, 1.03, 1.06, 1.06],
+            translateX: [0, 70, 150, 250, 260],
+            translateY: [0, -20, -65, -140, -150],
+          }}
         />
       </TransitionSeries.Sequence>
       <TransitionSeries.Transition presentation={fade()} timing={fadeTiming} />
