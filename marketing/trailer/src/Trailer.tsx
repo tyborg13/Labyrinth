@@ -48,7 +48,7 @@ const SCENE = {
   aoe: 168,
   umbra: 180,
   progression: PROGRESSION_DURATION,
-  final: 210,
+  final: 240,
 } as const;
 
 const START = {
@@ -332,9 +332,13 @@ const OpeningScene: React.FC = () => {
 type CopyPlacement = "left" | "right" | "center";
 
 type CameraCue = {
+  cardFrame: number;
   impactFrame: number;
-  focusX: number;
-  focusY: number;
+  cardFocusX: number;
+  cardFocusY: number;
+  actionFocusX: number;
+  actionFocusY: number;
+  cardZoom: number;
   hitZoom: number;
   settleZoom: number;
   shake: number;
@@ -406,7 +410,9 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
         frame,
         [
           0,
-          camera.impactFrame - 28,
+          camera.cardFrame - 24,
+          camera.cardFrame - 5,
+          camera.cardFrame + 5,
           camera.impactFrame - 4,
           camera.impactFrame + 2,
           camera.impactFrame + 12,
@@ -416,7 +422,9 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
         [
           zoom,
           zoom + 0.014,
-          camera.hitZoom - 0.035,
+          camera.cardZoom,
+          camera.cardZoom + 0.012,
+          camera.cardZoom - 0.026,
           camera.hitZoom + 0.018,
           camera.hitZoom - 0.008,
           camera.settleZoom,
@@ -428,6 +436,22 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
         ...clamp,
         easing: Easing.bezier(0.45, 0, 0.55, 1),
       });
+  const focusX = camera
+    ? interpolate(
+        frame,
+        [0, camera.cardFrame + 8, camera.impactFrame + 2],
+        [camera.cardFocusX, camera.cardFocusX, camera.actionFocusX],
+        clamp,
+      )
+    : 50;
+  const focusY = camera
+    ? interpolate(
+        frame,
+        [0, camera.cardFrame + 8, camera.impactFrame + 2],
+        [camera.cardFocusY, camera.cardFocusY, camera.actionFocusY],
+        clamp,
+      )
+    : 50;
   const shakeEnvelope = camera
     ? interpolate(
         frame,
@@ -472,9 +496,7 @@ const GameplayScene: React.FC<GameplaySceneProps> = ({
             height: "100%",
             scale,
             translate: `${shakeX}px ${shakeY}px`,
-            transformOrigin: camera
-              ? `${camera.focusX}% ${camera.focusY}%`
-              : "50% 50%",
+            transformOrigin: `${focusX}% ${focusY}%`,
             filter: `brightness(${impactLight}) saturate(${1.03 + (impactLight - 1) * 0.8})`,
           }}
         />
@@ -617,10 +639,15 @@ const FinalScene: React.FC = () => {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          scale: interpolate(frame, [0, SCENE.final], [1.075, 1.018], {
-            ...clamp,
-            easing: Easing.bezier(0.45, 0, 0.55, 1),
-          }),
+          scale: interpolate(
+            frame,
+            [0, 114, 115, SCENE.final],
+            [1.075, 1.105, 1.035, 1.018],
+            {
+              ...clamp,
+              easing: Easing.bezier(0.45, 0, 0.55, 1),
+            },
+          ),
         }}
       />
       <AbsoluteFill
@@ -630,54 +657,74 @@ const FinalScene: React.FC = () => {
         }}
       />
       <div
-        className="dragon-objective"
+        className="dragon-question"
         style={{
-          opacity: interpolate(frame, [72, 84], [1, 0], clamp),
+          opacity: interpolate(frame, [58, 68], [1, 0], clamp),
         }}
       >
         <CrumbleTitleArt
-          slug="shadow-dragon-waits-below"
-          alt="THE SHADOW DRAGON WAITS BELOW"
-          className="dragon-objective-art"
-          enterAt={10}
-          shedAt={31}
+          slug="will-you-let-the-shadow-consume-you"
+          alt="WILL YOU LET THE SHADOW CONSUME YOU?"
+          className="dragon-question-art"
+          enterAt={8}
+          shedAt={29}
         />
-        <CrumbledRule enterAt={46} />
+        <CrumbledRule enterAt={44} />
       </div>
+      <div
+        className="dragon-choice"
+        style={{
+          opacity: interpolate(frame, [104, 114], [1, 0], clamp),
+        }}
+      >
+        <CrumbleTitleArt
+          slug="or-will-you"
+          alt="OR WILL YOU..."
+          className="dragon-choice-art"
+          enterAt={68}
+          shedAt={89}
+        />
+      </div>
+      <AbsoluteFill
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(4,3,6,.98) 0%, rgba(4,3,6,.88) 38%, rgba(4,3,6,.30) 70%, rgba(4,3,6,.08) 100%)",
+          opacity: interpolate(frame, [114, 115], [0, 1], clamp),
+        }}
+      />
       <div className="title-lockup">
         <CrumbleTitleArt
           slug="escape"
           alt="ESCAPE"
           className="title-escape-art"
-          enterAt={84}
-          shedAt={106}
+          enterAt={116}
+          shedAt={138}
         />
         <CrumbleTitleArt
           slug="the-umbra"
           alt="THE UMBRA"
           className="title-umbra-art"
-          enterAt={90}
-          shedAt={112}
+          enterAt={122}
+          shedAt={144}
         />
       </div>
       <div className="steam-cta">
         <div className="steam-cta-copy">
           <CrumbleTitleArt
-            slug="wishlist-now-on"
-            alt="WISHLIST NOW ON"
+            slug="wishlist-on"
+            alt="WISHLIST ON"
             className="steam-cta-art"
-            enterAt={128}
-            shedAt={149}
+            enterAt={184}
+            shedAt={205}
           />
-          <CrumbledRule enterAt={164} />
         </div>
         <Img
           src={staticFile("branding/steam-logo-inverse-transparent.png")}
           className="steam-logo"
           alt="Steam"
           style={{
-            opacity: interpolate(frame, [134, 150], [0, 1], clamp),
-            translate: `${interpolate(frame, [134, 154], [32, 0], {
+            opacity: interpolate(frame, [190, 206], [0, 1], clamp),
+            translate: `${interpolate(frame, [190, 210], [22, 0], {
               ...clamp,
               easing: Easing.bezier(0.16, 1, 0.3, 1),
             })}px 0`,
@@ -729,19 +776,19 @@ const Soundtrack: React.FC = () => (
         }
       />
     </Sequence>
-    <Sequence from={START.trap + 68} durationInFrames={34} premountFor={FPS}>
+    <Sequence from={START.trap + 125} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/attack_melee_sword_first.wav")}
         volume={0.54}
       />
     </Sequence>
-    <Sequence from={START.aoe + 75} durationInFrames={34} premountFor={FPS}>
+    <Sequence from={START.aoe + 110} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/action_block.wav")}
         volume={0.42}
       />
     </Sequence>
-    <Sequence from={START.umbra + 106} durationInFrames={34} premountFor={FPS}>
+    <Sequence from={START.umbra + 105} durationInFrames={34} premountFor={FPS}>
       <Audio
         src={staticFile("game-assets/audio/sfx/attack_ranged_bow.wav")}
         volume={0.46}
@@ -800,9 +847,13 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           copyExitFrame={54}
           accent="ember"
           camera={{
-            impactFrame: 71,
-            focusX: 51,
-            focusY: 47,
+            cardFrame: 90,
+            impactFrame: 125,
+            cardFocusX: 50,
+            cardFocusY: 59,
+            actionFocusX: 51,
+            actionFocusY: 44,
+            cardZoom: 1.19,
             hitZoom: 1.2,
             settleZoom: 1.145,
             shake: 13,
@@ -818,9 +869,13 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           copyExitFrame={60}
           accent="gold"
           camera={{
-            impactFrame: 78,
-            focusX: 50,
-            focusY: 47,
+            cardFrame: 90,
+            impactFrame: 110,
+            cardFocusX: 50,
+            cardFocusY: 59,
+            actionFocusX: 51,
+            actionFocusY: 44,
+            cardZoom: 1.2,
             hitZoom: 1.21,
             settleZoom: 1.15,
             shake: 11,
@@ -836,9 +891,13 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
           copyExitFrame={62}
           accent="violet"
           camera={{
-            impactFrame: 70,
-            focusX: 51,
-            focusY: 44,
+            cardFrame: 90,
+            impactFrame: 105,
+            cardFocusX: 50,
+            cardFocusY: 59,
+            actionFocusX: 51,
+            actionFocusY: 42,
+            cardZoom: 1.18,
             hitZoom: 1.17,
             settleZoom: 1.12,
             shake: 7,
@@ -854,9 +913,9 @@ export const EscapeTheUmbraTrailer: React.FC = () => (
         <FinalScene />
       </TransitionSeries.Sequence>
     </TransitionSeries>
-    <ImpactFlash from={START.trap + 71} color="rgba(255,112,45,.78)" />
-    <ImpactFlash from={START.aoe + 78} color="rgba(255,232,96,.72)" />
-    <ImpactFlash from={START.umbra + 70} color="rgba(198,151,255,.48)" />
+    <ImpactFlash from={START.trap + 125} color="rgba(255,112,45,.78)" />
+    <ImpactFlash from={START.aoe + 110} color="rgba(255,164,62,.72)" />
+    <ImpactFlash from={START.umbra + 105} color="rgba(198,151,255,.48)" />
     <Soundtrack />
   </AbsoluteFill>
 );

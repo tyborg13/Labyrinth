@@ -4,6 +4,7 @@ const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const GameDataScript = preload("res://scripts/game_data.gd")
+const PathUtils = preload("res://scripts/path_utils.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
@@ -76,6 +77,12 @@ func _seed_showcase_run() -> void:
 			state = _build_deep_route_state(state)
 		"prebattle":
 			state = _build_prebattle_origin_state(state)
+		"trap_combo":
+			state = _build_target_room_state(state, "spell", 2)
+		"aoe":
+			state = _build_target_room_state(state, "spell", 3)
+		"umbra":
+			state = _build_target_room_state(state, "spell", 6)
 		"merchant":
 			state = _build_target_room_state(state, "merchant", 2)
 			state = _run_engine.set_held_embers(state, 220)
@@ -329,108 +336,116 @@ func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
 
 func _capture_trap_combo() -> void:
-	var layout: Dictionary = _base_combat_layout("The Ember Snare", "fire", 7)
-	var trap_grid: Array = _simple_grid()
-	(trap_grid[3] as Array)[4] = "wall"
-	(trap_grid[5] as Array)[4] = "wall"
-	layout["grid"] = trap_grid
-	layout["player_start"] = Vector2i(3, 4)
+	var layout: Dictionary = _generated_combat_layout("trap_combo")
+	var anchor: Vector2i = _find_clear_pattern_anchor(layout, [
+		Vector2i.ZERO,
+		Vector2i(1, 0),
+		Vector2i(2, 0),
+		Vector2i(2, -1),
+		Vector2i(2, 1)
+	])
+	_assert_capture(anchor != INVALID_TILE, "Generated trap room must contain a legal five-tile showcase cluster")
+	var primary_target: Vector2i = anchor + Vector2i(1, 0)
+	var trap_tile: Vector2i = anchor + Vector2i(2, 0)
+	layout["player_start"] = anchor
 	layout["enemies"] = [
-		_enemy(1, "crawler", Vector2i(4, 4), 36),
-		_enemy(2, "harrier", Vector2i(5, 3), 30),
-		_enemy(3, "acolyte", Vector2i(5, 5), 30),
-		_enemy(4, "grave_surgeon", Vector2i(7, 6), 48)
+		_enemy(1, "crawler", primary_target, 90),
+		_enemy(2, "harrier", trap_tile + Vector2i(0, -1), 30),
+		_enemy(3, "acolyte", trap_tile + Vector2i(0, 1), 30)
 	]
 	layout["traps"] = [{
 		"id": "trailer_fire_snare",
 		"element": "fire",
-		"pos": Vector2i(5, 4),
+		"pos": trap_tile,
 		"damage": 30,
 		"burn": 2,
 		"armed": true
 	}]
 	var state: Dictionary = _create_showcase_combat(layout, ["cleaver_hook", "sidestep_slash", "brace"])
+	var projected_action: Dictionary = (((GameDataScript.card_def("cleaver_hook").get("actions", []) as Array)[0]) as Dictionary).duplicate(true)
+	projected_action["force_direction"] = Vector2i(1, 0)
+	var projected_state: Dictionary = _combat_engine.apply_player_action(state.duplicate(true), projected_action, primary_target)
+	_assert_capture((projected_state.get("traps", []) as Array).is_empty() and _live_enemy_count(projected_state) == 0, "Scaled Cleaver Hook setup must project a complete three-enemy trap kill")
 	_apply_combat_state(layout, state)
 	_show_run_scene()
-	await _settle(1.15)
-	_preview_card_and_tile(0, Vector2i(4, 4))
-	await _settle(1.15)
-	_clear_hover(0)
-	var action: Dictionary = {
-		"type": "push",
-		"damage": 6,
-		"range": 1,
-		"amount": 1,
-		"_card_element": "neutral"
-	}
-	var after_state: Dictionary = _combat_engine.apply_player_action(state.duplicate(true), action, Vector2i(4, 4))
+	await _settle(1.0)
+	await _play_showcase_card("cleaver_hook", primary_target, trap_tile)
+	var after_state: Dictionary = _capture_combat_result_state()
 	_assert_capture((after_state.get("traps", []) as Array).is_empty(), "Cleaver Hook must consume the fire trap")
-	_assert_capture(_live_enemy_count(after_state) == 1, "Cleaver Hook fire-trap blast must kill exactly three showcase enemies")
-	_assert_capture(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) > 0, "Cleaver Hook trap combo must leave the player alive")
-	print("STEAM_TRAILER_TRAP_RESULT trap_consumed=true enemies_killed=3 player_alive=true")
-	await _run_scene.call("_animate_player_action_step", state.duplicate(true), after_state, "cleaver_hook", action, Vector2i(4, 4))
-	_apply_combat_state(layout, after_state)
-	await _settle(1.7)
+	_assert_capture(_live_enemy_count(state) == 3 and _live_enemy_count(after_state) == 0, "Cleaver Hook fire-trap blast must kill all three showcased enemies")
+	_assert_capture(int((_run_scene.get("_run_state") as Dictionary).get("player_hp", 0)) > 0, "Cleaver Hook trap combo must leave the player alive")
+	print("STEAM_TRAILER_TRAP_RESULT room=%s depth=%d furnished=%s card=cleaver_hook natural_play=true trap_consumed=true enemies=3->0 player_alive=true" % [
+		str(layout.get("coord", INVALID_ROOM)),
+		int(layout.get("depth", 0)),
+		str(_layout_furnishing_summary(layout))
+	])
+	await _settle(1.4)
 
 func _capture_aoe_combo() -> void:
-	var layout: Dictionary = _base_combat_layout("Storm Gallery", "lightning", 14)
-	layout["player_start"] = Vector2i(2, 4)
+	var layout: Dictionary = _generated_combat_layout("aoe")
+	var center: Vector2i = _find_clear_pattern_anchor(layout, [
+		Vector2i(-3, 0),
+		Vector2i.ZERO,
+		Vector2i(1, 0),
+		Vector2i(0, 1)
+	])
+	_assert_capture(center != INVALID_TILE, "Generated AOE room must contain a legal card-and-impact showcase cluster")
+	layout["player_start"] = center + Vector2i(-3, 0)
 	layout["enemies"] = [
-		_enemy(1, "crawler", Vector2i(4, 4), 12),
-		_enemy(2, "harrier", Vector2i(5, 4), 12),
-		_enemy(3, "acolyte", Vector2i(6, 4), 12),
-		_enemy(4, "warden", Vector2i(7, 2), 45)
+		_enemy(1, "crawler", center, 110),
+		_enemy(2, "harrier", center + Vector2i(1, 0), 110),
+		_enemy(3, "acolyte", center + Vector2i(0, 1), 110)
 	]
-	var state: Dictionary = _create_showcase_combat(layout, ["thunderline", "storm_relay", "updraft"])
-	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 3, "air": 1, "earth": 0}
+	layout["traps"] = []
+	var state: Dictionary = _create_showcase_combat(layout, ["wildfire_halo", "cinder_bloom", "hearth_rush"])
+	state["elemental_intensity"] = {"fire": 3, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
 	_apply_combat_state(layout, state)
 	_show_run_scene()
-	await _settle(1.15)
-	_preview_card_and_tile(0, Vector2i(4, 4))
-	await _settle(1.15)
-	_clear_hover(0)
-	var action: Dictionary = {
-		"type": "aoe",
-		"damage": 5,
-		"range": 6,
-		"pattern": [[0, 0], [1, 0], [2, 0]],
-		"rotate": true,
-		"orientation": Vector2i(1, 0),
-		"intensity_bonus": {"element": "lightning", "threshold": 3, "damage": 7, "shock": 1},
-		"_card_element": "lightning"
-	}
-	var after_state: Dictionary = _combat_engine.apply_player_action(state.duplicate(true), action, Vector2i(4, 4))
-	await _run_scene.call("_animate_player_action_step", state.duplicate(true), after_state, "thunderline", action, Vector2i(4, 4))
-	_apply_combat_state(layout, after_state)
-	await _settle(1.7)
+	await _settle(1.0)
+	await _play_showcase_card("wildfire_halo", center)
+	var after_state: Dictionary = _capture_combat_result_state()
+	_assert_capture(_live_enemy_count(state) == 3, "Wildfire Halo showcase must begin with exactly three live enemies")
+	_assert_capture(_live_enemy_count(after_state) == 0, "Wildfire Halo must kill every showcased enemy")
+	print("STEAM_TRAILER_AOE_RESULT room=%s depth=%d furnished=%s card=wildfire_halo natural_play=true enemies=3->0" % [
+		str(layout.get("coord", INVALID_ROOM)),
+		int(layout.get("depth", 0)),
+		str(_layout_furnishing_summary(layout))
+	])
+	await _settle(1.4)
 
 func _capture_umbra_reveal() -> void:
-	var layout: Dictionary = _base_combat_layout("Heart Umbra", "ice", 31)
-	layout["umbra_stage"] = "heart"
-	layout["player_start"] = Vector2i(2, 4)
+	var layout: Dictionary = _generated_combat_layout("umbra")
+	var placement: Dictionary = _find_umbra_reveal_placement(layout)
+	_assert_capture(not placement.is_empty(), "Generated Umbra room must contain a legal edge-of-vision Lantern Shot setup")
+	var target: Vector2i = placement.get("target", INVALID_TILE)
+	var enemy_tiles: Array[Vector2i] = _vector2i_array(placement.get("enemies", []))
+	layout["player_start"] = placement.get("player", INVALID_TILE)
 	layout["enemies"] = [
-		_enemy(1, "grave_surgeon", Vector2i(5, 4), 36),
-		_enemy(2, "crawler", Vector2i(6, 5), 22),
-		_enemy(3, "harrier", Vector2i(7, 2), 24),
-		_enemy(4, "acolyte", Vector2i(3, 2), 28)
+		_enemy(1, "grave_surgeon", enemy_tiles[0], 360),
+		_enemy(2, "crawler", enemy_tiles[1], 220),
+		_enemy(3, "harrier", enemy_tiles[2], 240)
 	]
+	layout["traps"] = []
 	var state: Dictionary = _create_showcase_combat(layout, ["lantern_shot", "guiding_flare", "dawnstep"])
+	var visible_enemies_before: int = _umbra_visible_enemy_count(state)
+	_assert_capture(visible_enemies_before == 1, "Lantern Shot setup must begin with one visible target and two enemies in real shadow")
 	_apply_combat_state(layout, state)
 	_show_run_scene()
-	await _settle(1.4)
-	_preview_card_and_tile(0, Vector2i(5, 4))
 	await _settle(1.0)
-	_clear_hover(0)
-	var illuminate: Dictionary = {"type": "illuminate", "range": 6, "radius": 2, "duration": 2}
-	var lit_state: Dictionary = _combat_engine.apply_player_action(state.duplicate(true), illuminate, Vector2i(5, 4))
-	await _run_scene.call("_animate_player_action_step", state.duplicate(true), lit_state, "lantern_shot", illuminate, Vector2i(5, 4))
-	_apply_combat_state(layout, lit_state)
-	await _settle(0.45)
-	var ranged: Dictionary = {"type": "ranged", "damage": 4, "range": 6, "_card_element": "neutral"}
-	var after_state: Dictionary = _combat_engine.apply_player_action(lit_state.duplicate(true), ranged, Vector2i(5, 4))
-	await _run_scene.call("_animate_player_action_step", lit_state.duplicate(true), after_state, "lantern_shot", ranged, Vector2i(5, 4))
-	_apply_combat_state(layout, after_state)
-	await _settle(1.45)
+	await _play_showcase_card("lantern_shot", target)
+	var after_state: Dictionary = _run_scene.get("_combat_state") as Dictionary
+	var umbra: Dictionary = after_state.get("umbra", {}) as Dictionary
+	_assert_capture(str(umbra.get("stage", "clear")) == "fringe", "Current-build Umbra showcase must use the depth-six Fringe stage")
+	_assert_capture(not (umbra.get("light_sources", []) as Array).is_empty(), "Lantern Shot must leave a real light source in the Umbra")
+	_assert_capture(_umbra_visible_enemy_count(after_state) == 3, "Lantern Shot must reveal both enemies that began inside the shadow")
+	print("STEAM_TRAILER_UMBRA_RESULT room=%s depth=%d furnished=%s card=lantern_shot natural_play=true umbra=%s light_sources=%d enemies_visible=1->3" % [
+		str(layout.get("coord", INVALID_ROOM)),
+		int(layout.get("depth", 0)),
+		str(_layout_furnishing_summary(layout)),
+		str(umbra.get("stage", "clear")),
+		(umbra.get("light_sources", []) as Array).size()
+	])
+	await _settle(1.4)
 
 func _capture_merchant_purchase() -> void:
 	_show_run_scene()
@@ -624,6 +639,141 @@ func _apply_combat_state(layout: Dictionary, combat_state: Dictionary) -> void:
 	_run_scene.set("_card_play_count_override", -1)
 	_run_scene.call("_refresh_ui")
 
+func _play_showcase_card(card_id: String, target: Vector2i, orientation_confirmation: Vector2i = INVALID_TILE) -> void:
+	var state_before: Dictionary = _run_scene.get("_combat_state") as Dictionary
+	var hand: Array = (state_before.get("deck", {}) as Dictionary).get("hand", []) as Array
+	_assert_capture(not hand.is_empty() and str(hand[0]) == card_id, "Showcase card must occupy the first visible hand slot: %s" % card_id)
+	_run_scene.call("_on_card_hover_started", 0)
+	await _settle(0.8)
+	await _run_scene.call("_on_card_pressed", 0)
+	_assert_capture(int(_run_scene.get("_selected_card_index")) == 0, "Production card selection must enter target preview for %s" % card_id)
+	_run_scene.call("_on_board_tile_hovered", target)
+	await _settle(0.7)
+	print("STEAM_TRAILER_CARD_COMMIT card=%s target=%s hand_index=0 natural_play=true" % [card_id, str(target)])
+	await _run_scene.call("_on_board_tile_clicked", target)
+	if int(_run_scene.get("_selected_card_index")) == 0:
+		_assert_capture(orientation_confirmation != INVALID_TILE, "Natural play requires an orientation confirmation for %s" % card_id)
+		_assert_capture(_run_scene.get("_pending_orientation_target_tile") == target, "Production card flow must request direction confirmation for %s" % card_id)
+		_run_scene.call("_on_board_tile_hovered", orientation_confirmation)
+		await _settle(0.35)
+		print("STEAM_TRAILER_CARD_ORIENTATION card=%s target=%s confirmation=%s natural_play=true" % [card_id, str(target), str(orientation_confirmation)])
+		await _run_scene.call("_on_board_tile_clicked", orientation_confirmation)
+	_assert_capture(not bool(_run_scene.get("_animation_lock")), "Production card resolution must finish cleanly for %s" % card_id)
+	_assert_capture(int(_run_scene.get("_selected_card_index")) == -1, "Production card resolution must clear selection for %s" % card_id)
+
+func _capture_combat_result_state() -> Dictionary:
+	var combat_state: Dictionary = _run_scene.get("_combat_state") as Dictionary
+	if not combat_state.is_empty():
+		return combat_state
+	var run_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	return (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+
+func _generated_combat_layout(clip_id: String) -> Dictionary:
+	var run_state: Dictionary = _run_scene.get("_run_state") as Dictionary
+	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	_assert_capture(current != Vector2i.ZERO, "%s must use a non-start generated room" % clip_id)
+	_assert_capture(str(run_state.get("mode", "")) == "combat", "%s must begin from a legal combat-room state" % clip_id)
+	_assert_capture(str(layout.get("type", "")) == "combat", "%s must preserve a production combat layout" % clip_id)
+	_assert_capture(layout.get("coord", INVALID_ROOM) == current, "%s layout coordinate must match the run's current room" % clip_id)
+	_assert_capture(not (layout.get("grid", []) as Array).is_empty(), "%s must preserve its generated grid" % clip_id)
+	_assert_capture((layout.get("terrain", []) as Array).size() >= 3, "%s must preserve generated room furniture" % clip_id)
+	var moss: Dictionary = layout.get("moss", {}) as Dictionary
+	_assert_capture(not moss.is_empty(), "%s must preserve generated moss dressing" % clip_id)
+	layout["enemies"] = []
+	layout["traps"] = []
+	return layout
+
+func _find_clear_pattern_anchor(layout: Dictionary, offsets: Array) -> Vector2i:
+	var grid: Array = layout.get("grid", []) as Array
+	if grid.is_empty():
+		return INVALID_TILE
+	var blocked: Dictionary = _layout_occupied_tiles(layout)
+	var center: Vector2 = Vector2(float((grid[0] as Array).size() - 1) * 0.5, float(grid.size() - 1) * 0.5)
+	var best: Vector2i = INVALID_TILE
+	var best_score: float = INF
+	for y: int in range(1, grid.size() - 1):
+		for x: int in range(1, (grid[y] as Array).size() - 1):
+			var anchor: Vector2i = Vector2i(x, y)
+			var valid: bool = true
+			for offset_var: Variant in offsets:
+				var offset: Vector2i = offset_var as Vector2i
+				var tile: Vector2i = anchor + offset
+				if not PathUtils.is_passable(grid, tile) or blocked.has(tile):
+					valid = false
+					break
+			if not valid:
+				continue
+			var score: float = Vector2(anchor).distance_squared_to(center)
+			if score < best_score:
+				best_score = score
+				best = anchor
+	return best
+
+func _find_umbra_reveal_placement(layout: Dictionary) -> Dictionary:
+	var grid: Array = layout.get("grid", []) as Array
+	if grid.is_empty():
+		return {}
+	var blocked: Dictionary = _layout_occupied_tiles(layout)
+	var open_tiles: Array[Vector2i] = []
+	for y: int in range(1, grid.size() - 1):
+		for x: int in range(1, (grid[y] as Array).size() - 1):
+			var tile: Vector2i = Vector2i(x, y)
+			if PathUtils.is_passable(grid, tile) and not blocked.has(tile):
+				open_tiles.append(tile)
+	for player: Vector2i in open_tiles:
+		for target: Vector2i in open_tiles:
+			if PathUtils.manhattan(player, target) != 6 or not PathUtils.has_line_of_sight(grid, player, target):
+				continue
+			var hidden_neighbors: Array[Vector2i] = []
+			for direction: Vector2i in PathUtils.DIRS_4:
+				var neighbor: Vector2i = target + direction
+				if not open_tiles.has(neighbor) or PathUtils.manhattan(player, neighbor) <= 6:
+					continue
+				hidden_neighbors.append(neighbor)
+			if hidden_neighbors.size() < 2:
+				continue
+			var enemies: Array[Vector2i] = _vector2i_array([target, hidden_neighbors[0], hidden_neighbors[1]])
+			return {"player": player, "target": target, "enemies": enemies}
+	return {}
+
+func _umbra_visible_enemy_count(combat_state: Dictionary) -> int:
+	var visible_tiles: Array[Vector2i] = _combat_engine.umbra_visible_tiles(combat_state)
+	var visible_count: int = 0
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("hp", 0)) > 0 and visible_tiles.has(enemy.get("pos", INVALID_TILE)):
+			visible_count += 1
+	return visible_count
+
+func _layout_occupied_tiles(layout: Dictionary) -> Dictionary:
+	var occupied: Dictionary = {}
+	for collection_key: String in ["terrain", "loot", "npcs"]:
+		for entry_var: Variant in layout.get(collection_key, []):
+			if typeof(entry_var) != TYPE_DICTIONARY:
+				continue
+			var tile_var: Variant = (entry_var as Dictionary).get("pos", INVALID_TILE)
+			if typeof(tile_var) == TYPE_VECTOR2I:
+				occupied[tile_var as Vector2i] = true
+	return occupied
+
+func _layout_furnishing_summary(layout: Dictionary) -> String:
+	var grid: Array = layout.get("grid", []) as Array
+	var interior_obstacles: int = 0
+	for y: int in range(1, maxi(1, grid.size() - 1)):
+		var row: Array = grid[y] as Array
+		for x: int in range(1, maxi(1, row.size() - 1)):
+			if str(row[x]) in ["wall", "pillar"]:
+				interior_obstacles += 1
+	return "terrain=%d interior_obstacles=%d moss=%s loot=%d" % [
+		(layout.get("terrain", []) as Array).size(),
+		interior_obstacles,
+		str(not (layout.get("moss", {}) as Dictionary).is_empty()),
+		(layout.get("loot", []) as Array).size()
+	]
+
 func _preview_card_and_tile(card_index: int, tile: Vector2i) -> void:
 	_run_scene.call("_on_card_hover_started", card_index)
 	_run_scene.call("_on_board_tile_hovered", tile)
@@ -641,32 +791,8 @@ func _first_combat_destination() -> Vector2i:
 			return coord
 	return INVALID_TILE
 
-func _base_combat_layout(room_name: String, element: String, depth: int) -> Dictionary:
-	return {
-		"name": room_name,
-		"coord": Vector2i(depth, 0),
-		"depth": depth,
-		"type": "combat",
-		"element": element,
-		"grid": _simple_grid(),
-		"player_start": Vector2i(2, 4),
-		"enemies": [],
-		"traps": [],
-		"terrain": [],
-		"loot": []
-	}
-
 func _enemy(id: int, type: String, pos: Vector2i, hp: int) -> Dictionary:
 	return {"id": id, "type": type, "pos": pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0}
-
-func _simple_grid() -> Array:
-	var grid: Array = []
-	for y: int in range(9):
-		var row: Array = []
-		for x: int in range(10):
-			row.append("wall" if x == 0 or y == 0 or x == 9 or y == 8 else "ash")
-		grid.append(row)
-	return grid
 
 func _vector2i_array(values: Array) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []

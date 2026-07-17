@@ -21,15 +21,16 @@ CARDS = (
     ("bring-light-into-the-umbra", "BRING LIGHT INTO THE UMBRA", 76, "#fff0c8", 0.028),
     ("grow-stronger", "GROW STRONGER", 76, "#fff0c8", 0.028),
     (
-        "shadow-dragon-waits-below",
-        "THE SHADOW DRAGON WAITS BELOW",
-        76,
+        "will-you-let-the-shadow-consume-you",
+        "WILL YOU LET THE SHADOW CONSUME YOU?",
+        58,
         "#fff0c8",
-        0.028,
+        0.026,
     ),
+    ("or-will-you", "OR WILL YOU...", 82, "#f19a3e", 0.03),
     ("escape", "ESCAPE", 160, "#fff0c8", 0.02),
     ("the-umbra", "THE UMBRA", 160, "#b689ff", 0.02),
-    ("wishlist-now-on", "WISHLIST NOW ON", 64, "#e4c36a", 0.03),
+    ("wishlist-on", "WISHLIST ON", 64, "#e4c36a", 0.03),
 )
 
 
