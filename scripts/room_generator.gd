@@ -464,6 +464,8 @@ func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGene
 		var resolved_boss_id: String = boss_id if DragonBossLibrary.is_dragon_boss_id(boss_id) else DragonBossLibrary.LIGHTNING_BOSS_ID
 		if resolved_boss_id == DragonBossLibrary.LIGHTNING_BOSS_ID:
 			return [resolved_boss_id, "lightning_wisp", "lightning_wisp"]
+		if resolved_boss_id == DragonBossLibrary.SHADOW_BOSS_ID:
+			return [resolved_boss_id, "veilbound_acolyte", "veilbound_acolyte"]
 		return [resolved_boss_id]
 	var pool: Array = _base_encounter_enemy_type_pool(depth)
 	_add_element_locked_enemy_type_pools(pool, depth, room_element)
@@ -535,17 +537,17 @@ func _add_element_locked_enemy_type_pools(pool: Array, depth: int, room_element:
 
 func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
 	var positions: Array[Vector2i] = []
-	var wisp_slots: Array[Vector2i] = []
-	wisp_slots.append(Vector2i(2, 3))
-	wisp_slots.append(Vector2i(6, 5))
-	var wisp_index: int = 0
+	var minion_slots: Array[Vector2i] = []
+	minion_slots.append(Vector2i(2, 3))
+	minion_slots.append(Vector2i(6, 5))
+	var minion_index: int = 0
 	for enemy_type_var: Variant in enemy_types:
 		var enemy_type: String = str(enemy_type_var)
 		if bool(GameData.enemy_def(enemy_type).get("boss_bar", false)):
 			positions.append(Vector2i(4, 3))
 		else:
-			positions.append(wisp_slots[wisp_index % wisp_slots.size()])
-			wisp_index += 1
+			positions.append(minion_slots[minion_index % minion_slots.size()])
+			minion_index += 1
 	return positions
 
 func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng: RandomNumberGenerator) -> Array[Vector2i]:

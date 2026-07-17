@@ -708,10 +708,20 @@
 			"id": "combat:boss_eclipse",
 			"section": "combat",
 			"title": "The Last Eclipse",
-			"icon": "dispel_umbra",
+			"icon": "eclipse",
 			"body": [
 				"Noctyrax temporarily forces the arena to Eclipse and immediately harms actors standing without Radiance.",
-				"Placed light protects every tile in its radius. Personal vision, truesight, and Umbra dispelling protect the player when the Eclipse falls."
+				"Its Veilbound Acolytes vanish in the dark. Placed light, personal vision, truesight, and Umbra dispelling expose the battlefield and protect the player."
+			]
+		},
+		{
+			"id": "enemy:veilbound_acolyte",
+			"section": "creatures",
+			"enemy_id": "veilbound_acolyte",
+			"title": "Veilbound Acolyte",
+			"body": [
+				"Shadow minion that fights beside Noctyrax and disappears when Umbra hides its tile.",
+				"Radiance and truesight reveal its position before its ranged needles and closing strikes resolve."
 			]
 		},
 		{
@@ -747,7 +757,7 @@
 			"section": "creatures",
 			"enemy_id": "noctyrax",
 			"title": "Noctyrax, the Last Eclipse",
-			"body": ["Shadow dragon and final boss of the twenty-fourth depth.", "Its Last Eclipse punishes unlit positions; preserved Radiance creates the intended counterplay."]
+			"body": ["Shadow dragon and final boss of the twenty-fourth depth.", "Its Last Eclipse hides two Veilbound Acolytes and punishes unlit positions; preserved Radiance creates the intended counterplay."]
 		}
 	]
 }

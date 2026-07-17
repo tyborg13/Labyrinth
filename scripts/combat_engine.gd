@@ -508,9 +508,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			for enemy: Dictionary in _live_enemies(state):
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
-				if _enemy_distance_to_tile(enemy, player_pos) <= melee_range:
-					var enemy_tile: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-					if not targets.has(enemy_tile):
+				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
+					if PathUtils.manhattan(player_pos, enemy_tile) <= melee_range and not targets.has(enemy_tile):
 						targets.append(enemy_tile)
 			for terrain: Dictionary in _live_terrain(state):
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
@@ -525,13 +524,13 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			for enemy: Dictionary in _live_enemies(state):
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
-				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-				if PathUtils.manhattan(player_pos, enemy_pos) > ranged_range:
-					continue
-				if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
-					continue
-				if not targets.has(enemy_pos):
-					targets.append(enemy_pos)
+				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
+					if PathUtils.manhattan(player_pos, enemy_tile) > ranged_range:
+						continue
+					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_tile):
+						continue
+					if not targets.has(enemy_tile):
+						targets.append(enemy_tile)
 			for terrain: Dictionary in _live_terrain(state):
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if PathUtils.manhattan(player_pos, terrain_pos) > ranged_range:
@@ -580,18 +579,18 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					continue
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
-				var enemy_pos: Vector2i = _closest_enemy_tile_to(enemy, player_pos)
-				if PathUtils.manhattan(player_pos, enemy_pos) > forced_range:
-					continue
-				if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_pos):
-					continue
 				if force_direction != Vector2i.ZERO:
 					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing):
 						continue
 				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
 					continue
-				if not targets.has(enemy_pos):
-					targets.append(enemy_pos)
+				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
+					if PathUtils.manhattan(player_pos, enemy_tile) > forced_range:
+						continue
+					if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_tile):
+						continue
+					if not targets.has(enemy_tile):
+						targets.append(enemy_tile)
 	return targets
 
 func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
@@ -682,15 +681,19 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 				next_state = _trigger_blink_relics(next_state)
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
-			next_state = _attack_target_on_tile(next_state, action, target_tile, "melee")
+			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				next_state = _attack_target_on_tile(next_state, action, target_tile, "melee")
 		"ranged":
-			next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged")
+			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged")
 		"aoe":
 			next_state = _aoe_enemies(next_state, action, target_tile)
 		"push":
-			next_state = _push_or_pull_target(next_state, action, target_tile, true)
+			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				next_state = _push_or_pull_target(next_state, action, target_tile, true)
 		"pull":
-			next_state = _push_or_pull_target(next_state, action, target_tile, false)
+			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				next_state = _push_or_pull_target(next_state, action, target_tile, false)
 		"block":
 			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player

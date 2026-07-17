@@ -241,7 +241,7 @@ func _print_help() -> void:
 	print("  --seed N")
 	print("  --umbra-warning (start with the one-time Emaciated Man Umbra warning due)")
 	print("  --embers N --held-embers N --level N --stats might=2,vigor=1")
-	print("  --player-hp N --player-max-hp N --player-position 2:4 --relics ember_lens,pilgrim_boots")
+	print("  --player-hp N --player-max-hp N (fixed-point: 360 = 36 HP) --player-position 2:4 --relics ember_lens,pilgrim_boots")
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
 	print("  --equipment-inventory item_a,item_b")

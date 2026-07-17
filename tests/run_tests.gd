@@ -197,7 +197,7 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_down_from_top_edge()
 	_test_boss_intent_layout_avoids_boss_health_bar()
-	_test_boss_health_bar_overlays_above_board_origin()
+	_test_boss_health_bar_stays_inside_combat_board()
 	_test_turn_order_portraits_cover_enemy_roster()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
@@ -5679,12 +5679,14 @@ func _test_boss_intent_layout_avoids_boss_health_bar() -> void:
 	_assert(not expanded_rect.intersects(boss_bar, false), "Expanded boss intents should avoid the boss health bar")
 	_assert(is_equal_approx(compact_rect.end.y, expanded_rect.end.y), "Compact boss intent placement should be anchored to the expanded layout")
 
-func _test_boss_health_bar_overlays_above_board_origin() -> void:
+func _test_boss_health_bar_stays_inside_combat_board() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	var boss_bar: Rect2 = board.call("_boss_health_bar_rect")
-	_assert(boss_bar.position.y < 0.0, "Boss health bar should overlay upward outside the board layout")
-	_assert(boss_bar.end.y > 0.0, "Boss health bar should still encroach slightly into the board zone")
+	var boss_name: Rect2 = board.call("_boss_health_name_rect")
+	_assert(boss_name.position.y >= 0.0, "Boss name should remain inside the combat board instead of extending behind the turn-order header")
+	_assert(boss_bar.position.y > boss_name.end.y, "Boss health bar should sit below its fully visible nameplate")
+	_assert(boss_bar.end.y <= board.size.y, "Boss health bar should remain inside the combat board at every boss encounter")
 
 func _test_enemy_art_scale_preserves_center() -> void:
 	var board := CombatBoardView.new()

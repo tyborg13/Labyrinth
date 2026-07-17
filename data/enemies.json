@@ -1203,6 +1203,64 @@
       }
     ]
   },
+  "veilbound_acolyte": {
+    "name": "Veilbound Acolyte",
+    "element": "shadow",
+    "max_hp": 4,
+    "base_initiative": 18,
+    "reward_embers": 0,
+    "accent": "#9e65c8",
+    "art_path": "res://assets/placeholders/units/acolyte_anime_trial.png",
+    "art_offset_y": -16,
+    "idle_sheet_columns": 4,
+    "idle_sheet_rows": 2,
+    "idle_sheet_order": "row_major",
+    "idle_sheet_ping_pong": true,
+    "intents": [
+      {
+        "id": "veil_needle",
+        "name": "Veil Needle",
+        "time": 7,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 1,
+            "range": 4
+          }
+        ]
+      },
+      {
+        "id": "shroudstep",
+        "name": "Shroudstep",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 2
+          }
+        ]
+      },
+      {
+        "id": "closing_shade",
+        "name": "Closing Shade",
+        "time": 7,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 1,
+            "range": 1
+          }
+        ]
+      }
+    ]
+  },
   "lightning_wisp": {
     "name": "Lightning Wisp",
     "max_hp": 6,

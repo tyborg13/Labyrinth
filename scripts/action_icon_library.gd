@@ -102,6 +102,11 @@ const KEYWORDS: Dictionary = {
 		"description": "Reduces this combat's Umbra stage.",
 		"path": "%s/dispel_umbra.png" % ICON_ROOT
 	},
+	"eclipse": {
+		"label": "Eclipse",
+		"description": "Forces the arena into absolute Umbra. Radiance and light offer protection.",
+		"path": "%s/eclipse.svg" % ICON_ROOT
+	},
 	"burn": {
 		"label": "Burn",
 		"description": "Fire damage over time. Ticks at the start of turn, then decays.",
@@ -534,7 +539,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "freeze", "amount", int(action.get("amount", 0)), "neutral", "Forms crystal armor. Each damaging hit breaks one layer instead of dealing damage."))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "dispel_umbra", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player activations. Radiance and light protect affected tiles."))
+			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player activations. Radiance and light protect affected tiles."))
 	var requirement: Dictionary = intensity_requirement_for_action(action)
 	if not requirement.is_empty() and not tokens.is_empty():
 		tokens.push_front(intensity_requirement_token(requirement))

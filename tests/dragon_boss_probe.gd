@@ -9,7 +9,7 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://dragon_boss_probe_v1"
+const OUTPUT_ROOT: String = "user://dragon_boss_probe_v2"
 const RESOLUTION: Vector2i = Vector2i(1920, 1080)
 const BOSS_PROOFS: Array[Dictionary] = [
 	{"id": "tharokh", "depth": 4},
@@ -42,8 +42,11 @@ func _capture_bosses() -> void:
 	await process_frame
 	instance.call("_close_dialogue")
 	var progression: Dictionary = ProgressionStore.default_data()
+	var boss_filter: String = OS.get_environment("LABYRINTH_DRAGON_PROBE_BOSS").strip_edges().to_lower()
 	for proof: Dictionary in BOSS_PROOFS:
 		var boss_id: String = str(proof.get("id", ""))
+		if not boss_filter.is_empty() and boss_id != boss_filter:
+			continue
 		var depth: int = int(proof.get("depth", 4))
 		var state: Dictionary = _boss_run_state(boss_id, depth, progression)
 		instance.call("_load_run_state", state)
@@ -55,6 +58,8 @@ func _capture_bosses() -> void:
 		await _capture("%02d_%s_ready.png" % [depth, boss_id])
 
 		var combat_state: Dictionary = state.get("combat_state", {}) as Dictionary
+		if boss_id == DragonBossLibrary.SHADOW_BOSS_ID:
+			await _capture_noctyrax_target_markers(instance, combat_state)
 		var boss_index: int = _boss_index(combat_state)
 		if boss_index < 0:
 			_fail("%s proof should find a boss actor" % boss_id)
@@ -94,6 +99,35 @@ func _capture_bosses() -> void:
 	await process_frame
 	print(ProjectSettings.globalize_path(_output_dir))
 	quit(1 if _failed else 0)
+
+func _capture_noctyrax_target_markers(instance: Node, combat_state: Dictionary) -> void:
+	var action := {"type": "ranged", "damage": 10, "range": 12}
+	var target_tiles: Array[Vector2i] = CombatEngine.new().valid_targets_for_player_action(combat_state, action)
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null:
+		_fail("Noctyrax targeting proof should find the combat board")
+		return
+	var presentation: Dictionary = {"pulse_attack_tiles": true}
+	instance.call("_apply_umbra_board_presentation", combat_state, presentation)
+	var move_tiles: Array[Vector2i] = []
+	board.call(
+		"set_combat_state",
+		combat_state,
+		move_tiles,
+		target_tiles,
+		(combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)),
+		"Choose a dragon tile",
+		"Every gold reticle is a legal target",
+		{},
+		{},
+		presentation
+	)
+	await process_frame
+	await process_frame
+	var marker_tiles: Array = board.call("_large_enemy_target_tiles", board.call("_visible_units")) as Array
+	if marker_tiles.size() != 4:
+		_fail("Noctyrax targeting proof should render four legal above-sprite reticles, found %d" % marker_tiles.size())
+	await _capture("24_noctyrax_targets.png")
 
 func _boss_run_state(boss_id: String, depth: int, progression: Dictionary) -> Dictionary:
 	var seed: int = 99431 + depth * 101

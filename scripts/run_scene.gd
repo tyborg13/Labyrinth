@@ -1052,6 +1052,7 @@ const TURN_ORDER_PORTRAITS := {
 	"vaeloryx": "res://assets/art/portraits/vaeloryx.png",
 	"iskaldra": "res://assets/art/portraits/iskaldra.png",
 	"noctyrax": "res://assets/art/portraits/noctyrax.png",
+	"veilbound_acolyte": "res://assets/art/portraits/ash_acolyte.png",
 	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
 	"frostglass_lancer": "res://assets/art/enemies/frostglass_lancer.png",
 	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
@@ -3135,7 +3136,7 @@ func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
 				candidate = "freeze"
 				priority = 2
 			"umbra_eclipse":
-				candidate = "dispel_umbra"
+				candidate = "eclipse"
 				priority = 1
 			"move", "move_toward":
 				candidate = "move"
@@ -7886,7 +7887,7 @@ func _action_step_icon_key(action: Dictionary) -> String:
 		"frost_armor":
 			return "freeze"
 		"umbra_eclipse":
-			return "dispel_umbra"
+			return "eclipse"
 	for token_var: Variant in ActionIcons.tokens_for_action(action):
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue

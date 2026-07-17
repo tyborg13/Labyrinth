@@ -2,6 +2,7 @@ extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -21,6 +22,9 @@ static func run(expect: Callable) -> void:
 	_test_boss_stats_scale_with_depth(expect)
 	_test_status_immunities_are_atomic(expect)
 	_test_opening_gimmicks_resolve(expect)
+	_test_noctyrax_minions_make_eclipse_visibility_matter(expect)
+	_test_large_dragon_footprints_expose_every_legal_target(expect)
+	_test_last_eclipse_uses_a_dedicated_icon(expect)
 	_test_boss_death_ends_encounter_with_hazards_remaining(expect)
 	_test_complete_run_can_clear_all_six_bosses(expect)
 	_test_depth_twenty_four_victory_is_terminal(expect)
@@ -56,7 +60,7 @@ static func _test_boss_rooms_spawn_authored_dragons(expect: Callable) -> void:
 	for boss_id: String in DragonBossLibrary.ELEMENTAL_BOSS_IDS + [DragonBossLibrary.SHADOW_BOSS_ID]:
 		var room: Dictionary = generator.generate_room(TEST_SEED, _boss_room_metadata(boss_id, 4), Vector2i.RIGHT)
 		var enemies: Array = room.get("enemies", []) as Array
-		var expected_count: int = 3 if boss_id == DragonBossLibrary.LIGHTNING_BOSS_ID else 1
+		var expected_count: int = 3 if boss_id in [DragonBossLibrary.LIGHTNING_BOSS_ID, DragonBossLibrary.SHADOW_BOSS_ID] else 1
 		expect.call(enemies.size() == expected_count, "%s should spawn with its authored encounter roster" % boss_id)
 		if enemies.is_empty():
 			continue
@@ -66,6 +70,11 @@ static func _test_boss_rooms_spawn_authored_dragons(expect: Callable) -> void:
 		expect.call(bool(GameData.enemy_def(boss_id).get("boss_bar", false)), "%s should own the encounter boss bar" % boss_id)
 		expect.call(str(room.get("name", "")) == DragonBossLibrary.room_name_for_boss(boss_id), "%s should use its authored arena name" % boss_id)
 		expect.call(str(room.get("element", "")) == DragonBossLibrary.element_for_boss(boss_id), "%s arena should carry its matching element" % boss_id)
+		if boss_id == DragonBossLibrary.SHADOW_BOSS_ID:
+			var minion_types: Array[String] = []
+			for minion_index: int in range(1, enemies.size()):
+				minion_types.append(str((enemies[minion_index] as Dictionary).get("type", "")))
+			expect.call(minion_types == ["veilbound_acolyte", "veilbound_acolyte"], "Noctyrax should enter battle with two Veilbound Acolytes")
 		var run_scene := RunSceneScript.new()
 		expect.call(str(run_scene.call("_room_title_text", room)) == DragonBossLibrary.room_name_for_boss(boss_id), "%s arena title should surface its authored name in game" % boss_id)
 		run_scene.free()
@@ -148,6 +157,92 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	expect.call(int(shadow_umbra.get("boss_eclipse_activations", 0)) == 2, "Noctyrax should open with a two-activation Eclipse")
 	expect.call(int((shadow_after.get("player", {}) as Dictionary).get("hp", 0)) < shadow_hp_before, "The Last Eclipse should punish actors outside Radiance")
 	expect.call(CombatEngine.new().is_enemy_visible_to_player(shadow_after, _boss_from_state(shadow_after)), "Noctyrax should remain revealed during Eclipse")
+
+static func _test_noctyrax_minions_make_eclipse_visibility_matter(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var before: Dictionary = _boss_combat_state("noctyrax", 24)
+	var minions_before: Array[Dictionary] = []
+	for enemy_var: Variant in before.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if str(enemy.get("type", "")) == "veilbound_acolyte":
+			minions_before.append(enemy)
+	expect.call(minions_before.size() == 2, "Noctyrax's final arena should contain two shadow minions")
+	var minion_def: Dictionary = GameData.enemy_def("veilbound_acolyte")
+	expect.call(int(minion_def.get("reward_embers", -1)) == 0, "Veilbound Acolytes should not inflate final-boss ember rewards")
+	if not minions_before.is_empty():
+		expect.call(int((minions_before[0] as Dictionary).get("max_hp", 0)) > int(minion_def.get("max_hp", 0)), "Veilbound Acolyte health should inherit depth-24 sequence scaling")
+	var base_damage: int = _maximum_intent_damage(minion_def.get("intents", []) as Array)
+	var scaled_damage: int = _maximum_intent_damage(combat.call("_scaled_enemy_intents", minion_def.get("intents", []) as Array, 24) as Array)
+	expect.call(scaled_damage > base_damage, "Veilbound Acolyte damage should inherit depth-24 sequence scaling")
+
+	var after: Dictionary = _resolve_boss_turn(before)
+	var hidden_minions: int = 0
+	for enemy_var: Variant in after.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if str(enemy.get("type", "")) == "veilbound_acolyte" and not combat.is_enemy_visible_to_player(after, enemy):
+			hidden_minions += 1
+	expect.call(hidden_minions > 0, "Last Eclipse should hide at least one active minion so battlefield vision matters")
+	var revealed: Dictionary = after.duplicate(true)
+	var umbra: Dictionary = (revealed.get("umbra", {}) as Dictionary).duplicate(true)
+	umbra["truesight_activations"] = 1
+	revealed["umbra"] = umbra
+	for enemy_var: Variant in revealed.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if str(enemy.get("type", "")) == "veilbound_acolyte":
+			expect.call(combat.is_enemy_visible_to_player(revealed, enemy), "Truesight should reveal each Veilbound Acolyte through Eclipse")
+	expect.call(not GrimoireLibrary.entry_def("enemy:veilbound_acolyte").is_empty(), "Veilbound Acolytes should have creature grimoire guidance")
+
+static func _test_large_dragon_footprints_expose_every_legal_target(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _boss_combat_state("noctyrax", 24)
+	var boss: Dictionary = _boss_from_state(state)
+	var action := {"type": "ranged", "damage": 10, "range": 12}
+	var targets: Array[Vector2i] = combat.valid_targets_for_player_action(state, action)
+	var footprint_tiles: Array[Vector2i] = []
+	var boss_origin: Vector2i = boss.get("pos", Vector2i.ZERO)
+	for y: int in range(2):
+		for x: int in range(2):
+			footprint_tiles.append(boss_origin + Vector2i(x, y))
+	for tile: Vector2i in footprint_tiles:
+		expect.call(targets.has(tile), "Every in-range Noctyrax footprint tile should be an explicit ranged target: %s" % str(tile))
+		var damaged: Dictionary = combat.apply_player_action(state, action, tile)
+		expect.call(int(_boss_from_state(damaged).get("hp", 0)) < int(boss.get("hp", 0)), "Targeting footprint tile %s should damage the same dragon" % str(tile))
+	var board := CombatBoardView.new()
+	board.attack_tiles = targets
+	var target_unit: Dictionary = {
+		"role": "enemy",
+		"type": "noctyrax",
+		"pos": boss_origin,
+		"footprint": Vector2i(2, 2)
+	}
+	var target_units: Array[Dictionary] = []
+	target_units.append(target_unit)
+	var marker_tiles: Array[Vector2i] = []
+	for tile_var: Variant in board.call("_large_enemy_target_tiles", target_units):
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			marker_tiles.append(tile_var as Vector2i)
+	for tile: Vector2i in footprint_tiles:
+		expect.call(marker_tiles.has(tile), "Every legal large-enemy target should receive an above-sprite reticle: %s" % str(tile))
+	board.free()
+
+static func _test_last_eclipse_uses_a_dedicated_icon(expect: Callable) -> void:
+	var eclipse_action: Dictionary = ((_enemy_intent_by_id("noctyrax", "last_eclipse").get("actions", []) as Array)[0] as Dictionary)
+	var icons: Array[String] = []
+	for token_var: Variant in ActionIcons.tokens_for_action(eclipse_action):
+		if typeof(token_var) == TYPE_DICTIONARY:
+			icons.append(str((token_var as Dictionary).get("icon", "")))
+	expect.call(icons.has("eclipse"), "Last Eclipse should use its own Eclipse icon")
+	expect.call(not icons.has("dispel_umbra"), "Last Eclipse should never reuse the opposing Dispel Umbra icon")
+	expect.call(ActionIcons.icon_path("eclipse").ends_with("/eclipse.svg"), "Eclipse should resolve to its purpose-built high-contrast asset")
+	expect.call(FileAccess.file_exists(ActionIcons.icon_path("eclipse")), "The dedicated Eclipse icon asset should ship with the encounter")
+	var eclipse_texture: Texture2D = ActionIcons.icon_texture("eclipse")
+	expect.call(eclipse_texture != null and eclipse_texture.get_size() == Vector2(64.0, 64.0), "The dedicated Eclipse icon should load at the shared 64px action-icon size")
 
 static func _test_boss_death_ends_encounter_with_hazards_remaining(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -342,6 +437,15 @@ static func _maximum_intent_damage(intents: Array) -> int:
 			if typeof(action_var) == TYPE_DICTIONARY:
 				result = maxi(result, int((action_var as Dictionary).get("damage", 0)))
 	return result
+
+static func _enemy_intent_by_id(enemy_type: String, intent_id: String) -> Dictionary:
+	for intent_var: Variant in GameData.enemy_def(enemy_type).get("intents", []):
+		if typeof(intent_var) != TYPE_DICTIONARY:
+			continue
+		var intent: Dictionary = intent_var as Dictionary
+		if str(intent.get("id", "")) == intent_id:
+			return intent
+	return {}
 
 static func _maximum_terrain_health(state: Dictionary) -> int:
 	var result: int = 0

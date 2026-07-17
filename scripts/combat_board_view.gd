@@ -60,7 +60,7 @@ const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
 const BOSS_HEALTH_BAR_SIZE: Vector2 = Vector2(760.0, 30.0)
-const BOSS_HEALTH_BAR_Y: float = -24.0
+const BOSS_HEALTH_BAR_Y: float = 42.0
 const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
@@ -980,6 +980,7 @@ func _draw_dynamic_board() -> void:
 	_draw_umbra_overlay(tiles)
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
+	_draw_large_enemy_target_markers(units_to_draw)
 	_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 	_draw_campfire_ember_motes()
@@ -1948,6 +1949,34 @@ func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	var width: float = lerpf(1.6, 3.2, pulse)
 	var scale: float = lerpf(0.82, 0.96, pulse)
 	_draw_tile_ring(tile, Color(1.0, 0.78, 0.44, alpha), width, scale)
+
+func _large_enemy_target_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for unit: Dictionary in units_to_draw:
+		if str(unit.get("role", "")) != "enemy":
+			continue
+		var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+		if maxi(1, footprint.x) * maxi(1, footprint.y) <= 1:
+			continue
+		for tile: Vector2i in _unit_footprint_tiles(unit):
+			if attack_tiles.has(tile) and not result.has(tile):
+				result.append(tile)
+	return result
+
+func _draw_large_enemy_target_markers(units_to_draw: Array[Dictionary]) -> void:
+	var target_tiles: Array[Vector2i] = _large_enemy_target_tiles(units_to_draw)
+	if target_tiles.is_empty():
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.45)
+	var radius: float = clampf(_tile_width() * 0.11, 8.0, 14.0)
+	for tile: Vector2i in target_tiles:
+		var hovered: bool = tile == _hover_tile or tile == selected_tile
+		var marker_color := Color(1.0, 0.88, 0.43, 0.82 + pulse * 0.16)
+		if hovered:
+			marker_color = Color(1.0, 0.97, 0.76, 1.0)
+		_draw_tile_ring(tile, marker_color, 4.4 if hovered else lerpf(2.8, 3.8, pulse), 0.76)
+		_draw_target_reticle(_tile_center(tile), marker_color, radius + (2.0 if hovered else 0.0))
 
 func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -3283,7 +3312,7 @@ func _draw_boss_health_bar(units_to_draw: Array[Dictionary]) -> void:
 	var bar_rect: Rect2 = _boss_health_bar_rect()
 	var name: String = str(boss_unit.get("name", "Boss"))
 	if font != null:
-		var name_rect := Rect2(Vector2(bar_rect.position.x, bar_rect.position.y - 30.0), Vector2(bar_rect.size.x, 24.0))
+		var name_rect: Rect2 = _boss_health_name_rect()
 		var name_baseline: Vector2 = name_rect.position + Vector2(0.0, 21.0)
 		for outline_offset: Vector2 in [Vector2(-2.0, 0.0), Vector2(2.0, 0.0), Vector2(0.0, -2.0), Vector2(0.0, 2.0), Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2(1.0, 1.0)]:
 			draw_string(font, name_baseline + outline_offset, name, HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, 21, Color("050403"))
@@ -3314,6 +3343,10 @@ func _health_bar_segment_count(max_hp_value: int) -> int:
 func _boss_health_bar_rect() -> Rect2:
 	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
 	return Rect2(Vector2((size.x - bar_width) * 0.5, BOSS_HEALTH_BAR_Y), Vector2(bar_width, BOSS_HEALTH_BAR_SIZE.y))
+
+func _boss_health_name_rect() -> Rect2:
+	var bar_rect: Rect2 = _boss_health_bar_rect()
+	return Rect2(Vector2(bar_rect.position.x, bar_rect.position.y - 30.0), Vector2(bar_rect.size.x, 24.0))
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
 	var current_hp: float = float(unit.get("hp", 0))
