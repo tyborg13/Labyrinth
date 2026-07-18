@@ -1,0 +1,4 @@
+interface:
+  display_name: "Escape the Umbra Trailer"
+  short_description: "Create authentic, cinematic gameplay trailers"
+  default_prompt: "Use $create-escape-the-umbra-trailer to create or refine an authentic gameplay-first Escape the Umbra trailer."
