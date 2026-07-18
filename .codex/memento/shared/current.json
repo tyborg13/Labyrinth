@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-18T02:41:31Z",
+  "updated_at": "2026-07-18T03:13:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5825,6 +5825,28 @@
       "source": {
         "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
         "commit": "6d24554"
+      }
+    },
+    {
+      "id": "mnt_20260718T031319Z_78beae18",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "folder",
+        "path": "marketing/trailer",
+        "symbol": null
+      },
+      "scope_key": "folder:marketing/trailer",
+      "summary": "Trailer menu cameras follow the real swap once",
+      "details": "For Magic and Equipment loadout footage, use one restrained approach zoom, one continuous source-to-destination follow aligned to the real drag or swap, a short result hold, and one pullback. Do not use multi-waypoint pan and scale tracks that change direction or apply eased motion separately per segment. Validate at dense frame cadence.",
+      "status": "active",
+      "created_at": "2026-07-18T03:13:19Z",
+      "updated_at": "2026-07-18T03:13:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
+        "commit": "7d3e388"
       }
     }
   ]

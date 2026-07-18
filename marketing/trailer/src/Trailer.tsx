@@ -378,6 +378,26 @@ type SelectionCameraCue = {
   shake: number;
 };
 
+type ActionFollowCameraCue = {
+  approachStart: number;
+  approachEnd: number;
+  followStart: number;
+  followEnd: number;
+  pullbackStart: number;
+  pullbackEnd: number;
+  startScale: number;
+  focusScale: number;
+  endScale: number;
+  sourceOriginX: number;
+  sourceOriginY: number;
+  destinationOriginX: number;
+  destinationOriginY: number;
+  focusX: number;
+  focusY: number;
+  endX: number;
+  endY: number;
+};
+
 type GameplaySceneProps = {
   clip: string;
   duration: number;
@@ -588,7 +608,15 @@ const ProgressionClip: React.FC<{
   playbackRate: number;
   focusTrack?: FocusTrack;
   selectionCamera?: SelectionCameraCue;
-}> = ({ clip, duration, playbackRate, focusTrack, selectionCamera }) => {
+  actionFollowCamera?: ActionFollowCameraCue;
+}> = ({
+  clip,
+  duration,
+  playbackRate,
+  focusTrack,
+  selectionCamera,
+  actionFollowCamera,
+}) => {
   const frame = useCurrentFrame();
   const approach = selectionCamera
     ? interpolate(
@@ -642,22 +670,81 @@ const ProgressionClip: React.FC<{
         easing: Easing.bezier(0.45, 0, 0.55, 1),
       })
     : 0;
-  const selectionScale = selectionCamera
+  const followApproach = actionFollowCamera
+    ? interpolate(
+        frame,
+        [actionFollowCamera.approachStart, actionFollowCamera.approachEnd],
+        [0, 1],
+        {
+          ...clamp,
+          easing: Easing.bezier(0.45, 0, 0.55, 1),
+        },
+      )
+    : 0;
+  const followMove = actionFollowCamera
+    ? interpolate(
+        frame,
+        [actionFollowCamera.followStart, actionFollowCamera.followEnd],
+        [0, 1],
+        {
+          ...clamp,
+          easing: Easing.bezier(0.45, 0, 0.55, 1),
+        },
+      )
+    : 0;
+  const followPullback = actionFollowCamera
+    ? interpolate(
+        frame,
+        [actionFollowCamera.pullbackStart, actionFollowCamera.pullbackEnd],
+        [0, 1],
+        {
+          ...clamp,
+          easing: Easing.bezier(0.45, 0, 0.55, 1),
+        },
+      )
+    : 0;
+  const cameraScale = actionFollowCamera
+    ? actionFollowCamera.startScale +
+      (actionFollowCamera.focusScale - actionFollowCamera.startScale) *
+        followApproach +
+      (actionFollowCamera.endScale - actionFollowCamera.focusScale) *
+        followPullback
+    : selectionCamera
     ? selectionCamera.startScale +
       (selectionCamera.focusScale - selectionCamera.startScale) * approach +
       (selectionCamera.endScale - selectionCamera.focusScale) * pullback +
       selectionImpact * 0.012
     : trackedScale;
-  const selectionX = selectionCamera
+  const cameraX = actionFollowCamera
+    ? actionFollowCamera.focusX * followMove +
+      (actionFollowCamera.endX - actionFollowCamera.focusX) * followPullback
+    : selectionCamera
     ? selectionCamera.focusX * approach +
       ((selectionCamera.endX ?? 0) - selectionCamera.focusX) * pullback +
       Math.sin(frame * 2.7) * selectionCamera.shake * selectionImpact
     : trackedX;
-  const selectionY = selectionCamera
+  const cameraY = actionFollowCamera
+    ? actionFollowCamera.focusY * followMove +
+      (actionFollowCamera.endY - actionFollowCamera.focusY) * followPullback
+    : selectionCamera
     ? selectionCamera.focusY * approach +
       ((selectionCamera.endY ?? -20) - selectionCamera.focusY) * pullback +
       Math.cos(frame * 3.2) * selectionCamera.shake * 0.58 * selectionImpact
     : trackedY;
+  const cameraOriginX = actionFollowCamera
+    ? actionFollowCamera.sourceOriginX +
+      (actionFollowCamera.destinationOriginX -
+        actionFollowCamera.sourceOriginX) *
+        followMove
+    : 50;
+  const cameraOriginY = actionFollowCamera
+    ? actionFollowCamera.sourceOriginY +
+      (actionFollowCamera.destinationOriginY -
+        actionFollowCamera.sourceOriginY) *
+        followMove
+    : selectionCamera
+      ? 0
+      : 50;
   return (
     <EditorialFrame vignetteOpacity={0.12}>
       <Sequence durationInFrames={duration} premountFor={FPS}>
@@ -670,9 +757,9 @@ const ProgressionClip: React.FC<{
           style={{
             width: "100%",
             height: "100%",
-            scale: selectionScale,
-            translate: `${selectionX}px ${selectionY}px`,
-            transformOrigin: selectionCamera ? "50% 0%" : "50% 50%",
+            scale: cameraScale,
+            translate: `${cameraX}px ${cameraY}px`,
+            transformOrigin: `${cameraOriginX}% ${cameraOriginY}%`,
             filter: `brightness(${1 + selectionImpact * 0.09}) saturate(${1.02 + selectionImpact * 0.08})`,
           }}
         />
@@ -770,11 +857,24 @@ const ProgressionScene: React.FC = () => {
             clip="magic_equip"
             duration={PROGRESSION_CLIP.magicEquip}
             playbackRate={1}
-            focusTrack={{
-              frames: [0, 30, 55, 80, 100, 120],
-              scales: [1.02, 1.08, 1.2, 1.26, 1.2, 1.1],
-              translateX: [0, -80, -120, 60, 40, 0],
-              translateY: [0, 0, 0, 0, 0, 0],
+            actionFollowCamera={{
+              approachStart: 4,
+              approachEnd: 24,
+              followStart: 38,
+              followEnd: 70,
+              pullbackStart: 92,
+              pullbackEnd: 116,
+              startScale: 1.025,
+              focusScale: 1.13,
+              endScale: 1.05,
+              sourceOriginX: 44,
+              sourceOriginY: 44,
+              destinationOriginX: 30,
+              destinationOriginY: 60,
+              focusX: 70,
+              focusY: -24,
+              endX: 15,
+              endY: -6,
             }}
           />
         </TransitionSeries.Sequence>
@@ -789,11 +889,24 @@ const ProgressionScene: React.FC = () => {
             clip="equipment"
             duration={PROGRESSION_CLIP.equipment}
             playbackRate={1}
-            focusTrack={{
-              frames: [0, 45, 85, 105, 125, 150, 174],
-              scales: [1.03, 1.08, 1.12, 1.03, 1.12, 1.18, 1.1],
-              translateX: [0, 0, 0, 0, -40, 120, 40],
-              translateY: [0, 0, 0, 0, 0, 0, 0],
+            actionFollowCamera={{
+              approachStart: 92,
+              approachEnd: 116,
+              followStart: 116,
+              followEnd: 140,
+              pullbackStart: 150,
+              pullbackEnd: 172,
+              startScale: 1.025,
+              focusScale: 1.12,
+              endScale: 1.06,
+              sourceOriginX: 45,
+              sourceOriginY: 67,
+              destinationOriginX: 30,
+              destinationOriginY: 69,
+              focusX: 75,
+              focusY: -15,
+              endX: 15,
+              endY: -4,
             }}
           />
         </TransitionSeries.Sequence>
