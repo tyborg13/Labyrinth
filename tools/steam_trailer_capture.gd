@@ -9,6 +9,8 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 const CAPTURE_SEED: int = 126044
+const REWARD_CAPTURE_SIZE: Vector2i = Vector2i(2304, 1296)
+const REWARD_CAPTURE_RAISE: float = 220.0
 const INVALID_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM: Vector2i = Vector2i(999, 999)
 
@@ -25,10 +27,35 @@ func _ready() -> void:
 	ProgressionStore.clear_saved_run()
 	_clip_id = _requested_clip_id()
 	_run_scene = RunScene.instantiate()
-	_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_mount_run_scene_for_capture()
 	_run_scene.visible = false
-	add_child(_run_scene)
 	call_deferred("_capture_requested_clip")
+
+func _mount_run_scene_for_capture() -> void:
+	if _clip_id in ["relic", "spell"]:
+		# CanvasLayer content ignores parent Control transforms. Render the full
+		# production scene in a larger 16:9 viewport instead, then downsample its
+		# texture into the 1080p movie frame so lower reward controls are recorded.
+		var reward_viewport := SubViewport.new()
+		reward_viewport.name = "RewardCaptureViewport"
+		reward_viewport.size = REWARD_CAPTURE_SIZE
+		reward_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		reward_viewport.gui_disable_input = true
+		add_child(reward_viewport)
+		reward_viewport.add_child(_run_scene)
+		_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+		var reward_display := TextureRect.new()
+		reward_display.name = "RewardCaptureDisplay"
+		reward_display.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		reward_display.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		reward_display.stretch_mode = TextureRect.STRETCH_SCALE
+		reward_display.texture = reward_viewport.get_texture()
+		reward_display.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(reward_display)
+		return
+	add_child(_run_scene)
+	_run_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _requested_clip_id() -> String:
 	for argument: String in OS.get_cmdline_user_args():
@@ -588,6 +615,7 @@ func _capture_merchant_purchase() -> void:
 	await _settle(0.9)
 
 func _capture_relic_claim() -> void:
+	_raise_reward_choices_for_capture(true)
 	_show_run_scene()
 	await _settle(0.75)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
@@ -598,6 +626,13 @@ func _capture_relic_claim() -> void:
 	var relic_id: String = str(relics[0])
 	var source_panel: Control = _find_control_with_meta(_run_scene, "relic_id", relic_id)
 	_assert_capture(source_panel != null, "Relic capture must find the production relic choice panel")
+	_assert_capture(
+		_control_fully_inside_capture(source_panel),
+		"Relic capture must record the complete production choice panel (rect=%s viewport=%s)" % [
+			str(source_panel.get_global_rect()),
+			str(source_panel.get_viewport_rect().size),
+		]
+	)
 	await _settle(0.45)
 	await _run_scene.call("_on_relic_pressed", relic_id, source_panel.get_global_rect())
 	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
@@ -611,6 +646,7 @@ func _capture_relic_claim() -> void:
 	await _settle(0.9)
 
 func _capture_spell_reward() -> void:
+	_raise_reward_choices_for_capture(false)
 	_show_run_scene()
 	await _settle(0.75)
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
@@ -621,6 +657,13 @@ func _capture_spell_reward() -> void:
 	var card_id: String = _showcase_reward_card_id(state)
 	var source_slot: Control = _find_control_with_meta(_run_scene, "reward_card_id", card_id)
 	_assert_capture(source_slot != null, "Spell capture must find the production reward card slot")
+	_assert_capture(
+		_control_fully_inside_capture(source_slot),
+		"Spell capture must record the complete production reward card (rect=%s viewport=%s)" % [
+			str(source_slot.get_global_rect()),
+			str(source_slot.get_viewport_rect().size),
+		]
+	)
 	await _settle(0.45)
 	await _run_scene.call("_on_reward_card_pressed", card_id, source_slot)
 	var after_state: Dictionary = _run_scene.get("_run_state") as Dictionary
@@ -632,6 +675,22 @@ func _capture_spell_reward() -> void:
 		str(after_state.get("mode", ""))
 	])
 	await _settle(0.9)
+
+func _raise_reward_choices_for_capture(relic_choices: bool) -> void:
+	var choice_control: Control = (
+		_run_scene.get("_relic_choice_host") as Control
+		if relic_choices
+		else _run_scene.get("bottom_stack") as Control
+	)
+	_assert_capture(choice_control != null, "Reward capture must find its production choice host")
+	choice_control.position.y -= REWARD_CAPTURE_RAISE
+
+func _control_fully_inside_capture(control: Control) -> bool:
+	if control == null:
+		return false
+	var rect: Rect2 = control.get_global_rect()
+	var viewport_size: Vector2 = control.get_viewport_rect().size
+	return rect.position.y >= 0.0 and rect.end.y <= viewport_size.y - 48.0
 
 func _capture_magic_equip() -> void:
 	var state: Dictionary = _run_scene.get("_run_state") as Dictionary
