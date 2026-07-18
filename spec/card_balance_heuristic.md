@@ -133,6 +133,11 @@ Encounter calibration is also important:
   His Tempest Breath is intentionally capped at ranged `3` after a one-tile
   advance so corner repositioning can produce real safe tiles in open boss
   rooms.
+- Large enemies use actor-level direct targeting: if any visible footprint tile
+  satisfies an attack's range and line-of-sight rules, the full footprint
+  accepts the click and resolves against the same actor. This is input
+  affordance rather than extra targets or extra hits, so it does not change the
+  generic single-target damage coefficient.
 - Every dragon has an authored pressure axis in addition to ordinary intents:
   Zekarion summons wisps; Tharokh raises attackable Worldspines before rupturing
   them; Vyraketh plants attackable cinder marks before a forced detonation;

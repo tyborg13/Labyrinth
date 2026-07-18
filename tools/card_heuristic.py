@@ -44,7 +44,10 @@ Bleed pressure only opens on resolved move or attack actions, not skipped or
 blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP and intent baselines. Zekarion's 2x2
 footprint makes printed reach feel larger, so Tempest Breath is capped at range
-3 after its one-tile advance to preserve safe boss-room repositioning.
+3 after its one-tile advance to preserve safe boss-room repositioning. Large
+enemies use actor-level targeting: one legal visible footprint tile makes the
+whole footprint clickable, but the action still counts as one target and one
+hit for scoring.
 Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,
 including the playable edge band, and those traps blast adjacent tiles when
 stepped on or attacked.
@@ -115,6 +118,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "sequence_scaling": {
             "enemy_hp_multiplier_per_completed_sequence": ENEMY_HP_SCALE_PER_SEQUENCE,
             "enemy_hp_flat_per_completed_sequence": ENEMY_HP_FLAT_BONUS_PER_SEQUENCE,

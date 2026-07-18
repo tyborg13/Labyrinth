@@ -508,9 +508,13 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			for enemy: Dictionary in _live_enemies(state):
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
+				var enemy_targetable: bool = false
 				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
-					if PathUtils.manhattan(player_pos, enemy_tile) <= melee_range and not targets.has(enemy_tile):
-						targets.append(enemy_tile)
+					if PathUtils.manhattan(player_pos, enemy_tile) <= melee_range:
+						enemy_targetable = true
+						break
+				if enemy_targetable:
+					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if PathUtils.manhattan(player_pos, terrain_pos) <= melee_range and not targets.has(terrain_pos):
@@ -524,13 +528,16 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			for enemy: Dictionary in _live_enemies(state):
 				if not is_enemy_visible_to_player(state, enemy):
 					continue
+				var enemy_targetable: bool = false
 				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
 					if PathUtils.manhattan(player_pos, enemy_tile) > ranged_range:
 						continue
 					if not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_tile):
 						continue
-					if not targets.has(enemy_tile):
-						targets.append(enemy_tile)
+					enemy_targetable = true
+					break
+				if enemy_targetable:
+					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if PathUtils.manhattan(player_pos, terrain_pos) > ranged_range:
@@ -584,14 +591,22 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 						continue
 				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
 					continue
+				var enemy_targetable: bool = false
 				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
 					if PathUtils.manhattan(player_pos, enemy_tile) > forced_range:
 						continue
 					if forced_range > 1 and not PathUtils.has_line_of_sight(state.get("grid", []), player_pos, enemy_tile):
 						continue
-					if not targets.has(enemy_tile):
-						targets.append(enemy_tile)
+					enemy_targetable = true
+					break
+				if enemy_targetable:
+					_append_enemy_footprint_targets(targets, enemy)
 	return targets
+
+func _append_enemy_footprint_targets(targets: Array[Vector2i], enemy: Dictionary) -> void:
+	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
+		if not targets.has(enemy_tile):
+			targets.append(enemy_tile)
 
 func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
 	var action_type: String = str(action.get("type", ""))

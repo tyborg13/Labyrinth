@@ -1016,6 +1016,7 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
+const BOSS_HEALTH_TURN_ORDER_GAP: float = 24.0
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(340.0, 64.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 88.0
 const PASS_PREVIEW_STACK_GAP: float = 6.0
@@ -9992,17 +9993,18 @@ func _reward_heal_art_style() -> StyleBoxFlat:
 func _refresh_stage_view() -> void:
 	_exit_destinations_by_tile = _exit_tile_lookup()
 	var display_state: Dictionary = _board_display_state()
+	var visibility_state: Dictionary = _board_visibility_state(display_state)
 	var move_tiles: Array[Vector2i] = []
 	var attack_tiles: Array[Vector2i] = []
 	var ability_tiles: Array[Vector2i] = []
 	var presentation: Dictionary = _board_presentation.duplicate(false)
 	if str(_run_state.get("mode", "room")) == "combat" and not display_state.is_empty():
-		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(display_state)
-		presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(display_state)
-		presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(display_state)
-		presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(display_state)
-		presentation["umbra_light_sources"] = ((display_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
-		var umbra_state: Dictionary = display_state.get("umbra", {}) as Dictionary
+		presentation["umbra_stage"] = _combat_engine.effective_umbra_stage(visibility_state)
+		presentation["umbra_radius"] = _combat_engine.effective_umbra_radius(visibility_state)
+		presentation["umbra_visible_tiles"] = _combat_engine.umbra_visible_tiles(visibility_state)
+		presentation["visible_enemy_ids"] = _combat_engine.visible_enemy_ids(visibility_state)
+		presentation["umbra_light_sources"] = ((visibility_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).duplicate(true)
+		var umbra_state: Dictionary = visibility_state.get("umbra", {}) as Dictionary
 		presentation["umbra_truesight_activations"] = int(umbra_state.get("truesight_activations", 0))
 		presentation["umbra_truesight"] = int(presentation["umbra_truesight_activations"]) != 0
 		presentation["umbra_vision_bonus_activations"] = int(umbra_state.get("vision_bonus_activations", 0))
@@ -10100,6 +10102,7 @@ func _refresh_stage_view() -> void:
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	presentation["equipped_equipment"] = _equipped_equipment_for_board()
+	presentation["boss_health_name_min_y"] = _boss_health_name_min_y()
 	presentation["tile_drag_aiming"] = (
 		str(_run_state.get("mode", "room")) == "combat"
 		and not _animation_lock
@@ -10137,7 +10140,7 @@ func _board_display_state() -> Dictionary:
 			if not _combat_state.is_empty():
 				return _combat_state
 		elif not _preview_combat_state.is_empty():
-			return _preview_combat_state
+			return _visibility_safe_preview_display_state(_preview_combat_state)
 		if not _combat_state.is_empty():
 			return _combat_state
 	var layout: Dictionary = _run_state.get("current_room_layout", {}) as Dictionary
@@ -10161,6 +10164,42 @@ func _board_display_state() -> Dictionary:
 		"terrain": layout.get("terrain", []),
 		"log": []
 	}
+
+func _board_visibility_state(display_state: Dictionary) -> Dictionary:
+	if _unconfirmed_preview_must_preserve_umbra_information():
+		return _combat_state
+	return display_state
+
+func _visibility_safe_preview_display_state(preview_state: Dictionary) -> Dictionary:
+	if not _unconfirmed_preview_must_preserve_umbra_information():
+		return preview_state
+	var safe_state: Dictionary = preview_state.duplicate(false)
+	for key: String in ["player", "umbra", "traps", "loot", "log"]:
+		if not _combat_state.has(key):
+			continue
+		var committed_value: Variant = _combat_state.get(key)
+		if typeof(committed_value) == TYPE_DICTIONARY:
+			safe_state[key] = (committed_value as Dictionary).duplicate(true)
+		elif typeof(committed_value) == TYPE_ARRAY:
+			safe_state[key] = (committed_value as Array).duplicate(true)
+		else:
+			safe_state[key] = committed_value
+	return safe_state
+
+func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
+	return (
+		_selected_card_index >= 0
+		and not _pending_umbra_commit_locked
+		and not _combat_state.is_empty()
+		and not _preview_combat_state.is_empty()
+		and _combat_engine.effective_umbra_radius(_combat_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
+	)
+
+func _boss_health_name_min_y() -> float:
+	if board_view == null or _turn_order_panel == null or not _turn_order_panel.visible:
+		return 0.0
+	var board_top: float = board_view.get_global_rect().position.y
+	return maxf(0.0, _turn_order_panel.get_global_rect().end.y - board_top + BOSS_HEALTH_TURN_ORDER_GAP)
 
 func _active_card_preview() -> Dictionary:
 	if _drag_card_index >= 0:

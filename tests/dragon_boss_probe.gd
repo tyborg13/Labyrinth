@@ -9,7 +9,7 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://dragon_boss_probe_v2"
+const OUTPUT_ROOT: String = "user://dragon_boss_probe_v3"
 const RESOLUTION: Vector2i = Vector2i(1920, 1080)
 const BOSS_PROOFS: Array[Dictionary] = [
 	{"id": "tharokh", "depth": 4},
@@ -59,7 +59,8 @@ func _capture_bosses() -> void:
 
 		var combat_state: Dictionary = state.get("combat_state", {}) as Dictionary
 		if boss_id == DragonBossLibrary.SHADOW_BOSS_ID:
-			await _capture_noctyrax_target_markers(instance, combat_state)
+			await _capture_noctyrax_visibility_safe_move_preview(instance, combat_state)
+			await _capture_noctyrax_target_highlight(instance, combat_state)
 		var boss_index: int = _boss_index(combat_state)
 		if boss_index < 0:
 			_fail("%s proof should find a boss actor" % boss_id)
@@ -100,7 +101,7 @@ func _capture_bosses() -> void:
 	print(ProjectSettings.globalize_path(_output_dir))
 	quit(1 if _failed else 0)
 
-func _capture_noctyrax_target_markers(instance: Node, combat_state: Dictionary) -> void:
+func _capture_noctyrax_target_highlight(instance: Node, combat_state: Dictionary) -> void:
 	var action := {"type": "ranged", "damage": 10, "range": 12}
 	var target_tiles: Array[Vector2i] = CombatEngine.new().valid_targets_for_player_action(combat_state, action)
 	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
@@ -116,18 +117,76 @@ func _capture_noctyrax_target_markers(instance: Node, combat_state: Dictionary) 
 		move_tiles,
 		target_tiles,
 		(combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)),
-		"Choose a dragon tile",
-		"Every gold reticle is a legal target",
+		"",
+		"",
 		{},
 		{},
 		presentation
 	)
 	await process_frame
 	await process_frame
-	var marker_tiles: Array = board.call("_large_enemy_target_tiles", board.call("_visible_units")) as Array
-	if marker_tiles.size() != 4:
-		_fail("Noctyrax targeting proof should render four legal above-sprite reticles, found %d" % marker_tiles.size())
+	var highlight_tiles: Array = board.call("_large_enemy_attack_highlight_tiles", board.call("_visible_units")) as Array
+	if highlight_tiles.size() != 4:
+		_fail("Noctyrax targeting proof should apply the standard target treatment to all four footprint tiles, found %d" % highlight_tiles.size())
 	await _capture("24_noctyrax_targets.png")
+
+func _capture_noctyrax_visibility_safe_move_preview(instance: Node, combat_state: Dictionary) -> void:
+	var combat := CombatEngine.new()
+	var actions: Array = (GameData.card_def("dawnstep").get("actions", []) as Array).duplicate(true)
+	var move_action: Dictionary = actions[0] as Dictionary
+	var vision_action: Dictionary = actions[1] as Dictionary
+	var before_visible_ids: Array[int] = combat.visible_enemy_ids(combat_state)
+	var chosen_target := Vector2i(-1, -1)
+	var simulated_state: Dictionary = {}
+	for target: Vector2i in combat.valid_targets_for_player_action(combat_state, move_action):
+		var candidate: Dictionary = combat.apply_player_action(combat_state, move_action, target)
+		candidate = combat.apply_player_action(candidate, vision_action)
+		if combat.visible_enemy_ids(candidate).size() > before_visible_ids.size():
+			chosen_target = target
+			simulated_state = candidate
+			break
+	if chosen_target.x < 0:
+		_fail("Noctyrax move-preview proof should find a destination whose simulated Dawnstep reveals new information")
+		return
+	var planned_path: Array[Vector2i] = combat.path_for_player_action(combat_state, move_action, chosen_target)
+	instance.set("_combat_state", combat_state)
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", actions)
+	instance.set("_pending_action_index", actions.size())
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [chosen_target]))
+	instance.set("_pending_target_tiles", instance.call("_vector2i_array", []))
+	instance.set("_preview_combat_state", simulated_state)
+	instance.set("_pending_umbra_commit_locked", false)
+	instance.set("_board_presentation", {
+		"path_tiles": planned_path,
+		"effect": {
+			"kind": "move",
+			"from": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
+			"to": chosen_target,
+			"preview": true
+		}
+	})
+	instance.call("_refresh_stage_view")
+	await process_frame
+	await process_frame
+	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
+	if board == null:
+		_fail("Noctyrax move-preview proof should find the combat board")
+		return
+	var rendered_state: Dictionary = board.get("combat_state") as Dictionary
+	var rendered_presentation: Dictionary = board.get("presentation") as Dictionary
+	if (rendered_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) != (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO):
+		_fail("Unconfirmed Dawnstep should not render its simulated movement or hidden collision outcome")
+	var rendered_visible_ids: Array = rendered_presentation.get("visible_enemy_ids", []) as Array
+	if rendered_visible_ids.size() != before_visible_ids.size():
+		_fail("Unconfirmed Dawnstep should not reveal Noctyrax's concealed minions")
+	if int(rendered_presentation.get("umbra_radius", -1)) != combat.effective_umbra_radius(combat_state):
+		_fail("Unconfirmed Dawnstep should not expand the rendered Umbra vision radius")
+	await _capture("24_noctyrax_move_preview.png")
+	instance.set("_board_presentation", {})
+	instance.call("_reset_card_resolution")
+	instance.call("_refresh_stage_view")
+	await process_frame
 
 func _boss_run_state(boss_id: String, depth: int, progression: Dictionary) -> Dictionary:
 	var seed: int = 99431 + depth * 101
@@ -200,6 +259,12 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 	var board: Control = instance.get_node_or_null("BoardUnderlay/CombatBoard") as Control
 	if board == null or not board.visible:
 		_fail("%s proof should render the tactical board" % boss_id)
+	var turn_order_panel: Control = instance.get("_turn_order_panel") as Control
+	if board != null and turn_order_panel != null and turn_order_panel.visible:
+		var boss_name_rect: Rect2 = board.call("_boss_health_name_rect") as Rect2
+		var boss_name_global_y: float = board.get_global_rect().position.y + boss_name_rect.position.y
+		if boss_name_global_y - turn_order_panel.get_global_rect().end.y < 20.0:
+			_fail("%s boss name and health HUD should keep visible breathing room below the turn-order panel" % boss_id)
 	if after_gimmick and boss_id != "zekarion" and not bool(boss.get("boss_mechanic_opened", false)):
 		_fail("%s opening gimmick should mark itself active" % boss_id)
 	match boss_id:

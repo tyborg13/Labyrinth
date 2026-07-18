@@ -5684,9 +5684,15 @@ func _test_boss_health_bar_stays_inside_combat_board() -> void:
 	board.size = Vector2(960.0, 680.0)
 	var boss_bar: Rect2 = board.call("_boss_health_bar_rect")
 	var boss_name: Rect2 = board.call("_boss_health_name_rect")
-	_assert(boss_name.position.y >= 0.0, "Boss name should remain inside the combat board instead of extending behind the turn-order header")
+	_assert(boss_name.position.y >= 128.0, "Boss name should keep a visible gap beneath the standard turn-order header")
 	_assert(boss_bar.position.y > boss_name.end.y, "Boss health bar should sit below its fully visible nameplate")
 	_assert(boss_bar.end.y <= board.size.y, "Boss health bar should remain inside the combat board at every boss encounter")
+	board.presentation = {"boss_health_name_min_y": 184.0}
+	var dynamically_cleared_name: Rect2 = board.call("_boss_health_name_rect")
+	var dynamically_cleared_bar: Rect2 = board.call("_boss_health_bar_rect")
+	_assert(is_equal_approx(dynamically_cleared_name.position.y, 184.0), "Boss HUD placement should honor the live turn-order panel bottom")
+	_assert(dynamically_cleared_bar.position.y > dynamically_cleared_name.end.y, "Dynamic turn-order clearance should move the complete boss HUD together")
+	board.free()
 
 func _test_enemy_art_scale_preserves_center() -> void:
 	var board := CombatBoardView.new()
@@ -11888,6 +11894,35 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	instance.call("_cancel_card_selection")
 	_assert(int(instance.get("_selected_card_index")) == 0, "An Umbra movement reveal should not be cancellable back to the untouched combat state")
 	instance.call("_reset_card_resolution")
+
+	var dawnstep_actions: Array = (GameData.card_def("dawnstep").get("actions", []) as Array).duplicate(true)
+	var dawnstep_target := Vector2i(4, 4)
+	var dawnstep_preview_state: Dictionary = combat.apply_player_action(state, dawnstep_actions[0] as Dictionary, dawnstep_target)
+	dawnstep_preview_state = combat.apply_player_action(dawnstep_preview_state, dawnstep_actions[1] as Dictionary)
+	var preview_enemy: Dictionary = (dawnstep_preview_state.get("enemies", []) as Array)[0]
+	_assert(combat.is_enemy_visible_to_player(dawnstep_preview_state, preview_enemy), "The simulated Dawnstep outcome should reveal the enemy, proving the fixture can catch an information leak")
+	instance.set("_combat_state", state)
+	instance.set("_selected_card_index", 0)
+	instance.set("_pending_actions", dawnstep_actions)
+	instance.set("_pending_action_index", dawnstep_actions.size())
+	instance.set("_pending_selected_targets", instance.call("_vector2i_array", [dawnstep_target]))
+	instance.set("_pending_target_tiles", instance.call("_vector2i_array", []))
+	instance.set("_preview_combat_state", dawnstep_preview_state)
+	instance.set("_pending_umbra_commit_locked", false)
+	var safe_display_state: Dictionary = instance.call("_board_display_state")
+	var safe_visibility_state: Dictionary = instance.call("_board_visibility_state", safe_display_state)
+	_assert((safe_display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "Unconfirmed movement should keep the rendered player at the committed tile instead of leaking a hidden collision or reveal radius")
+	_assert(combat.effective_umbra_radius(safe_visibility_state) == combat.effective_umbra_radius(state), "Unconfirmed movement-card vision should not clear or shrink the rendered Umbra")
+	_assert(not combat.is_enemy_visible_to_player(safe_visibility_state, (safe_visibility_state.get("enemies", []) as Array)[0]), "Unconfirmed movement-card vision should not reveal enemy positions")
+	instance.call("_refresh_stage_view")
+	var safe_board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	var safe_board_state: Dictionary = safe_board.get("combat_state") as Dictionary
+	var safe_board_presentation: Dictionary = safe_board.get("presentation") as Dictionary
+	_assert((safe_board_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), "The live board should render the committed player position until Play Card confirms the movement")
+	_assert(not (safe_board_presentation.get("visible_enemy_ids", []) as Array).has(int(preview_enemy.get("id", -1))), "The live board presentation should keep newly discovered enemies concealed before confirmation")
+	_assert((safe_board_presentation.get("umbra_visible_tiles", []) as Array).size() == combat.umbra_visible_tiles(state).size(), "The live board should preserve the committed Umbra coverage before confirmation")
+	instance.call("_reset_card_resolution")
+
 	var radiance_state: Dictionary = combat.create_combat(44006, layout, {"hp": 20, "max_hp": 20, "deck_cards": ["guiding_flare"], "hand_size": 1})
 	var radiance_actions: Array = (GameData.card_def("guiding_flare").get("actions", []) as Array).duplicate(true)
 	var enemy_tile: Vector2i = ((radiance_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO)

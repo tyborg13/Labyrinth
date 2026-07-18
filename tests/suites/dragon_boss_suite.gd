@@ -23,7 +23,7 @@ static func run(expect: Callable) -> void:
 	_test_status_immunities_are_atomic(expect)
 	_test_opening_gimmicks_resolve(expect)
 	_test_noctyrax_minions_make_eclipse_visibility_matter(expect)
-	_test_large_dragon_footprints_expose_every_legal_target(expect)
+	_test_large_dragon_footprints_use_actor_level_target_highlighting(expect)
 	_test_last_eclipse_uses_a_dedicated_icon(expect)
 	_test_boss_death_ends_encounter_with_hazards_remaining(expect)
 	_test_complete_run_can_clear_all_six_bosses(expect)
@@ -198,7 +198,7 @@ static func _test_noctyrax_minions_make_eclipse_visibility_matter(expect: Callab
 			expect.call(combat.is_enemy_visible_to_player(revealed, enemy), "Truesight should reveal each Veilbound Acolyte through Eclipse")
 	expect.call(not GrimoireLibrary.entry_def("enemy:veilbound_acolyte").is_empty(), "Veilbound Acolytes should have creature grimoire guidance")
 
-static func _test_large_dragon_footprints_expose_every_legal_target(expect: Callable) -> void:
+static func _test_large_dragon_footprints_use_actor_level_target_highlighting(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _boss_combat_state("noctyrax", 24)
 	var boss: Dictionary = _boss_from_state(state)
@@ -210,11 +210,21 @@ static func _test_large_dragon_footprints_expose_every_legal_target(expect: Call
 		for x: int in range(2):
 			footprint_tiles.append(boss_origin + Vector2i(x, y))
 	for tile: Vector2i in footprint_tiles:
-		expect.call(targets.has(tile), "Every in-range Noctyrax footprint tile should be an explicit ranged target: %s" % str(tile))
+		expect.call(targets.has(tile), "A targetable Noctyrax should accept clicks anywhere on its footprint: %s" % str(tile))
 		var damaged: Dictionary = combat.apply_player_action(state, action, tile)
 		expect.call(int(_boss_from_state(damaged).get("hp", 0)) < int(boss.get("hp", 0)), "Targeting footprint tile %s should damage the same dragon" % str(tile))
+	var adjacent_state: Dictionary = state.duplicate(true)
+	var adjacent_player: Dictionary = (adjacent_state.get("player", {}) as Dictionary).duplicate(true)
+	adjacent_player["pos"] = boss_origin + Vector2i(-1, 0)
+	adjacent_state["player"] = adjacent_player
+	var adjacent_targets: Array[Vector2i] = combat.valid_targets_for_player_action(adjacent_state, {"type": "melee", "damage": 10, "range": 1})
+	for tile: Vector2i in footprint_tiles:
+		expect.call(adjacent_targets.has(tile), "If any dragon footprint tile is in melee range, the whole actor should use normal enemy targeting: %s" % str(tile))
 	var board := CombatBoardView.new()
-	board.attack_tiles = targets
+	var one_target: Array[Vector2i] = []
+	one_target.append(footprint_tiles[0])
+	board.attack_tiles = one_target
+	board.presentation = {"pulse_attack_tiles": true}
 	var target_unit: Dictionary = {
 		"role": "enemy",
 		"type": "noctyrax",
@@ -223,12 +233,12 @@ static func _test_large_dragon_footprints_expose_every_legal_target(expect: Call
 	}
 	var target_units: Array[Dictionary] = []
 	target_units.append(target_unit)
-	var marker_tiles: Array[Vector2i] = []
-	for tile_var: Variant in board.call("_large_enemy_target_tiles", target_units):
+	var highlight_tiles: Array[Vector2i] = []
+	for tile_var: Variant in board.call("_large_enemy_attack_highlight_tiles", target_units):
 		if typeof(tile_var) == TYPE_VECTOR2I:
-			marker_tiles.append(tile_var as Vector2i)
+			highlight_tiles.append(tile_var as Vector2i)
 	for tile: Vector2i in footprint_tiles:
-		expect.call(marker_tiles.has(tile), "Every legal large-enemy target should receive an above-sprite reticle: %s" % str(tile))
+		expect.call(highlight_tiles.has(tile), "One targetable footprint tile should apply the established attack highlight across the whole dragon: %s" % str(tile))
 	board.free()
 
 static func _test_last_eclipse_uses_a_dedicated_icon(expect: Callable) -> void:

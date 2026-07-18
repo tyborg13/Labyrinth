@@ -60,7 +60,9 @@ const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
 const BOSS_HEALTH_BAR_SIZE: Vector2 = Vector2(760.0, 30.0)
-const BOSS_HEALTH_BAR_Y: float = 42.0
+const BOSS_HEALTH_NAME_DEFAULT_Y: float = 128.0
+const BOSS_HEALTH_NAME_HEIGHT: float = 24.0
+const BOSS_HEALTH_NAME_TO_BAR_GAP: float = 6.0
 const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
@@ -980,7 +982,7 @@ func _draw_dynamic_board() -> void:
 	_draw_umbra_overlay(tiles)
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_scene_objects(grid, tiles, units_to_draw)
-	_draw_large_enemy_target_markers(units_to_draw)
+	_draw_large_enemy_attack_highlights(units_to_draw)
 	_draw_umbra_light_source_markers(float(Time.get_ticks_msec()) / 1000.0)
 	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
 	_draw_campfire_ember_motes()
@@ -1928,9 +1930,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		draw_colored_polygon(polygon, ABILITY_HIGHLIGHT)
 		_draw_tile_ring(tile, Color(0.55, 0.92, 0.48, 0.62), 2.0, 0.86)
 	if attack_tiles.has(tile):
-		draw_colored_polygon(polygon, ATTACK_HIGHLIGHT)
-		if bool(presentation.get("pulse_attack_tiles", false)):
-			_draw_attack_target_pulse(tile)
+		_draw_attack_tile_highlight(tile)
 	var projected_attack_tiles: Array[Vector2i] = _vector2i_array(presentation.get("projected_attack_tiles", []))
 	if projected_attack_tiles.has(tile):
 		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
@@ -1950,7 +1950,12 @@ func _draw_attack_target_pulse(tile: Vector2i) -> void:
 	var scale: float = lerpf(0.82, 0.96, pulse)
 	_draw_tile_ring(tile, Color(1.0, 0.78, 0.44, alpha), width, scale)
 
-func _large_enemy_target_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
+func _draw_attack_tile_highlight(tile: Vector2i) -> void:
+	draw_colored_polygon(_tile_polygon(tile), ATTACK_HIGHLIGHT)
+	if bool(presentation.get("pulse_attack_tiles", false)):
+		_draw_attack_target_pulse(tile)
+
+func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	for unit: Dictionary in units_to_draw:
 		if str(unit.get("role", "")) != "enemy":
@@ -1958,25 +1963,22 @@ func _large_enemy_target_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector
 		var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
 		if maxi(1, footprint.x) * maxi(1, footprint.y) <= 1:
 			continue
-		for tile: Vector2i in _unit_footprint_tiles(unit):
-			if attack_tiles.has(tile) and not result.has(tile):
+		var footprint_tiles: Array[Vector2i] = _unit_footprint_tiles(unit)
+		var targetable: bool = false
+		for tile: Vector2i in footprint_tiles:
+			if attack_tiles.has(tile):
+				targetable = true
+				break
+		if not targetable:
+			continue
+		for tile: Vector2i in footprint_tiles:
+			if not result.has(tile):
 				result.append(tile)
 	return result
 
-func _draw_large_enemy_target_markers(units_to_draw: Array[Dictionary]) -> void:
-	var target_tiles: Array[Vector2i] = _large_enemy_target_tiles(units_to_draw)
-	if target_tiles.is_empty():
-		return
-	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
-	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.45)
-	var radius: float = clampf(_tile_width() * 0.11, 8.0, 14.0)
-	for tile: Vector2i in target_tiles:
-		var hovered: bool = tile == _hover_tile or tile == selected_tile
-		var marker_color := Color(1.0, 0.88, 0.43, 0.82 + pulse * 0.16)
-		if hovered:
-			marker_color = Color(1.0, 0.97, 0.76, 1.0)
-		_draw_tile_ring(tile, marker_color, 4.4 if hovered else lerpf(2.8, 3.8, pulse), 0.76)
-		_draw_target_reticle(_tile_center(tile), marker_color, radius + (2.0 if hovered else 0.0))
+func _draw_large_enemy_attack_highlights(units_to_draw: Array[Dictionary]) -> void:
+	for tile: Vector2i in _large_enemy_attack_highlight_tiles(units_to_draw):
+		_draw_attack_tile_highlight(tile)
 
 func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -3342,11 +3344,13 @@ func _health_bar_segment_count(max_hp_value: int) -> int:
 
 func _boss_health_bar_rect() -> Rect2:
 	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
-	return Rect2(Vector2((size.x - bar_width) * 0.5, BOSS_HEALTH_BAR_Y), Vector2(bar_width, BOSS_HEALTH_BAR_SIZE.y))
+	var name_rect: Rect2 = _boss_health_name_rect()
+	return Rect2(Vector2((size.x - bar_width) * 0.5, name_rect.end.y + BOSS_HEALTH_NAME_TO_BAR_GAP), Vector2(bar_width, BOSS_HEALTH_BAR_SIZE.y))
 
 func _boss_health_name_rect() -> Rect2:
-	var bar_rect: Rect2 = _boss_health_bar_rect()
-	return Rect2(Vector2(bar_rect.position.x, bar_rect.position.y - 30.0), Vector2(bar_rect.size.x, 24.0))
+	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
+	var minimum_y: float = maxf(BOSS_HEALTH_NAME_DEFAULT_Y, float(presentation.get("boss_health_name_min_y", BOSS_HEALTH_NAME_DEFAULT_Y)))
+	return Rect2(Vector2((size.x - bar_width) * 0.5, minimum_y), Vector2(bar_width, BOSS_HEALTH_NAME_HEIGHT))
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
 	var current_hp: float = float(unit.get("hp", 0))
