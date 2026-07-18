@@ -26,6 +26,8 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
+const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
@@ -107,6 +109,8 @@ class PreBattleEnemyCard:
 	func _make_custom_tooltip(for_text: String) -> Object:
 		if host == null or enemy.is_empty():
 			return super._make_custom_tooltip(for_text)
+		if host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
+			return host.call("_suppressed_pre_battle_tooltip")
 		return host.call("_build_pre_battle_enemy_inspection_panel", enemy)
 
 	func _gui_input(event: InputEvent) -> void:
@@ -114,17 +118,28 @@ class PreBattleEnemyCard:
 			return
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
+				accept_event()
+				return
 			host.call("_open_pinned_pre_battle_inspection", "enemy", str(enemy.get("type", "")), self, enemy)
 			accept_event()
 
 class PreBattleEquipmentChip:
 	extends EquipmentTooltipPanelContainer
 
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if host != null and host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
+			return host.call("_suppressed_pre_battle_tooltip")
+		return super._make_custom_tooltip(for_text)
+
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or equipment_id.is_empty() or not (event is InputEventMouseButton):
 			return
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
+				accept_event()
+				return
 			host.call("_open_pinned_pre_battle_inspection", "equipment", equipment_id, self)
 			accept_event()
 
@@ -133,11 +148,19 @@ class PreBattleCardBadge:
 
 	var source_kind: String = "deck"
 
+	func _make_custom_tooltip(for_text: String) -> Object:
+		if host != null and host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
+			return host.call("_suppressed_pre_battle_tooltip")
+		return super._make_custom_tooltip(for_text)
+
 	func _gui_input(event: InputEvent) -> void:
 		if host == null or card_id.is_empty() or not (event is InputEventMouseButton):
 			return
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
+				accept_event()
+				return
 			host.call("_open_pinned_pre_battle_inspection", "card", card_id, self)
 			accept_event()
 
@@ -1010,6 +1033,10 @@ const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
 const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
+const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
+const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
+const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
+const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
@@ -1200,8 +1227,10 @@ var _large_map_view: Control
 var _pinned_tooltip_scrim: ColorRect
 var _pinned_tooltip_host: Control
 var _pinned_tooltip_panel: Control
+var _pinned_tooltip_close_button: Button
 var _pinned_tooltip_source_row: Control
 var _pinned_tooltip_source_text: String = ""
+var _pinned_pre_battle_tooltip_sources: Dictionary = {}
 var _selected_card_label_override: String = ""
 var _drag_overlay: Control
 var _drag_zone_panels: Dictionary = {}
@@ -1302,6 +1331,7 @@ func _ready() -> void:
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
 	set_process(false)
+	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
@@ -1347,7 +1377,14 @@ func _input(event: InputEvent) -> void:
 		if _is_shift_press_event(event) or event.is_action_pressed("ui_cancel"):
 			_close_pinned_tooltip()
 			get_viewport().set_input_as_handled()
-			return
+		elif event is InputEventMouseButton and _pinned_pre_battle_enemy_inspection_active():
+			var mouse_event: InputEventMouseButton = event
+			if mouse_event.button_index == MOUSE_BUTTON_LEFT \
+					and mouse_event.pressed \
+					and _pinned_pre_battle_close_button_hit(mouse_event):
+				_close_pinned_tooltip()
+			get_viewport().set_input_as_handled()
+		return
 	elif _is_merchant_tooltip_pin_event(event):
 		_open_pinned_merchant_tooltip(_merchant_hovered_kind, _merchant_hovered_item_id)
 		get_viewport().set_input_as_handled()
@@ -1855,7 +1892,10 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 		return
 	for child: Node in _pinned_tooltip_host.get_children():
 		child.queue_free()
+	_pinned_tooltip_close_button = null
 	_suppress_pinned_tooltip_source(source_control)
+	_suppress_pre_battle_hover_sources()
+	_dismiss_pre_battle_tooltip_popups(_pre_battle_panel)
 	match kind:
 		"enemy":
 			_pinned_tooltip_panel = _build_pre_battle_enemy_inspection_panel(enemy, true)
@@ -1865,6 +1905,7 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 			_pinned_tooltip_panel = _build_card_tooltip_panel(content_id, true)
 	if _pinned_tooltip_panel == null:
 		_restore_pinned_tooltip_source()
+		_restore_pre_battle_hover_sources()
 		return
 	_pinned_tooltip_panel.name = "PinnedPreBattleInspection"
 	_pinned_tooltip_panel.set_meta("inspection_kind", kind)
@@ -1878,11 +1919,82 @@ func _open_pinned_pre_battle_inspection(kind: String, content_id: String, source
 		maxf(12.0, (viewport_size.x - panel_size.x) * 0.5),
 		maxf(12.0, (viewport_size.y - panel_size.y) * 0.5)
 	)
+	_pinned_tooltip_close_button = _pinned_tooltip_panel.find_child("PreBattleInspectionCloseButton", true, false) as Button if kind == "enemy" else null
 	_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.66)
 	_pinned_tooltip_scrim.visible = true
+	_pinned_tooltip_scrim.move_to_front()
+	call_deferred("_refresh_pinned_tooltip_hover_owner")
+
+func _pre_battle_hover_inspections_enabled() -> bool:
+	return _pre_battle_summary_inspections_enabled()
+
+func _pre_battle_click_inspections_enabled() -> bool:
+	return _pre_battle_summary_inspections_enabled()
+
+func _pre_battle_summary_inspections_enabled() -> bool:
+	return _pre_battle_scrim != null \
+		and _pre_battle_scrim.visible \
+		and (_pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible)
+
+func _pinned_pre_battle_enemy_inspection_active() -> bool:
+	return _pinned_tooltip_scrim != null \
+		and _pinned_tooltip_scrim.visible \
+		and _pinned_tooltip_panel != null \
+		and _pinned_tooltip_panel.name == "PinnedPreBattleInspection" \
+		and str(_pinned_tooltip_panel.get_meta("inspection_kind", "")) == "enemy"
+
+func _pinned_pre_battle_close_button_hit(mouse_event: InputEventMouseButton) -> bool:
+	if not _node_is_alive(_pinned_tooltip_close_button):
+		return false
+	var close_rect: Rect2 = _pinned_tooltip_close_button.get_global_rect()
+	# Native mouse events already arrive in the canvas coordinates used by Control global rects.
+	return close_rect.has_point(mouse_event.position) or close_rect.has_point(mouse_event.global_position)
+
+func _suppressed_pre_battle_tooltip() -> Control:
+	var suppressed := Control.new()
+	suppressed.visible = false
+	return suppressed
+
+func _suppress_pre_battle_hover_sources() -> void:
+	_restore_pre_battle_hover_sources()
+	if _pre_battle_panel == null:
+		return
+	for node_var: Variant in _pre_battle_panel.find_children("*", "Control", true, false):
+		var control: Control = node_var as Control
+		if control == null or control.tooltip_text.is_empty() or control == _pinned_tooltip_source_row:
+			continue
+		_pinned_pre_battle_tooltip_sources[control] = control.tooltip_text
+		control.tooltip_text = ""
+
+func _restore_pre_battle_hover_sources() -> void:
+	for control_var: Variant in _pinned_pre_battle_tooltip_sources.keys():
+		var control: Control = control_var as Control
+		if _node_is_alive(control):
+			control.tooltip_text = str(_pinned_pre_battle_tooltip_sources.get(control, ""))
+	_pinned_pre_battle_tooltip_sources.clear()
+
+func _dismiss_pre_battle_tooltip_popups(node: Node) -> void:
+	if node == null:
+		return
+	for child: Node in node.get_children():
+		if child is Window and str(child.get("theme_type_variation")) == "TooltipPanel":
+			child.queue_free()
+			continue
+		_dismiss_pre_battle_tooltip_popups(child)
+
+func _refresh_pinned_tooltip_hover_owner() -> void:
+	if _pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible:
+		return
+	var motion := InputEventMouseMotion.new()
+	var mouse_position: Vector2 = get_viewport().get_mouse_position()
+	motion.position = mouse_position
+	motion.global_position = mouse_position
+	get_viewport().push_input(motion, true)
 
 func _close_pinned_tooltip() -> void:
 	_restore_pinned_tooltip_source()
+	_restore_pre_battle_hover_sources()
+	_pinned_tooltip_close_button = null
 	if _pinned_tooltip_scrim != null:
 		_pinned_tooltip_scrim.visible = false
 		_pinned_tooltip_scrim.color = Color(0.0, 0.0, 0.0, 0.0)
@@ -1897,13 +2009,21 @@ func _on_pinned_tooltip_scrim_gui_input(event: InputEvent) -> void:
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			if _pinned_tooltip_panel != null and _pinned_tooltip_panel.get_global_rect().has_point(mouse_event.global_position):
 				return
+			if _pinned_pre_battle_enemy_inspection_active():
+				accept_event()
+				return
 			_close_pinned_tooltip()
-			_pinned_tooltip_scrim.accept_event()
+			accept_event()
 
 func _pinned_tooltip_cursor_feedback_context(local_position: Vector2) -> String:
 	if _pinned_tooltip_scrim == null or not _pinned_tooltip_scrim.visible:
 		return "inert"
 	var global_position: Vector2 = _pinned_tooltip_scrim.get_global_transform_with_canvas() * local_position
+	if _pinned_pre_battle_enemy_inspection_active():
+		if _node_is_alive(_pinned_tooltip_close_button) \
+				and _pinned_tooltip_close_button.get_global_rect().has_point(global_position):
+			return "action"
+		return "inert"
 	if _pinned_tooltip_panel != null and _pinned_tooltip_panel.get_global_rect().has_point(global_position):
 		return "inert"
 	return "action"
@@ -2080,7 +2200,7 @@ func _build_large_map_overlay() -> void:
 	title.add_theme_constant_override("outline_size", 2)
 	top_row.add_child(title)
 
-	var close_button := Button.new()
+	var close_button := UiTooltipButton.new()
 	close_button.name = "CloseButton"
 	close_button.text = "X"
 	close_button.tooltip_text = "Close"
@@ -2216,7 +2336,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 
-	var gear_button := Button.new()
+	var gear_button := UiTooltipButton.new()
 	gear_button.name = "PreBattleEquipButton"
 	gear_button.text = "Equip"
 	gear_button.tooltip_text = "Character"
@@ -2230,7 +2350,7 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	gear_button.pressed.connect(_on_pre_battle_equip_pressed)
 	row.add_child(gear_button)
 
-	var start_button := Button.new()
+	var start_button := UiTooltipButton.new()
 	start_button.name = "PreBattleStartButton"
 	start_button.text = "Start"
 	start_button.tooltip_text = "Start combat"
@@ -2264,19 +2384,30 @@ func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, acc
 	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	title.add_theme_constant_override("outline_size", 2)
 	chip.add_child(title)
-	var meta := Label.new()
-	meta.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	var meta_row := HBoxContainer.new()
+	meta_row.name = "PreBattleRoomMeta"
+	meta_row.add_theme_constant_override("separation", 0)
+	chip.add_child(meta_row)
+	var depth_label := Label.new()
+	depth_label.name = "PreBattleDepthLabel"
+	depth_label.text = "Depth %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
+	UiTypography.apply_label_role(depth_label, UiTypography.ROLE_BODY_LARGE)
+	depth_label.add_theme_color_override("font_color", accent.lightened(0.28))
+	meta_row.add_child(depth_label)
 	if combat_state.has("umbra"):
 		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
 		if umbra_stage != "clear":
-			meta.text += "  ·  %s Umbra  ·  Vision %d" % [
-				CombatEngineScript.umbra_stage_display_name(umbra_stage),
-				_combat_engine.effective_umbra_radius(combat_state)
-			]
-	meta.clip_text = true
-	UiTypography.apply_label_role(meta, UiTypography.ROLE_BODY_LARGE)
-	meta.add_theme_color_override("font_color", accent.lightened(0.28))
-	chip.add_child(meta)
+			var separator := Label.new()
+			separator.text = "  ·  "
+			UiTypography.apply_label_role(separator, UiTypography.ROLE_BODY_LARGE)
+			separator.add_theme_color_override("font_color", accent.lightened(0.28))
+			meta_row.add_child(separator)
+			var umbra_label := Label.new()
+			umbra_label.name = "PreBattleUmbraLabel"
+			umbra_label.text = "%s Umbra" % CombatEngineScript.umbra_stage_display_name(umbra_stage)
+			UiTypography.apply_label_role(umbra_label, UiTypography.ROLE_BODY_LARGE)
+			umbra_label.add_theme_color_override("font_color", PRE_BATTLE_UMBRA_COLOR)
+			meta_row.add_child(umbra_label)
 	return chip
 
 func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
@@ -2566,17 +2697,12 @@ func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_si
 	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card.add_child(stack)
 
-	var art := TextureRect.new()
+	var art := _pre_battle_enemy_portrait(enemy_type, enemy_def)
 	art.name = "PreBattleEnemyArt"
-	art.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.offset_left = 6.0
-	art.offset_top = 6.0
-	art.offset_right = -6.0
+	art.offset_left = PRE_BATTLE_PORTRAIT_INSET
+	art.offset_top = 40.0
+	art.offset_right = -PRE_BATTLE_PORTRAIT_INSET
 	art.offset_bottom = -50.0
 	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
 	stack.add_child(art)
@@ -2813,13 +2939,16 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 	portrait_frame.custom_minimum_size = Vector2(138.0, 138.0)
 	portrait_frame.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.025, 0.021, 0.020, 0.98), accent, 6.0, 8))
 	header.add_child(portrait_frame)
-	var portrait := TextureRect.new()
-	portrait.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
-	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_frame.add_child(portrait)
+	var portrait_inset := MarginContainer.new()
+	portrait_inset.name = "PreBattleEnemyPortraitInset"
+	portrait_inset.add_theme_constant_override("margin_left", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_inset.add_theme_constant_override("margin_top", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_inset.add_theme_constant_override("margin_right", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_inset.add_theme_constant_override("margin_bottom", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
+	portrait_frame.add_child(portrait_inset)
+	var portrait := _pre_battle_enemy_portrait(enemy_type, enemy_def)
+	portrait.name = "PreBattleEnemyPortrait"
+	portrait_inset.add_child(portrait)
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	identity.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -2834,21 +2963,45 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 	identity.add_child(name_label)
 	var hp: int = int(enemy.get("hp", enemy_def.get("max_hp", 0)))
 	var max_hp: int = int(enemy.get("max_hp", hp))
-	var meta_label := Label.new()
-	meta_label.text = "HP %d/%d   /   Base initiative %d" % [hp, max_hp, int(enemy_def.get("base_initiative", 0))]
-	UiTypography.set_label_size(meta_label, UiTypography.SIZE_SMALL)
-	meta_label.add_theme_color_override("font_color", Color("d8c9b1"))
-	identity.add_child(meta_label)
+	var stat_row := HBoxContainer.new()
+	stat_row.name = "PreBattleEnemyStatRow"
+	stat_row.add_theme_constant_override("separation", 10)
+	identity.add_child(stat_row)
+	var hp_label := Label.new()
+	hp_label.name = "PreBattleEnemyHpLine"
+	hp_label.text = "HP %d/%d" % [hp, max_hp]
+	UiTypography.set_label_size(hp_label, UiTypography.SIZE_SMALL)
+	hp_label.add_theme_color_override("font_color", PRE_BATTLE_HP_COLOR)
+	stat_row.add_child(hp_label)
+	var stat_separator := Label.new()
+	stat_separator.text = "/"
+	UiTypography.set_label_size(stat_separator, UiTypography.SIZE_SMALL)
+	stat_separator.add_theme_color_override("font_color", Color("a99a83"))
+	stat_row.add_child(stat_separator)
+	var initiative_label := Label.new()
+	initiative_label.name = "PreBattleEnemyInitiativeLine"
+	initiative_label.text = "Base initiative %d" % int(enemy_def.get("base_initiative", 0))
+	UiTypography.set_label_size(initiative_label, UiTypography.SIZE_SMALL)
+	initiative_label.add_theme_color_override("font_color", PRE_BATTLE_INITIATIVE_COLOR)
+	stat_row.add_child(initiative_label)
 	var threat_label := Label.new()
 	threat_label.text = _pre_battle_enemy_threat_summary(enemy_type)
 	UiTypography.set_label_size(threat_label, UiTypography.SIZE_SMALL)
 	threat_label.add_theme_color_override("font_color", accent.lightened(0.36))
 	identity.add_child(threat_label)
-	var visibility_label := Label.new()
-	visibility_label.text = "Known repertoire / next move concealed"
-	UiTypography.set_label_size(visibility_label, UiTypography.SIZE_CAPTION)
-	visibility_label.add_theme_color_override("font_color", Color("a99a83"))
-	identity.add_child(visibility_label)
+	if interactive:
+		var close_button := UiTooltipButton.new()
+		close_button.name = "PreBattleInspectionCloseButton"
+		close_button.text = "X"
+		close_button.tooltip_text = "Close"
+		_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
+		_ui_skin.apply_button_text_overrides(close_button)
+		UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
+		close_button.custom_minimum_size = Vector2(40.0, 40.0)
+		close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+		close_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		close_button.pressed.connect(_close_pinned_tooltip)
+		header.add_child(close_button)
 
 	vbox.add_child(_pre_battle_section_label("Known Moves", ActionIcons.icon_texture("time"), accent))
 	var moves := VBoxContainer.new()
@@ -2877,15 +3030,10 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	row.add_theme_constant_override("separation", 10)
 	row_panel.add_child(row)
 	var actions: Array = intent.get("actions", []) as Array
-	var icon_key: String = "melee"
-	for action_var: Variant in actions:
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var candidate: String = _action_step_icon_key(action_var as Dictionary)
-		if not candidate.is_empty():
-			icon_key = candidate
-			break
+	var icon_key: String = _pre_battle_known_move_icon_key(intent)
 	var icon := TextureRect.new()
+	icon.name = "PreBattleKnownMoveIcon"
+	icon.set_meta("icon_key", icon_key)
 	icon.texture = ActionIcons.icon_texture(icon_key)
 	icon.custom_minimum_size = Vector2(34.0, 34.0)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -2924,11 +3072,75 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	time_chip.add_child(time_label)
 	return row_panel
 
+func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
+	var best_key: String = "melee"
+	var best_priority: int = 1000
+	for action_var: Variant in intent.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		var action_type: String = str(action.get("type", ""))
+		var candidate: String = ""
+		var priority: int = 100
+		match action_type:
+			"melee":
+				candidate = "melee"
+				priority = 0
+			"ranged", "lightning_strikes":
+				candidate = "ranged"
+				priority = 1
+			"aoe":
+				candidate = "ranged" if int(action.get("range", 0)) > 0 else "melee"
+				priority = 0 if candidate == "melee" else 1
+			"push", "pull":
+				candidate = action_type
+				priority = 2
+			"block", "guard_ally":
+				candidate = "block"
+				priority = 3
+			"stoneskin":
+				candidate = "stoneskin"
+				priority = 3
+			"heal", "heal_self", "heal_ally":
+				candidate = "heal"
+				priority = 4
+			"summon_minions":
+				candidate = "shock"
+				priority = 5
+			"move", "move_toward":
+				candidate = "move"
+				priority = 20
+			"move_away":
+				candidate = "retreat"
+				priority = 20
+			"blink":
+				candidate = "blink"
+				priority = 20
+			_:
+				candidate = _action_step_icon_key(action)
+				priority = 10
+		if not candidate.is_empty() and priority < best_priority:
+			best_key = candidate
+			best_priority = priority
+	return best_key
+
+func _pre_battle_enemy_portrait(enemy_type: String, enemy_def: Dictionary) -> TextureRect:
+	var portrait := TextureRect.new()
+	portrait.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return portrait
+
 func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
+	var art_path: String = str(enemy_def.get("art_path", ""))
+	if not art_path.is_empty():
+		return AssetLoader.load_texture(art_path)
 	var portrait_path: String = str(TURN_ORDER_PORTRAITS.get(enemy_type, ""))
 	if not portrait_path.is_empty():
 		return AssetLoader.load_texture(portrait_path)
-	return AssetLoader.load_texture(str(enemy_def.get("art_path", "")))
+	return null
 
 func _animate_pre_battle_entry() -> void:
 	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
@@ -3304,7 +3516,7 @@ func _build_grimoire_overlay() -> void:
 	subtitle.add_theme_color_override("font_color", Color("c9ad7c"))
 	title_stack.add_child(subtitle)
 
-	var close_button := Button.new()
+	var close_button := UiTooltipButton.new()
 	close_button.text = "Close"
 	close_button.tooltip_text = "Close Grimoire"
 	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_COMPACT)
@@ -3672,7 +3884,7 @@ func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	_grimoire_section_list.add_child(wrapper)
 
 func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String) -> Button:
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	var marker: String = "* " if unread else ""
 	button.text = "%s%s" % [marker, label]
 	button.toggle_mode = true
@@ -4702,7 +4914,7 @@ func _commit_drag_drop(zone: String) -> void:
 				destination_rect = _rect_from_center(command_panel.get_global_rect().get_center(), _drag_card_source_rect.size)
 		await _animate_card_proxy_to_rect(_drag_card_proxy, destination_rect, 0.10)
 	_cancel_drag_play()
-	await _begin_card_preview(hand_index, preview, label_override)
+	await _begin_card_preview(hand_index, preview, label_override, true)
 
 func _drag_zone_at(mouse_position: Vector2) -> String:
 	for zone: String in ["attack", "move"]:
@@ -6256,7 +6468,7 @@ func _turn_order_slot_position(index: int) -> Vector2:
 func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	var active: bool = bool(entry.get("active", false))
 	var slot_size: Vector2 = TURN_ORDER_ACTIVE_SIZE if active else TURN_ORDER_PORTRAIT_SIZE
-	var frame := Control.new()
+	var frame := UiTooltipControl.new()
 	frame.custom_minimum_size = slot_size
 	frame.size = slot_size
 	frame.clip_contents = false
@@ -7043,8 +7255,24 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
 	if _current_action_can_skip():
 		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
+	if _pending_card_requires_confirmation():
+		_add_card_play_confirmation_button()
 	if not _pending_umbra_commit_locked:
 		_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
+
+func _add_card_play_confirmation_button() -> void:
+	if _action_context_command_bar == null:
+		return
+	var button := UiTooltipButton.new()
+	button.name = "ActionContextPlayCard"
+	button.text = "Play Card"
+	button.tooltip_text = "Confirm this card without choosing a board target"
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED)
+	_ui_skin.apply_button_text_overrides(button)
+	UiTypography.set_button_size(button, UiTypography.SIZE_CAPTION)
+	_ui_skin.apply_button_native_size(button, 36.0, 88.0, true, UiSkin.VARIANT_SELECTED)
+	button.pressed.connect(_on_confirm_card_play_pressed)
+	_action_context_command_bar.add_child(button)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	if _card_action_mode_selector == null or context_mode != "choice":
@@ -7081,7 +7309,7 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 		))
 
 func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	var active: bool = play_kind == _card_action_choice_mode
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
 	button.text = ""
@@ -7203,7 +7431,7 @@ func _card_action_mode_option_style(fill: Color, accent: Color, state: String, a
 func _add_action_context_button(text: String, callback: Callable, tooltip: String = "", extra_compact: bool = false) -> void:
 	if _action_context_command_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.name = "ActionContext%s" % text.replace(" ", "")
 	button.text = text
 	button.tooltip_text = tooltip
@@ -7287,7 +7515,11 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 		var action_name: String = _action_step_action_name(action).to_upper()
 		if not _selected_card_label_override.is_empty():
 			action_name = _selected_card_label_override.to_upper()
-		if _orientation_pending():
+		if _pending_card_requires_confirmation():
+			verb_text = "READY · PLAY CARD"
+			target_text = "NO TARGET REQUIRED"
+			target_tone = "valid"
+		elif _orientation_pending():
 			verb_text = "SET DIRECTION · CHOOSE ARROW"
 			target_text = "DIRECTION"
 			target_tone = "valid"
@@ -7931,7 +8163,7 @@ func _refresh_choice_bar() -> void:
 			call_deferred("_layout_relic_choice_overlay")
 
 func _add_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.text = text
 	button.tooltip_text = tooltip
 	var large_action_button: bool = _large_action_choice_text(text)
@@ -8331,7 +8563,7 @@ func _large_action_choice_text(text: String) -> bool:
 func _add_context_choice_button(text: String, callback: Callable, tooltip: String = "") -> void:
 	if _context_choice_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.text = text
 	button.tooltip_text = tooltip
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
@@ -8593,7 +8825,7 @@ func _on_merchant_return_to_shop_pressed() -> void:
 func _add_merchant_return_to_shop_button() -> void:
 	if _relic_choice_bar == null:
 		return
-	var button := Button.new()
+	var button := UiTooltipButton.new()
 	button.name = "MerchantReturnToShopButton"
 	button.text = "Return to Shop"
 	button.tooltip_text = "Open the merchant's stock again."
@@ -8674,7 +8906,7 @@ func _add_merchant_trade_panel(merchant_kind: String) -> void:
 	ember_label.add_theme_constant_override("outline_size", 1)
 	top_row.add_child(ember_label)
 
-	var hide_button := Button.new()
+	var hide_button := UiTooltipButton.new()
 	hide_button.name = "MerchantHideButton"
 	hide_button.text = "Hide"
 	hide_button.tooltip_text = "Hide the merchant interface and reveal every door."
@@ -11153,7 +11385,7 @@ func _on_card_drag_started(index: int) -> void:
 	if source_widget != null:
 		source_widget.visible = false
 
-func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "") -> void:
+func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
 		return
 	_complete_active_contextual_combat_prompt(ContextualCombatTutorial.FULL_CARD_FALLBACK)
@@ -11174,12 +11406,8 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
 		_refresh_ui()
-		await _play_player_card(
-			index,
-			(preview.get("state", {}) as Dictionary).duplicate(true),
-			(preview.get("actions", []) as Array).duplicate(true),
-			_vector2i_array(_pending_selected_targets)
-		)
+		if complete_play_confirmed:
+			await _on_confirm_card_play_pressed()
 		return
 	_selected_card_index = index
 	_preview_combat_state = (preview.get("state", {}) as Dictionary).duplicate(true)
@@ -11196,6 +11424,24 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_append_skipped_target_placeholders(0, _pending_action_index)
 	_mark_preview_selection_changed()
 	_refresh_ui()
+
+func _pending_card_requires_confirmation() -> bool:
+	return (
+		_selected_card_index >= 0
+		and not _pending_actions.is_empty()
+		and _pending_action_index >= _pending_actions.size()
+		and not _preview_combat_state.is_empty()
+	)
+
+func _on_confirm_card_play_pressed() -> void:
+	if _animation_lock or not _pending_card_requires_confirmation():
+		return
+	await _play_player_card(
+		_selected_card_index,
+		_preview_combat_state.duplicate(true),
+		_pending_actions.duplicate(true),
+		_vector2i_array(_pending_selected_targets)
+	)
 
 func _on_card_hover_started(index: int) -> void:
 	if _animation_lock or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
@@ -12171,19 +12417,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	}
 	match action_type:
 		"move":
-			var move_path: Array[Vector2i] = _combat_engine.path_for_player_action(before_state, action, player_after_tile)
-			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
-			var to_point: Vector2 = board_view.world_position_for_tile(player_after_tile)
+			var move_path: Array[Vector2i] = _resolved_movement_animation_path(
+				player_before_tile,
+				player_after_tile,
+				_combat_engine.path_for_player_action(before_state, action, player_after_tile)
+			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-				var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-				var presentation: Dictionary = base_presentation.duplicate(true)
-				presentation["focus_tiles"] = move_path
-				presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
-				presentation["unit_world_positions"] = {"player": from_point.lerp(to_point, t)}
-				presentation["unit_draw_tiles"] = {"player": player_after_tile}
-				_render_board_state(before_state, presentation)
-				await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+			var movement_presentation: Dictionary = base_presentation.duplicate(true)
+			movement_presentation["focus_tiles"] = move_path
+			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
+			movement_presentation["path_tiles"] = move_path
+			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
 			_render_board_state(after_state, _death_hold_presentation(before_state, after_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
@@ -12636,30 +12880,15 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var from_tile: Vector2i = step.get("from", Vector2i.ZERO)
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
-	var actor_unit: Dictionary = _animation_actor_unit(animated_state, actor_key)
-	var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
-	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
-		path = _vector2i_array([from_tile, to_tile])
+	var path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
-	for path_index: int in range(path.size() - 1):
-		var segment_from: Vector2i = path[path_index]
-		var segment_to: Vector2i = path[path_index + 1]
-		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
-		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
-		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
-		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-			_render_board_state(animated_state, {
-				"focus_actor_keys": [actor_key],
-				"focus_actor_color": PLAYER_ATTACK_FOCUS,
-				"focus_tiles": [segment_to],
-				"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-				"path_tiles": path,
-				"path_color": ENEMY_PATH_PREVIEW_COLOR,
-				"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
-				"unit_draw_tiles": {actor_key: draw_tile}
-			})
-			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+	await _animate_actor_along_path(animated_state, actor_key, path, {
+		"focus_actor_keys": [actor_key],
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
+		"path_tiles": path,
+		"path_color": ENEMY_PATH_PREVIEW_COLOR
+	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
@@ -12675,6 +12904,30 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 		await _animate_defeats_and_terrain_destruction(before_move_state, animated_state)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
+
+func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, path_values: Array) -> Array[Vector2i]:
+	var path: Array[Vector2i] = _vector2i_array(path_values)
+	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
+		return _vector2i_array([from_tile, to_tile])
+	return path
+
+func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
+	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
+	for path_index: int in range(path.size() - 1):
+		var segment_from: Vector2i = path[path_index]
+		var segment_to: Vector2i = path[path_index + 1]
+		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
+		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
+		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
+		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
+			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
+			var presentation: Dictionary = base_presentation.duplicate(true)
+			if not presentation.has("focus_tiles"):
+				presentation["focus_tiles"] = [segment_to]
+			presentation["unit_world_positions"] = {actor_key: from_point.lerp(to_point, t)}
+			presentation["unit_draw_tiles"] = {actor_key: draw_tile}
+			_render_board_state(display_state, presentation)
+			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
 
 func _play_sfx(entry: Dictionary) -> void:
 	var path: String = str(entry.get("path", ""))

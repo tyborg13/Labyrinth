@@ -1,0 +1,22 @@
+{
+  "min_images": 2,
+  "expected_sizes": ["1280x720", "1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*1280x720/targetless_confirmation.png",
+      "width": 1280,
+      "height": 720,
+      "regions": [
+        {"rect": [420, 250, 560, 280], "min_luma_range": 50, "min_luma_stdev": 6}
+      ]
+    },
+    {
+      "pattern": "*1920x1080/targetless_confirmation.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [680, 500, 720, 360], "min_luma_range": 50, "min_luma_stdev": 6}
+      ]
+    }
+  ]
+}

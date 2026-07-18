@@ -1,0 +1,14 @@
+{
+  "min_images": 11,
+  "expected_sizes": ["3024x1898"],
+  "required_images": [
+    {
+      "pattern": "*targetless_confirmation.png",
+      "width": 3024,
+      "height": 1898,
+      "regions": [
+        {"rect": [850, 700, 600, 300], "min_luma_range": 50, "min_luma_stdev": 6}
+      ]
+    }
+  ]
+}

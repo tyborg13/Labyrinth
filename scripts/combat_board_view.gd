@@ -320,6 +320,7 @@ var _unit_shadow_bottom_ratio_cache: Dictionary = {}
 var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
+var equipment_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
 var _death_frames_by_type: Dictionary = {}
 var _idle_animating: bool = false
@@ -936,6 +937,11 @@ func _get_tooltip(at_position: Vector2) -> String:
 func _make_custom_tooltip(for_text: String) -> Object:
 	if for_text.strip_edges().is_empty():
 		return null
+	if for_text.begins_with("equipment:"):
+		var equipment_id: String = for_text.trim_prefix("equipment:")
+		if not equipment_id.is_empty() and equipment_tooltip_builder.is_valid():
+			return equipment_tooltip_builder.call(equipment_id)
+		return UiTooltipPanel.make_text(_equipment_loot_fallback_tooltip(equipment_id))
 	return UiTooltipPanel.make_text(for_text)
 
 func _draw() -> void:
@@ -2799,11 +2805,14 @@ func _loot_tooltip_text(loot: Dictionary) -> String:
 			return "Dropped embers: Reclaim %d" % int(loot.get("amount", 0))
 		"equipment":
 			var equipment_id: String = str(loot.get("equipment_id", ""))
-			var item: Dictionary = GameData.equipment_def(equipment_id)
-			var item_name: String = str(item.get("name", equipment_id))
-			var slot: String = str(item.get("slot", ""))
-			return "%s: %s" % [item_name, slot.capitalize()]
+			return "equipment:%s" % equipment_id
 	return ""
+
+func _equipment_loot_fallback_tooltip(equipment_id: String) -> String:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var item_name: String = str(item.get("name", equipment_id))
+	var slot: String = str(item.get("slot", ""))
+	return "%s\n%s" % [item_name, slot.capitalize()]
 
 func _loot_texture(loot: Dictionary) -> Texture2D:
 	if str(loot.get("kind", "")) == "equipment":

@@ -3,6 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const GameData = preload("res://scripts/game_data.gd")
 
 const OUTPUT_DIR: String = "user://pre_battle_threat_inspection_probe_v1"
 const INVALID_COORD: Vector2i = Vector2i(999, 999)
@@ -97,14 +98,84 @@ func _capture_loadout_refresh_and_inspections() -> void:
 	if enemy_card == null:
 		_fail("Enemy inspection proof needs an enemy card")
 	else:
+		var native_tooltip_popup := PopupPanel.new()
+		native_tooltip_popup.name = "SimulatedNativeEnemyTooltip"
+		native_tooltip_popup.theme_type_variation = &"TooltipPanel"
+		enemy_card.add_child(native_tooltip_popup)
+		var hover_inspection: Control = enemy_card.call("_make_custom_tooltip", enemy_card.tooltip_text) as Control
+		native_tooltip_popup.add_child(hover_inspection)
+		native_tooltip_popup.popup(Rect2i(Vector2i(960, 520), Vector2i(620, 430)))
+		await process_frame
+		if not native_tooltip_popup.visible:
+			_fail("Enemy inspection proof should begin with a visible native-style hover popup")
 		_click_control(enemy_card)
+		await process_frame
 		await process_frame
 		await create_timer(0.15).timeout
 		var pinned_enemy: Control = instance.find_child("PinnedPreBattleInspection", true, false) as Control
 		if pinned_enemy == null or str(pinned_enemy.get_meta("inspection_kind", "")) != "enemy":
 			_fail("Enemy card click should pin known move inspection")
-		await _save_root_screenshot("%s/expanded_enemy_known_moves_v1.png" % OUTPUT_DIR)
-		instance.call("_close_pinned_tooltip")
+		if is_instance_valid(native_tooltip_popup):
+			_fail("Focused enemy inspection should dismiss an already-visible hover popup")
+		if pinned_enemy != null:
+			var hp_label: Label = pinned_enemy.find_child("PreBattleEnemyHpLine", true, false) as Label
+			var initiative_label: Label = pinned_enemy.find_child("PreBattleEnemyInitiativeLine", true, false) as Label
+			var close_button: Button = pinned_enemy.find_child("PreBattleInspectionCloseButton", true, false) as Button
+			if hp_label == null or not hp_label.get_theme_color("font_color").is_equal_approx(Color("f08a7a")):
+				_fail("Focused enemy HP line should use the dedicated red treatment")
+			if initiative_label == null or not initiative_label.get_theme_color("font_color").is_equal_approx(Color("8ec5ff")):
+				_fail("Focused enemy initiative line should use the dedicated blue treatment")
+			if _labels_text(pinned_enemy).contains("Known repertoire") or _labels_text(pinned_enemy).contains("next move concealed"):
+				_fail("Focused enemy inspection should remove the redundant repertoire/concealment line")
+			var move_icons: PackedStringArray = []
+			for icon_var: Variant in pinned_enemy.find_children("PreBattleKnownMoveIcon", "TextureRect", true, false):
+				move_icons.append(str((icon_var as TextureRect).get_meta("icon_key", "")))
+			if move_icons != PackedStringArray(["melee", "block", "melee"]):
+				_fail("Compound Warden moves should use melee/block semantics instead of their incidental movement icons: %s" % str(move_icons))
+			if close_button == null or not close_button.visible or close_button.text != "X":
+				_fail("Focused enemy inspection should expose a visible dedicated X close button")
+			var pinned_host: Control = instance.get("_pinned_tooltip_host") as Control
+			var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim") as Control
+			if pinned_host == null or pinned_host.mouse_filter != Control.MOUSE_FILTER_PASS:
+				_fail("Pinned tooltip host should propagate background pointer input to the stopping scrim")
+			if pinned_scrim == null or pinned_scrim.mouse_filter != Control.MOUSE_FILTER_STOP:
+				_fail("Focused enemy inspection scrim should own pointer input above the pre-battle widgets")
+			var blocked_sources: Array[Control] = []
+			for source_name: String in ["PreBattleEnemyCard", "PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
+				var blocked_source: Control = panel.find_child(source_name, true, false) as Control
+				if blocked_source != null and blocked_source != enemy_card:
+					blocked_sources.append(blocked_source)
+			for blocked_source: Control in blocked_sources:
+				await _click_control_via_viewport(blocked_source)
+				var active_panel: Control = instance.get("_pinned_tooltip_panel") as Control
+				if active_panel != pinned_enemy or str(active_panel.get_meta("inspection_kind", "")) != "enemy":
+					_fail("Focused enemy inspection should swallow underlying %s clicks" % blocked_source.name)
+		await _save_root_screenshot("%s/expanded_enemy_known_moves_v2.png" % OUTPUT_DIR)
+		var dismissal_button: Button = pinned_enemy.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_enemy != null else null
+		if dismissal_button != null:
+			var native_close_press := InputEventMouseButton.new()
+			native_close_press.button_index = MOUSE_BUTTON_LEFT
+			native_close_press.pressed = true
+			native_close_press.position = dismissal_button.get_global_rect().get_center()
+			native_close_press.global_position = native_close_press.position
+			if not bool(instance.call("_pinned_pre_battle_close_button_hit", native_close_press)):
+				_fail("Focused enemy X hit testing should accept native canvas-space pointer coordinates")
+			var inverse_transform_position: Vector2 = instance.get_viewport().get_final_transform().affine_inverse() * native_close_press.position
+			if not dismissal_button.get_global_rect().has_point(inverse_transform_position):
+				var false_close_press := InputEventMouseButton.new()
+				false_close_press.button_index = MOUSE_BUTTON_LEFT
+				false_close_press.pressed = true
+				false_close_press.position = inverse_transform_position
+				false_close_press.global_position = inverse_transform_position
+				instance.call("_input", false_close_press)
+				await process_frame
+				if not (instance.get("_pinned_tooltip_scrim") as Control).visible:
+					_fail("Focused enemy inspection should not close from the inverse-transformed false hit region")
+			await _click_control_via_local_viewport(dismissal_button)
+			if (instance.get("_pinned_tooltip_scrim") as Control).visible:
+				_fail("Focused enemy X button should close through local viewport pointer routing")
+		else:
+			instance.call("_close_pinned_tooltip")
 		await process_frame
 
 	instance.call("_on_pre_battle_equip_pressed")
@@ -166,6 +237,7 @@ func _capture_loadout_refresh_and_inspections() -> void:
 		_fail("Loadout inspection and swaps should preserve committed pre-battle mode")
 	if not (instance.get("_exit_destinations_by_tile") as Dictionary).is_empty():
 		_fail("Loadout inspection should not reveal exits")
+	await _capture_all_enemy_portraits(instance)
 	instance.queue_free()
 	await process_frame
 
@@ -229,6 +301,12 @@ func _capture_enemy_count_layouts() -> void:
 				if enemy_count == 5 and (card.custom_minimum_size.x > 200.0 or card.custom_minimum_size.y > 154.0):
 					_fail("Five-enemy pre-battle preview should use compact enemy cards")
 					break
+		if enemy_count == 5:
+			var umbra_label: Label = panel.find_child("PreBattleUmbraLabel", true, false) as Label
+			if umbra_label == null or not umbra_label.get_theme_color("font_color").is_equal_approx(Color("c78bea")):
+				_fail("Elemental pre-battle header should keep Umbra purple")
+			if _labels_text(panel).contains("Vision"):
+				_fail("Elemental pre-battle header should omit Vision X text")
 		var screenshot_path: String = "%s/enemy_layout_%d_v1.png" % [OUTPUT_DIR, enemy_count]
 		if enemy_count == 3:
 			screenshot_path = "%s/_synthetic_three_buffer_warmup.png" % OUTPUT_DIR
@@ -238,6 +316,54 @@ func _capture_enemy_count_layouts() -> void:
 		instance.queue_free()
 		await process_frame
 		await process_frame
+
+func _capture_all_enemy_portraits(instance: Node) -> void:
+	var ui_root: Control = instance.get("ui_root") as Control
+	if ui_root == null:
+		_fail("All-enemy portrait proof needs the run UI root")
+		return
+	var proof_scrim := ColorRect.new()
+	proof_scrim.name = "AllEnemyPortraitProof"
+	proof_scrim.color = Color(0.012, 0.009, 0.008, 0.98)
+	proof_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	proof_scrim.z_index = 1500
+	proof_scrim.z_as_relative = false
+	proof_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ui_root.add_child(proof_scrim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	proof_scrim.add_child(center)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 12)
+	center.add_child(content)
+	var title := Label.new()
+	title.text = "ALL ENEMY PORTRAITS"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_color_override("font_color", Color("fff0ce"))
+	content.add_child(title)
+	var grid := GridContainer.new()
+	grid.columns = 4
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 10)
+	content.add_child(grid)
+	var enemy_types: Array = GameData.enemies().keys()
+	enemy_types.sort()
+	for enemy_type_var: Variant in enemy_types:
+		var enemy_type: String = str(enemy_type_var)
+		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
+		var max_hp: int = int(enemy_def.get("max_hp", 1))
+		var card: Control = instance.call("_build_pre_battle_enemy_card", {
+			"type": enemy_type,
+			"hp": max_hp,
+			"max_hp": max_hp
+		}, Color(str(enemy_def.get("accent", "#d8b06d"))), Vector2(198.0, 152.0)) as Control
+		grid.add_child(card)
+	await process_frame
+	await process_frame
+	await _save_root_screenshot("%s/all_enemy_portraits_centered_v2.png" % OUTPUT_DIR)
+	proof_scrim.queue_free()
+	await process_frame
 
 func _run_with_available_combat(probe_run_engine: RunEngine) -> Dictionary:
 	var progression: Dictionary = ProgressionStore.default_data()
@@ -312,6 +438,52 @@ func _click_control(control: Control) -> void:
 	click.pressed = true
 	control.call("_gui_input", click)
 
+func _click_control_via_viewport(control: Control) -> void:
+	if control == null:
+		return
+	var click_position: Vector2 = control.get_global_rect().get_center()
+	Input.warp_mouse(click_position)
+	await process_frame
+	var motion := InputEventMouseMotion.new()
+	motion.position = click_position
+	motion.global_position = click_position
+	Input.parse_input_event(motion)
+	await process_frame
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = click_position
+	press.global_position = click_position
+	Input.parse_input_event(press)
+	await process_frame
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = click_position
+	release.global_position = click_position
+	Input.parse_input_event(release)
+	await process_frame
+
+func _click_control_via_local_viewport(control: Control) -> void:
+	if control == null:
+		return
+	var viewport: Viewport = control.get_viewport()
+	var click_position: Vector2 = control.get_global_rect().get_center()
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = click_position
+	press.global_position = click_position
+	viewport.push_input(press, true)
+	await process_frame
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	release.position = click_position
+	release.global_position = click_position
+	viewport.push_input(release, true)
+	await process_frame
+
 func _control_with_meta(node: Node, meta_key: String, expected_value: String, source_kind: String = "") -> Control:
 	if node == null:
 		return null
@@ -334,6 +506,12 @@ func _first_control_with_source(node: Node, source_kind: String) -> Control:
 		if match_control != null:
 			return match_control
 	return null
+
+func _labels_text(node: Node) -> String:
+	var parts: PackedStringArray = []
+	for child_var: Variant in node.find_children("*", "Label", true, false):
+		parts.append((child_var as Label).text)
+	return "\n".join(parts)
 
 func _save_root_screenshot(output_path: String) -> void:
 	await process_frame

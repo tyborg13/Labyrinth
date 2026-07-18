@@ -4,7 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
-const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v2"
+const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v3"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandBox"
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
@@ -36,6 +36,29 @@ func _capture_states() -> void:
 	)
 	_assert(not (instance.get("_action_step_tracker") as Control).visible, "Idle hand should not show action context")
 	await _save_root_screenshot("%s/idle_hand.png" % OUTPUT_DIR)
+
+	await _load_combat_fixture(instance, ["stone_plate", "quick_stab"], Vector2i(2, 4), [Vector2i(5, 4)], 9800)
+	var targetless_before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	instance.call("_on_card_pressed", 0)
+	await _settle_ui()
+	var targetless_context: Control = instance.get("_action_step_tracker") as Control
+	_assert(int(instance.get("_selected_card_index")) == 0, "Targetless card click should arm the exact card")
+	_assert((instance.get("_combat_state") as Dictionary) == targetless_before, "Targetless card click should not mutate combat before confirmation")
+	_assert(_button_with_text(targetless_context, "Play Card") != null, "Targetless card context should expose Play Card")
+	_assert(str(targetless_context.get_meta("action_verb", "")) == "READY · PLAY CARD", "Targetless card context should state that the card is ready")
+	_assert(str(targetless_context.get_meta("target_state", "")) == "NO TARGET REQUIRED", "Targetless card context should explain why no board target is highlighted")
+	_assert(targetless_context.find_child("CardActionChoiceMove", true, false) != null, "Targetless confirmation should keep alternate modes available")
+	await _save_root_screenshot("%s/targetless_confirmation.png" % OUTPUT_DIR)
+	instance.call("_on_cancel_requested")
+	await _settle_ui()
+
+	await _load_combat_fixture(
+		instance,
+		["quick_stab", "sidestep_slash", "thunderline", "guarded_step", "patch_up"],
+		Vector2i(2, 4),
+		[Vector2i(5, 4), Vector2i(5, 2)],
+		9801
+	)
 
 	instance.call("_on_card_drag_started", 1)
 	await _settle_ui()

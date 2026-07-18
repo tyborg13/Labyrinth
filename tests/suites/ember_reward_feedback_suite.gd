@@ -7,6 +7,7 @@ const RunSceneScript = preload("res://scripts/run_scene.gd")
 static func run(tree: SceneTree, expect: Callable) -> void:
 	_test_roll_values_and_audio_contract(expect)
 	await _test_live_header_feedback(tree, expect)
+	await _test_reduced_motion_completion(tree, expect)
 
 static func _test_roll_values_and_audio_contract(expect: Callable) -> void:
 	var small_roll: Array = EmberRewardFeedback.roll_values(5, 8)
@@ -33,7 +34,8 @@ static func _test_live_header_feedback(tree: SceneTree, expect: Callable) -> voi
 	var sfx_count_before: int = (instance.get("_sfx_players") as Array).size()
 	var sprite_count_before: int = _direct_sprite_count(fx_layer)
 	var death_states: Dictionary = _aggregated_death_reward_states(instance)
-	instance.call("_animate_death_rewards", death_states.get("before", {}), death_states.get("after", {}))
+	var completion: Dictionary = {"done": false}
+	_track_run_scene_death_rewards(instance, death_states.get("before", {}), death_states.get("after", {}), completion)
 	await tree.create_timer(0.07).timeout
 	await tree.process_frame
 	var gain_label: Label = _ember_gain_label(fx_layer)
@@ -48,8 +50,47 @@ static func _test_live_header_feedback(tree: SceneTree, expect: Callable) -> voi
 	expect.call(stats.text.ends_with("EMBERS %d" % expected_total), "The ember counter should reach the exact combined death-reward total")
 	expect.call(stats.scale.is_equal_approx(Vector2.ONE) and stats.modulate.is_equal_approx(Color.WHITE), "The ember counter should settle quickly back to its normal presentation")
 	expect.call(_ember_gain_label(fx_layer) == null, "Ember gain feedback should clear in under a third of a second")
+	await tree.create_timer(0.20).timeout
+	expect.call(bool(completion.get("done", false)), "RunScene death-reward feedback should return after its visuals settle")
+	expect.call(not bool(instance.get("_animation_lock")), "Completed death-reward feedback should let the caller release the combat animation lock")
 	instance.queue_free()
 	await tree.process_frame
+
+static func _track_run_scene_death_rewards(instance: Node, before_state: Dictionary, after_state: Dictionary, completion: Dictionary) -> void:
+	instance.set("_animation_lock", true)
+	await instance.call("_animate_death_rewards", before_state, after_state)
+	instance.set("_animation_lock", false)
+	completion["done"] = true
+
+static func _test_reduced_motion_completion(tree: SceneTree, expect: Callable) -> void:
+	var host := Node.new()
+	tree.root.add_child(host)
+	var fx_layer := Control.new()
+	host.add_child(fx_layer)
+	var stats := Label.new()
+	stats.text = "LV 1 EMBERS 40"
+	stats.size = Vector2(240.0, 40.0)
+	fx_layer.add_child(stats)
+	var completion: Dictionary = {"done": false, "value": 40}
+	_track_reduced_motion_feedback(host, fx_layer, stats, completion)
+	await tree.create_timer(0.35).timeout
+	expect.call(bool(completion.get("done", false)), "Reduced-motion ember feedback should return after its counter roll")
+	expect.call(int(completion.get("value", -1)) == 48, "Reduced-motion ember feedback should settle on the exact rewarded total")
+	host.queue_free()
+	await tree.process_frame
+
+static func _track_reduced_motion_feedback(host: Node, fx_layer: Control, stats: Label, completion: Dictionary) -> void:
+	await EmberRewardFeedback.play(
+		host,
+		fx_layer,
+		stats,
+		8,
+		40,
+		48,
+		true,
+		func(value: int) -> void: completion["value"] = value
+	)
+	completion["done"] = true
 
 static func _aggregated_death_reward_states(instance: Node) -> Dictionary:
 	var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)

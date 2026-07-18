@@ -11,7 +11,9 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
+const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
+const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -52,7 +54,9 @@ func _initialize() -> void:
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
+	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
+	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
 	_test_ui_skin_button_system()
@@ -298,7 +302,7 @@ func _initialize() -> void:
 	await _test_run_scene_aoe_aim_rotates_before_click()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
-	await _test_run_scene_targetless_card_click_commits_play()
+	await _test_run_scene_targetless_card_click_requires_confirmation()
 	_test_run_scene_fallback_attack_uses_scaled_damage()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
@@ -5390,8 +5394,8 @@ func _test_pickup_tooltips_describe_effects() -> void:
 		"Dropped ember tooltips should show the exact recoverable amount"
 	)
 	_assert(
-		str(board.call("_loot_tooltip_text", {"kind": "equipment", "equipment_id": "iron_cleaver"})) == "Iron Cleaver: Weapon",
-		"Equipment pickup tooltips should identify the item and slot"
+		str(board.call("_loot_tooltip_text", {"kind": "equipment", "equipment_id": "iron_cleaver"})) == "equipment:iron_cleaver",
+		"Equipment pickup tooltips should route through the shared equipment preview"
 	)
 	var potion_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "healing_vial"})
 	var equipment_rect: Rect2 = board.call("_loot_rect_for_tile", Vector2i(3, 3), null, {"kind": "equipment", "equipment_id": "iron_cleaver"})
@@ -8017,9 +8021,70 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 		_assert(pinned_inspection != null and pinned_inspection.visible, "Clicking a pre-battle summary entry should pin a readable inspection")
 		if pinned_inspection != null and index < inspection_kinds.size():
 			_assert(str(pinned_inspection.get_meta("inspection_kind", "")) == inspection_kinds[index], "Pinned pre-battle inspection should preserve its content kind")
+		for blocked_source: Control in inspection_sources:
+			var blocked_hover: Variant = blocked_source.call("_make_custom_tooltip", blocked_source.tooltip_text)
+			_assert(blocked_hover is Control and not (blocked_hover as Control).visible, "Pinned pre-battle inspection should disable every underlying enemy, equipment, and card hover panel")
+			if blocked_hover is Control:
+				(blocked_hover as Control).free()
+			var blocked_click := InputEventMouseButton.new()
+			blocked_click.button_index = MOUSE_BUTTON_LEFT
+			blocked_click.pressed = true
+			blocked_source.call("_gui_input", blocked_click)
+			_assert(instance.get("_pinned_tooltip_panel") == pinned_inspection, "Pinned pre-battle inspection should reject every underlying enemy, equipment, and card click target")
 		_assert(str((instance.get("_run_state") as Dictionary).get("mode", "")) == RunEngine.MODE_PRE_BATTLE, "Inspecting pre-battle details should keep the room committed")
 		_assert((instance.get("_exit_destinations_by_tile") as Dictionary).is_empty(), "Inspecting pre-battle details should not reveal exits")
-		instance.call("_close_pinned_tooltip")
+		if index == 0 and pinned_inspection != null:
+			var inspection_close: Button = pinned_inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button
+			_assert(inspection_close != null and inspection_close.visible, "Focused enemy inspection should provide a dedicated visible X close button")
+			var pinned_host: Control = instance.get("_pinned_tooltip_host") as Control
+			_assert(pinned_host != null and pinned_host.mouse_filter == Control.MOUSE_FILTER_PASS, "Pinned tooltip host should propagate background pointer input to the stopping scrim")
+			var pinned_scrim: Control = instance.get("_pinned_tooltip_scrim") as Control
+			_assert(pinned_scrim != null and pinned_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Focused pre-battle inspection scrim should own pointer input above every underlying click target")
+			if inspection_close != null:
+				var close_rect: Rect2 = inspection_close.get_global_rect()
+				var inverse_transform_position: Vector2 = instance.get_viewport().get_final_transform().affine_inverse() * close_rect.get_center()
+				if not close_rect.has_point(inverse_transform_position):
+					var false_close_press := InputEventMouseButton.new()
+					false_close_press.button_index = MOUSE_BUTTON_LEFT
+					false_close_press.pressed = true
+					false_close_press.position = inverse_transform_position
+					false_close_press.global_position = inverse_transform_position
+					instance.call("_input", false_close_press)
+					await process_frame
+					_assert((instance.get("_pinned_tooltip_scrim") as Control).visible, "A native click in the inverse-transformed false hit region should remain suppressed")
+				var native_close_press := InputEventMouseButton.new()
+				native_close_press.button_index = MOUSE_BUTTON_LEFT
+				native_close_press.pressed = true
+				native_close_press.position = inspection_close.get_global_rect().get_center()
+				native_close_press.global_position = native_close_press.position
+				instance.call("_input", native_close_press)
+				await process_frame
+				_assert(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "The focused enemy X button should close for native canvas-space pointer coordinates")
+				inspection_sources[index].call("_gui_input", click)
+				await process_frame
+				pinned_inspection = instance.find_child("PinnedPreBattleInspection", true, false) as Control
+				inspection_close = pinned_inspection.find_child("PreBattleInspectionCloseButton", true, false) as Button if pinned_inspection != null else null
+				_assert(inspection_close != null and (instance.get("_pinned_tooltip_scrim") as Control).visible, "The enemy inspection should reopen for local viewport pointer-path coverage")
+			if inspection_close != null:
+				var close_press := InputEventMouseButton.new()
+				close_press.button_index = MOUSE_BUTTON_LEFT
+				close_press.pressed = true
+				close_press.position = inspection_close.get_global_rect().get_center()
+				close_press.global_position = close_press.position
+				instance.get_viewport().push_input(close_press, true)
+				await process_frame
+				var close_release := InputEventMouseButton.new()
+				close_release.button_index = MOUSE_BUTTON_LEFT
+				close_release.pressed = false
+				close_release.position = close_press.position
+				close_release.global_position = close_press.position
+				instance.get_viewport().push_input(close_release, true)
+				await process_frame
+				_assert(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "The focused enemy X button should close through local viewport pointer routing")
+			else:
+				instance.call("_close_pinned_tooltip")
+		else:
+			instance.call("_close_pinned_tooltip")
 		await process_frame
 
 	instance.call("_on_pre_battle_equip_pressed")
@@ -9657,7 +9722,7 @@ func _test_run_scene_block_card_skips_dead_move() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_targetless_card_click_commits_play() -> void:
+func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
 		_failures.append("Run scene should load for targetless click coverage")
@@ -9669,16 +9734,16 @@ func _test_run_scene_targetless_card_click_commits_play() -> void:
 	var combat_state: Dictionary = combat.create_combat(95, _simple_room_layout(), {
 		"hp": 120,
 		"max_hp": 200,
-		"deck_cards": ["patch_up"],
+		"deck_cards": ["patch_up", "quick_stab"],
 		"relics": [],
-		"hand_size": 1,
+		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
 	player["hp"] = 120
 	combat_state["player"] = player
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["patch_up"]
+	deck["hand"] = ["patch_up", "quick_stab"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -9690,12 +9755,63 @@ func _test_run_scene_targetless_card_click_commits_play() -> void:
 	instance.set("_combat_state", combat_state)
 	instance.call("_refresh_ui")
 	await _choose_clicked_card_action(instance, 0, "play")
+	await process_frame
+	var armed_state: Dictionary = instance.get("_combat_state")
+	var armed_player: Dictionary = armed_state.get("player", {})
+	var context: Control = instance.get("_action_step_tracker") as Control
+	var play_button: Button = _button_with_text(context, "Play Card")
+	_assert(int(armed_player.get("hp", 0)) == 120 and int(armed_player.get("block", 0)) == 0, "Selecting a targetless card should preview without applying its effects")
+	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0, "Selecting a targetless card should not spend a card play")
+	_assert(((armed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Selecting a targetless card should leave the exact hand intact")
+	_assert(play_button != null and not play_button.disabled, "A targetless card should expose a clear Play Card confirmation action")
+	_assert(str(context.get_meta("action_verb", "")) == "READY · PLAY CARD" and str(context.get_meta("target_state", "")) == "NO TARGET REQUIRED", "Targetless confirmation should explain that no board target is needed")
+
+	await instance.call("_on_card_action_choice_pressed", "move")
+	await process_frame
+	_assert(str(instance.get("_card_action_choice_mode")) == "move" and int(instance.get("_selected_card_index")) == 0, "An armed targetless card should remain switchable to Basic Move before commitment")
+	await instance.call("_on_card_action_choice_pressed", "play")
+	await process_frame
+	armed_state = instance.get("_combat_state")
+	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 120, "Switching back to Printed should re-arm the card without committing it")
+
+	instance.call("_on_cancel_requested")
+	await process_frame
+	_assert(int(instance.get("_selected_card_index")) == -1 and int(instance.get("_card_action_choice_index")) == -1, "Cancel should close targetless confirmation")
+	_assert((((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array) == ["patch_up", "quick_stab"], "Canceling targetless confirmation should preserve the exact hand")
+
+	await _choose_clicked_card_action(instance, 0, "play")
+	instance.call("_on_card_pressed", 1)
+	await process_frame
+	armed_state = instance.get("_combat_state")
+	_assert(int(armed_state.get("cards_played_this_turn", 0)) == 0 and int((armed_state.get("player", {}) as Dictionary).get("hp", 0)) == 120, "Selecting another card should replace targetless confirmation without committing the first card")
+	_assert(int(instance.get("_card_action_choice_index")) == 1, "Selecting another card should move the play-mode rail to that card")
+	instance.call("_on_cancel_requested")
+	await process_frame
+
+	await _choose_clicked_card_action(instance, 0, "play")
+	await instance.call("_on_confirm_card_play_pressed")
 	await create_timer(1.5).timeout
 	var committed_state: Dictionary = instance.get("_combat_state")
 	var committed_player: Dictionary = committed_state.get("player", {})
-	_assert(int(committed_player.get("hp", 0)) == 150, "Clicking a targetless self card should immediately commit its heal")
-	_assert(int(committed_player.get("block", 0)) == 20, "Clicking a targetless self card should immediately commit its block")
-	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Resolved targetless cards should leave the hand")
+	_assert(int(committed_player.get("hp", 0)) == 150, "Confirming a targetless self card should commit its heal")
+	_assert(int(committed_player.get("block", 0)) == 20, "Confirming a targetless self card should commit its block")
+	_assert(((committed_state.get("deck", {}) as Dictionary).get("hand", []) as Array) == ["quick_stab"], "Confirming should consume only the armed targetless card")
+	instance.queue_free()
+	await process_frame
+
+	instance = run_scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	_install_combat_interaction_fixture(instance, "spark_focus", Vector2i(2, 5), [], 96)
+	await process_frame
+	var intensity_before: Dictionary = ((instance.get("_combat_state") as Dictionary).get("elemental_intensity", {}) as Dictionary).duplicate(true)
+	await _choose_clicked_card_action(instance, 0, "play")
+	await process_frame
+	var intensity_armed_state: Dictionary = instance.get("_combat_state")
+	context = instance.get("_action_step_tracker") as Control
+	_assert(int(instance.get("_pending_action_index")) >= (instance.get("_pending_actions") as Array).size(), "A no-target Spark Focus should preview through its skipped ranged step")
+	_assert((intensity_armed_state.get("elemental_intensity", {}) as Dictionary) == intensity_before, "A no-target intensity card should not raise live intensity before confirmation")
+	_assert(_button_with_text(context, "Play Card") != null, "A card whose target step has no valid target should expose Play Card confirmation")
 	instance.queue_free()
 	await process_frame
 
@@ -11193,6 +11309,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	instance.call("_refresh_ui")
 	instance.call("_analytics_log_playable_cards")
 	await _choose_clicked_card_action(instance, 0, "play")
+	await instance.call("_on_confirm_card_play_pressed")
 	await create_timer(1.5).timeout
 	var reward_run_state: Dictionary = instance.get("_run_state")
 	reward_run_state["mode"] = "reward"
