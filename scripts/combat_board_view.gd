@@ -59,10 +59,6 @@ const STATUS_IMMOBILIZE: Color = Color("b8c48f")
 const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(78.0, 12.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(84.0, 14.0)
-const BOSS_HEALTH_BAR_SIZE: Vector2 = Vector2(760.0, 30.0)
-const BOSS_HEALTH_NAME_DEFAULT_Y: float = 128.0
-const BOSS_HEALTH_NAME_HEIGHT: float = 24.0
-const BOSS_HEALTH_NAME_TO_BAR_GAP: float = 6.0
 const BOSS_INTENT_ICON_SIZE: float = 20.0
 const BOSS_INTENT_FONT_SIZE: int = 13
 const INTENT_POPUP_WIDTH: float = 136.0
@@ -3215,7 +3211,6 @@ func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
 			continue
 		_draw_health_bar(unit, health_rect)
 		_draw_unit_statuses(unit, health_rect)
-	_draw_boss_health_bar(units_to_draw)
 
 func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
 	var font: Font = get_theme_default_font()
@@ -3302,55 +3297,8 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 		var skin_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(40.0, 16.0))
 		_draw_icon_value_badge(skin_rect, "stoneskin", stoneskin_amount, Color(0.10, 0.14, 0.08, 0.92), ElementData.accent(ElementData.EARTH), Color("eff8d7"), font)
 
-func _draw_boss_health_bar(units_to_draw: Array[Dictionary]) -> void:
-	var boss_unit: Dictionary = {}
-	for unit: Dictionary in units_to_draw:
-		if bool(unit.get("boss_bar", false)) and int(unit.get("hp", 0)) > 0:
-			boss_unit = unit
-			break
-	if boss_unit.is_empty():
-		return
-	var font: Font = get_theme_default_font()
-	var bar_rect: Rect2 = _boss_health_bar_rect()
-	var name: String = str(boss_unit.get("name", "Boss"))
-	if font != null:
-		var name_rect: Rect2 = _boss_health_name_rect()
-		var name_baseline: Vector2 = name_rect.position + Vector2(0.0, 21.0)
-		for outline_offset: Vector2 in [Vector2(-2.0, 0.0), Vector2(2.0, 0.0), Vector2(0.0, -2.0), Vector2(0.0, 2.0), Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2(1.0, 1.0)]:
-			draw_string(font, name_baseline + outline_offset, name, HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, 21, Color("050403"))
-		draw_string(font, name_baseline, name, HORIZONTAL_ALIGNMENT_CENTER, name_rect.size.x, 21, Color("ffe66d"))
-	SegmentedHealthBar.draw_bar(
-		self,
-		bar_rect,
-		float(boss_unit.get("hp", 0)),
-		float(maxi(1, int(boss_unit.get("max_hp", 1)))),
-		_health_bar_segment_count(int(boss_unit.get("max_hp", 1))),
-		Color("1a1110"),
-		Color("b83d3a"),
-		Color("f5efdf"),
-		Color("f5d96c"),
-		Color(0.0, 0.0, 0.0, 0.45),
-		1.0,
-		2.0
-	)
-	draw_rect(bar_rect.grow(3.0), Color("0d0908"), false, 2.0)
-	_draw_health_damage_preview(boss_unit, bar_rect, _unit_damage_preview(boss_unit))
-	if font != null:
-		var hp_text: String = "%d/%d" % [int(boss_unit.get("hp", 0)), int(boss_unit.get("max_hp", 1))]
-		draw_string(font, bar_rect.position + Vector2(0.0, bar_rect.size.y - 7.0), hp_text, HORIZONTAL_ALIGNMENT_CENTER, bar_rect.size.x, 14, Color("fff4dc"))
-
 func _health_bar_segment_count(max_hp_value: int) -> int:
 	return SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp_value)))
-
-func _boss_health_bar_rect() -> Rect2:
-	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
-	var name_rect: Rect2 = _boss_health_name_rect()
-	return Rect2(Vector2((size.x - bar_width) * 0.5, name_rect.end.y + BOSS_HEALTH_NAME_TO_BAR_GAP), Vector2(bar_width, BOSS_HEALTH_BAR_SIZE.y))
-
-func _boss_health_name_rect() -> Rect2:
-	var bar_width: float = minf(BOSS_HEALTH_BAR_SIZE.x, maxf(300.0, size.x - 96.0))
-	var minimum_y: float = maxf(BOSS_HEALTH_NAME_DEFAULT_Y, float(presentation.get("boss_health_name_min_y", BOSS_HEALTH_NAME_DEFAULT_Y)))
-	return Rect2(Vector2((size.x - bar_width) * 0.5, minimum_y), Vector2(bar_width, BOSS_HEALTH_NAME_HEIGHT))
 
 func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
 	var current_hp: float = float(unit.get("hp", 0))
@@ -3704,8 +3652,6 @@ func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) ->
 		var center: Vector2 = _unit_center(unit)
 		match str(unit.get("role", "")):
 			"enemy":
-				if bool(unit.get("boss_bar", false)):
-					rects.append(_boss_health_bar_rect().grow(6.0))
 				continue
 			"npc":
 				var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)

@@ -196,8 +196,8 @@ func _initialize() -> void:
 	_test_enemy_hud_layout_stays_centered_when_clear()
 	_test_enemy_hud_layout_offsets_away_from_reserved_ui()
 	_test_enemy_hud_layout_offsets_down_from_top_edge()
-	_test_boss_intent_layout_avoids_boss_health_bar()
-	_test_boss_health_bar_stays_inside_combat_board()
+	_test_boss_intent_layout_needs_no_global_board_banner()
+	_test_boss_health_dossier_caps_divider_density()
 	_test_turn_order_portraits_cover_enemy_roster()
 	_test_enemy_art_scale_preserves_center()
 	_test_enemy_art_offset_shifts_sprite_vertically()
@@ -5651,7 +5651,7 @@ func _test_enemy_hud_layout_offsets_down_from_top_edge() -> void:
 	_assert(offset.y > 0.0, "Enemy HUD layout should move downward when a top-edge intent would clip offscreen")
 	_assert(intent_rect.position.y >= 6.0, "Top-edge enemy intents should remain inside the board viewport")
 
-func _test_boss_intent_layout_avoids_boss_health_bar() -> void:
+func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(960.0, 680.0)
 	var font: Font = load("res://fonts/LabyrinthCrumble-Regular.tres")
@@ -5670,29 +5670,25 @@ func _test_boss_intent_layout_avoids_boss_health_bar() -> void:
 		}
 	}
 	var center := Vector2(480.0, 145.0)
-	var boss_bar: Rect2 = board.call("_boss_health_bar_rect").grow(6.0)
-	var compact_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [boss_bar], font)
+	var boss_units: Array[Dictionary] = []
+	boss_units.append(boss)
+	var reserved_rects: Array = board.call("_fixed_hud_collision_rects", boss_units, font) as Array
+	_assert(reserved_rects.is_empty(), "Boss health should no longer reserve a floating rectangle over playable board tiles")
+	var compact_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [], font)
 	var compact_rect: Rect2 = compact_layout.get("intent_rect", Rect2())
 	board.presentation = {"show_all_enemy_intents": true}
-	var expanded_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [boss_bar], font)
+	var expanded_layout: Dictionary = board.call("_boss_intent_layout", boss, center, [], font)
 	var expanded_rect: Rect2 = expanded_layout.get("intent_rect", Rect2())
-	_assert(not expanded_rect.intersects(boss_bar, false), "Expanded boss intents should avoid the boss health bar")
+	_assert(expanded_rect.position.y >= 6.0 and expanded_rect.end.y <= board.size.y - 6.0, "Boss intents should remain contained without a global board banner collision")
 	_assert(is_equal_approx(compact_rect.end.y, expanded_rect.end.y), "Compact boss intent placement should be anchored to the expanded layout")
-
-func _test_boss_health_bar_stays_inside_combat_board() -> void:
-	var board := CombatBoardView.new()
-	board.size = Vector2(960.0, 680.0)
-	var boss_bar: Rect2 = board.call("_boss_health_bar_rect")
-	var boss_name: Rect2 = board.call("_boss_health_name_rect")
-	_assert(boss_name.position.y >= 128.0, "Boss name should keep a visible gap beneath the standard turn-order header")
-	_assert(boss_bar.position.y > boss_name.end.y, "Boss health bar should sit below its fully visible nameplate")
-	_assert(boss_bar.end.y <= board.size.y, "Boss health bar should remain inside the combat board at every boss encounter")
-	board.presentation = {"boss_health_name_min_y": 184.0}
-	var dynamically_cleared_name: Rect2 = board.call("_boss_health_name_rect")
-	var dynamically_cleared_bar: Rect2 = board.call("_boss_health_bar_rect")
-	_assert(is_equal_approx(dynamically_cleared_name.position.y, 184.0), "Boss HUD placement should honor the live turn-order panel bottom")
-	_assert(dynamically_cleared_bar.position.y > dynamically_cleared_name.end.y, "Dynamic turn-order clearance should move the complete boss HUD together")
 	board.free()
+
+func _test_boss_health_dossier_caps_divider_density() -> void:
+	var instance: Node = RunSceneScript.new()
+	_assert(int(instance.call("_turn_order_boss_segment_count", 2995)) == 48, "Deep boss health should cap divider density inside the compact turn-order dossier")
+	_assert(int(instance.call("_turn_order_boss_segment_count", 330)) == 17, "Moderate boss health should retain the shared fixed-point segment scale")
+	_assert(int(instance.call("_turn_order_boss_segment_count", 10)) == 1, "Tiny boss health should keep at least one segment")
+	instance.free()
 
 func _test_enemy_art_scale_preserves_center() -> void:
 	var board := CombatBoardView.new()
@@ -8239,13 +8235,36 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	_assert((run_state.get("attuned_magic_cards", []) as Array).size() == GameData.magic_loadout_limit(), "Debug boss fixture should obey the attuned magic cap")
 	_assert((run_state.get("magic_inventory", []) as Array).size() > 0, "Debug boss fixture should keep extra progressed cards in reserve magic")
 	_assert((run_state.get("deck_cards", []) as Array).has("cinderburst"), "Debug boss fixture should still grant progressed attuned magic")
-	var found_boss: bool = false
+	var found_boss: Dictionary = {}
 	for enemy_var: Variant in combat_state.get("enemies", []):
 		var enemy: Dictionary = enemy_var
 		if str(enemy.get("type", "")) == "zekarion":
-			found_boss = true
+			found_boss = enemy
 			break
-	_assert(found_boss, "Debug boss fixture should spawn Zekarion")
+	_assert(not found_boss.is_empty(), "Debug boss fixture should spawn Zekarion")
+	var turn_order_panel: PanelContainer = instance.get("_turn_order_panel") as PanelContainer
+	var boss_dossier: PanelContainer = instance.get("_turn_order_boss_dossier") as PanelContainer
+	var header_host: Control = instance.get("_turn_order_header_host") as Control
+	var boss_name: Label = instance.get("_turn_order_boss_name") as Label
+	var boss_hp: Label = instance.get("_turn_order_boss_hp_label") as Label
+	_assert(turn_order_panel != null and boss_dossier != null and boss_dossier.visible, "Boss combat should transform the turn-clock legend into a visible boss dossier")
+	_assert(turn_order_panel != null and turn_order_panel.size.y <= 110.0, "The boss dossier should reuse the existing turn-order height instead of extending over the arena (found %.1fpx)" % (turn_order_panel.size.y if turn_order_panel != null else -1.0))
+	_assert(turn_order_panel != null and boss_dossier != null and turn_order_panel.get_global_rect().encloses(boss_dossier.get_global_rect()), "The boss dossier should live entirely inside the turn-order panel")
+	_assert(header_host != null and header_host.custom_minimum_size.x > 118.0, "Boss combat should widen only the turn-clock legend column for readable boss data")
+	_assert(boss_name != null and boss_name.text.contains("Zekarion"), "The integrated dossier should keep the boss name visible")
+	_assert(boss_hp != null and boss_hp.text == "%d/%d" % [int(found_boss.get("hp", 0)), int(found_boss.get("max_hp", 1))], "The integrated dossier should show exact boss health")
+	var preview_hp: int = maxi(0, int(found_boss.get("hp", 0)) - 50)
+	instance.call("_refresh_turn_order_boss_dossier", combat_state, {
+		"effect": {
+			"damage_preview": {
+				"enemy_%d" % int(found_boss.get("id", -1)): {"hp": preview_hp, "hp_loss": 50}
+			}
+		}
+	})
+	var preview_band: ColorRect = instance.get("_turn_order_boss_damage_preview") as ColorRect
+	_assert(preview_band != null and preview_band.visible and preview_band.anchor_left < preview_band.anchor_right, "Boss damage previews should remain visible in the integrated health rail")
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+	_assert(board != null and not (board.get("presentation") as Dictionary).has("boss_health_name_min_y"), "The combat board should no longer carry boss-banner positioning state")
 	instance.queue_free()
 	if root.has_meta("labyrinth_debug_boss_run"):
 		root.remove_meta("labyrinth_debug_boss_run")

@@ -9,8 +9,8 @@ const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
-const OUTPUT_ROOT: String = "user://dragon_boss_probe_v3"
-const RESOLUTION: Vector2i = Vector2i(1920, 1080)
+const OUTPUT_ROOT: String = "user://dragon_boss_probe_v4"
+const DEFAULT_RESOLUTION: Vector2i = Vector2i(1920, 1080)
 const BOSS_PROOFS: Array[Dictionary] = [
 	{"id": "tharokh", "depth": 4},
 	{"id": "vyraketh", "depth": 8},
@@ -22,11 +22,13 @@ const BOSS_PROOFS: Array[Dictionary] = [
 
 var _failed: bool = false
 var _output_dir: String = ""
+var _resolution: Vector2i = DEFAULT_RESOLUTION
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	_resolution = _requested_resolution()
 	_configure_window()
-	_output_dir = "%s/%dx%d" % [OUTPUT_ROOT, RESOLUTION.x, RESOLUTION.y]
+	_output_dir = "%s/%dx%d" % [OUTPUT_ROOT, _resolution.x, _resolution.y]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
 	_clear_probe_output(_output_dir)
 	ProgressionStore.set_storage_path("user://dragon_boss_probe_progression.json")
@@ -43,6 +45,7 @@ func _capture_bosses() -> void:
 	instance.call("_close_dialogue")
 	var progression: Dictionary = ProgressionStore.default_data()
 	var boss_filter: String = OS.get_environment("LABYRINTH_DRAGON_PROBE_BOSS").strip_edges().to_lower()
+	var phase_filter: String = OS.get_environment("LABYRINTH_DRAGON_PROBE_PHASE").strip_edges().to_lower()
 	for proof: Dictionary in BOSS_PROOFS:
 		var boss_id: String = str(proof.get("id", ""))
 		if not boss_filter.is_empty() and boss_id != boss_filter:
@@ -56,6 +59,8 @@ func _capture_bosses() -> void:
 		await create_timer(0.12).timeout
 		_assert_loaded_boss(instance, boss_id, false)
 		await _capture("%02d_%s_ready.png" % [depth, boss_id])
+		if phase_filter == "ready":
+			continue
 
 		var combat_state: Dictionary = state.get("combat_state", {}) as Dictionary
 		if boss_id == DragonBossLibrary.SHADOW_BOSS_ID:
@@ -260,11 +265,21 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 	if board == null or not board.visible:
 		_fail("%s proof should render the tactical board" % boss_id)
 	var turn_order_panel: Control = instance.get("_turn_order_panel") as Control
-	if board != null and turn_order_panel != null and turn_order_panel.visible:
-		var boss_name_rect: Rect2 = board.call("_boss_health_name_rect") as Rect2
-		var boss_name_global_y: float = board.get_global_rect().position.y + boss_name_rect.position.y
-		if boss_name_global_y - turn_order_panel.get_global_rect().end.y < 20.0:
-			_fail("%s boss name and health HUD should keep visible breathing room below the turn-order panel" % boss_id)
+	var boss_dossier: Control = instance.get("_turn_order_boss_dossier") as Control
+	var boss_name_label: Label = instance.get("_turn_order_boss_name") as Label
+	var boss_hp_label: Label = instance.get("_turn_order_boss_hp_label") as Label
+	if turn_order_panel == null or boss_dossier == null or not boss_dossier.visible:
+		_fail("%s boss health should be integrated into the turn-order panel" % boss_id)
+	else:
+		if turn_order_panel.size.y > 110.0:
+			_fail("%s boss dossier should not increase the turn-order panel height over the board (found %.1fpx)" % [boss_id, turn_order_panel.size.y])
+		if not turn_order_panel.get_global_rect().encloses(boss_dossier.get_global_rect()):
+			_fail("%s boss dossier should remain entirely inside the turn-order chrome" % boss_id)
+	var expected_boss_name: String = str(GameData.enemy_def(str(boss.get("type", ""))).get("name", boss_id)).split(",")[0]
+	if boss_name_label == null or not boss_name_label.text.contains(expected_boss_name):
+		_fail("%s integrated boss dossier should keep the boss name readable" % boss_id)
+	if boss_hp_label == null or boss_hp_label.text != "%d/%d" % [int(boss.get("hp", 0)), int(boss.get("max_hp", 1))]:
+		_fail("%s integrated boss dossier should show exact health" % boss_id)
 	if after_gimmick and boss_id != "zekarion" and not bool(boss.get("boss_mechanic_opened", false)):
 		_fail("%s opening gimmick should mark itself active" % boss_id)
 	match boss_id:
@@ -302,18 +317,29 @@ func _state_has_trap_kind(state: Dictionary, kind: String) -> bool:
 	return false
 
 func _configure_window() -> void:
-	root.content_scale_size = RESOLUTION
+	root.content_scale_size = _resolution
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	root.size = RESOLUTION
+	root.size = _resolution
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_size(RESOLUTION)
+	DisplayServer.window_set_size(_resolution)
+
+func _requested_resolution() -> Vector2i:
+	var raw: String = OS.get_environment("LABYRINTH_DRAGON_PROBE_SIZE").strip_edges().to_lower()
+	var parts: PackedStringArray = raw.split("x", false)
+	if parts.size() != 2:
+		return DEFAULT_RESOLUTION
+	var width: int = int(parts[0])
+	var height: int = int(parts[1])
+	if width < 960 or height < 540:
+		return DEFAULT_RESOLUTION
+	return Vector2i(width, height)
 
 func _capture(filename: String) -> void:
 	await process_frame
 	await process_frame
 	var image: Image = root.get_viewport().get_texture().get_image()
-	if image.get_size() != RESOLUTION:
-		image.resize(RESOLUTION.x, RESOLUTION.y, Image.INTERPOLATE_LANCZOS)
+	if image.get_size() != _resolution:
+		image.resize(_resolution.x, _resolution.y, Image.INTERPOLATE_LANCZOS)
 	var error: Error = image.save_png("%s/%s" % [_output_dir, filename])
 	if error != OK:
 		_fail("Could not save %s" % filename)

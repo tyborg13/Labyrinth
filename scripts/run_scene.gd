@@ -20,6 +20,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
 const SettingsPanelScript = preload("res://scripts/settings_panel.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
@@ -1007,6 +1008,9 @@ const PINNED_TOOLTIP_CURSOR_OFFSET: Vector2 = Vector2(12.0, 0.0)
 const TURN_ORDER_PANEL_MIN_SIZE: Vector2 = Vector2(840.0, 104.0)
 const TURN_ORDER_PANEL_MIN_WIDTH: float = 520.0
 const TURN_ORDER_LABEL_WIDTH: float = 118.0
+const TURN_ORDER_BOSS_DOSSIER_WIDTH: float = 206.0
+const TURN_ORDER_BOSS_HEALTH_HEIGHT: float = 16.0
+const TURN_ORDER_BOSS_MAX_SEGMENTS: int = 48
 const TURN_ORDER_PORTRAIT_SIZE: Vector2 = Vector2(84.0, 84.0)
 const TURN_ORDER_ACTIVE_SIZE: Vector2 = Vector2(84.0, 84.0)
 const TURN_ORDER_SLOT_GAP: float = 9.0
@@ -1016,7 +1020,6 @@ const TURN_ORDER_REFLOW_SECONDS: float = 0.24
 const TURN_ORDER_INSERT_SECONDS: float = 0.20
 const TURN_ORDER_STYLE_SECONDS: float = 0.18
 const TURN_ORDER_FLOAT_OFFSET: float = 24.0
-const BOSS_HEALTH_TURN_ORDER_GAP: float = 24.0
 const PASS_PREVIEW_CHIP_SIZE: Vector2 = Vector2(340.0, 64.0)
 const PASS_PREVIEW_DANGER_CHIP_HEIGHT: float = 88.0
 const PASS_PREVIEW_STACK_GAP: float = 6.0
@@ -1205,6 +1208,14 @@ var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
 var _turn_order_anchor: CenterContainer
 var _turn_order_bar: Control
+var _turn_order_header_host: Control
+var _turn_order_label: Label
+var _turn_order_boss_dossier: PanelContainer
+var _turn_order_boss_name: Label
+var _turn_order_boss_health_host: Control
+var _turn_order_boss_health_bar: SegmentedHealthBar
+var _turn_order_boss_damage_preview: ColorRect
+var _turn_order_boss_hp_label: Label
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
 var _turn_order_panel_locked_width: float = -1.0
@@ -6384,17 +6395,26 @@ func _setup_turn_order_bar() -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 12)
 	margin.add_child(row)
-	var label := Label.new()
-	label.text = "TURN\nCLOCK"
-	label.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, 0.0)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
-	label.add_theme_color_override("font_color", Color("f5dfb3"))
-	label.add_theme_color_override("font_outline_color", Color("21150f"))
-	label.add_theme_constant_override("outline_size", 2)
-	row.add_child(label)
+	_turn_order_header_host = Control.new()
+	_turn_order_header_host.name = "TurnOrderHeaderHost"
+	_turn_order_header_host.custom_minimum_size = Vector2(TURN_ORDER_LABEL_WIDTH, TURN_ORDER_PORTRAIT_SIZE.y)
+	_turn_order_header_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(_turn_order_header_host)
+	_turn_order_label = Label.new()
+	_turn_order_label.name = "TurnClockLabel"
+	_turn_order_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turn_order_label.anchor_right = 1.0
+	_turn_order_label.anchor_bottom = 1.0
+	_turn_order_label.text = "TURN\nCLOCK"
+	_turn_order_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_turn_order_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_turn_order_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_turn_order_label, UiTypography.SIZE_SECTION)
+	_turn_order_label.add_theme_color_override("font_color", Color("f5dfb3"))
+	_turn_order_label.add_theme_color_override("font_outline_color", Color("21150f"))
+	_turn_order_label.add_theme_constant_override("outline_size", 2)
+	_turn_order_header_host.add_child(_turn_order_label)
+	_setup_turn_order_boss_dossier()
 	_turn_order_bar = Control.new()
 	_turn_order_bar.name = "TurnOrderBar"
 	_turn_order_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -6403,6 +6423,91 @@ func _setup_turn_order_bar() -> void:
 	row.add_child(_turn_order_bar)
 	_turn_order_anchor.add_child(_turn_order_panel)
 
+func _setup_turn_order_boss_dossier() -> void:
+	_turn_order_boss_dossier = PanelContainer.new()
+	_turn_order_boss_dossier.name = "BossDossier"
+	_turn_order_boss_dossier.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turn_order_boss_dossier.anchor_right = 1.0
+	_turn_order_boss_dossier.anchor_bottom = 1.0
+	_turn_order_boss_dossier.visible = false
+	_turn_order_boss_dossier.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_boss_dossier.add_theme_stylebox_override("panel", _turn_order_boss_dossier_style(Color("d36a55")))
+	_turn_order_header_host.add_child(_turn_order_boss_dossier)
+	var dossier_margin := MarginContainer.new()
+	dossier_margin.add_theme_constant_override("margin_left", 8)
+	dossier_margin.add_theme_constant_override("margin_top", 3)
+	dossier_margin.add_theme_constant_override("margin_right", 8)
+	dossier_margin.add_theme_constant_override("margin_bottom", 3)
+	_turn_order_boss_dossier.add_child(dossier_margin)
+	var dossier_stack := VBoxContainer.new()
+	dossier_stack.add_theme_constant_override("separation", 1)
+	dossier_margin.add_child(dossier_stack)
+	var kicker := Label.new()
+	kicker.name = "BossDossierKicker"
+	kicker.text = "TURN CLOCK  ·  BOSS"
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	kicker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(kicker, UiTypography.SIZE_CAPTION)
+	kicker.add_theme_color_override("font_color", Color("d8b96f"))
+	kicker.add_theme_color_override("font_outline_color", Color("160e0a"))
+	kicker.add_theme_constant_override("outline_size", 1)
+	dossier_stack.add_child(kicker)
+	_turn_order_boss_name = Label.new()
+	_turn_order_boss_name.name = "BossName"
+	_turn_order_boss_name.custom_minimum_size = Vector2(0.0, 32.0)
+	_turn_order_boss_name.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_turn_order_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_turn_order_boss_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_turn_order_boss_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_turn_order_boss_name.max_lines_visible = 2
+	_turn_order_boss_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_turn_order_boss_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(_turn_order_boss_name, UiTypography.SIZE_BODY)
+	_turn_order_boss_name.add_theme_color_override("font_color", Color("ffe66d"))
+	_turn_order_boss_name.add_theme_color_override("font_outline_color", Color("120b07"))
+	_turn_order_boss_name.add_theme_constant_override("outline_size", 2)
+	dossier_stack.add_child(_turn_order_boss_name)
+	_turn_order_boss_health_host = Control.new()
+	_turn_order_boss_health_host.name = "BossHealthHost"
+	_turn_order_boss_health_host.custom_minimum_size = Vector2(0.0, TURN_ORDER_BOSS_HEALTH_HEIGHT)
+	_turn_order_boss_health_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dossier_stack.add_child(_turn_order_boss_health_host)
+	_turn_order_boss_health_bar = SegmentedHealthBar.new()
+	_turn_order_boss_health_bar.name = "BossHealthBar"
+	_turn_order_boss_health_bar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turn_order_boss_health_bar.anchor_right = 1.0
+	_turn_order_boss_health_bar.anchor_bottom = 1.0
+	_turn_order_boss_health_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_boss_health_bar.set_fill(Color("b83d3a"), Color("f5efdf"))
+	_turn_order_boss_health_bar.set_appearance(Color("1a1110"), Color("f5d96c"), Color(0.0, 0.0, 0.0, 0.38))
+	_turn_order_boss_health_bar.separator_width = 1.0
+	_turn_order_boss_health_bar.border_width = 1.0
+	_turn_order_boss_health_host.add_child(_turn_order_boss_health_bar)
+	_turn_order_boss_damage_preview = ColorRect.new()
+	_turn_order_boss_damage_preview.name = "BossDamagePreview"
+	_turn_order_boss_damage_preview.anchor_top = 0.0
+	_turn_order_boss_damage_preview.anchor_bottom = 1.0
+	_turn_order_boss_damage_preview.offset_top = 1.0
+	_turn_order_boss_damage_preview.offset_bottom = -1.0
+	_turn_order_boss_damage_preview.color = Color(1.0, 0.72, 0.34, 0.76)
+	_turn_order_boss_damage_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_boss_damage_preview.visible = false
+	_turn_order_boss_health_host.add_child(_turn_order_boss_damage_preview)
+	_turn_order_boss_hp_label = Label.new()
+	_turn_order_boss_hp_label.name = "BossHpLabel"
+	_turn_order_boss_hp_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turn_order_boss_hp_label.anchor_right = 1.0
+	_turn_order_boss_hp_label.anchor_bottom = 1.0
+	_turn_order_boss_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_turn_order_boss_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_turn_order_boss_hp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_order_boss_hp_label.z_index = 2
+	UiTypography.set_label_size(_turn_order_boss_hp_label, 10)
+	_turn_order_boss_hp_label.add_theme_color_override("font_color", Color("fff4dc"))
+	_turn_order_boss_hp_label.add_theme_color_override("font_outline_color", Color("140f0b"))
+	_turn_order_boss_hp_label.add_theme_constant_override("outline_size", 1)
+	_turn_order_boss_health_host.add_child(_turn_order_boss_hp_label)
+
 func _refresh_turn_order_bar() -> void:
 	if _turn_order_bar == null:
 		return
@@ -6410,12 +6515,14 @@ func _refresh_turn_order_bar() -> void:
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat" or _combat_state.is_empty():
+		_refresh_turn_order_boss_dossier({}, {})
 		_clear_children(_turn_order_bar)
 		_turn_order_source_signature = "<unset>"
 		_turn_order_render_signature = "<unset>"
 		_turn_order_panel_locked_width = -1.0
 		_set_turn_order_visible(false)
 		return
+	_refresh_turn_order_boss_dossier(_board_display_state(), _board_presentation)
 	var source_signature: String = "%d|%d|%d|%d|%d" % [
 		_combat_preview_revision,
 		hash(_combat_state),
@@ -6492,7 +6599,83 @@ func _turn_order_entries_width(count: int) -> float:
 	return float(count) * TURN_ORDER_PORTRAIT_SIZE.x + float(count - 1) * TURN_ORDER_SLOT_GAP
 
 func _turn_order_panel_width_for_count(count: int) -> float:
-	return maxf(TURN_ORDER_PANEL_MIN_WIDTH, 28.0 + TURN_ORDER_LABEL_WIDTH + 12.0 + _turn_order_entries_width(count))
+	return maxf(TURN_ORDER_PANEL_MIN_WIDTH, 28.0 + _turn_order_header_width() + 12.0 + _turn_order_entries_width(count))
+
+func _turn_order_header_width() -> float:
+	if _turn_order_boss_dossier != null and _turn_order_boss_dossier.visible:
+		return TURN_ORDER_BOSS_DOSSIER_WIDTH
+	return TURN_ORDER_LABEL_WIDTH
+
+func _refresh_turn_order_boss_dossier(display_state: Dictionary, source_presentation: Dictionary) -> void:
+	if _turn_order_boss_dossier == null or _turn_order_header_host == null:
+		return
+	var boss: Dictionary = _boss_unit_for_turn_order_dossier(display_state)
+	var visible: bool = not boss.is_empty()
+	_turn_order_boss_dossier.visible = visible
+	if _turn_order_label != null:
+		_turn_order_label.visible = not visible
+	_turn_order_header_host.custom_minimum_size = Vector2(
+		TURN_ORDER_BOSS_DOSSIER_WIDTH if visible else TURN_ORDER_LABEL_WIDTH,
+		TURN_ORDER_PORTRAIT_SIZE.y
+	)
+	if not visible:
+		if _turn_order_boss_damage_preview != null:
+			_turn_order_boss_damage_preview.visible = false
+		return
+	var boss_def: Dictionary = GameData.enemy_def(str(boss.get("type", "")))
+	var boss_name: String = str(boss_def.get("name", boss.get("name", "Boss")))
+	var preview: Dictionary = _boss_damage_preview_for_dossier(boss, source_presentation)
+	var current_boss: Dictionary = boss
+	if not preview.is_empty():
+		var boss_id: int = int(boss.get("id", -1))
+		for committed_var: Variant in _combat_state.get("enemies", []):
+			if typeof(committed_var) != TYPE_DICTIONARY:
+				continue
+			var committed_enemy: Dictionary = committed_var
+			if int(committed_enemy.get("id", -2)) == boss_id:
+				current_boss = committed_enemy
+				break
+	var max_hp: int = maxi(1, int(current_boss.get("max_hp", boss.get("max_hp", 1))))
+	var hp: int = clampi(int(current_boss.get("hp", boss.get("hp", 0))), 0, max_hp)
+	var preview_hp: int = clampi(int(preview.get("hp", hp)), 0, max_hp)
+	if _turn_order_boss_name != null:
+		_turn_order_boss_name.text = boss_name
+	if _turn_order_boss_health_bar != null:
+		_turn_order_boss_health_bar.set_health(float(hp), float(max_hp))
+		_turn_order_boss_health_bar.set_segment_count(_turn_order_boss_segment_count(max_hp))
+	if _turn_order_boss_hp_label != null:
+		_turn_order_boss_hp_label.text = "%d/%d" % [hp, max_hp]
+	if _turn_order_boss_damage_preview != null:
+		var current_ratio: float = clampf(float(hp) / float(max_hp), 0.0, 1.0)
+		var preview_ratio: float = clampf(float(preview_hp) / float(max_hp), 0.0, current_ratio)
+		_turn_order_boss_damage_preview.anchor_left = preview_ratio
+		_turn_order_boss_damage_preview.anchor_right = current_ratio
+		_turn_order_boss_damage_preview.offset_left = 0.0
+		_turn_order_boss_damage_preview.offset_right = 0.0
+		_turn_order_boss_damage_preview.visible = preview_hp < hp
+	var accent: Color = Color(str(boss_def.get("accent", "#d36a55")))
+	_turn_order_boss_dossier.add_theme_stylebox_override("panel", _turn_order_boss_dossier_style(accent))
+
+func _boss_unit_for_turn_order_dossier(display_state: Dictionary) -> Dictionary:
+	for enemy_var: Variant in display_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
+			return enemy
+	return {}
+
+func _boss_damage_preview_for_dossier(boss: Dictionary, source_presentation: Dictionary) -> Dictionary:
+	var actor_key: String = _enemy_key(boss)
+	var preview_map: Dictionary = source_presentation.get("damage_preview", {}) as Dictionary
+	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
+	var effect_preview_map: Dictionary = effect.get("damage_preview", {}) as Dictionary
+	if effect_preview_map.has(actor_key):
+		return effect_preview_map.get(actor_key, {}) as Dictionary
+	return preview_map.get(actor_key, {}) as Dictionary
+
+func _turn_order_boss_segment_count(max_hp: int) -> int:
+	return mini(TURN_ORDER_BOSS_MAX_SEGMENTS, SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp))))
 
 func _turn_order_slot_position(index: int) -> Vector2:
 	return Vector2(float(index) * (TURN_ORDER_PORTRAIT_SIZE.x + TURN_ORDER_SLOT_GAP), 0.0)
@@ -6654,6 +6837,21 @@ func _turn_order_panel_style() -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 	style.shadow_size = 18
 	style.shadow_offset = Vector2(0.0, 7.0)
+	return style
+
+func _turn_order_boss_dossier_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.075, 0.045, 0.035, 0.94)
+	style.border_color = accent.lightened(0.28)
+	style.border_color.a = 0.82
+	style.border_width_left = 3
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
 	return style
 
 func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
@@ -10102,7 +10300,6 @@ func _refresh_stage_view() -> void:
 	presentation["active_door_tiles"] = _active_door_tiles_for_board()
 	presentation["locked_door_tiles"] = _locked_door_tiles_for_board()
 	presentation["equipped_equipment"] = _equipped_equipment_for_board()
-	presentation["boss_health_name_min_y"] = _boss_health_name_min_y()
 	presentation["tile_drag_aiming"] = (
 		str(_run_state.get("mode", "room")) == "combat"
 		and not _animation_lock
@@ -10119,6 +10316,7 @@ func _refresh_stage_view() -> void:
 		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else {},
 		presentation
 	)
+	_refresh_turn_order_boss_dossier(display_state, presentation)
 
 func _hovered_enemy_threat(display_state: Dictionary) -> Dictionary:
 	for enemy_index: int in range((display_state.get("enemies", []) as Array).size()):
@@ -10194,12 +10392,6 @@ func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
 		and not _preview_combat_state.is_empty()
 		and _combat_engine.effective_umbra_radius(_combat_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
 	)
-
-func _boss_health_name_min_y() -> float:
-	if board_view == null or _turn_order_panel == null or not _turn_order_panel.visible:
-		return 0.0
-	var board_top: float = board_view.get_global_rect().position.y
-	return maxf(0.0, _turn_order_panel.get_global_rect().end.y - board_top + BOSS_HEALTH_TURN_ORDER_GAP)
 
 func _active_card_preview() -> Dictionary:
 	if _drag_card_index >= 0:
@@ -13137,6 +13329,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary) ->
 		{},
 		rendered_presentation
 	)
+	_refresh_turn_order_boss_dossier(display_state, rendered_presentation)
 
 func _apply_umbra_board_presentation(display_state: Dictionary, target_presentation: Dictionary) -> void:
 	if display_state.is_empty() or not display_state.has("umbra"):

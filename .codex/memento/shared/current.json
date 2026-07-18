@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-18T02:27:51Z",
+  "updated_at": "2026-07-18T03:51:39Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5848,7 +5848,7 @@
       }
     },
     {
-      "id": "mnt_20260718T022751Z_b11157c4",
+      "id": "mnt_20260718T035139Z_8e78aa4f",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -5858,17 +5858,17 @@
       },
       "scope_key": "project:.",
       "summary": "Dragon bosses use seeded gates; Noctyrax closes the run with visibility-focused adds",
-      "details": "DragonBossLibrary deterministically shuffles Tharokh, Vyraketh, Vaeloryx, Iskaldra, and Zekarion across depths 4/8/12/16/20 without repeats; Noctyrax is fixed at depth 24. Noctyrax enters with two depth-scaled Veilbound Acolytes whose visibility makes Radiance and Truesight tactically relevant during Last Eclipse. Boss-bar actors remain revealed through Umbra. Large enemies use the established red attack glow and pulsing boundary across their full footprint when any visible footprint tile is a legal direct target; all footprint tiles click the same actor. Boss name and health layout derives clearance from the live turn-order panel. Boss encounters end when the boss-bar actor dies even if authored hazards or adds remain.",
+      "details": "DragonBossLibrary deterministically shuffles Tharokh, Vyraketh, Vaeloryx, Iskaldra, and Zekarion across depths 4/8/12/16/20 without repeats; Noctyrax is fixed at depth 24 and enters with two depth-scaled Veilbound Acolytes. Boss-bar actors remain revealed through Umbra. Large enemies use the established red attack glow and pulsing boundary across their full footprint when any visible footprint tile is a legal direct target; all footprint tiles click the same actor. Boss name, exact HP, segmented health, and damage preview live entirely inside a boss dossier that replaces the TURN CLOCK legend column without increasing the turn-order panel height or covering the board. Boss encounters end when the boss-bar actor dies even if authored hazards or adds remain.",
       "status": "active",
-      "created_at": "2026-07-18T02:27:51Z",
-      "updated_at": "2026-07-18T02:27:51Z",
+      "created_at": "2026-07-18T03:51:39Z",
+      "updated_at": "2026-07-18T03:51:39Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260717T221435Z_febccce4"
+        "mnt_20260718T022751Z_b11157c4"
       ],
       "source": {
         "branch": "codex/implement-five-elemental-dragon-bosses-and-complete-24-depth-victory-pro",
-        "commit": "16734f1"
+        "commit": "5e81c14"
       }
     }
   ]
