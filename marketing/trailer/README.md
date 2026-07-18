@@ -32,7 +32,7 @@ The Steam master is written to:
 marketing/trailer/out/escape-the-umbra-steam-trailer.mp4
 ```
 
-The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is approximately 57.3 seconds.
+The render command produces 1920x1080, 30 fps, H.264 video with 48 kHz stereo AAC audio. The checked master is approximately 57.5 seconds.
 
 The production render intentionally uses one deterministic Chromium worker. Trailer text is committed as transparent title artwork generated from the exact game font, avoiding Chromium's unreliable runtime loading of this custom TTF during long renders. Each card also has a generated `-fill.png` layer: the title arrives with its small Crumble gaps filled, settles, and then sheds those pieces downward to reveal the native face.
 
@@ -64,11 +64,11 @@ LABYRINTH_TASK_ID=my-task-id marketing/trailer/scripts/capture-footage.sh
 
 - Composition id: `EscapeTheUmbraTrailer`
 - Source: `src/Trailer.tsx`
-- Output duration: 1718 frames at 30 fps
+- Output duration: 1724 frames at 30 fps
 - Promo typography in `public/title-cards/` is generated from the game's readable Labyrinth Crumble font; music, sound effects, and key art are linked through `public/game-assets`.
 - Promo copy uses that single game-native face at large sizes with no pixel-font labels, UI cards, frame counters, or secondary gameplay taglines.
 - Tactical shots visibly establish the hand card, zoom into its production center-stage play animation, then pan focus to the board resolution with impact zoom, brightness accents, and deterministic screen shake.
-- The `GROW STRONGER` montage crossfades among five legal non-start run states at normal playback speed. Shot-specific focus tracks reframe the lower reward rows, follow the claimed spell from Learned Magic into an attuned slot, and follow found gear into a mixed-rarity loadout without hiding the relevant production UI.
+- The `GROW STRONGER` montage crossfades among five legal non-start run states. Merchant, relic, and magic-reward beats use a single eased approach, a held choice view, a restrained selection impact, and one eased pullback; their source playback is slightly slowed so the lower options remain readable. The following focus tracks move the claimed spell from Learned Magic into an attuned slot and found gear into a mixed-rarity loadout.
 - Progression clips are muted in the edit, so item and spell acquisitions do not trigger the old repeated collection sound; the score and tactical combat impacts remain.
 - The final CTA uses a transparent inverse-white derivative of Valve's approved Steam® logo artwork with clear space and no colored tile or compositing into the game mark. Preserve the legal attribution in `public/branding/README.md` when preparing distribution copy.
 - The old teaser is not an editorial or visual reference for this cut.

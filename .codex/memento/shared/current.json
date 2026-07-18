@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-17T21:50:16Z",
+  "updated_at": "2026-07-18T02:09:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5782,7 +5782,7 @@
       }
     },
     {
-      "id": "mnt_20260717T215016Z_efce5f14",
+      "id": "mnt_20260718T020954Z_879d437a",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -5791,16 +5791,18 @@
         "symbol": null
       },
       "scope_key": "folder:marketing/trailer",
-      "summary": "Trailer camera tracks the actual UI focus",
-      "details": "Use shot-specific pan and zoom keyframes that center the real interaction target as it moves. Avoid generic center zooms that push edge-located map traversal, reward offers, merchant rows, or equip targets into the vignette. Validate the composed edit\u2014not only source footage\u2014with dense frame sheets.",
+      "summary": "Trailer camera uses continuous action-timed phases",
+      "details": "For UI choices, use one eased approach into the real option area, an intentional readable hold, a selection-timed impact, and one eased pullback. Do not apply Bezier easing separately across multi-waypoint interpolation tracks because it visibly stops and restarts. Keep the lower source edge covered, remove shading over action UI, and spend added pacing before the actual selection rather than on an empty post-choice room. Validate composed motion at dense frame cadence.",
       "status": "active",
-      "created_at": "2026-07-17T21:50:16Z",
-      "updated_at": "2026-07-17T21:50:16Z",
+      "created_at": "2026-07-18T02:09:54Z",
+      "updated_at": "2026-07-18T02:09:54Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260717T215016Z_efce5f14"
+      ],
       "source": {
         "branch": "codex/create-escape-the-umbra-steam-trailer-with-remotion",
-        "commit": "c75a1c5"
+        "commit": "bb61243"
       }
     }
   ]

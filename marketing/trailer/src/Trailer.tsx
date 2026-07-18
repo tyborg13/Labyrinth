@@ -17,8 +17,8 @@ const TRANSITION = 12;
 const PROGRESSION_TRANSITION = 8;
 
 const PROGRESSION_CLIP = {
-  merchant: 88,
-  relic: 120,
+  merchant: 104,
+  relic: 110,
   spell: 120,
   magicEquip: 120,
   equipment: 174,
@@ -362,6 +362,22 @@ type FocusTrack = {
   translateY: number[];
 };
 
+type SelectionCameraCue = {
+  approachStart: number;
+  approachEnd: number;
+  selectionFrame: number;
+  pullbackStart: number;
+  pullbackEnd: number;
+  startScale: number;
+  focusScale: number;
+  endScale: number;
+  focusX: number;
+  focusY: number;
+  endX?: number;
+  endY?: number;
+  shake: number;
+};
+
 type GameplaySceneProps = {
   clip: string;
   duration: number;
@@ -570,11 +586,80 @@ const ProgressionClip: React.FC<{
   clip: "merchant" | "relic" | "spell" | "magic_equip" | "equipment";
   duration: number;
   playbackRate: number;
-  focusTrack: FocusTrack;
-}> = ({ clip, duration, playbackRate, focusTrack }) => {
+  focusTrack?: FocusTrack;
+  selectionCamera?: SelectionCameraCue;
+}> = ({ clip, duration, playbackRate, focusTrack, selectionCamera }) => {
   const frame = useCurrentFrame();
+  const approach = selectionCamera
+    ? interpolate(
+        frame,
+        [selectionCamera.approachStart, selectionCamera.approachEnd],
+        [0, 1],
+        {
+          ...clamp,
+          easing: Easing.bezier(0.45, 0, 0.55, 1),
+        },
+      )
+    : 0;
+  const pullback = selectionCamera
+    ? interpolate(
+        frame,
+        [selectionCamera.pullbackStart, selectionCamera.pullbackEnd],
+        [0, 1],
+        {
+          ...clamp,
+          easing: Easing.bezier(0.45, 0, 0.55, 1),
+        },
+      )
+    : 0;
+  const selectionImpact = selectionCamera
+    ? interpolate(
+        frame,
+        [
+          selectionCamera.selectionFrame - 2,
+          selectionCamera.selectionFrame + 1,
+          selectionCamera.selectionFrame + 12,
+        ],
+        [0, 1, 0],
+        clamp,
+      )
+    : 0;
+  const trackedScale = focusTrack
+    ? interpolate(frame, focusTrack.frames, focusTrack.scales, {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      })
+    : 1;
+  const trackedX = focusTrack
+    ? interpolate(frame, focusTrack.frames, focusTrack.translateX, {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      })
+    : 0;
+  const trackedY = focusTrack
+    ? interpolate(frame, focusTrack.frames, focusTrack.translateY, {
+        ...clamp,
+        easing: Easing.bezier(0.45, 0, 0.55, 1),
+      })
+    : 0;
+  const selectionScale = selectionCamera
+    ? selectionCamera.startScale +
+      (selectionCamera.focusScale - selectionCamera.startScale) * approach +
+      (selectionCamera.endScale - selectionCamera.focusScale) * pullback +
+      selectionImpact * 0.012
+    : trackedScale;
+  const selectionX = selectionCamera
+    ? selectionCamera.focusX * approach +
+      ((selectionCamera.endX ?? 0) - selectionCamera.focusX) * pullback +
+      Math.sin(frame * 2.7) * selectionCamera.shake * selectionImpact
+    : trackedX;
+  const selectionY = selectionCamera
+    ? selectionCamera.focusY * approach +
+      ((selectionCamera.endY ?? -20) - selectionCamera.focusY) * pullback +
+      Math.cos(frame * 3.2) * selectionCamera.shake * 0.58 * selectionImpact
+    : trackedY;
   return (
-    <EditorialFrame vignetteOpacity={0.42}>
+    <EditorialFrame vignetteOpacity={0.12}>
       <Sequence durationInFrames={duration} premountFor={FPS}>
         <Video
           src={staticFile(`footage/${clip}.mp4`)}
@@ -585,35 +670,16 @@ const ProgressionClip: React.FC<{
           style={{
             width: "100%",
             height: "100%",
-            scale: interpolate(frame, focusTrack.frames, focusTrack.scales, {
-              ...clamp,
-              easing: Easing.bezier(0.45, 0, 0.55, 1),
-            }),
-            translate: `${interpolate(
-              frame,
-              focusTrack.frames,
-              focusTrack.translateX,
-              {
-                ...clamp,
-                easing: Easing.bezier(0.45, 0, 0.55, 1),
-              },
-            )}px ${interpolate(
-              frame,
-              focusTrack.frames,
-              focusTrack.translateY,
-              {
-                ...clamp,
-                easing: Easing.bezier(0.45, 0, 0.55, 1),
-              },
-            )}px`,
-            transformOrigin: "50% 50%",
+            scale: selectionScale,
+            translate: `${selectionX}px ${selectionY}px`,
+            transformOrigin: selectionCamera ? "50% 0%" : "50% 50%",
+            filter: `brightness(${1 + selectionImpact * 0.09}) saturate(${1.02 + selectionImpact * 0.08})`,
           }}
         />
       </Sequence>
       <AbsoluteFill
         style={{
-          background:
-            "linear-gradient(180deg, rgba(5,3,7,.20), transparent 28%, transparent 70%, rgba(5,3,7,.36))",
+          background: "linear-gradient(180deg, rgba(5,3,7,.10), transparent 26%)",
         }}
       />
     </EditorialFrame>
@@ -629,12 +695,19 @@ const ProgressionScene: React.FC = () => {
           <ProgressionClip
             clip="merchant"
             duration={PROGRESSION_CLIP.merchant}
-            playbackRate={1}
-            focusTrack={{
-              frames: [0, 18, 44, 66, 88],
-              scales: [1, 1.08, 1.38, 1.45, 1.34],
-              translateX: [0, 0, 0, 0, 0],
-              translateY: [0, -20, -120, -190, -150],
+            playbackRate={0.84}
+            selectionCamera={{
+              approachStart: 2,
+              approachEnd: 28,
+              selectionFrame: 52,
+              pullbackStart: 60,
+              pullbackEnd: 88,
+              startScale: 1.01,
+              focusScale: 1.24,
+              endScale: 1.03,
+              focusX: 0,
+              focusY: -250,
+              shake: 7,
             }}
           />
         </TransitionSeries.Sequence>
@@ -646,12 +719,19 @@ const ProgressionScene: React.FC = () => {
           <ProgressionClip
             clip="relic"
             duration={PROGRESSION_CLIP.relic}
-            playbackRate={1}
-            focusTrack={{
-              frames: [0, 10, 26, 38, 54, 70, 120],
-              scales: [1, 1.05, 1.22, 1.36, 1.18, 1.05, 1.03],
-              translateX: [0, 0, 10, 135, 70, 0, 0],
-              translateY: [0, -20, -230, -330, -180, 0, 0],
+            playbackRate={0.62}
+            selectionCamera={{
+              approachStart: 2,
+              approachEnd: 28,
+              selectionFrame: 55,
+              pullbackStart: 63,
+              pullbackEnd: 91,
+              startScale: 1.01,
+              focusScale: 1.25,
+              endScale: 1.03,
+              focusX: 200,
+              focusY: -270,
+              shake: 6,
             }}
           />
         </TransitionSeries.Sequence>
@@ -663,12 +743,19 @@ const ProgressionScene: React.FC = () => {
           <ProgressionClip
             clip="spell"
             duration={PROGRESSION_CLIP.spell}
-            playbackRate={1}
-            focusTrack={{
-              frames: [0, 12, 28, 42, 54, 70, 120],
-              scales: [1, 1.05, 1.2, 1.34, 1.2, 1.05, 1.03],
-              translateX: [0, 0, 0, -60, -40, 0, 0],
-              translateY: [0, -20, -190, -300, -200, 0, 0],
+            playbackRate={0.62}
+            selectionCamera={{
+              approachStart: 2,
+              approachEnd: 30,
+              selectionFrame: 65,
+              pullbackStart: 73,
+              pullbackEnd: 101,
+              startScale: 1.01,
+              focusScale: 1.22,
+              endScale: 1.03,
+              focusX: -80,
+              focusY: -230,
+              shake: 6,
             }}
           />
         </TransitionSeries.Sequence>
