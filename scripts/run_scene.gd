@@ -12703,19 +12703,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	}
 	match action_type:
 		"move":
-			var move_path: Array[Vector2i] = _combat_engine.path_for_player_action(before_state, action, player_after_tile)
-			var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
-			var to_point: Vector2 = board_view.world_position_for_tile(player_after_tile)
+			var move_path: Array[Vector2i] = _resolved_movement_animation_path(
+				player_before_tile,
+				player_after_tile,
+				_combat_engine.path_for_player_action(before_state, action, player_after_tile)
+			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-				var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-				var presentation: Dictionary = base_presentation.duplicate(true)
-				presentation["focus_tiles"] = move_path
-				presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
-				presentation["unit_world_positions"] = {"player": from_point.lerp(to_point, t)}
-				presentation["unit_draw_tiles"] = {"player": player_after_tile}
-				_render_board_state(before_state, presentation)
-				await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+			var movement_presentation: Dictionary = base_presentation.duplicate(true)
+			movement_presentation["focus_tiles"] = move_path
+			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
+			movement_presentation["path_tiles"] = move_path
+			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
 			_render_board_state(after_state, _death_hold_presentation(before_state, after_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
@@ -13168,30 +13166,15 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	var from_tile: Vector2i = step.get("from", Vector2i.ZERO)
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
-	var actor_unit: Dictionary = _animation_actor_unit(animated_state, actor_key)
-	var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
-	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
-		path = _vector2i_array([from_tile, to_tile])
+	var path: Array[Vector2i] = _resolved_movement_animation_path(from_tile, to_tile, step.get("path", []))
 	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
-	for path_index: int in range(path.size() - 1):
-		var segment_from: Vector2i = path[path_index]
-		var segment_to: Vector2i = path[path_index + 1]
-		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
-		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
-		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
-		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
-			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
-			_render_board_state(animated_state, {
-				"focus_actor_keys": [actor_key],
-				"focus_actor_color": PLAYER_ATTACK_FOCUS,
-				"focus_tiles": [segment_to],
-				"focus_color": Color(0.95, 0.62, 0.37, 0.18),
-				"path_tiles": path,
-				"path_color": ENEMY_PATH_PREVIEW_COLOR,
-				"unit_world_positions": {actor_key: from_point.lerp(to_point, t)},
-				"unit_draw_tiles": {actor_key: draw_tile}
-			})
-			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
+	await _animate_actor_along_path(animated_state, actor_key, path, {
+		"focus_actor_keys": [actor_key],
+		"focus_actor_color": PLAYER_ATTACK_FOCUS,
+		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
+		"path_tiles": path,
+		"path_color": ENEMY_PATH_PREVIEW_COLOR
+	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	if not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
@@ -13207,6 +13190,30 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 		await _animate_defeats_and_terrain_destruction(before_move_state, animated_state)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
+
+func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, path_values: Array) -> Array[Vector2i]:
+	var path: Array[Vector2i] = _vector2i_array(path_values)
+	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
+		return _vector2i_array([from_tile, to_tile])
+	return path
+
+func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
+	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
+	for path_index: int in range(path.size() - 1):
+		var segment_from: Vector2i = path[path_index]
+		var segment_to: Vector2i = path[path_index + 1]
+		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
+		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
+		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
+		for frame: int in range(1, MOVE_STEP_FRAMES + 1):
+			var t: float = float(frame) / float(MOVE_STEP_FRAMES)
+			var presentation: Dictionary = base_presentation.duplicate(true)
+			if not presentation.has("focus_tiles"):
+				presentation["focus_tiles"] = [segment_to]
+			presentation["unit_world_positions"] = {actor_key: from_point.lerp(to_point, t)}
+			presentation["unit_draw_tiles"] = {actor_key: draw_tile}
+			_render_board_state(display_state, presentation)
+			await get_tree().create_timer(MOVE_FRAME_SECONDS).timeout
 
 func _play_sfx(entry: Dictionary) -> void:
 	var path: String = str(entry.get("path", ""))

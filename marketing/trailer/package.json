@@ -1,0 +1,33 @@
+{
+  "name": "trailer",
+  "version": "1.0.0",
+  "description": "Steam store trailer for Escape the Umbra",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.490",
+    "@remotion/media": "4.0.490",
+    "@remotion/transitions": "4.0.490",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.490"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.490",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "render": "remotion render EscapeTheUmbraTrailer out/escape-the-umbra-steam-trailer.mp4 --codec h264 --crf 14 --audio-codec aac --audio-bitrate 320k --concurrency=1 --timeout=60000",
+    "stills": "remotion still EscapeTheUmbraTrailer"
+  },
+  "sideEffects": ["*.css"]
+}

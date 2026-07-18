@@ -13,10 +13,13 @@ const EXPECTED_ENEMY_PATH_COLOR: Color = Color("b78cff")
 
 var _errors: Array[String]
 var _move_animation_complete: bool = false
+var _player_move_animation_complete: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	DisplayServer.window_set_size(VIEWPORT_SIZE)
+	root.content_scale_size = VIEWPORT_SIZE
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.size = VIEWPORT_SIZE
 	ProgressionStore.set_storage_path("user://labyrinth_enemy_pathfinding_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_enemy_pathfinding_probe_run.save")
@@ -65,6 +68,7 @@ func _capture_enemy_pathfinding_states() -> void:
 	_assert_board_projection(instance, safe_plan, "safe route")
 	await _save_root_screenshot("%s/01_safe_route.png" % OUTPUT_DIR)
 	await _capture_mid_route_animation(instance, safe_state, safe_plan)
+	await _capture_player_mid_route_animation(instance, safe_layout, safe_state)
 
 	var forced_layout: Dictionary = _layout("Forced Progress Through Trap", _forced_choke_grid())
 	var forced_state: Dictionary = _combat_state(
@@ -125,6 +129,71 @@ func _capture_mid_route_animation(instance: Node, combat_state: Dictionary, plan
 func _run_move_animation(instance: Node, animated_state: Dictionary, move_step: Dictionary) -> void:
 	await instance.call("_animate_move_step", animated_state, move_step)
 	_move_animation_complete = true
+
+func _capture_player_mid_route_animation(instance: Node, layout: Dictionary, base_state: Dictionary) -> void:
+	var before_state: Dictionary = base_state.duplicate(true)
+	before_state["player"] = {"pos": Vector2i(3, 2), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
+	before_state["enemies"] = [{
+		"id": 1,
+		"type": "crawler",
+		"name": "Distant Observer",
+		"pos": Vector2i(6, 6),
+		"hp": 14,
+		"max_hp": 14,
+		"block": 0,
+		"stoneskin": 0
+	}]
+	before_state["traps"] = [{"id": "player_route_trap", "element": "fire", "pos": Vector2i(4, 2), "damage": 4, "armed": true}]
+	var action: Dictionary = {"type": "move", "range": 4}
+	var target_tile := Vector2i(5, 2)
+	var combat := CombatEngine.new()
+	var path: Array[Vector2i] = combat.path_for_player_action(before_state, action, target_tile)
+	_expect(path.size() == 5, "Player animation scenario should produce a four-step route around the trap")
+	if path.size() < 2:
+		return
+	_expect(path[0] == Vector2i(3, 2) and path[path.size() - 1] == target_tile, "Player animation route should retain its requested endpoints")
+	_expect(not path.has(Vector2i(4, 2)), "Player animation route should preserve the engine's trap-avoiding waypoint choice")
+	var after_state: Dictionary = combat.apply_player_action(before_state.duplicate(true), action, target_tile)
+	_expect((after_state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) == target_tile, "Player animation scenario should resolve at the route destination")
+	await _install_and_hover(instance, layout, before_state, Vector2i(6, 6))
+
+	_player_move_animation_complete = false
+	call_deferred("_run_player_move_animation", instance, before_state.duplicate(true), after_state, action, target_tile)
+	var board: Control = instance.get_node(BOARD_PATH) as Control
+	var presentation: Dictionary = {}
+	var world_positions: Dictionary = {}
+	for _frame: int in range(60):
+		await process_frame
+		presentation = board.get("presentation") as Dictionary
+		world_positions = presentation.get("unit_world_positions", {}) as Dictionary
+		if world_positions.has("player"):
+			break
+	_expect(world_positions.has("player"), "Player movement animation should expose an in-flight world position")
+	_expect(_vector2i_array(presentation.get("path_tiles", [])) == path, "Player movement animation should retain the full ordered path arrow")
+	if world_positions.has("player"):
+		var player_world_position: Vector2 = world_positions.get("player", Vector2.ZERO)
+		var segment_start: Vector2 = board.call("world_position_for_tile", path[0])
+		var segment_end: Vector2 = board.call("world_position_for_tile", path[1])
+		var direct_end: Vector2 = board.call("world_position_for_tile", path[path.size() - 1])
+		_expect(_distance_to_segment(player_world_position, segment_start, segment_end) < 1.0, "Player should animate on the route's first segment")
+		_expect(_distance_to_segment(player_world_position, segment_start, direct_end) > 1.0, "Player should not animate on the direct start-to-destination line")
+	await _save_root_screenshot("%s/04_player_bent_route_animation.png" % OUTPUT_DIR)
+	var wait_frames: int = 0
+	while not _player_move_animation_complete and wait_frames < 240:
+		await process_frame
+		wait_frames += 1
+	_expect(_player_move_animation_complete, "Player multi-segment movement animation should complete")
+
+func _run_player_move_animation(instance: Node, before_state: Dictionary, after_state: Dictionary, action: Dictionary, target_tile: Vector2i) -> void:
+	await instance.call("_animate_player_action_step", before_state, after_state, "threaded_path", action, target_tile)
+	_player_move_animation_complete = true
+
+func _distance_to_segment(point: Vector2, segment_start: Vector2, segment_end: Vector2) -> float:
+	var segment: Vector2 = segment_end - segment_start
+	if segment.length_squared() <= 0.0001:
+		return point.distance_to(segment_start)
+	var progress: float = clampf((point - segment_start).dot(segment) / segment.length_squared(), 0.0, 1.0)
+	return point.distance_to(segment_start + segment * progress)
 
 func _install_and_hover(instance: Node, layout: Dictionary, combat_state: Dictionary, enemy_tile: Vector2i) -> void:
 	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
@@ -239,8 +308,9 @@ func _save_root_screenshot(output_path: String) -> void:
 	await process_frame
 	var image: Image = root.get_texture().get_image()
 	if image.get_width() != VIEWPORT_SIZE.x or image.get_height() != VIEWPORT_SIZE.y:
-		_errors.append("Enemy pathfinding probe captured an invalid image size for %s" % output_path)
-		return
+		# Metal exposes the Retina backing texture, so normalize the native render
+		# to the probe's declared logical proof resolution before validation.
+		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	if image.save_png(output_path) != OK:
 		_errors.append("Enemy pathfinding probe could not save %s" % output_path)
 
