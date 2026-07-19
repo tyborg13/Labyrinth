@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-18T03:51:39Z",
+  "updated_at": "2026-07-19T14:45:52Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6027,6 +6027,28 @@
       "source": {
         "branch": "codex/implement-five-elemental-dragon-bosses-and-complete-24-depth-victory-pro",
         "commit": "5e81c14"
+      }
+    },
+    {
+      "id": "mnt_20260719T144552Z_c642345c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Placed light visuals mirror Illuminate's Manhattan footprint",
+      "details": "CombatBoardView derives each warm reach overlay and its perimeter from rendered tiles whose Manhattan distance to the placed source is within the source radius. Keep this presentation geometry aligned with CombatEngine.umbra_visible_tiles/_light_source_covers_tile so the lit area never promises visibility or Radiance protection that gameplay does not grant.",
+      "status": "active",
+      "created_at": "2026-07-19T14:45:52Z",
+      "updated_at": "2026-07-19T14:45:52Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/improve-light-orb-and-warm-umbra-reach-lighting",
+        "commit": "af28967"
       }
     }
   ]

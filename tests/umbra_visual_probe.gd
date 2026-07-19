@@ -201,6 +201,10 @@ func _capture_active_effect_feedback(instance: Node) -> void:
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	_assert(int(presentation.get("umbra_truesight_activations", 0)) == 2, "True Sight should expose its remaining activation count to the player HUD")
 	_assert((presentation.get("umbra_light_sources", []) as Array).size() == 1, "Active light sources should be exposed to the board presentation")
+	var source_footprint: Array[Vector2i] = _vector2i_array(board.call("_umbra_light_source_tiles", active_umbra["light_sources"][0]))
+	_assert(source_footprint.size() == 13, "A radius-2 light reach treatment should cover the same 13-tile Manhattan footprint as Illuminate")
+	_assert(source_footprint.has(Vector2i(5, 5)) and source_footprint.has(Vector2i(7, 5)), "Light reach treatment should include its source and radius edge")
+	_assert(not source_footprint.has(Vector2i(7, 6)), "Light reach treatment should exclude tiles beyond Illuminate's Manhattan radius")
 	var tooltip_regions: Array = board.get("_tooltip_regions") as Array
 	_assert(_has_tooltip_containing(tooltip_regions, "Light Source"), "The glowing light-source marker should have a hover tooltip")
 	_assert(_has_tooltip_containing(tooltip_regions, "True Sight"), "The player True Sight badge should have a hover tooltip")
