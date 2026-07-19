@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-18T03:51:39Z",
+  "updated_at": "2026-07-19T16:13:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6027,6 +6027,28 @@
       "source": {
         "branch": "codex/implement-five-elemental-dragon-bosses-and-complete-24-depth-victory-pro",
         "commit": "5e81c14"
+      }
+    },
+    {
+      "id": "mnt_20260719T161354Z_2b9cf35d",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Elemental intensity is a contested room resource with centralized scaling rules",
+      "details": "Player cards with top-level intensity_cost synthesize one required spend before printed actions; enemy actions build with type:intensity or pay attached spend_intensity costs. Trap damage is centralized in scripts/elemental_intensity_rules.gd at 72/94/124/162/208/262/324 percent for intensity 0-6, and generated traps preserve base_damage with damage fallback for older saves.",
+      "status": "active",
+      "created_at": "2026-07-19T16:13:54Z",
+      "updated_at": "2026-07-19T16:13:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-core-rework",
+        "commit": "af28967"
       }
     }
   ]

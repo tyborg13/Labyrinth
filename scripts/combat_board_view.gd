@@ -4,6 +4,7 @@ class_name CombatBoardView
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -671,6 +672,7 @@ func _rebuild_submission_caches() -> void:
 		"terrain": combat_state.get("terrain", []),
 		"loot": combat_state.get("loot", []),
 		"traps": combat_state.get("traps", []),
+		"elemental_intensity": combat_state.get("elemental_intensity", {}),
 		"grid": combat_state.get("grid", []),
 		"room_element": combat_state.get("room_element", ElementData.NONE),
 		"scene_props": presentation.get("scene_props", []),
@@ -1387,6 +1389,11 @@ func _ambient_element_id() -> String:
 		return _ambient_element_id_cache
 	return str(combat_state.get("room_element", ElementData.NONE))
 
+func _ambient_intensity(element_id: String = "") -> int:
+	var resolved_element: String = element_id if not element_id.is_empty() else _ambient_element_id()
+	var intensities: Dictionary = combat_state.get("elemental_intensity", {}) as Dictionary
+	return maxi(0, int(intensities.get(resolved_element, 0)))
+
 func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	var element_id: String = _ambient_element_id()
 	if tiles.is_empty() or not ElementData.is_elemental(element_id):
@@ -1402,7 +1409,7 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 		var base_point: Vector2 = _tile_center(tiles[tile_index])
 		_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
 
-func _ambient_particle_count(element_id: String, tile_count: int) -> int:
+func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: int = -1) -> int:
 	var base_count: int = 0
 	match element_id:
 		"fire":
@@ -1416,7 +1423,8 @@ func _ambient_particle_count(element_id: String, tile_count: int) -> int:
 		"earth":
 			base_count = 88
 	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
-	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY)))
+	var intensity: int = _ambient_intensity(element_id) if intensity_override < 0 else maxi(0, intensity_override)
+	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * ElementalIntensityRules.ambient_density_scale(intensity))))
 
 func _ambient_room_seed(element_id: String) -> int:
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -1459,7 +1467,7 @@ func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, 
 		return
 	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
 	var air_soft_texture: Texture2D = null
-	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed))
+	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed) * ElementalIntensityRules.ambient_speed_scale(_ambient_intensity(element_id)))
 	if element_id == "air":
 		var wisp_variant_index: int = _ambient_air_wisp_variant_index(seed)
 		var wisp_texture: Texture2D = _ambient_air_wisp_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
@@ -1622,13 +1630,14 @@ func _ambient_particle_speed(element_id: String, seed: int) -> float:
 			return 0.10
 
 func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
+	var intensity_opacity: float = ElementalIntensityRules.ambient_opacity_scale(_ambient_intensity(element_id))
 	if element_id == "lightning":
 		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
-		return clampf(pulse * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
 	if element_id == "air":
-		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
 	var floor_alpha: float = 0.12 if element_id in ["fire", "ice"] else 0.08
-	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
 
 func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_seconds: float, tile_width: float) -> Vector2:
 	var lateral: float = lerpf(-0.54, 0.54, _ambient_hash01(seed + 3)) * tile_width
@@ -3511,7 +3520,10 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		var icon_key: String = str(token.get("icon", ""))
 		var tooltip: String = ActionIcons.token_tooltip(token)
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
-		_draw_keyword_icon(icon_key, icon_rect, tooltip)
+		var condition_tint: Color = Color.WHITE
+		if token.has("condition_active") and not bool(token.get("condition_active", false)):
+			condition_tint = Color(0.42, 0.39, 0.36, 0.64)
+		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint)
 		if ActionIcons.token_is_modified(token) and font != null:
 			_draw_token_modifier_marker(icon_rect, tooltip, font)
 		cursor_x += icon_size + 3.0
@@ -3931,6 +3943,8 @@ func _register_tooltip(rect: Rect2, tooltip: String) -> void:
 	})
 
 func _token_value_color(token: Dictionary, default_color: Color) -> Color:
+	if token.has("condition_active") and not bool(token.get("condition_active", false)):
+		return default_color.darkened(0.42)
 	match str(token.get("tone", "neutral")):
 		"bonus":
 			return Color("78c46a")
@@ -6546,13 +6560,31 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
-		var row: Array = ActionIcons.tokens_for_action(action)
+		var row: Array = _annotate_intensity_intent_row(ActionIcons.tokens_for_action(action))
 		var support_token: Dictionary = _support_target_token_for_action(unit, action)
 		if not support_token.is_empty():
 			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
+		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
+		if not bonus_row.is_empty():
+			rows.append(_annotate_intensity_intent_row(bonus_row))
 	return rows
+
+func _annotate_intensity_intent_row(row: Array) -> Array:
+	var annotated: Array = []
+	for token_var: Variant in row:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			annotated.append(token_var)
+			continue
+		var token: Dictionary = (token_var as Dictionary).duplicate(true)
+		var kind: String = str(token.get("kind", ""))
+		if kind in ["intensity_requirement", "intensity_spend"]:
+			var element_id: String = str(token.get("element", ElementData.NONE))
+			var needed: int = int(token.get("threshold", token.get("amount", 0)))
+			token["condition_active"] = _ambient_intensity(element_id) >= needed
+		annotated.append(token)
+	return annotated
 
 func _intent_display_name(intent: Dictionary) -> String:
 	return str(intent.get("name", "")).strip_edges()
@@ -6908,7 +6940,11 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 	var trap_texture: Texture2D = _trap_textures.get(element_id, null)
 	if trap_texture != null:
 		var trap_rect: Rect2 = _trap_draw_rect(tile)
-		draw_texture_rect(trap_texture, trap_rect, false)
+		var intensity: int = _ambient_intensity(element_id)
+		var scale_bonus: float = clampf(float(intensity - 1) * 0.035, -0.04, 0.18)
+		trap_rect = trap_rect.grow(trap_rect.size.x * scale_bonus * 0.5)
+		var danger_lift: float = clampf(float(maxi(0, intensity - 2)) * 0.045, 0.0, 0.18)
+		draw_texture_rect(trap_texture, trap_rect, false, Color.WHITE.lightened(danger_lift))
 		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
 
 func _trap_draw_rect(tile: Vector2i) -> Rect2:
@@ -6918,8 +6954,13 @@ func _trap_draw_rect(tile: Vector2i) -> Rect2:
 	return Rect2(center - draw_size * 0.5, draw_size)
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
-	var lines: PackedStringArray = ["%s Trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
-	lines.append("%d damage to adjacent tiles" % int(trap.get("damage", 0)))
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var intensity: int = _ambient_intensity(element_id)
+	var base_damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
+	var resolved_damage: int = ElementalIntensityRules.scaled_trap_damage(base_damage, intensity)
+	var lines: PackedStringArray = ["%s Trap — %s" % [ElementData.name(element_id), ElementalIntensityRules.threat_band_name(intensity)]]
+	lines.append("%d damage to adjacent tiles at intensity %d" % [resolved_damage, intensity])
+	lines.append("%d%% of base damage; changes live with %s intensity" % [ElementalIntensityRules.trap_scale_percent(intensity), ElementData.name(element_id)])
 	if int(trap.get("burn", 0)) > 0:
 		lines.append("Burn %d" % int(trap.get("burn", 0)))
 	if int(trap.get("freeze", 0)) > 0:

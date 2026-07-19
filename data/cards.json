@@ -674,11 +674,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 4 in a cross pattern at range 4. Fire 2+: +5 damage and burn 3.",
+    "intensity_cost": { "element": "fire", "amount": 2 },
+    "description": "Spend 2 Fire intensity. Deal 9 and burn 3 in a cross pattern at range 4.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/inferno_ritual.png",
     "actions": [
-      { "type": "aoe", "damage": 4, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 5, "burn": 3 } }
+      { "type": "aoe", "damage": 9, "range": 4, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]], "rotate": false, "burn": 3 }
     ]
   },
   "molten_reach": {
@@ -792,11 +793,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 4 at range 7 and draw 1. Ice 2+: +3 damage and freeze.",
+    "intensity_cost": { "element": "ice", "amount": 2 },
+    "description": "Spend 2 Ice intensity. Deal 7 at range 7, freeze, and draw 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/hush_of_winter.png",
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 7, "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 3, "freeze": 1 } },
+      { "type": "ranged", "damage": 7, "range": 7, "freeze": 1 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -911,11 +913,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 4 at range 6 with chain 2. Lightning 2+: +3 damage and shock.",
+    "intensity_cost": { "element": "lightning", "amount": 2 },
+    "description": "Spend 2 Lightning intensity. Deal 7 at range 6 with chain 2 and shock.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_relay.png",
     "actions": [
-      { "type": "ranged", "damage": 4, "range": 6, "chain": 2, "intensity_bonus": { "element": "lightning", "threshold": 2, "damage": 3, "shock": 1 } }
+      { "type": "ranged", "damage": 7, "range": 6, "chain": 2, "shock": 1 }
     ]
   },
   "volt_surge": {
@@ -1006,11 +1009,12 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Pull 2 at range 5 and hit 5. Draw 1. Air 2+: +3 pull and +4 damage.",
+    "intensity_cost": { "element": "air", "amount": 2 },
+    "description": "Spend 2 Air intensity. Pull 5 at range 5, hit for 9, and draw 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/vacuum_line.png",
     "actions": [
-      { "type": "pull", "amount": 2, "range": 5, "damage": 5, "intensity_bonus": { "element": "air", "threshold": 2, "amount": 3, "damage": 4 } },
+      { "type": "pull", "amount": 5, "range": 5, "damage": 9 },
       { "type": "draw", "amount": 1 }
     ]
   },
@@ -1162,12 +1166,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Pierce all adjacent tiles for 6, then gain 3 stoneskin. Earth 3+: +6 damage and poison 5.",
+    "intensity_cost": { "element": "earth", "amount": 3 },
+    "description": "Spend 3 Earth intensity. Pierce all adjacent tiles for 12 and poison 5, then gain 5 stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/spike_mantle.png",
     "actions": [
-      { "type": "aoe", "damage": 6, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "pierce": true, "intensity_bonus": { "element": "earth", "threshold": 3, "damage": 6, "poison": 5 } },
-      { "type": "stoneskin", "amount": 3 }
+      { "type": "aoe", "damage": 12, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]], "rotate": false, "pierce": true, "poison": 5 },
+      { "type": "stoneskin", "amount": 5 }
     ]
   },
   "tectonic_maul": {

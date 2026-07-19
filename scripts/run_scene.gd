@@ -6,6 +6,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -5826,7 +5827,7 @@ func _setup_elemental_intensity_bar() -> void:
 		badge.mouse_filter = Control.MOUSE_FILTER_STOP
 		badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 		badge.tooltip_text = _intensity_tooltip(element_id)
-		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, false))
+		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, 0))
 		_intensity_bar.add_child(badge)
 		_intensity_badges[element_id] = badge
 
@@ -8218,7 +8219,8 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 		var badge: PanelContainer = _intensity_badges.get(element_id, null)
 		if badge != null:
 			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
-			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value > 0))
+			badge.tooltip_text = _intensity_tooltip(element_id, value, str(state.get("room_element", ElementData.NONE)) == element_id)
+			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value))
 
 func _refresh_umbra_subtitle() -> void:
 	if umbra_subtitle == null:
@@ -8245,28 +8247,36 @@ func _refresh_umbra_subtitle() -> void:
 	]
 	umbra_subtitle.visible = true
 
-func _intensity_tooltip(element_id: String) -> String:
-	return "%s Intensity\nRoom-wide %s power. Some %s card effects need this value." % [
+func _intensity_tooltip(element_id: String, value: int = 0, active_room_element: bool = false) -> String:
+	var room_effect: String = "Matching traps deal %d%% of their base damage." % ElementalIntensityRules.trap_scale_percent(value)
+	if active_room_element:
+		room_effect += " Room particles are also scaling with this value."
+	return "%s Intensity %d — %s\nRoom-wide contested power. Cards and elemental enemies can build, require, or spend it.\n%s" % [
 		ElementData.name(element_id),
-		ElementData.name(element_id),
-		ElementData.name(element_id)
+		value,
+		ElementalIntensityRules.threat_band_name(value),
+		room_effect
 	]
 
-func _intensity_badge_style(element_id: String, active: bool) -> StyleBoxFlat:
+func _intensity_badge_style(element_id: String, value: int) -> StyleBoxFlat:
 	var accent: Color = ElementData.accent(element_id)
+	var active: bool = value > 0
+	var danger: float = clampf(float(maxi(0, value - 1)) / 4.0, 0.0, 1.0)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.055, 0.045, 0.86 if active else 0.58)
-	style.border_color = accent.lightened(0.18) if active else Color(accent.r, accent.g, accent.b, 0.42)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
+	var charged_background: Color = Color(0.08, 0.055, 0.045, 0.86 if active else 0.58).lerp(accent.darkened(0.56), danger * 0.72)
+	style.bg_color = charged_background
+	style.border_color = accent.lightened(lerpf(0.18, 0.42, danger)) if active else Color(accent.r, accent.g, accent.b, 0.42)
+	var border_width: int = 2 + int(roundf(danger * 2.0))
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.32 if active else 0.12)
-	style.shadow_size = 8 if active else 3
+	style.shadow_color = Color(accent.r, accent.g, accent.b, danger * 0.42) if danger > 0.0 else Color(0.0, 0.0, 0.0, 0.32 if active else 0.12)
+	style.shadow_size = 8 + int(roundf(danger * 6.0)) if active else 3
 	style.content_margin_left = 0
 	style.content_margin_top = 0
 	style.content_margin_right = 0
@@ -10574,7 +10584,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
-	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
+	var summary_rows: Array = _annotate_intensity_spend_rows(ActionIcons.cost_rows_for_card(card), state)
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
 	var previous_action_row_index: int = -1
@@ -10632,6 +10642,25 @@ func _annotate_intensity_condition_row(row: Array, active: bool) -> Array:
 			token["condition_active"] = active
 		annotated.append(token)
 	return annotated
+
+func _annotate_intensity_spend_rows(rows: Array, state: Dictionary) -> Array:
+	var annotated_rows: Array = []
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			annotated_rows.append(row_var)
+			continue
+		var annotated_row: Array = []
+		for token_var: Variant in row_var as Array:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				annotated_row.append(token_var)
+				continue
+			var token: Dictionary = (token_var as Dictionary).duplicate(true)
+			if str(token.get("kind", "")) == "intensity_spend":
+				var element_id: String = str(token.get("element", ElementData.NONE))
+				token["condition_active"] = _combat_engine.elemental_intensity(state, element_id) >= int(token.get("amount", 0))
+			annotated_row.append(token)
+		annotated_rows.append(annotated_row)
+	return annotated_rows
 
 func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dictionary]:
 	var filtered: Array[Dictionary] = []
@@ -10751,6 +10780,18 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
+			if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
+				return {
+					"card_id": card_id,
+					"state": working_state,
+					"actions": actions,
+					"action_index": cursor,
+					"target_tiles": _vector2i_array([]),
+					"complete": true,
+					"playable": false,
+					"action": action,
+					"skip_allowed": false
+				}
 			cursor += 1
 			continue
 		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
@@ -13585,6 +13626,7 @@ func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary)
 		var trap_id: String = str(before_trap.get("id", ""))
 		if trap_id.is_empty() or after_ids.has(trap_id):
 			continue
+		before_trap["resolved_damage"] = _combat_engine.trap_damage(before_state, before_trap)
 		triggered.append(before_trap)
 	return triggered
 
@@ -18585,7 +18627,7 @@ func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> 
 func _triggered_trap_damage(triggered_traps: Array[Dictionary]) -> int:
 	var total: int = 0
 	for trap: Dictionary in triggered_traps:
-		total += maxi(0, int(trap.get("damage", 0)))
+		total += maxi(0, int(trap.get("resolved_damage", trap.get("damage", 0))))
 	return total
 
 func _analytics_picked_loot_count(before_state: Dictionary, after_state: Dictionary) -> int:
@@ -18660,7 +18702,7 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "intensity"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
@@ -18678,7 +18720,9 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
 			"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
 			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
-			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true)
+			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
+			"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
+			"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
 		})
 
 func _sync_combat_state_from_run() -> void:

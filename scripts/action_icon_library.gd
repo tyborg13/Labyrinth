@@ -3,6 +3,7 @@ class_name ActionIconLibrary
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 
@@ -418,6 +419,9 @@ static func cost_rows_for_card(card: Dictionary) -> Array:
 	var health_cost: int = int(card.get("health_cost", 0))
 	if health_cost > 0:
 		row.append(token_for("health_cost", "-%d" % health_cost))
+	var intensity_cost: Dictionary = ElementalIntensityRules.card_cost(card)
+	if not intensity_cost.is_empty():
+		row.append(intensity_spend_token(intensity_cost))
 	return [row] if not row.is_empty() else []
 
 static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> Array:
@@ -497,6 +501,10 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			intensity_token["kind"] = "elemental_intensity"
 			intensity_token["element"] = intensity_element
 			tokens.append(intensity_token)
+		"intensity_spend":
+			var direct_spend: Dictionary = ElementalIntensityRules.normalized_cost(action, _action_element(action))
+			if not direct_spend.is_empty():
+				tokens.append(intensity_spend_token(direct_spend))
 		"illusion":
 			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
@@ -540,6 +548,9 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player activations. Radiance and light protect affected tiles."))
+	var attached_spend: Dictionary = ElementalIntensityRules.action_spend(action)
+	if action_type != "intensity_spend" and not attached_spend.is_empty() and not tokens.is_empty():
+		tokens.push_front(intensity_spend_token(attached_spend))
 	var requirement: Dictionary = intensity_requirement_for_action(action)
 	if not requirement.is_empty() and not tokens.is_empty():
 		tokens.push_front(intensity_requirement_token(requirement))
@@ -639,6 +650,25 @@ static func intensity_requirement_token(requirement: Dictionary) -> Dictionary:
 	token["threshold"] = threshold
 	return token
 
+static func intensity_spend_token(cost: Dictionary) -> Dictionary:
+	var element_id: String = str(cost.get("element", ElementData.NONE))
+	var amount: int = maxi(0, int(cost.get("amount", 0)))
+	var token: Dictionary = token_for(
+		element_icon_key(element_id),
+		"-%d" % amount,
+		"penalty",
+		"Spend %s Intensity\nThis cost removes %d %s intensity from the room when the effect resolves." % [
+			ElementData.name(element_id),
+			amount,
+			ElementData.name(element_id)
+		]
+	)
+	token["kind"] = "intensity_spend"
+	token["element"] = element_id
+	token["amount"] = amount
+	token["keep_row_together"] = true
+	return token
+
 static func _bonus_token(icon_key: String, amount: int, tooltip_text: String) -> Dictionary:
 	return token_for(icon_key, "+%d" % amount, "neutral", tooltip_text)
 
@@ -662,6 +692,9 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 			continue
 		if str(token.get("kind", "")) == "intensity_requirement":
 			parts.append("%s %s" % [ElementData.name(str(token.get("element", ElementData.NONE))), token_value_text(token)])
+			continue
+		if str(token.get("kind", "")) == "intensity_spend":
+			parts.append("Spend %s %d" % [ElementData.name(str(token.get("element", ElementData.NONE))), int(token.get("amount", 0))])
 			continue
 		if str(token.get("kind", "")) == "text":
 			parts.append(token_value_text(token))

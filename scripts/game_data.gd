@@ -1469,6 +1469,23 @@ static func _card_value(card: Dictionary) -> float:
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		total += _action_value(action_var as Dictionary)
+	var intensity_cost: Dictionary = card.get("intensity_cost", {}) as Dictionary
+	var intensity_cost_amount: int = maxi(0, int(intensity_cost.get("amount", intensity_cost.get("cost", 0))))
+	if intensity_cost_amount > 0:
+		var cost_element: String = str(intensity_cost.get("element", card.get("element", ElementData.NONE)))
+		var matching_room_intensity: int = 1 if cost_element == str(card.get("element", ElementData.NONE)) else 0
+		var gap: int = intensity_cost_amount - matching_room_intensity
+		var raw_availability: float = 1.0
+		if gap == 1:
+			raw_availability = 0.62
+		elif gap == 2:
+			raw_availability = 0.44
+		elif gap == 3:
+			raw_availability = 0.28
+		elif gap >= 4:
+			raw_availability = 0.18
+		total *= 0.68 + 0.32 * raw_availability
+		total -= float(intensity_cost_amount) * 0.7
 	total -= float(int(card.get("health_cost", 0))) * 1.6
 	if bool(card.get("burn", false)):
 		total -= 1.2

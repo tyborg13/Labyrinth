@@ -50,7 +50,11 @@ whole footprint clickable, but the action still counts as one target and one
 hit for scoring.
 Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,
 including the playable edge band, and those traps blast adjacent tiles when
-stepped on or attacked.
+stepped on or attacked. Their authored damage is multiplied by the live matching
+element's intensity curve (72/94/124/162/208/262/324 percent at intensity
+0-6), so spending intensity can also calm the battlefield. Elemental specialist
+enemies build the same shared resource, gate extra effects on it, or consume it
+for stronger intents.
 First-sequence standard trap damage is 6/7/8 player-scale damage at depths
 1/2/3, first-boss traps hit for 5 to avoid one-shotting full-health lightning
 wisps, and later sequences add 2 player-scale damage per completed sequence.
@@ -119,6 +123,11 @@ def encounter_assumptions() -> dict[str, Any]:
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
+        "elemental_intensity": {
+            "matching_room_start": 1,
+            "trap_scale_percent_at_intensity_0_to_6": [72, 94, 124, 162, 208, 262, 324],
+            "shared_with_elemental_enemies": True,
+        },
         "sequence_scaling": {
             "enemy_hp_multiplier_per_completed_sequence": ENEMY_HP_SCALE_PER_SEQUENCE,
             "enemy_hp_flat_per_completed_sequence": ENEMY_HP_FLAT_BONUS_PER_SEQUENCE,
@@ -143,6 +152,8 @@ class HeuristicWeights:
     flurry_retargeting_value: float = 0.25
     flurry_extra_play_penalty: float = 0.55
     intensity_gain_per_point: float = 0.70
+    intensity_spend_per_point: float = 0.35
+    intensity_spend_retention_floor: float = 0.68
     intensity_same_element_synergy: float = 0.18
     intensity_gate_synergy: float = 0.30
     kill_card_play_value: float = 0.45
@@ -199,6 +210,7 @@ class ScoreBreakdown:
     defense: float = 0.0
     flow: float = 0.0
     elemental_intensity: float = 0.0
+    intensity_spend_cost: float = 0.0
     mobility: float = 0.0
     radiance: float = 0.0
     synergy: float = 0.0
@@ -333,6 +345,17 @@ def intensity_bonus_availability(bonus: dict[str, Any], intensity_context: dict[
     )
 
 
+def card_intensity_cost(card: dict[str, Any], card_element: str) -> dict[str, Any]:
+    raw = card.get("intensity_cost", {})
+    if not isinstance(raw, dict):
+        return {}
+    element = str(raw.get("element", card_element))
+    amount = int(raw.get("amount", raw.get("cost", 0)))
+    if element not in ELEMENTS or amount <= 0:
+        return {}
+    return {"element": element, "amount": amount}
+
+
 def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) -> ScoreBreakdown:
     breakdown = ScoreBreakdown()
     actions = card.get("actions", [])
@@ -340,6 +363,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     intensity_context = {element: 0 for element in ELEMENTS}
     if card_element in ELEMENTS:
         intensity_context[card_element] = 1
+    intensity_cost = card_intensity_cost(card, card_element)
 
     pre_attack_reach = 0
     move_tiles = 0.0
@@ -646,6 +670,25 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         )
         breakdown.flurry_commitment_penalty = (flurry_multiplier - 1) * weights.flurry_extra_play_penalty
 
+    if intensity_cost:
+        raw_availability = _intensity_requirement_availability(intensity_cost, intensity_context)
+        retained_card_availability = weights.intensity_spend_retention_floor + (
+            1.0 - weights.intensity_spend_retention_floor
+        ) * raw_availability
+        for field in (
+            "offense",
+            "control",
+            "defense",
+            "flow",
+            "elemental_intensity",
+            "mobility",
+            "radiance",
+            "synergy",
+        ):
+            setattr(breakdown, field, getattr(breakdown, field) * retained_card_availability)
+        breakdown.flurry_compression_bonus *= retained_card_availability
+        breakdown.intensity_spend_cost = int(intensity_cost["amount"]) * weights.intensity_spend_per_point
+
     breakdown.health_cost = int(card.get("health_cost", 0)) * weights.health_cost_per_point * flurry_multiplier
     if bool(card.get("burn", False)):
         breakdown.burn_card_penalty = max(
@@ -666,6 +709,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.synergy
         + breakdown.tempo
         + breakdown.flurry_compression_bonus
+        - breakdown.intensity_spend_cost
         - breakdown.health_cost
         - breakdown.burn_card_penalty
         - breakdown.flurry_commitment_penalty,
@@ -765,6 +809,7 @@ def scored_rows(
                 "flurry": bool(card.get("flurry", False)),
                 "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
+                "intensity_cost": card_intensity_cost(card, str(card.get("element", "none"))),
                 "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),
                 "score": breakdown.total,
@@ -906,6 +951,10 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
             tag_bits.append("flurry")
         if row["health_cost"] > 0:
             tag_bits.append(f"hp-cost={row['health_cost']}")
+        if row["intensity_cost"]:
+            tag_bits.append(
+                f"intensity-cost={row['intensity_cost']['element']}:{row['intensity_cost']['amount']}"
+            )
         tag_bits.append(f"time={row['time']}")
         tags = ", ".join(tag_bits)
         print(f"{index:>2}. {row['score']:>5.2f}  {row['card_id']}  {row['name']}  [{tags}]")
@@ -921,6 +970,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"defense={breakdown['defense']:.2f}",
                         f"flow={breakdown['flow']:.2f}",
                         f"intensity={breakdown['elemental_intensity']:.2f}",
+                        f"intensity_spend={breakdown['intensity_spend_cost']:.2f}",
                         f"mobility={breakdown['mobility']:.2f}",
                         f"radiance={breakdown['radiance']:.2f}",
                         f"synergy={breakdown['synergy']:.2f}",
