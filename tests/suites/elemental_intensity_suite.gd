@@ -121,9 +121,13 @@ static func _test_enemy_build_and_spend_resolution(expect: Callable) -> void:
 	var after_starved: Dictionary = starved_phase.get("state", {}) as Dictionary
 	expect.call(int((after_starved.get("player", {}) as Dictionary).get("hp", 0)) == 240, "A starved enemy payoff should not damage the player")
 	expect.call(combat.elemental_intensity(after_starved, ElementData.LIGHTNING) == 1, "A starved enemy payoff should not consume a partial payment")
+	var starved_plan: Dictionary = combat.enemy_intent_plan(starved_state, 0)
+	expect.call(not bool(starved_plan.get("attack_available", true)) and (starved_plan.get("projected_attack", []) as Array).is_empty(), "A starved enemy payoff should not paint a projected attack threat")
 	var funded_state: Dictionary = _enemy_state(combat, ElementData.LIGHTNING, "lightning_wisp", "blinding_arc")
 	_set_intensity(combat, funded_state, ElementData.LIGHTNING, 2)
 	expect.call(combat.enemy_action_can_resolve(funded_state, spend_action), "A funded enemy payoff should become resolvable")
+	var funded_plan: Dictionary = combat.enemy_intent_plan(funded_state, 0)
+	expect.call(bool(funded_plan.get("attack_available", false)) and not (funded_plan.get("projected_attack", []) as Array).is_empty(), "A funded enemy payoff should restore its projected attack threat")
 	var funded_phase: Dictionary = combat.resolve_enemy_phase_with_steps(funded_state)
 	var after_funded: Dictionary = funded_phase.get("state", {}) as Dictionary
 	expect.call(int((after_funded.get("player", {}) as Dictionary).get("hp", 0)) < 240, "A funded enemy payoff should resolve its stronger attack")
@@ -133,6 +137,24 @@ static func _test_enemy_build_and_spend_resolution(expect: Callable) -> void:
 		if typeof(step_var) == TYPE_DICTIONARY and int(((step_var as Dictionary).get("elemental_intensity_spent", {}) as Dictionary).get(ElementData.LIGHTNING, 0)) == 2:
 			saw_spend_step = true
 	expect.call(saw_spend_step, "Enemy payoff steps should expose their intensity spend to analytics")
+	var missed_state: Dictionary = _enemy_state(combat, ElementData.AIR, "chainbound_gaoler", "chain_reel")
+	_set_intensity(combat, missed_state, ElementData.AIR, 2)
+	var missed_player: Dictionary = (missed_state.get("player", {}) as Dictionary).duplicate(true)
+	missed_player["pos"] = Vector2i(1, 1)
+	missed_state["player"] = missed_player
+	var missed_enemies: Array = (missed_state.get("enemies", []) as Array).duplicate(true)
+	var missed_enemy: Dictionary = (missed_enemies[0] as Dictionary).duplicate(true)
+	missed_enemy["pos"] = Vector2i(6, 5)
+	missed_enemies[0] = missed_enemy
+	missed_state["enemies"] = missed_enemies
+	var missed_phase: Dictionary = combat.resolve_enemy_phase_with_steps(missed_state)
+	var after_missed: Dictionary = missed_phase.get("state", {}) as Dictionary
+	expect.call(combat.elemental_intensity(after_missed, ElementData.AIR) == 2, "An out-of-range enemy payoff should not pay intensity for an effect that never resolves")
+	var missed_spend_step: bool = false
+	for step_var: Variant in missed_phase.get("steps", []):
+		if typeof(step_var) == TYPE_DICTIONARY and int(((step_var as Dictionary).get("elemental_intensity_spent", {}) as Dictionary).get(ElementData.AIR, 0)) > 0:
+			missed_spend_step = true
+	expect.call(not missed_spend_step, "A missed enemy payoff should not emit a phantom intensity-spend analytics step")
 
 static func _combat_state(combat: CombatEngine, element_id: String) -> Dictionary:
 	return combat.create_combat(78123, {"name": "Intensity Test", "type": "combat", "depth": 2, "element": element_id, "grid": _grid(), "player_start": Vector2i(2, 4), "enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 140, "max_hp": 140, "block": 0}], "traps": [], "loot": []}, {"hp": 24, "max_hp": 24, "deck_cards": ["inferno_ritual", "spark_dart"], "relics": [], "hand_size": 2, "heal_bonus": 0})

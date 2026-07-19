@@ -2387,13 +2387,8 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	var intensity_spend: Dictionary = action_intensity_spend(action)
-	if not intensity_spend.is_empty():
-		next_state = _consume_elemental_intensity(
-			next_state,
-			str(intensity_spend.get("element", ElementData.NONE)),
-			int(intensity_spend.get("amount", 0))
-		)
 	action = resolved_action
+	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context)
@@ -2500,6 +2495,14 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_gain_frost_armor(next_state, enemy_index, action)
 		"umbra_eclipse":
 			next_state = _enemy_umbra_eclipse(next_state, enemy_index, action, bleed_steps)
+	if not intensity_spend.is_empty():
+		var resolved_step: Dictionary = _enemy_action_step(state_before_action, next_state, enemy_index, action, action_context)
+		if not resolved_step.is_empty():
+			next_state = _consume_elemental_intensity(
+				next_state,
+				str(intensity_spend.get("element", ElementData.NONE)),
+				int(intensity_spend.get("amount", 0))
+			)
 	return next_state
 
 func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_index: int, action: Dictionary, followup_action: Dictionary, action_context: Dictionary, target_pos: Vector2i, toward: bool) -> Array[Vector2i]:
@@ -6051,6 +6054,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var attack_action: Dictionary = {}
 	if attack_index >= 0:
 		attack_action = (actions[attack_index] as Dictionary).duplicate(true)
+	var attack_resolvable: bool = attack_action.is_empty() or enemy_action_can_resolve(state, attack_action)
 	var planning_attack: Dictionary = attack_action
 	if planning_attack.is_empty():
 		planning_attack = {"type": "melee", "range": 1, "damage": 0}
@@ -6087,14 +6091,14 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var terrain_index: int = -1
 	var trap_index: int = -1
 	var trap_tile: Vector2i = INVALID_TILE
-	if attack_index >= 0 and not attack_disabled:
+	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		trap_index = _best_enemy_trap_attack_index(preview_state, enemy_index, planning_attack)
 		if trap_index >= 0:
 			trap_tile = ((preview_state.get("traps", []) as Array)[trap_index] as Dictionary).get("pos", INVALID_TILE)
 		if trap_index < 0 and not target_reachable:
 			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
 	var projected_attack_tiles: Array[Vector2i] = _vector2i_values([])
-	if attack_index >= 0 and not attack_disabled:
+	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		projected_attack_tiles = _enemy_projected_attack_tiles(
 			preview_state,
 			preview_enemy,
@@ -6124,7 +6128,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"destination": destination,
 		"route_cost": route_cost,
 		"attack_available": not attack_disabled and (
-			(attack_index >= 0 and attack_available and target_reachable)
+			(attack_index >= 0 and attack_resolvable and attack_available and target_reachable)
 			or (attack_index < 0 and pattern_attack_index >= 0 and attack_available)
 		),
 		"blocking_terrain_index": terrain_index,
