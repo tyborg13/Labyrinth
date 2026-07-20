@@ -6958,17 +6958,4 @@ func _trap_tooltip_text(trap: Dictionary) -> String:
 	var intensity: int = _ambient_intensity(element_id)
 	var base_damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
 	var resolved_damage: int = ElementalIntensityRules.scaled_trap_damage(base_damage, intensity)
-	var lines: PackedStringArray = ["%s Trap — %s" % [ElementData.name(element_id), ElementalIntensityRules.threat_band_name(intensity)]]
-	lines.append("%d damage to adjacent tiles at intensity %d" % [resolved_damage, intensity])
-	lines.append("%d%% of base damage; changes live with %s intensity" % [ElementalIntensityRules.trap_scale_percent(intensity), ElementData.name(element_id)])
-	if int(trap.get("burn", 0)) > 0:
-		lines.append("Burn %d" % int(trap.get("burn", 0)))
-	if int(trap.get("freeze", 0)) > 0:
-		lines.append("Freeze")
-	if int(trap.get("shock", 0)) > 0:
-		lines.append("Shock")
-	if bool(trap.get("immobilize", false)):
-		lines.append("Immobilize")
-	if int(trap.get("poison", 0)) > 0:
-		lines.append("Poison %d" % int(trap.get("poison", 0)))
-	return "\n".join(lines)
+	return "%s Trap\n%d damage" % [ElementData.name(element_id), resolved_damage]

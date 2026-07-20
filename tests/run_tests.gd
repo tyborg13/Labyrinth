@@ -5385,7 +5385,7 @@ func _test_air_trap_tooltip_is_damage_only() -> void:
 		"damage": 3
 	}))
 	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
-	_assert(tooltip.contains("3 damage to adjacent tiles"), "Trap tooltips should show adjacent blast damage")
+	_assert(tooltip == "Air Trap\n3 damage", "Trap tooltips should show only the trap name and live scaled damage")
 	_assert(not tooltip.contains("Burn") and not tooltip.contains("Freeze") and not tooltip.contains("Shock") and not tooltip.contains("Immobilize") and not tooltip.contains("Poison"), "Air trap tooltips should stay damage-only until the air secondary effect is decided")
 
 func _test_pickup_tooltips_describe_effects() -> void:

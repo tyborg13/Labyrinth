@@ -6,7 +6,6 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
-const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -8219,7 +8218,7 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 		var badge: PanelContainer = _intensity_badges.get(element_id, null)
 		if badge != null:
 			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
-			badge.tooltip_text = _intensity_tooltip(element_id, value, str(state.get("room_element", ElementData.NONE)) == element_id)
+			badge.tooltip_text = _intensity_tooltip(element_id)
 			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value))
 
 func _refresh_umbra_subtitle() -> void:
@@ -8247,16 +8246,9 @@ func _refresh_umbra_subtitle() -> void:
 	]
 	umbra_subtitle.visible = true
 
-func _intensity_tooltip(element_id: String, value: int = 0, active_room_element: bool = false) -> String:
-	var room_effect: String = "Matching traps deal %d%% of their base damage." % ElementalIntensityRules.trap_scale_percent(value)
-	if active_room_element:
-		room_effect += " Room particles are also scaling with this value."
-	return "%s Intensity %d — %s\nRoom-wide contested power. Cards and elemental enemies can build, require, or spend it.\n%s" % [
-		ElementData.name(element_id),
-		value,
-		ElementalIntensityRules.threat_band_name(value),
-		room_effect
-	]
+func _intensity_tooltip(element_id: String) -> String:
+	var element_name: String = ElementData.name(element_id)
+	return "The intensity of %s in the room.\n%s effects are stronger when this is higher." % [element_name, element_name]
 
 func _intensity_badge_style(element_id: String, value: int) -> StyleBoxFlat:
 	var accent: Color = ElementData.accent(element_id)

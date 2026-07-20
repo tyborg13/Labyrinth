@@ -35,6 +35,8 @@ func _initialize() -> void:
 	await _capture_spender_cards(true)
 	print("Capturing starved spender cards...")
 	await _capture_spender_cards(false)
+	print("Capturing changed-card scope sheet...")
+	await _capture_changed_card_scope_sheet()
 	print("Capturing Stirring room...")
 	await _capture_intensity_room(1, "stirring")
 	print("Capturing Volatile room...")
@@ -51,16 +53,26 @@ func _initialize() -> void:
 
 
 func _capture_spender_cards(funded: bool) -> void:
+	var state_name: String = "funded" if funded else "starved"
+	await _capture_card_sheet(funded, "INTENSITY SPENDERS — %s" % state_name.to_upper(), "spenders_%s" % state_name)
+
+
+func _capture_changed_card_scope_sheet() -> void:
+	await _capture_card_sheet(true, "ELEMENTAL INTENSITY — CHANGED CARDS", "changed_cards")
+
+
+func _capture_card_sheet(funded: bool, heading_text: String, output_stem: String) -> void:
 	var hidden_run_scene: Node = RunSceneScript.new()
+	var viewport := _production_viewport()
 	var background := ColorRect.new()
 	background.name = "SpenderProofBackground"
 	background.color = Color("17110e")
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	background.anchor_right = 1.0
 	background.anchor_bottom = 1.0
-	root.add_child(background)
+	viewport.add_child(background)
 	var heading := Label.new()
-	heading.text = "INTENSITY SPENDERS — %s" % ("FUNDED" if funded else "STARVED")
+	heading.text = heading_text
 	heading.position = Vector2(0.0, 290.0)
 	heading.size = Vector2(1920.0, 32.0)
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -92,20 +104,20 @@ func _capture_spender_cards(funded: bool) -> void:
 	await process_frame
 	await process_frame
 	await create_timer(0.08).timeout
-	var state_name: String = "funded" if funded else "starved"
-	await _save_root("spenders_%s_%d.png" % [state_name, _stamp])
-	background.queue_free()
+	await _save_viewport(viewport, "%s_%d.png" % [output_stem, _stamp])
+	viewport.queue_free()
 	hidden_run_scene.free()
 	await process_frame
 
 
 func _capture_intensity_room(intensity: int, band_name: String) -> void:
+	var viewport := _production_viewport()
 	var background := ColorRect.new()
 	background.color = Color("100d0b")
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	background.anchor_right = 1.0
 	background.anchor_bottom = 1.0
-	root.add_child(background)
+	viewport.add_child(background)
 	var board: Control = CombatBoardView.new()
 	board.position = Vector2(320.0, 120.0)
 	board.size = Vector2(1280.0, 840.0)
@@ -125,8 +137,8 @@ func _capture_intensity_room(intensity: int, band_name: String) -> void:
 	var rows: Array = board.call("_intent_rows", _intent("cinder_ooze", "cinder_bloom"))
 	var bonus_active: bool = _condition_active(rows, "intensity_requirement")
 	_expect(bonus_active == (intensity >= 2), "Cinder Bloom gate row should track the live Fire intensity")
-	await _save_root("room_%s_%d.png" % [band_name, _stamp])
-	background.queue_free()
+	await _save_viewport(viewport, "room_%s_%d.png" % [band_name, _stamp])
+	viewport.queue_free()
 	await process_frame
 
 
@@ -222,10 +234,20 @@ func _grid() -> Array:
 	return grid
 
 
-func _save_root(file_name: String) -> void:
-	var image: Image = root.get_texture().get_image()
+func _production_viewport() -> SubViewport:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1920, 1080)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ALWAYS
+	root.add_child(viewport)
+	return viewport
+
+
+func _save_viewport(viewport: SubViewport, file_name: String) -> void:
+	var image: Image = viewport.get_texture().get_image()
+	var production_size := Vector2i(1920, 1080)
 	var path: String = ProjectSettings.globalize_path("%s/%s" % [OUTPUT_DIR, file_name])
-	_expect(image.get_width() == 1920 and image.get_height() == 1080, "%s should capture the production 1920x1080 viewport" % file_name)
+	_expect(image.get_size() == production_size, "%s should capture the production 1920x1080 viewport" % file_name)
 	_expect(image.save_png(path) == OK, "%s should save successfully" % file_name)
 	print(path)
 

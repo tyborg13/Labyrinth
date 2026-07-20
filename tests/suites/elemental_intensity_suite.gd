@@ -84,7 +84,11 @@ static func _test_ambient_scaling_and_trap_readability(expect: Callable) -> void
 	expect.call(ElementalIntensityRules.ambient_speed_scale(4) > ElementalIntensityRules.ambient_speed_scale(1), "High-intensity particles should move more quickly")
 	board.combat_state = {"elemental_intensity": {ElementData.FIRE: 4}}
 	var tooltip: String = str(board.call("_trap_tooltip_text", {"element": ElementData.FIRE, "base_damage": 10, "damage": 10}))
-	expect.call(tooltip.contains("21 damage") and tooltip.contains("Volatile") and tooltip.contains("208%"), "Trap tooltips should expose live scaled damage, threat band, and multiplier")
+	expect.call(tooltip == "Fire Trap\n21 damage", "Trap tooltips should show only the trap name and live scaled damage")
+	var run_scene: Node = RunSceneScript.new()
+	var intensity_tooltip: String = str(run_scene.call("_intensity_tooltip", ElementData.FIRE))
+	expect.call(intensity_tooltip == "The intensity of Fire in the room.\nFire effects are stronger when this is higher.", "Intensity tooltips should stay concise and avoid implementation details")
+	run_scene.free()
 	board.free()
 
 static func _test_elemental_enemy_data_contract(expect: Callable) -> void:
