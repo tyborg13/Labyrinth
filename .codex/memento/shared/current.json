@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-19T14:45:52Z",
+  "updated_at": "2026-07-20T02:18:03Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6030,25 +6030,27 @@
       }
     },
     {
-      "id": "mnt_20260719T144552Z_c642345c",
+      "id": "mnt_20260720T021803Z_2a5506be",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
         "level": "file",
         "path": "scripts/combat_board_view.gd",
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Placed light visuals mirror Illuminate's Manhattan footprint",
-      "details": "CombatBoardView derives each warm reach overlay and its perimeter from rendered tiles whose Manhattan distance to the placed source is within the source radius. Keep this presentation geometry aligned with CombatEngine.umbra_visible_tiles/_light_source_covers_tile so the lit area never promises visibility or Radiance protection that gameplay does not grant.",
+      "summary": "Placed light uses soft animated glow without construction lines",
+      "details": "Placed light must preserve the exact Illuminate Manhattan gameplay footprint while presenting it as overlapping blurred warm falloff with no hard tile or perimeter outline. The orb should use a feathered luminous core, close glow, gentle breathing scale/brightness, subtle bob and internal drift, while keeping the remaining-activation text readable without a framed badge.",
       "status": "active",
-      "created_at": "2026-07-19T14:45:52Z",
-      "updated_at": "2026-07-19T14:45:52Z",
+      "created_at": "2026-07-20T02:18:03Z",
+      "updated_at": "2026-07-20T02:18:03Z",
       "expires_at": null,
-      "supersedes": [],
+      "supersedes": [
+        "mnt_20260719T144552Z_c642345c"
+      ],
       "source": {
         "branch": "codex/improve-light-orb-and-warm-umbra-reach-lighting",
-        "commit": "af28967"
+        "commit": "c4ba420"
       }
     }
   ]

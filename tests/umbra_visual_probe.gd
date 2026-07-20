@@ -205,10 +205,29 @@ func _capture_active_effect_feedback(instance: Node) -> void:
 	_assert(source_footprint.size() == 13, "A radius-2 light reach treatment should cover the same 13-tile Manhattan footprint as Illuminate")
 	_assert(source_footprint.has(Vector2i(5, 5)) and source_footprint.has(Vector2i(7, 5)), "Light reach treatment should include its source and radius edge")
 	_assert(not source_footprint.has(Vector2i(7, 6)), "Light reach treatment should exclude tiles beyond Illuminate's Manhattan radius")
+	var breath_min: float = INF
+	var breath_max: float = -INF
+	var bob_min: float = INF
+	var bob_max: float = -INF
+	for sample_index: int in range(12):
+		var breath_time: float = float(sample_index) * TAU / (2.15 * 12.0)
+		var bob_time: float = float(sample_index) * TAU / (1.45 * 12.0)
+		var breath_sample: float = float(board.call("_umbra_light_orb_breath", 901.0, breath_time))
+		var center_sample: Vector2 = board.call("_umbra_light_orb_center", Vector2i(5, 5), 901.0, bob_time)
+		breath_min = minf(breath_min, breath_sample)
+		breath_max = maxf(breath_max, breath_sample)
+		bob_min = minf(bob_min, center_sample.y)
+		bob_max = maxf(bob_max, center_sample.y)
+	_assert(breath_max - breath_min >= 0.10, "Light orb should visibly breathe through a gentle animated scale range")
+	_assert(bob_max - bob_min >= 2.0, "Light orb should gently bob instead of remaining static on its tile")
 	var tooltip_regions: Array = board.get("_tooltip_regions") as Array
 	_assert(_has_tooltip_containing(tooltip_regions, "Light Source"), "The glowing light-source marker should have a hover tooltip")
 	_assert(_has_tooltip_containing(tooltip_regions, "True Sight"), "The player True Sight badge should have a hover tooltip")
 	await _save_root_screenshot("%s/active_effect_feedback.png" % OUTPUT_DIR)
+	await create_timer(0.54).timeout
+	RenderingServer.force_draw()
+	await process_frame
+	await _save_root_screenshot("%s/active_effect_feedback_pulse.png" % OUTPUT_DIR)
 
 	var expired_state: Dictionary = active_state.duplicate(true)
 	var expired_umbra: Dictionary = (expired_state.get("umbra", {}) as Dictionary).duplicate(true)
