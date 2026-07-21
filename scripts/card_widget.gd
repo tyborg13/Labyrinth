@@ -432,74 +432,6 @@ class IntensityActiveGlow:
 	func _edge_inset() -> float:
 		return 4.0 * layout_scale
 
-class IntensitySpendFrame:
-	extends Control
-
-	const PULSE_SECONDS: float = 1.65
-
-	var element_id: String = "none"
-	var accent: Color = Color.TRANSPARENT
-	var payable: bool = false
-	var layout_scale: float = 1.0
-	var _pulse_phase: float = 0.0
-
-	func setup(next_element_id: String, next_accent: Color, next_payable: bool, next_layout_scale: float, active: bool) -> void:
-		element_id = next_element_id
-		accent = next_accent
-		payable = next_payable
-		layout_scale = clampf(next_layout_scale, 0.44, 1.20)
-		visible = active
-		set_process(active and payable)
-		queue_redraw()
-
-	func _process(delta: float) -> void:
-		_pulse_phase = fmod(_pulse_phase + delta / PULSE_SECONDS, 1.0)
-		queue_redraw()
-
-	func _draw() -> void:
-		if not visible or size.x <= 0.0 or size.y <= 0.0:
-			return
-		var pulse: float = 0.5 + 0.5 * sin(_pulse_phase * TAU)
-		var frame_color: Color = accent.lerp(Color.WHITE, 0.14 + pulse * 0.08) if payable else accent.darkened(0.48)
-		frame_color.a = 0.92 if payable else 0.48
-		var inset: float = maxf(5.0, 7.0 * layout_scale)
-		var rect := Rect2(Vector2(inset, inset), size - Vector2(inset * 2.0, inset * 2.0))
-		var bracket: float = maxf(12.0, 20.0 * layout_scale)
-		var stroke: float = maxf(1.4, 2.1 * layout_scale)
-		var shadow := Color(0.035, 0.018, 0.014, 0.88)
-		for corner_var: Variant in [
-			[rect.position, Vector2.RIGHT, Vector2.DOWN],
-			[Vector2(rect.end.x, rect.position.y), Vector2.LEFT, Vector2.DOWN],
-			[rect.end, Vector2.LEFT, Vector2.UP],
-			[Vector2(rect.position.x, rect.end.y), Vector2.RIGHT, Vector2.UP]
-		]:
-			var corner: Array = corner_var as Array
-			var origin: Vector2 = corner[0]
-			var horizontal: Vector2 = corner[1]
-			var vertical: Vector2 = corner[2]
-			draw_line(origin, origin + horizontal * bracket, shadow, stroke + 2.2, true)
-			draw_line(origin, origin + vertical * bracket, shadow, stroke + 2.2, true)
-			draw_line(origin, origin + horizontal * bracket, frame_color, stroke, true)
-			draw_line(origin, origin + vertical * bracket, frame_color, stroke, true)
-		var notch_size: float = maxf(4.0, 6.5 * layout_scale)
-		_draw_inward_notch(Vector2(rect.get_center().x, rect.position.y), Vector2.DOWN, notch_size, frame_color, shadow)
-		_draw_inward_notch(Vector2(rect.get_center().x, rect.end.y), Vector2.UP, notch_size, frame_color, shadow)
-		_draw_inward_notch(Vector2(rect.position.x, rect.get_center().y), Vector2.RIGHT, notch_size, frame_color, shadow)
-		_draw_inward_notch(Vector2(rect.end.x, rect.get_center().y), Vector2.LEFT, notch_size, frame_color, shadow)
-
-	func _draw_inward_notch(origin: Vector2, direction: Vector2, notch_size: float, color: Color, shadow: Color) -> void:
-		var side := Vector2(-direction.y, direction.x)
-		var points := PackedVector2Array([
-			origin - side * notch_size,
-			origin + side * notch_size,
-			origin + direction * notch_size * 1.45
-		])
-		var shadow_points := PackedVector2Array()
-		for point: Vector2 in points:
-			shadow_points.append(point + direction * 1.5)
-		draw_colored_polygon(shadow_points, shadow)
-		draw_colored_polygon(points, color)
-
 @onready var vbox: VBoxContainer = $Margin/VBox
 @onready var title_label: Label = $Margin/VBox/TopRow/Title
 @onready var art_frame: PanelContainer = $Margin/VBox/ArtBleed/ArtFrame
@@ -532,7 +464,6 @@ var _ready_wave_progress: float = 0.0
 var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
 var _intensity_active_glow: IntensityActiveGlow
-var _intensity_spend_frame: IntensitySpendFrame
 var _summary_icon_box: VBoxContainer
 var _time_badge: TimeCostBadge
 
@@ -565,7 +496,6 @@ func _ready() -> void:
 	footer_label.add_theme_constant_override("outline_size", 1)
 	_ensure_summary_icon_box()
 	_ensure_intensity_active_glow()
-	_ensure_intensity_spend_frame()
 	_ensure_time_badge()
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
@@ -579,7 +509,6 @@ func _notification(what: int) -> void:
 		pivot_offset = size * 0.5
 		_position_time_badge()
 		_sync_intensity_active_glow_geometry()
-		_sync_intensity_spend_frame_geometry()
 		if not card_id.is_empty():
 			_apply_configuration()
 
@@ -684,7 +613,6 @@ func _apply_configuration() -> void:
 	_queue_title_refit()
 	_refresh_summary_display(card)
 	_refresh_intensity_active_glow()
-	_refresh_intensity_spend_frame()
 	_refresh_time_badge(card)
 	footer_label.text = ""
 	footer_label.visible = false
@@ -998,7 +926,7 @@ func _active_intensity_condition() -> Dictionary:
 			if typeof(token_var) != TYPE_DICTIONARY:
 				continue
 			var token: Dictionary = token_var
-			if str(token.get("kind", "")) != "intensity_requirement":
+			if str(token.get("kind", "")) not in ["intensity_requirement", "intensity_spend"]:
 				continue
 			if not bool(token.get("condition_active", false)):
 				continue
@@ -1014,57 +942,6 @@ func _intensity_glow_color(element_id: String) -> Color:
 
 func _intensity_glow_pad() -> float:
 	return _scaled_card_value(INTENSITY_GLOW_PAD, 6.0)
-
-func _ensure_intensity_spend_frame() -> void:
-	if _intensity_spend_frame != null:
-		return
-	_intensity_spend_frame = IntensitySpendFrame.new()
-	_intensity_spend_frame.name = "IntensitySpendFrame"
-	_intensity_spend_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_intensity_spend_frame.z_as_relative = true
-	_intensity_spend_frame.z_index = 10
-	_intensity_spend_frame.visible = false
-	add_child(_intensity_spend_frame)
-	_sync_intensity_spend_frame_geometry()
-
-func _sync_intensity_spend_frame_geometry() -> void:
-	if _intensity_spend_frame == null:
-		return
-	var card_size: Vector2 = size if size.x > 0.0 and size.y > 0.0 else custom_minimum_size
-	if card_size.x <= 0.0 or card_size.y <= 0.0:
-		card_size = BASE_CARD_SIZE
-	_intensity_spend_frame.position = Vector2.ZERO
-	_intensity_spend_frame.size = card_size
-
-func _refresh_intensity_spend_frame() -> void:
-	_ensure_intensity_spend_frame()
-	var spend: Dictionary = _intensity_spend_condition()
-	var element_id: String = str(spend.get("element", ElementData.NONE))
-	var active: bool = ElementData.is_elemental(element_id)
-	var payable: bool = bool(spend.get("payable", true))
-	_sync_intensity_spend_frame_geometry()
-	_intensity_spend_frame.setup(element_id, ElementData.accent(element_id) if active else Color.TRANSPARENT, payable, _card_layout_scale(), active)
-
-func _intensity_spend_condition() -> Dictionary:
-	var rows: Array = _summary_rows
-	if rows.is_empty():
-		rows = ActionIcons.rows_for_card(_display_card_def())
-	for row_var: Variant in rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			continue
-		for token_var: Variant in row_var as Array:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				continue
-			var token: Dictionary = token_var as Dictionary
-			if str(token.get("kind", "")) != "intensity_spend":
-				continue
-			var element_id: String = str(token.get("element", ElementData.NONE))
-			if ElementData.is_elemental(element_id):
-				return {
-					"element": element_id,
-					"payable": bool(token.get("condition_active", true))
-				}
-	return {}
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)

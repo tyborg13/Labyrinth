@@ -94,11 +94,10 @@ func _capture_card_sheet(funded: bool, heading_text: String, output_stem: String
 		slot.add_child(widget)
 		widget.configure(card_id, false, false, true, false, false, funded, GameData.card_def(card_id))
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
-		widget.call("_refresh_intensity_spend_frame")
-		var spend_frame: Control = widget.get_node_or_null("IntensitySpendFrame") as Control
-		_expect(spend_frame != null and spend_frame.visible, "%s should render its inward spend frame" % card_id)
-		if spend_frame != null:
-			_expect(bool(spend_frame.get("payable")) == funded, "%s spend frame should reflect funded=%s" % [card_id, str(funded)])
+		widget.call("_refresh_intensity_active_glow")
+		var active_glow: Control = widget.get_node_or_null("IntensityActiveGlow") as Control
+		_expect(active_glow != null and active_glow.visible == funded, "%s active glow should reflect funded=%s" % [card_id, str(funded)])
+		_expect(widget.get_node_or_null("IntensitySpendFrame") == null, "%s should not render a separate intensity spend frame" % card_id)
 		var spend_token: Dictionary = _spend_token(display.get("summary_rows", []))
 		_expect(not spend_token.is_empty() and str(spend_token.get("value", "")).begins_with("-"), "%s should show a negative elemental cost" % card_id)
 	await process_frame

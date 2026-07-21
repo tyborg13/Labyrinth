@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-19T16:20:11Z",
+  "updated_at": "2026-07-21T13:15:09Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6049,6 +6049,28 @@
       "source": {
         "branch": "codex/elemental-intensity-core-rework",
         "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T131509Z_8d2f9adc",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Funded intensity spenders reuse the gated-card glow",
+      "details": "Do not add a separate bracket, corner, notch, or inward-siphon frame around intensity-spending cards; the user considers that ornament crude and unpolished. A spender whose cost is currently payable should use the existing elemental IntensityActiveGlow exactly like a satisfied intensity gate, while an unpayable spender stays unlit. Keep the negative elemental amount in the cost row as the distinction between spending and gating.",
+      "status": "active",
+      "created_at": "2026-07-21T13:15:09Z",
+      "updated_at": "2026-07-21T13:15:09Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-core-rework",
+        "commit": "50e2105"
       }
     }
   ]

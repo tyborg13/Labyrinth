@@ -68,10 +68,17 @@ static func _test_spend_visual_language(expect: Callable) -> void:
 				gate_found = true
 	expect.call(gate_found and str(spend_token.get("kind", "")) != "intensity_requirement", "Intensity gates and spends should remain semantically and visually distinct")
 	var widget: Control = CardWidget.new()
-	widget.call("configure", "inferno_ritual")
-	widget.call("_refresh_intensity_spend_frame")
-	var spend_frame: Control = widget.find_child("IntensitySpendFrame", false, false) as Control
-	expect.call(spend_frame != null and spend_frame.visible, "Spender cards should add the inward siphon frame independently of the threshold glow")
+	var funded_token: Dictionary = spend_token.duplicate(true)
+	funded_token["condition_active"] = true
+	widget.call("set_display_overrides", "", [], [[funded_token]])
+	widget.call("_refresh_intensity_active_glow")
+	var active_glow: Control = widget.find_child("IntensityActiveGlow", false, false) as Control
+	expect.call(active_glow != null and active_glow.visible, "A funded spender should use the established active intensity glow")
+	expect.call(widget.find_child("IntensitySpendFrame", false, false) == null, "Spender cards should not render a separate decorative frame")
+	funded_token["condition_active"] = false
+	widget.call("set_display_overrides", "", [], [[funded_token]])
+	widget.call("_refresh_intensity_active_glow")
+	expect.call(active_glow != null and not active_glow.visible, "A starved spender should hide the active intensity glow")
 	widget.free()
 
 static func _test_ambient_scaling_and_trap_readability(expect: Callable) -> void:
