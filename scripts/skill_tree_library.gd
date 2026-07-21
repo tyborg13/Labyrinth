@@ -239,7 +239,12 @@ static func validation_errors() -> Array[String]:
 		if seen_positions.has(position_key):
 			errors.append("%s shares a position with %s." % [skill_id, str(seen_positions[position_key])])
 		seen_positions[position_key] = skill_id
-		for prerequisite_id: String in prerequisites(skill_id):
+		var raw_prerequisites: Variant = skill_def.get("prerequisites", [])
+		if typeof(raw_prerequisites) != TYPE_ARRAY:
+			errors.append("%s prerequisites must be an array." % skill_id)
+			continue
+		for prerequisite_var: Variant in raw_prerequisites as Array:
+			var prerequisite_id: String = str(prerequisite_var)
 			if prerequisite_id == skill_id:
 				errors.append("%s requires itself." % skill_id)
 			elif not has_definition(prerequisite_id):

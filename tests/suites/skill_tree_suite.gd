@@ -6,6 +6,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 static func run(expect: Callable) -> void:
 	_test_skill_data_and_topology(expect)
+	_test_topology_validation_rejects_unknown_prerequisites(expect)
 	_test_topology_validation_rejects_cycles(expect)
 	_test_topology_validation_rejects_dead_ends(expect)
 	_test_leveling_requires_exactly_one_legal_skill(expect)
@@ -27,6 +28,12 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(roots.size() == 4, "The tree should begin with four distinct roots")
 	expect.call(keystones.size() == 4, "The tree should end with four exclusive keystones")
 	expect.call(SkillTreeLibrary.available_ids([]).size() == 4, "A new character should be able to learn any root")
+
+static func _test_topology_validation_rejects_unknown_prerequisites(expect: Callable) -> void:
+	var altered_definitions: Dictionary = SkillTreeLibrary.definitions().duplicate(true)
+	(altered_definitions["quick_wits"] as Dictionary)["prerequisites"] = ["missing_skill"]
+	var errors: Array[String] = _validation_errors_with_definitions(altered_definitions)
+	expect.call(_contains_error_fragment(errors, "requires unknown skill missing_skill"), "Topology validation should inspect raw prerequisites before runtime filtering")
 
 static func _test_topology_validation_rejects_cycles(expect: Callable) -> void:
 	var altered_definitions: Dictionary = SkillTreeLibrary.definitions().duplicate(true)
