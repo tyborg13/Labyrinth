@@ -651,8 +651,8 @@
       { "type": "melee", "damage": 3, "range": 1, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 2 } }
     ]
   },
-  "ashline_tempo": {
-    "name": "Ashline Tempo",
+  "cinderline_tempo": {
+    "name": "Cinderline Tempo",
     "element": "fire",
     "rarity": "common",
     "burn": false,
@@ -660,7 +660,7 @@
     "time": 4,
     "description": "Raise Fire intensity by 1. Deal 3 at range 4 and gain 1 card play. Fire 2+: +2 damage and burn 2.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/ashline_tempo.png",
+    "art_path": "res://assets/art/cards/cinderline_tempo.png",
     "actions": [
       { "type": "intensity", "element": "fire", "amount": 1 },
       { "type": "ranged", "damage": 3, "range": 4, "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 2, "burn": 2 } },
@@ -1818,8 +1818,8 @@
       { "type": "draw", "amount": 1 }
     ]
   },
-  "ashweave_guard": {
-    "name": "Ashweave Guard",
+  "cinderweave_guard": {
+    "name": "Cinderweave Guard",
     "element": "fire",
     "rarity": "rare",
     "burn": false,
@@ -1827,7 +1827,7 @@
     "time": 5,
     "description": "Raise Fire intensity by 1, gain 6 block, and scorch adjacent tiles for 3 and burn 1.",
     "accent": "#d9623f",
-    "art_path": "res://assets/art/cards/ashweave_guard.png",
+    "art_path": "res://assets/art/cards/cinderweave_guard.png",
     "reward_pool": false,
     "actions": [
       { "type": "intensity", "element": "fire", "amount": 1 },

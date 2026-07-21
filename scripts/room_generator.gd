@@ -24,7 +24,7 @@ const TERRAIN_TARGET_COUNT_MAX: int = 7
 const TRAP_DAMAGE_BY_ENCOUNTER_DEPTH: Array[int] = [6, 7, 8, 5]
 const TRAP_DAMAGE_PER_SEQUENCE: int = 2
 
-const TILE_ASH: String = "ash"
+const TILE_STONE: String = "stone"
 const TILE_EMBER: String = "ember"
 const TILE_WALL: String = "wall"
 const TILE_PILLAR: String = "pillar"
@@ -165,7 +165,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"traps": traps,
 		"loot": loot,
 		"terrain": terrain,
-		"theme": TILE_ASH
+		"theme": TILE_STONE
 	}
 
 func _base_grid(rng: RandomNumberGenerator) -> Array:
@@ -175,7 +175,7 @@ func _base_grid(rng: RandomNumberGenerator) -> Array:
 	for y: int in range(ROOM_HEIGHT):
 		var row: Array[String] = []
 		for x: int in range(ROOM_WIDTH):
-			var tile_id: String = TILE_ASH
+			var tile_id: String = TILE_STONE
 			if x == 0 or y == 0 or x == ROOM_WIDTH - 1 or y == ROOM_HEIGHT - 1:
 				tile_id = TILE_WALL
 			row.append(tile_id)
@@ -222,12 +222,12 @@ func _apply_template(grid: Array, rng: RandomNumberGenerator) -> void:
 				if str(grid[y][x]) == TILE_WALL or str(grid[y][x]) == TILE_PILLAR:
 					if x == 0 or y == 0 or x == ROOM_WIDTH - 1 or y == ROOM_HEIGHT - 1:
 						continue
-					grid[y][x] = TILE_ASH
+					grid[y][x] = TILE_STONE
 
 func _apply_corner_pillar_layout(grid: Array) -> void:
 	for y: int in range(1, ROOM_HEIGHT - 1):
 		for x: int in range(1, ROOM_WIDTH - 1):
-			grid[y][x] = TILE_ASH
+			grid[y][x] = TILE_STONE
 	for pillar_tile: Vector2i in _corner_pillar_tiles():
 		grid[pillar_tile.y][pillar_tile.x] = TILE_PILLAR
 
@@ -255,7 +255,7 @@ func _corner_pillar_tiles() -> Array[Vector2i]:
 func _apply_boss_layout(grid: Array) -> void:
 	for y: int in range(1, ROOM_HEIGHT - 1):
 		for x: int in range(1, ROOM_WIDTH - 1):
-			grid[y][x] = TILE_ASH
+			grid[y][x] = TILE_STONE
 	for pillar_tile: Vector2i in [
 		Vector2i(1, 1),
 		Vector2i(7, 1),
@@ -291,7 +291,7 @@ func _select_floor_moss_tiles(grid: Array, run_seed: int, coord: Vector2i, room_
 			var tile := Vector2i(x, y)
 			if protected_tiles.has(tile):
 				continue
-			if str(grid[y][x]) != TILE_ASH:
+			if str(grid[y][x]) != TILE_STONE:
 				continue
 			candidates.append(tile)
 	if candidates.is_empty():
@@ -961,7 +961,7 @@ func _room_name(coord: Vector2i, room_type: String, rng: RandomNumberGenerator, 
 	if room_type == "boss":
 		return DragonBossLibrary.room_name_for_boss(boss_id)
 	if room_type == "campfire":
-		return "Ashen Campfire"
+		return "Emberlit Campfire"
 	if room_type == "treasure":
 		return "Relic Cache"
 	return "%s %s" % [

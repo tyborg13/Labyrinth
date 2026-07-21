@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-18T03:51:39Z",
+  "updated_at": "2026-07-21T17:43:13Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -672,52 +672,6 @@
       }
     },
     {
-      "id": "mnt_20260411T033949Z_df2e7a53",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Combat board unit art now honors per-definition art_offset_x/y after fit/scale; adjust sprite centering in enemy/npc data instead of changing global anchoring.",
-      "details": "Introduced for the Ash Acolyte PNG alignment and covered by _test_enemy_art_offset_shifts_sprite_vertically in tests/run_tests.gd.",
-      "status": "active",
-      "created_at": "2026-04-11T03:39:49Z",
-      "updated_at": "2026-04-11T03:39:49Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "8bc82c8"
-      }
-    },
-    {
-      "id": "mnt_20260411T042736Z_6f5289a6",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "CombatBoardView idle animation is fully data-driven per unit: definitions can override idle_sheet_columns, idle_sheet_rows, idle_sheet_order, and idle_frame_seconds while same-stem _idle loading remains automatic.",
-      "details": "Default behavior stays 4x2 row-major at 0.10s per frame, but Ash Acolyte uses 2x4 column_major at 0.20s per frame; covered by _test_acolyte_idle_sheet_honors_column_major_layout and _test_acolyte_idle_speed_override in tests/run_tests.gd.",
-      "status": "active",
-      "created_at": "2026-04-11T04:27:36Z",
-      "updated_at": "2026-04-11T04:27:36Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260411T041942Z_6a8a8aaa"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "8bc82c8"
-      }
-    },
-    {
       "id": "mnt_20260411T222038Z_8acc8101",
       "layer": "shared",
       "kind": "decision",
@@ -942,30 +896,6 @@
       }
     },
     {
-      "id": "mnt_20260414T152238Z_256394c3",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Ash floor variants are extracted as isolated tile-only PNGs and loaded untrimmed so every stone keeps the same isometric canvas and avoids neighbor-fragment warping.",
-      "details": "The first extraction pass kept surrounding source context inside the diamond, which could make a variant look peeled or skewed in-game. The corrected assets flood-fill the selected tile component from base_floor_tiles.png, keep neighboring tiles transparent, and CombatBoardView now loads the variant textures without trim_texture_to_used_rect.",
-      "status": "active",
-      "created_at": "2026-04-14T15:22:38Z",
-      "updated_at": "2026-04-14T15:22:38Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260414T151352Z_7a22685a"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "31160f5"
-      }
-    },
-    {
       "id": "mnt_20260415T024007Z_29b0a243",
       "layer": "shared",
       "kind": "decision",
@@ -1068,100 +998,6 @@
       "status": "active",
       "created_at": "2026-04-17T01:40:53Z",
       "updated_at": "2026-04-17T01:40:53Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "c4e2e49"
-      }
-    },
-    {
-      "id": "mnt_20260417T040758Z_a91ea728",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "folder",
-        "path": "scripts",
-        "symbol": null
-      },
-      "scope_key": "folder:scripts",
-      "summary": "Room moss now lives in decorative metadata instead of terrain tile IDs.",
-      "details": "RoomGenerator returns moss.floor/wall/pillar tile lists, CombatEngine/RunEngine carry that metadata through room and combat state, and CombatBoardView renders seeded moss overlay textures on ash floors plus wall/pillar props. This replaces the old moss-terrain approach so passability and floor variants stay purely stone.",
-      "status": "active",
-      "created_at": "2026-04-17T04:07:58Z",
-      "updated_at": "2026-04-17T04:07:58Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260414T160800Z_bc1ad221"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "c4e2e49"
-      }
-    },
-    {
-      "id": "mnt_20260417T203440Z_5caec987",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "With outer wall rendering disabled, CombatBoardView now hides boundary wall tiles by filtering them out of draw and hit-test order while keeping visible doors rendered and clickable.",
-      "details": "_display_tile_id still resolves hidden boundary doors back to wall semantics, but _tiles_in_draw_order now applies _should_render_tile so only true boundary walls disappear. Active exits and locked presentation doors stay as \"door\" tiles, which removes the old fake ash perimeter without breaking traversal.",
-      "status": "active",
-      "created_at": "2026-04-17T20:34:40Z",
-      "updated_at": "2026-04-17T20:34:40Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260417T202405Z_819e8b83"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "c4e2e49"
-      }
-    },
-    {
-      "id": "mnt_20260420T030615Z_12af9875",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Door presentation uses the supplied isometric door.png directly on ash floor tiles, flipped horizontally for the opposite diagonal.",
-      "details": "After the user replaced door.png with a transparent tile-oriented asset, CombatBoardView stopped loading generated door_row.png/door_col.png skew variants. Visible doors now draw as a single overlay prop on the regular ash floor tile; row-edge doors use door.png as-is for the bottom-left/top-right diagonal, and col-edge doors use AssetLoader.flip_texture_h for the bottom-right/top-left diagonal.",
-      "status": "active",
-      "created_at": "2026-04-20T03:06:15Z",
-      "updated_at": "2026-04-20T03:06:15Z",
-      "expires_at": null,
-      "supersedes": [
-        "mnt_20260417T212616Z_1269ec6c"
-      ],
-      "source": {
-        "branch": "master",
-        "commit": "c4e2e49"
-      }
-    },
-    {
-      "id": "mnt_20260420T031138Z_061713e9",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/combat_board_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Door size and placement are hand-tuned through explicit frame scale constants.",
-      "details": "CombatBoardView uses DOOR_FRAME_WIDTH_SCALE, DOOR_FRAME_HEIGHT_SCALE, and DOOR_BASELINE_OFFSET_SCALE near the top of the file to fit door.png on top of regular ash floor tiles. Increasing width/height scales the rendered door; changing baseline moves the planted floor line without touching the source asset or flip logic.",
-      "status": "active",
-      "created_at": "2026-04-20T03:11:38Z",
-      "updated_at": "2026-04-20T03:11:38Z",
       "expires_at": null,
       "supersedes": [],
       "source": {
@@ -1799,28 +1635,6 @@
       "source": {
         "branch": "master",
         "commit": "8d46d95"
-      }
-    },
-    {
-      "id": "mnt_20260503T020438Z_b1039e16",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/room_generator.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/room_generator.gd",
-      "summary": "Treasure rooms use the fixed corner-pillar special-room layout.",
-      "details": "RoomGenerator now routes both campfire and treasure rooms through _apply_corner_pillar_layout so their interiors are ash floor except pillars at Vector2i(2,2), (6,2), (2,6), and (6,6). This keeps relic chest and bonfire center presentations clear instead of using random combat templates.",
-      "status": "active",
-      "created_at": "2026-05-03T02:04:38Z",
-      "updated_at": "2026-05-03T02:04:38Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "master",
-        "commit": "84ee0ad"
       }
     },
     {
@@ -5008,28 +4822,6 @@
       }
     },
     {
-      "id": "mnt_20260711T125704Z_9ccdcb55",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "folder",
-        "path": "scripts",
-        "symbol": null
-      },
-      "scope_key": "folder:scripts",
-      "summary": "Victory resolves missed equipment before clearing combat",
-      "details": "RunEngine.finish_combat must resolve every unclaimed equipment loot entry into claimed/resolution=missed and carry missed_equipment ids before combat_state is cleared. RunScene may retain the pre-resolution victory snapshot only long enough to animate the ash disintegration, then transitions with the resolved snapshot for analytics and persistence. Grimoire discovery for floor equipment begins on collection, not mere visibility, so missed gear never becomes discovered.",
-      "status": "active",
-      "created_at": "2026-07-11T12:57:04Z",
-      "updated_at": "2026-07-11T12:57:04Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/post-combat-missed-equipment-resolution",
-        "commit": "d4769e2"
-      }
-    },
-    {
       "id": "mnt_20260712T015409Z_97425bfa",
       "layer": "shared",
       "kind": "user_preference",
@@ -5692,28 +5484,6 @@
       }
     },
     {
-      "id": "mnt_20260716T132740Z_98e64c36",
-      "layer": "shared",
-      "kind": "user_preference",
-      "scope": {
-        "level": "file",
-        "path": "scripts/cursor_feedback.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/cursor_feedback.gd",
-      "summary": "Valid cursor feedback is a dry mechanical click, not a tonal confirmation",
-      "details": "Keep the valid sound short and transient-led: high-frequency contact texture plus a close latch snap, with no low pitched body or ringing tail that reads as a boop. The inert sound remains the longer dull ash-and-wood knock. Preserve exact-once semantic classification and route both through the SFX bus.",
-      "status": "active",
-      "created_at": "2026-07-16T13:27:40Z",
-      "updated_at": "2026-07-16T13:27:40Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/custom-contextual-cursor-and-click-feedback",
-        "commit": "7d93f5b"
-      }
-    },
-    {
       "id": "mnt_20260716T144340Z_73abb9ac",
       "layer": "shared",
       "kind": "pitfall",
@@ -6027,6 +5797,380 @@
       "source": {
         "branch": "codex/implement-five-elemental-dragon-bosses-and-complete-24-depth-victory-pro",
         "commit": "5e81c14"
+      }
+    },
+    {
+      "id": "mnt_20260721T143527Z_bfe18ee5",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "tools/card_heuristic.py",
+        "symbol": null
+      },
+      "scope_key": "file:tools/card_heuristic.py",
+      "summary": "Card scoring uses a fixed-initiative no-skill reference profile",
+      "details": "Player base initiative is fixed at 9. Qualitative progression effects stay outside intrinsic printed-card coefficients; use the progression_skills analytics context to compare learned-skill cohorts and note exceptional interactions during review.",
+      "status": "active",
+      "created_at": "2026-07-21T14:35:27Z",
+      "updated_at": "2026-07-21T14:35:27Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151722Z_cc6391f8",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Combat board unit art honors per-definition art offsets",
+      "details": "CombatBoardView applies art_offset_x/y after fit and scale; adjust sprite centering in enemy or NPC data instead of changing global anchoring. Introduced for the Dust Acolyte alignment and covered by the enemy art-offset test.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:22Z",
+      "updated_at": "2026-07-21T15:17:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260411T033949Z_df2e7a53"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151722Z_c0a0525b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "CombatBoardView idle animation is data-driven per unit",
+      "details": "Definitions can override idle sheet columns, rows, order, and frame seconds while same-stem idle loading remains automatic. The default is 4x2 row-major at 0.10 seconds; Dust Acolyte uses 2x4 column-major at 0.20 seconds, covered by focused tests.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:22Z",
+      "updated_at": "2026-07-21T15:17:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260411T042736Z_6f5289a6"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151722Z_17d4cbc9",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Stone floor variants use isolated tile-only textures",
+      "details": "Variants are extracted by flood-filling the selected component from the base floor sheet, keeping neighboring tiles transparent. CombatBoardView loads them untrimmed so every tile retains the same isometric canvas and avoids neighbor-fragment warping.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:22Z",
+      "updated_at": "2026-07-21T15:17:22Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260414T152238Z_256394c3"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151723Z_08266b4c",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Room moss lives in decorative metadata instead of terrain IDs",
+      "details": "RoomGenerator returns moss floor, wall, and pillar lists; CombatEngine and RunEngine carry them through room and combat state; CombatBoardView renders seeded overlays on stone floors and wall or pillar props. Passability and floor variants remain purely stone.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:23Z",
+      "updated_at": "2026-07-21T15:17:23Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260417T040758Z_a91ea728"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151750Z_23b1f5b1",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Boundary walls are hidden without hiding real doors",
+      "details": "With outer walls disabled, draw and hit-test order filter true boundary walls. Active exits and locked presentation doors remain door tiles, removing the old fake stone perimeter without breaking traversal.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:50Z",
+      "updated_at": "2026-07-21T15:17:50Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260417T203440Z_5caec987"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151750Z_f27efb0b",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door presentation uses the supplied isometric asset directly",
+      "details": "CombatBoardView draws door.png as a single overlay on regular stone floor tiles and flips it horizontally for the opposite diagonal. Generated skew variants are not used.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:50Z",
+      "updated_at": "2026-07-21T15:17:50Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260420T030615Z_12af9875"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151750Z_d728ec05",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door placement uses explicit frame-scale constants",
+      "details": "DOOR_FRAME_WIDTH_SCALE, DOOR_FRAME_HEIGHT_SCALE, and DOOR_BASELINE_OFFSET_SCALE fit door.png on regular stone floor tiles. Tune those constants rather than changing the source asset or flip logic.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:50Z",
+      "updated_at": "2026-07-21T15:17:50Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260420T031138Z_061713e9"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151751Z_e57711f5",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/room_generator.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/room_generator.gd",
+      "summary": "Treasure rooms use the fixed corner-pillar layout",
+      "details": "RoomGenerator routes campfire and treasure rooms through the corner-pillar layout: stone floor with pillars at (2,2), (6,2), (2,6), and (6,6). This keeps center presentations clear.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:51Z",
+      "updated_at": "2026-07-21T15:17:51Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260503T020438Z_b1039e16"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151751Z_f5cb1b67",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Victory resolves missed equipment before clearing combat",
+      "details": "RunEngine.finish_combat marks every unclaimed equipment loot entry as missed and carries its id before clearing combat_state. RunScene may retain the pre-resolution victory snapshot only through the death dissolve animation, then uses the resolved snapshot for analytics and persistence. Grimoire discovery begins on collection, not visibility.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:51Z",
+      "updated_at": "2026-07-21T15:17:51Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260711T125704Z_9ccdcb55"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T151751Z_870a3775",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/cursor_feedback.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/cursor_feedback.gd",
+      "summary": "Valid cursor feedback is a dry mechanical click",
+      "details": "Keep the valid sound short and transient-led, with high-frequency contact texture and a close latch snap. Avoid a low body or ringing tail. The inert sound remains a longer dull dust-and-wood knock; preserve exact-once semantic classification and route both through the SFX bus.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:51Z",
+      "updated_at": "2026-07-21T15:17:51Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260716T132740Z_98e64c36"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T163906Z_c2d270d4",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Permanent skill benefits must remain monotonic and preserve player agency",
+      "details": "Qualitative skills should never make a previously legal action worse. Preservation effects such as keeping a Burn card or item require an explicit pre-arm choice; conditional bonus draws must not enter Fatigue solely because the permanent skill added the draw.",
+      "status": "active",
+      "created_at": "2026-07-21T16:39:06Z",
+      "updated_at": "2026-07-21T16:39:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T163906Z_f087436d",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Earned deferred rewards survive skill-tree respec until one redemption",
+      "details": "Skill ownership gates acquisition of pending card, relic, or merchant benefits. Once earned, the pending value persists through respec and save repair, can be redeemed exactly once, and then clears.",
+      "status": "active",
+      "created_at": "2026-07-21T16:39:06Z",
+      "updated_at": "2026-07-21T16:39:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T163906Z_36629f38",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "folder",
+        "path": "scripts",
+        "symbol": null
+      },
+      "scope_key": "folder:scripts",
+      "summary": "Progression synchronization distinguishes level-up purchases from same-level respec",
+      "details": "A newer profile revision that advances level supplies the post-purchase ember balance. A same-level respec revision preserves embers already held by the active run. Reconcile skill-event cursors before checkpoint persistence and baseline them when loading old saves.",
+      "status": "active",
+      "created_at": "2026-07-21T16:39:06Z",
+      "updated_at": "2026-07-21T16:39:06Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T171029Z_f44434af",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_engine.gd",
+      "summary": "Content-id renames require schema-gated recursive migration before subsystem repair",
+      "details": "Serialized runs can retain ids in loadouts, card piles, rewards, relics, merchant reservations, composite loot ids, discovery namespaces, nested intent state, terrain grids, checkpoints, and dictionary keys. For an older run_content_schema, apply exact replacements longest-first across the complete Variant graph before Grimoire or subsystem normalization, stamp the new schema, and atomically resave immediately on resume; persist migrated profile discovery ids separately.",
+      "status": "active",
+      "created_at": "2026-07-21T17:10:29Z",
+      "updated_at": "2026-07-21T17:10:29Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260721T165646Z_de6cbe7f"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260721T174051Z_308efa75",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/progression_store.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/progression_store.gd",
+      "summary": "Permanent progression saves are transactional and recoverable",
+      "details": "ProgressionStore writes normalized profile JSON to a validated temporary file, rotates a valid live profile to a short-lived backup, restores or retains that backup when replacement fails, and loads the backup when current JSON is missing or corrupt. Keep skill, ember, Moltshard, discovery, and run-history writes on this path.",
+      "status": "active",
+      "created_at": "2026-07-21T17:40:51Z",
+      "updated_at": "2026-07-21T17:40:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
       }
     }
   ]

@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parent
 def prompt_for_group(group: list[dict], group_index: int) -> str:
     lines = [
         "Use case: stylized-concept",
-        "Asset type: Labyrinth of Ash card art production sheet",
-        "Primary request: Create one clean 2x2 contact sheet containing four separate Labyrinth of Ash card-art illustrations.",
+        "Asset type: Escape the Umbra card art production sheet",
+        "Primary request: Create one clean 2x2 contact sheet containing four separate Escape the Umbra card-art illustrations.",
         "Style/medium: match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact 16-bit pixel-art-inspired painted style, painterly pixel texture, high contrast, readable at tiny card size.",
         "Composition/framing: each quadrant is one independent wide 16:9 illustration with a strong central silhouette and generous safe padding; no labels, no panel titles, no numbers, no card frame, no UI, no watermark.",
         "Output layout: exact 2x2 grid. Top-left is card A, top-right is card B, bottom-left is card C, bottom-right is card D. Keep each quadrant visually self-contained.",

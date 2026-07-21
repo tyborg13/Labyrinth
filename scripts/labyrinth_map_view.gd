@@ -834,7 +834,7 @@ func _room_display_name(room: Dictionary) -> String:
 		"start":
 			return "Central Waypoint"
 		"campfire":
-			return "Ashen Campfire"
+			return "Emberlit Campfire"
 		"treasure":
 			return "Relic Cache"
 		"boss":

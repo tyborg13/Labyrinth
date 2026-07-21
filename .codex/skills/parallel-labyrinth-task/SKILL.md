@@ -1,6 +1,6 @@
 ---
 name: parallel-labyrinth-task
-description: Run Labyrinth of Ash coding tasks as isolated Codex worktree tasks. Use when Codex is asked to implement, modify, test, visually QA, commit, push, or clean up Labyrinth project work that should not clobber other active tasks; especially for fresh Codex tasks/threads, background work, parallel work, Godot visual probes, and the inspect-before-push loop.
+description: Run Escape the Umbra coding tasks as isolated Codex worktree tasks. Use when Codex is asked to implement, modify, test, visually QA, commit, push, or clean up Labyrinth project work that should not clobber other active tasks; especially for fresh Codex tasks/threads, background work, parallel work, Godot visual probes, and the inspect-before-push loop.
 ---
 
 # Parallel Labyrinth Task

@@ -2,10 +2,11 @@ extends RefCounted
 class_name ProgressionStore
 
 const GameData = preload("res://scripts/game_data.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
-const PROGRESSION_SCHEMA: int = 2
+const PROGRESSION_SCHEMA: int = 3
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
@@ -14,6 +15,8 @@ const RUN_RESULT_LEDGER_KEY: String = "completed_run_results"
 const RUN_RESULT_LEDGER_LIMIT: int = 32
 const UMBRA_WARNING_AVAILABLE_RUN_KEY: String = "umbra_warning_available_run"
 const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
+const MOLTSHARD_AWARD_IDS_KEY: String = "moltshard_award_ids"
+const MOLTSHARD_AWARD_LEDGER_LIMIT: int = 64
 const RUN_RESULT_STAT_IDS := [
 	"enemies_killed",
 	"damage_dealt",
@@ -43,12 +46,11 @@ static func default_data() -> Dictionary:
 	return {
 		"embers": 0,
 		"level": 1,
-		"unspent_stat_points": 0,
-		"stats": GameData.default_progression_stats(),
+		"skill_ids": [],
+		"moltshards": 0,
+		MOLTSHARD_AWARD_IDS_KEY: [],
+		"progression_revision": 0,
 		"progression_schema": PROGRESSION_SCHEMA,
-		"purchased_upgrades": [],
-		"card_upgrades": {},
-		"card_mods": {},
 		"rested_at_fire": false,
 		"card_upgrades_unlocked": false,
 		"pending_fire_rest_dialogue": false,
@@ -65,35 +67,56 @@ static func default_data() -> Dictionary:
 	}
 
 static func load_data() -> Dictionary:
-	if not FileAccess.file_exists(_storage_path):
-		return default_data()
-	var file: FileAccess = FileAccess.open(_storage_path, FileAccess.READ)
+	var loaded: Dictionary = _load_profile_dictionary(_storage_path)
+	if not loaded.is_empty():
+		return loaded
+	loaded = _load_profile_dictionary(_profile_backup_path())
+	return loaded if not loaded.is_empty() else default_data()
+
+static func _load_profile_dictionary(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		return default_data()
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
+		return {}
+	var source: String = file.get_as_text()
+	file.close()
+	var parser := JSON.new()
+	if parser.parse(source) != OK:
+		return {}
+	var parsed: Variant = parser.data
 	if typeof(parsed) != TYPE_DICTIONARY:
-		return default_data()
-	var data: Dictionary = (parsed as Dictionary).duplicate(true)
-	return _normalized_data(data)
+		return {}
+	return _normalized_data((parsed as Dictionary).duplicate(true))
+
+static func normalized_data(data: Dictionary) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
 
 static func _normalized_data(data: Dictionary) -> Dictionary:
 	if not data.has("embers"):
 		data["embers"] = 0
-	if int(data.get("progression_schema", 1)) < PROGRESSION_SCHEMA:
+	var source_schema: int = int(data.get("progression_schema", 1))
+	if source_schema < 2:
 		data = _migrated_legacy_card_upgrades(data)
+	elif _has_retired_card_growth(data):
+		data = _migrated_legacy_card_upgrades(data)
+	if source_schema < 3:
+		data = _migrated_legacy_stats(data)
 	data["progression_schema"] = PROGRESSION_SCHEMA
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
-	data["stats"] = GameData.normalized_progression_stats(data.get("stats", {}))
-	data["unspent_stat_points"] = maxi(
-		0,
-		GameData.progression_stat_points_for_level(int(data.get("level", 1))) - GameData.spent_progression_stat_points(data.get("stats", {}))
-	)
-	if not data.has("purchased_upgrades"):
-		data["purchased_upgrades"] = []
-	if not data.has("card_upgrades") or typeof(data.get("card_upgrades", {})) != TYPE_DICTIONARY:
-		data["card_upgrades"] = {}
-	if not data.has("card_mods") or typeof(data.get("card_mods", {})) != TYPE_DICTIONARY:
-		data["card_mods"] = {}
+	var required_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
+	data["skill_ids"] = SkillTreeLibrary.repaired_selection(data.get("skill_ids", []), required_skill_count)
+	data["moltshards"] = maxi(0, int(data.get("moltshards", 0)))
+	var award_ids: Array = _normalized_string_array(data.get(MOLTSHARD_AWARD_IDS_KEY, []))
+	if award_ids.size() > MOLTSHARD_AWARD_LEDGER_LIMIT:
+		award_ids = award_ids.slice(award_ids.size() - MOLTSHARD_AWARD_LEDGER_LIMIT)
+	data[MOLTSHARD_AWARD_IDS_KEY] = award_ids
+	data["progression_revision"] = maxi(0, int(data.get("progression_revision", 0)))
+	data.erase("stats")
+	data.erase("unspent_stat_points")
+	data.erase("purchased_upgrades")
+	data.erase("card_upgrades")
+	data.erase("card_mods")
 	if not data.has("rested_at_fire"):
 		data["rested_at_fire"] = false
 	if not data.has("card_upgrades_unlocked"):
@@ -117,14 +140,14 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
-	var card_upgrades: Dictionary = (data.get("card_upgrades", {}) as Dictionary).duplicate(true)
-	for upgrade_id_var: Variant in data.get("purchased_upgrades", []):
-		var upgrade_id: String = str(upgrade_id_var)
-		var card_id: String = GameData.upgrade_card_id(upgrade_id)
-		if not card_id.is_empty() and not card_upgrades.has(card_id):
-			card_upgrades[card_id] = upgrade_id
-	data["card_upgrades"] = card_upgrades
 	return data
+
+static func _has_retired_card_growth(data: Dictionary) -> bool:
+	if typeof(data.get("purchased_upgrades", [])) == TYPE_ARRAY and not (data.get("purchased_upgrades", []) as Array).is_empty():
+		return true
+	if typeof(data.get("card_upgrades", {})) == TYPE_DICTIONARY and not (data.get("card_upgrades", {}) as Dictionary).is_empty():
+		return true
+	return typeof(data.get("card_mods", {})) == TYPE_DICTIONARY and not (data.get("card_mods", {}) as Dictionary).is_empty()
 
 static func _migrated_legacy_card_upgrades(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = data.duplicate(true)
@@ -162,6 +185,45 @@ static func _migrated_legacy_card_upgrades(data: Dictionary) -> Dictionary:
 	next_data["fire_rest_dialogue_seen"] = false
 	return next_data
 
+static func _migrated_legacy_stats(data: Dictionary) -> Dictionary:
+	var next_data: Dictionary = data.duplicate(true)
+	var level: int = clampi(int(next_data.get("level", 1)), 1, GameData.max_progression_level())
+	var legacy_stats: Dictionary = GameData.normalized_legacy_progression_stats(next_data.get("stats", {}))
+	var preference: Array[String] = _legacy_skill_preference(legacy_stats)
+	next_data["skill_ids"] = SkillTreeLibrary.repaired_selection([], skill_points_for_level(level), preference)
+	next_data["moltshards"] = maxi(0, int(next_data.get("moltshards", 0)))
+	next_data.erase("stats")
+	next_data.erase("unspent_stat_points")
+	return next_data
+
+static func _legacy_skill_preference(legacy_stats: Dictionary) -> Array[String]:
+	var branch_scores: Dictionary = {
+		"tactics": int(legacy_stats.get("might", 0)) + int(legacy_stats.get("dexterity", 0)) + int(legacy_stats.get("focus", 0)),
+		"resolve": int(legacy_stats.get("vigor", 0)) + int(legacy_stats.get("guard", 0)),
+		"traverse": int(legacy_stats.get("agility", 0)) + int(legacy_stats.get("air_magick", 0)),
+		"foresight": int(legacy_stats.get("fire_magick", 0)) + int(legacy_stats.get("ice_magick", 0)) + int(legacy_stats.get("lightning_magick", 0)) + int(legacy_stats.get("earth_magick", 0))
+	}
+	var branch_order: Array[String]
+	branch_order.append_array(["tactics", "resolve", "traverse", "foresight"])
+	branch_order.sort_custom(func(left: String, right: String) -> bool:
+		var left_score: int = int(branch_scores.get(left, 0))
+		var right_score: int = int(branch_scores.get(right, 0))
+		if left_score != right_score:
+			return left_score > right_score
+		return SkillTreeLibrary.BRANCH_ORDER.find(left) < SkillTreeLibrary.BRANCH_ORDER.find(right)
+	)
+	var result: Array[String]
+	var ordered: Array[String] = SkillTreeLibrary.ordered_ids()
+	for branch_id: String in branch_order:
+		for skill_id: String in ordered:
+			var skill_def: Dictionary = SkillTreeLibrary.definition(skill_id)
+			if str(skill_def.get("branch", "")) == branch_id:
+				result.append(skill_id)
+	for skill_id: String in ordered:
+		if not result.has(skill_id):
+			result.append(skill_id)
+	return result
+
 static func _normalized_string_array(value: Variant) -> Array:
 	var result: Array = []
 	if typeof(value) != TYPE_ARRAY:
@@ -174,11 +236,51 @@ static func _normalized_string_array(value: Variant) -> Array:
 	return result
 
 static func save_data(data: Dictionary) -> bool:
-	var file: FileAccess = FileAccess.open(_storage_path, FileAccess.WRITE)
+	var temp_path: String = _profile_temp_path()
+	var backup_path: String = _profile_backup_path()
+	_remove_profile_file_if_present(temp_path)
+	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
 	file.store_string(JSON.stringify(_normalized_data(data.duplicate(true)), "\t"))
+	file.flush()
+	file.close()
+	if _load_profile_dictionary(temp_path).is_empty():
+		_remove_profile_file_if_present(temp_path)
+		return false
+	var live_path: String = ProjectSettings.globalize_path(_storage_path)
+	var live_exists: bool = FileAccess.file_exists(_storage_path)
+	var live_valid: bool = live_exists and not _load_profile_dictionary(_storage_path).is_empty()
+	var backup_valid: bool = false
+	if live_valid:
+		_remove_profile_file_if_present(backup_path)
+		if DirAccess.rename_absolute(live_path, ProjectSettings.globalize_path(backup_path)) != OK:
+			_remove_profile_file_if_present(temp_path)
+			return false
+		backup_valid = true
+	else:
+		backup_valid = not _load_profile_dictionary(backup_path).is_empty()
+		if live_exists:
+			if DirAccess.remove_absolute(live_path) != OK:
+				_remove_profile_file_if_present(temp_path)
+				return false
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), live_path) != OK:
+		if backup_valid and not FileAccess.file_exists(_storage_path):
+			DirAccess.rename_absolute(ProjectSettings.globalize_path(backup_path), live_path)
+		_remove_profile_file_if_present(temp_path)
+		return false
+	_remove_profile_file_if_present(backup_path)
 	return true
+
+static func _profile_temp_path() -> String:
+	return "%s.tmp" % _storage_path
+
+static func _profile_backup_path() -> String:
+	return "%s.backup" % _storage_path
+
+static func _remove_profile_file_if_present(path: String) -> void:
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 static func has_saved_run() -> bool:
 	return FileAccess.file_exists(_run_storage_path) or FileAccess.file_exists(_run_backup_path())
@@ -400,72 +502,105 @@ static func can_level_up(data: Dictionary) -> bool:
 	var cost: int = next_level_cost(normalized)
 	return cost > 0 and int(normalized.get("embers", 0)) >= cost
 
-static func can_purchase_level_with_stats(data: Dictionary, stat_ids: Array) -> bool:
+static func skill_points_for_level(level: int) -> int:
+	return maxi(0, clampi(level, 1, GameData.max_progression_level()) - 1)
+
+static func selected_skill_ids(data: Dictionary) -> Array[String]:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	return SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", []))
+
+static func has_skill(data: Dictionary, skill_id: String) -> bool:
+	return selected_skill_ids(data).has(skill_id)
+
+static func available_skill_ids(data: Dictionary) -> Array[String]:
+	return SkillTreeLibrary.available_ids(selected_skill_ids(data))
+
+static func can_purchase_level_with_skill(data: Dictionary, skill_id: String) -> bool:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
 	if not can_level_up(normalized):
 		return false
-	var unique_stat_ids: Array[String] = _unique_valid_stat_ids(stat_ids)
-	if unique_stat_ids.size() != GameData.progression_stat_points_per_level():
-		return false
-	var stats: Dictionary = (normalized.get("stats", {}) as Dictionary)
-	for stat_id: String in unique_stat_ids:
-		if int(stats.get(stat_id, 0)) >= GameData.progression_stat_cap():
-			return false
-	return true
-
-static func can_allocate_stat(data: Dictionary, stat_id: String) -> bool:
-	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if not GameData.progression_stat_ids().has(stat_id):
-		return false
-	if int(normalized.get("unspent_stat_points", 0)) <= 0:
-		return false
-	return int((normalized.get("stats", {}) as Dictionary).get(stat_id, 0)) < GameData.progression_stat_cap()
-
-static func allocate_stat(data: Dictionary, stat_id: String) -> Dictionary:
-	var next_data: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_allocate_stat(next_data, stat_id):
-		return next_data
-	var stats: Dictionary = (next_data.get("stats", {}) as Dictionary).duplicate(true)
-	stats[stat_id] = mini(GameData.progression_stat_cap(), int(stats.get(stat_id, 0)) + 1)
-	next_data["stats"] = stats
-	next_data["unspent_stat_points"] = maxi(0, int(next_data.get("unspent_stat_points", 0)) - 1)
-	return _normalized_data(next_data)
+	return SkillTreeLibrary.is_available(skill_id, normalized.get("skill_ids", []))
 
 static func purchase_level(data: Dictionary) -> Dictionary:
+	# Leveling is intentionally atomic with learning one skill. A caller that has
+	# not supplied a legal choice must not spend embers or advance the profile.
+	return _normalized_data(data.duplicate(true))
+
+static func purchase_level_with_skill(data: Dictionary, skill_id: String) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_purchase_level_with_skill(normalized, skill_id):
+		return normalized
+	var cost: int = next_level_cost(normalized)
+	var skills: Array[String] = SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", []))
+	skills.append(skill_id)
+	normalized["embers"] = maxi(0, int(normalized.get("embers", 0)) - cost)
+	normalized["level"] = mini(GameData.max_progression_level(), int(normalized.get("level", 1)) + 1)
+	normalized["skill_ids"] = skills
+	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
+	return _normalized_data(normalized)
+
+# These adapters intentionally refuse the retired allocation flow. They keep
+# older callers safe while saved profiles migrate to one skill per level.
+static func can_purchase_level_with_stats(_data: Dictionary, _stat_ids: Array) -> bool:
+	return false
+
+static func purchase_level_with_stat(data: Dictionary, _stat_id: String) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
+
+static func purchase_level_with_stats(data: Dictionary, _stat_ids: Array) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
+
+static func moltshard_count(data: Dictionary) -> int:
+	return maxi(0, int(_normalized_data(data.duplicate(true)).get("moltshards", 0)))
+
+static func add_moltshards(data: Dictionary, amount: int = 1) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_level_up(next_data):
-		return next_data
-	var cost: int = next_level_cost(next_data)
-	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) - cost)
-	next_data["level"] = mini(GameData.max_progression_level(), int(next_data.get("level", 1)) + 1)
-	next_data["unspent_stat_points"] = int(next_data.get("unspent_stat_points", 0)) + GameData.progression_stat_points_per_level()
+	var before: int = int(next_data.get("moltshards", 0))
+	next_data["moltshards"] = maxi(0, before + amount)
+	if int(next_data.get("moltshards", 0)) != before:
+		next_data["progression_revision"] = int(next_data.get("progression_revision", 0)) + 1
 	return _normalized_data(next_data)
 
-static func purchase_level_with_stat(data: Dictionary, stat_id: String) -> Dictionary:
-	var leveled: Dictionary = purchase_level(data)
-	if int(leveled.get("level", 1)) == int(_normalized_data(data.duplicate(true)).get("level", 1)):
-		return leveled
-	return allocate_stat(leveled, stat_id)
-
-static func purchase_level_with_stats(data: Dictionary, stat_ids: Array) -> Dictionary:
+static func has_moltshard_award(data: Dictionary, award_id: String) -> bool:
+	if award_id.is_empty():
+		return false
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_purchase_level_with_stats(normalized, stat_ids):
-		return normalized
-	var leveled: Dictionary = purchase_level(normalized)
-	for stat_id: String in _unique_valid_stat_ids(stat_ids):
-		leveled = allocate_stat(leveled, stat_id)
-	return _normalized_data(leveled)
+	return (normalized.get(MOLTSHARD_AWARD_IDS_KEY, []) as Array).has(award_id)
 
-static func _unique_valid_stat_ids(stat_ids: Array) -> Array[String]:
-	var result: Array[String] = []
-	for stat_id_var: Variant in stat_ids:
-		var stat_id: String = str(stat_id_var)
-		if result.has(stat_id):
-			continue
-		if not GameData.progression_stat_ids().has(stat_id):
-			continue
-		result.append(stat_id)
-	return result
+static func add_moltshard_for_award(data: Dictionary, award_id: String) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if award_id.is_empty() or has_moltshard_award(normalized, award_id):
+		return normalized
+	var award_ids: Array = (normalized.get(MOLTSHARD_AWARD_IDS_KEY, []) as Array).duplicate()
+	award_ids.append(award_id)
+	if award_ids.size() > MOLTSHARD_AWARD_LEDGER_LIMIT:
+		award_ids = award_ids.slice(award_ids.size() - MOLTSHARD_AWARD_LEDGER_LIMIT)
+	normalized[MOLTSHARD_AWARD_IDS_KEY] = award_ids
+	normalized["moltshards"] = maxi(0, int(normalized.get("moltshards", 0)) + 1)
+	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
+	return _normalized_data(normalized)
+
+static func can_respec_skills(data: Dictionary, proposed_skill_ids: Array) -> bool:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if int(normalized.get("moltshards", 0)) <= 0:
+		return false
+	var required_count: int = skill_points_for_level(int(normalized.get("level", 1)))
+	if not SkillTreeLibrary.selection_is_valid(proposed_skill_ids, required_count):
+		return false
+	var current: Array[String] = SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", []))
+	var proposed: Array[String] = SkillTreeLibrary.normalized_ids(proposed_skill_ids)
+	current.sort()
+	proposed.sort()
+	return current != proposed
+
+static func respec_skills(data: Dictionary, proposed_skill_ids: Array) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_respec_skills(normalized, proposed_skill_ids):
+		return normalized
+	normalized["skill_ids"] = SkillTreeLibrary.normalized_ids(proposed_skill_ids)
+	normalized["moltshards"] = maxi(0, int(normalized.get("moltshards", 0)) - 1)
+	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
+	return _normalized_data(normalized)
 
 static func mark_rested_at_fire(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
@@ -542,62 +677,20 @@ static func clear_recovery_marker(data: Dictionary) -> Dictionary:
 	next_data["recovery_marker"] = {}
 	return next_data
 
-static func can_purchase(data: Dictionary, upgrade_id: String) -> bool:
-	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if has_upgrade(data, upgrade_id):
-		return false
-	var upgrade: Dictionary = GameData.upgrade_def(upgrade_id)
-	if upgrade.is_empty():
-		return false
-	var card_id: String = GameData.upgrade_card_id(upgrade_id)
-	if not card_id.is_empty() and has_card_upgrade(normalized, card_id):
-		return false
-	return int(normalized.get("embers", 0)) >= GameData.upgrade_cost(upgrade_id)
-
-static func purchase_upgrade(data: Dictionary, upgrade_id: String) -> Dictionary:
-	if not can_purchase(data, upgrade_id):
-		return data.duplicate(true)
-	var next_data: Dictionary = _normalized_data(data.duplicate(true))
-	var upgrades: Array = next_data.get("purchased_upgrades", []).duplicate()
-	upgrades.append(upgrade_id)
-	next_data["purchased_upgrades"] = upgrades
-	var card_id: String = GameData.upgrade_card_id(upgrade_id)
-	if not card_id.is_empty():
-		var card_upgrades: Dictionary = (next_data.get("card_upgrades", {}) as Dictionary).duplicate(true)
-		card_upgrades[card_id] = upgrade_id
-		next_data["card_upgrades"] = card_upgrades
-	next_data["embers"] = maxi(0, int(next_data.get("embers", 0)) - GameData.upgrade_cost(upgrade_id))
-	return next_data
-
-static func can_purchase_card_mod(data: Dictionary, card_id: String, mod: Dictionary) -> bool:
-	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if card_id.is_empty() or mod.is_empty():
-		return false
-	return int(normalized.get("embers", 0)) >= GameData.card_mod_cost(card_id, mod, normalized)
-
-static func purchase_card_mod(data: Dictionary, card_id: String, mod: Dictionary) -> Dictionary:
-	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_purchase_card_mod(normalized, card_id, mod):
-		return normalized
-	var cost: int = GameData.card_mod_cost(card_id, mod, normalized)
-	var card_mods: Dictionary = (normalized.get("card_mods", {}) as Dictionary).duplicate(true)
-	var mods: Array = (card_mods.get(card_id, []) as Array).duplicate(true)
-	var stored_mod: Dictionary = mod.duplicate(true)
-	stored_mod.erase("cost")
-	stored_mod["cost_paid"] = cost
-	mods.append(stored_mod)
-	card_mods[card_id] = mods
-	normalized["card_mods"] = card_mods
-	normalized["embers"] = maxi(0, int(normalized.get("embers", 0)) - cost)
-	return normalized
-
-static func has_upgrade(data: Dictionary, upgrade_id: String) -> bool:
-	for purchased_var: Variant in data.get("purchased_upgrades", []):
-		if str(purchased_var) == upgrade_id:
-			return true
+static func can_purchase(_data: Dictionary, _upgrade_id: String) -> bool:
 	return false
 
-static func has_card_upgrade(data: Dictionary, card_id: String) -> bool:
-	var card_upgrades: Dictionary = (data.get("card_upgrades", {}) as Dictionary)
-	var card_mods: Dictionary = (data.get("card_mods", {}) as Dictionary)
-	return not str(card_upgrades.get(card_id, "")).is_empty() or not (card_mods.get(card_id, []) as Array).is_empty()
+static func purchase_upgrade(data: Dictionary, _upgrade_id: String) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
+
+static func can_purchase_card_mod(_data: Dictionary, _card_id: String, _mod: Dictionary) -> bool:
+	return false
+
+static func purchase_card_mod(data: Dictionary, _card_id: String, _mod: Dictionary) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
+
+static func has_upgrade(_data: Dictionary, _upgrade_id: String) -> bool:
+	return false
+
+static func has_card_upgrade(_data: Dictionary, _card_id: String) -> bool:
+	return false

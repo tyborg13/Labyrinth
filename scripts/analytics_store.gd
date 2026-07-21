@@ -85,6 +85,8 @@ func write_event(event_type: String, context: Dictionary = {}, payload: Dictiona
 		"player_max_hp": int(context.get("player_max_hp", -1)),
 		"progression_level": int(context.get("progression_level", 1)),
 		"progression_stats": _sanitize_variant(context.get("progression_stats", {})),
+		"progression_skills": _sanitize_variant(context.get("progression_skills", [])),
+		"moltshards": int(context.get("moltshards", 0)),
 		"deck_size": int(context.get("deck_size", 0)),
 		"elemental_intensity": _sanitize_variant(context.get("elemental_intensity", {})),
 		"umbra_stage": str(context.get("umbra_stage", "")),

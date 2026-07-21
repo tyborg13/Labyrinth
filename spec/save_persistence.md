@@ -8,6 +8,12 @@ and falls back to that backup only when the live value is unreadable or is not a
 dictionary. A known-valid backup is never removed until either the previous
 valid live slot has replaced it or the new validated temporary file is live.
 
+`user://progression.json` uses the same validated temporary/current/backup
+replacement for permanent progression. Loading falls back to the last complete
+profile when the live JSON is corrupt or an interrupted replacement leaves only
+the backup, so an update or migration cannot truncate learned skills, embers,
+Moltshards, discoveries, or run history.
+
 ## Committed boundaries
 
 RunScene persists only after an irreversible mutation is internally coherent:
@@ -73,6 +79,23 @@ positions, ordered piles, HP/defenses/statuses, actors, initiative clock/queue,
 action counters, room loot, and `rng_state`. A pending combat continuation
 advances through saved post-action snapshots; it never calls enemy action
 resolution again.
+
+Each newly written run carries `run_content_schema`. A save below the current
+schema is migrated as a complete Variant graph before Grimoire normalization or
+other subsystem repair, because content ids can appear in loadouts, card piles,
+rewards, merchant state, loot ids, relics, intent state, analytics context,
+dictionary keys, and pending combat snapshots. Exact aliases restore current
+card, equipment, relic, intent, and structural terrain ids; known ids inside
+namespaced or composite strings are replaced longest-first. Any remaining
+retired vocabulary token in denormalized notices or logs is neutralized. The
+same pre-normalization pass repairs profile discovery ids.
+
+After a successful one-time repair, RunScene stamps the current schema and
+immediately writes the repaired run through the validated temporary/backup
+replacement pipeline. It also persists a changed profile separately. This
+prevents quitting before the next gameplay boundary—or cloud synchronization—
+from restoring the pre-migration binary. Current-schema saves skip the recursive
+scan on later resumes.
 
 Inspection fixtures use the same relative `user://current_run.save` contract in
 an isolated custom user directory. Running `tools/inspection_fixture.py` again

@@ -15,6 +15,9 @@ const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
 const DragonBossSuite = preload("res://tests/suites/dragon_boss_suite.gd")
 const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
+const SkillTreeSuite = preload("res://tests/suites/skill_tree_suite.gd")
+const SkillCombatSuite = preload("res://tests/suites/skill_combat_suite.gd")
+const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -60,6 +63,9 @@ func _initialize() -> void:
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
+	SkillTreeSuite.run(Callable(self, "_assert"))
+	SkillCombatSuite.run(Callable(self, "_assert"))
+	SkillRunSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -87,7 +93,7 @@ func _initialize() -> void:
 	_test_initiative_order_starts_with_active_player_and_fast_enemies()
 	_test_initiative_advances_enemy_turns_until_player_reacts()
 	_test_card_time_scale_changes_player_reentry_order()
-	_test_agility_reduces_player_base_initiative()
+	_test_legacy_stats_do_not_change_combat_numbers()
 	_test_combat_log_is_bounded()
 	_test_card_play_action_grants_bonus_play()
 	_test_flurry_repeats_and_spends_snapshotted_card_plays()
@@ -789,25 +795,25 @@ func _test_room_generation_uses_stone_floor_with_moss_accents() -> void:
 	var floor_moss: Array = moss.get("floor", [])
 	var wall_moss: Array = moss.get("wall", [])
 	var pillar_moss: Array = moss.get("pillar", [])
-	var ash_count: int = 0
+	var stone_count: int = 0
 	var legacy_moss_count: int = 0
 	var ember_count: int = 0
 	for y: int in range(grid.size()):
 		var row: Array = grid[y]
 		for x: int in range(row.size()):
 			match str(row[x]):
-				"ash":
-					ash_count += 1
+				"stone":
+					stone_count += 1
 				"moss":
 					legacy_moss_count += 1
 				"ember":
 					ember_count += 1
-	_assert(str(room.get("theme", "")) == "ash", "Rooms should now advertise the stone floor theme by default")
+	_assert(str(room.get("theme", "")) == "stone", "Rooms should now advertise the stone floor theme by default")
 	_assert(ember_count == 0, "Generated floors should no longer use ember tiles")
 	_assert(legacy_moss_count == 0, "Generated floors should keep moss decorative instead of using dedicated moss terrain tiles")
 	_assert(floor_moss.size() >= 5, "Generated floors should now carry a denser layer of decorative moss overlays")
 	_assert(wall_moss.size() + pillar_moss.size() >= 1, "Decorative moss should also reach at least one stone fixture beyond the floor")
-	_assert(ash_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
+	_assert(stone_count > floor_moss.size(), "Stone floor tiles should still make up the majority of the room floor")
 
 func _test_special_rooms_use_corner_pillar_layout() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -850,7 +856,7 @@ func _test_special_rooms_use_corner_pillar_layout() -> void:
 	var grid: Array = campfire_room.get("grid", [])
 	for y: int in range(3, 6):
 		for x: int in range(3, 6):
-			_assert(str((grid[y] as Array)[x]) == "ash", "The campfire bonfire footprint should remain floor tiles")
+			_assert(str((grid[y] as Array)[x]) == "stone", "The campfire bonfire footprint should remain floor tiles")
 	var floor_moss: Array = (campfire_room.get("moss", {}) as Dictionary).get("floor", [])
 	for tile: Vector2i in floor_moss:
 		_assert(tile.x < 3 or tile.x > 5 or tile.y < 3 or tile.y > 5, "Campfire moss should leave the 3x3 bonfire footprint visually clear")
@@ -865,7 +871,7 @@ func _assert_corner_pillar_room(room: Dictionary, label: String) -> void:
 			var tile := Vector2i(x, y)
 			if pillar_tiles.has(tile):
 				continue
-			_assert(str((grid[y] as Array)[x]) == "ash", "%s rooms should keep the rest of the interior clear" % label)
+			_assert(str((grid[y] as Array)[x]) == "stone", "%s rooms should keep the rest of the interior clear" % label)
 
 func _open_floor_count_with_blockers(grid: Array, blocked: Dictionary) -> int:
 	var count: int = 0
@@ -1514,28 +1520,32 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	_assert(str(slow_order[1].get("kind", "")) == "enemy" and bool(slow_order[1].get("projected", false)), "Slow turns should let fast enemies threaten a double-up")
 	_assert(str(slow_order[2].get("kind", "")) == "player", "The player should return after the fast enemy's projected follow-up on slow turns")
 
-func _test_agility_reduces_player_base_initiative() -> void:
+func _test_legacy_stats_do_not_change_combat_numbers() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var agile_state: Dictionary = combat.create_combat(15132, _simple_room_layout(), {
+	var clean_state: Dictionary = combat.create_combat(15132, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
 		"deck_cards": ["quick_stab"],
 		"relics": [],
 		"hand_size": 1,
-		"heal_bonus": 0,
-		"stats": {"agility": 3}
+		"heal_bonus": 0
 	})
-	_assert(combat.player_base_initiative(agile_state) == 6, "Each agility point should reduce the player's base initiative by one")
-	var capped_state: Dictionary = combat.create_combat(15133, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0,
-		"stats": {"agility": 99}
-	})
-	_assert(combat.player_base_initiative(capped_state) == 5, "Player base initiative should not drop below the minimum delay")
+	var forged_state: Dictionary = clean_state.duplicate(true)
+	forged_state["stats"] = {"agility": 99, "ice_magick": 99}
+	_assert(combat.player_base_initiative(clean_state) == 9, "The clean combat snapshot should use the fixed base initiative")
+	_assert(combat.player_base_initiative(forged_state) == 9, "Retired stat fields must not change player initiative")
+	var clean_enemies: Array = clean_state.get("enemies", []) as Array
+	var forged_enemies: Array = forged_state.get("enemies", []) as Array
+	if not clean_enemies.is_empty() and not forged_enemies.is_empty():
+		(clean_enemies[0] as Dictionary)["freeze"] = 1
+		(forged_enemies[0] as Dictionary)["freeze"] = 1
+		clean_state["enemies"] = clean_enemies
+		forged_state["enemies"] = forged_enemies
+		var action: Dictionary = {"type": "melee", "damage": 90}
+		_assert(
+			int(combat.call("_damage_for_enemy_target", forged_state, action, 0)) == int(combat.call("_damage_for_enemy_target", clean_state, action, 0)),
+			"Retired elemental allocation fields must not increase damage against frozen enemies"
+		)
 
 func _test_combat_log_is_bounded() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -2443,7 +2453,7 @@ func _test_illusion_action_creates_decoy_and_redirects_enemy() -> void:
 	var illusions: Array = state.get("illusions", [])
 	_assert(illusions.size() == 1, "Illusion actions should add a combat actor")
 	_assert(int((illusions[0] as Dictionary).get("hp", 0)) == 4, "Created illusions should use the action health")
-	_assert(not combat.valid_targets_for_player_action(state, {"type": "move", "range": 3}).has(Vector2i(4, 4)), "Player movement should treat illusions as occupied")
+	_assert(combat.valid_targets_for_player_action(state, {"type": "move", "range": 3}).has(Vector2i(4, 4)), "Friendly illusions should not block player movement")
 	var hp_before: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
 	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
 	var after_state: Dictionary = phase.get("state", {})
@@ -4528,7 +4538,7 @@ func _test_enemy_moves_toward_breakable_chokepoint() -> void:
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"]
@@ -5009,7 +5019,7 @@ func _test_enemy_threat_tiles_assume_player_can_vacate_current_tile() -> void:
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"]
@@ -6250,7 +6260,7 @@ func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	_assert(seventh_frame.region != eighth_frame.region, "Emaciated Man idle loop should not hold the final frame at the turn-around")
 	_assert(first_frame.region != last_frame.region, "Emaciated Man idle loop should not hold the first frame at the loop boundary")
 	_assert(npc_texture != null, "Emaciated Man static art should load for board rendering")
-	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Ash Acolyte texture")
+	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Dust Acolyte texture")
 
 func _test_foreground_props_fade_when_covering_behind_objects() -> void:
 	var board := CombatBoardView.new()
@@ -6527,7 +6537,7 @@ func _test_door_art_uses_source_and_flipped_variant() -> void:
 	_assert(textures.get("door_row", null) == textures.get("door", null), "Bottom-left/top-right doors should use the supplied source orientation directly")
 	_assert(textures.get("door_col", null) != null, "Combat board should build a flipped door texture for the opposite diagonal")
 	_assert(textures.get("door_col", null) != textures.get("door", null), "Bottom-right/top-left doors should use a flipped variant instead of the identical source sprite")
-	_assert(board.call("_floor_texture_key", "door") == "ash", "Door tiles should render on top of the regular ash floor texture")
+	_assert(board.call("_floor_texture_key", "door") == "stone", "Door tiles should render on top of the regular stone floor texture")
 	board.free()
 
 func _test_standalone_door_art_stays_within_single_tile_footprint() -> void:
@@ -6665,8 +6675,8 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var floor_variants: Dictionary = board.get("_floor_texture_variants")
-	var ash_variants: Array = floor_variants.get("ash", [])
-	_assert(ash_variants.size() == 7, "Combat board should load all seven extracted stone floor variants")
+	var stone_variants: Array = floor_variants.get("stone", [])
+	_assert(stone_variants.size() == 7, "Combat board should load all seven extracted stone floor variants")
 	var state := {"grid": _simple_grid(), "room_coord": Vector2i(2, 1)}
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var first_lookup: Dictionary = (board.get("_floor_variant_by_tile") as Dictionary).duplicate(true)
@@ -6674,10 +6684,10 @@ func _test_combat_board_assigns_deterministic_floor_variants() -> void:
 	for y: int in range(1, 7):
 		for x: int in range(1, 7):
 			distinct[int(first_lookup.get(Vector2i(x, y), -1))] = true
-	_assert(distinct.size() >= 4, "Interior ash floors should spread across several stone variants instead of collapsing to one look")
+	_assert(distinct.size() >= 4, "Interior stone floors should spread across several variants instead of collapsing to one look")
 	var center_tile := Vector2i(4, 4)
-	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(3, 4), -1)), "Variant assignment should avoid immediate left-right repeats on ash floors when possible")
-	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(4, 3), -1)), "Variant assignment should avoid immediate front-back repeats on ash floors when possible")
+	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(3, 4), -1)), "Variant assignment should avoid immediate left-right repeats on stone floors when possible")
+	_assert(int(first_lookup.get(center_tile, -1)) != int(first_lookup.get(Vector2i(4, 3), -1)), "Variant assignment should avoid immediate front-back repeats on stone floors when possible")
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	var repeated_lookup: Dictionary = board.get("_floor_variant_by_tile")
 	_assert(repeated_lookup.get(center_tile, -1) == first_lookup.get(center_tile, -2), "Floor variants should stay deterministic for the same room coordinate")
@@ -7684,33 +7694,33 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 	_assert(int(loaded.get("embers", 0)) == 180, "Saved progression embers should reload as held embers")
 	_assert(int(loaded.get("level", 0)) == 1, "Progression should start at level one")
 	_assert(ProgressionStore.next_level_cost(loaded) == 180, "The first level-up cost should require a meaningful run")
-	_assert(not ProgressionStore.can_purchase_level_with_stats(loaded, ["might"]), "Level-up purchases should require two stat picks")
-	_assert(not ProgressionStore.can_purchase_level_with_stats(loaded, ["might", "might"]), "Level-up stat picks should be different stats")
-	loaded = ProgressionStore.purchase_level_with_stats(loaded, ["might", "dexterity"])
+	_assert(not ProgressionStore.can_purchase_level_with_skill(loaded, "borrowed_time"), "Level-up purchases should reject skills with unmet prerequisites")
+	_assert(ProgressionStore.can_purchase_level_with_skill(loaded, "quick_wits"), "A legal root skill should be available for the first level-up")
+	loaded = ProgressionStore.purchase_level_with_skill(loaded, "quick_wits")
 	_assert(int(loaded.get("level", 0)) == 2, "Buying a level should permanently raise character level")
 	_assert(int(loaded.get("embers", 0)) == 0, "Buying a level should spend held embers")
-	_assert(GameData.stat_value(loaded, "might") == 1, "Buying a level should allocate the first chosen stat point")
-	_assert(GameData.stat_value(loaded, "dexterity") == 1, "Buying a level should allocate the second chosen stat point")
-	_assert(int(loaded.get("unspent_stat_points", 0)) == 0, "A normal level-up should assign both stat points immediately")
-	var upgraded_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
-	var upgraded_action: Dictionary = (upgraded_card.get("actions", []) as Array)[0]
-	_assert(int(upgraded_action.get("damage", 0)) == 92, "Might should increment melee cards on top of fixed-point base damage")
+	_assert(ProgressionStore.selected_skill_ids(loaded) == ["quick_wits"], "A level-up should learn exactly the chosen skill")
+	_assert(not loaded.has("stats") and not loaded.has("unspent_stat_points"), "The live progression profile should not retain retired stat allocation fields")
+	var unchanged_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
+	var unchanged_action: Dictionary = (unchanged_card.get("actions", []) as Array)[0]
+	_assert(int(unchanged_action.get("damage", 0)) == 90, "Learning a skill should not disguise a permanent raw damage increase")
 	loaded = ProgressionStore.set_embers(loaded, 42)
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
 		"hp": 120,
 		"max_hp": 200,
 		"deck_cards": ["quick_stab"],
-		"stats": loaded.get("stats", {}),
+		"skill_ids": ProgressionStore.selected_skill_ids(loaded),
 		"level": loaded.get("level", 1),
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 92, "Combat should resolve progression stats from the combat snapshot")
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 90, "Combat should keep card damage unchanged when it receives a skill snapshot")
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(9, loaded)
 	_assert(run_engine.held_embers(run_state) == 42, "New runs should carry the current held ember count")
+	_assert(ProgressionStore.has_skill(run_state.get("progression", {}), "quick_wits"), "New runs should carry learned skills")
 
 func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var dialogue_engine: DialogueEngine = DialogueEngine.new()
@@ -10681,7 +10691,7 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 		"mirror_shard",
 		"coffin_nails",
 		"reinforced_shield",
-		"ashen_buckler",
+		"iron_buckler",
 		"flint_edge"
 	]
 	var combat: CombatEngine = CombatEngine.new()
@@ -10882,18 +10892,16 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	if character_dialog != null:
 		var character_viewport: Vector2 = instance.get_viewport_rect().size
 		_assert(character_dialog.custom_minimum_size.x <= character_viewport.x - UiTypography.SAFE_MARGIN * 2.0 and character_dialog.custom_minimum_size.y <= character_viewport.y - UiTypography.SAFE_MARGIN * 2.0, "Character dialog should preserve safe viewport margins")
-	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the character stats overlay")
+	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the Skills overlay")
 	_assert(upgrade_scrim.z_index >= 1200 and not upgrade_scrim.z_as_relative, "The character overlay should render above combat hand cards")
 	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
-	_assert(_label_with_text(upgrade_scrim, "Level 1") != null, "The character overlay should show current level")
-	_assert(_label_with_text(upgrade_scrim, "Held embers 180") != null, "The character overlay should show held embers")
-	var character_art: TextureRect = upgrade_scrim.find_child("ProgressionCharacterArt", true, false) as TextureRect
-	_assert(character_art != null and character_art.texture != null, "The character overlay should anchor the status panel with protagonist art")
-	_assert(_label_with_text(upgrade_scrim, "Might") != null, "The character overlay should list physical stats")
-	_assert(_label_with_text(upgrade_scrim, "Fire Magick") != null, "The character overlay should list elemental magick stats")
-	instance.call("_on_character_stats_pressed")
+	_assert(_label_with_text(upgrade_scrim, "LV 1   SKILLS 0/0   MOLTSHARDS 0") != null, "The Skills overlay should summarize level, learned slots, and respec resources")
+	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The character overlay should render the data-driven skill tree")
+	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The skill tree should show its root abilities")
+	_assert(_label_with_text(upgrade_scrim, "Might") == null and _label_with_text(upgrade_scrim, "Fire Magick") == null, "The Skills overlay should not expose retired stat allocation rows")
+	instance.call("_switch_character_overlay_mode", "equipment")
 	await process_frame
-	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Stats to Gear should keep the character dialog size stable")
+	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Skills to Gear should keep the character dialog size stable")
 	var character_body_frame: Control = character_dialog.find_child("CharacterBodyFrame", true, false) as Control if character_dialog != null else null
 	var gear_body_rect: Rect2 = character_body_frame.get_global_rect().grow(1.0) if character_body_frame != null else Rect2()
 	_assert(character_body_frame != null, "The character menu should provide a fixed body frame for every tab")
@@ -10903,7 +10911,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(character_body_frame != null and character_body_frame.find_child("EquipmentLoadoutScroll", true, false) is ScrollContainer, "The Gear loadout should scroll internally instead of stretching the character body")
 	_assert(_button_with_text(upgrade_scrim, "Gear") != null, "The character menu should expose a Gear tab")
 	_assert(_button_with_text(upgrade_scrim, "Magic") != null, "The character menu should expose a Magic tab")
-	_assert(_button_with_text(upgrade_scrim, "Stats") != null, "The character menu should keep the Stats tab available")
+	_assert(_button_with_text(upgrade_scrim, "Skills") != null, "The character menu should expose a Skills tab")
+	_assert(_button_with_text(upgrade_scrim, "Stats") == null, "The character menu should not expose the retired Stats tab")
 	_assert(_label_with_text(upgrade_scrim, "Loadout") != null, "The gear overlay should show equipped slots")
 	_assert(_label_with_text(upgrade_scrim, "Inventory") != null, "The gear overlay should show inventory")
 	_assert(_label_with_text(upgrade_scrim, "Deck") != null, "The gear overlay should show deck cards")
@@ -10912,7 +10921,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_label_with_text(upgrade_scrim, "Pale Spark") != null, "The gear overlay should show default attuned magic cards")
 	var equipment_art: TextureRect = upgrade_scrim.find_child("EquipmentCharacterArt", true, false) as TextureRect
 	_assert(equipment_art != null and equipment_art.texture != null, "The gear overlay should keep protagonist art visible")
-	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Stats to Gear should keep the visible character dialog size stable")
+	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Skills to Gear should keep the visible character dialog size stable")
 	_assert(_label_with_text(upgrade_scrim, "Quick Stab, +2") == null, "Equipped loadout slots should not show a granted-card summary subline")
 	var gear_run_state: Dictionary = instance.get("_run_state")
 	var collected_equipment: Array = (gear_run_state.get("collected_equipment", []) as Array).duplicate()
@@ -11256,10 +11265,11 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var board_view: CombatBoardView = instance.get_node("BoardUnderlay/CombatBoard") as CombatBoardView
 	var board_presentation: Dictionary = board_view.get("presentation") if board_view != null else {}
 	_assert(str((board_presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Equipping gear should refresh board presentation for future player equipment art")
-	instance.call("_switch_character_overlay_mode", "stats")
+	instance.call("_switch_character_overlay_mode", "skills")
 	await process_frame
-	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear back to Stats should keep the character dialog size stable")
-	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear back to Stats should keep the visible character dialog size stable")
+	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear back to Skills should keep the character dialog size stable")
+	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear back to Skills should keep the visible character dialog size stable")
+	_assert(character_dialog.find_child("CharacterSkillTree", true, false) != null, "Returning to Skills should rebuild the skill tree")
 	instance.call("_close_card_upgrade_overlay")
 	instance.call("_open_level_up_overlay")
 	var upgrade_dialog: PanelContainer = instance.get("_upgrade_dialog")
@@ -11267,10 +11277,10 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		var progression_viewport: Vector2 = instance.get_viewport_rect().size
 		_assert(upgrade_dialog.custom_minimum_size.y <= progression_viewport.y - UiTypography.SAFE_MARGIN * 2.0, "The campfire level-up overlay should preserve safe margins so its action row remains visible")
 	_assert(_label_with_text(upgrade_scrim, "Draw Strength") != null, "The campfire level-up overlay should use the Draw Strength title")
-	_assert(_label_with_text(upgrade_scrim, "Choose 2 different stats.") != null, "The level-up overlay should explain the two-stat pick")
-	_assert(_button_with_text(upgrade_scrim, "+") != null, "The level-up overlay should use plus buttons instead of set buttons")
-	_assert(_button_with_text(upgrade_scrim, "-") != null, "The level-up overlay should use minus buttons beside stat values")
-	_assert(_button_with_text(upgrade_scrim, "Set") == null, "The level-up overlay should not show old select buttons")
+	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The level-up overlay should reuse the skill tree")
+	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The level-up tree should show a legal root choice")
+	_assert(_button_with_text(upgrade_scrim, "+") == null and _button_with_text(upgrade_scrim, "-") == null, "The level-up overlay should not expose stat steppers")
+	_assert(_button_with_text(upgrade_scrim, "Choose") != null, "The level-up tree should let the focused ability be chosen")
 	instance.queue_free()
 	await process_frame
 
@@ -12267,11 +12277,11 @@ func _dead_hand_room_layout() -> Dictionary:
 		"type": "combat",
 		"grid": [
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-			["wall", "ash", "ash", "wall", "ash", "ash", "wall"],
-			["wall", "ash", "wall", "wall", "wall", "ash", "wall"],
-			["wall", "wall", "wall", "ash", "wall", "wall", "wall"],
-			["wall", "ash", "wall", "wall", "wall", "ash", "wall"],
-			["wall", "ash", "ash", "wall", "ash", "ash", "wall"],
+			["wall", "stone", "stone", "wall", "stone", "stone", "wall"],
+			["wall", "stone", "wall", "wall", "wall", "stone", "wall"],
+			["wall", "wall", "wall", "stone", "wall", "wall", "wall"],
+			["wall", "stone", "wall", "wall", "wall", "stone", "wall"],
+			["wall", "stone", "stone", "wall", "stone", "stone", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 		],
 		"player_start": Vector2i(3, 3),
@@ -12379,7 +12389,7 @@ func _simple_grid() -> Array:
 			if x == 0 or y == 0 or x == 7 or y == 7:
 				row.append("wall")
 			else:
-				row.append("ash")
+				row.append("stone")
 		grid.append(row)
 	return grid
 

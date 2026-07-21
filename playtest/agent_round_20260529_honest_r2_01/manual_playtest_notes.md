@@ -102,9 +102,9 @@
 - Reward: took Cinderburst.
 - Taking free lateral treasure; no combat cost and likely important for boss odds.
 - Moved to (-2,-2): depth 2 none treasure.
-- Relic pick: Ashen Buckler over Mirror Shard. The deck has draw from Reprise/Lantern/Spark/Stone, while guaranteed opening block directly addresses the health-clock problem.
-- Treasure: took Ashen Buckler.
-- Route decision: skipping optional depth-2 ice because deck now has Volt/Spark, Reprise, Cinderburst, Iron Lung, and Ashen Buckler. Taking outward depth-3 fire despite risk to reach boss clock.
+- Relic pick: Iron Buckler over Mirror Shard. The deck has draw from Reprise/Lantern/Spark/Stone, while guaranteed opening block directly addresses the health-clock problem.
+- Treasure: took Iron Buckler.
+- Route decision: skipping optional depth-2 ice because deck now has Volt/Spark, Reprise, Cinderburst, Iron Lung, and Iron Buckler. Taking outward depth-3 fire despite risk to reach boss clock.
 - Moved to (-2,-3): depth 3 fire combat.
 - Enemy round: 0 HP lost, mode now combat.
 - Enemy round: 0 HP lost, mode now combat.

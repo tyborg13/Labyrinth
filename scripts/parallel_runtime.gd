@@ -3,7 +3,7 @@ class_name ParallelRuntime
 
 const TASK_ENV: String = "LABYRINTH_TASK_ID"
 const USER_DIR_ENV: String = "LABYRINTH_USER_DIR_NAME"
-const DEFAULT_PREFIX: String = "Labyrinth of Ash Parallel"
+const DEFAULT_PREFIX: String = "Escape the Umbra Parallel"
 
 static var _applied: bool = false
 static var _namespace: String = ""

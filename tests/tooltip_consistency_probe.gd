@@ -101,11 +101,11 @@ func _probe_state() -> Dictionary:
 		"room_coord": Vector2i(7, -2),
 		"grid": [
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 		],
 		"player": {

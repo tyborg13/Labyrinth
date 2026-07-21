@@ -2,7 +2,7 @@
 
 ## Brand Truth
 
-- Call the game **Escape the Umbra**. Treat **Labyrinth of Ash** as a retired working title.
+- Call the game **Escape the Umbra** in all player-facing and production copy.
 - Present a prison labyrinth whose only path to escape runs deeper into the shadow.
 - Treat the shadow dragon as the eventual goal, not current playable footage. Existing main-menu dragon art may establish the narrative threat if it is not labeled or framed as gameplay.
 - Do not use the old teaser as a creative, editorial, pacing, typography, or footage reference.

@@ -81,7 +81,7 @@ func _capture_run_states() -> void:
 	await process_frame
 	await process_frame
 
-	instance.call("_open_character_stats_overlay")
+	instance.call("_open_character_overlay", "skills")
 	await process_frame
 	await process_frame
 	await _save_root_screenshot("user://probes/run_character_overlay.png")
@@ -575,7 +575,7 @@ func _pass_preview_probe_simple_grid() -> Array:
 	for y: int in range(8):
 		var row: Array[String] = []
 		for x: int in range(8):
-			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "ash")
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "stone")
 		grid.append(row)
 	return grid
 

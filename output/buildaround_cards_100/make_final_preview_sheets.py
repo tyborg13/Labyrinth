@@ -51,7 +51,7 @@ def main() -> None:
         subset = CARDS[sheet_index:sheet_index + per_sheet]
         sheet = sheet_background((sheet_w, sheet_h))
         draw = ImageDraw.Draw(sheet)
-        draw.text((margin, 24), "Labyrinth of Ash - 100 Text Build-Around Staged Cards",
+        draw.text((margin, 24), "Escape the Umbra - 100 Text Build-Around Staged Cards",
                   font=font(FONT_TITLE, 25), fill="#f2dec0")
         draw.text((margin, 56), f"Sheet {sheet_no} of 5 | Cards {sheet_index + 1:03d}-{sheet_index + len(subset):03d}",
                   font=font(FONT_REGULAR, 16), fill="#cdb894")

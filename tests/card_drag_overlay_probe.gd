@@ -295,7 +295,7 @@ func _simple_grid() -> Array:
 			if x == 0 or y == 0 or x == 7 or y == 7:
 				row.append("wall")
 			else:
-				row.append("ash")
+				row.append("stone")
 		grid.append(row)
 	return grid
 

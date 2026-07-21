@@ -38,7 +38,7 @@ func _initialize() -> void:
 	run_state["current_room"] = Vector2i(1, 0)
 	var rooms: Dictionary = (run_state.get("rooms", {}) as Dictionary).duplicate(true)
 	rooms["1,0"] = {
-		"name": "Ashen Claim",
+		"name": "Cinder Claim",
 		"coord": Vector2i(1, 0),
 		"depth": 1,
 		"type": "combat",
@@ -123,7 +123,7 @@ func _hide_contextual_prompt(instance: Node) -> void:
 
 func _probe_layout() -> Dictionary:
 	return {
-		"name": "Ashen Claim",
+		"name": "Cinder Claim",
 		"coord": Vector2i(1, 0),
 		"depth": 1,
 		"type": "combat",
@@ -144,11 +144,11 @@ func _probe_layout() -> Dictionary:
 func _probe_grid() -> Array:
 	return [
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 	]
 

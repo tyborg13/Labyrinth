@@ -121,10 +121,10 @@ func _room_layout() -> Dictionary:
 	for y: int in range(8):
 		var row: Array = []
 		for x: int in range(8):
-			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "ash")
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "stone")
 		grid.append(row)
 	return {
-		"name": "Ashen Crossing",
+		"name": "Cinder Crossing",
 		"coord": Vector2i(4, 3),
 		"type": "combat",
 		"grid": grid,

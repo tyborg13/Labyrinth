@@ -330,10 +330,11 @@ func _reload_progression() -> void:
 	_progression = ProgressionStore.load_data()
 	_refresh_saved_run_preview()
 	embers_label.text = _profile_text()
-	footer_label.text = "LV %d  |  EMBERS %d  |  BOUND %d" % [
+	footer_label.text = "LV %d  |  EMBERS %d  |  SKILLS %d/%d" % [
 		int(_progression.get("level", 1)),
 		int(_progression.get("embers", 0)),
-		_bound_magick_count()
+		ProgressionStore.selected_skill_ids(_progression).size(),
+		ProgressionStore.skill_points_for_level(999)
 	]
 
 func _refresh_saved_run_preview() -> void:
@@ -634,13 +635,6 @@ func _title_row_offset_x(base_font_size: int, row_index: int) -> float:
 
 func _title_word_gap(base_font_size: int) -> float:
 	return roundf(float(base_font_size) * TITLE_WORD_GAP_FACTOR)
-
-func _bound_magick_count() -> int:
-	var total: int = (_progression.get("card_upgrades", {}) as Dictionary).size()
-	for mods_var: Variant in (_progression.get("card_mods", {}) as Dictionary).values():
-		if typeof(mods_var) == TYPE_ARRAY:
-			total += (mods_var as Array).size()
-	return total
 
 func _connect_steam_service() -> void:
 	var steam_service: Node = _steam_service()

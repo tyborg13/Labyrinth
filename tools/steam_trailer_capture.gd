@@ -330,7 +330,7 @@ func _seed_deep_showcase_loadout(initial_state: Dictionary) -> Dictionary:
 	var equipment_inventory: Array = [
 		"duelist_rapier",
 		"mirror_guard",
-		"ashweave_mail",
+		"cinderweave_mail",
 		"worldroot_greaves",
 		"ember_hourglass"
 	]

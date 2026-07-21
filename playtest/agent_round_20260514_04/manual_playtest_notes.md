@@ -7,15 +7,15 @@
 ## Run 1 - seed 5142604
 - Starting seed 5142604. Opening map offers four depth-1 combat rooms: two air and two earth; choosing north air to begin with a neutral combat sample.
 - Moved to (0,-1): depth 1 air combat.
-- Turn 1 plan: use Bloody Lunge plus Quick Stab to remove Ash Acolyte before it can pull/shoot; this costs 1 HP and moves near trap cluster but avoids recurring ranged pressure.
-- UX/harness: Bloody Lunge move preview to (6,6) looked adjacent to Ash Acolyte, but melee follow-up only offered terrain, not e2; likely diagonal melee is not legal or crate/box occlusion makes the setup non-obvious.
+- Turn 1 plan: use Bloody Lunge plus Quick Stab to remove Dust Acolyte before it can pull/shoot; this costs 1 HP and moves near trap cluster but avoids recurring ranged pressure.
+- UX/harness: Bloody Lunge move preview to (6,6) looked adjacent to Dust Acolyte, but melee follow-up only offered terrain, not e2; likely diagonal melee is not legal or crate/box occlusion makes the setup non-obvious.
 - Played lantern_shot as printed: 4 damage, drew 1.
 - Played patch_up as printed: +2 block.
 - Enemy round: 0 HP lost, mode now combat.
 - Turn 2: Patch Up negated the acolyte shot but overhealed at full HP; drawn Guarded Step/Brace gives strong defensive buffer. Acolyte is adjacent with 5 block, so spending two attacks should finally remove it.
 - Played quick_stab as printed: 4 damage, 5 block removed.
 - Played bloody_lunge as printed: 7 damage, 1 kills, -1 HP, +1 play.
-- Suspicious: combat log awarded Ash Acolyte +10 embers, but top-line embers still shows 0 immediately after kill.
+- Suspicious: combat log awarded Dust Acolyte +10 embers, but top-line embers still shows 0 immediately after kill.
 - Played guarded_step as printed: +3 block, moved 2, +1 play.
 - Passing with block because previews show enemies shooting terrain rather than player; spending Shadow Step would risk confusing pickup/illusion targeting near the shield.
 - Enemy round: 0 HP lost, mode now combat.

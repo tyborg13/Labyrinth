@@ -396,7 +396,7 @@ static func click_feedback_contract() -> Dictionary:
 		"valid_character": "dry forged-metal latch click",
 		"valid_tonal_tail": false,
 		"valid_latch_delay_seconds": 0.0065,
-		"invalid_character": "damped ash-and-wood knock",
+		"invalid_character": "damped grit-and-wood knock",
 		"bus": SettingsStore.SFX_BUS
 	}
 

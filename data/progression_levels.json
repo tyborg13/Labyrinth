@@ -1,7 +1,5 @@
 {
   "max_level": 20,
-  "stat_cap": 10,
-  "stat_points_per_level": 2,
   "costs": {
     "2": 180,
     "3": 250,

@@ -29,8 +29,8 @@ These assumptions are baked into the current coefficients:
 - Player turns now run on an initiative clock instead of a fixed player-then-all-
   enemies round. The player starts combat active, then their next turn is
   scheduled at `base initiative + time spent on played cards`.
-- Player base initiative starts at `9`, is reduced by `1` per Agility point,
-  and floors at `5`.
+- Player base initiative is fixed at `9`. Qualitative progression skills do
+  not permanently reduce it.
 - Printed cards carry a `time` cost on a `1-10` scale. The current baseline
   card is `5` time; fast cards are meant to be a real initiative advantage,
   while heavy cards can let enemies lap the player if overplayed.
@@ -77,6 +77,27 @@ These assumptions are baked into the current coefficients:
   be directly targeted and do not reveal their intent or turn-order identity.
   Radiance cards therefore gain encounter-dependent value by revealing tiles,
   extending vision, granting enemy-only truesight, or reducing Umbra stages.
+
+### Qualitative Progression Policy
+
+The scorer uses a no-skill reference profile. Learned skills can change card
+access, card persistence, play timing, positioning, conditional intensity,
+defense carryover, and discard or draw choices, but those benefits are not
+folded into a card's intrinsic printed score.
+
+This is intentionally a context boundary rather than a coefficient change:
+
+- A single pool-wide skill uplift would make every card score depend on an
+  assumed meta build and would hide the value of choosing a different route.
+- Several skills improve flexibility or rescue a specific situation rather than
+  adding a stable amount of health saved per play.
+- Local analytics exposes `progression_skills`, so realized card results can be
+  compared between learned-skill cohorts without changing the printed-card
+  baseline.
+
+When reviewing a card with an unusually strong skill interaction, record that
+interaction beside the neutral score and verify it in playtests. Do not add the
+skill's full benefit to the card formula.
 
 Encounter calibration is also important:
 
@@ -350,6 +371,7 @@ This heuristic is intentionally conservative about:
 
 - Trap setups and forced-movement trap abuse
 - Relic-specific synergies
+- Skill-tree interactions that change access, timing, persistence, or targeting
 - Multi-card combos that need a particular hand pattern
 - Boss-only value
 - How often pierce converts damage through block or stoneskin; its bonus is a
@@ -375,8 +397,10 @@ Update this document and `tools/card_heuristic.py` together whenever any of the
 following change:
 
 - cards per turn, draw per turn, or maximum hand size
-- player base initiative, Agility scaling, card time costs, enemy base
-  initiative, or enemy intent time costs
+- player base initiative, card time costs, enemy base initiative, or enemy
+  intent time costs
+- qualitative progression effects that change card access, timing,
+  persistence, targeting, or resource flow
 - fatigue rules
 - status behavior
 - damage, block, stoneskin, or healing semantics

@@ -1,4 +1,4 @@
-# Labyrinth of Ash - 100 Text Build-Around Card Concepts
+# Escape the Umbra - 100 Text Build-Around Card Concepts
 
 Staged design artifact. These cards are not implemented in `data/cards.json`, but each one now has proposed card data, a `text_rule` action contract, a processed `256x144` RGBA card-art asset, and a rendered selection preview.
 They intentionally use text-rule mechanics that need bespoke combat, UI, heuristic, and analytics work before shipping.
@@ -55,7 +55,7 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - hooks: cheap cards, card plays, hand dumps
 - iconography: DRAW, PLAY, HAND
 - proposed art path: `res://output/buildaround_cards_100/assets/art/cards/empty_hand_oath.png`
-- art direction: an open ash-stained palm over a blank parchment deck
+- art direction: an open cinder-stained palm over a blank parchment deck
 
 ### 004. Vow of One
 
@@ -94,7 +94,7 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - hooks: Exhaust loops, rare spikes, AOE chip
 - iconography: EXH, AOE, DRAW
 - proposed art path: `res://output/buildaround_cards_100/assets/art/cards/black_archive.png`
-- art direction: a charred library shelf releasing glowing card-ash pages
+- art direction: a charred library shelf releasing glowing card-cinder pages
 
 ### 007. Mirror Doctrine
 
@@ -252,9 +252,9 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - proposed art path: `res://output/buildaround_cards_100/assets/art/cards/blood_alphabet.png`
 - art direction: red runic letters crawling across a vellum card
 
-### 019. Oath of Ash
+### 019. Oath of Cinders
 
-- id: `oath_of_ash`
+- id: `oath_of_cinders`
 - rarity: rare
 - element: Neutral
 - cost: time 7, Exhaust
@@ -262,7 +262,7 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - text: For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.
 - hooks: neutral cards, elemental intensity
 - iconography: NEUT, INT, LAW
-- proposed art path: `res://output/buildaround_cards_100/assets/art/cards/oath_of_ash.png`
+- proposed art path: `res://output/buildaround_cards_100/assets/art/cards/oath_of_cinders.png`
 - art direction: a grey oath stone split by five colored embers
 
 ### 020. Silent Majority
@@ -280,9 +280,9 @@ Design metadata file: `buildaround_cards_100_design.json`.
 
 ## Fire
 
-### 021. Ash Tax
+### 021. Ember Tax
 
-- id: `ash_tax`
+- id: `ember_tax`
 - rarity: common
 - element: Fire
 - cost: time 5
@@ -290,8 +290,8 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - text: For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.
 - hooks: burn stacking, Fire intensity
 - iconography: BURN, INT, LAW
-- proposed art path: `res://output/buildaround_cards_100/assets/art/cards/ash_tax.png`
-- art direction: tax coins melting into a basin of red ash
+- proposed art path: `res://output/buildaround_cards_100/assets/art/cards/ember_tax.png`
+- art direction: tax coins melting into a basin of red cinder
 
 ### 022. Furnace Choir
 
@@ -462,9 +462,9 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - proposed art path: `res://output/buildaround_cards_100/assets/art/cards/sunken_kiln.png`
 - art direction: a submerged furnace glowing beneath black water
 
-### 035. Ashen Encore
+### 035. Cinder Encore
 
-- id: `ashen_encore`
+- id: `cinder_encore`
 - rarity: rare
 - element: Fire
 - cost: time 7, Exhaust
@@ -472,8 +472,8 @@ Design metadata file: `buildaround_cards_100_design.json`.
 - text: For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.
 - hooks: Fire Exhaust, burst repeats
 - iconography: FIRE, EXH, ECHO
-- proposed art path: `res://output/buildaround_cards_100/assets/art/cards/ashen_encore.png`
-- art direction: a singer made of ash bowing as a card reignites
+- proposed art path: `res://output/buildaround_cards_100/assets/art/cards/cinder_encore.png`
+- art direction: a singer made of cinder bowing as a card reignites
 
 ### 036. Dragon's Due
 

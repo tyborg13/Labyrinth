@@ -593,19 +593,19 @@
       ]
     }
   },
-  "oath_of_ash": {
-    "name": "Oath of Ash",
+  "oath_of_cinders": {
+    "name": "Oath of Cinders",
     "rarity": "rare",
     "time": 7,
     "burn": true,
     "health_cost": 0,
     "description": "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
     "accent": "#8a6d49",
-    "art_path": "res://output/buildaround_cards_100/assets/art/cards/oath_of_ash.png",
+    "art_path": "res://output/buildaround_cards_100/assets/art/cards/oath_of_cinders.png",
     "actions": [
       {
         "type": "text_rule",
-        "effect_id": "oath_of_ash",
+        "effect_id": "oath_of_cinders",
         "text": "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
         "kind": "law",
         "hooks": "neutral cards, elemental intensity",
@@ -659,19 +659,19 @@
       ]
     }
   },
-  "ash_tax": {
-    "name": "Ash Tax",
+  "ember_tax": {
+    "name": "Ember Tax",
     "rarity": "common",
     "time": 5,
     "burn": false,
     "health_cost": 0,
     "description": "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
     "accent": "#d9623f",
-    "art_path": "res://output/buildaround_cards_100/assets/art/cards/ash_tax.png",
+    "art_path": "res://output/buildaround_cards_100/assets/art/cards/ember_tax.png",
     "actions": [
       {
         "type": "text_rule",
-        "effect_id": "ash_tax",
+        "effect_id": "ember_tax",
         "text": "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
         "kind": "law",
         "hooks": "burn stacking, Fire intensity",
@@ -1135,19 +1135,19 @@
     },
     "element": "fire"
   },
-  "ashen_encore": {
-    "name": "Ashen Encore",
+  "cinder_encore": {
+    "name": "Cinder Encore",
     "rarity": "rare",
     "time": 7,
     "burn": true,
     "health_cost": 0,
     "description": "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
     "accent": "#d9623f",
-    "art_path": "res://output/buildaround_cards_100/assets/art/cards/ashen_encore.png",
+    "art_path": "res://output/buildaround_cards_100/assets/art/cards/cinder_encore.png",
     "actions": [
       {
         "type": "text_rule",
-        "effect_id": "ashen_encore",
+        "effect_id": "cinder_encore",
         "text": "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
         "kind": "engine",
         "hooks": "Fire Exhaust, burst repeats",

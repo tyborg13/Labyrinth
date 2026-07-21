@@ -20,7 +20,7 @@
 - Played quick_stab as printed: 7 damage, 1 kills, +1 play.
 - Played brace as printed: +8 block.
 - Enemy round: 0 HP lost, mode now combat.
-- Turn 3: safely moved adjacent to Ash Acolyte, chained Sidestep plus Quick Stab for lethal, then used Brace to absorb crawler shot. No traps stepped on; HP loss was fatigue only.
+- Turn 3: safely moved adjacent to Dust Acolyte, chained Sidestep plus Quick Stab for lethal, then used Brace to absorb crawler shot. No traps stepped on; HP loss was fatigue only.
 - Played whirlwind_slash as printed: 2 damage, 4 block removed.
 - Played bone_dart as printed: 5 damage.
 - Enemy round: 0 HP lost, mode now combat.
@@ -92,13 +92,13 @@
 - Played shadow_step as printed: moved 4, 1 illusion.
 - Played bone_dart as printed: 5 damage.
 - Enemy round: 0 HP lost, mode now combat.
-- Turn 6 Earth: using Gust Step as utility even off-element: make illusion closer to Ash, reposition toward Harrier, then try Bloody Lunge lethal on Harrier to remove poison threat.
+- Turn 6 Earth: using Gust Step as utility even off-element: make illusion closer to Cinder, reposition toward Harrier, then try Bloody Lunge lethal on Harrier to remove poison threat.
 - Played gust_step as printed: 2 damage, moved 2, 1 illusion, +1 Air intensity.
 - Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
 - Enemy round: 0 HP lost, mode now combat.
 - Played shadow_step as printed: moved 4, 1 illusion.
 - Enemy round: 0 HP lost, mode now combat.
-- Turn 8: Air intensity at 2. Plan is Gust Step to Air 3, pull Ash Acolyte stoneskin down, then Bloody Lunge + Quick Stab for lethal if positioning works. This is the clearest elemental intensity payoff so far.
+- Turn 8: Air intensity at 2. Plan is Gust Step to Air 3, pull Dust Acolyte stoneskin down, then Bloody Lunge + Quick Stab for lethal if positioning works. This is the clearest elemental intensity payoff so far.
 - Played gust_step as printed: 2 stone removed, moved 2, +1 play, 1 illusion, +1 Air intensity.
 - Played bloody_lunge as printed: 4 damage, 3 stone removed, -1 HP, moved 1.
 - Played quick_stab as printed: 8 damage, 1 kills, +1 play.
@@ -161,8 +161,8 @@
 - Reward 4: survived at 1/36. Spark Dart/Volt Surge looked relevant for Lightning intensity, but this is mandatory heal. Air 3 play refund directly enabled the final Warden kill.
 - Reward: skipped for heal to 7/36.
 - Moved to (1,2): depth 2 none treasure.
-- Treasure 2: taking Ashen Buckler. At low HP, guaranteed opening block is more valuable than conditional heal scaling.
-- Treasure: took Ashen Buckler.
+- Treasure 2: taking Iron Buckler. At low HP, guaranteed opening block is more valuable than conditional heal scaling.
+- Treasure: took Iron Buckler.
 - Moved to (0,2): depth 2 none campfire.
 - Campfire at 7/36 after multiple near-death rooms. Resting/banking here is the correct conservative play; continuing to depth 3 at 7 HP is likely throwing the run.
 - Campfire: rested and banked 146 embers.

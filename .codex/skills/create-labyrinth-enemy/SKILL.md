@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-enemy
-description: Create, rebalance, review, or implement Labyrinth of Ash enemies. Use when Codex needs to add or modify data/enemies.json, enemy intents, enemy sprites or idle sheets, encounter spawn pools, enemy mechanics, combat previews, balance assumptions, tests, visual probes, or enemy-related analytics.
+description: Create, rebalance, review, or implement Escape the Umbra enemies. Use when Codex needs to add or modify data/enemies.json, enemy intents, enemy sprites or idle sheets, encounter spawn pools, enemy mechanics, combat previews, balance assumptions, tests, visual probes, or enemy-related analytics.
 ---
 
 # Create Labyrinth Enemy
@@ -67,7 +67,7 @@ description: Create, rebalance, review, or implement Labyrinth of Ash enemies. U
 - Static combat unit sprites use a transparent `255x255` PNG with a grounded full-body silhouette, readable at board scale, no text, no border frame, and no opaque square background.
 - Turn-clock portraits are required for every new enemy. Add a transparent `128x128` PNG under `assets/art/portraits/`, register it in `RunScene.TURN_ORDER_PORTRAITS`, and verify the enemy appears in the turn-order clock instead of falling back to the player portrait.
 - Optional idle sheets use the same stem with `_idle.png` and are discovered automatically, for example `assets/art/enemies/<enemy_id>_idle.png`. Configure `idle_sheet_columns`, `idle_sheet_rows`, `idle_sheet_order`, `idle_sheet_ping_pong`, and `idle_frame_seconds` in `data/enemies.json`.
-- Match Labyrinth's visual language: grim ash-fantasy, worn material surfaces, sharp silhouettes, muted shadows with one clear accent color, and painterly pixel-readable detail. Avoid cute mascots, bright toy colors, sci-fi tech, modern clothing, or generic high-fantasy monsters that do not look ash-corrupted or dungeon-native.
+- Match Labyrinth's visual language: grim dungeon fantasy, worn material surfaces, sharp silhouettes, muted shadows with one clear accent color, and painterly pixel-readable detail. Avoid cute mascots, bright toy colors, sci-fi tech, modern clothing, or generic high-fantasy monsters that do not look Umbra-corrupted or dungeon-native.
 - Tune `art_scale` and offsets against real board screenshots so the sprite's feet anchor to the tile and health/intent UI remains readable.
 - Save visual proof screenshots with fresh timestamped or versioned filenames.
 

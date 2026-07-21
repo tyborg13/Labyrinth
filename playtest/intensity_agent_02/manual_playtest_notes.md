@@ -31,7 +31,7 @@
 - Reward after room 1 offered Volt Surge and Spark Dart. Both clearly show Lightning intensity +1 and gated requires Lightning 3+, which is good for discovery; taking Spark Dart to test repeated producer/gated rider in combat.
 - Reward: took Spark Dart.
 - Moved to (1,-1): depth 1 none treasure.
-- Treasure choices: Bloodglass Knife, Storm Capacitor, Ashen Buckler. Taking Storm Capacitor because it should interact with Lightning/ranged intensity cards and reveal whether those synergies are visible.
+- Treasure choices: Bloodglass Knife, Storm Capacitor, Iron Buckler. Taking Storm Capacitor because it should interact with Lightning/ranged intensity cards and reveal whether those synergies are visible.
 - Treasure: took Storm Capacitor.
 - Moved to (2,-1): depth 2 lightning combat.
 - Spark Dart in hand clearly shows Storm Capacitor as +chain 1 on both ranged lines. Gate still says requires Lightning 3+ while room intensity is Lightning 1, so first Spark likely creates intensity 2 but rider remains gated.

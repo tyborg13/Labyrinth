@@ -179,11 +179,11 @@ func _board_state(room_coord: Vector2i) -> Dictionary:
 func _simple_grid() -> Array:
 	return [
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 	]
 

@@ -294,7 +294,7 @@ func _stress_grid() -> Array:
 	for y: int in range(9):
 		var row: Array = []
 		for x: int in range(9):
-			row.append("wall" if x == 0 or y == 0 or x == 8 or y == 8 else "ash")
+			row.append("wall" if x == 0 or y == 0 or x == 8 or y == 8 else "stone")
 		grid.append(row)
 	return grid
 

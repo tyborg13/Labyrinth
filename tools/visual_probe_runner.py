@@ -99,7 +99,7 @@ def run_probe(args: argparse.Namespace, namespace: str, rendering_driver: str) -
         env["HOME"] = str(home_dir)
         log_file = home_dir / "godot.log"
     env["LABYRINTH_TASK_ID"] = namespace
-    env["LABYRINTH_USER_DIR_NAME"] = "Labyrinth of Ash Parallel %s" % namespace
+    env["LABYRINTH_USER_DIR_NAME"] = "Escape the Umbra Visual Probe %s" % namespace
     env["LABYRINTH_DISABLE_STEAM"] = "1"
     cmd = build_command(args, rendering_driver, log_file)
     print("Running visual probe:")
@@ -579,7 +579,7 @@ def command_run(args: argparse.Namespace) -> int:
                         "Visual probe changed generated .import/.uid metadata; remove or intentionally allow these paths:\n%s"
                         % "\n".join("  %s" % path for path in metadata_changed)
                     )
-            user_dir_name = "Labyrinth of Ash Parallel %s" % namespace
+            user_dir_name = "Escape the Umbra Visual Probe %s" % namespace
             pngs = collect_pngs(combined_output, user_dir_name, home_dir)
             try:
                 if result.returncode != 0:

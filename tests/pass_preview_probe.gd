@@ -290,7 +290,7 @@ func _pass_preview_probe_simple_grid() -> Array:
 	for y: int in range(8):
 		var row: Array[String] = []
 		for x: int in range(8):
-			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "ash")
+			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "stone")
 		grid.append(row)
 	return grid
 

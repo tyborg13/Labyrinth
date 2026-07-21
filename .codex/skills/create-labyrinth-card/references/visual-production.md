@@ -76,7 +76,7 @@ Also audit for detached alpha fragments, especially cropped slivers to the right
 
 ## Generation Prompt
 
-Use the `imagegen` skill when generating raster card art. Use existing card art as style guidance and explicitly ask to match Labyrinth of Ash's current dark fantasy pixel-painted card art style.
+Use the `imagegen` skill when generating raster card art. Use existing card art as style guidance and explicitly ask to match Escape the Umbra's current dark fantasy pixel-painted card art style.
 
 Prompt for:
 
@@ -91,13 +91,13 @@ Prompt for:
 Template:
 
 ```text
-Create card art for Labyrinth of Ash: <subject and action>. Match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact pixel-art-inspired painted style, painterly pixel texture, strong central silhouette, high contrast, readable at tiny card size. Use <element/neutral palette> lighting and materials. Wide 16:9 composition with generous padding. No text, no card frame, no UI, no watermark.
+Create card art for Escape the Umbra: <subject and action>. Match the current Labyrinth card art references: dark fantasy dungeon-card illustration, compact pixel-art-inspired painted style, painterly pixel texture, strong central silhouette, high contrast, readable at tiny card size. Use <element/neutral palette> lighting and materials. Wide 16:9 composition with generous padding. No text, no card frame, no UI, no watermark.
 ```
 
 For action icons, use the same `imagegen` workflow with icon references:
 
 ```text
-Create a 64x64 action icon for Labyrinth of Ash: <keyword/action concept>. Match the existing Labyrinth action icon references: dark fantasy pixel-art icon, transparent background, chunky readable silhouette, crisp outline, limited palette, readable at tiny card size. No text, no UI frame, no watermark.
+Create a 64x64 action icon for Escape the Umbra: <keyword/action concept>. Match the existing Labyrinth action icon references: dark fantasy pixel-art icon, transparent background, chunky readable silhouette, crisp outline, limited palette, readable at tiny card size. No text, no UI frame, no watermark.
 ```
 
 For background removal with the built-in image generator, request a flat chroma-key background and then remove it locally:

@@ -64,6 +64,42 @@ class InspectionFixtureTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--allow-steam --launch --scenario start", result.stdout)
 
+    def test_skill_progression_options_survive_the_self_healing_command(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project",
+                str(ROOT),
+                "--task-id",
+                "skill-fixture-test",
+                "--run-id",
+                "skill-fixture-test-run",
+                "--dry-run",
+                "--scenario",
+                "character",
+                "--level",
+                "3",
+                "--skills",
+                "quick_wits,rehearsed_escape",
+                "--moltshards",
+                "2",
+                "--summary",
+                "Inspect learned skills.",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected_options = (
+            "--scenario character --level 3 "
+            "--skills quick_wits,rehearsed_escape --moltshards 2"
+        )
+        self.assertIn(expected_options, result.stdout)
+        self.assertIn("--launch " + expected_options, result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

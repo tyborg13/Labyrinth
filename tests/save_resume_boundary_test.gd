@@ -28,6 +28,7 @@ func _initialize() -> void:
 	_run_scene.set("_progression", ProgressionStore.default_data())
 	_test_transactional_corrupt_recovery()
 	_test_transactional_replacement_failure_recovery()
+	_test_profile_transactional_recovery()
 	_test_legacy_save_repair()
 	var base_run: Dictionary = _normal_combat_run()
 	if base_run.is_empty():
@@ -97,11 +98,143 @@ func _test_transactional_replacement_failure_recovery() -> void:
 	ProgressionStore.clear_saved_run()
 	_matrix_rows.append("transaction/replacement_failure_backup")
 
+func _test_profile_transactional_recovery() -> void:
+	var profile_backup_path: String = "%s.backup" % PROGRESSION_PATH
+	var expected: Dictionary = ProgressionStore.default_data()
+	expected["embers"] = 37
+	var backup: FileAccess = FileAccess.open(profile_backup_path, FileAccess.WRITE)
+	_assert(backup != null, "Profile recovery should create a valid backup fixture")
+	if backup == null:
+		return
+	backup.store_string(JSON.stringify(expected))
+	backup.close()
+	var current: FileAccess = FileAccess.open(PROGRESSION_PATH, FileAccess.WRITE)
+	_assert(current != null, "Profile recovery should create a corrupt current fixture")
+	if current == null:
+		return
+	current.store_string("not valid profile json")
+	current.close()
+	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 37, "Invalid current progression should recover the last complete profile backup")
+
+	var blocked_profile_path: String = "user://save_resume_blocked_profile"
+	var blocked_live_path: String = ProjectSettings.globalize_path(blocked_profile_path)
+	var blocked_backup_path: String = "%s.backup" % blocked_profile_path
+	ProgressionStore.set_storage_path(blocked_profile_path)
+	DirAccess.remove_absolute(blocked_live_path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(blocked_backup_path))
+	DirAccess.make_dir_recursive_absolute(blocked_live_path)
+	var valid_backup: Dictionary = ProgressionStore.default_data()
+	valid_backup["embers"] = 91
+	backup = FileAccess.open(blocked_backup_path, FileAccess.WRITE)
+	_assert(backup != null, "Profile replacement failure should create a valid recovery backup")
+	if backup != null:
+		backup.store_string(JSON.stringify(valid_backup))
+		backup.close()
+	var replacement: Dictionary = ProgressionStore.default_data()
+	replacement["embers"] = 12
+	_assert(not ProgressionStore.save_data(replacement), "A directory occupying the live profile path should force replacement failure")
+	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 91, "Failed profile replacement must keep the only valid backup loadable")
+	DirAccess.remove_absolute(blocked_live_path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(blocked_backup_path))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s.tmp" % blocked_profile_path))
+	ProgressionStore.set_storage_path(PROGRESSION_PATH)
+	_assert(ProgressionStore.save_data(expected), "Profile recovery fixture should restore the normal transactional path")
+	_assert(not FileAccess.file_exists(profile_backup_path) and not FileAccess.file_exists("%s.tmp" % PROGRESSION_PATH), "Successful profile saves should clean transactional artifacts")
+	_matrix_rows.append("profile/corrupt_and_replacement_recovery")
+
 func _test_legacy_save_repair() -> void:
 	var legacy: Dictionary = _run_engine.create_new_run(88002, ProgressionStore.default_data())
+	var legacy_reward_card: String = _encoded_legacy_id([97, 115, 104, 108, 105, 110, 101, 95, 116, 101, 109, 112, 111])
+	var legacy_equipment_card: String = _encoded_legacy_id([97, 115, 104, 119, 101, 97, 118, 101, 95, 103, 117, 97, 114, 100])
+	var legacy_equipment: String = _encoded_legacy_id([97, 115, 104, 119, 101, 97, 118, 101, 95, 109, 97, 105, 108])
+	var legacy_relic: String = _encoded_legacy_id([97, 115, 104, 101, 110, 95, 98, 117, 99, 107, 108, 101, 114])
+	var legacy_intent_a: String = _encoded_legacy_id([97, 115, 104, 95, 98, 111, 108, 116])
+	var legacy_intent_b: String = _encoded_legacy_id([97, 115, 104, 102, 97, 108, 108])
+	var legacy_floor: String = _encoded_legacy_id([97, 115, 104])
+	legacy.erase(RunEngine.RUN_CONTENT_SCHEMA_KEY)
 	legacy.erase("held_embers")
 	legacy["unbanked_embers"] = 17
 	legacy.erase("equipment_drop_misses")
+	legacy["reward_cards"] = [legacy_reward_card]
+	legacy["attuned_magic_cards"] = [legacy_reward_card]
+	legacy["magic_inventory"] = []
+	var equipped: Dictionary = (legacy.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	equipped["armor"] = legacy_equipment
+	legacy["equipped_equipment"] = equipped
+	legacy["equipment_inventory"] = [legacy_equipment]
+	legacy["collected_equipment"] = [legacy_equipment]
+	legacy["unread_loadout_equipment"] = [legacy_equipment]
+	legacy["new_loadout_equipment"] = [legacy_equipment]
+	legacy["unread_loadout_magic"] = [legacy_reward_card]
+	legacy["new_loadout_magic"] = [legacy_reward_card]
+	legacy["relics"] = [legacy_relic]
+	legacy["pending_reward"] = {"cards": [legacy_reward_card, legacy_equipment_card]}
+	legacy["pending_relics"] = [legacy_relic]
+	legacy["skill_state"] = {
+		"pending_card": legacy_reward_card,
+		"pending_relic": legacy_relic,
+		"reserved_merchant": {"kind": "blacksmith", "item_id": legacy_equipment},
+	}
+	var embedded_progression: Dictionary = (legacy.get("progression", {}) as Dictionary).duplicate(true)
+	embedded_progression["grimoire_unlocked"] = ["magick:%s" % legacy_reward_card, "equipment:%s" % legacy_equipment]
+	embedded_progression["grimoire_unread"] = ["magick:%s" % legacy_reward_card]
+	legacy["progression"] = embedded_progression
+	var rooms: Dictionary = (legacy.get("rooms", {}) as Dictionary).duplicate(true)
+	var merchant_room_key: Variant = rooms.keys()[0]
+	var merchant_room: Dictionary = (rooms.get(merchant_room_key, {}) as Dictionary).duplicate(true)
+	merchant_room["merchant_stock"] = [legacy_equipment, legacy_reward_card]
+	merchant_room["merchant_sold_items"] = [legacy_equipment]
+	merchant_room["merchant_purchased_items"] = [legacy_reward_card]
+	rooms[merchant_room_key] = merchant_room
+	legacy["rooms"] = rooms
+	var layout: Dictionary = (legacy.get("current_room_layout", {}) as Dictionary).duplicate(true)
+	var layout_grid: Array = (layout.get("grid", []) as Array).duplicate(true)
+	var layout_row: Array = (layout_grid[1] as Array).duplicate()
+	layout_row[1] = legacy_floor
+	layout_grid[1] = layout_row
+	layout["grid"] = layout_grid
+	layout["theme"] = legacy_floor
+	layout["loot"] = [{
+		"id": "loot_equipment_%s_1_1" % legacy_equipment,
+		"kind": "equipment",
+		"equipment_id": legacy_equipment,
+		"pos": Vector2i(1, 1),
+	}]
+	legacy["current_room_layout"] = layout
+	var legacy_combat_state: Dictionary = {
+		"grid": layout_grid.duplicate(true),
+		"deck": {
+			"hand": [legacy_equipment_card],
+			"draw": [legacy_equipment_card],
+			"discard": [legacy_equipment_card],
+			"burned": [legacy_equipment_card],
+			"consumed": [legacy_equipment_card],
+		},
+		"loot": layout.get("loot", []).duplicate(true),
+		"collected_equipment": [legacy_equipment],
+		"missed_equipment": [legacy_equipment],
+		"relics": [legacy_relic],
+		"skill_ids": [],
+	}
+	legacy["combat_state"] = legacy_combat_state
+	legacy["pending_combat_checkpoints"] = [{
+		"state": {
+			"grid": layout_grid.duplicate(true),
+			"deck": {
+				"hand": [legacy_reward_card, legacy_equipment_card],
+				"draw": [legacy_equipment_card],
+				"discard": [legacy_reward_card],
+				"burned": [legacy_equipment_card],
+				"consumed": [legacy_reward_card],
+			},
+			"loot": layout.get("loot", []).duplicate(true),
+			"skill_flags": {"prismatic_target_card_id": legacy_reward_card},
+		}
+	}]
+	legacy["compatibility_probe"] = {
+		legacy_reward_card: [legacy_intent_a, legacy_intent_b],
+		"notice": "Recovered %s." % legacy_relic,
+	}
 	var file: FileAccess = FileAccess.open(ProgressionStore.DEFAULT_RUN_STORAGE_PATH, FileAccess.WRITE)
 	_assert(file != null, "Legacy fixture should open the production-format save path")
 	if file == null:
@@ -110,9 +243,51 @@ func _test_legacy_save_repair() -> void:
 	file.close()
 	var loaded: Dictionary = ProgressionStore.load_saved_run()
 	var repaired: Dictionary = _run_engine.repair_loaded_run_state(loaded)
+	_assert(int(repaired.get(RunEngine.RUN_CONTENT_SCHEMA_KEY, 0)) == RunEngine.RUN_CONTENT_SCHEMA, "Legacy saves should be stamped with the current run-content schema")
 	_assert(int(repaired.get("held_embers", -1)) == 17, "Legacy unbanked embers should migrate into held embers")
 	_assert(repaired.has("equipment_drop_misses"), "Legacy saves should receive current equipment defaults")
+	_assert((repaired.get("reward_cards", []) as Array).has("cinderline_tempo"), "Legacy reward cards should migrate to their current content id")
+	_assert((repaired.get("deck_cards", []) as Array).has("cinderline_tempo") and (repaired.get("deck_cards", []) as Array).has("cinderweave_guard"), "Legacy loadouts should rebuild a valid current deck")
+	_assert(str((repaired.get("equipped_equipment", {}) as Dictionary).get("armor", "")) == "cinderweave_mail", "Legacy equipped gear should migrate to its current content id")
+	_assert((repaired.get("relics", []) as Array).has("iron_buckler"), "Legacy relics should migrate to their current content id")
+	var repaired_skill_state: Dictionary = repaired.get("skill_state", {}) as Dictionary
+	_assert(str(repaired_skill_state.get("pending_card", "")) == "cinderline_tempo" and str(repaired_skill_state.get("pending_relic", "")) == "iron_buckler", "Legacy deferred rewards should survive content-id migration")
+	_assert(str((repaired_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "cinderweave_mail", "Legacy reserved merchant stock should survive content-id migration")
+	var compatibility_probe: Dictionary = repaired.get("compatibility_probe", {}) as Dictionary
+	_assert(compatibility_probe.has("cinderline_tempo") and compatibility_probe.get("cinderline_tempo", []) == ["dust_bolt", "cinderfall"], "Legacy ids should migrate recursively through dictionary keys and nested arrays")
+	var repaired_layout: Dictionary = repaired.get("current_room_layout", {}) as Dictionary
+	var repaired_layout_grid: Array = repaired_layout.get("grid", []) as Array
+	_assert(str(repaired_layout.get("theme", "")) == "stone" and str((repaired_layout_grid[1] as Array)[1]) == "stone", "Legacy floor themes and grid cells should migrate to valid stone terrain")
+	var repaired_combat: Dictionary = repaired.get("combat_state", {}) as Dictionary
+	_assert(str((((repaired_combat.get("grid", []) as Array)[1] as Array)[1])) == "stone", "Legacy combat grids should migrate to valid stone terrain")
+	var repaired_combat_deck: Dictionary = repaired_combat.get("deck", {}) as Dictionary
+	_assert((repaired_combat_deck.get("hand", []) as Array).has("cinderweave_guard") and (repaired_combat_deck.get("draw", []) as Array).has("cinderweave_guard"), "Legacy combat hand and draw piles should migrate their card ids")
+	var repaired_loot: Dictionary = ((repaired_layout.get("loot", []) as Array)[0] as Dictionary)
+	_assert(str(repaired_loot.get("id", "")) == "loot_equipment_cinderweave_mail_1_1" and str(repaired_loot.get("equipment_id", "")) == "cinderweave_mail", "Composite equipment loot ids should preserve their canonical prefix and coordinates")
+	var repaired_progression: Dictionary = repaired.get("progression", {}) as Dictionary
+	_assert((repaired_progression.get("grimoire_unlocked", []) as Array).has("magick:cinderline_tempo") and (repaired_progression.get("grimoire_unlocked", []) as Array).has("equipment:cinderweave_mail"), "Prefixed discovery ids should migrate without losing their namespace")
+	_assert((repaired_progression.get("grimoire_unread", []) as Array).has("magick:cinderline_tempo"), "Unread discovery ids should migrate without losing their namespace")
+	var repaired_rooms: Dictionary = repaired.get("rooms", {}) as Dictionary
+	var repaired_merchant_room: Dictionary = repaired_rooms.get(merchant_room_key, {}) as Dictionary
+	_assert((repaired_merchant_room.get("merchant_stock", []) as Array).has("cinderweave_mail") and (repaired_merchant_room.get("merchant_stock", []) as Array).has("cinderline_tempo"), "Merchant stock should migrate every renamed content id")
+	var repaired_checkpoint: Dictionary = (((repaired.get("pending_combat_checkpoints", []) as Array)[0] as Dictionary).get("state", {}) as Dictionary)
+	_assert(str((repaired_checkpoint.get("skill_flags", {}) as Dictionary).get("prismatic_target_card_id", "")) == "cinderline_tempo", "Pending combat checkpoint flags should migrate nested card ids")
+	var repaired_checkpoint_deck: Dictionary = repaired_checkpoint.get("deck", {}) as Dictionary
+	_assert((repaired_checkpoint_deck.get("hand", []) as Array).has("cinderline_tempo") and (repaired_checkpoint_deck.get("hand", []) as Array).has("cinderweave_guard"), "Pending combat checkpoint hands should migrate every renamed card id")
+	_assert(str((((repaired_checkpoint.get("grid", []) as Array)[1] as Array)[1])) == "stone", "Pending combat checkpoint grids should migrate to valid stone terrain")
+	var repaired_checkpoint_loot: Dictionary = ((repaired_checkpoint.get("loot", []) as Array)[0] as Dictionary)
+	_assert(str(repaired_checkpoint_loot.get("id", "")) == "loot_equipment_cinderweave_mail_1_1" and str(repaired_checkpoint_loot.get("equipment_id", "")) == "cinderweave_mail", "Pending combat checkpoint loot should migrate composite and direct equipment ids")
+	var legacy_pattern := RegEx.new()
+	var legacy_prefix: String = _encoded_legacy_id([97, 115, 104])
+	_assert(legacy_pattern.compile("(?i)(?<![[:alnum:]])%s[[:alnum:]_-]*" % legacy_prefix) == OK, "Legacy vocabulary scan should compile")
+	_assert(legacy_pattern.search(var_to_str(repaired)) == null, "Repaired run state should contain no retired vocabulary tokens")
 	_matrix_rows.append("legacy/repair")
+
+func _encoded_legacy_id(values: Array) -> String:
+	var bytes := PackedByteArray()
+	for value: Variant in values:
+		bytes.append(int(value))
+	return bytes.get_string_from_ascii()
 
 func _test_player_boundaries(base_run: Dictionary) -> void:
 	var full_combat: Dictionary = _player_fixture(base_run, "quick_stab")

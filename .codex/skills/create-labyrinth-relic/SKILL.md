@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-relic
-description: Create, rebalance, review, or implement Labyrinth of Ash relics. Use when Codex needs to add or modify data/relics.json, tune relic room placement or offer rates, create relic icons in assets/art/relics, design reusable relic effect hooks, or update relic-related combat, run-map, UI, analytics, tests, and memento notes.
+description: Create, rebalance, review, or implement Escape the Umbra relics. Use when Codex needs to add or modify data/relics.json, tune relic room placement or offer rates, create relic icons in assets/art/relics, design reusable relic effect hooks, or update relic-related combat, run-map, UI, analytics, tests, and memento notes.
 ---
 
 # Create Labyrinth Relic

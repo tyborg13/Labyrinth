@@ -61,10 +61,10 @@
 - Reward 2 has Thunderline rare with Lightning 4+ gate but no intensity production, Static Lash with +1 and Lightning 4+ rider, and Rallying Breath sustain. At 12/36 HP, taking Rallying Breath; otherwise the lightning build may die before testing later gates.
 - Reward: took Rallying Breath.
 - Moved to (-1,1): depth 1 none treasure.
-- Treasure 2 offers Thunder Relay, but current deck has no shock source after skipping Static Lash/Thunderline. Taking Ashen Buckler for survival; also another chance to observe block behavior.
-- Treasure: took Ashen Buckler.
+- Treasure 2 offers Thunder Relay, but current deck has no shock source after skipping Static Lash/Thunderline. Taking Iron Buckler for survival; also another chance to observe block behavior.
+- Treasure: took Iron Buckler.
 - Moved to (-2,1): depth 2 ice combat.
-- Depth 2 ice combat begins at Ice intensity 1 and Lightning 0, so room element intensity resets per combat/element. Ashen Buckler starts with 6 block; pass preview says -5 HP rather than block loss, which conflicts with prior block preview behavior.
+- Depth 2 ice combat begins at Ice intensity 1 and Lightning 0, so room element intensity resets per combat/element. Iron Buckler starts with 6 block; pass preview says -5 HP rather than block loss, which conflicts with prior block preview behavior.
 - Played rallying_breath as printed: +4 HP, drew 1.
 - Played brace as printed: +8 block.
 - Enemy round: 5 HP lost, mode now combat.

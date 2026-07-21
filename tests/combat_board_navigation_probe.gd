@@ -194,7 +194,7 @@ func _navigation_grid() -> Array:
 	for y: int in range(9):
 		var row: Array = []
 		for x: int in range(13):
-			row.append("wall" if y == 0 or y == 8 or x == 0 or x == 12 else "ash")
+			row.append("wall" if y == 0 or y == 8 or x == 0 or x == 12 else "stone")
 		grid.append(row)
 	return grid
 

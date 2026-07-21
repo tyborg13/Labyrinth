@@ -327,14 +327,14 @@
       "threadbare_guard"
     ]
   },
-  "ashweave_mail": {
-    "name": "Ashweave Mail",
+  "cinderweave_mail": {
+    "name": "Cinderweave Mail",
     "slot": "armor",
     "rarity": "rare",
-    "icon_path": "res://assets/art/equipment/ashweave_mail.png",
+    "icon_path": "res://assets/art/equipment/cinderweave_mail.png",
     "accent": "#4b84d8",
     "cards": [
-      "ashweave_guard",
+      "cinderweave_guard",
       "cinder_patch"
     ]
   },

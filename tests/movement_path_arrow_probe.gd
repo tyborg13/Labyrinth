@@ -252,11 +252,11 @@ func _probe_state(room_coord: Vector2i, include_layering_fixture: bool = false) 
 func _probe_grid() -> Array:
 	return [
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 	]
 

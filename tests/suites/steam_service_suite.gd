@@ -7,7 +7,7 @@ class FakeSteam:
 
 	var logged_on: bool = true
 	var steam_id: String = "76561198027391269"
-	var persona: String = "Ashfarer"
+	var persona: String = "Wayfarer"
 
 	func loggedOn() -> bool:
 		return logged_on
@@ -33,7 +33,7 @@ static func run(expect: Callable) -> void:
 	var fake_steam := FakeSteam.new()
 	service.call("_initialize_with_steam_for_test", fake_steam, {"status": 0})
 	expect.call(bool(service.call("is_steam_active")), "A successful logged-in Steam user should make SteamService active")
-	expect.call(str(service.call("profile_label_text")) == "Profile Ashfarer", "Steam profile label should use the Steam persona name")
+	expect.call(str(service.call("profile_label_text")) == "Profile Wayfarer", "Steam profile label should use the Steam persona name")
 	expect.call(str(service.call("steam_user_dir_name")) == "Escape the Umbra/steam/76561198027391269", "Steam user data should be scoped to the 64-bit Steam ID")
 	var failed_service: Node = SteamServiceScript.new()
 	failed_service.call("_initialize_with_steam_for_test", fake_steam, {"status": 1})

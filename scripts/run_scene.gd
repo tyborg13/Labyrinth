@@ -31,6 +31,8 @@ const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 
 class TooltipPanelContainer:
@@ -919,6 +921,9 @@ const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
 const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
+const SKILL_SIGIL_SIZE: Vector2 = Vector2(58.0, 52.0)
+const SKILL_STATUS_POPOVER_SIZE: Vector2 = Vector2(430.0, 500.0)
+const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
 const HEADER_RELIC_WRAP_MARGIN: float = 24.0
 const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
@@ -984,8 +989,8 @@ const GRIMOIRE_EQUIPMENT_CARD_SIZE: Vector2 = Vector2(176.0, 246.4)
 const GRIMOIRE_BADGE_SIZE: Vector2 = Vector2(18.0, 18.0)
 const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1180.0, 760.0)
 const CHARACTER_DIALOG_MIN_SIZE: Vector2 = Vector2(1040.0, 620.0)
-const PROGRESSION_DIALOG_SIZE: Vector2 = Vector2(1040.0, 610.0)
-const PROGRESSION_DIALOG_MIN_SIZE: Vector2 = Vector2(900.0, 520.0)
+const PROGRESSION_DIALOG_SIZE: Vector2 = Vector2(1180.0, 760.0)
+const PROGRESSION_DIALOG_MIN_SIZE: Vector2 = Vector2(1040.0, 620.0)
 const CHARACTER_BODY_MIN_HEIGHT: float = 360.0
 const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(178.0, 92.0)
 const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 58.0)
@@ -1044,10 +1049,10 @@ const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
 const TURN_ORDER_PORTRAITS := {
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
-	"acolyte": "res://assets/art/portraits/ash_acolyte.png",
+	"acolyte": "res://assets/art/portraits/dust_acolyte.png",
 	"harrier": "res://assets/art/portraits/bone_harrier.png",
 	"grave_surgeon": "res://assets/art/portraits/grave_surgeon.png",
-	"warden": "res://assets/art/portraits/ash_warden.png",
+	"warden": "res://assets/art/portraits/stone_warden.png",
 	"bile_bloomer": "res://assets/art/portraits/bile_bloomer.png",
 	"chainbound_gaoler": "res://assets/art/portraits/chainbound_gaoler.png",
 	"zekarion": "res://assets/art/portraits/zekarion.png",
@@ -1056,7 +1061,7 @@ const TURN_ORDER_PORTRAITS := {
 	"vaeloryx": "res://assets/art/portraits/vaeloryx.png",
 	"iskaldra": "res://assets/art/portraits/iskaldra.png",
 	"noctyrax": "res://assets/art/portraits/noctyrax.png",
-	"veilbound_acolyte": "res://assets/art/portraits/ash_acolyte.png",
+	"veilbound_acolyte": "res://assets/art/portraits/dust_acolyte.png",
 	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
 	"frostglass_lancer": "res://assets/art/enemies/frostglass_lancer.png",
 	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
@@ -1177,6 +1182,19 @@ var _pile_badges: Dictionary = {}
 var _active_pile_kind: String = ""
 var _pile_visual_signature: String = "<unset>"
 var _relic_bar_signature: String = "<unset>"
+var _skill_sigil: Button
+var _skill_status_popover: PanelContainer
+var _skill_status_list: VBoxContainer
+var _skill_status_title: Label
+var _skill_choice_scrim: ColorRect
+var _skill_choice_dialog: PanelContainer
+var _skill_choice_title: Label
+var _skill_choice_description: Label
+var _skill_choice_list: VBoxContainer
+var _skill_event_revision_seen: int = 0
+var _run_skill_event_revision_seen: int = 0
+var _manual_run_skill_event_revision_seen: int = 0
+var _analytics_skill_event_revision: int = 0
 var _hand_panel_signature: String = "<unset>"
 var _play_meter: PanelContainer
 var _play_meter_count: Label
@@ -1292,7 +1310,10 @@ var _upgrade_preview_box: HBoxContainer
 var _upgrade_selected_card_id: String = ""
 var _upgrade_selected_element_key: String = ""
 var _progression_overlay_mode: String = ""
-var _progression_pending_stats: Dictionary = {}
+var _progression_pending_skill_id: String = ""
+var _progression_respec_draft: Array[String]
+var _progression_focused_skill_id: String = ""
+var _skill_tree_view: SkillTreeView
 var _equipment_slot_panels: Dictionary = {}
 var _equipment_inventory_tiles: Dictionary = {}
 var _equipment_drag_id: String = ""
@@ -1391,6 +1412,15 @@ func _input(event: InputEvent) -> void:
 			_advance_dialogue()
 			get_viewport().set_input_as_handled()
 		return
+	if _skill_choice_scrim != null and _skill_choice_scrim.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_close_skill_choice_dialog()
+		get_viewport().set_input_as_handled()
+		return
+	if _skill_status_popover != null and _skill_status_popover.visible and event.is_action_pressed("ui_cancel"):
+		_close_skill_status_popover()
+		get_viewport().set_input_as_handled()
+		return
 	if _pinned_tooltip_scrim != null and _pinned_tooltip_scrim.visible:
 		if _is_shift_press_event(event) or event.is_action_pressed("ui_cancel"):
 			_close_pinned_tooltip()
@@ -1448,7 +1478,10 @@ func _input(event: InputEvent) -> void:
 				await _cancel_item_overlay_drag(true)
 				return
 		if event.is_action_pressed("ui_cancel"):
-			_close_card_upgrade_overlay()
+			if _progression_overlay_mode == "respec":
+				_on_skill_tree_cancel_requested()
+			else:
+				_close_card_upgrade_overlay()
 			get_viewport().set_input_as_handled()
 		return
 	if _drag_card_index >= 0:
@@ -1828,6 +1861,175 @@ func _build_overlay_ui() -> void:
 	_build_large_map_overlay()
 	_build_pre_battle_overlay()
 	_build_drag_overlay()
+	_build_skill_status_popover()
+	_build_skill_choice_dialog()
+
+func _build_skill_status_popover() -> void:
+	_skill_status_popover = PanelContainer.new()
+	_skill_status_popover.name = "SkillStatusPopover"
+	_skill_status_popover.visible = false
+	_skill_status_popover.custom_minimum_size = SKILL_STATUS_POPOVER_SIZE
+	_skill_status_popover.mouse_filter = Control.MOUSE_FILTER_STOP
+	_skill_status_popover.z_index = 410
+	_skill_status_popover.z_as_relative = false
+	_skill_status_popover.add_theme_stylebox_override("panel", _skill_panel_style(Color("a783d6"), 0.98))
+	ui_root.add_child(_skill_status_popover)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	_skill_status_popover.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 10)
+	margin.add_child(column)
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 10)
+	column.add_child(header)
+	_skill_status_title = Label.new()
+	_skill_status_title.text = "ACTIVE SKILLS"
+	_skill_status_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.apply_label_role(_skill_status_title, UiTypography.ROLE_SECTION)
+	_skill_status_title.add_theme_color_override("font_color", Color("eadcff"))
+	header.add_child(_skill_status_title)
+	var close_button := Button.new()
+	close_button.name = "CloseSkillStatus"
+	close_button.text = "Close"
+	close_button.custom_minimum_size = Vector2(82.0, 36.0)
+	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(close_button)
+	UiTypography.apply_button_role(close_button, UiTypography.ROLE_CAPTION)
+	close_button.pressed.connect(_close_skill_status_popover)
+	header.add_child(close_button)
+
+	var rule := ColorRect.new()
+	rule.custom_minimum_size = Vector2(0.0, 2.0)
+	rule.color = Color("765e96")
+	column.add_child(rule)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
+	_skill_status_list = VBoxContainer.new()
+	_skill_status_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_skill_status_list.add_theme_constant_override("separation", 7)
+	scroll.add_child(_skill_status_list)
+
+func _build_skill_choice_dialog() -> void:
+	_skill_choice_scrim = ColorRect.new()
+	_skill_choice_scrim.name = "SkillChoiceScrim"
+	_skill_choice_scrim.visible = false
+	_skill_choice_scrim.color = Color(0.015, 0.01, 0.025, 0.82)
+	_skill_choice_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_skill_choice_scrim.z_index = 820
+	_skill_choice_scrim.z_as_relative = false
+	_skill_choice_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ui_root.add_child(_skill_choice_scrim)
+
+	_skill_choice_dialog = PanelContainer.new()
+	_skill_choice_dialog.name = "SkillChoiceDialog"
+	_skill_choice_dialog.custom_minimum_size = SKILL_CHOICE_DIALOG_SIZE
+	_skill_choice_dialog.set_anchors_preset(Control.PRESET_CENTER)
+	_skill_choice_dialog.offset_left = -SKILL_CHOICE_DIALOG_SIZE.x * 0.5
+	_skill_choice_dialog.offset_top = -SKILL_CHOICE_DIALOG_SIZE.y * 0.5
+	_skill_choice_dialog.offset_right = SKILL_CHOICE_DIALOG_SIZE.x * 0.5
+	_skill_choice_dialog.offset_bottom = SKILL_CHOICE_DIALOG_SIZE.y * 0.5
+	_skill_choice_dialog.add_theme_stylebox_override("panel", _skill_panel_style(Color("b28ae6"), 1.0))
+	_skill_choice_scrim.add_child(_skill_choice_dialog)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_top", 22)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	_skill_choice_dialog.add_child(margin)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 12)
+	margin.add_child(column)
+	_skill_choice_title = Label.new()
+	_skill_choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiTypography.apply_label_role(_skill_choice_title, UiTypography.ROLE_TITLE)
+	_skill_choice_title.add_theme_color_override("font_color", Color("f0e2ff"))
+	column.add_child(_skill_choice_title)
+	_skill_choice_description = Label.new()
+	_skill_choice_description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_skill_choice_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_skill_choice_description.custom_minimum_size.y = 48.0
+	UiTypography.apply_label_role(_skill_choice_description, UiTypography.ROLE_BODY)
+	_skill_choice_description.add_theme_color_override("font_color", Color("cdbce0"))
+	column.add_child(_skill_choice_description)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
+	_skill_choice_list = VBoxContainer.new()
+	_skill_choice_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_skill_choice_list.add_theme_constant_override("separation", 8)
+	scroll.add_child(_skill_choice_list)
+	var cancel_button := Button.new()
+	cancel_button.name = "CancelSkillChoice"
+	cancel_button.text = "Cancel"
+	cancel_button.custom_minimum_size = Vector2(0.0, 44.0)
+	_ui_skin.apply_button_stylebox_overrides(cancel_button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(cancel_button)
+	UiTypography.apply_button_role(cancel_button, UiTypography.ROLE_BODY)
+	cancel_button.pressed.connect(_close_skill_choice_dialog)
+	column.add_child(cancel_button)
+
+func _skill_panel_style(accent: Color, opacity: float) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.065, 0.045, 0.085, opacity)
+	style.border_color = accent.darkened(0.18)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
+	style.shadow_size = 18
+	style.shadow_offset = Vector2(0.0, 7.0)
+	return style
+
+func _open_skill_choice_dialog(title: String, description: String, options: Array) -> void:
+	if _skill_choice_scrim == null or _skill_choice_list == null or options.is_empty():
+		return
+	_close_skill_status_popover()
+	_skill_choice_title.text = title
+	_skill_choice_description.text = description
+	_clear_children_now(_skill_choice_list)
+	for option_var: Variant in options:
+		if typeof(option_var) != TYPE_DICTIONARY:
+			continue
+		var option: Dictionary = option_var
+		var callback: Callable = option.get("callback", Callable())
+		if not callback.is_valid():
+			continue
+		var button := UiTooltipButton.new()
+		button.text = str(option.get("text", "Choose"))
+		button.tooltip_text = str(option.get("detail", ""))
+		button.custom_minimum_size = Vector2(0.0, 54.0)
+		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
+		_ui_skin.apply_button_text_overrides(button)
+		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
+		button.pressed.connect(_on_skill_choice_option_pressed.bind(callback))
+		_skill_choice_list.add_child(button)
+	_skill_choice_scrim.visible = _skill_choice_list.get_child_count() > 0
+
+func _on_skill_choice_option_pressed(callback: Callable) -> void:
+	_close_skill_choice_dialog()
+	if callback.is_valid():
+		callback.call()
+
+func _close_skill_choice_dialog() -> void:
+	if _skill_choice_scrim != null:
+		_skill_choice_scrim.visible = false
+	if _skill_choice_list != null:
+		_clear_children_now(_skill_choice_list)
+
+func _close_skill_status_popover() -> void:
+	if _skill_status_popover != null:
+		_skill_status_popover.visible = false
 
 func _build_choice_button_overlay() -> void:
 	_choice_button_overlay = HBoxContainer.new()
@@ -2354,6 +2556,22 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 
+	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
+	if not start_tiles.is_empty():
+		var position_button := UiTooltipButton.new()
+		position_button.name = "TrueBearingButton"
+		var selected_tile: Vector2i = _run_state.get("pre_battle_start", start_tiles[0])
+		var selected_index: int = maxi(0, start_tiles.find(selected_tile))
+		position_button.text = "Position %d/%d" % [selected_index + 1, start_tiles.size()]
+		position_button.tooltip_text = "%s\nSelected tile: %d, %d" % [SkillTreeLibrary.description("true_bearing"), selected_tile.x, selected_tile.y]
+		_ui_skin.apply_button_stylebox_overrides(position_button, UiSkin.VARIANT_STANDARD)
+		_ui_skin.apply_button_text_overrides(position_button)
+		UiTypography.apply_button_role(position_button, UiTypography.ROLE_BODY)
+		_ui_skin.apply_button_native_size(position_button, UiSkin.BUTTON_HEIGHT_STANDARD)
+		position_button.custom_minimum_size.x = 148.0
+		position_button.pressed.connect(_on_true_bearing_pressed)
+		row.add_child(position_button)
+
 	var gear_button := UiTooltipButton.new()
 	gear_button.name = "PreBattleEquipButton"
 	gear_button.text = "Equip"
@@ -2382,6 +2600,21 @@ func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent
 	start_button.pressed.connect(_on_pre_battle_start_pressed)
 	row.add_child(start_button)
 	return row
+
+func _on_true_bearing_pressed() -> void:
+	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
+	if start_tiles.is_empty():
+		return
+	var current_tile: Vector2i = _run_state.get("pre_battle_start", start_tiles[0])
+	var current_index: int = start_tiles.find(current_tile)
+	var next_tile: Vector2i = start_tiles[(maxi(0, current_index) + 1) % start_tiles.size()]
+	var before_state: Dictionary = _run_state.duplicate(true)
+	_run_state = _run_engine.set_pre_battle_start(_run_state, next_tile)
+	if _run_state == before_state:
+		return
+	_analytics_log_run_skill_trigger("true_bearing", "Chose a different combat entry tile.")
+	_persist_committed_boundary("pre_battle_position_chosen")
+	_refresh_pre_battle_preview_if_visible()
 
 func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
 	var chip := VBoxContainer.new()
@@ -3477,7 +3710,7 @@ func _build_menu_overlay() -> void:
 	vbox.add_child(subtitle)
 
 	for entry: Dictionary in [
-		{"text": "Character", "callback": Callable(self, "_on_character_stats_pressed")},
+		{"text": "Character", "callback": Callable(self, "_on_character_pressed")},
 		{"text": "Settings", "callback": Callable(self, "_open_settings_overlay")},
 		{"text": "Exit to Desktop", "callback": Callable(self, "_on_exit_to_desktop_pressed")},
 		{"text": "Save and Quit", "callback": Callable(self, "_on_save_and_quit_pressed")},
@@ -5922,12 +6155,36 @@ func _layout_header_hud() -> void:
 	title_box.custom_minimum_size = Vector2(min_width, title_box.custom_minimum_size.y)
 	if relic_bar != null:
 		relic_bar.custom_minimum_size = Vector2(min_width, relic_bar.custom_minimum_size.y)
+		# The wider combat hand can make the main HUD overhang a compact viewport.
+		# Keep this interactive group centered inside its title column in that case,
+		# so the skill entry point never becomes the offscreen edge item.
+		var safe_left: float = ui_root.get_global_rect().position.x + 8.0 if ui_root != null else 8.0
+		relic_bar.alignment = (
+			FlowContainer.ALIGNMENT_CENTER
+			if title_box.get_global_rect().position.x < safe_left
+			else FlowContainer.ALIGNMENT_BEGIN
+		)
 
 func _desired_relic_bar_width() -> float:
 	if relic_bar == null or relic_bar.get_child_count() <= 0:
 		return 0.0
-	var relic_count: int = mini(relic_bar.get_child_count(), RELIC_BAR_MIN_VISIBLE_RELICS)
-	return RELIC_BADGE_SIZE.x * float(relic_count) + RELIC_BAR_HORIZONTAL_GAP * float(maxi(0, relic_count - 1))
+	var width: float = 0.0
+	var visible_count: int = 0
+	var relic_count: int = 0
+	for child: Node in relic_bar.get_children():
+		if not (child is Control) or not (child as Control).visible:
+			continue
+		var child_control: Control = child as Control
+		var is_utility: bool = bool(child_control.get_meta("header_utility", false))
+		if not is_utility:
+			if relic_count >= RELIC_BAR_MIN_VISIBLE_RELICS:
+				break
+			relic_count += 1
+		if visible_count > 0:
+			width += RELIC_BAR_HORIZONTAL_GAP
+		width += child_control.get_combined_minimum_size().x
+		visible_count += 1
+	return width
 
 func _header_title_available_width() -> float:
 	if top_bar == null or title_box == null:
@@ -6187,12 +6444,23 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_merchant_shop_room_coord = INVALID_ROOM_COORD
 	_merchant_shop_open = true
 	_committed_run_state_override.clear()
-	var merged_run_state: Dictionary = _run_state_with_profile_grimoire(next_run_state)
+	var content_migration_required: bool = _run_engine.run_content_migration_required(next_run_state)
+	var migrated_profile: Dictionary = _run_engine.migrate_renamed_content_ids(_progression)
+	if migrated_profile != _progression:
+		_progression = migrated_profile
+		if not bool(next_run_state.get("debug_boss_run", false)) and not ProgressionStore.save_data(_progression):
+			push_error("Failed to persist migrated profile content references.")
+	var migrated_run_state: Dictionary = _run_engine.migrate_renamed_content_ids(next_run_state) if content_migration_required else next_run_state.duplicate(true)
+	var merged_run_state: Dictionary = _run_state_with_profile_grimoire(migrated_run_state)
+	merged_run_state = _run_engine.reconcile_progression_revision(merged_run_state, _progression)
 	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(merged_run_state))
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
+	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_repair_legacy_empty_actor_transition()
+	if content_migration_required and not bool(_run_state.get("debug_boss_run", false)) and not ProgressionStore.save_run_state(_run_state):
+		push_error("Failed to persist migrated run content references.")
 	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
 	_victory_carry_processed = false
@@ -6305,12 +6573,50 @@ func _refresh_relic_bar() -> void:
 	if relic_bar == null:
 		return
 	var relic_ids: Array = (_run_state.get("relics", []) as Array).duplicate()
-	var signature: String = str(hash(relic_ids))
+	var skill_ids: Array[String] = _selected_skill_ids_for_hud()
+	var event_revision: int = int(_combat_state.get("skill_event_revision", 0)) if not _combat_state.is_empty() else 0
+	var run_event_revision: int = _run_engine.run_skill_event_revision(_run_state)
+	var manual_run_event_revision: int = int((_run_state.get("analytics", {}) as Dictionary).get("skill_trigger_revision", 0))
+	var should_pulse: bool = (
+		event_revision > _skill_event_revision_seen
+		or run_event_revision > _run_skill_event_revision_seen
+		or manual_run_event_revision > _manual_run_skill_event_revision_seen
+	)
+	_reconcile_skill_event_analytics()
+	_reconcile_run_skill_event_analytics()
+	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
+	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
+	_manual_run_skill_event_revision_seen = maxi(_manual_run_skill_event_revision_seen, manual_run_event_revision)
+	var signature: String = str(hash([
+		relic_ids,
+		skill_ids,
+		_combat_state.get("skill_flags", {}),
+		_run_state.get(RunEngineScript.SKILL_STATE_KEY, {}),
+		event_revision,
+		run_event_revision,
+		manual_run_event_revision,
+		str(_run_state.get("mode", "room"))
+	]))
 	if signature == _relic_bar_signature:
+		if _skill_status_popover != null and _skill_status_popover.visible:
+			_refresh_skill_status_popover(skill_ids)
 		return
 	_relic_bar_signature = signature
 	_clear_children(relic_bar)
-	relic_bar.visible = not relic_ids.is_empty()
+	_skill_sigil = null
+	relic_bar.visible = not relic_ids.is_empty() or not skill_ids.is_empty()
+	if not skill_ids.is_empty():
+		_skill_sigil = _build_skill_sigil(skill_ids)
+		relic_bar.add_child(_skill_sigil)
+		if not relic_ids.is_empty():
+			var divider := ColorRect.new()
+			divider.name = "SkillRelicDivider"
+			divider.custom_minimum_size = Vector2(2.0, RELIC_BADGE_SIZE.y - 12.0)
+			divider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			divider.color = Color("765e96")
+			divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			divider.set_meta("header_utility", true)
+			relic_bar.add_child(divider)
 	for relic_id_var: Variant in relic_ids:
 		var relic_id: String = str(relic_id_var)
 		var relic: Dictionary = GameData.relic_def(relic_id)
@@ -6361,9 +6667,190 @@ func _refresh_relic_bar() -> void:
 			fallback.add_theme_constant_override("outline_size", 1)
 			margin.add_child(fallback)
 		relic_bar.add_child(frame)
+	_refresh_skill_status_popover(skill_ids)
 	_layout_header_hud()
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_elemental_intensity_bar")
+	if should_pulse and _skill_sigil != null:
+		call_deferred("_pulse_skill_sigil")
+
+func _selected_skill_ids_for_hud() -> Array[String]:
+	if not _run_state.is_empty():
+		return _run_engine.run_skill_ids(_run_state)
+	return ProgressionStore.selected_skill_ids(_progression)
+
+func _baseline_run_skill_event_cursors() -> void:
+	_run_skill_event_revision_seen = _run_engine.run_skill_event_revision(_run_state)
+	_manual_run_skill_event_revision_seen = int((_run_state.get("analytics", {}) as Dictionary).get("skill_trigger_revision", 0))
+
+func _build_skill_sigil(skill_ids: Array[String]) -> Button:
+	var button := Button.new()
+	button.name = "SkillSigil"
+	button.custom_minimum_size = SKILL_SIGIL_SIZE
+	button.text = "◆\n%d" % skill_ids.size()
+	button.tooltip_text = "%d learned skills. Open readiness and trigger status." % skill_ids.size()
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.set_meta("header_utility", true)
+	UiTypography.apply_button_role(button, UiTypography.ROLE_CAPTION)
+	button.add_theme_color_override("font_color", Color("eadcff"))
+	button.add_theme_color_override("font_hover_color", Color("ffffff"))
+	button.add_theme_color_override("font_pressed_color", Color("d0b4f4"))
+	button.add_theme_constant_override("outline_size", 1)
+	for state_name: String in ["normal", "hover", "pressed", "focus"]:
+		var accent := Color("9b72cb")
+		if state_name == "hover":
+			accent = accent.lightened(0.18)
+		elif state_name == "pressed":
+			accent = accent.darkened(0.12)
+		button.add_theme_stylebox_override(state_name, _skill_sigil_style(accent, state_name == "hover"))
+	button.pressed.connect(_toggle_skill_status_popover)
+	return button
+
+func _skill_sigil_style(accent: Color, hovered: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("24172f") if not hovered else Color("342044")
+	style.border_color = accent
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(9)
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.25 if hovered else 0.13)
+	style.shadow_size = 7 if hovered else 3
+	return style
+
+func _toggle_skill_status_popover() -> void:
+	if _skill_status_popover == null:
+		return
+	_skill_status_popover.visible = not _skill_status_popover.visible
+	if not _skill_status_popover.visible:
+		return
+	_refresh_skill_status_popover(_selected_skill_ids_for_hud())
+	call_deferred("_layout_skill_status_popover")
+
+func _layout_skill_status_popover() -> void:
+	if _skill_status_popover == null or not _skill_status_popover.visible or _skill_sigil == null or not is_instance_valid(_skill_sigil):
+		return
+	var root_rect: Rect2 = ui_root.get_global_rect()
+	var sigil_rect: Rect2 = _skill_sigil.get_global_rect()
+	var desired := Vector2(sigil_rect.position.x, sigil_rect.end.y + 8.0)
+	desired.x = clampf(desired.x, root_rect.position.x + 8.0, root_rect.end.x - SKILL_STATUS_POPOVER_SIZE.x - 8.0)
+	desired.y = clampf(desired.y, root_rect.position.y + 8.0, root_rect.end.y - SKILL_STATUS_POPOVER_SIZE.y - 8.0)
+	_skill_status_popover.global_position = desired
+
+func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
+	if _skill_status_list == null:
+		return
+	_clear_children_now(_skill_status_list)
+	if _skill_status_title != null:
+		_skill_status_title.text = "ACTIVE SKILLS  %d" % skill_ids.size()
+	for skill_id: String in skill_ids:
+		var row := PanelContainer.new()
+		var status: String = _skill_hud_status(skill_id)
+		var accent: Color = _skill_status_accent(status)
+		row.add_theme_stylebox_override("panel", _skill_status_row_style(accent))
+		var margin := MarginContainer.new()
+		margin.add_theme_constant_override("margin_left", 12)
+		margin.add_theme_constant_override("margin_top", 8)
+		margin.add_theme_constant_override("margin_right", 12)
+		margin.add_theme_constant_override("margin_bottom", 8)
+		row.add_child(margin)
+		var column := VBoxContainer.new()
+		column.add_theme_constant_override("separation", 2)
+		margin.add_child(column)
+		var header := HBoxContainer.new()
+		column.add_child(header)
+		var name_label := Label.new()
+		name_label.text = SkillTreeLibrary.display_name(skill_id)
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiTypography.apply_label_role(name_label, UiTypography.ROLE_BODY)
+		name_label.add_theme_color_override("font_color", Color("f1e7ff"))
+		header.add_child(name_label)
+		var status_label := Label.new()
+		status_label.text = status
+		UiTypography.apply_label_role(status_label, UiTypography.ROLE_CAPTION)
+		status_label.add_theme_color_override("font_color", accent)
+		header.add_child(status_label)
+		var detail := Label.new()
+		detail.text = SkillTreeLibrary.description(skill_id)
+		detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		UiTypography.apply_label_role(detail, UiTypography.ROLE_CAPTION)
+		detail.add_theme_color_override("font_color", Color("bcaacb"))
+		column.add_child(detail)
+		_skill_status_list.add_child(row)
+
+func _skill_hud_status(skill_id: String) -> String:
+	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
+	var activation: String = SkillTreeLibrary.activation_kind(skill_id)
+	var mode: String = str(_run_state.get("mode", "room"))
+	var run_skill_state: Dictionary = _run_state.get(RunEngineScript.SKILL_STATE_KEY, {}) as Dictionary
+	var combat_scoped: bool = activation == "manual" or effect.has("uses_per_combat") or effect.has("uses_per_turn")
+	if mode == "combat" and combat_scoped and not _combat_state.is_empty():
+		var flags: Dictionary = _combat_state.get("skill_flags", {}) as Dictionary
+		if effect_type == "arm_intensity" and bool(flags.get("prismatic_armed", false)):
+			return "ARMED"
+		if effect_type == "preserve_burn" and bool(flags.get("burn_preserve_armed", false)):
+			return "ARMED"
+		if effect_type == "preserve_fallback_item" and bool(flags.get("item_preserve_armed", false)):
+			return "ARMED"
+		if effect_type == "pain_recall" and bool(flags.get("pain_recall_primed", false)):
+			return "PRIMED"
+		if effect.has("uses_per_turn"):
+			var turn_key: String = "turn:%s" % skill_id
+			return "SPENT" if int(flags.get(turn_key, -1)) == int(_combat_state.get("turn", 1)) else "WAITING"
+		if _combat_engine.skill_was_used(_combat_state, skill_id):
+			return "SPENT"
+		if activation in ["manual", "contextual"]:
+			return "READY" if _combat_engine.skill_is_ready(_combat_state, skill_id) else "WAITING"
+		if effect.has("uses_per_combat"):
+			return "WAITING"
+	if effect_type == "defer_card_reward" and not str(run_skill_state.get("pending_card", "")).is_empty():
+		return "PRIMED"
+	if effect_type == "defer_relic" and not str(run_skill_state.get("pending_relic", "")).is_empty():
+		return "PRIMED"
+	if effect.has("uses_per_sequence"):
+		if effect_type == "reserve_merchant_offer" and not (run_skill_state.get("reserved_merchant", {}) as Dictionary).is_empty():
+			return "WAITING"
+		if not _run_engine.run_skill_is_ready(_run_state, skill_id):
+			return "SPENT"
+		if activation == "automatic":
+			return "WAITING"
+		if effect_type == "reward_reroll" and mode == "reward":
+			return "READY"
+		if mode == "room" and effect_type == "reserve_merchant_offer" and not _run_engine.merchant_kind_for_current_room(_run_state).is_empty():
+			return "READY"
+		return "CONTEXT"
+	if activation == "contextual":
+		return "CONTEXT"
+	return "PASSIVE"
+
+func _skill_status_accent(status: String) -> Color:
+	match status:
+		"READY":
+			return Color("8fe4b0")
+		"SPENT":
+			return Color("9b8ea8")
+		"WAITING":
+			return Color("d7b36d")
+		"ARMED", "PRIMED":
+			return Color("d8a2ff")
+		"CONTEXT":
+			return Color("9fc9f4")
+	return Color("c8a6ed")
+
+func _skill_status_row_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.15, 0.92)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.62)
+	style.border_width_left = 3
+	style.set_corner_radius_all(6)
+	return style
+
+func _pulse_skill_sigil() -> void:
+	if _skill_sigil == null or not is_instance_valid(_skill_sigil):
+		return
+	_skill_sigil.pivot_offset = _skill_sigil.size * 0.5
+	var tween := create_tween()
+	tween.tween_property(_skill_sigil, "scale", Vector2(1.16, 1.16), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_skill_sigil, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 func _setup_turn_order_bar() -> void:
 	if _turn_order_panel != null:
@@ -7537,6 +8024,16 @@ func _refresh_card_action_mode_selector(context_mode: String) -> void:
 			"Spend this card for a basic Move",
 			mode_group
 		))
+	if bool(_card_action_choice_options.get("blink_available", false)):
+		_card_action_mode_selector.add_child(_build_card_action_mode_option(
+				"blink",
+				"BLINK %d" % FALLBACK_MOVE_RANGE,
+				bool(_card_action_choice_options.get("blink_playable", false)),
+				Color("ae8ee0"),
+				Color("251b35"),
+				"Use Ghost Stride to spend this card for a Blink",
+				mode_group
+			))
 
 func _build_card_action_mode_option(play_kind: String, text: String, available: bool, accent: Color, fill: Color, tooltip: String, mode_group: ButtonGroup) -> Button:
 	var button := UiTooltipButton.new()
@@ -7544,7 +8041,7 @@ func _build_card_action_mode_option(play_kind: String, text: String, available: 
 	button.name = "CardActionChoice%s" % play_kind.capitalize()
 	button.text = ""
 	button.tooltip_text = tooltip if available else "%s · unavailable with current targets" % tooltip
-	var option_width: float = 112.0 if play_kind == "attack" else 96.0
+	var option_width: float = 112.0 if play_kind == "attack" else (100.0 if play_kind == "blink" else 96.0)
 	button.custom_minimum_size = Vector2(option_width, CARD_ACTION_MODE_OPTION_HEIGHT)
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.focus_mode = Control.FOCUS_NONE
@@ -8316,8 +8813,14 @@ func _refresh_visibility() -> void:
 		_close_pile_view()
 	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
 		_clear_children_now(_card_fx_layer)
-	if mode not in ["room", RunEngineScript.MODE_PRE_BATTLE]:
-		_close_card_upgrade_overlay()
+	if mode not in ["room", "campfire", RunEngineScript.MODE_PRE_BATTLE]:
+		var read_only_skill_tree_open: bool = (
+			_upgrade_scrim != null
+			and _upgrade_scrim.visible
+			and _progression_overlay_mode == "skills"
+		)
+		if not read_only_skill_tree_open:
+			_close_card_upgrade_overlay()
 	if mode == "defeat":
 		_close_large_map()
 		_close_grimoire_overlay()
@@ -8346,6 +8849,7 @@ func _refresh_choice_bar() -> void:
 	if mode == "combat" and (_selected_card_index >= 0 or _card_action_choice_index >= 0):
 		pass
 	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state):
+		_add_ready_skill_choice_buttons()
 		_add_choice_button("Pass", _on_pass_turn_pressed, _pass_preview_button_tooltip())
 		_add_pass_preview_chip()
 	match mode:
@@ -8383,6 +8887,12 @@ func _refresh_choice_bar() -> void:
 		"reward":
 			if _reward_choices_available():
 				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
+			if _run_engine.run_skill_is_ready(_run_state, "discerning_eye"):
+				_add_choice_button(
+					"Reroll Reward",
+					_on_reward_reroll_pressed,
+					SkillTreeLibrary.description("discerning_eye")
+				)
 		"treasure":
 			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
@@ -8431,6 +8941,91 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 		_choice_button_overlay.add_child(button)
 	else:
 		choice_bar.add_child(button)
+
+func _add_ready_skill_choice_buttons() -> void:
+	for state: Dictionary in _combat_engine.manual_skill_states(_combat_state):
+		if not bool(state.get("ready", false)):
+			continue
+		var skill_id: String = str(state.get("skill_id", ""))
+		_add_choice_button(
+			str(state.get("name", SkillTreeLibrary.display_name(skill_id))),
+			_on_combat_skill_pressed.bind(skill_id),
+			str(state.get("description", ""))
+		)
+
+func _on_combat_skill_pressed(skill_id: String) -> void:
+	if _animation_lock or not _combat_engine.is_player_turn(_combat_state) or not _combat_engine.skill_is_ready(_combat_state, skill_id):
+		return
+	match SkillTreeLibrary.effect_type(skill_id):
+		"discard_draw":
+			_open_quick_wits_choice(skill_id)
+		"discard_recall":
+			_open_encore_choice(skill_id)
+		"arm_intensity":
+			_open_prismatic_choice(skill_id)
+		"preserve_burn":
+			_commit_combat_skill_state(_combat_engine.arm_rehearsed_escape(_combat_state), skill_id)
+		"preserve_fallback_item":
+			_commit_combat_skill_state(_combat_engine.arm_makeshift_tool(_combat_state), skill_id)
+
+func _open_quick_wits_choice(skill_id: String) -> void:
+	var options: Array = []
+	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for index: int in range(hand.size()):
+		var card_id: String = str(hand[index])
+		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
+		options.append({
+			"text": "Discard %s" % str(card.get("name", card_id)),
+			"detail": "Draw one replacement. Costs no play or Time.",
+			"callback": _commit_quick_wits.bind(skill_id, index)
+		})
+	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Choose the card to trade for a new draw.", options)
+
+func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
+	_commit_combat_skill_state(_combat_engine.use_quick_wits(_combat_state, hand_index), skill_id)
+
+func _open_encore_choice(skill_id: String) -> void:
+	var options: Array = []
+	var discard: Array = ((_combat_state.get("deck", {}) as Dictionary).get("discard", []) as Array)
+	for index: int in range(discard.size()):
+		var card_id: String = str(discard[index])
+		if GameData.card_is_item(card_id):
+			continue
+		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
+		options.append({
+			"text": "Recall %s" % str(card.get("name", card_id)),
+			"detail": "Return this card to your hand. Costs no play or Time.",
+			"callback": _commit_encore.bind(skill_id, index)
+		})
+	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Choose a discarded card to return to your hand.", options)
+
+func _commit_encore(skill_id: String, discard_index: int) -> void:
+	_commit_combat_skill_state(_combat_engine.use_encore(_combat_state, discard_index), skill_id)
+
+func _open_prismatic_choice(skill_id: String) -> void:
+	var options: Array = []
+	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for hand_index: int in _combat_engine.prismatic_target_hand_indices(_combat_state):
+		var card_id: String = str(hand[hand_index])
+		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
+		options.append({
+			"text": "Name %s" % str(card.get("name", card_id)),
+			"detail": "The next printed play of any copy satisfies its elemental conditions. Basic Attack, Move, or Blink uses do not consume the arm.",
+			"callback": _commit_prismatic.bind(skill_id, hand_index)
+		})
+	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Name one conditional card currently in your hand.", options)
+
+func _commit_prismatic(skill_id: String, hand_index: int) -> void:
+	_commit_combat_skill_state(_combat_engine.arm_prismatic_instinct(_combat_state, hand_index), skill_id)
+
+func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> void:
+	if next_combat_state == _combat_state:
+		return
+	_combat_state = next_combat_state.duplicate(true)
+	_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
+	_mark_combat_preview_state_changed()
+	_persist_committed_boundary("combat_skill_%s" % skill_id)
+	_refresh_ui()
 
 func _add_pass_preview_chip() -> void:
 	var summary: Dictionary = _pass_preview_summary()
@@ -8669,7 +9264,12 @@ func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionar
 	if resolved_state.is_empty():
 		return {}
 	if bool(preview.get("complete", false)):
-		return _combat_engine.finish_player_card(resolved_state, _selected_card_index, _combat_engine.card_plays_spent_for_actions(preview.get("actions", []) as Array))
+		return _combat_engine.finish_player_card(
+			resolved_state,
+			_selected_card_index,
+			_combat_engine.card_plays_spent_for_actions(preview.get("actions", []) as Array),
+			{"play_mode": _card_action_choice_mode}
+		)
 	return resolved_state
 
 func _pass_preview_summary() -> Dictionary:
@@ -9318,6 +9918,17 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 	var price_chip: Control = _merchant_price_chip("%d" % amount, item_accent, selling, affordable)
 	_make_equipment_tile_content_passive(price_chip)
 	hbox.add_child(price_chip)
+	if not selling and _run_engine.run_skill_is_ready(_run_state, "layaway"):
+		var hold_button := Button.new()
+		hold_button.name = "Layaway_%s" % item_id
+		hold_button.text = "Hold"
+		hold_button.tooltip_text = SkillTreeLibrary.description("layaway")
+		hold_button.custom_minimum_size = Vector2(64.0, 42.0)
+		_ui_skin.apply_button_stylebox_overrides(hold_button, UiSkin.VARIANT_COMPACT)
+		_ui_skin.apply_button_text_overrides(hold_button)
+		UiTypography.set_button_size(hold_button, UiTypography.SIZE_SMALL)
+		hold_button.pressed.connect(_on_merchant_layaway_pressed.bind(item_id))
+		hbox.add_child(hold_button)
 
 	var button := Button.new()
 	button.text = "Sell" if selling else "Buy"
@@ -9332,6 +9943,18 @@ func _build_merchant_item_row(merchant_kind: String, item_id: String, selling: b
 		button.pressed.connect(_on_merchant_buy_pressed.bind(merchant_kind, item_id, row))
 	hbox.add_child(button)
 	return row
+
+func _on_merchant_layaway_pressed(item_id: String) -> void:
+	if _merchant_trade_animation_active:
+		return
+	var before_state: Dictionary = _run_state.duplicate(true)
+	_run_state = _run_engine.reserve_merchant_offer(_run_state, item_id)
+	if _run_state == before_state:
+		return
+	_close_pinned_tooltip()
+	_reconcile_run_skill_event_analytics()
+	_persist_committed_boundary("merchant_offer_held")
+	_refresh_ui()
 
 func _on_merchant_row_mouse_entered(merchant_kind: String, item_id: String, row: Control = null) -> void:
 	_merchant_hovered_kind = merchant_kind
@@ -10439,7 +11062,8 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	if _card_preview_cache.has(cache_key):
 		return _card_preview_cache.get(cache_key, {}) as Dictionary
 	var card_id: String = str(hand[index])
-	var preview: Dictionary = _card_preview_from_state(card_id, _combat_state, _combat_engine.card_play_actions(card_id, _combat_state), 0)
+	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, index, "play")
+	var preview: Dictionary = _card_preview_from_state(card_id, prepared_state, _combat_engine.card_play_actions(card_id, prepared_state), 0)
 	_card_preview_cache[cache_key] = preview
 	return preview
 
@@ -10460,7 +11084,8 @@ func _fallback_preview_for_index(index: int, play_kind: String) -> Dictionary:
 	var shared_key: String = _card_preview_cache_key(-1, "shared_%s" % play_kind)
 	var shared_preview: Dictionary = _fallback_preview_cache.get(shared_key, {}) as Dictionary
 	if shared_preview.is_empty():
-		shared_preview = _card_preview_from_state("", _combat_state, _fallback_actions(play_kind), 0)
+		var fallback_actions: Array = _fallback_actions(play_kind)
+		shared_preview = {"playable": false} if fallback_actions.is_empty() else _card_preview_from_state("", _combat_state, fallback_actions, 0)
 		_fallback_preview_cache[shared_key] = shared_preview
 	var preview: Dictionary = shared_preview.duplicate(false)
 	preview["card_id"] = str(hand[index])
@@ -10474,17 +11099,23 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 	var printed: Dictionary = _card_preview_for_index(index)
 	var attack: Dictionary = _fallback_preview_for_index(index, "attack")
 	var move: Dictionary = _fallback_preview_for_index(index, "move")
+	var blink: Dictionary = _fallback_preview_for_index(index, "blink")
 	var printed_playable: bool = bool(printed.get("playable", false))
 	var attack_playable: bool = bool(attack.get("playable", false))
 	var move_playable: bool = bool(move.get("playable", false))
+	var blink_available: bool = not _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE).is_empty()
+	var blink_playable: bool = blink_available and bool(blink.get("playable", false))
 	var options: Dictionary = {
 		"play": printed,
 		"attack": attack,
 		"move": move,
+		"blink": blink,
 		"printed_playable": printed_playable,
 		"attack_playable": attack_playable,
 		"move_playable": move_playable,
-		"any_playable": printed_playable or attack_playable or move_playable
+		"blink_available": blink_available,
+		"blink_playable": blink_playable,
+		"any_playable": printed_playable or attack_playable or move_playable or blink_playable
 	}
 	_card_play_options_cache[cache_key] = options
 	return options
@@ -10536,7 +11167,10 @@ func _fallback_actions(play_kind: String) -> Array:
 		"attack":
 			return [{"type": "melee", "damage": _fallback_attack_damage(), "range": 1}]
 		"move":
-			return [{"type": "move", "range": FALLBACK_MOVE_RANGE}]
+			return [_combat_engine.fallback_move_action(_combat_state, FALLBACK_MOVE_RANGE)]
+		"blink":
+			var blink_action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
+			return [] if blink_action.is_empty() else [blink_action]
 		_:
 			return []
 
@@ -10549,6 +11183,9 @@ func _fallback_label(play_kind: String) -> String:
 			return "%d Attack" % _fallback_attack_damage()
 		"move":
 			return "%d Move" % FALLBACK_MOVE_RANGE
+		"blink":
+			var action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
+			return "%d Blink" % int(action.get("range", FALLBACK_MOVE_RANGE))
 		_:
 			return ""
 
@@ -10558,6 +11195,9 @@ func _fallback_command_detail(play_kind: String) -> String:
 			return "%d Damage" % _fallback_attack_damage()
 		"move":
 			return "Range %d" % FALLBACK_MOVE_RANGE
+		"blink":
+			var action: Dictionary = _combat_engine.fallback_blink_action(_combat_state, FALLBACK_MOVE_RANGE)
+			return "Blink Range %d" % int(action.get("range", FALLBACK_MOVE_RANGE))
 		_:
 			return ""
 
@@ -11852,7 +12492,7 @@ func _on_cancel_requested() -> void:
 		await _animate_drag_cancel_to_source()
 		return
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
-		_close_card_upgrade_overlay()
+		_on_skill_tree_cancel_requested() if _progression_overlay_mode == "respec" else _close_card_upgrade_overlay()
 		return
 	if _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		return
@@ -12033,7 +12673,6 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var card_id: String = _card_id_for_hand_index(hand_index)
 	var source_rect: Rect2 = _hand_card_global_rect(hand_index)
 	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(5, false)
-	var pile_kind: String = _card_destination_pile(card_id)
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
@@ -12045,10 +12684,17 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animation_lock = true
 	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
-	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(resolved_state, hand_index, plays_spent)
+	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(
+		resolved_state,
+		hand_index,
+		plays_spent,
+		{"play_mode": _card_action_choice_mode}
+	)
+	var pile_kind: String = str(committed_combat_state.get("last_card_destination", _card_destination_pile(card_id)))
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
-	if GameData.card_consumes_on_play(card_id):
+	if GameData.card_consumes_on_play(card_id) and pile_kind == "consume":
 		committed_run_state = _run_engine.consume_equipped_item_card(committed_run_state, card_id)
+	_reconcile_skill_event_analytics_for_state(committed_combat_state, committed_run_state)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
@@ -12057,7 +12703,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
-		transition_combat_state = await _animate_missed_equipment_resolution(committed_combat_state)
+		transition_combat_state = await _animate_missed_equipment_resolution(committed_combat_state, _salvaged_equipment_ids(committed_run_state))
 	_board_presentation.clear()
 	_set_action_banner("")
 	_run_state = committed_run_state
@@ -12583,15 +13229,41 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.04).timeout
 
-func _animate_missed_equipment_resolution(victory_state: Dictionary) -> Dictionary:
+func _animate_missed_equipment_resolution(victory_state: Dictionary, salvaged_equipment_ids: Array = []) -> Dictionary:
 	var resolved_state: Dictionary = _combat_engine.resolve_missed_equipment_after_victory(victory_state)
-	var missed_equipment: Array = resolved_state.get("missed_equipment", []) as Array
+	var missed_equipment: Array = (resolved_state.get("missed_equipment", []) as Array).duplicate()
+	var presentation_state: Dictionary = victory_state.duplicate(true)
+	if not salvaged_equipment_ids.is_empty():
+		var resolved_loot: Array = (resolved_state.get("loot", []) as Array).duplicate(true)
+		var presentation_loot: Array = (presentation_state.get("loot", []) as Array).duplicate(true)
+		for equipment_id: String in salvaged_equipment_ids:
+			missed_equipment.erase(equipment_id)
+			for loot_entries: Array in [resolved_loot, presentation_loot]:
+				for index: int in range(loot_entries.size()):
+					if typeof(loot_entries[index]) != TYPE_DICTIONARY:
+						continue
+					var loot: Dictionary = (loot_entries[index] as Dictionary).duplicate(true)
+					if str(loot.get("equipment_id", "")) != equipment_id:
+						continue
+					loot["claimed"] = true
+					loot["resolution"] = "salvaged"
+					loot_entries[index] = loot
+		resolved_state["loot"] = resolved_loot
+		presentation_state["loot"] = presentation_loot
+		resolved_state["missed_equipment"] = missed_equipment
+		var salvaged_names: Array[String]
+		for equipment_id: String in salvaged_equipment_ids:
+			salvaged_names.append(str(GameData.equipment_def(equipment_id).get("name", equipment_id)))
+		_show_combat_log_message("Salvager recovers %s." % ", ".join(salvaged_names))
+		_render_board_state(presentation_state, {})
+		await get_tree().create_timer(0.24).timeout
 	if missed_equipment.is_empty():
+		_render_board_state(resolved_state, {})
 		return resolved_state
 	_show_combat_log_message(RunEngineScript.MISSED_EQUIPMENT_NOTICE)
 	for frame: int in range(MISSED_EQUIPMENT_FRAMES + 1):
 		var progress: float = float(frame) / float(MISSED_EQUIPMENT_FRAMES)
-		_render_board_state(victory_state, {
+		_render_board_state(presentation_state, {
 			"missed_equipment_ids": missed_equipment,
 			"missed_equipment_progress": progress
 		})
@@ -12599,6 +13271,18 @@ func _animate_missed_equipment_resolution(victory_state: Dictionary) -> Dictiona
 	_render_board_state(resolved_state, {})
 	await get_tree().create_timer(0.08).timeout
 	return resolved_state
+
+func _salvaged_equipment_ids(run_state: Dictionary) -> Array[String]:
+	var result: Array[String]
+	var layout: Dictionary = run_state.get("current_room_layout", {}) as Dictionary
+	for loot_var: Variant in layout.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		var equipment_id: String = str(loot.get("equipment_id", ""))
+		if str(loot.get("resolution", "")) == "salvaged" and not equipment_id.is_empty() and not result.has(equipment_id):
+			result.append(equipment_id)
+	return result
 
 func _attack_impact_presentation(base_presentation: Dictionary) -> Dictionary:
 	var impact_presentation: Dictionary = base_presentation.duplicate(true)
@@ -12978,13 +13662,14 @@ func _resolve_enemy_round() -> void:
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
 	await _animate_enemy_phase_steps(animated_state, phase_result.get("steps", []), previous_run_state, commit_checkpoints)
 	var final_combat_state: Dictionary = (phase_result.get("state", {}) as Dictionary).duplicate(true)
+	_reconcile_skill_event_analytics_for_state(final_combat_state, previous_run_state)
+	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
 	var transition_combat_state: Dictionary = final_combat_state.duplicate(true)
 	if outcome == "victory":
-		transition_combat_state = await _animate_missed_equipment_resolution(final_combat_state)
+		transition_combat_state = await _animate_missed_equipment_resolution(final_combat_state, _salvaged_equipment_ids(final_run_state))
 	_board_presentation.clear()
 	_set_action_banner("")
-	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, final_combat_state)
 	if _committed_run_state_override.is_empty() or _committed_run_state_override != final_run_state:
 		final_run_state = _hold_committed_run_state(final_run_state, "enemy_round_complete")
 	else:
@@ -14257,13 +14942,52 @@ func _on_reward_card_pressed(card_id: String, source_control: Control = null) ->
 func _on_skip_reward_pressed() -> void:
 	if _animation_lock or _loadout_acquisition_in_progress:
 		return
+	var offered_cards: Array = ((_run_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
+	if _run_engine.has_run_skill(_run_state, "deferred_choice") and not offered_cards.is_empty():
+		var options: Array = [{
+			"text": "Heal without saving a card",
+			"detail": "Take the healing reward and leave every offered card behind.",
+			"callback": _commit_reward_heal.bind("")
+		}]
+		for card_id_var: Variant in offered_cards:
+			var card_id: String = str(card_id_var)
+			var card: Dictionary = GameData.card_def(card_id)
+			options.append({
+				"text": "Heal & save %s" % str(card.get("name", card_id)),
+				"detail": "This card will replace one choice in your next combat reward.",
+				"callback": _commit_reward_heal.bind(card_id)
+			})
+		_open_skill_choice_dialog(
+			SkillTreeLibrary.display_name("deferred_choice"),
+			"Choose whether one offered card should follow you to the next reward.",
+			options
+		)
+		return
+	_commit_reward_heal("")
+
+func _commit_reward_heal(deferred_card_id: String) -> void:
+	if str(_run_state.get("mode", "room")) != "reward":
+		return
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	var player_hp_before: int = int(_run_state.get("player_hp", 0))
-	_run_state = _run_engine.skip_reward_for_heal(_run_state)
+	_run_state = _run_engine.skip_reward_for_heal(_run_state, deferred_card_id)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_analytics_log_reward_choice("heal_skip", reward_state, "", player_hp_before, int(_run_state.get("player_hp", player_hp_before)))
+	if not deferred_card_id.is_empty():
+		_analytics_log_run_skill_trigger("deferred_choice", "Saved a card for the next reward.")
 	_persist_committed_boundary("reward_heal_claimed")
+	_refresh_ui()
+
+func _on_reward_reroll_pressed() -> void:
+	if _animation_lock or str(_run_state.get("mode", "room")) != "reward":
+		return
+	var before_state: Dictionary = _run_state.duplicate(true)
+	_run_state = _run_engine.reroll_card_reward(_run_state)
+	if _run_state == before_state:
+		return
+	_reconcile_run_skill_event_analytics()
+	_persist_committed_boundary("reward_rerolled")
 	_refresh_ui()
 
 func _on_campfire_sit_pressed() -> void:
@@ -14297,11 +15021,43 @@ func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 	if not pending_relics.has(relic_id):
 		return
+	if _run_engine.has_run_skill(_run_state, "curators_patience") and pending_relics.size() > 1:
+		var options: Array = [{
+			"text": "Choose without saving another relic",
+			"detail": "Take this relic and leave the remaining choices behind.",
+			"callback": _claim_relic_with_deferred.bind(relic_id, "", source_rect)
+		}]
+		for deferred_id_var: Variant in pending_relics:
+			var deferred_id: String = str(deferred_id_var)
+			if deferred_id == relic_id or (_run_state.get("relics", []) as Array).has(deferred_id):
+				continue
+			var deferred_relic: Dictionary = GameData.relic_def(deferred_id)
+			options.append({
+				"text": "Save %s" % str(deferred_relic.get("name", deferred_id)),
+				"detail": "This relic will replace one choice in your next relic offer.",
+				"callback": _claim_relic_with_deferred.bind(relic_id, deferred_id, source_rect)
+			})
+		_open_skill_choice_dialog(
+			SkillTreeLibrary.display_name("curators_patience"),
+			"After taking %s, choose one unclaimed relic to carry forward." % str(GameData.relic_def(relic_id).get("name", relic_id)),
+			options
+		)
+		return
+	await _claim_relic_with_deferred(relic_id, "", source_rect)
+
+func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, source_rect: Rect2) -> void:
+	if _relic_claim_in_progress:
+		return
+	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+	if not pending_relics.has(relic_id):
+		return
 	_relic_claim_in_progress = true
 	var accent := Color(GameData.relic_accent(relic_id))
-	_run_state = _run_engine.claim_relic(_run_state, relic_id)
+	_run_state = _run_engine.claim_relic(_run_state, relic_id, deferred_relic_id)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
+	if not deferred_relic_id.is_empty():
+		_analytics_log_run_skill_trigger("curators_patience", "Saved a relic for the next offer.")
 	_persist_committed_boundary("relic_claimed")
 	_refresh_ui()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
@@ -14663,7 +15419,7 @@ func _on_grimoire_button_pressed() -> void:
 	_open_grimoire_overlay()
 
 func _on_loadout_button_pressed() -> void:
-	if _dialogue_active or _animation_lock:
+	if _dialogue_active or _animation_lock or _pending_umbra_commit_locked:
 		return
 	var mode: String = "equipment"
 	if _run_engine.loadout_unread_ids(_run_state, "equipment").is_empty() and not _run_engine.loadout_unread_ids(_run_state, "magic").is_empty():
@@ -14766,7 +15522,25 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 	base_state.erase(COMBAT_CONTINUATION_KEY)
 	if _combat_engine.combat_outcome(combat_state).is_empty():
 		return _run_engine.set_combat_state(base_state, combat_state)
-	return _run_engine.finish_combat(base_state, combat_state)
+	var finished_state: Dictionary = _run_engine.finish_combat(base_state, combat_state)
+	finished_state = _reconcile_run_skill_event_analytics_for_state(finished_state, combat_state)
+	var finished_progression: Dictionary = (finished_state.get("progression", {}) as Dictionary).duplicate(true)
+	if (
+		not bool(base_state.get("debug_boss_run", false))
+		and int(finished_progression.get("progression_revision", 0)) > int(_progression.get("progression_revision", 0))
+	):
+		var moltshards_before: int = ProgressionStore.moltshard_count(_progression)
+		var moltshards_after: int = ProgressionStore.moltshard_count(finished_progression)
+		if moltshards_after > moltshards_before:
+			_analytics_store.write_event("progression_moltshard_gained", _analytics_context_from_states(finished_state, combat_state), {
+				"amount": moltshards_after - moltshards_before,
+				"source": "first_boss_victory",
+				"moltshards_before": moltshards_before,
+				"moltshards_after": moltshards_after
+			})
+		_progression = ProgressionStore.normalized_data(finished_progression)
+		ProgressionStore.save_data(_progression)
+	return finished_state
 
 func _combat_commit_checkpoints(steps: Array) -> Array:
 	var checkpoints: Array = []
@@ -15048,23 +15822,22 @@ func _close_pile_view() -> void:
 	_active_pile_kind = ""
 
 func _open_card_upgrade_overlay() -> void:
-	_open_character_overlay("stats")
+	_open_character_overlay("skills")
 
-func _on_character_stats_pressed() -> void:
+func _on_character_pressed() -> void:
 	_open_character_overlay("equipment")
 
-func _open_character_stats_overlay() -> void:
-	_open_character_overlay("stats")
-
 func _open_character_overlay(mode: String = "equipment") -> void:
-	if _upgrade_scrim == null:
+	if _upgrade_scrim == null or _pending_umbra_commit_locked:
 		return
 	_cancel_drag_play()
+	_reset_card_resolution()
 	_close_pile_view()
 	_close_menu_overlay()
-	_progression_overlay_mode = mode if mode in ["equipment", "magic", "stats"] else "equipment"
+	_progression_overlay_mode = mode if mode in ["equipment", "magic", "skills"] else "equipment"
 	_clear_open_loadout_tab_unread(_progression_overlay_mode)
-	_progression_pending_stats.clear()
+	_progression_pending_skill_id = ""
+	_progression_respec_draft.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
@@ -15076,7 +15849,8 @@ func _open_level_up_overlay() -> void:
 	_close_pile_view()
 	_close_menu_overlay()
 	_progression_overlay_mode = "level_up"
-	_progression_pending_stats.clear()
+	_progression_pending_skill_id = ""
+	_progression_respec_draft.clear()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
@@ -15085,7 +15859,9 @@ func _close_card_upgrade_overlay() -> void:
 	if _upgrade_scrim != null:
 		_upgrade_scrim.visible = false
 	_progression_overlay_mode = ""
-	_progression_pending_stats.clear()
+	_progression_pending_skill_id = ""
+	_progression_respec_draft.clear()
+	_skill_tree_view = null
 	_clear_equipment_drag_state(true)
 	_clear_magic_drag_state(true)
 	_clear_item_drag_state(true)
@@ -15133,7 +15909,7 @@ func _rebuild_progression_overlay() -> void:
 
 	var close_button := Button.new()
 	close_button.text = "X"
-	_apply_progression_stepper_button_style(close_button)
+	_apply_progression_icon_button_style(close_button)
 	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
 	close_button.custom_minimum_size = Vector2(48.0, 48.0)
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -15141,7 +15917,7 @@ func _rebuild_progression_overlay() -> void:
 	close_button.pressed.connect(_close_card_upgrade_overlay)
 	top_row.add_child(close_button)
 
-	if _progression_overlay_mode != "level_up":
+	if _progression_overlay_mode not in ["level_up", "respec"]:
 		vbox.add_child(_build_character_overlay_tabs())
 
 	if _progression_overlay_mode == "equipment":
@@ -15149,44 +15925,7 @@ func _rebuild_progression_overlay() -> void:
 	elif _progression_overlay_mode == "magic":
 		vbox.add_child(_build_magic_overlay_body())
 	else:
-		var body := HBoxContainer.new()
-		body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		body.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
-		vbox.add_child(_fixed_character_body_frame(body))
-
-		body.add_child(_build_progression_status_panel())
-		body.add_child(_build_progression_stat_list())
-
-	if _progression_overlay_mode == "level_up":
-		var confirm_row := HBoxContainer.new()
-		confirm_row.alignment = BoxContainer.ALIGNMENT_END
-		confirm_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-		vbox.add_child(confirm_row)
-
-		var cancel_button := Button.new()
-		cancel_button.text = "Cancel"
-		_apply_progression_command_button_style(cancel_button)
-		UiTypography.apply_button_role(cancel_button, UiTypography.ROLE_BODY)
-		cancel_button.custom_minimum_size = Vector2(176.0, 52.0)
-		cancel_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		cancel_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		cancel_button.pressed.connect(_close_card_upgrade_overlay)
-		confirm_row.add_child(cancel_button)
-
-		var confirm_button := Button.new()
-		var pending_stat_ids: Array[String] = _progression_pending_stat_ids()
-		var can_confirm: bool = ProgressionStore.can_purchase_level_with_stats(_progression, pending_stat_ids)
-		confirm_button.text = "Confirm"
-		confirm_button.disabled = not can_confirm
-		_apply_progression_command_button_style(confirm_button)
-		UiTypography.apply_button_role(confirm_button, UiTypography.ROLE_BODY)
-		confirm_button.custom_minimum_size = Vector2(188.0, 52.0)
-		confirm_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		confirm_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		if can_confirm:
-			confirm_button.pressed.connect(_confirm_level_up)
-		confirm_row.add_child(confirm_button)
+		vbox.add_child(_build_skill_tree_overlay_body())
 
 func _layout_progression_dialog() -> void:
 	if _upgrade_dialog == null:
@@ -15202,6 +15941,8 @@ func _progression_overlay_summary_text() -> String:
 	var embers: int = int(_progression.get("embers", 0))
 	if _progression_overlay_mode == "level_up":
 		return "LV %d -> %d   COST %d   EMBERS %d" % [level, mini(level + 1, GameData.max_progression_level()), ProgressionStore.next_level_cost(_progression), embers]
+	if _progression_overlay_mode == "respec":
+		return "DRAFT %d/%d   MOLTSHARDS %d" % [_progression_respec_draft.size(), ProgressionStore.skill_points_for_level(level), ProgressionStore.moltshard_count(_progression)]
 	if _progression_overlay_mode == "equipment":
 		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
 		var inventory_size: int = int((_run_state.get("equipment_inventory", []) as Array).size())
@@ -15212,7 +15953,7 @@ func _progression_overlay_summary_text() -> String:
 		var attuned_size: int = int((_run_state.get("attuned_magic_cards", []) as Array).size())
 		var learned_size: int = int((_run_state.get("magic_inventory", []) as Array).size())
 		return "LV %d   DECK %d   MAGIC %d/%d   LEARNED %d" % [level, deck_size, mini(attuned_size, GameData.magic_loadout_limit()), GameData.magic_loadout_limit(), learned_size]
-	return "LV %d   EMBERS %d" % [level, embers]
+	return "LV %d   SKILLS %d/%d   MOLTSHARDS %d" % [level, ProgressionStore.selected_skill_ids(_progression).size(), ProgressionStore.skill_points_for_level(level), ProgressionStore.moltshard_count(_progression)]
 
 func _build_character_overlay_tabs() -> Control:
 	var row := HBoxContainer.new()
@@ -15220,7 +15961,7 @@ func _build_character_overlay_tabs() -> Control:
 	for entry: Dictionary in [
 		{"mode": "equipment", "text": "Gear"},
 		{"mode": "magic", "text": "Magic"},
-		{"mode": "stats", "text": "Stats"}
+		{"mode": "skills", "text": "Skills"}
 	]:
 		var button := Button.new()
 		var mode: String = str(entry.get("mode", ""))
@@ -15270,11 +16011,12 @@ func _add_loadout_tab_badge(button: Button, mode: String, unread_count: int) -> 
 	button.add_child(badge)
 
 func _switch_character_overlay_mode(mode: String) -> void:
-	if not (mode in ["equipment", "magic", "stats"]):
+	if not (mode in ["equipment", "magic", "skills"]):
 		return
 	_progression_overlay_mode = mode
 	_clear_open_loadout_tab_unread(mode)
-	_progression_pending_stats.clear()
+	_progression_pending_skill_id = ""
+	_progression_respec_draft.clear()
 	_rebuild_progression_overlay()
 
 func _clear_open_loadout_tab_unread(mode: String) -> void:
@@ -15381,12 +16123,138 @@ func _build_magic_overlay_body() -> Control:
 	body.add_child(_build_current_deck_column())
 	return _fixed_character_body_frame(body)
 
+func _build_skill_tree_overlay_body() -> Control:
+	var column := VBoxContainer.new()
+	column.name = "SkillTreeOverlayBody"
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+
+	var owned_ids: Array[String] = ProgressionStore.selected_skill_ids(_progression)
+	var tree_mode: String = SkillTreeView.MODE_VIEW
+	var pending_ids: Array[String]
+	if _progression_overlay_mode == "level_up":
+		tree_mode = SkillTreeView.MODE_LEVEL_UP
+		if not _progression_pending_skill_id.is_empty():
+			pending_ids.append(_progression_pending_skill_id)
+	elif _progression_overlay_mode == "respec":
+		tree_mode = SkillTreeView.MODE_RESPEC
+		if _progression_respec_draft.is_empty():
+			_progression_respec_draft = owned_ids.duplicate()
+		pending_ids = _progression_respec_draft.duplicate()
+
+	_skill_tree_view = SkillTreeView.new()
+	_skill_tree_view.name = "CharacterSkillTree"
+	_skill_tree_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_skill_tree_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_skill_tree_view.configure({
+		"mode": tree_mode,
+		"owned_ids": owned_ids,
+		"pending_ids": pending_ids,
+		"required_count": owned_ids.size() + 1 if tree_mode == SkillTreeView.MODE_LEVEL_UP else owned_ids.size(),
+		"resource_count": ProgressionStore.moltshard_count(_progression),
+		"editing_enabled": tree_mode != SkillTreeView.MODE_RESPEC or _skill_respec_can_edit(),
+		"focused_id": _progression_focused_skill_id,
+		"show_footer": tree_mode != SkillTreeView.MODE_VIEW,
+	})
+	_skill_tree_view.skill_focused.connect(_on_skill_tree_focused)
+	_skill_tree_view.level_up_choice_changed.connect(_on_level_up_skill_choice_changed)
+	_skill_tree_view.respec_draft_changed.connect(_on_respec_skill_draft_changed)
+	_skill_tree_view.confirm_requested.connect(_on_skill_tree_confirm_requested)
+	_skill_tree_view.cancel_requested.connect(_on_skill_tree_cancel_requested)
+	column.add_child(_skill_tree_view)
+
+	if tree_mode == SkillTreeView.MODE_VIEW:
+		var command_row := HBoxContainer.new()
+		command_row.name = "SkillTreeViewCommands"
+		command_row.alignment = BoxContainer.ALIGNMENT_END
+		command_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+		var resource_label := Label.new()
+		resource_label.text = "MOLTSHARDS %d" % ProgressionStore.moltshard_count(_progression)
+		UiTypography.apply_label_role(resource_label, UiTypography.ROLE_CAPTION)
+		resource_label.add_theme_color_override("font_color", Color("c9b998"))
+		command_row.add_child(resource_label)
+		var respec_button := Button.new()
+		respec_button.name = "BeginSkillRespec"
+		respec_button.text = "Begin Respec"
+		respec_button.custom_minimum_size = Vector2(174.0, 44.0)
+		respec_button.disabled = ProgressionStore.moltshard_count(_progression) <= 0 or not _skill_respec_can_edit()
+		_apply_progression_command_button_style(respec_button)
+		UiTypography.apply_button_role(respec_button, UiTypography.ROLE_BODY)
+		if not respec_button.disabled:
+			respec_button.pressed.connect(_begin_skill_respec)
+		command_row.add_child(respec_button)
+		column.add_child(command_row)
+	return _fixed_character_body_frame(column)
+
+func _on_skill_tree_focused(skill_id: String) -> void:
+	_progression_focused_skill_id = skill_id
+
+func _on_level_up_skill_choice_changed(skill_id: String) -> void:
+	_progression_pending_skill_id = skill_id
+
+func _on_respec_skill_draft_changed(skill_ids: Array) -> void:
+	_progression_respec_draft = SkillTreeLibrary.normalized_ids(skill_ids)
+
+func _on_skill_tree_confirm_requested(skill_ids: Array) -> void:
+	if _progression_overlay_mode == "level_up":
+		_progression_pending_skill_id = str(skill_ids[skill_ids.size() - 1]) if not skill_ids.is_empty() else ""
+		_confirm_level_up()
+	elif _progression_overlay_mode == "respec":
+		_confirm_skill_respec(SkillTreeLibrary.normalized_ids(skill_ids))
+
+func _on_skill_tree_cancel_requested() -> void:
+	if _progression_overlay_mode == "respec":
+		_progression_overlay_mode = "skills"
+		_progression_respec_draft.clear()
+		_rebuild_progression_overlay()
+	else:
+		_close_card_upgrade_overlay()
+
+func _begin_skill_respec() -> void:
+	if not _skill_respec_can_edit() or ProgressionStore.moltshard_count(_progression) <= 0:
+		return
+	_reset_card_resolution()
+	_progression_overlay_mode = "respec"
+	_progression_respec_draft = ProgressionStore.selected_skill_ids(_progression)
+	_rebuild_progression_overlay()
+
+func _confirm_skill_respec(proposed_ids: Array[String]) -> void:
+	if _progression_overlay_mode != "respec" or not _skill_respec_can_edit():
+		return
+	if not ProgressionStore.can_respec_skills(_progression, proposed_ids):
+		return
+	_reset_card_resolution()
+	var previous_progression: Dictionary = _progression.duplicate(true)
+	var candidate: Dictionary = ProgressionStore.respec_skills(_progression, proposed_ids)
+	var persisted_profile: Dictionary = ProgressionStore.load_data()
+	candidate = ProgressionStore.set_embers(candidate, int(persisted_profile.get("embers", 0)))
+	if candidate == previous_progression or not ProgressionStore.save_data(candidate):
+		return
+	_progression = candidate
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
+	_sync_combat_state_from_run()
+	_persist_committed_boundary("skill_respec")
+	_analytics_log_skill_respec(previous_progression, _progression)
+	_progression_overlay_mode = "skills"
+	_progression_respec_draft.clear()
+	_rebuild_progression_overlay()
+	_refresh_ui()
+
+func _skill_respec_can_edit() -> bool:
+	if _run_state.is_empty() or _animation_lock or _pending_umbra_commit_locked or _loadout_acquisition_in_progress or _relic_claim_in_progress:
+		return false
+	if ProgressionStore.selected_skill_ids(_progression).is_empty():
+		return false
+	return str(_run_state.get("mode", "room")) not in ["combat", "victory", "defeat"]
+
 func _fixed_character_body_frame(content: Control) -> Control:
 	var frame := Control.new()
 	frame.name = "CharacterBodyFrame"
 	var dialog_height: float = _upgrade_dialog.custom_minimum_size.y if _upgrade_dialog != null else CHARACTER_DIALOG_SIZE.y
 	var chrome_height: float = 150.0 if _progression_overlay_mode == "level_up" else 194.0
-	frame.custom_minimum_size = Vector2(0.0, maxf(CHARACTER_BODY_MIN_HEIGHT, dialog_height - chrome_height))
+	var available_height: float = maxf(240.0, dialog_height - chrome_height)
+	frame.custom_minimum_size = Vector2(0.0, minf(CHARACTER_BODY_MIN_HEIGHT, available_height))
 	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	frame.clip_contents = true
@@ -15539,10 +16407,9 @@ func _build_equipment_slot_panel(slot: String, equipment_id: String) -> Control:
 	panel.custom_minimum_size = EQUIPMENT_SLOT_SIZE
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.tooltip_text = "equipment:%s" % equipment_id if not equipment_id.is_empty() else _equipment_slot_label(slot)
-	var drag_target_slot: String = GameData.equipment_slot(_equipment_drag_id)
-	var is_drag_target: bool = not _equipment_drag_id.is_empty() and drag_target_slot == slot
+	var is_drag_target: bool = not _equipment_drag_id.is_empty() and _equipment_slot_accepts_drag(slot, _equipment_drag_id)
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_target))
-	if not _equipment_drag_id.is_empty() and drag_target_slot != slot:
+	if not _equipment_drag_id.is_empty() and not is_drag_target:
 		panel.modulate = Color(0.68, 0.68, 0.68, 1.0)
 	_equipment_slot_panels[slot] = panel
 	var margin := MarginContainer.new()
@@ -16328,7 +17195,7 @@ func _release_equipment_overlay_drag(mouse_position: Vector2) -> void:
 	_update_equipment_overlay_drag(mouse_position)
 	var equipment_id: String = _equipment_drag_id
 	var slot: String = _equipment_slot_at(mouse_position)
-	if not slot.is_empty() and GameData.equipment_slot(equipment_id) == slot:
+	if not slot.is_empty() and _equipment_slot_accepts_drag(slot, equipment_id):
 		var held_rect: Rect2 = _equipment_held_proxy_global_rect()
 		if held_rect.size.x > 0.0 and held_rect.size.y > 0.0:
 			_equipment_drag_source_rect = held_rect
@@ -16362,7 +17229,6 @@ func _clear_equipment_drag_state(restore_source: bool) -> void:
 	_apply_equipment_drag_highlights()
 
 func _apply_equipment_drag_highlights() -> void:
-	var target_slot: String = GameData.equipment_slot(_equipment_drag_id)
 	for slot_var: Variant in _equipment_slot_panels.keys():
 		var slot: String = str(slot_var)
 		var panel_var: Variant = _equipment_slot_panels.get(slot, null)
@@ -16371,11 +17237,17 @@ func _apply_equipment_drag_highlights() -> void:
 		var panel: PanelContainer = panel_var as PanelContainer
 		var equipment_id: String = str(panel.get("equipment_id"))
 		var accent: Color = Color(GameData.equipment_accent(equipment_id)) if not equipment_id.is_empty() else Color("6d5a46")
-		var is_drag_target: bool = not _equipment_drag_id.is_empty() and target_slot == slot
+		var is_drag_target: bool = not _equipment_drag_id.is_empty() and _equipment_slot_accepts_drag(slot, _equipment_drag_id)
 		panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_target))
 		panel.modulate = Color.WHITE
 		if not _equipment_drag_id.is_empty() and not is_drag_target:
 			panel.modulate = Color(0.68, 0.68, 0.68, 1.0)
+
+func _equipment_slot_accepts_drag(slot: String, equipment_id: String) -> bool:
+	var native_slot: String = GameData.equipment_slot(equipment_id)
+	if native_slot == slot:
+		return true
+	return slot == "trinket" and not native_slot.is_empty() and _run_engine.has_run_skill(_run_state, "open_arsenal")
 
 func _equipment_slot_at(mouse_position: Vector2) -> String:
 	for slot_var: Variant in _equipment_slot_panels.keys():
@@ -17146,15 +18018,14 @@ func _can_drop_equipment_data(slot: String, data: Variant) -> bool:
 	if str(payload.get("kind", "")) != "equipment":
 		return false
 	var equipment_id: String = str(payload.get("equipment_id", ""))
-	return GameData.equipment_slot(equipment_id) == slot
+	return _equipment_slot_accepts_drag(slot, equipment_id)
 
 func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "", drop_rect: Rect2 = Rect2()) -> void:
 	if equipment_id.is_empty() or not _equipment_overlay_can_change():
 		return
-	var slot: String = GameData.equipment_slot(equipment_id)
-	if slot.is_empty():
-		return
-	if not drop_slot.is_empty() and drop_slot != slot:
+	var native_slot: String = GameData.equipment_slot(equipment_id)
+	var slot: String = native_slot if drop_slot.is_empty() else drop_slot
+	if native_slot.is_empty() or not _equipment_slot_accepts_drag(slot, equipment_id):
 		return
 	var before_equipped: Dictionary = (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
 	var before_id: String = str(before_equipped.get(slot, ""))
@@ -17164,7 +18035,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 	var previous_slot_rect: Rect2 = _equipment_slot_icon_rect(slot)
 	if previous_slot_rect.size.x <= 0.0 or previous_slot_rect.size.y <= 0.0:
 		previous_slot_rect = drop_rect
-	_run_state = _run_engine.equip_equipment(_run_state, equipment_id)
+	_run_state = _run_engine.equip_equipment(_run_state, equipment_id, slot)
 	var after_equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
 	if str(after_equipped.get(slot, "")) == before_id:
 		_clear_equipment_drag_state(true)
@@ -17303,213 +18174,7 @@ func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:
 	style.content_margin_bottom = 0
 	return style
 
-func _build_progression_status_panel() -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(282.0, 0.0)
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _ui_skin.make_plain_card_style(Color(0.13, 0.09, 0.065, 0.96), Color("8f6f46"), UiTypography.PANEL_PADDING_COMPACT))
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
-	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
-	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_LARGE))
-	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_COMPACT))
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	margin.add_child(vbox)
-	vbox.add_child(_build_progression_character_panel())
-	for row_text: String in _progression_status_rows():
-		var label := Label.new()
-		label.text = row_text
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		UiTypography.apply_label_role(label, UiTypography.ROLE_BODY)
-		label.add_theme_color_override("font_color", Color("e8dcc5"))
-		label.add_theme_color_override("font_outline_color", Color("241912"))
-		label.add_theme_constant_override("outline_size", 1)
-		vbox.add_child(label)
-	return panel
-
-func _build_progression_character_panel() -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0.0, 252.0 if _progression_overlay_mode == "stats" else 210.0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.042, 0.034, 0.86)
-	style.border_color = Color("5f4a35")
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	panel.add_theme_stylebox_override("panel", style)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	panel.add_child(margin)
-
-	var stack := VBoxContainer.new()
-	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	stack.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	margin.add_child(stack)
-
-	var art := TextureRect.new()
-	art.name = "ProgressionCharacterArt"
-	art.texture = AssetLoader.load_texture(PLAYER_UNIT_TEXTURE_PATH)
-	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.custom_minimum_size = Vector2(0.0, 176.0 if _progression_overlay_mode == "stats" else 136.0)
-	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
-	stack.add_child(art)
-
-	var name_label := Label.new()
-	name_label.text = "The Reaver"
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_label_role(name_label, UiTypography.ROLE_BODY)
-	name_label.add_theme_color_override("font_color", Color("f5ead4"))
-	name_label.add_theme_color_override("font_outline_color", Color("241912"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	stack.add_child(name_label)
-	return panel
-
-func _progression_status_rows() -> Array[String]:
-	var rows: Array[String] = []
-	rows.append("Level %d" % int(_progression.get("level", 1)))
-	rows.append("Held embers %d" % int(_progression.get("embers", 0)))
-	if _progression_overlay_mode == "level_up":
-		rows.append("Cost %d" % ProgressionStore.next_level_cost(_progression))
-		rows.append("Choose %d different stats." % GameData.progression_stat_points_per_level())
-		rows.append("Assigned %d/%d" % [_progression_pending_point_count(), GameData.progression_stat_points_per_level()])
-	else:
-		rows.append("Max health %d" % int(_run_state.get("player_max_hp", RunEngineScript.BASE_MAX_HP)))
-		rows.append("Unspent points %d" % int(_progression.get("unspent_stat_points", 0)))
-	return rows
-
-func _build_progression_stat_list() -> Control:
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	var list := VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	scroll.add_child(list)
-	var stats: Dictionary = GameData.normalized_progression_stats(_progression.get("stats", {}))
-	for stat_id: String in GameData.progression_stat_ids():
-		list.add_child(_build_progression_stat_row(stat_id, int(stats.get(stat_id, 0))))
-	return scroll
-
-func _build_progression_stat_row(stat_id: String, value: int) -> Control:
-	var stat_def: Dictionary = GameData.progression_stat_def(stat_id)
-	var pending: int = _progression_pending_stat_delta(stat_id)
-	var displayed_value: int = value + pending
-	var selected: bool = pending > 0
-	var panel := PanelContainer.new()
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _progression_stat_row_style(Color(str(stat_def.get("accent", "#c28a53"))), selected))
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", UiTypography.SPACE_MEDIUM)
-	margin.add_theme_constant_override("margin_top", UiTypography.SPACE_SMALL)
-	margin.add_theme_constant_override("margin_right", UiTypography.SPACE_MEDIUM)
-	margin.add_theme_constant_override("margin_bottom", UiTypography.SPACE_SMALL)
-	panel.add_child(margin)
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	margin.add_child(row)
-	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(48.0, 48.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture(str(stat_def.get("icon_path", "")))
-	row.add_child(icon)
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", UiTypography.SPACE_HAIRLINE)
-	row.add_child(text_box)
-	var name_label := Label.new()
-	name_label.text = str(stat_def.get("name", stat_id))
-	UiTypography.apply_label_role(name_label, UiTypography.ROLE_BODY)
-	name_label.add_theme_color_override("font_color", Color("f5ead4"))
-	name_label.add_theme_color_override("font_outline_color", Color("241912"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(name_label)
-	var desc_label := Label.new()
-	desc_label.text = str(stat_def.get("short", ""))
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.apply_label_role(desc_label, UiTypography.ROLE_CAPTION)
-	desc_label.add_theme_color_override("font_color", Color("cdbca2"))
-	text_box.add_child(desc_label)
-	if _progression_overlay_mode == "level_up":
-		var minus_button := Button.new()
-		minus_button.text = "-"
-		minus_button.disabled = not _can_decrement_level_up_stat(stat_id)
-		_apply_progression_stepper_button_style(minus_button)
-		UiTypography.set_button_size(minus_button, UiTypography.SIZE_BODY)
-		minus_button.custom_minimum_size = Vector2(46.0, 46.0)
-		minus_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		minus_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		if not minus_button.disabled:
-			minus_button.pressed.connect(_change_level_up_stat.bind(stat_id, -1))
-		row.add_child(minus_button)
-
-		row.add_child(_build_progression_stat_value_badge(displayed_value, GameData.progression_stat_cap(), selected))
-
-		var plus_button := Button.new()
-		plus_button.text = "+"
-		plus_button.disabled = not _can_increment_level_up_stat(stat_id, value)
-		_apply_progression_stepper_button_style(plus_button)
-		UiTypography.set_button_size(plus_button, UiTypography.SIZE_BODY)
-		plus_button.custom_minimum_size = Vector2(46.0, 46.0)
-		plus_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		plus_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		if not plus_button.disabled:
-			plus_button.pressed.connect(_change_level_up_stat.bind(stat_id, 1))
-		row.add_child(plus_button)
-	else:
-		row.add_child(_build_progression_stat_value_badge(displayed_value, GameData.progression_stat_cap(), false))
-	return panel
-
-func _build_progression_stat_value_badge(value: int, cap: int, selected: bool) -> Control:
-	var badge := PanelContainer.new()
-	badge.custom_minimum_size = Vector2(74.0, 46.0)
-	badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.045, 0.040, 0.94).lightened(0.10 if selected else 0.0)
-	style.border_color = Color("d7a85d") if selected else Color("6d5a46")
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	badge.add_theme_stylebox_override("panel", style)
-	var label := Label.new()
-	label.text = "%d/%d" % [value, cap]
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.apply_label_role(label, UiTypography.ROLE_BODY)
-	label.add_theme_color_override("font_color", Color("fff0ce") if selected else Color("e8dcc5"))
-	label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	label.add_theme_constant_override("outline_size", 1)
-	badge.add_child(label)
-	return badge
-
-func _apply_progression_stepper_button_style(button: Button) -> void:
+func _apply_progression_icon_button_style(button: Button) -> void:
 	if button == null:
 		return
 	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_ICON)
@@ -17533,75 +18198,19 @@ func _apply_progression_button_text(button: Button, font_size: int) -> void:
 	button.add_theme_constant_override("outline_size", 2)
 	UiTypography.set_button_size(button, font_size)
 
-func _progression_stat_row_style(accent: Color, selected: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.10, 0.07, 0.05, 0.92).lightened(0.06 if selected else 0.0)
-	style.border_color = accent.lightened(0.30) if selected else Color(accent.r, accent.g, accent.b, 0.58)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	return style
-
-func _progression_pending_stat_delta(stat_id: String) -> int:
-	return int(_progression_pending_stats.get(stat_id, 0))
-
-func _progression_pending_point_count() -> int:
-	var total: int = 0
-	for amount_var: Variant in _progression_pending_stats.values():
-		total += int(amount_var)
-	return total
-
-func _progression_pending_stat_ids() -> Array[String]:
-	var result: Array[String] = []
-	for stat_id: String in GameData.progression_stat_ids():
-		if int(_progression_pending_stats.get(stat_id, 0)) > 0:
-			result.append(stat_id)
-	return result
-
-func _can_increment_level_up_stat(stat_id: String, current_value: int) -> bool:
-	if _progression_overlay_mode != "level_up":
-		return false
-	if _progression_pending_stat_delta(stat_id) > 0:
-		return false
-	if _progression_pending_point_count() >= GameData.progression_stat_points_per_level():
-		return false
-	return current_value < GameData.progression_stat_cap()
-
-func _can_decrement_level_up_stat(stat_id: String) -> bool:
-	return _progression_overlay_mode == "level_up" and _progression_pending_stat_delta(stat_id) > 0
-
-func _change_level_up_stat(stat_id: String, delta: int) -> void:
-	if _progression_overlay_mode != "level_up":
-		return
-	var stats: Dictionary = GameData.normalized_progression_stats(_progression.get("stats", {}))
-	var current_value: int = int(stats.get(stat_id, 0))
-	var current_pending: int = _progression_pending_stat_delta(stat_id)
-	if delta > 0:
-		if not _can_increment_level_up_stat(stat_id, current_value):
-			return
-		_progression_pending_stats[stat_id] = 1
-	elif delta < 0:
-		if current_pending <= 0:
-			return
-		_progression_pending_stats.erase(stat_id)
-	_rebuild_progression_overlay()
-
 func _confirm_level_up() -> void:
-	var pending_stat_ids: Array[String] = _progression_pending_stat_ids()
-	if not ProgressionStore.can_purchase_level_with_stats(_progression, pending_stat_ids):
+	var chosen_skill_id: String = _progression_pending_skill_id
+	if not ProgressionStore.can_purchase_level_with_skill(_progression, chosen_skill_id):
 		return
 	var before_progression: Dictionary = _progression.duplicate(true)
-	_progression = ProgressionStore.purchase_level_with_stats(_progression, pending_stat_ids)
-	ProgressionStore.save_data(_progression)
-	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
+	var candidate: Dictionary = ProgressionStore.purchase_level_with_skill(_progression, chosen_skill_id)
+	if candidate == before_progression or not ProgressionStore.save_data(candidate):
+		return
+	_progression = candidate
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
 	_run_state = _run_engine.leave_campfire(_run_state, 0)
 	_persist_committed_boundary("level_up")
-	_analytics_log_level_up(before_progression, _progression)
+	_analytics_log_level_up(before_progression, _progression, chosen_skill_id)
 	_close_card_upgrade_overlay()
 	_refresh_ui()
 
@@ -17835,7 +18444,7 @@ func _card_id_for_hand_index(index: int) -> String:
 	return str(hand[index])
 
 func _card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
-	if not state.is_empty() and (state.has("card_upgrades") or state.has("card_mods") or state.has("stats") or state.has("relics")):
+	if not state.is_empty() and (state.has("card_upgrades") or state.has("card_mods") or state.has("skill_ids") or state.has("relics")):
 		return GameData.card_def_for_progression(card_id, state)
 	if not _progression.is_empty():
 		return GameData.card_def_for_progression(card_id, _progression)
@@ -17939,7 +18548,8 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"player_hp": int(player.get("hp", run_state.get("player_hp", -1))),
 		"player_max_hp": int(player.get("max_hp", run_state.get("player_max_hp", -1))),
 		"progression_level": int(progression.get("level", 1)),
-		"progression_stats": GameData.normalized_progression_stats(progression.get("stats", {})),
+		"progression_skills": ProgressionStore.selected_skill_ids(progression),
+		"moltshards": ProgressionStore.moltshard_count(progression),
 		"deck_size": int((run_state.get("deck_cards", []) as Array).size()),
 		"card_id": card_id,
 		"card_instance_id": card_instance_id
@@ -18023,20 +18633,90 @@ func _analytics_log_run_ended(outcome: String) -> void:
 		"damage_received": int(run_stats.get("damage_received", 0))
 	})
 
-func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary) -> void:
-	var chosen_stat_ids: Array[String] = _progression_pending_stat_ids()
-	var stat_values: Dictionary = {}
-	for stat_id: String in chosen_stat_ids:
-		stat_values[stat_id] = GameData.stat_value(after_progression, stat_id)
+func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary, skill_id: String) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context_from_states(_run_state, _combat_state), {
 		"level_before": int(before_progression.get("level", 1)),
 		"level_after": int(after_progression.get("level", 1)),
-		"stat_id": str(chosen_stat_ids[0]) if not chosen_stat_ids.is_empty() else "",
-		"stat_ids": chosen_stat_ids,
-		"stat_values": stat_values,
+		"skill_id": skill_id,
+		"skill_ids": ProgressionStore.selected_skill_ids(after_progression),
 		"cost": ProgressionStore.next_level_cost(before_progression),
 		"held_embers_after": int(after_progression.get("embers", 0)),
 		"room": _run_state.get("current_room", Vector2i.ZERO)
+	})
+
+func _analytics_log_skill_respec(before_progression: Dictionary, after_progression: Dictionary) -> void:
+	_analytics_store.write_event("progression_respec", _analytics_context_from_states(_run_state, _combat_state), {
+		"skill_ids_before": ProgressionStore.selected_skill_ids(before_progression),
+		"skill_ids_after": ProgressionStore.selected_skill_ids(after_progression),
+		"moltshards_before": ProgressionStore.moltshard_count(before_progression),
+		"moltshards_after": ProgressionStore.moltshard_count(after_progression),
+		"room": _run_state.get("current_room", Vector2i.ZERO)
+	})
+
+func _reconcile_skill_event_analytics() -> void:
+	_reconcile_skill_event_analytics_for_state(_combat_state, _run_state)
+
+func _reconcile_skill_event_analytics_for_state(combat_state: Dictionary, run_state: Dictionary) -> void:
+	if combat_state.is_empty():
+		return
+	var latest_revision: int = _analytics_skill_event_revision
+	for event: Dictionary in _combat_engine.skill_events(combat_state):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= _analytics_skill_event_revision:
+			continue
+		var skill_id: String = str(event.get("skill_id", ""))
+		_analytics_store.write_event("skill_triggered", _analytics_context_from_states(run_state, combat_state), {
+			"skill_id": skill_id,
+			"activation": SkillTreeLibrary.activation_kind(skill_id),
+			"trigger_revision": revision,
+			"trigger_scope": "combat",
+			"turn": int(event.get("turn", combat_state.get("turn", 0))),
+			"message": str(event.get("message", ""))
+		})
+		latest_revision = maxi(latest_revision, revision)
+	_analytics_skill_event_revision = latest_revision
+
+func _reconcile_run_skill_event_analytics() -> void:
+	_run_state = _reconcile_run_skill_event_analytics_for_state(_run_state, _combat_state)
+
+func _reconcile_run_skill_event_analytics_for_state(run_state: Dictionary, combat_state: Dictionary = {}) -> Dictionary:
+	if run_state.is_empty():
+		return run_state
+	var next_state: Dictionary = run_state.duplicate(true)
+	var analytics: Dictionary = (next_state.get("analytics", {}) as Dictionary).duplicate(true)
+	var logged_revision: int = int(analytics.get("run_skill_event_revision_logged", 0))
+	var latest_revision: int = logged_revision
+	for event: Dictionary in _run_engine.run_skill_events(next_state):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= logged_revision:
+			continue
+		var skill_id: String = str(event.get("skill_id", ""))
+		_analytics_store.write_event("skill_triggered", _analytics_context_from_states(next_state, combat_state), {
+			"skill_id": skill_id,
+			"activation": SkillTreeLibrary.activation_kind(skill_id),
+			"trigger_revision": revision,
+			"trigger_scope": "run",
+			"turn": int(combat_state.get("turn", 0)),
+			"message": str(event.get("message", ""))
+		})
+		latest_revision = maxi(latest_revision, revision)
+	if latest_revision > logged_revision:
+		analytics["run_skill_event_revision_logged"] = latest_revision
+		next_state["analytics"] = analytics
+	return next_state
+
+func _analytics_log_run_skill_trigger(skill_id: String, message: String) -> void:
+	var analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
+	var revision: int = int(analytics.get("skill_trigger_revision", 0)) + 1
+	analytics["skill_trigger_revision"] = revision
+	_run_state["analytics"] = analytics
+	_analytics_store.write_event("skill_triggered", _analytics_context_from_states(_run_state, _combat_state), {
+		"skill_id": skill_id,
+		"activation": SkillTreeLibrary.activation_kind(skill_id),
+		"trigger_revision": revision,
+		"trigger_scope": "run",
+		"turn": int(_combat_state.get("turn", 0)),
+		"message": message
 	})
 
 func _analytics_log_reward_choice(choice_kind: String, reward_state: Dictionary, selected_card_id: String, player_hp_before: int, player_hp_after: int) -> void:
@@ -18205,6 +18885,8 @@ func _sync_analytics_combat_tracker() -> void:
 
 func _reset_analytics_combat_tracker() -> void:
 	_analytics_combat_tracker = {}
+	_analytics_skill_event_revision = 0
+	_skill_event_revision_seen = 0
 
 func _analytics_initialize_combat_tracker(combat_state: Dictionary) -> void:
 	var tracker: Dictionary = {
@@ -18222,6 +18904,8 @@ func _analytics_initialize_combat_tracker(combat_state: Dictionary) -> void:
 		zones[zone] = zone_ids
 	tracker["zones"] = zones
 	_analytics_combat_tracker = tracker
+	_analytics_skill_event_revision = int(combat_state.get("skill_event_revision", 0))
+	_skill_event_revision_seen = _analytics_skill_event_revision
 
 func _analytics_snapshot_combat_tracker() -> Dictionary:
 	return _analytics_combat_tracker.duplicate(true)
@@ -18344,7 +19028,8 @@ func _analytics_log_playable_cards() -> void:
 			"hand_index": index,
 			"printed_playable": bool(options.get("printed_playable", false)),
 			"attack_playable": bool(options.get("attack_playable", false)),
-			"move_playable": bool(options.get("move_playable", false))
+			"move_playable": bool(options.get("move_playable", false)),
+			"blink_playable": bool(options.get("blink_playable", false))
 		})
 	_analytics_combat_tracker["playable_logged"] = playable_logged
 

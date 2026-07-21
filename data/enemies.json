@@ -64,7 +64,7 @@
     ]
   },
   "acolyte": {
-    "name": "Ash Acolyte",
+    "name": "Dust Acolyte",
     "max_hp": 12,
     "base_initiative": 12,
     "reward_embers": 10,
@@ -77,8 +77,8 @@
     "idle_sheet_ping_pong": true,
     "intents": [
       {
-        "id": "ash_bolt",
-        "name": "Ash Bolt",
+        "id": "dust_bolt",
+        "name": "Dust Bolt",
         "time": 4,
         "weight": 4,
         "actions": [
@@ -209,7 +209,7 @@
     ]
   },
   "warden": {
-    "name": "Ash Warden",
+    "name": "Stone Warden",
     "max_hp": 20,
     "base_initiative": 15,
     "reward_embers": 14,
@@ -896,8 +896,8 @@
         ]
       },
       {
-        "id": "ashfall",
-        "name": "Ashfall",
+        "id": "cinderfall",
+        "name": "Cinderfall",
         "time": 6,
         "weight": 3,
         "actions": [

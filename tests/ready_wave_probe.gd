@@ -100,13 +100,13 @@ func _ready_wave_layout() -> Dictionary:
 func _probe_grid() -> Array:
 	return [
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-		["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+		["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
 		["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 	]
 

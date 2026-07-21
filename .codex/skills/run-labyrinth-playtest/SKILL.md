@@ -1,6 +1,6 @@
 ---
 name: run-labyrinth-playtest
-description: Run Labyrinth of Ash headless playtests with the manual harness, especially multi-agent playtest rounds that use playtest/headless_strategy_guide.md, write isolated playtest notes, and synthesize balance, gameplay, UX, and harness findings.
+description: Run Escape the Umbra headless playtests with the manual harness, especially multi-agent playtest rounds that use playtest/headless_strategy_guide.md, write isolated playtest notes, and synthesize balance, gameplay, UX, and harness findings.
 ---
 
 # Run Labyrinth Playtest

@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-card
-description: Create, implement, rebalance, or review cards for Labyrinth of Ash. Use when Codex needs to add or modify entries in data/cards.json, generate or size card art in assets/art/cards, choose rarity or element visuals, arrange action icons, use the card balance heuristic, add a novel card keyword or action type, or update related combat, reward, analytics, upgrade, and test integration points.
+description: Create, implement, rebalance, or review cards for Escape the Umbra. Use when Codex needs to add or modify entries in data/cards.json, generate or size card art in assets/art/cards, choose rarity or element visuals, arrange action icons, use the card balance heuristic, add a novel card keyword or action type, or update related combat, reward, analytics, upgrade, and test integration points.
 ---
 
 # Create Labyrinth Card

@@ -558,9 +558,9 @@
 			"id": "enemy:acolyte",
 			"section": "creatures",
 			"enemy_id": "acolyte",
-			"title": "Ash Acolyte",
+			"title": "Dust Acolyte",
 			"body": [
-				"Ranged caster with ash bolt attacks, self-defense actions, and health-draining effects.",
+				"Ranged caster with dust bolt attacks, self-defense actions, and health-draining effects.",
 				"Its intents alternate between line-of-sight damage and preservation."
 			]
 		},
@@ -578,7 +578,7 @@
 			"id": "enemy:warden",
 			"section": "creatures",
 			"enemy_id": "warden",
-			"title": "Ash Warden",
+			"title": "Stone Warden",
 			"body": [
 				"Durable front-line guard with heavy melee attacks, block gains, and close area strikes.",
 				"It can absorb damage through defenses before its health is exposed."

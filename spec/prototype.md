@@ -1,4 +1,4 @@
-# Labyrinth of Ash Prototype
+# Escape the Umbra Prototype
 
 ## High-Level Pillars
 
@@ -67,13 +67,15 @@ It intentionally excludes, for now:
 - Rooms award held embers.
 - Campfires force a choice: heal and continue, carry held embers into the next
   run by ending safely, or spend held embers to gain a permanent character
-  level and stat point.
+  level and learn one skill.
 - Death loses held embers unless they were carried forward from a campfire or
   final victory.
 - Treasure rooms offer relics for the current run only.
-- Persistent progression is character-level based. Stats such as Might,
-  Dexterity, Vigor, Guard, Focus, and elemental Magick stats increment card and
-  character effects directly.
+- Persistent progression is a 24-node qualitative skill tree. Learned skills
+  add tactical options, recovery lines, and cross-system interactions without
+  permanently scaling printed card or character numbers.
+- A Moltshard from the first boss can transactionally reshape the learned tree;
+  it exists only in progression and never enters run inventory.
 
 ## Content Targets
 
@@ -82,8 +84,8 @@ It intentionally excludes, for now:
 - Regular enemies: crawler, acolyte, harrier, warden.
 - Boss: heart warden.
 - Relics: 4-6 simple, high-signal effects.
-- Persistent progression: 20 character levels with two stat points per level
-  after level 1.
+- Persistent progression: 20 character levels with exactly one learned skill
+  per level after level 1, up to 19 active skills and one exclusive keystone.
 
 ## Technical Targets
 

@@ -52,7 +52,7 @@
 - Played quick_stab as printed: 9 damage.
 - Enemy round: 0 HP lost, mode now combat.
 - Played spark_dart as printed: 3 damage, 1 kills, +1 play, +1 Lightning intensity.
-- Reward 2 offered Inferno Ritual (Fire 3+ gated burn), Ashline Tempo (Fire +1, play refund, Fire 2+ rider), and Shadow Gate. At 7 HP after a high-pressure fire room, healing is the pragmatic choice; skipping Ashline feels bad because it is exactly the intensity payoff card I wanted to test.
+- Reward 2 offered Inferno Ritual (Fire 3+ gated burn), Cinderline Tempo (Fire +1, play refund, Fire 2+ rider), and Shadow Gate. At 7 HP after a high-pressure fire room, healing is the pragmatic choice; skipping Cinderline feels bad because it is exactly the intensity payoff card I wanted to test.
 - Reward: skipped for heal to 13/36.
 - Moved to (0,1): depth 1 lightning combat.
 - Played bone_dart as printed: 5 damage.

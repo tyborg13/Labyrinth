@@ -38,6 +38,9 @@ func _initialize() -> void:
 func _test_valid_save_summary_and_replacement_gate() -> void:
 	var progression: Dictionary = ProgressionStore.default_data()
 	progression["embers"] = 91
+	progression["level"] = 3
+	progression["skill_ids"] = ["quick_wits", "discerning_eye"]
+	progression = ProgressionStore.normalized_data(progression)
 	_assert(ProgressionStore.save_data(progression), "Valid-save fixture should write progression")
 	var run_state: Dictionary = _valid_combat_run(progression)
 	_assert(ProgressionStore.save_run_state(run_state), "Valid-save fixture should write the run")
@@ -47,6 +50,7 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 		return
 	var continue_button: Button = instance.get_node("MenuColumn/ContinueButton")
 	var start_button: Button = instance.get_node("MenuColumn/StartButton")
+	var footer: Label = instance.get_node("ProfileBlock/Footer")
 	var resume_panel: PanelContainer = instance.get_node("ResumePanel")
 	var resume_location: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeLocation")
 	var resume_stats: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeStats")
@@ -58,6 +62,7 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	_assert(resume_panel.visible, "A valid save should show the resume card")
 	_assert(resume_location.text == "DEPTH 4  ·  IN COMBAT", "Resume card should show the saved depth and mode")
 	_assert(resume_stats.text == "HP 175 / 260  ·  HELD 74 EMBERS", "Resume card should show accurate saved HP and explicitly identify held embers")
+	_assert(footer.text == "LV 3  |  EMBERS 91  |  SKILLS 2/19", "Main-menu profile summary should show learned skills instead of retired card growth")
 	_assert(continue_button.text == "Continue Run" and not continue_button.disabled, "Continue should become the primary enabled action for a valid save")
 	var continue_style: StyleBoxFlat = continue_button.get_theme_stylebox("normal") as StyleBoxFlat
 	var start_style: StyleBoxFlat = start_button.get_theme_stylebox("normal") as StyleBoxFlat

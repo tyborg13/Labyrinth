@@ -59,11 +59,11 @@
       {"type": "start_combat_stoneskin", "value": 4}
     ]
   },
-  "ashen_buckler": {
-    "name": "Ashen Buckler",
+  "iron_buckler": {
+    "name": "Iron Buckler",
     "rarity": "common",
     "description": "Start each combat with {value} block.",
-    "icon_path": "res://assets/art/relics/ashen_buckler.png",
+    "icon_path": "res://assets/art/relics/iron_buckler.png",
     "accent": "#8f9499",
     "effects": [
       {"type": "start_combat_block", "value": 6}

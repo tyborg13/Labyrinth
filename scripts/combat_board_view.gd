@@ -141,7 +141,7 @@ const DOOR_OPENING_FRAME_REGIONS := [
 ]
 const PILLAR_MOSS_OFFSET_X_SCALE: float = -0.04
 const PILLAR_MOSS_OFFSET_Y_SCALE: float = 0.16
-const ASH_FLOOR_VARIANT_PATHS: PackedStringArray = [
+const STONE_FLOOR_VARIANT_PATHS: PackedStringArray = [
 	"res://assets/placeholders/tiles/base_floor_tile_01.png",
 	"res://assets/placeholders/tiles/base_floor_tile_02.png",
 	"res://assets/placeholders/tiles/base_floor_tile_03.png",
@@ -2717,7 +2717,7 @@ func _draw_missed_equipment_disintegration(tile: Vector2i, loot_rect: Rect2, loo
 	if fade > 0.01:
 		var tint: Color = Color(1.0, 1.0, 1.0, fade).lerp(Color(0.24, 0.16, 0.22, fade), corruption)
 		_draw_disintegrating_equipment_texture(loot_texture, corrupted_rect, tint, progress)
-	_draw_missed_equipment_ash(tile, loot_rect, loot, progress)
+	_draw_missed_equipment_cinders(tile, loot_rect, loot, progress)
 
 func _draw_disintegrating_equipment_texture(texture: Texture2D, draw_rect: Rect2, tint: Color, progress: float) -> void:
 	var source_size: Vector2 = texture.get_size()
@@ -2741,7 +2741,7 @@ func _draw_disintegrating_equipment_texture(texture: Texture2D, draw_rect: Rect2
 			slice_tint
 		)
 
-func _draw_missed_equipment_ash(tile: Vector2i, loot_rect: Rect2, loot: Dictionary, progress: float) -> void:
+func _draw_missed_equipment_cinders(tile: Vector2i, loot_rect: Rect2, loot: Dictionary, progress: float) -> void:
 	var center: Vector2 = loot_rect.get_center()
 	var phase: float = _equipment_loot_phase(tile, loot)
 	for index: int in range(24):
@@ -2755,9 +2755,9 @@ func _draw_missed_equipment_ash(tile: Vector2i, loot_rect: Rect2, loot: Dictiona
 		drift.x += sin(particle_progress * 8.0 + angle) * loot_rect.size.x * 0.08
 		var particle_size: float = maxf(3.0, loot_rect.size.x * (0.035 + float(index % 4) * 0.010)) * (1.0 - particle_progress * 0.38)
 		var alpha: float = sin(particle_progress * PI) * (0.72 + float(index % 3) * 0.12)
-		var ash_color: Color = Color("c05b38").lerp(Color("4a3a43"), particle_progress)
-		ash_color.a = alpha
-		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), ash_color)
+		var cinder_color: Color = Color("c05b38").lerp(Color("4a3a43"), particle_progress)
+		cinder_color.a = alpha
+		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), cinder_color)
 
 func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
 	var accent_glow: Color = accent.lightened(0.36)
@@ -5257,13 +5257,13 @@ func _floor_texture_key(tile_id: String) -> String:
 		"ember":
 			return "ember"
 		"door":
-			return "ash"
+			return "stone"
 		"wall":
-			return "ash"
+			return "stone"
 		"pillar":
-			return "ash"
+			return "stone"
 		_:
-			return "ash"
+			return "stone"
 
 func _floor_texture_for_tile(tile_id: String, tile: Vector2i) -> Texture2D:
 	var texture_key: String = _floor_texture_key(tile_id)
@@ -5277,15 +5277,15 @@ func _floor_texture_for_tile(tile_id: String, tile: Vector2i) -> Texture2D:
 
 func _build_floor_variant_lookup(grid: Array) -> Dictionary:
 	var lookup: Dictionary = {}
-	var ash_variants: Array = _floor_texture_variants.get("ash", [])
-	var variant_count: int = ash_variants.size()
+	var stone_variants: Array = _floor_texture_variants.get("stone", [])
+	var variant_count: int = stone_variants.size()
 	if variant_count <= 1:
 		return lookup
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
 	for y: int in range(grid.size()):
 		var row: Array = grid[y]
 		for x: int in range(row.size()):
-			if _floor_texture_key(str(row[x])) != "ash":
+			if _floor_texture_key(str(row[x])) != "stone":
 				continue
 			var tile := Vector2i(x, y)
 			var variant_index: int = _hashed_floor_variant_index(tile, room_coord, variant_count)
@@ -5467,16 +5467,16 @@ func _door_icon_texture(icon_id: String) -> Texture2D:
 	return _door_icon_textures.get(icon_id, null)
 
 func _load_assets(load_full_unit_roster: bool = true) -> void:
-	var ash_floor_variants: Array[Texture2D] = _load_floor_variants(ASH_FLOOR_VARIANT_PATHS)
+	var stone_floor_variants: Array[Texture2D] = _load_floor_variants(STONE_FLOOR_VARIANT_PATHS)
 	var moss_floor_variants: Array[Texture2D] = _load_floor_variants(MOSS_FLOOR_OVERLAY_PATHS)
 	var moss_wall_variants: Array[Texture2D] = _load_floor_variants(MOSS_WALL_OVERLAY_PATHS)
 	var moss_pillar_variants: Array[Texture2D] = _load_floor_variants(MOSS_PILLAR_OVERLAY_PATHS)
 	_tile_textures = {
-		"ash": ash_floor_variants[0] if not ash_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/ash.png"),
+		"stone": stone_floor_variants[0] if not stone_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/stone.png"),
 		"ember": AssetLoader.load_texture("res://assets/art/tiles/ember.png")
 	}
 	_floor_texture_variants = {
-		"ash": ash_floor_variants
+		"stone": stone_floor_variants
 	}
 	_moss_texture_variants = {
 		"floor": moss_floor_variants,
@@ -6715,7 +6715,7 @@ func _support_unit_distance_to_tile(unit: Dictionary, tile: Vector2i) -> int:
 
 func _short_enemy_name(enemy: Dictionary) -> String:
 	var display_name: String = str(enemy.get("name", "Enemy"))
-	for prefix: String in ["Tunnel ", "Ash ", "Bone ", "Lightning ", "Grave "]:
+	for prefix: String in ["Tunnel ", "Dust ", "Stone ", "Bone ", "Lightning ", "Grave "]:
 		if display_name.begins_with(prefix):
 			return display_name.substr(prefix.length())
 	return display_name

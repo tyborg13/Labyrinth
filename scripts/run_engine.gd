@@ -9,6 +9,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const PLANNED_DEPTH_SEQUENCES: int = 6
 const ACTIVE_DEPTH_SEQUENCES: int = 6
@@ -27,7 +28,9 @@ const MERCHANT_ROOM_CANDIDATE_PERCENT: int = 22
 const MERCHANT_ROOM_MIN_DEPTH: int = 2
 const EQUIPMENT_ROOM_DROP_PERCENT: int = 38
 const EQUIPMENT_DROP_PITY_MISSES: int = 2
-const MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear crumbles to ash."
+const MISSED_EQUIPMENT_NOTICE: String = "Unclaimed gear crumbles into dust."
+const SKILL_STATE_KEY: String = "skill_state"
+const RUN_SKILL_EVENT_LIMIT: int = 48
 const MERCHANT_BLACKSMITH: String = "blacksmith"
 const MERCHANT_ARCANIST: String = "arcanist"
 const MERCHANT_SCAVENGER: String = "scavenger"
@@ -63,6 +66,8 @@ const UNREAD_LOADOUT_EQUIPMENT_KEY: String = "unread_loadout_equipment"
 const UNREAD_LOADOUT_MAGIC_KEY: String = "unread_loadout_magic"
 const NEW_LOADOUT_EQUIPMENT_KEY: String = "new_loadout_equipment"
 const NEW_LOADOUT_MAGIC_KEY: String = "new_loadout_magic"
+const RUN_CONTENT_SCHEMA_KEY: String = "run_content_schema"
+const RUN_CONTENT_SCHEMA: int = 2
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
@@ -74,10 +79,11 @@ static func run_result_id(run_state: Dictionary) -> String:
 	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
 
 func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
-	var max_hp: int = BASE_MAX_HP + GameData.vigor_max_hp_bonus(progression) + GameData.stat_bonus_from_upgrades(progression, "max_hp")
-	var hand_size: int = BASE_HAND_SIZE + GameData.stat_bonus_from_upgrades(progression, "hand_size")
-	var heal_bonus: int = GameData.stat_bonus_from_upgrades(progression, "heal_bonus")
-	var starting_embers: int = maxi(0, int(progression.get("embers", 0)))
+	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
+	var max_hp: int = BASE_MAX_HP
+	var hand_size: int = BASE_HAND_SIZE
+	var heal_bonus: int = 0
+	var starting_embers: int = maxi(0, int(normalized_progression.get("embers", 0)))
 	var rooms: Dictionary = {}
 	var start_room: Dictionary = _build_room_metadata(seed, Vector2i.ZERO)
 	start_room["revealed"] = true
@@ -92,7 +98,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 	var equipped_items: Array = []
 	var run_state: Dictionary = {
 		"seed": seed,
-		"run_index": int(progression.get("run_counter", 0)),
+		"run_index": int(normalized_progression.get("run_counter", 0)),
+		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
 		"mode": "room",
 		"current_room": Vector2i.ZERO,
 		"current_room_layout": start_layout,
@@ -126,7 +133,8 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"turns_spent": 0,
 		"run_stats": CombatEngineScript.default_run_stats(),
 		"notice": "",
-		"progression": progression.duplicate(true)
+		SKILL_STATE_KEY: _default_skill_state(),
+		"progression": normalized_progression
 	}
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
 	_reveal_neighbors(run_state, Vector2i.ZERO)
@@ -182,9 +190,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"hand_size": BASE_HAND_SIZE,
 		"cards_per_turn": BASE_CARDS_PER_TURN,
 		"draw_per_turn": BASE_DRAW_PER_TURN,
-		"heal_bonus": 2,
-		"card_upgrades": {},
-		"card_mods": {}
+		"heal_bonus": 2
 	}
 	var combat_state: Dictionary = _combat_engine.create_combat(DEBUG_BOSS_SEED, layout, player_snapshot)
 	var rooms: Dictionary = {}
@@ -192,6 +198,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 	var run_state: Dictionary = {
 		"seed": DEBUG_BOSS_SEED,
 		"run_index": -1,
+		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
 		"mode": "combat",
 		"current_room": DEBUG_BOSS_COORD,
 		"current_room_layout": layout,
@@ -223,21 +230,34 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"turns_spent": 11,
 		"run_stats": CombatEngineScript.default_run_stats(),
 		"notice": "Debug boss fixture",
+		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": progression.duplicate(true),
 		"debug_boss_run": true
 	}
 	return GrimoireLibrary.ensure_run_state(run_state)
 
 func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = run_state.duplicate(true)
+	var next_state: Dictionary = migrate_renamed_content_ids(run_state) if run_content_migration_required(run_state) else run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
 	next_state = GrimoireLibrary.ensure_run_state(next_state)
 	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(next_state.get("run_stats", {}))
+	next_state[SKILL_STATE_KEY] = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	next_state["progression"] = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
+	next_state.erase("stats")
+	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if not repaired_combat_state.is_empty():
+		repaired_combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(next_state.get("progression", {}) as Dictionary)
+		repaired_combat_state.erase("stats")
+		repaired_combat_state.erase("card_upgrades")
+		repaired_combat_state.erase("card_mods")
+		next_state["combat_state"] = _repair_combat_skill_state(repaired_combat_state)
 	if not next_state.has("held_embers"):
 		next_state["held_embers"] = int(next_state.get("unbanked_embers", 0))
 	next_state["unbanked_embers"] = int(next_state.get("held_embers", 0))
 	next_state = _repair_equipment_state(next_state)
+	next_state = _repair_skill_dependent_state(next_state)
 	if not next_state.has("equipment_drop_misses"):
 		next_state["equipment_drop_misses"] = EQUIPMENT_DROP_PITY_MISSES
 	_stage_recovery_marker(next_state)
@@ -248,6 +268,180 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 		_ensure_loop_escape_connection(next_state, current_coord)
 		_sync_current_layout_doors(next_state, current_coord)
 	return next_state
+
+static func run_content_migration_required(run_state: Dictionary) -> bool:
+	return int(run_state.get(RUN_CONTENT_SCHEMA_KEY, 0)) < RUN_CONTENT_SCHEMA
+
+static func migrate_renamed_content_ids(run_state: Dictionary) -> Dictionary:
+	# Serialized runs can hold content ids in loadouts, rewards, combat piles,
+	# merchant stock, analytics context, and nested intent state. Walk the whole
+	# Variant graph so a resumed run cannot retain a retired vocabulary-era id.
+	var neutralizer := RegEx.new()
+	var legacy_prefix: String = _string_from_bytes([97, 115, 104])
+	if neutralizer.compile("(?i)(?<![[:alnum:]])%s[[:alnum:]_-]*" % legacy_prefix) != OK:
+		return run_state.duplicate(true)
+	var replacements: Dictionary = _renamed_content_id_map()
+	var composite_ids: Array = []
+	for id_var: Variant in replacements.keys():
+		var content_id: String = str(id_var)
+		if content_id != legacy_prefix:
+			composite_ids.append(content_id)
+	composite_ids.sort_custom(func(left: String, right: String) -> bool: return left.length() > right.length())
+	var migrated: Variant = _replace_renamed_content_ids(
+		run_state,
+		replacements,
+		composite_ids,
+		neutralizer
+	)
+	return migrated as Dictionary if typeof(migrated) == TYPE_DICTIONARY else {}
+
+static func _renamed_content_id_map() -> Dictionary:
+	return {
+		_string_from_bytes([97, 115, 104, 108, 105, 110, 101, 95, 116, 101, 109, 112, 111]): "cinderline_tempo",
+		_string_from_bytes([97, 115, 104, 119, 101, 97, 118, 101, 95, 103, 117, 97, 114, 100]): "cinderweave_guard",
+		_string_from_bytes([97, 115, 104, 119, 101, 97, 118, 101, 95, 109, 97, 105, 108]): "cinderweave_mail",
+		_string_from_bytes([97, 115, 104, 101, 110, 95, 98, 117, 99, 107, 108, 101, 114]): "iron_buckler",
+		_string_from_bytes([97, 115, 104, 95, 98, 111, 108, 116]): "dust_bolt",
+		_string_from_bytes([97, 115, 104, 102, 97, 108, 108]): "cinderfall",
+		_string_from_bytes([97, 115, 104]): "stone",
+	}
+
+static func _string_from_bytes(values: Array) -> String:
+	var bytes := PackedByteArray()
+	for value: Variant in values:
+		bytes.append(int(value))
+	return bytes.get_string_from_ascii()
+
+static func _replace_renamed_content_ids(value: Variant, replacements: Dictionary, composite_ids: Array, neutralizer: RegEx) -> Variant:
+	match typeof(value):
+		TYPE_STRING, TYPE_STRING_NAME:
+			var text: String = str(value)
+			if replacements.has(text):
+				return str(replacements.get(text, text))
+			for content_id_var: Variant in composite_ids:
+				var content_id: String = str(content_id_var)
+				text = text.replace(content_id, str(replacements.get(content_id, content_id)))
+			return neutralizer.sub(text, "cinder", true)
+		TYPE_DICTIONARY:
+			var source_dictionary: Dictionary = value as Dictionary
+			var migrated_dictionary: Dictionary = source_dictionary.duplicate(false)
+			for key: Variant in source_dictionary.keys():
+				var migrated_key: Variant = _replace_renamed_content_ids(key, replacements, composite_ids, neutralizer)
+				var migrated_value: Variant = _replace_renamed_content_ids(source_dictionary.get(key), replacements, composite_ids, neutralizer)
+				if migrated_key != key:
+					migrated_dictionary.erase(key)
+				migrated_dictionary[migrated_key] = migrated_value
+			return migrated_dictionary
+		TYPE_ARRAY:
+			var migrated_array: Array = (value as Array).duplicate(false)
+			for index: int in range(migrated_array.size()):
+				migrated_array[index] = _replace_renamed_content_ids(migrated_array[index], replacements, composite_ids, neutralizer)
+			return migrated_array
+		TYPE_PACKED_STRING_ARRAY:
+			var migrated_strings: PackedStringArray = value
+			for index: int in range(migrated_strings.size()):
+				migrated_strings[index] = str(_replace_renamed_content_ids(migrated_strings[index], replacements, composite_ids, neutralizer))
+			return migrated_strings
+	return value
+
+static func _default_skill_state() -> Dictionary:
+	return {
+		"used_by_sequence": {},
+		"events": [],
+		"event_revision": 0,
+		"pending_card": "",
+		"pending_relic": "",
+		"reserved_merchant": {},
+		"previous_room": Vector2i.ZERO,
+		"moltshard_awarded": false
+	}
+
+static func _normalized_skill_state(value: Variant) -> Dictionary:
+	var source: Dictionary = value as Dictionary if typeof(value) == TYPE_DICTIONARY else {}
+	var result: Dictionary = _default_skill_state()
+	result["used_by_sequence"] = (source.get("used_by_sequence", {}) as Dictionary).duplicate(true) if typeof(source.get("used_by_sequence", {})) == TYPE_DICTIONARY else {}
+	var events: Array = []
+	var highest_revision: int = maxi(0, int(source.get("event_revision", 0)))
+	if typeof(source.get("events", [])) == TYPE_ARRAY:
+		for event_var: Variant in source.get("events", []):
+			if typeof(event_var) != TYPE_DICTIONARY:
+				continue
+			var event: Dictionary = (event_var as Dictionary).duplicate(true)
+			var revision: int = maxi(0, int(event.get("revision", 0)))
+			if revision <= 0 or str(event.get("skill_id", "")).is_empty():
+				continue
+			event["revision"] = revision
+			events.append(event)
+			highest_revision = maxi(highest_revision, revision)
+	if events.size() > RUN_SKILL_EVENT_LIMIT:
+		events = events.slice(events.size() - RUN_SKILL_EVENT_LIMIT)
+	result["events"] = events
+	result["event_revision"] = highest_revision
+	result["pending_card"] = str(source.get("pending_card", ""))
+	result["pending_relic"] = str(source.get("pending_relic", ""))
+	result["reserved_merchant"] = (source.get("reserved_merchant", {}) as Dictionary).duplicate(true) if typeof(source.get("reserved_merchant", {})) == TYPE_DICTIONARY else {}
+	var previous_room_value: Variant = source.get("previous_room", Vector2i.ZERO)
+	result["previous_room"] = previous_room_value if typeof(previous_room_value) == TYPE_VECTOR2I else Vector2i.ZERO
+	result["moltshard_awarded"] = bool(source.get("moltshard_awarded", false))
+	return result
+
+func run_skill_ids(run_state: Dictionary) -> Array[String]:
+	return SkillTreeLibrary.normalized_ids((run_state.get("progression", {}) as Dictionary).get("skill_ids", []))
+
+func has_run_skill(run_state: Dictionary, skill_id: String) -> bool:
+	return run_skill_ids(run_state).has(skill_id)
+
+func _sequence_index_for_run_state(run_state: Dictionary) -> int:
+	var room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
+	var depth: int = maxi(1, int(room.get("depth", _room_depth(run_state.get("current_room", Vector2i.ZERO)))))
+	return maxi(0, int((depth - 1) / DEPTHS_PER_SEQUENCE))
+
+func _skill_sequence_key(run_state: Dictionary, skill_id: String) -> String:
+	return "%d:%s" % [_sequence_index_for_run_state(run_state), skill_id]
+
+func run_skill_used_this_sequence(run_state: Dictionary, skill_id: String) -> bool:
+	var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+	return bool((skill_state.get("used_by_sequence", {}) as Dictionary).get(_skill_sequence_key(run_state, skill_id), false))
+
+func _mark_run_skill_used(run_state: Dictionary, skill_id: String, message: String = "") -> void:
+	var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+	var used: Dictionary = (skill_state.get("used_by_sequence", {}) as Dictionary).duplicate(true)
+	var sequence_key: String = _skill_sequence_key(run_state, skill_id)
+	if bool(used.get(sequence_key, false)):
+		run_state[SKILL_STATE_KEY] = skill_state
+		return
+	used[sequence_key] = true
+	skill_state["used_by_sequence"] = used
+	var revision: int = int(skill_state.get("event_revision", 0)) + 1
+	var events: Array = (skill_state.get("events", []) as Array).duplicate(true)
+	events.append({
+		"revision": revision,
+		"skill_id": skill_id,
+		"message": message if not message.is_empty() else "%s takes effect." % SkillTreeLibrary.display_name(skill_id)
+	})
+	if events.size() > RUN_SKILL_EVENT_LIMIT:
+		events = events.slice(events.size() - RUN_SKILL_EVENT_LIMIT)
+	skill_state["events"] = events
+	skill_state["event_revision"] = revision
+	run_state[SKILL_STATE_KEY] = skill_state
+
+func run_skill_events(run_state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+	for event_var: Variant in skill_state.get("events", []):
+		if typeof(event_var) == TYPE_DICTIONARY:
+			result.append((event_var as Dictionary).duplicate(true))
+	return result
+
+func run_skill_event_revision(run_state: Dictionary) -> int:
+	return int(_normalized_skill_state(run_state.get(SKILL_STATE_KEY, {})).get("event_revision", 0))
+
+func run_skill_is_ready(run_state: Dictionary, skill_id: String) -> bool:
+	if skill_id == "layaway":
+		var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+		if not (skill_state.get("reserved_merchant", {}) as Dictionary).is_empty():
+			return false
+	return has_run_skill(run_state, skill_id) and not run_skill_used_this_sequence(run_state, skill_id)
 
 func available_moves(run_state: Dictionary) -> Array[Vector2i]:
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
@@ -298,6 +492,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	var move_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	move_skill_state["previous_room"] = current
+	next_state[SKILL_STATE_KEY] = move_skill_state
 	_clear_pre_battle_state(next_state)
 	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
 	var destination_key: String = _room_key(destination)
@@ -325,6 +522,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 		room = _merchant_room_with_stock(next_state, room, merchant_kind)
 		rooms[destination_key] = room
 		next_state["rooms"] = rooms
+		next_state = _inject_reserved_merchant_offer(next_state, destination, merchant_kind)
+		rooms = next_state.get("rooms", {}).duplicate(true)
+		room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
 	next_state["current_room_layout"] = _display_layout_for_room(int(next_state.get("seed", 0)), room, travel_dir)
 	_stage_recovery_marker(next_state)
@@ -347,6 +547,13 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 				rooms[destination_key] = room
 				next_state["rooms"] = rooms
 				var relic_choices: Array[String] = _generate_relic_choices(next_state, destination)
+				var pending_relic: String = str((_normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))).get("pending_relic", ""))
+				if not pending_relic.is_empty():
+					if not (next_state.get("relics", []) as Array).has(pending_relic) and not GameData.relic_def(pending_relic).is_empty():
+						relic_choices = _offer_with_deferred_id(relic_choices, pending_relic)
+					var relic_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+					relic_skill_state["pending_relic"] = ""
+					next_state[SKILL_STATE_KEY] = relic_skill_state
 				next_state["pending_relics"] = relic_choices
 				next_state["mode"] = "treasure" if not relic_choices.is_empty() else "room"
 			next_state["combat_state"] = {}
@@ -381,6 +588,9 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	var move_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	move_skill_state["previous_room"] = current
+	next_state[SKILL_STATE_KEY] = move_skill_state
 	_clear_pre_battle_state(next_state)
 	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
 	var destination_key: String = _room_key(destination)
@@ -433,6 +643,51 @@ func pre_battle_preview_state(run_state: Dictionary) -> Dictionary:
 	next_state["mode"] = "combat"
 	return next_state
 
+func pre_battle_start_tiles(run_state: Dictionary) -> Array[Vector2i]:
+	var choices: Array[Vector2i]
+	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE or not has_run_skill(run_state, "true_bearing"):
+		return choices
+	var room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
+	if not _room_blocks_exit_reveal(room):
+		return choices
+	var travel_dir: Vector2i = run_state.get("pre_battle_travel_dir", Vector2i.ZERO)
+	var preview_state: Dictionary = run_state.duplicate(true)
+	preview_state.erase("pre_battle_start")
+	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, preview_state)
+	var grid: Array = layout.get("grid", [])
+	var authored_start: Vector2i = layout.get("player_start", Vector2i(-1, -1))
+	if authored_start.x < 0:
+		return choices
+	var occupied: Dictionary = _layout_occupied_tiles(layout)
+	occupied.erase(authored_start)
+	var max_range: int = maxi(0, int(SkillTreeLibrary.effect("true_bearing").get("range", 2)))
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		for x: int in range(row.size()):
+			var tile := Vector2i(x, y)
+			if absi(tile.x - authored_start.x) + absi(tile.y - authored_start.y) > max_range:
+				continue
+			if occupied.has(tile) or not PathUtils.is_passable(grid, tile):
+				continue
+			choices.append(tile)
+	choices.sort_custom(func(left: Vector2i, right: Vector2i) -> bool:
+		var left_distance: int = absi(left.x - authored_start.x) + absi(left.y - authored_start.y)
+		var right_distance: int = absi(right.x - authored_start.x) + absi(right.y - authored_start.y)
+		if left_distance != right_distance:
+			return left_distance < right_distance
+		if left.y != right.y:
+			return left.y < right.y
+		return left.x < right.x
+	)
+	return choices
+
+func set_pre_battle_start(run_state: Dictionary, tile: Vector2i) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if not pre_battle_start_tiles(next_state).has(tile):
+		return next_state
+	next_state["pre_battle_start"] = tile
+	return next_state
+
 func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
 	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE:
 		return run_state.duplicate(true)
@@ -464,12 +719,29 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
 	if outcome == "victory":
 		resolved_combat_state = _combat_engine.resolve_missed_equipment_after_victory(resolved_combat_state)
+	var salvaged_equipment_id: String = ""
+	if outcome == "victory" and run_skill_is_ready(run_state, "salvager"):
+		var missed_before_salvage: Array = resolved_combat_state.get("missed_equipment", []).duplicate()
+		if not missed_before_salvage.is_empty():
+			salvaged_equipment_id = str(missed_before_salvage[0])
+			missed_before_salvage.remove_at(0)
+			resolved_combat_state["missed_equipment"] = missed_before_salvage
+			var collected_after_salvage: Array = resolved_combat_state.get("collected_equipment", []).duplicate()
+			if not salvaged_equipment_id.is_empty() and not collected_after_salvage.has(salvaged_equipment_id):
+				collected_after_salvage.append(salvaged_equipment_id)
+			resolved_combat_state["collected_equipment"] = collected_after_salvage
+			resolved_combat_state = _mark_salvaged_loot_resolution(resolved_combat_state, salvaged_equipment_id)
 	var missed_equipment: Array = resolved_combat_state.get("missed_equipment", []) as Array
 	var next_state: Dictionary = set_combat_state(run_state, resolved_combat_state)
+	if not salvaged_equipment_id.is_empty():
+		var salvaged_name: String = str(GameData.equipment_def(salvaged_equipment_id).get("name", salvaged_equipment_id))
+		_mark_run_skill_used(next_state, "salvager", "Salvager recovers %s before it is lost." % salvaged_name)
 	next_state["current_room_layout"] = _room_layout_from_combat_state(resolved_combat_state)
 	next_state["combat_state"] = {}
 	next_state["player_hp"] = int((resolved_combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	if outcome == "defeat":
+		if _can_last_door_retreat(next_state):
+			return _retreat_through_last_door(next_state)
 		next_state["mode"] = "defeat"
 		next_state["game_over"] = true
 		return next_state
@@ -491,27 +763,124 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
 	next_state = add_held_embers(next_state, total_embers)
 	if str(room.get("type", "")) == "boss":
+		var boss_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+		var awarded_moltshard: bool = false
+		if not bool(boss_skill_state.get("moltshard_awarded", false)):
+			var progression_before_award: Dictionary = next_state.get("progression", {}) as Dictionary
+			var award_id: String = "%s:first_boss_moltshard" % run_result_id(next_state)
+			var progression_after_award: Dictionary = ProgressionStore.add_moltshard_for_award(progression_before_award, award_id)
+			awarded_moltshard = ProgressionStore.moltshard_count(progression_after_award) > ProgressionStore.moltshard_count(progression_before_award)
+			next_state["progression"] = progression_after_award
+			boss_skill_state["moltshard_awarded"] = true
+			next_state[SKILL_STATE_KEY] = boss_skill_state
 		next_state["player_hp"] = int(next_state.get("player_max_hp", next_state.get("player_hp", 1)))
 		next_state = add_held_embers(next_state, BOSS_VICTORY_EMBERS)
 		next_state["pending_reward"] = {}
 		if _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)):
 			next_state["victory"] = true
 			next_state["mode"] = "victory"
+			if awarded_moltshard:
+				next_state["notice"] = "Moltshard acquired."
 		else:
 			next_state["victory"] = false
 			next_state["mode"] = "room"
-			next_state["notice"] = "The labyrinth opens outward."
+			next_state["notice"] = (
+				"Moltshard acquired. The labyrinth opens outward."
+				if awarded_moltshard
+				else "The labyrinth opens outward."
+			)
 		if not missed_equipment.is_empty():
-			next_state["notice"] = MISSED_EQUIPMENT_NOTICE
+			var boss_notice: String = str(next_state.get("notice", ""))
+			next_state["notice"] = "%s\n%s" % [boss_notice, MISSED_EQUIPMENT_NOTICE] if not boss_notice.is_empty() else MISSED_EQUIPMENT_NOTICE
 		return next_state
+	var reward_cards: Array[String] = _generate_card_rewards(next_state, current_room)
+	var reward_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	var pending_card: String = str(reward_skill_state.get("pending_card", ""))
+	if not pending_card.is_empty():
+		if not GameData.card_def(pending_card).is_empty():
+			reward_cards = _offer_with_deferred_id(reward_cards, pending_card)
+		reward_skill_state["pending_card"] = ""
+		next_state[SKILL_STATE_KEY] = reward_skill_state
 	next_state["pending_reward"] = {
-		"cards": _generate_card_rewards(next_state, current_room),
+		"cards": reward_cards,
 		"heal_amount": REWARD_HEAL + int(next_state.get("heal_bonus", 0)),
 		"ember_amount": total_embers
 	}
 	next_state["mode"] = "reward"
 	if not missed_equipment.is_empty():
 		next_state["notice"] = MISSED_EQUIPMENT_NOTICE
+	return next_state
+
+func _mark_salvaged_loot_resolution(combat_state: Dictionary, equipment_id: String) -> Dictionary:
+	var next_state: Dictionary = combat_state.duplicate(true)
+	if equipment_id.is_empty():
+		return next_state
+	var loot_entries: Array = next_state.get("loot", []).duplicate(true)
+	for index: int in range(loot_entries.size()):
+		if typeof(loot_entries[index]) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = (loot_entries[index] as Dictionary).duplicate(true)
+		if str(loot.get("equipment_id", "")) != equipment_id:
+			continue
+		loot["claimed"] = true
+		loot["resolution"] = "salvaged"
+		loot_entries[index] = loot
+		break
+	next_state["loot"] = loot_entries
+	return next_state
+
+func _can_last_door_retreat(run_state: Dictionary) -> bool:
+	if not run_skill_is_ready(run_state, "last_door"):
+		return false
+	var current_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var current_room: Dictionary = room_metadata(run_state, current_coord)
+	if str(current_room.get("type", "combat")) == "boss":
+		return false
+	var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
+	var previous_coord: Variant = skill_state.get("previous_room", null)
+	if typeof(previous_coord) != TYPE_VECTOR2I or previous_coord == current_coord:
+		return false
+	return not _connection_to_room(current_room, previous_coord as Vector2i).is_empty()
+
+func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var current_room: Dictionary = room_metadata(next_state, current_coord)
+	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	var previous_coord: Vector2i = skill_state.get("previous_room", Vector2i.ZERO)
+	var return_connection: Dictionary = _connection_to_room(current_room, previous_coord)
+	if return_connection.is_empty():
+		return next_state
+	_mark_run_skill_used(next_state, "last_door", "Last Door returns you to the previous chamber at 1 health.")
+	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
+	current_room["cleared"] = false
+	current_room["sealed"] = false
+	rooms[_room_key(current_coord)] = current_room
+	var previous_room: Dictionary = _merge_room_metadata(
+		int(next_state.get("seed", 0)),
+		previous_coord,
+		rooms.get(_room_key(previous_coord), {}) as Dictionary
+	)
+	previous_room["revealed"] = true
+	previous_room["visited"] = true
+	previous_room["sealed"] = false
+	rooms[_room_key(previous_coord)] = previous_room
+	next_state["rooms"] = rooms
+	next_state["current_room"] = previous_coord
+	next_state["current_room_layout"] = _display_layout_for_room(
+		int(next_state.get("seed", 0)),
+		previous_room,
+		return_connection.get("door_dir", Vector2i.ZERO)
+	)
+	next_state["player_hp"] = GameData.fixed_point_amount(1)
+	next_state["combat_state"] = {}
+	next_state["pending_reward"] = {}
+	next_state["mode"] = "room"
+	next_state["game_over"] = false
+	next_state["victory"] = false
+	next_state["notice"] = "Last Door returns you to the previous chamber at 1 health."
+	_reveal_neighbors(next_state, previous_coord)
+	_sync_current_layout_doors(next_state, previous_coord)
 	return next_state
 
 func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
@@ -539,14 +908,21 @@ func can_change_magic(run_state: Dictionary) -> bool:
 func can_change_items(run_state: Dictionary) -> bool:
 	return can_change_equipment(run_state)
 
-func equip_equipment(run_state: Dictionary, equipment_id: String) -> Dictionary:
+func equip_equipment(run_state: Dictionary, equipment_id: String, target_slot: String = "") -> Dictionary:
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not can_change_equipment(next_state):
 		return next_state
-	var slot: String = GameData.equipment_slot(equipment_id)
-	if slot.is_empty() or not _run_has_equipment(next_state, equipment_id):
+	var native_slot: String = GameData.equipment_slot(equipment_id)
+	var slot: String = native_slot if target_slot.is_empty() else target_slot
+	var wild_trinket_equip: bool = slot == "trinket" and native_slot != "trinket"
+	if native_slot.is_empty() or not GameData.equipment_slots().has(slot) or not _run_has_equipment(next_state, equipment_id):
+		return next_state
+	if slot != native_slot and (not wild_trinket_equip or not has_run_skill(next_state, "open_arsenal")):
 		return next_state
 	var equipped: Dictionary = (next_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	for equipped_slot: String in GameData.equipment_slots():
+		if str(equipped.get(equipped_slot, "")) == equipment_id:
+			return next_state
 	var current_id: String = str(equipped.get(slot, ""))
 	if current_id == equipment_id:
 		return next_state
@@ -819,19 +1195,75 @@ func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: S
 	next_state = add_held_embers(next_state, value)
 	return next_state
 
-func skip_reward_for_heal(run_state: Dictionary) -> Dictionary:
+func reserve_merchant_offer(run_state: Dictionary, item_id: String) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
-	var heal_amount: int = int((next_state.get("pending_reward", {}) as Dictionary).get("heal_amount", 0))
+	var merchant_kind: String = merchant_kind_for_current_room(next_state)
+	if merchant_kind.is_empty() or not _can_trade_at_merchant(next_state, merchant_kind):
+		return next_state
+	if not run_skill_is_ready(next_state, "layaway") or item_id.is_empty():
+		return next_state
+	next_state = _ensure_merchant_room_stock(next_state, merchant_kind)
+	if not merchant_offer_ids(next_state, merchant_kind).has(item_id):
+		return next_state
+	var coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = room_metadata(next_state, coord)
+	var stock: Array = _merchant_room_stock(room)
+	if not stock.has(item_id):
+		return next_state
+	stock.erase(item_id)
+	room[MERCHANT_STOCK_KEY] = stock
+	next_state = _store_room_metadata(next_state, coord, room)
+	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	skill_state["reserved_merchant"] = {
+		"kind": merchant_kind,
+		"item_id": item_id,
+		"origin_coord": coord
+	}
+	next_state[SKILL_STATE_KEY] = skill_state
+	_mark_run_skill_used(next_state, "layaway", "Layaway holds %s for the next visit." % _merchant_item_name(merchant_kind, item_id))
+	next_state["notice"] = "%s is held for the next visit." % _merchant_item_name(merchant_kind, item_id)
+	return next_state
+
+func reroll_card_reward(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if str(next_state.get("mode", "room")) != "reward" or not run_skill_is_ready(next_state, "discerning_eye"):
+		return next_state
+	var pending_reward: Dictionary = (next_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	var previous_cards: Array[String] = _string_array_typed(pending_reward.get("cards", []))
+	if previous_cards.is_empty():
+		return next_state
+	var current_room: Vector2i = next_state.get("current_room", Vector2i.ZERO)
+	var replacement_cards: Array[String] = _generate_card_rewards(next_state, current_room, 1991, previous_cards)
+	if replacement_cards.is_empty():
+		return next_state
+	pending_reward["cards"] = replacement_cards
+	next_state["pending_reward"] = pending_reward
+	_mark_run_skill_used(next_state, "discerning_eye", "Discerning Eye replaces the offered card reward.")
+	next_state["notice"] = "The reward shifts into a new set of choices."
+	return next_state
+
+func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var pending_reward: Dictionary = next_state.get("pending_reward", {}) as Dictionary
+	var offered_cards: Array = pending_reward.get("cards", []) as Array
+	if has_run_skill(next_state, "deferred_choice") and not deferred_card_id.is_empty() and offered_cards.has(deferred_card_id):
+		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+		skill_state["pending_card"] = deferred_card_id
+		next_state[SKILL_STATE_KEY] = skill_state
+	var heal_amount: int = int(pending_reward.get("heal_amount", 0))
 	next_state["player_hp"] = mini(int(next_state.get("player_max_hp", 1)), int(next_state.get("player_hp", 0)) + heal_amount)
 	next_state["pending_reward"] = {}
 	next_state["mode"] = "room"
 	return next_state
 
-func claim_relic(run_state: Dictionary, relic_id: String) -> Dictionary:
+func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: String = "") -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	var offered_relics: Array = next_state.get("pending_relics", []) as Array
 	if relic_id.is_empty():
 		next_state["pending_relics"] = []
 		next_state["mode"] = "room"
+		return next_state
+	if not offered_relics.has(relic_id):
 		return next_state
 	var relics: Array = next_state.get("relics", []).duplicate()
 	if not relics.has(relic_id):
@@ -841,6 +1273,10 @@ func claim_relic(run_state: Dictionary, relic_id: String) -> Dictionary:
 	if bonus != 0:
 		next_state["player_max_hp"] = int(next_state.get("player_max_hp", 1)) + bonus
 		next_state["player_hp"] = int(next_state.get("player_hp", 1)) + bonus
+	if has_run_skill(next_state, "curators_patience") and deferred_relic_id != relic_id and offered_relics.has(deferred_relic_id) and not relics.has(deferred_relic_id):
+		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+		skill_state["pending_relic"] = deferred_relic_id
+		next_state[SKILL_STATE_KEY] = skill_state
 	next_state["pending_relics"] = []
 	next_state["mode"] = "room"
 	return next_state
@@ -872,17 +1308,53 @@ func spend_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
 func clear_held_embers(run_state: Dictionary) -> Dictionary:
 	return set_held_embers(run_state, 0)
 
-func apply_progression_update(run_state: Dictionary, progression: Dictionary) -> Dictionary:
+func apply_progression_update(run_state: Dictionary, progression: Dictionary, preserve_held_embers: bool = true) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
-	var previous_progression: Dictionary = (next_state.get("progression", {}) as Dictionary).duplicate(true)
-	var old_vigor_bonus: int = GameData.vigor_max_hp_bonus(previous_progression)
-	var new_vigor_bonus: int = GameData.vigor_max_hp_bonus(progression)
-	var hp_delta: int = new_vigor_bonus - old_vigor_bonus
-	if hp_delta != 0:
-		next_state["player_max_hp"] = maxi(1, int(next_state.get("player_max_hp", 1)) + hp_delta)
-		next_state["player_hp"] = clampi(int(next_state.get("player_hp", 1)) + hp_delta, 1, int(next_state.get("player_max_hp", 1)))
-	next_state["progression"] = progression.duplicate(true)
-	next_state = set_held_embers(next_state, int(progression.get("embers", held_embers(next_state))))
+	var held_before: int = held_embers(next_state)
+	var previous_skills: Array[String] = run_skill_ids(next_state)
+	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
+	next_state["progression"] = normalized_progression
+	var held_after: int = held_before if preserve_held_embers else int(normalized_progression.get("embers", held_before))
+	next_state = set_held_embers(next_state, held_after)
+	next_state = _clear_removed_skill_pending(next_state, previous_skills, run_skill_ids(next_state))
+	next_state = _repair_skill_dependent_state(next_state)
+	var combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	if not combat_state.is_empty():
+		combat_state["skill_ids"] = run_skill_ids(next_state)
+		next_state["combat_state"] = _repair_combat_skill_state(combat_state)
+	return next_state
+
+func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = combat_state.duplicate(true)
+	var combat_skills: Array[String] = SkillTreeLibrary.normalized_ids(next_state.get("skill_ids", []))
+	next_state["skill_ids"] = combat_skills
+	var flags: Dictionary = (next_state.get("skill_flags", {}) as Dictionary).duplicate(true)
+	if not combat_skills.has("prismatic_instinct"):
+		flags.erase("prismatic_armed")
+		flags.erase("prismatic_target_card_id")
+	flags.erase("prismatic_resolving")
+	if not combat_skills.has("rehearsed_escape"):
+		flags.erase("burn_preserve_armed")
+	if not combat_skills.has("makeshift_tool"):
+		flags.erase("item_preserve_armed")
+	if not combat_skills.has("pain_remembers"):
+		flags.erase("pain_recall_primed")
+	if not combat_skills.has("measured_breath"):
+		next_state["banked_plays"] = 0
+		next_state["banked_play_active"] = 0
+	next_state["skill_flags"] = flags
+	return next_state
+
+func reconcile_progression_revision(run_state: Dictionary, profile_progression: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var embedded: Dictionary = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
+	var profile: Dictionary = ProgressionStore.normalized_data(profile_progression)
+	if int(profile.get("progression_revision", 0)) > int(embedded.get("progression_revision", 0)):
+		var level_advanced: bool = int(profile.get("level", 1)) > int(embedded.get("level", 1))
+		next_state = apply_progression_update(next_state, profile, not level_advanced)
+	else:
+		next_state["progression"] = embedded
+		next_state = _repair_skill_dependent_state(next_state)
 	return next_state
 
 func room_neighbors_with_metadata(run_state: Dictionary) -> Array[Dictionary]:
@@ -945,6 +1417,53 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 		next_state["reward_cards"] = _migrated_reward_cards_from_deck(next_state.get("deck_cards", []), equipped)
 	next_state = _repair_magic_state(next_state)
 	next_state = _repair_item_state(next_state)
+	return _rebuild_deck_cards(next_state)
+
+func _clear_removed_skill_pending(run_state: Dictionary, previous_skills: Array[String], _current_skills: Array[String]) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if previous_skills.has("true_bearing") and not _current_skills.has("true_bearing"):
+		next_state.erase("pre_battle_start")
+	return next_state
+
+func _repair_skill_dependent_state(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	if not str(skill_state.get("pending_card", "")).is_empty() and GameData.card_def(str(skill_state.get("pending_card", ""))).is_empty():
+		skill_state["pending_card"] = ""
+	if not str(skill_state.get("pending_relic", "")).is_empty() and GameData.relic_def(str(skill_state.get("pending_relic", ""))).is_empty():
+		skill_state["pending_relic"] = ""
+	var reservation: Dictionary = skill_state.get("reserved_merchant", {}) as Dictionary
+	if not reservation.is_empty() and not _merchant_item_is_valid(str(reservation.get("kind", "")), str(reservation.get("item_id", ""))):
+		skill_state["reserved_merchant"] = {}
+	next_state[SKILL_STATE_KEY] = skill_state
+	if not has_run_skill(next_state, "true_bearing"):
+		next_state.erase("pre_battle_start")
+	if not has_run_skill(next_state, "open_arsenal"):
+		next_state = _stow_invalid_wild_trinket(next_state)
+	return next_state
+
+func _stow_invalid_wild_trinket(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var equipped: Dictionary = (next_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
+	var current_trinket: String = str(equipped.get("trinket", ""))
+	if current_trinket.is_empty() or GameData.equipment_slot(current_trinket) == "trinket":
+		return next_state
+	var inventory: Array = next_state.get("equipment_inventory", []).duplicate()
+	if not inventory.has(current_trinket):
+		inventory.append(current_trinket)
+	var replacement: String = ""
+	for candidate_var: Variant in inventory:
+		var candidate: String = str(candidate_var)
+		if GameData.equipment_slot(candidate) == "trinket":
+			replacement = candidate
+			break
+	if replacement.is_empty():
+		replacement = str(GameData.starting_equipped_equipment().get("trinket", ""))
+	if not replacement.is_empty():
+		inventory.erase(replacement)
+		equipped["trinket"] = replacement
+	next_state["equipment_inventory"] = inventory
+	next_state["equipped_equipment"] = equipped
 	return _rebuild_deck_cards(next_state)
 
 func _repair_magic_state(run_state: Dictionary) -> Dictionary:
@@ -1028,6 +1547,12 @@ func _string_array(values: Variant) -> Array:
 			result.append(value)
 	return result
 
+func _string_array_typed(values: Variant) -> Array[String]:
+	var result: Array[String]
+	for value_var: Variant in _string_array(values):
+		result.append(str(value_var))
+	return result
+
 func _migrated_reward_cards_from_deck(deck_cards: Array, equipped: Dictionary) -> Array:
 	var equipment_counts: Dictionary = {}
 	for card_id: String in GameData.compile_deck_cards(equipped, []):
@@ -1067,9 +1592,7 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"hp": int(run_state.get("player_hp", 1)),
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
-		"card_upgrades": ((run_state.get("progression", {}) as Dictionary).get("card_upgrades", {}) as Dictionary).duplicate(true),
-		"card_mods": ((run_state.get("progression", {}) as Dictionary).get("card_mods", {}) as Dictionary).duplicate(true),
-		"stats": ((run_state.get("progression", {}) as Dictionary).get("stats", {}) as Dictionary).duplicate(true),
+		"skill_ids": ((run_state.get("progression", {}) as Dictionary).get("skill_ids", []) as Array).duplicate(),
 		"level": int((run_state.get("progression", {}) as Dictionary).get("level", 1)),
 		"relics": run_state.get("relics", []).duplicate(),
 		"hand_size": int(run_state.get("hand_size", BASE_HAND_SIZE)),
@@ -1120,7 +1643,21 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 	if not equipment_drop.is_empty():
 		layout_room["equipment_drop"] = equipment_drop
 	var layout: Dictionary = _room_generator.generate_room(int(run_state.get("seed", 0)), layout_room, travel_dir)
-	return _layout_with_recovery_loot(layout, room, run_state)
+	layout = _layout_with_recovery_loot(layout, room, run_state)
+	if has_run_skill(run_state, "true_bearing") and typeof(run_state.get("pre_battle_start", null)) == TYPE_VECTOR2I:
+		var chosen_start: Vector2i = run_state.get("pre_battle_start", Vector2i(-1, -1))
+		if _layout_accepts_pre_battle_start(layout, chosen_start):
+			layout["player_start"] = chosen_start
+	return layout
+
+func _layout_accepts_pre_battle_start(layout: Dictionary, tile: Vector2i) -> bool:
+	var authored_start: Vector2i = layout.get("player_start", Vector2i(-1, -1))
+	var max_range: int = maxi(0, int(SkillTreeLibrary.effect("true_bearing").get("range", 2)))
+	if authored_start.x < 0 or absi(tile.x - authored_start.x) + absi(tile.y - authored_start.y) > max_range:
+		return false
+	var occupied: Dictionary = _layout_occupied_tiles(layout)
+	occupied.erase(authored_start)
+	return not occupied.has(tile) and PathUtils.is_passable(layout.get("grid", []), tile)
 
 func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 	return {
@@ -1283,17 +1820,32 @@ func _merchant_kind_for_room_type(room_type: String) -> String:
 		return room_type
 	return ""
 
-func _generate_card_rewards(run_state: Dictionary, coord: Vector2i) -> Array[String]:
+func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 991, excluded_cards: Array = []) -> Array[String]:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, 991)
+	rng.seed = _coord_hash(int(run_state.get("seed", 0)), coord, salt)
 	var choices: Array[String] = []
+	var excluded: Array[String] = _string_array_typed(excluded_cards)
 	var room: Dictionary = room_metadata(run_state, coord)
 	var room_element: String = str(room.get("element", ElementData.NONE))
 	if ElementData.is_elemental(room_element):
-		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, choices))
-	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, choices))
+		var blocked_elemental: Array[String] = excluded.duplicate()
+		blocked_elemental.append_array(choices)
+		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, blocked_elemental))
+	var blocked_general: Array[String] = excluded.duplicate()
+	blocked_general.append_array(choices)
+	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general))
 	if choices.size() < 3:
 		choices.append_array(_draw_reward_cards_for_element(rng, "", 3 - choices.size(), choices))
+	return choices
+
+func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array[String]:
+	var choices: Array[String] = _string_array_typed(choices_value)
+	if deferred_id.is_empty() or choices.has(deferred_id):
+		return choices
+	if choices.size() >= 3:
+		choices[choices.size() - 1] = deferred_id
+	else:
+		choices.append(deferred_id)
 	return choices
 
 func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String]) -> Array[String]:
@@ -1437,6 +1989,43 @@ func _merchant_room_with_stock(run_state: Dictionary, room: Dictionary, merchant
 	if not stocked_room.has(MERCHANT_REFILL_COUNT_KEY):
 		stocked_room[MERCHANT_REFILL_COUNT_KEY] = 0
 	return stocked_room
+
+func _inject_reserved_merchant_offer(run_state: Dictionary, coord: Vector2i, merchant_kind: String) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
+	var reservation: Dictionary = skill_state.get("reserved_merchant", {}) as Dictionary
+	var reserved_kind: String = str(reservation.get("kind", ""))
+	var item_id: String = str(reservation.get("item_id", ""))
+	var origin_coord: Variant = reservation.get("origin_coord", Vector2i(-999, -999))
+	if reserved_kind != merchant_kind or item_id.is_empty() or origin_coord == coord or not _merchant_item_is_valid(merchant_kind, item_id):
+		return next_state
+	var room: Dictionary = room_metadata(next_state, coord)
+	var stock: Array = _merchant_room_stock(room)
+	stock.erase(item_id)
+	while stock.size() >= MERCHANT_OFFER_COUNT:
+		stock.pop_back()
+	stock.push_front(item_id)
+	room[MERCHANT_STOCK_KEY] = stock
+	next_state = _store_room_metadata(next_state, coord, room)
+	skill_state["reserved_merchant"] = {}
+	next_state[SKILL_STATE_KEY] = skill_state
+	next_state["notice"] = "%s returns from layaway." % _merchant_item_name(merchant_kind, item_id)
+	return next_state
+
+func _merchant_item_is_valid(merchant_kind: String, item_id: String) -> bool:
+	match merchant_kind:
+		MERCHANT_BLACKSMITH:
+			return not GameData.equipment_def(item_id).is_empty()
+		MERCHANT_ARCANIST:
+			return not GameData.card_def(item_id).is_empty() and not GameData.card_is_item(item_id)
+		MERCHANT_SCAVENGER:
+			return GameData.card_is_item(item_id)
+	return false
+
+func _merchant_item_name(merchant_kind: String, item_id: String) -> String:
+	if merchant_kind == MERCHANT_BLACKSMITH:
+		return str(GameData.equipment_def(item_id).get("name", item_id))
+	return str(GameData.card_def(item_id).get("name", item_id))
 
 func _ensure_merchant_room_stock(run_state: Dictionary, merchant_kind: String) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -1852,6 +2441,7 @@ func _room_has_npcs(room: Dictionary) -> bool:
 func _clear_pre_battle_state(run_state: Dictionary) -> void:
 	run_state.erase("pre_battle_pending")
 	run_state.erase("pre_battle_travel_dir")
+	run_state.erase("pre_battle_start")
 
 func _room_blocks_exit_reveal(room: Dictionary) -> bool:
 	var room_type: String = str(room.get("type", "combat"))

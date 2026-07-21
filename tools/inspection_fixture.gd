@@ -6,6 +6,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
@@ -78,6 +79,8 @@ func _parse_args() -> Dictionary:
 		"embers": 0,
 		"held_embers": -1,
 		"level": 1,
+		"skills": "",
+		"moltshards": 0,
 		"player_hp": -1,
 		"player_max_hp": -1,
 		"player_position": "",
@@ -95,7 +98,6 @@ func _parse_args() -> Dictionary:
 		"item_inventory": "",
 		"equipped_items": "",
 		"equip": "",
-		"stats": "",
 		"room_coord": "",
 		"min_enemies": 0,
 		"enemy_types": "",
@@ -132,6 +134,12 @@ func _parse_args() -> Dictionary:
 			"--level":
 				index += 1
 				parsed["level"] = int(_required_arg(args, index, arg))
+			"--skills":
+				index += 1
+				parsed["skills"] = _required_arg(args, index, arg)
+			"--moltshards":
+				index += 1
+				parsed["moltshards"] = int(_required_arg(args, index, arg))
 			"--player-hp":
 				index += 1
 				parsed["player_hp"] = int(_required_arg(args, index, arg))
@@ -183,9 +191,6 @@ func _parse_args() -> Dictionary:
 			"--equip":
 				index += 1
 				parsed["equip"] = _required_arg(args, index, arg)
-			"--stats":
-				index += 1
-				parsed["stats"] = _required_arg(args, index, arg)
 			"--room-coord":
 				index += 1
 				parsed["room_coord"] = _required_arg(args, index, arg)
@@ -240,7 +245,8 @@ func _print_help() -> void:
 	print("Common options:")
 	print("  --seed N")
 	print("  --umbra-warning (start with the one-time Emaciated Man Umbra warning due)")
-	print("  --embers N --held-embers N --level N --stats might=2,vigor=1")
+	print("  --embers N --held-embers N --level N --skills id_a,id_b --moltshards N")
+	print("    --skills must contain exactly level - 1 ids that form a legal tree selection.")
 	print("  --player-hp N --player-max-hp N (fixed-point: 360 = 36 HP) --player-position 2:4 --relics ember_lens,pilgrim_boots")
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
@@ -263,22 +269,24 @@ func _build_progression() -> Dictionary:
 	var progression: Dictionary = ProgressionStore.default_data()
 	progression["embers"] = maxi(0, int(_options.get("embers", 0)))
 	progression["level"] = clampi(int(_options.get("level", 1)), 1, GameData.max_progression_level())
-	var stats: Dictionary = GameData.normalized_progression_stats({})
-	for entry: String in _string_list(str(_options.get("stats", ""))):
-		var pair: PackedStringArray = entry.split("=", false, 2)
-		if pair.size() != 2:
-			_fail("Invalid --stats entry %s. Use stat_id=value." % entry)
+	var requested_skills: Array[String] = _string_list(str(_options.get("skills", "")))
+	for skill_id: String in requested_skills:
+		if not SkillTreeLibrary.has_definition(skill_id):
+			_fail("Unknown skill id %s in --skills." % skill_id)
 			return progression
-		var stat_id: String = pair[0].strip_edges()
-		if not GameData.progression_stat_ids().has(stat_id):
-			_fail("Unknown progression stat %s" % stat_id)
-			return progression
-		stats[stat_id] = maxi(0, int(pair[1]))
-	progression["stats"] = GameData.normalized_progression_stats(stats)
-	progression["unspent_stat_points"] = maxi(
-		0,
-		GameData.progression_stat_points_for_level(int(progression.get("level", 1))) - GameData.spent_progression_stat_points(progression.get("stats", {}))
-	)
+	var required_skill_count: int = ProgressionStore.skill_points_for_level(int(progression.get("level", 1)))
+	if requested_skills.size() != required_skill_count:
+		_fail("--skills must contain exactly %d ids for level %d." % [required_skill_count, int(progression.get("level", 1))])
+		return progression
+	if not SkillTreeLibrary.selection_is_valid(requested_skills, required_skill_count):
+		_fail("--skills must form one legal tree selection with all prerequisites and exclusivity rules satisfied.")
+		return progression
+	var requested_moltshards: int = int(_options.get("moltshards", 0))
+	if requested_moltshards < 0:
+		_fail("--moltshards must be zero or greater.")
+		return progression
+	progression["skill_ids"] = SkillTreeLibrary.normalized_ids(requested_skills)
+	progression["moltshards"] = requested_moltshards
 	if bool(_options.get("umbra_warning", false)):
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))

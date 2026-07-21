@@ -79,7 +79,7 @@ func _capture_targeted_surfaces(output_dir: String) -> void:
 	_check_inside_viewport(instance.get("_large_map_dialog") as Control, "Large map dialog", UiTypography.SAFE_MARGIN)
 	instance.call("_close_large_map")
 
-	instance.call("_open_character_stats_overlay")
+	instance.call("_open_character_overlay", "skills")
 	await _settle()
 	await _capture(output_dir, "character_stats")
 	var character_dialog: Control = instance.get("_upgrade_dialog") as Control

@@ -115,7 +115,7 @@ CARDS: list[dict[str, Any]] = [
       "card-play sequencing, low-cost fillers", "a rotating dungeon turnstile with three glowing tally marks", ["TIME", "ORDER", "LAW"]),
     c("empty_hand_oath", "Empty Hand Oath", "neutral", "common", 3, False, 0, "ENGINE",
       "For this combat, if your hand is empty at end of turn, draw 2 and gain 1 card play next turn.",
-      "cheap cards, card plays, hand dumps", "an open ash-stained palm over a blank parchment deck", ["DRAW", "PLAY", "HAND"]),
+      "cheap cards, card plays, hand dumps", "an open cinder-stained palm over a blank parchment deck", ["DRAW", "PLAY", "HAND"]),
     c("vow_of_one", "Vow of One", "neutral", "common", 5, True, 0, "PACT",
       "For this combat, you may play only one card each turn. That card costs -4 time and its numeric values are doubled.",
       "single-card turns, big attacks, big block", "a lone sword standing in a circle of extinguished candles", ["TIME", "X2", "PACT"]),
@@ -124,7 +124,7 @@ CARDS: list[dict[str, Any]] = [
       "common-heavy decks, Exhaust, starters", "a bundle of plain iron tools tied with a gold thread", ["COMMON", "DRAW", "EXH"]),
     c("black_archive", "Black Archive", "neutral", "uncommon", 7, True, 0, "ENGINE",
       "Return your Exhausted cards to the draw pile. For this combat, whenever a card Exhausts, deal 2 to all enemies.",
-      "Exhaust loops, rare spikes, AOE chip", "a charred library shelf releasing glowing card-ash pages", ["EXH", "AOE", "DRAW"]),
+      "Exhaust loops, rare spikes, AOE chip", "a charred library shelf releasing glowing card-cinder pages", ["EXH", "AOE", "DRAW"]),
     c("mirror_doctrine", "Mirror Doctrine", "neutral", "uncommon", 5, True, 0, "LAW",
       "For this combat, your illusions copy the first status you apply each turn to the nearest enemy at 50% value.",
       "illusions, burn, poison, freeze, shock", "two hooded reflections in a cracked obsidian mirror", ["ILLUS", "STATUS", "COPY"]),
@@ -161,16 +161,16 @@ CARDS: list[dict[str, Any]] = [
     c("blood_alphabet", "Blood Alphabet", "neutral", "rare", 6, True, 2, "ENGINE",
       "For this combat, losing health writes a Letter. At 3 Letters, clear them, draw 2, and your attacks gain +3 this turn.",
       "self-damage, draw, burst turns", "red runic letters crawling across a vellum card", ["HP", "DRAW", "DMG"]),
-    c("oath_of_ash", "Oath of Ash", "neutral", "rare", 7, True, 0, "LAW",
+    c("oath_of_cinders", "Oath of Cinders", "neutral", "rare", 7, True, 0, "LAW",
       "For this combat, neutral cards count as your highest-intensity element and raise that element by 1 when played.",
       "neutral cards, elemental intensity", "a grey oath stone split by five colored embers", ["NEUT", "INT", "LAW"]),
     c("silent_majority", "Silent Majority", "neutral", "uncommon", 4, False, 0, "ENGINE",
       "For this combat, neutral cards cost -1 time. Each third neutral card you play creates a 2-health illusion.",
       "neutral decks, illusions, tempo", "a crowd of blank masks standing behind a single lit card", ["NEUT", "TIME", "ILLUS"]),
 
-    c("ash_tax", "Ash Tax", "fire", "common", 5, False, 0, "LAW",
+    c("ember_tax", "Ember Tax", "fire", "common", 5, False, 0, "LAW",
       "For this combat, burn ticks raise Fire intensity by 1 before decay. At Fire 4+, burn ticks twice.",
-      "burn stacking, Fire intensity", "tax coins melting into a basin of red ash", ["BURN", "INT", "LAW"]),
+      "burn stacking, Fire intensity", "tax coins melting into a basin of red cinder", ["BURN", "INT", "LAW"]),
     c("furnace_choir", "Furnace Choir", "fire", "common", 7, True, 0, "BURST",
       "Apply 8 burn to all enemies. For this combat, when burn expires on an enemy, spread 4 burn to the nearest enemy.",
       "AOE burn, spread, crowd fights", "robed furnace mouths singing sparks into a dark hall", ["BURN", "AOE", "SPREAD"]),
@@ -210,9 +210,9 @@ CARDS: list[dict[str, Any]] = [
     c("sunken_kiln", "Sunken Kiln", "fire", "rare", 8, True, 0, "FIELD",
       "Set Fire intensity to 3. For this combat, Fire intensity cannot fall below 3, but non-Fire cards cost +1 time.",
       "mono-Fire decks, intensity scaling", "a submerged furnace glowing beneath black water", ["FIRE", "INT", "TIME"]),
-    c("ashen_encore", "Ashen Encore", "fire", "rare", 7, True, 0, "ENGINE",
+    c("cinder_encore", "Cinder Encore", "fire", "rare", 7, True, 0, "ENGINE",
       "For this combat, the first Fire card that Exhausts each turn returns next turn as a 0-time copy, then vanishes.",
-      "Fire Exhaust, burst repeats", "a singer made of ash bowing as a card reignites", ["FIRE", "EXH", "ECHO"]),
+      "Fire Exhaust, burst repeats", "a singer made of cinder bowing as a card reignites", ["FIRE", "EXH", "ECHO"]),
     c("dragons_due", "Dragon's Due", "fire", "rare", 10, True, 0, "BURST",
       "Apply 40 burn to all enemies. Until an enemy dies, your cards cost +2 time.",
       "huge burn, kill race, tempo risk", "a dragon-shaped debt mark branded over a battlefield", ["BURN", "AOE", "TIME"]),
@@ -674,7 +674,7 @@ def render_sheets(cards: list[dict[str, Any]]) -> list[Path]:
             t = y / max(1, sheet_h - 1)
             color = mix((29, 24, 22), (55, 42, 34), t)
             draw.line((0, y, sheet_w, y), fill=color)
-        draw.text((margin, 26), "Labyrinth of Ash - 100 Text Build-Around Card Concepts",
+        draw.text((margin, 26), "Escape the Umbra - 100 Text Build-Around Card Concepts",
                   font=font(FONT_TITLE, 25), fill="#f2dec0")
         draw.text((margin, 56), f"Sheet {sheet_index + 1} of {sheet_count}  |  Cards {start + 1:03d}-{start + len(subset):03d}",
                   font=font(FONT_NARROW, 18), fill="#cdb894")
@@ -701,7 +701,7 @@ def write_catalog(cards: list[dict[str, Any]], sheet_paths: list[Path]) -> None:
     (ROOT / "buildaround_cards_100.json").write_text(json.dumps(json_cards, indent=2) + "\n", encoding="utf-8")
 
     lines = [
-        "# Labyrinth of Ash - 100 Text Build-Around Card Concepts",
+        "# Escape the Umbra - 100 Text Build-Around Card Concepts",
         "",
         "Design-only artifact. These cards are not implemented in `data/cards.json`.",
         "They intentionally use text-rule mechanics that need bespoke combat, UI, heuristic, and analytics work before shipping.",

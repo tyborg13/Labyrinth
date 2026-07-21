@@ -15,7 +15,10 @@ Run and combat events also include the current character progression snapshot in
 their context when available:
 
 - `progression_level`
-- `progression_stats`
+- `progression_stats`, retained as an empty deprecated compatibility field for
+  existing JSONL readers
+- `progression_skills`, as the ordered learned skill ids
+- `moltshards`
 
 Combat-mode events also include initiative context when combat state is
 available:
@@ -43,6 +46,9 @@ available:
 - `enemy_action_resolved`
 - `enemy_status_tick`
 - `progression_level_up`
+- `progression_respec`
+- `progression_moltshard_gained`
+- `skill_triggered`
 - `equipment_equipped`
 - `magic_attuned`
 - `item_equipped`
@@ -73,6 +79,11 @@ The current event stream is enough to derive:
 - playable count via `card_became_playable`
 - play count via `card_played`
 - immediate observed card value ingredients from `card_played.payload`
+
+Card-performance queries should group or filter by `progression_skills` when
+qualitative progression can alter access, timing, card persistence, or target
+selection. The event stream records realized outcomes; it does not assign a
+scalar value to a learned skill.
 
 `card_played.payload` currently logs raw observed ingredients instead of a single heuristic score:
 
@@ -208,11 +219,31 @@ hooks: a save implementation may set those processed flags during committed
 terminal finalization and legitimately bypass the UI-time hooks.
 
 `progression_level_up` fires when the player confirms Draw Strength at a
-campfire. Its payload records the previous and new levels, chosen stats,
-post-purchase stat values, ember cost, held embers before purchase, and held
-embers after purchase. `stat_id` remains as the first chosen stat for older
-analysis, while `stat_ids` and `stat_values` represent the full two-stat
-assignment.
+campfire. Its payload records `level_before`, `level_after`, the newly learned
+`skill_id`, the complete post-purchase `skill_ids`, ember `cost`,
+`held_embers_after`, and `room`. One confirmed level-up learns exactly one
+skill.
+
+`progression_respec` fires only after a valid whole-tree respec is confirmed.
+Its payload records `skill_ids_before`, `skill_ids_after`,
+`moltshards_before`, `moltshards_after`, and `room`. Opening, editing, or
+canceling the tree emits no respec event and spends no resource.
+
+`progression_moltshard_gained` records an earned respec resource. Its payload
+contains `amount`, `source`, `moltshards_before`, and
+`moltshards_after`. The first-boss award uses
+`source: "first_boss_victory"`; repeated resolution of the same award must not
+emit another event.
+
+`skill_triggered` records each automatic, manual, or contextual skill
+activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,
+`trigger_scope`, `turn`, and `message`. `trigger_scope` distinguishes combat
+and run event streams. Revisions are monotonic within their stream, and the
+logged run revision is saved in the same committed state as an automatic run
+trigger, so refresh and resume cannot duplicate emission. Priming and effect
+realization do not create a second activation event. Realized card, damage,
+defense, movement, and resource outcomes remain in their existing events rather
+than being converted into a guessed skill score.
 
 ## AWS-Friendly Expectations
 
@@ -232,6 +263,7 @@ Update analytics instrumentation when changes affect:
 - equipment ownership, drops, equip rules, or deck compilation
 - consumable item ownership, equip rules, use-on-play consumption, or deck compilation
 - ember carry, loss, extraction, or campfire level-up flow
+- skill learning, whole-tree respec, Moltshard awards, or skill activation
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
 - elemental intensity production, gating, or room-start rules

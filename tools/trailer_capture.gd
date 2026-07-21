@@ -64,7 +64,7 @@ func _build_overlay() -> void:
 	_title.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_title.offset_top = -80.0
 	_title.offset_bottom = 80.0
-	_title.text = "LABYRINTH OF ASH"
+	_title.text = "ESCAPE THE UMBRA"
 	_overlay_layer.add_child(_title)
 	
 	_callout = _make_label(48, HORIZONTAL_ALIGNMENT_CENTER)
@@ -121,7 +121,7 @@ func _run_timeline() -> void:
 	await _force_reward_showcase()
 	await _hold(2.1)
 	_set_title(true)
-	_title.text = "LABYRINTH OF ASH"
+	_title.text = "ESCAPE THE UMBRA"
 	_set_callout("COMING FROM THE DEPTHS", "")
 	await _fade_scrim(0.0, 0.76, 0.65)
 	await _hold(1.4)

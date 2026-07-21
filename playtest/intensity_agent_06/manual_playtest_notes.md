@@ -94,7 +94,7 @@
 - Earth reward offered Thorn Skewer/Venom Claw producers with Earth 2+ poison riders, but HP remains pressured. Third heal-over-synergy decision reinforces that intensity decks may need more recovery cushion or less early status attrition.
 - Reward: skipped for heal to 19/36.
 - Moved to (-2,1): depth 2 ice combat.
-- Depth 2 Ice combat opens with four enemies and visible Ice traps/freeze; Ash Warden has high block. This looks like a notable difficulty jump.
+- Depth 2 Ice combat opens with four enemies and visible Ice traps/freeze; Stone Warden has high block. This looks like a notable difficulty jump.
 - Played bone_dart as printed: 5 damage.
 - Played brace as printed: +8 block.
 - Enemy round: 0 HP lost, mode now combat.
@@ -120,7 +120,7 @@
 - Played quick_stab as printed: 4 damage, 1 kills, +1 play.
 - Played guarded_step as printed: +3 block, moved 2, +1 play.
 - Enemy round: 0 HP lost, mode now combat.
-- At depth 2, fatigue plus Ash Warden pressure has pushed HP to 3. This feels like the likely endpoint; trying Volt Surge illusion as a last defensive play.
+- At depth 2, fatigue plus Stone Warden pressure has pushed HP to 3. This feels like the likely endpoint; trying Volt Surge illusion as a last defensive play.
 - Played volt_surge as printed: 1 illusion, +1 Lightning intensity.
 - Enemy round: 0 HP lost, mode now combat.
 - Played brace as printed: +8 block.
@@ -128,7 +128,7 @@
 - Enemy round: 0 HP lost, mode now combat.
 - Played quick_stab as printed: 9 damage.
 - Played bloody_lunge as printed: 6 damage, 1 kills, -1 HP, +1 play.
-- Depth 2 Ice fight cleared at 2 HP after turn 10. Ash Warden was a major spike: high HP/block plus repeated 5-7 ranged pressure forced defensive play and fatigue nearly ended the run. Reward offers Ice producers and Rallying Breath, but immediate heal is mandatory.
+- Depth 2 Ice fight cleared at 2 HP after turn 10. Stone Warden was a major spike: high HP/block plus repeated 5-7 ranged pressure forced defensive play and fatigue nearly ended the run. Reward offers Ice producers and Rallying Breath, but immediate heal is mandatory.
 - Reward: skipped for heal to 8/36.
 - Path now offers treasure or campfire. At 8/36 after the depth-2 spike, choosing campfire as a deliberate rest endpoint.
 - Moved to (-2,0): depth 2 none campfire.

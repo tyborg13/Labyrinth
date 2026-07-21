@@ -123,9 +123,9 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 			new_bests.append(stat_id)
 	return {
 		"outcome": normalized_outcome,
-		"kicker": "THE LABYRINTH YIELDS" if normalized_outcome == "victory" else "THE ASH REMEMBERS",
+		"kicker": "THE LABYRINTH YIELDS" if normalized_outcome == "victory" else "THE UMBRA CLOSES IN",
 		"title": "ASCENT COMPLETE" if normalized_outcome == "victory" else "RUN ENDED",
-		"summary": "The ascent is complete. Carried embers are secure." if normalized_outcome == "victory" else "The room remains. The ash remembers.",
+		"summary": "The ascent is complete. Carried embers are secure." if normalized_outcome == "victory" else "The room remains. The Umbra waits.",
 		"stats": stats,
 		"new_bests": new_bests,
 		"depth": int(stats.get("depth", 0)),

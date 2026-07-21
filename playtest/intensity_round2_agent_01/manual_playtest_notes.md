@@ -39,7 +39,7 @@
 - Played whirlwind_slash as printed: 3 damage, 1 kills, +1 play.
 - Played patch_up as printed: +2 HP, +2 block.
 - Enemy round: 0 HP lost, mode now combat.
-- Fire room turn 2 killed Ash Acolyte before its burn AoE and healed at safety. Testing Squall Shot opportunistically now, but preventing crawler damage has priority.
+- Fire room turn 2 killed Dust Acolyte before its burn AoE and healed at safety. Testing Squall Shot opportunistically now, but preventing crawler damage has priority.
 - Played squall_shot as printed: 3 damage, +1 Air intensity.
 - Played brace as printed: +8 block.
 - Enemy round: 0 HP lost, mode now combat.

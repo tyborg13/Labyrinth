@@ -7,6 +7,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const FALLBACK_ATTACK_BASE_DAMAGE: int = 2
@@ -100,7 +101,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, reward N|heal, relic N, linger, level STAT STAT, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, reward N|heal, relic N, linger, level SKILL_ID, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
 
@@ -1278,28 +1279,32 @@ func _command_level_up(parts: PackedStringArray) -> void:
 		print("Not at campfire.")
 		return
 	_sync_progression_from_run()
-	if parts.size() < 3:
-		print("Use `level STAT STAT`. Valid stats: %s" % ", ".join(GameData.progression_stat_ids()))
+	var legal_skill_ids: Array[String] = _legal_level_skill_ids()
+	if parts.size() != 2:
+		print("Use `level SKILL_ID`.")
+		_print_legal_level_skills(legal_skill_ids)
 		return
-	var stat_ids: Array = [str(parts[1]), str(parts[2])]
-	if not ProgressionStore.can_purchase_level_with_stats(_progression, stat_ids):
-		print("Cannot level with [%s]. Held embers %d, next cost %d. Valid stats: %s" % [
-			", ".join(stat_ids),
+	var skill_id: String = str(parts[1])
+	if not ProgressionStore.can_purchase_level_with_skill(_progression, skill_id):
+		print("Cannot learn %s. Held embers %d, next cost %d." % [
+			skill_id,
 			_run_engine.held_embers(_run_state),
-			ProgressionStore.next_level_cost(_progression),
-			", ".join(GameData.progression_stat_ids())
+			ProgressionStore.next_level_cost(_progression)
 		])
+		_print_legal_level_skills(legal_skill_ids)
 		return
 	var before_progression: Dictionary = _progression.duplicate(true)
-	_progression = ProgressionStore.purchase_level_with_stats(_progression, stat_ids)
+	var level_cost: int = ProgressionStore.next_level_cost(before_progression)
+	_progression = ProgressionStore.purchase_level_with_skill(_progression, skill_id)
 	ProgressionStore.save_data(_progression)
 	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
 	_run_state = _run_engine.leave_campfire(_run_state, 0)
 	ProgressionStore.save_run_state(_run_state)
 	_sync_combat_state_from_run()
-	_log_level_up(before_progression, _progression, stat_ids)
-	_append_note("- Campfire: leveled up with %s and continued with %d unbanked embers.\n" % [
-		", ".join(stat_ids),
+	_log_level_up(before_progression, _progression, skill_id, level_cost)
+	_append_note("- Campfire: learned %s (`%s`) and continued with %d unbanked embers.\n" % [
+		SkillTreeLibrary.display_name(skill_id),
+		skill_id,
 		int(_run_state.get("unbanked_embers", 0))
 	])
 	_print_state()
@@ -1328,7 +1333,12 @@ func _print_campfire_state() -> void:
 	var hp_after_linger: int = mini(max_hp, hp_before + CAMPFIRE_LINGER_HEAL_AMOUNT)
 	var held_embers: int = _run_engine.held_embers(_run_state)
 	var next_cost: int = ProgressionStore.next_level_cost(_progression)
-	var strength_status: String = "available" if ProgressionStore.can_level_up(_progression) else "need %d embers" % next_cost
+	var legal_skill_ids: Array[String] = _legal_level_skill_ids()
+	var level_status: String = "available"
+	if ProgressionStore.is_max_level(_progression):
+		level_status = "maximum level"
+	elif not ProgressionStore.can_level_up(_progression):
+		level_status = "need %d embers" % next_cost
 	print("Campfire choices:")
 	print("- `linger`: heal %d and continue (%d/%d -> %d/%d HP)." % [
 		CAMPFIRE_LINGER_HEAL_AMOUNT,
@@ -1337,10 +1347,28 @@ func _print_campfire_state() -> void:
 		hp_after_linger,
 		max_hp
 	])
-	print("- `level STAT STAT`: spend embers for +1 to two different stats and continue (%s)." % strength_status)
+	print("- `level SKILL_ID`: spend embers, learn one ability, and continue (%s)." % level_status)
 	print("- `rest`: bank/carry %d held embers and end this run." % held_embers)
 	print("- `leave`: continue without taking a campfire benefit.")
-	print("Valid stats: %s" % ", ".join(GameData.progression_stat_ids()))
+	_print_legal_level_skills(legal_skill_ids)
+
+func _legal_level_skill_ids() -> Array[String]:
+	if ProgressionStore.is_max_level(_progression):
+		var no_skill_ids: Array[String]
+		return no_skill_ids
+	return ProgressionStore.available_skill_ids(_progression)
+
+func _print_legal_level_skills(skill_ids: Array[String]) -> void:
+	if skill_ids.is_empty():
+		print("Legal abilities: none.")
+		return
+	print("Legal abilities:")
+	for skill_id: String in skill_ids:
+		print("- `%s`: %s — %s" % [
+			skill_id,
+			SkillTreeLibrary.display_name(skill_id),
+			SkillTreeLibrary.description(skill_id)
+		])
 
 func _sync_progression_from_run() -> void:
 	var run_progression: Dictionary = _progression.duplicate(true)
@@ -1460,18 +1488,14 @@ func _log_run_ended(outcome: String) -> void:
 		"mode": str(_run_state.get("mode", ""))
 	})
 
-func _log_level_up(before_progression: Dictionary, after_progression: Dictionary, stat_ids: Array) -> void:
-	var stat_values: Dictionary = {}
-	for stat_id_var: Variant in stat_ids:
-		var stat_id: String = str(stat_id_var)
-		stat_values[stat_id] = GameData.stat_value(after_progression, stat_id)
+func _log_level_up(before_progression: Dictionary, after_progression: Dictionary, skill_id: String, cost: int) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context(_combat_state), {
 		"level_before": int(before_progression.get("level", 1)),
 		"level_after": int(after_progression.get("level", 1)),
-		"stat_id": str(stat_ids[0]) if not stat_ids.is_empty() else "",
-		"stat_ids": stat_ids.duplicate(true),
-		"stat_values": stat_values,
-		"embers_after": int(after_progression.get("embers", 0)),
+		"skill_id": skill_id,
+		"skill_ids": ProgressionStore.selected_skill_ids(after_progression),
+		"cost": cost,
+		"held_embers_after": int(after_progression.get("embers", 0)),
 		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 

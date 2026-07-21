@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-equipment
-description: Create, rebalance, review, or implement Labyrinth of Ash equipment. Use when Codex needs to add or modify data/equipment.json, equipment-provided cards, equipment drops, inventory/equip UI, rarity visuals, analytics, tests, or equipment icon/card art assets.
+description: Create, rebalance, review, or implement Escape the Umbra equipment. Use when Codex needs to add or modify data/equipment.json, equipment-provided cards, equipment drops, inventory/equip UI, rarity visuals, analytics, tests, or equipment icon/card art assets.
 ---
 
 # Create Labyrinth Equipment

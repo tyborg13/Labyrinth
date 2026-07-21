@@ -29,11 +29,11 @@
 - Reward 1: Thunderline rare has Lightning 4+ gated second AoE but no producer attached; Chain Bolt is clear as Lightning intensity +1 with Lightning 2+ chain rider. Taking Chain Bolt to test ramp and gate readability.
 - Reward: took Chain Bolt.
 - Moved to (1,1): depth 1 none treasure.
-- Treasure after low-HP first fight: no elemental intensity relics; Ashen Buckler is the clear survival pick over Earth-only block scaling and heal bonus.
-- Treasure: took Ashen Buckler.
+- Treasure after low-HP first fight: no elemental intensity relics; Iron Buckler is the clear survival pick over Earth-only block scaling and heal bonus.
+- Treasure: took Iron Buckler.
 - Harness exited code 1 after first attempt to move from treasure to next combat; resumed successfully from saved room state.
 - Moved to (0,1): depth 1 lightning combat.
-- Room 2 lightning: Ashen Buckler start block appears. Still base Lightning 1 from room only; Chain Bolt not drawn yet. Several melee cards show only drag-move because no targets, which makes dead-card pressure clear in spread-out starts.
+- Room 2 lightning: Iron Buckler start block appears. Still base Lightning 1 from room only; Chain Bolt not drawn yet. Several melee cards show only drag-move because no targets, which makes dead-card pressure clear in spread-out starts.
 - Played shadow_step as printed: moved 2, 1 illusion.
 - Played guarded_step as printed: +3 block, +1 play.
 - Bloody Lunge shortcut preview is useful and explicitly warns trap route plus shock. I am taking a risky Lightning-trap shortcut to see shock/intensity visibility in resolution.

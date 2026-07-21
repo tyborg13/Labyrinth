@@ -66,6 +66,10 @@ Enemies killed by a card add a bonus card play for the turn, so large damage and
 broad damage get a small execute-tempo premium.
 Player flow assumes 2 cards per turn, 2 draw per turn, and a 7-card max hand;
 the scorer values printed draw without simulating current hand occupancy.
+Permanent progression uses qualitative skills and leaves player base initiative
+fixed at 9. The scorer uses a no-skill reference profile; skill effects remain a
+separate cohort dimension in local analytics instead of changing intrinsic
+printed-card coefficients.
 """
 
 from __future__ import annotations
@@ -85,6 +89,11 @@ DEPTHS_PER_SEQUENCE = 4
 SEQUENCES_PER_RUN = 6
 RANDOMIZED_ELEMENTAL_BOSSES = 5
 FINAL_BOSS_DEPTH = DEPTHS_PER_SEQUENCE * SEQUENCES_PER_RUN
+PLAYER_BASE_INITIATIVE = 9
+BASE_CARDS_PER_TURN = 2
+BASE_DRAW_PER_TURN = 2
+MAX_HAND_SIZE = 7
+SKILL_SCORE_PROFILE = "no_skills"
 ENEMY_HP_SCALE_PER_SEQUENCE = 0.45
 ENEMY_HP_FLAT_BONUS_PER_SEQUENCE = 4
 ENEMY_DAMAGE_BONUS_PER_SEQUENCE = 2
@@ -119,6 +128,17 @@ def encounter_assumptions() -> dict[str, Any]:
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
+        "player_flow": {
+            "base_initiative": PLAYER_BASE_INITIATIVE,
+            "cards_per_turn": BASE_CARDS_PER_TURN,
+            "draw_per_turn": BASE_DRAW_PER_TURN,
+            "max_hand_size": MAX_HAND_SIZE,
+        },
+        "qualitative_progression": {
+            "score_profile": SKILL_SCORE_PROFILE,
+            "cohort_field": "progression_skills",
+            "coefficient_policy": "exclude skill effects from intrinsic printed-card scores",
+        },
         "sequence_scaling": {
             "enemy_hp_multiplier_per_completed_sequence": ENEMY_HP_SCALE_PER_SEQUENCE,
             "enemy_hp_flat_per_completed_sequence": ENEMY_HP_FLAT_BONUS_PER_SEQUENCE,

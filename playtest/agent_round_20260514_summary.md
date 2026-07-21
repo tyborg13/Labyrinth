@@ -43,7 +43,7 @@ The analytics support the notes: card rewards were usually unaffordable, and ear
    - Notes repeatedly identify poison plus trap cascades as more threatening than direct damage.
 
 3. Stoneskin stacking creates long cleanup turns.
-   - Tunnel Crawler `Coil`, Ash Acolyte `Ward Chant`, and Ash Warden `Bulwark` repeatedly pushed enemies into high stoneskin states.
+   - Tunnel Crawler `Coil`, Dust Acolyte `Ward Chant`, and Stone Warden `Bulwark` repeatedly pushed enemies into high stoneskin states.
    - Reported examples include crawler stoneskin of 8 and 14, and warden stoneskin of 24.
    - These states are survivable only through kiting, but fatigue then becomes the main clock.
 

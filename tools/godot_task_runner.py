@@ -176,7 +176,7 @@ def command_run(args: argparse.Namespace) -> int:
     env = os.environ.copy()
     env["HOME"] = str(home_dir)
     env["LABYRINTH_TASK_ID"] = run_id
-    env["LABYRINTH_USER_DIR_NAME"] = "Labyrinth of Ash Parallel %s" % run_id
+    env["LABYRINTH_USER_DIR_NAME"] = "Escape the Umbra Parallel %s" % run_id
     if args.allow_steam:
         env.pop("LABYRINTH_DISABLE_STEAM", None)
     else:

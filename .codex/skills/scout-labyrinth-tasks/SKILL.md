@@ -1,6 +1,6 @@
 ---
 name: scout-labyrinth-tasks
-description: Find, shape, and reviewer-gate high-value Labyrinth of Ash work items before they enter the autonomous task queue. Use when the user asks Codex to find good changes, propose fixes, identify improvements, create autonomous work, fill the task queue, or prepare work for parallel agents.
+description: Find, shape, and reviewer-gate high-value Escape the Umbra work items before they enter the autonomous task queue. Use when the user asks Codex to find good changes, propose fixes, identify improvements, create autonomous work, fill the task queue, or prepare work for parallel agents.
 ---
 
 # Scout Labyrinth Tasks

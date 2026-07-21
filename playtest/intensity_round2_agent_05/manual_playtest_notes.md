@@ -189,13 +189,13 @@
 - Played slipstream_cut as printed: 4 damage, moved 3, +1 play, +1 Air intensity.
 - Played sidestep_slash as printed: 5 damage, moved 1.
 - Played lantern_shot as printed: 4 damage, 1 kills, +1 play.
-- Took Ashline Tempo over heal at 18/36 because it is a common Fire producer/payoff with Fire 2+ rider and card_play; important to test whether common intensity engine cards are too efficient.
-- Reward: took Ashline Tempo.
+- Took Cinderline Tempo over heal at 18/36 because it is a common Fire producer/payoff with Fire 2+ rider and card_play; important to test whether common intensity engine cards are too efficient.
+- Reward: took Cinderline Tempo.
 - Moved to (2,-1): depth 2 air combat.
 - Played hearth_rush as printed: 1 illusion, +1 Fire intensity.
 - Played bone_dart as printed: 5 damage.
 - Enemy round: 1 HP lost, mode now combat.
-- Played ashline_tempo as printed: 2 damage, 3 block removed, +1 play, +1 Fire intensity, enemy +1 burn.
+- Played cinderline_tempo as printed: 2 damage, 3 block removed, +1 play, +1 Fire intensity, enemy +1 burn.
 - Played lantern_shot as printed: 3 damage, 1 kills, drew 1, +1 play.
 - Played shadow_step as printed: 1 illusion.
 - Played patch_up as printed: +3 HP, +2 block.
@@ -214,7 +214,7 @@
 - Played lantern_shot as printed: 4 block removed, drew 1.
 - Played bone_dart as printed: 5 damage.
 - Enemy round: 0 HP lost, mode now combat.
-- Played ashline_tempo as printed: 5 block removed, +1 play, +1 Fire intensity, enemy +1 burn.
+- Played cinderline_tempo as printed: 5 block removed, +1 play, +1 Fire intensity, enemy +1 burn.
 - Enemy round: 0 HP lost, mode now combat.
 - Played sidestep_slash as printed: 5 damage, moved 2.
 - Played quick_stab as printed: 2 damage, 1 kills, +1 play.
@@ -228,7 +228,7 @@
 - Played brace as printed: +8 block.
 - Enemy round: 0 HP lost, mode now combat.
 - In Earth room, Guarded+Brace blocked the crawler hit's HP damage but poison still applied. This makes block much weaker against poison rooms and should be surfaced clearly in UI/strategy.
-- Played ashline_tempo as printed: 5 damage, +1 play, +1 Fire intensity, enemy +1 burn.
+- Played cinderline_tempo as printed: 5 damage, +1 play, +1 Fire intensity, enemy +1 burn.
 - Played lantern_shot as printed: 4 damage, drew 1.
 - Played gust_step as printed: 1 damage, 1 kills, +1 play, 1 illusion, +1 Air intensity.
 - Played sidestep_slash as printed: 5 damage.

@@ -5,6 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 15
 const BASE_CARDS_PER_TURN: int = 2
@@ -276,6 +277,260 @@ func umbra_shadow_tiles(state: Dictionary) -> Array[Vector2i]:
 func run_stats(state: Dictionary) -> Dictionary:
 	return normalized_run_stats(state.get("run_stats", {}))
 
+func skill_ids(state: Dictionary) -> Array[String]:
+	return SkillTreeLibrary.normalized_ids(state.get("skill_ids", []))
+
+func has_skill(state: Dictionary, skill_id: String) -> bool:
+	return skill_ids(state).has(skill_id)
+
+func skill_was_used(state: Dictionary, skill_id: String) -> bool:
+	return bool((state.get("skill_flags", {}) as Dictionary).get("used:%s" % skill_id, false))
+
+func _skill_charge_available(state: Dictionary, skill_id: String) -> bool:
+	return has_skill(state, skill_id) and not skill_was_used(state, skill_id)
+
+func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
+	if not has_skill(state, skill_id) or skill_was_used(state, skill_id) or combat_outcome(state) != "":
+		return false
+	match SkillTreeLibrary.effect_type(skill_id):
+		"discard_draw":
+			return is_player_turn(state) and not (((state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty())
+		"discard_recall":
+			if not is_player_turn(state) or (((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() >= MAX_HAND_SIZE):
+				return false
+			return _latest_non_item_discard_index(state) >= 0
+		"arm_intensity":
+			return (
+				is_player_turn(state)
+				and not bool((state.get("skill_flags", {}) as Dictionary).get("prismatic_armed", false))
+				and not prismatic_target_hand_indices(state).is_empty()
+			)
+		"preserve_burn":
+			return is_player_turn(state) and not bool((state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
+		"preserve_fallback_item":
+			return is_player_turn(state) and not bool((state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
+		"fallback_blink":
+			return is_player_turn(state)
+	return true
+
+func manual_skill_states(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for skill_id: String in skill_ids(state):
+		if SkillTreeLibrary.activation_kind(skill_id) != "manual":
+			continue
+		result.append({
+			"skill_id": skill_id,
+			"name": SkillTreeLibrary.display_name(skill_id),
+			"description": SkillTreeLibrary.description(skill_id),
+			"ready": skill_is_ready(state, skill_id),
+			"used": skill_was_used(state, skill_id)
+		})
+	return result
+
+func use_quick_wits(state: Dictionary, hand_index: int) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("discard_draw")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
+	var hand: Array = (deck.get("hand", []) as Array).duplicate()
+	if hand_index < 0 or hand_index >= hand.size():
+		return next_state
+	var card_id: String = str(hand[hand_index])
+	hand.remove_at(hand_index)
+	var discard: Array = (deck.get("discard", []) as Array).duplicate()
+	discard.append(card_id)
+	deck["hand"] = hand
+	deck["discard"] = discard
+	next_state["deck"] = deck
+	next_state = _draw_cards_in_place(next_state, 1)
+	next_state = _maybe_trigger_pain_recall(next_state, card_id)
+	_mark_skill_used(next_state, skill_id, "%s trades one possibility for another." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
+func use_encore(state: Dictionary, discard_index: int) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("discard_recall")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
+	var discard: Array = (deck.get("discard", []) as Array).duplicate()
+	var hand: Array = (deck.get("hand", []) as Array).duplicate()
+	if discard_index < 0 or discard_index >= discard.size() or hand.size() >= MAX_HAND_SIZE:
+		return next_state
+	var card_id: String = str(discard[discard_index])
+	if GameData.card_is_item(card_id):
+		return next_state
+	discard.remove_at(discard_index)
+	hand.append(card_id)
+	deck["discard"] = discard
+	deck["hand"] = hand
+	next_state["deck"] = deck
+	_mark_skill_used(next_state, skill_id, "%s returns %s to hand." % [SkillTreeLibrary.display_name(skill_id), str(card_def(card_id, next_state).get("name", card_id))])
+	return next_state
+
+func prismatic_target_hand_indices(state: Dictionary) -> Array[int]:
+	var result: Array[int]
+	var seen_card_ids: Dictionary = {}
+	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for index: int in range(hand.size()):
+		var card_id: String = str(hand[index])
+		if seen_card_ids.has(card_id) or not _card_has_intensity_condition(card_def(card_id, state)):
+			continue
+		seen_card_ids[card_id] = true
+		result.append(index)
+	return result
+
+func arm_prismatic_instinct(state: Dictionary, hand_index: int) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("arm_intensity")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	if hand_index < 0 or hand_index >= hand.size() or not prismatic_target_hand_indices(state).has(hand_index):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	var card_id: String = str(hand[hand_index])
+	_set_skill_flag(next_state, "prismatic_armed", true)
+	_set_skill_flag(next_state, "prismatic_target_card_id", card_id)
+	_erase_skill_flag(next_state, "prismatic_resolving")
+	_mark_skill_used(next_state, skill_id, "%s arms %s." % [SkillTreeLibrary.display_name(skill_id), str(card_def(card_id, next_state).get("name", card_id))])
+	return next_state
+
+func arm_rehearsed_escape(state: Dictionary) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_burn")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	_set_skill_flag(next_state, "burn_preserve_armed", true)
+	_mark_skill_used(next_state, skill_id, "%s is armed for the next non-item Burn card." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
+func arm_makeshift_tool(state: Dictionary) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_fallback_item")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	_set_skill_flag(next_state, "item_preserve_armed", true)
+	_mark_skill_used(next_state, skill_id, "%s is armed for the next item's basic Attack or Move." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
+func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String = "play") -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	_erase_skill_flag(next_state, "prismatic_resolving")
+	if play_mode != "play":
+		return next_state
+	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	if hand_index < 0 or hand_index >= hand.size():
+		return next_state
+	var flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
+	var card_id: String = str(hand[hand_index])
+	if bool(flags.get("prismatic_armed", false)) and str(flags.get("prismatic_target_card_id", "")) == card_id:
+		_set_skill_flag(next_state, "prismatic_resolving", true)
+	return next_state
+
+func fallback_move_action(state: Dictionary, normal_range: int) -> Dictionary:
+	return {"type": "move", "range": normal_range, "_fallback_kind": "move"}
+
+func fallback_blink_action(state: Dictionary, normal_range: int) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("fallback_blink")
+	if skill_is_ready(state, skill_id):
+		var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+		return {
+			"type": "blink",
+			"range": maxi(1, int(effect.get("range", normal_range))),
+			"_skill_id": skill_id,
+			"_fallback_kind": "move"
+		}
+	return {}
+
+func skill_events(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for event_var: Variant in state.get("skill_events", []):
+		if typeof(event_var) == TYPE_DICTIONARY:
+			result.append((event_var as Dictionary).duplicate(true))
+	return result
+
+func _skill_flags(state: Dictionary) -> Dictionary:
+	return (state.get("skill_flags", {}) as Dictionary).duplicate(true)
+
+func _set_skill_flag(state: Dictionary, flag_id: String, value: Variant) -> void:
+	var flags: Dictionary = _skill_flags(state)
+	flags[flag_id] = value
+	state["skill_flags"] = flags
+
+func _erase_skill_flag(state: Dictionary, flag_id: String) -> void:
+	var flags: Dictionary = _skill_flags(state)
+	flags.erase(flag_id)
+	state["skill_flags"] = flags
+
+func _mark_skill_used(state: Dictionary, skill_id: String, message: String) -> void:
+	_set_skill_flag(state, "used:%s" % skill_id, true)
+	_record_skill_event(state, skill_id, message)
+
+func _record_skill_event(state: Dictionary, skill_id: String, message: String) -> void:
+	var events: Array = (state.get("skill_events", []) as Array).duplicate(true)
+	var revision: int = int(state.get("skill_event_revision", 0)) + 1
+	events.append({
+		"revision": revision,
+		"skill_id": skill_id,
+		"name": SkillTreeLibrary.display_name(skill_id),
+		"message": message,
+		"turn": int(state.get("turn", 1))
+	})
+	while events.size() > 16:
+		events.pop_front()
+	state["skill_events"] = events
+	state["skill_event_revision"] = revision
+	if not message.is_empty():
+		_log(state, message)
+
+func _latest_non_item_discard_index(state: Dictionary) -> int:
+	var discard: Array = ((state.get("deck", {}) as Dictionary).get("discard", []) as Array)
+	for index: int in range(discard.size() - 1, -1, -1):
+		if not GameData.card_is_item(str(discard[index])):
+			return index
+	return -1
+
+func _recall_latest_non_item_discard(state: Dictionary, draw_top_when_full: bool = false) -> Dictionary:
+	var next_state: Dictionary = state
+	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
+	var discard: Array = (deck.get("discard", []) as Array).duplicate()
+	var index: int = _latest_non_item_discard_index(next_state)
+	if index < 0 or index >= discard.size():
+		return next_state
+	var card_id: String = str(discard[index])
+	discard.remove_at(index)
+	deck["discard"] = discard
+	var hand: Array = (deck.get("hand", []) as Array).duplicate()
+	if hand.size() < MAX_HAND_SIZE:
+		hand.append(card_id)
+		deck["hand"] = hand
+	elif draw_top_when_full:
+		var draw: Array = (deck.get("draw", []) as Array).duplicate()
+		draw.append(card_id)
+		deck["draw"] = draw
+	else:
+		discard.append(card_id)
+		deck["discard"] = discard
+	next_state["deck"] = deck
+	return next_state
+
+func _maybe_trigger_pain_recall(state: Dictionary, discarded_card_id: String) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("pain_recall")
+	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
+	if not has_skill(state, skill_id) or skill_was_used(state, skill_id) or not bool(flags.get("pain_recall_primed", false)):
+		return state
+	if GameData.card_is_item(discarded_card_id):
+		return state
+	if (((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() >= MAX_HAND_SIZE):
+		return state
+	if _latest_non_item_discard_index(state) < 0:
+		return state
+	var next_state: Dictionary = _recall_latest_non_item_discard(state)
+	_set_skill_flag(next_state, "pain_recall_primed", false)
+	_mark_skill_used(next_state, skill_id, "%s returns the discarded card." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
 func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dictionary) -> Dictionary:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _combat_seed(run_seed, room_layout.get("coord", Vector2i.ZERO))
@@ -317,9 +572,11 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"terrain": room_layout.get("terrain", []).duplicate(true),
 		"umbra": _initial_umbra_state(room_layout),
 		"relics": relic_ids,
-		"card_upgrades": (player_snapshot.get("card_upgrades", {}) as Dictionary).duplicate(true),
-		"card_mods": (player_snapshot.get("card_mods", {}) as Dictionary).duplicate(true),
-		"stats": GameData.normalized_progression_stats(player_snapshot.get("stats", {})),
+		"skill_ids": SkillTreeLibrary.normalized_ids(player_snapshot.get("skill_ids", [])),
+		"skill_flags": {},
+		"skill_events": [],
+		"banked_plays": 0,
+		"banked_play_active": 0,
 		"level": int(player_snapshot.get("level", 1)),
 		"hand_size": int(player_snapshot.get("hand_size", 5)) + GameData.stat_bonus_from_relics(relic_ids, "hand_size_bonus"),
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "cards_per_turn_bonus"),
@@ -471,7 +728,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			var move_range: int = int(action.get("range", 0)) + _move_bonus_for_current_turn(state)
 			targets = PathUtils.reachable_tiles(state.get("grid", []), player_pos, move_range, occupied)
 		"blink":
-			occupied = _occupied_actor_tiles(state)
+			occupied = _player_blocking_tiles(state)
 			var max_range: int = int(action.get("range", 0))
 			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, max_range, state.get("grid", [])):
 				if tile == player_pos:
@@ -669,6 +926,7 @@ func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, targe
 	if not _prevalidated_player_move_path_is_usable(state, action, target_tile, movement_path):
 		return apply_player_action(state, action, target_tile)
 	var next_state: Dictionary = state.duplicate(true)
+	_snapshot_pending_card_payment(next_state)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	return _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
 
@@ -676,6 +934,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 	var next_state: Dictionary = state.duplicate(true)
 	if not player_action_can_resolve(next_state, action):
 		return next_state
+	_snapshot_pending_card_payment(next_state)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
@@ -689,11 +948,24 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 				next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
 		"blink":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
+				var blink_origin: Vector2i = player_pos
+				var loot_before: int = _unclaimed_loot_count(next_state)
 				player["pos"] = target_tile
 				next_state["player"] = player
 				_collect_loot_at_player(next_state)
 				next_state = _trigger_trap_on_player(next_state)
 				next_state = _trigger_blink_relics(next_state)
+				next_state = _dispel_illusion_at_player(next_state)
+				var afterimage_id: String = SkillTreeLibrary.skill_id_for_effect("blink_illusion")
+				if skill_is_ready(next_state, afterimage_id):
+					var afterimage_effect: Dictionary = SkillTreeLibrary.effect(afterimage_id)
+					var illusion_health: int = GameData.fixed_point_amount(maxi(1, int(afterimage_effect.get("health_visible", 2))))
+					next_state = _create_illusion(next_state, blink_origin, illusion_health)
+					_mark_skill_used(next_state, afterimage_id, "%s leaves an illusion behind." % SkillTreeLibrary.display_name(afterimage_id))
+				var contextual_skill_id: String = str(action.get("_skill_id", ""))
+				if not contextual_skill_id.is_empty() and has_skill(next_state, contextual_skill_id) and not skill_was_used(next_state, contextual_skill_id):
+					_mark_skill_used(next_state, contextual_skill_id, "%s turns the basic Move into a Blink." % SkillTreeLibrary.display_name(contextual_skill_id))
+				next_state = _maybe_refund_loot_play(next_state, loot_before)
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
@@ -725,7 +997,13 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			next_state["player"] = player
 			_log(next_state, "Recovered %d health." % heal_amount)
 		"draw":
-			next_state = _draw_cards_in_place(next_state, int(resolved_action.get("amount", 0)))
+			var draw_amount: int = int(resolved_action.get("amount", 0))
+			if _action_condition_uses_confluence(next_state, action):
+				var safe_draws: int = ((next_state.get("deck", {}) as Dictionary).get("draw", []) as Array).size()
+				if draw_amount > safe_draws:
+					draw_amount = safe_draws
+					_log(next_state, "%s stops the conditional draw before Fatigue." % SkillTreeLibrary.display_name(SkillTreeLibrary.skill_id_for_effect("highest_intensity")))
+			next_state = _draw_cards_in_place(next_state, draw_amount)
 		"card_play":
 			var bonus_card_plays: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
@@ -750,6 +1028,7 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 	return next_state
 
 func _apply_player_move_along_path(next_state: Dictionary, resolved_action: Dictionary, target_tile: Vector2i, movement_path: Array[Vector2i]) -> Dictionary:
+	var loot_before: int = _unclaimed_loot_count(next_state)
 	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 	if combat_outcome(next_state) == "defeat":
 		return next_state
@@ -757,6 +1036,7 @@ func _apply_player_move_along_path(next_state: Dictionary, resolved_action: Dict
 	next_state = _move_player_along_path(next_state, resolved_path)
 	_mark_first_move_used(next_state)
 	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
+	next_state = _maybe_refund_loot_play(next_state, loot_before)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	return next_state
 
@@ -782,7 +1062,7 @@ func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Diction
 			return false
 	return true
 
-func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1) -> Dictionary:
+func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1, play_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array).duplicate()
 	if hand_index < 0 or hand_index >= hand.size():
@@ -792,39 +1072,141 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	var deck: Dictionary = next_state.get("deck", {}).duplicate(true)
 	deck["hand"] = hand
 	var card: Dictionary = card_def(card_id, next_state)
+	var destination: String = "discard"
 	if bool(card.get("consume_on_play", false)):
-		var consumed: Array = deck.get("consumed", []).duplicate()
-		consumed.append(card_id)
-		deck["consumed"] = consumed
+		var makeshift_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_fallback_item")
+		var fallback_kind: String = _semantic_fallback_kind(play_context)
+		var makeshift_armed: bool = bool((next_state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
+		if fallback_kind in ["attack", "move"] and has_skill(next_state, makeshift_id) and makeshift_armed:
+			var makeshift_discard: Array = deck.get("discard", []).duplicate()
+			makeshift_discard.append(card_id)
+			deck["discard"] = makeshift_discard
+			destination = "discard"
+			_erase_skill_flag(next_state, "item_preserve_armed")
+			_log(next_state, "%s preserves the item after its basic use." % SkillTreeLibrary.display_name(makeshift_id))
+		else:
+			var consumed: Array = deck.get("consumed", []).duplicate()
+			consumed.append(card_id)
+			deck["consumed"] = consumed
+			destination = "consume"
 	elif bool(card.get("burn", false)):
-		var burned: Array = deck.get("burned", []).duplicate()
-		burned.append(card_id)
-		deck["burned"] = burned
+		var escape_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_burn")
+		var escape_armed: bool = bool((next_state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
+		if not GameData.card_is_item(card_id) and has_skill(next_state, escape_id) and escape_armed:
+			var saved_discard: Array = deck.get("discard", []).duplicate()
+			saved_discard.append(card_id)
+			deck["discard"] = saved_discard
+			destination = "discard"
+			_erase_skill_flag(next_state, "burn_preserve_armed")
+			_log(next_state, "%s keeps %s in the deck." % [SkillTreeLibrary.display_name(escape_id), str(card.get("name", card_id))])
+		else:
+			var burned: Array = deck.get("burned", []).duplicate()
+			burned.append(card_id)
+			deck["burned"] = burned
+			destination = "burn"
 	else:
 		var discard: Array = deck.get("discard", []).duplicate()
 		discard.append(card_id)
 		deck["discard"] = discard
+		destination = "discard"
 	next_state["deck"] = deck
+	next_state["last_card_destination"] = destination
+	if destination == "discard":
+		next_state = _maybe_trigger_pain_recall(next_state, card_id)
 	var safe_plays_spent: int = maxi(1, plays_spent)
+	var payment_snapshot: Dictionary = next_state.get("pending_card_payment", {}) as Dictionary
+	var used_banked_play: bool = _card_payment_uses_banked_play(payment_snapshot, next_state, safe_plays_spent)
+	next_state.erase("pending_card_payment")
+	next_state["last_card_used_banked_play"] = used_banked_play
 	var health_cost: int = int(card.get("health_cost", 0)) * safe_plays_spent
 	if health_cost > 0:
 		next_state = _lose_player_health(next_state, health_cost, true, false)
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
-	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + card_time_cost_from_def(card)
+	var time_cost: int = card_time_cost_from_def(card)
+	var borrowed_time_id: String = SkillTreeLibrary.skill_id_for_effect("banked_play_no_time")
+	if used_banked_play and _skill_charge_available(next_state, borrowed_time_id):
+		time_cost = 0
+		_mark_skill_used(next_state, borrowed_time_id, "%s removes this card's Time." % SkillTreeLibrary.display_name(borrowed_time_id))
+	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + time_cost
+	var flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
+	var play_mode: String = str(play_context.get("play_mode", "play"))
+	if (
+		play_mode == "play"
+		and bool(flags.get("prismatic_resolving", false))
+		and str(flags.get("prismatic_target_card_id", "")) == card_id
+	):
+		_erase_skill_flag(next_state, "prismatic_armed")
+		_erase_skill_flag(next_state, "prismatic_target_card_id")
+		_erase_skill_flag(next_state, "prismatic_resolving")
+		var prismatic_id: String = SkillTreeLibrary.skill_id_for_effect("arm_intensity")
+		_log(next_state, "%s fulfills %s's intensity conditions." % [SkillTreeLibrary.display_name(prismatic_id), str(card.get("name", card_id))])
+	else:
+		_erase_skill_flag(next_state, "prismatic_resolving")
 	next_state = _apply_pending_player_trap_restriction(next_state)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
 	return next_state
 
+func _card_play_capacity_without_banked(state: Dictionary) -> int:
+	return (
+		int(state.get("cards_per_turn", BASE_CARDS_PER_TURN))
+		+ int(state.get("death_bonus_card_plays_this_turn", 0))
+		+ int(state.get("card_play_bonus_this_turn", 0))
+	)
+
+func _snapshot_pending_card_payment(state: Dictionary) -> void:
+	if state.has("pending_card_payment"):
+		return
+	state["pending_card_payment"] = {
+		"banked_play_active": int(state.get("banked_play_active", 0)),
+		"cards_played_before": int(state.get("cards_played_this_turn", 0)),
+		"capacity_without_banked": _card_play_capacity_without_banked(state)
+	}
+
+func _card_payment_uses_banked_play(snapshot: Dictionary, state: Dictionary, plays_spent: int) -> bool:
+	if snapshot.is_empty():
+		return _card_spend_uses_banked_play(state, plays_spent)
+	if int(snapshot.get("banked_play_active", 0)) <= 0:
+		return false
+	return (
+		int(snapshot.get("cards_played_before", 0)) + maxi(1, plays_spent)
+		> int(snapshot.get("capacity_without_banked", _card_play_capacity_without_banked(state)))
+	)
+
+func _semantic_fallback_kind(play_context: Dictionary) -> String:
+	var explicit_kind: String = str(play_context.get("fallback_kind", ""))
+	if explicit_kind in ["attack", "move"]:
+		return explicit_kind
+	match str(play_context.get("play_mode", "play")):
+		"attack":
+			return "attack"
+		"move", "blink":
+			return "move"
+	return ""
+
+func _card_spend_uses_banked_play(state: Dictionary, plays_spent: int) -> bool:
+	if int(state.get("banked_play_active", 0)) <= 0:
+		return false
+	var before: int = int(state.get("cards_played_this_turn", 0))
+	return before + maxi(1, plays_spent) > _card_play_capacity_without_banked(state)
+
+func _card_has_intensity_condition(card: Dictionary) -> bool:
+	for action_var: Variant in card.get("actions", []):
+		if typeof(action_var) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = action_var as Dictionary
+		if not _action_intensity_requirement(action).is_empty() or not _action_intensity_bonus(action).is_empty():
+			return true
+	return false
+
 func is_player_turn(state: Dictionary) -> bool:
 	var current_actor: Dictionary = state.get("current_actor", {})
 	return str(current_actor.get("kind", "player")) == "player"
 
 func player_base_initiative(state: Dictionary) -> int:
-	var stats: Dictionary = GameData.normalized_progression_stats(state.get("stats", {}))
-	return maxi(PLAYER_MIN_INITIATIVE, PLAYER_BASE_INITIATIVE - int(stats.get("agility", 0)))
+	return PLAYER_BASE_INITIATIVE
 
 func card_time_cost(card_id: String, state: Dictionary = {}) -> int:
 	return card_time_cost_from_def(card_def(card_id, state))
@@ -888,6 +1270,20 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if combat_outcome(next_state) != "" or not is_player_turn(next_state):
 		return next_state
+	var measured_id: String = SkillTreeLibrary.skill_id_for_effect("bank_unused_play")
+	if has_skill(next_state, measured_id) and cards_remaining_this_turn(next_state) > 0:
+		next_state["banked_plays"] = 1
+		_record_skill_event(next_state, measured_id, "%s banks one play." % SkillTreeLibrary.display_name(measured_id))
+	else:
+		next_state["banked_plays"] = 0
+	var guard_id: String = SkillTreeLibrary.skill_id_for_effect("convert_block")
+	var guard_player: Dictionary = _normalized_player(next_state.get("player", {}))
+	var remaining_block: int = int(guard_player.get("block", 0))
+	if remaining_block > 0 and skill_is_ready(next_state, guard_id):
+		guard_player["block"] = 0
+		guard_player["stoneskin"] = int(guard_player.get("stoneskin", 0)) + remaining_block
+		next_state["player"] = guard_player
+		_mark_skill_used(next_state, guard_id, "%s carries remaining block forward as stoneskin." % SkillTreeLibrary.display_name(guard_id))
 	next_state = _clear_player_bleed_after_turn(next_state)
 	var scheduled_time: int = (
 		int(next_state.get("initiative_clock", 0))
@@ -1251,6 +1647,8 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
+	next_state["banked_play_active"] = clampi(int(next_state.get("banked_plays", 0)), 0, 1)
+	next_state["banked_plays"] = 0
 	next_state = _tick_umbra_player_activation(next_state)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	player["block"] = 0
@@ -1292,6 +1690,7 @@ func _card_play_capacity(state: Dictionary) -> int:
 		int(state.get("cards_per_turn", BASE_CARDS_PER_TURN))
 		+ int(state.get("death_bonus_card_plays_this_turn", 0))
 		+ int(state.get("card_play_bonus_this_turn", 0))
+		+ int(state.get("banked_play_active", 0))
 	)
 
 func attack_bonus_for_current_turn(state: Dictionary) -> int:
@@ -1376,6 +1775,34 @@ func elemental_intensity(state: Dictionary, element_id: String) -> int:
 		return 0
 	return int(elemental_intensities(state).get(element_id, 0))
 
+func condition_intensity(state: Dictionary, element_id: String) -> int:
+	if not ElementData.is_elemental(element_id):
+		return 0
+	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
+	if bool(flags.get("prismatic_resolving", false)):
+		return 999
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
+	if has_skill(state, skill_id):
+		var highest: int = 0
+		for intensity_var: Variant in elemental_intensities(state).values():
+			highest = maxi(highest, int(intensity_var))
+		return highest
+	return elemental_intensity(state, element_id)
+
+func _action_condition_uses_confluence(state: Dictionary, action: Dictionary) -> bool:
+	var requirement: Dictionary = _action_intensity_requirement(action)
+	if requirement.is_empty():
+		return false
+	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
+	if bool(flags.get("prismatic_resolving", false)):
+		return false
+	var element_id: String = str(requirement.get("element", ElementData.NONE))
+	var threshold: int = int(requirement.get("amount", 0))
+	if elemental_intensity(state, element_id) >= threshold:
+		return false
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
+	return has_skill(state, skill_id) and condition_intensity(state, element_id) >= threshold
+
 func elemental_intensity_counter(state: Dictionary, counter_key: String) -> Dictionary:
 	var result: Dictionary = _empty_elemental_intensity()
 	var raw: Variant = state.get(counter_key, {})
@@ -1393,7 +1820,7 @@ func action_intensity_requirement_met(state: Dictionary, action: Dictionary) -> 
 	var requirement: Dictionary = _action_intensity_requirement(action)
 	if requirement.is_empty():
 		return true
-	return elemental_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
+	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
 
 func action_intensity_bonus(action: Dictionary) -> Dictionary:
 	return _action_intensity_bonus(action)
@@ -1405,7 +1832,7 @@ func action_intensity_bonus_requirement_met(state: Dictionary, action: Dictionar
 	var requirement: Dictionary = _action_intensity_bonus_requirement(action)
 	if requirement.is_empty():
 		return false
-	return elemental_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
+	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
 
 func combat_outcome(state: Dictionary) -> String:
 	if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
@@ -2474,7 +2901,7 @@ func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: 
 			return next_state
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
-		next_state = _trigger_trap_at_index(next_state, trap_index)
+		next_state = _trigger_player_trap_at_index(next_state, trap_index)
 		_log(next_state, "%s triggers a trap." % attack_kind.capitalize())
 		return next_state
 	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
@@ -2666,6 +3093,11 @@ func _damage_player(state: Dictionary, damage: int, bypass_block: bool, apply_fr
 	_record_run_stat(next_state, RUN_STAT_DAMAGE_RECEIVED, maxi(0, hp_before - int(player.get("hp", 0))))
 	if was_alive and int(player.get("hp", 0)) <= 0:
 		next_state = _trigger_prevent_lethal_relics(next_state)
+	var final_hp: int = int((_normalized_player(next_state.get("player", {}))).get("hp", 0))
+	var pain_id: String = SkillTreeLibrary.skill_id_for_effect("pain_recall")
+	var pain_flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
+	if final_hp < hp_before and has_skill(next_state, pain_id) and not skill_was_used(next_state, pain_id) and not bool(pain_flags.get("pain_recall_primed", false)):
+		_set_skill_flag(next_state, "pain_recall_primed", true)
 	return next_state
 
 func _record_run_stat(state: Dictionary, stat_id: String, amount: int) -> void:
@@ -2695,6 +3127,23 @@ func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dicti
 		next_state["illusions"] = illusions
 		if was_alive and int(illusion.get("hp", 0)) <= 0:
 			_log(next_state, "Illusion fades.")
+			var skill_id: String = SkillTreeLibrary.skill_id_for_effect("illusion_recall")
+			var turn_key: String = "turn:%s" % skill_id
+			var flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
+			if has_skill(next_state, skill_id) and int(flags.get(turn_key, -1)) != int(next_state.get("turn", 1)) and _latest_non_item_discard_index(next_state) >= 0:
+				var deck_before: Dictionary = next_state.get("deck", {}) as Dictionary
+				var recalled_index: int = _latest_non_item_discard_index(next_state)
+				var recalled_card_id: String = str((deck_before.get("discard", []) as Array)[recalled_index])
+				var hand_was_full: bool = (deck_before.get("hand", []) as Array).size() >= MAX_HAND_SIZE
+				next_state = _recall_latest_non_item_discard(next_state, true)
+				_set_skill_flag(next_state, turn_key, int(next_state.get("turn", 1)))
+				var recalled_name: String = str(card_def(recalled_card_id, next_state).get("name", recalled_card_id))
+				var message: String = (
+					"%s places %s atop the draw pile." % [SkillTreeLibrary.display_name(skill_id), recalled_name]
+					if hand_was_full
+					else "%s returns %s to hand." % [SkillTreeLibrary.display_name(skill_id), recalled_name]
+				)
+				_record_skill_event(next_state, skill_id, message)
 			return next_state
 	return next_state
 
@@ -3425,7 +3874,7 @@ func _action_with_intensity_bonus(state: Dictionary, action: Dictionary) -> Dict
 	if bonus.is_empty():
 		return resolved_action
 	var element_id: String = str(bonus.get("element", ElementData.NONE))
-	if elemental_intensity(state, element_id) < int(bonus.get("threshold", 0)):
+	if condition_intensity(state, element_id) < int(bonus.get("threshold", 0)):
 		return resolved_action
 	for field: String in INTENSITY_BONUS_ADDITIVE_FIELDS:
 		if not bonus.has(field):
@@ -3444,7 +3893,7 @@ func _intensity_bonus_damage_modifiers_for_action(state: Dictionary, action: Dic
 		return modifiers
 	var element_id: String = str(bonus.get("element", ElementData.NONE))
 	var threshold: int = int(bonus.get("threshold", 0))
-	if elemental_intensity(state, element_id) < threshold:
+	if condition_intensity(state, element_id) < threshold:
 		return modifiers
 	modifiers.append({
 		"source": "%s Intensity" % ElementData.name(element_id),
@@ -3501,15 +3950,15 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	if int(action.get("push", 0)) > 0:
 		var push_direction: Vector2i = _action_force_direction(action)
 		if push_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, push_direction, source_pos, true):
-			next_state = _move_enemy_in_direction(next_state, enemy_index, push_direction, int(action.get("push", 0)))
+			next_state = _move_enemy_in_direction(next_state, enemy_index, push_direction, int(action.get("push", 0)), trigger_player_relics)
 		elif push_direction == Vector2i.ZERO:
-			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("push", 0)), true)
+			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("push", 0)), true, trigger_player_relics)
 	elif int(action.get("pull", 0)) > 0:
 		var pull_direction: Vector2i = _action_force_direction(action)
 		if pull_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, pull_direction, source_pos, false):
-			next_state = _move_enemy_in_direction(next_state, enemy_index, pull_direction, int(action.get("pull", 0)))
+			next_state = _move_enemy_in_direction(next_state, enemy_index, pull_direction, int(action.get("pull", 0)), trigger_player_relics)
 		elif pull_direction == Vector2i.ZERO:
-			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("pull", 0)), false)
+			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("pull", 0)), false, trigger_player_relics)
 	return next_state
 
 func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
@@ -4144,7 +4593,7 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 			return next_state
 		if int(resolved_action.get("damage", 0)) > 0:
 			_mark_first_attack_used(next_state)
-		next_state = _trigger_trap_at_index(next_state, trap_index)
+		next_state = _trigger_player_trap_at_index(next_state, trap_index)
 		_log(next_state, "%s triggers a trap." % ("Push" if pushing else "Pull"))
 		return next_state
 	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
@@ -4179,9 +4628,9 @@ func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Ve
 	if force_direction != Vector2i.ZERO:
 		var player_source: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 		if _forced_direction_can_move_enemy(next_state, enemy_index, force_direction, player_source, pushing):
-			next_state = _move_enemy_in_direction(next_state, enemy_index, force_direction, int(resolved_action.get("amount", 0)))
+			next_state = _move_enemy_in_direction(next_state, enemy_index, force_direction, int(resolved_action.get("amount", 0)), true)
 	else:
-		next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing)
+		next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing, true)
 	_log(next_state, "%s %d." % ["Push" if pushing else "Pull", int(resolved_action.get("amount", 0))])
 	return next_state
 
@@ -4239,7 +4688,7 @@ func _enemy_direction_path(state: Dictionary, enemy_index: int, direction: Vecto
 		path.append(candidate)
 	return path
 
-func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int) -> Dictionary:
+func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int, player_triggered_traps: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var step_direction: Vector2i = _cardinal_direction(direction)
 	if step_direction == Vector2i.ZERO or amount <= 0:
@@ -4259,12 +4708,12 @@ func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Ve
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
-		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
+		next_state = _trigger_trap_on_enemy(next_state, enemy_index, player_triggered_traps)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 			break
 	return next_state
 
-func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Vector2i, amount: int, pushing: bool) -> Dictionary:
+func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Vector2i, amount: int, pushing: bool, player_triggered_traps: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size() or amount <= 0:
@@ -4289,7 +4738,7 @@ func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Ve
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
-		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
+		next_state = _trigger_trap_on_enemy(next_state, enemy_index, player_triggered_traps)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 			break
 	return next_state
@@ -4301,7 +4750,7 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 	for _step: int in range(amount):
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
 		var current: Vector2i = player.get("pos", Vector2i.ZERO)
-		var enemy_occupied: Dictionary = _occupied_actor_tiles(next_state)
+		var enemy_occupied: Dictionary = _player_blocking_tiles(next_state)
 		var next_tile: Vector2i = (
 			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, enemy_occupied, Vector2i(-99, -99))
 			if pushing
@@ -4315,7 +4764,7 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 		next_state = _trigger_trap_on_player(next_state)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
-	return next_state
+	return _dispel_illusion_at_player(next_state)
 
 func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictionary:
 	var next_state: Dictionary = state
@@ -4329,7 +4778,7 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictio
 		next_state = _trigger_trap_on_player(next_state)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
-	return next_state
+	return _dispel_illusion_at_player(next_state)
 
 func _player_path_until_hidden_collision(state: Dictionary, path: Array[Vector2i]) -> Array[Vector2i]:
 	var resolved: Array[Vector2i] = []
@@ -4435,9 +4884,19 @@ func _trigger_trap_on_player(state: Dictionary) -> Dictionary:
 	var trap_index: int = _trap_index_at_tile(state, (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1)))
 	if trap_index < 0:
 		return state
+	return _trigger_player_trap_at_index(state, trap_index)
+
+func _trigger_player_trap_at_index(state: Dictionary, trap_index: int) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("disarm_trap")
+	var traps: Array = state.get("traps", []) as Array
+	if _skill_charge_available(state, skill_id) and trap_index >= 0 and trap_index < traps.size():
+		var trap: Dictionary = traps[trap_index] as Dictionary
+		var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1))
+		if _trap_blast_tiles(state, trap).has(player_pos):
+			return _trigger_trap_at_index(state, trap_index, true)
 	return _trigger_trap_at_index(state, trap_index)
 
-func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int) -> Dictionary:
+func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int, player_triggered: bool = false) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
 		return state
@@ -4449,7 +4908,7 @@ func _trigger_trap_on_enemy(state: Dictionary, enemy_index: int) -> Dictionary:
 			break
 	if trap_index < 0:
 		return state
-	return _trigger_trap_at_index(state, trap_index)
+	return _trigger_player_trap_at_index(state, trap_index) if player_triggered else _trigger_trap_at_index(state, trap_index)
 
 func _trigger_traps_on_tiles(state: Dictionary, trap_tiles: Array[Vector2i]) -> Dictionary:
 	var next_state: Dictionary = state
@@ -4457,10 +4916,10 @@ func _trigger_traps_on_tiles(state: Dictionary, trap_tiles: Array[Vector2i]) -> 
 		var trap_index: int = _trap_index_at_tile(next_state, trap_tile)
 		if trap_index < 0:
 			continue
-		next_state = _trigger_trap_at_index(next_state, trap_index)
+		next_state = _trigger_player_trap_at_index(next_state, trap_index)
 	return next_state
 
-func _trigger_trap_at_index(state: Dictionary, trap_index: int) -> Dictionary:
+func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var traps: Array = next_state.get("traps", []).duplicate(true)
 	if trap_index < 0 or trap_index >= traps.size():
@@ -4474,7 +4933,11 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int) -> Dictionary:
 		blast_lookup[tile] = true
 	var damage: int = int(trap.get("damage", 0))
 	var player_hit: bool = blast_lookup.has((_normalized_player(next_state.get("player", {}))).get("pos", Vector2i(-1, -1)))
-	if player_hit:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("disarm_trap")
+	var player_protected: bool = player_hit and (protect_player or _skill_charge_available(next_state, skill_id))
+	if player_protected:
+		_mark_skill_used(next_state, skill_id, "%s leaves you untouched by the trap blast." % SkillTreeLibrary.display_name(skill_id))
+	elif player_hit:
 		if damage > 0:
 			next_state = _damage_player(next_state, damage, false)
 		next_state = _apply_trap_keywords_to_player(next_state, trap)
@@ -5109,6 +5572,13 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 			var fatigue_damage: int = int(deck.get("fatigue_base", FATIGUE_BASE_DAMAGE)) + int(deck.get("cycles", 0)) - 1
 			next_state["deck"] = deck
 			next_state = _lose_player_health(next_state, fatigue_damage, true)
+			var reserve_id: String = SkillTreeLibrary.skill_id_for_effect("survive_fatigue")
+			var fatigue_player: Dictionary = _normalized_player(next_state.get("player", {}))
+			if int(fatigue_player.get("hp", 0)) <= 0 and has_skill(next_state, reserve_id) and not skill_was_used(next_state, reserve_id):
+				var reserve_effect: Dictionary = SkillTreeLibrary.effect(reserve_id)
+				fatigue_player["hp"] = GameData.fixed_point_amount(maxi(1, int(reserve_effect.get("minimum_health_visible", 1))))
+				next_state["player"] = fatigue_player
+				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at 1 health." % SkillTreeLibrary.display_name(reserve_id))
 			deck = next_state.get("deck", {}).duplicate(true)
 			var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 			rng.state = int(next_state.get("rng_state", 0))
@@ -5166,6 +5636,24 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 					var item_name: String = str(GameData.equipment_def(equipment_id).get("name", equipment_id))
 					_log(state, "Found %s." % item_name)
 
+func _unclaimed_loot_count(state: Dictionary) -> int:
+	var count: int = 0
+	for loot_var: Variant in state.get("loot", []):
+		if typeof(loot_var) == TYPE_DICTIONARY and not bool((loot_var as Dictionary).get("claimed", false)):
+			count += 1
+	return count
+
+func _maybe_refund_loot_play(state: Dictionary, unclaimed_before: int) -> Dictionary:
+	var next_state: Dictionary = state
+	if _unclaimed_loot_count(next_state) >= unclaimed_before:
+		return next_state
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("loot_refund")
+	if not skill_is_ready(next_state, skill_id):
+		return next_state
+	next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + 1
+	_mark_skill_used(next_state, skill_id, "%s refunds the play spent reaching loot." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
 func _occupied_enemy_tiles(state: Dictionary, exclude_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = {}
 	for enemy: Dictionary in _live_enemies(state):
@@ -5206,13 +5694,26 @@ func _occupied_actor_tiles(state: Dictionary, exclude_enemy_id: int = -1, exclud
 		occupied[tile_var] = true
 	return occupied
 
-func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
-	var occupied: Dictionary = _occupied_visible_enemy_tiles(state)
-	for tile_var: Variant in _occupied_illusion_tiles(state).keys():
-		occupied[tile_var] = true
+func _player_blocking_tiles(state: Dictionary) -> Dictionary:
+	var occupied: Dictionary = _occupied_enemy_tiles(state)
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
 	return occupied
+
+func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
+	var occupied: Dictionary = _occupied_visible_enemy_tiles(state)
+	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
+		occupied[tile_var] = true
+	return occupied
+
+func _dispel_illusion_at_player(state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = state
+	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	for illusion: Dictionary in _live_illusions(next_state):
+		if illusion.get("pos", Vector2i(-999, -999)) != player_pos:
+			continue
+		return _damage_illusion(next_state, int(illusion.get("id", -1)), int(illusion.get("hp", 0)))
+	return next_state
 
 func _enemy_blocking_tiles(state: Dictionary, exclude_enemy_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = _occupied_actor_tiles(state, exclude_enemy_id)
@@ -6638,8 +7139,6 @@ func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index
 		if status_id.is_empty() or _unit_status_amount(enemy, status_id) <= 0:
 			continue
 		damage += GameData.fixed_point_amount(int(effect.get("value", 0)))
-	if _unit_status_amount(enemy, "freeze") > 0:
-		damage += GameData.stat_value(state, "ice_magick") * 2
 	return maxi(0, damage)
 
 func _conditional_attack_bonus_for_action(state: Dictionary, action: Dictionary) -> int:

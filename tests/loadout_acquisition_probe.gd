@@ -161,11 +161,11 @@ func _equipment_combat_layout(equipment_tile: Vector2i) -> Dictionary:
 		"type": "combat",
 		"grid": [
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
-			["wall", "ash", "ash", "ash", "ash", "ash", "ash", "ash", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
+			["wall", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "wall"],
 			["wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"]
 		],
 		"player_start": Vector2i(2, 4),

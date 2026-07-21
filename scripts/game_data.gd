@@ -10,7 +10,6 @@ const NPCS_PATH: String = "res://data/npcs.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
 const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
-const PROGRESSION_STATS_PATH: String = "res://data/stats.json"
 const FIXED_POINT_SCALE: int = 10
 const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
 const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = [
@@ -18,7 +17,7 @@ const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = [
 	"terrain_burst", "cinder_marks", "gale_force", "umbra_eclipse"
 ]
 const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock"]
-const PROGRESSION_STAT_IDS: Array[String] = [
+const LEGACY_PROGRESSION_STAT_IDS = [
 	"might",
 	"dexterity",
 	"agility",
@@ -31,13 +30,6 @@ const PROGRESSION_STAT_IDS: Array[String] = [
 	"air_magick",
 	"earth_magick"
 ]
-const ELEMENT_MAGICK_STAT_IDS := {
-	ElementData.FIRE: "fire_magick",
-	ElementData.ICE: "ice_magick",
-	ElementData.LIGHTNING: "lightning_magick",
-	ElementData.AIR: "air_magick",
-	ElementData.EARTH: "earth_magick"
-}
 const FIXED_RELIC_STAT_BONUS_KEYS: Array[String] = [
 	"max_hp",
 	"start_combat_block",
@@ -99,9 +91,6 @@ static func upgrades() -> Dictionary:
 static func progression_levels() -> Dictionary:
 	return _load_json_dict(PROGRESSION_LEVELS_PATH)
 
-static func progression_stat_defs() -> Dictionary:
-	return _load_json_dict(PROGRESSION_STATS_PATH)
-
 static func card_def(card_id: String) -> Dictionary:
 	return _scale_card_fixed_point(_raw_card_def(card_id))
 
@@ -129,18 +118,12 @@ static func card_def_with_card_mods(card_id: String, card_mods: Dictionary) -> D
 	return card
 
 static func card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
-	var card: Dictionary = _raw_card_def_for_progression(card_id, progression)
-	var mods: Array = ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).duplicate(true)
-	card = _apply_card_mods(card, mods)
+	# Meta-progression changes available tactics, never a card's printed numbers.
+	# Run-scoped relics may still transform cards for the current attempt.
+	var card: Dictionary = _raw_card_def(card_id)
 	card = _scale_card_fixed_point(card)
 	card = _apply_relic_card_effects(card, progression.get("relics", []))
-	card = _apply_progression_stat_effects(card, progression)
 	card = _tag_card_actions_for_combat(card)
-	var total_count: int = card_upgrade_count(progression, card_id)
-	if total_count > 0:
-		card["base_card_id"] = card_id
-		card["upgraded"] = true
-		card["upgrade_count"] = total_count
 	return card
 
 static func enemy_def(enemy_type: String) -> Dictionary:
@@ -575,46 +558,17 @@ static func card_upgrade_count(progression: Dictionary, card_id: String) -> int:
 	total += ((progression.get("card_mods", {}) as Dictionary).get(card_id, []) as Array).size()
 	return total
 
-static func progression_stat_ids() -> Array[String]:
-	return PROGRESSION_STAT_IDS.duplicate()
-
-static func progression_stat_def(stat_id: String) -> Dictionary:
-	return _duplicate_dict(progression_stat_defs().get(stat_id, {}))
-
-static func default_progression_stats() -> Dictionary:
-	var result: Dictionary = {}
-	for stat_id: String in PROGRESSION_STAT_IDS:
-		result[stat_id] = 0
-	return result
-
-static func normalized_progression_stats(stats_value: Variant) -> Dictionary:
+static func normalized_legacy_progression_stats(stats_value: Variant) -> Dictionary:
 	var source: Dictionary = {}
 	if typeof(stats_value) == TYPE_DICTIONARY:
 		source = stats_value as Dictionary
 	var result: Dictionary = {}
-	var cap: int = progression_stat_cap()
-	for stat_id: String in PROGRESSION_STAT_IDS:
-		result[stat_id] = clampi(int(source.get(stat_id, 0)), 0, cap)
+	for stat_id: String in LEGACY_PROGRESSION_STAT_IDS:
+		result[stat_id] = clampi(int(source.get(stat_id, 0)), 0, 10)
 	return result
-
-static func spent_progression_stat_points(stats_value: Variant) -> int:
-	var total: int = 0
-	var stats: Dictionary = normalized_progression_stats(stats_value)
-	for stat_id: String in PROGRESSION_STAT_IDS:
-		total += int(stats.get(stat_id, 0))
-	return total
 
 static func max_progression_level() -> int:
 	return maxi(1, int(progression_levels().get("max_level", 20)))
-
-static func progression_stat_cap() -> int:
-	return maxi(1, int(progression_levels().get("stat_cap", 10)))
-
-static func progression_stat_points_per_level() -> int:
-	return maxi(1, int(progression_levels().get("stat_points_per_level", 1)))
-
-static func progression_stat_points_for_level(level: int) -> int:
-	return maxi(0, clampi(level, 1, max_progression_level()) - 1) * progression_stat_points_per_level()
 
 static func progression_level_cost(target_level: int) -> int:
 	var max_level: int = max_progression_level()
@@ -627,21 +581,6 @@ static func progression_level_total_cost(level: int) -> int:
 	var total: int = 0
 	for target_level: int in range(2, mini(level, max_progression_level()) + 1):
 		total += progression_level_cost(target_level)
-	return total
-
-static func stat_value(progression: Dictionary, stat_id: String) -> int:
-	return int(normalized_progression_stats(progression.get("stats", {})).get(stat_id, 0))
-
-static func vigor_max_hp_bonus(progression: Dictionary) -> int:
-	return stat_value(progression, "vigor") * FIXED_POINT_SCALE
-
-static func stat_bonus_from_upgrades(progression: Dictionary, effect_key: String) -> int:
-	var total: int = 0
-	for upgrade_id_var: Variant in progression.get("purchased_upgrades", []):
-		var upgrade_id: String = str(upgrade_id_var)
-		var upgrade: Dictionary = upgrades().get(upgrade_id, {})
-		if str(upgrade.get("effect", "")) == effect_key:
-			total += int(upgrade.get("value", 0))
 	return total
 
 static func stat_bonus_from_relics(relic_ids_list: Array, effect_key: String) -> int:
@@ -1126,119 +1065,6 @@ static func _apply_relic_card_effects(card: Dictionary, relic_ids_list: Array) -
 				next_card = _apply_relic_append_action(next_card, effect)
 	return next_card
 
-static func _apply_progression_stat_effects(card: Dictionary, progression: Dictionary) -> Dictionary:
-	var next_card: Dictionary = card.duplicate(true)
-	if next_card.is_empty():
-		return next_card
-	var stats: Dictionary = normalized_progression_stats(progression.get("stats", {}))
-	var vigor: int = int(stats.get("vigor", 0))
-	var health_cost: int = int(next_card.get("health_cost", 0))
-	if health_cost > 0 and vigor > 0:
-		var before_cost: int = health_cost
-		var min_cost: int = ceili(float(before_cost) * 0.5)
-		health_cost = maxi(min_cost, before_cost - vigor)
-		next_card["health_cost"] = health_cost
-	var actions: Array = (next_card.get("actions", []) as Array).duplicate(true)
-	var appended_actions: Array = []
-	for index: int in range(actions.size()):
-		if typeof(actions[index]) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
-		var action_type: String = str(action.get("type", ""))
-		action = _apply_progression_stats_to_action(action, stats, health_cost > 0)
-		actions[index] = action
-		if action_type == "blink" and int(stats.get("air_magick", 0)) > 0:
-			appended_actions.append(_stat_appended_action(
-				{"type": "block", "amount": int(stats.get("air_magick", 0)) * 2},
-				"Air Magick",
-				"+%d block after blink" % (int(stats.get("air_magick", 0)) * 2)
-			))
-		if int(action.get("freeze", 0)) > 0 and int(stats.get("ice_magick", 0)) > 0:
-			appended_actions.append(_stat_appended_action(
-				{"type": "block", "amount": int(stats.get("ice_magick", 0)) * 2},
-				"Ice Magick",
-				"+%d block after freeze" % (int(stats.get("ice_magick", 0)) * 2)
-			))
-	for appended_action: Dictionary in appended_actions:
-		actions.append(appended_action)
-	next_card["actions"] = actions
-	return next_card
-
-static func _apply_progression_stats_to_action(action: Dictionary, stats: Dictionary, has_health_cost: bool) -> Dictionary:
-	var next_action: Dictionary = action.duplicate(true)
-	var action_type: String = str(next_action.get("type", ""))
-	if action_type == "melee":
-		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("might", 0)) * 2, "Might")
-	if action_type in ["ranged", "aoe"]:
-		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("dexterity", 0)) * 2, "Dexterity")
-	if action_type in ["push", "pull"]:
-		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("air_magick", 0)) * 2, "Air Magick")
-	if action_type in ATTACK_ACTION_TYPES and has_health_cost:
-		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("fire_magick", 0)) * 2, "Fire Magick")
-	if action_type in ATTACK_ACTION_TYPES and (int(next_action.get("shock", 0)) > 0 or int(next_action.get("chain", 0)) > 0):
-		next_action = _add_stat_action_delta(next_action, "damage", int(stats.get("lightning_magick", 0)) * 2, "Lightning Magick")
-	if next_action.has("burn"):
-		next_action = _add_stat_action_delta(next_action, "burn", int(stats.get("fire_magick", 0)) * 2, "Fire Magick")
-	if next_action.has("poison"):
-		next_action = _add_stat_action_delta(next_action, "poison", int(stats.get("earth_magick", 0)) * 2, "Earth Magick")
-	match action_type:
-		"block":
-			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("guard", 0)) * 2, "Guard")
-		"stoneskin":
-			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("guard", 0)), "Guard")
-			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("earth_magick", 0)), "Earth Magick")
-		"heal":
-			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("vigor", 0)) * 2, "Vigor")
-		"intensity":
-			next_action = _add_stat_action_delta(next_action, "amount", int(stats.get("focus", 0)), "Focus")
-		"illusion":
-			next_action = _add_stat_action_delta(next_action, "health", int(stats.get("guard", 0)) * 2, "Guard")
-			next_action = _add_stat_action_delta(next_action, "health", int(stats.get("earth_magick", 0)) * 2, "Earth Magick")
-	next_action = _apply_progression_stats_to_intensity_bonus(next_action, stats, has_health_cost)
-	return next_action
-
-static func _apply_progression_stats_to_intensity_bonus(action: Dictionary, stats: Dictionary, has_health_cost: bool) -> Dictionary:
-	if typeof(action.get("intensity_bonus", {})) != TYPE_DICTIONARY:
-		return action
-	var next_action: Dictionary = action.duplicate(true)
-	var action_type: String = str(next_action.get("type", ""))
-	var bonus: Dictionary = (next_action.get("intensity_bonus", {}) as Dictionary).duplicate(true)
-	var focus_delta: int = int(stats.get("focus", 0)) * 2
-	for field: String in ["damage", "burn", "poison", "health", "amount"]:
-		if not bonus.has(field) or focus_delta <= 0:
-			continue
-		if not action_field_uses_fixed_point(action_type, field):
-			continue
-		bonus[field] = int(bonus.get(field, 0)) + focus_delta
-	var fire_delta: int = int(stats.get("fire_magick", 0)) * 2
-	if bonus.has("burn") and fire_delta > 0:
-		bonus["burn"] = int(bonus.get("burn", 0)) + fire_delta
-	if bonus.has("damage") and has_health_cost and fire_delta > 0:
-		bonus["damage"] = int(bonus.get("damage", 0)) + fire_delta
-	var earth_delta: int = int(stats.get("earth_magick", 0)) * 2
-	if bonus.has("poison") and earth_delta > 0:
-		bonus["poison"] = int(bonus.get("poison", 0)) + earth_delta
-	var lightning_delta: int = int(stats.get("lightning_magick", 0)) * 2
-	if bonus.has("damage") and lightning_delta > 0 and (int(action.get("shock", 0)) > 0 or int(action.get("chain", 0)) > 0 or int(bonus.get("shock", 0)) > 0 or int(bonus.get("chain", 0)) > 0):
-		bonus["damage"] = int(bonus.get("damage", 0)) + lightning_delta
-	var air_delta: int = int(stats.get("air_magick", 0)) * 2
-	if bonus.has("damage") and air_delta > 0 and action_type in ["push", "pull"]:
-		bonus["damage"] = int(bonus.get("damage", 0)) + air_delta
-	next_action["intensity_bonus"] = bonus
-	return next_action
-
-static func _add_stat_action_delta(action: Dictionary, field: String, amount: int, source: String) -> Dictionary:
-	if amount <= 0:
-		return action
-	var next_action: Dictionary = action.duplicate(true)
-	var before_value: Variant = next_action.get(field, 0)
-	next_action[field] = int(next_action.get(field, 0)) + amount
-	return _record_stat_action_modifier(next_action, source, field, before_value, next_action.get(field, null), "%+d %s" % [amount, field.replace("_", " ")])
-
-static func _stat_appended_action(action: Dictionary, source: String, label: String) -> Dictionary:
-	var next_action: Dictionary = action.duplicate(true)
-	return _record_stat_action_modifier(next_action, source, "_action", null, str(action.get("type", "")), label)
-
 static func _apply_relic_action_mod(card: Dictionary, effect: Dictionary) -> Dictionary:
 	if not _relic_effect_matches_card(card, effect):
 		return card
@@ -1298,26 +1124,6 @@ static func _record_relic_action_modifier(action: Dictionary, effect: Dictionary
 		"source": _relic_effect_source_name(effect),
 		"amount": _relic_modifier_amount(effect, before_value, after_value),
 		"label": _relic_modifier_label(effect, field, before_value, after_value),
-		"field": field,
-		"before": _duplicate_variant(before_value),
-		"after": _duplicate_variant(after_value)
-	})
-	modifiers_by_field[field] = field_modifiers
-	next_action["_modifiers"] = modifiers_by_field
-	return next_action
-
-static func _record_stat_action_modifier(action: Dictionary, source: String, field: String, before_value: Variant, after_value: Variant, label: String) -> Dictionary:
-	var next_action: Dictionary = action.duplicate(true)
-	var modifiers_by_field: Dictionary = {}
-	if typeof(next_action.get("_modifiers", {})) == TYPE_DICTIONARY:
-		modifiers_by_field = (next_action.get("_modifiers", {}) as Dictionary).duplicate(true)
-	var field_modifiers: Array = []
-	if typeof(modifiers_by_field.get(field, [])) == TYPE_ARRAY:
-		field_modifiers = (modifiers_by_field.get(field, []) as Array).duplicate(true)
-	field_modifiers.append({
-		"source": source,
-		"amount": int(after_value) - int(before_value) if typeof(before_value) in [TYPE_INT, TYPE_FLOAT] and typeof(after_value) in [TYPE_INT, TYPE_FLOAT] else 0,
-		"label": label,
 		"field": field,
 		"before": _duplicate_variant(before_value),
 		"after": _duplicate_variant(after_value)

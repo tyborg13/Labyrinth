@@ -812,7 +812,7 @@
 - Played quick_stab as printed: 9 damage.
 - Enemy round: 1 HP lost, mode now combat.
 - Played whirlwind_slash as printed: 1 damage, 1 kills.
-- Reward: took Ashline Tempo.
+- Reward: took Cinderline Tempo.
 - Moved to (2,-1): depth 2 air combat.
 - Played bloody_lunge as printed: 9 damage.
 - Played tectonic_maul as printed: 11 damage, 1 kills.
@@ -821,7 +821,7 @@
 - Played whirlwind_slash as printed: 3 damage.
 - Played lantern_shot as printed: 4 damage.
 - Enemy round: 3 HP lost, mode now combat.
-- Played ashline_tempo as printed: 5 damage, 1 kills.
+- Played cinderline_tempo as printed: 5 damage, 1 kills.
 - Played sidestep_slash as printed: 5 damage.
 - Played quick_stab as printed: 5 damage, 1 kills.
 - Played rallying_breath as printed: +4 HP.
@@ -838,7 +838,7 @@
 - Run 9: At campfire with 34/42 HP, 147 embers, Mirror+Lens+Iron Lung+Boots and a strong deck, continuing feels rational; this is the clearest run where pressing past campfire should be viable.
 - Campfire: left with 147 unbanked embers.
 - Moved to (-1,-2): depth 2 ice combat.
-- Played ashline_tempo as printed: 7 damage.
+- Played cinderline_tempo as printed: 7 damage.
 - Played rallying_breath as printed: +4 HP.
 - Played bloody_lunge as printed: 7 damage.
 - Enemy round: 13 HP lost, mode now combat.
@@ -862,7 +862,7 @@
 - Played bloody_lunge as printed: 4 damage, 1 kills.
 - Played rallying_breath as printed: +4 HP.
 - Enemy round: 0 HP lost, mode now combat.
-- Played ashline_tempo as printed: low impact.
+- Played cinderline_tempo as printed: low impact.
 - Played lantern_shot as printed: 3 damage.
 - Played patch_up as printed: +3 HP, +2 block.
 - Enemy round: 3 HP lost, mode now combat.
@@ -881,7 +881,7 @@
 - Treasure: took Coffin Nails.
 - Moved to (-1,-3): depth 3 air combat.
 - Played shadow_gate as printed: 12 damage.
-- Played ashline_tempo as printed: 5 damage.
+- Played cinderline_tempo as printed: 5 damage.
 - Played volt_surge as printed: 3 damage, 1 kills.
 - Played rallying_breath as printed: +4 HP.
 - Enemy round: 3 HP lost, mode now combat.
@@ -914,7 +914,7 @@
 - Played quick_stab as move: low impact.
 - Enemy round: 0 HP lost, mode now combat.
 - Played whirlwind_slash as printed: 8 damage.
-- Played ashline_tempo as printed: 5 damage.
+- Played cinderline_tempo as printed: 5 damage.
 - Played bloody_lunge as printed: 1 damage, 1 kills.
 - Enemy round: 2 HP lost, mode now combat.
 - Played lantern_shot as printed: 6 damage, 1 kills.
@@ -924,7 +924,7 @@
 - Played tectonic_maul as printed: 15 damage.
 - Played shadow_gate as printed: 10 damage.
 - Enemy round: 0 HP lost, mode now combat.
-- Played ashline_tempo as printed: 6 damage, 1 kills.
+- Played cinderline_tempo as printed: 6 damage, 1 kills.
 - Played bloody_lunge as printed: 6 damage, 1 kills.
 - Played sidestep_slash as printed: 5 damage.
 - Enemy round: 0 HP lost, mode now combat.

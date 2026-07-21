@@ -1,0 +1,505 @@
+extends RefCounted
+
+const GameData = preload("res://scripts/game_data.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngineScript = preload("res://scripts/run_engine.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+
+const SEED: int = 73021
+const FIRST_ROOM: Vector2i = Vector2i(1, 0)
+const FIRST_BOSS_ROOM: Vector2i = Vector2i(4, 0)
+
+static func run(expect: Callable) -> void:
+	_test_new_run_ignores_retired_growth(expect)
+	_test_discerning_eye(expect)
+	_test_deferred_choice(expect)
+	_test_salvager(expect)
+	_test_true_bearing(expect)
+	_test_layaway(expect)
+	_test_curators_patience(expect)
+	_test_open_arsenal(expect)
+	_test_last_door(expect)
+	_test_first_boss_moltshard_is_idempotent(expect)
+	_test_first_boss_moltshard_survives_torn_save(expect)
+	_test_boss_notice_keeps_moltshard_and_missed_equipment(expect)
+	_test_respec_preserves_spent_state_and_earned_pending(expect)
+	_test_combat_snapshot_progression_repair_preserves_use_history(expect)
+	_test_progression_revision_reconciliation(expect)
+	_test_torn_level_up_reconciliation_spends_embers(expect)
+
+static func _test_new_run_ignores_retired_growth(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var forged: Dictionary = ProgressionStore.default_data()
+	forged["stats"] = {"vigor": 99, "focus": 99}
+	forged["purchased_upgrades"] = ["unknown_upgrade"]
+	forged["card_mods"] = {"quick_stab": [{"type": "damage", "amount": 500, "cost_paid": 1}]}
+	var state: Dictionary = engine.create_new_run(SEED, forged)
+	expect.call(int(state.get("player_max_hp", 0)) == RunEngineScript.BASE_MAX_HP, "New runs should always begin with base maximum health")
+	expect.call(int(state.get("hand_size", 0)) == RunEngineScript.BASE_HAND_SIZE, "New runs should always begin with the base hand size")
+	expect.call(int(state.get("heal_bonus", -1)) == 0, "New runs should not retain permanent healing bonuses")
+	var embedded: Dictionary = state.get("progression", {}) as Dictionary
+	expect.call(not embedded.has("stats") and not embedded.has("card_mods") and not embedded.has("purchased_upgrades"), "New runs should sanitize every retired numeric-growth field")
+	var learned: Dictionary = _valid_profile(["quick_wits"], 1, 0, 2)
+	state["progression"] = learned
+	state["mode"] = "combat"
+	state["combat_state"] = {"skill_ids": [], "stats": {"agility": 99}, "card_mods": {"quick_stab": []}}
+	var repaired: Dictionary = engine.repair_loaded_run_state(state)
+	var repaired_combat: Dictionary = repaired.get("combat_state", {}) as Dictionary
+	expect.call((repaired_combat.get("skill_ids", []) as Array).has("quick_wits"), "Resumed combat should receive the migrated embedded skill build")
+	expect.call(not repaired_combat.has("stats") and not repaired_combat.has("card_mods"), "Resumed combat should remove retired numeric-growth fields")
+
+static func _test_discerning_eye(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["discerning_eye"])
+	var original_cards: Array = ["rime_shard", "static_lash", "gust_step"]
+	state["mode"] = "reward"
+	state["pending_reward"] = {
+		"cards": original_cards.duplicate(),
+		"heal_amount": 60,
+		"ember_amount": 8
+	}
+	var rerolled: Dictionary = engine.reroll_card_reward(state)
+	var rerolled_cards: Array = ((rerolled.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
+	expect.call(rerolled_cards.size() == 3, "Discerning Eye should replace a three-card reward with three cards")
+	expect.call(rerolled_cards != original_cards, "Discerning Eye should produce a different deterministic reward set")
+	for card_id: String in original_cards:
+		expect.call(not rerolled_cards.has(card_id), "Discerning Eye should exclude every card from the original offer")
+	expect.call(engine.run_skill_used_this_sequence(rerolled, "discerning_eye"), "Discerning Eye should spend its sequence use after a successful reroll")
+	var trigger_events: Array[Dictionary] = engine.run_skill_events(rerolled)
+	expect.call(trigger_events.size() == 1 and str(trigger_events[0].get("skill_id", "")) == "discerning_eye", "Discerning Eye should emit one durable run-skill trigger event")
+	var repeated: Dictionary = engine.reroll_card_reward(rerolled)
+	expect.call(repeated.get("pending_reward", {}) == rerolled.get("pending_reward", {}), "Discerning Eye should not reroll twice in one sequence")
+	expect.call(engine.run_skill_events(repeated).size() == 1, "Repeating a spent run skill should not duplicate its trigger event")
+
+static func _test_deferred_choice(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["deferred_choice"])
+	state["mode"] = "reward"
+	state["player_hp"] = 100
+	state["player_max_hp"] = 360
+	state["pending_reward"] = {
+		"cards": ["rime_shard", "static_lash", "gust_step"],
+		"heal_amount": 60,
+		"ember_amount": 8
+	}
+	state = engine.skip_reward_for_heal(state, "rime_shard")
+	var skill_state: Dictionary = state.get("skill_state", {}) as Dictionary
+	expect.call(str(skill_state.get("pending_card", "")) == "rime_shard", "Deferred Choice should remember one card from the skipped reward")
+	expect.call(int(state.get("player_hp", 0)) == 160 and str(state.get("mode", "")) == "room", "Skipping a reward should keep the existing heal flow")
+	state = _set_current_room(state, FIRST_ROOM, "combat")
+	state["mode"] = "combat"
+	var rewarded: Dictionary = engine.finish_combat(state, _combat_result(FIRST_ROOM, "combat", true))
+	var next_cards: Array = ((rewarded.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
+	expect.call(next_cards.has("rime_shard"), "Deferred Choice should place the remembered card into the next reward")
+	expect.call(str((rewarded.get("skill_state", {}) as Dictionary).get("pending_card", "")) == "", "The remembered card should clear when it enters an offer")
+
+static func _test_salvager(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["salvager"])
+	state = _set_current_room(state, FIRST_ROOM, "combat")
+	state["mode"] = "combat"
+	var first_loot: Array = [_equipment_loot("stitcher_apron", Vector2i(3, 3))]
+	var first_result: Dictionary = _combat_result(FIRST_ROOM, "combat", true, first_loot)
+	state = engine.finish_combat(state, first_result)
+	expect.call((state.get("equipment_inventory", []) as Array).has("stitcher_apron"), "Salvager should recover the first unclaimed equipment reward")
+	expect.call(engine.run_skill_used_this_sequence(state, "salvager"), "Salvager should spend its sequence use after recovering equipment")
+	expect.call(str(engine.run_skill_events(state)[0].get("skill_id", "")) == "salvager", "Salvager should emit a durable automatic trigger event")
+	var second_room := Vector2i(1, 1)
+	state = _set_current_room(state, second_room, "combat")
+	state["mode"] = "combat"
+	var second_loot: Array = [_equipment_loot("rimeplate_harness", Vector2i(4, 3))]
+	state = engine.finish_combat(state, _combat_result(second_room, "combat", true, second_loot))
+	expect.call(not (state.get("equipment_inventory", []) as Array).has("rimeplate_harness"), "Salvager should not recover a second item in the same sequence")
+
+static func _test_true_bearing(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["true_bearing"])
+	state = _set_current_room(state, FIRST_ROOM, "combat")
+	state["mode"] = RunEngineScript.MODE_PRE_BATTLE
+	state["pre_battle_pending"] = true
+	state["pre_battle_travel_dir"] = Vector2i.RIGHT
+	var preview: Dictionary = engine.pre_battle_preview_state(state)
+	var authored_start: Vector2i = (((preview.get("combat_state", {}) as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+	var choices: Array[Vector2i] = engine.pre_battle_start_tiles(state)
+	expect.call(not choices.is_empty(), "True Bearing should expose legal starting tiles before combat")
+	var chosen_start: Vector2i = authored_start
+	for tile: Vector2i in choices:
+		if tile != authored_start:
+			chosen_start = tile
+			break
+	expect.call(chosen_start != authored_start, "True Bearing should offer at least one alternative to the authored entrance")
+	var rejected: Dictionary = engine.set_pre_battle_start(state, Vector2i.ZERO)
+	expect.call(not rejected.has("pre_battle_start"), "True Bearing should reject an impassable distant tile")
+	state = engine.set_pre_battle_start(state, chosen_start)
+	var begun: Dictionary = engine.begin_pre_battle_combat(state)
+	var actual_start: Vector2i = (((begun.get("combat_state", {}) as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
+	expect.call(actual_start == chosen_start, "True Bearing should apply the selected starting tile to the opening combat state")
+	expect.call(not begun.has("pre_battle_start"), "The pre-battle selection should clear after combat begins")
+
+static func _test_layaway(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["layaway"])
+	var origin := Vector2i(3, 0)
+	var destination := Vector2i(3, 1)
+	state = _with_room(state, origin, "blacksmith", true, ["stitcher_apron", "rimeplate_harness", "sunken_anchor"])
+	state = _with_room(state, destination, "blacksmith", false, ["witchglass_aegis", "sunken_anchor", "rimeplate_harness"])
+	state["current_room"] = origin
+	state["mode"] = "room"
+	var reserved: Dictionary = engine.reserve_merchant_offer(state, "stitcher_apron")
+	expect.call(engine.run_skill_used_this_sequence(reserved, "layaway"), "Layaway should spend its sequence use when an offer is held")
+	expect.call(not engine.merchant_offer_ids(reserved, "blacksmith").has("stitcher_apron"), "A held offer should leave the current merchant stock")
+	var rollover_coord := Vector2i(5, 0)
+	var rollover: Dictionary = _with_room(reserved, rollover_coord, "arcanist", true, ["rime_shard", "static_lash", "gust_step"])
+	rollover["current_room"] = rollover_coord
+	rollover["mode"] = "room"
+	expect.call(not engine.run_skill_is_ready(rollover, "layaway"), "A sequence refresh should not reopen Layaway while its prior reservation is pending")
+	var overwrite_attempt: Dictionary = engine.reserve_merchant_offer(rollover, "rime_shard")
+	var pending_reservation: Dictionary = (overwrite_attempt.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) as Dictionary
+	expect.call(str(pending_reservation.get("item_id", "")) == "stitcher_apron", "A new merchant must not overwrite the unresolved Layaway reservation")
+	expect.call(engine.merchant_offer_ids(overwrite_attempt, "arcanist").has("rime_shard"), "A blocked second hold should leave the new merchant's stock unchanged")
+	var arrived: Dictionary = engine.move_to_room(reserved, destination)
+	var destination_stock: Array = engine.merchant_offer_ids(arrived, "blacksmith")
+	expect.call(arrived.get("current_room", Vector2i.ZERO) == destination, "The deterministic merchant fixture should permit travel to the next visit")
+	expect.call(not destination_stock.is_empty() and str(destination_stock[0]) == "stitcher_apron", "Layaway should return the held offer at the next merchant of the same kind")
+	expect.call((arrived.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) == {}, "The reservation should clear after it returns")
+
+static func _test_curators_patience(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["curators_patience"])
+	var origin := Vector2i(3, 0)
+	var destination := Vector2i(3, 1)
+	state = _with_room(state, origin, "treasure", true)
+	state = _with_room(state, destination, "treasure", false)
+	state["current_room"] = origin
+	state["mode"] = "treasure"
+	state["pending_relics"] = ["iron_lung", "flint_edge", "coffin_nails"]
+	state = engine.claim_relic(state, "iron_lung", "flint_edge")
+	expect.call(str((state.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "flint_edge", "Curator's Patience should remember one unchosen relic")
+	var arrived: Dictionary = engine.move_to_room(state, destination)
+	expect.call((arrived.get("pending_relics", []) as Array).has("flint_edge"), "Curator's Patience should place the remembered relic into the next offer")
+	expect.call(str((arrived.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "", "The remembered relic should clear when it enters an offer")
+
+static func _test_open_arsenal(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["open_arsenal"])
+	var original_trinket: String = str((state.get("equipped_equipment", {}) as Dictionary).get("trinket", ""))
+	state["equipment_inventory"] = ["stitcher_apron"]
+	var collected: Array = state.get("collected_equipment", []).duplicate()
+	collected.append("stitcher_apron")
+	state["collected_equipment"] = collected
+	var equipped: Dictionary = engine.equip_equipment(state, "stitcher_apron", "trinket")
+	expect.call(str((equipped.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == "stitcher_apron", "Open Arsenal should allow armor in the trinket slot")
+	expect.call((equipped.get("equipment_inventory", []) as Array).has(original_trinket), "Wild-slot equip should stow the displaced trinket")
+	var without_skill: Dictionary = ProgressionStore.default_data()
+	without_skill["embers"] = int(equipped.get("held_embers", 0))
+	var repaired: Dictionary = engine.apply_progression_update(equipped, without_skill)
+	expect.call(str((repaired.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == original_trinket, "Removing Open Arsenal should restore a native trinket")
+	expect.call((repaired.get("equipment_inventory", []) as Array).has("stitcher_apron"), "Removing Open Arsenal should safely stow off-slot equipment")
+
+static func _test_last_door(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["last_door"])
+	state = _set_current_room(state, FIRST_ROOM, "combat")
+	state["mode"] = "combat"
+	state = engine.set_held_embers(state, 91)
+	state["equipped_items"] = ["crimson_draught"]
+	state = engine.consume_equipped_item_card(state, "crimson_draught")
+	var skill_state: Dictionary = (state.get("skill_state", {}) as Dictionary).duplicate(true)
+	skill_state["previous_room"] = Vector2i.ZERO
+	state["skill_state"] = skill_state
+	var retreated: Dictionary = engine.finish_combat(state, _combat_result(FIRST_ROOM, "combat", false))
+	expect.call(retreated.get("current_room", Vector2i(-1, -1)) == Vector2i.ZERO, "Last Door should return a defeated player to the previous room")
+	expect.call(int(retreated.get("player_hp", 0)) == GameData.fixed_point_amount(1), "Last Door should return the player at exactly 1 visible health")
+	expect.call(str(retreated.get("mode", "")) == "room" and not bool(retreated.get("game_over", true)), "Last Door should avert non-boss defeat")
+	expect.call(engine.held_embers(retreated) == 91, "Last Door should preserve embers held during the failed encounter")
+	expect.call(not (retreated.get("equipped_items", []) as Array).has("crimson_draught") and not (retreated.get("item_inventory", []) as Array).has("crimson_draught"), "Last Door should not restore a consumed item")
+	expect.call(engine.run_skill_used_this_sequence(retreated, "last_door"), "Last Door should spend its sequence use after retreating")
+	expect.call(str(engine.run_skill_events(retreated)[0].get("skill_id", "")) == "last_door", "Last Door should emit a durable automatic trigger event")
+	retreated["current_room"] = FIRST_ROOM
+	retreated["mode"] = "combat"
+	var defeated: Dictionary = engine.finish_combat(retreated, _combat_result(FIRST_ROOM, "combat", false))
+	expect.call(str(defeated.get("mode", "")) == "defeat" and bool(defeated.get("game_over", false)), "Last Door should not refresh within the same sequence")
+
+static func _test_first_boss_moltshard_is_idempotent(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, [])
+	state = _set_current_room(state, FIRST_BOSS_ROOM, "boss")
+	state["mode"] = "combat"
+	var boss_result: Dictionary = _combat_result(FIRST_BOSS_ROOM, "boss", true)
+	var rewarded: Dictionary = engine.finish_combat(state, boss_result)
+	var first_progression: Dictionary = rewarded.get("progression", {}) as Dictionary
+	expect.call(ProgressionStore.moltshard_count(first_progression) == 1, "The first boss victory should award one Moltshard")
+	expect.call((rewarded.get("item_inventory", []) as Array).is_empty(), "A Moltshard should remain progression currency rather than entering run inventory")
+	expect.call(str(rewarded.get("notice", "")).contains("Moltshard acquired"), "The boss reward should tell the player that a Moltshard was acquired")
+	var first_revision: int = int(first_progression.get("progression_revision", 0))
+	var repeated: Dictionary = engine.finish_combat(rewarded, boss_result)
+	var repeated_progression: Dictionary = repeated.get("progression", {}) as Dictionary
+	expect.call(ProgressionStore.moltshard_count(repeated_progression) == 1, "Repeating boss resolution should not award another Moltshard")
+	expect.call(int(repeated_progression.get("progression_revision", 0)) == first_revision, "Idempotent boss resolution should not advance progression twice")
+
+static func _test_first_boss_moltshard_survives_torn_save(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var stale_run: Dictionary = _new_run(engine, [])
+	stale_run = _set_current_room(stale_run, FIRST_BOSS_ROOM, "boss")
+	stale_run["mode"] = "combat"
+	var boss_result: Dictionary = _combat_result(FIRST_BOSS_ROOM, "boss", true)
+	var first_resolution: Dictionary = engine.finish_combat(stale_run, boss_result)
+	var saved_profile: Dictionary = first_resolution.get("progression", {}) as Dictionary
+	var resumed_stale_run: Dictionary = engine.reconcile_progression_revision(stale_run, saved_profile)
+	var replayed_resolution: Dictionary = engine.finish_combat(resumed_stale_run, boss_result)
+	var replayed_profile: Dictionary = replayed_resolution.get("progression", {}) as Dictionary
+	expect.call(ProgressionStore.moltshard_count(replayed_profile) == 1, "A profile-first torn save must not duplicate the first-boss Moltshard on replay")
+	expect.call((replayed_profile.get(ProgressionStore.MOLTSHARD_AWARD_IDS_KEY, []) as Array).size() == 1, "The Moltshard award ledger should retain exactly one source id after replay")
+	expect.call(bool((replayed_resolution.get("skill_state", {}) as Dictionary).get("moltshard_awarded", false)), "Replaying a torn boss snapshot should repair its run-local award marker")
+
+static func _test_boss_notice_keeps_moltshard_and_missed_equipment(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, [])
+	state = _set_current_room(state, FIRST_BOSS_ROOM, "boss")
+	state["mode"] = "combat"
+	var boss_result: Dictionary = _combat_result(FIRST_BOSS_ROOM, "boss", true, [_equipment_loot("stitcher_apron", Vector2i(4, 4))])
+	var rewarded: Dictionary = engine.finish_combat(state, boss_result)
+	var notice: String = str(rewarded.get("notice", ""))
+	expect.call(notice.contains("Moltshard acquired"), "A boss notice should retain Moltshard acquisition feedback when equipment was missed")
+	expect.call(notice.contains(RunEngineScript.MISSED_EQUIPMENT_NOTICE), "A boss notice should also retain the missed-equipment warning")
+
+static func _test_respec_preserves_spent_state_and_earned_pending(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var original_order: Array = [
+		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye",
+		"deferred_choice", "sure_footed", "curators_patience", "true_bearing", "layaway"
+	]
+	var alternate_order: Array = [
+		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye",
+		"rehearsed_escape", "makeshift_tool", "carry_the_guard", "pain_remembers", "borrowed_time"
+	]
+	var profile: Dictionary = _valid_profile(original_order, 9, 1, 4)
+	var alternate: Array[String] = SkillTreeLibrary.repaired_selection([], 9, alternate_order)
+	var reshaped: Dictionary = ProgressionStore.respec_skills(profile, alternate)
+	expect.call(ProgressionStore.moltshard_count(reshaped) == 0, "A valid reshape should consume exactly one Moltshard")
+	var state: Dictionary = engine.create_new_run(SEED, profile)
+	state["skill_state"] = {
+		"used_by_sequence": {"0:discerning_eye": true, "0:layaway": true},
+		"pending_card": "rime_shard",
+		"pending_relic": "flint_edge",
+		"reserved_merchant": {"kind": "blacksmith", "item_id": "stitcher_apron", "origin_coord": Vector2i(3, 0)},
+		"previous_room": Vector2i.ZERO,
+		"moltshard_awarded": false
+	}
+	state["pre_battle_start"] = Vector2i(3, 4)
+	var updated: Dictionary = engine.apply_progression_update(state, reshaped)
+	var updated_skill_state: Dictionary = updated.get("skill_state", {}) as Dictionary
+	expect.call(str(updated_skill_state.get("pending_card", "")) == "rime_shard", "Respec should preserve a card already earned through Deferred Choice")
+	expect.call(str(updated_skill_state.get("pending_relic", "")) == "flint_edge", "Respec should preserve a relic already earned through Curator's Patience")
+	expect.call(str((updated_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "Respec should preserve stock already held through Layaway")
+	expect.call(not updated.has("pre_battle_start"), "Removing True Bearing should clear its pending starting tile")
+	expect.call(engine.run_skill_used_this_sequence(updated, "discerning_eye"), "A retained skill should remain spent after reshaping")
+	expect.call(bool((updated_skill_state.get("used_by_sequence", {}) as Dictionary).get("0:layaway", false)), "Reshaping should retain prior use history instead of refreshing removed skills")
+	var repaired: Dictionary = engine.repair_loaded_run_state(updated)
+	var repaired_skill_state: Dictionary = repaired.get("skill_state", {}) as Dictionary
+	expect.call(str(repaired_skill_state.get("pending_card", "")) == "rime_shard" and str(repaired_skill_state.get("pending_relic", "")) == "flint_edge", "Save repair should preserve valid earned deferrals after their source skills are removed")
+	expect.call(str((repaired_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "Save repair should preserve a valid earned merchant reservation")
+
+	var card_redemption: Dictionary = _set_current_room(updated, FIRST_ROOM, "combat")
+	card_redemption["mode"] = "combat"
+	card_redemption = engine.finish_combat(card_redemption, _combat_result(FIRST_ROOM, "combat", true))
+	expect.call((((card_redemption.get("pending_reward", {}) as Dictionary).get("cards", []) as Array).has("rime_shard")), "An earned deferred card should redeem once after its source skill is removed")
+	expect.call(str((card_redemption.get("skill_state", {}) as Dictionary).get("pending_card", "")) == "", "The removed-skill card redemption should clear after entering an offer")
+	card_redemption["mode"] = "reward"
+	card_redemption = engine.skip_reward_for_heal(card_redemption, "rime_shard")
+	expect.call(str((card_redemption.get("skill_state", {}) as Dictionary).get("pending_card", "")) == "", "Without Deferred Choice, a later skipped reward must not create a new pending card")
+
+	var origin := Vector2i(3, 0)
+	var destination := Vector2i(3, 1)
+	var relic_redemption: Dictionary = _with_room(updated, origin, "treasure", true)
+	relic_redemption = _with_room(relic_redemption, destination, "treasure", false)
+	relic_redemption["current_room"] = origin
+	relic_redemption["mode"] = "room"
+	relic_redemption = engine.move_to_room(relic_redemption, destination)
+	expect.call((relic_redemption.get("pending_relics", []) as Array).has("flint_edge"), "An earned deferred relic should redeem once after its source skill is removed")
+	expect.call(str((relic_redemption.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "", "The removed-skill relic redemption should clear after entering an offer")
+	var relic_choices: Array = relic_redemption.get("pending_relics", []) as Array
+	var chosen_relic: String = str(relic_choices[0]) if not relic_choices.is_empty() else ""
+	var other_relic: String = ""
+	for relic_id_var: Variant in relic_choices:
+		if str(relic_id_var) != chosen_relic:
+			other_relic = str(relic_id_var)
+			break
+	if not chosen_relic.is_empty():
+		relic_redemption = engine.claim_relic(relic_redemption, chosen_relic, other_relic)
+	expect.call(str((relic_redemption.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "", "Without Curator's Patience, the redeemed offer must not create a new pending relic")
+
+	var merchant_redemption: Dictionary = _with_room(updated, origin, "blacksmith", true, ["sunken_anchor", "rimeplate_harness"])
+	merchant_redemption = _with_room(merchant_redemption, destination, "blacksmith", false, ["witchglass_aegis", "sunken_anchor", "rimeplate_harness"])
+	merchant_redemption["current_room"] = origin
+	merchant_redemption["mode"] = "room"
+	merchant_redemption = engine.move_to_room(merchant_redemption, destination)
+	var returned_stock: Array = engine.merchant_offer_ids(merchant_redemption, "blacksmith")
+	expect.call(not returned_stock.is_empty() and str(returned_stock[0]) == "stitcher_apron", "Earned Layaway stock should return once after its source skill is removed")
+	expect.call((merchant_redemption.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) == {}, "The removed-skill reservation should clear after returning")
+	var attempted_hold: Dictionary = engine.reserve_merchant_offer(merchant_redemption, str(returned_stock[0]) if not returned_stock.is_empty() else "")
+	expect.call((attempted_hold.get("skill_state", {}) as Dictionary).get("reserved_merchant", {}) == {}, "Without Layaway, a merchant visit must not create a new reservation")
+
+static func _test_progression_revision_reconciliation(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var embedded: Dictionary = _valid_profile(["quick_wits"], 1, 0, 2)
+	embedded["embers"] = 12
+	var state: Dictionary = engine.create_new_run(SEED, embedded)
+	state = engine.set_held_embers(state, 77)
+	var newer: Dictionary = _valid_profile(["discerning_eye"], 1, 0, 3)
+	newer["embers"] = 999
+	var reconciled: Dictionary = engine.reconcile_progression_revision(state, newer)
+	expect.call(engine.has_run_skill(reconciled, "discerning_eye") and not engine.has_run_skill(reconciled, "quick_wits"), "A newer profile revision should replace the embedded skill build")
+	expect.call(int((reconciled.get("progression", {}) as Dictionary).get("progression_revision", 0)) == 3, "Revision reconciliation should retain the newer revision")
+	expect.call(engine.held_embers(reconciled) == 77, "Revision reconciliation should preserve the run's held embers")
+	var older: Dictionary = _valid_profile(["quick_wits"], 1, 0, 1)
+	var unchanged: Dictionary = engine.reconcile_progression_revision(reconciled, older)
+	expect.call(engine.has_run_skill(unchanged, "discerning_eye"), "An older profile revision should not replace the embedded build")
+
+static func _test_torn_level_up_reconciliation_spends_embers(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var embedded: Dictionary = _valid_profile(["quick_wits"], 1, 0, 2)
+	embedded["embers"] = 0
+	var stale_run: Dictionary = engine.create_new_run(SEED, embedded)
+	var level_cost: int = ProgressionStore.next_level_cost(embedded)
+	stale_run = engine.set_held_embers(stale_run, level_cost + 17)
+	var purchase_source: Dictionary = ProgressionStore.set_embers(embedded, engine.held_embers(stale_run))
+	var purchased: Dictionary = ProgressionStore.purchase_level_with_skill(purchase_source, "measured_breath")
+	expect.call(int(purchased.get("level", 0)) == int(embedded.get("level", 0)) + 1, "Torn-save fixture should contain a completed profile-first level purchase")
+	var reconciled: Dictionary = engine.reconcile_progression_revision(stale_run, purchased)
+	expect.call(engine.held_embers(reconciled) == int(purchased.get("embers", -1)), "Resuming after a profile-first level-up must retain the post-purchase ember total")
+	expect.call(engine.held_embers(reconciled) == 17, "A torn level-up must not restore the embers already spent on that level")
+	expect.call(engine.has_run_skill(reconciled, "measured_breath"), "A torn level-up should still apply its newly learned skill")
+
+static func _test_combat_snapshot_progression_repair_preserves_use_history(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var original: Dictionary = _valid_profile([
+		"quick_wits", "measured_breath", "discerning_eye", "pain_remembers", "prismatic_instinct"
+	], 5, 1, 2)
+	var alternate: Dictionary = _valid_profile([
+		"ghost_stride", "discerning_eye", "sure_footed", "deferred_choice", "salvager"
+	], 5, 0, 3)
+	var state: Dictionary = engine.create_new_run(SEED, original)
+	state["mode"] = "combat"
+	state["combat_state"] = {
+		"skill_ids": ProgressionStore.selected_skill_ids(original),
+		"skill_flags": {
+			"used:quick_wits": true,
+			"prismatic_armed": true,
+			"prismatic_target_card_id": "rime_shard",
+			"prismatic_resolving": true,
+			"burn_preserve_armed": true,
+			"item_preserve_armed": true,
+			"pain_recall_primed": true
+		},
+		"banked_plays": 1,
+		"banked_play_active": 1
+	}
+	var changed: Dictionary = engine.apply_progression_update(state, alternate)
+	var changed_combat: Dictionary = changed.get("combat_state", {}) as Dictionary
+	var changed_flags: Dictionary = changed_combat.get("skill_flags", {}) as Dictionary
+	expect.call((changed_combat.get("skill_ids", []) as Array) == ProgressionStore.selected_skill_ids(alternate), "Applying a newer profile should repair the saved combat skill build")
+	expect.call(bool(changed_flags.get("used:quick_wits", false)), "Combat snapshot repair should preserve use history for removed skills")
+	expect.call(not changed_flags.has("prismatic_armed") and not changed_flags.has("prismatic_target_card_id") and not changed_flags.has("prismatic_resolving") and not changed_flags.has("burn_preserve_armed") and not changed_flags.has("item_preserve_armed") and not changed_flags.has("pain_recall_primed"), "Removing skills should clear their unspent pending combat benefits")
+	expect.call(int(changed_combat.get("banked_plays", -1)) == 0 and int(changed_combat.get("banked_play_active", -1)) == 0, "Removing Measured Breath should clear banked plays")
+	var restored: Dictionary = engine.apply_progression_update(changed, original)
+	var restored_flags: Dictionary = ((restored.get("combat_state", {}) as Dictionary).get("skill_flags", {}) as Dictionary)
+	expect.call(bool(restored_flags.get("used:quick_wits", false)), "Re-adding a spent skill should not refresh its combat use")
+
+static func _new_run(engine, skills: Array) -> Dictionary:
+	var progression: Dictionary = ProgressionStore.default_data()
+	var preference: Array[String]
+	var target_count: int = 0
+	for skill_id_var: Variant in skills:
+		var skill_id: String = str(skill_id_var)
+		_append_skill_path(skill_id, preference)
+		target_count = maxi(target_count, SkillTreeLibrary.minimum_owned(skill_id) + 1)
+	target_count = maxi(target_count, preference.size())
+	progression["level"] = target_count + 1
+	progression["skill_ids"] = SkillTreeLibrary.repaired_selection([], target_count, preference)
+	return engine.create_new_run(SEED, progression)
+
+static func _append_skill_path(skill_id: String, preference: Array[String]) -> void:
+	for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
+		_append_skill_path(prerequisite_id, preference)
+	if not preference.has(skill_id):
+		preference.append(skill_id)
+
+static func _valid_profile(preferred_order: Array, skill_count: int, moltshards: int, revision: int) -> Dictionary:
+	var profile: Dictionary = ProgressionStore.default_data()
+	profile["level"] = skill_count + 1
+	profile["skill_ids"] = SkillTreeLibrary.repaired_selection([], skill_count, preferred_order)
+	profile["moltshards"] = moltshards
+	profile["progression_revision"] = revision
+	return ProgressionStore.normalized_data(profile)
+
+static func _set_current_room(state: Dictionary, coord: Vector2i, room_type: String) -> Dictionary:
+	var next_state: Dictionary = _with_room(state, coord, room_type, false)
+	next_state["current_room"] = coord
+	return next_state
+
+static func _with_room(state: Dictionary, coord: Vector2i, room_type: String, cleared: bool, stock: Array = []) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	var room: Dictionary = {
+		"coord": coord,
+		"depth": maxi(absi(coord.x), absi(coord.y)),
+		"type": room_type,
+		"merchant_kind": room_type if room_type in ["blacksmith", "arcanist", "scavenger"] else "",
+		"element": "fire" if room_type == "combat" else "none",
+		"npcs": [{"id": room_type, "pos": Vector2i(3, 4)}] if room_type in ["blacksmith", "arcanist", "scavenger"] else [],
+		"revealed": true,
+		"visited": true,
+		"cleared": cleared,
+		"sealed": false
+	}
+	if not stock.is_empty():
+		room["merchant_stock"] = stock.duplicate()
+		room["merchant_sold_items"] = []
+		room["merchant_purchased_items"] = []
+		room["merchant_refill_count"] = 0
+	var rooms: Dictionary = (next_state.get("rooms", {}) as Dictionary).duplicate(true)
+	rooms[_room_key(coord)] = room
+	next_state["rooms"] = rooms
+	return next_state
+
+static func _combat_result(coord: Vector2i, room_type: String, victory: bool, loot: Array = []) -> Dictionary:
+	var hp: int = GameData.fixed_point_amount(20) if victory else 0
+	return {
+		"player": {"hp": hp, "max_hp": GameData.fixed_point_amount(36), "pos": Vector2i(2, 4)},
+		"enemies": [],
+		"room_name": "Run Skill Test",
+		"room_coord": coord,
+		"room_depth": maxi(absi(coord.x), absi(coord.y)),
+		"room_type": room_type,
+		"room_element": "fire" if room_type == "combat" else "none",
+		"room_embers": 8,
+		"grid": _grid(),
+		"moss": {},
+		"loot": loot.duplicate(true),
+		"traps": [],
+		"terrain": [],
+		"collected_equipment": [],
+		"missed_equipment": [],
+		"run_stats": RunEngineScript.normalized_run_stats({})
+	}
+
+static func _equipment_loot(equipment_id: String, pos: Vector2i) -> Dictionary:
+	return {
+		"kind": "equipment",
+		"equipment_id": equipment_id,
+		"pos": pos,
+		"claimed": false,
+		"resolution": ""
+	}
+
+static func _grid() -> Array:
+	var grid: Array = []
+	for y: int in range(9):
+		var row: Array[String]
+		for x: int in range(9):
+			row.append("wall" if x == 0 or y == 0 or x == 8 or y == 8 else "stone")
+		grid.append(row)
+	return grid
+
+static func _room_key(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]

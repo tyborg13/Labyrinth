@@ -173,7 +173,7 @@ func _build_variant_grid() -> Control:
 	grid.add_theme_constant_override("v_separation", 10)
 	grid.add_child(_sample_card("COMPACT", "Dense actions", _gallery_button("Skip", UiSkin.VARIANT_COMPACT, UiSkin.BUTTON_HEIGHT_SMALL, 104.0)))
 	grid.add_child(_sample_card("STANDARD", "Menus and prompts", _gallery_button("Continue", UiSkin.VARIANT_STANDARD, UiSkin.BUTTON_HEIGHT_STANDARD, 168.0)))
-	grid.add_child(_sample_card("LARGE", "Primary combat action", _gallery_button("Enter the Ash", UiSkin.VARIANT_LARGE, UiSkin.BUTTON_HEIGHT_ACTION, 224.0)))
+	grid.add_child(_sample_card("LARGE", "Primary combat action", _gallery_button("Enter the Cinder", UiSkin.VARIANT_LARGE, UiSkin.BUTTON_HEIGHT_ACTION, 224.0)))
 	grid.add_child(_sample_card("DESTRUCTIVE", "Irreversible choice", _gallery_button("Abandon Run", UiSkin.VARIANT_DESTRUCTIVE, UiSkin.BUTTON_HEIGHT_STANDARD, 196.0)))
 	var selected := _gallery_button("Attuned", UiSkin.VARIANT_SELECTED, UiSkin.BUTTON_HEIGHT_STANDARD, 166.0, true)
 	selected.button_pressed = true

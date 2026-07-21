@@ -17,7 +17,7 @@ const PORTRAITS := [
 	},
 	{
 		"source": "res://assets/placeholders/units/acolyte_anime_trial.png",
-		"out": "res://assets/art/portraits/ash_acolyte.png",
+		"out": "res://assets/art/portraits/dust_acolyte.png",
 		"crop": Rect2i(50, 0, 154, 186)
 	},
 	{
@@ -27,7 +27,7 @@ const PORTRAITS := [
 	},
 	{
 		"source": "res://assets/placeholders/units/warden_anime_trial.png",
-		"out": "res://assets/art/portraits/ash_warden.png",
+		"out": "res://assets/art/portraits/stone_warden.png",
 		"crop": Rect2i(48, 0, 174, 204)
 	},
 	{

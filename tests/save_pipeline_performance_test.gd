@@ -83,7 +83,7 @@ func _representative_run_state() -> Dictionary:
 			for enemy_index: int in range(5):
 				room_enemies.append({
 					"id": "enemy_%d_%d_%d" % [x, y, enemy_index],
-					"type": "ash_wraith",
+					"type": "umbra_wraith",
 					"hp": 120 - enemy_index * 7,
 					"pos": Vector2i((x + enemy_index) % 9, (y + enemy_index * 2) % 9),
 					"statuses": {"burn": enemy_index, "weak": enemy_index % 2},

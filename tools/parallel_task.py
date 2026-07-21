@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manage isolated Codex task worktrees for Labyrinth of Ash."""
+"""Manage isolated Codex task worktrees for Escape the Umbra."""
 
 from __future__ import annotations
 
@@ -400,7 +400,7 @@ def command_env(args: argparse.Namespace) -> int:
     root = repo_root(Path(args.repo).resolve())
     metadata = metadata_for(root)
     task_id = args.task_id or str(metadata.get("task_id", "")) or slugify(current_branch(root))
-    user_dir = "Labyrinth of Ash Parallel %s" % slugify(task_id)
+    user_dir = "Escape the Umbra Parallel %s" % slugify(task_id)
     if args.format == "json":
         print(json.dumps({"LABYRINTH_TASK_ID": task_id, "LABYRINTH_USER_DIR_NAME": user_dir}, indent=2, sort_keys=True))
     else:

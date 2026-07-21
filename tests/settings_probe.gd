@@ -151,9 +151,9 @@ func _settings_for_scale(scale: float) -> Dictionary:
 
 func _sample_dialogue() -> Dictionary:
 	return {
-		"speaker": "The Ashfarer",
+		"speaker": "The Wayfarer",
 		"accent": "#d8a356",
-		"lines": [{"speaker": "The Ashfarer", "text": SAMPLE_DIALOGUE}]
+		"lines": [{"speaker": "The Wayfarer", "text": SAMPLE_DIALOGUE}]
 	}
 
 func _save_screenshot(path: String) -> void:

@@ -1,6 +1,6 @@
 ---
 name: create-labyrinth-retrodiffusion-animation
-description: Generate, import, clean, validate, and wire Retro Diffusion animation sheets for Labyrinth of Ash. Use when Codex needs to use Retro Diffusion or retrodiffusion.ai via Chrome/Computer Use to create idle, death, combat, NPC, enemy, prop, or other animated raster sheets, then integrate them into Labyrinth assets, Godot metadata, tests, visual proof, and inspection fixtures.
+description: Generate, import, clean, validate, and wire Retro Diffusion animation sheets for Escape the Umbra. Use when Codex needs to use Retro Diffusion or retrodiffusion.ai via Chrome/Computer Use to create idle, death, combat, NPC, enemy, prop, or other animated raster sheets, then integrate them into Labyrinth assets, Godot metadata, tests, visual proof, and inspection fixtures.
 ---
 
 # Create Labyrinth Retrodiffusion Animation

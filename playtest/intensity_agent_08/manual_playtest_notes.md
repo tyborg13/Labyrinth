@@ -118,7 +118,7 @@
 - Enemy round: 3 HP lost, mode now combat.
 - Played firebrand_volley as printed: 1 damage, 1 kills, +1 play, +1 Fire intensity.
 - Played basalt_guard as printed: +3 block, 1 illusion, +1 Earth intensity.
-- Basalt Guard felt excellent here: Earth intensity, illusion, block, stoneskin all resolved and preview showed illusion soaking Ash Acolyte shot while player block covered crawler. Very readable defensive payoff.
+- Basalt Guard felt excellent here: Earth intensity, illusion, block, stoneskin all resolved and preview showed illusion soaking Dust Acolyte shot while player block covered crawler. Very readable defensive payoff.
 - Played patch_up as printed: +3 HP, +2 block.
 - Enemy round: 0 HP lost, mode now combat.
 - Played basalt_guard as printed: +3 block, 1 illusion, +1 Earth intensity.
