@@ -1151,16 +1151,61 @@ func _draw_umbra_light_sources(time_seconds: float) -> void:
 		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
-		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
-		var pulse: float = 0.88 + 0.12 * sin(time_seconds * 2.2 + float(int(source.get("id", 0))))
-		_draw_campfire_soft_ellipse(
-			_tile_center(tile) + Vector2(0.0, _tile_height() * 0.08),
-			_tile_width() * (0.62 + float(radius_tiles) * 0.20),
-			Vector2(1.48, 0.64),
-			-0.06,
-			Color(1.0, 0.82, 0.42, 0.24 * pulse),
-			14
+		_draw_umbra_light_source_reach(source, time_seconds)
+
+func _umbra_light_source_tiles(source: Dictionary) -> Array[Vector2i]:
+	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+	var result: Array[Vector2i] = []
+	if source_tile.x < 0:
+		return result
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		if _umbra_light_source_distance(source_tile, tile) <= radius_tiles:
+			result.append(tile)
+	return result
+
+func _umbra_light_source_distance(source_tile: Vector2i, tile: Vector2i) -> int:
+	return absi(tile.x - source_tile.x) + absi(tile.y - source_tile.y)
+
+func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> void:
+	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+	var source_seed: float = float(int(source.get("id", 0)))
+	var pulse: float = 0.96 + 0.04 * sin(time_seconds * 1.42 + source_seed * 0.73)
+	var footprint_tiles: Array[Vector2i] = _umbra_light_source_tiles(source)
+	for tile: Vector2i in footprint_tiles:
+		var distance: int = _umbra_light_source_distance(source_tile, tile)
+		var reach_weight: float = 1.0 - float(distance) / (float(radius_tiles) + 0.90)
+		var tile_center: Vector2 = _tile_center(tile)
+		var tile_seed: float = float(tile.x * 17 + tile.y * 31)
+		var tile_drift := Vector2(
+			sin(time_seconds * 0.47 + tile_seed) * _tile_width() * 0.010,
+			cos(time_seconds * 0.39 + tile_seed) * _tile_height() * 0.018
 		)
+		_draw_campfire_soft_ellipse(
+			tile_center + tile_drift,
+			_tile_width() * (0.64 + reach_weight * 0.10),
+			Vector2(1.02, 0.48),
+			0.0,
+			Color(1.0, 0.48, 0.10, (0.14 + reach_weight * 0.18) * pulse),
+			22
+		)
+		_draw_campfire_soft_ellipse(
+			tile_center - tile_drift * 0.52,
+			_tile_width() * (0.42 + reach_weight * 0.08),
+			Vector2(1.04, 0.46),
+			0.0,
+			Color(1.0, 0.79, 0.30, (0.08 + reach_weight * 0.13) * pulse),
+			18
+		)
+	_draw_campfire_soft_ellipse(
+		_tile_center(source_tile) + Vector2(0.0, _tile_height() * 0.10),
+		_tile_width() * (0.78 + float(radius_tiles) * 0.18),
+		Vector2(1.32, 0.62),
+		-0.04,
+		Color(1.0, 0.67, 0.20, 0.28 * pulse),
+		26
+	)
 
 func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 	var font: Font = get_theme_default_font()
@@ -1173,31 +1218,123 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 			continue
 		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
 		var remaining: int = int(source.get("remaining_activations", 0))
-		var pulse: float = 0.92 + 0.08 * sin(time_seconds * 3.2 + float(int(source.get("id", 0))))
-		var orb_center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.11)
-		var orb_radius: float = clampf(_tile_width() * 0.095, 10.0, 18.0)
-		_draw_campfire_soft_ellipse(
-			orb_center,
-			orb_radius * 3.2 * pulse,
-			Vector2(1.12, 0.72),
-			0.0,
-			Color(1.0, 0.76, 0.25, 0.55),
-			12
-		)
-		draw_circle(orb_center, orb_radius * 1.10, Color(0.34, 0.17, 0.04, 0.96))
-		draw_circle(orb_center, orb_radius * 0.86 * pulse, Color("ffc94f"))
-		draw_circle(orb_center - Vector2(orb_radius * 0.22, orb_radius * 0.24), orb_radius * 0.36, Color("fff4bd"))
-		draw_arc(orb_center, orb_radius * 1.30, 0.0, TAU, 24, Color(1.0, 0.88, 0.48, 0.72), 1.8)
+		var source_seed: float = float(int(source.get("id", 0)))
+		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
+		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
+		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
+		var orb_radius: float = clampf(_tile_width() * 0.115, 11.0, 20.0) * breath
+		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
 		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
-		var chip_rect := Rect2(orb_center + Vector2(orb_radius * 0.55, orb_radius * 0.36), Vector2(18.0, 16.0))
-		draw_rect(chip_rect, Color(0.075, 0.047, 0.025, 0.96), true)
-		draw_rect(chip_rect, Color("ffd66b"), false, 1.4)
-		if font != null:
-			draw_string(font, chip_rect.position + Vector2(0.0, 12.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff7d5"))
+		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
 		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player activation%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
-		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.35, orb_radius * 1.35), Vector2(orb_radius * 2.7, orb_radius * 2.7)).merge(chip_rect)
+		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
+
+func _umbra_light_orb_breath(source_seed: float, time_seconds: float) -> float:
+	return 1.0 + 0.055 * sin(time_seconds * 2.15 + source_seed * 0.37)
+
+func _umbra_light_orb_center(tile: Vector2i, source_seed: float, time_seconds: float) -> Vector2:
+	var bob: float = sin(time_seconds * 1.45 + source_seed * 0.91) * _tile_height() * 0.045
+	var sway: float = sin(time_seconds * 0.83 + source_seed * 1.17) * _tile_width() * 0.010
+	return _tile_center(tile) + Vector2(sway, -_tile_height() * 0.18 + bob)
+
+func _draw_umbra_light_orb(orb_center: Vector2, orb_radius: float, glow_brightness: float, source_seed: float, time_seconds: float) -> void:
+	_draw_campfire_soft_ellipse(
+		orb_center + Vector2(0.0, orb_radius * 0.76),
+		orb_radius * 1.32,
+		Vector2(1.42, 0.31),
+		0.0,
+		Color(0.14, 0.055, 0.015, 0.34),
+		14
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center,
+		orb_radius * 4.45 * glow_brightness,
+		Vector2(1.08, 0.86),
+		0.0,
+		Color(1.0, 0.56, 0.11, 0.66),
+		28
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - Vector2(orb_radius * 0.05, orb_radius * 0.08),
+		orb_radius * 2.45 * glow_brightness,
+		Vector2(1.02, 0.94),
+		0.0,
+		Color(1.0, 0.81, 0.30, 0.72),
+		22
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - Vector2(orb_radius * 0.10, orb_radius * 0.12),
+		orb_radius * 1.42,
+		Vector2(1.0, 0.96),
+		0.0,
+		Color(1.0, 0.96, 0.64, 0.82),
+		18
+	)
+	var core_drift := Vector2(
+		sin(time_seconds * 1.18 + source_seed) * orb_radius * 0.075,
+		cos(time_seconds * 0.96 + source_seed * 1.31) * orb_radius * 0.060
+	)
+	var gradient_layers: int = 30
+	for layer_index: int in range(gradient_layers, 0, -1):
+		var outer_t: float = float(layer_index) / float(gradient_layers)
+		var core_weight: float = 1.0 - outer_t
+		var light_offset := Vector2(-orb_radius * 0.14, -orb_radius * 0.18) * core_weight
+		var layer_center: Vector2 = orb_center + core_drift * (0.42 + core_weight * 0.58) + light_offset
+		var layer_radius: float = orb_radius * (0.16 + outer_t * 0.92)
+		var layer_color: Color = Color("ff9d16").lerp(Color("fff8c9"), pow(core_weight, 0.66))
+		layer_color.a = lerpf(0.012, 0.20, pow(core_weight, 0.74))
+		draw_circle(layer_center, layer_radius, layer_color)
+	_draw_campfire_soft_ellipse(
+		orb_center + core_drift - Vector2(orb_radius * 0.25, orb_radius * 0.28),
+		orb_radius * 0.55,
+		Vector2(1.0, 0.74),
+		-0.42,
+		Color(1.0, 1.0, 0.90, 0.78),
+		12
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - core_drift * 0.70 + Vector2(orb_radius * 0.23, orb_radius * 0.20),
+		orb_radius * 0.42,
+		Vector2(1.0, 0.82),
+		0.30,
+		Color(1.0, 0.55, 0.08, 0.42),
+		10
+	)
+	_draw_umbra_light_orb_motes(orb_center, orb_radius, source_seed, time_seconds)
+
+func _draw_umbra_light_orb_motes(orb_center: Vector2, orb_radius: float, source_seed: float, time_seconds: float) -> void:
+	for mote_index: int in range(3):
+		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.09) + source_seed + float(mote_index) * 2.09
+		var orbit_radius: float = orb_radius * (1.34 + float(mote_index) * 0.16)
+		var mote_point := orb_center + Vector2(cos(phase) * orbit_radius, sin(phase) * orbit_radius * 0.62)
+		var mote_alpha: float = 0.28 + 0.24 * (0.5 + 0.5 * sin(phase * 1.7))
+		_draw_campfire_soft_ellipse(
+			mote_point,
+			orb_radius * (0.20 + float(mote_index) * 0.025),
+			Vector2.ONE,
+			0.0,
+			Color(1.0, 0.92, 0.56, mote_alpha),
+			8
+		)
+
+func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count_text: String, font: Font, pulse: float) -> Rect2:
+	var chip_radius: float = clampf(orb_radius * 0.56, 7.5, 10.5)
+	var chip_center: Vector2 = orb_center + Vector2(orb_radius * 0.82, orb_radius * 0.68)
+	_draw_campfire_soft_ellipse(
+		chip_center,
+		chip_radius * 1.85 * pulse,
+		Vector2.ONE,
+		0.0,
+		Color(1.0, 0.67, 0.18, 0.28),
+		10
+	)
+	var chip_rect := Rect2(chip_center - Vector2.ONE * chip_radius, Vector2.ONE * chip_radius * 2.0)
+	if font != null:
+		draw_string(font, Vector2(chip_rect.position.x + 1.2, chip_center.y + 5.2), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color(0.05, 0.025, 0.01, 0.92))
+		draw_string(font, Vector2(chip_rect.position.x, chip_center.y + 4.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff9db"))
+	return chip_rect
 
 func _draw_empty_state() -> void:
 	var font: Font = get_theme_default_font()
