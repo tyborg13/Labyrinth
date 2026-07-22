@@ -240,6 +240,7 @@ var _detail_action: Button
 var _footer: HBoxContainer
 var _cancel_button: Button
 var _confirm_button: Button
+var _external_command_target: Control
 
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -306,6 +307,7 @@ func focus_skill(skill_id: String) -> void:
 	_refresh_nodes()
 	_refresh_links()
 	_refresh_detail()
+	_configure_focus_neighbors()
 	skill_focused.emit(skill_id)
 	call_deferred("_ensure_focused_visible")
 
@@ -313,6 +315,11 @@ func grab_tree_focus() -> void:
 	var button: Button = node_for_skill(_focused_id)
 	if button != null and button.is_inside_tree() and button.is_visible_in_tree():
 		button.grab_focus()
+
+func set_external_command_focus_target(target: Control) -> void:
+	_external_command_target = target
+	if is_node_ready():
+		_configure_focus_neighbors()
 
 func focused_skill_id() -> String:
 	return _focused_id
@@ -576,7 +583,6 @@ func _build_skill_nodes() -> void:
 		face.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		button.add_child(face)
 		_node_faces[skill_id] = face
-	_configure_focus_neighbors()
 
 func _build_detail_panel() -> Control:
 	var panel := PanelContainer.new()
@@ -657,12 +663,14 @@ func _build_detail_panel() -> Control:
 	column.add_child(_footer)
 
 	_cancel_button = Button.new()
+	_cancel_button.name = "SkillTreeCancel"
 	_cancel_button.text = "Cancel"
 	_cancel_button.custom_minimum_size = Vector2(104.0, 42.0)
 	_cancel_button.pressed.connect(request_cancel)
 	_footer.add_child(_cancel_button)
 
 	_confirm_button = Button.new()
+	_confirm_button.name = "SkillTreeConfirm"
 	_confirm_button.custom_minimum_size = Vector2(142.0, 42.0)
 	_confirm_button.pressed.connect(_on_confirm_pressed)
 	_footer.add_child(_confirm_button)
@@ -677,6 +685,7 @@ func _refresh_view() -> void:
 	_refresh_links()
 	_refresh_detail()
 	_refresh_footer()
+	_configure_focus_neighbors()
 
 func _refresh_legend() -> void:
 	if _legend == null:
@@ -836,6 +845,8 @@ func _refresh_footer() -> void:
 
 func _on_node_pressed(skill_id: String) -> void:
 	focus_skill(skill_id)
+	if _mode != MODE_VIEW and detail_action_is_enabled():
+		_on_detail_action_pressed()
 
 func _on_node_focus_entered(skill_id: String) -> void:
 	if skill_id != _focused_id:
@@ -860,19 +871,60 @@ func _configure_focus_neighbors() -> void:
 		for direction: String in ["left", "right", "up", "down"]:
 			var neighbor_id: String = _navigation_neighbor_for_direction(skill_id, direction)
 			button.set_meta("nav_%s" % direction, neighbor_id)
-			var neighbor: Button = node_for_skill(neighbor_id)
+			var neighbor: Control = node_for_skill(neighbor_id)
 			if neighbor == null:
-				neighbor = button
-			var neighbor_path: NodePath = button.get_path_to(neighbor)
-			match direction:
-				"left":
-					button.focus_neighbor_left = neighbor_path
-				"right":
-					button.focus_neighbor_right = neighbor_path
-				"up":
-					button.focus_neighbor_top = neighbor_path
-				"down":
-					button.focus_neighbor_bottom = neighbor_path
+				neighbor = _tree_exit_target(direction)
+			_set_focus_neighbor(button, direction, neighbor if neighbor != null else button)
+	_configure_command_focus_neighbors()
+
+func _tree_exit_target(direction: String) -> Control:
+	if direction == "right" and _control_accepts_focus(_detail_action):
+		return _detail_action
+	if direction in ["right", "down"]:
+		if _control_accepts_focus(_external_command_target):
+			return _external_command_target
+		if _footer != null and _footer.is_visible_in_tree() and _control_accepts_focus(_cancel_button):
+			return _cancel_button
+	return null
+
+func _configure_command_focus_neighbors() -> void:
+	var focused_node: Button = node_for_skill(_focused_id)
+	if focused_node == null:
+		return
+	if _control_accepts_focus(_detail_action):
+		_set_focus_neighbor(_detail_action, "left", focused_node)
+		_set_focus_neighbor(_detail_action, "up", focused_node)
+		_set_focus_neighbor(_detail_action, "down", _confirm_button if _control_accepts_focus(_confirm_button) else _cancel_button)
+	if _footer != null and _footer.is_visible_in_tree():
+		_set_focus_neighbor(_cancel_button, "left", focused_node)
+		_set_focus_neighbor(_cancel_button, "up", _detail_action if _control_accepts_focus(_detail_action) else focused_node)
+		_set_focus_neighbor(_cancel_button, "right", _confirm_button if _control_accepts_focus(_confirm_button) else _cancel_button)
+		_set_focus_neighbor(_confirm_button, "left", _cancel_button)
+		_set_focus_neighbor(_confirm_button, "up", _detail_action if _control_accepts_focus(_detail_action) else focused_node)
+	if _control_accepts_focus(_external_command_target):
+		_set_focus_neighbor(_external_command_target, "left", focused_node)
+		_set_focus_neighbor(_external_command_target, "up", focused_node)
+
+func _control_accepts_focus(control: Control) -> bool:
+	if control == null or not control.is_inside_tree() or not control.is_visible_in_tree() or control.focus_mode == Control.FOCUS_NONE:
+		return false
+	if control is BaseButton and (control as BaseButton).disabled:
+		return false
+	return true
+
+func _set_focus_neighbor(source: Control, direction: String, target: Control) -> void:
+	if source == null or target == null or not source.is_inside_tree() or not target.is_inside_tree():
+		return
+	var target_path: NodePath = source.get_path_to(target)
+	match direction:
+		"left":
+			source.focus_neighbor_left = target_path
+		"right":
+			source.focus_neighbor_right = target_path
+		"up":
+			source.focus_neighbor_top = target_path
+		"down":
+			source.focus_neighbor_bottom = target_path
 
 func _navigation_neighbor_for_direction(skill_id: String, direction: String) -> String:
 	var origin: Vector2 = _node_center(skill_id)
@@ -934,7 +986,15 @@ func _on_detail_action_pressed() -> void:
 			return
 		respec_draft_changed.emit(_pending_ids.duplicate())
 		pending_changed.emit(_pending_ids.duplicate())
+	else:
+		return
 	_refresh_view()
+	if _can_confirm():
+		call_deferred("_focus_confirm_if_ready")
+
+func _focus_confirm_if_ready() -> void:
+	if _control_accepts_focus(_confirm_button) and _can_confirm():
+		_confirm_button.grab_focus()
 
 func _on_confirm_pressed() -> void:
 	if not _can_confirm():

@@ -77,6 +77,13 @@ func _test_character_skill_tree(instance: Node) -> void:
 	_expect(tree != null and tree.status_for_skill("discerning_eye") == SkillTreeView.STATE_OWNED, "Skill tree should mark a learned reward ability")
 	_expect(tree != null and instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill(tree.focused_skill_id()), "Opening the Skills surface should place real GUI focus on the tree")
 	if tree != null:
+		var begin_respec := scrim.find_child("BeginSkillRespec", true, false) as Button
+		tree.focus_skill("ghost_stride")
+		tree.grab_tree_focus()
+		await process_frame
+		_expect(tree.node_for_skill("ghost_stride").find_valid_focus_neighbor(SIDE_RIGHT) == begin_respec, "The view-only tree should expose a controller path to Begin Respec")
+		await _press_ui_action(&"ui_right")
+		_expect(instance.get_viewport().gui_get_focus_owner() == begin_respec, "Live controller navigation should leave the graph for Begin Respec")
 		tree.focus_skill("discerning_eye")
 	_expect(tree != null and tree.detail_title_text() == "Discerning Eye", "Compact medallions should reveal full skill names in the persistent detail pane")
 	_expect(_label_containing(scrim, "MOLTSHARDS 2") != null, "Skills surface should show the saved respec resource")
@@ -664,6 +671,16 @@ func _array_contains_fragment(value: Variant, fragment: String) -> bool:
 		if str(item_var).to_lower().contains(fragment.to_lower()):
 			return true
 	return false
+
+func _press_ui_action(action: StringName) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventAction.new()
+		event.action = action
+		event.pressed = pressed
+		event.strength = 1.0 if pressed else 0.0
+		root.push_input(event)
+		await process_frame
+	await process_frame
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

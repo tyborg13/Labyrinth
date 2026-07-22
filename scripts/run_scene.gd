@@ -16209,6 +16209,7 @@ func _build_skill_tree_overlay_body() -> Control:
 			respec_button.pressed.connect(_begin_skill_respec)
 		command_row.add_child(respec_button)
 		column.add_child(command_row)
+		_skill_tree_view.set_external_command_focus_target(respec_button)
 	return _fixed_character_body_frame(column)
 
 func _on_skill_tree_focused(skill_id: String) -> void:

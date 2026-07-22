@@ -106,18 +106,32 @@ func _test_skill_tree_view() -> void:
 	_expect(view.navigation_neighbor("borrowed_time", "down") == "encore", "Vertical navigation should follow Borrowed Time's visible dependent link")
 	_expect(quick_node.find_valid_focus_neighbor(SIDE_LEFT) == measured_node, "Godot's live focus graph should resolve Quick Wits Left to Measured Breath")
 	_expect(quick_node.find_valid_focus_neighbor(SIDE_RIGHT) == discerning_node, "Godot's live focus graph should resolve Quick Wits Right to Discerning Eye")
-	_expect(ghost_node.find_valid_focus_neighbor(SIDE_RIGHT) == ghost_node, "Godot's live focus graph should stop at the right root edge")
+	var detail_action := view.find_child("SkillDetailAction", true, false) as Button
+	view.focus_skill("ghost_stride")
+	ghost_node.grab_focus()
+	await process_frame
+	_expect(ghost_node.find_valid_focus_neighbor(SIDE_RIGHT) == detail_action, "A graph edge should lead to the focused skill's visible action instead of trapping controller focus")
+	var cancel_button := view.find_child("SkillTreeCancel", true, false) as Button
+	var reserve_node: Button = view.node_for_skill("last_reserve")
+	view.focus_skill("last_reserve")
+	reserve_node.grab_focus()
+	await process_frame
+	_expect(reserve_node.find_valid_focus_neighbor(SIDE_BOTTOM) == cancel_button, "A leaf should expose a controller path from the graph to its footer")
 
 	view.focus_skill("measured_breath")
+	measured_node.grab_focus()
+	await process_frame
 	_expect(view.visual_state_for_skill("measured_breath") == SkillTreeView.STATE_SELECTED, "Focused nodes should expose the selected visual state")
 	_expect(view.detail_title_text() == "Measured Breath", "Node focus should update the detail title")
 	_expect(view.detail_action_is_enabled(), "A legal level-up choice should expose an enabled detail action")
-	view.activate_focused_skill()
+	await _press_ui_action(&"ui_accept")
 	_expect(view.pending_skill_ids() == ["measured_breath"], "Level-up mode should retain one pending skill")
 	_expect(view.status_for_skill("measured_breath") == SkillTreeView.STATE_PENDING, "The chosen level-up node should render as pending")
 	_expect(_observed_level_choice == "measured_breath", "Level-up mode should emit the chosen skill id")
 	_expect(view.confirm_is_enabled(), "A legal pending level-up choice should enable confirmation")
-	view.request_confirm()
+	var confirm_button := view.find_child("SkillTreeConfirm", true, false) as Button
+	_expect(root.gui_get_focus_owner() == confirm_button, "Completing a controller-built selection should move live focus to Confirm")
+	await _press_ui_action(&"ui_accept")
 	_expect(_confirmed_ids == ["quick_wits", "measured_breath"], "Level-up confirmation should emit the complete proposed selection")
 	view.focus_skill("prismatic_instinct")
 	var prismatic_links: Array[String] = view.highlighted_connection_pairs()
@@ -223,6 +237,16 @@ func _on_confirm_requested(skill_ids: Array) -> void:
 	_confirmed_ids.clear()
 	for skill_id_var: Variant in skill_ids:
 		_confirmed_ids.append(str(skill_id_var))
+
+func _press_ui_action(action: StringName) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventAction.new()
+		event.action = action
+		event.pressed = pressed
+		event.strength = 1.0 if pressed else 0.0
+		root.push_input(event)
+		await process_frame
+	await process_frame
 
 func _label_with_text(node: Node, expected: String) -> Label:
 	if node is Label and (node as Label).text == expected:
