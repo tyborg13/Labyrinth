@@ -6,7 +6,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
-const PROGRESSION_SCHEMA: int = 3
+const PROGRESSION_SCHEMA: int = 4
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
@@ -105,7 +105,17 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data["progression_schema"] = PROGRESSION_SCHEMA
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
 	var required_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
-	data["skill_ids"] = SkillTreeLibrary.repaired_selection(data.get("skill_ids", []), required_skill_count)
+	var source_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
+	var repaired_skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(source_skill_ids, required_skill_count, source_skill_ids)
+	if (
+		source_schema < 4
+		and required_skill_count == SkillTreeLibrary.COMPLETE_BUILD_SIZE
+		and source_skill_ids.size() == required_skill_count
+		and not _skill_selection_has_keystone(source_skill_ids)
+		and repaired_skill_ids != source_skill_ids
+	):
+		data["progression_revision"] = int(data.get("progression_revision", 0)) + 1
+	data["skill_ids"] = repaired_skill_ids
 	data["moltshards"] = maxi(0, int(data.get("moltshards", 0)))
 	var award_ids: Array = _normalized_string_array(data.get(MOLTSHARD_AWARD_IDS_KEY, []))
 	if award_ids.size() > MOLTSHARD_AWARD_LEDGER_LIMIT:
@@ -141,6 +151,12 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
 	return data
+
+static func _skill_selection_has_keystone(skill_ids: Array[String]) -> bool:
+	for skill_id: String in skill_ids:
+		if SkillTreeLibrary.is_keystone(skill_id):
+			return true
+	return false
 
 static func _has_retired_card_growth(data: Dictionary) -> bool:
 	if typeof(data.get("purchased_upgrades", [])) == TYPE_ARRAY and not (data.get("purchased_upgrades", []) as Array).is_empty():

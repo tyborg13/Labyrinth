@@ -89,6 +89,10 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	_expect(tree != null and tree.node_count() == 24, "%s Skills dialog should render all 24 nodes" % viewport_size)
 	_expect(tree != null and tree.owned_skill_ids().size() == 10, "%s Skills dialog should render ten learned skills" % viewport_size)
 	if tree != null:
+		_expect(tree.connection_arrowhead_count() == tree.connection_count(), "%s Every prerequisite route should expose one visible target arrowhead" % viewport_size)
+		_expect(tree.collinear_connection_overlap_pairs().is_empty(), "%s No unrelated prerequisite routes should merge onto one rail" % viewport_size)
+		_expect(tree.bridged_connection_pairs().size() == 11, "%s Every unavoidable route crossover should render with an explicit line bridge" % viewport_size)
+		_expect(tree.unbridged_connection_pairs().is_empty(), "%s No route crossover should resemble an unexplained branch" % viewport_size)
 		tree.focus_skill("prismatic_instinct")
 		var prismatic_links: Array[String] = tree.highlighted_connection_pairs()
 		_expect(prismatic_links.size() == 3, "%s Skills tree should emphasize only Prismatic Instinct's two parents and direct unlock" % viewport_size)
@@ -100,6 +104,27 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	_expect(_button_with_text(dialog, "Begin Respec") != null, "%s Skills dialog should expose the respec command" % viewport_size)
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Skills dialog" % viewport_size, "Character")
 	await _save_screenshot(viewport, "%s/01_skills_tree.png" % output_dir, viewport_size)
+	if tree != null:
+		tree.focus_skill("living_shadow")
+		await _settle()
+		var living_links: Array[String] = tree.highlighted_connection_pairs()
+		_expect(living_links.size() == 5, "%s Living Shadow focus should expose its complete two-branch ancestry and direct keystone" % viewport_size)
+		_expect(living_links.has("measured_breath>pain_remembers"), "%s Living Shadow should trace through Pain Remembers to Measured Breath" % viewport_size)
+		_expect(living_links.has("ghost_stride>afterimage"), "%s Living Shadow should trace through Afterimage to Ghost Stride" % viewport_size)
+		_expect(living_links.has("living_shadow>open_arsenal"), "%s Living Shadow should retain its direct Open Arsenal route" % viewport_size)
+		await _save_screenshot(viewport, "%s/01b_living_shadow_path.png" % output_dir, viewport_size)
+		tree.focus_skill("last_door")
+		tree.grab_tree_focus()
+		await _settle()
+		var graph_scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
+		var last_door_node: Button = tree.node_for_skill("last_door")
+		_expect(
+			graph_scroll != null
+			and last_door_node != null
+			and graph_scroll.get_global_rect().encloses(last_door_node.get_global_rect()),
+			"%s Focusing the far keystone should automatically reveal it inside the graph viewport" % viewport_size
+		)
+		await _save_screenshot(viewport, "%s/01c_last_door_scroll.png" % output_dir, viewport_size)
 
 func _capture_respec_draft(instance: Node, viewport: SubViewport, viewport_size: Vector2i, output_dir: String) -> void:
 	instance.call("_begin_skill_respec")
@@ -268,17 +293,30 @@ func _capture_combat_surfaces(
 		"Prismatic Instinct",
 		"Encore",
 	]
+	var ready_group: Button = _button_beginning_with(choice_overlay, "Ready Skills (")
+	if ready_group == null:
+		ready_group = _button_beginning_with(choice_bar, "Ready Skills (")
+	_expect(ready_group != null and ready_group.text == "Ready Skills (6)", "%s Six simultaneous manual abilities should collapse into one explicit Ready Skills control" % viewport_size)
+	_assert_inside(ready_group, viewport_size, "%s Combat ready-skill group" % viewport_size, 4.0)
 	for skill_name: String in maximum_manual_skill_names:
 		var button: Button = _visible_button_with_text(choice_overlay, skill_name)
 		if button == null:
 			button = _visible_button_with_text(choice_bar, skill_name)
-		_expect(button != null, "%s Combat HUD should expose ready %s control" % [viewport_size, skill_name])
-		_assert_inside(button, viewport_size, "%s Combat %s control" % [viewport_size, skill_name], 4.0)
+		_expect(button == null, "%s Grouped combat HUD should not cover the hand with a direct %s control" % [viewport_size, skill_name])
 	var banked_badge := instance.get("_play_meter_banked_badge") as Control
 	var banked_label := instance.get("_play_meter_banked_label") as Label
 	_expect(banked_badge != null and banked_badge.visible, "%s Combat HUD should distinguish the stored play from ordinary plays" % viewport_size)
 	_expect(banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "%s Combat HUD should explain Borrowed Time on the stored play" % viewport_size)
 	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir, viewport_size)
+	if ready_group != null:
+		ready_group.pressed.emit()
+		await _settle()
+		var grouped_choice_list := instance.get("_skill_choice_list") as Control
+		for skill_name: String in maximum_manual_skill_names:
+			_expect(_visible_button_with_text(grouped_choice_list, skill_name) != null, "%s Ready Skills chooser should list %s with its own description" % [viewport_size, skill_name])
+		await _save_screenshot(viewport, "%s/04b_ready_skill_group.png" % output_dir, viewport_size)
+		instance.call("_close_skill_choice_dialog")
+		await _settle()
 
 	instance.call("_toggle_skill_status_popover")
 	await _settle()
@@ -413,16 +451,18 @@ func _assert_tree_scroll_contract(tree: SkillTreeView, viewport_size: Vector2i, 
 	_expect(scroll != null, "%s %s tree should retain its bounded scroll host" % [viewport_size, label])
 	if scroll == null:
 		return
-	_expect(scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "%s %s tree should disable horizontal scrolling" % [viewport_size, label])
-	_expect(not scroll.get_h_scroll_bar().visible, "%s %s tree should keep all four branches visible without horizontal scrolling" % [viewport_size, label])
-	_expect(not scroll.get_v_scroll_bar().visible, "%s %s tree should show roots through keystones without vertical scrolling" % [viewport_size, label])
-	_expect(tree.graph_canvas_size().x <= scroll.size.x + 2.0, "%s %s graph canvas should remain horizontally bounded" % [viewport_size, label])
+	_expect(scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "%s %s tree should allow horizontal inspection when the viewport cannot preserve readable lanes" % [viewport_size, label])
+	_expect(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "%s %s tree should allow vertical inspection when the viewport cannot preserve readable tiers" % [viewport_size, label])
+	_expect(tree.connection_arrowhead_count() == tree.connection_count(), "%s %s tree should draw one visible target arrowhead per prerequisite" % [viewport_size, label])
+	_expect(tree.minimum_target_segment_length() >= 10.0, "%s %s tree should expose every incoming arrow outside its target shadow" % [viewport_size, label])
+	if tree.graph_canvas_size().x > scroll.size.x + 2.0:
+		_expect(scroll.get_h_scroll_bar().visible, "%s %s tree should reveal horizontal scrolling when the authored graph is wider than its host" % [viewport_size, label])
+	if tree.graph_canvas_size().y > scroll.size.y + 2.0:
+		_expect(scroll.get_v_scroll_bar().visible, "%s %s tree should reveal vertical scrolling when the authored graph is taller than its host" % [viewport_size, label])
 	var graph_bounds := Rect2(Vector2.ZERO, tree.graph_canvas_size())
-	var visible_bounds: Rect2 = scroll.get_global_rect()
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var node: Button = tree.node_for_skill(skill_id)
 		_expect(node != null and graph_bounds.encloses(Rect2(node.position, node.size)), "%s %s %s should remain inside the authored graph canvas" % [viewport_size, label, skill_id])
-		_expect(node != null and visible_bounds.encloses(node.get_global_rect()), "%s %s %s should remain fully visible inside the scroll host" % [viewport_size, label, skill_id])
 
 func _settle() -> void:
 	await process_frame

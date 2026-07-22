@@ -61,14 +61,17 @@ func _init() -> void:
 	_install_id = _ensure_installation_id()
 	_session_id = _random_id("session")
 
-func write_event(event_type: String, context: Dictionary = {}, payload: Dictionary = {}) -> bool:
+func write_event(event_type: String, context: Dictionary = {}, payload: Dictionary = {}, idempotency_key: String = "") -> bool:
 	if event_type.is_empty():
 		return false
+	if not idempotency_key.is_empty() and _idempotency_key_exists(idempotency_key):
+		return true
 	_sequence += 1
 	var record: Dictionary = {
 		"schema_version": SCHEMA_VERSION,
 		"event_id": _random_id("evt"),
 		"event_type": event_type,
+		"idempotency_key": idempotency_key,
 		"timestamp_utc": _timestamp_utc_iso(),
 		"install_id": _install_id,
 		"session_id": _session_id,
@@ -110,7 +113,16 @@ static func _append_jsonl(record: Dictionary) -> bool:
 		return false
 	file.seek_end()
 	file.store_line(JSON.stringify(record))
-	return true
+	file.flush()
+	var write_succeeded: bool = file.get_error() == OK
+	file.close()
+	return write_succeeded
+
+static func _idempotency_key_exists(idempotency_key: String) -> bool:
+	for event: Dictionary in load_all_events():
+		if str(event.get("idempotency_key", "")) == idempotency_key:
+			return true
+	return false
 
 static func _event_file_path() -> String:
 	return ProjectSettings.globalize_path(_storage_dir).path_join("events-%s.jsonl" % _utc_date_string())

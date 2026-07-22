@@ -24,7 +24,8 @@ The system follows these rules:
 - A level purchase, ember payment, and skill choice are one atomic action.
 - Learned skills are cumulative and remain active in current and future runs.
 - The tree contains `24` skills arranged in four interconnected branches.
-- A profile may learn at most one of the four keystones.
+- A profile may learn at most one of the four keystones, and every complete
+  level-`20` build contains exactly one.
 - Respec requires one Moltshard and replaces the entire learned selection in a
   single confirmed transaction.
 - Moltshards are progression currency. They never enter the in-run item deck,
@@ -108,7 +109,10 @@ flowchart TB
 
 Keystones require at least eight already learned skills. All keystones share
 one exclusivity group, so choosing one permanently closes the other three until
-a respec.
+a respec. If the player reaches their nineteenth and final skill point without
+a keystone, only eligible keystones can spend that point; the tree states this
+requirement explicitly instead of allowing a capped build that needs a respec
+to reach its capstone.
 
 The authored `position` field preserves deterministic progression ordering.
 The separate `layout_position` field arranges the visible graph by dependency
@@ -139,7 +143,7 @@ selection has the exact number of skills required by the profile's level.
 | --- | --- | --- |
 | Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Burn card instead of burning it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
 | Makeshift Tool | Quick Wits | Once per combat, arm to discard the next item used as a basic Attack or Move instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
-| Carry the Guard | Measured Breath | Once per combat, choose during an activation to convert all block remaining at its end into stoneskin. |
+| Carry the Guard | Measured Breath | Once per combat, after gaining block, arm during an activation to convert all block remaining at its end into stoneskin. |
 | Pain Remembers | Measured Breath | After the first health loss each combat, when the hand has room, return the next non-item discard to it. |
 | Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |
 | Afterimage | Ghost Stride | The first Blink each combat leaves a `20`-health illusion behind. The player may move through friendly illusions; ending on one dispels it. |
@@ -155,7 +159,7 @@ selection has the exact number of skills required by the profile's level.
 | Plunderer's Step | Ghost Stride + Discerning Eye | The first Move or Blink to collect loot each combat refunds its play. |
 | Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions; basic uses do not consume it. Duplicate names appear as one choice. |
 | Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
-| Living Shadow | Pain Remembers + Afterimage | Once until the player's next activation, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
+| Living Shadow | Pain Remembers + Afterimage | Once between the player's activations, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
 | True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
 | Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns. |
 
@@ -233,15 +237,27 @@ is only a small secondary accent.
 Names and rules text live in the persistent detail pane and tooltips, so no
 label can cover a dependency. Every connection runs between an explicit output
 and input port, uses an opaque core at least `3` pixels wide over a dark
-under-stroke, avoids every unrelated node, and has no arrowhead. Direction is
-communicated by the top-to-bottom dependency ranks. Focusing a skill strengthens
-its prerequisites and direct unlocks without fading the rest of the graph. The
-full root-to-keystone topology fits at `1280x720` and `1920x1080` without either
-scrollbar. Every node requires an explicit bounded layout coordinate. Opening
+under-stroke, avoids every unrelated node, and terminates in a target arrowhead
+drawn above node shadows. Direction is communicated redundantly by the
+top-to-bottom dependency ranks and those exposed arrowheads. Ordinary routing
+bends have no dots; dots are reserved for future authored semantic junctions.
+When two non-incident routes must cross, their draw priority is deterministic
+and the lower route has an explicit `20`-pixel break beneath the continuous
+upper route. Unrelated routes may never share a collinear rail, so a crossover
+cannot be mistaken for a prerequisite merge.
+Focusing a skill strengthens its complete ancestor path and direct unlocks
+without hiding the rest of the graph. The skill-tree modal expands at larger
+viewports; at compact viewports, automatic horizontal and vertical scrolling
+preserves the same readable node spacing instead of compressing the topology.
+Focus automatically scrolls its medallion into view. Every node requires an
+explicit bounded layout coordinate. Opening
 the tree transfers GUI focus to its focused node; horizontal navigation stays
 within the visible rank, vertical navigation follows dependency links, and a
-rank edge exits to the visible action, footer, or Begin Respec command instead
-of falling through to an unrelated node. Controller Accept performs the focused
+rank edge exits to the visible action, footer, Begin Respec command, or active
+Character tab instead of falling through to an unrelated node. The active tab
+returns to the remembered tree node, and Begin Respec links back to the tabs.
+Mouse hover also takes real GUI focus, so subsequent controller or keyboard
+Accept can never activate a stale node. Controller Accept performs the focused
 medallion's enabled action, and completing a build transfers focus to Confirm.
 The detail pane shows the full effect, activation kind, individually satisfied
 or missing prerequisites, direct unlocks, minimum learned count, and lock
@@ -260,13 +276,21 @@ visually distinct from—the relic row. Its popover lists every learned skill as
 - `AUTOMATIC` for recurring rules that need no player input.
 - `PASSIVE` for always-on rules.
 
-Manual abilities expose their own buttons and selection dialogs only when they
-can legally resolve. Trigger events pulse the SkillSigil and feed bounded,
+The popover grows with the available viewport up to a bounded maximum. Its
+informational rows receive explicit controller focus, follow focus while
+scrolling, and preserve the focused skill and scroll position across HUD
+refreshes.
+
+Manual abilities expose actions only when they can legally resolve. One or two
+ready abilities use direct buttons; three or more collapse into a single
+`Ready Skills (N)` command whose dialog lists every ready ability and its full
+description. This keeps the worst-case action strip clear of the card hand.
+Trigger events pulse the SkillSigil and feed bounded,
 revisioned analytics events so redraws and save/resume cannot duplicate them.
 
 ## Persistence and Migration
 
-Progression schema `3` stores:
+Progression schema `4` stores:
 
 ```gdscript
 {
@@ -275,7 +299,7 @@ Progression schema `3` stores:
     "skill_ids": [],
     "moltshards": 0,
     "progression_revision": 0,
-    "progression_schema": 3
+    "progression_schema": 4
 }
 ```
 
@@ -283,6 +307,8 @@ The normal profile also retains unrelated run-history, grimoire, recovery, and
 onboarding fields.
 
 Normalization always repairs `skill_ids` to exactly `level - 1` legal skills.
+Schema-`3` level-`20` profiles without a keystone migrate to one complete legal
+build with exactly one eligible keystone and advance their progression revision.
 Legacy numeric allocations are converted deterministically, using their former
 distribution only to choose a reasonable branch preference. Retired permanent
 card upgrades are erased and known spending is refunded to embers. Forged
@@ -293,8 +319,10 @@ An active run embeds a normalized progression snapshot and its revision. When a
 newer profile is loaded, `RunEngine.reconcile_progression_revision` applies the
 new tree. A same-level respec preserves the run's unbanked ember total. A newer
 level adopts the profile's post-purchase ember total so a profile-first torn
-save cannot restore already-spent embers. This keeps both transactions durable
-when the profile and run snapshot are saved on different frames.
+save cannot restore already-spent embers. If that stale snapshot still shows
+the campfire, reconciliation consumes the already-used campfire choice without
+granting its heal. This keeps both transactions durable when the profile and
+run snapshot are saved on different frames.
 
 The inverse torn-write case is repaired as well. If a resumed run contains a
 newer progression revision than the standalone profile (for example, a boss
@@ -349,11 +377,16 @@ The implementation is covered by focused suites for:
 - Analytics schema and card-heuristic progression context.
 - 1280x720 and 1920x1080 visual probes for learned/available/locked trees,
   empty refunded respec drafts, complete replacement builds with focused
-  cross-branch prerequisites, and combat states. Geometry tests additionally
+  cross-branch prerequisites, a complete long ancestor path, and combat states.
+  Geometry tests additionally
   require distinct multi-parent ports, zero connector-node intersections,
+  zero unrelated collinear overlaps, an explicit crossover bridge at every
+  non-incident route intersection,
   opaque `3`-pixel minimum links with separating under-strokes, loaded semantic
-  icons, semantic live controller focus neighbors, every medallion wholly inside
-  both canvas and scroll viewport, and no tree scrollbars.
+  icons, one exposed target arrowhead per dependency, at least `10` pixels of
+  visible incoming segment, semantic live controller focus neighbors, every
+  medallion wholly inside its authored canvas, and automatic scrollbars whenever
+  the compact host cannot show the authored graph at full size.
 
 Any future skill must add or update its data definition, relevant engine hook,
 HUD status semantics, analytics trigger, focused test, and this specification in

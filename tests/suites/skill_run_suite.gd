@@ -86,6 +86,10 @@ static func _test_deferred_choice(expect: Callable) -> void:
 	var skill_state: Dictionary = state.get("skill_state", {}) as Dictionary
 	expect.call(str(skill_state.get("pending_card", "")) == "rime_shard", "Deferred Choice should remember one card from the skipped reward")
 	expect.call(int(state.get("player_hp", 0)) == 160 and str(state.get("mode", "")) == "room", "Skipping a reward should keep the existing heal flow")
+	var deferred_events: Array[Dictionary] = engine.run_skill_events(state)
+	expect.call(deferred_events.size() == 1 and str(deferred_events[0].get("skill_id", "")) == "deferred_choice", "Storing a deferred card should emit one durable run-skill event")
+	var repeated_skip: Dictionary = engine.skip_reward_for_heal(state, "rime_shard")
+	expect.call(engine.run_skill_events(repeated_skip).size() == 1, "A repeated no-op reward skip should not duplicate Deferred Choice analytics")
 	state = _set_current_room(state, FIRST_ROOM, "combat")
 	state["mode"] = "combat"
 	var rewarded: Dictionary = engine.finish_combat(state, _combat_result(FIRST_ROOM, "combat", true))
@@ -130,7 +134,12 @@ static func _test_true_bearing(expect: Callable) -> void:
 	expect.call(chosen_start != authored_start, "True Bearing should offer at least one alternative to the authored entrance")
 	var rejected: Dictionary = engine.set_pre_battle_start(state, Vector2i.ZERO)
 	expect.call(not rejected.has("pre_battle_start"), "True Bearing should reject an impassable distant tile")
+	expect.call(engine.run_skill_events(rejected).is_empty(), "Rejecting a True Bearing tile should not emit a trigger event")
 	state = engine.set_pre_battle_start(state, chosen_start)
+	var true_bearing_events: Array[Dictionary] = engine.run_skill_events(state)
+	expect.call(true_bearing_events.size() == 1 and str(true_bearing_events[0].get("skill_id", "")) == "true_bearing", "Changing the pre-battle tile should emit one durable True Bearing event")
+	var repeated_selection: Dictionary = engine.set_pre_battle_start(state, chosen_start)
+	expect.call(engine.run_skill_events(repeated_selection).size() == 1, "Selecting the current pre-battle tile should not duplicate True Bearing analytics")
 	var begun: Dictionary = engine.begin_pre_battle_combat(state)
 	var actual_start: Vector2i = (((begun.get("combat_state", {}) as Dictionary).get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)))
 	expect.call(actual_start == chosen_start, "True Bearing should apply the selected starting tile to the opening combat state")
@@ -175,6 +184,10 @@ static func _test_curators_patience(expect: Callable) -> void:
 	state["pending_relics"] = ["iron_lung", "flint_edge", "coffin_nails"]
 	state = engine.claim_relic(state, "iron_lung", "flint_edge")
 	expect.call(str((state.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "flint_edge", "Curator's Patience should remember one unchosen relic")
+	var curator_events: Array[Dictionary] = engine.run_skill_events(state)
+	expect.call(curator_events.size() == 1 and str(curator_events[0].get("skill_id", "")) == "curators_patience", "Storing a deferred relic should emit one durable Curator's Patience event")
+	var repeated_claim: Dictionary = engine.claim_relic(state, "iron_lung", "flint_edge")
+	expect.call(engine.run_skill_events(repeated_claim).size() == 1, "A repeated invalid relic claim should not duplicate Curator's Patience analytics")
 	var arrived: Dictionary = engine.move_to_room(state, destination)
 	expect.call((arrived.get("pending_relics", []) as Array).has("flint_edge"), "Curator's Patience should place the remembered relic into the next offer")
 	expect.call(str((arrived.get("skill_state", {}) as Dictionary).get("pending_relic", "")) == "", "The remembered relic should clear when it enters an offer")
@@ -204,6 +217,20 @@ static func _test_open_arsenal(expect: Callable) -> void:
 	var repaired: Dictionary = engine.apply_progression_update(equipped, without_skill)
 	expect.call(str((repaired.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == original_trinket, "Removing Open Arsenal should restore a native trinket")
 	expect.call((repaired.get("equipment_inventory", []) as Array).has("stitcher_apron"), "Removing Open Arsenal should safely stow off-slot equipment")
+	var sold_state: Dictionary = equipped.duplicate(true)
+	var sold_inventory: Array = (sold_state.get("equipment_inventory", []) as Array).duplicate()
+	sold_inventory.erase(original_trinket)
+	sold_state["equipment_inventory"] = sold_inventory
+	var sold_collected: Array = (sold_state.get("collected_equipment", []) as Array).duplicate()
+	sold_collected.erase(original_trinket)
+	sold_state["collected_equipment"] = sold_collected
+	var repaired_after_sale: Dictionary = engine.apply_progression_update(sold_state, without_skill)
+	expect.call(str((repaired_after_sale.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == "", "Removing Open Arsenal must leave the trinket slot empty when every native trinket was sold")
+	expect.call((repaired_after_sale.get("equipment_inventory", []) as Array).has("stitcher_apron"), "Removing Open Arsenal after a sale should still stow the off-slot equipment")
+	expect.call(not (repaired_after_sale.get("equipment_inventory", []) as Array).has(original_trinket) and not (repaired_after_sale.get("collected_equipment", []) as Array).has(original_trinket), "Removing Open Arsenal must not recreate sold starter equipment")
+	var reloaded_after_sale: Dictionary = engine.repair_loaded_run_state(repaired_after_sale)
+	expect.call(str((reloaded_after_sale.get("equipped_equipment", {}) as Dictionary).get("trinket", "")) == "", "An intentionally empty trinket slot should remain empty after save repair")
+	expect.call(not (reloaded_after_sale.get("equipment_inventory", []) as Array).has(original_trinket), "Save repair must not recreate a sold native trinket")
 
 static func _test_last_door(expect: Callable) -> void:
 	var engine = RunEngineScript.new()
@@ -372,6 +399,9 @@ static func _test_torn_level_up_reconciliation_spends_embers(expect: Callable) -
 	var stale_run: Dictionary = engine.create_new_run(SEED, embedded)
 	var level_cost: int = ProgressionStore.next_level_cost(embedded)
 	stale_run = engine.set_held_embers(stale_run, level_cost + 17)
+	stale_run["mode"] = "campfire"
+	stale_run["player_hp"] = int(stale_run.get("player_max_hp", 1)) - GameData.fixed_point_amount(3)
+	var health_before_reconciliation: int = int(stale_run.get("player_hp", 0))
 	var purchase_source: Dictionary = ProgressionStore.set_embers(embedded, engine.held_embers(stale_run))
 	var purchased: Dictionary = ProgressionStore.purchase_level_with_skill(purchase_source, "measured_breath")
 	expect.call(int(purchased.get("level", 0)) == int(embedded.get("level", 0)) + 1, "Torn-save fixture should contain a completed profile-first level purchase")
@@ -379,6 +409,8 @@ static func _test_torn_level_up_reconciliation_spends_embers(expect: Callable) -
 	expect.call(engine.held_embers(reconciled) == int(purchased.get("embers", -1)), "Resuming after a profile-first level-up must retain the post-purchase ember total")
 	expect.call(engine.held_embers(reconciled) == 17, "A torn level-up must not restore the embers already spent on that level")
 	expect.call(engine.has_run_skill(reconciled, "measured_breath"), "A torn level-up should still apply its newly learned skill")
+	expect.call(str(reconciled.get("mode", "")) == "room", "A torn level-up must consume the stale campfire choice on resume")
+	expect.call(int(reconciled.get("player_hp", 0)) == health_before_reconciliation, "Torn level-up recovery must not also grant the campfire heal")
 
 static func _test_combat_snapshot_progression_repair_preserves_use_history(expect: Callable) -> void:
 	var engine = RunEngineScript.new()

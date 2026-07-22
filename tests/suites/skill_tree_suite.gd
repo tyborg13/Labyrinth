@@ -13,6 +13,7 @@ static func run(expect: Callable) -> void:
 	_test_topology_validation_rejects_dead_ends(expect)
 	_test_leveling_requires_exactly_one_legal_skill(expect)
 	_test_keystones_are_exclusive(expect)
+	_test_max_build_requires_keystone(expect)
 	_test_respec_is_transactional(expect)
 	_test_legacy_profile_migration(expect)
 
@@ -42,7 +43,7 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.description("pain_remembers") == "After your first health loss each combat, when your hand has room, return your next non-item discard to it.", "Pain Remembers copy should disclose that a full hand delays its recall")
 	expect.call(SkillTreeLibrary.description("prismatic_instinct") == "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic uses do not consume this.", "Prismatic Instinct copy should describe its card-name scope and printed-play trigger")
 	expect.call(SkillTreeLibrary.description("curators_patience") == "After choosing a relic, save one unchosen relic for your next relic offer.", "Curator's Patience copy should identify the next relic offer")
-	expect.call(SkillTreeLibrary.description("living_shadow") == "Once until your next activation, a destroyed or dispelled illusion returns your latest non-item discard to hand, or atop your draw pile if full.", "Living Shadow copy should use activation cadence and identify both illusion-removal triggers")
+	expect.call(SkillTreeLibrary.description("living_shadow") == "Once between your activations, a destroyed or dispelled illusion returns your latest non-item discard to hand, or atop your draw pile if full.", "Living Shadow copy should use activation cadence and identify both illusion-removal triggers")
 	expect.call(SkillTreeLibrary.description("layaway") == "Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns.", "Layaway copy should disclose that an unresolved hold blocks another use")
 	expect.call(SkillTreeLibrary.description("open_arsenal") == "Equip any equipment in your trinket slot, ignoring its normal slot.", "Open Arsenal copy should explain which equipment restriction it ignores")
 	expect.call(SkillTreeLibrary.description("confluence") == "Intensity conditions use your highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue.", "Confluence copy should distinguish condition substitution from real intensity")
@@ -126,10 +127,73 @@ static func _test_keystones_are_exclusive(expect: Callable) -> void:
 	for skill_id: String in ProgressionStore.selected_skill_ids(profile):
 		if SkillTreeLibrary.is_keystone(skill_id):
 			keystone_count += 1
-	expect.call(keystone_count <= 1, "A normalized build should never contain more than one keystone")
+	expect.call(keystone_count == 1, "A normalized level-20 build should contain exactly one keystone")
 	if keystone_count == 1:
 		for available_id: String in ProgressionStore.available_skill_ids(profile):
 			expect.call(not SkillTreeLibrary.is_keystone(available_id), "Learning one keystone should lock the other keystones")
+
+static func _test_max_build_requires_keystone(expect: Callable) -> void:
+	var non_keystone_ids: Array[String]
+	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		if not SkillTreeLibrary.is_keystone(skill_id):
+			non_keystone_ids.append(skill_id)
+	var legacy_max_builds: Array = []
+	for omitted_index: int in range(non_keystone_ids.size()):
+		var legacy_selection: Array[String] = non_keystone_ids.duplicate()
+		legacy_selection.remove_at(omitted_index)
+		if not _selection_is_topologically_valid_without_capstone(legacy_selection):
+			continue
+		legacy_max_builds.append(legacy_selection)
+		expect.call(not SkillTreeLibrary.selection_is_valid(legacy_selection, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "A maximum build without a keystone should be rejected")
+		var repaired: Array[String] = SkillTreeLibrary.repaired_selection(legacy_selection, SkillTreeLibrary.COMPLETE_BUILD_SIZE, legacy_selection)
+		expect.call(SkillTreeLibrary.selection_is_valid(repaired, SkillTreeLibrary.COMPLETE_BUILD_SIZE), "A legacy maximum build should repair to a complete legal selection")
+		expect.call(_keystone_count(repaired) == 1, "Repairing a legacy maximum build should insert exactly one eligible keystone")
+	expect.call(legacy_max_builds.size() == 11, "The capstone migration proof should cover every formerly legal no-keystone maximum build")
+
+	var legal_eighteen_count: int = 0
+	for first_omitted: int in range(non_keystone_ids.size()):
+		for second_omitted: int in range(first_omitted + 1, non_keystone_ids.size()):
+			var partial: Array[String] = non_keystone_ids.duplicate()
+			partial.erase(non_keystone_ids[second_omitted])
+			partial.erase(non_keystone_ids[first_omitted])
+			if not SkillTreeLibrary.selection_is_valid(partial, SkillTreeLibrary.COMPLETE_BUILD_SIZE - 1):
+				continue
+			legal_eighteen_count += 1
+			var available: Array[String] = SkillTreeLibrary.available_ids(partial)
+			var available_keystones: int = 0
+			for available_id: String in available:
+				if SkillTreeLibrary.is_keystone(available_id):
+					available_keystones += 1
+			expect.call(available_keystones == available.size() and available_keystones >= 2, "Every 18-point no-keystone build should have multiple keystone continuations and no invalid final non-keystone")
+			expect.call(SkillTreeLibrary.locked_reason(non_keystone_ids[first_omitted], partial) == "Your final skill must be a keystone", "A blocked final non-keystone should explain the capstone requirement")
+	expect.call(legal_eighteen_count == 58, "The capstone proof should exhaust every legal 18-point no-keystone build")
+
+	var legacy_profile: Dictionary = ProgressionStore.default_data()
+	legacy_profile["progression_schema"] = 3
+	legacy_profile["level"] = 20
+	legacy_profile["skill_ids"] = (legacy_max_builds[0] as Array).duplicate()
+	legacy_profile["progression_revision"] = 7
+	var migrated_profile: Dictionary = ProgressionStore.normalized_data(legacy_profile)
+	expect.call(int(migrated_profile.get("progression_schema", 0)) == 4, "No-keystone maximum profiles should migrate to progression schema 4")
+	expect.call(int(migrated_profile.get("progression_revision", 0)) == 8, "Changing a legacy maximum build during migration should advance its progression revision")
+	expect.call(SkillTreeLibrary.selection_is_valid(ProgressionStore.selected_skill_ids(migrated_profile), SkillTreeLibrary.COMPLETE_BUILD_SIZE), "The migrated maximum profile should remain complete and legal")
+	expect.call(_keystone_count(ProgressionStore.selected_skill_ids(migrated_profile)) == 1, "The migrated maximum profile should contain exactly one keystone")
+
+static func _selection_is_topologically_valid_without_capstone(skill_ids: Array[String]) -> bool:
+	for skill_id: String in skill_ids:
+		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
+			if not skill_ids.has(prerequisite_id):
+				return false
+		if skill_ids.size() - 1 < SkillTreeLibrary.minimum_owned(skill_id):
+			return false
+	return true
+
+static func _keystone_count(skill_ids: Array[String]) -> int:
+	var result: int = 0
+	for skill_id: String in skill_ids:
+		if SkillTreeLibrary.is_keystone(skill_id):
+			result += 1
+	return result
 
 static func _test_respec_is_transactional(expect: Callable) -> void:
 	var profile: Dictionary = ProgressionStore.default_data()

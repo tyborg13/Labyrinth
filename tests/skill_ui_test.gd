@@ -5,6 +5,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 
 const TEST_PROGRESSION_PATH: String = "user://skill_ui_progression.json"
@@ -49,7 +50,7 @@ func _run() -> void:
 	await _test_from_scratch_respec_draft_is_transactional(instance)
 	await _test_newer_embedded_progression_repairs_profile_and_respec(instance)
 	await _test_open_arsenal_checkpoint_is_deduplicated(instance)
-	_test_contextual_run_skill_event_scope(instance)
+	await _test_contextual_run_skill_event_scope(instance)
 	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
 	await _test_combat_skill_surfaces(instance, run_state, progression)
 	await _test_terminal_skill_event_analytics(instance)
@@ -81,12 +82,23 @@ func _test_character_skill_tree(instance: Node) -> void:
 	_expect(tree != null and instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill(tree.focused_skill_id()), "Opening the Skills surface should place real GUI focus on the tree")
 	if tree != null:
 		var begin_respec := scrim.find_child("BeginSkillRespec", true, false) as Button
+		var skills_tab := scrim.find_child("CharacterSkillsTab", true, false) as Button
 		tree.focus_skill("ghost_stride")
 		tree.grab_tree_focus()
 		await process_frame
+		_expect(tree.node_for_skill("ghost_stride").find_valid_focus_neighbor(SIDE_TOP) == skills_tab, "A root edge should expose a controller path from the tree to the active Skills tab")
+		await _press_ui_action(&"ui_up")
+		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Live controller navigation should reach the Character tabs from the tree")
+		await _press_ui_action(&"ui_down")
+		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Skills-tab Down should return to the tree's remembered node")
 		_expect(tree.node_for_skill("ghost_stride").find_valid_focus_neighbor(SIDE_RIGHT) == begin_respec, "The view-only tree should expose a controller path to Begin Respec")
 		await _press_ui_action(&"ui_right")
 		_expect(instance.get_viewport().gui_get_focus_owner() == begin_respec, "Live controller navigation should leave the graph for Begin Respec")
+		_expect(begin_respec.find_valid_focus_neighbor(SIDE_TOP) == skills_tab, "Begin Respec should expose a direct controller path back to the Character tabs")
+		await _press_ui_action(&"ui_up")
+		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Begin Respec Up should reach the active Skills tab")
+		await _press_ui_action(&"ui_down")
+		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Returning from the Skills tab should preserve the last focused tree node")
 		tree.focus_skill("discerning_eye")
 	_expect(tree != null and tree.detail_title_text() == "Discerning Eye", "Compact medallions should reveal full skill names in the persistent detail pane")
 	_expect(_label_containing(scrim, "MOLTSHARDS 2") != null, "Skills surface should show the saved respec resource")
@@ -152,8 +164,10 @@ func _test_from_scratch_respec_draft_is_transactional(instance: Node) -> void:
 	await process_frame
 	_expect(ProgressionStore.load_data() == externally_changed, "A respec draft must not overwrite a profile revision that changed after drafting began")
 	_expect(ProgressionStore.moltshard_count(ProgressionStore.load_data()) == 3, "Rejecting a stale respec should not consume the newer profile's resource")
+	var stale_notice := (instance.get("_upgrade_scrim") as Control).find_child("ProgressionOverlayNotice", true, false) as Label
+	_expect(stale_notice != null and stale_notice.text.contains("draft was discarded") and stale_notice.text.contains("No Moltshard was spent"), "Rejecting a stale respec should explain the reload and resource safety")
+	_expect(str(instance.get("_progression_overlay_mode")) == "skills", "Rejecting a stale respec should return to the current read-only build")
 	_expect(ProgressionStore.save_data(profile_before), "Stale-respec fixture should restore the original profile")
-	instance.call("_on_skill_tree_cancel_requested")
 	instance.set("_progression", profile_before)
 	instance.set("_run_state", run_before)
 	await process_frame
@@ -243,11 +257,52 @@ func _test_open_arsenal_checkpoint_is_deduplicated(instance: Node) -> void:
 	await process_frame
 
 func _test_contextual_run_skill_event_scope(instance: Node) -> void:
-	var event_count_before: int = _skill_trigger_event_count("true_bearing")
-	instance.call("_analytics_log_run_skill_trigger", "true_bearing", "Chose a different combat entry tile.")
-	_expect(_skill_trigger_event_count("true_bearing") == event_count_before + 1, "A contextual run ability should emit one skill-trigger event")
-	var payload: Dictionary = _latest_skill_trigger_payload("true_bearing")
+	var profile_before: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var contextual_profile: Dictionary = profile_before.duplicate(true)
+	contextual_profile["level"] = 4
+	contextual_profile["skill_ids"] = SkillTreeLibrary.repaired_selection([], 3, ["quick_wits", "discerning_eye", "deferred_choice"])
+	contextual_profile = ProgressionStore.normalized_data(contextual_profile)
+	var run_engine := RunEngine.new()
+	var reward_run: Dictionary = run_engine.apply_progression_update(run_before, contextual_profile)
+	reward_run["mode"] = "reward"
+	reward_run["combat_state"] = {}
+	reward_run["pending_reward"] = {
+		"cards": ["rime_shard", "static_lash", "gust_step"],
+		"heal_amount": RunEngine.REWARD_HEAL,
+		"ember_amount": 4,
+	}
+	instance.set("_progression", contextual_profile)
+	instance.set("_run_state", reward_run)
+	instance.set("_combat_state", {})
+	instance.call("_refresh_ui")
+	await process_frame
+	var event_count_before: int = _skill_trigger_event_count("deferred_choice")
+	instance.call("_commit_reward_heal", "rime_shard")
+	await process_frame
+	await process_frame
+	_expect(_skill_trigger_event_count("deferred_choice") == event_count_before + 1, "A live contextual run ability should emit one skill-trigger event")
+	var payload: Dictionary = _latest_skill_trigger_payload("deferred_choice")
 	_expect(str(payload.get("trigger_scope", "")) == "run", "Contextual run ability analytics should identify the run event stream")
+	var active_run: Dictionary = instance.get("_run_state") as Dictionary
+	var event_revision: int = run_engine.run_skill_event_revision(active_run)
+	var saved_run: Dictionary = ProgressionStore.load_saved_run()
+	_expect(int((saved_run.get("analytics", {}) as Dictionary).get("run_skill_event_revision_logged", 0)) == event_revision, "A contextual trigger should persist its analytics cursor only after the event append")
+	var crash_replay: Dictionary = saved_run.duplicate(true)
+	var replay_analytics: Dictionary = (crash_replay.get("analytics", {}) as Dictionary).duplicate(true)
+	replay_analytics["run_skill_event_revision_logged"] = maxi(0, event_revision - 1)
+	crash_replay["analytics"] = replay_analytics
+	var event_count_before_replay: int = _skill_trigger_event_count("deferred_choice")
+	instance.call("_load_run_state", crash_replay)
+	await process_frame
+	await process_frame
+	_expect(_skill_trigger_event_count("deferred_choice") == event_count_before_replay, "Replaying a persisted run-skill outbox after an append-before-cursor crash should not duplicate JSONL")
+	var replayed_saved_run: Dictionary = ProgressionStore.load_saved_run()
+	_expect(int((replayed_saved_run.get("analytics", {}) as Dictionary).get("run_skill_event_revision_logged", 0)) == event_revision, "Crash replay should advance and persist the run-skill cursor after the idempotent append succeeds")
+	instance.set("_progression", profile_before)
+	instance.call("_load_run_state", run_before)
+	await process_frame
+	await process_frame
 
 func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, progression: Dictionary) -> void:
 	var combat_engine := CombatEngine.new()
@@ -298,6 +353,32 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(_label_with_text(popover, "Quick Wits") != null, "Skill popover should list the learned combat ability")
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "Skill popover should list the learned reward ability")
 	_expect(_label_with_text(popover, "READY") != null, "Skill popover should communicate readiness")
+	instance.call("_refresh_skill_status_popover", SkillTreeLibrary.ordered_ids())
+	instance.call("_layout_skill_status_popover")
+	await process_frame
+	await process_frame
+	var status_scroll := instance.get("_skill_status_scroll") as ScrollContainer
+	var status_list := instance.get("_skill_status_list") as VBoxContainer
+	var status_rows: Array = status_list.get_children() if status_list != null else []
+	var expected_popover_height: float = minf(
+		clampf((instance.get("ui_root") as Control).get_global_rect().size.y * 0.72, 500.0, 760.0),
+		(instance.get("ui_root") as Control).get_global_rect().size.y - 16.0
+	)
+	_expect(popover != null and is_equal_approx(popover.size.y, expected_popover_height), "Skill popover height should respond to the available viewport instead of remaining fixed")
+	_expect(status_scroll != null and status_scroll.follow_focus, "Skill status scrolling should follow controller focus")
+	_expect(status_rows.size() == SkillTreeLibrary.ordered_ids().size(), "Overflow status proof should render every learned-skill row")
+	if status_close != null and not status_rows.is_empty():
+		status_close.grab_focus()
+		await _press_ui_action(&"ui_down")
+		_expect(instance.get_viewport().gui_get_focus_owner() == status_rows[0], "Skill-status Close Down should enter the first informational row")
+		await _press_ui_action(&"ui_up")
+		_expect(instance.get_viewport().gui_get_focus_owner() == status_close, "The first skill-status row Up should return to Close")
+		for _index: int in range(status_rows.size()):
+			await _press_ui_action(&"ui_down")
+		_expect(instance.get_viewport().gui_get_focus_owner() == status_rows[status_rows.size() - 1], "Controller Down should reach the final learned-skill row")
+		_expect(status_scroll.scroll_vertical > 0, "Focusing an initially clipped skill row should scroll it into view")
+	instance.call("_refresh_skill_status_popover", loaded_skill_ids)
+	await process_frame
 	var contextual_skill_ids: Array[String]
 	contextual_skill_ids.append_array(["discerning_eye", "deferred_choice", "curators_patience", "true_bearing", "layaway"])
 	var contextual_run_state: Dictionary = loaded_combat_run.duplicate(true)
@@ -407,9 +488,10 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.set("_run_state", run_engine.set_combat_state(original_run_state, escape_combat))
 	instance.call("_refresh_ui")
 	await process_frame
-	var escape_button: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Rehearsed Escape")
-	if escape_button == null:
-		escape_button = _visible_button_with_text(instance.get("choice_bar") as Control, "Rehearsed Escape")
+	var ready_group := _button_beginning_with(instance.get("_choice_button_overlay") as Control, "Ready Skills (")
+	_expect(ready_group != null and ready_group.is_visible_in_tree(), "Three or more simultaneous manual abilities should collapse into one compact Ready Skills control")
+	_expect(_visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Rehearsed Escape") == null, "Grouped skill actions should not cover the combat hand with duplicate direct controls")
+	var escape_button: Button = await _ready_skill_button(instance, "Rehearsed Escape")
 	_expect(escape_button != null, "Rehearsed Escape should appear as an explicit manual combat choice")
 	if escape_button != null:
 		escape_button.pressed.emit()
@@ -418,9 +500,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(bool(escape_flags.get("burn_preserve_armed", false)), "Rehearsed Escape should visibly arm before it changes a Burn destination")
 	_expect(str(instance.call("_skill_hud_status", "rehearsed_escape")) == "ARMED", "Rehearsed Escape should report ARMED after the player opts in")
 	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count, "Arming Rehearsed Escape should not log a realized skill trigger")
-	var makeshift_button: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Makeshift Tool")
-	if makeshift_button == null:
-		makeshift_button = _visible_button_with_text(instance.get("choice_bar") as Control, "Makeshift Tool")
+	var makeshift_button: Button = await _ready_skill_button(instance, "Makeshift Tool")
 	_expect(makeshift_button != null, "Makeshift Tool should appear as an explicit manual combat choice")
 	if makeshift_button != null:
 		makeshift_button.pressed.emit()
@@ -429,9 +509,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(bool(escape_flags.get("item_preserve_armed", false)), "Makeshift Tool should visibly arm before it changes a consumable destination")
 	_expect(str(instance.call("_skill_hud_status", "makeshift_tool")) == "ARMED", "Makeshift Tool should report ARMED after the player opts in")
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count, "Arming Makeshift Tool should not log a realized skill trigger")
-	var carry_button: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Carry the Guard")
-	if carry_button == null:
-		carry_button = _visible_button_with_text(instance.get("choice_bar") as Control, "Carry the Guard")
+	var carry_button: Button = await _ready_skill_button(instance, "Carry the Guard")
 	_expect(carry_button != null, "Carry the Guard should appear as an explicit choice while block remains")
 	if carry_button != null:
 		carry_button.pressed.emit()
@@ -625,7 +703,6 @@ func _test_out_of_combat_respec_preserves_unbanked_embers(instance: Node) -> voi
 func _test_run_skill_event_cursor_resets_for_new_run(instance: Node) -> void:
 	var run_engine := RunEngine.new()
 	instance.set("_run_skill_event_revision_seen", 9)
-	instance.set("_manual_run_skill_event_revision_seen", 9)
 	var second_run: Dictionary = run_engine.create_new_run(73032, instance.get("_progression") as Dictionary)
 	second_run["mode"] = "reward"
 	second_run["pending_reward"] = {
@@ -794,6 +871,20 @@ func _button_beginning_with(node: Node, prefix: String) -> Button:
 		if found != null:
 			return found
 	return null
+
+func _ready_skill_button(instance: Node, skill_name: String) -> Button:
+	var direct: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, skill_name)
+	if direct == null:
+		direct = _visible_button_with_text(instance.get("choice_bar") as Control, skill_name)
+	if direct != null:
+		return direct
+	var group := _button_beginning_with(instance.get("_choice_button_overlay") as Control, "Ready Skills (")
+	if group == null or not group.is_visible_in_tree():
+		return null
+	group.pressed.emit()
+	await process_frame
+	await process_frame
+	return _visible_button_with_text(instance.get("_skill_choice_list") as Control, skill_name)
 
 func _label_with_text(node: Node, expected: String) -> Label:
 	if node == null:

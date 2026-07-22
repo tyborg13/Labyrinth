@@ -148,6 +148,30 @@ static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 	state["loot"] = loot
 	var move_action: Dictionary = combat.fallback_move_action(state, 2)
 	expect.call(str(move_action.get("type", "")) == "move", "Ghost Stride should preserve the normal basic Move choice")
+	expect.call(combat.skill_is_ready(state, "ghost_stride"), "Ghost Stride should be ready while a card play and legal visible Blink target remain")
+	var no_hand_state: Dictionary = state.duplicate(true)
+	no_hand_state["deck"] = _deck([], [], [])
+	expect.call(not combat.skill_is_ready(no_hand_state, "ghost_stride"), "Ghost Stride should wait when no card is available for a basic Move")
+	var no_play_state: Dictionary = state.duplicate(true)
+	no_play_state["cards_played_this_turn"] = int(no_play_state.get("cards_per_turn", 0)) + int(no_play_state.get("card_play_bonus_this_turn", 0)) + int(no_play_state.get("banked_play_active", 0))
+	expect.call(not combat.skill_is_ready(no_play_state, "ghost_stride"), "Ghost Stride should wait when no card play remains")
+	for restriction_id: String in ["frozen", "immobilized"]:
+		var restricted_state: Dictionary = state.duplicate(true)
+		var restrictions: Dictionary = (restricted_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
+		restrictions[restriction_id] = true
+		restricted_state["player_turn_restrictions"] = restrictions
+		expect.call(not combat.skill_is_ready(restricted_state, "ghost_stride"), "Ghost Stride should wait while %s prevents Blink" % restriction_id)
+	var blocked_state: Dictionary = state.duplicate(true)
+	var blocked_grid: Array = (blocked_state.get("grid", []) as Array).duplicate(true)
+	var player_pos: Vector2i = (blocked_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for y: int in range(blocked_grid.size()):
+		var row: Array = (blocked_grid[y] as Array).duplicate()
+		for x: int in range(row.size()):
+			if Vector2i(x, y) != player_pos:
+				row[x] = "wall"
+		blocked_grid[y] = row
+	blocked_state["grid"] = blocked_grid
+	expect.call(not combat.skill_is_ready(blocked_state, "ghost_stride"), "Ghost Stride should wait when no legal visible Blink target exists")
 	var moved_state: Dictionary = combat.apply_player_action(state, move_action, Vector2i(2, 5))
 	expect.call(not combat.skill_was_used(moved_state, "ghost_stride"), "Choosing a normal Move should not spend Ghost Stride")
 	var action: Dictionary = combat.fallback_blink_action(state, 2)

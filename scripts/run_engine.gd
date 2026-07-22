@@ -690,7 +690,10 @@ func set_pre_battle_start(run_state: Dictionary, tile: Vector2i) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if not pre_battle_start_tiles(next_state).has(tile):
 		return next_state
+	if typeof(next_state.get("pre_battle_start", null)) == TYPE_VECTOR2I and next_state.get("pre_battle_start") == tile:
+		return next_state
 	next_state["pre_battle_start"] = tile
+	_record_run_skill_event(next_state, "true_bearing", "Chose a different combat entry tile.")
 	return next_state
 
 func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
@@ -1262,8 +1265,10 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 	var offered_cards: Array = pending_reward.get("cards", []) as Array
 	if has_run_skill(next_state, "deferred_choice") and not deferred_card_id.is_empty() and offered_cards.has(deferred_card_id):
 		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
-		skill_state["pending_card"] = deferred_card_id
-		next_state[SKILL_STATE_KEY] = skill_state
+		if str(skill_state.get("pending_card", "")) != deferred_card_id:
+			skill_state["pending_card"] = deferred_card_id
+			next_state[SKILL_STATE_KEY] = skill_state
+			_record_run_skill_event(next_state, "deferred_choice", "Saved a card for the next reward.")
 	var heal_amount: int = int(pending_reward.get("heal_amount", 0))
 	next_state["player_hp"] = mini(int(next_state.get("player_max_hp", 1)), int(next_state.get("player_hp", 0)) + heal_amount)
 	next_state["pending_reward"] = {}
@@ -1289,8 +1294,10 @@ func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: Str
 		next_state["player_hp"] = int(next_state.get("player_hp", 1)) + bonus
 	if has_run_skill(next_state, "curators_patience") and deferred_relic_id != relic_id and offered_relics.has(deferred_relic_id) and not relics.has(deferred_relic_id):
 		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
-		skill_state["pending_relic"] = deferred_relic_id
-		next_state[SKILL_STATE_KEY] = skill_state
+		if str(skill_state.get("pending_relic", "")) != deferred_relic_id:
+			skill_state["pending_relic"] = deferred_relic_id
+			next_state[SKILL_STATE_KEY] = skill_state
+			_record_run_skill_event(next_state, "curators_patience", "Saved a relic for the next offer.")
 	next_state["pending_relics"] = []
 	next_state["mode"] = "room"
 	return next_state
@@ -1369,6 +1376,10 @@ func reconcile_progression_revision(run_state: Dictionary, profile_progression: 
 	if int(profile.get("progression_revision", 0)) > int(embedded.get("progression_revision", 0)):
 		var level_advanced: bool = int(profile.get("level", 1)) > int(embedded.get("level", 1))
 		next_state = apply_progression_update(next_state, profile, not level_advanced)
+		# Level-up commits are profile-first. If the run checkpoint was interrupted,
+		# consume the stale campfire choice without granting its heal as well.
+		if level_advanced and str(next_state.get("mode", "room")) == "campfire":
+			next_state = leave_campfire(next_state, 0)
 	else:
 		next_state["progression"] = embedded
 		next_state = _repair_skill_dependent_state(next_state)
@@ -1410,7 +1421,7 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 	if equipped.is_empty():
 		equipped = GameData.starting_equipped_equipment()
 	for slot: String in GameData.equipment_slots():
-		if str(equipped.get(slot, "")).is_empty():
+		if not equipped.has(slot):
 			equipped[slot] = str(GameData.starting_equipped_equipment().get(slot, ""))
 	next_state["equipped_equipment"] = equipped
 	if not next_state.has("equipment_inventory"):
@@ -1474,11 +1485,9 @@ func _stow_invalid_wild_trinket(run_state: Dictionary) -> Dictionary:
 		if GameData.equipment_slot(candidate) == "trinket":
 			replacement = candidate
 			break
-	if replacement.is_empty():
-		replacement = str(GameData.starting_equipped_equipment().get("trinket", ""))
 	if not replacement.is_empty():
 		inventory.erase(replacement)
-		equipped["trinket"] = replacement
+	equipped["trinket"] = replacement
 	next_state["equipment_inventory"] = inventory
 	next_state["equipped_equipment"] = equipped
 	return _rebuild_deck_cards(next_state)

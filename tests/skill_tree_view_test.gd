@@ -53,7 +53,8 @@ func _test_skill_tree_view() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		expected_links += SkillTreeLibrary.prerequisites(skill_id).size()
 	_expect(view.connection_count() == expected_links, "The reusable tree should render one connector for every prerequisite")
-	_expect(view.graph_canvas_size() == Vector2(730.0, 350.0), "The graph should expose a stable topology-first canvas size")
+	_expect(view.connection_arrowhead_count() == expected_links, "Every prerequisite should retain one visible target arrowhead above the node layer")
+	_expect(view.graph_canvas_size() == Vector2(1000.0, 540.0), "The graph should reserve enough topology-first space for exposed routing lanes")
 	_expect(view.find_child("SkillTreeScroll", true, false) is ScrollContainer, "The graph should remain scrollable in a smaller host")
 	_expect(view.find_child("SkillDetailPanel", true, false) is PanelContainer, "The tree should provide its own detail panel")
 	_expect(view.find_child("SkillDetailScroll", true, false) is ScrollContainer, "Long skill rules should scroll inside the detail pane instead of resizing the whole tree")
@@ -70,9 +71,26 @@ func _test_skill_tree_view() -> void:
 	_expect(legend_symbols == ["check", "dot", "lock", "plus", "strike"], "Every legend state should have a distinct non-color symbol")
 	_expect(_label_with_text(view, "Prismatic Instinct") == null, "Skill names should live in the detail pane instead of covering graph connections")
 	_expect(view.connection_intersection_count() == 0, "No connector should pass through an unrelated medallion: %s" % ", ".join(view.connection_intersection_pairs()))
+	_expect(
+		view.collinear_connection_overlap_pairs().is_empty(),
+		"Unrelated routes should never merge into an ambiguous shared rail: %s" % ", ".join(view.collinear_connection_overlap_pairs())
+	)
+	_expect(
+		view.bridged_connection_pairs().size() == 11,
+		"Every unavoidable non-incident crossover should have one explicit visual bridge: %s" % ", ".join(view.bridged_connection_pairs())
+	)
+	_expect(
+		view.unbridged_connection_pairs().is_empty(),
+		"No non-incident crossover should be rendered as an unexplained junction: %s" % ", ".join(view.unbridged_connection_pairs())
+	)
+	_expect(view.minimum_bridge_half_gap() >= 10.0, "Crossover gaps should visibly clear the route drawn above them")
+	var stable_bridge_signature: Array[String] = view.bridge_assignment_signature()
 	_expect(view.minimum_connection_width() >= 3.0, "Every connection should remain visibly legible even when unfocused")
 	_expect(view.minimum_connection_alpha() >= 0.9, "Focusing a node should never fade the remaining topology into invisibility")
 	_expect(view.minimum_understroke_margin() >= 3.0, "Every connection should have a dark separating under-stroke")
+	_expect(view.minimum_target_segment_length() >= 10.0, "Every prerequisite should expose enough incoming line for its arrowhead to remain outside the medallion shadow")
+	for branch_id: String in ["Resolve", "Tactics", "Foresight", "Traverse"]:
+		_expect(view.find_child("SkillBranchHeader_%s" % branch_id, true, false) is Label, "%s should have a stable branch heading above its root" % branch_id)
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_OWNED, "Committed skills should render as learned")
 	_expect(view.status_for_skill("measured_breath") == SkillTreeView.STATE_AVAILABLE, "Legal roots should render as available")
 	_expect(view.status_for_skill("borrowed_time") == SkillTreeView.STATE_LOCKED, "Missing prerequisites should render as locked")
@@ -86,6 +104,22 @@ func _test_skill_tree_view() -> void:
 	view.grab_tree_focus()
 	await process_frame
 	_expect(root.gui_get_focus_owner() == quick_node, "Opening the tree should transfer real GUI focus to its visually focused node")
+	measured_node.mouse_entered.emit()
+	await process_frame
+	_expect(view.focused_skill_id() == "measured_breath" and root.gui_get_focus_owner() == measured_node, "Mouse hover should synchronize the tree highlight with real GUI focus")
+	await _press_ui_action(&"ui_accept")
+	_expect(view.pending_skill_ids() == ["measured_breath"], "Keyboard Accept after hover should activate the hovered skill, not the previously focused control")
+	view.configure({
+		"mode": SkillTreeView.MODE_LEVEL_UP,
+		"owned_ids": ["quick_wits"],
+		"pending_ids": [],
+		"required_count": 2,
+		"resource_count": 0,
+		"editing_enabled": true,
+		"focused_id": "quick_wits",
+	})
+	view.grab_tree_focus()
+	await process_frame
 	var encore_node: Button = view.node_for_skill("encore")
 	_expect(encore_node != null and quick_node != null and encore_node.position.y > quick_node.position.y, "Keystones should render below their earlier tiers")
 	_expect(view.node_for_skill("rehearsed_escape").position.y == view.node_for_skill("makeshift_tool").position.y, "Sibling skills should share a dependency depth instead of implying a false chain")
@@ -162,6 +196,50 @@ func _test_skill_tree_view() -> void:
 	var discerning_relation_node: Button = view.node_for_skill("discerning_eye")
 	_expect(str(quick_relation_node.get_meta("focus_relationship", "")) == "prerequisite", "A focused junction should mark Quick Wits as a prerequisite")
 	_expect(str(discerning_relation_node.get_meta("focus_relationship", "")) == "prerequisite", "A focused junction should mark Discerning Eye as a prerequisite")
+	view.focus_skill("living_shadow")
+	await process_frame
+	await process_frame
+	_expect(
+		view.bridge_assignment_signature() == stable_bridge_signature,
+		"Crossover ownership should remain stable as focus and learned state change"
+	)
+	var graph_scroll := view.find_child("SkillTreeScroll", true, false) as ScrollContainer
+	var visible_graph: Rect2 = graph_scroll.get_global_rect() if graph_scroll != null else Rect2()
+	_expect(
+		graph_scroll != null
+		and visible_graph.encloses(view.node_for_skill("pain_remembers").get_global_rect())
+		and visible_graph.encloses(view.node_for_skill("afterimage").get_global_rect()),
+		"Focusing a long cross-branch skill should pan far enough to show both direct prerequisite medallions"
+	)
+
+	view.visible = false
+	var compact_view := SkillTreeView.new()
+	compact_view.position = Vector2(24.0, 24.0)
+	compact_view.size = Vector2(900.0, 420.0)
+	compact_view.configure({
+		"mode": SkillTreeView.MODE_VIEW,
+		"owned_ids": [],
+		"focused_id": "last_door",
+	})
+	root.add_child(compact_view)
+	await process_frame
+	await process_frame
+	compact_view.grab_tree_focus()
+	await process_frame
+	await process_frame
+	var compact_scroll := compact_view.find_child("SkillTreeScroll", true, false) as ScrollContainer
+	var last_door_node: Button = compact_view.node_for_skill("last_door")
+	_expect(
+		compact_scroll != null
+		and compact_scroll.scroll_horizontal > 0
+		and compact_scroll.scroll_vertical > 0
+		and compact_scroll.get_global_rect().encloses(last_door_node.get_global_rect()),
+		"Opening a compact tree on a remembered extreme node should pan both axes to reveal it"
+	)
+	root.remove_child(compact_view)
+	compact_view.queue_free()
+	view.visible = true
+	await process_frame
 
 	var original: Array[String]
 	original.append_array([

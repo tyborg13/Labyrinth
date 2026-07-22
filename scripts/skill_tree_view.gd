@@ -25,8 +25,14 @@ const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
 const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
-const DETAIL_WIDTH: float = 330.0
-const LINK_NODE_CLEARANCE: float = 3.0
+const DETAIL_WIDTH: float = 280.0
+const LINK_NODE_CLEARANCE: float = 8.0
+const LINK_ENDPOINT_EXPOSURE: float = 10.0
+const LINK_CHANNEL_SPACING: float = 10.0
+const LINK_BRIDGE_HALF_GAP: float = 10.0
+const LINK_TARGET_STUB_OFFSETS: Dictionary = {
+	"quick_wits>curators_patience": -12.0,
+}
 
 const BRANCH_COLORS: Dictionary = {
 	"tactics": Color("d7a85d"),
@@ -50,11 +56,14 @@ class SkillLinkLayer:
 	func _draw() -> void:
 		var ordered_links: Array[Dictionary]
 		for link: Dictionary in links:
-			if not bool(link.get("highlighted", false)):
-				ordered_links.append(link)
-		for link: Dictionary in links:
-			if bool(link.get("highlighted", false)):
-				ordered_links.append(link)
+			ordered_links.append(link.duplicate(true))
+		ordered_links.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+			var left_priority: int = int(left.get("draw_priority", 0))
+			var right_priority: int = int(right.get("draw_priority", 0))
+			if left_priority != right_priority:
+				return left_priority < right_priority
+			return str(left.get("sort_key", "")) < str(right.get("sort_key", ""))
+		)
 		for link: Dictionary in ordered_links:
 			var points: PackedVector2Array = link.get("points", PackedVector2Array())
 			if points.size() < 2:
@@ -62,18 +71,122 @@ class SkillLinkLayer:
 			var color: Color = link.get("color", Color("4a434d"))
 			var width: float = float(link.get("width", 3.0))
 			var under_color := Color(0.025, 0.02, 0.027, 0.95)
+			var bridge_gaps: Array = link.get("bridge_gaps", []) as Array
 			if bool(link.get("highlighted", false)):
 				var glow := color
 				glow.a = 0.20
-				draw_polyline(points, glow, width + 8.0, true)
-			draw_polyline(points, under_color, width + 3.0, true)
-			draw_polyline(points, color, width, true)
-			for point_index: int in range(1, points.size() - 1):
-				draw_circle(points[point_index], width * 0.5, color, true, -1.0, true)
+				_draw_routed_line(points, bridge_gaps, glow, width + 8.0)
+			_draw_routed_line(points, bridge_gaps, under_color, width + 3.0)
+			_draw_routed_line(points, bridge_gaps, color, width)
+
+	func _draw_routed_line(
+		points: PackedVector2Array,
+		bridge_gaps: Array,
+		color: Color,
+		width: float
+	) -> void:
+		for segment_index: int in range(points.size() - 1):
+			var start: Vector2 = points[segment_index]
+			var finish: Vector2 = points[segment_index + 1]
+			var segment: Vector2 = finish - start
+			var segment_length: float = segment.length()
+			if segment_length <= 0.01:
+				continue
+			var direction: Vector2 = segment / segment_length
+			var segment_gaps: Array[Dictionary]
+			for gap_value: Variant in bridge_gaps:
+				if typeof(gap_value) != TYPE_DICTIONARY:
+					continue
+				var gap: Dictionary = gap_value as Dictionary
+				if int(gap.get("segment_index", -1)) == segment_index:
+					segment_gaps.append(gap)
+			segment_gaps.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+				return float(left.get("distance", 0.0)) < float(right.get("distance", 0.0))
+			)
+			var cursor_distance: float = 0.0
+			for gap: Dictionary in segment_gaps:
+				var gap_distance: float = clampf(float(gap.get("distance", 0.0)), 0.0, segment_length)
+				var half_gap: float = maxf(0.0, float(gap.get("half_gap", 0.0)))
+				var gap_start: float = maxf(cursor_distance, gap_distance - half_gap)
+				if gap_start > cursor_distance + 0.01:
+					draw_line(
+						start + direction * cursor_distance,
+						start + direction * gap_start,
+						color,
+						width,
+						true
+					)
+				cursor_distance = maxf(cursor_distance, minf(segment_length, gap_distance + half_gap))
+			if cursor_distance < segment_length - 0.01:
+				draw_line(start + direction * cursor_distance, finish, color, width, true)
+
+class SkillLinkOverlayLayer:
+	extends Control
+
+	const ARROW_LENGTH: float = 10.0
+	const ARROW_HALF_WIDTH: float = 5.0
+
+	var links: Array[Dictionary]
+
+	func set_links(value: Array[Dictionary]) -> void:
+		links.clear()
+		for link: Dictionary in value:
+			links.append(link.duplicate(true))
+		queue_redraw()
+
+	func _draw() -> void:
+		var ordered_links: Array[Dictionary]
+		for link: Dictionary in links:
+			ordered_links.append(link.duplicate(true))
+		ordered_links.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+			var left_priority: int = int(left.get("draw_priority", 0))
+			var right_priority: int = int(right.get("draw_priority", 0))
+			if left_priority != right_priority:
+				return left_priority < right_priority
+			return str(left.get("sort_key", "")) < str(right.get("sort_key", ""))
+		)
+		for link: Dictionary in ordered_links:
+			var points: PackedVector2Array = link.get("points", PackedVector2Array())
+			if points.size() < 2:
+				continue
+			var color: Color = link.get("color", Color("4a434d"))
+			var width: float = float(link.get("width", 3.0))
+			var under_color := Color(0.025, 0.02, 0.027, 0.98)
+			var target_start: int = maxi(0, points.size() - 2)
+			var source_direction: Vector2 = points[1] - points[0]
+			var source_overlay_end: Vector2 = points[0]
+			if source_direction.length_squared() > 0.01:
+				source_overlay_end += source_direction.normalized() * minf(6.0, source_direction.length())
+			var target: Vector2 = points[points.size() - 1]
+			var incoming: Vector2 = target - points[target_start]
+			if incoming.length_squared() <= 0.01:
+				continue
+			var direction: Vector2 = incoming.normalized()
+			var target_overlay_start: Vector2 = target - direction * minf(ARROW_LENGTH + 2.0, incoming.length())
+			if bool(link.get("highlighted", false)):
+				var glow := color
+				glow.a = 0.22
+				draw_line(points[0], source_overlay_end, glow, width + 8.0, true)
+				draw_line(target_overlay_start, target, glow, width + 8.0, true)
+			draw_line(points[0], source_overlay_end, under_color, width + 3.0, true)
+			draw_line(points[0], source_overlay_end, color, width, true)
+			draw_line(target_overlay_start, target, under_color, width + 3.0, true)
+			draw_line(target_overlay_start, target, color, width, true)
 			draw_circle(points[0], width * 0.9 + 1.0, under_color, true, -1.0, true)
 			draw_circle(points[0], width * 0.65, color, true, -1.0, true)
-			draw_circle(points[points.size() - 1], width * 0.9 + 1.0, under_color, true, -1.0, true)
-			draw_circle(points[points.size() - 1], width * 0.65, color, true, -1.0, true)
+			var normal := Vector2(-direction.y, direction.x)
+			var under_arrow := PackedVector2Array([
+				target + direction * 1.0,
+				target - direction * (ARROW_LENGTH + 2.0) + normal * (ARROW_HALF_WIDTH + 2.0),
+				target - direction * (ARROW_LENGTH + 2.0) - normal * (ARROW_HALF_WIDTH + 2.0),
+			])
+			var arrow := PackedVector2Array([
+				target,
+				target - direction * ARROW_LENGTH + normal * ARROW_HALF_WIDTH,
+				target - direction * ARROW_LENGTH - normal * ARROW_HALF_WIDTH,
+			])
+			draw_colored_polygon(under_arrow, under_color)
+			draw_colored_polygon(arrow, color)
 
 class SkillLegendMarker:
 	extends Control
@@ -258,10 +371,12 @@ var _focused_id: String = ""
 var _graph_canvas: Control
 var _graph_scroll: ScrollContainer
 var _link_layer: SkillLinkLayer
+var _link_overlay_layer: SkillLinkOverlayLayer
 var _summary_label: Label
 var _node_buttons: Dictionary = {}
 var _node_faces: Dictionary = {}
 var _node_centers: Dictionary = {}
+var _bridge_records: Array[Dictionary]
 var _legend: HBoxContainer
 var _detail_status: Label
 var _detail_title: Label
@@ -275,6 +390,7 @@ var _footer: HBoxContainer
 var _cancel_button: Button
 var _confirm_button: Button
 var _external_command_target: Control
+var _external_tab_target: Control
 
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -349,9 +465,15 @@ func grab_tree_focus() -> void:
 	var button: Button = node_for_skill(_focused_id)
 	if button != null and button.is_inside_tree() and button.is_visible_in_tree():
 		button.grab_focus()
+		call_deferred("_ensure_focused_visible")
 
 func set_external_command_focus_target(target: Control) -> void:
 	_external_command_target = target
+	if is_node_ready():
+		_configure_focus_neighbors()
+
+func set_external_tab_focus_target(target: Control) -> void:
+	_external_tab_target = target
 	if is_node_ready():
 		_configure_focus_neighbors()
 
@@ -395,6 +517,9 @@ func node_count() -> int:
 
 func connection_count() -> int:
 	return _link_layer.links.size() if _link_layer != null else 0
+
+func connection_arrowhead_count() -> int:
+	return _link_overlay_layer.links.size() if _link_overlay_layer != null else 0
 
 func highlighted_connection_count() -> int:
 	if _link_layer == null:
@@ -477,6 +602,55 @@ func connection_intersection_pairs(clearance: float = 2.0) -> Array[String]:
 					break
 	return result
 
+func collinear_connection_overlap_pairs() -> Array[String]:
+	var result: Array[String]
+	for record: Dictionary in _bridge_records:
+		if str(record.get("kind", "")) != "overlap":
+			continue
+		var pair_key: String = str(record.get("pair_key", ""))
+		if not pair_key.is_empty() and not result.has(pair_key):
+			result.append(pair_key)
+	result.sort()
+	return result
+
+func bridged_connection_pairs() -> Array[String]:
+	var result: Array[String]
+	for record: Dictionary in _bridge_records:
+		if str(record.get("kind", "")) != "crossing" or not bool(record.get("bridged", false)):
+			continue
+		var pair_key: String = str(record.get("pair_key", ""))
+		if not pair_key.is_empty() and not result.has(pair_key):
+			result.append(pair_key)
+	result.sort()
+	return result
+
+func bridge_assignment_signature() -> Array[String]:
+	var result: Array[String]
+	for record: Dictionary in _bridge_records:
+		if str(record.get("kind", "")) != "crossing" or not bool(record.get("bridged", false)):
+			continue
+		result.append("%s under %s" % [str(record.get("lower_link", "")), str(record.get("pair_key", ""))])
+	result.sort()
+	return result
+
+func unbridged_connection_pairs() -> Array[String]:
+	var result: Array[String]
+	for record: Dictionary in _bridge_records:
+		if str(record.get("kind", "")) != "crossing" or bool(record.get("bridged", false)):
+			continue
+		var pair_key: String = str(record.get("pair_key", ""))
+		if not pair_key.is_empty() and not result.has(pair_key):
+			result.append(pair_key)
+	result.sort()
+	return result
+
+func minimum_bridge_half_gap() -> float:
+	var result: float = INF
+	for record: Dictionary in _bridge_records:
+		if str(record.get("kind", "")) == "crossing" and bool(record.get("bridged", false)):
+			result = minf(result, float(record.get("half_gap", 0.0)))
+	return 0.0 if result == INF else result
+
 func minimum_connection_width() -> float:
 	if _link_layer == null or _link_layer.links.is_empty():
 		return 0.0
@@ -500,6 +674,17 @@ func minimum_understroke_margin() -> float:
 	var result: float = INF
 	for link: Dictionary in _link_layer.links:
 		result = minf(result, float(link.get("under_width", 0.0)) - float(link.get("width", 0.0)))
+	return result
+
+func minimum_target_segment_length() -> float:
+	if _link_layer == null or _link_layer.links.is_empty():
+		return 0.0
+	var result: float = INF
+	for link: Dictionary in _link_layer.links:
+		var points: PackedVector2Array = link.get("points", PackedVector2Array()) as PackedVector2Array
+		if points.size() < 2:
+			return 0.0
+		result = minf(result, points[points.size() - 1].distance_to(points[points.size() - 2]))
 	return result
 
 func _build_view() -> void:
@@ -552,7 +737,7 @@ func _build_graph_panel() -> Control:
 	_graph_scroll.name = "SkillTreeScroll"
 	_graph_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_graph_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_graph_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_graph_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_graph_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	column.add_child(_graph_scroll)
 
@@ -569,8 +754,31 @@ func _build_graph_panel() -> Control:
 	_link_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_graph_canvas.add_child(_link_layer)
 
+	_build_branch_headers()
 	_build_skill_nodes()
+	_link_overlay_layer = SkillLinkOverlayLayer.new()
+	_link_overlay_layer.name = "SkillTreeLinkOverlayLayer"
+	_link_overlay_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_link_overlay_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_graph_canvas.add_child(_link_overlay_layer)
 	return panel
+
+func _build_branch_headers() -> void:
+	for root_id: String in ["measured_breath", "quick_wits", "discerning_eye", "ghost_stride"]:
+		var definition: Dictionary = SkillTreeLibrary.definition(root_id)
+		var branch_id: String = str(definition.get("branch", ""))
+		var label := Label.new()
+		label.name = "SkillBranchHeader_%s" % branch_id.capitalize()
+		label.text = branch_id.to_upper()
+		label.position = Vector2(_node_center(root_id).x - 64.0, 1.0)
+		label.size = Vector2(128.0, 20.0)
+		label.custom_minimum_size = label.size
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
+		label.add_theme_color_override("font_color", _branch_color(branch_id).lightened(0.12))
+		_graph_canvas.add_child(label)
 
 func _build_state_legend() -> void:
 	if _legend == null:
@@ -819,18 +1027,26 @@ func _refresh_links() -> void:
 				relationship = "dependent"
 			elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
 				relationship = "ancestor"
-			var visual: Dictionary = _link_visual(_link_state(prerequisite_id, skill_id), relationship)
+			var link_state: String = _link_state(prerequisite_id, skill_id)
+			var visual: Dictionary = _link_visual(link_state, relationship)
+			var sort_key: String = "%s>%s" % [prerequisite_id, skill_id]
 			links.append({
 				"from_id": prerequisite_id,
 				"to_id": skill_id,
+				"sort_key": sort_key,
 				"relationship": relationship,
-				"highlighted": relationship in ["prerequisite", "dependent"],
+				"highlighted": relationship in ["prerequisite", "dependent", "ancestor"],
+				"draw_priority": _link_draw_priority(link_state, relationship),
 				"points": _link_points(prerequisite_id, skill_id),
 				"color": visual.get("color", Color("413b43")),
 				"width": float(visual.get("width", 3.0)),
 				"under_width": float(visual.get("width", 3.0)) + 3.0,
+				"bridge_gaps": [],
 			})
+	_bridge_records = _annotate_connection_bridges(links)
 	_link_layer.set_links(links)
+	if _link_overlay_layer != null:
+		_link_overlay_layer.set_links(links)
 
 func _refresh_detail() -> void:
 	if _detail_title == null:
@@ -922,12 +1138,32 @@ func _on_node_focus_entered(skill_id: String) -> void:
 func _on_node_hovered(skill_id: String) -> void:
 	if skill_id != _focused_id:
 		focus_skill(skill_id)
+	var button: Button = node_for_skill(skill_id)
+	if _control_accepts_focus(button) and get_viewport().gui_get_focus_owner() != button:
+		button.grab_focus()
 
 func _ensure_focused_visible() -> void:
 	if _graph_scroll == null:
 		return
 	var button: Button = node_for_skill(_focused_id)
 	if button != null:
+		var route_ids: Array[String] = _ancestor_ids(_focused_id)
+		if not route_ids.has(_focused_id):
+			route_ids.append(_focused_id)
+		for dependent_id: String in _direct_dependent_ids(_focused_id):
+			if not route_ids.has(dependent_id):
+				route_ids.append(dependent_id)
+		var route_min_x: float = INF
+		var route_max_x: float = -INF
+		for route_id: String in route_ids:
+			var route_node: Button = node_for_skill(route_id)
+			if route_node == null:
+				continue
+			route_min_x = minf(route_min_x, route_node.position.x)
+			route_max_x = maxf(route_max_x, route_node.position.x + route_node.size.x)
+		if route_min_x < INF and route_max_x > -INF and GRAPH_SIZE.x > _graph_scroll.size.x:
+			var route_center_x: float = (route_min_x + route_max_x) * 0.5
+			_graph_scroll.scroll_horizontal = maxi(0, int(round(route_center_x - _graph_scroll.size.x * 0.5)))
 		_graph_scroll.ensure_control_visible(button)
 
 func _configure_focus_neighbors() -> void:
@@ -945,6 +1181,8 @@ func _configure_focus_neighbors() -> void:
 	_configure_command_focus_neighbors()
 
 func _tree_exit_target(direction: String) -> Control:
+	if direction in ["left", "up"] and _control_accepts_focus(_external_tab_target):
+		return _external_tab_target
 	if direction == "right" and _control_accepts_focus(_detail_action):
 		return _detail_action
 	if direction in ["right", "down"]:
@@ -958,6 +1196,8 @@ func _configure_command_focus_neighbors() -> void:
 	var focused_node: Button = node_for_skill(_focused_id)
 	if focused_node == null:
 		return
+	if _control_accepts_focus(_external_tab_target):
+		_set_focus_neighbor(_external_tab_target, "down", focused_node)
 	if _control_accepts_focus(_detail_action):
 		_set_focus_neighbor(_detail_action, "left", focused_node)
 		_set_focus_neighbor(_detail_action, "up", focused_node)
@@ -970,7 +1210,11 @@ func _configure_command_focus_neighbors() -> void:
 		_set_focus_neighbor(_confirm_button, "up", _detail_action if _control_accepts_focus(_detail_action) else focused_node)
 	if _control_accepts_focus(_external_command_target):
 		_set_focus_neighbor(_external_command_target, "left", focused_node)
-		_set_focus_neighbor(_external_command_target, "up", focused_node)
+		_set_focus_neighbor(
+			_external_command_target,
+			"up",
+			_external_tab_target if _control_accepts_focus(_external_tab_target) else focused_node
+		)
 
 func _control_accepts_focus(control: Control) -> bool:
 	if control == null or not control.is_inside_tree() or not control.is_visible_in_tree() or control.focus_mode == Control.FOCUS_NONE:
@@ -1302,17 +1546,160 @@ func _link_visual(link_state: String, relationship: String) -> Dictionary:
 		_:
 			return {"color": Color("746d79"), "width": 3.0}
 
+func _link_draw_priority(link_state: String, relationship: String) -> int:
+	var state_priority: int = 0
+	match link_state:
+		STATE_EXCLUDED:
+			state_priority = 1
+		STATE_AVAILABLE:
+			state_priority = 2
+		STATE_OWNED:
+			state_priority = 3
+		STATE_PENDING:
+			state_priority = 4
+	if relationship == "ancestor":
+		return 20 + state_priority
+	if relationship in ["prerequisite", "dependent"]:
+		return 30 + state_priority
+	return state_priority
+
+func _annotate_connection_bridges(links: Array[Dictionary]) -> Array[Dictionary]:
+	var records: Array[Dictionary]
+	for left_index: int in range(links.size()):
+		var left: Dictionary = links[left_index]
+		for right_index: int in range(left_index + 1, links.size()):
+			var right: Dictionary = links[right_index]
+			if _links_are_incident(left, right):
+				continue
+			var left_points: PackedVector2Array = left.get("points", PackedVector2Array()) as PackedVector2Array
+			var right_points: PackedVector2Array = right.get("points", PackedVector2Array()) as PackedVector2Array
+			for left_segment_index: int in range(left_points.size() - 1):
+				for right_segment_index: int in range(right_points.size() - 1):
+					var intersection: Dictionary = _connection_segment_intersection(
+						left_points[left_segment_index],
+						left_points[left_segment_index + 1],
+						right_points[right_segment_index],
+						right_points[right_segment_index + 1]
+					)
+					if intersection.is_empty():
+						continue
+					var pair_key: String = _connection_pair_key(left, right)
+					var kind: String = str(intersection.get("kind", ""))
+					var record: Dictionary = {
+						"kind": kind,
+						"pair_key": pair_key,
+						"point": intersection.get("point", Vector2.ZERO),
+						"bridged": false,
+					}
+					if kind == "crossing":
+						var left_is_lower: bool = _link_is_below(left, right)
+						var lower_index: int = left_index if left_is_lower else right_index
+						var lower_segment_index: int = left_segment_index if left_is_lower else right_segment_index
+						var lower_points: PackedVector2Array = left_points if left_is_lower else right_points
+						var point: Vector2 = intersection.get("point", Vector2.ZERO) as Vector2
+						var lower_start: Vector2 = lower_points[lower_segment_index]
+						var gap: Dictionary = {
+							"segment_index": lower_segment_index,
+							"distance": lower_start.distance_to(point),
+							"half_gap": LINK_BRIDGE_HALF_GAP,
+						}
+						var lower_link: Dictionary = links[lower_index]
+						var lower_gaps: Array = lower_link.get("bridge_gaps", []) as Array
+						lower_gaps.append(gap)
+						lower_link["bridge_gaps"] = lower_gaps
+						links[lower_index] = lower_link
+						record["bridged"] = true
+						record["half_gap"] = LINK_BRIDGE_HALF_GAP
+						record["lower_link"] = str(lower_link.get("sort_key", ""))
+					records.append(record)
+	return records
+
+func _links_are_incident(left: Dictionary, right: Dictionary) -> bool:
+	var left_ids: Array[String]
+	left_ids.append(str(left.get("from_id", "")))
+	left_ids.append(str(left.get("to_id", "")))
+	var right_ids: Array[String]
+	right_ids.append(str(right.get("from_id", "")))
+	right_ids.append(str(right.get("to_id", "")))
+	return left_ids[0] in right_ids or left_ids[1] in right_ids
+
+func _link_is_below(left: Dictionary, right: Dictionary) -> bool:
+	var left_length: float = _connection_route_length(left)
+	var right_length: float = _connection_route_length(right)
+	if not is_equal_approx(left_length, right_length):
+		# Long cross-branch routes pass beneath shorter local routes. This remains
+		# stable as focus and learned state change, so the topology never flips.
+		return left_length > right_length
+	return str(left.get("sort_key", "")) < str(right.get("sort_key", ""))
+
+func _connection_route_length(link: Dictionary) -> float:
+	var points: PackedVector2Array = link.get("points", PackedVector2Array()) as PackedVector2Array
+	var result: float = 0.0
+	for point_index: int in range(points.size() - 1):
+		result += points[point_index].distance_to(points[point_index + 1])
+	return result
+
+func _connection_pair_key(left: Dictionary, right: Dictionary) -> String:
+	var keys: Array[String]
+	keys.append(str(left.get("sort_key", "")))
+	keys.append(str(right.get("sort_key", "")))
+	keys.sort()
+	return "%s × %s" % [keys[0], keys[1]]
+
+func _connection_segment_intersection(
+	left_start: Vector2,
+	left_finish: Vector2,
+	right_start: Vector2,
+	right_finish: Vector2
+) -> Dictionary:
+	var left_vertical: bool = is_equal_approx(left_start.x, left_finish.x)
+	var left_horizontal: bool = is_equal_approx(left_start.y, left_finish.y)
+	var right_vertical: bool = is_equal_approx(right_start.x, right_finish.x)
+	var right_horizontal: bool = is_equal_approx(right_start.y, right_finish.y)
+	if left_vertical and right_horizontal:
+		var point := Vector2(left_start.x, right_start.y)
+		if _point_is_on_axis_segment(point, left_start, left_finish) and _point_is_on_axis_segment(point, right_start, right_finish):
+			return {"kind": "crossing", "point": point}
+	if left_horizontal and right_vertical:
+		var point := Vector2(right_start.x, left_start.y)
+		if _point_is_on_axis_segment(point, left_start, left_finish) and _point_is_on_axis_segment(point, right_start, right_finish):
+			return {"kind": "crossing", "point": point}
+	if left_vertical and right_vertical and is_equal_approx(left_start.x, right_start.x):
+		var overlap_start: float = maxf(minf(left_start.y, left_finish.y), minf(right_start.y, right_finish.y))
+		var overlap_end: float = minf(maxf(left_start.y, left_finish.y), maxf(right_start.y, right_finish.y))
+		if overlap_end - overlap_start > 0.5:
+			return {"kind": "overlap", "point": Vector2(left_start.x, (overlap_start + overlap_end) * 0.5)}
+	if left_horizontal and right_horizontal and is_equal_approx(left_start.y, right_start.y):
+		var overlap_start: float = maxf(minf(left_start.x, left_finish.x), minf(right_start.x, right_finish.x))
+		var overlap_end: float = minf(maxf(left_start.x, left_finish.x), maxf(right_start.x, right_finish.x))
+		if overlap_end - overlap_start > 0.5:
+			return {"kind": "overlap", "point": Vector2((overlap_start + overlap_end) * 0.5, left_start.y)}
+	return {}
+
+func _point_is_on_axis_segment(point: Vector2, start: Vector2, finish: Vector2) -> bool:
+	const EPSILON: float = 0.01
+	return (
+		point.x >= minf(start.x, finish.x) - EPSILON
+		and point.x <= maxf(start.x, finish.x) + EPSILON
+		and point.y >= minf(start.y, finish.y) - EPSILON
+		and point.y <= maxf(start.y, finish.y) + EPSILON
+	)
+
 func _link_points(source_id: String, target_id: String) -> PackedVector2Array:
 	var source_port: Vector2 = _output_port(source_id, target_id)
 	var target_port: Vector2 = _input_port(target_id, source_id)
+	var output_lane: int = _output_lane_index(source_id, target_id)
+	var input_lane: int = _input_lane_index(target_id, source_id)
 	var source_stub := Vector2(
 		source_port.x,
-		_row_visual_edge(source_id, true) + LINK_NODE_CLEARANCE + 1.0
+		_row_visual_edge(source_id, true) + LINK_ENDPOINT_EXPOSURE + float(maxi(0, output_lane)) * LINK_CHANNEL_SPACING
 	)
 	var target_stub := Vector2(
 		target_port.x,
-		_row_visual_edge(target_id, false) - LINK_NODE_CLEARANCE - 1.0
+		_row_visual_edge(target_id, false) - LINK_ENDPOINT_EXPOSURE - float(maxi(0, input_lane)) * LINK_CHANNEL_SPACING
 	)
+	var link_key: String = "%s>%s" % [source_id, target_id]
+	target_stub.y += float(LINK_TARGET_STUB_OFFSETS.get(link_key, 0.0))
 	if source_stub.y > target_stub.y:
 		var midpoint_y: float = (source_port.y + target_port.y) * 0.5
 		source_stub.y = midpoint_y
@@ -1339,23 +1726,34 @@ func _row_visual_edge(skill_id: String, bottom: bool) -> float:
 
 func _input_port(target_id: String, source_id: String) -> Vector2:
 	var prerequisites: Array[String] = SkillTreeLibrary.prerequisites(target_id)
-	prerequisites.sort_custom(func(left: String, right: String) -> bool:
-		return _node_center(left).x < _node_center(right).x
-	)
+	_sort_ids_by_visual_x(prerequisites)
 	var index: int = prerequisites.find(source_id)
 	var offset_x: float = _distributed_port_offset(index, prerequisites.size(), 8.0)
 	return _node_boundary_port(target_id, offset_x, false)
 
 func _output_port(source_id: String, target_id: String) -> Vector2:
 	var dependents: Array[String] = _direct_dependent_ids(source_id)
-	dependents.sort_custom(func(left: String, right: String) -> bool:
+	_sort_ids_by_visual_x(dependents)
+	var index: int = dependents.find(target_id)
+	var offset_x: float = _distributed_port_offset(index, dependents.size(), 14.0)
+	return _node_boundary_port(source_id, offset_x, true)
+
+func _input_lane_index(target_id: String, source_id: String) -> int:
+	var prerequisites: Array[String] = SkillTreeLibrary.prerequisites(target_id)
+	_sort_ids_by_visual_x(prerequisites)
+	return prerequisites.find(source_id)
+
+func _output_lane_index(source_id: String, target_id: String) -> int:
+	var dependents: Array[String] = _direct_dependent_ids(source_id)
+	_sort_ids_by_visual_x(dependents)
+	return dependents.find(target_id)
+
+func _sort_ids_by_visual_x(skill_ids: Array[String]) -> void:
+	skill_ids.sort_custom(func(left: String, right: String) -> bool:
 		var left_center: Vector2 = _node_center(left)
 		var right_center: Vector2 = _node_center(right)
 		return left_center.x < right_center.x if not is_equal_approx(left_center.x, right_center.x) else left_center.y < right_center.y
 	)
-	var index: int = dependents.find(target_id)
-	var offset_x: float = _distributed_port_offset(index, dependents.size(), 14.0)
-	return _node_boundary_port(source_id, offset_x, true)
 
 func _distributed_port_offset(index: int, count: int, maximum_offset: float) -> float:
 	if count <= 1 or index < 0:

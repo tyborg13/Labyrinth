@@ -5,7 +5,7 @@ const SKILLS_PATH: String = "res://data/skills.json"
 const KEYSTONE_GROUP: String = "keystone"
 const COMPLETE_BUILD_SIZE: int = 19
 const BRANCH_ORDER = ["tactics", "resolve", "traverse", "foresight", "keystone"]
-const LAYOUT_CANVAS_SIZE: Vector2i = Vector2i(730, 350)
+const LAYOUT_CANVAS_SIZE: Vector2i = Vector2i(1000, 540)
 const LAYOUT_NODE_SIZES: Dictionary = {
 	"root": Vector2i(56, 56),
 	"branch": Vector2i(52, 52),
@@ -138,6 +138,8 @@ static func selection_is_valid(value: Variant, exact_count: int = -1) -> bool:
 		exclusive_counts[group_id] = int(exclusive_counts.get(group_id, 0)) + 1
 		if int(exclusive_counts[group_id]) > 1:
 			return false
+	if selected.size() == COMPLETE_BUILD_SIZE and int(exclusive_counts.get(KEYSTONE_GROUP, 0)) != 1:
+		return false
 	return true
 
 static func is_available(skill_id: String, selected_value: Variant) -> bool:
@@ -174,6 +176,8 @@ static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 	var selected: Array[String] = normalized_ids(selected_value)
 	if selected.has(skill_id):
 		return "Learned"
+	if selected.size() == COMPLETE_BUILD_SIZE - 1 and not _selection_has_keystone(selected) and not is_keystone(skill_id):
+		return "Your final skill must be a keystone"
 	var group_id: String = exclusive_group(skill_id)
 	if not group_id.is_empty():
 		for selected_id: String in selected:
@@ -189,6 +193,12 @@ static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 	if selected.size() < required_owned:
 		return "Requires %d learned skills" % required_owned
 	return "Available"
+
+static func _selection_has_keystone(selected: Array[String]) -> bool:
+	for skill_id: String in selected:
+		if is_keystone(skill_id):
+			return true
+	return false
 
 static func dependent_ids(skill_id: String, selected_value: Variant) -> Array[String]:
 	var selected: Array[String] = normalized_ids(selected_value)

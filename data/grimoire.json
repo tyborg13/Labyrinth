@@ -71,7 +71,7 @@
 			"default": true,
 			"icon": "stat_focus",
 			"body": [
-				"Equipment, attuned magic, item slots, relics, and progression stats shape your deck.",
+				"Equipment, attuned magic, item slots, relics, and learned skills shape your deck and tactics.",
 				"Most loadout changes happen outside combat, including pre-battle and campfire moments."
 			]
 		},

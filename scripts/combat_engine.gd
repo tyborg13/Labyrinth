@@ -325,7 +325,16 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 				and not bool((state.get("skill_flags", {}) as Dictionary).get("guard_carry_armed", false))
 			)
 		"fallback_blink":
-			return is_player_turn(state)
+			if not is_player_turn(state) or cards_remaining_this_turn(state) <= 0:
+				return false
+			if (((state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty()):
+				return false
+			var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+			var blink_action: Dictionary = {
+				"type": "blink",
+				"range": maxi(1, int(effect.get("range", 0)))
+			}
+			return player_action_can_resolve(state, blink_action) and not valid_targets_for_player_action(state, blink_action).is_empty()
 	return true
 
 func manual_skill_states(state: Dictionary) -> Array[Dictionary]:

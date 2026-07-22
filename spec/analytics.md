@@ -9,7 +9,10 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 - Metadata: `user://analytics/meta.json`
 - Schema version: `1`
 
-Each event includes a stable `install_id`, per-launch `session_id`, monotonic `sequence`, `run_id`, and `combat_id` when available.
+Each event includes a stable `install_id`, per-launch `session_id`, monotonic
+`sequence`, `run_id`, and `combat_id` when available. Emitters that can be
+replayed after a crash may also provide a top-level `idempotency_key`; writing
+an already-recorded non-empty key succeeds without appending a second line.
 
 Run and combat events also include the current character progression snapshot in
 their context when available:
@@ -242,11 +245,15 @@ emit another event.
 activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,
 `trigger_scope`, `turn`, and `message`. `trigger_scope` distinguishes combat
 and run event streams. Revisions are monotonic within their stream, and the
-logged run revision is saved in the same committed state as an automatic run
-trigger, so refresh and resume cannot duplicate emission. Priming and effect
-realization do not create a second activation event. Realized card, damage,
-defense, movement, and resource outcomes remain in their existing events rather
-than being converted into a guessed skill score.
+run stream uses its revisioned event list as a durable outbox. The run state
+containing a new trigger is committed before JSONL append; the logged-revision
+cursor advances only after append succeeds and is then committed separately.
+Each run trigger uses the stable key
+`skill_triggered|run|<run_id>|<revision>|<skill_id>`, so a crash after append
+but before cursor persistence replays the write without producing a duplicate.
+Priming and effect realization do not create a second activation event.
+Realized card, damage, defense, movement, and resource outcomes remain in their
+existing events rather than being converted into a guessed skill score.
 
 For Rehearsed Escape, Makeshift Tool, and Carry the Guard, pre-arming is intent
 rather than a realized activation. Their single `skill_triggered` event is
