@@ -35,6 +35,13 @@ This repo uses `memento` for code-scoped project memory.
 - Godot on Windows has caught typed-array assignments that may pass on macOS. When assigning to `Array[T]`, do not rely on bare array literals or conditional-expression branches like `[value] if condition else typed_array`; build the value through a typed helper such as `_vector2i_array(...)` or an explicitly typed temporary first.
 - For fallbacks passed into typed-array helpers, keep using plain `[]` only as input to the helper. The typed local should receive the helper result, not the raw literal.
 
+## Player-facing UI
+
+- For any change that creates, modifies, or reviews player-facing UI, use `$create-labyrinth-ui` and follow `spec/game_ui_rubric.md`.
+- Treat the rubric as an acceptance gate, including for UI copy, icons, cards, HUD state, menus, tooltips, tutorials, focus/selection behavior, and visual effects that communicate gameplay state.
+- Prefer compact, game-native, progressively disclosed presentation over generic web/app layouts or explanatory prose. Preserve precise rules text when it is the clearest way to explain a card, relic, equipment item, setting, or detailed inspection view.
+- UI work is not complete with code-only proof. Render the changed surface through a focused visual probe, inspect fresh screenshots at the rubric's relevant sizes/states, and report any documented exception.
+
 ## Card Balance Heuristic
 
 - When creating or modifying cards, consult `spec/card_balance_heuristic.md`.

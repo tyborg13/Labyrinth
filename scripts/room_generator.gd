@@ -915,11 +915,13 @@ func _trap_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Array[Vec
 	return score
 
 func _trap_for_tile(tile: Vector2i, room_element: String, encounter_depth: int, sequence_index: int = 0) -> Dictionary:
+	var base_damage: int = GameData.fixed_point_amount(_trap_damage_scale(encounter_depth, sequence_index))
 	var trap: Dictionary = {
 		"id": "trap_%d_%d" % [tile.x, tile.y],
 		"pos": tile,
 		"element": room_element,
-		"damage": GameData.fixed_point_amount(_trap_damage_scale(encounter_depth, sequence_index))
+		"damage": base_damage,
+		"base_damage": base_damage
 	}
 	match room_element:
 		ElementData.FIRE:

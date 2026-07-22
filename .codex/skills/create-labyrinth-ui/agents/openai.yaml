@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Labyrinth UI"
+  short_description: "Design and review clear Labyrinth game UI"
+  default_prompt: "Use $create-labyrinth-ui to design, implement, or review player-facing UI for Escape the Umbra."

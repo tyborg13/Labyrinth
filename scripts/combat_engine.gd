@@ -2,6 +2,7 @@ extends RefCounted
 class_name CombatEngine
 
 const ElementData = preload("res://scripts/element_data.gd")
+const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -720,10 +721,21 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	var intensity_cost: Dictionary = ElementalIntensityRules.card_cost(card)
+	var leading_actions: Array = []
+	if not intensity_cost.is_empty():
+		leading_actions.append({
+			"type": "intensity_spend",
+			"element": str(intensity_cost.get("element", ElementData.NONE)),
+			"amount": int(intensity_cost.get("amount", 0)),
+			"required": true,
+			"_card_cost": true
+		})
 	if not bool(card.get("flurry", false)):
-		return printed_actions
+		leading_actions.append_array(printed_actions)
+		return leading_actions
 	var repeat_count: int = flurry_plays_for_card(card_id, state)
-	var repeated_actions: Array = []
+	var repeated_actions: Array = leading_actions
 	for repeat_index: int in range(repeat_count):
 		for action_var: Variant in printed_actions:
 			if typeof(action_var) != TYPE_DICTIONARY:
@@ -762,6 +774,8 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	if not action_intensity_requirement_met(state, action):
 		return false
 	var action_type: String = str(action.get("type", ""))
+	if action_type == "intensity_spend" and not action_intensity_spend_requirement_met(state, action):
+		return false
 	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		return false
@@ -1077,6 +1091,10 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 			var element_id: String = _action_intensity_element(action)
 			var amount: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state = _gain_elemental_intensity(next_state, element_id, amount)
+		"intensity_spend":
+			var spend_element_id: String = _action_intensity_element(action)
+			var spend_amount: int = maxi(0, int(action.get("amount", 0)))
+			next_state = _consume_elemental_intensity(next_state, spend_element_id, spend_amount)
 		"illuminate":
 			if valid_targets_for_player_action(next_state, action).has(target_tile):
 				next_state = _create_umbra_light_source(next_state, target_tile, resolved_action)
@@ -1607,6 +1625,8 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = action_var
+		if not enemy_action_can_resolve(state, action):
+			continue
 		match str(action.get("type", "")):
 			"move_toward", "move_away":
 				var next_lookup: Dictionary = {}
@@ -1937,6 +1957,20 @@ func action_intensity_requirement_met(state: Dictionary, action: Dictionary) -> 
 		return true
 	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
 
+func action_intensity_spend(action: Dictionary) -> Dictionary:
+	if str(action.get("type", "")) == "intensity_spend":
+		return ElementalIntensityRules.normalized_cost(action, _action_intensity_element(action))
+	return ElementalIntensityRules.action_spend(action)
+
+func action_intensity_spend_requirement_met(state: Dictionary, action: Dictionary) -> bool:
+	var spend: Dictionary = action_intensity_spend(action)
+	if spend.is_empty():
+		return true
+	return elemental_intensity(state, str(spend.get("element", ElementData.NONE))) >= int(spend.get("amount", 0))
+
+func enemy_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
+	return action_intensity_requirement_met(state, action) and action_intensity_spend_requirement_met(state, action)
+
 func action_intensity_bonus(action: Dictionary) -> Dictionary:
 	return _action_intensity_bonus(action)
 
@@ -1948,6 +1982,11 @@ func action_intensity_bonus_requirement_met(state: Dictionary, action: Dictionar
 	if requirement.is_empty():
 		return false
 	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
+
+func trap_damage(state: Dictionary, trap: Dictionary) -> int:
+	var element_id: String = str(trap.get("element", state.get("room_element", ElementData.NONE)))
+	var intensity: int = elemental_intensity(state, element_id)
+	return ElementalIntensityRules.scaled_trap_damage(int(trap.get("base_damage", trap.get("damage", 0))), intensity)
 
 func combat_outcome(state: Dictionary) -> String:
 	if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
@@ -2023,13 +2062,26 @@ func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent:
 func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dictionary, step: Dictionary, enemy_id: int) -> Dictionary:
 	if step.is_empty():
 		return step
+	var presented: Dictionary = step.duplicate(true)
+	var intensity_gained: Dictionary = {}
+	var intensity_spent: Dictionary = {}
+	for element_id: String in ElementData.all_elements():
+		var before_value: int = elemental_intensity(before_state, element_id)
+		var after_value: int = elemental_intensity(after_state, element_id)
+		if after_value > before_value:
+			intensity_gained[element_id] = after_value - before_value
+		elif after_value < before_value:
+			intensity_spent[element_id] = before_value - after_value
+	if not intensity_gained.is_empty():
+		presented["elemental_intensity_gained"] = intensity_gained
+	if not intensity_spent.is_empty():
+		presented["elemental_intensity_spent"] = intensity_spent
 	var enemy_index: int = _enemy_index_for_id(before_state, enemy_id)
 	if enemy_index < 0:
-		return step
+		return presented
 	var before_enemy: Dictionary = _normalized_enemy((before_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	if is_enemy_visible_to_player(before_state, before_enemy):
-		return step
-	var presented: Dictionary = step.duplicate(true)
+		return presented
 	presented["hidden_by_umbra"] = true
 	var after_index: int = _enemy_index_for_id(after_state, enemy_id)
 	var revealed_after: bool = false
@@ -2117,6 +2169,22 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"triggered_traps": triggered_traps,
 				"impact_actor_keys": _target_loss_keys(target_losses) + _target_loss_keys(enemy_losses),
 				"label": "Advance" if action_type == "move_toward" else "Retreat"
+			}
+		"intensity":
+			var element_id: String = _action_intensity_element(action)
+			var before_value: int = elemental_intensity(before_state, element_id)
+			var after_value: int = elemental_intensity(after_state, element_id)
+			var gained: int = maxi(0, after_value - before_value)
+			if gained <= 0:
+				return {}
+			return {
+				"kind": "intensity",
+				"actor_key": _enemy_key(after_enemy),
+				"actor_name": actor_name,
+				"tile": after_enemy.get("pos", Vector2i.ZERO),
+				"element": element_id,
+				"amount": gained,
+				"label": "%s Intensity +%d" % [ElementData.name(element_id), gained]
 			}
 		"block":
 			var block_gain: int = int(after_enemy.get("block", 0)) - int(before_enemy.get("block", 0))
@@ -2470,6 +2538,7 @@ func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary)
 		var trap_id: String = str(before_trap.get("id", ""))
 		if trap_id.is_empty() or after_ids.has(trap_id):
 			continue
+		before_trap["resolved_damage"] = trap_damage(before_state, before_trap)
 		triggered.append(before_trap)
 	return triggered
 
@@ -2772,17 +2841,20 @@ func _best_enemy_trap_attack_index(state: Dictionary, enemy_index: int, action: 
 			continue
 		if not _trap_blast_hits_player(state, trap):
 			continue
-		var trap_damage: int = int(trap.get("damage", 0))
-		if direct_damage >= 0 and trap_damage <= direct_damage:
+		var resolved_trap_damage: int = trap_damage(state, trap)
+		if direct_damage >= 0 and resolved_trap_damage <= direct_damage:
 			continue
-		if direct_damage < 0 and trap_damage <= 0:
+		if direct_damage < 0 and resolved_trap_damage <= 0:
 			continue
-		if trap_damage > best_damage:
-			best_damage = trap_damage
+		if resolved_trap_damage > best_damage:
+			best_damage = resolved_trap_damage
 			best_index = trap_index
 	return best_index
 
 func _enemy_direct_player_damage_estimate(state: Dictionary, enemy: Dictionary, action: Dictionary) -> int:
+	if not enemy_action_can_resolve(state, action):
+		return -1
+	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
 	var player: Dictionary = _normalized_player(state.get("player", {}))
 	var target: Dictionary = {
 		"kind": "player",
@@ -2790,9 +2862,9 @@ func _enemy_direct_player_damage_estimate(state: Dictionary, enemy: Dictionary, 
 		"pos": player.get("pos", Vector2i.ZERO),
 		"hp": int(player.get("hp", 0))
 	}
-	if not _enemy_action_reaches_target(state, enemy, action, target):
+	if not _enemy_action_reaches_target(state, enemy, resolved_action, target):
 		return -1
-	return int(action.get("damage", 0))
+	return int(resolved_action.get("damage", 0))
 
 func _trap_blast_hits_player(state: Dictionary, trap: Dictionary) -> bool:
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i(-1, -1))
@@ -2845,6 +2917,20 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
+	if not enemy_action_can_resolve(next_state, action):
+		var blocked_requirement: Dictionary = action_intensity_spend(action)
+		if blocked_requirement.is_empty():
+			blocked_requirement = _action_intensity_requirement(action)
+		if not blocked_requirement.is_empty():
+			_log(next_state, "%s's intent is starved of %s intensity." % [
+				_enemy_display_name(enemy),
+				ElementData.name(str(blocked_requirement.get("element", ElementData.NONE)))
+			])
+		return next_state
+	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var intensity_spend: Dictionary = action_intensity_spend(action)
+	action = resolved_action
+	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context)
@@ -2919,6 +3005,10 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
 				int(action.get("amount", 0))
 			])
+		"intensity":
+			var intensity_element: String = _action_intensity_element(action)
+			var intensity_amount: int = maxi(0, int(action.get("amount", 0)))
+			next_state = _gain_elemental_intensity(next_state, intensity_element, intensity_amount, _enemy_display_name(enemy))
 		"melee":
 			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng, bleed_steps, action_context)
 		"ranged":
@@ -2947,6 +3037,14 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_gain_frost_armor(next_state, enemy_index, action)
 		"umbra_eclipse":
 			next_state = _enemy_umbra_eclipse(next_state, enemy_index, action, bleed_steps)
+	if not intensity_spend.is_empty():
+		var resolved_step: Dictionary = _enemy_action_step(state_before_action, next_state, enemy_index, action, action_context)
+		if not resolved_step.is_empty():
+			next_state = _consume_elemental_intensity(
+				next_state,
+				str(intensity_spend.get("element", ElementData.NONE)),
+				int(intensity_spend.get("amount", 0))
+			)
 	return next_state
 
 func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_index: int, action: Dictionary, followup_action: Dictionary, action_context: Dictionary, target_pos: Vector2i, toward: bool) -> Array[Vector2i]:
@@ -3779,7 +3877,7 @@ func _enemy_action_time_cost(action: Dictionary) -> int:
 			return 4
 		"summon_minions", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse":
 			return 5
-		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "raise_terrain", "cinder_marks", "frost_armor":
+		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "intensity", "raise_terrain", "cinder_marks", "frost_armor":
 			return 2
 		_:
 			return DEFAULT_ENEMY_INTENT_TIME_COST
@@ -3791,7 +3889,7 @@ func _estimated_card_time_cost(card: Dictionary) -> int:
 			continue
 		var action: Dictionary = action_var
 		match str(action.get("type", "")):
-			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity", "illuminate", "vision":
+			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity", "intensity_spend", "illuminate", "vision":
 				total += 1
 			"heal", "illusion", "truesight", "dispel_umbra":
 				total += 2
@@ -5046,7 +5144,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 	var blast_lookup: Dictionary = {}
 	for tile: Vector2i in blast_tiles:
 		blast_lookup[tile] = true
-	var damage: int = int(trap.get("damage", 0))
+	var damage: int = trap_damage(next_state, trap)
 	var player_hit: bool = blast_lookup.has((_normalized_player(next_state.get("player", {}))).get("pos", Vector2i(-1, -1)))
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("disarm_trap")
 	var player_protected: bool = player_hit and (protect_player or _skill_charge_available(next_state, skill_id))
@@ -5085,7 +5183,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
 			next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, trap.get("pos", Vector2i.ZERO), false)
 	next_state = _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, blast_tiles), damage)
-	_log(next_state, _trap_trigger_log(trap))
+	_log(next_state, _trap_trigger_log(next_state, trap, damage))
 	return next_state
 
 func _apply_trap_keywords_to_player(state: Dictionary, trap: Dictionary) -> Dictionary:
@@ -5156,8 +5254,14 @@ func _apply_pending_player_trap_restriction(state: Dictionary) -> Dictionary:
 	next_state["player_turn_restrictions"] = restrictions
 	return next_state
 
-func _trap_trigger_log(trap: Dictionary) -> String:
-	var parts: PackedStringArray = ["%s trap hits for %d." % [ElementData.name(str(trap.get("element", ElementData.NONE))), int(trap.get("damage", 0))]]
+func _trap_trigger_log(state: Dictionary, trap: Dictionary, resolved_damage: int = -1) -> String:
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var damage: int = trap_damage(state, trap) if resolved_damage < 0 else resolved_damage
+	var parts: PackedStringArray = ["%s trap hits for %d at intensity %d." % [
+		ElementData.name(element_id),
+		damage,
+		elemental_intensity(state, element_id)
+	]]
 	if int(trap.get("burn", 0)) > 0:
 		parts.append("Burn %d." % int(trap.get("burn", 0)))
 	if int(trap.get("freeze", 0)) > 0:
@@ -6567,6 +6671,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var attack_action: Dictionary = {}
 	if attack_index >= 0:
 		attack_action = (actions[attack_index] as Dictionary).duplicate(true)
+	var attack_resolvable: bool = attack_action.is_empty() or enemy_action_can_resolve(state, attack_action)
 	var planning_attack: Dictionary = attack_action
 	if planning_attack.is_empty():
 		planning_attack = {"type": "melee", "range": 1, "damage": 0}
@@ -6603,14 +6708,14 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var terrain_index: int = -1
 	var trap_index: int = -1
 	var trap_tile: Vector2i = INVALID_TILE
-	if attack_index >= 0 and not attack_disabled:
+	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		trap_index = _best_enemy_trap_attack_index(preview_state, enemy_index, planning_attack)
 		if trap_index >= 0:
 			trap_tile = ((preview_state.get("traps", []) as Array)[trap_index] as Dictionary).get("pos", INVALID_TILE)
 		if trap_index < 0 and not target_reachable:
 			terrain_index = _planned_blocking_terrain_index(preview_state, preview_enemy, planning_attack, future_route)
 	var projected_attack_tiles: Array[Vector2i] = _vector2i_values([])
-	if attack_index >= 0 and not attack_disabled:
+	if attack_index >= 0 and not attack_disabled and attack_resolvable:
 		projected_attack_tiles = _enemy_projected_attack_tiles(
 			preview_state,
 			preview_enemy,
@@ -6640,7 +6745,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"destination": destination,
 		"route_cost": route_cost,
 		"attack_available": not attack_disabled and (
-			(attack_index >= 0 and attack_available and target_reachable)
+			(attack_index >= 0 and attack_resolvable and attack_available and target_reachable)
 			or (attack_index < 0 and pattern_attack_index >= 0 and attack_available)
 		),
 		"blocking_terrain_index": terrain_index,
@@ -6987,7 +7092,7 @@ func _enemy_anchor_trap_penalty(state: Dictionary, enemy: Dictionary, anchor: Ve
 			continue
 		seen_indices.append(trap_index)
 		var trap: Dictionary = (state.get("traps", []) as Array)[trap_index]
-		penalty += ENEMY_PATH_TRAP_BASE_PENALTY + maxi(0, int(trap.get("damage", 0)))
+		penalty += ENEMY_PATH_TRAP_BASE_PENALTY + trap_damage(state, trap)
 	return penalty
 
 func _enemy_actual_prefix_for_route(state: Dictionary, enemy: Dictionary, route: Array[Vector2i], move_range: int) -> Array[Vector2i]:

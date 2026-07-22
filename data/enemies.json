@@ -336,6 +336,7 @@
             "damage": 3,
             "range": 0,
             "burn": 1,
+            "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 2, "burn": 1 },
             "pattern": [
               [
                 0,
@@ -360,13 +361,18 @@
       },
       {
         "id": "slag_shell",
-        "name": "Slag Shell",
+        "name": "Stoke Shell",
         "time": 4,
         "weight": 2,
         "actions": [
           {
             "type": "block",
             "amount": 5
+          },
+          {
+            "type": "intensity",
+            "element": "fire",
+            "amount": 1
           }
         ]
       }
@@ -519,7 +525,8 @@
             "type": "ranged",
             "damage": 1,
             "range": 4,
-            "expose": 2
+            "expose": 2,
+            "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 1, "poison": 2 }
           }
         ]
       },
@@ -532,6 +539,11 @@
           {
             "type": "stoneskin",
             "amount": 4
+          },
+          {
+            "type": "intensity",
+            "element": "earth",
+            "amount": 1
           }
         ]
       }
@@ -560,9 +572,10 @@
         "actions": [
           {
             "type": "pull",
-            "damage": 2,
+            "damage": 4,
             "range": 4,
-            "amount": 2
+            "amount": 3,
+            "spend_intensity": { "element": "air", "amount": 2 }
           }
         ]
       },
@@ -599,9 +612,9 @@
       },
       {
         "id": "iron_guard",
-        "name": "Iron Guard",
+        "name": "Pressure Lock",
         "time": 4,
-        "weight": 2,
+        "weight": 3,
         "actions": [
           {
             "type": "move_toward",
@@ -610,6 +623,11 @@
           {
             "type": "block",
             "amount": 6
+          },
+          {
+            "type": "intensity",
+            "element": "air",
+            "amount": 1
           }
         ]
       }
@@ -760,6 +778,11 @@
           {
             "type": "block",
             "amount": 5
+          },
+          {
+            "type": "intensity",
+            "element": "ice",
+            "amount": 1
           }
         ]
       },
@@ -773,7 +796,7 @@
             "type": "ranged",
             "damage": 2,
             "range": 4,
-            "freeze": 1
+            "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 1, "freeze": 1 }
           }
         ]
       }
@@ -1263,6 +1286,7 @@
   },
   "lightning_wisp": {
     "name": "Lightning Wisp",
+    "element": "lightning",
     "max_hp": 6,
     "base_initiative": 7,
     "reward_embers": 0,
@@ -1307,12 +1331,17 @@
             "damage": 2,
             "range": 3,
             "shock": 1
+          },
+          {
+            "type": "intensity",
+            "element": "lightning",
+            "amount": 1
           }
         ]
       },
       {
         "id": "blinding_arc",
-        "name": "Blinding Arc",
+        "name": "Capacitor Arc",
         "time": 4,
         "weight": 1,
         "actions": [
@@ -1322,9 +1351,10 @@
           },
           {
             "type": "ranged",
-            "damage": 1,
+            "damage": 3,
             "range": 4,
-            "shock": 1
+            "shock": 1,
+            "spend_intensity": { "element": "lightning", "amount": 2 }
           }
         ]
       }

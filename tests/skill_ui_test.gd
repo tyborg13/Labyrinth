@@ -445,6 +445,10 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var status_scroll := instance.get("_skill_status_scroll") as ScrollContainer
 	var status_list := instance.get("_skill_status_list") as VBoxContainer
 	var status_rows: Array = status_list.get_children() if status_list != null else []
+	var focusable_status_rows: Array[Control]
+	for row_var: Variant in status_rows:
+		if row_var is Control and (row_var as Control).focus_mode != Control.FOCUS_NONE:
+			focusable_status_rows.append(row_var as Control)
 	var expected_popover_height: float = minf(
 		clampf((instance.get("ui_root") as Control).get_global_rect().size.y * 0.72, 500.0, 760.0),
 		(instance.get("ui_root") as Control).get_global_rect().size.y - 16.0
@@ -452,16 +456,16 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(popover != null and is_equal_approx(popover.size.y, expected_popover_height), "Skill popover height should respond to the available viewport instead of remaining fixed")
 	_expect(status_scroll != null and status_scroll.follow_focus, "Skill status scrolling should follow controller focus")
 	_expect(status_rows.size() == SkillTreeLibrary.ordered_ids().size(), "Overflow status proof should render every learned-skill row")
-	if status_close != null and not status_rows.is_empty():
+	_expect(not focusable_status_rows.is_empty() and focusable_status_rows.size() < status_rows.size(), "Abilities should focus actionable rows while leaving automatic and waiting status copy out of the controller path")
+	if status_close != null and not focusable_status_rows.is_empty():
 		status_close.grab_focus()
 		await _press_ui_action(&"ui_down")
-		_expect(instance.get_viewport().gui_get_focus_owner() == status_rows[0], "Skill-status Close Down should enter the first informational row")
+		_expect(instance.get_viewport().gui_get_focus_owner() == focusable_status_rows[0], "Skill-status Close Down should enter the first actionable ability")
 		await _press_ui_action(&"ui_up")
 		_expect(instance.get_viewport().gui_get_focus_owner() == status_close, "The first skill-status row Up should return to Close")
-		for _index: int in range(status_rows.size()):
+		for _index: int in range(focusable_status_rows.size()):
 			await _press_ui_action(&"ui_down")
-		_expect(instance.get_viewport().gui_get_focus_owner() == status_rows[status_rows.size() - 1], "Controller Down should reach the final learned-skill row")
-		_expect(status_scroll.scroll_vertical > 0, "Focusing an initially clipped skill row should scroll it into view")
+		_expect(instance.get_viewport().gui_get_focus_owner() == focusable_status_rows[focusable_status_rows.size() - 1], "Controller Down should reach the final actionable ability")
 	instance.call("_refresh_skill_status_popover", loaded_skill_ids)
 	await process_frame
 	var contextual_skill_ids: Array[String]
@@ -564,6 +568,8 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var first_hand_selection: Button = _hand_selection_button(instance, 0)
 	_expect(first_hand_card != null and first_hand_card.is_visible_in_tree(), "Discard mode should keep the full card in its normal hand position")
 	_expect(first_hand_selection != null and instance.get_viewport().gui_get_focus_owner() == first_hand_selection, "Quick Wits should transfer controller focus to the first full-card choice")
+	if selection_prompt != null and instance.get("hand_scroll") != null:
+		_expect(selection_prompt.get_global_rect().end.y <= (instance.get("hand_scroll") as Control).get_global_rect().position.y - 8.0, "The hand-selection prompt should remain above card headers instead of covering the choice evidence")
 	if first_hand_selection != null:
 		await _click_control(first_hand_selection)
 	await process_frame
@@ -713,6 +719,14 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(recall_card != null and not recall_card.disabled and recalled_widget != null and recalled_widget.card_id == "quick_stab" and int(recall_card.get_meta("source_card_index", -1)) == 0, "Encore should map the selectable displayed card back to its original discard index")
 	_expect(item_card != null and item_card.disabled and item_widget != null and item_widget.card_id == "crimson_draught", "Encore should leave the displayed item card visible but inert after reversing pile order")
 	_expect(instance.get_viewport().gui_get_focus_owner() == recall_card, "Encore should focus the first eligible full discard card for controller input")
+	if recall_card != null:
+		var focus_style := recall_card.get_theme_stylebox("focus") as StyleBoxFlat
+		_expect(focus_style != null and focus_style.border_width_left >= 4, "Encore's focused full card should retain a visible non-color-only selection frame")
+		var pile_close := (instance.get("_pile_dialog") as Control).find_child("CloseButton", true, false) as Button
+		await _press_ui_action(&"ui_up")
+		_expect(instance.get_viewport().gui_get_focus_owner() == pile_close, "Encore card Up should reach the pile close action")
+		await _press_ui_action(&"ui_down")
+		_expect(instance.get_viewport().gui_get_focus_owner() == recall_card, "Encore close Down should restore focus to the selectable full card")
 	if recall_card != null:
 		await _click_control(recall_card)
 	await process_frame

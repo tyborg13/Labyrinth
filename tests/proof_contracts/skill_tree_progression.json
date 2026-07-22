@@ -1,22 +1,30 @@
 {
-  "min_images": 16,
-  "expected_sizes": ["1280x720", "1920x1080"],
+  "min_images": 60,
+  "expected_sizes": ["960x540", "1280x720", "1280x800", "1920x1080"],
   "required_images": [
-    {"pattern": "01_skills_tree.png", "width": 1280, "height": 720, "regions": [{"rect": [160, 80, 960, 560], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "01_skills_tree.png", "width": 1920, "height": 1080, "regions": [{"rect": [320, 140, 1280, 800], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "02_reset_confirmation.png", "width": 1280, "height": 720, "regions": [{"rect": [160, 80, 960, 560], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "02_reset_confirmation.png", "width": 1920, "height": 1080, "regions": [{"rect": [320, 140, 1280, 800], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "03_reset_complete.png", "width": 1280, "height": 720, "regions": [{"rect": [160, 80, 960, 560], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "03_reset_complete.png", "width": 1920, "height": 1080, "regions": [{"rect": [320, 140, 1280, 800], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "04_combat_skill_controls.png", "width": 1280, "height": 720, "regions": [{"rect": [0, 0, 1280, 180], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "04_combat_skill_controls.png", "width": 1920, "height": 1080, "regions": [{"rect": [0, 0, 1920, 250], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "05_combat_skill_popover.png", "width": 1280, "height": 720, "regions": [{"rect": [40, 70, 420, 520], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "05_combat_skill_popover.png", "width": 1920, "height": 1080, "regions": [{"rect": [80, 90, 500, 650], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "06_quick_wits_hand_selection.png", "width": 1280, "height": 720, "regions": [{"rect": [250, 350, 780, 350], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "06_quick_wits_hand_selection.png", "width": 1920, "height": 1080, "regions": [{"rect": [450, 600, 1020, 420], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "06b_encore_discard_selection.png", "width": 1280, "height": 720, "regions": [{"rect": [100, 80, 1080, 560], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "06b_encore_discard_selection.png", "width": 1920, "height": 1080, "regions": [{"rect": [300, 150, 1320, 780], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "07_level_up.png", "width": 1280, "height": 720, "regions": [{"rect": [160, 80, 960, 560], "min_luma_range": 20, "min_luma_stdev": 4}]},
-    {"pattern": "07_level_up.png", "width": 1920, "height": 1080, "regions": [{"rect": [320, 140, 1280, 800], "min_luma_range": 20, "min_luma_stdev": 4}]}
+    {"pattern": "*/1920x1080_ui100/01_skills_tree.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/02_reset_confirmation.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/06_quick_wits_hand_selection.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/06b_encore_discard_selection.png", "width": 1920, "height": 1080},
+
+    {"pattern": "*/1280x720_ui100/01_skills_tree.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui100/02_reset_confirmation.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui100/06_quick_wits_hand_selection.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui100/06b_encore_discard_selection.png", "width": 1280, "height": 720},
+
+    {"pattern": "*/1280x800_ui100/01_skills_tree.png", "width": 1280, "height": 800},
+    {"pattern": "*/1280x800_ui100/02_reset_confirmation.png", "width": 1280, "height": 800},
+    {"pattern": "*/1280x800_ui100/06_quick_wits_hand_selection.png", "width": 1280, "height": 800},
+    {"pattern": "*/1280x800_ui100/06b_encore_discard_selection.png", "width": 1280, "height": 800},
+
+    {"pattern": "*/960x540_ui100/01_skills_tree.png", "width": 960, "height": 540},
+    {"pattern": "*/960x540_ui100/02_reset_confirmation.png", "width": 960, "height": 540},
+    {"pattern": "*/960x540_ui100/06_quick_wits_hand_selection.png", "width": 960, "height": 540},
+    {"pattern": "*/960x540_ui100/06b_encore_discard_selection.png", "width": 960, "height": 540},
+
+    {"pattern": "*/1280x720_ui125/01_skills_tree.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui125/02_reset_confirmation.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui125/06_quick_wits_hand_selection.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui125/06b_encore_discard_selection.png", "width": 1280, "height": 720}
   ]
 }

@@ -4,6 +4,7 @@ class_name CombatBoardView
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -671,6 +672,7 @@ func _rebuild_submission_caches() -> void:
 		"terrain": combat_state.get("terrain", []),
 		"loot": combat_state.get("loot", []),
 		"traps": combat_state.get("traps", []),
+		"elemental_intensity": combat_state.get("elemental_intensity", {}),
 		"grid": combat_state.get("grid", []),
 		"room_element": combat_state.get("room_element", ElementData.NONE),
 		"scene_props": presentation.get("scene_props", []),
@@ -1149,16 +1151,61 @@ func _draw_umbra_light_sources(time_seconds: float) -> void:
 		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
-		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
-		var pulse: float = 0.88 + 0.12 * sin(time_seconds * 2.2 + float(int(source.get("id", 0))))
-		_draw_campfire_soft_ellipse(
-			_tile_center(tile) + Vector2(0.0, _tile_height() * 0.08),
-			_tile_width() * (0.62 + float(radius_tiles) * 0.20),
-			Vector2(1.48, 0.64),
-			-0.06,
-			Color(1.0, 0.82, 0.42, 0.24 * pulse),
-			14
+		_draw_umbra_light_source_reach(source, time_seconds)
+
+func _umbra_light_source_tiles(source: Dictionary) -> Array[Vector2i]:
+	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+	var result: Array[Vector2i] = []
+	if source_tile.x < 0:
+		return result
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		if _umbra_light_source_distance(source_tile, tile) <= radius_tiles:
+			result.append(tile)
+	return result
+
+func _umbra_light_source_distance(source_tile: Vector2i, tile: Vector2i) -> int:
+	return absi(tile.x - source_tile.x) + absi(tile.y - source_tile.y)
+
+func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> void:
+	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+	var source_seed: float = float(int(source.get("id", 0)))
+	var pulse: float = 0.96 + 0.04 * sin(time_seconds * 1.42 + source_seed * 0.73)
+	var footprint_tiles: Array[Vector2i] = _umbra_light_source_tiles(source)
+	for tile: Vector2i in footprint_tiles:
+		var distance: int = _umbra_light_source_distance(source_tile, tile)
+		var reach_weight: float = 1.0 - float(distance) / (float(radius_tiles) + 0.90)
+		var tile_center: Vector2 = _tile_center(tile)
+		var tile_seed: float = float(tile.x * 17 + tile.y * 31)
+		var tile_drift := Vector2(
+			sin(time_seconds * 0.47 + tile_seed) * _tile_width() * 0.010,
+			cos(time_seconds * 0.39 + tile_seed) * _tile_height() * 0.018
 		)
+		_draw_campfire_soft_ellipse(
+			tile_center + tile_drift,
+			_tile_width() * (0.64 + reach_weight * 0.10),
+			Vector2(1.02, 0.48),
+			0.0,
+			Color(1.0, 0.48, 0.10, (0.14 + reach_weight * 0.18) * pulse),
+			22
+		)
+		_draw_campfire_soft_ellipse(
+			tile_center - tile_drift * 0.52,
+			_tile_width() * (0.42 + reach_weight * 0.08),
+			Vector2(1.04, 0.46),
+			0.0,
+			Color(1.0, 0.79, 0.30, (0.08 + reach_weight * 0.13) * pulse),
+			18
+		)
+	_draw_campfire_soft_ellipse(
+		_tile_center(source_tile) + Vector2(0.0, _tile_height() * 0.10),
+		_tile_width() * (0.78 + float(radius_tiles) * 0.18),
+		Vector2(1.32, 0.62),
+		-0.04,
+		Color(1.0, 0.67, 0.20, 0.28 * pulse),
+		26
+	)
 
 func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 	var font: Font = get_theme_default_font()
@@ -1171,31 +1218,123 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 			continue
 		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
 		var remaining: int = int(source.get("remaining_activations", 0))
-		var pulse: float = 0.92 + 0.08 * sin(time_seconds * 3.2 + float(int(source.get("id", 0))))
-		var orb_center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.11)
-		var orb_radius: float = clampf(_tile_width() * 0.095, 10.0, 18.0)
-		_draw_campfire_soft_ellipse(
-			orb_center,
-			orb_radius * 3.2 * pulse,
-			Vector2(1.12, 0.72),
-			0.0,
-			Color(1.0, 0.76, 0.25, 0.55),
-			12
-		)
-		draw_circle(orb_center, orb_radius * 1.10, Color(0.34, 0.17, 0.04, 0.96))
-		draw_circle(orb_center, orb_radius * 0.86 * pulse, Color("ffc94f"))
-		draw_circle(orb_center - Vector2(orb_radius * 0.22, orb_radius * 0.24), orb_radius * 0.36, Color("fff4bd"))
-		draw_arc(orb_center, orb_radius * 1.30, 0.0, TAU, 24, Color(1.0, 0.88, 0.48, 0.72), 1.8)
+		var source_seed: float = float(int(source.get("id", 0)))
+		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
+		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
+		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
+		var orb_radius: float = clampf(_tile_width() * 0.115, 11.0, 20.0) * breath
+		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
 		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
-		var chip_rect := Rect2(orb_center + Vector2(orb_radius * 0.55, orb_radius * 0.36), Vector2(18.0, 16.0))
-		draw_rect(chip_rect, Color(0.075, 0.047, 0.025, 0.96), true)
-		draw_rect(chip_rect, Color("ffd66b"), false, 1.4)
-		if font != null:
-			draw_string(font, chip_rect.position + Vector2(0.0, 12.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff7d5"))
+		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
 		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player activation%s remaining." % [remaining, "" if remaining == 1 else "s"]
 		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
-		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.35, orb_radius * 1.35), Vector2(orb_radius * 2.7, orb_radius * 2.7)).merge(chip_rect)
+		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
 		_register_tooltip(marker_rect, tooltip)
+
+func _umbra_light_orb_breath(source_seed: float, time_seconds: float) -> float:
+	return 1.0 + 0.055 * sin(time_seconds * 2.15 + source_seed * 0.37)
+
+func _umbra_light_orb_center(tile: Vector2i, source_seed: float, time_seconds: float) -> Vector2:
+	var bob: float = sin(time_seconds * 1.45 + source_seed * 0.91) * _tile_height() * 0.045
+	var sway: float = sin(time_seconds * 0.83 + source_seed * 1.17) * _tile_width() * 0.010
+	return _tile_center(tile) + Vector2(sway, -_tile_height() * 0.18 + bob)
+
+func _draw_umbra_light_orb(orb_center: Vector2, orb_radius: float, glow_brightness: float, source_seed: float, time_seconds: float) -> void:
+	_draw_campfire_soft_ellipse(
+		orb_center + Vector2(0.0, orb_radius * 0.76),
+		orb_radius * 1.32,
+		Vector2(1.42, 0.31),
+		0.0,
+		Color(0.14, 0.055, 0.015, 0.34),
+		14
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center,
+		orb_radius * 4.45 * glow_brightness,
+		Vector2(1.08, 0.86),
+		0.0,
+		Color(1.0, 0.56, 0.11, 0.66),
+		28
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - Vector2(orb_radius * 0.05, orb_radius * 0.08),
+		orb_radius * 2.45 * glow_brightness,
+		Vector2(1.02, 0.94),
+		0.0,
+		Color(1.0, 0.81, 0.30, 0.72),
+		22
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - Vector2(orb_radius * 0.10, orb_radius * 0.12),
+		orb_radius * 1.42,
+		Vector2(1.0, 0.96),
+		0.0,
+		Color(1.0, 0.96, 0.64, 0.82),
+		18
+	)
+	var core_drift := Vector2(
+		sin(time_seconds * 1.18 + source_seed) * orb_radius * 0.075,
+		cos(time_seconds * 0.96 + source_seed * 1.31) * orb_radius * 0.060
+	)
+	var gradient_layers: int = 30
+	for layer_index: int in range(gradient_layers, 0, -1):
+		var outer_t: float = float(layer_index) / float(gradient_layers)
+		var core_weight: float = 1.0 - outer_t
+		var light_offset := Vector2(-orb_radius * 0.14, -orb_radius * 0.18) * core_weight
+		var layer_center: Vector2 = orb_center + core_drift * (0.42 + core_weight * 0.58) + light_offset
+		var layer_radius: float = orb_radius * (0.16 + outer_t * 0.92)
+		var layer_color: Color = Color("ff9d16").lerp(Color("fff8c9"), pow(core_weight, 0.66))
+		layer_color.a = lerpf(0.012, 0.20, pow(core_weight, 0.74))
+		draw_circle(layer_center, layer_radius, layer_color)
+	_draw_campfire_soft_ellipse(
+		orb_center + core_drift - Vector2(orb_radius * 0.25, orb_radius * 0.28),
+		orb_radius * 0.55,
+		Vector2(1.0, 0.74),
+		-0.42,
+		Color(1.0, 1.0, 0.90, 0.78),
+		12
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - core_drift * 0.70 + Vector2(orb_radius * 0.23, orb_radius * 0.20),
+		orb_radius * 0.42,
+		Vector2(1.0, 0.82),
+		0.30,
+		Color(1.0, 0.55, 0.08, 0.42),
+		10
+	)
+	_draw_umbra_light_orb_motes(orb_center, orb_radius, source_seed, time_seconds)
+
+func _draw_umbra_light_orb_motes(orb_center: Vector2, orb_radius: float, source_seed: float, time_seconds: float) -> void:
+	for mote_index: int in range(3):
+		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.09) + source_seed + float(mote_index) * 2.09
+		var orbit_radius: float = orb_radius * (1.34 + float(mote_index) * 0.16)
+		var mote_point := orb_center + Vector2(cos(phase) * orbit_radius, sin(phase) * orbit_radius * 0.62)
+		var mote_alpha: float = 0.28 + 0.24 * (0.5 + 0.5 * sin(phase * 1.7))
+		_draw_campfire_soft_ellipse(
+			mote_point,
+			orb_radius * (0.20 + float(mote_index) * 0.025),
+			Vector2.ONE,
+			0.0,
+			Color(1.0, 0.92, 0.56, mote_alpha),
+			8
+		)
+
+func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count_text: String, font: Font, pulse: float) -> Rect2:
+	var chip_radius: float = clampf(orb_radius * 0.56, 7.5, 10.5)
+	var chip_center: Vector2 = orb_center + Vector2(orb_radius * 0.82, orb_radius * 0.68)
+	_draw_campfire_soft_ellipse(
+		chip_center,
+		chip_radius * 1.85 * pulse,
+		Vector2.ONE,
+		0.0,
+		Color(1.0, 0.67, 0.18, 0.28),
+		10
+	)
+	var chip_rect := Rect2(chip_center - Vector2.ONE * chip_radius, Vector2.ONE * chip_radius * 2.0)
+	if font != null:
+		draw_string(font, Vector2(chip_rect.position.x + 1.2, chip_center.y + 5.2), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color(0.05, 0.025, 0.01, 0.92))
+		draw_string(font, Vector2(chip_rect.position.x, chip_center.y + 4.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff9db"))
+	return chip_rect
 
 func _draw_empty_state() -> void:
 	var font: Font = get_theme_default_font()
@@ -1387,6 +1526,11 @@ func _ambient_element_id() -> String:
 		return _ambient_element_id_cache
 	return str(combat_state.get("room_element", ElementData.NONE))
 
+func _ambient_intensity(element_id: String = "") -> int:
+	var resolved_element: String = element_id if not element_id.is_empty() else _ambient_element_id()
+	var intensities: Dictionary = combat_state.get("elemental_intensity", {}) as Dictionary
+	return maxi(0, int(intensities.get(resolved_element, 0)))
+
 func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	var element_id: String = _ambient_element_id()
 	if tiles.is_empty() or not ElementData.is_elemental(element_id):
@@ -1402,7 +1546,7 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 		var base_point: Vector2 = _tile_center(tiles[tile_index])
 		_draw_ambient_particle(element_id, base_point, particle_seed, time_seconds)
 
-func _ambient_particle_count(element_id: String, tile_count: int) -> int:
+func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: int = -1) -> int:
 	var base_count: int = 0
 	match element_id:
 		"fire":
@@ -1416,7 +1560,8 @@ func _ambient_particle_count(element_id: String, tile_count: int) -> int:
 		"earth":
 			base_count = 88
 	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
-	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY)))
+	var intensity: int = _ambient_intensity(element_id) if intensity_override < 0 else maxi(0, intensity_override)
+	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * ElementalIntensityRules.ambient_density_scale(intensity))))
 
 func _ambient_room_seed(element_id: String) -> int:
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -1459,7 +1604,7 @@ func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, 
 		return
 	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
 	var air_soft_texture: Texture2D = null
-	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed))
+	var cycle: float = _ambient_cycle(seed + 101, time_seconds, _ambient_particle_speed(element_id, seed) * ElementalIntensityRules.ambient_speed_scale(_ambient_intensity(element_id)))
 	if element_id == "air":
 		var wisp_variant_index: int = _ambient_air_wisp_variant_index(seed)
 		var wisp_texture: Texture2D = _ambient_air_wisp_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
@@ -1622,13 +1767,14 @@ func _ambient_particle_speed(element_id: String, seed: int) -> float:
 			return 0.10
 
 func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
+	var intensity_opacity: float = ElementalIntensityRules.ambient_opacity_scale(_ambient_intensity(element_id))
 	if element_id == "lightning":
 		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
-		return clampf(pulse * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
 	if element_id == "air":
-		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
 	var floor_alpha: float = 0.12 if element_id in ["fire", "ice"] else 0.08
-	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY, 0.0, 1.0)
+	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
 
 func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_seconds: float, tile_width: float) -> Vector2:
 	var lateral: float = lerpf(-0.54, 0.54, _ambient_hash01(seed + 3)) * tile_width
@@ -3511,7 +3657,10 @@ func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size
 		var icon_key: String = str(token.get("icon", ""))
 		var tooltip: String = ActionIcons.token_tooltip(token)
 		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
-		_draw_keyword_icon(icon_key, icon_rect, tooltip)
+		var condition_tint: Color = Color.WHITE
+		if token.has("condition_active") and not bool(token.get("condition_active", false)):
+			condition_tint = Color(0.42, 0.39, 0.36, 0.64)
+		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint)
 		if ActionIcons.token_is_modified(token) and font != null:
 			_draw_token_modifier_marker(icon_rect, tooltip, font)
 		cursor_x += icon_size + 3.0
@@ -3931,6 +4080,8 @@ func _register_tooltip(rect: Rect2, tooltip: String) -> void:
 	})
 
 func _token_value_color(token: Dictionary, default_color: Color) -> Color:
+	if token.has("condition_active") and not bool(token.get("condition_active", false)):
+		return default_color.darkened(0.42)
 	match str(token.get("tone", "neutral")):
 		"bonus":
 			return Color("78c46a")
@@ -6546,13 +6697,31 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
-		var row: Array = ActionIcons.tokens_for_action(action)
+		var row: Array = _annotate_intensity_intent_row(ActionIcons.tokens_for_action(action))
 		var support_token: Dictionary = _support_target_token_for_action(unit, action)
 		if not support_token.is_empty():
 			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
+		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
+		if not bonus_row.is_empty():
+			rows.append(_annotate_intensity_intent_row(bonus_row))
 	return rows
+
+func _annotate_intensity_intent_row(row: Array) -> Array:
+	var annotated: Array = []
+	for token_var: Variant in row:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			annotated.append(token_var)
+			continue
+		var token: Dictionary = (token_var as Dictionary).duplicate(true)
+		var kind: String = str(token.get("kind", ""))
+		if kind in ["intensity_requirement", "intensity_spend"]:
+			var element_id: String = str(token.get("element", ElementData.NONE))
+			var needed: int = int(token.get("threshold", token.get("amount", 0)))
+			token["condition_active"] = _ambient_intensity(element_id) >= needed
+		annotated.append(token)
+	return annotated
 
 func _intent_display_name(intent: Dictionary) -> String:
 	return str(intent.get("name", "")).strip_edges()
@@ -6908,7 +7077,11 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 	var trap_texture: Texture2D = _trap_textures.get(element_id, null)
 	if trap_texture != null:
 		var trap_rect: Rect2 = _trap_draw_rect(tile)
-		draw_texture_rect(trap_texture, trap_rect, false)
+		var intensity: int = _ambient_intensity(element_id)
+		var scale_bonus: float = clampf(float(intensity - 1) * 0.035, -0.04, 0.18)
+		trap_rect = trap_rect.grow(trap_rect.size.x * scale_bonus * 0.5)
+		var danger_lift: float = clampf(float(maxi(0, intensity - 2)) * 0.045, 0.0, 0.18)
+		draw_texture_rect(trap_texture, trap_rect, false, Color.WHITE.lightened(danger_lift))
 		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
 
 func _trap_draw_rect(tile: Vector2i) -> Rect2:
@@ -6918,16 +7091,8 @@ func _trap_draw_rect(tile: Vector2i) -> Rect2:
 	return Rect2(center - draw_size * 0.5, draw_size)
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
-	var lines: PackedStringArray = ["%s Trap" % ElementData.name(str(trap.get("element", ElementData.NONE)))]
-	lines.append("%d damage to adjacent tiles" % int(trap.get("damage", 0)))
-	if int(trap.get("burn", 0)) > 0:
-		lines.append("Burn %d" % int(trap.get("burn", 0)))
-	if int(trap.get("freeze", 0)) > 0:
-		lines.append("Freeze")
-	if int(trap.get("shock", 0)) > 0:
-		lines.append("Shock")
-	if bool(trap.get("immobilize", false)):
-		lines.append("Immobilize")
-	if int(trap.get("poison", 0)) > 0:
-		lines.append("Poison %d" % int(trap.get("poison", 0)))
-	return "\n".join(lines)
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var intensity: int = _ambient_intensity(element_id)
+	var base_damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
+	var resolved_damage: int = ElementalIntensityRules.scaled_trap_damage(base_damage, intensity)
+	return "%s Trap\n%d damage" % [ElementData.name(element_id), resolved_damage]

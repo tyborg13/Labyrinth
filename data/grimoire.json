@@ -170,8 +170,9 @@
 			"default": true,
 			"icon": "burn",
 			"body": [
-				"Traps resolve when the player enters their tile.",
-				"Trap payloads can apply damage, burn, poison, freeze, shock, or immobilize according to the trap definition."
+				"Traps resolve when entered or struck and blast adjacent tiles.",
+				"A trap's damage scales with its matching elemental intensity. Calm rooms start slightly below base damage, but Volatile and Cataclysmic traps are much deadlier; the live tooltip shows the current damage.",
+				"Trap payloads can also apply burn, poison, freeze, shock, or immobilize according to the trap definition."
 			]
 		},
 		{
@@ -181,8 +182,9 @@
 			"default": true,
 			"icon": "element_fire",
 			"body": [
-				"Elemental intensity is a room-scoped value keyed by element.",
-				"Cards can require, add, spend, or scale from the room's current intensity according to their printed fields."
+				"Elemental intensity is a shared, room-scoped resource keyed by element. The room's own element starts at 1.",
+				"Cards and elemental enemies can build intensity. Threshold effects keep their outward glow, while cards that consume intensity show an inward siphon frame and a negative elemental cost.",
+				"Spending intensity can power a card, weaken matching traps, and deny a telegraphed enemy payoff. Quiet, Stirring, Charged, Volatile, and Cataclysmic HUD labels show the current danger band."
 			]
 		},
 		{

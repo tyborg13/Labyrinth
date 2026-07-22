@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-22T19:41:51Z",
+  "updated_at": "2026-07-22T21:33:51Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -5800,6 +5800,74 @@
       }
     },
     {
+      "id": "mnt_20260719T161354Z_2b9cf35d",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Elemental intensity is a contested room resource with centralized scaling rules",
+      "details": "Player cards with top-level intensity_cost synthesize one required spend before printed actions; enemy actions build with type:intensity or pay attached spend_intensity costs. Trap damage is centralized in scripts/elemental_intensity_rules.gd at 72/94/124/162/208/262/324 percent for intensity 0-6, and generated traps preserve base_damage with damage fallback for older saves.",
+      "status": "active",
+      "created_at": "2026-07-19T16:13:54Z",
+      "updated_at": "2026-07-19T16:13:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-core-rework",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260720T021803Z_2a5506be",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Placed light uses soft animated glow without construction lines",
+      "details": "Placed light must preserve the exact Illuminate Manhattan gameplay footprint while presenting it as overlapping blurred warm falloff with no hard tile or perimeter outline. The orb should use a feathered luminous core, close glow, gentle breathing scale/brightness, subtle bob and internal drift, while keeping the remaining-activation text readable without a framed badge.",
+      "status": "active",
+      "created_at": "2026-07-20T02:18:03Z",
+      "updated_at": "2026-07-20T02:18:03Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260719T144552Z_c642345c"
+      ],
+      "source": {
+        "branch": "codex/improve-light-orb-and-warm-umbra-reach-lighting",
+        "commit": "c4ba420"
+      }
+    },
+    {
+      "id": "mnt_20260721T131509Z_8d2f9adc",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Funded intensity spenders reuse the gated-card glow",
+      "details": "Do not add a separate bracket, corner, notch, or inward-siphon frame around intensity-spending cards; the user considers that ornament crude and unpolished. A spender whose cost is currently payable should use the existing elemental IntensityActiveGlow exactly like a satisfied intensity gate, while an unpayable spender stays unlit. Keep the negative elemental amount in the cost row as the distinction between spending and gating.",
+      "status": "active",
+      "created_at": "2026-07-21T13:15:09Z",
+      "updated_at": "2026-07-21T13:15:09Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-core-rework",
+        "commit": "50e2105"
+      }
+    },
+    {
       "id": "mnt_20260721T143527Z_bfe18ee5",
       "layer": "shared",
       "kind": "decision",
@@ -5822,7 +5890,7 @@
       }
     },
     {
-      "id": "mnt_20260721T151722Z_cc6391f8",
+      "id": "mnt_20260721T151722Z_17d4cbc9",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -5831,14 +5899,14 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Combat board unit art honors per-definition art offsets",
-      "details": "CombatBoardView applies art_offset_x/y after fit and scale; adjust sprite centering in enemy or NPC data instead of changing global anchoring. Introduced for the Dust Acolyte alignment and covered by the enemy art-offset test.",
+      "summary": "Stone floor variants use isolated tile-only textures",
+      "details": "Variants are extracted by flood-filling the selected component from the base floor sheet, keeping neighboring tiles transparent. CombatBoardView loads them untrimmed so every tile retains the same isometric canvas and avoids neighbor-fragment warping.",
       "status": "active",
       "created_at": "2026-07-21T15:17:22Z",
       "updated_at": "2026-07-21T15:17:22Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260411T033949Z_df2e7a53"
+        "mnt_20260414T152238Z_256394c3"
       ],
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
@@ -5870,7 +5938,7 @@
       }
     },
     {
-      "id": "mnt_20260721T151722Z_17d4cbc9",
+      "id": "mnt_20260721T151722Z_cc6391f8",
       "layer": "shared",
       "kind": "decision",
       "scope": {
@@ -5879,14 +5947,14 @@
         "symbol": null
       },
       "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Stone floor variants use isolated tile-only textures",
-      "details": "Variants are extracted by flood-filling the selected component from the base floor sheet, keeping neighboring tiles transparent. CombatBoardView loads them untrimmed so every tile retains the same isometric canvas and avoids neighbor-fragment warping.",
+      "summary": "Combat board unit art honors per-definition art offsets",
+      "details": "CombatBoardView applies art_offset_x/y after fit and scale; adjust sprite centering in enemy or NPC data instead of changing global anchoring. Introduced for the Dust Acolyte alignment and covered by the enemy art-offset test.",
       "status": "active",
       "created_at": "2026-07-21T15:17:22Z",
       "updated_at": "2026-07-21T15:17:22Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260414T152238Z_256394c3"
+        "mnt_20260411T033949Z_df2e7a53"
       ],
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
@@ -5942,6 +6010,30 @@
       }
     },
     {
+      "id": "mnt_20260721T151750Z_d728ec05",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Door placement uses explicit frame-scale constants",
+      "details": "DOOR_FRAME_WIDTH_SCALE, DOOR_FRAME_HEIGHT_SCALE, and DOOR_BASELINE_OFFSET_SCALE fit door.png on regular stone floor tiles. Tune those constants rather than changing the source asset or flip logic.",
+      "status": "active",
+      "created_at": "2026-07-21T15:17:50Z",
+      "updated_at": "2026-07-21T15:17:50Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260420T031138Z_061713e9"
+      ],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "af28967"
+      }
+    },
+    {
       "id": "mnt_20260721T151750Z_f27efb0b",
       "layer": "shared",
       "kind": "decision",
@@ -5966,23 +6058,23 @@
       }
     },
     {
-      "id": "mnt_20260721T151750Z_d728ec05",
+      "id": "mnt_20260721T151751Z_870a3775",
       "layer": "shared",
-      "kind": "decision",
+      "kind": "user_preference",
       "scope": {
         "level": "file",
-        "path": "scripts/combat_board_view.gd",
+        "path": "scripts/cursor_feedback.gd",
         "symbol": null
       },
-      "scope_key": "file:scripts/combat_board_view.gd",
-      "summary": "Door placement uses explicit frame-scale constants",
-      "details": "DOOR_FRAME_WIDTH_SCALE, DOOR_FRAME_HEIGHT_SCALE, and DOOR_BASELINE_OFFSET_SCALE fit door.png on regular stone floor tiles. Tune those constants rather than changing the source asset or flip logic.",
+      "scope_key": "file:scripts/cursor_feedback.gd",
+      "summary": "Valid cursor feedback is a dry mechanical click",
+      "details": "Keep the valid sound short and transient-led, with high-frequency contact texture and a close latch snap. Avoid a low body or ringing tail. The inert sound remains a longer dull dust-and-wood knock; preserve exact-once semantic classification and route both through the SFX bus.",
       "status": "active",
-      "created_at": "2026-07-21T15:17:50Z",
-      "updated_at": "2026-07-21T15:17:50Z",
+      "created_at": "2026-07-21T15:17:51Z",
+      "updated_at": "2026-07-21T15:17:51Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260420T031138Z_061713e9"
+        "mnt_20260716T132740Z_98e64c36"
       ],
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
@@ -6038,24 +6130,22 @@
       }
     },
     {
-      "id": "mnt_20260721T151751Z_870a3775",
+      "id": "mnt_20260721T163906Z_36629f38",
       "layer": "shared",
-      "kind": "user_preference",
+      "kind": "decision",
       "scope": {
-        "level": "file",
-        "path": "scripts/cursor_feedback.gd",
+        "level": "folder",
+        "path": "scripts",
         "symbol": null
       },
-      "scope_key": "file:scripts/cursor_feedback.gd",
-      "summary": "Valid cursor feedback is a dry mechanical click",
-      "details": "Keep the valid sound short and transient-led, with high-frequency contact texture and a close latch snap. Avoid a low body or ringing tail. The inert sound remains a longer dull dust-and-wood knock; preserve exact-once semantic classification and route both through the SFX bus.",
+      "scope_key": "folder:scripts",
+      "summary": "Progression synchronization distinguishes level-up purchases from same-level respec",
+      "details": "A newer profile revision that advances level supplies the post-purchase ember balance. A same-level respec revision preserves embers already held by the active run. Reconcile skill-event cursors before checkpoint persistence and baseline them when loading old saves.",
       "status": "active",
-      "created_at": "2026-07-21T15:17:51Z",
-      "updated_at": "2026-07-21T15:17:51Z",
+      "created_at": "2026-07-21T16:39:06Z",
+      "updated_at": "2026-07-21T16:39:06Z",
       "expires_at": null,
-      "supersedes": [
-        "mnt_20260716T132740Z_98e64c36"
-      ],
+      "supersedes": [],
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "af28967"
@@ -6095,28 +6185,6 @@
       "scope_key": "folder:scripts",
       "summary": "Earned deferred rewards survive skill-tree respec until one redemption",
       "details": "Skill ownership gates acquisition of pending card, relic, or merchant benefits. Once earned, the pending value persists through respec and save repair, can be redeemed exactly once, and then clears.",
-      "status": "active",
-      "created_at": "2026-07-21T16:39:06Z",
-      "updated_at": "2026-07-21T16:39:06Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/implement-qualitative-skill-tree-progression",
-        "commit": "af28967"
-      }
-    },
-    {
-      "id": "mnt_20260721T163906Z_36629f38",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "folder",
-        "path": "scripts",
-        "symbol": null
-      },
-      "scope_key": "folder:scripts",
-      "summary": "Progression synchronization distinguishes level-up purchases from same-level respec",
-      "details": "A newer profile revision that advances level supplies the post-purchase ember balance. A same-level respec revision preserves embers already held by the active run. Reconcile skill-event cursors before checkpoint persistence and baseline them when loading old saves.",
       "status": "active",
       "created_at": "2026-07-21T16:39:06Z",
       "updated_at": "2026-07-21T16:39:06Z",
@@ -6218,28 +6286,6 @@
       }
     },
     {
-      "id": "mnt_20260722T044219Z_b7664e94",
-      "layer": "shared",
-      "kind": "decision",
-      "scope": {
-        "level": "file",
-        "path": "scripts/skill_tree_view.gd",
-        "symbol": null
-      },
-      "scope_key": "file:scripts/skill_tree_view.gd",
-      "summary": "Keep skill-tree labels and rules outside the graph layer",
-      "details": "The tree uses compact stateful medallions, visible ports, and orthogonal connections inside protected graph space; full names, requirements, and effects live in the fixed detail pane so connections cannot be occluded. Direction is top-to-bottom rank, with node role and state communicated by shape plus color.",
-      "status": "active",
-      "created_at": "2026-07-22T04:42:19Z",
-      "updated_at": "2026-07-22T04:42:19Z",
-      "expires_at": null,
-      "supersedes": [],
-      "source": {
-        "branch": "codex/implement-qualitative-skill-tree-progression",
-        "commit": "961c42f"
-      }
-    },
-    {
       "id": "mnt_20260722T044219Z_ab71342e",
       "layer": "shared",
       "kind": "pitfall",
@@ -6251,6 +6297,28 @@
       "scope_key": "file:scripts/combat_engine.gd",
       "summary": "Track banked-play consumption separately from total plays spent",
       "details": "A banked play can pay for a card that grants a new ordinary play, so total capacity and cards_played_this_turn cannot reconstruct which slot remains. banked_play_spent_this_activation plus card_play_budget preserves the ordinary/banked split and resets each activation.",
+      "status": "active",
+      "created_at": "2026-07-22T04:42:19Z",
+      "updated_at": "2026-07-22T04:42:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "961c42f"
+      }
+    },
+    {
+      "id": "mnt_20260722T044219Z_b7664e94",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/skill_tree_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/skill_tree_view.gd",
+      "summary": "Keep skill-tree labels and rules outside the graph layer",
+      "details": "The tree uses compact stateful medallions, visible ports, and orthogonal connections inside protected graph space; full names, requirements, and effects live in the fixed detail pane so connections cannot be occluded. Direction is top-to-bottom rank, with node role and state communicated by shape plus color.",
       "status": "active",
       "created_at": "2026-07-22T04:42:19Z",
       "updated_at": "2026-07-22T04:42:19Z",
@@ -6351,6 +6419,28 @@
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "ba2bcca"
+      }
+    },
+    {
+      "id": "mnt_20260722T213351Z_637ba410",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "symbol",
+        "path": "scripts/run_scene.gd",
+        "symbol": "_layout_combat_skill_card_selection_prompt"
+      },
+      "scope_key": "symbol:scripts/run_scene.gd#_layout_combat_skill_card_selection_prompt",
+      "summary": "Card-selection prompts are positioned from the live hand boundary, and full-card discard choices require explicit focus frames.",
+      "details": "For in-hand skill targeting, lay the prompt out above hand_scroll after the hand is rebuilt instead of using fixed bottom offsets; fixed offsets covered card headers across aspect ratios. For discard-pile targeting, the transparent Button wrapper must draw normal/hover/pressed/focus frames and have explicit focus neighbors to the close action, because CardWidget itself does not own focus.",
+      "status": "active",
+      "created_at": "2026-07-22T21:33:51Z",
+      "updated_at": "2026-07-22T21:33:51Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "3ba621d"
       }
     }
   ]

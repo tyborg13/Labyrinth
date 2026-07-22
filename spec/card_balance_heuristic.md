@@ -47,7 +47,10 @@ These assumptions are baked into the current coefficients:
 - Fatigue starts at `1.5` health and increases by `0.1` health each reshuffle.
 - Each combat tracks room-wide elemental intensity for fire, ice, lightning,
   air, and earth. The room's element starts at intensity `1`; other elements
-  start at `0`.
+  start at `0`. Cards and elemental enemies share this resource: both sides can
+  build it, threshold effects can gate on it, and stronger cards or enemy
+  intents can consume it. Spending can deny a telegraphed enemy payoff or calm
+  matching traps as well as fund a card.
 - Enemy preview block matters immediately during the player turn.
 - Freeze doubles incoming damage and skips the enemy's next turn.
 - Pierce attacks deal HP damage through block and stoneskin without removing
@@ -132,8 +135,11 @@ Encounter calibration is also important:
   initiative by up to `4` over time.
 - Specialist enemies enter normal local depth `1-3` pools only in matching
   elemental rooms: Cinder Oozes in fire, Frostglass Lancers in ice, Chainbound
-  Gaolers in air, and Bile Bloomers in earth. Generic enemies keep their own
-  printed intent actions instead of being rewritten to match the room element.
+  Gaolers in air, and Bile Bloomers in earth. Those specialists now build their
+  matching room intensity and either gate stronger effects or consume intensity
+  for an upgraded payoff; Lightning Wisps use the same builder/consumer model.
+  Generic enemies keep their own printed intent actions instead of being
+  rewritten to match the room element.
 - Cinder Oozes split into up to two summoned Cinder Droplets on nearby legal
   tiles; the droplets add cleanup pressure but grant no embers and no death
   card-play bonus.
@@ -192,12 +198,16 @@ Encounter calibration is also important:
   player's entry halo. Traps blast adjacent tiles when stepped on or attacked,
   so forced movement and area targeting can create higher positional upside and
   risk than the old single-tile trap model.
-- Generated trap damage uses a stronger positional payoff curve:
+- Generated traps retain the authored positional base-damage curve:
   `6/7/8` player-scale damage in local standard depths `1/2/3`. First-sequence
   boss-depth traps hit for `5` so they beat weak ranged attacks without
   one-shotting full-health lightning wisps; all generated traps gain `+2`
-  player-scale damage per completed depth sequence. Depth-3 fire and earth
-  trap statuses are capped at `2`.
+  player-scale damage per completed depth sequence. Live damage then multiplies
+  that base by `72/94/124/162/208/262/324%` at matching elemental intensity
+  `0/1/2/3/4/5/6`; scaling caps at `6` for malformed or legacy saves. Normal
+  matching rooms therefore begin slightly below the previous damage, while a
+  volatile intensity `4` room is already more than twice as deadly. Depth-3
+  fire and earth trap statuses are capped at `2`.
 - Fire trap burn ramps gently in the first sequence: depth `1-2` fire traps
   apply shallow burn pressure, then deeper standard fire rooms restore the
   heavier trap payload.
@@ -219,7 +229,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + elemental_intensity + mobility + radiance + synergy + tempo + flurry_compression_bonus - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
+`EV = offense + control + defense + flow + elemental_intensity + mobility + radiance + synergy + tempo + flurry_compression_bonus - intensity_spend_cost - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -244,6 +254,8 @@ These are the current default weights used by `tools/card_heuristic.py`:
   the single-card/single-time compression visible in the score so Flurry cards
   must be under-rate before their copies are counted.
 - Elemental intensity gain: `0.70` per point
+- Elemental intensity spend: `0.35` per point consumed, after the conditional
+  package availability adjustment described below
 - High-damage kill-card-play premium: up to `0.45`, scaled by damage,
   playability, and target count
 - Illusion health: `0.48` per point
@@ -298,7 +310,7 @@ Synergy bonuses:
 - `+0.18` when an elemental card raises its own element's intensity
 - `+0.30` when a card both raises intensity and has intensity-gated text
 
-## Elemental Intensity Gating
+## Elemental Intensity Gating and Spending
 
 For heuristic purposes, elemental cards are scored as if they are played in a
 room of their own element, so their element starts at intensity `1`. Intensity
@@ -321,6 +333,17 @@ with intensity-gated upside shown as a shaded modifier row instead of a second
 attack. This makes mild `2+` text meaningful in matching rooms, gives
 self-enabling cards credit for sequencing, and keeps large `4+` payoffs from
 scoring as always-on standalone power.
+
+A top-level `intensity_cost` makes the entire printed action package conditional.
+The scorer uses the same raw availability table, then applies a `0.68` retention
+floor: `retained availability = 0.68 + 0.32 * raw availability`. This models a
+player holding a payoff while either side builds the shared room resource,
+without pretending the card is always playable on draw. The package is
+multiplied by retained availability and then charged `0.35` per intensity
+spent. The cost is paid once even if a future Flurry card repeats its printed
+actions. The heuristic does not credit the situational upside of draining traps
+or denying an enemy intent, so Air forced-movement and other battlefield-control
+spenders may deliberately land toward the low end of their rarity band.
 
 ## Playability Factors
 
@@ -410,6 +433,7 @@ following change:
 - enemy roster or intent pacing
 - AOE, chain, push, or pull behavior
 - new card action types or keywords
+- elemental intensity production, gates, spending, trap scaling, or enemy use
 
 If you change the rules above and do not update the heuristic, future card work
 will drift against stale assumptions.

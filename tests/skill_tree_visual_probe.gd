@@ -7,7 +7,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 
-const OUTPUT_DIR: String = "user://probes/skill_tree_progression"
+const OUTPUT_DIR: String = "user://probes/skill_tree_ui_rubric_v2"
 const STORAGE_PATH: String = "user://skill_tree_visual_progression.json"
 const RUN_STORAGE_PATH: String = "user://skill_tree_visual_run.save"
 const PROGRESSION_LEVEL: int = 13
@@ -25,6 +25,7 @@ const PROGRESSION_SKILLS = [
 ]
 
 var _failures: Array[String]
+var _active_screenshot_size: Vector2i
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -36,8 +37,8 @@ func _initialize() -> void:
 	if packed == null:
 		_fail("Run scene should load for skill progression visual proof")
 	else:
-		for viewport_size: Vector2i in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
-			await _capture_resolution(packed, viewport_size)
+		for config: Dictionary in _requested_configs():
+			await _capture_resolution(packed, config.get("size", Vector2i(1280, 720)), float(config.get("scale", 1.0)))
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	if _failures.is_empty():
 		print("SKILL TREE VISUAL PROBE: PASS")
@@ -48,12 +49,20 @@ func _initialize() -> void:
 	print("SKILL TREE VISUAL PROBE: FAIL (%d failures)" % _failures.size())
 	quit(1)
 
-func _capture_resolution(packed: PackedScene, viewport_size: Vector2i) -> void:
+func _capture_resolution(packed: PackedScene, screenshot_size: Vector2i, ui_scale: float) -> void:
+	_active_screenshot_size = screenshot_size
+	var viewport_size := Vector2i(
+		maxi(1, roundi(float(screenshot_size.x) / ui_scale)),
+		maxi(1, roundi(float(screenshot_size.y) / ui_scale))
+	)
 	var progression: Dictionary = _populated_progression()
-	_expect(ProgressionStore.save_data(progression), "%s progression fixture should save" % viewport_size)
+	_expect(ProgressionStore.save_data(progression), "%s @ %d%% progression fixture should save" % [screenshot_size, roundi(ui_scale * 100.0)])
 	var viewport := SubViewport.new()
-	viewport.name = "SkillProgressionProof_%dx%d" % [viewport_size.x, viewport_size.y]
-	viewport.size = viewport_size
+	viewport.name = "SkillProgressionProof_%dx%d_ui%d" % [screenshot_size.x, screenshot_size.y, roundi(ui_scale * 100.0)]
+	viewport.size = screenshot_size
+	if not is_equal_approx(ui_scale, 1.0):
+		viewport.size_2d_override = viewport_size
+		viewport.size_2d_override_stretch = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
 	var instance: Node = packed.instantiate()
@@ -61,13 +70,13 @@ func _capture_resolution(packed: PackedScene, viewport_size: Vector2i) -> void:
 	await _settle()
 	instance.call("_close_dialogue")
 	var run_engine := RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(81173 + viewport_size.x, progression)
+	var run_state: Dictionary = run_engine.create_new_run(81173 + screenshot_size.x + roundi(ui_scale * 100.0), progression)
 	instance.set("_progression", progression)
 	instance.call("_load_run_state", run_state)
 	instance.call("_close_dialogue")
 	await _settle()
-	_expect(instance.get_viewport().get_visible_rect().size == Vector2(viewport_size), "%s run scene should use the exact proof viewport" % viewport_size)
-	var output_dir: String = "%s/%dx%d" % [OUTPUT_DIR, viewport_size.x, viewport_size.y]
+	_expect(instance.get_viewport().get_visible_rect().size == Vector2(viewport_size), "%s @ %d%% should expose the expected %s logical viewport" % [screenshot_size, roundi(ui_scale * 100.0), viewport_size])
+	var output_dir: String = "%s/%dx%d_ui%d" % [OUTPUT_DIR, screenshot_size.x, screenshot_size.y, roundi(ui_scale * 100.0)]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 
 	await _capture_skills_tree(instance, viewport, viewport_size, output_dir)
@@ -122,7 +131,7 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		tree.focus_skill("prismatic_instinct")
 		await _settle()
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Skills dialog" % viewport_size, "Character")
-	await _save_screenshot(viewport, "%s/01_skills_tree.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/01_skills_tree.png" % output_dir)
 	if tree != null:
 		tree.focus_skill("living_shadow")
 		await _settle()
@@ -131,7 +140,7 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		_expect(living_links.has("measured_breath>pain_remembers"), "%s Living Shadow should trace through Pain Remembers to Measured Breath" % viewport_size)
 		_expect(living_links.has("ghost_stride>afterimage"), "%s Living Shadow should trace through Afterimage to Ghost Stride" % viewport_size)
 		_expect(living_links.has("living_shadow>open_arsenal"), "%s Living Shadow should retain its direct Open Arsenal route" % viewport_size)
-		await _save_screenshot(viewport, "%s/01b_living_shadow_path.png" % output_dir, viewport_size)
+		await _save_screenshot(viewport, "%s/01b_living_shadow_path.png" % output_dir)
 		tree.focus_skill("last_door")
 		tree.grab_tree_focus()
 		await _settle()
@@ -143,7 +152,7 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 			and graph_scroll.get_global_rect().encloses(last_door_node.get_global_rect()),
 			"%s Focusing the far keystone should automatically reveal it inside the graph viewport" % viewport_size
 		)
-		await _save_screenshot(viewport, "%s/01c_last_door_scroll.png" % output_dir, viewport_size)
+		await _save_screenshot(viewport, "%s/01c_last_door_scroll.png" % output_dir)
 
 func _capture_reset_flow(instance: Node, viewport: SubViewport, viewport_size: Vector2i, output_dir: String) -> void:
 	instance.call("_open_skill_reset_confirmation")
@@ -155,7 +164,7 @@ func _capture_reset_flow(instance: Node, viewport: SubViewport, viewport_size: V
 	_expect(confirmation != null and confirmation.is_visible_in_tree(), "%s Reset should open an explicit blocking confirmation" % viewport_size)
 	_expect(confirmation_message != null and confirmation_message.text.contains("Are you sure you want to clear all 10 learned skills?") and confirmation_message.text.contains("12 earned skill points"), "%s Reset confirmation should name its complete effect" % viewport_size)
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Reset confirmation dialog" % viewport_size, "Character")
-	await _save_screenshot(viewport, "%s/02_reset_confirmation.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/02_reset_confirmation.png" % output_dir)
 
 	instance.call("_confirm_skill_reset")
 	await _settle()
@@ -166,7 +175,7 @@ func _capture_reset_flow(instance: Node, viewport: SubViewport, viewport_size: V
 	_expect(tree != null and tree.points_remaining() == 12, "%s Confirming reset should refund all twelve earned points" % viewport_size)
 	_expect(ProgressionStore.moltshard_count(instance.get("_progression") as Dictionary) == 1, "%s Confirming reset should spend exactly one Moltshard" % viewport_size)
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Cleared skill tree" % viewport_size, "Character")
-	await _save_screenshot(viewport, "%s/03_reset_complete.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/03_reset_complete.png" % output_dir)
 	await _settle()
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
@@ -211,14 +220,14 @@ func _capture_level_up_tree(
 			_expect(tree.detail_action_is_enabled(), "%s Focused level-up skill should be actionable" % viewport_size)
 		_assert_tree_scroll_contract(tree, viewport_size, "Level-up")
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Character")
-	await _save_screenshot(viewport, "%s/07_level_up.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/07_level_up.png" % output_dir)
 	if tree != null and not chosen_skill_id.is_empty():
 		tree.activate_focused_skill()
 		await process_frame
 		await process_frame
 		_expect(tree.status_for_skill(chosen_skill_id) == SkillTreeView.STATE_OWNED, "%s Immediate learning should update the existing medallion in place" % viewport_size)
 		_expect(instance.find_child("ProgressionOverlayNotice", true, false) == null, "%s Immediate learning should not add redundant learned/remaining copy" % viewport_size)
-		await _save_screenshot(viewport, "%s/07b_skill_learned.png" % output_dir, viewport_size)
+		await _save_screenshot(viewport, "%s/07b_skill_learned.png" % output_dir)
 	_expect(ProgressionStore.save_data(progression), "%s Level-up visual fixture should restore its base profile" % viewport_size)
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
@@ -322,7 +331,7 @@ func _capture_combat_surfaces(
 	var banked_label := instance.get("_play_meter_banked_label") as Label
 	_expect(banked_badge != null and banked_badge.visible, "%s Combat HUD should distinguish the stored play from ordinary plays" % viewport_size)
 	_expect(banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "%s Combat HUD should explain Borrowed Time on the stored play" % viewport_size)
-	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir)
 
 	instance.call("_toggle_skill_status_popover")
 	await _settle()
@@ -336,8 +345,8 @@ func _capture_combat_surfaces(
 	_expect(_label_with_text(popover, "Quick Wits") != null, "%s Skill popover should list Quick Wits" % viewport_size)
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "%s Skill popover should list Discerning Eye" % viewport_size)
 	_assert_inside(popover, viewport_size, "%s Skill status popover" % viewport_size, 8.0)
-	await _save_screenshot(viewport, "%s/04b_abilities_entry.png" % output_dir, viewport_size)
-	await _save_screenshot(viewport, "%s/05_combat_skill_popover.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/04b_abilities_entry.png" % output_dir)
+	await _save_screenshot(viewport, "%s/05_combat_skill_popover.png" % output_dir)
 
 	instance.call("_close_skill_status_popover")
 	instance.call("_on_combat_skill_pressed", "quick_wits")
@@ -351,7 +360,10 @@ func _capture_combat_surfaces(
 	var focused_hand_choice := hand_box.find_child("SkillHandSelectionCard_0", true, false) as Button if hand_box != null else null
 	_expect(focused_hand_choice != null and instance.get_viewport().gui_get_focus_owner() == focused_hand_choice, "%s Quick Wits should focus its first full-card controller choice" % viewport_size)
 	_assert_inside(selection_prompt, viewport_size, "%s Quick Wits hand-selection prompt" % viewport_size, 8.0)
-	await _save_screenshot(viewport, "%s/06_quick_wits_hand_selection.png" % output_dir, viewport_size)
+	var prompt_rect: Rect2 = selection_prompt.get_global_rect() if selection_prompt != null else Rect2()
+	var hand_rect: Rect2 = hand_box.get_global_rect() if hand_box != null else Rect2()
+	_expect(selection_prompt != null and hand_box != null and prompt_rect.end.y <= hand_rect.position.y - 8.0, "%s Quick Wits prompt should stay above the full-card evidence" % viewport_size)
+	await _save_screenshot(viewport, "%s/06_quick_wits_hand_selection.png" % output_dir)
 	await _click_control(viewport, focused_hand_choice, "%s Quick Wits full-card choice" % viewport_size)
 	_expect(selection_prompt != null and not selection_prompt.visible, "%s Clicking the full hand card should close Quick Wits selection" % viewport_size)
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "%s Clicking the full hand card should spend Quick Wits" % viewport_size)
@@ -362,7 +374,9 @@ func _capture_combat_surfaces(
 	_expect(pile_scrim != null and pile_scrim.visible, "%s Encore should open the discard pile" % viewport_size)
 	var discard_choice := pile_cards.find_child("DiscardSelectionCard_0", true, false) as Button if pile_cards != null else null
 	_expect(discard_choice != null, "%s Encore should make the full discarded card selectable" % viewport_size)
-	await _save_screenshot(viewport, "%s/06b_encore_discard_selection.png" % output_dir, viewport_size)
+	var discard_focus_style := discard_choice.get_theme_stylebox("focus") as StyleBoxFlat if discard_choice != null else null
+	_expect(discard_focus_style != null and discard_focus_style.border_width_left >= 4, "%s Encore should show a strong controller focus frame around the full card" % viewport_size)
+	await _save_screenshot(viewport, "%s/06b_encore_discard_selection.png" % output_dir)
 	await _click_control(viewport, discard_choice, "%s Encore full-card choice" % viewport_size)
 	_expect(pile_scrim != null and not pile_scrim.visible, "%s Clicking the full discard card should close Encore selection" % viewport_size)
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "encore"), "%s Clicking the full discard card should spend Encore" % viewport_size)
@@ -406,13 +420,13 @@ func _combat_layout() -> Dictionary:
 		"terrain": [],
 	}
 
-func _save_screenshot(viewport: SubViewport, output_path: String, expected_size: Vector2i) -> void:
+func _save_screenshot(viewport: SubViewport, output_path: String) -> void:
 	await RenderingServer.frame_post_draw
 	var image: Image = viewport.get_texture().get_image()
 	_expect(image != null and not image.is_empty(), "%s should produce a non-empty screenshot" % output_path)
 	if image == null or image.is_empty():
 		return
-	_expect(image.get_size() == expected_size, "%s should be exactly %s, got %s" % [output_path, expected_size, image.get_size()])
+	_expect(image.get_size() == _active_screenshot_size, "%s should be exactly %s, got %s" % [output_path, _active_screenshot_size, image.get_size()])
 	var error: Error = image.save_png(output_path)
 	_expect(error == OK, "%s should save successfully" % output_path)
 
@@ -474,6 +488,14 @@ func _assert_skill_modal_contained(
 		"SkillTreeGraphPanel",
 		"SkillDetailPanel",
 		"SkillDetailScroll",
+		"SkillDetailAction",
+	]:
+		var control := tree.find_child(control_name, true, false) as Control
+		_expect(control != null, "%s should retain %s" % [label, control_name])
+		if control != null and control.is_visible_in_tree():
+			_assert_inside(control, viewport_size, "%s %s" % [label, control_name], 8.0)
+	var detail_scroll := tree.find_child("SkillDetailScroll", true, false) as ScrollContainer
+	for control_name: String in [
 		"SkillDetailStatus",
 		"SkillDetailTitle",
 		"SkillDetailDescription",
@@ -481,12 +503,12 @@ func _assert_skill_modal_contained(
 		"SkillDetailRequirements",
 		"SkillDetailUnlocks",
 		"SkillDetailReason",
-		"SkillDetailAction",
 	]:
-		var control := tree.find_child(control_name, true, false) as Control
-		_expect(control != null, "%s should retain %s" % [label, control_name])
-		if control != null and control.is_visible_in_tree():
-			_assert_inside(control, viewport_size, "%s %s" % [label, control_name], 8.0)
+		_expect(tree.find_child(control_name, true, false) != null, "%s should retain scrollable %s" % [label, control_name])
+	if detail_scroll != null:
+		var detail_content := tree.find_child("SkillDetailContent", true, false) as Control
+		if detail_content != null and detail_content.get_combined_minimum_size().y > detail_scroll.size.y + 1.0:
+			_expect(detail_scroll.get_v_scroll_bar().visible and detail_scroll.get_v_scroll_bar().max_value > 0.0, "%s should expose scrolling when exact skill rules exceed the bounded detail pane" % label)
 
 func _assert_tree_scroll_contract(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
 	if tree == null:
@@ -513,6 +535,32 @@ func _settle() -> void:
 	await process_frame
 	await create_timer(0.08).timeout
 	await process_frame
+
+func _requested_configs() -> Array[Dictionary]:
+	var defaults: Array[Dictionary] = [
+		{"size": Vector2i(1920, 1080), "scale": 1.0},
+		{"size": Vector2i(1280, 720), "scale": 1.0},
+		{"size": Vector2i(1280, 800), "scale": 1.0},
+		{"size": Vector2i(960, 540), "scale": 1.0},
+		{"size": Vector2i(1280, 720), "scale": 1.25},
+	]
+	var arguments: PackedStringArray = OS.get_cmdline_user_args()
+	var config_index: int = arguments.find("--config")
+	if config_index < 0 or config_index + 1 >= arguments.size():
+		return defaults
+	var specification: String = arguments[config_index + 1].strip_edges().to_lower()
+	var scale_parts: PackedStringArray = specification.split("@", false, 1)
+	var size_parts: PackedStringArray = scale_parts[0].split("x", false, 1)
+	if size_parts.size() != 2:
+		_fail("Invalid --config size: %s" % specification)
+		return []
+	var width: int = int(size_parts[0])
+	var height: int = int(size_parts[1])
+	var scale_percent: int = int(scale_parts[1]) if scale_parts.size() == 2 else 100
+	if width <= 0 or height <= 0 or scale_percent <= 0:
+		_fail("Invalid --config value: %s" % specification)
+		return []
+	return [{"size": Vector2i(width, height), "scale": float(scale_percent) / 100.0}]
 
 func _button_with_text(node: Node, expected: String) -> Button:
 	if node == null:

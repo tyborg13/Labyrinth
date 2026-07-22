@@ -928,6 +928,7 @@ const SKILL_STATUS_POPOVER_MIN_SIZE: Vector2 = Vector2(430.0, 500.0)
 const SKILL_STATUS_POPOVER_MAX_SIZE: Vector2 = Vector2(500.0, 760.0)
 const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
 const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
+const SKILL_CHOICE_DIALOG_MIN_SIZE: Vector2 = Vector2(360.0, 320.0)
 const HEADER_RELIC_WRAP_MARGIN: float = 24.0
 const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
@@ -1575,6 +1576,8 @@ func _notification(what: int) -> void:
 		_layout_grimoire_dialog()
 		_layout_pre_battle_dialog()
 		_layout_skill_status_popover()
+		_layout_combat_skill_card_selection_prompt()
+		_layout_skill_choice_dialog()
 		if _pre_battle_scrim != null and _pre_battle_scrim.visible:
 			call_deferred("_rebuild_pre_battle_overlay")
 		_layout_progression_dialog()
@@ -1978,11 +1981,7 @@ func _build_combat_skill_card_selection_prompt() -> void:
 	_combat_skill_card_selection_prompt.name = "SkillCardSelectionPrompt"
 	_combat_skill_card_selection_prompt.visible = false
 	_combat_skill_card_selection_prompt.custom_minimum_size = SKILL_CARD_SELECTION_PROMPT_SIZE
-	_combat_skill_card_selection_prompt.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_combat_skill_card_selection_prompt.offset_left = -SKILL_CARD_SELECTION_PROMPT_SIZE.x * 0.5
-	_combat_skill_card_selection_prompt.offset_top = -350.0
-	_combat_skill_card_selection_prompt.offset_right = SKILL_CARD_SELECTION_PROMPT_SIZE.x * 0.5
-	_combat_skill_card_selection_prompt.offset_bottom = -294.0
+	_combat_skill_card_selection_prompt.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_combat_skill_card_selection_prompt.z_index = 430
 	_combat_skill_card_selection_prompt.z_as_relative = false
 	_combat_skill_card_selection_prompt.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -2013,6 +2012,25 @@ func _build_combat_skill_card_selection_prompt() -> void:
 	UiTypography.apply_button_role(_combat_skill_card_selection_cancel_button, UiTypography.ROLE_BODY)
 	_combat_skill_card_selection_cancel_button.pressed.connect(_cancel_combat_skill_card_selection)
 	row.add_child(_combat_skill_card_selection_cancel_button)
+
+func _layout_combat_skill_card_selection_prompt() -> void:
+	if _combat_skill_card_selection_prompt == null or not _combat_skill_card_selection_prompt.visible:
+		return
+	var root_rect: Rect2 = ui_root.get_global_rect()
+	var available_width: float = maxf(1.0, root_rect.size.x - 16.0)
+	var prompt_size := Vector2(minf(SKILL_CARD_SELECTION_PROMPT_SIZE.x, available_width), SKILL_CARD_SELECTION_PROMPT_SIZE.y)
+	_combat_skill_card_selection_prompt.custom_minimum_size = prompt_size
+	_combat_skill_card_selection_prompt.size = prompt_size
+	var hand_top: float = root_rect.end.y - 8.0
+	if hand_scroll != null and hand_scroll.is_inside_tree() and hand_scroll.is_visible_in_tree():
+		hand_top = hand_scroll.get_global_rect().position.y
+	var desired := Vector2(
+		root_rect.position.x + (root_rect.size.x - prompt_size.x) * 0.5,
+		hand_top - prompt_size.y - 12.0
+	)
+	desired.x = clampf(desired.x, root_rect.position.x + 8.0, root_rect.end.x - prompt_size.x - 8.0)
+	desired.y = clampf(desired.y, root_rect.position.y + 8.0, root_rect.end.y - prompt_size.y - 8.0)
+	_combat_skill_card_selection_prompt.global_position = desired
 
 func _build_skill_choice_dialog() -> void:
 	_skill_choice_scrim = ColorRect.new()
@@ -2077,6 +2095,22 @@ func _build_skill_choice_dialog() -> void:
 	_skill_choice_cancel_button.pressed.connect(_close_skill_choice_dialog)
 	column.add_child(_skill_choice_cancel_button)
 
+func _layout_skill_choice_dialog() -> void:
+	if _skill_choice_dialog == null:
+		return
+	var dialog_size: Vector2 = UiTypography.modal_size(
+		_skill_choice_dialog,
+		SKILL_CHOICE_DIALOG_SIZE,
+		SKILL_CHOICE_DIALOG_MIN_SIZE,
+		16.0
+	)
+	_skill_choice_dialog.custom_minimum_size = dialog_size
+	_skill_choice_dialog.set_anchors_preset(Control.PRESET_CENTER)
+	_skill_choice_dialog.offset_left = -dialog_size.x * 0.5
+	_skill_choice_dialog.offset_top = -dialog_size.y * 0.5
+	_skill_choice_dialog.offset_right = dialog_size.x * 0.5
+	_skill_choice_dialog.offset_bottom = dialog_size.y * 0.5
+
 func _skill_panel_style(accent: Color, opacity: float) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.065, 0.045, 0.085, opacity)
@@ -2127,6 +2161,8 @@ func _open_skill_choice_dialog(title: String, description: String, options: Arra
 			first_option_detail = option_detail
 	_skill_choice_scrim.visible = _skill_choice_list.get_child_count() > 0
 	if _skill_choice_scrim.visible:
+		_layout_skill_choice_dialog()
+		call_deferred("_layout_skill_choice_dialog")
 		_show_skill_choice_option_detail(description, first_option_name, first_option_detail)
 		call_deferred("_grab_preferred_gui_focus", first_option_button, _skill_choice_cancel_button)
 
@@ -6248,7 +6284,7 @@ func _setup_elemental_intensity_bar() -> void:
 		badge.mouse_filter = Control.MOUSE_FILTER_STOP
 		badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 		badge.tooltip_text = _intensity_tooltip(element_id)
-		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, false))
+		badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, 0))
 		_intensity_bar.add_child(badge)
 		_intensity_badges[element_id] = badge
 
@@ -6956,7 +6992,9 @@ func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
 	for skill_id: String in skill_ids:
 		var row := Button.new()
 		row.name = "SkillStatusRow_%s" % skill_id
-		row.focus_mode = Control.FOCUS_ALL
+		var activatable: bool = _combat_skill_is_activatable(skill_id)
+		row.focus_mode = Control.FOCUS_ALL if activatable else Control.FOCUS_NONE
+		row.disabled = not activatable
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.custom_minimum_size.y = 78.0
 		row.text = ""
@@ -6967,7 +7005,7 @@ func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
 		row.add_theme_stylebox_override("disabled", _skill_status_row_style(accent))
 		for style_name: String in ["hover", "pressed", "focus"]:
 			row.add_theme_stylebox_override(style_name, _skill_status_row_style(accent, true))
-		row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _combat_skill_is_activatable(skill_id) else Control.CURSOR_ARROW
+		row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if activatable else Control.CURSOR_ARROW
 		row.pressed.connect(_on_skill_status_row_pressed.bind(skill_id))
 		var margin := MarginContainer.new()
 		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -7009,9 +7047,11 @@ func _configure_skill_status_focus_neighbors() -> void:
 		return
 	var rows: Array[Control]
 	for child: Node in _skill_status_list.get_children():
-		if child is Control:
+		if child is Control and _can_restore_gui_focus(child):
 			rows.append(child as Control)
 	if rows.is_empty():
+		_skill_status_close_button.focus_neighbor_top = NodePath()
+		_skill_status_close_button.focus_neighbor_bottom = NodePath()
 		return
 	_set_skill_status_focus_neighbor(_skill_status_close_button, "down", rows[0])
 	_set_skill_status_focus_neighbor(_skill_status_close_button, "up", rows[rows.size() - 1])
@@ -9071,7 +9111,8 @@ func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 		var badge: PanelContainer = _intensity_badges.get(element_id, null)
 		if badge != null:
 			badge.modulate = Color.WHITE if value > 0 else Color(1.0, 1.0, 1.0, 0.44)
-			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value > 0))
+			badge.tooltip_text = _intensity_tooltip(element_id)
+			badge.add_theme_stylebox_override("panel", _intensity_badge_style(element_id, value))
 
 func _refresh_umbra_subtitle() -> void:
 	if umbra_subtitle == null:
@@ -9099,27 +9140,28 @@ func _refresh_umbra_subtitle() -> void:
 	umbra_subtitle.visible = true
 
 func _intensity_tooltip(element_id: String) -> String:
-	return "%s Intensity\nRoom-wide %s power. Some %s card effects need this value." % [
-		ElementData.name(element_id),
-		ElementData.name(element_id),
-		ElementData.name(element_id)
-	]
+	var element_name: String = ElementData.name(element_id)
+	return "The intensity of %s in the room.\n%s effects are stronger when this is higher." % [element_name, element_name]
 
-func _intensity_badge_style(element_id: String, active: bool) -> StyleBoxFlat:
+func _intensity_badge_style(element_id: String, value: int) -> StyleBoxFlat:
 	var accent: Color = ElementData.accent(element_id)
+	var active: bool = value > 0
+	var danger: float = clampf(float(maxi(0, value - 1)) / 4.0, 0.0, 1.0)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.055, 0.045, 0.86 if active else 0.58)
-	style.border_color = accent.lightened(0.18) if active else Color(accent.r, accent.g, accent.b, 0.42)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
+	var charged_background: Color = Color(0.08, 0.055, 0.045, 0.86 if active else 0.58).lerp(accent.darkened(0.56), danger * 0.72)
+	style.bg_color = charged_background
+	style.border_color = accent.lightened(lerpf(0.18, 0.42, danger)) if active else Color(accent.r, accent.g, accent.b, 0.42)
+	var border_width: int = 2 + int(roundf(danger * 2.0))
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.32 if active else 0.12)
-	style.shadow_size = 8 if active else 3
+	style.shadow_color = Color(accent.r, accent.g, accent.b, danger * 0.42) if danger > 0.0 else Color(0.0, 0.0, 0.0, 0.32 if active else 0.12)
+	style.shadow_size = 8 + int(roundf(danger * 6.0)) if active else 3
 	style.content_margin_left = 0
 	style.content_margin_top = 0
 	style.content_margin_right = 0
@@ -9373,6 +9415,8 @@ func _begin_hand_skill_card_selection(skill_id: String, valid_indices: Array[int
 	_refresh_hand_panel()
 	_refresh_choice_bar()
 	_refresh_stage_view()
+	_layout_combat_skill_card_selection_prompt()
+	call_deferred("_layout_combat_skill_card_selection_prompt")
 
 func _on_combat_skill_hand_card_selected(hand_index: int) -> void:
 	if _combat_skill_card_selection_zone != "hand" or not _combat_skill_card_selection_indices.has(hand_index):
@@ -11681,7 +11725,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
-	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
+	var summary_rows: Array = _annotate_intensity_spend_rows(ActionIcons.cost_rows_for_card(card), state)
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
 	var previous_action_row_index: int = -1
@@ -11739,6 +11783,25 @@ func _annotate_intensity_condition_row(row: Array, active: bool) -> Array:
 			token["condition_active"] = active
 		annotated.append(token)
 	return annotated
+
+func _annotate_intensity_spend_rows(rows: Array, state: Dictionary) -> Array:
+	var annotated_rows: Array = []
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			annotated_rows.append(row_var)
+			continue
+		var annotated_row: Array = []
+		for token_var: Variant in row_var as Array:
+			if typeof(token_var) != TYPE_DICTIONARY:
+				annotated_row.append(token_var)
+				continue
+			var token: Dictionary = (token_var as Dictionary).duplicate(true)
+			if str(token.get("kind", "")) == "intensity_spend":
+				var element_id: String = str(token.get("element", ElementData.NONE))
+				token["condition_active"] = _combat_engine.elemental_intensity(state, element_id) >= int(token.get("amount", 0))
+			annotated_row.append(token)
+		annotated_rows.append(annotated_row)
+	return annotated_rows
 
 func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dictionary]:
 	var filtered: Array[Dictionary] = []
@@ -11858,6 +11921,18 @@ func _card_preview_from_state(card_id: String, combat_state: Dictionary, actions
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
+			if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
+				return {
+					"card_id": card_id,
+					"state": working_state,
+					"actions": actions,
+					"action_index": cursor,
+					"target_tiles": _vector2i_array([]),
+					"complete": true,
+					"playable": false,
+					"action": action,
+					"skip_allowed": false
+				}
 			cursor += 1
 			continue
 		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
@@ -14747,6 +14822,7 @@ func _triggered_traps_between(before_state: Dictionary, after_state: Dictionary)
 		var trap_id: String = str(before_trap.get("id", ""))
 		if trap_id.is_empty() or after_ids.has(trap_id):
 			continue
+		before_trap["resolved_damage"] = _combat_engine.trap_damage(before_state, before_trap)
 		triggered.append(before_trap)
 	return triggered
 
@@ -16294,6 +16370,7 @@ func _open_pile_view(pile_kind: String) -> void:
 	)
 	_clear_children_now(_pile_dialog_cards)
 	var first_selection_button: Button = null
+	var selection_buttons: Array[Button]
 	for card_index: int in range(cards.size()):
 		var card_id: String = str(cards[card_index])
 		var source_card_index: int = cards.size() - 1 - card_index if selecting_discard_card else card_index
@@ -16312,12 +16389,15 @@ func _open_pile_view(pile_kind: String) -> void:
 		selection_button.disabled = not valid_selection
 		selection_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if valid_selection else Control.CURSOR_ARROW
 		selection_button.set_meta("source_card_index", source_card_index)
-		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
-			selection_button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
+		selection_button.add_theme_stylebox_override("normal", _skill_card_selection_frame_style(Color("74538e"), false))
+		selection_button.add_theme_stylebox_override("disabled", _skill_card_selection_frame_style(Color(0.0, 0.0, 0.0, 0.0), false))
+		for style_name: String in ["hover", "pressed", "focus"]:
+			selection_button.add_theme_stylebox_override(style_name, _skill_card_selection_frame_style(Color("d6a7ff"), true))
 		selection_button.add_child(slot)
 		_set_mouse_filter_recursive(slot, Control.MOUSE_FILTER_IGNORE)
 		if valid_selection:
 			selection_button.pressed.connect(_on_combat_skill_discard_card_selected.bind(source_card_index))
+			selection_buttons.append(selection_button)
 			if first_selection_button == null:
 				first_selection_button = selection_button
 		else:
@@ -16328,16 +16408,35 @@ func _open_pile_view(pile_kind: String) -> void:
 	_pile_dialog_empty.text = "No cards in this pile." if pile_empty else ""
 	_pile_dialog_empty.visible = pile_empty
 	_pile_scrim.visible = true
+	_configure_discard_selection_focus(selection_buttons)
 	if first_selection_button != null:
 		first_selection_button.call_deferred("grab_focus")
 
 func _pile_dialog_size_for_count(card_count: int) -> Vector2:
 	if card_count <= 0:
-		return PILE_DIALOG_EMPTY_SIZE
+		return UiTypography.modal_size(_pile_dialog, PILE_DIALOG_EMPTY_SIZE, Vector2(320.0, 220.0), 16.0)
 	var visible_cards: int = mini(card_count, 5)
 	var content_width: float = PILE_DIALOG_CARD_SIZE.x * float(visible_cards) + 12.0 * float(maxi(visible_cards - 1, 0)) + 88.0
 	var target_size: Vector2 = PILE_DIALOG_ROW_SIZE if card_count <= 5 else PILE_DIALOG_FULL_SIZE
-	return Vector2(clampf(content_width, PILE_DIALOG_MIN_CARD_WIDTH, target_size.x), target_size.y)
+	var preferred := Vector2(clampf(content_width, PILE_DIALOG_MIN_CARD_WIDTH, target_size.x), target_size.y)
+	return UiTypography.modal_size(_pile_dialog, preferred, Vector2(320.0, 360.0), 16.0)
+
+func _configure_discard_selection_focus(buttons: Array[Button]) -> void:
+	if buttons.is_empty() or _pile_dialog == null:
+		return
+	var close_button := _pile_dialog.find_child("CloseButton", true, false) as Button
+	for index: int in range(buttons.size()):
+		var button: Button = buttons[index]
+		_set_skill_status_focus_neighbor(button, "left", buttons[posmod(index - 1, buttons.size())])
+		_set_skill_status_focus_neighbor(button, "right", buttons[(index + 1) % buttons.size()])
+		if close_button != null:
+			_set_skill_status_focus_neighbor(button, "up", close_button)
+			_set_skill_status_focus_neighbor(button, "down", close_button)
+	if close_button != null:
+		_set_skill_status_focus_neighbor(close_button, "left", buttons[buttons.size() - 1])
+		_set_skill_status_focus_neighbor(close_button, "right", buttons[0])
+		_set_skill_status_focus_neighbor(close_button, "up", buttons[buttons.size() - 1])
+		_set_skill_status_focus_neighbor(close_button, "down", buttons[0])
 
 func _close_pile_view() -> void:
 	if _combat_skill_card_selection_zone == "discard":
@@ -16768,7 +16867,7 @@ func _build_skill_tree_overlay_body() -> Control:
 	command_row.add_child(command_spacer)
 	var reset_button := Button.new()
 	reset_button.name = "ResetSkills"
-	reset_button.text = "Reset Skills  ·  1 Moltshard"
+	reset_button.text = _skill_reset_button_text()
 	reset_button.custom_minimum_size = Vector2(232.0, 44.0)
 	reset_button.disabled = not _skill_reset_can_apply()
 	reset_button.tooltip_text = unavailable_reason
@@ -16834,6 +16933,7 @@ func _refresh_skill_progression_surface(focused_id: String = "") -> void:
 	if _skill_reset_button != null:
 		var unavailable_reason: String = _skill_reset_unavailable_reason()
 		_skill_reset_button.disabled = not _skill_reset_can_apply()
+		_skill_reset_button.text = _skill_reset_button_text()
 		_skill_reset_button.tooltip_text = unavailable_reason
 		_apply_progression_command_button_style(_skill_reset_button)
 
@@ -16968,6 +17068,22 @@ func _skill_reset_unavailable_reason() -> String:
 	if _animation_lock or _pending_umbra_commit_locked or _loadout_acquisition_in_progress or _relic_claim_in_progress:
 		return "Finish the current action before resetting your skills."
 	return ""
+
+func _skill_reset_button_text() -> String:
+	if _skill_reset_can_apply():
+		return "Reset Skills  ·  1 Moltshard"
+	if _run_state.is_empty():
+		return "Reset Skills  ·  Start a Run"
+	if ProgressionStore.selected_skill_ids(_progression).is_empty():
+		return "Reset Skills  ·  No Skills Learned"
+	if ProgressionStore.moltshard_count(_progression) <= 0:
+		return "Reset Skills  ·  Need 1 Moltshard"
+	var mode: String = str(_run_state.get("mode", "room"))
+	if mode == "combat":
+		return "Reset Skills  ·  Unavailable in Combat"
+	if mode in ["victory", "defeat"]:
+		return "Reset Skills  ·  Run Complete"
+	return "Reset Skills  ·  Finish Current Action"
 
 func _skill_reset_panel_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -20160,7 +20276,7 @@ func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> 
 func _triggered_trap_damage(triggered_traps: Array[Dictionary]) -> int:
 	var total: int = 0
 	for trap: Dictionary in triggered_traps:
-		total += maxi(0, int(trap.get("damage", 0)))
+		total += maxi(0, int(trap.get("resolved_damage", trap.get("damage", 0))))
 	return total
 
 func _analytics_picked_loot_count(before_state: Dictionary, after_state: Dictionary) -> int:
@@ -20235,7 +20351,7 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "intensity"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		_analytics_store.write_event("enemy_action_resolved", _analytics_context_from_states(_run_state, _combat_state), {
@@ -20253,7 +20369,9 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 			"target_losses": (step.get("target_losses", []) as Array).duplicate(true),
 			"enemy_losses": (step.get("enemy_losses", []) as Array).duplicate(true),
 			"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
-			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true)
+			"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
+			"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
+			"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
 		})
 
 func _sync_combat_state_from_run() -> void:
