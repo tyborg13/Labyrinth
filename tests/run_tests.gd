@@ -9235,7 +9235,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(relic_bar != null and relic_bar.get_child_count() == 3, "Campfire overlay should expose heal, carry, and level-up choice panels")
 	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
-	_assert(_label_with_text(relic_overlay, "Draw strength from the flame") != null, "Campfire overlay should label the level-up option")
+	_assert(_label_with_text(relic_overlay, "Learn a new skill") != null, "Campfire overlay should label the level-up option")
 	_assert(_label_with_text(relic_overlay, "+100 HP") != null, "Campfire linger choice should show a compact heal chip")
 	_assert(_label_with_text(relic_overlay, "CONTINUE") == null, "Campfire linger choice should not duplicate continue text in a chip")
 	_assert(_label_with_text(relic_overlay, "BANK HELD") == null, "Campfire abandon choice should not duplicate bank text in a chip")
@@ -9268,8 +9268,8 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	relic_overlay = instance.get("_relic_choice_overlay") as Control
 	relic_bar = instance.get("_relic_choice_bar") as HBoxContainer
 	_assert(_label_with_text(relic_overlay, "180 EMBERS") != null, "Campfire level-up choice should reveal its cost chip when affordable")
-	_assert(_label_with_text(relic_overlay, "LV +1") != null, "Campfire level-up choice should reveal its benefit chip when affordable")
-	_assert(_label_with_text(relic_overlay, "Spend embers, continue") != null, "Campfire level-up choice should keep a terse affordable state")
+	_assert(_label_with_text(relic_overlay, "NEW SKILL") != null, "Campfire level-up choice should reveal its qualitative benefit when affordable")
+	_assert(_label_with_text(relic_overlay, "Spend embers, choose a skill, continue") != null, "Campfire level-up choice should explain the skill choice without changing the flow")
 	var enabled_strength_panel: Control = null
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		enabled_strength_panel = relic_bar.get_child(2) as Control
@@ -9918,11 +9918,38 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	instance.call("_refresh_ui")
 	var count_label: Label = instance.get("_play_meter_count") as Label
 	_assert(count_label != null and count_label.text == "2", "Card play meter should start from available combat plays")
+	var banked_badge: Control = instance.get("_play_meter_banked_badge") as Control
+	_assert(banked_badge != null and not banked_badge.visible, "Card play meter should hide its banked-play badge when no play is stored")
 	instance.call("_begin_card_play_meter_spend_preview")
 	_assert(count_label != null and count_label.text == "1", "Card play meter should spend the played card immediately")
 	var rewarded_state: Dictionary = combat_state.duplicate(true)
 	rewarded_state["death_bonus_card_plays_this_turn"] = 1
 	_assert(int(instance.call("_card_play_count_for_resolution_state", rewarded_state)) == 2, "Death-reward play previews should add to the already-spent meter count")
+
+	instance.set("_card_play_count_override", -1)
+	instance.set("_card_play_resolution_spend", 0)
+	instance.set("_card_play_budget_override", {})
+	combat_state["skill_ids"] = ["measured_breath", "borrowed_time"]
+	combat_state["banked_play_active"] = 1
+	combat_state["banked_play_spent_this_activation"] = 0
+	combat_state["cards_played_this_turn"] = 0
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_card_play_meter")
+	var banked_label: Label = instance.get("_play_meter_banked_label") as Label
+	_assert(count_label != null and count_label.text == "2", "The large card-play count should reserve its number for ordinary plays")
+	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
+	combat_state["cards_played_this_turn"] = 2
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_card_play_meter")
+	_assert(count_label != null and count_label.text == "0" and banked_label != null and banked_label.text == "NEXT • NO TIME", "The banked badge should identify when the no-Time play is next")
+	combat_state["cards_played_this_turn"] = 0
+	instance.set("_combat_state", combat_state)
+	instance.call("_begin_card_play_meter_spend_preview")
+	await instance.call("_animate_card_play_reward", 3)
+	var rewarded_budget: Dictionary = instance.call("_displayed_card_play_budget") as Dictionary
+	_assert(int(rewarded_budget.get("ordinary_remaining", 0)) == 2 and int(rewarded_budget.get("banked_remaining", 0)) == 1, "A play granted during resolution should increase ordinary capacity without recreating the banked slot")
 	instance.queue_free()
 	await process_frame
 
@@ -11276,7 +11303,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	if upgrade_dialog != null:
 		var progression_viewport: Vector2 = instance.get_viewport_rect().size
 		_assert(upgrade_dialog.custom_minimum_size.y <= progression_viewport.y - UiTypography.SAFE_MARGIN * 2.0, "The campfire level-up overlay should preserve safe margins so its action row remains visible")
-	_assert(_label_with_text(upgrade_scrim, "Draw Strength") != null, "The campfire level-up overlay should use the Draw Strength title")
+	_assert(_label_with_text(upgrade_scrim, "Choose a Skill") != null, "The campfire level-up overlay should name the choice it opens")
 	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The level-up overlay should reuse the skill tree")
 	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The level-up tree should show a legal root choice")
 	_assert(_button_with_text(upgrade_scrim, "+") == null and _button_with_text(upgrade_scrim, "-") == null, "The level-up overlay should not expose stat steppers")

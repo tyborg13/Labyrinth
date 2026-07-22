@@ -43,7 +43,7 @@ flowchart LR
     B --> C{"Choose a campfire action"}
     C -->|"Linger"| D["Heal and continue"]
     C -->|"Embrace"| E["Carry embers out and end the run"]
-    C -->|"Draw Strength"| F{"Can afford next level?"}
+    C -->|"Learn a new skill"| F{"Can afford next level?"}
     F -->|"No"| G["Choice remains disabled"]
     F -->|"Yes"| H["Open the same skill tree used by Character"]
     H --> I["Inspect legal skills and choose one"]
@@ -52,7 +52,7 @@ flowchart LR
     K --> L["Continue the current run with the skill active"]
 ```
 
-Draw Strength grants one level per campfire visit. Canceling the tree returns
+Learning a new skill grants one level per campfire visit. Canceling the tree returns
 to the campfire choices without spending embers or changing the profile.
 
 The ember costs remain data-driven in `data/progression_levels.json`. The
@@ -130,7 +130,7 @@ selection has the exact number of skills required by the profile's level.
 | --- | --- | --- |
 | Quick Wits | Manual, once per combat | Discard a card to draw a card without spending a play or Time. |
 | Measured Breath | Automatic | End an activation with an unused play to bank one play for the next activation. |
-| Ghost Stride | Contextual, once per combat | Use a card's basic Move as Blink `2`. |
+| Ghost Stride | Contextual, once per combat | You may use a card's basic Move as Blink `2`. |
 | Discerning Eye | Contextual, once between bosses | Replace every card in a combat reward. |
 
 ### Branch skills
@@ -139,8 +139,8 @@ selection has the exact number of skills required by the profile's level.
 | --- | --- | --- |
 | Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Burn card instead of burning it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
 | Makeshift Tool | Quick Wits | Once per combat, arm to discard the next item used as a basic Attack or Move instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
-| Carry the Guard | Measured Breath | Once per combat, convert remaining block to stoneskin when an activation ends. |
-| Pain Remembers | Measured Breath | After the first health loss each combat, return the next non-item discard to hand. |
+| Carry the Guard | Measured Breath | Once per combat, choose during an activation to convert all block remaining at its end into stoneskin. |
+| Pain Remembers | Measured Breath | After the first health loss each combat, when the hand has room, return the next non-item discard to it. |
 | Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |
 | Afterimage | Ghost Stride | The first Blink each combat leaves a `20`-health illusion behind. The player may move through friendly illusions; ending on one dispels it. |
 | Deferred Choice | Discerning Eye | Skip a card reward to save one offered card; it replaces a card in the next reward. |
@@ -153,19 +153,19 @@ selection has the exact number of skills required by the profile's level.
 | Borrowed Time | Quick Wits + Measured Breath | The first card paid for with a banked play each combat adds no Time. |
 | Last Reserve | Carry the Guard + Pain Remembers | Once per combat, lethal Fatigue leaves the player at `10` health. |
 | Plunderer's Step | Ghost Stride + Discerning Eye | The first Move or Blink to collect loot each combat refunds its play. |
-| Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, choose a conditional card in hand. Its next printed play, from any copy, satisfies every intensity condition; basic uses do not consume it. Duplicate names appear as one choice. |
-| Curator's Patience | Quick Wits + Deferred Choice | After taking a relic, carry one unchosen relic into the next offer. |
-| Living Shadow | Pain Remembers + Afterimage | Once per turn, an illusion's fall returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
+| Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions; basic uses do not consume it. Duplicate names appear as one choice. |
+| Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
+| Living Shadow | Pain Remembers + Afterimage | Once until the player's next activation, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
 | True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
-| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. Only one reservation may remain pending, even across an internal sequence boundary. |
+| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns. |
 
 ### Keystones
 
 | Skill | Requires | Effect |
 | --- | --- | --- |
 | Encore | Borrowed Time | Once per combat, manually return a non-item discard to hand without spending a play or Time. |
-| Open Arsenal | Living Shadow | Equip any equipment in the trinket slot. |
-| Confluence | Prismatic Instinct | Elemental conditions use the player's highest intensity regardless of element. A conditional draw enabled only this way stops before Fatigue. |
+| Open Arsenal | Living Shadow | Passively equip any equipment in the trinket slot, ignoring its normal slot. |
+| Confluence | Prismatic Instinct | Passively let intensity conditions use the player's highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue. |
 | Last Door | True Bearing | Once between bosses, a non-boss defeat returns the player to the previous room at `10` health; spent items remain spent. |
 
 The small numbers inside a few effects define new objects, distances, or
@@ -211,7 +211,8 @@ Combat-limited abilities cannot be refreshed through respec because build
 changes are unavailable during active combat. Defensive revision reconciliation
 still preserves use flags if a newer profile reaches a saved combat snapshot,
 and clears invalid pending state such as a removed Prismatic arm, Rehearsed
-Escape or Makeshift Tool arm, Pain Remembers prime, or Measured Breath bank.
+Escape, Makeshift Tool, or Carry the Guard arm, Pain Remembers prime, or
+Measured Breath bank.
 
 ## Character and Combat UI
 
@@ -255,8 +256,8 @@ visually distinct from—the relic row. Its popover lists every learned skill as
 - `SPENT` when its combat or sequence use has been consumed.
 - `WAITING` when its trigger has not yet occurred.
 - `ARMED` or `PRIMED` while a selected future effect is pending.
-- `CONTEXT` when it becomes available only in a specific reward or targeting
-  flow.
+- `BANKED` while Measured Breath has stored a play.
+- `AUTOMATIC` for recurring rules that need no player input.
 - `PASSIVE` for always-on rules.
 
 Manual abilities expose their own buttons and selection dialogs only when they

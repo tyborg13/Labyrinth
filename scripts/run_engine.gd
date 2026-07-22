@@ -1351,11 +1351,14 @@ func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 		flags.erase("burn_preserve_armed")
 	if not combat_skills.has("makeshift_tool"):
 		flags.erase("item_preserve_armed")
+	if not combat_skills.has("carry_the_guard"):
+		flags.erase("guard_carry_armed")
 	if not combat_skills.has("pain_remembers"):
 		flags.erase("pain_recall_primed")
 	if not combat_skills.has("measured_breath"):
 		next_state["banked_plays"] = 0
 		next_state["banked_play_active"] = 0
+		next_state["banked_play_spent_this_activation"] = 0
 	next_state["skill_flags"] = flags
 	return next_state
 

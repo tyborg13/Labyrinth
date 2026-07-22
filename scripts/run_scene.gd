@@ -935,10 +935,10 @@ const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_
 const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength.png"
 const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
-const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw strength from the flame"
+const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Learn a new skill"
 const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
 const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
-const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, continue"
+const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, choose a skill, continue"
 const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const MERCHANT_PANEL_SIZE: Vector2 = Vector2(940.0, 290.0)
 const MERCHANT_COLUMN_SIZE: Vector2 = Vector2(430.0, 236.0)
@@ -1203,6 +1203,8 @@ var _hand_panel_signature: String = "<unset>"
 var _play_meter: PanelContainer
 var _play_meter_count: Label
 var _play_meter_icon: TextureRect
+var _play_meter_banked_badge: PanelContainer
+var _play_meter_banked_label: Label
 var _action_step_tracker: PanelContainer
 var _action_step_tracker_title: Label
 var _action_context_step_label: Label
@@ -1248,6 +1250,7 @@ var _intensity_labels: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
 var _card_play_resolution_spend: int = 0
+var _card_play_budget_override: Dictionary = {}
 var _choice_button_overlay: HBoxContainer
 var _pass_preview_overlay: CenterContainer
 var _context_choice_overlay: PanelContainer
@@ -6033,7 +6036,7 @@ func _setup_action_step_tracker() -> void:
 func _setup_play_meter() -> void:
 	_play_meter = PanelContainer.new()
 	_play_meter.name = "CardPlayMeter"
-	_play_meter.custom_minimum_size = Vector2(152.0, 108.0)
+	_play_meter.custom_minimum_size = Vector2(222.0, 108.0)
 	_play_meter.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_play_meter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_play_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -6066,8 +6069,14 @@ func _setup_play_meter() -> void:
 	_play_meter_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hbox.add_child(_play_meter_icon)
 
+	var count_column := VBoxContainer.new()
+	count_column.custom_minimum_size = Vector2(122.0, 68.0)
+	count_column.alignment = BoxContainer.ALIGNMENT_CENTER
+	count_column.add_theme_constant_override("separation", 4)
+	hbox.add_child(count_column)
+
 	_play_meter_count = Label.new()
-	_play_meter_count.custom_minimum_size = Vector2(40.0, 68.0)
+	_play_meter_count.custom_minimum_size = Vector2(122.0, 38.0)
 	_play_meter_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_play_meter_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_play_meter_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -6075,7 +6084,27 @@ func _setup_play_meter() -> void:
 	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
 	_play_meter_count.add_theme_color_override("font_outline_color", Color("2b1b12"))
 	_play_meter_count.add_theme_constant_override("outline_size", 2)
-	hbox.add_child(_play_meter_count)
+	count_column.add_child(_play_meter_count)
+
+	_play_meter_banked_badge = PanelContainer.new()
+	_play_meter_banked_badge.name = "BankedPlayBadge"
+	_play_meter_banked_badge.custom_minimum_size = Vector2(122.0, 26.0)
+	_play_meter_banked_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var banked_style := StyleBoxFlat.new()
+	banked_style.bg_color = Color(0.25, 0.12, 0.34, 0.96)
+	banked_style.border_color = Color("c89bea")
+	banked_style.set_border_width_all(1)
+	banked_style.set_corner_radius_all(6)
+	_play_meter_banked_badge.add_theme_stylebox_override("panel", banked_style)
+	count_column.add_child(_play_meter_banked_badge)
+
+	_play_meter_banked_label = Label.new()
+	_play_meter_banked_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_play_meter_banked_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_play_meter_banked_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(_play_meter_banked_label, UiTypography.ROLE_CAPTION)
+	_play_meter_banked_label.add_theme_color_override("font_color", Color("f0d9ff"))
+	_play_meter_banked_badge.add_child(_play_meter_banked_label)
 
 	var insert_index: int = hand_row.get_child_count()
 	for index: int in range(hand_row.get_child_count()):
@@ -6833,7 +6862,7 @@ func _skill_hud_status(skill_id: String) -> String:
 	var mode: String = str(_run_state.get("mode", "room"))
 	var run_skill_state: Dictionary = _run_state.get(RunEngineScript.SKILL_STATE_KEY, {}) as Dictionary
 	var combat_scoped: bool = activation == "manual" or effect.has("uses_per_combat") or effect.has("uses_per_turn")
-	if mode == "combat" and combat_scoped and not _combat_state.is_empty():
+	if mode == "combat" and not _combat_state.is_empty():
 		var flags: Dictionary = _combat_state.get("skill_flags", {}) as Dictionary
 		if effect_type == "arm_intensity" and bool(flags.get("prismatic_armed", false)):
 			return "ARMED"
@@ -6841,25 +6870,44 @@ func _skill_hud_status(skill_id: String) -> String:
 			return "ARMED"
 		if effect_type == "preserve_fallback_item" and bool(flags.get("item_preserve_armed", false)):
 			return "ARMED"
+		if effect_type == "convert_block" and bool(flags.get("guard_carry_armed", false)):
+			return "ARMED"
 		if effect_type == "pain_recall" and bool(flags.get("pain_recall_primed", false)):
 			return "PRIMED"
-		if effect.has("uses_per_turn"):
-			var turn_key: String = "turn:%s" % skill_id
-			return "SPENT" if int(flags.get(turn_key, -1)) == int(_combat_state.get("turn", 1)) else "WAITING"
-		if _combat_engine.skill_was_used(_combat_state, skill_id):
-			return "SPENT"
-		if activation in ["manual", "contextual"]:
-			return "READY" if _combat_engine.skill_is_ready(_combat_state, skill_id) else "WAITING"
-		if effect.has("uses_per_combat"):
-			return "WAITING"
+		if effect_type == "bank_unused_play" and _combat_engine.has_skill(_combat_state, skill_id) and (int(_combat_state.get("banked_plays", 0)) > 0 or int(_combat_engine.card_play_budget(_combat_state).get("banked_remaining", 0)) > 0):
+			return "BANKED"
+		if effect_type == "banked_play_no_time" and _combat_engine.has_skill(_combat_state, skill_id):
+			if _combat_engine.skill_was_used(_combat_state, skill_id):
+				return "SPENT"
+			if int(_combat_engine.card_play_budget(_combat_state).get("banked_remaining", 0)) > 0:
+				return "PRIMED"
+		if not combat_scoped and activation in ["automatic", "passive"]:
+			return "AUTOMATIC" if activation == "automatic" else "PASSIVE"
+		if combat_scoped:
+			if effect.has("uses_per_turn"):
+				var turn_key: String = "turn:%s" % skill_id
+				return "SPENT" if int(flags.get(turn_key, -1)) == int(_combat_state.get("turn", 1)) else "WAITING"
+			if _combat_engine.skill_was_used(_combat_state, skill_id):
+				return "SPENT"
+			if activation in ["manual", "contextual"]:
+				return "READY" if _combat_engine.skill_is_ready(_combat_state, skill_id) else "WAITING"
+			if effect.has("uses_per_combat"):
+				return "WAITING"
 	if effect_type == "defer_card_reward" and not str(run_skill_state.get("pending_card", "")).is_empty():
 		return "PRIMED"
 	if effect_type == "defer_relic" and not str(run_skill_state.get("pending_relic", "")).is_empty():
 		return "PRIMED"
+	if effect_type == "defer_card_reward":
+		var reward_cards: Array = ((_run_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
+		return "READY" if mode == "reward" and not reward_cards.is_empty() else "WAITING"
+	if effect_type == "defer_relic":
+		return "READY" if mode == "treasure" and (_run_state.get("pending_relics", []) as Array).size() > 1 else "WAITING"
+	if effect_type == "choose_start":
+		return "READY" if mode == "pre_battle" and not _run_engine.pre_battle_start_tiles(_run_state).is_empty() else "WAITING"
 	if effect.has("uses_per_sequence"):
 		if effect_type == "reserve_merchant_offer" and not (run_skill_state.get("reserved_merchant", {}) as Dictionary).is_empty():
 			return "WAITING"
-		if not _run_engine.run_skill_is_ready(_run_state, skill_id):
+		if _run_engine.run_skill_used_this_sequence(_run_state, skill_id):
 			return "SPENT"
 		if activation == "automatic":
 			return "WAITING"
@@ -6867,9 +6915,11 @@ func _skill_hud_status(skill_id: String) -> String:
 			return "READY"
 		if mode == "room" and effect_type == "reserve_merchant_offer" and not _run_engine.merchant_kind_for_current_room(_run_state).is_empty():
 			return "READY"
-		return "CONTEXT"
+		return "WAITING"
 	if activation == "contextual":
-		return "CONTEXT"
+		return "WAITING"
+	if activation == "automatic":
+		return "AUTOMATIC"
 	return "PASSIVE"
 
 func _skill_status_accent(status: String) -> Color:
@@ -6880,9 +6930,9 @@ func _skill_status_accent(status: String) -> Color:
 			return Color("9b8ea8")
 		"WAITING":
 			return Color("d7b36d")
-		"ARMED", "PRIMED":
+		"ARMED", "PRIMED", "BANKED":
 			return Color("d8a2ff")
-		"CONTEXT":
+		"AUTOMATIC":
 			return Color("9fc9f4")
 	return Color("c8a6ed")
 
@@ -7741,9 +7791,27 @@ func _refresh_card_play_meter() -> void:
 	_play_meter.visible = active
 	if not active:
 		_play_meter_count.text = ""
+		if _play_meter_banked_badge != null:
+			_play_meter_banked_badge.visible = false
 		return
-	var cards_left: int = _displayed_card_play_count()
-	_play_meter_count.text = str(cards_left)
+	var budget: Dictionary = _displayed_card_play_budget()
+	var ordinary_left: int = int(budget.get("ordinary_remaining", 0))
+	var banked_left: int = int(budget.get("banked_remaining", 0))
+	var cards_left: int = int(budget.get("total_remaining", ordinary_left + banked_left))
+	_play_meter_count.text = str(ordinary_left)
+	_play_meter.tooltip_text = "%d ordinary card %s remaining." % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
+	if _play_meter_banked_badge != null and _play_meter_banked_label != null:
+		_play_meter_banked_badge.visible = banked_left > 0
+		if banked_left > 0:
+			var borrowed_id: String = SkillTreeLibrary.skill_id_for_effect("banked_play_no_time")
+			var no_time: bool = _combat_engine.has_skill(_combat_state, borrowed_id) and not _combat_engine.skill_was_used(_combat_state, borrowed_id)
+			_play_meter_banked_label.text = ("NEXT" if ordinary_left == 0 else "+%d BANKED" % banked_left) + (" • NO TIME" if no_time else "")
+			if no_time and ordinary_left == 0:
+				_play_meter.tooltip_text = "Your next card spends the banked play and adds no Time."
+			elif no_time:
+				_play_meter.tooltip_text = "%d ordinary %s remain first. The card that reaches the banked play adds no Time." % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
+			else:
+				_play_meter.tooltip_text = "%d banked %s remain after your ordinary plays." % [banked_left, "play" if banked_left == 1 else "plays"]
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
 
@@ -8733,6 +8801,11 @@ func _displayed_card_play_count() -> int:
 		return _card_play_count_override
 	return _combat_engine.cards_remaining_this_turn(_combat_state)
 
+func _displayed_card_play_budget() -> Dictionary:
+	if not _card_play_budget_override.is_empty():
+		return _card_play_budget_override.duplicate(true)
+	return _combat_engine.card_play_budget(_combat_state)
+
 func _card_play_count_for_resolution_state(state: Dictionary) -> int:
 	var cards_left: int = _combat_engine.cards_remaining_this_turn(state)
 	if _card_play_count_override >= 0:
@@ -8745,7 +8818,16 @@ func _set_card_play_count_override(cards_left: int) -> void:
 
 func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
 	_card_play_resolution_spend = maxi(1, plays_spent)
-	_set_card_play_count_override(maxi(0, _combat_engine.cards_remaining_this_turn(_combat_state) - _card_play_resolution_spend))
+	var budget: Dictionary = _combat_engine.card_play_budget(_combat_state)
+	var spend_remaining: int = _card_play_resolution_spend
+	var ordinary_spent: int = mini(int(budget.get("ordinary_remaining", 0)), spend_remaining)
+	budget["ordinary_remaining"] = int(budget.get("ordinary_remaining", 0)) - ordinary_spent
+	spend_remaining -= ordinary_spent
+	var banked_spent: int = mini(int(budget.get("banked_remaining", 0)), spend_remaining)
+	budget["banked_remaining"] = int(budget.get("banked_remaining", 0)) - banked_spent
+	budget["total_remaining"] = int(budget.get("ordinary_remaining", 0)) + int(budget.get("banked_remaining", 0))
+	_card_play_budget_override = budget
+	_set_card_play_count_override(int(budget.get("total_remaining", 0)))
 
 func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
 	if _intensity_bar == null:
@@ -9017,6 +9099,8 @@ func _on_combat_skill_pressed(skill_id: String) -> void:
 			_commit_combat_skill_state(_combat_engine.arm_rehearsed_escape(_combat_state), skill_id)
 		"preserve_fallback_item":
 			_commit_combat_skill_state(_combat_engine.arm_makeshift_tool(_combat_state), skill_id)
+		"convert_block":
+			_commit_combat_skill_state(_combat_engine.arm_carry_the_guard(_combat_state), skill_id)
 
 func _open_quick_wits_choice(skill_id: String) -> void:
 	var options: Array = []
@@ -9060,7 +9144,7 @@ func _open_prismatic_choice(skill_id: String) -> void:
 		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
 		options.append({
 			"text": "Name %s" % str(card.get("name", card_id)),
-			"detail": "The next printed play of any copy satisfies its elemental conditions. Basic Attack, Move, or Blink uses do not consume the arm.",
+			"detail": "The next printed play of any copy satisfies its intensity conditions. Basic Attack, Move, or Blink uses do not consume the arm.",
 			"callback": _commit_prismatic.bind(skill_id, hand_index)
 		})
 	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Name one conditional card currently in your hand.", options)
@@ -10208,7 +10292,7 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 				chips.append({"text": "CAPPED", "tone": "disabled"})
 			elif enabled:
 				chips.append({"text": "%d EMBERS" % cost, "tone": "cost"})
-				chips.append({"text": "LV +1", "tone": "benefit"})
+				chips.append({"text": "NEW SKILL", "tone": "benefit"})
 			else:
 				chips.append({"text": "NEED %d" % cost, "tone": "locked"})
 				chips.append({"text": "HELD %d" % int(_progression.get("embers", 0)), "tone": "disabled"})
@@ -12768,6 +12852,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_animating_hand_card_index = -1
 	_card_play_count_override = -1
 	_card_play_resolution_spend = 0
+	_card_play_budget_override = {}
 	_reset_card_resolution()
 	_hovered_card_index = -1
 	_refresh_ui()
@@ -12983,8 +13068,14 @@ func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	if _play_meter == null or _play_meter_count == null:
 		return
 	var safe_displayed_card_plays: int = maxi(0, displayed_card_plays)
+	var budget: Dictionary = _displayed_card_play_budget()
+	var current_total: int = int(budget.get("total_remaining", 0))
+	var ordinary_gain: int = maxi(0, safe_displayed_card_plays - current_total)
+	budget["ordinary_remaining"] = int(budget.get("ordinary_remaining", 0)) + ordinary_gain
+	budget["total_remaining"] = safe_displayed_card_plays
+	_card_play_budget_override = budget
 	_card_play_count_override = safe_displayed_card_plays
-	_play_meter_count.text = str(safe_displayed_card_plays)
+	_refresh_card_play_meter()
 	_play_meter.pivot_offset = _play_meter.size * 0.5
 	_play_meter_count.add_theme_color_override("font_color", Color("ffe27a"))
 	var tween := create_tween()
@@ -15942,7 +16033,7 @@ func _rebuild_progression_overlay() -> void:
 	vbox.add_child(top_row)
 
 	var title := Label.new()
-	title.text = "Draw Strength" if _progression_overlay_mode == "level_up" else "Character"
+	title.text = "Choose a Skill" if _progression_overlay_mode == "level_up" else "Character"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))

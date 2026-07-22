@@ -218,7 +218,7 @@ rely only on later `_process_victory_carry` or `_process_defeat_loss` refresh
 hooks: a save implementation may set those processed flags during committed
 terminal finalization and legitimately bypass the UI-time hooks.
 
-`progression_level_up` fires when the player confirms Draw Strength at a
+`progression_level_up` fires when the player confirms a new skill at a
 campfire. Its payload records `level_before`, `level_after`, the newly learned
 `skill_id`, the complete post-purchase `skill_ids`, ember `cost`,
 `held_embers_after`, and `room`. One confirmed level-up learns exactly one
@@ -238,7 +238,7 @@ contains `amount`, `source`, `moltshards_before`, and
 `source: "first_boss_victory"`; repeated resolution of the same award must not
 emit another event.
 
-`skill_triggered` records each automatic, manual, or contextual skill
+`skill_triggered` records each automatic, manual, contextual, or passive skill
 activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,
 `trigger_scope`, `turn`, and `message`. `trigger_scope` distinguishes combat
 and run event streams. Revisions are monotonic within their stream, and the
@@ -248,10 +248,11 @@ realization do not create a second activation event. Realized card, damage,
 defense, movement, and resource outcomes remain in their existing events rather
 than being converted into a guessed skill score.
 
-For Rehearsed Escape and Makeshift Tool, pre-arming is intent rather than a
-realized activation. Their single `skill_triggered` event is recorded when the
-qualifying card is actually redirected to discard, which is also when the
-once-per-combat charge is spent.
+For Rehearsed Escape, Makeshift Tool, and Carry the Guard, pre-arming is intent
+rather than a realized activation. Their single `skill_triggered` event is
+recorded when the qualifying card is redirected to discard or the remaining
+block is converted at activation end, which is also when the once-per-combat
+charge is spent.
 
 Persistent passives also record only realized benefits. Open Arsenal emits a
 run-scoped activation after a successful non-trinket equip into the trinket

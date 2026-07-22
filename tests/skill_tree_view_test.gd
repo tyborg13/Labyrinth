@@ -76,6 +76,10 @@ func _test_skill_tree_view() -> void:
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_OWNED, "Committed skills should render as learned")
 	_expect(view.status_for_skill("measured_breath") == SkillTreeView.STATE_AVAILABLE, "Legal roots should render as available")
 	_expect(view.status_for_skill("borrowed_time") == SkillTreeView.STATE_LOCKED, "Missing prerequisites should render as locked")
+	var requirements_label := view.find_child("SkillDetailRequirements", true, false) as Label
+	var unlocks_label := view.find_child("SkillDetailUnlocks", true, false) as Label
+	_expect(requirements_label != null and requirements_label.text == "REQUIRES\nNONE  Root skill", "Root details should state that there is no prerequisite")
+	_expect(unlocks_label != null and unlocks_label.text.begins_with("LEADS TO\n") and not unlocks_label.text.contains("UNLOCKS"), "Dependency details should describe visible outgoing links as leads-to relationships")
 	var quick_node: Button = view.node_for_skill("quick_wits")
 	var measured_node: Button = view.node_for_skill("measured_breath")
 	_expect(quick_node != null and measured_node != null and measured_node.position.x < quick_node.position.x, "Topology layout should place Measured Breath beside Quick Wits to shorten their shared link")
@@ -231,6 +235,13 @@ func _test_skill_tree_view() -> void:
 	})
 	await process_frame
 	_expect(view.status_for_skill("open_arsenal") == SkillTreeView.STATE_EXCLUDED, "Other keystones should expose an excluded state after one is learned")
+	var keystone_requirements := view.find_child("SkillDetailRequirements", true, false) as Label
+	var keystone_reason := view.find_child("SkillDetailReason", true, false) as Label
+	_expect(keystone_requirements != null and keystone_requirements.text.contains("READY  8 other skills learned"), "Keystone details should count the eight other skills required before the keystone")
+	_expect(keystone_reason != null and keystone_reason.text == "Another keystone is selected", "Excluded keystone details should describe the competing selection accurately")
+	view.focus_skill("last_door")
+	var leaf_links := view.find_child("SkillDetailUnlocks", true, false) as Label
+	_expect(leaf_links != null and leaf_links.text == "LEADS TO\nNo direct skills", "Leaf details should use the same leads-to language without implying a hidden unlock")
 	_expect(_pending_event_count >= 8, "Both level-up and from-scratch respec edits should emit the shared pending signal")
 
 	view.queue_free()

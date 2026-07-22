@@ -38,6 +38,20 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.description("afterimage").contains(str(afterimage_health)), "Afterimage copy should match the health shown on its illusion")
 	expect.call(SkillTreeLibrary.description("last_reserve").contains(str(reserve_health)), "Last Reserve copy should match the surviving health shown in combat")
 	expect.call(SkillTreeLibrary.description("last_door").contains(str(last_door_health)), "Last Door copy should match the returning health shown in the run UI")
+	expect.call(SkillTreeLibrary.description("ghost_stride") == "Once per combat, you may use a card's basic Move as Blink 2.", "Ghost Stride copy should preserve the choice to use the normal basic Move")
+	expect.call(SkillTreeLibrary.description("pain_remembers") == "After your first health loss each combat, when your hand has room, return your next non-item discard to it.", "Pain Remembers copy should disclose that a full hand delays its recall")
+	expect.call(SkillTreeLibrary.description("prismatic_instinct") == "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic uses do not consume this.", "Prismatic Instinct copy should describe its card-name scope and printed-play trigger")
+	expect.call(SkillTreeLibrary.description("curators_patience") == "After choosing a relic, save one unchosen relic for your next relic offer.", "Curator's Patience copy should identify the next relic offer")
+	expect.call(SkillTreeLibrary.description("living_shadow") == "Once until your next activation, a destroyed or dispelled illusion returns your latest non-item discard to hand, or atop your draw pile if full.", "Living Shadow copy should use activation cadence and identify both illusion-removal triggers")
+	expect.call(SkillTreeLibrary.description("layaway") == "Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns.", "Layaway copy should disclose that an unresolved hold blocks another use")
+	expect.call(SkillTreeLibrary.description("open_arsenal") == "Equip any equipment in your trinket slot, ignoring its normal slot.", "Open Arsenal copy should explain which equipment restriction it ignores")
+	expect.call(SkillTreeLibrary.description("confluence") == "Intensity conditions use your highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue.", "Confluence copy should distinguish condition substitution from real intensity")
+	expect.call(SkillTreeLibrary.activation_kind("open_arsenal") == "passive" and SkillTreeLibrary.activation_kind("confluence") == "passive", "Always-on keystone rules should be classified as passive rather than automatic triggers")
+	var selected_keystone_build: Array[String] = SkillTreeLibrary.repaired_selection([], 9, [
+		"quick_wits", "measured_breath", "rehearsed_escape", "makeshift_tool",
+		"carry_the_guard", "pain_remembers", "borrowed_time", "ghost_stride", "encore",
+	])
+	expect.call(SkillTreeLibrary.locked_reason("open_arsenal", selected_keystone_build) == "Another keystone is selected", "Excluded keystones should explain that another keystone is selected, not learned")
 
 static func _test_layout_validation_requires_bounded_coordinates(expect: Callable) -> void:
 	var missing_layout: Dictionary = SkillTreeLibrary.definitions().duplicate(true)

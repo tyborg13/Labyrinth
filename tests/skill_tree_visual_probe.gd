@@ -189,7 +189,7 @@ func _capture_level_up_tree(
 			_expect(tree.detail_action_is_enabled(), "%s Focused level-up skill should be actionable" % viewport_size)
 		_expect(not tree.confirm_is_enabled(), "%s Level-up should require choosing a skill before confirmation" % viewport_size)
 		_assert_tree_scroll_contract(tree, viewport_size, "Level-up")
-	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Draw Strength")
+	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Choose a Skill")
 	await _save_screenshot(viewport, "%s/07_level_up.png" % output_dir, viewport_size)
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
@@ -230,6 +230,11 @@ func _capture_combat_surfaces(
 	deck["discard"] = ["bone_dart"]
 	deck["draw"] = ["patch_up", "frostbolt", "ember_jab"]
 	combat_state["deck"] = deck
+	combat_state["banked_play_active"] = 1
+	combat_state["banked_play_spent_this_activation"] = 0
+	var combat_player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
+	combat_player["block"] = 20
+	combat_state["player"] = combat_player
 	var combat_run: Dictionary = base_run_state.duplicate(true)
 	combat_run["mode"] = "combat"
 	combat_run["current_room"] = layout.get("coord", Vector2i(1, 0))
@@ -251,11 +256,15 @@ func _capture_combat_surfaces(
 		print("Skill HUD %s title=%s sigil=%s" % [viewport_size, title_box.get_global_rect(), sigil.get_global_rect()])
 	var choice_overlay := instance.get("_choice_button_overlay") as Control
 	var choice_bar := instance.get("choice_bar") as Control
-	for skill_name: String in ["Quick Wits", "Prismatic Instinct", "Encore"]:
+	for skill_name: String in ["Quick Wits", "Prismatic Instinct", "Encore", "Carry the Guard"]:
 		var button: Button = _visible_button_with_text(choice_overlay, skill_name)
 		if button == null:
 			button = _visible_button_with_text(choice_bar, skill_name)
 		_expect(button != null, "%s Combat HUD should expose ready %s control" % [viewport_size, skill_name])
+	var banked_badge := instance.get("_play_meter_banked_badge") as Control
+	var banked_label := instance.get("_play_meter_banked_label") as Label
+	_expect(banked_badge != null and banked_badge.visible, "%s Combat HUD should distinguish the stored play from ordinary plays" % viewport_size)
+	_expect(banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "%s Combat HUD should explain Borrowed Time on the stored play" % viewport_size)
 	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir, viewport_size)
 
 	instance.call("_toggle_skill_status_popover")
@@ -263,6 +272,7 @@ func _capture_combat_surfaces(
 	var popover := instance.get("_skill_status_popover") as Control
 	_expect(popover != null and popover.visible, "%s Skill sigil should open its status popover" % viewport_size)
 	_expect(_label_with_text(popover, "READY") != null, "%s Skill popover should show at least one ready ability" % viewport_size)
+	_expect(_label_with_text(popover, "BANKED") != null and _label_with_text(popover, "PRIMED") != null, "%s Skill popover should expose the stored-play state and its pending no-Time benefit" % viewport_size)
 	_expect(_label_with_text(popover, "Quick Wits") != null, "%s Skill popover should list Quick Wits" % viewport_size)
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "%s Skill popover should list Discerning Eye" % viewport_size)
 	_assert_inside(popover, viewport_size, "%s Skill status popover" % viewport_size, 8.0)

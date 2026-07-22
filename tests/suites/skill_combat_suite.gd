@@ -78,19 +78,40 @@ static func _test_measured_breath_borrowed_time_and_guard(expect: Callable) -> v
 	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
 	player["block"] = GameData.fixed_point_amount(3)
 	state["player"] = player
+	expect.call(combat.skill_is_ready(state, "carry_the_guard"), "Carry the Guard should become ready when the player has block")
+	var unarmed_state: Dictionary = combat.finish_player_activation(state)
+	var unarmed_player: Dictionary = unarmed_state.get("player", {}) as Dictionary
+	expect.call(int(unarmed_player.get("block", 0)) == GameData.fixed_point_amount(3) and int(unarmed_player.get("stoneskin", 0)) == 0, "Carry the Guard should never consume incidental block without the player's choice")
+	expect.call(not combat.skill_was_used(unarmed_state, "carry_the_guard"), "Declining Carry the Guard should preserve its charge")
+	var event_count_before_arm: int = _skill_event_count(combat, state, "carry_the_guard")
+	state = combat.arm_carry_the_guard(state)
+	expect.call(bool((state.get("skill_flags", {}) as Dictionary).get("guard_carry_armed", false)), "Carry the Guard should visibly arm for the current activation")
+	expect.call(_skill_event_count(combat, state, "carry_the_guard") == event_count_before_arm, "Arming Carry the Guard should not emit a realized trigger")
+	player = (state.get("player", {}) as Dictionary).duplicate(true)
+	player["block"] = int(player.get("block", 0)) + GameData.fixed_point_amount(2)
+	state["player"] = player
 	state = combat.finish_player_activation(state)
 	expect.call(int(state.get("banked_plays", 0)) == 1, "Measured Breath should bank one unused play at activation end")
 	player = state.get("player", {}) as Dictionary
-	expect.call(int(player.get("block", 0)) == 0 and int(player.get("stoneskin", 0)) == GameData.fixed_point_amount(3), "Carry the Guard should convert remaining block into stoneskin")
+	expect.call(int(player.get("block", 0)) == 0 and int(player.get("stoneskin", 0)) == GameData.fixed_point_amount(5), "Armed Carry the Guard should include block gained after arming")
+	expect.call(combat.skill_was_used(state, "carry_the_guard") and _skill_event_count(combat, state, "carry_the_guard") == event_count_before_arm + 1, "Carry the Guard should spend and emit exactly once when conversion resolves")
+	expect.call(not (state.get("skill_flags", {}) as Dictionary).has("guard_carry_armed"), "Carry the Guard should clear its arm at activation end")
 	state = combat.prepare_next_player_turn(state)
-	expect.call(int(state.get("banked_play_active", 0)) == 1 and combat.cards_remaining_this_turn(state) == 3, "The banked play should become one extra play on the next activation")
+	var opening_budget: Dictionary = combat.card_play_budget(state)
+	expect.call(int(opening_budget.get("ordinary_remaining", 0)) == 2 and int(opening_budget.get("banked_remaining", 0)) == 1, "The next activation should distinguish two ordinary plays from one banked play")
 	state["deck"] = _deck(["quick_stab", "quick_stab", "quick_stab"], [], [])
 	state = combat.finish_player_card(state, 0)
+	var first_budget: Dictionary = combat.card_play_budget(state)
+	expect.call(int(first_budget.get("ordinary_remaining", 0)) == 1 and int(first_budget.get("banked_remaining", 0)) == 1 and not bool(state.get("last_card_used_banked_play", true)), "Ordinary plays should be consumed before the banked play")
 	state = combat.finish_player_card(state, 0)
+	var second_budget: Dictionary = combat.card_play_budget(state)
+	expect.call(int(second_budget.get("ordinary_remaining", 0)) == 0 and int(second_budget.get("banked_remaining", 0)) == 1 and not bool(state.get("last_card_used_banked_play", true)), "The final ordinary card should leave the banked play visibly next")
 	var time_before_banked_card: int = int(state.get("player_turn_time_spent", 0))
 	state = combat.finish_player_card(state, 0)
 	expect.call(int(state.get("player_turn_time_spent", 0)) == time_before_banked_card, "Borrowed Time should remove Time from the card paid by the banked play")
-	expect.call(combat.skill_was_used(state, "borrowed_time"), "Borrowed Time should spend only when a banked play pays for a card")
+	expect.call(combat.skill_was_used(state, "borrowed_time") and int(state.get("banked_play_spent_this_activation", 0)) == 1, "Borrowed Time should spend only when a banked play pays for a card")
+	var spent_budget: Dictionary = combat.card_play_budget(state)
+	expect.call(int(spent_budget.get("ordinary_remaining", -1)) == 0 and int(spent_budget.get("banked_remaining", -1)) == 0, "The budget should show the banked slot as spent")
 
 	var grant_state: Dictionary = _state(combat, ["borrowed_time"], ["guarded_step"])
 	grant_state["deck"] = _deck(["guarded_step"], [], [])
@@ -101,6 +122,24 @@ static func _test_measured_breath_borrowed_time_and_guard(expect: Callable) -> v
 	grant_state = combat.finish_player_card(grant_state, 0)
 	expect.call(bool(grant_state.get("last_card_used_banked_play", false)), "A card's payment should be snapshotted before its own extra-play effect")
 	expect.call(int(grant_state.get("player_turn_time_spent", 0)) == grant_time_before and combat.skill_was_used(grant_state, "borrowed_time"), "Borrowed Time should remove Time when the banked play paid for a card that grants a play")
+	var grant_budget: Dictionary = combat.card_play_budget(grant_state)
+	expect.call(int(grant_budget.get("ordinary_remaining", 0)) == 1 and int(grant_budget.get("banked_remaining", -1)) == 0, "A play granted by the banked-paying card should be tracked as ordinary")
+	var grant_deck: Dictionary = (grant_state.get("deck", {}) as Dictionary).duplicate(true)
+	grant_deck["hand"] = ["quick_stab"]
+	grant_state["deck"] = grant_deck
+	grant_state = combat.finish_player_card(grant_state, 0)
+	expect.call(not bool(grant_state.get("last_card_used_banked_play", true)), "The ordinary play granted afterward must not reuse the already-spent banked slot")
+
+	var zero_state: Dictionary = _state(combat, ["carry_the_guard"], ["quick_stab"])
+	player = (zero_state.get("player", {}) as Dictionary).duplicate(true)
+	player["block"] = GameData.fixed_point_amount(1)
+	zero_state["player"] = player
+	zero_state = combat.arm_carry_the_guard(zero_state)
+	player = (zero_state.get("player", {}) as Dictionary).duplicate(true)
+	player["block"] = 0
+	zero_state["player"] = player
+	zero_state = combat.finish_player_activation(zero_state)
+	expect.call(not combat.skill_was_used(zero_state, "carry_the_guard") and not (zero_state.get("skill_flags", {}) as Dictionary).has("guard_carry_armed"), "An armed activation ending at zero block should clear the arm without spending the charge")
 
 static func _test_ghost_stride_afterimage_and_plunder(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()

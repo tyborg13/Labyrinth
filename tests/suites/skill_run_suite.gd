@@ -399,18 +399,20 @@ static func _test_combat_snapshot_progression_repair_preserves_use_history(expec
 			"prismatic_resolving": true,
 			"burn_preserve_armed": true,
 			"item_preserve_armed": true,
+			"guard_carry_armed": true,
 			"pain_recall_primed": true
 		},
 		"banked_plays": 1,
-		"banked_play_active": 1
+		"banked_play_active": 1,
+		"banked_play_spent_this_activation": 1
 	}
 	var changed: Dictionary = engine.apply_progression_update(state, alternate)
 	var changed_combat: Dictionary = changed.get("combat_state", {}) as Dictionary
 	var changed_flags: Dictionary = changed_combat.get("skill_flags", {}) as Dictionary
 	expect.call((changed_combat.get("skill_ids", []) as Array) == ProgressionStore.selected_skill_ids(alternate), "Applying a newer profile should repair the saved combat skill build")
 	expect.call(bool(changed_flags.get("used:quick_wits", false)), "Combat snapshot repair should preserve use history for removed skills")
-	expect.call(not changed_flags.has("prismatic_armed") and not changed_flags.has("prismatic_target_card_id") and not changed_flags.has("prismatic_resolving") and not changed_flags.has("burn_preserve_armed") and not changed_flags.has("item_preserve_armed") and not changed_flags.has("pain_recall_primed"), "Removing skills should clear their unspent pending combat benefits")
-	expect.call(int(changed_combat.get("banked_plays", -1)) == 0 and int(changed_combat.get("banked_play_active", -1)) == 0, "Removing Measured Breath should clear banked plays")
+	expect.call(not changed_flags.has("prismatic_armed") and not changed_flags.has("prismatic_target_card_id") and not changed_flags.has("prismatic_resolving") and not changed_flags.has("burn_preserve_armed") and not changed_flags.has("item_preserve_armed") and not changed_flags.has("guard_carry_armed") and not changed_flags.has("pain_recall_primed"), "Removing skills should clear their unspent pending combat benefits")
+	expect.call(int(changed_combat.get("banked_plays", -1)) == 0 and int(changed_combat.get("banked_play_active", -1)) == 0 and int(changed_combat.get("banked_play_spent_this_activation", -1)) == 0, "Removing Measured Breath should clear banked plays and their spent accounting")
 	var restored: Dictionary = engine.apply_progression_update(changed, original)
 	var restored_flags: Dictionary = ((restored.get("combat_state", {}) as Dictionary).get("skill_flags", {}) as Dictionary)
 	expect.call(bool(restored_flags.get("used:quick_wits", false)), "Re-adding a spent skill should not refresh its combat use")

@@ -174,6 +174,11 @@ static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 	var selected: Array[String] = normalized_ids(selected_value)
 	if selected.has(skill_id):
 		return "Learned"
+	var group_id: String = exclusive_group(skill_id)
+	if not group_id.is_empty():
+		for selected_id: String in selected:
+			if exclusive_group(selected_id) == group_id:
+				return "Another keystone is selected"
 	var missing_names: Array[String]
 	for prerequisite_id: String in prerequisites(skill_id):
 		if not selected.has(prerequisite_id):
@@ -183,11 +188,6 @@ static func locked_reason(skill_id: String, selected_value: Variant) -> String:
 	var required_owned: int = minimum_owned(skill_id)
 	if selected.size() < required_owned:
 		return "Requires %d learned skills" % required_owned
-	var group_id: String = exclusive_group(skill_id)
-	if not group_id.is_empty():
-		for selected_id: String in selected:
-			if exclusive_group(selected_id) == group_id:
-				return "Another keystone is learned"
 	return "Available"
 
 static func dependent_ids(skill_id: String, selected_value: Variant) -> Array[String]:

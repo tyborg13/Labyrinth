@@ -26,7 +26,7 @@
   "ghost_stride": {
     "name": "Ghost Stride",
     "icon": "blink",
-    "description": "Once per combat, use a card's basic Move as Blink 2.",
+    "description": "Once per combat, you may use a card's basic Move as Blink 2.",
     "branch": "traverse",
     "tier": "root",
     "position": [2, 0],
@@ -74,19 +74,19 @@
   "carry_the_guard": {
     "name": "Carry the Guard",
     "icon": "stoneskin",
-    "description": "Once per combat, convert remaining block to stoneskin when your activation ends.",
+    "description": "Once per combat, choose during your activation to convert all block remaining at its end into stoneskin.",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 1],
     "layout_position": [35, 100],
     "prerequisites": ["measured_breath"],
-    "activation": "automatic",
+    "activation": "manual",
     "effect": {"type": "convert_block", "uses_per_combat": 1}
   },
   "pain_remembers": {
     "name": "Pain Remembers",
     "icon": "health",
-    "description": "After your first health loss each combat, return the next non-item card you discard to hand.",
+    "description": "After your first health loss each combat, when your hand has room, return your next non-item discard to it.",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 2],
@@ -182,7 +182,7 @@
   "prismatic_instinct": {
     "name": "Prismatic Instinct",
     "icon": "truesight",
-    "description": "Once per combat, choose a conditional card in hand. Its next printed play, from any copy, satisfies all intensity conditions. Basic uses do not consume this.",
+    "description": "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic uses do not consume this.",
     "branch": "foresight",
     "tier": "junction",
     "position": [3, 3],
@@ -194,7 +194,7 @@
   "curators_patience": {
     "name": "Curator's Patience",
     "icon": "vision",
-    "description": "After choosing a relic, save one unchosen relic for the next offer.",
+    "description": "After choosing a relic, save one unchosen relic for your next relic offer.",
     "branch": "tactics",
     "tier": "junction",
     "position": [0, 4],
@@ -206,7 +206,7 @@
   "living_shadow": {
     "name": "Living Shadow",
     "icon": "illusion",
-    "description": "Once per turn, an illusion's fall returns your latest non-item discard to hand, or atop your draw pile if full.",
+    "description": "Once until your next activation, a destroyed or dispelled illusion returns your latest non-item discard to hand, or atop your draw pile if full.",
     "branch": "resolve",
     "tier": "junction",
     "position": [1, 4],
@@ -230,7 +230,7 @@
   "layaway": {
     "name": "Layaway",
     "icon": "time",
-    "description": "Once between bosses, hold one offer for the next merchant of that type. You cannot hold another until it returns.",
+    "description": "Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns.",
     "branch": "foresight",
     "tier": "junction",
     "position": [3, 4],
@@ -256,7 +256,7 @@
   "open_arsenal": {
     "name": "Open Arsenal",
     "icon": "melee",
-    "description": "Equip any equipment in your trinket slot.",
+    "description": "Equip any equipment in your trinket slot, ignoring its normal slot.",
     "branch": "keystone",
     "tier": "keystone",
     "position": [1, 5],
@@ -264,13 +264,13 @@
     "prerequisites": ["living_shadow"],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
-    "activation": "automatic",
+    "activation": "passive",
     "effect": {"type": "wild_trinket_slot"}
   },
   "confluence": {
     "name": "Confluence",
     "icon": "eclipse",
-    "description": "Elemental conditions use your highest intensity regardless of element. Draws enabled only by Confluence stop before Fatigue.",
+    "description": "Intensity conditions use your highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue.",
     "branch": "keystone",
     "tier": "keystone",
     "position": [2, 5],
@@ -278,7 +278,7 @@
     "prerequisites": ["prismatic_instinct"],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
-    "activation": "automatic",
+    "activation": "passive",
     "effect": {"type": "highest_intensity"}
   },
   "last_door": {

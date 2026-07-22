@@ -317,6 +317,13 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 				and not bool((state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
 				and _hand_has_item(state)
 			)
+		"convert_block":
+			var player: Dictionary = state.get("player", {}) as Dictionary
+			return (
+				is_player_turn(state)
+				and int(player.get("block", 0)) > 0
+				and not bool((state.get("skill_flags", {}) as Dictionary).get("guard_carry_armed", false))
+			)
 		"fallback_blink":
 			return is_player_turn(state)
 	return true
@@ -444,6 +451,15 @@ func arm_makeshift_tool(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	_set_skill_flag(next_state, "item_preserve_armed", true)
 	_log(next_state, "%s is armed for the next item's basic Attack or Move." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
+func arm_carry_the_guard(state: Dictionary) -> Dictionary:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("convert_block")
+	if not skill_is_ready(state, skill_id):
+		return state.duplicate(true)
+	var next_state: Dictionary = state.duplicate(true)
+	_set_skill_flag(next_state, "guard_carry_armed", true)
+	_log(next_state, "%s is armed to carry block remaining at activation end." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String = "play") -> Dictionary:
@@ -609,6 +625,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"skill_events": [],
 		"banked_plays": 0,
 		"banked_play_active": 0,
+		"banked_play_spent_this_activation": 0,
 		"level": int(player_snapshot.get("level", 1)),
 		"hand_size": int(player_snapshot.get("hand_size", 5)) + GameData.stat_bonus_from_relics(relic_ids, "hand_size_bonus"),
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "cards_per_turn_bonus"),
@@ -1156,6 +1173,8 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	var used_banked_play: bool = _card_payment_uses_banked_play(payment_snapshot, next_state, safe_plays_spent)
 	next_state.erase("pending_card_payment")
 	next_state["last_card_used_banked_play"] = used_banked_play
+	if used_banked_play:
+		next_state["banked_play_spent_this_activation"] = 1
 	var health_cost: int = int(card.get("health_cost", 0)) * safe_plays_spent
 	if health_cost > 0:
 		next_state = _lose_player_health(next_state, health_cost, true, false)
@@ -1197,20 +1216,18 @@ func _card_play_capacity_without_banked(state: Dictionary) -> int:
 func _snapshot_pending_card_payment(state: Dictionary) -> void:
 	if state.has("pending_card_payment"):
 		return
+	var budget: Dictionary = card_play_budget(state)
 	state["pending_card_payment"] = {
-		"banked_play_active": int(state.get("banked_play_active", 0)),
-		"cards_played_before": int(state.get("cards_played_this_turn", 0)),
-		"capacity_without_banked": _card_play_capacity_without_banked(state)
+		"ordinary_remaining": int(budget.get("ordinary_remaining", 0)),
+		"banked_remaining": int(budget.get("banked_remaining", 0))
 	}
 
 func _card_payment_uses_banked_play(snapshot: Dictionary, state: Dictionary, plays_spent: int) -> bool:
 	if snapshot.is_empty():
 		return _card_spend_uses_banked_play(state, plays_spent)
-	if int(snapshot.get("banked_play_active", 0)) <= 0:
-		return false
 	return (
-		int(snapshot.get("cards_played_before", 0)) + maxi(1, plays_spent)
-		> int(snapshot.get("capacity_without_banked", _card_play_capacity_without_banked(state)))
+		int(snapshot.get("banked_remaining", 0)) > 0
+		and maxi(1, plays_spent) > int(snapshot.get("ordinary_remaining", 0))
 	)
 
 func _semantic_fallback_kind(play_context: Dictionary) -> String:
@@ -1225,10 +1242,11 @@ func _semantic_fallback_kind(play_context: Dictionary) -> String:
 	return ""
 
 func _card_spend_uses_banked_play(state: Dictionary, plays_spent: int) -> bool:
-	if int(state.get("banked_play_active", 0)) <= 0:
-		return false
-	var before: int = int(state.get("cards_played_this_turn", 0))
-	return before + maxi(1, plays_spent) > _card_play_capacity_without_banked(state)
+	var budget: Dictionary = card_play_budget(state)
+	return (
+		int(budget.get("banked_remaining", 0)) > 0
+		and maxi(1, plays_spent) > int(budget.get("ordinary_remaining", 0))
+	)
 
 func _card_has_intensity_condition(card: Dictionary) -> bool:
 	for action_var: Variant in card.get("actions", []):
@@ -1315,13 +1333,16 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	else:
 		next_state["banked_plays"] = 0
 	var guard_id: String = SkillTreeLibrary.skill_id_for_effect("convert_block")
-	var guard_player: Dictionary = _normalized_player(next_state.get("player", {}))
-	var remaining_block: int = int(guard_player.get("block", 0))
-	if remaining_block > 0 and skill_is_ready(next_state, guard_id):
-		guard_player["block"] = 0
-		guard_player["stoneskin"] = int(guard_player.get("stoneskin", 0)) + remaining_block
-		next_state["player"] = guard_player
-		_mark_skill_used(next_state, guard_id, "%s carries remaining block forward as stoneskin." % SkillTreeLibrary.display_name(guard_id))
+	var guard_armed: bool = bool((next_state.get("skill_flags", {}) as Dictionary).get("guard_carry_armed", false))
+	if guard_armed:
+		var guard_player: Dictionary = _normalized_player(next_state.get("player", {}))
+		var remaining_block: int = int(guard_player.get("block", 0))
+		if remaining_block > 0 and _skill_charge_available(next_state, guard_id):
+			guard_player["block"] = 0
+			guard_player["stoneskin"] = int(guard_player.get("stoneskin", 0)) + remaining_block
+			next_state["player"] = guard_player
+			_mark_skill_used(next_state, guard_id, "%s carries remaining block forward as stoneskin." % SkillTreeLibrary.display_name(guard_id))
+		_erase_skill_flag(next_state, "guard_carry_armed")
 	next_state = _clear_player_bleed_after_turn(next_state)
 	var scheduled_time: int = (
 		int(next_state.get("initiative_clock", 0))
@@ -1687,6 +1708,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
 	next_state["banked_play_active"] = clampi(int(next_state.get("banked_plays", 0)), 0, 1)
 	next_state["banked_plays"] = 0
+	next_state["banked_play_spent_this_activation"] = 0
 	next_state = _tick_umbra_player_activation(next_state)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	player["block"] = 0
@@ -1722,6 +1744,21 @@ func cards_remaining_this_turn(state: Dictionary) -> int:
 		0,
 		_card_play_capacity(state) - int(state.get("cards_played_this_turn", 0))
 	)
+
+func card_play_budget(state: Dictionary) -> Dictionary:
+	var total_remaining: int = cards_remaining_this_turn(state)
+	var banked_capacity: int = clampi(int(state.get("banked_play_active", 0)), 0, 1)
+	var banked_spent: int = clampi(int(state.get("banked_play_spent_this_activation", 0)), 0, banked_capacity)
+	var ordinary_spent: int = maxi(0, int(state.get("cards_played_this_turn", 0)) - banked_spent)
+	var ordinary_remaining: int = maxi(0, _card_play_capacity_without_banked(state) - ordinary_spent)
+	var banked_remaining: int = maxi(0, banked_capacity - banked_spent)
+	ordinary_remaining = mini(ordinary_remaining, total_remaining)
+	banked_remaining = mini(banked_remaining, maxi(0, total_remaining - ordinary_remaining))
+	return {
+		"ordinary_remaining": ordinary_remaining,
+		"banked_remaining": banked_remaining,
+		"total_remaining": total_remaining
+	}
 
 func _card_play_capacity(state: Dictionary) -> int:
 	return (

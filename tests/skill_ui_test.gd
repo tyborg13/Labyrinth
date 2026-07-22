@@ -2,6 +2,7 @@ extends SceneTree
 
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
@@ -305,7 +306,9 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	contextual_run_state["progression"] = contextual_progression
 	instance.set("_run_state", contextual_run_state)
 	for contextual_skill_id: String in contextual_skill_ids:
-		_expect(str(instance.call("_skill_hud_status", contextual_skill_id)) == "CONTEXT", "%s should remain contextual rather than appearing ready during combat" % contextual_skill_id)
+		_expect(str(instance.call("_skill_hud_status", contextual_skill_id)) == "WAITING", "%s should state that it is waiting outside its relevant choice flow" % contextual_skill_id)
+	_expect(str(instance.call("_skill_hud_status", "measured_breath")) == "AUTOMATIC", "Measured Breath should identify itself as an automatic recurring rule")
+	_expect(str(instance.call("_skill_hud_status", "open_arsenal")) == "PASSIVE", "Open Arsenal should identify itself as an always-on passive")
 	var primed_run_state: Dictionary = contextual_run_state.duplicate(true)
 	var primed_skill_state: Dictionary = (primed_run_state.get("skill_state", {}) as Dictionary).duplicate(true)
 	primed_skill_state["pending_card"] = "rime_shard"
@@ -329,6 +332,23 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	status_combat["skill_flags"] = status_flags
 	instance.set("_combat_state", status_combat)
 	_expect(str(instance.call("_skill_hud_status", "living_shadow")) == "SPENT", "Living Shadow should show SPENT after triggering in the current turn")
+	var banked_status_combat: Dictionary = combat_state.duplicate(true)
+	var banked_status_skills: Array = (banked_status_combat.get("skill_ids", []) as Array).duplicate()
+	banked_status_skills.append_array(["measured_breath", "borrowed_time"])
+	banked_status_combat["skill_ids"] = banked_status_skills
+	banked_status_combat["banked_play_active"] = 1
+	banked_status_combat["banked_play_spent_this_activation"] = 0
+	instance.set("_combat_state", banked_status_combat)
+	_expect(str(instance.call("_skill_hud_status", "measured_breath")) == "BANKED", "Measured Breath should show BANKED while a stored play remains")
+	_expect(str(instance.call("_skill_hud_status", "borrowed_time")) == "PRIMED", "Borrowed Time should show PRIMED while its no-Time banked play remains")
+	var spent_banked_flags: Dictionary = (banked_status_combat.get("skill_flags", {}) as Dictionary).duplicate(true)
+	spent_banked_flags["used:borrowed_time"] = true
+	banked_status_combat["skill_flags"] = spent_banked_flags
+	banked_status_combat["banked_play_spent_this_activation"] = 1
+	banked_status_combat["cards_played_this_turn"] = 3
+	instance.set("_combat_state", banked_status_combat)
+	_expect(str(instance.call("_skill_hud_status", "measured_breath")) == "AUTOMATIC", "Measured Breath should stop claiming a banked play after it is spent")
+	_expect(str(instance.call("_skill_hud_status", "borrowed_time")) == "SPENT", "Borrowed Time should show SPENT after removing Time")
 	instance.set("_combat_state", combat_state)
 	instance.call("_close_skill_status_popover")
 	await process_frame
@@ -372,12 +392,17 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var escape_skills: Array = (escape_combat.get("skill_ids", []) as Array).duplicate()
 	escape_skills.append("rehearsed_escape")
 	escape_skills.append("makeshift_tool")
+	escape_skills.append("carry_the_guard")
 	escape_combat["skill_ids"] = escape_skills
+	var escape_player: Dictionary = (escape_combat.get("player", {}) as Dictionary).duplicate(true)
+	escape_player["block"] = GameData.fixed_point_amount(2)
+	escape_combat["player"] = escape_player
 	var escape_deck: Dictionary = (escape_combat.get("deck", {}) as Dictionary).duplicate(true)
 	escape_deck["hand"] = ["patch_up", "crimson_draught"]
 	escape_combat["deck"] = escape_deck
 	var escape_trigger_count: int = _skill_trigger_event_count("rehearsed_escape")
 	var makeshift_trigger_count: int = _skill_trigger_event_count("makeshift_tool")
+	var carry_trigger_count: int = _skill_trigger_event_count("carry_the_guard")
 	instance.set("_combat_state", escape_combat)
 	instance.set("_run_state", run_engine.set_combat_state(original_run_state, escape_combat))
 	instance.call("_refresh_ui")
@@ -404,6 +429,17 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(bool(escape_flags.get("item_preserve_armed", false)), "Makeshift Tool should visibly arm before it changes a consumable destination")
 	_expect(str(instance.call("_skill_hud_status", "makeshift_tool")) == "ARMED", "Makeshift Tool should report ARMED after the player opts in")
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count, "Arming Makeshift Tool should not log a realized skill trigger")
+	var carry_button: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Carry the Guard")
+	if carry_button == null:
+		carry_button = _visible_button_with_text(instance.get("choice_bar") as Control, "Carry the Guard")
+	_expect(carry_button != null, "Carry the Guard should appear as an explicit choice while block remains")
+	if carry_button != null:
+		carry_button.pressed.emit()
+	await process_frame
+	escape_flags = ((instance.get("_combat_state") as Dictionary).get("skill_flags", {}) as Dictionary)
+	_expect(bool(escape_flags.get("guard_carry_armed", false)), "Carry the Guard should visibly arm for the current activation")
+	_expect(str(instance.call("_skill_hud_status", "carry_the_guard")) == "ARMED", "Carry the Guard should report ARMED after the player opts in")
+	_expect(_skill_trigger_event_count("carry_the_guard") == carry_trigger_count, "Arming Carry the Guard should not log a realized skill trigger")
 	var resolved_escape: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0)
 	instance.call("_commit_combat_skill_state", resolved_escape, "rehearsed_escape")
 	await process_frame
@@ -412,6 +448,11 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.call("_commit_combat_skill_state", resolved_item, "makeshift_tool")
 	await process_frame
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count + 1, "Preserving an item should emit exactly one realized skill trigger")
+	var resolved_guard: Dictionary = combat_engine.finish_player_activation(instance.get("_combat_state") as Dictionary)
+	instance.call("_commit_combat_skill_state", resolved_guard, "carry_the_guard")
+	await process_frame
+	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "carry_the_guard"), "Carry the Guard should spend when the armed conversion resolves")
+	_expect(_skill_trigger_event_count("carry_the_guard") == carry_trigger_count + 1, "Carry the Guard should emit exactly one realized skill trigger at activation end")
 	instance.set("_combat_state", original_combat_state)
 	instance.set("_run_state", original_run_state)
 	instance.call("_refresh_ui")

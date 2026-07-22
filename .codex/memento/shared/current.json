@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-22T03:15:58Z",
+  "updated_at": "2026-07-22T04:42:19Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6239,6 +6239,50 @@
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "1741fbd"
+      }
+    },
+    {
+      "id": "mnt_20260722T044219Z_b7664e94",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "file",
+        "path": "scripts/skill_tree_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/skill_tree_view.gd",
+      "summary": "Keep skill-tree labels and rules outside the graph layer",
+      "details": "The tree uses compact stateful medallions, visible ports, and orthogonal connections inside protected graph space; full names, requirements, and effects live in the fixed detail pane so connections cannot be occluded. Direction is top-to-bottom rank, with node role and state communicated by shape plus color.",
+      "status": "active",
+      "created_at": "2026-07-22T04:42:19Z",
+      "updated_at": "2026-07-22T04:42:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "961c42f"
+      }
+    },
+    {
+      "id": "mnt_20260722T044219Z_ab71342e",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_engine.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_engine.gd",
+      "summary": "Track banked-play consumption separately from total plays spent",
+      "details": "A banked play can pay for a card that grants a new ordinary play, so total capacity and cards_played_this_turn cannot reconstruct which slot remains. banked_play_spent_this_activation plus card_play_budget preserves the ordinary/banked split and resets each activation.",
+      "status": "active",
+      "created_at": "2026-07-22T04:42:19Z",
+      "updated_at": "2026-07-22T04:42:19Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "961c42f"
       }
     }
   ]

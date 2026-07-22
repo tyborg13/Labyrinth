@@ -101,7 +101,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, reward N|heal, relic N, linger, level SKILL_ID, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, skills, skill SKILL_ID [INDEX], reward N|heal, relic N, linger, level SKILL_ID, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
 
@@ -213,6 +213,10 @@ func _handle_command(command: String) -> void:
 			_print_state()
 		"pass", "end":
 			_command_pass()
+		"skills":
+			_print_skills()
+		"skill":
+			_command_skill(parts)
 		"reward":
 			_command_reward(parts)
 		"heal":
@@ -251,7 +255,13 @@ func _start_new_run(seed: int) -> void:
 	_run_number += 1
 	_pending = {}
 	_analytics_tracker = {}
-	_progression = ProgressionStore.default_data()
+	var carried_progression: Dictionary = _progression.duplicate(true)
+	if typeof(_run_state.get("progression", {})) == TYPE_DICTIONARY and not (_run_state.get("progression", {}) as Dictionary).is_empty():
+		carried_progression = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
+		# The run snapshot can acquire profile-only rewards such as Moltshards, while
+		# the console's progression copy remains authoritative for carried embers.
+		carried_progression["embers"] = int(_progression.get("embers", carried_progression.get("embers", 0)))
+	_progression = ProgressionStore.normalized_data(carried_progression)
 	_run_state = _ensure_run_analytics_metadata(_run_engine.create_new_run(seed, _progression), _run_number)
 	_sync_combat_state_from_run()
 	_log_run_started()
@@ -381,6 +391,7 @@ func _print_combat_state() -> void:
 	print("Intensity: %s" % _elemental_intensity_text(_combat_state))
 	print("Order: %s" % _turn_order_text(_combat_state))
 	_print_turn_clock()
+	_print_manual_skill_summary()
 	if plays_remaining <= 0 and not restriction_status.is_empty():
 		print("Turn locked by %s." % restriction_status)
 	_print_board()
@@ -393,7 +404,7 @@ func _print_combat_state() -> void:
 	if not _pending.is_empty():
 		_print_pending()
 	else:
-		print("Commands: card N, click N, drag N play|attack|move, pass, note TEXT")
+		print("Commands: card N, click N, drag N play|attack|move, skills, skill SKILL_ID [INDEX], pass, note TEXT")
 
 func _print_board() -> void:
 	var grid: Array = _combat_state.get("grid", [])
@@ -651,6 +662,182 @@ func _print_cards() -> void:
 			_action_summary(card.get("actions", [])),
 			timing_suffix
 		])
+
+func _print_manual_skill_summary() -> void:
+	var summaries: Array[String]
+	for skill_state: Dictionary in _combat_engine.manual_skill_states(_combat_state):
+		var skill_id: String = str(skill_state.get("skill_id", ""))
+		summaries.append("%s %s" % [skill_id, _manual_skill_status(skill_id)])
+	if not summaries.is_empty():
+		print("Manual skills: %s. Use `skills` for details." % ", ".join(summaries))
+
+func _print_skills() -> void:
+	var learned_skill_ids: Array[String]
+	if str(_run_state.get("mode", "")) == "combat":
+		learned_skill_ids = _combat_engine.skill_ids(_combat_state)
+	else:
+		var run_progression: Dictionary = _run_state.get("progression", _progression) as Dictionary
+		learned_skill_ids = ProgressionStore.selected_skill_ids(run_progression)
+	if learned_skill_ids.is_empty():
+		print("Learned abilities: none. Choose an ability when leveling at a campfire.")
+		return
+	print("Learned abilities (%d):" % learned_skill_ids.size())
+	for skill_id: String in learned_skill_ids:
+		var activation: String = SkillTreeLibrary.activation_kind(skill_id)
+		var status: String = activation.to_upper()
+		var command_suffix: String = ""
+		if activation == "manual":
+			status = _manual_skill_status(skill_id) if str(_run_state.get("mode", "")) == "combat" else "MANUAL"
+			command_suffix = " | use %s" % _manual_skill_command(skill_id)
+		print("- `%s`: %s [%s]%s — %s" % [
+			skill_id,
+			SkillTreeLibrary.display_name(skill_id),
+			status,
+			command_suffix,
+			SkillTreeLibrary.description(skill_id)
+		])
+
+func _command_skill(parts: PackedStringArray) -> void:
+	if str(_run_state.get("mode", "")) != "combat":
+		print("Manual abilities are only available in combat.")
+		_print_skills()
+		return
+	if not _pending.is_empty():
+		print("Resolve or cancel the pending card before using an ability.")
+		return
+	if parts.size() < 2:
+		print("Use `skill SKILL_ID [INDEX]`.")
+		_print_skills()
+		return
+	var skill_id: String = str(parts[1]).strip_edges().to_lower()
+	if not SkillTreeLibrary.has_definition(skill_id):
+		print("Unknown ability: %s." % skill_id)
+		_print_skills()
+		return
+	if not _combat_engine.has_skill(_combat_state, skill_id):
+		print("%s is not part of this run's learned build." % SkillTreeLibrary.display_name(skill_id))
+		return
+	if SkillTreeLibrary.activation_kind(skill_id) != "manual":
+		print("%s is %s and has no manual command." % [SkillTreeLibrary.display_name(skill_id), SkillTreeLibrary.activation_kind(skill_id)])
+		return
+	if not _combat_engine.skill_is_ready(_combat_state, skill_id):
+		print("%s is not ready (%s)." % [SkillTreeLibrary.display_name(skill_id), _manual_skill_status(skill_id)])
+		_print_skill_choices(skill_id)
+		return
+	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
+	var requires_index: bool = effect_type in ["discard_draw", "discard_recall", "arm_intensity"]
+	var choice_index: int = -1
+	if requires_index:
+		if parts.size() < 3 or not str(parts[2]).strip_edges().is_valid_int():
+			print("Use %s." % _manual_skill_command(skill_id))
+			_print_skill_choices(skill_id)
+			return
+		choice_index = int(str(parts[2]).strip_edges())
+		if not _skill_choice_indices(skill_id).has(choice_index):
+			print("Index %d is not a legal choice for %s." % [choice_index, SkillTreeLibrary.display_name(skill_id)])
+			_print_skill_choices(skill_id)
+			return
+	elif parts.size() >= 3:
+		print("%s does not take an index. Use %s." % [SkillTreeLibrary.display_name(skill_id), _manual_skill_command(skill_id)])
+		return
+
+	var before_state: Dictionary = _combat_state.duplicate(true)
+	var before_tracker: Dictionary = _analytics_snapshot_combat_tracker()
+	var next_state: Dictionary
+	match effect_type:
+		"discard_draw":
+			next_state = _combat_engine.use_quick_wits(_combat_state, choice_index)
+		"discard_recall":
+			next_state = _combat_engine.use_encore(_combat_state, choice_index)
+		"arm_intensity":
+			next_state = _combat_engine.arm_prismatic_instinct(_combat_state, choice_index)
+		"preserve_burn":
+			next_state = _combat_engine.arm_rehearsed_escape(_combat_state)
+		"preserve_fallback_item":
+			next_state = _combat_engine.arm_makeshift_tool(_combat_state)
+		"convert_block":
+			next_state = _combat_engine.arm_carry_the_guard(_combat_state)
+		_:
+			print("%s has no headless manual dispatcher for effect `%s`." % [SkillTreeLibrary.display_name(skill_id), effect_type])
+			return
+	if next_state.is_empty() or next_state == before_state:
+		print("%s did not change combat state." % SkillTreeLibrary.display_name(skill_id))
+		return
+
+	_combat_state = next_state.duplicate(true)
+	_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
+	_analytics_reconcile_combat_tracker(before_state, _combat_state)
+	_log_card_draws(before_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "skill")
+	_log_playable_cards()
+	var status: String = _manual_skill_status(skill_id)
+	var action_word: String = "Armed" if status == "ARMED" else "Activated"
+	print("%s %s (`%s`). Plays %d -> %d; Time spent %d -> %d." % [
+		action_word,
+		SkillTreeLibrary.display_name(skill_id),
+		skill_id,
+		_combat_engine.cards_remaining_this_turn(before_state),
+		_combat_engine.cards_remaining_this_turn(_combat_state),
+		int(before_state.get("player_turn_time_spent", 0)),
+		int(_combat_state.get("player_turn_time_spent", 0))
+	])
+	for log_line: String in _new_log_lines(before_state, _combat_state):
+		print("  %s" % log_line)
+	_print_state()
+
+func _manual_skill_status(skill_id: String) -> String:
+	if str(_run_state.get("mode", "")) != "combat":
+		return "MANUAL"
+	var flags: Dictionary = _combat_state.get("skill_flags", {}) as Dictionary
+	var armed: bool = false
+	match SkillTreeLibrary.effect_type(skill_id):
+		"arm_intensity":
+			armed = bool(flags.get("prismatic_armed", false))
+		"preserve_burn":
+			armed = bool(flags.get("burn_preserve_armed", false))
+		"preserve_fallback_item":
+			armed = bool(flags.get("item_preserve_armed", false))
+		"convert_block":
+			armed = bool(flags.get("guard_carry_armed", false))
+	if armed:
+		return "ARMED"
+	if _combat_engine.skill_was_used(_combat_state, skill_id):
+		return "SPENT"
+	if _combat_engine.skill_is_ready(_combat_state, skill_id):
+		return "READY"
+	return "WAITING"
+
+func _manual_skill_command(skill_id: String) -> String:
+	if SkillTreeLibrary.effect_type(skill_id) in ["discard_draw", "discard_recall", "arm_intensity"]:
+		return "`skill %s INDEX`" % skill_id
+	return "`skill %s`" % skill_id
+
+func _skill_choice_indices(skill_id: String) -> Array[int]:
+	var result: Array[int]
+	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
+	if effect_type == "arm_intensity":
+		return _combat_engine.prismatic_target_hand_indices(_combat_state)
+	var deck: Dictionary = _combat_state.get("deck", {}) as Dictionary
+	var cards: Array = deck.get("discard", []) if effect_type == "discard_recall" else deck.get("hand", [])
+	for index: int in range(cards.size()):
+		if effect_type == "discard_recall" and GameData.card_is_item(str(cards[index])):
+			continue
+		result.append(index)
+	return result
+
+func _print_skill_choices(skill_id: String) -> void:
+	var effect_type: String = SkillTreeLibrary.effect_type(skill_id)
+	if effect_type not in ["discard_draw", "discard_recall", "arm_intensity"]:
+		return
+	var zone: String = "discard" if effect_type == "discard_recall" else "hand"
+	var cards: Array = ((_combat_state.get("deck", {}) as Dictionary).get(zone, []) as Array)
+	var indices: Array[int] = _skill_choice_indices(skill_id)
+	if indices.is_empty():
+		print("Legal choices: none.")
+		return
+	print("Legal %s choices:" % zone)
+	for index: int in indices:
+		var card_id: String = str(cards[index])
+		print("- %d: %s (`%s`)" % [index, str(_card_def(card_id, _combat_state).get("name", card_id)), card_id])
 
 func _command_card(parts: PackedStringArray) -> void:
 	if str(_run_state.get("mode", "")) != "combat":
@@ -1295,9 +1482,10 @@ func _command_level_up(parts: PackedStringArray) -> void:
 		return
 	var before_progression: Dictionary = _progression.duplicate(true)
 	var level_cost: int = ProgressionStore.next_level_cost(before_progression)
+	var held_embers_before: int = _run_engine.held_embers(_run_state)
 	_progression = ProgressionStore.purchase_level_with_skill(_progression, skill_id)
 	ProgressionStore.save_data(_progression)
-	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
 	_run_state = _run_engine.leave_campfire(_run_state, 0)
 	ProgressionStore.save_run_state(_run_state)
 	_sync_combat_state_from_run()
@@ -1306,6 +1494,15 @@ func _command_level_up(parts: PackedStringArray) -> void:
 		SkillTreeLibrary.display_name(skill_id),
 		skill_id,
 		int(_run_state.get("unbanked_embers", 0))
+	])
+	print("Learned %s (`%s`). Level %d -> %d; held embers %d -> %d (spent %d)." % [
+		SkillTreeLibrary.display_name(skill_id),
+		skill_id,
+		int(before_progression.get("level", 1)),
+		int(_progression.get("level", 1)),
+		held_embers_before,
+		_run_engine.held_embers(_run_state),
+		level_cost
 	])
 	_print_state()
 

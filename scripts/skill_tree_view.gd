@@ -1197,10 +1197,11 @@ func _requirements_text(skill_id: String) -> String:
 			SkillTreeLibrary.display_name(prerequisite_id),
 		])
 	if SkillTreeLibrary.prerequisites(skill_id).is_empty():
-		parts.append("ROOT SKILL")
+		parts.append("NONE  Root skill")
 	var minimum_owned: int = SkillTreeLibrary.minimum_owned(skill_id)
 	if minimum_owned > 0:
-		parts.append("%s  %d total skills" % ["READY" if selection.size() >= minimum_owned else "NEED", minimum_owned])
+		var other_skill_count: int = selection.size() - (1 if selection.has(skill_id) else 0)
+		parts.append("%s  %d other skills learned" % ["READY" if other_skill_count >= minimum_owned else "NEED", minimum_owned])
 	if not SkillTreeLibrary.exclusive_group(skill_id).is_empty():
 		parts.append("LIMIT  One keystone per build")
 	return "\n".join(parts)
@@ -1208,11 +1209,11 @@ func _requirements_text(skill_id: String) -> String:
 func _unlocks_text(skill_id: String) -> String:
 	var dependents: Array[String] = _direct_dependent_ids(skill_id)
 	if dependents.is_empty():
-		return "UNLOCKS\nNo direct unlocks"
+		return "LEADS TO\nNo direct skills"
 	var names: Array[String]
 	for dependent_id: String in dependents:
 		names.append(SkillTreeLibrary.display_name(dependent_id))
-	return "UNLOCKS\n%s" % "  ·  ".join(names)
+	return "LEADS TO\n%s" % "  ·  ".join(names)
 
 func _selection_for_availability() -> Array[String]:
 	return _string_array(_pending_ids if _mode == MODE_RESPEC else _owned_ids)
