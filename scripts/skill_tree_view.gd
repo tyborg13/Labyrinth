@@ -24,12 +24,8 @@ const STATE_PENDING: String = "pending"
 const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
-const GRAPH_SIZE: Vector2 = Vector2(730.0, 350.0)
+const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
 const DETAIL_WIDTH: float = 300.0
-const ROOT_SIZE: Vector2 = Vector2(56.0, 56.0)
-const BRANCH_SIZE: Vector2 = Vector2(52.0, 52.0)
-const JUNCTION_SIZE: Vector2 = Vector2(56.0, 56.0)
-const KEYSTONE_SIZE: Vector2 = Vector2(64.0, 64.0)
 const LINK_NODE_CLEARANCE: float = 3.0
 
 const BRANCH_COLORS: Dictionary = {
@@ -313,6 +309,11 @@ func focus_skill(skill_id: String) -> void:
 	skill_focused.emit(skill_id)
 	call_deferred("_ensure_focused_visible")
 
+func grab_tree_focus() -> void:
+	var button: Button = node_for_skill(_focused_id)
+	if button != null and button.is_inside_tree() and button.is_visible_in_tree():
+		button.grab_focus()
+
 func focused_skill_id() -> String:
 	return _focused_id
 
@@ -399,6 +400,12 @@ func node_visual_rect(skill_id: String) -> Rect2:
 
 func node_role_for_skill(skill_id: String) -> String:
 	return SkillTreeLibrary.tier(skill_id)
+
+func navigation_neighbor(skill_id: String, direction: String) -> String:
+	var button: Button = node_for_skill(skill_id)
+	if button == null or direction not in ["left", "right", "up", "down"]:
+		return ""
+	return str(button.get_meta("nav_%s" % direction, ""))
 
 func connection_points(source_id: String, target_id: String) -> PackedVector2Array:
 	if _link_layer == null:
@@ -851,12 +858,12 @@ func _configure_focus_neighbors() -> void:
 		if button == null:
 			continue
 		for direction: String in ["left", "right", "up", "down"]:
-			var neighbor_id: String = _nearest_node_in_direction(skill_id, direction)
+			var neighbor_id: String = _navigation_neighbor_for_direction(skill_id, direction)
+			button.set_meta("nav_%s" % direction, neighbor_id)
 			var neighbor: Button = node_for_skill(neighbor_id)
 			if neighbor == null:
-				continue
+				neighbor = button
 			var neighbor_path: NodePath = button.get_path_to(neighbor)
-			button.set_meta("nav_%s" % direction, neighbor_id)
 			match direction:
 				"left":
 					button.focus_neighbor_left = neighbor_path
@@ -867,41 +874,41 @@ func _configure_focus_neighbors() -> void:
 				"down":
 					button.focus_neighbor_bottom = neighbor_path
 
-func _nearest_node_in_direction(skill_id: String, direction: String) -> String:
+func _navigation_neighbor_for_direction(skill_id: String, direction: String) -> String:
 	var origin: Vector2 = _node_center(skill_id)
+	if direction in ["left", "right"]:
+		var best_id: String = ""
+		var best_distance: float = INF
+		for candidate_id: String in SkillTreeLibrary.ordered_ids():
+			if candidate_id == skill_id:
+				continue
+			var delta: Vector2 = _node_center(candidate_id) - origin
+			if absf(delta.y) > 0.5:
+				continue
+			if direction == "left" and delta.x >= -0.5:
+				continue
+			if direction == "right" and delta.x <= 0.5:
+				continue
+			var distance: float = absf(delta.x)
+			if distance < best_distance:
+				best_distance = distance
+				best_id = candidate_id
+		return best_id
+	var candidates: Array[String]
+	if direction == "up":
+		candidates = SkillTreeLibrary.prerequisites(skill_id)
+	else:
+		candidates = _direct_dependent_ids(skill_id)
 	var best_id: String = ""
-	var best_score: float = INF
-	for candidate_id: String in SkillTreeLibrary.ordered_ids():
-		if candidate_id == skill_id:
-			continue
-		var delta: Vector2 = _node_center(candidate_id) - origin
-		var primary: float = 0.0
-		var secondary: float = 0.0
-		match direction:
-			"left":
-				if delta.x >= -0.5:
-					continue
-				primary = -delta.x
-				secondary = absf(delta.y)
-			"right":
-				if delta.x <= 0.5:
-					continue
-				primary = delta.x
-				secondary = absf(delta.y)
-			"up":
-				if delta.y >= -0.5:
-					continue
-				primary = -delta.y
-				secondary = absf(delta.x)
-			_:
-				if delta.y <= 0.5:
-					continue
-				primary = delta.y
-				secondary = absf(delta.x)
-		var score: float = primary + secondary * (2.0 if direction in ["left", "right"] else 1.4)
-		if score < best_score:
-			best_score = score
+	var best_horizontal_distance: float = INF
+	for candidate_id: String in candidates:
+		var horizontal_distance: float = absf(_node_center(candidate_id).x - origin.x)
+		if horizontal_distance < best_horizontal_distance:
+			best_horizontal_distance = horizontal_distance
 			best_id = candidate_id
+		elif is_equal_approx(horizontal_distance, best_horizontal_distance) and not best_id.is_empty():
+			if _node_center(candidate_id).x < _node_center(best_id).x:
+				best_id = candidate_id
 	return best_id
 
 func _on_detail_action_pressed() -> void:
@@ -997,15 +1004,7 @@ func _node_center(skill_id: String) -> Vector2:
 	return Vector2(SkillTreeLibrary.layout_position(skill_id))
 
 func _node_size(skill_id: String) -> Vector2:
-	match SkillTreeLibrary.tier(skill_id):
-		"root":
-			return ROOT_SIZE
-		"junction":
-			return JUNCTION_SIZE
-		"keystone":
-			return KEYSTONE_SIZE
-		_:
-			return BRANCH_SIZE
+	return Vector2(SkillTreeLibrary.layout_node_size(skill_id))
 
 func _node_visual_rect(skill_id: String) -> Rect2:
 	var visual_size: Vector2 = _node_size(skill_id) - Vector2(8.0, 8.0)

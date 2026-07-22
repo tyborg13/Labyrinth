@@ -75,6 +75,7 @@ func _test_character_skill_tree(instance: Node) -> void:
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
 	_expect(tree != null and tree.status_for_skill("quick_wits") == SkillTreeView.STATE_OWNED, "Skill tree should mark a learned combat ability")
 	_expect(tree != null and tree.status_for_skill("discerning_eye") == SkillTreeView.STATE_OWNED, "Skill tree should mark a learned reward ability")
+	_expect(tree != null and instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill(tree.focused_skill_id()), "Opening the Skills surface should place real GUI focus on the tree")
 	if tree != null:
 		tree.focus_skill("discerning_eye")
 	_expect(tree != null and tree.detail_title_text() == "Discerning Eye", "Compact medallions should reveal full skill names in the persistent detail pane")

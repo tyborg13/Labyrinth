@@ -7,6 +7,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 static func run(expect: Callable) -> void:
 	_test_skill_data_and_topology(expect)
+	_test_layout_validation_requires_bounded_coordinates(expect)
 	_test_topology_validation_rejects_unknown_prerequisites(expect)
 	_test_topology_validation_rejects_cycles(expect)
 	_test_topology_validation_rejects_dead_ends(expect)
@@ -37,6 +38,16 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.description("afterimage").contains(str(afterimage_health)), "Afterimage copy should match the health shown on its illusion")
 	expect.call(SkillTreeLibrary.description("last_reserve").contains(str(reserve_health)), "Last Reserve copy should match the surviving health shown in combat")
 	expect.call(SkillTreeLibrary.description("last_door").contains(str(last_door_health)), "Last Door copy should match the returning health shown in the run UI")
+
+static func _test_layout_validation_requires_bounded_coordinates(expect: Callable) -> void:
+	var missing_layout: Dictionary = SkillTreeLibrary.definitions().duplicate(true)
+	(missing_layout["quick_wits"] as Dictionary).erase("layout_position")
+	var missing_errors: Array[String] = _validation_errors_with_definitions(missing_layout)
+	expect.call(_contains_error_fragment(missing_errors, "layout_position must contain exactly two integer coordinates"), "Topology validation should reject a node without an explicit visual coordinate")
+	var clipped_layout: Dictionary = SkillTreeLibrary.definitions().duplicate(true)
+	(clipped_layout["quick_wits"] as Dictionary)["layout_position"] = [2, 30]
+	var clipped_errors: Array[String] = _validation_errors_with_definitions(clipped_layout)
+	expect.call(_contains_error_fragment(clipped_errors, "outside the"), "Topology validation should reject a medallion that extends beyond the fixed canvas")
 
 static func _test_topology_validation_rejects_unknown_prerequisites(expect: Callable) -> void:
 	var altered_definitions: Dictionary = SkillTreeLibrary.definitions().duplicate(true)

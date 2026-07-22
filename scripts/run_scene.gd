@@ -16186,6 +16186,7 @@ func _build_skill_tree_overlay_body() -> Control:
 	_skill_tree_view.confirm_requested.connect(_on_skill_tree_confirm_requested)
 	_skill_tree_view.cancel_requested.connect(_on_skill_tree_cancel_requested)
 	column.add_child(_skill_tree_view)
+	_skill_tree_view.call_deferred("grab_tree_focus")
 
 	if tree_mode == SkillTreeView.MODE_VIEW:
 		var command_row := HBoxContainer.new()

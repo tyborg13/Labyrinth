@@ -209,7 +209,7 @@ static func _test_last_door(expect: Callable) -> void:
 	state["skill_state"] = skill_state
 	var retreated: Dictionary = engine.finish_combat(state, _combat_result(FIRST_ROOM, "combat", false))
 	expect.call(retreated.get("current_room", Vector2i(-1, -1)) == Vector2i.ZERO, "Last Door should return a defeated player to the previous room")
-	expect.call(int(retreated.get("player_hp", 0)) == GameData.fixed_point_amount(1), "Last Door should return the player at exactly 1 visible health")
+	expect.call(int(retreated.get("player_hp", 0)) == GameData.fixed_point_amount(1), "Last Door should return the player at exactly 10 visible health")
 	expect.call(str(retreated.get("mode", "")) == "room" and not bool(retreated.get("game_over", true)), "Last Door should avert non-boss defeat")
 	expect.call(engine.held_embers(retreated) == 91, "Last Door should preserve embers held during the failed encounter")
 	expect.call(not (retreated.get("equipped_items", []) as Array).has("crimson_draught") and not (retreated.get("item_inventory", []) as Array).has("crimson_draught"), "Last Door should not restore a consumed item")

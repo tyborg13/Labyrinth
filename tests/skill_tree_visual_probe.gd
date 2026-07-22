@@ -307,6 +307,12 @@ func _assert_tree_scroll_contract(tree: SkillTreeView, viewport_size: Vector2i, 
 	_expect(not scroll.get_h_scroll_bar().visible, "%s %s tree should keep all four branches visible without horizontal scrolling" % [viewport_size, label])
 	_expect(not scroll.get_v_scroll_bar().visible, "%s %s tree should show roots through keystones without vertical scrolling" % [viewport_size, label])
 	_expect(tree.graph_canvas_size().x <= scroll.size.x + 2.0, "%s %s graph canvas should remain horizontally bounded" % [viewport_size, label])
+	var graph_bounds := Rect2(Vector2.ZERO, tree.graph_canvas_size())
+	var visible_bounds: Rect2 = scroll.get_global_rect()
+	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		var node: Button = tree.node_for_skill(skill_id)
+		_expect(node != null and graph_bounds.encloses(Rect2(node.position, node.size)), "%s %s %s should remain inside the authored graph canvas" % [viewport_size, label, skill_id])
+		_expect(node != null and visible_bounds.encloses(node.get_global_rect()), "%s %s %s should remain fully visible inside the scroll host" % [viewport_size, label, skill_id])
 
 func _settle() -> void:
 	await process_frame

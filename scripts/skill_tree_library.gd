@@ -5,6 +5,13 @@ const SKILLS_PATH: String = "res://data/skills.json"
 const KEYSTONE_GROUP: String = "keystone"
 const COMPLETE_BUILD_SIZE: int = 19
 const BRANCH_ORDER = ["tactics", "resolve", "traverse", "foresight", "keystone"]
+const LAYOUT_CANVAS_SIZE: Vector2i = Vector2i(730, 350)
+const LAYOUT_NODE_SIZES: Dictionary = {
+	"root": Vector2i(56, 56),
+	"branch": Vector2i(52, 52),
+	"junction": Vector2i(56, 56),
+	"keystone": Vector2i(64, 64),
+}
 
 static var _cache: Dictionary = {}
 
@@ -71,9 +78,12 @@ static func position(skill_id: String) -> Vector2i:
 
 static func layout_position(skill_id: String) -> Vector2i:
 	var raw: Variant = (definitions().get(skill_id, {}) as Dictionary).get("layout_position", [])
-	if typeof(raw) != TYPE_ARRAY or (raw as Array).size() < 2:
-		return position(skill_id)
+	if not _is_valid_layout_position(raw):
+		return Vector2i.ZERO
 	return Vector2i(int((raw as Array)[0]), int((raw as Array)[1]))
+
+static func layout_node_size(skill_id: String) -> Vector2i:
+	return LAYOUT_NODE_SIZES.get(tier(skill_id), LAYOUT_NODE_SIZES["branch"]) as Vector2i
 
 static func prerequisites(skill_id: String) -> Array[String]:
 	return _unique_known_ids((definitions().get(skill_id, {}) as Dictionary).get("prerequisites", []))
@@ -254,10 +264,23 @@ static func validation_errors() -> Array[String]:
 		if seen_positions.has(position_key):
 			errors.append("%s shares a position with %s." % [skill_id, str(seen_positions[position_key])])
 		seen_positions[position_key] = skill_id
-		var layout_key: String = str(layout_position(skill_id))
-		if seen_layout_positions.has(layout_key):
-			errors.append("%s shares a layout position with %s." % [skill_id, str(seen_layout_positions[layout_key])])
-		seen_layout_positions[layout_key] = skill_id
+		var raw_layout_position: Variant = skill_def.get("layout_position", null)
+		if not _is_valid_layout_position(raw_layout_position):
+			errors.append("%s layout_position must contain exactly two integer coordinates." % skill_id)
+		else:
+			var skill_layout_position: Vector2i = layout_position(skill_id)
+			var layout_key: String = str(skill_layout_position)
+			if seen_layout_positions.has(layout_key):
+				errors.append("%s shares a layout position with %s." % [skill_id, str(seen_layout_positions[layout_key])])
+			seen_layout_positions[layout_key] = skill_id
+			var half_size: Vector2i = layout_node_size(skill_id) / 2
+			if (
+				skill_layout_position.x - half_size.x < 0
+				or skill_layout_position.y - half_size.y < 0
+				or skill_layout_position.x + half_size.x > LAYOUT_CANVAS_SIZE.x
+				or skill_layout_position.y + half_size.y > LAYOUT_CANVAS_SIZE.y
+			):
+				errors.append("%s layout_position places its medallion outside the %s canvas." % [skill_id, LAYOUT_CANVAS_SIZE])
 		var raw_prerequisites: Variant = skill_def.get("prerequisites", [])
 		if typeof(raw_prerequisites) != TYPE_ARRAY:
 			errors.append("%s prerequisites must be an array." % skill_id)
@@ -290,6 +313,16 @@ static func validation_errors() -> Array[String]:
 	if repaired_selection([], COMPLETE_BUILD_SIZE).size() != COMPLETE_BUILD_SIZE:
 		errors.append("The graph cannot produce a legal %d-skill build." % COMPLETE_BUILD_SIZE)
 	return errors
+
+static func _is_valid_layout_position(value: Variant) -> bool:
+	if typeof(value) != TYPE_ARRAY or (value as Array).size() != 2:
+		return false
+	for coordinate: Variant in value as Array:
+		if typeof(coordinate) not in [TYPE_INT, TYPE_FLOAT]:
+			return false
+		if not is_equal_approx(float(coordinate), float(int(coordinate))):
+			return false
+	return true
 
 static func _prerequisite_cycle_errors() -> Array[String]:
 	var errors: Array[String]

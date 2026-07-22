@@ -236,9 +236,12 @@ under-stroke, avoids every unrelated node, and has no arrowhead. Direction is
 communicated by the top-to-bottom dependency ranks. Focusing a skill strengthens
 its prerequisites and direct unlocks without fading the rest of the graph. The
 full root-to-keystone topology fits at `1280x720` and `1920x1080` without either
-scrollbar. The detail pane shows the full effect, activation kind, individually
-satisfied or missing prerequisites, direct unlocks, minimum learned count, and
-lock reason.
+scrollbar. Every node requires an explicit bounded layout coordinate. Opening
+the tree transfers GUI focus to its focused node; horizontal navigation stays
+within the visible rank, vertical navigation follows dependency links, and a
+rank edge does not fall through to an unrelated node. The detail pane shows the
+full effect, activation kind, individually satisfied or missing prerequisites,
+direct unlocks, minimum learned count, and lock reason.
 
 During combat, learned skills appear through a violet SkillSigil beside—but
 visually distinct from—the relic row. Its popover lists every learned skill as:
@@ -335,7 +338,8 @@ The implementation is covered by focused suites for:
   cross-branch prerequisites, and combat states. Geometry tests additionally
   require distinct multi-parent ports, zero connector-node intersections,
   opaque `3`-pixel minimum links with separating under-strokes, loaded semantic
-  icons, explicit controller neighbors, and no tree scrollbars.
+  icons, semantic live controller focus neighbors, every medallion wholly inside
+  both canvas and scroll viewport, and no tree scrollbars.
 
 Any future skill must add or update its data definition, relevant engine hook,
 HUD status semantics, analytics trigger, focused test, and this specification in
