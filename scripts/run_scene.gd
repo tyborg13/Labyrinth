@@ -2176,6 +2176,8 @@ func _close_skill_status_popover(restore_focus: bool = true) -> void:
 		_skill_status_return_focus = null
 
 func _can_restore_gui_focus(control: Variant) -> bool:
+	if control == null or not is_instance_valid(control):
+		return false
 	if not is_instance_of(control, Control):
 		return false
 	var focus_control: Control = control as Control
@@ -10895,7 +10897,7 @@ func _refresh_hand_panel() -> void:
 				(valid_skill_target if selecting_skill_card else bool(options.get("any_playable", false))) and not _animation_lock,
 				_hovered_card_index == index and active_hand_index < 0
 				and _drag_card_index < 0,
-				not _animation_lock and (not selecting_skill_card or valid_skill_target),
+				not _animation_lock and not selecting_skill_card,
 				valid_skill_target if selecting_skill_card else bool(options.get("printed_playable", false)),
 				_card_def(str(hand[index]), _combat_state)
 			)
@@ -18723,7 +18725,7 @@ func _build_card_preview_widget(card_id: String, card_size: Vector2, interactive
 	var widget := CardWidgetScene.instantiate() as CardWidget
 	widget.focus_mode = Control.FOCUS_NONE
 	widget.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
-	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id))
+	widget.configure(card_id, false, false, true, false, interactive, true, _card_def(card_id))
 	return _scaled_card_slot(widget, card_size, interactive)
 
 func _equipment_inventory_ids() -> Array:

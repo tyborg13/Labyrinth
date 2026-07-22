@@ -352,15 +352,20 @@ func _capture_combat_surfaces(
 	_expect(focused_hand_choice != null and instance.get_viewport().gui_get_focus_owner() == focused_hand_choice, "%s Quick Wits should focus its first full-card controller choice" % viewport_size)
 	_assert_inside(selection_prompt, viewport_size, "%s Quick Wits hand-selection prompt" % viewport_size, 8.0)
 	await _save_screenshot(viewport, "%s/06_quick_wits_hand_selection.png" % output_dir, viewport_size)
-	instance.call("_cancel_combat_skill_card_selection")
+	await _click_control(viewport, focused_hand_choice, "%s Quick Wits full-card choice" % viewport_size)
+	_expect(selection_prompt != null and not selection_prompt.visible, "%s Clicking the full hand card should close Quick Wits selection" % viewport_size)
+	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "%s Clicking the full hand card should spend Quick Wits" % viewport_size)
 	instance.call("_on_combat_skill_pressed", "encore")
 	await _settle()
 	var pile_scrim := instance.get("_pile_scrim") as Control
 	var pile_cards := instance.get("_pile_dialog_cards") as Control
 	_expect(pile_scrim != null and pile_scrim.visible, "%s Encore should open the discard pile" % viewport_size)
-	_expect(pile_cards != null and pile_cards.find_child("DiscardSelectionCard_0", true, false) is Button, "%s Encore should make the full discarded card selectable" % viewport_size)
+	var discard_choice := pile_cards.find_child("DiscardSelectionCard_0", true, false) as Button if pile_cards != null else null
+	_expect(discard_choice != null, "%s Encore should make the full discarded card selectable" % viewport_size)
 	await _save_screenshot(viewport, "%s/06b_encore_discard_selection.png" % output_dir, viewport_size)
-	instance.call("_close_pile_view")
+	await _click_control(viewport, discard_choice, "%s Encore full-card choice" % viewport_size)
+	_expect(pile_scrim != null and not pile_scrim.visible, "%s Clicking the full discard card should close Encore selection" % viewport_size)
+	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "encore"), "%s Clicking the full discard card should spend Encore" % viewport_size)
 
 func _populated_progression() -> Dictionary:
 	var skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(PROGRESSION_SKILLS, PROGRESSION_SKILLS.size(), PROGRESSION_SKILLS)
@@ -410,6 +415,27 @@ func _save_screenshot(viewport: SubViewport, output_path: String, expected_size:
 	_expect(image.get_size() == expected_size, "%s should be exactly %s, got %s" % [output_path, expected_size, image.get_size()])
 	var error: Error = image.save_png(output_path)
 	_expect(error == OK, "%s should save successfully" % output_path)
+
+func _click_control(viewport: SubViewport, control: Control, label: String) -> void:
+	if control == null or not control.is_visible_in_tree():
+		_fail("%s should be visible before mouse input" % label)
+		return
+	var click_position: Vector2 = control.get_global_transform_with_canvas() * (control.size * 0.5)
+	var motion := InputEventMouseMotion.new()
+	motion.position = click_position
+	motion.global_position = click_position
+	viewport.push_input(motion, true)
+	await process_frame
+	_expect(viewport.gui_get_hovered_control() == control, "%s should own its visible card's mouse hit" % label)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.position = click_position
+		event.global_position = click_position
+		event.pressed = pressed
+		viewport.push_input(event, true)
+		await process_frame
+	await _settle()
 
 func _assert_inside(control: Control, viewport_size: Vector2i, label: String, margin: float = 0.0) -> void:
 	if control == null:

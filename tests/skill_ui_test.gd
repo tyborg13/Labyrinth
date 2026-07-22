@@ -565,7 +565,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(first_hand_card != null and first_hand_card.is_visible_in_tree(), "Discard mode should keep the full card in its normal hand position")
 	_expect(first_hand_selection != null and instance.get_viewport().gui_get_focus_owner() == first_hand_selection, "Quick Wits should transfer controller focus to the first full-card choice")
 	if first_hand_selection != null:
-		await _press_ui_action(&"ui_accept")
+		await _click_control(first_hand_selection)
 	await process_frame
 	_expect(selection_prompt != null and not selection_prompt.visible, "Choosing the live hand card should leave discard mode")
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "Choosing Quick Wits through real input should commit its combat use")
@@ -714,7 +714,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(item_card != null and item_card.disabled and item_widget != null and item_widget.card_id == "crimson_draught", "Encore should leave the displayed item card visible but inert after reversing pile order")
 	_expect(instance.get_viewport().gui_get_focus_owner() == recall_card, "Encore should focus the first eligible full discard card for controller input")
 	if recall_card != null:
-		await _press_ui_action(&"ui_accept")
+		await _click_control(recall_card)
 	await process_frame
 	var encore_result: Dictionary = instance.get("_combat_state") as Dictionary
 	_expect(not pile_scrim.visible and ((encore_result.get("deck", {}) as Dictionary).get("hand", []) as Array).has("quick_stab"), "Selecting the full discard card should return it to hand and close the pile")
@@ -1184,6 +1184,28 @@ func _press_ui_action(action: StringName) -> void:
 		event.pressed = pressed
 		event.strength = 1.0 if pressed else 0.0
 		root.push_input(event)
+		await process_frame
+	await process_frame
+
+func _click_control(control: Control) -> void:
+	if control == null or not control.is_visible_in_tree():
+		return
+	var viewport: Viewport = control.get_viewport()
+	var click_position: Vector2 = control.get_global_transform_with_canvas() * (control.size * 0.5)
+	var motion := InputEventMouseMotion.new()
+	motion.position = click_position
+	motion.global_position = click_position
+	viewport.push_input(motion, true)
+	await process_frame
+	var hovered: Control = viewport.gui_get_hovered_control()
+	_expect(hovered == control, "%s should own the mouse hit instead of its decorative card subtree" % control.name)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.position = click_position
+		event.global_position = click_position
+		event.pressed = pressed
+		viewport.push_input(event, true)
 		await process_frame
 	await process_frame
 

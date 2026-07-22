@@ -472,7 +472,7 @@ func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	set_meta("cursor_feedback_context", "action_drag")
 	set_meta("cursor_feedback_drag_source", true)
-	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_filter = Control.MOUSE_FILTER_STOP if _interactive else Control.MOUSE_FILTER_IGNORE
 	clip_contents = false
 	text = ""
 	art_frame.clip_contents = true
@@ -606,6 +606,7 @@ func set_hover_pose(next_lift: float, next_scale: float) -> void:
 func _apply_configuration() -> void:
 	if not is_node_ready():
 		return
+	mouse_filter = Control.MOUSE_FILTER_STOP if _interactive else Control.MOUSE_FILTER_IGNORE
 	var card: Dictionary = _display_card_def()
 	var element_id: String = GameData.card_element_from_def(card)
 	title_label.text = str(card.get("name", card_id))
