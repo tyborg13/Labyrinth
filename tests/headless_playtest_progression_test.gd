@@ -48,11 +48,14 @@ func _test_level_then_learn_commands() -> void:
 	_expect(ProgressionStore.unspent_skill_points(leveled) == 1, "Leveling should bank one unspent skill point")
 	_expect(str((harness.get("_run_state") as Dictionary).get("mode", "")) == "room", "Successful leveling should preserve the campfire continue flow")
 
+	var run_after_reward: Dictionary = run_engine.set_held_embers(harness.get("_run_state") as Dictionary, 70)
+	harness.set("_run_state", run_after_reward)
 	harness.call("_command_learn", PackedStringArray(["learn", "quick_wits"]))
 	var learned: Dictionary = harness.get("_progression") as Dictionary
 	_expect(ProgressionStore.selected_skill_ids(learned) == ["quick_wits"], "The independent learn command should commit one legal skill")
 	_expect(ProgressionStore.unspent_skill_points(learned) == 0, "Learning should spend exactly one banked point")
 	_expect(ProgressionStore.selected_skill_ids((harness.get("_run_state") as Dictionary).get("progression", {})) == ["quick_wits"], "Learning should update the active run snapshot")
+	_expect(run_engine.held_embers(harness.get("_run_state") as Dictionary) == 70, "Learning should preserve live held Embers that are newer than the embedded progression snapshot")
 	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
 	_expect(events.size() == 2, "The harness should record separate level-up and skill-learning events")
 	if events.size() == 2:

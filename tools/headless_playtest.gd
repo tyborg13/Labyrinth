@@ -730,7 +730,7 @@ func _command_learn(parts: PackedStringArray) -> void:
 		print("Could not save the learned ability; the skill point was not spent.")
 		return
 	_progression = candidate
-	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
 	ProgressionStore.save_run_state(_run_state)
 	_sync_combat_state_from_run()
 	_log_skill_learned(before_progression, _progression, skill_id)
