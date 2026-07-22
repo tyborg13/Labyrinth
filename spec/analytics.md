@@ -100,7 +100,8 @@ The current event stream is enough to derive:
 - initiative timing: printed `card_time`, player turn time spent before/after
   the play, and the current `player_base_initiative`
 - elemental intensity before/after resolution, gross positive per-element
-  intensity gained by the played card, and intensity spent by relic payoffs
+  intensity gained by the played card, and intensity spent by printed card
+  costs or relic payoffs
 - illusions created and their total created health
 - immediate status application deltas for burn, bleed, expose, freeze, shock,
   immobilize, and poison
@@ -124,7 +125,9 @@ resolves a move or attack action during that activation. It is useful for later
 value-model work, but it is not yet card-source attributed.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
-heal, summon, or authored dragon-boss mechanic step. Boss mechanics retain the
+heal, summon, elemental-intensity build, or authored dragon-boss mechanic step.
+Its additive `elemental_intensity_gained` and `elemental_intensity_spent` maps
+capture specialist builders and attached enemy payoff costs. Boss mechanics retain the
 specific `action_type`, use `presentation_kind` for their animation family, and
 set `boss_mechanic: true`; they do not also emit misleading
 `enemy_status_tick` events. Movement payloads include the exact ordered `path`,
@@ -234,7 +237,8 @@ Update analytics instrumentation when changes affect:
 - ember carry, loss, extraction, or campfire level-up flow
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
-- elemental intensity production, gating, or room-start rules
+- elemental intensity production, gating, spending, enemy use, trap scaling, or
+  room-start rules
 - Umbra stage progression, visibility, hidden-enemy information, or Radiance
   actions
 - card actions that create, remove, or redirect combat actors

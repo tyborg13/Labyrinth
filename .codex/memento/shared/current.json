@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-18T03:51:39Z",
+  "updated_at": "2026-07-21T13:15:09Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6027,6 +6027,74 @@
       "source": {
         "branch": "codex/implement-five-elemental-dragon-bosses-and-complete-24-depth-victory-pro",
         "commit": "5e81c14"
+      }
+    },
+    {
+      "id": "mnt_20260719T161354Z_2b9cf35d",
+      "layer": "shared",
+      "kind": "decision",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Elemental intensity is a contested room resource with centralized scaling rules",
+      "details": "Player cards with top-level intensity_cost synthesize one required spend before printed actions; enemy actions build with type:intensity or pay attached spend_intensity costs. Trap damage is centralized in scripts/elemental_intensity_rules.gd at 72/94/124/162/208/262/324 percent for intensity 0-6, and generated traps preserve base_damage with damage fallback for older saves.",
+      "status": "active",
+      "created_at": "2026-07-19T16:13:54Z",
+      "updated_at": "2026-07-19T16:13:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-core-rework",
+        "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260720T021803Z_2a5506be",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/combat_board_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/combat_board_view.gd",
+      "summary": "Placed light uses soft animated glow without construction lines",
+      "details": "Placed light must preserve the exact Illuminate Manhattan gameplay footprint while presenting it as overlapping blurred warm falloff with no hard tile or perimeter outline. The orb should use a feathered luminous core, close glow, gentle breathing scale/brightness, subtle bob and internal drift, while keeping the remaining-activation text readable without a framed badge.",
+      "status": "active",
+      "created_at": "2026-07-20T02:18:03Z",
+      "updated_at": "2026-07-20T02:18:03Z",
+      "expires_at": null,
+      "supersedes": [
+        "mnt_20260719T144552Z_c642345c"
+      ],
+      "source": {
+        "branch": "codex/improve-light-orb-and-warm-umbra-reach-lighting",
+        "commit": "c4ba420"
+      }
+    },
+    {
+      "id": "mnt_20260721T131509Z_8d2f9adc",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "file",
+        "path": "scripts/card_widget.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/card_widget.gd",
+      "summary": "Funded intensity spenders reuse the gated-card glow",
+      "details": "Do not add a separate bracket, corner, notch, or inward-siphon frame around intensity-spending cards; the user considers that ornament crude and unpolished. A spender whose cost is currently payable should use the existing elemental IntensityActiveGlow exactly like a satisfied intensity gate, while an unpayable spender stays unlit. Keep the negative elemental amount in the cost row as the distinction between spending and gating.",
+      "status": "active",
+      "created_at": "2026-07-21T13:15:09Z",
+      "updated_at": "2026-07-21T13:15:09Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/elemental-intensity-core-rework",
+        "commit": "50e2105"
       }
     }
   ]

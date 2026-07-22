@@ -926,7 +926,7 @@ func _active_intensity_condition() -> Dictionary:
 			if typeof(token_var) != TYPE_DICTIONARY:
 				continue
 			var token: Dictionary = token_var
-			if str(token.get("kind", "")) != "intensity_requirement":
+			if str(token.get("kind", "")) not in ["intensity_requirement", "intensity_spend"]:
 				continue
 			if not bool(token.get("condition_active", false)):
 				continue

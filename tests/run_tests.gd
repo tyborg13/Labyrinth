@@ -15,6 +15,7 @@ const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
 const DragonBossSuite = preload("res://tests/suites/dragon_boss_suite.gd")
 const TooltipConsistencySuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
+const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -60,6 +61,7 @@ func _initialize() -> void:
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
+	ElementalIntensitySuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_music_library_routes_elemental_combat_tracks()
@@ -2915,7 +2917,7 @@ func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	_assert(int(squall_action.get("push", 0)) == 2, "Tailwind should increase existing push on Air AOE attacks")
 	var tailwind_vacuum: Dictionary = GameData.card_def_for_progression("vacuum_line", {"relics": ["tailwind_fletching"]})
 	var vacuum_action: Dictionary = (tailwind_vacuum.get("actions", []) as Array)[0]
-	_assert(int(vacuum_action.get("amount", 0)) == 3, "Tailwind should increase existing Air pull action distance")
+	_assert(int(vacuum_action.get("amount", 0)) == 6, "Tailwind should increase existing Air pull action distance")
 	var stacked_updraft: Dictionary = GameData.card_def_for_progression("updraft", {"relics": ["tailwind_fletching", "anchor_chain"]})
 	var stacked_action: Dictionary = (stacked_updraft.get("actions", []) as Array)[1]
 	_assert(int(stacked_action.get("amount", 0)) == 4, "Multiple relics should stack on the same forced-movement number")
@@ -4292,6 +4294,7 @@ func _test_traps_roll_control_to_next_turn_when_no_plays_remain() -> void:
 func _test_move_paths_only_cross_required_traps() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
 	layout["traps"] = [
 		{
 			"id": "trap_3_4",
@@ -4364,6 +4367,7 @@ func _test_terrain_blocks_movement_without_blocking_line_of_sight() -> void:
 func _test_attacking_trap_blasts_adjacent_tiles() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
 	layout["enemies"] = [{
 		"id": 1,
 		"type": "crawler",
@@ -4396,6 +4400,7 @@ func _test_attacking_trap_blasts_adjacent_tiles() -> void:
 func _test_trap_blasts_damage_incidental_terrain() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
 	layout["player_start"] = Vector2i(2, 4)
 	layout["terrain"] = [{
 		"id": "blast_crate",
@@ -4426,6 +4431,7 @@ func _test_trap_blasts_damage_incidental_terrain() -> void:
 func _test_enemy_attacks_profitable_trap_without_self_damage() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
+	layout["element"] = ElementData.FIRE
 	layout["player_start"] = Vector2i(5, 4)
 	layout["enemies"] = [{
 		"id": 1,
@@ -5373,12 +5379,13 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 
 func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
+	board.combat_state = {"elemental_intensity": {ElementData.AIR: 1}}
 	var tooltip: String = str(board.call("_trap_tooltip_text", {
 		"element": "air",
 		"damage": 3
 	}))
 	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
-	_assert(tooltip.contains("3 damage to adjacent tiles"), "Trap tooltips should show adjacent blast damage")
+	_assert(tooltip == "Air Trap\n3 damage", "Trap tooltips should show only the trap name and live scaled damage")
 	_assert(not tooltip.contains("Burn") and not tooltip.contains("Freeze") and not tooltip.contains("Shock") and not tooltip.contains("Immobilize") and not tooltip.contains("Poison"), "Air trap tooltips should stay damage-only until the air secondary effect is decided")
 
 func _test_pickup_tooltips_describe_effects() -> void:
@@ -11428,7 +11435,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(int(play_payload.get("player_block_gained", 0)) == 20, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
-	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by relic payoffs")
+	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by printed costs or relic payoffs")
 	_assert(play_payload.has("terrain_hp_damage"), "Card play analytics should include terrain damage")
 	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
@@ -11744,6 +11751,9 @@ func _chainbound_gaoler_combat_state(seed: int, player_pos: Vector2i, gaoler_pos
 		"stoneskin": 0,
 		"intent": _enemy_intent_by_id("chainbound_gaoler", intent_id)
 	}]
+	var intensity: Dictionary = combat.elemental_intensities(state)
+	intensity[ElementData.AIR] = 2
+	state["elemental_intensity"] = intensity
 	state["rng_state"] = seed
 	return state
 
