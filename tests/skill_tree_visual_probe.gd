@@ -226,7 +226,11 @@ func _capture_combat_surfaces(
 		"heal_bonus": 0,
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["quick_stab", "sidestep_slash", "spark_dart", "guarded_step"]
+	# This hand makes every learned manual skill legal at once: a Burn card for
+	# Rehearsed Escape, an item for Makeshift Tool, an intensity card for
+	# Prismatic Instinct, any card for Quick Wits, a discard for Encore, and
+	# positive block for Carry the Guard below.
+	deck["hand"] = ["patch_up", "crimson_draught", "rime_shard", "quick_stab"]
 	deck["discard"] = ["bone_dart"]
 	deck["draw"] = ["patch_up", "frostbolt", "ember_jab"]
 	combat_state["deck"] = deck
@@ -256,11 +260,20 @@ func _capture_combat_surfaces(
 		print("Skill HUD %s title=%s sigil=%s" % [viewport_size, title_box.get_global_rect(), sigil.get_global_rect()])
 	var choice_overlay := instance.get("_choice_button_overlay") as Control
 	var choice_bar := instance.get("choice_bar") as Control
-	for skill_name: String in ["Quick Wits", "Prismatic Instinct", "Encore", "Carry the Guard"]:
+	var maximum_manual_skill_names: Array[String] = [
+		"Quick Wits",
+		"Rehearsed Escape",
+		"Makeshift Tool",
+		"Carry the Guard",
+		"Prismatic Instinct",
+		"Encore",
+	]
+	for skill_name: String in maximum_manual_skill_names:
 		var button: Button = _visible_button_with_text(choice_overlay, skill_name)
 		if button == null:
 			button = _visible_button_with_text(choice_bar, skill_name)
 		_expect(button != null, "%s Combat HUD should expose ready %s control" % [viewport_size, skill_name])
+		_assert_inside(button, viewport_size, "%s Combat %s control" % [viewport_size, skill_name], 4.0)
 	var banked_badge := instance.get("_play_meter_banked_badge") as Control
 	var banked_label := instance.get("_play_meter_banked_label") as Label
 	_expect(banked_badge != null and banked_badge.visible, "%s Combat HUD should distinguish the stored play from ordinary plays" % viewport_size)
