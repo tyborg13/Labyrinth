@@ -17,6 +17,7 @@ const UMBRA_WARNING_AVAILABLE_RUN_KEY: String = "umbra_warning_available_run"
 const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
 const MOLTSHARD_AWARD_IDS_KEY: String = "moltshard_award_ids"
 const MOLTSHARD_AWARD_LEDGER_LIMIT: int = 64
+const PROGRESSION_ANALYTICS_OUTBOX_KEY: String = "progression_analytics_outbox"
 const RUN_RESULT_STAT_IDS := [
 	"enemies_killed",
 	"damage_dealt",
@@ -49,6 +50,7 @@ static func default_data() -> Dictionary:
 		"skill_ids": [],
 		"moltshards": 0,
 		MOLTSHARD_AWARD_IDS_KEY: [],
+		PROGRESSION_ANALYTICS_OUTBOX_KEY: [],
 		"progression_revision": 0,
 		"progression_schema": PROGRESSION_SCHEMA,
 		"rested_at_fire": false,
@@ -121,6 +123,9 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	if award_ids.size() > MOLTSHARD_AWARD_LEDGER_LIMIT:
 		award_ids = award_ids.slice(award_ids.size() - MOLTSHARD_AWARD_LEDGER_LIMIT)
 	data[MOLTSHARD_AWARD_IDS_KEY] = award_ids
+	data[PROGRESSION_ANALYTICS_OUTBOX_KEY] = _normalized_progression_analytics_outbox(
+		data.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	)
 	data["progression_revision"] = maxi(0, int(data.get("progression_revision", 0)))
 	data.erase("stats")
 	data.erase("unspent_stat_points")
@@ -249,6 +254,34 @@ static func _normalized_string_array(value: Variant) -> Array:
 		if item_id.is_empty() or result.has(item_id):
 			continue
 		result.append(item_id)
+	return result
+
+static func _normalized_progression_analytics_outbox(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	var seen_keys: Dictionary = {}
+	for entry_var: Variant in value as Array:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var event_type: String = str(entry.get("event_type", "")).strip_edges()
+		var idempotency_key: String = str(entry.get("idempotency_key", "")).strip_edges()
+		if event_type.is_empty() or idempotency_key.is_empty() or seen_keys.has(idempotency_key):
+			continue
+		seen_keys[idempotency_key] = true
+		var context: Dictionary = {}
+		if typeof(entry.get("context", null)) == TYPE_DICTIONARY:
+			context = (entry.get("context", {}) as Dictionary).duplicate(true)
+		var payload: Dictionary = {}
+		if typeof(entry.get("payload", null)) == TYPE_DICTIONARY:
+			payload = (entry.get("payload", {}) as Dictionary).duplicate(true)
+		result.append({
+			"event_type": event_type,
+			"idempotency_key": idempotency_key,
+			"context": context,
+			"payload": payload,
+		})
 	return result
 
 static func save_data(data: Dictionary) -> bool:
@@ -595,6 +628,60 @@ static func add_moltshard_for_award(data: Dictionary, award_id: String) -> Dicti
 	normalized["moltshards"] = maxi(0, int(normalized.get("moltshards", 0)) + 1)
 	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
 	return _normalized_data(normalized)
+
+static func progression_analytics_outbox(data: Dictionary) -> Array[Dictionary]:
+	return _normalized_progression_analytics_outbox(
+		_normalized_data(data.duplicate(true)).get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+	)
+
+static func queue_progression_analytics_event(
+	data: Dictionary,
+	event_type: String,
+	idempotency_key: String,
+	context: Dictionary,
+	payload: Dictionary
+) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	var safe_event_type: String = event_type.strip_edges()
+	var safe_idempotency_key: String = idempotency_key.strip_edges()
+	if safe_event_type.is_empty() or safe_idempotency_key.is_empty():
+		return normalized
+	var outbox: Array[Dictionary] = progression_analytics_outbox(normalized)
+	for entry: Dictionary in outbox:
+		if str(entry.get("idempotency_key", "")) == safe_idempotency_key:
+			return normalized
+	outbox.append({
+		"event_type": safe_event_type,
+		"idempotency_key": safe_idempotency_key,
+		"context": context.duplicate(true),
+		"payload": payload.duplicate(true),
+	})
+	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = outbox
+	return _normalized_data(normalized)
+
+static func acknowledge_progression_analytics_event(data: Dictionary, idempotency_key: String) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	var safe_idempotency_key: String = idempotency_key.strip_edges()
+	if safe_idempotency_key.is_empty():
+		return normalized
+	var remaining: Array[Dictionary] = []
+	for entry: Dictionary in progression_analytics_outbox(normalized):
+		if str(entry.get("idempotency_key", "")) != safe_idempotency_key:
+			remaining.append(entry.duplicate(true))
+	normalized[PROGRESSION_ANALYTICS_OUTBOX_KEY] = remaining
+	return _normalized_data(normalized)
+
+static func merge_progression_analytics_outbox(data: Dictionary, source: Dictionary) -> Dictionary:
+	var merged: Dictionary = _normalized_data(data.duplicate(true))
+	for entry: Dictionary in progression_analytics_outbox(source):
+		merged = queue_progression_analytics_event(
+			merged,
+			str(entry.get("event_type", "")),
+			str(entry.get("idempotency_key", "")),
+			entry.get("context", {}) as Dictionary,
+			entry.get("payload", {}) as Dictionary
+		)
+	return merged
 
 static func can_respec_skills(data: Dictionary, proposed_skill_ids: Array) -> bool:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))

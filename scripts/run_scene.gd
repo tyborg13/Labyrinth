@@ -34,6 +34,7 @@ const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_pro
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
+const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 
 class TooltipPanelContainer:
 	extends PanelContainer
@@ -6504,6 +6505,7 @@ func _pile_card_style(fill: Color, border: Color, margin: float = 10.0) -> Style
 
 func _boot_run() -> void:
 	_progression = ProgressionStore.load_data()
+	_reconcile_progression_analytics_outbox()
 	var debug_boss: bool = bool(get_tree().root.get_meta("labyrinth_debug_boss_run", false))
 	if get_tree().root.has_meta("labyrinth_debug_boss_run"):
 		get_tree().root.remove_meta("labyrinth_debug_boss_run")
@@ -6541,6 +6543,8 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
 	_repair_profile_progression_from_run()
+	_reconcile_progression_analytics_outbox()
+	_sync_progression_analytics_outbox_to_run()
 	_sync_combat_state_from_run()
 	_repair_legacy_empty_actor_transition()
 	if content_migration_required and not bool(_run_state.get("debug_boss_run", false)) and not ProgressionStore.save_run_state(_run_state):
@@ -15780,14 +15784,32 @@ func _run_state_for_combat_checkpoint(base_run_state: Dictionary, combat_state: 
 		var moltshards_before: int = ProgressionStore.moltshard_count(_progression)
 		var moltshards_after: int = ProgressionStore.moltshard_count(finished_progression)
 		if moltshards_after > moltshards_before:
-			_analytics_store.write_event("progression_moltshard_gained", _analytics_context_from_states(finished_state, combat_state), {
+			var award_id: String = "%s:first_boss_moltshard" % RunEngineScript.run_result_id(finished_state)
+			var payload: Dictionary = {
 				"amount": moltshards_after - moltshards_before,
 				"source": "first_boss_victory",
 				"moltshards_before": moltshards_before,
 				"moltshards_after": moltshards_after
-			})
+			}
+			finished_progression = ProgressionStore.queue_progression_analytics_event(
+				finished_progression,
+				MOLTSHARD_GAIN_EVENT_TYPE,
+				_moltshard_gain_idempotency_key(award_id),
+				_analytics_context_from_states(finished_state, combat_state),
+				payload
+			)
 		_progression = ProgressionStore.normalized_data(finished_progression)
-		ProgressionStore.save_data(_progression)
+		finished_state["progression"] = _progression.duplicate(true)
+		if ProgressionStore.save_data(_authoritative_profile_progression()):
+			_reconcile_progression_analytics_outbox()
+		else:
+			push_error("Failed to persist Moltshard award analytics outbox.")
+		finished_state["progression"] = _progression.duplicate(true)
+	finished_progression = ProgressionStore.merge_progression_analytics_outbox(
+		finished_state.get("progression", {}) as Dictionary,
+		_progression
+	)
+	finished_state["progression"] = finished_progression
 	return finished_state
 
 func _combat_commit_checkpoints(steps: Array) -> Array:
@@ -18949,6 +18971,35 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
 	return context
 
+func _moltshard_gain_idempotency_key(award_id: String) -> String:
+	return "%s|%s" % [MOLTSHARD_GAIN_EVENT_TYPE, award_id]
+
+func _reconcile_progression_analytics_outbox() -> bool:
+	for entry: Dictionary in ProgressionStore.progression_analytics_outbox(_progression):
+		var idempotency_key: String = str(entry.get("idempotency_key", ""))
+		var wrote_event: bool = _analytics_store.write_event(
+			str(entry.get("event_type", "")),
+			entry.get("context", {}) as Dictionary,
+			entry.get("payload", {}) as Dictionary,
+			idempotency_key
+		)
+		if not wrote_event:
+			return false
+		var disk_candidate: Dictionary = ProgressionStore.merge_progression_analytics_outbox(
+			_authoritative_profile_progression(),
+			_progression
+		)
+		disk_candidate = ProgressionStore.acknowledge_progression_analytics_event(disk_candidate, idempotency_key)
+		if not ProgressionStore.save_data(disk_candidate):
+			push_error("Failed to acknowledge progression analytics event: %s" % idempotency_key)
+			return false
+		var active_candidate: Dictionary = ProgressionStore.acknowledge_progression_analytics_event(
+			_progression,
+			idempotency_key
+		)
+		_progression = ProgressionStore.merge_progression_analytics_outbox(active_candidate, disk_candidate)
+	return true
+
 func _combat_recovery_marker_amount(combat_state: Dictionary) -> int:
 	for loot_var: Variant in combat_state.get("loot", []):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -19793,6 +19844,15 @@ func _sync_progression_from_run() -> void:
 		return
 	_progression = ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
+func _sync_progression_analytics_outbox_to_run() -> void:
+	if _run_state.is_empty():
+		return
+	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
+	if run_progression.is_empty():
+		return
+	run_progression[ProgressionStore.PROGRESSION_ANALYTICS_OUTBOX_KEY] = ProgressionStore.progression_analytics_outbox(_progression)
+	_run_state["progression"] = ProgressionStore.normalized_data(run_progression)
+
 func _sync_umbra_warning_progression() -> void:
 	if _is_debug_boss_run() or _combat_state.is_empty():
 		return
@@ -19815,6 +19875,7 @@ func _run_state_with_profile_grimoire(next_run_state: Dictionary) -> Dictionary:
 	var embedded_progression: Dictionary = (state.get("progression", {}) as Dictionary).duplicate(true)
 	if embedded_progression.is_empty():
 		embedded_progression = _progression.duplicate(true)
+	embedded_progression = ProgressionStore.merge_progression_analytics_outbox(embedded_progression, _progression)
 	for key: String in [GrimoireLibrary.UNLOCKED_KEY, GrimoireLibrary.UNREAD_KEY]:
 		var merged: Array[String] = []
 		for entry_id: String in GrimoireLibrary.normalize_entry_ids(embedded_progression.get(key, [])):

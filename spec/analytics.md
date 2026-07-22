@@ -239,7 +239,13 @@ event and spends no resource.
 contains `amount`, `source`, `moltshards_before`, and
 `moltshards_after`. The first-boss award uses
 `source: "first_boss_victory"`; repeated resolution of the same award must not
-emit another event.
+emit another event. The award and a profile-owned analytics outbox entry are
+persisted together before JSONL append. Its stable idempotency key is
+`progression_moltshard_gained|<run-result-id>:first_boss_moltshard`. The outbox
+entry is acknowledged only after append succeeds; loading a profile or saved
+run retries pending entries, and append-before-ack replay is a no-op rather than
+a duplicate. Analytics acknowledgement must never copy held run Embers into the
+banked profile.
 
 `skill_triggered` records each automatic, manual, contextual, or passive skill
 activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,

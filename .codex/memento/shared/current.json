@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-22T07:00:33Z",
+  "updated_at": "2026-07-22T07:25:54Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6283,6 +6283,28 @@
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "f52657e"
+      }
+    },
+    {
+      "id": "mnt_20260722T072554Z_2b13a5a0",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Progression analytics require a profile-first idempotent outbox",
+      "details": "For profile-owned rewards such as the first-boss Moltshard, persist the award and progression_analytics_outbox entry together before JSONL append, use a stable award-derived idempotency key, and acknowledge only after append succeeds. Merge pending entries into equal-revision combat checkpoints so stale-base replays cannot shed intent. Build disk candidates through _authoritative_profile_progression so analytics recovery never banks held run Embers; leave the active/run outbox pending on any append or acknowledgement-save failure.",
+      "status": "active",
+      "created_at": "2026-07-22T07:25:54Z",
+      "updated_at": "2026-07-22T07:25:54Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "76dcae7"
       }
     }
   ]
