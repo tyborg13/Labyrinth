@@ -101,7 +101,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, skills, skill SKILL_ID [INDEX], reward N|heal, relic N, linger, level SKILL_ID, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, moves, move N, cards, card N, click N, drag N play|attack|move, target N|x,y, skip, pass, skills, skill SKILL_ID [INDEX], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
 
@@ -217,6 +217,8 @@ func _handle_command(command: String) -> void:
 			_print_skills()
 		"skill":
 			_command_skill(parts)
+		"learn":
+			_command_learn(parts)
 		"reward":
 			_command_reward(parts)
 		"heal":
@@ -673,13 +675,17 @@ func _print_manual_skill_summary() -> void:
 
 func _print_skills() -> void:
 	var learned_skill_ids: Array[String]
+	var progression: Dictionary = _progression
 	if str(_run_state.get("mode", "")) == "combat":
 		learned_skill_ids = _combat_engine.skill_ids(_combat_state)
 	else:
-		var run_progression: Dictionary = _run_state.get("progression", _progression) as Dictionary
-		learned_skill_ids = ProgressionStore.selected_skill_ids(run_progression)
+		progression = _run_state.get("progression", _progression) as Dictionary
+		learned_skill_ids = ProgressionStore.selected_skill_ids(progression)
+		print("Skill points: %d unspent. Use `learn SKILL_ID` outside combat." % ProgressionStore.unspent_skill_points(progression))
 	if learned_skill_ids.is_empty():
-		print("Learned abilities: none. Choose an ability when leveling at a campfire.")
+		print("Learned abilities: none.")
+		if str(_run_state.get("mode", "")) != "combat":
+			_print_legal_learn_skills(_legal_learn_skill_ids(progression))
 		return
 	print("Learned abilities (%d):" % learned_skill_ids.size())
 	for skill_id: String in learned_skill_ids:
@@ -696,6 +702,49 @@ func _print_skills() -> void:
 			command_suffix,
 			SkillTreeLibrary.description(skill_id)
 		])
+	if str(_run_state.get("mode", "")) != "combat" and ProgressionStore.unspent_skill_points(progression) > 0:
+		_print_legal_learn_skills(_legal_learn_skill_ids(progression))
+
+func _command_learn(parts: PackedStringArray) -> void:
+	var mode: String = str(_run_state.get("mode", ""))
+	if mode in ["combat", "victory", "defeat", "rested"]:
+		print("Abilities can only be learned during an active run outside combat.")
+		return
+	var active_progression: Dictionary = _run_state.get("progression", _progression) as Dictionary
+	var legal_skill_ids: Array[String] = _legal_learn_skill_ids(active_progression)
+	if parts.size() != 2:
+		print("Use `learn SKILL_ID`.")
+		_print_legal_learn_skills(legal_skill_ids)
+		return
+	var skill_id: String = str(parts[1]).strip_edges().to_lower()
+	if not ProgressionStore.can_learn_skill(active_progression, skill_id):
+		print("Cannot learn %s. Unspent skill points: %d." % [
+			skill_id,
+			ProgressionStore.unspent_skill_points(active_progression)
+		])
+		_print_legal_learn_skills(legal_skill_ids)
+		return
+	var before_progression: Dictionary = ProgressionStore.normalized_data(active_progression)
+	var candidate: Dictionary = ProgressionStore.learn_skill(before_progression, skill_id)
+	if not ProgressionStore.save_data(candidate):
+		print("Could not save the learned ability; the skill point was not spent.")
+		return
+	_progression = candidate
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
+	ProgressionStore.save_run_state(_run_state)
+	_sync_combat_state_from_run()
+	_log_skill_learned(before_progression, _progression, skill_id)
+	_append_note("- Progression: learned %s (`%s`); %d skill points remain.\n" % [
+		SkillTreeLibrary.display_name(skill_id),
+		skill_id,
+		ProgressionStore.unspent_skill_points(_progression)
+	])
+	print("Learned %s (`%s`). %d skill points remain." % [
+		SkillTreeLibrary.display_name(skill_id),
+		skill_id,
+		ProgressionStore.unspent_skill_points(_progression)
+	])
+	_print_state()
 
 func _command_skill(parts: PackedStringArray) -> void:
 	if str(_run_state.get("mode", "")) != "combat":
@@ -1466,43 +1515,36 @@ func _command_level_up(parts: PackedStringArray) -> void:
 		print("Not at campfire.")
 		return
 	_sync_progression_from_run()
-	var legal_skill_ids: Array[String] = _legal_level_skill_ids()
-	if parts.size() != 2:
-		print("Use `level SKILL_ID`.")
-		_print_legal_level_skills(legal_skill_ids)
+	if parts.size() != 1:
+		print("Use `level`; spend banked points separately with `learn SKILL_ID`.")
 		return
-	var skill_id: String = str(parts[1])
-	if not ProgressionStore.can_purchase_level_with_skill(_progression, skill_id):
-		print("Cannot learn %s. Held embers %d, next cost %d." % [
-			skill_id,
+	if not ProgressionStore.can_level_up(_progression):
+		print("Cannot level. Held embers %d, next cost %d." % [
 			_run_engine.held_embers(_run_state),
 			ProgressionStore.next_level_cost(_progression)
 		])
-		_print_legal_level_skills(legal_skill_ids)
 		return
 	var before_progression: Dictionary = _progression.duplicate(true)
 	var level_cost: int = ProgressionStore.next_level_cost(before_progression)
 	var held_embers_before: int = _run_engine.held_embers(_run_state)
-	_progression = ProgressionStore.purchase_level_with_skill(_progression, skill_id)
+	_progression = ProgressionStore.purchase_level(_progression)
 	ProgressionStore.save_data(_progression)
 	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
 	_run_state = _run_engine.leave_campfire(_run_state, 0)
 	ProgressionStore.save_run_state(_run_state)
 	_sync_combat_state_from_run()
-	_log_level_up(before_progression, _progression, skill_id, level_cost)
-	_append_note("- Campfire: learned %s (`%s`) and continued with %d unbanked embers.\n" % [
-		SkillTreeLibrary.display_name(skill_id),
-		skill_id,
+	_log_level_up(before_progression, _progression, level_cost)
+	_append_note("- Campfire: reached level %d, banked one skill point, and continued with %d unbanked embers.\n" % [
+		int(_progression.get("level", 1)),
 		int(_run_state.get("unbanked_embers", 0))
 	])
-	print("Learned %s (`%s`). Level %d -> %d; held embers %d -> %d (spent %d)." % [
-		SkillTreeLibrary.display_name(skill_id),
-		skill_id,
+	print("Level %d -> %d; held embers %d -> %d (spent %d). Skill points: %d unspent." % [
 		int(before_progression.get("level", 1)),
 		int(_progression.get("level", 1)),
 		held_embers_before,
 		_run_engine.held_embers(_run_state),
-		level_cost
+		level_cost,
+		ProgressionStore.unspent_skill_points(_progression)
 	])
 	_print_state()
 
@@ -1530,7 +1572,6 @@ func _print_campfire_state() -> void:
 	var hp_after_linger: int = mini(max_hp, hp_before + CAMPFIRE_LINGER_HEAL_AMOUNT)
 	var held_embers: int = _run_engine.held_embers(_run_state)
 	var next_cost: int = ProgressionStore.next_level_cost(_progression)
-	var legal_skill_ids: Array[String] = _legal_level_skill_ids()
 	var level_status: String = "available"
 	if ProgressionStore.is_max_level(_progression):
 		level_status = "maximum level"
@@ -1544,18 +1585,20 @@ func _print_campfire_state() -> void:
 		hp_after_linger,
 		max_hp
 	])
-	print("- `level SKILL_ID`: spend embers, learn one ability, and continue (%s)." % level_status)
+	print("- `level`: spend embers, bank one skill point, and continue (%s)." % level_status)
+	if ProgressionStore.unspent_skill_points(_progression) > 0:
+		print("- `learn SKILL_ID`: spend one of %d banked skill points now." % ProgressionStore.unspent_skill_points(_progression))
 	print("- `rest`: bank/carry %d held embers and end this run." % held_embers)
 	print("- `leave`: continue without taking a campfire benefit.")
-	_print_legal_level_skills(legal_skill_ids)
+	_print_legal_learn_skills(_legal_learn_skill_ids(_progression))
 
-func _legal_level_skill_ids() -> Array[String]:
-	if ProgressionStore.is_max_level(_progression):
+func _legal_learn_skill_ids(progression: Dictionary) -> Array[String]:
+	if ProgressionStore.unspent_skill_points(progression) <= 0:
 		var no_skill_ids: Array[String]
 		return no_skill_ids
-	return ProgressionStore.available_skill_ids(_progression)
+	return ProgressionStore.available_skill_ids(progression)
 
-func _print_legal_level_skills(skill_ids: Array[String]) -> void:
+func _print_legal_learn_skills(skill_ids: Array[String]) -> void:
 	if skill_ids.is_empty():
 		print("Legal abilities: none.")
 		return
@@ -1685,14 +1728,24 @@ func _log_run_ended(outcome: String) -> void:
 		"mode": str(_run_state.get("mode", ""))
 	})
 
-func _log_level_up(before_progression: Dictionary, after_progression: Dictionary, skill_id: String, cost: int) -> void:
+func _log_level_up(before_progression: Dictionary, after_progression: Dictionary, cost: int) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context(_combat_state), {
 		"level_before": int(before_progression.get("level", 1)),
 		"level_after": int(after_progression.get("level", 1)),
-		"skill_id": skill_id,
 		"skill_ids": ProgressionStore.selected_skill_ids(after_progression),
+		"unspent_skill_points_before": ProgressionStore.unspent_skill_points(before_progression),
+		"unspent_skill_points_after": ProgressionStore.unspent_skill_points(after_progression),
 		"cost": cost,
 		"held_embers_after": int(after_progression.get("embers", 0)),
+		"room": _run_state.get("current_room", Vector2i.ZERO)
+	})
+
+func _log_skill_learned(before_progression: Dictionary, after_progression: Dictionary, skill_id: String) -> void:
+	_analytics_store.write_event("progression_skill_learned", _analytics_context(_combat_state), {
+		"skill_id": skill_id,
+		"skill_ids": ProgressionStore.selected_skill_ids(after_progression),
+		"unspent_skill_points_before": ProgressionStore.unspent_skill_points(before_progression),
+		"unspent_skill_points_after": ProgressionStore.unspent_skill_points(after_progression),
 		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 
