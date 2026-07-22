@@ -176,6 +176,7 @@ func focus_skill(skill_id: String) -> void:
 		return
 	_focused_id = skill_id
 	_refresh_nodes()
+	_refresh_links()
 	_refresh_detail()
 	skill_focused.emit(skill_id)
 
@@ -227,6 +228,16 @@ func highlighted_connection_count() -> int:
 	for link: Dictionary in _link_layer.links:
 		if bool(link.get("highlighted", false)):
 			result += 1
+	return result
+
+func highlighted_connection_pairs() -> Array[String]:
+	var result: Array[String]
+	if _link_layer == null:
+		return result
+	for link: Dictionary in _link_layer.links:
+		if bool(link.get("highlighted", false)):
+			result.append("%s>%s" % [str(link.get("from_id", "")), str(link.get("to_id", ""))])
+	result.sort()
 	return result
 
 func legend_state_count() -> int:

@@ -77,7 +77,12 @@ func _test_skill_tree_view() -> void:
 	view.request_confirm()
 	_expect(_confirmed_ids == ["quick_wits", "measured_breath"], "Level-up confirmation should emit the complete proposed selection")
 	view.focus_skill("prismatic_instinct")
-	_expect(view.highlighted_connection_count() >= 2, "Focusing a cross-branch junction should highlight its directional prerequisite links")
+	var prismatic_links: Array[String] = view.highlighted_connection_pairs()
+	_expect(prismatic_links.size() == 3, "Focusing Prismatic Instinct should highlight exactly its two prerequisites and direct unlock")
+	_expect(prismatic_links.has("quick_wits>prismatic_instinct"), "Focusing Prismatic Instinct should highlight its Quick Wits prerequisite edge")
+	_expect(prismatic_links.has("discerning_eye>prismatic_instinct"), "Focusing Prismatic Instinct should highlight its Discerning Eye prerequisite edge")
+	_expect(prismatic_links.has("prismatic_instinct>confluence"), "Focusing Prismatic Instinct should highlight its Confluence unlock edge")
+	_expect(not prismatic_links.has("measured_breath>carry_the_guard"), "Changing focus should clear connector emphasis from the previously focused skill")
 	var quick_relation_node: Button = view.node_for_skill("quick_wits")
 	var discerning_relation_node: Button = view.node_for_skill("discerning_eye")
 	_expect(str(quick_relation_node.get_meta("focus_relationship", "")) == "prerequisite", "A focused junction should mark Quick Wits as a prerequisite")
@@ -98,11 +103,13 @@ func _test_skill_tree_view() -> void:
 		"required_count": 5,
 		"resource_count": 1,
 		"editing_enabled": true,
-		"focused_id": "quick_wits",
+		"focused_id": "",
 	})
 	await process_frame
 	_expect(view.pending_skill_ids().is_empty(), "A respec should open as an empty replacement build")
 	_expect(view.points_remaining() == 5, "Every earned skill point should be refunded into the replacement draft")
+	_expect(view.focused_skill_id() == "quick_wits", "An empty replacement draft should automatically focus the first available root")
+	_expect(view.detail_title_text() == "Quick Wits" and view.detail_action_is_enabled(), "The default empty-draft focus should expose an actionable root detail")
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_AVAILABLE, "Formerly learned roots should begin available rather than appearing selected or removed")
 	_expect(not view.confirm_is_enabled(), "An empty replacement build should not be confirmable")
 	for skill_id: String in ["quick_wits", "rehearsed_escape", "makeshift_tool", "measured_breath", "carry_the_guard"]:
