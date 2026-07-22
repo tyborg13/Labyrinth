@@ -178,7 +178,7 @@ up.
 
 ## Respec and Moltshards
 
-The first boss victory in a sequence awards one Moltshard. Award resolution is
+The first boss victory of a run awards one Moltshard. Award resolution is
 idempotent: replaying or resuming the same boss outcome cannot duplicate it.
 The combat result tells the player that the resource was acquired, while the
 resource total appears only in the Skills menu and its respec draft.
@@ -298,6 +298,8 @@ Progression schema `4` stores:
     "level": 1,
     "skill_ids": [],
     "moltshards": 0,
+    "moltshard_award_ids": [],
+    "progression_analytics_outbox": [],
     "progression_revision": 0,
     "progression_schema": 4
 }
@@ -374,7 +376,8 @@ The implementation is covered by focused suites for:
 - Skills tab replacement and absence of numeric allocation controls.
 - SkillSigil status, manual ability dialogs, reward rerolls, and respec resource
   isolation.
-- Analytics schema and card-heuristic progression context.
+- Analytics schema, combat/run trigger crash recovery, and card-heuristic
+  progression context.
 - 1280x720 and 1920x1080 visual probes for learned/available/locked trees,
   empty refunded respec drafts, complete replacement builds with focused
   cross-branch prerequisites, a complete long ancestor path, and combat states.

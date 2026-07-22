@@ -541,7 +541,14 @@ func highlighted_connection_pairs() -> Array[String]:
 	return result
 
 func legend_state_count() -> int:
-	return _legend.get_child_count() / 2 if _legend != null else 0
+	if _legend == null:
+		return 0
+	var count: int = 0
+	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
+		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
+		if label != null and label.visible:
+			count += 1
+	return count
 
 func points_remaining() -> int:
 	return maxi(0, _required_count - _pending_ids.size()) if _mode == MODE_RESPEC else 0
@@ -723,6 +730,7 @@ func _build_graph_panel() -> Control:
 	title.add_theme_color_override("font_color", Color("f2e6d1"))
 	header.add_child(title)
 	_summary_label = Label.new()
+	_summary_label.name = "SkillTreeSummary"
 	UiTypography.apply_label_role(_summary_label, UiTypography.ROLE_CAPTION)
 	_summary_label.add_theme_color_override("font_color", Color("d6bc87"))
 	header.add_child(_summary_label)
@@ -966,9 +974,17 @@ func _refresh_legend() -> void:
 	if _legend == null:
 		return
 	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
+		var visible_in_mode: bool = not (
+			(_mode == MODE_VIEW and state == STATE_PENDING)
+			or (_mode == MODE_RESPEC and state == STATE_OWNED)
+		)
+		var marker: Control = _legend.get_node_or_null("SkillLegendMarker_%s" % state) as Control
 		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
+		if marker != null:
+			marker.visible = visible_in_mode
 		if label != null:
 			label.text = _legend_state_text(state)
+			label.visible = visible_in_mode
 
 func _refresh_summary() -> void:
 	if _summary_label == null:
@@ -977,11 +993,11 @@ func _refresh_summary() -> void:
 		MODE_LEVEL_UP:
 			_summary_label.text = "CHOOSE 1  ·  LEARNED %d" % _owned_ids.size()
 		MODE_RESPEC:
-			_summary_label.text = "ALLOCATED %d/%d  ·  %d LEFT  ·  MOLTSHARDS %d" % [
+			_summary_label.text = "ALLOCATED %d/%d  ·  %d LEFT%s" % [
 				_pending_ids.size(),
 				_required_count,
 				points_remaining(),
-				_resource_count,
+				"  ·  MATCHES CURRENT BUILD" if _respec_matches_owned_build() else "",
 			]
 		_:
 			_summary_label.text = "LEARNED %d" % _owned_ids.size()
@@ -1088,10 +1104,10 @@ func _refresh_detail_action(state: String) -> void:
 	elif _mode == MODE_RESPEC:
 		if _pending_ids.has(_focused_id):
 			var dependents: Array[String] = SkillTreeLibrary.dependent_ids(_focused_id, _pending_ids)
-			_detail_action.text = "Refund Point" if dependents.is_empty() else "Remove dependents first"
+			_detail_action.text = "Refund" if dependents.is_empty() else "Remove dependents first"
 			_detail_action.disabled = not _editing_enabled or not dependents.is_empty()
 		elif state == STATE_AVAILABLE:
-			_detail_action.text = "Spend Point" if points_remaining() > 0 else "No Points Left"
+			_detail_action.text = "Allocate" if points_remaining() > 0 else "No Points Left"
 			_detail_action.disabled = (
 				not _editing_enabled
 				or points_remaining() <= 0
@@ -1116,8 +1132,12 @@ func _refresh_footer() -> void:
 	_confirm_button.text = "Confirm"
 	_confirm_button.tooltip_text = ""
 	if _mode == MODE_RESPEC:
-		_confirm_button.text = "Spend 1"
-		_confirm_button.tooltip_text = "Consume 1 Moltshard and replace the active build."
+		_confirm_button.text = "Confirm · 1 Moltshard"
+		_confirm_button.tooltip_text = (
+			"This matches your current build. Change at least one skill."
+			if _respec_matches_owned_build()
+			else "Consume 1 Moltshard and replace the active build."
+		)
 	_confirm_button.disabled = not _can_confirm()
 	_ui_skin.apply_button_stylebox_overrides(
 		_confirm_button,
@@ -1330,6 +1350,15 @@ func _can_confirm() -> bool:
 	owned_sorted.sort()
 	pending_sorted.sort()
 	return owned_sorted != pending_sorted
+
+func _respec_matches_owned_build() -> bool:
+	if _mode != MODE_RESPEC or not SkillTreeLibrary.selection_is_valid(_pending_ids, _required_count):
+		return false
+	var owned_sorted: Array[String] = _string_array(_owned_ids)
+	var pending_sorted: Array[String] = _string_array(_pending_ids)
+	owned_sorted.sort()
+	pending_sorted.sort()
+	return owned_sorted == pending_sorted
 
 func _normalized_pending_ids(context: Dictionary) -> Array[String]:
 	if _mode == MODE_RESPEC:

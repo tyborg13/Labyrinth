@@ -12,6 +12,7 @@ const FIRST_BOSS_ROOM: Vector2i = Vector2i(4, 0)
 static func run(expect: Callable) -> void:
 	_test_new_run_ignores_retired_growth(expect)
 	_test_discerning_eye(expect)
+	_test_sequence_limited_skills_refresh_after_boss(expect)
 	_test_deferred_choice(expect)
 	_test_salvager(expect)
 	_test_true_bearing(expect)
@@ -70,6 +71,41 @@ static func _test_discerning_eye(expect: Callable) -> void:
 	var repeated: Dictionary = engine.reroll_card_reward(rerolled)
 	expect.call(repeated.get("pending_reward", {}) == rerolled.get("pending_reward", {}), "Discerning Eye should not reroll twice in one sequence")
 	expect.call(engine.run_skill_events(repeated).size() == 1, "Repeating a spent run skill should not duplicate its trigger event")
+
+static func _test_sequence_limited_skills_refresh_after_boss(expect: Callable) -> void:
+	var engine = RunEngineScript.new()
+	var state: Dictionary = _new_run(engine, ["discerning_eye"])
+	var depth_three := Vector2i(3, 0)
+	state = _set_current_room(state, depth_three, "combat")
+	state["mode"] = "combat"
+	state = engine.finish_combat(state, _combat_result(depth_three, "combat", true))
+	state = engine.reroll_card_reward(state)
+	var used_by_sequence: Dictionary = ((state.get("skill_state", {}) as Dictionary).get("used_by_sequence", {}) as Dictionary)
+	expect.call(bool(used_by_sequence.get("0:discerning_eye", false)), "Using Discerning Eye before the first boss should spend sequence zero")
+	expect.call(not engine.run_skill_is_ready(state, "discerning_eye"), "Discerning Eye should remain spent before crossing the boss boundary")
+	var offered_cards: Array = ((state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
+	if not offered_cards.is_empty():
+		state = engine.claim_card_reward(state, str(offered_cards[0]))
+
+	state = _set_current_room(state, FIRST_BOSS_ROOM, "boss")
+	state["mode"] = "combat"
+	state = engine.finish_combat(state, _combat_result(FIRST_BOSS_ROOM, "boss", true))
+	expect.call(not engine.run_skill_is_ready(state, "discerning_eye"), "The first boss reward boundary itself should still belong to sequence zero")
+
+	var depth_five := Vector2i(5, 0)
+	state = _set_current_room(state, depth_five, "combat")
+	state["mode"] = "combat"
+	state = engine.finish_combat(state, _combat_result(depth_five, "combat", true))
+	expect.call(engine.run_skill_is_ready(state, "discerning_eye"), "A sequence-limited skill should refresh in the first reward after the boss")
+	state = engine.reroll_card_reward(state)
+	used_by_sequence = ((state.get("skill_state", {}) as Dictionary).get("used_by_sequence", {}) as Dictionary)
+	expect.call(bool(used_by_sequence.get("0:discerning_eye", false)) and bool(used_by_sequence.get("1:discerning_eye", false)), "Sequence refresh should retain both historical use keys")
+	var trigger_events: Array[Dictionary] = engine.run_skill_events(state)
+	var discerning_triggers: int = 0
+	for event: Dictionary in trigger_events:
+		if str(event.get("skill_id", "")) == "discerning_eye":
+			discerning_triggers += 1
+	expect.call(discerning_triggers == 2, "Using Discerning Eye once on each side of a boss should emit exactly two durable trigger events")
 
 static func _test_deferred_choice(expect: Callable) -> void:
 	var engine = RunEngineScript.new()

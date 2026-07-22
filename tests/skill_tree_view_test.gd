@@ -58,7 +58,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.find_child("SkillTreeScroll", true, false) is ScrollContainer, "The graph should remain scrollable in a smaller host")
 	_expect(view.find_child("SkillDetailPanel", true, false) is PanelContainer, "The tree should provide its own detail panel")
 	_expect(view.find_child("SkillDetailScroll", true, false) is ScrollContainer, "Long skill rules should scroll inside the detail pane instead of resizing the whole tree")
-	_expect(view.legend_state_count() == 5, "The tree should provide an explicit legend for every persistent node state")
+	_expect(view.legend_state_count() == 5, "Level-up mode should explain every node state that can appear while choosing a skill")
 	var legend_symbols: Array[String]
 	for state: String in ["owned", "available", "locked", "pending", "excluded"]:
 		var marker := view.find_child("SkillLegendMarker_%s" % state, true, false) as Control
@@ -261,8 +261,13 @@ func _test_skill_tree_view() -> void:
 	await process_frame
 	_expect(view.pending_skill_ids().is_empty(), "A respec should open as an empty replacement build")
 	_expect(view.points_remaining() == 5, "Every earned skill point should be refunded into the replacement draft")
+	_expect(view.legend_state_count() == 4, "The replacement tree should omit the impossible learned state from its legend")
 	_expect(view.focused_skill_id() == "quick_wits", "An empty replacement draft should automatically focus the first available root")
 	_expect(view.detail_title_text() == "Quick Wits" and view.detail_action_is_enabled(), "The default empty-draft focus should expose an actionable root detail")
+	detail_action = view.find_child("SkillDetailAction", true, false) as Button
+	confirm_button = view.find_child("SkillTreeConfirm", true, false) as Button
+	_expect(detail_action != null and detail_action.text == "Allocate", "A legal respec choice should use allocation language rather than another spend command")
+	_expect(confirm_button != null and confirm_button.text == "Confirm · 1 Moltshard", "Respec confirmation should name its distinct resource cost")
 	_expect(view.get_combined_minimum_size().y <= view.size.y + 1.0, "An empty replacement draft's detail copy should not increase the tree beyond its assigned height")
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_AVAILABLE, "Formerly learned roots should begin available rather than appearing selected or removed")
 	_expect(not view.confirm_is_enabled(), "An empty replacement build should not be confirmable")
@@ -274,6 +279,9 @@ func _test_skill_tree_view() -> void:
 	_expect(view.points_remaining() == 0, "A complete rebuild should leave no unallocated points")
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_PENDING, "Draft selections should use a distinct drafted state")
 	_expect(not view.confirm_is_enabled(), "Rebuilding the exact original set should not waste a Moltshard")
+	var matching_summary := view.find_child("SkillTreeSummary", true, false) as Label
+	_expect(matching_summary != null and matching_summary.text.contains("MATCHES CURRENT BUILD"), "An unchanged complete replacement should visibly explain why confirmation is unavailable")
+	_expect(confirm_button != null and confirm_button.tooltip_text.contains("matches your current build"), "The disabled unchanged-build confirmation should explain the required edit")
 	view.focus_skill("ghost_stride")
 	_expect(view.status_for_skill("ghost_stride") == SkillTreeView.STATE_AVAILABLE, "An otherwise legal root should remain visibly available at the point cap")
 	_expect(not view.detail_action_is_enabled(), "The view should hard-cap additions when no skill points remain")
@@ -281,6 +289,7 @@ func _test_skill_tree_view() -> void:
 	_expect(not view.detail_action_is_enabled(), "A prerequisite with drafted dependents should require removing its dependents first")
 	view.focus_skill("carry_the_guard")
 	_expect(view.detail_action_is_enabled(), "A drafted leaf should refund its point")
+	_expect(detail_action != null and detail_action.text == "Refund", "A removable draft leaf should use refund language")
 	view.activate_focused_skill()
 	_expect(view.pending_skill_ids().size() == 4 and view.points_remaining() == 1, "Removing a drafted leaf should refund exactly one point")
 	view.focus_skill("ghost_stride")
@@ -290,6 +299,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.status_for_skill("ghost_stride") == SkillTreeView.STATE_PENDING, "A newly allocated skill should render as drafted")
 	_expect(SkillTreeLibrary.selection_is_valid(view.pending_skill_ids(), 5), "The edited respec draft should remain topologically legal")
 	_expect(view.confirm_is_enabled(), "A changed legal respec draft with a resource should be confirmable")
+	_expect(confirm_button != null and confirm_button.tooltip_text.contains("replace the active build"), "A changed build should explain the whole-build replacement transaction")
 	_expect(_respec_event_count == 7, "Each from-scratch allocation and refund should emit the complete draft")
 	view.request_confirm()
 	_expect(_confirmed_ids == view.pending_skill_ids(), "Respec confirmation should emit the complete replacement build")
@@ -312,6 +322,7 @@ func _test_skill_tree_view() -> void:
 		"focused_id": "open_arsenal",
 	})
 	await process_frame
+	_expect(view.legend_state_count() == 4, "The read-only tree should omit the impossible drafted state from its legend")
 	_expect(view.status_for_skill("open_arsenal") == SkillTreeView.STATE_EXCLUDED, "Other keystones should expose an excluded state after one is learned")
 	var keystone_requirements := view.find_child("SkillDetailRequirements", true, false) as Label
 	var keystone_reason := view.find_child("SkillDetailReason", true, false) as Label

@@ -47,12 +47,14 @@ func _run() -> void:
 	await process_frame
 
 	await _test_character_skill_tree(instance)
+	await _test_level_up_commit_feedback_and_persistence(instance)
 	await _test_from_scratch_respec_draft_is_transactional(instance)
 	await _test_newer_embedded_progression_repairs_profile_and_respec(instance)
 	await _test_open_arsenal_checkpoint_is_deduplicated(instance)
 	await _test_contextual_run_skill_event_scope(instance)
 	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
 	await _test_combat_skill_surfaces(instance, run_state, progression)
+	await _test_makeshift_tool_loadout_persistence(instance)
 	await _test_terminal_skill_event_analytics(instance)
 	await _test_respec_clears_stale_combat_preview(instance)
 	await _test_reward_reroll(instance)
@@ -117,6 +119,71 @@ func _test_character_skill_tree(instance: Node) -> void:
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
+func _test_level_up_commit_feedback_and_persistence(instance: Node) -> void:
+	var profile_before: Dictionary = ProgressionStore.load_data()
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var level_events_before: int = _analytics_event_count("progression_level_up")
+	var level_profile: Dictionary = profile_before.duplicate(true)
+	var cost: int = ProgressionStore.next_level_cost(level_profile)
+	_expect(cost > 0, "Level-up feedback fixture should have another progression level available")
+	level_profile = ProgressionStore.set_embers(level_profile, cost)
+	_expect(ProgressionStore.save_data(level_profile), "Level-up feedback fixture should save enough embers")
+	var run_engine := RunEngine.new()
+	var level_run: Dictionary = run_engine.create_new_run(73032, level_profile)
+	level_run["mode"] = "campfire"
+	level_run["progression"] = level_profile.duplicate(true)
+	level_run = run_engine.set_held_embers(level_run, cost)
+	instance.set("_progression", level_profile)
+	instance.call("_load_run_state", level_run)
+	await process_frame
+	await process_frame
+	instance.call("_open_level_up_overlay")
+	await process_frame
+	await process_frame
+	var tree := instance.get("_skill_tree_view") as SkillTreeView
+	var available_ids: Array[String] = ProgressionStore.available_skill_ids(level_profile)
+	_expect(tree != null and not available_ids.is_empty(), "Campfire level-up should open the shared tree with at least one legal skill")
+	if tree != null and not available_ids.is_empty():
+		var chosen_skill_id: String = available_ids[0]
+		tree.focus_skill(chosen_skill_id)
+		tree.activate_focused_skill()
+		_expect(tree.confirm_is_enabled(), "Choosing a legal skill should enable level-up confirmation")
+		tree.request_confirm()
+		await process_frame
+		await process_frame
+		var committed_profile: Dictionary = ProgressionStore.load_data()
+		var committed_run: Dictionary = ProgressionStore.load_saved_run()
+		_expect(int(committed_profile.get("level", 0)) == int(profile_before.get("level", 1)) + 1, "Confirming the campfire tree should atomically advance the saved profile level")
+		_expect(ProgressionStore.selected_skill_ids(committed_profile).has(chosen_skill_id), "Confirming the campfire tree should save the chosen skill")
+		_expect(int(committed_profile.get("embers", -1)) == 0, "Confirming the campfire tree should spend exactly the displayed ember cost")
+		_expect(str((instance.get("_run_state") as Dictionary).get("mode", "")) == "room", "A confirmed level-up should preserve the existing leave-campfire flow")
+		_expect(str(committed_run.get("mode", "")) == "room", "The post-level room state should be committed for resume")
+		_expect(ProgressionStore.selected_skill_ids(committed_run.get("progression", {}) as Dictionary).has(chosen_skill_id), "The resumable run should contain the newly learned skill")
+		var learned_banner := instance.find_child("SkillLearnedBanner", true, false) as Label
+		_expect(learned_banner != null and learned_banner.text.contains(SkillTreeLibrary.display_name(chosen_skill_id).to_upper()), "A confirmed level-up should celebrate the named skill outside the closed menu")
+		_expect(learned_banner != null and str(learned_banner.get_meta("skill_id", "")) == chosen_skill_id, "The acquisition feedback should identify the exact learned skill")
+		_expect(_analytics_event_count("progression_level_up") == level_events_before + 1, "A confirmed level-up should emit one progression event")
+		await create_timer(1.05).timeout
+		await process_frame
+		_expect(instance.find_child("SkillLearnedBanner", true, false) == null and instance.find_child("SkillLearnedBurst", true, false) == null, "Normal skill acquisition feedback should clean up after its presentation")
+	var settings_before: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+	var reduced_settings: Dictionary = settings_before.duplicate(true)
+	reduced_settings["reduced_motion"] = true
+	instance.set("_settings", reduced_settings)
+	instance.call("_show_skill_learned_feedback", "quick_wits")
+	await process_frame
+	_expect(instance.find_child("SkillLearnedBanner", true, false) != null and instance.find_child("SkillLearnedBurst", true, false) == null, "Reduced-motion skill feedback should keep the readable confirmation without an animated burst")
+	await create_timer(1.05).timeout
+	await process_frame
+	_expect(instance.find_child("SkillLearnedBanner", true, false) == null, "Reduced-motion skill feedback should clean itself up")
+	instance.set("_settings", settings_before)
+	_expect(ProgressionStore.save_data(profile_before), "Level-up feedback fixture should restore the original profile")
+	_expect(ProgressionStore.save_run_state(run_before), "Level-up feedback fixture should restore the original resumable run")
+	instance.set("_progression", profile_before)
+	instance.call("_load_run_state", run_before)
+	await process_frame
+	await process_frame
+
 func _test_from_scratch_respec_draft_is_transactional(instance: Node) -> void:
 	var profile_before: Dictionary = ProgressionStore.load_data()
 	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
@@ -147,10 +214,21 @@ func _test_from_scratch_respec_draft_is_transactional(instance: Node) -> void:
 	if tree != null:
 		tree.focus_skill("ghost_stride")
 		tree.activate_focused_skill()
-	instance.call("_close_card_upgrade_overlay")
+	var close_button := (instance.get("_upgrade_dialog") as Control).find_child("CloseCharacterOverlay", true, false) as Button
+	_expect(close_button != null, "The rebuilt Character surface should retain its named close control")
+	if close_button != null:
+		close_button.pressed.emit()
 	await process_frame
-	_expect(ProgressionStore.load_data() == profile_before, "Closing Character during a replacement draft should discard it for free")
+	var overlay_scrim := instance.get("_upgrade_scrim") as Control
+	_expect(overlay_scrim != null and overlay_scrim.visible and str(instance.get("_progression_overlay_mode")) == "skills", "The Character X should leave a dirty respec draft for read-only Skills before closing the menu")
+	_expect((instance.get("_progression_respec_draft") as Array).is_empty(), "Leaving respec through the Character X should discard the draft for free")
+	_expect(ProgressionStore.load_data() == profile_before, "Leaving Character respec should preserve the saved profile")
 	_expect(_analytics_event_count("progression_respec") == respec_events_before, "Closing an incomplete replacement draft should emit no respec analytics")
+	close_button = (instance.get("_upgrade_dialog") as Control).find_child("CloseCharacterOverlay", true, false) as Button
+	if close_button != null:
+		close_button.pressed.emit()
+	await process_frame
+	_expect(overlay_scrim != null and not overlay_scrim.visible, "A second Character X from read-only Skills should close the menu")
 
 	instance.call("_open_character_overlay", "skills")
 	await process_frame
@@ -353,6 +431,24 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(_label_with_text(popover, "Quick Wits") != null, "Skill popover should list the learned combat ability")
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "Skill popover should list the learned reward ability")
 	_expect(_label_with_text(popover, "READY") != null, "Skill popover should communicate readiness")
+	var status_scrim := instance.get("_skill_status_scrim") as ColorRect
+	var pass_control: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Pass")
+	if pass_control == null:
+		pass_control = _visible_button_with_text(instance.get("choice_bar") as Control, "Pass")
+	_expect(status_scrim != null and status_scrim.visible and status_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Skill status should use a full-screen mouse-blocking scrim")
+	_expect(status_scrim != null and pass_control != null and status_scrim.get_global_rect().has_point(pass_control.get_global_rect().get_center()), "The skill-status scrim should cover combat controls behind the panel")
+	var combat_before_scrim_click: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	if status_scrim != null and pass_control != null:
+		var blocked_click := InputEventMouseButton.new()
+		blocked_click.button_index = MOUSE_BUTTON_LEFT
+		blocked_click.pressed = true
+		blocked_click.position = pass_control.get_global_rect().get_center()
+		status_scrim.gui_input.emit(blocked_click)
+		await process_frame
+	_expect((instance.get("_combat_state") as Dictionary) == combat_before_scrim_click, "Clicking the modal skill-status scrim over Pass must not advance combat")
+	_expect(status_scrim != null and not status_scrim.visible, "Clicking outside the skill-status panel should close it")
+	instance.call("_toggle_skill_status_popover")
+	await process_frame
 	instance.call("_refresh_skill_status_popover", SkillTreeLibrary.ordered_ids())
 	instance.call("_layout_skill_status_popover")
 	await process_frame
@@ -388,8 +484,18 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.set("_run_state", contextual_run_state)
 	for contextual_skill_id: String in contextual_skill_ids:
 		_expect(str(instance.call("_skill_hud_status", contextual_skill_id)) == "WAITING", "%s should state that it is waiting outside its relevant choice flow" % contextual_skill_id)
+	_expect(str(instance.call("_skill_hud_status", "salvager")) == "WAITING", "Unspent Salvager should wait for a qualifying victory rather than claim to have triggered automatically")
+	_expect(str(instance.call("_skill_hud_status", "last_door")) == "WAITING", "Unspent Last Door should wait for a qualifying defeat rather than claim to have triggered automatically")
 	_expect(str(instance.call("_skill_hud_status", "measured_breath")) == "AUTOMATIC", "Measured Breath should identify itself as an automatic recurring rule")
 	_expect(str(instance.call("_skill_hud_status", "open_arsenal")) == "PASSIVE", "Open Arsenal should identify itself as an always-on passive")
+	var spent_sequence_run: Dictionary = contextual_run_state.duplicate(true)
+	var spent_sequence_state: Dictionary = (spent_sequence_run.get("skill_state", {}) as Dictionary).duplicate(true)
+	spent_sequence_state["used_by_sequence"] = {"0:salvager": true, "0:last_door": true}
+	spent_sequence_run["skill_state"] = spent_sequence_state
+	instance.set("_run_state", spent_sequence_run)
+	_expect(str(instance.call("_skill_hud_status", "salvager")) == "SPENT", "Spent Salvager should remain visibly spent through the current boss sequence")
+	_expect(str(instance.call("_skill_hud_status", "last_door")) == "SPENT", "Spent Last Door should remain visibly spent through the current boss sequence")
+	instance.set("_run_state", contextual_run_state)
 	var primed_run_state: Dictionary = contextual_run_state.duplicate(true)
 	var primed_skill_state: Dictionary = (primed_run_state.get("skill_state", {}) as Dictionary).duplicate(true)
 	primed_skill_state["pending_card"] = "rime_shard"
@@ -491,6 +597,23 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var ready_group := _button_beginning_with(instance.get("_choice_button_overlay") as Control, "Ready Skills (")
 	_expect(ready_group != null and ready_group.is_visible_in_tree(), "Three or more simultaneous manual abilities should collapse into one compact Ready Skills control")
 	_expect(_visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Rehearsed Escape") == null, "Grouped skill actions should not cover the combat hand with duplicate direct controls")
+	if ready_group != null:
+		ready_group.pressed.emit()
+		await process_frame
+		await process_frame
+		var grouped_choices := instance.get("_skill_choice_list") as Control
+		var grouped_detail := instance.get("_skill_choice_description") as Label
+		var quick_wits_choice: Button = _visible_button_with_text(grouped_choices, "Quick Wits")
+		_expect(quick_wits_choice != null and instance.get_viewport().gui_get_focus_owner() == quick_wits_choice, "Ready Skills should focus its first learned ability for keyboard and controller users")
+		_expect(grouped_detail != null and grouped_detail.text.contains(SkillTreeLibrary.description("quick_wits")), "The focused Ready Skill should expose its complete rule without requiring pointer hover")
+		var escape_choice: Button = _visible_button_with_text(grouped_choices, "Rehearsed Escape")
+		if escape_choice != null:
+			escape_choice.mouse_entered.emit()
+			await process_frame
+		_expect(escape_choice != null and instance.get_viewport().gui_get_focus_owner() == escape_choice, "Pointer hover should synchronize Ready Skill focus so the described option is also the controller Accept target")
+		_expect(grouped_detail != null and grouped_detail.text.contains(SkillTreeLibrary.description("rehearsed_escape")), "Hovering a Ready Skill should update its persistent rule text")
+		instance.call("_close_skill_choice_dialog")
+		await process_frame
 	var escape_button: Button = await _ready_skill_button(instance, "Rehearsed Escape")
 	_expect(escape_button != null, "Rehearsed Escape should appear as an explicit manual combat choice")
 	if escape_button != null:
@@ -568,6 +691,84 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.call("_refresh_ui")
 	await process_frame
 
+func _test_makeshift_tool_loadout_persistence(instance: Node) -> void:
+	var original_progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
+	var original_run: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var item_progression: Dictionary = ProgressionStore.default_data()
+	item_progression["level"] = 3
+	item_progression["skill_ids"] = ["quick_wits", "makeshift_tool"]
+	item_progression = ProgressionStore.normalized_data(item_progression)
+	_expect(ProgressionStore.save_data(item_progression), "Makeshift Tool integration fixture should persist its legal build")
+
+	var preserved: Dictionary = await _play_item_as_basic_move(instance, item_progression, true)
+	var preserved_combat: Dictionary = preserved.get("combat", {}) as Dictionary
+	var preserved_run: Dictionary = preserved.get("run", {}) as Dictionary
+	var preserved_saved: Dictionary = preserved.get("saved", {}) as Dictionary
+	var preserved_deck: Dictionary = preserved_combat.get("deck", {}) as Dictionary
+	_expect((preserved_deck.get("discard", []) as Array).has("crimson_draught") and not (preserved_deck.get("consumed", []) as Array).has("crimson_draught"), "Armed Makeshift Tool should redirect a basic-use item to discard")
+	_expect((preserved_run.get("equipped_items", []) as Array).has("crimson_draught") and (preserved_saved.get("equipped_items", []) as Array).has("crimson_draught"), "Preserving an item should retain it in both the live and saved run loadout")
+	_expect((preserved_run.get("deck_cards", []) as Array).has("crimson_draught") and (preserved_saved.get("deck_cards", []) as Array).has("crimson_draught"), "Preserving an item should retain its compiled deck card across checkpoint reload")
+	_expect(CombatEngine.new().skill_was_used(preserved_combat, "makeshift_tool"), "Makeshift Tool should spend only after the protected basic use resolves")
+
+	var consumed: Dictionary = await _play_item_as_basic_move(instance, item_progression, false)
+	var consumed_combat: Dictionary = consumed.get("combat", {}) as Dictionary
+	var consumed_run: Dictionary = consumed.get("run", {}) as Dictionary
+	var consumed_saved: Dictionary = consumed.get("saved", {}) as Dictionary
+	var consumed_deck: Dictionary = consumed_combat.get("deck", {}) as Dictionary
+	_expect((consumed_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining Makeshift Tool should still consume an item used as a basic Move")
+	_expect(not (consumed_run.get("equipped_items", []) as Array).has("crimson_draught") and not (consumed_saved.get("equipped_items", []) as Array).has("crimson_draught"), "An unprotected item should leave both the live and saved run loadout")
+	_expect(not (consumed_run.get("deck_cards", []) as Array).has("crimson_draught") and not (consumed_saved.get("deck_cards", []) as Array).has("crimson_draught"), "Consuming an item should remove its compiled deck card across checkpoint reload")
+
+	_expect(ProgressionStore.save_data(original_progression), "Makeshift Tool integration should restore the active profile")
+	instance.set("_progression", original_progression)
+	instance.call("_load_run_state", original_run)
+	await process_frame
+	await process_frame
+
+func _play_item_as_basic_move(instance: Node, progression: Dictionary, arm_makeshift: bool) -> Dictionary:
+	var run_engine := RunEngine.new()
+	var combat_engine := CombatEngine.new()
+	var run_state: Dictionary = run_engine.create_debug_boss_run(progression)
+	run_state["debug_boss_run"] = false
+	run_state["progression"] = progression.duplicate(true)
+	var combat_state: Dictionary = (run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(progression)
+	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
+	deck["hand"] = ["crimson_draught"]
+	deck["draw"] = []
+	deck["discard"] = []
+	deck["burned"] = []
+	deck["consumed"] = []
+	combat_state["deck"] = deck
+	if arm_makeshift:
+		combat_state = combat_engine.arm_makeshift_tool(combat_state)
+	run_state = run_engine.set_combat_state(run_state, combat_state)
+	instance.set("_progression", progression)
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", combat_state)
+	instance.call("_refresh_ui")
+	await process_frame
+	await process_frame
+	var move_action: Dictionary = combat_engine.fallback_move_action(combat_state, 2)
+	var move_targets: Array[Vector2i] = combat_engine.valid_targets_for_player_action(combat_state, move_action)
+	_expect(not move_targets.is_empty(), "Makeshift Tool integration fixture should expose a legal basic Move target")
+	if move_targets.is_empty():
+		return {"combat": combat_state, "run": run_state, "saved": {}}
+	var move_target: Vector2i = move_targets[0]
+	var resolved_state: Dictionary = combat_engine.apply_player_action(combat_state, move_action, move_target)
+	instance.set("_card_action_choice_mode", "move")
+	var move_actions: Array = [move_action]
+	var selected_targets: Array[Vector2i]
+	selected_targets.append(move_target)
+	await instance.call("_play_player_card", 0, resolved_state, move_actions, selected_targets)
+	await process_frame
+	await process_frame
+	return {
+		"combat": (instance.get("_combat_state") as Dictionary).duplicate(true),
+		"run": (instance.get("_run_state") as Dictionary).duplicate(true),
+		"saved": ProgressionStore.load_saved_run(),
+	}
+
 func _test_reward_reroll(instance: Node) -> void:
 	var reward_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	reward_state["mode"] = "reward"
@@ -616,6 +817,7 @@ func _test_reward_reroll(instance: Node) -> void:
 func _test_terminal_skill_event_analytics(instance: Node) -> void:
 	var active_run: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	var active_combat: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var active_progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
 	var prior_analytics_revision: int = int(instance.get("_analytics_skill_event_revision"))
 	var terminal_revision: int = prior_analytics_revision + 1
 	var terminal_combat: Dictionary = active_combat.duplicate(true)
@@ -628,18 +830,18 @@ func _test_terminal_skill_event_analytics(instance: Node) -> void:
 		"message": "Afterimage resolves on the final action.",
 	}]
 	var event_count_before: int = _skill_trigger_event_count("afterimage")
-	instance.call("_reconcile_skill_event_analytics_for_state", terminal_combat, active_run)
-	var transitioned_run: Dictionary = active_run.duplicate(true)
-	transitioned_run["mode"] = "reward"
-	transitioned_run["combat_state"] = {}
+	var transitioned_run: Dictionary = instance.call("_run_state_for_combat_checkpoint", active_run, terminal_combat) as Dictionary
+	transitioned_run = instance.call("_hold_committed_run_state", transitioned_run, "terminal_skill_analytics_test") as Dictionary
 	instance.set("_run_state", transitioned_run)
-	instance.set("_combat_state", {})
+	instance.call("_sync_combat_state_from_run")
+	instance.call("_release_committed_run_state")
 	instance.call("_refresh_ui")
 	await process_frame
-	_expect(_skill_trigger_event_count("afterimage") == event_count_before + 1, "A skill triggered by the terminal action should be logged before combat state is cleared")
+	_expect(_skill_trigger_event_count("afterimage") == event_count_before + 1, "A skill triggered by the terminal action should flush from its durable outbox after the gameplay checkpoint")
 	var trigger_payload: Dictionary = _latest_skill_trigger_payload("afterimage")
 	_expect(str(trigger_payload.get("trigger_scope", "")) == "combat", "Combat ability analytics should identify the combat event stream")
 	instance.set("_analytics_skill_event_revision", prior_analytics_revision)
+	instance.set("_progression", active_progression)
 	instance.set("_run_state", active_run)
 	instance.set("_combat_state", active_combat)
 	instance.call("_refresh_ui")

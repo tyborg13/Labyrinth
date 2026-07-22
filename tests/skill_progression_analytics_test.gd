@@ -10,6 +10,8 @@ const STORAGE_DIR: String = "user://skill_progression_analytics_test"
 const BLOCKED_STORAGE_PATH: String = "user://skill_progression_analytics_blocked"
 const BLOCKED_PROGRESSION_PATH: String = "user://skill_progression_analytics_profile_blocked"
 const PROGRESSION_PATH: String = "user://skill_progression_analytics_profile.json"
+const RUN_PATH: String = "user://skill_progression_analytics_run.save"
+const BLOCKED_RUN_PATH: String = "user://skill_progression_analytics_run_blocked"
 
 var _failures: Array[String]
 
@@ -18,6 +20,8 @@ func _initialize() -> void:
 	AnalyticsStore.set_storage_dir(STORAGE_DIR)
 	AnalyticsStore.clear_storage()
 	ProgressionStore.set_storage_path(PROGRESSION_PATH)
+	ProgressionStore.set_run_storage_path(RUN_PATH)
+	ProgressionStore.clear_saved_run()
 	_expect(ProgressionStore.save_data(ProgressionStore.default_data()), "Moltshard outbox fixture should create a clean profile")
 
 	var store: AnalyticsStore = AnalyticsStore.new()
@@ -102,6 +106,7 @@ func _initialize() -> void:
 
 	_test_moltshard_outbox_crash_windows(context)
 	_test_moltshard_checkpoint_retains_failed_outbox()
+	_test_combat_skill_outbox_crash_windows()
 
 	AnalyticsStore.clear_storage()
 	_remove_profile_fixture()
@@ -279,12 +284,216 @@ func _test_moltshard_checkpoint_retains_failed_outbox() -> void:
 	var successful_host: RunScene = RunScene.new()
 	successful_host.set("_progression", held_progression)
 	var successful_checkpoint: Dictionary = successful_host.call("_run_state_for_combat_checkpoint", successful_run, successful_combat) as Dictionary
+	_expect(ProgressionStore.progression_analytics_outbox(ProgressionStore.load_data()).size() == 1, "The production boss checkpoint should persist its outbox before touching JSONL")
+	_expect(bool(successful_host.call("_reconcile_progression_analytics_outbox")), "The persisted production boss outbox should flush after its gameplay checkpoint")
 	successful_host.free()
 	var successful_key: String = "progression_moltshard_gained|run:25:seed:73035:first_boss_moltshard"
 	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), successful_key) == 1, "A successful production checkpoint should append the stable Moltshard event once")
 	_expect(ProgressionStore.progression_analytics_outbox(ProgressionStore.load_data()).is_empty(), "A successful production checkpoint should acknowledge its profile outbox")
 	_expect(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Persisting the boss award must not bank the run's held Embers")
 	_expect(int(((successful_checkpoint.get("progression", {}) as Dictionary).get("embers", -1))) == 73, "The returned run checkpoint should retain its held Ember balance")
+
+func _test_combat_skill_outbox_crash_windows() -> void:
+	AnalyticsStore.set_storage_dir(STORAGE_DIR)
+	ProgressionStore.set_storage_path(PROGRESSION_PATH)
+	ProgressionStore.set_run_storage_path(RUN_PATH)
+	ProgressionStore.clear_saved_run()
+	var progression: Dictionary = ProgressionStore.default_data()
+	_expect(ProgressionStore.save_data(progression), "Combat-trigger outbox fixture should start from a clean profile")
+	var engine: RunEngine = RunEngine.new()
+	var entry_run: Dictionary = engine.create_debug_boss_run(progression)
+	entry_run["debug_boss_run"] = false
+	var entry_combat: Dictionary = (entry_run.get("combat_state", {}) as Dictionary).duplicate(true)
+	entry_combat["skill_event_revision"] = 0
+	entry_combat["skill_events"] = []
+	entry_run["combat_state"] = entry_combat.duplicate(true)
+	var previous_entry_run: Dictionary = entry_run.duplicate(true)
+	previous_entry_run["mode"] = "room"
+	var entry_host: RunScene = RunScene.new()
+	entry_host.set("_progression", progression)
+	entry_host.set("_run_state", entry_run)
+	entry_host.call("_analytics_log_combat_transition", previous_entry_run, "analytics_test", entry_combat)
+	var entered_run: Dictionary = entry_host.get("_run_state") as Dictionary
+	var entered_combat: Dictionary = entry_host.get("_combat_state") as Dictionary
+	var entered_analytics: Dictionary = entered_combat.get("analytics", {}) as Dictionary
+	_expect(not str(entered_analytics.get("combat_id", "")).is_empty(), "Normal combat entry should assign a durable combat id")
+	_expect(int(entered_analytics.get("combat_skill_event_revision_staged", -1)) == 0, "Normal combat entry should initialize the staged trigger cursor before any skill can fire")
+	entered_combat["skill_event_revision"] = 1
+	entered_combat["skill_events"] = [{
+		"revision": 1,
+		"skill_id": "afterimage",
+		"turn": int(entered_combat.get("turn", 1)),
+		"message": "Afterimage leaves an illusion behind.",
+	}]
+	var entry_stage: Dictionary = entry_host.call("_stage_combat_skill_event_analytics_for_state", entered_run, entered_combat) as Dictionary
+	var entry_staged_run: Dictionary = entry_stage.get("run_state", {}) as Dictionary
+	var entry_staged_combat: Dictionary = entry_stage.get("combat_state", {}) as Dictionary
+	entry_staged_run = engine.set_combat_state(entry_staged_run, entry_staged_combat)
+	_expect(ProgressionStore.progression_analytics_outbox(entry_staged_run.get("progression", {}) as Dictionary).size() == 1, "The first trigger after normal combat entry must enter the durable outbox")
+	var entry_key: String = str(entry_host.call("_combat_skill_event_idempotency_key", entry_staged_run, entry_staged_combat, 1, "afterimage"))
+	var blocked_run_absolute: String = ProjectSettings.globalize_path(BLOCKED_RUN_PATH)
+	DirAccess.remove_absolute(blocked_run_absolute)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s.tmp" % BLOCKED_RUN_PATH))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s.backup" % BLOCKED_RUN_PATH))
+	DirAccess.make_dir_recursive_absolute(blocked_run_absolute)
+	ProgressionStore.set_run_storage_path(BLOCKED_RUN_PATH)
+	entry_host.set("_run_state", entry_staged_run)
+	entry_host.set("_combat_state", entry_staged_combat)
+	entry_host.set("_progression", entry_staged_run.get("progression", {}) as Dictionary)
+	entry_host.call("_reconcile_skill_event_analytics")
+	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), entry_key) == 0, "A failed gameplay checkpoint must prevent its combat trigger from reaching JSONL")
+	_expect(ProgressionStore.progression_analytics_outbox(entry_host.get("_progression") as Dictionary).size() == 1, "A failed gameplay checkpoint should keep the combat trigger pending in memory")
+	DirAccess.remove_absolute(blocked_run_absolute)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s.tmp" % BLOCKED_RUN_PATH))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s.backup" % BLOCKED_RUN_PATH))
+	ProgressionStore.set_run_storage_path(RUN_PATH)
+	entry_host.call("_reconcile_skill_event_analytics")
+	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), entry_key) == 1, "A later successful gameplay checkpoint should append the pending combat trigger exactly once")
+	entry_host.free()
+	progression = ProgressionStore.normalized_data(progression)
+	var run_state: Dictionary = engine.create_debug_boss_run(progression)
+	run_state["debug_boss_run"] = false
+	run_state["analytics"] = {"run_id": "combat_outbox_run", "combat_counter": 1}
+	var combat_state: Dictionary = (run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	combat_state["analytics"] = {
+		"combat_id": "combat_outbox_run_c001",
+		"combat_skill_event_revision_staged": 0,
+	}
+	combat_state["skill_event_revision"] = 1
+	combat_state["skill_events"] = [{
+		"revision": 1,
+		"skill_id": "afterimage",
+		"turn": int(combat_state.get("turn", 1)),
+		"message": "Afterimage leaves an illusion behind.",
+	}]
+	run_state["combat_state"] = combat_state.duplicate(true)
+
+	var staging_host: RunScene = RunScene.new()
+	staging_host.set("_progression", progression)
+	var staged_result: Dictionary = staging_host.call("_stage_combat_skill_event_analytics_for_state", run_state, combat_state) as Dictionary
+	var staged_run: Dictionary = staged_result.get("run_state", {}) as Dictionary
+	var staged_combat: Dictionary = staged_result.get("combat_state", {}) as Dictionary
+	staged_run = engine.set_combat_state(staged_run, staged_combat)
+	var first_key: String = str(staging_host.call("_combat_skill_event_idempotency_key", staged_run, staged_combat, 1, "afterimage"))
+	var alternate_key: String = str(staging_host.call("_combat_skill_event_idempotency_key", staged_run, staged_combat, 1, "encore"))
+	_expect(first_key == "skill_triggered|combat|combat_outbox_run_c001|1|afterimage", "Production combat-trigger keys should use combat id, revision, and skill id")
+	_expect(alternate_key != first_key, "Different skills at the same rolled-back revision must not suppress one another")
+	_expect(int((staged_combat.get("analytics", {}) as Dictionary).get("combat_skill_event_revision_staged", 0)) == 1, "Staging should advance the combat cursor in the same snapshot as the outbox")
+	_expect(ProgressionStore.progression_analytics_outbox(staged_run.get("progression", {}) as Dictionary).size() == 1, "Staging should copy the combat trigger into the durable progression outbox")
+	_expect(ProgressionStore.save_run_state(staged_run), "Crash-before-append fixture should persist gameplay and outbox before JSONL")
+	staging_host.free()
+
+	var recovered_run: Dictionary = ProgressionStore.load_saved_run()
+	var recovered_host: RunScene = RunScene.new()
+	recovered_host.set("_progression", recovered_run.get("progression", {}) as Dictionary)
+	_expect(bool(recovered_host.call("_reconcile_progression_analytics_outbox")), "Boot recovery should flush a combat trigger staged before a crash")
+	recovered_host.free()
+	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), first_key) == 1, "Crash-before-append recovery should emit the combat trigger exactly once")
+
+	var append_before_ack_host: RunScene = RunScene.new()
+	append_before_ack_host.set("_progression", recovered_run.get("progression", {}) as Dictionary)
+	_expect(bool(append_before_ack_host.call("_reconcile_progression_analytics_outbox")), "Replaying the pre-ack run snapshot should succeed idempotently")
+	append_before_ack_host.free()
+	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), first_key) == 1, "Append-before-ack replay must not duplicate a combat trigger")
+
+	var second_run: Dictionary = engine.create_debug_boss_run(ProgressionStore.load_data())
+	second_run["debug_boss_run"] = false
+	second_run["analytics"] = {"run_id": "combat_outbox_run", "combat_counter": 2}
+	var second_combat: Dictionary = (second_run.get("combat_state", {}) as Dictionary).duplicate(true)
+	second_combat["analytics"] = {
+		"combat_id": "combat_outbox_run_c002",
+		"combat_skill_event_revision_staged": 0,
+	}
+	second_combat["skill_event_revision"] = 1
+	second_combat["skill_events"] = [{
+		"revision": 1,
+		"skill_id": "makeshift_tool",
+		"turn": int(second_combat.get("turn", 1)),
+		"message": "Makeshift Tool preserves the item.",
+	}]
+	var failure_host: RunScene = RunScene.new()
+	failure_host.set("_progression", ProgressionStore.load_data())
+	var failed_stage: Dictionary = failure_host.call("_stage_combat_skill_event_analytics_for_state", second_run, second_combat) as Dictionary
+	var failed_run: Dictionary = failed_stage.get("run_state", {}) as Dictionary
+	var failed_combat: Dictionary = failed_stage.get("combat_state", {}) as Dictionary
+	failed_run = engine.set_combat_state(failed_run, failed_combat)
+	var failed_key: String = str(failure_host.call("_combat_skill_event_idempotency_key", failed_run, failed_combat, 1, "makeshift_tool"))
+	_expect(ProgressionStore.save_run_state(failed_run), "Append-failure fixture should persist its staged combat trigger")
+	var blocked_absolute_path: String = ProjectSettings.globalize_path(BLOCKED_STORAGE_PATH)
+	DirAccess.remove_absolute(blocked_absolute_path)
+	var blocker: FileAccess = FileAccess.open(BLOCKED_STORAGE_PATH, FileAccess.WRITE)
+	_expect(blocker != null, "Combat append-failure fixture should block the analytics directory")
+	if blocker != null:
+		blocker.store_string("blocked")
+		blocker.close()
+	AnalyticsStore.set_storage_dir(BLOCKED_STORAGE_PATH)
+	failure_host.set("_progression", failed_run.get("progression", {}) as Dictionary)
+	_expect(not bool(failure_host.call("_reconcile_progression_analytics_outbox")), "A combat-trigger append failure should leave the outbox unacknowledged")
+	failure_host.free()
+	_expect(ProgressionStore.progression_analytics_outbox(ProgressionStore.load_saved_run().get("progression", {}) as Dictionary).size() == 1, "The persisted run should retain a combat trigger after append failure")
+
+	AnalyticsStore.set_storage_dir(STORAGE_DIR)
+	DirAccess.remove_absolute(blocked_absolute_path)
+	var retry_run: Dictionary = ProgressionStore.load_saved_run()
+	var retry_host: RunScene = RunScene.new()
+	retry_host.set("_progression", retry_run.get("progression", {}) as Dictionary)
+	_expect(bool(retry_host.call("_reconcile_progression_analytics_outbox")), "A later boot should retry the failed combat-trigger append")
+	retry_host.free()
+	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), failed_key) == 1, "Append-failure retry should emit the combat trigger exactly once")
+
+	ProgressionStore.clear_saved_run()
+	var terminal_progression: Dictionary = ProgressionStore.default_data()
+	_expect(ProgressionStore.save_data(terminal_progression), "Terminal combat-trigger fixture should reset the profile")
+	var terminal_run: Dictionary = engine.create_debug_boss_run(terminal_progression)
+	terminal_run["debug_boss_run"] = false
+	terminal_run["run_index"] = 26
+	terminal_run["seed"] = 73036
+	terminal_run["analytics"] = {"run_id": "combat_outbox_terminal", "combat_counter": 1}
+	var terminal_rooms: Dictionary = (terminal_run.get("rooms", {}) as Dictionary).duplicate(true)
+	var terminal_coord: Vector2i = terminal_run.get("current_room", Vector2i.ZERO)
+	var terminal_room_key: String = "%d,%d" % [terminal_coord.x, terminal_coord.y]
+	var terminal_room: Dictionary = (terminal_rooms.get(terminal_room_key, {}) as Dictionary).duplicate(true)
+	terminal_room["depth"] = 24
+	terminal_rooms[terminal_room_key] = terminal_room
+	terminal_run["rooms"] = terminal_rooms
+	var terminal_combat: Dictionary = (terminal_run.get("combat_state", {}) as Dictionary).duplicate(true)
+	terminal_combat["room_depth"] = 24
+	terminal_combat["analytics"] = {
+		"combat_id": "combat_outbox_terminal_c001",
+		"combat_skill_event_revision_staged": 0,
+	}
+	terminal_combat["skill_event_revision"] = 1
+	terminal_combat["skill_events"] = [{
+		"revision": 1,
+		"skill_id": "afterimage",
+		"turn": int(terminal_combat.get("turn", 1)),
+		"message": "Afterimage resolves on the final action.",
+	}]
+	var terminal_enemies: Array = (terminal_combat.get("enemies", []) as Array).duplicate(true)
+	for index: int in range(terminal_enemies.size()):
+		var enemy: Dictionary = (terminal_enemies[index] as Dictionary).duplicate(true)
+		enemy["hp"] = 0
+		terminal_enemies[index] = enemy
+	terminal_combat["enemies"] = terminal_enemies
+	var terminal_host: RunScene = RunScene.new()
+	terminal_host.set("_progression", terminal_progression)
+	var terminal_checkpoint: Dictionary = terminal_host.call("_run_state_for_combat_checkpoint", terminal_run, terminal_combat) as Dictionary
+	var terminal_key: String = str(terminal_host.call("_combat_skill_event_idempotency_key", terminal_run, terminal_combat, 1, "afterimage"))
+	_expect(str(terminal_checkpoint.get("mode", "")) == "victory", "Terminal outbox fixture should reach the final victory boundary")
+	terminal_host.call("_hold_committed_run_state", terminal_checkpoint, "terminal_combat_skill_outbox")
+	terminal_host.free()
+	_expect(not ProgressionStore.has_saved_run(), "A terminal boundary should clear the resumable run")
+	var terminal_profile: Dictionary = ProgressionStore.load_data()
+	var terminal_pending_keys: Array[String]
+	for entry: Dictionary in ProgressionStore.progression_analytics_outbox(terminal_profile):
+		terminal_pending_keys.append(str(entry.get("idempotency_key", "")))
+	_expect(terminal_pending_keys.has(terminal_key), "Terminal persistence should move the combat trigger into the profile outbox before clearing the run")
+	var terminal_retry_host: RunScene = RunScene.new()
+	terminal_retry_host.set("_progression", terminal_profile)
+	_expect(bool(terminal_retry_host.call("_reconcile_progression_analytics_outbox")), "The next boot should flush a terminal combat trigger from the profile outbox")
+	terminal_retry_host.free()
+	_expect(_event_count_for_key(AnalyticsStore.load_all_events(), terminal_key) == 1, "Terminal combat-trigger recovery should emit exactly one row")
+	_expect(ProgressionStore.progression_analytics_outbox(ProgressionStore.load_data()).is_empty(), "Terminal combat-trigger recovery should durably acknowledge every queued event")
 
 func _event_count_for_key(events: Array[Dictionary], idempotency_key: String) -> int:
 	var count: int = 0
@@ -294,7 +503,8 @@ func _event_count_for_key(events: Array[Dictionary], idempotency_key: String) ->
 	return count
 
 func _remove_profile_fixture() -> void:
-	for path: String in [PROGRESSION_PATH, "%s.tmp" % PROGRESSION_PATH, "%s.backup" % PROGRESSION_PATH]:
+	ProgressionStore.clear_saved_run()
+	for path: String in [PROGRESSION_PATH, "%s.tmp" % PROGRESSION_PATH, "%s.backup" % PROGRESSION_PATH, RUN_PATH, "%s.tmp" % RUN_PATH, "%s.backup" % RUN_PATH, BLOCKED_RUN_PATH, "%s.tmp" % BLOCKED_RUN_PATH, "%s.backup" % BLOCKED_RUN_PATH]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 

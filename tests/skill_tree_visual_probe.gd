@@ -203,20 +203,32 @@ func _capture_level_up_tree(
 
 	var dialog := instance.get("_upgrade_dialog") as Control
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
+	var chosen_skill_id: String = ""
 	_expect(dialog != null and dialog.visible, "%s Level-up dialog should be visible" % viewport_size)
 	_expect(tree != null and tree.mode() == SkillTreeView.MODE_LEVEL_UP, "%s Campfire level-up should use the shared tree in level-up mode" % viewport_size)
 	if tree != null:
 		var available: Array[String] = SkillTreeLibrary.available_ids(tree.owned_skill_ids())
 		_expect(not available.is_empty(), "%s Level-up fixture should expose an available skill" % viewport_size)
 		if not available.is_empty():
-			tree.focus_skill(available[0])
+			chosen_skill_id = available[0]
+			tree.focus_skill(chosen_skill_id)
 			await _settle()
 			_expect(tree.detail_action_is_enabled(), "%s Focused level-up skill should be actionable" % viewport_size)
 		_expect(not tree.confirm_is_enabled(), "%s Level-up should require choosing a skill before confirmation" % viewport_size)
 		_assert_tree_scroll_contract(tree, viewport_size, "Level-up")
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Choose a Skill")
 	await _save_screenshot(viewport, "%s/07_level_up.png" % output_dir, viewport_size)
-	instance.call("_close_card_upgrade_overlay")
+	if tree != null and not chosen_skill_id.is_empty():
+		tree.activate_focused_skill()
+		_expect(tree.confirm_is_enabled(), "%s Selecting the focused skill should enable campfire confirmation" % viewport_size)
+		tree.request_confirm()
+		await process_frame
+		await process_frame
+		var learned_banner := instance.find_child("SkillLearnedBanner", true, false) as Label
+		_expect(learned_banner != null and learned_banner.text.contains(SkillTreeLibrary.display_name(chosen_skill_id).to_upper()), "%s Confirming a level should visibly celebrate the named skill" % viewport_size)
+		await _save_screenshot(viewport, "%s/07b_skill_learned.png" % output_dir, viewport_size)
+	instance.call("_clear_idle_card_fx_layer")
+	_expect(ProgressionStore.save_data(progression), "%s Level-up visual fixture should restore its base profile" % viewport_size)
 	await _settle()
 
 func _capture_combat_surfaces(
@@ -293,6 +305,14 @@ func _capture_combat_surfaces(
 		"Prismatic Instinct",
 		"Encore",
 	]
+	var maximum_manual_skill_ids: Array[String] = [
+		"quick_wits",
+		"rehearsed_escape",
+		"makeshift_tool",
+		"carry_the_guard",
+		"prismatic_instinct",
+		"encore",
+	]
 	var ready_group: Button = _button_beginning_with(choice_overlay, "Ready Skills (")
 	if ready_group == null:
 		ready_group = _button_beginning_with(choice_bar, "Ready Skills (")
@@ -312,8 +332,20 @@ func _capture_combat_surfaces(
 		ready_group.pressed.emit()
 		await _settle()
 		var grouped_choice_list := instance.get("_skill_choice_list") as Control
-		for skill_name: String in maximum_manual_skill_names:
-			_expect(_visible_button_with_text(grouped_choice_list, skill_name) != null, "%s Ready Skills chooser should list %s with its own description" % [viewport_size, skill_name])
+		var grouped_choice_detail := instance.get("_skill_choice_description") as Label
+		for skill_id: String in maximum_manual_skill_ids:
+			var skill_name: String = SkillTreeLibrary.display_name(skill_id)
+			var skill_description: String = SkillTreeLibrary.description(skill_id)
+			var skill_button: Button = _visible_button_with_text(grouped_choice_list, skill_name)
+			_expect(skill_button != null, "%s Ready Skills chooser should list %s" % [viewport_size, skill_name])
+			if skill_button != null:
+				skill_button.grab_focus()
+				await process_frame
+			_expect(grouped_choice_detail != null and grouped_choice_detail.text.contains(skill_description), "%s Focusing %s should expose its complete rule without pointer hover" % [viewport_size, skill_name])
+		var first_skill_button: Button = _visible_button_with_text(grouped_choice_list, maximum_manual_skill_names[0])
+		if first_skill_button != null:
+			first_skill_button.grab_focus()
+			await process_frame
 		await _save_screenshot(viewport, "%s/04b_ready_skill_group.png" % output_dir, viewport_size)
 		instance.call("_close_skill_choice_dialog")
 		await _settle()

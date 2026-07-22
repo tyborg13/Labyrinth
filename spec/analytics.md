@@ -237,10 +237,11 @@ event and spends no resource.
 
 `progression_moltshard_gained` records an earned respec resource. Its payload
 contains `amount`, `source`, `moltshards_before`, and
-`moltshards_after`. The first-boss award uses
-`source: "first_boss_victory"`; repeated resolution of the same award must not
-emit another event. The award and a profile-owned analytics outbox entry are
-persisted together before JSONL append. Its stable idempotency key is
+`moltshards_after`. The first boss victory of a run uses
+`source: "first_boss_victory"`; later boss victories in that run produce no
+award event, and repeated resolution of the same award must not emit another
+event. The award and a profile-owned analytics outbox entry are persisted
+together before JSONL append. Its stable idempotency key is
 `progression_moltshard_gained|<run-result-id>:first_boss_moltshard`. The outbox
 entry is acknowledged only after append succeeds; loading a profile or saved
 run retries pending entries, and append-before-ack replay is a no-op rather than
@@ -250,13 +251,25 @@ banked profile.
 `skill_triggered` records each automatic, manual, contextual, or passive skill
 activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,
 `trigger_scope`, `turn`, and `message`. `trigger_scope` distinguishes combat
-and run event streams. Revisions are monotonic within their stream, and the
-run stream uses its revisioned event list as a durable outbox. The run state
+and run event streams. Revisions are monotonic within their stream.
+
+The run stream uses its revisioned event list as a durable outbox. The run state
 containing a new trigger is committed before JSONL append; the logged-revision
 cursor advances only after append succeeds and is then committed separately.
 Each run trigger uses the stable key
-`skill_triggered|run|<run_id>|<revision>|<skill_id>`, so a crash after append
-but before cursor persistence replays the write without producing a duplicate.
+`skill_triggered|run|<run_id>|<revision>|<skill_id>`.
+
+Combat triggers are copied into the shared `progression_analytics_outbox`
+carried by profile and run progression. The combat snapshot advances
+`combat_skill_event_revision_staged` in the same checkpoint as those outbox
+entries; this cursor means staged, not appended or acknowledged. That gameplay
+checkpoint is persisted before JSONL append. Each combat trigger uses the stable
+key `skill_triggered|combat|<combat_id>|<revision>|<skill_id>`. The outbox entry
+is acknowledged only after append succeeds, and that acknowledgement is
+persisted separately. Loading a profile or saved run retries pending entries; a
+crash after append but before acknowledgement replays the stable key as an
+idempotent no-op rather than producing a duplicate.
+
 Priming and effect realization do not create a second activation event.
 Realized card, damage, defense, movement, and resource outcomes remain in their
 existing events rather than being converted into a guessed skill score.

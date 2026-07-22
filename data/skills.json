@@ -74,7 +74,7 @@
   "carry_the_guard": {
     "name": "Carry the Guard",
     "icon": "stoneskin",
-    "description": "Once per combat, after gaining block, arm during your activation to convert all block remaining at its end into stoneskin.",
+    "description": "Once per combat, while you have block, arm during your activation to convert all block remaining at its end into stoneskin.",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 1],
@@ -86,7 +86,7 @@
   "pain_remembers": {
     "name": "Pain Remembers",
     "icon": "health",
-    "description": "After your first health loss each combat, when your hand has room, return your next non-item discard to it.",
+    "description": "After you first lose health each combat, the next non-item card discarded while your hand has room returns to it.",
     "branch": "resolve",
     "tier": "branch",
     "position": [1, 2],
@@ -182,7 +182,7 @@
   "prismatic_instinct": {
     "name": "Prismatic Instinct",
     "icon": "truesight",
-    "description": "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic uses do not consume this.",
+    "description": "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic Attack, Move, and Blink uses do not consume the effect.",
     "branch": "foresight",
     "tier": "junction",
     "position": [3, 3],
@@ -206,7 +206,7 @@
   "living_shadow": {
     "name": "Living Shadow",
     "icon": "illusion",
-    "description": "Once between your activations, a destroyed or dispelled illusion returns your latest non-item discard to hand, or atop your draw pile if full.",
+    "description": "Once between your activations, when an illusion is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
     "branch": "resolve",
     "tier": "junction",
     "position": [1, 4],
