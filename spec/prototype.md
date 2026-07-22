@@ -67,15 +67,16 @@ It intentionally excludes, for now:
 - Rooms award held embers.
 - Campfires force a choice: heal and continue, carry held embers into the next
   run by ending safely, or spend held embers to gain a permanent character
-  level and learn one skill.
+  level and bank one skill point.
 - Death loses held embers unless they were carried forward from a campfire or
   final victory.
 - Treasure rooms offer relics for the current run only.
 - Persistent progression is a 24-node qualitative skill tree. Learned skills
   add tactical options, recovery lines, and cross-system interactions without
   permanently scaling printed card or character numbers.
-- A Moltshard from the first boss can transactionally reshape the learned tree;
-  it exists only in progression and never enters run inventory.
+- A Moltshard from the first boss can reset the whole learned tree after one
+  confirmation, restoring every earned point; it exists only in progression
+  and never enters run inventory.
 
 ## Content Targets
 
