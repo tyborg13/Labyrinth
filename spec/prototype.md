@@ -85,7 +85,7 @@ It intentionally excludes, for now:
 - Regular enemies: crawler, acolyte, harrier, warden.
 - Boss: heart warden.
 - Relics: 4-6 simple, high-signal effects.
-- Persistent progression: 20 character levels with exactly one learned skill
+- Persistent progression: 20 character levels earning one bankable skill point
   per level after level 1, up to 19 active skills and one exclusive keystone.
 
 ## Technical Targets
