@@ -30,7 +30,10 @@ func _test_skill_tree_view() -> void:
 	view.position = Vector2(40.0, 40.0)
 	view.size = Vector2(1120.0, 620.0)
 	view.learn_requested.connect(func(skill_id: String) -> void: _learned_request = skill_id)
+	var initial_build_started_usec: int = Time.get_ticks_usec()
 	root.add_child(view)
+	var initial_build_elapsed_usec: int = Time.get_ticks_usec() - initial_build_started_usec
+	var initial_configure_started_usec: int = Time.get_ticks_usec()
 	view.configure({
 		"mode": SkillTreeView.MODE_VIEW,
 		"owned_ids": ["quick_wits"],
@@ -39,7 +42,20 @@ func _test_skill_tree_view() -> void:
 		"editing_enabled": true,
 		"focused_id": "quick_wits",
 	})
+	var initial_configure_elapsed_usec: int = Time.get_ticks_usec() - initial_configure_started_usec
+	print("SKILL TREE PERF build=%dus configure=%dus metrics=%s" % [initial_build_elapsed_usec, initial_configure_elapsed_usec, view.performance_metrics()])
 	await process_frame
+	await process_frame
+	var warm_view := SkillTreeView.new()
+	var warm_build_started_usec: int = Time.get_ticks_usec()
+	root.add_child(warm_view)
+	var warm_build_elapsed_usec: int = Time.get_ticks_usec() - warm_build_started_usec
+	print("SKILL TREE PERF warm_build=%dus" % warm_build_elapsed_usec)
+	_expect(initial_build_elapsed_usec < 250000, "Cold skill-tree construction should stay below a quarter-second: %dus" % initial_build_elapsed_usec)
+	_expect(initial_configure_elapsed_usec < 50000, "A ready skill-tree state update should stay below 50ms: %dus" % initial_configure_elapsed_usec)
+	_expect(warm_build_elapsed_usec < 250000, "Repeated skill-tree construction should stay below a quarter-second: %dus" % warm_build_elapsed_usec)
+	_expect(int(view.performance_metrics().get("link_geometry_usec", 0)) < 100000, "Connector routing should stay below 100ms")
+	warm_view.queue_free()
 	await process_frame
 
 	_expect(view.node_count() == 24, "The tree should render all 24 skills")
@@ -82,6 +98,7 @@ func _test_skill_tree_view() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var node: Button = view.node_for_skill(skill_id)
 		_expect(node != null and node.size.x >= 48.0 and node.size.x <= 66.0, "%s should use an accessible compact medallion" % skill_id)
+		_expect(node != null and node.tooltip_text.is_empty(), "%s should rely on the fixed detail pane instead of a tooltip" % skill_id)
 		_expect(graph_bounds.encloses(Rect2(node.position, node.size)), "%s should remain inside the graph canvas" % skill_id)
 		_expect(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)) != null, "%s should render a semantic icon" % skill_id)
 		var up_neighbor: String = view.navigation_neighbor(skill_id, "up")
@@ -111,6 +128,7 @@ func _test_skill_tree_view() -> void:
 	_expect(_learned_request == "measured_breath", "Learn should emit the single skill to persist immediately")
 	_expect(view.owned_skill_ids() == ["quick_wits"], "The reusable view should not invent a local allocation before its owner saves")
 
+	var navigation_before_learn_update: int = view.navigation_rebuild_count()
 	view.configure({
 		"mode": SkillTreeView.MODE_VIEW,
 		"owned_ids": ["quick_wits", "measured_breath"],
@@ -123,9 +141,16 @@ func _test_skill_tree_view() -> void:
 	_expect(view.status_for_skill("measured_breath") == SkillTreeView.STATE_OWNED, "A saved learned skill should update immediately")
 	_expect(view.points_remaining() == 3, "A saved learn should consume exactly one point")
 	_expect(view.link_geometry_rebuild_count() == 1, "State reconfiguration should reuse static connector geometry")
+	_expect(view.navigation_rebuild_count() > navigation_before_learn_update, "A saved learn should rebuild controller exits after Learn becomes unavailable")
+	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		var node: Button = view.node_for_skill(skill_id)
+		for neighbor_property: StringName in [&"focus_neighbor_left", &"focus_neighbor_right", &"focus_neighbor_top", &"focus_neighbor_bottom"]:
+			var neighbor_path: NodePath = node.get(neighbor_property)
+			var neighbor: Node = node.get_node_or_null(neighbor_path) if not neighbor_path.is_empty() else null
+			_expect(neighbor != detail_action, "%s should not retain a controller exit to the disabled Learn action" % skill_id)
 
-	# Regression proof for the reported freeze: hover must not grab focus, scroll
-	# the graph, rebuild bridge geometry, or recompute the O(n²) navigation map.
+	# Pointer hover is decoration only. Selection belongs to click/controller
+	# focus, and hover must not do any graph or navigation work.
 	var graph_scroll := view.find_child("SkillTreeScroll", true, false) as ScrollContainer
 	graph_scroll.scroll_horizontal = 73
 	graph_scroll.scroll_vertical = 41
@@ -139,7 +164,7 @@ func _test_skill_tree_view() -> void:
 		view.node_for_skill(skill_id).mouse_entered.emit()
 	var hover_elapsed_usec: int = Time.get_ticks_usec() - hover_started
 	await process_frame
-	_expect(view.focused_skill_id() == SkillTreeLibrary.ordered_ids()[-1], "Hover should still update visual inspection")
+	_expect(view.focused_skill_id() == "measured_breath", "Hover should not change the clicked or controller-focused skill")
 	_expect(root.gui_get_focus_owner() == focus_before, "Hover should not transfer keyboard focus and trigger implicit ScrollContainer movement")
 	_expect(view.graph_scroll_offset() == scroll_before, "Hovering every node should leave both scroll axes unchanged")
 	_expect(view.link_geometry_rebuild_count() == geometry_before, "Hover should never reroute connectors or recompute bridges")

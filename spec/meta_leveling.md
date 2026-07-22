@@ -233,8 +233,8 @@ scales. Learned, available, locked, and exclusive states use
 independent fills, borders, state glyphs, and a persistent legend; branch color
 is only a small secondary accent.
 
-Names and rules text live in the persistent detail pane and tooltips, so no
-label can cover a dependency. Every connection runs between an explicit output
+Names and rules text live in the persistent detail pane; skill nodes do not
+spawn tooltips over the graph. No label can cover a dependency. Every connection runs between an explicit output
 and input port, uses an opaque core at least `3` pixels wide over a dark
 under-stroke, avoids every unrelated node, and terminates in a target arrowhead
 drawn above node shadows. Direction is communicated redundantly by the
@@ -249,10 +249,12 @@ without hiding the rest of the graph. The skill-tree modal expands at larger
 viewports; at compact viewports, automatic horizontal and vertical scrolling
 preserves the same readable node spacing instead of compressing the topology.
 Keyboard/controller focus automatically scrolls its medallion into view. Mouse
-hover changes only visual focus and the detail pane: it never transfers GUI
-focus, moves either scroll axis, reroutes connectors, recomputes bridge
-crossings, or rebuilds directional navigation. Connector geometry and crossing
-analysis are cached for the lifetime of the view. Every node requires an
+hover is decoration only: it never changes the selected skill or detail pane,
+transfers GUI focus, moves either scroll axis, reroutes connectors, recomputes
+bridge crossings, or rebuilds directional navigation. Click or controller
+focus changes the selected skill. Connector geometry and crossing analysis are
+cached for the lifetime of the view, and the library's authored node order is
+cached so route construction does not repeatedly sort immutable data. Every node requires an
 explicit bounded layout coordinate. Opening
 the tree transfers GUI focus to its focused node; horizontal navigation stays
 within the visible rank, vertical navigation follows dependency links, and a
@@ -265,6 +267,11 @@ or missing prerequisites, direct unlocks, minimum learned count, and lock
 reason. Variable-length rules copy scrolls inside that fixed pane while the
 current Learn action stays pinned, so requirements cannot
 increase the Character modal's height or hide its chrome at `1280x720`.
+Level, unspent Skill Points, and Moltshards use large, independently colored
+resource chips in the Character header. The tree footer contains only the
+Reset Skills action; reset consequences remain contextual to its confirmation.
+Learning updates the existing graph and resource chips in place without a
+full Character/combat UI rebuild or an extra learned/points-remaining banner.
 
 During combat, learned skills appear through a violet SkillSigil beside—but
 visually distinct from—the relic row. Its popover lists every learned skill as:
@@ -277,15 +284,23 @@ visually distinct from—the relic row. Its popover lists every learned skill as
 - `AUTOMATIC` for recurring rules that need no player input.
 - `PASSIVE` for always-on rules.
 
-The popover grows with the available viewport up to a bounded maximum. Its
-informational rows receive explicit controller focus, follow focus while
-scrolling, and preserve the focused skill and scroll position across HUD
-refreshes.
+The popover grows with the available viewport up to a bounded maximum. Its rows
+receive explicit controller focus, follow focus while scrolling, and preserve
+the focused skill and scroll position across HUD refreshes. Ready manual rows
+are also the one common activated-ability entry point. No ability button is
+inserted beside Pass, and the number of ready abilities never changes the
+combat action strip.
 
-Manual abilities expose actions only when they can legally resolve. One or two
-ready abilities use direct buttons; three or more collapse into a single
-`Ready Skills (N)` command whose dialog lists every ready ability and its full
-description. This keeps the worst-case action strip clear of the card hand.
+Manual abilities expose actions only when they can legally resolve. Abilities
+that target cards preserve the source zone's normal spatial and visual model:
+Quick Wits and Prismatic Instinct enter a hand-selection mode using the full
+live hand cards, while Encore opens the normal full-card discard pile and makes
+eligible non-item cards selectable there. Ineligible cards remain visible but
+inert. Full-card choices receive explicit controller focus, horizontal
+navigation, Accept, and Cancel paths. Ability activation is unavailable while a
+card preview, action-mode choice, or drag is unresolved, so a skill can never
+commit beneath a stale card simulation. These flows never replace cards with a
+name-only option list.
 Trigger events pulse the SkillSigil and feed bounded,
 revisioned analytics events so redraws and save/resume cannot duplicate them.
 
@@ -378,7 +393,8 @@ The implementation is covered by focused suites for:
 - Profile-first torn saves for both boss awards and level-up ember spending.
 - Every combat and run-level skill effect.
 - Skills tab replacement and absence of numeric allocation controls.
-- SkillSigil status, manual ability dialogs, reward rerolls, and reset resource
+- SkillSigil status and activation, live-hand/discard-pile selection modes,
+  reward rerolls, and reset resource
   isolation.
 - Analytics schema, combat/run trigger crash recovery, and card-heuristic
   progression context.
@@ -395,7 +411,10 @@ The implementation is covered by focused suites for:
   visible incoming segment, semantic live controller focus neighbors, every
   medallion wholly inside its authored canvas, automatic scrollbars whenever
   the compact host cannot show the authored graph at full size, and a complete
-  hover sweep that does not change scroll position or rebuild static geometry.
+  hover sweep that does not change selection or scroll position or rebuild
+  static geometry. Performance tests budget cold graph construction, connector
+  routing, state refresh, and an immediate skill learn so the menu cannot
+  regress to a frame-long synchronous stall.
 
 Any future skill must add or update its data definition, relevant engine hook,
 HUD status semantics, analytics trigger, focused test, and this specification in

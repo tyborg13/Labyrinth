@@ -20,6 +20,9 @@ static func run(expect: Callable) -> void:
 static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.definitions().size() == 24, "The skill tree should define exactly 24 skills")
 	expect.call(SkillTreeLibrary.validation_errors().is_empty(), "The skill graph should have valid data, positions, prerequisites, and a complete level-20 route")
+	var caller_order: Array[String] = SkillTreeLibrary.ordered_ids()
+	caller_order.clear()
+	expect.call(SkillTreeLibrary.ordered_ids().size() == 24, "The cached authored order should return an isolated copy to callers")
 	var roots: Array[String]
 	var keystones: Array[String]
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
@@ -263,9 +266,12 @@ static func _test_legacy_profile_migration(expect: Callable) -> void:
 
 static func _validation_errors_with_definitions(altered_definitions: Dictionary) -> Array[String]:
 	var original_cache: Dictionary = SkillTreeLibrary._cache
+	var original_order: Array[String] = SkillTreeLibrary.ordered_ids()
 	SkillTreeLibrary._cache = altered_definitions
+	SkillTreeLibrary._ordered_ids_cache.clear()
 	var errors: Array[String] = SkillTreeLibrary.validation_errors()
 	SkillTreeLibrary._cache = original_cache
+	SkillTreeLibrary._ordered_ids_cache = original_order
 	return errors
 
 static func _contains_error_fragment(errors: Array[String], fragment: String) -> bool:

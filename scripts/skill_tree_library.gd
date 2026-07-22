@@ -14,6 +14,7 @@ const LAYOUT_NODE_SIZES: Dictionary = {
 }
 
 static var _cache: Dictionary = {}
+static var _ordered_ids_cache: Array[String]
 
 static func definitions() -> Dictionary:
 	if not _cache.is_empty():
@@ -34,8 +35,11 @@ static func definitions() -> Dictionary:
 
 static func clear_cache() -> void:
 	_cache.clear()
+	_ordered_ids_cache.clear()
 
 static func ordered_ids() -> Array[String]:
+	if not _ordered_ids_cache.is_empty():
+		return _copy_string_array(_ordered_ids_cache)
 	var result: Array[String]
 	for skill_id_var: Variant in definitions().keys():
 		result.append(str(skill_id_var))
@@ -50,6 +54,7 @@ static func ordered_ids() -> Array[String]:
 			return left_pos.x < right_pos.x
 		return str(left_def.get("name", left)) < str(right_def.get("name", right))
 	)
+	_ordered_ids_cache = _copy_string_array(result)
 	return result
 
 static func definition(skill_id: String) -> Dictionary:
@@ -411,6 +416,11 @@ static func _unique_known_ids(value: Variant) -> Array[String]:
 		if skill_id.is_empty() or result.has(skill_id) or not definitions().has(skill_id):
 			continue
 		result.append(skill_id)
+	return result
+
+static func _copy_string_array(source: Array[String]) -> Array[String]:
+	var result: Array[String]
+	result.append_array(source)
 	return result
 
 static func _lookup(ids: Array[String]) -> Dictionary:

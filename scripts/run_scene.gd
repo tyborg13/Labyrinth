@@ -926,8 +926,8 @@ const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
 const SKILL_SIGIL_SIZE: Vector2 = Vector2(58.0, 52.0)
 const SKILL_STATUS_POPOVER_MIN_SIZE: Vector2 = Vector2(430.0, 500.0)
 const SKILL_STATUS_POPOVER_MAX_SIZE: Vector2 = Vector2(500.0, 760.0)
+const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
 const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
-const READY_SKILL_GROUP_THRESHOLD: int = 3
 const HEADER_RELIC_WRAP_MARGIN: float = 24.0
 const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const INTENSITY_BADGE_SIZE: Vector2 = Vector2(87.0, 87.0)
@@ -970,7 +970,6 @@ const RELIC_ACQUISITION_MOTES: int = 8
 const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
 const LOADOUT_ACQUISITION_RAY_SECONDS: float = 0.42
 const LOADOUT_ACQUISITION_MOTES: int = 10
-const SKILL_LEARNED_FEEDBACK_SECONDS: float = 0.92
 const DIALOGUE_DIALOG_WIDTH: float = 1060.0
 const DIALOGUE_DIALOG_HINT_MIN_HEIGHT: float = 154.0
 const DIALOGUE_DIALOG_OPTION_MIN_HEIGHT: float = 206.0
@@ -1203,6 +1202,12 @@ var _skill_choice_description: Label
 var _skill_choice_list: VBoxContainer
 var _skill_choice_cancel_button: Button
 var _skill_choice_return_focus: Control
+var _combat_skill_card_selection_zone: String = ""
+var _combat_skill_card_selection_skill_id: String = ""
+var _combat_skill_card_selection_indices: Array[int]
+var _combat_skill_card_selection_prompt: PanelContainer
+var _combat_skill_card_selection_label: Label
+var _combat_skill_card_selection_cancel_button: Button
 var _skill_event_revision_seen: int = 0
 var _run_skill_event_revision_seen: int = 0
 var _analytics_skill_event_revision: int = 0
@@ -1326,10 +1331,14 @@ var _upgrade_selected_card_id: String = ""
 var _upgrade_selected_element_key: String = ""
 var _progression_overlay_mode: String = ""
 var _progression_focused_skill_id: String = ""
-var _progression_overlay_summary_label: Label
+var _progression_level_label: Label
+var _progression_skill_points_label: Label
+var _progression_moltshards_label: Label
 var _progression_overlay_notice: String = ""
 var _progression_overlay_notice_is_error: bool = false
 var _skill_tree_view: SkillTreeView
+var _skill_reset_button: Button
+var _skill_hud_refresh_pending: bool = false
 var _skill_reset_confirmation_scrim: ColorRect
 var _equipment_slot_panels: Dictionary = {}
 var _equipment_inventory_tiles: Dictionary = {}
@@ -1437,6 +1446,11 @@ func _input(event: InputEvent) -> void:
 	if _skill_status_scrim != null and _skill_status_scrim.visible:
 		if event.is_action_pressed("ui_cancel"):
 			_close_skill_status_popover()
+			get_viewport().set_input_as_handled()
+		return
+	if not _combat_skill_card_selection_zone.is_empty():
+		if event.is_action_pressed("ui_cancel"):
+			_cancel_combat_skill_card_selection()
 			get_viewport().set_input_as_handled()
 		return
 	if _pinned_tooltip_scrim != null and _pinned_tooltip_scrim.visible:
@@ -1881,6 +1895,7 @@ func _build_overlay_ui() -> void:
 	_build_pre_battle_overlay()
 	_build_drag_overlay()
 	_build_skill_status_popover()
+	_build_combat_skill_card_selection_prompt()
 	_build_skill_choice_dialog()
 
 func _build_skill_status_popover() -> void:
@@ -1919,7 +1934,7 @@ func _build_skill_status_popover() -> void:
 	header.add_theme_constant_override("separation", 10)
 	column.add_child(header)
 	_skill_status_title = Label.new()
-	_skill_status_title.text = "ACTIVE SKILLS"
+	_skill_status_title.text = "ABILITIES"
 	_skill_status_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(_skill_status_title, UiTypography.ROLE_SECTION)
 	_skill_status_title.add_theme_color_override("font_color", Color("eadcff"))
@@ -1957,6 +1972,47 @@ func _on_skill_status_scrim_gui_input(event: InputEvent) -> void:
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			_close_skill_status_popover()
 			get_viewport().set_input_as_handled()
+
+func _build_combat_skill_card_selection_prompt() -> void:
+	_combat_skill_card_selection_prompt = PanelContainer.new()
+	_combat_skill_card_selection_prompt.name = "SkillCardSelectionPrompt"
+	_combat_skill_card_selection_prompt.visible = false
+	_combat_skill_card_selection_prompt.custom_minimum_size = SKILL_CARD_SELECTION_PROMPT_SIZE
+	_combat_skill_card_selection_prompt.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_combat_skill_card_selection_prompt.offset_left = -SKILL_CARD_SELECTION_PROMPT_SIZE.x * 0.5
+	_combat_skill_card_selection_prompt.offset_top = -350.0
+	_combat_skill_card_selection_prompt.offset_right = SKILL_CARD_SELECTION_PROMPT_SIZE.x * 0.5
+	_combat_skill_card_selection_prompt.offset_bottom = -294.0
+	_combat_skill_card_selection_prompt.z_index = 430
+	_combat_skill_card_selection_prompt.z_as_relative = false
+	_combat_skill_card_selection_prompt.mouse_filter = Control.MOUSE_FILTER_STOP
+	_combat_skill_card_selection_prompt.add_theme_stylebox_override("panel", _skill_panel_style(Color("ae82dc"), 0.98))
+	ui_root.add_child(_combat_skill_card_selection_prompt)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	_combat_skill_card_selection_prompt.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+	margin.add_child(row)
+	_combat_skill_card_selection_label = Label.new()
+	_combat_skill_card_selection_label.name = "SkillCardSelectionInstruction"
+	_combat_skill_card_selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_combat_skill_card_selection_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.apply_label_role(_combat_skill_card_selection_label, UiTypography.ROLE_BODY_LARGE)
+	_combat_skill_card_selection_label.add_theme_color_override("font_color", Color("f0e2ff"))
+	row.add_child(_combat_skill_card_selection_label)
+	_combat_skill_card_selection_cancel_button = Button.new()
+	_combat_skill_card_selection_cancel_button.name = "CancelSkillCardSelection"
+	_combat_skill_card_selection_cancel_button.text = "Cancel"
+	_combat_skill_card_selection_cancel_button.custom_minimum_size = Vector2(94.0, 40.0)
+	_ui_skin.apply_button_stylebox_overrides(_combat_skill_card_selection_cancel_button, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(_combat_skill_card_selection_cancel_button)
+	UiTypography.apply_button_role(_combat_skill_card_selection_cancel_button, UiTypography.ROLE_BODY)
+	_combat_skill_card_selection_cancel_button.pressed.connect(_cancel_combat_skill_card_selection)
+	row.add_child(_combat_skill_card_selection_cancel_button)
 
 func _build_skill_choice_dialog() -> void:
 	_skill_choice_scrim = ColorRect.new()
@@ -2104,7 +2160,7 @@ func _close_skill_choice_dialog() -> void:
 		_skill_choice_return_focus = null
 		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
 
-func _close_skill_status_popover() -> void:
+func _close_skill_status_popover(restore_focus: bool = true) -> void:
 	var was_visible: bool = _skill_status_scrim != null and _skill_status_scrim.visible
 	if was_visible and _skill_status_scroll != null:
 		_skill_status_scroll_position = _skill_status_scroll.scroll_vertical
@@ -2112,10 +2168,12 @@ func _close_skill_status_popover() -> void:
 		_skill_status_scrim.visible = false
 	if _skill_status_popover != null:
 		_skill_status_popover.visible = false
-	if was_visible:
+	if was_visible and restore_focus:
 		var return_focus: Control = _skill_status_return_focus
 		_skill_status_return_focus = null
 		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
+	elif was_visible:
+		_skill_status_return_focus = null
 
 func _can_restore_gui_focus(control: Variant) -> bool:
 	if not is_instance_of(control, Control):
@@ -6804,6 +6862,8 @@ func _refresh_relic_bar() -> void:
 		call_deferred("_pulse_skill_sigil")
 
 func _selected_skill_ids_for_hud() -> Array[String]:
+	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
+		return _combat_engine.skill_ids(_combat_state)
 	if not _run_state.is_empty():
 		return _run_engine.run_skill_ids(_run_state)
 	return ProgressionStore.selected_skill_ids(_progression)
@@ -6816,7 +6876,7 @@ func _build_skill_sigil(skill_ids: Array[String]) -> Button:
 	button.name = "SkillSigil"
 	button.custom_minimum_size = SKILL_SIGIL_SIZE
 	button.text = "◆\n%d" % skill_ids.size()
-	button.tooltip_text = "%d learned skills. View active skill status." % skill_ids.size()
+	button.tooltip_text = "Open Abilities (%d learned)." % skill_ids.size()
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.set_meta("header_utility", true)
 	UiTypography.apply_button_role(button, UiTypography.ROLE_CAPTION)
@@ -6890,19 +6950,26 @@ func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
 		preserved_scroll = _skill_status_scroll.scroll_vertical
 	_clear_children_now(_skill_status_list)
 	if _skill_status_title != null:
-		_skill_status_title.text = "ACTIVE SKILLS  %d" % skill_ids.size()
+		_skill_status_title.text = "ABILITIES  %d" % skill_ids.size()
 	for skill_id: String in skill_ids:
-		var row := PanelContainer.new()
+		var row := Button.new()
 		row.name = "SkillStatusRow_%s" % skill_id
 		row.focus_mode = Control.FOCUS_ALL
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.custom_minimum_size.y = 78.0
+		row.text = ""
 		row.set_meta("skill_id", skill_id)
 		var status: String = _skill_hud_status(skill_id)
 		var accent: Color = _skill_status_accent(status)
-		row.add_theme_stylebox_override("panel", _skill_status_row_style(accent))
-		row.focus_entered.connect(_on_skill_status_row_focus_changed.bind(row, accent, true))
-		row.focus_exited.connect(_on_skill_status_row_focus_changed.bind(row, accent, false))
+		row.add_theme_stylebox_override("normal", _skill_status_row_style(accent))
+		row.add_theme_stylebox_override("disabled", _skill_status_row_style(accent))
+		for style_name: String in ["hover", "pressed", "focus"]:
+			row.add_theme_stylebox_override(style_name, _skill_status_row_style(accent, true))
+		row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _combat_skill_is_activatable(skill_id) else Control.CURSOR_ARROW
+		row.pressed.connect(_on_skill_status_row_pressed.bind(skill_id))
 		var margin := MarginContainer.new()
+		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		margin.add_theme_constant_override("margin_left", 12)
 		margin.add_theme_constant_override("margin_top", 8)
 		margin.add_theme_constant_override("margin_right", 12)
@@ -6979,10 +7046,30 @@ func _restore_skill_status_popover_state(skill_id: String, scroll_position: int)
 			(child as Control).grab_focus()
 			return
 
-func _on_skill_status_row_focus_changed(row: PanelContainer, accent: Color, focused: bool) -> void:
-	if row == null or not is_instance_valid(row):
+func _combat_skill_is_activatable(skill_id: String) -> bool:
+	return (
+		SkillTreeLibrary.activation_kind(skill_id) == "manual"
+		and _combat_skill_activation_surface_available()
+		and _combat_engine.skill_is_ready(_combat_state, skill_id)
+	)
+
+func _combat_skill_activation_surface_available() -> bool:
+	return (
+		str(_run_state.get("mode", "room")) == "combat"
+		and not _combat_state.is_empty()
+		and not _animation_lock
+		and _combat_engine.is_player_turn(_combat_state)
+		and _selected_card_index < 0
+		and _card_action_choice_index < 0
+		and _drag_card_index < 0
+		and not _pending_umbra_commit_locked
+		and _combat_skill_card_selection_zone.is_empty()
+	)
+
+func _on_skill_status_row_pressed(skill_id: String) -> void:
+	if not _combat_skill_is_activatable(skill_id):
 		return
-	row.add_theme_stylebox_override("panel", _skill_status_row_style(accent, focused))
+	_on_combat_skill_pressed(skill_id)
 
 func _skill_hud_status(skill_id: String) -> String:
 	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
@@ -9115,8 +9202,7 @@ func _refresh_choice_bar() -> void:
 		return
 	if mode == "combat" and (_selected_card_index >= 0 or _card_action_choice_index >= 0):
 		pass
-	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state):
-		_add_ready_skill_choice_buttons()
+	elif mode == "combat" and not _animation_lock and _drag_card_index < 0 and _combat_engine.is_player_turn(_combat_state) and _combat_skill_card_selection_zone.is_empty():
 		_add_choice_button("Pass", _on_pass_turn_pressed, _pass_preview_button_tooltip())
 		_add_pass_preview_chip()
 	match mode:
@@ -9209,58 +9295,17 @@ func _add_choice_button(text: String, callback: Callable, tooltip: String = "") 
 	else:
 		choice_bar.add_child(button)
 
-func _add_ready_skill_choice_buttons() -> void:
-	var ready_states: Array[Dictionary]
-	for state: Dictionary in _combat_engine.manual_skill_states(_combat_state):
-		if bool(state.get("ready", false)):
-			ready_states.append(state)
-	if ready_states.size() >= READY_SKILL_GROUP_THRESHOLD:
-		var ready_names: Array[String]
-		for state: Dictionary in ready_states:
-			ready_names.append(str(state.get("name", "")))
-		_add_choice_button(
-			"Ready Skills (%d)" % ready_states.size(),
-			_open_ready_skill_group,
-			"Choose one ready learned skill:\n%s" % ", ".join(ready_names)
-		)
-		return
-	for state: Dictionary in ready_states:
-		var skill_id: String = str(state.get("skill_id", ""))
-		_add_choice_button(
-			str(state.get("name", SkillTreeLibrary.display_name(skill_id))),
-			_on_combat_skill_pressed.bind(skill_id),
-			str(state.get("description", ""))
-		)
-
-func _open_ready_skill_group() -> void:
-	if _animation_lock or not _combat_engine.is_player_turn(_combat_state):
-		return
-	var options: Array = []
-	for state: Dictionary in _combat_engine.manual_skill_states(_combat_state):
-		if not bool(state.get("ready", false)):
-			continue
-		var skill_id: String = str(state.get("skill_id", ""))
-		options.append({
-			"text": str(state.get("name", SkillTreeLibrary.display_name(skill_id))),
-			"detail": str(state.get("description", "")),
-			"callback": _on_combat_skill_pressed.bind(skill_id),
-		})
-	_open_skill_choice_dialog(
-		"Ready Skills",
-		"Choose a learned skill to use. Opening this list spends nothing.",
-		options
-	)
-
 func _on_combat_skill_pressed(skill_id: String) -> void:
-	if _animation_lock or not _combat_engine.is_player_turn(_combat_state) or not _combat_engine.skill_is_ready(_combat_state, skill_id):
+	if not _combat_skill_is_activatable(skill_id):
 		return
+	_close_skill_status_popover(false)
 	match SkillTreeLibrary.effect_type(skill_id):
 		"discard_draw":
-			_open_quick_wits_choice(skill_id)
+			_begin_quick_wits_card_selection(skill_id)
 		"discard_recall":
-			_open_encore_choice(skill_id)
+			_begin_encore_card_selection(skill_id)
 		"arm_intensity":
-			_open_prismatic_choice(skill_id)
+			_begin_prismatic_card_selection(skill_id)
 		"preserve_burn":
 			_commit_combat_skill_state(_combat_engine.arm_rehearsed_escape(_combat_state), skill_id)
 		"preserve_fallback_item":
@@ -9268,55 +9313,93 @@ func _on_combat_skill_pressed(skill_id: String) -> void:
 		"convert_block":
 			_commit_combat_skill_state(_combat_engine.arm_carry_the_guard(_combat_state), skill_id)
 
-func _open_quick_wits_choice(skill_id: String) -> void:
-	var options: Array = []
+func _begin_quick_wits_card_selection(skill_id: String) -> void:
 	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	var valid_indices: Array[int]
 	for index: int in range(hand.size()):
-		var card_id: String = str(hand[index])
-		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
-		options.append({
-			"text": "Discard %s" % str(card.get("name", card_id)),
-			"detail": "Draw one replacement. Costs no play or Time.",
-			"callback": _commit_quick_wits.bind(skill_id, index)
-		})
-	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Choose the card to trade for a new draw.", options)
+		valid_indices.append(index)
+	_begin_hand_skill_card_selection(skill_id, valid_indices, "QUICK WITS  ·  CHOOSE A CARD TO DISCARD")
 
 func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
+	_clear_combat_skill_card_selection()
 	_commit_combat_skill_state(_combat_engine.use_quick_wits(_combat_state, hand_index), skill_id)
 
-func _open_encore_choice(skill_id: String) -> void:
-	var options: Array = []
+func _begin_encore_card_selection(skill_id: String) -> void:
+	_combat_skill_card_selection_indices.clear()
 	var discard: Array = ((_combat_state.get("deck", {}) as Dictionary).get("discard", []) as Array)
 	for index: int in range(discard.size()):
 		var card_id: String = str(discard[index])
 		if GameData.card_is_item(card_id):
 			continue
-		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
-		options.append({
-			"text": "Recall %s" % str(card.get("name", card_id)),
-			"detail": "Return this card to your hand. Costs no play or Time.",
-			"callback": _commit_encore.bind(skill_id, index)
-		})
-	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Choose a discarded card to return to your hand.", options)
+		_combat_skill_card_selection_indices.append(index)
+	if _combat_skill_card_selection_indices.is_empty():
+		return
+	_combat_skill_card_selection_zone = "discard"
+	_combat_skill_card_selection_skill_id = skill_id
+	_open_pile_view("discard")
 
 func _commit_encore(skill_id: String, discard_index: int) -> void:
+	_clear_combat_skill_card_selection()
+	_close_pile_view()
 	_commit_combat_skill_state(_combat_engine.use_encore(_combat_state, discard_index), skill_id)
 
-func _open_prismatic_choice(skill_id: String) -> void:
-	var options: Array = []
-	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
-	for hand_index: int in _combat_engine.prismatic_target_hand_indices(_combat_state):
-		var card_id: String = str(hand[hand_index])
-		var card: Dictionary = _combat_engine.card_def(card_id, _combat_state)
-		options.append({
-			"text": "Name %s" % str(card.get("name", card_id)),
-			"detail": "The next printed play of any copy satisfies its intensity conditions. Basic Attack, Move, or Blink uses do not consume the arm.",
-			"callback": _commit_prismatic.bind(skill_id, hand_index)
-		})
-	_open_skill_choice_dialog(SkillTreeLibrary.display_name(skill_id), "Name one conditional card currently in your hand.", options)
+func _begin_prismatic_card_selection(skill_id: String) -> void:
+	_begin_hand_skill_card_selection(
+		skill_id,
+		_combat_engine.prismatic_target_hand_indices(_combat_state),
+		"PRISMATIC INSTINCT  ·  CHOOSE A CONDITIONAL CARD"
+	)
 
 func _commit_prismatic(skill_id: String, hand_index: int) -> void:
+	_clear_combat_skill_card_selection()
 	_commit_combat_skill_state(_combat_engine.arm_prismatic_instinct(_combat_state, hand_index), skill_id)
+
+func _begin_hand_skill_card_selection(skill_id: String, valid_indices: Array[int], instruction: String) -> void:
+	if valid_indices.is_empty():
+		return
+	_cancel_drag_play()
+	_reset_card_resolution()
+	_combat_skill_card_selection_zone = "hand"
+	_combat_skill_card_selection_skill_id = skill_id
+	_combat_skill_card_selection_indices.clear()
+	_combat_skill_card_selection_indices.append_array(valid_indices)
+	if _combat_skill_card_selection_label != null:
+		_combat_skill_card_selection_label.text = instruction
+	if _combat_skill_card_selection_prompt != null:
+		_combat_skill_card_selection_prompt.visible = true
+	_hand_panel_signature = "<unset>"
+	_refresh_hand_panel()
+	_refresh_choice_bar()
+	_refresh_stage_view()
+
+func _on_combat_skill_hand_card_selected(hand_index: int) -> void:
+	if _combat_skill_card_selection_zone != "hand" or not _combat_skill_card_selection_indices.has(hand_index):
+		return
+	var skill_id: String = _combat_skill_card_selection_skill_id
+	match SkillTreeLibrary.effect_type(skill_id):
+		"discard_draw":
+			_commit_quick_wits(skill_id, hand_index)
+		"arm_intensity":
+			_commit_prismatic(skill_id, hand_index)
+
+func _cancel_combat_skill_card_selection() -> void:
+	var was_discard_selection: bool = _combat_skill_card_selection_zone == "discard"
+	_clear_combat_skill_card_selection()
+	if was_discard_selection and _pile_scrim != null:
+		_pile_scrim.visible = false
+		_active_pile_kind = ""
+	_hand_panel_signature = "<unset>"
+	_refresh_hand_panel()
+	_refresh_choice_bar()
+	_refresh_stage_view()
+	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
+
+func _clear_combat_skill_card_selection() -> void:
+	_combat_skill_card_selection_zone = ""
+	_combat_skill_card_selection_skill_id = ""
+	_combat_skill_card_selection_indices.clear()
+	if _combat_skill_card_selection_prompt != null:
+		_combat_skill_card_selection_prompt.visible = false
 
 func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> void:
 	if next_combat_state == _combat_state:
@@ -9326,6 +9409,7 @@ func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String)
 	_mark_combat_preview_state_changed()
 	_persist_committed_boundary("combat_skill_%s" % skill_id)
 	_refresh_ui()
+	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
 
 func _add_pass_preview_chip() -> void:
 	var summary: Dictionary = _pass_preview_summary()
@@ -10781,12 +10865,19 @@ func _refresh_hand_panel() -> void:
 		hand_scroll.size.x,
 		hand_scroll.size.y
 	]
+	signature += "|skill_select:%s:%s:%d" % [
+		_combat_skill_card_selection_zone,
+		_combat_skill_card_selection_skill_id,
+		hash(_combat_skill_card_selection_indices),
+	]
 	if signature == _hand_panel_signature:
 		return
 	_hand_panel_signature = signature
 	_clear_children_now(hand_box)
 	if mode == "combat":
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+		var selecting_skill_card: bool = _combat_skill_card_selection_zone == "hand"
+		var skill_selection_buttons: Array[Button]
 		var active_hand_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
 		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if hand.size() <= 6 else ScrollContainer.SCROLL_MODE_AUTO
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -10794,17 +10885,18 @@ func _refresh_hand_panel() -> void:
 		for index: int in range(hand.size()):
 			var options: Dictionary = _card_play_options_for_index(index)
 			var display: Dictionary = _card_widget_display_for_index(index)
+			var valid_skill_target: bool = selecting_skill_card and _combat_skill_card_selection_indices.has(index)
 			var widget = CardWidgetScene.instantiate()
 			widget.custom_minimum_size = card_size
 			widget.configure(
 				str(hand[index]),
-				index == active_hand_index,
-				(active_hand_index >= 0 and active_hand_index != index) or _animation_lock,
-				bool(options.get("any_playable", false)) and not _animation_lock,
+				index == active_hand_index and not selecting_skill_card,
+				(not valid_skill_target if selecting_skill_card else active_hand_index >= 0 and active_hand_index != index) or _animation_lock,
+				(valid_skill_target if selecting_skill_card else bool(options.get("any_playable", false))) and not _animation_lock,
 				_hovered_card_index == index and active_hand_index < 0
 				and _drag_card_index < 0,
-				not _animation_lock,
-				bool(options.get("printed_playable", false)),
+				not _animation_lock and (not selecting_skill_card or valid_skill_target),
+				valid_skill_target if selecting_skill_card else bool(options.get("printed_playable", false)),
 				_card_def(str(hand[index]), _combat_state)
 			)
 			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
@@ -10819,15 +10911,26 @@ func _refresh_hand_panel() -> void:
 				widget.modulate = Color(1.0, 1.0, 1.0, 0.20)
 			elif index == _animating_hand_card_index:
 				widget.visible = false
-			if not _animation_lock:
+			if not _animation_lock and not selecting_skill_card:
 				widget.activated.connect(_on_card_pressed.bind(index))
 				widget.drag_started.connect(_on_card_drag_started.bind(index))
 				widget.mouse_entered.connect(_on_card_hover_started.bind(index))
 				widget.mouse_exited.connect(_on_card_hover_ended.bind(index))
-			hand_box.add_child(_hand_card_slot(widget, card_size))
+			var card_slot: Control = _hand_card_slot(widget, card_size)
+			if selecting_skill_card:
+				var selection_button: Button = _build_skill_hand_selection_card(card_slot, index, card_size, valid_skill_target)
+				hand_box.add_child(selection_button)
+				if valid_skill_target:
+					skill_selection_buttons.append(selection_button)
+			else:
+				hand_box.add_child(card_slot)
 			if ready_wave_delay >= 0.0:
 				widget.call_deferred("play_ready_wave", ready_wave_delay)
 		hand_box.configure_layout(HAND_CARD_OVERLAP, true)
+		if selecting_skill_card:
+			_configure_skill_hand_selection_focus(skill_selection_buttons)
+			if not skill_selection_buttons.is_empty():
+				call_deferred("_focus_skill_hand_selection_card", skill_selection_buttons[0])
 		_consume_hand_ready_wave()
 	elif mode == "reward":
 		var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
@@ -10853,6 +10956,67 @@ func _refresh_hand_panel() -> void:
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)
+
+func _build_skill_hand_selection_card(card_slot: Control, hand_index: int, card_size: Vector2, valid_target: bool) -> Button:
+	var button := Button.new()
+	button.name = "SkillHandSelectionCard_%d" % hand_index
+	button.custom_minimum_size = card_size
+	button.size = card_size
+	button.text = ""
+	button.disabled = not valid_target
+	button.focus_mode = Control.FOCUS_ALL if valid_target else Control.FOCUS_NONE
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if valid_target else Control.CURSOR_ARROW
+	button.set_meta("hand_index", hand_index)
+	button.add_theme_stylebox_override("normal", _skill_card_selection_frame_style(Color("74538e"), false))
+	button.add_theme_stylebox_override("disabled", _skill_card_selection_frame_style(Color(0.0, 0.0, 0.0, 0.0), false))
+	for style_name: String in ["hover", "pressed", "focus"]:
+		button.add_theme_stylebox_override(style_name, _skill_card_selection_frame_style(Color("d6a7ff"), true))
+	card_slot.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	button.add_child(card_slot)
+	_set_mouse_filter_recursive(card_slot, Control.MOUSE_FILTER_IGNORE)
+	if valid_target:
+		button.pressed.connect(_on_combat_skill_hand_card_selected.bind(hand_index))
+		button.focus_entered.connect(_ensure_skill_hand_selection_card_visible.bind(button))
+	else:
+		button.modulate = Color(1.0, 1.0, 1.0, 0.42)
+	return button
+
+func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.025, 0.05, 0.08 if emphasized else 0.0)
+	style.border_color = accent
+	style.set_border_width_all(4 if emphasized else 2)
+	style.set_corner_radius_all(10)
+	style.set_expand_margin_all(5.0 if emphasized else 3.0)
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.38 if emphasized else 0.12)
+	style.shadow_size = 10 if emphasized else 4
+	return style
+
+func _configure_skill_hand_selection_focus(buttons: Array[Button]) -> void:
+	if buttons.is_empty():
+		return
+	for index: int in range(buttons.size()):
+		var button: Button = buttons[index]
+		_set_skill_status_focus_neighbor(button, "left", buttons[posmod(index - 1, buttons.size())])
+		_set_skill_status_focus_neighbor(button, "right", buttons[(index + 1) % buttons.size()])
+		if _combat_skill_card_selection_cancel_button != null:
+			_set_skill_status_focus_neighbor(button, "up", _combat_skill_card_selection_cancel_button)
+			_set_skill_status_focus_neighbor(button, "down", _combat_skill_card_selection_cancel_button)
+	if _combat_skill_card_selection_cancel_button != null:
+		_set_skill_status_focus_neighbor(_combat_skill_card_selection_cancel_button, "left", buttons[buttons.size() - 1])
+		_set_skill_status_focus_neighbor(_combat_skill_card_selection_cancel_button, "right", buttons[0])
+		_set_skill_status_focus_neighbor(_combat_skill_card_selection_cancel_button, "up", buttons[buttons.size() - 1])
+		_set_skill_status_focus_neighbor(_combat_skill_card_selection_cancel_button, "down", buttons[0])
+
+func _focus_skill_hand_selection_card(button: Button) -> void:
+	if _combat_skill_card_selection_zone != "hand" or not _can_restore_gui_focus(button):
+		return
+	button.grab_focus()
+	_ensure_skill_hand_selection_card_visible(button)
+
+func _ensure_skill_hand_selection_card_visible(button: Button) -> void:
+	if hand_scroll != null and button != null and button.is_inside_tree():
+		hand_scroll.ensure_control_visible(button)
 
 func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vector2) -> Control:
 	var slot: Control = _hand_card_slot(widget, card_size)
@@ -11316,6 +11480,8 @@ func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
 	)
 
 func _active_card_preview() -> Dictionary:
+	if _combat_skill_card_selection_zone == "hand":
+		return {}
 	if _drag_card_index >= 0:
 		if bool(_drag_card_options.get("printed_playable", false)):
 			return _drag_card_options.get("play", {}) as Dictionary
@@ -12556,6 +12722,9 @@ func _vector2i_array(values: Array) -> Array[Vector2i]:
 func _on_card_pressed(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
+	if _combat_skill_card_selection_zone == "hand":
+		_on_combat_skill_hand_card_selected(index)
+		return
 	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		return
 	if _drag_card_index >= 0:
@@ -12579,6 +12748,8 @@ func _on_card_pressed(index: int) -> void:
 
 func _on_card_drag_started(index: int) -> void:
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
+		return
+	if not _combat_skill_card_selection_zone.is_empty():
 		return
 	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		return
@@ -15536,49 +15707,6 @@ func _spawn_loadout_acquisition_banner(text: String, center: Vector2, accent: Co
 	_card_fx_layer.add_child(banner)
 	return banner
 
-func _show_skill_learned_feedback(skill_id: String) -> void:
-	if _card_fx_layer == null or not SkillTreeLibrary.has_definition(skill_id):
-		return
-	var accent := Color("b28ae6")
-	var center := Vector2(
-		_card_fx_layer.size.x * 0.5,
-		clampf(_card_fx_layer.size.y * 0.26, 132.0, 236.0)
-	)
-	var banner: Label = _spawn_loadout_acquisition_banner(
-		"SKILL LEARNED  ·  %s" % SkillTreeLibrary.display_name(skill_id).to_upper(),
-		center,
-		accent
-	)
-	banner.name = "SkillLearnedBanner"
-	banner.set_meta("skill_id", skill_id)
-	banner.size = Vector2(minf(560.0, maxf(320.0, _card_fx_layer.size.x - 40.0)), 58.0)
-	banner.position = center - banner.size * 0.5
-	banner.pivot_offset = banner.size * 0.5
-	var burst: LoadoutAcquisitionBurst = null
-	if not _reduced_motion_enabled():
-		burst = _spawn_loadout_acquisition_burst(center, accent, "magic")
-		burst.name = "SkillLearnedBurst"
-		var burst_tween: Tween = create_tween()
-		burst_tween.tween_property(burst, "progress", 1.0, SKILL_LEARNED_FEEDBACK_SECONDS * 0.70).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		banner.modulate.a = 0.0
-		banner.scale = Vector2(0.84, 0.84)
-		var feedback_tween: Tween = create_tween()
-		feedback_tween.tween_property(banner, "modulate:a", 1.0, 0.10)
-		feedback_tween.parallel().tween_property(banner, "scale", Vector2(1.06, 1.06), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		feedback_tween.tween_property(banner, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		feedback_tween.tween_interval(SKILL_LEARNED_FEEDBACK_SECONDS - 0.54)
-		feedback_tween.tween_property(banner, "modulate:a", 0.0, 0.10)
-		feedback_tween.finished.connect(_finish_skill_learned_feedback.bind(burst, banner))
-		call_deferred("_pulse_skill_sigil")
-		return
-	var reduced_feedback_tween: Tween = create_tween()
-	reduced_feedback_tween.tween_interval(SKILL_LEARNED_FEEDBACK_SECONDS)
-	reduced_feedback_tween.finished.connect(_finish_skill_learned_feedback.bind(burst, banner))
-
-func _finish_skill_learned_feedback(burst, banner) -> void:
-	_queue_free_node_now(burst)
-	_queue_free_node_now(banner)
-
 func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color) -> void:
 	if _card_fx_layer == null or loadout_button == null:
 		return
@@ -16156,18 +16284,50 @@ func _open_pile_view(pile_kind: String) -> void:
 	var pile_empty: bool = cards.is_empty()
 	_pile_dialog.custom_minimum_size = _pile_dialog_size_for_count(cards.size())
 	_active_pile_kind = pile_kind
-	_pile_dialog_title.text = "%s Pile" % _pile_display_name(pile_kind)
+	var selecting_discard_card: bool = pile_kind == "discard" and _combat_skill_card_selection_zone == "discard"
+	_pile_dialog_title.text = (
+		"%s  ·  Choose a Card to Return" % SkillTreeLibrary.display_name(_combat_skill_card_selection_skill_id)
+		if selecting_discard_card
+		else "%s Pile" % _pile_display_name(pile_kind)
+	)
 	_clear_children_now(_pile_dialog_cards)
-	for card_id_var: Variant in cards:
+	var first_selection_button: Button = null
+	for card_index: int in range(cards.size()):
+		var card_id: String = str(cards[card_index])
+		var source_card_index: int = cards.size() - 1 - card_index if selecting_discard_card else card_index
 		var widget := CardWidgetScene.instantiate() as CardWidget
-		widget.configure(str(card_id_var), false, false, true, false, false, true, _card_def(str(card_id_var)))
+		var valid_selection: bool = not selecting_discard_card or _combat_skill_card_selection_indices.has(source_card_index)
+		widget.configure(card_id, false, not valid_selection, valid_selection, false, false, valid_selection, _card_def(card_id))
 		widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_pile_dialog_cards.add_child(_scaled_card_slot(widget, PILE_DIALOG_CARD_SIZE))
+		var slot: Control = _scaled_card_slot(widget, PILE_DIALOG_CARD_SIZE)
+		if not selecting_discard_card:
+			_pile_dialog_cards.add_child(slot)
+			continue
+		var selection_button := Button.new()
+		selection_button.name = "DiscardSelectionCard_%d" % card_index
+		selection_button.custom_minimum_size = PILE_DIALOG_CARD_SIZE
+		selection_button.focus_mode = Control.FOCUS_ALL
+		selection_button.disabled = not valid_selection
+		selection_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if valid_selection else Control.CURSOR_ARROW
+		selection_button.set_meta("source_card_index", source_card_index)
+		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
+			selection_button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
+		selection_button.add_child(slot)
+		_set_mouse_filter_recursive(slot, Control.MOUSE_FILTER_IGNORE)
+		if valid_selection:
+			selection_button.pressed.connect(_on_combat_skill_discard_card_selected.bind(source_card_index))
+			if first_selection_button == null:
+				first_selection_button = selection_button
+		else:
+			selection_button.modulate = Color(1.0, 1.0, 1.0, 0.42)
+		_pile_dialog_cards.add_child(selection_button)
 	if _pile_dialog_scroll != null:
 		_pile_dialog_scroll.visible = not pile_empty
 	_pile_dialog_empty.text = "No cards in this pile." if pile_empty else ""
 	_pile_dialog_empty.visible = pile_empty
 	_pile_scrim.visible = true
+	if first_selection_button != null:
+		first_selection_button.call_deferred("grab_focus")
 
 func _pile_dialog_size_for_count(card_count: int) -> Vector2:
 	if card_count <= 0:
@@ -16178,9 +16338,17 @@ func _pile_dialog_size_for_count(card_count: int) -> Vector2:
 	return Vector2(clampf(content_width, PILE_DIALOG_MIN_CARD_WIDTH, target_size.x), target_size.y)
 
 func _close_pile_view() -> void:
+	if _combat_skill_card_selection_zone == "discard":
+		_cancel_combat_skill_card_selection()
+		return
 	if _pile_scrim != null:
 		_pile_scrim.visible = false
 	_active_pile_kind = ""
+
+func _on_combat_skill_discard_card_selected(discard_index: int) -> void:
+	if _combat_skill_card_selection_zone != "discard" or not _combat_skill_card_selection_indices.has(discard_index):
+		return
+	_commit_encore(_combat_skill_card_selection_skill_id, discard_index)
 
 func _open_card_upgrade_overlay() -> void:
 	_open_character_overlay("skills")
@@ -16241,11 +16409,17 @@ func _close_card_upgrade_overlay() -> void:
 	_progression_overlay_mode = ""
 	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
-	_progression_overlay_summary_label = null
+	_progression_level_label = null
+	_progression_skill_points_label = null
+	_progression_moltshards_label = null
+	_skill_reset_button = null
 	_skill_tree_view = null
 	_clear_equipment_drag_state(true)
 	_clear_magic_drag_state(true)
 	_clear_item_drag_state(true)
+	if _skill_hud_refresh_pending:
+		_skill_hud_refresh_pending = false
+		_refresh_relic_bar()
 	_sync_pre_battle_overlay_layering()
 
 func _rebuild_progression_overlay() -> void:
@@ -16280,15 +16454,7 @@ func _rebuild_progression_overlay() -> void:
 	title.add_theme_constant_override("outline_size", 2)
 	top_row.add_child(title)
 
-	var summary := Label.new()
-	summary.name = "ProgressionOverlaySummary"
-	summary.text = _progression_overlay_summary_text()
-	UiTypography.apply_label_role(summary, UiTypography.ROLE_CAPTION)
-	summary.add_theme_color_override("font_color", Color("f0c978"))
-	summary.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	summary.add_theme_constant_override("outline_size", 1)
-	top_row.add_child(summary)
-	_progression_overlay_summary_label = summary
+	top_row.add_child(_build_progression_resource_summary())
 
 	var close_button := Button.new()
 	close_button.name = "CloseCharacterOverlay"
@@ -16347,24 +16513,49 @@ func _layout_progression_dialog() -> void:
 func _on_progression_overlay_close_pressed() -> void:
 	_close_card_upgrade_overlay()
 
-func _progression_overlay_summary_text() -> String:
-	var level: int = int(_progression.get("level", 1))
-	if _progression_overlay_mode == "equipment":
-		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
-		var inventory_size: int = int((_run_state.get("equipment_inventory", []) as Array).size())
-		var equipped_items: int = int((_run_state.get("equipped_items", []) as Array).size())
-		return "LV %d   DECK %d   GEAR %d   ITEMS %d/%d" % [level, deck_size, inventory_size, mini(equipped_items, GameData.item_loadout_limit()), GameData.item_loadout_limit()]
-	if _progression_overlay_mode == "magic":
-		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
-		var attuned_size: int = int((_run_state.get("attuned_magic_cards", []) as Array).size())
-		var learned_size: int = int((_run_state.get("magic_inventory", []) as Array).size())
-		return "LV %d   DECK %d   MAGIC %d/%d   LEARNED %d" % [level, deck_size, mini(attuned_size, GameData.magic_loadout_limit()), GameData.magic_loadout_limit(), learned_size]
-	return "LV %d   LEARNED %d   SKILL POINTS %d   MOLTSHARDS %d" % [
-		level,
-		ProgressionStore.selected_skill_ids(_progression).size(),
-		ProgressionStore.unspent_skill_points(_progression),
-		ProgressionStore.moltshard_count(_progression),
-	]
+func _build_progression_resource_summary() -> Control:
+	var row := HBoxContainer.new()
+	row.name = "ProgressionOverlaySummary"
+	row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	_progression_level_label = _add_progression_resource_chip(row, "ProgressionLevel", Color("e5b95f"))
+	_progression_skill_points_label = _add_progression_resource_chip(row, "ProgressionSkillPoints", Color("72d4c6"))
+	_progression_moltshards_label = _add_progression_resource_chip(row, "ProgressionMoltshards", Color("b58ae0"))
+	_refresh_progression_resource_summary()
+	return row
+
+func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accent: Color) -> Label:
+	var panel := PanelContainer.new()
+	panel.name = "%sChip" % chip_name
+	panel.custom_minimum_size = Vector2(124.0, 44.0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.042, 0.052, 0.96)
+	style.border_color = accent.darkened(0.14)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	panel.add_theme_stylebox_override("panel", style)
+	row.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	panel.add_child(margin)
+	var label := Label.new()
+	label.name = "%sLabel" % chip_name
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.apply_label_role(label, UiTypography.ROLE_SECTION)
+	label.add_theme_color_override("font_color", accent.lightened(0.10))
+	label.add_theme_color_override("font_outline_color", Color("21151b"))
+	label.add_theme_constant_override("outline_size", 2)
+	margin.add_child(label)
+	return label
+
+func _refresh_progression_resource_summary() -> void:
+	if _progression_level_label != null:
+		_progression_level_label.text = "LEVEL  %d" % int(_progression.get("level", 1))
+	if _progression_skill_points_label != null:
+		_progression_skill_points_label.text = "POINTS  %d" % ProgressionStore.unspent_skill_points(_progression)
+	if _progression_moltshards_label != null:
+		_progression_moltshards_label.text = "MOLTSHARDS  %d" % ProgressionStore.moltshard_count(_progression)
 
 func _build_character_overlay_tabs() -> Control:
 	var row := HBoxContainer.new()
@@ -16569,19 +16760,10 @@ func _build_skill_tree_overlay_body() -> Control:
 	command_row.name = "SkillTreeViewCommands"
 	command_row.alignment = BoxContainer.ALIGNMENT_END
 	command_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	var resource_label := Label.new()
-	resource_label.name = "SkillResetHint"
 	var unavailable_reason: String = _skill_reset_unavailable_reason()
-	resource_label.text = (
-		"Reset clears %d learned skills and restores all %d earned skill points." % [owned_ids.size(), earned_points]
-		if unavailable_reason.is_empty()
-		else unavailable_reason
-	)
-	resource_label.tooltip_text = unavailable_reason
-	resource_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_label_role(resource_label, UiTypography.ROLE_CAPTION)
-	resource_label.add_theme_color_override("font_color", Color("c9b998"))
-	command_row.add_child(resource_label)
+	var command_spacer := Control.new()
+	command_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	command_row.add_child(command_spacer)
 	var reset_button := Button.new()
 	reset_button.name = "ResetSkills"
 	reset_button.text = "Reset Skills  ·  1 Moltshard"
@@ -16590,9 +16772,9 @@ func _build_skill_tree_overlay_body() -> Control:
 	reset_button.tooltip_text = unavailable_reason
 	_apply_progression_command_button_style(reset_button)
 	UiTypography.apply_button_role(reset_button, UiTypography.ROLE_BODY)
-	if not reset_button.disabled:
-		reset_button.pressed.connect(_open_skill_reset_confirmation)
+	reset_button.pressed.connect(_open_skill_reset_confirmation)
 	command_row.add_child(reset_button)
+	_skill_reset_button = reset_button
 	column.add_child(command_row)
 	_skill_tree_view.set_external_command_focus_target(reset_button)
 	return _fixed_character_body_frame(column)
@@ -16626,14 +16808,32 @@ func _on_skill_learn_requested(skill_id: String) -> void:
 	_sync_combat_state_from_run()
 	_persist_committed_boundary("skill_learn")
 	_analytics_log_skill_learned(previous_progression, _progression, skill_id)
-	_progression_overlay_notice = "%s learned. %d skill points remain." % [
-		SkillTreeLibrary.display_name(skill_id),
-		ProgressionStore.unspent_skill_points(_progression),
-	]
+	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
-	_rebuild_progression_overlay()
-	_refresh_ui()
-	_show_skill_learned_feedback(skill_id)
+	var prior_notice := _upgrade_dialog.find_child("ProgressionOverlayNotice", true, false) if _upgrade_dialog != null else null
+	if prior_notice != null:
+		_queue_free_node_now(prior_notice)
+	_refresh_skill_progression_surface(skill_id)
+	_skill_hud_refresh_pending = true
+
+func _refresh_skill_progression_surface(focused_id: String = "") -> void:
+	_refresh_progression_resource_summary()
+	if _skill_tree_view != null:
+		var next_focus: String = focused_id if SkillTreeLibrary.has_definition(focused_id) else _progression_focused_skill_id
+		_skill_tree_view.configure({
+			"mode": SkillTreeView.MODE_VIEW,
+			"owned_ids": ProgressionStore.selected_skill_ids(_progression),
+			"required_count": ProgressionStore.skill_points_for_level(int(_progression.get("level", 1))),
+			"unspent_points": ProgressionStore.unspent_skill_points(_progression),
+			"editing_enabled": _skill_editing_can_edit(),
+			"focused_id": next_focus,
+		})
+		_progression_focused_skill_id = _skill_tree_view.focused_skill_id()
+	if _skill_reset_button != null:
+		var unavailable_reason: String = _skill_reset_unavailable_reason()
+		_skill_reset_button.disabled = not _skill_reset_can_apply()
+		_skill_reset_button.tooltip_text = unavailable_reason
+		_apply_progression_command_button_style(_skill_reset_button)
 
 func _open_skill_reset_confirmation() -> void:
 	if not _skill_reset_can_apply() or _upgrade_scrim == null or _skill_reset_confirmation_scrim != null:
@@ -16738,10 +16938,10 @@ func _confirm_skill_reset() -> void:
 	_persist_committed_boundary("skill_reset")
 	_analytics_log_skill_reset(previous_progression, _progression)
 	_progression_focused_skill_id = ""
-	_progression_overlay_notice = "Skills cleared. All %d earned skill points are now available. One Moltshard was spent." % ProgressionStore.unspent_skill_points(_progression)
+	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
-	_rebuild_progression_overlay()
-	_refresh_ui()
+	_refresh_skill_progression_surface()
+	_skill_hud_refresh_pending = true
 
 func _skill_editing_can_edit() -> bool:
 	if _run_state.is_empty() or _animation_lock or _pending_umbra_commit_locked or _loadout_acquisition_in_progress or _relic_claim_in_progress:

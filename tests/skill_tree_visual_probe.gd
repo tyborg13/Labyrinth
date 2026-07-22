@@ -101,7 +101,9 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		_expect(prismatic_links.has("discerning_eye>prismatic_instinct"), "%s Skills tree should emphasize Prismatic Instinct's Discerning Eye parent" % viewport_size)
 		_expect(prismatic_links.has("prismatic_instinct>confluence"), "%s Skills tree should emphasize Prismatic Instinct's Confluence unlock" % viewport_size)
 	_assert_tree_scroll_contract(tree, viewport_size, "Skills")
-	_expect(_label_containing(dialog, "MOLTSHARDS 2") != null, "%s Skills dialog should show two Moltshards" % viewport_size)
+	var moltshard_label := dialog.find_child("ProgressionMoltshardsLabel", true, false) as Label
+	_expect(moltshard_label != null and moltshard_label.text.contains("2"), "%s Skills dialog should prominently show two Moltshards" % viewport_size)
+	_expect(dialog.find_child("SkillResetHint", true, false) == null, "%s Skills dialog should omit permanent reset-explanation copy" % viewport_size)
 	_expect(_button_with_text(dialog, "Reset Skills  ·  1 Moltshard") != null, "%s Skills dialog should expose the whole-tree reset command" % viewport_size)
 	if tree != null:
 		var graph_scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
@@ -110,9 +112,11 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		await process_frame
 		var scroll_before: Vector2i = tree.graph_scroll_offset()
 		var geometry_before: int = tree.link_geometry_rebuild_count()
+		var focused_before: String = tree.focused_skill_id()
 		for skill_id: String in SkillTreeLibrary.ordered_ids():
 			tree.node_for_skill(skill_id).mouse_entered.emit()
 		await process_frame
+		_expect(tree.focused_skill_id() == focused_before, "%s Hovering should not change skill selection" % viewport_size)
 		_expect(tree.graph_scroll_offset() == scroll_before, "%s Hovering the complete tree should not move either scroll axis" % viewport_size)
 		_expect(tree.link_geometry_rebuild_count() == geometry_before, "%s Hovering should reuse cached connector geometry" % viewport_size)
 		tree.focus_skill("prismatic_instinct")
@@ -212,11 +216,11 @@ func _capture_level_up_tree(
 		tree.activate_focused_skill()
 		await process_frame
 		await process_frame
-		var learned_banner := instance.find_child("SkillLearnedBanner", true, false) as Label
-		_expect(learned_banner != null and learned_banner.text.contains(SkillTreeLibrary.display_name(chosen_skill_id).to_upper()), "%s Immediate learning should visibly celebrate the named skill" % viewport_size)
+		_expect(tree.status_for_skill(chosen_skill_id) == SkillTreeView.STATE_OWNED, "%s Immediate learning should update the existing medallion in place" % viewport_size)
+		_expect(instance.find_child("ProgressionOverlayNotice", true, false) == null, "%s Immediate learning should not add redundant learned/remaining copy" % viewport_size)
 		await _save_screenshot(viewport, "%s/07b_skill_learned.png" % output_dir, viewport_size)
-	instance.call("_clear_idle_card_fx_layer")
 	_expect(ProgressionStore.save_data(progression), "%s Level-up visual fixture should restore its base profile" % viewport_size)
+	instance.call("_close_card_upgrade_overlay")
 	await _settle()
 
 func _capture_combat_surfaces(
@@ -304,8 +308,11 @@ func _capture_combat_surfaces(
 	var ready_group: Button = _button_beginning_with(choice_overlay, "Ready Skills (")
 	if ready_group == null:
 		ready_group = _button_beginning_with(choice_bar, "Ready Skills (")
-	_expect(ready_group != null and ready_group.text == "Ready Skills (6)", "%s Six simultaneous manual abilities should collapse into one explicit Ready Skills control" % viewport_size)
-	_assert_inside(ready_group, viewport_size, "%s Combat ready-skill group" % viewport_size, 4.0)
+	_expect(ready_group == null, "%s Activated abilities should not create a contextual control beside Pass" % viewport_size)
+	var pass_button: Button = _visible_button_with_text(choice_overlay, "Pass")
+	if pass_button == null:
+		pass_button = _visible_button_with_text(choice_bar, "Pass")
+	_expect(pass_button != null, "%s The normal Pass control should remain uncluttered" % viewport_size)
 	for skill_name: String in maximum_manual_skill_names:
 		var button: Button = _visible_button_with_text(choice_overlay, skill_name)
 		if button == null:
@@ -316,50 +323,44 @@ func _capture_combat_surfaces(
 	_expect(banked_badge != null and banked_badge.visible, "%s Combat HUD should distinguish the stored play from ordinary plays" % viewport_size)
 	_expect(banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "%s Combat HUD should explain Borrowed Time on the stored play" % viewport_size)
 	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir, viewport_size)
-	if ready_group != null:
-		ready_group.pressed.emit()
-		await _settle()
-		var grouped_choice_list := instance.get("_skill_choice_list") as Control
-		var grouped_choice_detail := instance.get("_skill_choice_description") as Label
-		for skill_id: String in maximum_manual_skill_ids:
-			var skill_name: String = SkillTreeLibrary.display_name(skill_id)
-			var skill_description: String = SkillTreeLibrary.description(skill_id)
-			var skill_button: Button = _visible_button_with_text(grouped_choice_list, skill_name)
-			_expect(skill_button != null, "%s Ready Skills chooser should list %s" % [viewport_size, skill_name])
-			if skill_button != null:
-				skill_button.grab_focus()
-				await process_frame
-			_expect(grouped_choice_detail != null and grouped_choice_detail.text.contains(skill_description), "%s Focusing %s should expose its complete rule without pointer hover" % [viewport_size, skill_name])
-		var first_skill_button: Button = _visible_button_with_text(grouped_choice_list, maximum_manual_skill_names[0])
-		if first_skill_button != null:
-			first_skill_button.grab_focus()
-			await process_frame
-		await _save_screenshot(viewport, "%s/04b_ready_skill_group.png" % output_dir, viewport_size)
-		instance.call("_close_skill_choice_dialog")
-		await _settle()
 
 	instance.call("_toggle_skill_status_popover")
 	await _settle()
 	var popover := instance.get("_skill_status_popover") as Control
 	_expect(popover != null and popover.visible, "%s Skill sigil should open its status popover" % viewport_size)
+	for skill_id: String in maximum_manual_skill_ids:
+		var ability_button := popover.find_child("SkillStatusRow_%s" % skill_id, true, false) as Button if popover != null else null
+		_expect(ability_button != null, "%s Abilities should expose %s through the common entry point" % [viewport_size, SkillTreeLibrary.display_name(skill_id)])
 	_expect(_label_with_text(popover, "READY") != null, "%s Skill popover should show at least one ready ability" % viewport_size)
 	_expect(_label_with_text(popover, "BANKED") != null and _label_with_text(popover, "PRIMED") != null, "%s Skill popover should expose the stored-play state and its pending no-Time benefit" % viewport_size)
 	_expect(_label_with_text(popover, "Quick Wits") != null, "%s Skill popover should list Quick Wits" % viewport_size)
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "%s Skill popover should list Discerning Eye" % viewport_size)
 	_assert_inside(popover, viewport_size, "%s Skill status popover" % viewport_size, 8.0)
+	await _save_screenshot(viewport, "%s/04b_abilities_entry.png" % output_dir, viewport_size)
 	await _save_screenshot(viewport, "%s/05_combat_skill_popover.png" % output_dir, viewport_size)
 
 	instance.call("_close_skill_status_popover")
 	instance.call("_on_combat_skill_pressed", "quick_wits")
 	await _settle()
 	var choice_scrim := instance.get("_skill_choice_scrim") as Control
-	var choice_dialog := instance.get("_skill_choice_dialog") as Control
-	_expect(choice_scrim != null and choice_scrim.visible, "%s Quick Wits should open the manual skill dialog" % viewport_size)
-	_expect(_label_with_text(choice_scrim, "Quick Wits") != null, "%s Manual skill dialog should identify Quick Wits" % viewport_size)
-	_expect(_button_beginning_with(choice_scrim, "Discard ") != null, "%s Manual skill dialog should offer card choices" % viewport_size)
-	_assert_inside(choice_dialog, viewport_size, "%s Manual skill dialog" % viewport_size, 8.0)
-	await _save_screenshot(viewport, "%s/06_quick_wits_choice.png" % output_dir, viewport_size)
-	instance.call("_close_skill_choice_dialog")
+	var selection_prompt := instance.get("_combat_skill_card_selection_prompt") as Control
+	var hand_box := instance.get("hand_box") as Control
+	_expect(choice_scrim != null and not choice_scrim.visible, "%s Quick Wits should avoid the name-only choice dialog" % viewport_size)
+	_expect(selection_prompt != null and selection_prompt.visible and _label_containing(selection_prompt, "CHOOSE A CARD TO DISCARD") != null, "%s Quick Wits should enter live-hand discard mode" % viewport_size)
+	_expect(hand_box != null and hand_box.get_child_count() == 4, "%s Quick Wits should preserve the full visible hand for selection" % viewport_size)
+	var focused_hand_choice := hand_box.find_child("SkillHandSelectionCard_0", true, false) as Button if hand_box != null else null
+	_expect(focused_hand_choice != null and instance.get_viewport().gui_get_focus_owner() == focused_hand_choice, "%s Quick Wits should focus its first full-card controller choice" % viewport_size)
+	_assert_inside(selection_prompt, viewport_size, "%s Quick Wits hand-selection prompt" % viewport_size, 8.0)
+	await _save_screenshot(viewport, "%s/06_quick_wits_hand_selection.png" % output_dir, viewport_size)
+	instance.call("_cancel_combat_skill_card_selection")
+	instance.call("_on_combat_skill_pressed", "encore")
+	await _settle()
+	var pile_scrim := instance.get("_pile_scrim") as Control
+	var pile_cards := instance.get("_pile_dialog_cards") as Control
+	_expect(pile_scrim != null and pile_scrim.visible, "%s Encore should open the discard pile" % viewport_size)
+	_expect(pile_cards != null and pile_cards.find_child("DiscardSelectionCard_0", true, false) is Button, "%s Encore should make the full discarded card selectable" % viewport_size)
+	await _save_screenshot(viewport, "%s/06b_encore_discard_selection.png" % output_dir, viewport_size)
+	instance.call("_close_pile_view")
 
 func _populated_progression() -> Dictionary:
 	var skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(PROGRESSION_SKILLS, PROGRESSION_SKILLS.size(), PROGRESSION_SKILLS)

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-22T12:38:54Z",
+  "updated_at": "2026-07-22T16:06:13Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6286,7 +6286,7 @@
       }
     },
     {
-      "id": "mnt_20260722T123854Z_b8bf8221",
+      "id": "mnt_20260722T154204Z_aebe3f76",
       "layer": "shared",
       "kind": "user_preference",
       "scope": {
@@ -6295,18 +6295,40 @@
         "symbol": null
       },
       "scope_key": "project:.",
-      "summary": "Skill progression is immediate, bankable, and hover-stable",
-      "details": "Leveling grants a bankable unspent skill point. Learning one legal node commits immediately with no draft or allocation confirmation. Reset requires one Moltshard and one yes/no prompt, then immediately clears the whole tree and restores every earned point. Pointer hover may update highlights and details only: it must not grab focus, scroll the graph, recompute navigation, or rebuild connector geometry; keyboard focus may reveal nodes. Preserve the authored routed topology, explicit arrowheads and bridges, fixed detail pane, and independent learned/available/locked/exclusive state markers.",
+      "summary": "Skill-tree interaction is click-driven, immediate, and zone-preserving",
+      "details": "Pointer hover must never change skill selection, the detail pane, focus, scroll, navigation, or connector geometry; only click/controller focus selects a node, and tree nodes have no tooltips because the fixed detail pane owns descriptions. Learning commits immediately and updates the open tree plus level/points/Moltshards chips in place without a redundant success line. Reset spends one Moltshard after one yes/no confirmation, clears the whole tree, and refunds all earned points. Combat activations live in the shared Abilities popover; abilities that discard from hand select the full live hand cards, while discard recovery opens the full-card discard pile. Cache immutable authored skill order and connector obstacle data to avoid first-open and learn stalls.",
       "status": "active",
-      "created_at": "2026-07-22T12:38:54Z",
-      "updated_at": "2026-07-22T12:38:54Z",
+      "created_at": "2026-07-22T15:42:04Z",
+      "updated_at": "2026-07-22T15:42:04Z",
       "expires_at": null,
       "supersedes": [
-        "mnt_20260722T070033Z_01348bcb"
+        "mnt_20260722T123854Z_b8bf8221"
       ],
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
-        "commit": "ca7875c"
+        "commit": "af910ba"
+      }
+    },
+    {
+      "id": "mnt_20260722T160613Z_8045b11d",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "Combat skill card choices must guard previews and map displayed pile indices",
+      "details": "Manual ability activation is legal only from idle player-turn combat: no selected card, action-mode choice, drag, animation, pending Umbra commit, or existing skill-card selection. Otherwise a saved skill commit can be overwritten later by a stale card preview. Source-zone UI must also translate display order back to the engine's source order; discard piles render newest-first, so Encore buttons bind the reversed source index rather than their displayed index. Full-card hand choices use focusable wrappers with explicit Accept, Cancel, directional navigation, and focus restoration because CardWidget itself is intentionally mouse-only.",
+      "status": "active",
+      "created_at": "2026-07-22T16:06:13Z",
+      "updated_at": "2026-07-22T16:06:13Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "40d5a6c"
       }
     }
   ]

@@ -1,12 +1,14 @@
 extends SceneTree
 
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const TEST_PROGRESSION_PATH: String = "user://skill_ui_progression.json"
 const TEST_RUN_PATH: String = "user://skill_ui_run.save"
@@ -70,11 +72,14 @@ func _run() -> void:
 	_finish()
 
 func _test_character_skill_tree(instance: Node) -> void:
+	var open_started_usec: int = Time.get_ticks_usec()
 	instance.call("_open_card_upgrade_overlay")
+	var open_elapsed_usec: int = Time.get_ticks_usec() - open_started_usec
 	await process_frame
 	await process_frame
 	var scrim := instance.get("_upgrade_scrim") as Control
 	_expect(scrim != null and scrim.visible, "Character menu should open its Skills surface")
+	_expect(open_elapsed_usec < 250000, "Opening the Skills surface should complete synchronously in under a quarter-second: %dus" % open_elapsed_usec)
 	_expect(_button_with_text(scrim, "Skills") != null, "Character menu should expose a Skills tab")
 	_expect(_button_with_text(scrim, "Stats") == null, "Character menu should not expose a Stats tab")
 	_expect(scrim != null and scrim.find_child("CharacterSkillTree", true, false) != null, "Skills tab should render the shared skill tree")
@@ -103,7 +108,13 @@ func _test_character_skill_tree(instance: Node) -> void:
 		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Returning from the Skills tab should preserve the last focused tree node")
 		tree.focus_skill("discerning_eye")
 	_expect(tree != null and tree.detail_title_text() == "Discerning Eye", "Compact medallions should reveal full skill names in the persistent detail pane")
-	_expect(_label_containing(scrim, "MOLTSHARDS 2") != null, "Skills surface should show the saved respec resource")
+	var level_resource := scrim.find_child("ProgressionLevelLabel", true, false) as Label
+	var point_resource := scrim.find_child("ProgressionSkillPointsLabel", true, false) as Label
+	var moltshard_resource := scrim.find_child("ProgressionMoltshardsLabel", true, false) as Label
+	_expect(level_resource != null and level_resource.get_theme_font_size("font_size") >= UiTypography.SIZE_SECTION, "Character resources should give Level prominent typography")
+	_expect(point_resource != null and point_resource.get_theme_color("font_color") != level_resource.get_theme_color("font_color"), "Skill Points should have a distinct resource color")
+	_expect(moltshard_resource != null and moltshard_resource.text.contains("2") and moltshard_resource.get_theme_color("font_color") != point_resource.get_theme_color("font_color"), "Moltshards should be large, color-coded, and show the saved count")
+	_expect(scrim.find_child("SkillResetHint", true, false) == null, "Reset explanation should appear only in its confirmation, not as permanent footer copy")
 
 	var visible_run_state: Dictionary = instance.get("_run_state") as Dictionary
 	_expect(not visible_run_state.has("moltshards"), "Run state should not track respec resources as inventory")
@@ -116,6 +127,10 @@ func _test_character_skill_tree(instance: Node) -> void:
 	var body: Control = dialog.find_child("CharacterBodyFrame", true, false) as Control if dialog != null else null
 	_expect(body != null and _label_with_text(body, "Crimson Draught") != null, "Gear inventory fixture should render a normal run item")
 	_expect(body != null and _label_containing(body, "MOLTSHARD") == null, "Run inventory surface should not display the respec resource")
+	var skills_tab_started_usec: int = Time.get_ticks_usec()
+	instance.call("_switch_character_overlay_mode", "skills")
+	var skills_tab_elapsed_usec: int = Time.get_ticks_usec() - skills_tab_started_usec
+	_expect(skills_tab_elapsed_usec < 250000, "Switching from Gear to Skills should stay below a quarter-second: %dus" % skills_tab_elapsed_usec)
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
@@ -156,28 +171,19 @@ func _test_level_up_commit_feedback_and_persistence(instance: Node) -> void:
 		var learned_events_before: int = _analytics_event_count("progression_skill_learned")
 		var chosen_skill_id: String = available_ids[0]
 		tree.focus_skill(chosen_skill_id)
+		var learn_started_usec: int = Time.get_ticks_usec()
 		tree.activate_focused_skill()
+		var learn_elapsed_usec: int = Time.get_ticks_usec() - learn_started_usec
 		await process_frame
 		await process_frame
 		var learned_profile: Dictionary = ProgressionStore.load_data()
 		_expect(ProgressionStore.selected_skill_ids(learned_profile).has(chosen_skill_id), "Learn should immediately save the chosen skill without a build confirmation")
 		_expect(ProgressionStore.unspent_skill_points(learned_profile) == ProgressionStore.unspent_skill_points(committed_profile) - 1, "Immediate learning should spend exactly one point")
 		_expect(_analytics_event_count("progression_skill_learned") == learned_events_before + 1, "Immediate learning should emit one skill event")
-		var learned_banner := instance.find_child("SkillLearnedBanner", true, false) as Label
-		_expect(learned_banner != null and str(learned_banner.get_meta("skill_id", "")) == chosen_skill_id, "Immediate learning should identify the exact learned skill")
-		await create_timer(1.05).timeout
-		await process_frame
-	var settings_before: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
-	var reduced_settings: Dictionary = settings_before.duplicate(true)
-	reduced_settings["reduced_motion"] = true
-	instance.set("_settings", reduced_settings)
-	instance.call("_show_skill_learned_feedback", "quick_wits")
-	await process_frame
-	_expect(instance.find_child("SkillLearnedBanner", true, false) != null and instance.find_child("SkillLearnedBurst", true, false) == null, "Reduced-motion skill feedback should keep the readable confirmation without an animated burst")
-	await create_timer(1.05).timeout
-	await process_frame
-	_expect(instance.find_child("SkillLearnedBanner", true, false) == null, "Reduced-motion skill feedback should clean itself up")
-	instance.set("_settings", settings_before)
+		_expect(tree.status_for_skill(chosen_skill_id) == SkillTreeView.STATE_OWNED, "Learning should update the existing tree in place")
+		_expect(instance.find_child("ProgressionOverlayNotice", true, false) == null, "Learning should not add redundant learned/points-remaining copy")
+		_expect(instance.find_child("SkillLearnedBanner", true, false) == null, "Learning feedback should stay inside the instant node/resource state change")
+		_expect(learn_elapsed_usec < 250000, "Learning should commit and update the open tree in under a quarter-second: %dus" % learn_elapsed_usec)
 	_expect(ProgressionStore.save_data(profile_before), "Level-up feedback fixture should restore the original profile")
 	_expect(ProgressionStore.save_run_state(run_before), "Level-up feedback fixture should restore the original resumable run")
 	instance.set("_progression", profile_before)
@@ -525,29 +531,43 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 
 	var choice_overlay := instance.get("_choice_button_overlay") as Control
 	var choice_bar := instance.get("choice_bar") as Control
-	var ready_button: Button = _visible_button_with_text(choice_overlay, "Quick Wits")
-	if ready_button == null:
-		ready_button = _visible_button_with_text(choice_bar, "Quick Wits")
-	_expect(ready_button != null, "A ready manual ability should appear beside normal combat choices")
+	_expect(_visible_button_with_text(choice_overlay, "Quick Wits") == null and _visible_button_with_text(choice_bar, "Quick Wits") == null, "Activated abilities should not reuse the combat choice row beside Pass")
 	var quick_wits_combat_before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	var quick_wits_run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	var quick_wits_analytics_revision_before: int = int(instance.get("_analytics_skill_event_revision"))
 	var quick_wits_seen_revision_before: int = int(instance.get("_skill_event_revision_seen"))
-	if ready_button != null:
-		ready_button.grab_focus()
-		await process_frame
-		await _press_ui_action(&"ui_accept")
+	var saved_before_blocked_activation: Dictionary = ProgressionStore.load_saved_run()
+	instance.set("_selected_card_index", 0)
+	instance.set("_preview_combat_state", quick_wits_combat_before.duplicate(true))
+	var blocked_quick_wits_button: Button = await _ready_skill_button(instance, "Quick Wits")
+	_expect(not bool(instance.call("_combat_skill_is_activatable", "quick_wits")), "Abilities should be unavailable while an uncommitted card preview is active")
+	if blocked_quick_wits_button != null:
+		blocked_quick_wits_button.pressed.emit()
+	await process_frame
+	_expect(str(instance.get("_combat_skill_card_selection_zone")).is_empty(), "A stale card preview should block Quick Wits before it can enter hand selection")
+	_expect((instance.get("_combat_state") as Dictionary) == quick_wits_combat_before, "Blocked ability activation should not mutate committed combat state")
+	_expect(ProgressionStore.load_saved_run() == saved_before_blocked_activation, "Blocked ability activation should not write a conflicting combat checkpoint")
+	instance.call("_reset_card_resolution")
+	instance.call("_close_skill_status_popover")
+	instance.call("_refresh_ui")
+	await process_frame
+	var quick_wits_button: Button = await _ready_skill_button(instance, "Quick Wits")
+	_expect(quick_wits_button != null, "The Abilities popover should expose ready Quick Wits as its dedicated entry")
+	if quick_wits_button != null:
+		quick_wits_button.pressed.emit()
 	await process_frame
 	var choice_scrim := instance.get("_skill_choice_scrim") as Control
-	var choice_list := instance.get("_skill_choice_list") as Control
-	_expect(choice_scrim != null and choice_scrim.visible, "Manual ability should open its dedicated choice dialog")
-	_expect(_label_with_text(choice_scrim, "Quick Wits") != null, "Manual choice dialog should identify the selected ability")
-	var first_discard_button: Button = _button_beginning_with(choice_list, "Discard ")
-	_expect(first_discard_button != null, "Manual choice dialog should offer cards from the current hand")
-	_expect(first_discard_button != null and instance.get_viewport().gui_get_focus_owner() == first_discard_button, "Opening a manual ability chooser should focus its first legal option")
-	if first_discard_button != null:
+	var selection_prompt := instance.get("_combat_skill_card_selection_prompt") as Control
+	_expect(choice_scrim != null and not choice_scrim.visible, "Quick Wits should not open the name-only skill choice dialog")
+	_expect(selection_prompt != null and selection_prompt.visible and _label_containing(selection_prompt, "CHOOSE A CARD TO DISCARD") != null, "Quick Wits should enter an explicit live-hand discard mode")
+	var first_hand_card: CardWidget = _hand_card_widget(instance, 0)
+	var first_hand_selection: Button = _hand_selection_button(instance, 0)
+	_expect(first_hand_card != null and first_hand_card.is_visible_in_tree(), "Discard mode should keep the full card in its normal hand position")
+	_expect(first_hand_selection != null and instance.get_viewport().gui_get_focus_owner() == first_hand_selection, "Quick Wits should transfer controller focus to the first full-card choice")
+	if first_hand_selection != null:
 		await _press_ui_action(&"ui_accept")
-	_expect(choice_scrim != null and not choice_scrim.visible, "A real controller Accept should choose a manual ability option and close the dialog")
+	await process_frame
+	_expect(selection_prompt != null and not selection_prompt.visible, "Choosing the live hand card should leave discard mode")
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "Choosing Quick Wits through real input should commit its combat use")
 	instance.set("_combat_state", quick_wits_combat_before)
 	instance.set("_run_state", quick_wits_run_before)
@@ -578,27 +598,10 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.call("_refresh_ui")
 	await process_frame
 	var ready_group := _button_beginning_with(instance.get("_choice_button_overlay") as Control, "Ready Skills (")
-	_expect(ready_group != null and ready_group.is_visible_in_tree(), "Three or more simultaneous manual abilities should collapse into one compact Ready Skills control")
-	_expect(_visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Rehearsed Escape") == null, "Grouped skill actions should not cover the combat hand with duplicate direct controls")
-	if ready_group != null:
-		ready_group.pressed.emit()
-		await process_frame
-		await process_frame
-		var grouped_choices := instance.get("_skill_choice_list") as Control
-		var grouped_detail := instance.get("_skill_choice_description") as Label
-		var quick_wits_choice: Button = _visible_button_with_text(grouped_choices, "Quick Wits")
-		_expect(quick_wits_choice != null and instance.get_viewport().gui_get_focus_owner() == quick_wits_choice, "Ready Skills should focus its first learned ability for keyboard and controller users")
-		_expect(grouped_detail != null and grouped_detail.text.contains(SkillTreeLibrary.description("quick_wits")), "The focused Ready Skill should expose its complete rule without requiring pointer hover")
-		var escape_choice: Button = _visible_button_with_text(grouped_choices, "Rehearsed Escape")
-		if escape_choice != null:
-			escape_choice.mouse_entered.emit()
-			await process_frame
-		_expect(escape_choice != null and instance.get_viewport().gui_get_focus_owner() == escape_choice, "Pointer hover should synchronize Ready Skill focus so the described option is also the controller Accept target")
-		_expect(grouped_detail != null and grouped_detail.text.contains(SkillTreeLibrary.description("rehearsed_escape")), "Hovering a Ready Skill should update its persistent rule text")
-		instance.call("_close_skill_choice_dialog")
-		await process_frame
+	_expect(ready_group == null, "Multiple activated abilities should stay in the common Abilities popover instead of creating a contextual Pass-row group")
+	_expect(_visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Rehearsed Escape") == null, "Activated abilities should never cover the combat hand with direct choice-row controls")
 	var escape_button: Button = await _ready_skill_button(instance, "Rehearsed Escape")
-	_expect(escape_button != null, "Rehearsed Escape should appear as an explicit manual combat choice")
+	_expect(escape_button != null, "Rehearsed Escape should appear as an explicit Abilities entry")
 	if escape_button != null:
 		escape_button.pressed.emit()
 	await process_frame
@@ -607,7 +610,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(str(instance.call("_skill_hud_status", "rehearsed_escape")) == "ARMED", "Rehearsed Escape should report ARMED after the player opts in")
 	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count, "Arming Rehearsed Escape should not log a realized skill trigger")
 	var makeshift_button: Button = await _ready_skill_button(instance, "Makeshift Tool")
-	_expect(makeshift_button != null, "Makeshift Tool should appear as an explicit manual combat choice")
+	_expect(makeshift_button != null, "Makeshift Tool should appear as an explicit Abilities entry")
 	if makeshift_button != null:
 		makeshift_button.pressed.emit()
 	await process_frame
@@ -616,7 +619,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(str(instance.call("_skill_hud_status", "makeshift_tool")) == "ARMED", "Makeshift Tool should report ARMED after the player opts in")
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count, "Arming Makeshift Tool should not log a realized skill trigger")
 	var carry_button: Button = await _ready_skill_button(instance, "Carry the Guard")
-	_expect(carry_button != null, "Carry the Guard should appear as an explicit choice while block remains")
+	_expect(carry_button != null, "Carry the Guard should appear in Abilities while block remains")
 	if carry_button != null:
 		carry_button.pressed.emit()
 	await process_frame
@@ -653,22 +656,69 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.set("_run_state", run_engine.set_combat_state(original_run_state, prismatic_combat))
 	instance.call("_refresh_ui")
 	await process_frame
-	var prismatic_button: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Prismatic Instinct")
-	if prismatic_button == null:
-		prismatic_button = _visible_button_with_text(instance.get("choice_bar") as Control, "Prismatic Instinct")
-	_expect(prismatic_button != null, "A ready Prismatic Instinct should appear with the normal combat controls")
+	var prismatic_button: Button = await _ready_skill_button(instance, "Prismatic Instinct")
+	_expect(prismatic_button != null, "A ready Prismatic Instinct should appear in the common Abilities popover")
 	if prismatic_button != null:
 		prismatic_button.pressed.emit()
 	await process_frame
-	_expect(choice_scrim.visible, "Prismatic Instinct should open the shared card-choice dialog")
-	var arm_rime_button: Button = _button_beginning_with(choice_list, "Name Rime Shard")
-	_expect(arm_rime_button != null, "Prismatic Instinct should offer an eligible conditional card")
-	_expect(_button_beginning_with(choice_list, "Name Quick Stab") == null, "Prismatic Instinct should not offer cards without elemental conditions")
-	if arm_rime_button != null:
-		arm_rime_button.pressed.emit()
+	_expect(choice_scrim != null and not choice_scrim.visible, "Prismatic Instinct should avoid the name-only card list")
+	_expect(selection_prompt != null and selection_prompt.visible and _label_containing(selection_prompt, "CHOOSE A CONDITIONAL CARD") != null, "Prismatic Instinct should select from the live hand")
+	var rime_widget: CardWidget = _hand_card_widget(instance, 0)
+	var quick_stab_widget: CardWidget = _hand_card_widget(instance, 1)
+	var rime_selection: Button = _hand_selection_button(instance, 0)
+	var quick_stab_selection: Button = _hand_selection_button(instance, 1)
+	_expect(rime_widget != null and rime_selection != null and not rime_selection.disabled, "An eligible conditional card should remain a directly selectable full card")
+	_expect(quick_stab_widget != null and quick_stab_selection != null and quick_stab_selection.disabled, "Cards without intensity conditions should remain visible but inert in Prismatic selection mode")
+	_expect(instance.get_viewport().gui_get_focus_owner() == rime_selection, "Prismatic Instinct should focus its first eligible full-card choice")
+	await _press_ui_action(&"ui_cancel")
+	_expect(selection_prompt != null and not selection_prompt.visible, "Controller Cancel should leave hand selection without spending Prismatic Instinct")
+	_expect(not combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "prismatic_instinct"), "Canceling hand selection should preserve the ready ability")
+	_expect(instance.get_viewport().gui_get_focus_owner() == instance.get("_skill_sigil"), "Canceling hand selection should restore focus to Abilities")
+	prismatic_button = await _ready_skill_button(instance, "Prismatic Instinct")
+	if prismatic_button != null:
+		prismatic_button.pressed.emit()
+	await process_frame
+	await process_frame
+	rime_selection = _hand_selection_button(instance, 0)
+	if rime_selection != null:
+		await _press_ui_action(&"ui_accept")
 	await process_frame
 	var armed_flags: Dictionary = ((instance.get("_combat_state") as Dictionary).get("skill_flags", {}) as Dictionary)
 	_expect(bool(armed_flags.get("prismatic_armed", false)) and str(armed_flags.get("prismatic_target_card_id", "")) == "rime_shard", "Prismatic Instinct should bind its arm to the chosen card")
+
+	var encore_combat: Dictionary = original_combat_state.duplicate(true)
+	var encore_skills: Array = (encore_combat.get("skill_ids", []) as Array).duplicate()
+	encore_skills.append("encore")
+	encore_combat["skill_ids"] = encore_skills
+	var encore_deck: Dictionary = (encore_combat.get("deck", {}) as Dictionary).duplicate(true)
+	encore_deck["hand"] = ["rime_shard"]
+	encore_deck["discard"] = ["quick_stab", "crimson_draught"]
+	encore_combat["deck"] = encore_deck
+	instance.set("_combat_state", encore_combat)
+	instance.set("_run_state", run_engine.set_combat_state(original_run_state, encore_combat))
+	instance.call("_refresh_ui")
+	await process_frame
+	var encore_button: Button = await _ready_skill_button(instance, "Encore")
+	_expect(encore_button != null, "Encore should use the shared Abilities entry point")
+	if encore_button != null:
+		encore_button.pressed.emit()
+	await process_frame
+	var pile_scrim := instance.get("_pile_scrim") as Control
+	var pile_title := instance.get("_pile_dialog_title") as Label
+	var item_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_0", true, false) as Button
+	var recall_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_1", true, false) as Button
+	_expect(pile_scrim != null and pile_scrim.visible and pile_title != null and pile_title.text.contains("Choose a Card to Return"), "Encore should open the full-card discard pile in selection mode")
+	var recalled_widget: CardWidget = _card_widget_descendant(recall_card)
+	var item_widget: CardWidget = _card_widget_descendant(item_card)
+	_expect(recall_card != null and not recall_card.disabled and recalled_widget != null and recalled_widget.card_id == "quick_stab" and int(recall_card.get_meta("source_card_index", -1)) == 0, "Encore should map the selectable displayed card back to its original discard index")
+	_expect(item_card != null and item_card.disabled and item_widget != null and item_widget.card_id == "crimson_draught", "Encore should leave the displayed item card visible but inert after reversing pile order")
+	_expect(instance.get_viewport().gui_get_focus_owner() == recall_card, "Encore should focus the first eligible full discard card for controller input")
+	if recall_card != null:
+		await _press_ui_action(&"ui_accept")
+	await process_frame
+	var encore_result: Dictionary = instance.get("_combat_state") as Dictionary
+	_expect(not pile_scrim.visible and ((encore_result.get("deck", {}) as Dictionary).get("hand", []) as Array).has("quick_stab"), "Selecting the full discard card should return it to hand and close the pile")
+	_expect(combat_engine.skill_was_used(encore_result, "encore"), "Encore should spend after the discard-pile card is selected")
 	instance.set("_combat_state", original_combat_state)
 	instance.set("_run_state", original_run_state)
 	instance.call("_refresh_ui")
@@ -1059,18 +1109,43 @@ func _button_beginning_with(node: Node, prefix: String) -> Button:
 	return null
 
 func _ready_skill_button(instance: Node, skill_name: String) -> Button:
-	var direct: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, skill_name)
-	if direct == null:
-		direct = _visible_button_with_text(instance.get("choice_bar") as Control, skill_name)
-	if direct != null:
-		return direct
-	var group := _button_beginning_with(instance.get("_choice_button_overlay") as Control, "Ready Skills (")
-	if group == null or not group.is_visible_in_tree():
+	var skill_id: String = ""
+	for candidate_id: String in SkillTreeLibrary.ordered_ids():
+		if SkillTreeLibrary.display_name(candidate_id) == skill_name:
+			skill_id = candidate_id
+			break
+	if skill_id.is_empty():
 		return null
-	group.pressed.emit()
-	await process_frame
-	await process_frame
-	return _visible_button_with_text(instance.get("_skill_choice_list") as Control, skill_name)
+	var popover := instance.get("_skill_status_popover") as Control
+	if popover == null or not popover.visible:
+		instance.call("_toggle_skill_status_popover")
+		await process_frame
+		await process_frame
+	popover = instance.get("_skill_status_popover") as Control
+	return popover.find_child("SkillStatusRow_%s" % skill_id, true, false) as Button if popover != null else null
+
+func _hand_card_widget(instance: Node, hand_index: int) -> CardWidget:
+	var hand_box := instance.get("hand_box") as Control
+	if hand_box == null or hand_index < 0 or hand_index >= hand_box.get_child_count():
+		return null
+	return _card_widget_descendant(hand_box.get_child(hand_index))
+
+func _hand_selection_button(instance: Node, hand_index: int) -> Button:
+	var hand_box := instance.get("hand_box") as Control
+	if hand_box == null:
+		return null
+	return hand_box.find_child("SkillHandSelectionCard_%d" % hand_index, true, false) as Button
+
+func _card_widget_descendant(node: Node) -> CardWidget:
+	if node == null:
+		return null
+	if node is CardWidget:
+		return node as CardWidget
+	for child: Node in node.get_children():
+		var found: CardWidget = _card_widget_descendant(child)
+		if found != null:
+			return found
+	return null
 
 func _label_with_text(node: Node, expected: String) -> Label:
 	if node == null:

@@ -370,10 +370,16 @@ var _node_buttons: Dictionary = {}
 var _node_faces: Dictionary = {}
 var _node_icons: Dictionary = {}
 var _node_centers: Dictionary = {}
+var _node_sizes: Dictionary = {}
+var _node_visual_rects: Dictionary = {}
 var _static_links: Array[Dictionary]
 var _bridge_records: Array[Dictionary]
 var _link_geometry_rebuild_count: int = 0
 var _navigation_rebuild_count: int = 0
+var _last_build_view_usec: int = 0
+var _last_refresh_view_usec: int = 0
+var _last_link_geometry_usec: int = 0
+var _last_navigation_usec: int = 0
 var _legend: HBoxContainer
 var _detail_status: Label
 var _detail_title: Label
@@ -390,8 +396,12 @@ func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", UiTypography.PANEL_GAP)
+	var build_started_usec: int = Time.get_ticks_usec()
 	_build_view()
+	_last_build_view_usec = Time.get_ticks_usec() - build_started_usec
+	var refresh_started_usec: int = Time.get_ticks_usec()
 	_refresh_view()
+	_last_refresh_view_usec = Time.get_ticks_usec() - refresh_started_usec
 	# External tab/command controls may only become visible after this subtree's
 	# ready pass. Rebind once the completed modal is live so controller exits do
 	# not retain empty NodePaths.
@@ -405,7 +415,11 @@ func configure(context: Dictionary) -> void:
 	var requested_focus: String = str(context.get("focused_id", _focused_id))
 	_focused_id = requested_focus if SkillTreeLibrary.has_definition(requested_focus) else _default_focus_id()
 	if is_node_ready():
-		_refresh_view()
+		_refresh_summary()
+		_refresh_nodes()
+		_refresh_links()
+		_refresh_detail()
+		_configure_focus_neighbors()
 
 func mode() -> String:
 	return MODE_VIEW
@@ -420,7 +434,7 @@ func focus_skill(skill_id: String, ensure_visible: bool = true) -> void:
 	_refresh_nodes()
 	_refresh_links()
 	_refresh_detail()
-	_configure_command_focus_neighbors()
+	_configure_focus_neighbors()
 	skill_focused.emit(skill_id)
 	if ensure_visible:
 		call_deferred("_ensure_focused_visible")
@@ -508,6 +522,14 @@ func link_geometry_rebuild_count() -> int:
 
 func navigation_rebuild_count() -> int:
 	return _navigation_rebuild_count
+
+func performance_metrics() -> Dictionary:
+	return {
+		"build_view_usec": _last_build_view_usec,
+		"refresh_view_usec": _last_refresh_view_usec,
+		"link_geometry_usec": _last_link_geometry_usec,
+		"navigation_usec": _last_navigation_usec,
+	}
 
 func graph_scroll_offset() -> Vector2i:
 	if _graph_scroll == null:
@@ -782,6 +804,8 @@ func _build_skill_nodes() -> void:
 		var node_size: Vector2 = _node_size(skill_id)
 		var node_center: Vector2 = _node_center(skill_id)
 		_node_centers[skill_id] = node_center
+		_node_sizes[skill_id] = node_size
+		_node_visual_rects[skill_id] = Rect2(node_center - (node_size - Vector2(8.0, 8.0)) * 0.5, node_size - Vector2(8.0, 8.0))
 		var button := Button.new()
 		button.name = "SkillNode_%s" % skill_id
 		button.position = node_center - node_size * 0.5
@@ -792,7 +816,6 @@ func _build_skill_nodes() -> void:
 		button.clip_contents = false
 		button.pressed.connect(_on_node_pressed.bind(skill_id))
 		button.focus_entered.connect(_on_node_focus_entered.bind(skill_id))
-		button.mouse_entered.connect(_on_node_hovered.bind(skill_id))
 		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
 			button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
 		_graph_canvas.add_child(button)
@@ -942,7 +965,7 @@ func _refresh_nodes() -> void:
 		button.set_meta("focus_relationship", relationship)
 		button.set_meta("node_role", SkillTreeLibrary.tier(skill_id))
 		button.set_meta("icon_key", SkillTreeLibrary.icon_key(skill_id))
-		button.tooltip_text = _node_tooltip(skill_id, base_state)
+		button.tooltip_text = ""
 		var face: SkillNodeFace = _node_faces.get(skill_id, null) as SkillNodeFace
 		if face != null:
 			face.configure(
@@ -955,6 +978,7 @@ func _refresh_nodes() -> void:
 			)
 
 func _rebuild_link_geometry() -> void:
+	var started_usec: int = Time.get_ticks_usec()
 	var links: Array[Dictionary]
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
@@ -969,6 +993,7 @@ func _rebuild_link_geometry() -> void:
 	_bridge_records = _annotate_connection_bridges(links)
 	_static_links = links
 	_link_geometry_rebuild_count += 1
+	_last_link_geometry_usec = Time.get_ticks_usec() - started_usec
 
 func _refresh_links() -> void:
 	if _link_layer == null:
@@ -1050,13 +1075,6 @@ func _on_node_focus_entered(skill_id: String) -> void:
 	if skill_id != _focused_id:
 		focus_skill(skill_id)
 
-func _on_node_hovered(skill_id: String) -> void:
-	if skill_id != _focused_id:
-		# Mouse hover is visual inspection only. Moving keyboard focus inside a
-		# ScrollContainer implicitly scrolls it, which used to move another node
-		# beneath the stationary pointer and create a hover/recenter feedback loop.
-		focus_skill(skill_id, false)
-
 func _ensure_focused_visible() -> void:
 	if _graph_scroll == null:
 		return
@@ -1082,6 +1100,7 @@ func _ensure_focused_visible() -> void:
 		_graph_scroll.ensure_control_visible(button)
 
 func _configure_focus_neighbors() -> void:
+	var started_usec: int = Time.get_ticks_usec()
 	_navigation_rebuild_count += 1
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var button: Button = node_for_skill(skill_id)
@@ -1095,6 +1114,7 @@ func _configure_focus_neighbors() -> void:
 				neighbor = _tree_exit_target(direction)
 			_set_focus_neighbor(button, direction, neighbor if neighbor != null else button)
 	_configure_command_focus_neighbors()
+	_last_navigation_usec = Time.get_ticks_usec() - started_usec
 
 func _tree_exit_target(direction: String) -> Control:
 	if direction in ["left", "up"] and _control_accepts_focus(_external_tab_target):
@@ -1210,18 +1230,15 @@ func _node_center(skill_id: String) -> Vector2:
 	return Vector2(SkillTreeLibrary.layout_position(skill_id))
 
 func _node_size(skill_id: String) -> Vector2:
+	if _node_sizes.has(skill_id):
+		return _node_sizes.get(skill_id, Vector2.ZERO) as Vector2
 	return Vector2(SkillTreeLibrary.layout_node_size(skill_id))
 
 func _node_visual_rect(skill_id: String) -> Rect2:
+	if _node_visual_rects.has(skill_id):
+		return _node_visual_rects.get(skill_id, Rect2()) as Rect2
 	var visual_size: Vector2 = _node_size(skill_id) - Vector2(8.0, 8.0)
 	return Rect2(_node_center(skill_id) - visual_size * 0.5, visual_size)
-
-func _node_tooltip(skill_id: String, state: String) -> String:
-	return "%s\n%s\n%s" % [
-		SkillTreeLibrary.display_name(skill_id),
-		SkillTreeLibrary.description(skill_id),
-		_detail_reason_text(skill_id, state),
-	]
 
 func _node_state_text(skill_id: String, state: String) -> String:
 	match state:
@@ -1601,9 +1618,15 @@ func _best_route_channel_x(
 	var preferred_x: float = (source_stub.x + target_stub.x) * 0.5
 	var best_x: float = preferred_x
 	var best_score: float = INF
+	var obstacle_ranges: Array[Vector2] = _vertical_route_obstacle_ranges(
+		source_stub.y,
+		target_stub.y,
+		source_id,
+		target_id
+	)
 	var candidate_x: float = 12.0
 	while candidate_x <= GRAPH_SIZE.x - 12.0:
-		if _vertical_route_is_clear(candidate_x, source_stub.y, target_stub.y, source_id, target_id):
+		if _route_channel_is_clear(candidate_x, obstacle_ranges):
 			var score: float = absf(candidate_x - preferred_x) + 0.18 * (
 				absf(candidate_x - source_stub.x) + absf(candidate_x - target_stub.x)
 			)
@@ -1613,18 +1636,27 @@ func _best_route_channel_x(
 		candidate_x += 4.0
 	return best_x
 
-func _vertical_route_is_clear(
-	x: float,
+func _vertical_route_obstacle_ranges(
 	start_y: float,
 	end_y: float,
 	source_id: String,
 	target_id: String
-) -> bool:
+) -> Array[Vector2]:
+	var result: Array[Vector2]
+	var segment_start: float = minf(start_y, end_y)
+	var segment_end: float = maxf(start_y, end_y)
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		if skill_id in [source_id, target_id]:
 			continue
 		var obstacle: Rect2 = _node_visual_rect(skill_id).grow(LINK_NODE_CLEARANCE)
-		if _axis_segment_intersects_rect(Vector2(x, start_y), Vector2(x, end_y), obstacle):
+		if segment_start > obstacle.end.y or segment_end < obstacle.position.y:
+			continue
+		result.append(Vector2(obstacle.position.x, obstacle.end.x))
+	return result
+
+func _route_channel_is_clear(x: float, obstacle_ranges: Array[Vector2]) -> bool:
+	for obstacle_range: Vector2 in obstacle_ranges:
+		if x >= obstacle_range.x and x <= obstacle_range.y:
 			return false
 	return true
 

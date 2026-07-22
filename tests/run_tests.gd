@@ -10926,7 +10926,12 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the Skills overlay")
 	_assert(upgrade_scrim.z_index >= 1200 and not upgrade_scrim.z_as_relative, "The character overlay should render above combat hand cards")
 	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
-	_assert(_label_with_text(upgrade_scrim, "LV 1   LEARNED 0   SKILL POINTS 0   MOLTSHARDS 0") != null, "The Skills overlay should summarize level, learned skills, banked points, and reset resources")
+	var level_resource: Label = upgrade_scrim.find_child("ProgressionLevelLabel", true, false) as Label
+	var point_resource: Label = upgrade_scrim.find_child("ProgressionSkillPointsLabel", true, false) as Label
+	var moltshard_resource: Label = upgrade_scrim.find_child("ProgressionMoltshardsLabel", true, false) as Label
+	_assert(level_resource != null and level_resource.text == "LEVEL  1", "The character overlay should prominently show progression level")
+	_assert(point_resource != null and point_resource.text == "POINTS  0", "The character overlay should prominently show banked skill points")
+	_assert(moltshard_resource != null and moltshard_resource.text == "MOLTSHARDS  0", "The character overlay should prominently show reset resources")
 	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The character overlay should render the data-driven skill tree")
 	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The skill tree should show its root abilities")
 	_assert(_label_with_text(upgrade_scrim, "Might") == null and _label_with_text(upgrade_scrim, "Fire Magick") == null, "The Skills overlay should not expose retired stat allocation rows")
