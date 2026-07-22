@@ -253,6 +253,13 @@ realized activation. Their single `skill_triggered` event is recorded when the
 qualifying card is actually redirected to discard, which is also when the
 once-per-combat charge is spent.
 
+Persistent passives also record only realized benefits. Open Arsenal emits a
+run-scoped activation after a successful non-trinket equip into the trinket
+slot, never while validating a drag or repeating a no-op equip. Confluence emits
+one combat-scoped activation when another element's higher intensity first
+satisfies a committed card condition or intensity bonus that combat. Later
+Confluence benefits remain fully active without producing duplicate events.
+
 ## AWS-Friendly Expectations
 
 If this gets uploaded later, keep the event contract compatible with object storage and batch processing:

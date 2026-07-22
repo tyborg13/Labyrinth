@@ -25,7 +25,7 @@ const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
 const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
-const DETAIL_WIDTH: float = 300.0
+const DETAIL_WIDTH: float = 330.0
 const LINK_NODE_CLEARANCE: float = 3.0
 
 const BRANCH_COLORS: Dictionary = {
@@ -74,6 +74,40 @@ class SkillLinkLayer:
 			draw_circle(points[0], width * 0.65, color, true, -1.0, true)
 			draw_circle(points[points.size() - 1], width * 0.9 + 1.0, under_color, true, -1.0, true)
 			draw_circle(points[points.size() - 1], width * 0.65, color, true, -1.0, true)
+
+class SkillLegendMarker:
+	extends Control
+
+	var state: String = "locked"
+	var marker_color: Color = Color("68636d")
+
+	func configure(next_state: String, next_color: Color) -> void:
+		state = next_state
+		marker_color = next_color
+		queue_redraw()
+
+	func _draw() -> void:
+		var center := size * 0.5
+		var radius: float = minf(size.x, size.y) * 0.5 - 1.0
+		draw_circle(center, radius, Color(0.025, 0.02, 0.03, 0.98), true, -1.0, true)
+		draw_arc(center, radius - 0.5, 0.0, TAU, 24, marker_color, 2.0, true)
+		match state:
+			"owned":
+				draw_polyline(PackedVector2Array([
+					center + Vector2(-4.0, 0.0),
+					center + Vector2(-1.0, 3.0),
+					center + Vector2(4.5, -3.5),
+				]), marker_color, 2.2, true)
+			"available":
+				draw_line(center + Vector2(-4.0, 0.0), center + Vector2(4.0, 0.0), marker_color, 2.0, true)
+				draw_line(center + Vector2(0.0, -4.0), center + Vector2(0.0, 4.0), marker_color, 2.0, true)
+			"pending":
+				draw_circle(center, 3.5, marker_color, true, -1.0, true)
+			"excluded":
+				draw_line(center + Vector2(-4.0, 4.0), center + Vector2(4.0, -4.0), marker_color, 2.2, true)
+			_:
+				draw_rect(Rect2(center + Vector2(-3.5, -0.5), Vector2(7.0, 5.0)), marker_color, false, 1.7, true)
+				draw_arc(center + Vector2(0.0, -0.5), 3.5, PI, TAU, 14, marker_color, 1.7, true)
 
 class SkillNodeFace:
 	extends Control
@@ -483,15 +517,15 @@ func _build_graph_panel() -> Control:
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_top", 6)
 	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_bottom", 6)
 	panel.add_child(margin)
 
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	column.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT)
 	margin.add_child(column)
 
 	var header := HBoxContainer.new()
@@ -542,19 +576,34 @@ func _build_state_legend() -> void:
 	if _legend == null:
 		return
 	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
-		var swatch := ColorRect.new()
-		swatch.name = "SkillLegendSwatch_%s" % state
-		swatch.custom_minimum_size = Vector2(9.0, 9.0)
-		swatch.color = _state_color(state)
-		swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_legend.add_child(swatch)
+		var marker := SkillLegendMarker.new()
+		marker.name = "SkillLegendMarker_%s" % state
+		marker.custom_minimum_size = Vector2(18.0, 18.0)
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		marker.set_meta("skill_state", state)
+		marker.set_meta("symbol_kind", _legend_symbol_kind(state))
+		marker.configure(state, _state_color(state))
+		_legend.add_child(marker)
 		var label := Label.new()
 		label.name = "SkillLegendLabel_%s" % state
 		label.text = _legend_state_text(state)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.set_label_size(label, 8)
+		UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
 		label.add_theme_color_override("font_color", Color("cfc4b2") if state != STATE_LOCKED else Color("8f8991"))
 		_legend.add_child(label)
+
+func _legend_symbol_kind(state: String) -> String:
+	match state:
+		STATE_OWNED:
+			return "check"
+		STATE_AVAILABLE:
+			return "plus"
+		STATE_PENDING:
+			return "dot"
+		STATE_EXCLUDED:
+			return "strike"
+		_:
+			return "lock"
 
 func _build_skill_nodes() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
@@ -589,6 +638,7 @@ func _build_detail_panel() -> Control:
 	panel.name = "SkillDetailPanel"
 	panel.custom_minimum_size = Vector2(DETAIL_WIDTH, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.clip_contents = true
 	panel.add_theme_stylebox_override("panel", _panel_style(Color("8c6f49")))
 
 	var margin := MarginContainer.new()
@@ -604,51 +654,68 @@ func _build_detail_panel() -> Control:
 	column.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	margin.add_child(column)
 
+	var detail_scroll := ScrollContainer.new()
+	detail_scroll.name = "SkillDetailScroll"
+	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	detail_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	column.add_child(detail_scroll)
+
+	var detail_content := VBoxContainer.new()
+	detail_content.name = "SkillDetailContent"
+	detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_content.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	detail_scroll.add_child(detail_content)
+
 	_detail_status = Label.new()
+	_detail_status.name = "SkillDetailStatus"
 	UiTypography.apply_label_role(_detail_status, UiTypography.ROLE_CAPTION)
-	column.add_child(_detail_status)
+	detail_content.add_child(_detail_status)
 
 	_detail_title = Label.new()
+	_detail_title.name = "SkillDetailTitle"
 	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_title, UiTypography.ROLE_SECTION)
 	_detail_title.add_theme_color_override("font_color", Color("f5ead4"))
-	column.add_child(_detail_title)
+	detail_content.add_child(_detail_title)
 
 	_detail_description = Label.new()
+	_detail_description.name = "SkillDetailDescription"
 	_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_BODY)
 	_detail_description.add_theme_color_override("font_color", Color("ddcfb7"))
-	column.add_child(_detail_description)
+	detail_content.add_child(_detail_description)
 
 	var divider := HSeparator.new()
 	divider.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	column.add_child(divider)
+	detail_content.add_child(divider)
 
 	_detail_activation = Label.new()
+	_detail_activation.name = "SkillDetailActivation"
 	UiTypography.apply_label_role(_detail_activation, UiTypography.ROLE_CAPTION)
 	_detail_activation.add_theme_color_override("font_color", Color("c9b998"))
-	column.add_child(_detail_activation)
+	detail_content.add_child(_detail_activation)
 
 	_detail_requirements = Label.new()
+	_detail_requirements.name = "SkillDetailRequirements"
 	_detail_requirements.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_requirements, UiTypography.ROLE_CAPTION)
 	_detail_requirements.add_theme_color_override("font_color", Color("c9b998"))
-	column.add_child(_detail_requirements)
+	detail_content.add_child(_detail_requirements)
 
 	_detail_unlocks = Label.new()
+	_detail_unlocks.name = "SkillDetailUnlocks"
 	_detail_unlocks.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_unlocks, UiTypography.ROLE_CAPTION)
 	_detail_unlocks.add_theme_color_override("font_color", Color("a8c9c1"))
-	column.add_child(_detail_unlocks)
+	detail_content.add_child(_detail_unlocks)
 
 	_detail_reason = Label.new()
+	_detail_reason.name = "SkillDetailReason"
 	_detail_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_reason, UiTypography.ROLE_BODY)
-	column.add_child(_detail_reason)
-
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(spacer)
+	detail_content.add_child(_detail_reason)
 
 	_detail_action = Button.new()
 	_detail_action.name = "SkillDetailAction"

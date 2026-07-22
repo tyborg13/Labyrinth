@@ -244,7 +244,9 @@ of falling through to an unrelated node. Controller Accept performs the focused
 medallion's enabled action, and completing a build transfers focus to Confirm.
 The detail pane shows the full effect, activation kind, individually satisfied
 or missing prerequisites, direct unlocks, minimum learned count, and lock
-reason.
+reason. Variable-length rules copy scrolls inside that fixed pane while the
+current action and Cancel/Confirm footer stay pinned, so requirements cannot
+increase the Character modal's height or hide its chrome at `1280x720`.
 
 During combat, learned skills appear through a violet SkillSigil beside—but
 visually distinct from—the relic row. Its popover lists every learned skill as:
@@ -292,6 +294,14 @@ new tree. A same-level respec preserves the run's unbanked ember total. A newer
 level adopts the profile's post-purchase ember total so a profile-first torn
 save cannot restore already-spent embers. This keeps both transactions durable
 when the profile and run snapshot are saved on different frames.
+
+The inverse torn-write case is repaired as well. If a resumed run contains a
+newer progression revision than the standalone profile (for example, a boss
+award whose first profile write failed), resume backfills that revision before
+respec. The repair preserves the standalone ember total so held run embers are
+never banked accidentally; a respec transaction can also use the newer active
+revision as its recovery authority while still rejecting a genuinely newer
+external profile.
 
 ## Analytics and Balance
 

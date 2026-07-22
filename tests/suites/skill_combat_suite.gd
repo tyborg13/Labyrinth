@@ -37,6 +37,15 @@ static func _test_quick_wits(expect: Callable) -> void:
 	expect.call((full_deck.get("discard", []) as Array).has("quick_stab"), "A full hand should defer the primed Pain Remembers recall")
 	expect.call(not combat.skill_was_used(full_state, "pain_remembers") and bool((full_state.get("skill_flags", {}) as Dictionary).get("pain_recall_primed", false)), "Pain Remembers should stay primed until a later discard has room to return")
 
+	var cycle_state: Dictionary = _state(combat, ["quick_wits", "pain_remembers"], ["quick_stab", "brace"])
+	cycle_state["deck"] = _deck(["quick_stab"], [], ["brace"])
+	cycle_state = combat._damage_player(cycle_state, GameData.fixed_point_amount(1), true)
+	cycle_state = combat.use_quick_wits(cycle_state, 0)
+	var cycle_deck: Dictionary = cycle_state.get("deck", {}) as Dictionary
+	expect.call((cycle_deck.get("hand", []) as Array).has("quick_stab"), "Pain Remembers should recall Quick Wits' promised discard before a deck-cycle shuffle can lose its identity")
+	expect.call((cycle_deck.get("hand", []) as Array).has("brace"), "Quick Wits should still draw a replacement after the primed recall resolves")
+	expect.call(combat.skill_was_used(cycle_state, "pain_remembers"), "A deck-cycle shuffle should not silently defer a Pain Remembers recall when the hand has room")
+
 static func _test_rehearsed_escape_and_pain_remembers(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = _state(combat, ["rehearsed_escape", "pain_remembers"], ["patch_up", "quick_stab"])
@@ -297,6 +306,29 @@ static func _test_prismatic_instinct_and_confluence(expect: Callable) -> void:
 	confluence_state = combat.apply_player_action(confluence_state, conditional_draw)
 	expect.call(int((confluence_state.get("player", {}) as Dictionary).get("hp", 0)) == GameData.fixed_point_amount(1), "Confluence should never turn a previously unmet conditional draw into Fatigue")
 	expect.call(((confluence_state.get("deck", {}) as Dictionary).get("discard", []) as Array) == ["brace"], "A Confluence-only draw should leave the discard untouched when no safe draw remains")
+	expect.call(_skill_event_count(combat, confluence_state, "confluence") == 1, "Confluence should emit one activation when another element first satisfies a committed condition")
+	var second_confluence_action: Dictionary = {"type": "card_play", "amount": 1, "requires_intensity": {"element": "fire", "amount": 2}}
+	confluence_state = combat.apply_player_action(confluence_state, second_confluence_action)
+	expect.call(int(confluence_state.get("card_play_bonus_this_turn", 0)) == 1, "Confluence should remain mechanically active after its analytics event fires")
+	expect.call(_skill_event_count(combat, confluence_state, "confluence") == 1, "Confluence should emit at most one first-benefit activation per combat")
+	var confluence_bonus_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
+	confluence_bonus_state["elemental_intensity"] = {"fire": 0, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
+	confluence_bonus_state = combat.apply_player_action(confluence_bonus_state, {
+		"type": "block",
+		"amount": 1,
+		"intensity_bonus": {"element": "fire", "threshold": 2, "amount": 2}
+	})
+	expect.call(int((confluence_bonus_state.get("player", {}) as Dictionary).get("block", 0)) == 3, "Confluence should recognize a highest-intensity bonus as a real benefit boundary")
+	expect.call(_skill_event_count(combat, confluence_bonus_state, "confluence") == 1, "A Confluence-enabled intensity bonus should emit its single combat activation")
+	var invalid_target_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
+	invalid_target_state["elemental_intensity"] = {"fire": 0, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
+	invalid_target_state = combat.apply_player_action(invalid_target_state, {
+		"type": "melee",
+		"damage": 1,
+		"range": 1,
+		"requires_intensity": {"element": "fire", "amount": 2}
+	}, Vector2i(-1, -1))
+	expect.call(_skill_event_count(combat, invalid_target_state, "confluence") == 0, "Confluence should not emit for a targeted action that never commits")
 	var native_draw_state: Dictionary = _state(combat, ["confluence"], ["quick_stab"])
 	native_draw_state["elemental_intensity"] = {"fire": 2, "ice": 3, "lightning": 0, "air": 0, "earth": 0}
 	fragile_player = (native_draw_state.get("player", {}) as Dictionary).duplicate(true)
@@ -305,6 +337,7 @@ static func _test_prismatic_instinct_and_confluence(expect: Callable) -> void:
 	native_draw_state["deck"] = _deck([], [], ["brace"])
 	native_draw_state = combat.apply_player_action(native_draw_state, conditional_draw)
 	expect.call(combat.combat_outcome(native_draw_state) == "defeat", "Confluence should not suppress Fatigue when the card's own element already satisfies its draw condition")
+	expect.call(_skill_event_count(combat, native_draw_state, "confluence") == 0, "Confluence should not claim an activation when the card's native element already satisfies its condition")
 
 static func _test_encore(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()

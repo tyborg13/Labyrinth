@@ -46,6 +46,8 @@ func _run() -> void:
 
 	await _test_character_skill_tree(instance)
 	await _test_from_scratch_respec_draft_is_transactional(instance)
+	await _test_newer_embedded_progression_repairs_profile_and_respec(instance)
+	await _test_open_arsenal_checkpoint_is_deduplicated(instance)
 	_test_contextual_run_skill_event_scope(instance)
 	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
 	await _test_combat_skill_surfaces(instance, run_state, progression)
@@ -157,6 +159,88 @@ func _test_from_scratch_respec_draft_is_transactional(instance: Node) -> void:
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
+func _test_newer_embedded_progression_repairs_profile_and_respec(instance: Node) -> void:
+	var profile_before: Dictionary = ProgressionStore.load_data()
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var embedded_progression: Dictionary = ProgressionStore.add_moltshards(profile_before, 1)
+	var run_engine := RunEngine.new()
+	var torn_run: Dictionary = run_engine.create_new_run(73034, profile_before)
+	torn_run = run_engine.set_held_embers(torn_run, 73)
+	torn_run["progression"] = embedded_progression.duplicate(true)
+	instance.set("_progression", profile_before)
+	instance.call("_load_run_state", torn_run)
+	await process_frame
+	await process_frame
+	var repaired_profile: Dictionary = ProgressionStore.load_data()
+	_expect(int(repaired_profile.get("progression_revision", 0)) == int(embedded_progression.get("progression_revision", -1)), "Resume should backfill a newer embedded progression revision after a profile write failed")
+	_expect(ProgressionStore.moltshard_count(repaired_profile) == ProgressionStore.moltshard_count(embedded_progression), "Resume should make an embedded Moltshard available to profile-owned respec")
+	_expect(int(repaired_profile.get("embers", -1)) == int(profile_before.get("embers", 0)), "Repairing profile progression must not bank the active run's held embers")
+	instance.call("_open_character_overlay", "skills")
+	await process_frame
+	instance.call("_begin_skill_respec")
+	await process_frame
+	var proposed_ids: Array[String]
+	proposed_ids.append_array(["measured_breath", "ghost_stride"])
+	instance.call("_confirm_skill_respec", proposed_ids)
+	await process_frame
+	var reshaped_profile: Dictionary = ProgressionStore.load_data()
+	_expect(ProgressionStore.selected_skill_ids(reshaped_profile) == proposed_ids, "A respec should remain usable after profile recovery from a newer run snapshot")
+	_expect(ProgressionStore.moltshard_count(reshaped_profile) == ProgressionStore.moltshard_count(embedded_progression) - 1, "Recovered respec should consume exactly one Moltshard")
+	instance.call("_close_card_upgrade_overlay")
+	_expect(ProgressionStore.save_data(profile_before), "Embedded-progression recovery fixture should restore the original profile")
+	instance.set("_progression", profile_before)
+	instance.call("_load_run_state", run_before)
+	await process_frame
+	await process_frame
+
+func _test_open_arsenal_checkpoint_is_deduplicated(instance: Node) -> void:
+	var profile_before: Dictionary = ProgressionStore.load_data()
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var arsenal_profile: Dictionary = ProgressionStore.default_data()
+	arsenal_profile["level"] = 10
+	arsenal_profile["skill_ids"] = [
+		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye",
+		"pain_remembers", "afterimage", "carry_the_guard", "living_shadow", "open_arsenal",
+	]
+	arsenal_profile["progression_revision"] = int(profile_before.get("progression_revision", 0)) + 1
+	arsenal_profile = ProgressionStore.normalized_data(arsenal_profile)
+	_expect(ProgressionStore.selected_skill_ids(arsenal_profile).has("open_arsenal"), "Open Arsenal checkpoint fixture should retain its legal keystone build")
+	_expect(ProgressionStore.save_data(arsenal_profile), "Open Arsenal checkpoint fixture should save its temporary profile")
+	var run_engine := RunEngine.new()
+	var arsenal_run: Dictionary = run_engine.apply_progression_update(run_before, arsenal_profile)
+	arsenal_run["mode"] = "room"
+	var inventory: Array = (arsenal_run.get("equipment_inventory", []) as Array).duplicate()
+	if not inventory.has("stitcher_apron"):
+		inventory.append("stitcher_apron")
+	arsenal_run["equipment_inventory"] = inventory
+	var collected: Array = (arsenal_run.get("collected_equipment", []) as Array).duplicate()
+	if not collected.has("stitcher_apron"):
+		collected.append("stitcher_apron")
+	arsenal_run["collected_equipment"] = collected
+	instance.set("_progression", arsenal_profile)
+	instance.call("_load_run_state", arsenal_run)
+	await process_frame
+	instance.call("_open_character_overlay", "equipment")
+	await process_frame
+	var trigger_count_before: int = _skill_trigger_event_count("open_arsenal")
+	await instance.call("_equip_equipment_from_overlay", "stitcher_apron", "trinket")
+	var active_run: Dictionary = instance.get("_run_state") as Dictionary
+	var event_revision: int = run_engine.run_skill_event_revision(active_run)
+	_expect(_skill_trigger_event_count("open_arsenal") == trigger_count_before + 1, "A live Open Arsenal equip should log one realized skill activation")
+	var saved_run: Dictionary = ProgressionStore.load_saved_run()
+	_expect(int((saved_run.get("analytics", {}) as Dictionary).get("run_skill_event_revision_logged", 0)) == event_revision, "The equipment checkpoint should persist Open Arsenal's analytics cursor with its run event")
+	var trigger_count_before_resume: int = _skill_trigger_event_count("open_arsenal")
+	instance.call("_load_run_state", saved_run)
+	await process_frame
+	await process_frame
+	_expect(_skill_trigger_event_count("open_arsenal") == trigger_count_before_resume, "Resuming the equipment checkpoint should not duplicate Open Arsenal analytics")
+	instance.call("_close_card_upgrade_overlay")
+	_expect(ProgressionStore.save_data(profile_before), "Open Arsenal checkpoint fixture should restore the original profile")
+	instance.set("_progression", profile_before)
+	instance.call("_load_run_state", run_before)
+	await process_frame
+	await process_frame
+
 func _test_contextual_run_skill_event_scope(instance: Node) -> void:
 	var event_count_before: int = _skill_trigger_event_count("true_bearing")
 	instance.call("_analytics_log_run_skill_trigger", "true_bearing", "Chose a different combat entry tile.")
@@ -196,10 +280,20 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(sigil != null and sigil.is_visible_in_tree(), "Combat HUD should show the distinct skill sigil")
 	_expect(sigil != null and sigil.text.contains("2"), "Skill sigil should summarize learned ability count")
 	if sigil != null:
-		sigil.pressed.emit()
+		sigil.grab_focus()
+		await process_frame
+		await _press_ui_action(&"ui_accept")
 	await process_frame
 	var popover := instance.get("_skill_status_popover") as Control
 	_expect(popover != null and popover.visible, "Skill sigil should open its status popover")
+	var status_close := popover.find_child("CloseSkillStatus", true, false) as Button if popover != null else null
+	_expect(status_close != null and instance.get_viewport().gui_get_focus_owner() == status_close, "Opening the skill status popover should transfer controller focus to its Close action")
+	await _press_ui_action(&"ui_cancel")
+	_expect(popover != null and not popover.visible, "Controller Cancel should close the skill status popover")
+	_expect(sigil != null and instance.get_viewport().gui_get_focus_owner() == sigil, "Closing the skill status popover should restore focus to its sigil")
+	if sigil != null:
+		await _press_ui_action(&"ui_accept")
+	await process_frame
 	_expect(_label_with_text(popover, "Quick Wits") != null, "Skill popover should list the learned combat ability")
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "Skill popover should list the learned reward ability")
 	_expect(_label_with_text(popover, "READY") != null, "Skill popover should communicate readiness")
@@ -237,6 +331,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(str(instance.call("_skill_hud_status", "living_shadow")) == "SPENT", "Living Shadow should show SPENT after triggering in the current turn")
 	instance.set("_combat_state", combat_state)
 	instance.call("_close_skill_status_popover")
+	await process_frame
 
 	var choice_overlay := instance.get("_choice_button_overlay") as Control
 	var choice_bar := instance.get("choice_bar") as Control
@@ -244,15 +339,32 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	if ready_button == null:
 		ready_button = _visible_button_with_text(choice_bar, "Quick Wits")
 	_expect(ready_button != null, "A ready manual ability should appear beside normal combat choices")
+	var quick_wits_combat_before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var quick_wits_run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var quick_wits_analytics_revision_before: int = int(instance.get("_analytics_skill_event_revision"))
+	var quick_wits_seen_revision_before: int = int(instance.get("_skill_event_revision_seen"))
 	if ready_button != null:
-		ready_button.pressed.emit()
+		ready_button.grab_focus()
+		await process_frame
+		await _press_ui_action(&"ui_accept")
 	await process_frame
 	var choice_scrim := instance.get("_skill_choice_scrim") as Control
 	var choice_list := instance.get("_skill_choice_list") as Control
 	_expect(choice_scrim != null and choice_scrim.visible, "Manual ability should open its dedicated choice dialog")
 	_expect(_label_with_text(choice_scrim, "Quick Wits") != null, "Manual choice dialog should identify the selected ability")
-	_expect(_button_beginning_with(choice_list, "Discard ") != null, "Manual choice dialog should offer cards from the current hand")
-	instance.call("_close_skill_choice_dialog")
+	var first_discard_button: Button = _button_beginning_with(choice_list, "Discard ")
+	_expect(first_discard_button != null, "Manual choice dialog should offer cards from the current hand")
+	_expect(first_discard_button != null and instance.get_viewport().gui_get_focus_owner() == first_discard_button, "Opening a manual ability chooser should focus its first legal option")
+	if first_discard_button != null:
+		await _press_ui_action(&"ui_accept")
+	_expect(choice_scrim != null and not choice_scrim.visible, "A real controller Accept should choose a manual ability option and close the dialog")
+	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "Choosing Quick Wits through real input should commit its combat use")
+	instance.set("_combat_state", quick_wits_combat_before)
+	instance.set("_run_state", quick_wits_run_before)
+	instance.set("_analytics_skill_event_revision", quick_wits_analytics_revision_before)
+	instance.set("_skill_event_revision_seen", quick_wits_seen_revision_before)
+	instance.call("_refresh_ui")
+	await process_frame
 
 	var original_combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	var original_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)

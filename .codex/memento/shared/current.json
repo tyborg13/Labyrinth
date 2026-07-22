@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-22T02:09:19Z",
+  "updated_at": "2026-07-22T03:15:58Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6195,6 +6195,50 @@
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "9a89c10"
+      }
+    },
+    {
+      "id": "mnt_20260722T031558Z_8d70bb0f",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/run_scene.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/run_scene.gd",
+      "summary": "GUI choice modals must not pre-consume their own button input",
+      "details": "Godot dispatches Node._input before Control GUI input. When SkillChoiceScrim is visible, consume only handled modal shortcuts such as Cancel; return without set_input_as_handled for Accept, mouse, and directional events so option Buttons receive them. On open, focus the first legal option and restore a live invoker or HUD fallback on close.",
+      "status": "active",
+      "created_at": "2026-07-22T03:15:58Z",
+      "updated_at": "2026-07-22T03:15:58Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "1741fbd"
+      }
+    },
+    {
+      "id": "mnt_20260722T031558Z_a3d67302",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "scripts/skill_tree_view.gd",
+        "symbol": null
+      },
+      "scope_key": "file:scripts/skill_tree_view.gd",
+      "summary": "Skill-tree rules text must not resize the Character modal",
+      "details": "Keep variable-length status, requirements, unlock, and reason copy inside a bounded detail ScrollContainer. Pin the skill action and Cancel/Confirm footer outside that scroll, and size the graph plus detail widths to the 1280x720 body. Visual proof must assert the dialog combined minimum fits the viewport; checking only its assigned rect can miss children that push chrome offscreen.",
+      "status": "active",
+      "created_at": "2026-07-22T03:15:58Z",
+      "updated_at": "2026-07-22T03:15:58Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "1741fbd"
       }
     }
   ]

@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const UiTypography = preload("res://scripts/ui_typography.gd")
 
 var _failures: Array[String]
 var _observed_level_choice: String = ""
@@ -55,7 +56,18 @@ func _test_skill_tree_view() -> void:
 	_expect(view.graph_canvas_size() == Vector2(730.0, 350.0), "The graph should expose a stable topology-first canvas size")
 	_expect(view.find_child("SkillTreeScroll", true, false) is ScrollContainer, "The graph should remain scrollable in a smaller host")
 	_expect(view.find_child("SkillDetailPanel", true, false) is PanelContainer, "The tree should provide its own detail panel")
+	_expect(view.find_child("SkillDetailScroll", true, false) is ScrollContainer, "Long skill rules should scroll inside the detail pane instead of resizing the whole tree")
 	_expect(view.legend_state_count() == 5, "The tree should provide an explicit legend for every persistent node state")
+	var legend_symbols: Array[String]
+	for state: String in ["owned", "available", "locked", "pending", "excluded"]:
+		var marker := view.find_child("SkillLegendMarker_%s" % state, true, false) as Control
+		var legend_label := view.find_child("SkillLegendLabel_%s" % state, true, false) as Label
+		_expect(marker != null and marker.custom_minimum_size.x >= 18.0, "%s should use a readable vector legend marker" % state)
+		_expect(legend_label != null and legend_label.get_theme_font_size("font_size") >= UiTypography.SIZE_CAPTION, "%s legend copy should respect the caption readability floor" % state)
+		if marker != null:
+			legend_symbols.append(str(marker.get_meta("symbol_kind", "")))
+	legend_symbols.sort()
+	_expect(legend_symbols == ["check", "dot", "lock", "plus", "strike"], "Every legend state should have a distinct non-color symbol")
 	_expect(_label_with_text(view, "Prismatic Instinct") == null, "Skill names should live in the detail pane instead of covering graph connections")
 	_expect(view.connection_intersection_count() == 0, "No connector should pass through an unrelated medallion: %s" % ", ".join(view.connection_intersection_pairs()))
 	_expect(view.minimum_connection_width() >= 3.0, "Every connection should remain visibly legible even when unfocused")
@@ -169,6 +181,7 @@ func _test_skill_tree_view() -> void:
 	_expect(view.points_remaining() == 5, "Every earned skill point should be refunded into the replacement draft")
 	_expect(view.focused_skill_id() == "quick_wits", "An empty replacement draft should automatically focus the first available root")
 	_expect(view.detail_title_text() == "Quick Wits" and view.detail_action_is_enabled(), "The default empty-draft focus should expose an actionable root detail")
+	_expect(view.get_combined_minimum_size().y <= view.size.y + 1.0, "An empty replacement draft's detail copy should not increase the tree beyond its assigned height")
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_AVAILABLE, "Formerly learned roots should begin available rather than appearing selected or removed")
 	_expect(not view.confirm_is_enabled(), "An empty replacement build should not be confirmable")
 	for skill_id: String in ["quick_wits", "rehearsed_escape", "makeshift_tool", "measured_breath", "carry_the_guard"]:

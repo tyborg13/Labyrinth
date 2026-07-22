@@ -412,6 +412,11 @@ func _mark_run_skill_used(run_state: Dictionary, skill_id: String, message: Stri
 		return
 	used[sequence_key] = true
 	skill_state["used_by_sequence"] = used
+	run_state[SKILL_STATE_KEY] = skill_state
+	_record_run_skill_event(run_state, skill_id, message)
+
+func _record_run_skill_event(run_state: Dictionary, skill_id: String, message: String = "") -> void:
+	var skill_state: Dictionary = _normalized_skill_state(run_state.get(SKILL_STATE_KEY, {}))
 	var revision: int = int(skill_state.get("event_revision", 0)) + 1
 	var events: Array = (skill_state.get("events", []) as Array).duplicate(true)
 	events.append({
@@ -937,6 +942,12 @@ func equip_equipment(run_state: Dictionary, equipment_id: String, target_slot: S
 	next_state["equipment_inventory"] = inventory
 	next_state["equipped_equipment"] = equipped
 	next_state = _rebuild_deck_cards(next_state)
+	if wild_trinket_equip:
+		_record_run_skill_event(
+			next_state,
+			"open_arsenal",
+			"Open Arsenal equips %s in the trinket slot." % str(GameData.equipment_def(equipment_id).get("name", equipment_id))
+		)
 	next_state["notice"] = "Equipped %s." % str(GameData.equipment_def(equipment_id).get("name", equipment_id))
 	return next_state
 

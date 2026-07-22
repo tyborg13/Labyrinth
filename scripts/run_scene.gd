@@ -1186,11 +1186,15 @@ var _skill_sigil: Button
 var _skill_status_popover: PanelContainer
 var _skill_status_list: VBoxContainer
 var _skill_status_title: Label
+var _skill_status_close_button: Button
+var _skill_status_return_focus: Control
 var _skill_choice_scrim: ColorRect
 var _skill_choice_dialog: PanelContainer
 var _skill_choice_title: Label
 var _skill_choice_description: Label
 var _skill_choice_list: VBoxContainer
+var _skill_choice_cancel_button: Button
+var _skill_choice_return_focus: Control
 var _skill_event_revision_seen: int = 0
 var _run_skill_event_revision_seen: int = 0
 var _manual_run_skill_event_revision_seen: int = 0
@@ -1420,11 +1424,12 @@ func _input(event: InputEvent) -> void:
 	if _skill_choice_scrim != null and _skill_choice_scrim.visible:
 		if event.is_action_pressed("ui_cancel"):
 			_close_skill_choice_dialog()
-		get_viewport().set_input_as_handled()
+			get_viewport().set_input_as_handled()
 		return
-	if _skill_status_popover != null and _skill_status_popover.visible and event.is_action_pressed("ui_cancel"):
-		_close_skill_status_popover()
-		get_viewport().set_input_as_handled()
+	if _skill_status_popover != null and _skill_status_popover.visible:
+		if event.is_action_pressed("ui_cancel"):
+			_close_skill_status_popover()
+			get_viewport().set_input_as_handled()
 		return
 	if _pinned_tooltip_scrim != null and _pinned_tooltip_scrim.visible:
 		if _is_shift_press_event(event) or event.is_action_pressed("ui_cancel"):
@@ -1899,15 +1904,15 @@ func _build_skill_status_popover() -> void:
 	UiTypography.apply_label_role(_skill_status_title, UiTypography.ROLE_SECTION)
 	_skill_status_title.add_theme_color_override("font_color", Color("eadcff"))
 	header.add_child(_skill_status_title)
-	var close_button := Button.new()
-	close_button.name = "CloseSkillStatus"
-	close_button.text = "Close"
-	close_button.custom_minimum_size = Vector2(82.0, 36.0)
-	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_COMPACT)
-	_ui_skin.apply_button_text_overrides(close_button)
-	UiTypography.apply_button_role(close_button, UiTypography.ROLE_CAPTION)
-	close_button.pressed.connect(_close_skill_status_popover)
-	header.add_child(close_button)
+	_skill_status_close_button = Button.new()
+	_skill_status_close_button.name = "CloseSkillStatus"
+	_skill_status_close_button.text = "Close"
+	_skill_status_close_button.custom_minimum_size = Vector2(82.0, 36.0)
+	_ui_skin.apply_button_stylebox_overrides(_skill_status_close_button, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(_skill_status_close_button)
+	UiTypography.apply_button_role(_skill_status_close_button, UiTypography.ROLE_CAPTION)
+	_skill_status_close_button.pressed.connect(_close_skill_status_popover)
+	header.add_child(_skill_status_close_button)
 
 	var rule := ColorRect.new()
 	rule.custom_minimum_size = Vector2(0.0, 2.0)
@@ -1975,15 +1980,15 @@ func _build_skill_choice_dialog() -> void:
 	_skill_choice_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_skill_choice_list.add_theme_constant_override("separation", 8)
 	scroll.add_child(_skill_choice_list)
-	var cancel_button := Button.new()
-	cancel_button.name = "CancelSkillChoice"
-	cancel_button.text = "Cancel"
-	cancel_button.custom_minimum_size = Vector2(0.0, 44.0)
-	_ui_skin.apply_button_stylebox_overrides(cancel_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(cancel_button)
-	UiTypography.apply_button_role(cancel_button, UiTypography.ROLE_BODY)
-	cancel_button.pressed.connect(_close_skill_choice_dialog)
-	column.add_child(cancel_button)
+	_skill_choice_cancel_button = Button.new()
+	_skill_choice_cancel_button.name = "CancelSkillChoice"
+	_skill_choice_cancel_button.text = "Cancel"
+	_skill_choice_cancel_button.custom_minimum_size = Vector2(0.0, 44.0)
+	_ui_skin.apply_button_stylebox_overrides(_skill_choice_cancel_button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(_skill_choice_cancel_button)
+	UiTypography.apply_button_role(_skill_choice_cancel_button, UiTypography.ROLE_BODY)
+	_skill_choice_cancel_button.pressed.connect(_close_skill_choice_dialog)
+	column.add_child(_skill_choice_cancel_button)
 
 func _skill_panel_style(accent: Color, opacity: float) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -1999,10 +2004,14 @@ func _skill_panel_style(accent: Color, opacity: float) -> StyleBoxFlat:
 func _open_skill_choice_dialog(title: String, description: String, options: Array) -> void:
 	if _skill_choice_scrim == null or _skill_choice_list == null or options.is_empty():
 		return
+	_skill_choice_return_focus = get_viewport().gui_get_focus_owner()
+	if not _can_restore_gui_focus(_skill_choice_return_focus):
+		_skill_choice_return_focus = _skill_sigil
 	_close_skill_status_popover()
 	_skill_choice_title.text = title
 	_skill_choice_description.text = description
 	_clear_children_now(_skill_choice_list)
+	var first_option_button: Button
 	for option_var: Variant in options:
 		if typeof(option_var) != TYPE_DICTIONARY:
 			continue
@@ -2019,7 +2028,11 @@ func _open_skill_choice_dialog(title: String, description: String, options: Arra
 		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
 		button.pressed.connect(_on_skill_choice_option_pressed.bind(callback))
 		_skill_choice_list.add_child(button)
+		if first_option_button == null:
+			first_option_button = button
 	_skill_choice_scrim.visible = _skill_choice_list.get_child_count() > 0
+	if _skill_choice_scrim.visible:
+		call_deferred("_grab_preferred_gui_focus", first_option_button, _skill_choice_cancel_button)
 
 func _on_skill_choice_option_pressed(callback: Callable) -> void:
 	_close_skill_choice_dialog()
@@ -2027,14 +2040,40 @@ func _on_skill_choice_option_pressed(callback: Callable) -> void:
 		callback.call()
 
 func _close_skill_choice_dialog() -> void:
+	var was_visible: bool = _skill_choice_scrim != null and _skill_choice_scrim.visible
 	if _skill_choice_scrim != null:
 		_skill_choice_scrim.visible = false
 	if _skill_choice_list != null:
 		_clear_children_now(_skill_choice_list)
+	if was_visible:
+		var return_focus: Control = _skill_choice_return_focus
+		_skill_choice_return_focus = null
+		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
 
 func _close_skill_status_popover() -> void:
+	var was_visible: bool = _skill_status_popover != null and _skill_status_popover.visible
 	if _skill_status_popover != null:
 		_skill_status_popover.visible = false
+	if was_visible:
+		var return_focus: Control = _skill_status_return_focus
+		_skill_status_return_focus = null
+		call_deferred("_grab_preferred_gui_focus", return_focus, _skill_sigil)
+
+func _can_restore_gui_focus(control: Variant) -> bool:
+	if not is_instance_of(control, Control):
+		return false
+	var focus_control: Control = control as Control
+	return (
+		is_instance_valid(focus_control)
+		and focus_control.is_inside_tree()
+		and focus_control.is_visible_in_tree()
+		and focus_control.focus_mode != Control.FOCUS_NONE
+	)
+
+func _grab_preferred_gui_focus(preferred: Variant, fallback: Variant = null) -> void:
+	var target: Control = preferred as Control if _can_restore_gui_focus(preferred) else fallback as Control
+	if _can_restore_gui_focus(target):
+		target.grab_focus()
 
 func _build_choice_button_overlay() -> void:
 	_choice_button_overlay = HBoxContainer.new()
@@ -6462,6 +6501,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
+	_repair_profile_progression_from_run()
 	_sync_combat_state_from_run()
 	_repair_legacy_empty_actor_transition()
 	if content_migration_required and not bool(_run_state.get("debug_boss_run", false)) and not ProgressionStore.save_run_state(_run_state):
@@ -6724,11 +6764,16 @@ func _skill_sigil_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 func _toggle_skill_status_popover() -> void:
 	if _skill_status_popover == null:
 		return
-	_skill_status_popover.visible = not _skill_status_popover.visible
-	if not _skill_status_popover.visible:
+	if _skill_status_popover.visible:
+		_close_skill_status_popover()
 		return
+	_skill_status_return_focus = get_viewport().gui_get_focus_owner()
+	if not _can_restore_gui_focus(_skill_status_return_focus):
+		_skill_status_return_focus = _skill_sigil
+	_skill_status_popover.visible = true
 	_refresh_skill_status_popover(_selected_skill_ids_for_hud())
 	call_deferred("_layout_skill_status_popover")
+	call_deferred("_grab_preferred_gui_focus", _skill_status_close_button, _skill_sigil)
 
 func _layout_skill_status_popover() -> void:
 	if _skill_status_popover == null or not _skill_status_popover.visible or _skill_sigil == null or not is_instance_valid(_skill_sigil):
@@ -16254,7 +16299,7 @@ func _begin_skill_respec() -> void:
 func _confirm_skill_respec(proposed_ids: Array[String]) -> void:
 	if _progression_overlay_mode != "respec" or not _skill_respec_can_edit():
 		return
-	var persisted_profile: Dictionary = ProgressionStore.load_data()
+	var persisted_profile: Dictionary = _authoritative_profile_progression()
 	if not _skill_respec_base_matches(persisted_profile):
 		return
 	if not ProgressionStore.can_respec_skills(persisted_profile, proposed_ids):
@@ -16295,6 +16340,27 @@ func _skill_respec_can_edit() -> bool:
 	if ProgressionStore.selected_skill_ids(_progression).is_empty():
 		return false
 	return str(_run_state.get("mode", "room")) not in ["combat", "victory", "defeat"]
+
+func _authoritative_profile_progression() -> Dictionary:
+	var persisted_profile: Dictionary = ProgressionStore.load_data()
+	var active_progression: Dictionary = ProgressionStore.normalized_data(_progression)
+	if int(active_progression.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
+		return persisted_profile
+	# Embers belong to the active run until a normal banking/level boundary. A
+	# newer embedded revision may repair skills or Moltshards, but must never
+	# turn the run's held embers into banked profile currency.
+	active_progression = ProgressionStore.set_embers(active_progression, int(persisted_profile.get("embers", 0)))
+	return ProgressionStore.normalized_data(active_progression)
+
+func _repair_profile_progression_from_run() -> void:
+	if _run_state.is_empty() or bool(_run_state.get("debug_boss_run", false)):
+		return
+	var persisted_profile: Dictionary = ProgressionStore.load_data()
+	var repaired_profile: Dictionary = _authoritative_profile_progression()
+	if int(repaired_profile.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
+		return
+	if not ProgressionStore.save_data(repaired_profile):
+		push_error("Failed to repair profile progression from the newer saved run snapshot.")
 
 func _fixed_character_body_frame(content: Control) -> Control:
 	var frame := Control.new()
@@ -18089,6 +18155,7 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 		_clear_equipment_drag_state(true)
 		return
 	_equipment_swap_animation_active = true
+	_reconcile_run_skill_event_analytics()
 	_persist_committed_boundary("equipment_equipped")
 	_analytics_log_equipment_equipped(slot, before_id, equipment_id)
 	_refresh_ui()

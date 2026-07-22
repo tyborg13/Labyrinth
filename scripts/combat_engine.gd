@@ -344,6 +344,7 @@ func use_quick_wits(state: Dictionary, hand_index: int) -> Dictionary:
 	var hand: Array = (deck.get("hand", []) as Array).duplicate()
 	if hand_index < 0 or hand_index >= hand.size():
 		return next_state
+	var hand_was_full: bool = hand.size() >= MAX_HAND_SIZE
 	var card_id: String = str(hand[hand_index])
 	hand.remove_at(hand_index)
 	var discard: Array = (deck.get("discard", []) as Array).duplicate()
@@ -351,8 +352,16 @@ func use_quick_wits(state: Dictionary, hand_index: int) -> Dictionary:
 	deck["hand"] = hand
 	deck["discard"] = discard
 	next_state["deck"] = deck
+	# Resolve a primed Pain Remembers while the discarded card still has a stable
+	# identity and location. Otherwise a Quick Wits draw that starts a deck cycle
+	# can shuffle the promised card out of discard before the recall sees it.
+	# At the hand cap, keep prioritizing Quick Wits' replacement draw and leave the
+	# recall primed until a later discard has room, matching the normal cap policy.
+	if not hand_was_full:
+		next_state = _maybe_trigger_pain_recall(next_state, card_id)
 	next_state = _draw_cards_in_place(next_state, 1)
-	next_state = _maybe_trigger_pain_recall(next_state, card_id)
+	if hand_was_full:
+		next_state = _maybe_trigger_pain_recall(next_state, card_id)
 	_mark_skill_used(next_state, skill_id, "%s trades one possibility for another." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
@@ -949,6 +958,7 @@ func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, targe
 	if not _prevalidated_player_move_path_is_usable(state, action, target_tile, movement_path):
 		return apply_player_action(state, action, target_tile)
 	var next_state: Dictionary = state.duplicate(true)
+	_mark_first_confluence_benefit(next_state, action)
 	_snapshot_pending_card_payment(next_state)
 	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
 	return _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
@@ -957,6 +967,11 @@ func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vec
 	var next_state: Dictionary = state.duplicate(true)
 	if not player_action_can_resolve(next_state, action):
 		return next_state
+	# Targeted actions are only committed after their chosen target validates. Keep
+	# Confluence's activation event on that same boundary so previews or stale
+	# target requests cannot claim a benefit that never resolved.
+	if not player_action_needs_target(action) or valid_targets_for_player_action(next_state, action).has(target_tile):
+		_mark_first_confluence_benefit(next_state, action)
 	_snapshot_pending_card_payment(next_state)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
@@ -1825,6 +1840,37 @@ func _action_condition_uses_confluence(state: Dictionary, action: Dictionary) ->
 		return false
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
 	return has_skill(state, skill_id) and condition_intensity(state, element_id) >= threshold
+
+func _action_gains_confluence_benefit(state: Dictionary, action: Dictionary) -> bool:
+	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
+	if bool(flags.get("prismatic_resolving", false)):
+		return false
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
+	if not has_skill(state, skill_id):
+		return false
+	var requirements: Array[Dictionary]
+	var action_requirement: Dictionary = _action_intensity_requirement(action)
+	if not action_requirement.is_empty():
+		requirements.append(action_requirement)
+	var bonus_requirement: Dictionary = _action_intensity_bonus_requirement(action)
+	if not bonus_requirement.is_empty():
+		requirements.append(bonus_requirement)
+	for requirement: Dictionary in requirements:
+		var element_id: String = str(requirement.get("element", ElementData.NONE))
+		var threshold: int = int(requirement.get("amount", 0))
+		if elemental_intensity(state, element_id) < threshold and condition_intensity(state, element_id) >= threshold:
+			return true
+	return false
+
+func _mark_first_confluence_benefit(state: Dictionary, action: Dictionary) -> void:
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
+	if skill_was_used(state, skill_id) or not _action_gains_confluence_benefit(state, action):
+		return
+	_mark_skill_used(
+		state,
+		skill_id,
+		"%s lets the highest elemental intensity satisfy this card." % SkillTreeLibrary.display_name(skill_id)
+	)
 
 func elemental_intensity_counter(state: Dictionary, counter_key: String) -> Dictionary:
 	var result: Dictionary = _empty_elemental_intensity()
