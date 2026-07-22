@@ -10,7 +10,7 @@ const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const OUTPUT_DIR: String = "user://probes/skill_tree_progression"
 const STORAGE_PATH: String = "user://skill_tree_visual_progression.json"
 const RUN_STORAGE_PATH: String = "user://skill_tree_visual_run.save"
-const PROGRESSION_LEVEL: int = 11
+const PROGRESSION_LEVEL: int = 13
 const PROGRESSION_SKILLS = [
 	"quick_wits",
 	"measured_breath",
@@ -71,7 +71,7 @@ func _capture_resolution(packed: PackedScene, viewport_size: Vector2i) -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 
 	await _capture_skills_tree(instance, viewport, viewport_size, output_dir)
-	await _capture_respec_draft(instance, viewport, viewport_size, output_dir)
+	await _capture_reset_flow(instance, viewport, viewport_size, output_dir)
 	await _capture_level_up_tree(instance, viewport, viewport_size, output_dir, progression, run_state)
 	await _capture_combat_surfaces(instance, viewport, viewport_size, output_dir, progression, run_state)
 
@@ -88,6 +88,7 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	_expect(dialog != null and dialog.visible, "%s Skills dialog should be visible" % viewport_size)
 	_expect(tree != null and tree.node_count() == 24, "%s Skills dialog should render all 24 nodes" % viewport_size)
 	_expect(tree != null and tree.owned_skill_ids().size() == 10, "%s Skills dialog should render ten learned skills" % viewport_size)
+	_expect(tree != null and tree.points_remaining() == 2, "%s Skills dialog should show two banked skill points" % viewport_size)
 	if tree != null:
 		_expect(tree.connection_arrowhead_count() == tree.connection_count(), "%s Every prerequisite route should expose one visible target arrowhead" % viewport_size)
 		_expect(tree.collinear_connection_overlap_pairs().is_empty(), "%s No unrelated prerequisite routes should merge onto one rail" % viewport_size)
@@ -101,7 +102,21 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		_expect(prismatic_links.has("prismatic_instinct>confluence"), "%s Skills tree should emphasize Prismatic Instinct's Confluence unlock" % viewport_size)
 	_assert_tree_scroll_contract(tree, viewport_size, "Skills")
 	_expect(_label_containing(dialog, "MOLTSHARDS 2") != null, "%s Skills dialog should show two Moltshards" % viewport_size)
-	_expect(_button_with_text(dialog, "Begin Respec") != null, "%s Skills dialog should expose the respec command" % viewport_size)
+	_expect(_button_with_text(dialog, "Reset Skills  ·  1 Moltshard") != null, "%s Skills dialog should expose the whole-tree reset command" % viewport_size)
+	if tree != null:
+		var graph_scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
+		graph_scroll.scroll_horizontal = 61
+		graph_scroll.scroll_vertical = 37
+		await process_frame
+		var scroll_before: Vector2i = tree.graph_scroll_offset()
+		var geometry_before: int = tree.link_geometry_rebuild_count()
+		for skill_id: String in SkillTreeLibrary.ordered_ids():
+			tree.node_for_skill(skill_id).mouse_entered.emit()
+		await process_frame
+		_expect(tree.graph_scroll_offset() == scroll_before, "%s Hovering the complete tree should not move either scroll axis" % viewport_size)
+		_expect(tree.link_geometry_rebuild_count() == geometry_before, "%s Hovering should reuse cached connector geometry" % viewport_size)
+		tree.focus_skill("prismatic_instinct")
+		await _settle()
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Skills dialog" % viewport_size, "Character")
 	await _save_screenshot(viewport, "%s/01_skills_tree.png" % output_dir, viewport_size)
 	if tree != null:
@@ -126,53 +141,28 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		)
 		await _save_screenshot(viewport, "%s/01c_last_door_scroll.png" % output_dir, viewport_size)
 
-func _capture_respec_draft(instance: Node, viewport: SubViewport, viewport_size: Vector2i, output_dir: String) -> void:
-	instance.call("_begin_skill_respec")
+func _capture_reset_flow(instance: Node, viewport: SubViewport, viewport_size: Vector2i, output_dir: String) -> void:
+	instance.call("_open_skill_reset_confirmation")
 	await _settle()
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
-	_expect(tree != null and tree.mode() == SkillTreeView.MODE_RESPEC, "%s Respec should open the shared tree in draft mode" % viewport_size)
-	if tree != null:
-		_expect(tree.pending_skill_ids().is_empty(), "%s Respec should begin with an empty replacement build" % viewport_size)
-		_expect(tree.points_remaining() == 10, "%s Respec should refund all ten earned points" % viewport_size)
-		_expect(tree.focused_skill_id() == "quick_wits", "%s Empty respec should automatically focus its first available root" % viewport_size)
-		_expect(tree.detail_title_text() == "Quick Wits" and tree.detail_action_is_enabled(), "%s Empty respec's default focus should be immediately actionable" % viewport_size)
-		_expect(tree.status_for_skill("quick_wits") == SkillTreeView.STATE_AVAILABLE, "%s Former skills should return to the available pool" % viewport_size)
-		_assert_tree_scroll_contract(tree, viewport_size, "Respec")
 	var dialog := instance.get("_upgrade_dialog") as Control
-	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Respec dialog" % viewport_size, "Character")
-	await _save_screenshot(viewport, "%s/02_respec_empty.png" % output_dir, viewport_size)
+	var confirmation := instance.get("_skill_reset_confirmation_scrim") as Control
+	var confirmation_message := confirmation.find_child("SkillResetConfirmationMessage", true, false) as Label if confirmation != null else null
+	_expect(confirmation != null and confirmation.is_visible_in_tree(), "%s Reset should open an explicit blocking confirmation" % viewport_size)
+	_expect(confirmation_message != null and confirmation_message.text.contains("Are you sure you want to clear all 10 learned skills?") and confirmation_message.text.contains("12 earned skill points"), "%s Reset confirmation should name its complete effect" % viewport_size)
+	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Reset confirmation dialog" % viewport_size, "Character")
+	await _save_screenshot(viewport, "%s/02_reset_confirmation.png" % output_dir, viewport_size)
 
-	var alternate_preference: Array = [
-		"measured_breath",
-		"ghost_stride",
-		"discerning_eye",
-		"carry_the_guard",
-		"pain_remembers",
-		"sure_footed",
-		"afterimage",
-		"deferred_choice",
-		"plunderers_step",
-		"living_shadow",
-	]
-	var alternate: Array[String] = SkillTreeLibrary.repaired_selection([], 10, alternate_preference)
-	_expect(alternate != PROGRESSION_SKILLS, "%s Respec visual fixture should rebuild a genuinely different tree" % viewport_size)
-	if tree != null:
-		for skill_id: String in alternate:
-			tree.focus_skill(skill_id)
-			_expect(tree.detail_action_is_enabled(), "%s Respec should allocate %s in prerequisite order" % [viewport_size, skill_id])
-			tree.activate_focused_skill()
-		tree.focus_skill("plunderers_step")
-		await _settle()
-		_expect(tree.pending_skill_ids() == alternate, "%s Respec should hold the complete rebuilt draft" % viewport_size)
-		_expect(tree.points_remaining() == 0, "%s Complete rebuilt draft should spend every refunded point" % viewport_size)
-		_expect(tree.confirm_is_enabled(), "%s Different complete rebuilt draft should be confirmable" % viewport_size)
-		var plunderer_links: Array[String] = tree.highlighted_connection_pairs()
-		_expect(plunderer_links.size() == 2, "%s Rebuilt draft should emphasize only Plunderer's Step's two parent links" % viewport_size)
-		_expect(plunderer_links.has("ghost_stride>plunderers_step"), "%s Rebuilt draft should emphasize Plunderer's Step's Ghost Stride parent" % viewport_size)
-		_expect(plunderer_links.has("discerning_eye>plunderers_step"), "%s Rebuilt draft should emphasize Plunderer's Step's Discerning Eye parent" % viewport_size)
-	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Complete respec dialog" % viewport_size, "Character")
-	await _save_screenshot(viewport, "%s/03_respec_complete.png" % output_dir, viewport_size)
-	instance.call("_on_skill_tree_cancel_requested")
+	instance.call("_confirm_skill_reset")
+	await _settle()
+	tree = instance.get("_skill_tree_view") as SkillTreeView
+	dialog = instance.get("_upgrade_dialog") as Control
+	_expect(instance.get("_skill_reset_confirmation_scrim") == null, "%s Confirming reset should close the prompt" % viewport_size)
+	_expect(tree != null and tree.owned_skill_ids().is_empty(), "%s Confirming reset should clear every learned skill" % viewport_size)
+	_expect(tree != null and tree.points_remaining() == 12, "%s Confirming reset should refund all twelve earned points" % viewport_size)
+	_expect(ProgressionStore.moltshard_count(instance.get("_progression") as Dictionary) == 1, "%s Confirming reset should spend exactly one Moltshard" % viewport_size)
+	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Cleared skill tree" % viewport_size, "Character")
+	await _save_screenshot(viewport, "%s/03_reset_complete.png" % output_dir, viewport_size)
 	await _settle()
 	instance.call("_close_card_upgrade_overlay")
 	await _settle()
@@ -203,9 +193,10 @@ func _capture_level_up_tree(
 
 	var dialog := instance.get("_upgrade_dialog") as Control
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
-	var chosen_skill_id: String = ""
 	_expect(dialog != null and dialog.visible, "%s Level-up dialog should be visible" % viewport_size)
-	_expect(tree != null and tree.mode() == SkillTreeView.MODE_LEVEL_UP, "%s Campfire level-up should use the shared tree in level-up mode" % viewport_size)
+	_expect(tree != null and tree.mode() == SkillTreeView.MODE_VIEW, "%s Campfire leveling should open the same persistent tree state" % viewport_size)
+	_expect(tree != null and tree.points_remaining() == 3, "%s Campfire leveling should add one banked point to the existing two" % viewport_size)
+	var chosen_skill_id: String = ""
 	if tree != null:
 		var available: Array[String] = SkillTreeLibrary.available_ids(tree.owned_skill_ids())
 		_expect(not available.is_empty(), "%s Level-up fixture should expose an available skill" % viewport_size)
@@ -214,18 +205,15 @@ func _capture_level_up_tree(
 			tree.focus_skill(chosen_skill_id)
 			await _settle()
 			_expect(tree.detail_action_is_enabled(), "%s Focused level-up skill should be actionable" % viewport_size)
-		_expect(not tree.confirm_is_enabled(), "%s Level-up should require choosing a skill before confirmation" % viewport_size)
 		_assert_tree_scroll_contract(tree, viewport_size, "Level-up")
-	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Choose a Skill")
+	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Character")
 	await _save_screenshot(viewport, "%s/07_level_up.png" % output_dir, viewport_size)
 	if tree != null and not chosen_skill_id.is_empty():
 		tree.activate_focused_skill()
-		_expect(tree.confirm_is_enabled(), "%s Selecting the focused skill should enable campfire confirmation" % viewport_size)
-		tree.request_confirm()
 		await process_frame
 		await process_frame
 		var learned_banner := instance.find_child("SkillLearnedBanner", true, false) as Label
-		_expect(learned_banner != null and learned_banner.text.contains(SkillTreeLibrary.display_name(chosen_skill_id).to_upper()), "%s Confirming a level should visibly celebrate the named skill" % viewport_size)
+		_expect(learned_banner != null and learned_banner.text.contains(SkillTreeLibrary.display_name(chosen_skill_id).to_upper()), "%s Immediate learning should visibly celebrate the named skill" % viewport_size)
 		await _save_screenshot(viewport, "%s/07b_skill_learned.png" % output_dir, viewport_size)
 	instance.call("_clear_idle_card_fx_layer")
 	_expect(ProgressionStore.save_data(progression), "%s Level-up visual fixture should restore its base profile" % viewport_size)
@@ -376,7 +364,7 @@ func _capture_combat_surfaces(
 func _populated_progression() -> Dictionary:
 	var skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(PROGRESSION_SKILLS, PROGRESSION_SKILLS.size(), PROGRESSION_SKILLS)
 	_expect(skill_ids == PROGRESSION_SKILLS, "Visual progression fixture should retain its requested legal skill order")
-	_expect(SkillTreeLibrary.selection_is_valid(skill_ids, PROGRESSION_LEVEL - 1), "Visual progression fixture should be a legal level-%d tree" % PROGRESSION_LEVEL)
+	_expect(SkillTreeLibrary.selection_is_valid(skill_ids), "Visual progression fixture should be a legal level-%d tree with banked points" % PROGRESSION_LEVEL)
 	var progression: Dictionary = ProgressionStore.default_data()
 	progression["level"] = PROGRESSION_LEVEL
 	progression["skill_ids"] = skill_ids
@@ -467,9 +455,6 @@ func _assert_skill_modal_contained(
 		"SkillDetailUnlocks",
 		"SkillDetailReason",
 		"SkillDetailAction",
-		"SkillTreeFooter",
-		"SkillTreeCancel",
-		"SkillTreeConfirm",
 	]:
 		var control := tree.find_child(control_name, true, false) as Control
 		_expect(control != null, "%s should retain %s" % [label, control_name])

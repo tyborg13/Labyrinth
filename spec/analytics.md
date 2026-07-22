@@ -49,7 +49,8 @@ available:
 - `enemy_action_resolved`
 - `enemy_status_tick`
 - `progression_level_up`
-- `progression_respec`
+- `progression_skill_learned`
+- `progression_skill_reset`
 - `progression_moltshard_gained`
 - `skill_triggered`
 - `equipment_equipped`
@@ -221,21 +222,25 @@ rely only on later `_process_victory_carry` or `_process_defeat_loss` refresh
 hooks: a save implementation may set those processed flags during committed
 terminal finalization and legitimately bypass the UI-time hooks.
 
-`progression_level_up` fires when the player confirms a new skill at a
-campfire. Its payload records `level_before`, `level_after`, the newly learned
-`skill_id`, the complete post-purchase `skill_ids`, ember `cost`,
-`held_embers_after`, and `room`. One confirmed level-up learns exactly one
-skill.
+`progression_level_up` fires when Draw Strength commits at a campfire. Its
+payload records `level_before`, `level_after`, the unchanged post-purchase
+`skill_ids`, `unspent_skill_points_before`,
+`unspent_skill_points_after`, ember `cost`, `held_embers_after`, and
+`room`. It grants one bankable point and never implies a skill choice.
 
-`progression_respec` fires only after a valid whole-tree respec is confirmed.
-Its payload records `skill_ids_before`, `skill_ids_after`,
-`skill_points_refunded`, `skill_points_reallocated`,
-`replacement_flow: "from_scratch"`, `moltshards_before`,
-`moltshards_after`, and `room`. Opening the empty replacement draft, allocating
-or refunding draft points, canceling, or rejecting a stale draft emits no respec
-event and spends no resource.
+`progression_skill_learned` fires after one legal skill is saved from the
+persistent tree. Its payload records `skill_id`, the complete post-learn
+`skill_ids`, `unspent_skill_points_before`,
+`unspent_skill_points_after`, and `room`.
 
-`progression_moltshard_gained` records an earned respec resource. Its payload
+`progression_skill_reset` fires only after the whole-tree confirmation is
+accepted and saved. Its payload records `skill_ids_before`, the empty
+`skill_ids_after`, `skill_points_refunded`,
+`unspent_skill_points_after`, `moltshards_before`,
+`moltshards_after`, and `room`. Opening or canceling the confirmation emits
+no reset event and spends no resource.
+
+`progression_moltshard_gained` records an earned skill-reset resource. Its payload
 contains `amount`, `source`, `moltshards_before`, and
 `moltshards_after`. The first boss victory of a run uses
 `source: "first_boss_victory"`; later boss victories in that run produce no
@@ -305,7 +310,7 @@ Update analytics instrumentation when changes affect:
 - equipment ownership, drops, equip rules, or deck compilation
 - consumable item ownership, equip rules, use-on-play consumption, or deck compilation
 - ember carry, loss, extraction, or campfire level-up flow
-- skill learning, whole-tree respec, Moltshard awards, or skill activation
+- skill learning, whole-tree reset, Moltshard awards, or skill activation
 - draw rules, opening hand, reshuffle, or fatigue
 - alternate card play modes
 - elemental intensity production, gating, or room-start rules

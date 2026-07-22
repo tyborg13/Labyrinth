@@ -11,10 +11,10 @@ static func run(expect: Callable) -> void:
 	_test_topology_validation_rejects_unknown_prerequisites(expect)
 	_test_topology_validation_rejects_cycles(expect)
 	_test_topology_validation_rejects_dead_ends(expect)
-	_test_leveling_requires_exactly_one_legal_skill(expect)
+	_test_leveling_banks_points_and_learning_is_immediate(expect)
 	_test_keystones_are_exclusive(expect)
 	_test_max_build_requires_keystone(expect)
-	_test_respec_is_transactional(expect)
+	_test_reset_is_immediate_and_refunds_points(expect)
 	_test_legacy_profile_migration(expect)
 
 static func _test_skill_data_and_topology(expect: Callable) -> void:
@@ -88,13 +88,27 @@ static func _test_topology_validation_rejects_dead_ends(expect: Callable) -> voi
 	var errors: Array[String] = _validation_errors_with_definitions(altered_definitions)
 	expect.call(_contains_error_fragment(errors, "cannot be extended"), "Topology validation should reject a legal partial build with no legal next choice")
 
-static func _test_leveling_requires_exactly_one_legal_skill(expect: Callable) -> void:
+static func _test_leveling_banks_points_and_learning_is_immediate(expect: Callable) -> void:
 	var profile: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), GameData.progression_level_total_cost(20))
-	var before: Dictionary = profile.duplicate(true)
-	profile = ProgressionStore.purchase_level_with_skill(profile, "borrowed_time")
-	expect.call(profile == before, "A level purchase should reject a skill with missing prerequisites without spending embers")
+	expect.call(not ProgressionStore.can_learn_skill(profile, "quick_wits"), "A level-one profile should not spend a skill it has not earned")
+	for _target_level: int in range(2, 5):
+		profile = ProgressionStore.purchase_level(profile)
+	expect.call(int(profile.get("level", 1)) == 4, "Level purchase should advance without forcing a skill choice")
+	expect.call(ProgressionStore.selected_skill_ids(profile).is_empty(), "Banking levels should not silently learn skills")
+	expect.call(ProgressionStore.unspent_skill_points(profile) == 3, "Three purchased levels should bank three independent skill points")
+	profile = ProgressionStore.normalized_data(profile)
+	expect.call(ProgressionStore.unspent_skill_points(profile) == 3, "Save normalization should preserve banked points")
+	var rejected: Dictionary = ProgressionStore.learn_skill(profile, "borrowed_time")
+	expect.call(rejected == profile, "Learning should reject a skill with missing prerequisites without spending a point")
+	profile = ProgressionStore.learn_skill(profile, "quick_wits")
+	expect.call(ProgressionStore.has_skill(profile, "quick_wits"), "Learning an available skill should persist it immediately")
+	expect.call(ProgressionStore.unspent_skill_points(profile) == 2, "Learning should spend exactly one banked point")
+	for _target_level: int in range(5, 21):
+		profile = ProgressionStore.purchase_level(profile)
+	expect.call(int(profile.get("level", 1)) == 20, "Independent level purchases should reach level 20")
+	expect.call(ProgressionStore.unspent_skill_points(profile) == 18, "Unspent points should accumulate without a cap")
 	var chosen_keystone: String = ""
-	for target_level: int in range(2, 21):
+	while ProgressionStore.unspent_skill_points(profile) > 0:
 		var available: Array[String] = ProgressionStore.available_skill_ids(profile)
 		var choice: String = available[0] if not available.is_empty() else ""
 		if ProgressionStore.selected_skill_ids(profile).size() >= 8 and chosen_keystone.is_empty():
@@ -103,16 +117,14 @@ static func _test_leveling_requires_exactly_one_legal_skill(expect: Callable) ->
 					choice = candidate_id
 					chosen_keystone = candidate_id
 					break
-		var level_before: int = int(profile.get("level", 1))
 		var count_before: int = ProgressionStore.selected_skill_ids(profile).size()
-		profile = ProgressionStore.purchase_level_with_skill(profile, choice)
-		expect.call(int(profile.get("level", 1)) == level_before + 1, "Each paid level should advance exactly once")
-		expect.call(ProgressionStore.selected_skill_ids(profile).size() == count_before + 1, "Each paid level should learn exactly one skill")
+		profile = ProgressionStore.learn_skill(profile, choice)
+		expect.call(ProgressionStore.selected_skill_ids(profile).size() == count_before + 1, "Each immediate learn should spend exactly one point")
 		expect.call(ProgressionStore.has_skill(profile, choice), "The chosen skill should be retained after normalization")
-	expect.call(int(profile.get("level", 0)) == 20, "The skill flow should reach level 20")
 	expect.call(ProgressionStore.selected_skill_ids(profile).size() == 19, "A level-20 profile should own exactly 19 skills")
+	expect.call(ProgressionStore.unspent_skill_points(profile) == 0, "A complete allocation should consume all earned points")
 	expect.call(not chosen_keystone.is_empty(), "A legal progression route should be able to choose a keystone")
-	expect.call(not ProgressionStore.can_level_up(profile), "A level-20 profile should not be able to buy another skill")
+	expect.call(not ProgressionStore.can_level_up(profile), "A level-20 profile should not be able to buy another level")
 
 static func _test_keystones_are_exclusive(expect: Callable) -> void:
 	var profile: Dictionary = ProgressionStore.default_data()
@@ -174,7 +186,7 @@ static func _test_max_build_requires_keystone(expect: Callable) -> void:
 	legacy_profile["skill_ids"] = (legacy_max_builds[0] as Array).duplicate()
 	legacy_profile["progression_revision"] = 7
 	var migrated_profile: Dictionary = ProgressionStore.normalized_data(legacy_profile)
-	expect.call(int(migrated_profile.get("progression_schema", 0)) == 4, "No-keystone maximum profiles should migrate to progression schema 4")
+	expect.call(int(migrated_profile.get("progression_schema", 0)) == 5, "No-keystone maximum profiles should migrate to progression schema 5")
 	expect.call(int(migrated_profile.get("progression_revision", 0)) == 8, "Changing a legacy maximum build during migration should advance its progression revision")
 	expect.call(SkillTreeLibrary.selection_is_valid(ProgressionStore.selected_skill_ids(migrated_profile), SkillTreeLibrary.COMPLETE_BUILD_SIZE), "The migrated maximum profile should remain complete and legal")
 	expect.call(_keystone_count(ProgressionStore.selected_skill_ids(migrated_profile)) == 1, "The migrated maximum profile should contain exactly one keystone")
@@ -195,40 +207,24 @@ static func _keystone_count(skill_ids: Array[String]) -> int:
 			result += 1
 	return result
 
-static func _test_respec_is_transactional(expect: Callable) -> void:
+static func _test_reset_is_immediate_and_refunds_points(expect: Callable) -> void:
 	var profile: Dictionary = ProgressionStore.default_data()
 	profile["level"] = 6
 	profile["skill_ids"] = SkillTreeLibrary.repaired_selection([], 5)
 	profile["moltshards"] = 1
 	profile = ProgressionStore.normalized_data(profile)
 	var original_skills: Array[String] = ProgressionStore.selected_skill_ids(profile)
-	var invalid: Array = original_skills.duplicate()
-	invalid.pop_front()
-	var rejected: Dictionary = ProgressionStore.respec_skills(profile, invalid)
-	expect.call(ProgressionStore.moltshard_count(rejected) == 1, "An invalid respec should not consume its Moltshard")
-	expect.call(ProgressionStore.selected_skill_ids(rejected) == original_skills, "An invalid respec should not partially change the build")
-	expect.call(not ProgressionStore.can_respec_skills(profile, original_skills), "Rebuilding the identical set should not waste a Moltshard")
-	var unchanged: Dictionary = ProgressionStore.respec_skills(profile, original_skills)
-	expect.call(ProgressionStore.moltshard_count(unchanged) == 1 and int(unchanged.get("progression_revision", 0)) == int(profile.get("progression_revision", 0)), "An identical rebuild should preserve its resource and revision")
-	var duplicate: Array = original_skills.duplicate()
-	duplicate[duplicate.size() - 1] = duplicate[0]
-	expect.call(not ProgressionStore.can_respec_skills(profile, duplicate), "A duplicate-id replacement build should be rejected")
-	var unknown: Array = original_skills.duplicate()
-	unknown[unknown.size() - 1] = "unknown_skill"
-	expect.call(not ProgressionStore.can_respec_skills(profile, unknown), "An unknown-id replacement build should be rejected")
-	var oversized: Array = original_skills.duplicate()
-	for available_id: String in SkillTreeLibrary.available_ids(original_skills):
-		oversized.append(available_id)
-		break
-	expect.call(not ProgressionStore.can_respec_skills(profile, oversized), "An oversized replacement build should be rejected")
-	var alternate_order: Array[String]
-	alternate_order.append_array(["discerning_eye", "ghost_stride", "sure_footed", "deferred_choice", "salvager"])
-	var alternate: Array[String] = SkillTreeLibrary.repaired_selection([], 5, alternate_order)
-	expect.call(ProgressionStore.can_respec_skills(profile, alternate), "A different complete legal build should be confirmable")
-	var respecced: Dictionary = ProgressionStore.respec_skills(profile, alternate)
-	expect.call(ProgressionStore.moltshard_count(respecced) == 0, "A confirmed respec should consume exactly one Moltshard")
-	expect.call(ProgressionStore.selected_skill_ids(respecced) == alternate, "A confirmed respec should replace the whole build atomically")
-	expect.call(not ProgressionStore.can_respec_skills(respecced, original_skills), "A profile without a Moltshard should not begin another respec")
+	expect.call(ProgressionStore.can_reset_skills(profile), "A learned profile with a Moltshard should be resettable")
+	var revision_before: int = int(profile.get("progression_revision", 0))
+	var reset: Dictionary = ProgressionStore.reset_skills(profile)
+	expect.call(ProgressionStore.moltshard_count(reset) == 0, "Reset should consume exactly one Moltshard")
+	expect.call(ProgressionStore.selected_skill_ids(reset).is_empty(), "Reset should clear every learned skill in one operation")
+	expect.call(ProgressionStore.unspent_skill_points(reset) == 5, "Reset should refund every earned point for later spending")
+	expect.call(int(reset.get("progression_revision", 0)) == revision_before + 1, "Reset should advance the profile revision exactly once")
+	expect.call(not ProgressionStore.can_reset_skills(reset), "Reset should be unavailable without a Moltshard and learned skills")
+	var unchanged: Dictionary = ProgressionStore.reset_skills(reset)
+	expect.call(unchanged == reset, "A rejected reset should leave the profile unchanged")
+	expect.call(not ProgressionStore.can_respec_skills(profile, original_skills), "The retired replacement-build adapter should never create a hidden draft transaction")
 
 static func _test_legacy_profile_migration(expect: Callable) -> void:
 	var legacy: Dictionary = {

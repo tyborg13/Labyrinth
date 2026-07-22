@@ -7694,12 +7694,16 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 	_assert(int(loaded.get("embers", 0)) == 180, "Saved progression embers should reload as held embers")
 	_assert(int(loaded.get("level", 0)) == 1, "Progression should start at level one")
 	_assert(ProgressionStore.next_level_cost(loaded) == 180, "The first level-up cost should require a meaningful run")
-	_assert(not ProgressionStore.can_purchase_level_with_skill(loaded, "borrowed_time"), "Level-up purchases should reject skills with unmet prerequisites")
-	_assert(ProgressionStore.can_purchase_level_with_skill(loaded, "quick_wits"), "A legal root skill should be available for the first level-up")
-	loaded = ProgressionStore.purchase_level_with_skill(loaded, "quick_wits")
+	_assert(ProgressionStore.can_level_up(loaded), "A funded profile should be able to purchase its next level")
+	loaded = ProgressionStore.purchase_level(loaded)
 	_assert(int(loaded.get("level", 0)) == 2, "Buying a level should permanently raise character level")
 	_assert(int(loaded.get("embers", 0)) == 0, "Buying a level should spend held embers")
-	_assert(ProgressionStore.selected_skill_ids(loaded) == ["quick_wits"], "A level-up should learn exactly the chosen skill")
+	_assert(ProgressionStore.selected_skill_ids(loaded).is_empty(), "A level-up should not force a skill choice")
+	_assert(ProgressionStore.unspent_skill_points(loaded) == 1, "A level-up should bank exactly one skill point")
+	_assert(not ProgressionStore.can_learn_skill(loaded, "borrowed_time"), "Learning should reject skills with unmet prerequisites")
+	_assert(ProgressionStore.can_learn_skill(loaded, "quick_wits"), "A legal root should be learnable with the banked point")
+	loaded = ProgressionStore.learn_skill(loaded, "quick_wits")
+	_assert(ProgressionStore.selected_skill_ids(loaded) == ["quick_wits"] and ProgressionStore.unspent_skill_points(loaded) == 0, "Learning should immediately spend one point and retain the chosen skill")
 	_assert(not loaded.has("stats") and not loaded.has("unspent_stat_points"), "The live progression profile should not retain retired stat allocation fields")
 	var unchanged_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
 	var unchanged_action: Dictionary = (unchanged_card.get("actions", []) as Array)[0]
@@ -10922,7 +10926,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(upgrade_scrim != null and upgrade_scrim.visible, "Opening the character menu should show the Skills overlay")
 	_assert(upgrade_scrim.z_index >= 1200 and not upgrade_scrim.z_as_relative, "The character overlay should render above combat hand cards")
 	_assert(_label_with_text(upgrade_scrim, "Character") != null, "The character overlay should use the Character title")
-	_assert(_label_with_text(upgrade_scrim, "LV 1   SKILLS 0/0   MOLTSHARDS 0") != null, "The Skills overlay should summarize level, learned slots, and respec resources")
+	_assert(_label_with_text(upgrade_scrim, "LV 1   LEARNED 0   SKILL POINTS 0   MOLTSHARDS 0") != null, "The Skills overlay should summarize level, learned skills, banked points, and reset resources")
 	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The character overlay should render the data-driven skill tree")
 	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The skill tree should show its root abilities")
 	_assert(_label_with_text(upgrade_scrim, "Might") == null and _label_with_text(upgrade_scrim, "Fire Magick") == null, "The Skills overlay should not expose retired stat allocation rows")
@@ -11303,11 +11307,11 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	if upgrade_dialog != null:
 		var progression_viewport: Vector2 = instance.get_viewport_rect().size
 		_assert(upgrade_dialog.custom_minimum_size.y <= progression_viewport.y - UiTypography.SAFE_MARGIN * 2.0, "The campfire level-up overlay should preserve safe margins so its action row remains visible")
-	_assert(_label_with_text(upgrade_scrim, "Choose a Skill") != null, "The campfire level-up overlay should name the choice it opens")
+	_assert(_label_with_text(upgrade_scrim, "Character") != null, "Campfire leveling should open the persistent Character surface")
 	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The level-up overlay should reuse the skill tree")
 	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The level-up tree should show a legal root choice")
 	_assert(_button_with_text(upgrade_scrim, "+") == null and _button_with_text(upgrade_scrim, "-") == null, "The level-up overlay should not expose stat steppers")
-	_assert(_button_with_text(upgrade_scrim, "Choose") != null, "The level-up tree should let the focused ability be chosen")
+	_assert(_button_with_text(upgrade_scrim, "Learn  ·  1 Point") != null, "The persistent tree should let the focused ability be learned immediately")
 	instance.queue_free()
 	await process_frame
 

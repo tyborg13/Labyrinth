@@ -36,22 +36,29 @@ func _initialize() -> void:
 	_expect(store.write_event("progression_level_up", context, {
 		"level_before": 3,
 		"level_after": 4,
-		"skill_id": "borrowed_time",
 		"skill_ids": context.get("progression_skills", []),
+		"unspent_skill_points_before": 0,
+		"unspent_skill_points_after": 1,
 		"cost": 540,
 		"held_embers_after": 20,
 		"room": Vector2i(2, 3),
 	}), "Level-up analytics should write successfully")
-	_expect(store.write_event("progression_respec", context, {
+	_expect(store.write_event("progression_skill_learned", context, {
+		"skill_id": "borrowed_time",
+		"skill_ids": context.get("progression_skills", []),
+		"unspent_skill_points_before": 1,
+		"unspent_skill_points_after": 0,
+		"room": Vector2i(2, 3),
+	}), "Immediate skill-learning analytics should write successfully")
+	_expect(store.write_event("progression_skill_reset", context, {
 		"skill_ids_before": ["quick_wits", "measured_breath", "borrowed_time"],
-		"skill_ids_after": ["quick_wits", "ghost_stride", "afterimage"],
+		"skill_ids_after": [],
 		"skill_points_refunded": 3,
-		"skill_points_reallocated": 3,
-		"replacement_flow": "from_scratch",
+		"unspent_skill_points_after": 3,
 		"moltshards_before": 2,
 		"moltshards_after": 1,
 		"room": Vector2i(2, 3),
-	}), "Respec analytics should write successfully")
+	}), "Skill-reset analytics should write successfully")
 	_expect(store.write_event("progression_moltshard_gained", context, {
 		"amount": 1,
 		"source": "first_boss_victory",
@@ -74,7 +81,7 @@ func _initialize() -> void:
 	_expect(replay_store.write_event("skill_triggered", context, replay_payload, trigger_idempotency_key), "Replaying an already-written idempotency key should report success")
 
 	var events: Array[Dictionary] = AnalyticsStore.load_all_events()
-	_expect(events.size() == 4, "A crash replay should reload only the original four progression events")
+	_expect(events.size() == 5, "A crash replay should reload only the original five progression events")
 	for event: Dictionary in events:
 		_expect(event.get("progression_skills", []) == context.get("progression_skills", []), "Every event should retain the learned skill ids in top-level context")
 		_expect(int(event.get("moltshards", -1)) == 2, "Every event should retain the Moltshard count in top-level context")
@@ -82,15 +89,16 @@ func _initialize() -> void:
 
 	var level_event: Dictionary = _event_by_type(events, "progression_level_up")
 	var level_payload: Dictionary = level_event.get("payload", {}) as Dictionary
-	_expect(str(level_payload.get("skill_id", "")) == "borrowed_time", "Level-up payloads should identify the one learned skill")
 	_expect((level_payload.get("skill_ids", []) as Array).size() == 3, "Level-up payloads should include the complete learned set")
+	_expect(int(level_payload.get("unspent_skill_points_after", -1)) == 1, "Level-up payloads should identify the newly banked point")
 	var room: Dictionary = level_payload.get("room", {}) as Dictionary
 	_expect(int(room.get("x", -1)) == 2 and int(room.get("y", -1)) == 3, "Analytics should sanitize the level-up room coordinate")
 
-	var respec_payload: Dictionary = (_event_by_type(events, "progression_respec").get("payload", {}) as Dictionary)
-	_expect(int(respec_payload.get("moltshards_before", -1)) == 2 and int(respec_payload.get("moltshards_after", -1)) == 1, "Respec payloads should expose the exact resource spend")
-	_expect(int(respec_payload.get("skill_points_refunded", -1)) == 3 and int(respec_payload.get("skill_points_reallocated", -1)) == 3, "Respec payloads should expose the full refunded and reallocated point totals")
-	_expect(str(respec_payload.get("replacement_flow", "")) == "from_scratch", "Respec payloads should identify the reset-and-rebuild flow")
+	var learned_payload: Dictionary = (_event_by_type(events, "progression_skill_learned").get("payload", {}) as Dictionary)
+	_expect(str(learned_payload.get("skill_id", "")) == "borrowed_time" and int(learned_payload.get("unspent_skill_points_after", -1)) == 0, "Learning payloads should identify the skill and point spend")
+	var reset_payload: Dictionary = (_event_by_type(events, "progression_skill_reset").get("payload", {}) as Dictionary)
+	_expect(int(reset_payload.get("moltshards_before", -1)) == 2 and int(reset_payload.get("moltshards_after", -1)) == 1, "Reset payloads should expose the exact resource spend")
+	_expect(int(reset_payload.get("skill_points_refunded", -1)) == 3 and int(reset_payload.get("unspent_skill_points_after", -1)) == 3, "Reset payloads should expose the full refunded point total")
 
 	var gained_payload: Dictionary = (_event_by_type(events, "progression_moltshard_gained").get("payload", {}) as Dictionary)
 	_expect(str(gained_payload.get("source", "")) == "first_boss_victory" and int(gained_payload.get("amount", 0)) == 1, "Currency-gain payloads should retain their idempotent award source")

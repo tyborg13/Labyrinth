@@ -7,20 +7,13 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
 signal skill_focused(skill_id: String)
-signal pending_changed(skill_ids: Array)
-signal level_up_choice_changed(skill_id: String)
-signal respec_draft_changed(skill_ids: Array)
-signal confirm_requested(skill_ids: Array)
-signal cancel_requested()
+signal learn_requested(skill_id: String)
 
 const MODE_VIEW: String = "view"
-const MODE_LEVEL_UP: String = "level_up"
-const MODE_RESPEC: String = "respec"
 
 const STATE_OWNED: String = "owned"
 const STATE_AVAILABLE: String = "available"
 const STATE_LOCKED: String = "locked"
-const STATE_PENDING: String = "pending"
 const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
@@ -50,21 +43,18 @@ class SkillLinkLayer:
 	func set_links(value: Array[Dictionary]) -> void:
 		links.clear()
 		for link: Dictionary in value:
-			links.append(link.duplicate(true))
-		queue_redraw()
-
-	func _draw() -> void:
-		var ordered_links: Array[Dictionary]
-		for link: Dictionary in links:
-			ordered_links.append(link.duplicate(true))
-		ordered_links.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+			links.append(link.duplicate(false))
+		links.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 			var left_priority: int = int(left.get("draw_priority", 0))
 			var right_priority: int = int(right.get("draw_priority", 0))
 			if left_priority != right_priority:
 				return left_priority < right_priority
 			return str(left.get("sort_key", "")) < str(right.get("sort_key", ""))
 		)
-		for link: Dictionary in ordered_links:
+		queue_redraw()
+
+	func _draw() -> void:
+		for link: Dictionary in links:
 			var points: PackedVector2Array = link.get("points", PackedVector2Array())
 			if points.size() < 2:
 				continue
@@ -131,21 +121,18 @@ class SkillLinkOverlayLayer:
 	func set_links(value: Array[Dictionary]) -> void:
 		links.clear()
 		for link: Dictionary in value:
-			links.append(link.duplicate(true))
-		queue_redraw()
-
-	func _draw() -> void:
-		var ordered_links: Array[Dictionary]
-		for link: Dictionary in links:
-			ordered_links.append(link.duplicate(true))
-		ordered_links.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+			links.append(link.duplicate(false))
+		links.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 			var left_priority: int = int(left.get("draw_priority", 0))
 			var right_priority: int = int(right.get("draw_priority", 0))
 			if left_priority != right_priority:
 				return left_priority < right_priority
 			return str(left.get("sort_key", "")) < str(right.get("sort_key", ""))
 		)
-		for link: Dictionary in ordered_links:
+		queue_redraw()
+
+	func _draw() -> void:
+		for link: Dictionary in links:
 			var points: PackedVector2Array = link.get("points", PackedVector2Array())
 			if points.size() < 2:
 				continue
@@ -240,6 +227,15 @@ class SkillNodeFace:
 		next_branch_color: Color,
 		next_icon: Texture2D
 	) -> void:
+		if (
+			tier == next_tier
+			and state == next_state
+			and relationship == next_relationship
+			and selected == next_selected
+			and branch_color == next_branch_color
+			and icon_texture == next_icon
+		):
+			return
 		tier = next_tier
 		state = next_state
 		relationship = next_relationship
@@ -359,13 +355,10 @@ class SkillNodeFace:
 				return Color("17151a")
 
 var _ui_skin := UiSkin.new()
-var _mode: String = MODE_VIEW
 var _owned_ids: Array[String]
-var _pending_ids: Array[String]
 var _required_count: int = 0
-var _resource_count: int = 0
+var _unspent_points: int = 0
 var _editing_enabled: bool = true
-var _show_footer: bool = true
 var _focused_id: String = ""
 
 var _graph_canvas: Control
@@ -375,8 +368,12 @@ var _link_overlay_layer: SkillLinkOverlayLayer
 var _summary_label: Label
 var _node_buttons: Dictionary = {}
 var _node_faces: Dictionary = {}
+var _node_icons: Dictionary = {}
 var _node_centers: Dictionary = {}
+var _static_links: Array[Dictionary]
 var _bridge_records: Array[Dictionary]
+var _link_geometry_rebuild_count: int = 0
+var _navigation_rebuild_count: int = 0
 var _legend: HBoxContainer
 var _detail_status: Label
 var _detail_title: Label
@@ -386,9 +383,6 @@ var _detail_requirements: Label
 var _detail_unlocks: Label
 var _detail_reason: Label
 var _detail_action: Button
-var _footer: HBoxContainer
-var _cancel_button: Button
-var _confirm_button: Button
 var _external_command_target: Control
 var _external_tab_target: Control
 
@@ -398,68 +392,38 @@ func _ready() -> void:
 	add_theme_constant_override("separation", UiTypography.PANEL_GAP)
 	_build_view()
 	_refresh_view()
+	# External tab/command controls may only become visible after this subtree's
+	# ready pass. Rebind once the completed modal is live so controller exits do
+	# not retain empty NodePaths.
+	call_deferred("_configure_focus_neighbors")
 
 func configure(context: Dictionary) -> void:
-	_mode = _normalized_mode(str(context.get("mode", MODE_VIEW)))
 	_owned_ids = SkillTreeLibrary.normalized_ids(context.get("owned_ids", []))
-	_required_count = maxi(0, int(context.get(
-		"required_count",
-		_owned_ids.size() + 1 if _mode == MODE_LEVEL_UP else _owned_ids.size()
-	)))
-	_resource_count = maxi(0, int(context.get("resource_count", 0)))
+	_required_count = maxi(0, int(context.get("required_count", _owned_ids.size())))
+	_unspent_points = maxi(0, int(context.get("unspent_points", _required_count - _owned_ids.size())))
 	_editing_enabled = bool(context.get("editing_enabled", true))
-	_show_footer = bool(context.get("show_footer", _mode != MODE_VIEW))
-	_pending_ids = _normalized_pending_ids(context)
 	var requested_focus: String = str(context.get("focused_id", _focused_id))
 	_focused_id = requested_focus if SkillTreeLibrary.has_definition(requested_focus) else _default_focus_id()
 	if is_node_ready():
 		_refresh_view()
 
-func set_mode(mode: String) -> void:
-	var next_mode: String = _normalized_mode(mode)
-	var context: Dictionary = {
-		"mode": next_mode,
-		"owned_ids": _owned_ids,
-		"required_count": _required_count,
-		"resource_count": _resource_count,
-		"editing_enabled": _editing_enabled,
-		"show_footer": _show_footer,
-		"focused_id": _focused_id,
-	}
-	if next_mode == _mode:
-		context["pending_ids"] = _pending_ids
-	configure(context)
-
 func mode() -> String:
-	return _mode
+	return MODE_VIEW
 
 func owned_skill_ids() -> Array[String]:
 	return _string_array(_owned_ids)
 
-func pending_skill_ids() -> Array[String]:
-	return _string_array(_pending_ids)
-
-func proposed_skill_ids() -> Array[String]:
-	if _mode == MODE_RESPEC:
-		return _string_array(_pending_ids)
-	if _mode == MODE_LEVEL_UP:
-		var result: Array[String] = _string_array(_owned_ids)
-		for skill_id: String in _pending_ids:
-			if not result.has(skill_id):
-				result.append(skill_id)
-		return result
-	return _string_array(_owned_ids)
-
-func focus_skill(skill_id: String) -> void:
+func focus_skill(skill_id: String, ensure_visible: bool = true) -> void:
 	if not SkillTreeLibrary.has_definition(skill_id):
 		return
 	_focused_id = skill_id
 	_refresh_nodes()
 	_refresh_links()
 	_refresh_detail()
-	_configure_focus_neighbors()
+	_configure_command_focus_neighbors()
 	skill_focused.emit(skill_id)
-	call_deferred("_ensure_focused_visible")
+	if ensure_visible:
+		call_deferred("_ensure_focused_visible")
 
 func grab_tree_focus() -> void:
 	var button: Button = node_for_skill(_focused_id)
@@ -483,25 +447,11 @@ func focused_skill_id() -> String:
 func activate_focused_skill() -> void:
 	_on_detail_action_pressed()
 
-func request_confirm() -> void:
-	_on_confirm_pressed()
-
-func request_cancel() -> void:
-	cancel_requested.emit()
-
 func status_for_skill(skill_id: String) -> String:
 	if not SkillTreeLibrary.has_definition(skill_id):
 		return STATE_LOCKED
-	if _mode == MODE_RESPEC:
-		if _pending_ids.has(skill_id):
-			return STATE_PENDING
-		if _is_excluded(skill_id, _pending_ids):
-			return STATE_EXCLUDED
-		return STATE_AVAILABLE if SkillTreeLibrary.is_available(skill_id, _pending_ids) else STATE_LOCKED
 	if _owned_ids.has(skill_id):
 		return STATE_OWNED
-	if _mode == MODE_LEVEL_UP and _pending_ids.has(skill_id):
-		return STATE_PENDING
 	if _is_excluded(skill_id, _owned_ids):
 		return STATE_EXCLUDED
 	return STATE_AVAILABLE if SkillTreeLibrary.is_available(skill_id, _owned_ids) else STATE_LOCKED
@@ -544,17 +494,25 @@ func legend_state_count() -> int:
 	if _legend == null:
 		return 0
 	var count: int = 0
-	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
+	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_EXCLUDED]:
 		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
 		if label != null and label.visible:
 			count += 1
 	return count
 
 func points_remaining() -> int:
-	return maxi(0, _required_count - _pending_ids.size()) if _mode == MODE_RESPEC else 0
+	return _unspent_points
 
-func confirm_is_enabled() -> bool:
-	return _confirm_button != null and not _confirm_button.disabled
+func link_geometry_rebuild_count() -> int:
+	return _link_geometry_rebuild_count
+
+func navigation_rebuild_count() -> int:
+	return _navigation_rebuild_count
+
+func graph_scroll_offset() -> Vector2i:
+	if _graph_scroll == null:
+		return Vector2i.ZERO
+	return Vector2i(_graph_scroll.scroll_horizontal, _graph_scroll.scroll_vertical)
 
 func detail_action_is_enabled() -> bool:
 	return _detail_action != null and _detail_action.visible and not _detail_action.disabled
@@ -791,7 +749,7 @@ func _build_branch_headers() -> void:
 func _build_state_legend() -> void:
 	if _legend == null:
 		return
-	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
+	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_EXCLUDED]:
 		var marker := SkillLegendMarker.new()
 		marker.name = "SkillLegendMarker_%s" % state
 		marker.custom_minimum_size = Vector2(18.0, 18.0)
@@ -814,8 +772,6 @@ func _legend_symbol_kind(state: String) -> String:
 			return "check"
 		STATE_AVAILABLE:
 			return "plus"
-		STATE_PENDING:
-			return "dot"
 		STATE_EXCLUDED:
 			return "strike"
 		_:
@@ -841,6 +797,7 @@ func _build_skill_nodes() -> void:
 			button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
 		_graph_canvas.add_child(button)
 		_node_buttons[skill_id] = button
+		_node_icons[skill_id] = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
 		var face := SkillNodeFace.new()
 		face.name = "SkillNodeFace"
 		face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -939,68 +896,36 @@ func _build_detail_panel() -> Control:
 	_detail_action.pressed.connect(_on_detail_action_pressed)
 	column.add_child(_detail_action)
 
-	_footer = HBoxContainer.new()
-	_footer.name = "SkillTreeFooter"
-	_footer.alignment = BoxContainer.ALIGNMENT_END
-	_footer.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	column.add_child(_footer)
-
-	_cancel_button = Button.new()
-	_cancel_button.name = "SkillTreeCancel"
-	_cancel_button.text = "Cancel"
-	_cancel_button.custom_minimum_size = Vector2(104.0, 42.0)
-	_cancel_button.pressed.connect(request_cancel)
-	_footer.add_child(_cancel_button)
-
-	_confirm_button = Button.new()
-	_confirm_button.name = "SkillTreeConfirm"
-	_confirm_button.custom_minimum_size = Vector2(142.0, 42.0)
-	_confirm_button.pressed.connect(_on_confirm_pressed)
-	_footer.add_child(_confirm_button)
 	return panel
 
 func _refresh_view() -> void:
 	if _graph_canvas == null:
 		return
+	if _static_links.is_empty():
+		_rebuild_link_geometry()
 	_refresh_legend()
 	_refresh_summary()
 	_refresh_nodes()
 	_refresh_links()
 	_refresh_detail()
-	_refresh_footer()
 	_configure_focus_neighbors()
 
 func _refresh_legend() -> void:
 	if _legend == null:
 		return
-	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
-		var visible_in_mode: bool = not (
-			(_mode == MODE_VIEW and state == STATE_PENDING)
-			or (_mode == MODE_RESPEC and state == STATE_OWNED)
-		)
+	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_EXCLUDED]:
 		var marker: Control = _legend.get_node_or_null("SkillLegendMarker_%s" % state) as Control
 		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
 		if marker != null:
-			marker.visible = visible_in_mode
+			marker.visible = true
 		if label != null:
 			label.text = _legend_state_text(state)
-			label.visible = visible_in_mode
+			label.visible = true
 
 func _refresh_summary() -> void:
 	if _summary_label == null:
 		return
-	match _mode:
-		MODE_LEVEL_UP:
-			_summary_label.text = "CHOOSE 1  ·  LEARNED %d" % _owned_ids.size()
-		MODE_RESPEC:
-			_summary_label.text = "ALLOCATED %d/%d  ·  %d LEFT%s" % [
-				_pending_ids.size(),
-				_required_count,
-				points_remaining(),
-				"  ·  MATCHES CURRENT BUILD" if _respec_matches_owned_build() else "",
-			]
-		_:
-			_summary_label.text = "LEARNED %d" % _owned_ids.size()
+	_summary_label.text = "LEARNED %d  ·  POINTS %d" % [_owned_ids.size(), _unspent_points]
 
 func _refresh_nodes() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
@@ -1026,40 +951,52 @@ func _refresh_nodes() -> void:
 				relationship,
 				selected,
 				_branch_color(str(SkillTreeLibrary.definition(skill_id).get("branch", ""))),
-				ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
+				_node_icons.get(skill_id, null) as Texture2D
 			)
 
-func _refresh_links() -> void:
-	if _link_layer == null:
-		return
+func _rebuild_link_geometry() -> void:
 	var links: Array[Dictionary]
-	var ancestor_ids: Array[String] = _ancestor_ids(_focused_id)
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
-			var relationship: String = "unrelated"
-			if skill_id == _focused_id:
-				relationship = "prerequisite"
-			elif prerequisite_id == _focused_id:
-				relationship = "dependent"
-			elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
-				relationship = "ancestor"
-			var link_state: String = _link_state(prerequisite_id, skill_id)
-			var visual: Dictionary = _link_visual(link_state, relationship)
 			var sort_key: String = "%s>%s" % [prerequisite_id, skill_id]
 			links.append({
 				"from_id": prerequisite_id,
 				"to_id": skill_id,
 				"sort_key": sort_key,
-				"relationship": relationship,
-				"highlighted": relationship in ["prerequisite", "dependent", "ancestor"],
-				"draw_priority": _link_draw_priority(link_state, relationship),
 				"points": _link_points(prerequisite_id, skill_id),
-				"color": visual.get("color", Color("413b43")),
-				"width": float(visual.get("width", 3.0)),
-				"under_width": float(visual.get("width", 3.0)) + 3.0,
 				"bridge_gaps": [],
 			})
 	_bridge_records = _annotate_connection_bridges(links)
+	_static_links = links
+	_link_geometry_rebuild_count += 1
+
+func _refresh_links() -> void:
+	if _link_layer == null:
+		return
+	if _static_links.is_empty():
+		_rebuild_link_geometry()
+	var links: Array[Dictionary]
+	var ancestor_ids: Array[String] = _ancestor_ids(_focused_id)
+	for geometry: Dictionary in _static_links:
+		var prerequisite_id: String = str(geometry.get("from_id", ""))
+		var skill_id: String = str(geometry.get("to_id", ""))
+		var relationship: String = "unrelated"
+		if skill_id == _focused_id:
+			relationship = "prerequisite"
+		elif prerequisite_id == _focused_id:
+			relationship = "dependent"
+		elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
+			relationship = "ancestor"
+		var link_state: String = _link_state(prerequisite_id, skill_id)
+		var visual: Dictionary = _link_visual(link_state, relationship)
+		var link: Dictionary = geometry.duplicate(false)
+		link["relationship"] = relationship
+		link["highlighted"] = relationship in ["prerequisite", "dependent", "ancestor"]
+		link["draw_priority"] = _link_draw_priority(link_state, relationship)
+		link["color"] = visual.get("color", Color("413b43"))
+		link["width"] = float(visual.get("width", 3.0))
+		link["under_width"] = float(link.get("width", 3.0)) + 3.0
+		links.append(link)
 	_link_layer.set_links(links)
 	if _link_overlay_layer != null:
 		_link_overlay_layer.set_links(links)
@@ -1090,66 +1027,24 @@ func _refresh_detail() -> void:
 	_refresh_detail_action(state)
 
 func _refresh_detail_action(state: String) -> void:
-	_detail_action.visible = _mode != MODE_VIEW
+	_detail_action.visible = true
 	_detail_action.disabled = true
-	if _mode == MODE_LEVEL_UP:
-		if _pending_ids.has(_focused_id):
-			_detail_action.text = "Clear Choice"
-			_detail_action.disabled = not _editing_enabled
-		elif state == STATE_AVAILABLE:
-			_detail_action.text = "Choose"
-			_detail_action.disabled = not _editing_enabled
-		else:
-			_detail_action.text = "Unavailable"
-	elif _mode == MODE_RESPEC:
-		if _pending_ids.has(_focused_id):
-			var dependents: Array[String] = SkillTreeLibrary.dependent_ids(_focused_id, _pending_ids)
-			_detail_action.text = "Refund" if dependents.is_empty() else "Remove dependents first"
-			_detail_action.disabled = not _editing_enabled or not dependents.is_empty()
-		elif state == STATE_AVAILABLE:
-			_detail_action.text = "Allocate" if points_remaining() > 0 else "No Points Left"
-			_detail_action.disabled = (
-				not _editing_enabled
-				or points_remaining() <= 0
-				or not SkillTreeLibrary.is_available(_focused_id, _pending_ids)
-			)
-		else:
-			_detail_action.text = "Unavailable"
+	if state == STATE_OWNED:
+		_detail_action.text = "Learned"
+	elif state == STATE_AVAILABLE and _unspent_points > 0:
+		_detail_action.text = "Learn  ·  1 Point"
+		_detail_action.disabled = not _editing_enabled
+	elif state == STATE_AVAILABLE:
+		_detail_action.text = "No Skill Points"
+	else:
+		_detail_action.text = "Unavailable"
 	var action_variant: String = UiSkin.VARIANT_SELECTED if not _detail_action.disabled else UiSkin.VARIANT_STANDARD
 	_ui_skin.apply_button_stylebox_overrides(_detail_action, action_variant)
 	_ui_skin.apply_button_text_overrides(_detail_action)
 	UiTypography.apply_button_role(_detail_action, UiTypography.ROLE_BODY)
 
-func _refresh_footer() -> void:
-	if _footer == null:
-		return
-	_footer.visible = _show_footer and _mode != MODE_VIEW
-	if not _footer.visible:
-		return
-	_ui_skin.apply_button_stylebox_overrides(_cancel_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(_cancel_button)
-	UiTypography.apply_button_role(_cancel_button, UiTypography.ROLE_BODY)
-	_confirm_button.text = "Confirm"
-	_confirm_button.tooltip_text = ""
-	if _mode == MODE_RESPEC:
-		_confirm_button.text = "Confirm · 1 Moltshard"
-		_confirm_button.tooltip_text = (
-			"This matches your current build. Change at least one skill."
-			if _respec_matches_owned_build()
-			else "Consume 1 Moltshard and replace the active build."
-		)
-	_confirm_button.disabled = not _can_confirm()
-	_ui_skin.apply_button_stylebox_overrides(
-		_confirm_button,
-		UiSkin.VARIANT_SELECTED if not _confirm_button.disabled else UiSkin.VARIANT_STANDARD
-	)
-	_ui_skin.apply_button_text_overrides(_confirm_button)
-	UiTypography.apply_button_role(_confirm_button, UiTypography.ROLE_BODY)
-
 func _on_node_pressed(skill_id: String) -> void:
 	focus_skill(skill_id)
-	if _mode != MODE_VIEW and detail_action_is_enabled():
-		_on_detail_action_pressed()
 
 func _on_node_focus_entered(skill_id: String) -> void:
 	if skill_id != _focused_id:
@@ -1157,10 +1052,10 @@ func _on_node_focus_entered(skill_id: String) -> void:
 
 func _on_node_hovered(skill_id: String) -> void:
 	if skill_id != _focused_id:
-		focus_skill(skill_id)
-	var button: Button = node_for_skill(skill_id)
-	if _control_accepts_focus(button) and get_viewport().gui_get_focus_owner() != button:
-		button.grab_focus()
+		# Mouse hover is visual inspection only. Moving keyboard focus inside a
+		# ScrollContainer implicitly scrolls it, which used to move another node
+		# beneath the stationary pointer and create a hover/recenter feedback loop.
+		focus_skill(skill_id, false)
 
 func _ensure_focused_visible() -> void:
 	if _graph_scroll == null:
@@ -1187,6 +1082,7 @@ func _ensure_focused_visible() -> void:
 		_graph_scroll.ensure_control_visible(button)
 
 func _configure_focus_neighbors() -> void:
+	_navigation_rebuild_count += 1
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var button: Button = node_for_skill(skill_id)
 		if button == null:
@@ -1208,8 +1104,6 @@ func _tree_exit_target(direction: String) -> Control:
 	if direction in ["right", "down"]:
 		if _control_accepts_focus(_external_command_target):
 			return _external_command_target
-		if _footer != null and _footer.is_visible_in_tree() and _control_accepts_focus(_cancel_button):
-			return _cancel_button
 	return null
 
 func _configure_command_focus_neighbors() -> void:
@@ -1221,13 +1115,7 @@ func _configure_command_focus_neighbors() -> void:
 	if _control_accepts_focus(_detail_action):
 		_set_focus_neighbor(_detail_action, "left", focused_node)
 		_set_focus_neighbor(_detail_action, "up", focused_node)
-		_set_focus_neighbor(_detail_action, "down", _confirm_button if _control_accepts_focus(_confirm_button) else _cancel_button)
-	if _footer != null and _footer.is_visible_in_tree():
-		_set_focus_neighbor(_cancel_button, "left", focused_node)
-		_set_focus_neighbor(_cancel_button, "up", _detail_action if _control_accepts_focus(_detail_action) else focused_node)
-		_set_focus_neighbor(_cancel_button, "right", _confirm_button if _control_accepts_focus(_confirm_button) else _cancel_button)
-		_set_focus_neighbor(_confirm_button, "left", _cancel_button)
-		_set_focus_neighbor(_confirm_button, "up", _detail_action if _control_accepts_focus(_detail_action) else focused_node)
+		_set_focus_neighbor(_detail_action, "down", _external_command_target if _control_accepts_focus(_external_command_target) else focused_node)
 	if _control_accepts_focus(_external_command_target):
 		_set_focus_neighbor(_external_command_target, "left", focused_node)
 		_set_focus_neighbor(
@@ -1297,97 +1185,15 @@ func _navigation_neighbor_for_direction(skill_id: String, direction: String) -> 
 func _on_detail_action_pressed() -> void:
 	if not _editing_enabled or not SkillTreeLibrary.has_definition(_focused_id):
 		return
-	if _mode == MODE_LEVEL_UP:
-		if _pending_ids.has(_focused_id):
-			_pending_ids.clear()
-		elif SkillTreeLibrary.is_available(_focused_id, _owned_ids):
-			_pending_ids = _string_array([_focused_id])
-		else:
-			return
-		level_up_choice_changed.emit(_pending_ids[0] if not _pending_ids.is_empty() else "")
-		pending_changed.emit(_pending_ids.duplicate())
-	elif _mode == MODE_RESPEC:
-		if _pending_ids.has(_focused_id):
-			if not SkillTreeLibrary.dependent_ids(_focused_id, _pending_ids).is_empty():
-				return
-			_pending_ids.erase(_focused_id)
-		elif points_remaining() > 0 and SkillTreeLibrary.is_available(_focused_id, _pending_ids):
-			_pending_ids.append(_focused_id)
-		else:
-			return
-		respec_draft_changed.emit(_pending_ids.duplicate())
-		pending_changed.emit(_pending_ids.duplicate())
-	else:
+	if _unspent_points <= 0 or not SkillTreeLibrary.is_available(_focused_id, _owned_ids):
 		return
-	_refresh_view()
-	if _can_confirm():
-		call_deferred("_focus_confirm_if_ready")
-
-func _focus_confirm_if_ready() -> void:
-	if _control_accepts_focus(_confirm_button) and _can_confirm():
-		_confirm_button.grab_focus()
-
-func _on_confirm_pressed() -> void:
-	if not _can_confirm():
-		return
-	confirm_requested.emit(proposed_skill_ids())
-
-func _can_confirm() -> bool:
-	if not _editing_enabled:
-		return false
-	if _mode == MODE_LEVEL_UP:
-		return (
-			_pending_ids.size() == 1
-			and SkillTreeLibrary.is_available(_pending_ids[0], _owned_ids)
-			and SkillTreeLibrary.selection_is_valid(proposed_skill_ids(), _required_count)
-		)
-	if _mode != MODE_RESPEC or _resource_count <= 0:
-		return false
-	if not SkillTreeLibrary.selection_is_valid(_pending_ids, _required_count):
-		return false
-	var owned_sorted: Array[String] = _string_array(_owned_ids)
-	var pending_sorted: Array[String] = _string_array(_pending_ids)
-	owned_sorted.sort()
-	pending_sorted.sort()
-	return owned_sorted != pending_sorted
-
-func _respec_matches_owned_build() -> bool:
-	if _mode != MODE_RESPEC or not SkillTreeLibrary.selection_is_valid(_pending_ids, _required_count):
-		return false
-	var owned_sorted: Array[String] = _string_array(_owned_ids)
-	var pending_sorted: Array[String] = _string_array(_pending_ids)
-	owned_sorted.sort()
-	pending_sorted.sort()
-	return owned_sorted == pending_sorted
-
-func _normalized_pending_ids(context: Dictionary) -> Array[String]:
-	if _mode == MODE_RESPEC:
-		if context.has("pending_ids"):
-			return SkillTreeLibrary.normalized_ids(context.get("pending_ids", []))
-		return _string_array([])
-	if _mode == MODE_LEVEL_UP:
-		var candidates: Array[String] = SkillTreeLibrary.normalized_ids(context.get("pending_ids", []))
-		var result: Array[String]
-		for skill_id: String in candidates:
-			if not _owned_ids.has(skill_id):
-				result.append(skill_id)
-				break
-		return result
-	return _string_array([])
+	learn_requested.emit(_focused_id)
 
 func _default_focus_id() -> String:
-	if not _pending_ids.is_empty():
-		return _pending_ids[0]
-	if _mode == MODE_RESPEC:
-		var draft_available: Array[String] = SkillTreeLibrary.available_ids(_pending_ids)
-		return draft_available[0] if not draft_available.is_empty() else ""
 	if not _owned_ids.is_empty():
 		return _owned_ids[0]
 	var available: Array[String] = SkillTreeLibrary.available_ids([])
 	return available[0] if not available.is_empty() else ""
-
-func _normalized_mode(value: String) -> String:
-	return value if value in [MODE_VIEW, MODE_LEVEL_UP, MODE_RESPEC] else MODE_VIEW
 
 func _is_excluded(skill_id: String, selection: Array[String]) -> bool:
 	var group_id: String = SkillTreeLibrary.exclusive_group(skill_id)
@@ -1423,8 +1229,6 @@ func _node_state_text(skill_id: String, state: String) -> String:
 			return "[ LEARNED ]"
 		STATE_AVAILABLE:
 			return "+  AVAILABLE"
-		STATE_PENDING:
-			return "[ DRAFTED ]" if _mode == MODE_RESPEC else "[ CHOSEN ]"
 		STATE_EXCLUDED:
 			return "X  EXCLUSIVE"
 		_:
@@ -1436,8 +1240,6 @@ func _legend_state_text(state: String) -> String:
 			return "LEARNED"
 		STATE_AVAILABLE:
 			return "AVAILABLE"
-		STATE_PENDING:
-			return "DRAFTED" if _mode == MODE_RESPEC else "CHOSEN"
 		STATE_EXCLUDED:
 			return "EXCLUSIVE"
 		_:
@@ -1448,15 +1250,11 @@ func _detail_status_text(skill_id: String, state: String) -> String:
 	return "%s  ·  %s" % [tier, _node_state_text(skill_id, state)]
 
 func _detail_reason_text(skill_id: String, state: String) -> String:
-	if state == STATE_PENDING:
-		return "Allocated in the replacement build.\nYour current build stays active until you spend a Moltshard." if _mode == MODE_RESPEC else "This skill is the pending choice."
 	if state == STATE_OWNED:
 		return "Learned and active."
 	if state == STATE_AVAILABLE:
-		if _mode == MODE_RESPEC and points_remaining() <= 0:
-			return "All points are allocated. Refund a leaf skill to choose this."
-		if _mode == MODE_RESPEC:
-			return "All requirements are met.\nYour current build stays active until you spend a Moltshard."
+		if _unspent_points <= 0:
+			return "Requirements met. Earn another skill point to learn this."
 		return "All requirements are met."
 	return SkillTreeLibrary.locked_reason(skill_id, _selection_for_availability())
 
@@ -1489,7 +1287,7 @@ func _unlocks_text(skill_id: String) -> String:
 	return "LEADS TO\n%s" % "  ·  ".join(names)
 
 func _selection_for_availability() -> Array[String]:
-	return _string_array(_pending_ids if _mode == MODE_RESPEC else _owned_ids)
+	return _string_array(_owned_ids)
 
 func _branch_color(branch_id: String) -> Color:
 	return BRANCH_COLORS.get(branch_id, Color("b99a6b"))
@@ -1500,8 +1298,6 @@ func _state_color(state: String) -> Color:
 			return Color("e6b85f")
 		STATE_AVAILABLE:
 			return Color("7dd7ca")
-		STATE_PENDING:
-			return Color("70b9f2")
 		STATE_EXCLUDED:
 			return Color("dc7186")
 		_:
@@ -1543,8 +1339,6 @@ func _ancestor_ids(skill_id: String) -> Array[String]:
 func _link_state(source_id: String, target_id: String) -> String:
 	var source_state: String = status_for_skill(source_id)
 	var target_state: String = status_for_skill(target_id)
-	if STATE_PENDING in [source_state, target_state]:
-		return STATE_PENDING
 	if source_state == STATE_OWNED and target_state == STATE_OWNED:
 		return STATE_OWNED
 	if target_state == STATE_AVAILABLE:
@@ -1568,8 +1362,6 @@ func _link_visual(link_state: String, relationship: String) -> Dictionary:
 			return {"color": Color("d6a84f"), "width": 4.0}
 		STATE_AVAILABLE:
 			return {"color": Color("69c5b8"), "width": 3.6}
-		STATE_PENDING:
-			return {"color": Color("66afe7"), "width": 4.2}
 		STATE_EXCLUDED:
 			return {"color": Color("b96073"), "width": 3.2}
 		_:
@@ -1584,8 +1376,6 @@ func _link_draw_priority(link_state: String, relationship: String) -> int:
 			state_priority = 2
 		STATE_OWNED:
 			state_priority = 3
-		STATE_PENDING:
-			state_priority = 4
 	if relationship == "ancestor":
 		return 20 + state_priority
 	if relationship in ["prerequisite", "dependent"]:

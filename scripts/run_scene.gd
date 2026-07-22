@@ -1315,6 +1315,7 @@ var _dialogue_footer: HBoxContainer
 var _dialogue_hint_label: Label
 var _dialogue_choice_bar: HBoxContainer
 var _upgrade_scrim: ColorRect
+var _upgrade_center: CenterContainer
 var _upgrade_dialog: PanelContainer
 var _upgrade_embers_label: Label
 var _upgrade_card_list: VBoxContainer
@@ -1324,17 +1325,12 @@ var _upgrade_preview_box: HBoxContainer
 var _upgrade_selected_card_id: String = ""
 var _upgrade_selected_element_key: String = ""
 var _progression_overlay_mode: String = ""
-var _progression_pending_skill_id: String = ""
-var _progression_respec_draft: Array[String]
-var _progression_respec_base_skill_ids: Array[String]
-var _progression_respec_base_revision: int = -1
-var _progression_respec_base_level: int = 0
-var _progression_respec_base_moltshards: int = 0
 var _progression_focused_skill_id: String = ""
 var _progression_overlay_summary_label: Label
 var _progression_overlay_notice: String = ""
 var _progression_overlay_notice_is_error: bool = false
 var _skill_tree_view: SkillTreeView
+var _skill_reset_confirmation_scrim: ColorRect
 var _equipment_slot_panels: Dictionary = {}
 var _equipment_inventory_tiles: Dictionary = {}
 var _equipment_drag_id: String = ""
@@ -1500,8 +1496,8 @@ func _input(event: InputEvent) -> void:
 				await _cancel_item_overlay_drag(true)
 				return
 		if event.is_action_pressed("ui_cancel"):
-			if _progression_overlay_mode == "respec":
-				_on_skill_tree_cancel_requested()
+			if _skill_reset_confirmation_scrim != null:
+				_close_skill_reset_confirmation()
 			else:
 				_close_card_upgrade_overlay()
 			get_viewport().set_input_as_handled()
@@ -4809,13 +4805,14 @@ func _build_card_upgrade_overlay() -> void:
 	_upgrade_scrim.anchors_preset = Control.PRESET_FULL_RECT
 	_upgrade_scrim.anchor_right = 1.0
 	_upgrade_scrim.anchor_bottom = 1.0
-	ui_root.add_child(_upgrade_scrim)
+	# Character progression must be viewport-bound. The gameplay UI root can grow
+	# beyond the visible rect while room content is being rebuilt (notably when a
+	# level-up leaves a campfire), which used to drag this modal offscreen.
+	ui_root.get_parent().add_child(_upgrade_scrim)
 
-	var center := CenterContainer.new()
-	center.anchors_preset = Control.PRESET_FULL_RECT
-	center.anchor_right = 1.0
-	center.anchor_bottom = 1.0
-	_upgrade_scrim.add_child(center)
+	_upgrade_center = CenterContainer.new()
+	_upgrade_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_upgrade_scrim.add_child(_upgrade_center)
 
 	_upgrade_dialog = PanelContainer.new()
 	_upgrade_dialog.custom_minimum_size = Vector2(1120.0, 620.0)
@@ -4826,7 +4823,7 @@ func _build_card_upgrade_overlay() -> void:
 	dialog_style.corner_radius_bottom_left = 14
 	dialog_style.shadow_size = 12
 	_upgrade_dialog.add_theme_stylebox_override("panel", dialog_style)
-	center.add_child(_upgrade_dialog)
+	_upgrade_center.add_child(_upgrade_dialog)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 18)
@@ -12794,7 +12791,7 @@ func _on_cancel_requested() -> void:
 		await _animate_drag_cancel_to_source()
 		return
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
-		_on_skill_tree_cancel_requested() if _progression_overlay_mode == "respec" else _close_card_upgrade_overlay()
+		_close_skill_reset_confirmation() if _skill_reset_confirmation_scrim != null else _close_card_upgrade_overlay()
 		return
 	if _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		return
@@ -16202,8 +16199,6 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
 	_clear_open_loadout_tab_unread(_progression_overlay_mode)
-	_progression_pending_skill_id = ""
-	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
@@ -16214,23 +16209,38 @@ func _open_level_up_overlay() -> void:
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_menu_overlay()
-	_progression_overlay_mode = "level_up"
-	_progression_overlay_notice = ""
+	var before_progression: Dictionary = _progression.duplicate(true)
+	var candidate: Dictionary = ProgressionStore.purchase_level(_progression)
+	if candidate == before_progression:
+		return
+	if not ProgressionStore.save_data(candidate):
+		_progression_overlay_mode = "skills"
+		_progression_overlay_notice = "The level could not be saved. No embers were spent; try again."
+		_progression_overlay_notice_is_error = true
+		_rebuild_progression_overlay()
+		_upgrade_scrim.visible = true
+		_sync_pre_battle_overlay_layering()
+		return
+	_progression = candidate
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
+	_run_state = _run_engine.leave_campfire(_run_state, 0)
+	_persist_committed_boundary("level_up")
+	_analytics_log_level_up(before_progression, _progression)
+	_refresh_ui()
+	_progression_overlay_mode = "skills"
+	_progression_overlay_notice = "Skill point gained. Spend it now or save it for later."
 	_progression_overlay_notice_is_error = false
-	_progression_pending_skill_id = ""
-	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
+	_close_skill_reset_confirmation()
 	if _upgrade_scrim != null:
 		_upgrade_scrim.visible = false
 	_progression_overlay_mode = ""
 	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
-	_progression_pending_skill_id = ""
-	_clear_skill_respec_draft()
 	_progression_overlay_summary_label = null
 	_skill_tree_view = null
 	_clear_equipment_drag_state(true)
@@ -16262,7 +16272,7 @@ func _rebuild_progression_overlay() -> void:
 	vbox.add_child(top_row)
 
 	var title := Label.new()
-	title.text = "Choose a Skill" if _progression_overlay_mode == "level_up" else "Character"
+	title.text = "Character"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
 	title.add_theme_color_override("font_color", Color("f0e6d2"))
@@ -16304,8 +16314,7 @@ func _rebuild_progression_overlay() -> void:
 		)
 		vbox.add_child(notice_label)
 
-	if _progression_overlay_mode not in ["level_up", "respec"]:
-		vbox.add_child(_build_character_overlay_tabs())
+	vbox.add_child(_build_character_overlay_tabs())
 
 	if _progression_overlay_mode == "equipment":
 		vbox.add_child(_build_equipment_overlay_body())
@@ -16313,11 +16322,22 @@ func _rebuild_progression_overlay() -> void:
 		vbox.add_child(_build_magic_overlay_body())
 	else:
 		vbox.add_child(_build_skill_tree_overlay_body())
+	# A freshly built auto-wrapping detail panel can briefly report its minimum
+	# height before receiving its final width. CenterContainer preserves that
+	# transient growth in its offsets, so refit once layout has settled.
+	_fit_progression_modal_to_viewport()
+	call_deferred("_fit_progression_modal_to_viewport")
+
+func _fit_progression_modal_to_viewport() -> void:
+	if _upgrade_scrim == null or _upgrade_center == null:
+		return
+	_upgrade_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_upgrade_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _layout_progression_dialog() -> void:
 	if _upgrade_dialog == null:
 		return
-	var uses_skill_tree: bool = _progression_overlay_mode in ["skills", "level_up", "respec"]
+	var uses_skill_tree: bool = _progression_overlay_mode == "skills"
 	var preferred: Vector2 = SKILL_TREE_DIALOG_SIZE if uses_skill_tree else CHARACTER_DIALOG_SIZE
 	var minimum: Vector2 = SKILL_TREE_DIALOG_MIN_SIZE if uses_skill_tree else CHARACTER_DIALOG_MIN_SIZE
 	var dialog_size: Vector2 = UiTypography.modal_size(_upgrade_dialog, preferred, minimum)
@@ -16325,24 +16345,10 @@ func _layout_progression_dialog() -> void:
 	_upgrade_dialog.size = dialog_size
 
 func _on_progression_overlay_close_pressed() -> void:
-	if _progression_overlay_mode == "respec":
-		_on_skill_tree_cancel_requested()
-		return
 	_close_card_upgrade_overlay()
 
 func _progression_overlay_summary_text() -> String:
 	var level: int = int(_progression.get("level", 1))
-	var embers: int = int(_progression.get("embers", 0))
-	if _progression_overlay_mode == "level_up":
-		return "LV %d -> %d   COST %d   EMBERS %d" % [level, mini(level + 1, GameData.max_progression_level()), ProgressionStore.next_level_cost(_progression), embers]
-	if _progression_overlay_mode == "respec":
-		var point_total: int = ProgressionStore.skill_points_for_level(level)
-		return "BUILD %d/%d   LEFT %d   MOLTSHARDS %d" % [
-			_progression_respec_draft.size(),
-			point_total,
-			maxi(0, point_total - _progression_respec_draft.size()),
-			ProgressionStore.moltshard_count(_progression),
-		]
 	if _progression_overlay_mode == "equipment":
 		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
 		var inventory_size: int = int((_run_state.get("equipment_inventory", []) as Array).size())
@@ -16353,7 +16359,12 @@ func _progression_overlay_summary_text() -> String:
 		var attuned_size: int = int((_run_state.get("attuned_magic_cards", []) as Array).size())
 		var learned_size: int = int((_run_state.get("magic_inventory", []) as Array).size())
 		return "LV %d   DECK %d   MAGIC %d/%d   LEARNED %d" % [level, deck_size, mini(attuned_size, GameData.magic_loadout_limit()), GameData.magic_loadout_limit(), learned_size]
-	return "LV %d   SKILLS %d/%d   MOLTSHARDS %d" % [level, ProgressionStore.selected_skill_ids(_progression).size(), ProgressionStore.skill_points_for_level(level), ProgressionStore.moltshard_count(_progression)]
+	return "LV %d   LEARNED %d   SKILL POINTS %d   MOLTSHARDS %d" % [
+		level,
+		ProgressionStore.selected_skill_ids(_progression).size(),
+		ProgressionStore.unspent_skill_points(_progression),
+		ProgressionStore.moltshard_count(_progression),
+	]
 
 func _build_character_overlay_tabs() -> Control:
 	var row := HBoxContainer.new()
@@ -16418,16 +16429,7 @@ func _switch_character_overlay_mode(mode: String) -> void:
 	_progression_overlay_notice = ""
 	_progression_overlay_notice_is_error = false
 	_clear_open_loadout_tab_unread(mode)
-	_progression_pending_skill_id = ""
-	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
-
-func _clear_skill_respec_draft() -> void:
-	_progression_respec_draft.clear()
-	_progression_respec_base_skill_ids.clear()
-	_progression_respec_base_revision = -1
-	_progression_respec_base_level = 0
-	_progression_respec_base_moltshards = 0
 
 func _clear_open_loadout_tab_unread(mode: String) -> void:
 	if mode not in ["equipment", "magic"]:
@@ -16541,200 +16543,240 @@ func _build_skill_tree_overlay_body() -> Control:
 	column.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 
 	var owned_ids: Array[String] = ProgressionStore.selected_skill_ids(_progression)
-	var required_count: int = ProgressionStore.skill_points_for_level(int(_progression.get("level", 1)))
-	var tree_mode: String = SkillTreeView.MODE_VIEW
-	var pending_ids: Array[String]
-	if _progression_overlay_mode == "level_up":
-		tree_mode = SkillTreeView.MODE_LEVEL_UP
-		required_count = owned_ids.size() + 1
-		if not _progression_pending_skill_id.is_empty():
-			pending_ids.append(_progression_pending_skill_id)
-	elif _progression_overlay_mode == "respec":
-		tree_mode = SkillTreeView.MODE_RESPEC
-		if not _progression_respec_base_skill_ids.is_empty():
-			owned_ids = _progression_respec_base_skill_ids.duplicate()
-		pending_ids = _progression_respec_draft.duplicate()
+	var earned_points: int = ProgressionStore.skill_points_for_level(int(_progression.get("level", 1)))
+	var unspent_points: int = ProgressionStore.unspent_skill_points(_progression)
 
 	_skill_tree_view = SkillTreeView.new()
 	_skill_tree_view.name = "CharacterSkillTree"
 	_skill_tree_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_skill_tree_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_skill_tree_view.configure({
-		"mode": tree_mode,
+		"mode": SkillTreeView.MODE_VIEW,
 		"owned_ids": owned_ids,
-		"pending_ids": pending_ids,
-		"required_count": required_count,
-		"resource_count": ProgressionStore.moltshard_count(_progression),
-		"editing_enabled": tree_mode != SkillTreeView.MODE_RESPEC or _skill_respec_can_edit(),
+		"required_count": earned_points,
+		"unspent_points": unspent_points,
+		"editing_enabled": _skill_editing_can_edit(),
 		"focused_id": _progression_focused_skill_id,
-		"show_footer": tree_mode != SkillTreeView.MODE_VIEW,
 	})
 	_skill_tree_view.skill_focused.connect(_on_skill_tree_focused)
-	_skill_tree_view.level_up_choice_changed.connect(_on_level_up_skill_choice_changed)
-	_skill_tree_view.respec_draft_changed.connect(_on_respec_skill_draft_changed)
-	_skill_tree_view.confirm_requested.connect(_on_skill_tree_confirm_requested)
-	_skill_tree_view.cancel_requested.connect(_on_skill_tree_cancel_requested)
+	_skill_tree_view.learn_requested.connect(_on_skill_learn_requested)
 	column.add_child(_skill_tree_view)
 	_skill_tree_view.call_deferred("grab_tree_focus")
 	var skills_tab := _upgrade_dialog.find_child("CharacterSkillsTab", true, false) as Button
 	_skill_tree_view.set_external_tab_focus_target(skills_tab)
 
-	if tree_mode == SkillTreeView.MODE_VIEW:
-		var command_row := HBoxContainer.new()
-		command_row.name = "SkillTreeViewCommands"
-		command_row.alignment = BoxContainer.ALIGNMENT_END
-		command_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-		var resource_label := Label.new()
-		resource_label.name = "SkillRespecHint"
-		var unavailable_reason: String = _skill_respec_unavailable_reason()
-		resource_label.text = (
-			"Respec refunds all %d earned skill points." % required_count
-			if unavailable_reason.is_empty()
-			else unavailable_reason
-		)
-		resource_label.tooltip_text = unavailable_reason
-		resource_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.apply_label_role(resource_label, UiTypography.ROLE_CAPTION)
-		resource_label.add_theme_color_override("font_color", Color("c9b998"))
-		command_row.add_child(resource_label)
-		var respec_button := Button.new()
-		respec_button.name = "BeginSkillRespec"
-		respec_button.text = "Begin Respec"
-		respec_button.custom_minimum_size = Vector2(174.0, 44.0)
-		respec_button.disabled = ProgressionStore.moltshard_count(_progression) <= 0 or not _skill_respec_can_edit()
-		respec_button.tooltip_text = unavailable_reason
-		_apply_progression_command_button_style(respec_button)
-		UiTypography.apply_button_role(respec_button, UiTypography.ROLE_BODY)
-		if not respec_button.disabled:
-			respec_button.pressed.connect(_begin_skill_respec)
-		command_row.add_child(respec_button)
-		column.add_child(command_row)
-		_skill_tree_view.set_external_command_focus_target(respec_button)
+	var command_row := HBoxContainer.new()
+	command_row.name = "SkillTreeViewCommands"
+	command_row.alignment = BoxContainer.ALIGNMENT_END
+	command_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+	var resource_label := Label.new()
+	resource_label.name = "SkillResetHint"
+	var unavailable_reason: String = _skill_reset_unavailable_reason()
+	resource_label.text = (
+		"Reset clears %d learned skills and restores all %d earned skill points." % [owned_ids.size(), earned_points]
+		if unavailable_reason.is_empty()
+		else unavailable_reason
+	)
+	resource_label.tooltip_text = unavailable_reason
+	resource_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.apply_label_role(resource_label, UiTypography.ROLE_CAPTION)
+	resource_label.add_theme_color_override("font_color", Color("c9b998"))
+	command_row.add_child(resource_label)
+	var reset_button := Button.new()
+	reset_button.name = "ResetSkills"
+	reset_button.text = "Reset Skills  ·  1 Moltshard"
+	reset_button.custom_minimum_size = Vector2(232.0, 44.0)
+	reset_button.disabled = not _skill_reset_can_apply()
+	reset_button.tooltip_text = unavailable_reason
+	_apply_progression_command_button_style(reset_button)
+	UiTypography.apply_button_role(reset_button, UiTypography.ROLE_BODY)
+	if not reset_button.disabled:
+		reset_button.pressed.connect(_open_skill_reset_confirmation)
+	command_row.add_child(reset_button)
+	column.add_child(command_row)
+	_skill_tree_view.set_external_command_focus_target(reset_button)
 	return _fixed_character_body_frame(column)
 
 func _on_skill_tree_focused(skill_id: String) -> void:
 	_progression_focused_skill_id = skill_id
 
-func _on_level_up_skill_choice_changed(skill_id: String) -> void:
-	_progression_pending_skill_id = skill_id
-
-func _on_respec_skill_draft_changed(skill_ids: Array) -> void:
-	_progression_respec_draft = SkillTreeLibrary.normalized_ids(skill_ids)
-	if _progression_overlay_summary_label != null:
-		_progression_overlay_summary_label.text = _progression_overlay_summary_text()
-
-func _on_skill_tree_confirm_requested(skill_ids: Array) -> void:
-	if _progression_overlay_mode == "level_up":
-		_progression_pending_skill_id = str(skill_ids[skill_ids.size() - 1]) if not skill_ids.is_empty() else ""
-		_confirm_level_up()
-	elif _progression_overlay_mode == "respec":
-		_confirm_skill_respec(SkillTreeLibrary.normalized_ids(skill_ids))
-
-func _on_skill_tree_cancel_requested() -> void:
-	if _progression_overlay_mode == "respec":
-		_progression_overlay_mode = "skills"
-		_clear_skill_respec_draft()
-		_rebuild_progression_overlay()
-	else:
-		_close_card_upgrade_overlay()
-
-func _begin_skill_respec() -> void:
-	if not _skill_respec_can_edit() or ProgressionStore.moltshard_count(_progression) <= 0:
+func _on_skill_learn_requested(skill_id: String) -> void:
+	if not _skill_editing_can_edit():
 		return
 	_reset_card_resolution()
-	_progression_overlay_notice = ""
-	_progression_overlay_notice_is_error = false
-	_progression_respec_base_skill_ids = ProgressionStore.selected_skill_ids(_progression)
-	_progression_respec_base_revision = int(_progression.get("progression_revision", 0))
-	_progression_respec_base_level = int(_progression.get("level", 1))
-	_progression_respec_base_moltshards = ProgressionStore.moltshard_count(_progression)
-	_progression_overlay_mode = "respec"
-	_progression_respec_draft.clear()
-	_progression_focused_skill_id = ""
-	_rebuild_progression_overlay()
-
-func _confirm_skill_respec(proposed_ids: Array[String]) -> void:
-	if _progression_overlay_mode != "respec" or not _skill_respec_can_edit():
-		return
 	var persisted_profile: Dictionary = _authoritative_profile_progression()
-	if not _skill_respec_base_matches(persisted_profile):
+	if not ProgressionStore.can_learn_skill(persisted_profile, skill_id):
 		_progression = persisted_profile
 		_run_state = _run_engine.apply_progression_update(_run_state, _progression)
 		_sync_combat_state_from_run()
-		_progression_overlay_mode = "skills"
-		_clear_skill_respec_draft()
-		_progression_overlay_notice = "Your progression changed while this draft was open. The draft was discarded; review the current build before trying again. No Moltshard was spent."
+		_progression_overlay_notice = "That skill is no longer available or there are no unspent skill points."
 		_progression_overlay_notice_is_error = true
 		_rebuild_progression_overlay()
 		_refresh_ui()
 		return
-	if not ProgressionStore.can_respec_skills(persisted_profile, proposed_ids):
-		_progression_overlay_notice = "That replacement build is incomplete or no longer legal. Adjust the draft and try again. No Moltshard was spent."
-		_progression_overlay_notice_is_error = true
-		_rebuild_progression_overlay()
-		return
-	_reset_card_resolution()
 	var previous_progression: Dictionary = persisted_profile.duplicate(true)
-	var candidate: Dictionary = ProgressionStore.respec_skills(persisted_profile, proposed_ids)
-	if candidate == previous_progression:
-		_progression_overlay_notice = "The replacement build must differ from the current build. No Moltshard was spent."
-		_progression_overlay_notice_is_error = true
-		_rebuild_progression_overlay()
-		return
+	var candidate: Dictionary = ProgressionStore.learn_skill(persisted_profile, skill_id)
 	if not ProgressionStore.save_data(candidate):
-		_progression_overlay_notice = "The replacement build could not be saved. Your draft is still here and no Moltshard was spent; try again."
+		_progression_overlay_notice = "The skill could not be saved. Your point was not spent; try again."
 		_progression_overlay_notice_is_error = true
 		_rebuild_progression_overlay()
 		return
 	_progression = candidate
 	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
 	_sync_combat_state_from_run()
-	_persist_committed_boundary("skill_respec")
-	_analytics_log_skill_respec(previous_progression, _progression)
-	_progression_overlay_mode = "skills"
-	_progression_overlay_notice = "Build replaced. One Moltshard was spent."
+	_persist_committed_boundary("skill_learn")
+	_analytics_log_skill_learned(previous_progression, _progression, skill_id)
+	_progression_overlay_notice = "%s learned. %d skill points remain." % [
+		SkillTreeLibrary.display_name(skill_id),
+		ProgressionStore.unspent_skill_points(_progression),
+	]
 	_progression_overlay_notice_is_error = false
-	_clear_skill_respec_draft()
+	_rebuild_progression_overlay()
+	_refresh_ui()
+	_show_skill_learned_feedback(skill_id)
+
+func _open_skill_reset_confirmation() -> void:
+	if not _skill_reset_can_apply() or _upgrade_scrim == null or _skill_reset_confirmation_scrim != null:
+		return
+	var learned_count: int = ProgressionStore.selected_skill_ids(_progression).size()
+	var earned_points: int = ProgressionStore.skill_points_for_level(int(_progression.get("level", 1)))
+	_skill_reset_confirmation_scrim = ColorRect.new()
+	_skill_reset_confirmation_scrim.name = "SkillResetConfirmationScrim"
+	_skill_reset_confirmation_scrim.color = Color(0.01, 0.008, 0.012, 0.78)
+	_skill_reset_confirmation_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_skill_reset_confirmation_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_skill_reset_confirmation_scrim.z_index = 20
+	_upgrade_scrim.add_child(_skill_reset_confirmation_scrim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_skill_reset_confirmation_scrim.add_child(center)
+	var panel := PanelContainer.new()
+	panel.name = "SkillResetConfirmationPanel"
+	panel.custom_minimum_size = Vector2(560.0, 0.0)
+	panel.add_theme_stylebox_override("panel", _skill_reset_panel_style(Color("8c6f49")))
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 24)
+	panel.add_child(margin)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
+	margin.add_child(column)
+	var title := Label.new()
+	title.text = "Reset Skills?"
+	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
+	title.add_theme_color_override("font_color", Color("f0e6d2"))
+	column.add_child(title)
+	var message := Label.new()
+	message.name = "SkillResetConfirmationMessage"
+	message.text = "Are you sure you want to clear all %d learned skills?\nAll %d earned skill points will be restored. This costs 1 Moltshard." % [learned_count, earned_points]
+	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.apply_label_role(message, UiTypography.ROLE_BODY)
+	message.add_theme_color_override("font_color", Color("d9cdbb"))
+	column.add_child(message)
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_END
+	buttons.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+	column.add_child(buttons)
+	var cancel_button := Button.new()
+	cancel_button.name = "CancelSkillReset"
+	cancel_button.text = "Cancel"
+	cancel_button.custom_minimum_size = Vector2(124.0, 44.0)
+	_apply_progression_command_button_style(cancel_button)
+	cancel_button.pressed.connect(_close_skill_reset_confirmation)
+	buttons.add_child(cancel_button)
+	var confirm_button := Button.new()
+	confirm_button.name = "ConfirmSkillReset"
+	confirm_button.text = "Reset Skills"
+	confirm_button.custom_minimum_size = Vector2(164.0, 44.0)
+	_ui_skin.apply_button_stylebox_overrides(confirm_button, UiSkin.VARIANT_SELECTED)
+	_apply_progression_button_text(confirm_button, UiTypography.SIZE_SMALL)
+	confirm_button.pressed.connect(_confirm_skill_reset)
+	buttons.add_child(confirm_button)
+	cancel_button.focus_neighbor_right = cancel_button.get_path_to(confirm_button)
+	confirm_button.focus_neighbor_left = confirm_button.get_path_to(cancel_button)
+	cancel_button.call_deferred("grab_focus")
+
+func _close_skill_reset_confirmation() -> void:
+	if _skill_reset_confirmation_scrim == null:
+		return
+	_queue_free_node_now(_skill_reset_confirmation_scrim)
+	_skill_reset_confirmation_scrim = null
+	if _skill_tree_view != null:
+		_skill_tree_view.call_deferred("grab_tree_focus")
+
+func _confirm_skill_reset() -> void:
+	if not _skill_reset_can_apply():
+		_close_skill_reset_confirmation()
+		return
+	var persisted_profile: Dictionary = _authoritative_profile_progression()
+	if not ProgressionStore.can_reset_skills(persisted_profile):
+		_close_skill_reset_confirmation()
+		_progression = persisted_profile
+		_run_state = _run_engine.apply_progression_update(_run_state, _progression)
+		_sync_combat_state_from_run()
+		_progression_overlay_notice = "Skills could not be reset because the profile changed or no Moltshard is available."
+		_progression_overlay_notice_is_error = true
+		_rebuild_progression_overlay()
+		_refresh_ui()
+		return
+	var previous_progression: Dictionary = persisted_profile.duplicate(true)
+	var candidate: Dictionary = ProgressionStore.reset_skills(persisted_profile)
+	if not ProgressionStore.save_data(candidate):
+		_close_skill_reset_confirmation()
+		_progression_overlay_notice = "Skills could not be reset. Nothing changed and no Moltshard was spent."
+		_progression_overlay_notice_is_error = true
+		_rebuild_progression_overlay()
+		return
+	_close_skill_reset_confirmation()
+	_reset_card_resolution()
+	_progression = candidate
+	_run_state = _run_engine.apply_progression_update(_run_state, _progression)
+	_sync_combat_state_from_run()
+	_persist_committed_boundary("skill_reset")
+	_analytics_log_skill_reset(previous_progression, _progression)
+	_progression_focused_skill_id = ""
+	_progression_overlay_notice = "Skills cleared. All %d earned skill points are now available. One Moltshard was spent." % ProgressionStore.unspent_skill_points(_progression)
+	_progression_overlay_notice_is_error = false
 	_rebuild_progression_overlay()
 	_refresh_ui()
 
-func _skill_respec_base_matches(profile: Dictionary) -> bool:
-	if _progression_respec_base_revision < 0:
-		return false
-	if int(profile.get("progression_revision", 0)) != _progression_respec_base_revision:
-		return false
-	if int(profile.get("level", 1)) != _progression_respec_base_level:
-		return false
-	if ProgressionStore.moltshard_count(profile) != _progression_respec_base_moltshards:
-		return false
-	var expected_ids: Array[String] = _progression_respec_base_skill_ids.duplicate()
-	var actual_ids: Array[String] = ProgressionStore.selected_skill_ids(profile)
-	expected_ids.sort()
-	actual_ids.sort()
-	return expected_ids == actual_ids
-
-func _skill_respec_can_edit() -> bool:
+func _skill_editing_can_edit() -> bool:
 	if _run_state.is_empty() or _animation_lock or _pending_umbra_commit_locked or _loadout_acquisition_in_progress or _relic_claim_in_progress:
-		return false
-	if ProgressionStore.selected_skill_ids(_progression).is_empty():
 		return false
 	return str(_run_state.get("mode", "room")) not in ["combat", "victory", "defeat"]
 
-func _skill_respec_unavailable_reason() -> String:
+func _skill_reset_can_apply() -> bool:
+	return _skill_editing_can_edit() and ProgressionStore.can_reset_skills(_progression)
+
+func _skill_reset_unavailable_reason() -> String:
 	if _run_state.is_empty():
-		return "Start a run before rebuilding your skills."
+		return "Start a run before resetting your skills."
 	if ProgressionStore.selected_skill_ids(_progression).is_empty():
-		return "Learn a skill before rebuilding your build."
+		return "Learn a skill before resetting the tree."
 	if ProgressionStore.moltshard_count(_progression) <= 0:
 		return "Defeat the first boss of a run to earn one."
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode == "combat":
-		return "Respec is unavailable during combat."
+		return "Reset is unavailable during combat."
 	if mode in ["victory", "defeat"]:
-		return "Respec is unavailable after the run ends."
+		return "Reset is unavailable after the run ends."
 	if _animation_lock or _pending_umbra_commit_locked or _loadout_acquisition_in_progress or _relic_claim_in_progress:
-		return "Finish the current action before rebuilding your skills."
+		return "Finish the current action before resetting your skills."
 	return ""
+
+func _skill_reset_panel_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("171219")
+	style.border_color = accent
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
+	style.shadow_size = 18
+	style.shadow_offset = Vector2(0.0, 7.0)
+	return style
 
 func _authoritative_profile_progression() -> Dictionary:
 	var persisted_profile: Dictionary = ProgressionStore.load_data()
@@ -16761,7 +16803,7 @@ func _fixed_character_body_frame(content: Control) -> Control:
 	var frame := Control.new()
 	frame.name = "CharacterBodyFrame"
 	var dialog_height: float = _upgrade_dialog.custom_minimum_size.y if _upgrade_dialog != null else CHARACTER_DIALOG_SIZE.y
-	var chrome_height: float = 150.0 if _progression_overlay_mode == "level_up" else 194.0
+	var chrome_height: float = 194.0
 	var available_height: float = maxf(240.0, dialog_height - chrome_height)
 	frame.custom_minimum_size = Vector2(0.0, minf(CHARACTER_BODY_MIN_HEIGHT, available_height))
 	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -18707,28 +18749,6 @@ func _apply_progression_button_text(button: Button, font_size: int) -> void:
 	button.add_theme_constant_override("outline_size", 2)
 	UiTypography.set_button_size(button, font_size)
 
-func _confirm_level_up() -> void:
-	var chosen_skill_id: String = _progression_pending_skill_id
-	if not ProgressionStore.can_purchase_level_with_skill(_progression, chosen_skill_id):
-		return
-	var before_progression: Dictionary = _progression.duplicate(true)
-	var candidate: Dictionary = ProgressionStore.purchase_level_with_skill(_progression, chosen_skill_id)
-	if candidate == before_progression:
-		return
-	if not ProgressionStore.save_data(candidate):
-		_progression_overlay_notice = "The new skill could not be saved. No embers were spent; try again."
-		_progression_overlay_notice_is_error = true
-		_rebuild_progression_overlay()
-		return
-	_progression = candidate
-	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
-	_run_state = _run_engine.leave_campfire(_run_state, 0)
-	_persist_committed_boundary("level_up")
-	_analytics_log_level_up(before_progression, _progression, chosen_skill_id)
-	_close_card_upgrade_overlay()
-	_refresh_ui()
-	_show_skill_learned_feedback(chosen_skill_id)
-
 func _refresh_card_upgrade_overlay() -> void:
 	if _upgrade_card_list == null:
 		return
@@ -19177,26 +19197,39 @@ func _analytics_log_run_ended(outcome: String) -> void:
 		"damage_received": int(run_stats.get("damage_received", 0))
 	})
 
-func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary, skill_id: String) -> void:
+func _analytics_log_level_up(before_progression: Dictionary, after_progression: Dictionary) -> void:
 	_analytics_store.write_event("progression_level_up", _analytics_context_from_states(_run_state, _combat_state), {
 		"level_before": int(before_progression.get("level", 1)),
 		"level_after": int(after_progression.get("level", 1)),
-		"skill_id": skill_id,
 		"skill_ids": ProgressionStore.selected_skill_ids(after_progression),
+		"unspent_skill_points_before": ProgressionStore.unspent_skill_points(before_progression),
+		"unspent_skill_points_after": ProgressionStore.unspent_skill_points(after_progression),
 		"cost": ProgressionStore.next_level_cost(before_progression),
 		"held_embers_after": int(after_progression.get("embers", 0)),
 		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 
-func _analytics_log_skill_respec(before_progression: Dictionary, after_progression: Dictionary) -> void:
+func _analytics_log_skill_learned(
+	before_progression: Dictionary,
+	after_progression: Dictionary,
+	skill_id: String
+) -> void:
+	_analytics_store.write_event("progression_skill_learned", _analytics_context_from_states(_run_state, _combat_state), {
+		"skill_id": skill_id,
+		"skill_ids": ProgressionStore.selected_skill_ids(after_progression),
+		"unspent_skill_points_before": ProgressionStore.unspent_skill_points(before_progression),
+		"unspent_skill_points_after": ProgressionStore.unspent_skill_points(after_progression),
+		"room": _run_state.get("current_room", Vector2i.ZERO)
+	})
+
+func _analytics_log_skill_reset(before_progression: Dictionary, after_progression: Dictionary) -> void:
 	var skill_ids_before: Array[String] = ProgressionStore.selected_skill_ids(before_progression)
 	var skill_ids_after: Array[String] = ProgressionStore.selected_skill_ids(after_progression)
-	_analytics_store.write_event("progression_respec", _analytics_context_from_states(_run_state, _combat_state), {
+	_analytics_store.write_event("progression_skill_reset", _analytics_context_from_states(_run_state, _combat_state), {
 		"skill_ids_before": skill_ids_before,
 		"skill_ids_after": skill_ids_after,
 		"skill_points_refunded": skill_ids_before.size(),
-		"skill_points_reallocated": skill_ids_after.size(),
-		"replacement_flow": "from_scratch",
+		"unspent_skill_points_after": ProgressionStore.unspent_skill_points(after_progression),
 		"moltshards_before": ProgressionStore.moltshard_count(before_progression),
 		"moltshards_after": ProgressionStore.moltshard_count(after_progression),
 		"room": _run_state.get("current_room", Vector2i.ZERO)

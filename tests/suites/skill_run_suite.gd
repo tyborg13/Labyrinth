@@ -23,7 +23,7 @@ static func run(expect: Callable) -> void:
 	_test_first_boss_moltshard_is_idempotent(expect)
 	_test_first_boss_moltshard_survives_torn_save(expect)
 	_test_boss_notice_keeps_moltshard_and_missed_equipment(expect)
-	_test_respec_preserves_spent_state_and_earned_pending(expect)
+	_test_reset_preserves_spent_state_and_earned_pending(expect)
 	_test_combat_snapshot_progression_repair_preserves_use_history(expect)
 	_test_progression_revision_reconciliation(expect)
 	_test_torn_level_up_reconciliation_spends_embers(expect)
@@ -335,20 +335,16 @@ static func _test_boss_notice_keeps_moltshard_and_missed_equipment(expect: Calla
 	expect.call(notice.contains("Moltshard acquired"), "A boss notice should retain Moltshard acquisition feedback when equipment was missed")
 	expect.call(notice.contains(RunEngineScript.MISSED_EQUIPMENT_NOTICE), "A boss notice should also retain the missed-equipment warning")
 
-static func _test_respec_preserves_spent_state_and_earned_pending(expect: Callable) -> void:
+static func _test_reset_preserves_spent_state_and_earned_pending(expect: Callable) -> void:
 	var engine = RunEngineScript.new()
 	var original_order: Array = [
 		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye",
 		"deferred_choice", "sure_footed", "curators_patience", "true_bearing", "layaway"
 	]
-	var alternate_order: Array = [
-		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye",
-		"rehearsed_escape", "makeshift_tool", "carry_the_guard", "pain_remembers", "borrowed_time"
-	]
 	var profile: Dictionary = _valid_profile(original_order, 9, 1, 4)
-	var alternate: Array[String] = SkillTreeLibrary.repaired_selection([], 9, alternate_order)
-	var reshaped: Dictionary = ProgressionStore.respec_skills(profile, alternate)
-	expect.call(ProgressionStore.moltshard_count(reshaped) == 0, "A valid reshape should consume exactly one Moltshard")
+	var reshaped: Dictionary = ProgressionStore.reset_skills(profile)
+	expect.call(ProgressionStore.moltshard_count(reshaped) == 0, "A full reset should consume exactly one Moltshard")
+	expect.call(ProgressionStore.selected_skill_ids(reshaped).is_empty() and ProgressionStore.unspent_skill_points(reshaped) == 9, "Reset should clear every skill and refund every earned point")
 	var state: Dictionary = engine.create_new_run(SEED, profile)
 	state["skill_state"] = {
 		"used_by_sequence": {"0:discerning_eye": true, "0:layaway": true},
@@ -361,12 +357,11 @@ static func _test_respec_preserves_spent_state_and_earned_pending(expect: Callab
 	state["pre_battle_start"] = Vector2i(3, 4)
 	var updated: Dictionary = engine.apply_progression_update(state, reshaped)
 	var updated_skill_state: Dictionary = updated.get("skill_state", {}) as Dictionary
-	expect.call(str(updated_skill_state.get("pending_card", "")) == "rime_shard", "Respec should preserve a card already earned through Deferred Choice")
-	expect.call(str(updated_skill_state.get("pending_relic", "")) == "flint_edge", "Respec should preserve a relic already earned through Curator's Patience")
-	expect.call(str((updated_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "Respec should preserve stock already held through Layaway")
+	expect.call(str(updated_skill_state.get("pending_card", "")) == "rime_shard", "Reset should preserve a card already earned through Deferred Choice")
+	expect.call(str(updated_skill_state.get("pending_relic", "")) == "flint_edge", "Reset should preserve a relic already earned through Curator's Patience")
+	expect.call(str((updated_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "Reset should preserve stock already held through Layaway")
 	expect.call(not updated.has("pre_battle_start"), "Removing True Bearing should clear its pending starting tile")
-	expect.call(engine.run_skill_used_this_sequence(updated, "discerning_eye"), "A retained skill should remain spent after reshaping")
-	expect.call(bool((updated_skill_state.get("used_by_sequence", {}) as Dictionary).get("0:layaway", false)), "Reshaping should retain prior use history instead of refreshing removed skills")
+	expect.call(bool((updated_skill_state.get("used_by_sequence", {}) as Dictionary).get("0:layaway", false)), "Reset should retain prior use history instead of refreshing removed skills if they are relearned")
 	var repaired: Dictionary = engine.repair_loaded_run_state(updated)
 	var repaired_skill_state: Dictionary = repaired.get("skill_state", {}) as Dictionary
 	expect.call(str(repaired_skill_state.get("pending_card", "")) == "rime_shard" and str(repaired_skill_state.get("pending_relic", "")) == "flint_edge", "Save repair should preserve valid earned deferrals after their source skills are removed")
@@ -439,12 +434,13 @@ static func _test_torn_level_up_reconciliation_spends_embers(expect: Callable) -
 	stale_run["player_hp"] = int(stale_run.get("player_max_hp", 1)) - GameData.fixed_point_amount(3)
 	var health_before_reconciliation: int = int(stale_run.get("player_hp", 0))
 	var purchase_source: Dictionary = ProgressionStore.set_embers(embedded, engine.held_embers(stale_run))
-	var purchased: Dictionary = ProgressionStore.purchase_level_with_skill(purchase_source, "measured_breath")
+	var purchased: Dictionary = ProgressionStore.purchase_level(purchase_source)
 	expect.call(int(purchased.get("level", 0)) == int(embedded.get("level", 0)) + 1, "Torn-save fixture should contain a completed profile-first level purchase")
 	var reconciled: Dictionary = engine.reconcile_progression_revision(stale_run, purchased)
 	expect.call(engine.held_embers(reconciled) == int(purchased.get("embers", -1)), "Resuming after a profile-first level-up must retain the post-purchase ember total")
 	expect.call(engine.held_embers(reconciled) == 17, "A torn level-up must not restore the embers already spent on that level")
-	expect.call(engine.has_run_skill(reconciled, "measured_breath"), "A torn level-up should still apply its newly learned skill")
+	expect.call(not engine.has_run_skill(reconciled, "measured_breath"), "A torn level-up should not invent a skill choice")
+	expect.call(ProgressionStore.unspent_skill_points(reconciled.get("progression", {}) as Dictionary) == 1, "A torn level-up should retain its newly earned unspent point")
 	expect.call(str(reconciled.get("mode", "")) == "room", "A torn level-up must consume the stale campfire choice on resume")
 	expect.call(int(reconciled.get("player_hp", 0)) == health_before_reconciliation, "Torn level-up recovery must not also grant the campfire heal")
 

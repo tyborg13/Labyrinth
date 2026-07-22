@@ -48,17 +48,17 @@ func _run() -> void:
 
 	await _test_character_skill_tree(instance)
 	await _test_level_up_commit_feedback_and_persistence(instance)
-	await _test_from_scratch_respec_draft_is_transactional(instance)
-	await _test_newer_embedded_progression_repairs_profile_and_respec(instance)
+	await _test_reset_confirmation_is_immediate(instance)
+	await _test_newer_embedded_progression_repairs_profile_and_reset(instance)
 	await _test_open_arsenal_checkpoint_is_deduplicated(instance)
 	await _test_contextual_run_skill_event_scope(instance)
 	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
 	await _test_combat_skill_surfaces(instance, run_state, progression)
 	await _test_makeshift_tool_loadout_persistence(instance)
 	await _test_terminal_skill_event_analytics(instance)
-	await _test_respec_clears_stale_combat_preview(instance)
+	await _test_reset_clears_stale_combat_preview(instance)
 	await _test_reward_reroll(instance)
-	await _test_out_of_combat_respec_preserves_unbanked_embers(instance)
+	await _test_out_of_combat_reset_preserves_unbanked_embers(instance)
 	await _test_run_skill_event_cursor_resets_for_new_run(instance)
 	await _test_debug_boss_progression_is_sandboxed(instance)
 	await _test_content_migration_resaves_resume(instance)
@@ -83,7 +83,7 @@ func _test_character_skill_tree(instance: Node) -> void:
 	_expect(tree != null and tree.status_for_skill("discerning_eye") == SkillTreeView.STATE_OWNED, "Skill tree should mark a learned reward ability")
 	_expect(tree != null and instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill(tree.focused_skill_id()), "Opening the Skills surface should place real GUI focus on the tree")
 	if tree != null:
-		var begin_respec := scrim.find_child("BeginSkillRespec", true, false) as Button
+		var reset_skills := scrim.find_child("ResetSkills", true, false) as Button
 		var skills_tab := scrim.find_child("CharacterSkillsTab", true, false) as Button
 		tree.focus_skill("ghost_stride")
 		tree.grab_tree_focus()
@@ -93,12 +93,12 @@ func _test_character_skill_tree(instance: Node) -> void:
 		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Live controller navigation should reach the Character tabs from the tree")
 		await _press_ui_action(&"ui_down")
 		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Skills-tab Down should return to the tree's remembered node")
-		_expect(tree.node_for_skill("ghost_stride").find_valid_focus_neighbor(SIDE_RIGHT) == begin_respec, "The view-only tree should expose a controller path to Begin Respec")
+		_expect(tree.node_for_skill("ghost_stride").find_valid_focus_neighbor(SIDE_RIGHT) == reset_skills, "The tree should expose a controller path to Reset Skills")
 		await _press_ui_action(&"ui_right")
-		_expect(instance.get_viewport().gui_get_focus_owner() == begin_respec, "Live controller navigation should leave the graph for Begin Respec")
-		_expect(begin_respec.find_valid_focus_neighbor(SIDE_TOP) == skills_tab, "Begin Respec should expose a direct controller path back to the Character tabs")
+		_expect(instance.get_viewport().gui_get_focus_owner() == reset_skills, "Live controller navigation should leave the graph for Reset Skills")
+		_expect(reset_skills.find_valid_focus_neighbor(SIDE_TOP) == skills_tab, "Reset Skills should expose a direct controller path back to the Character tabs")
 		await _press_ui_action(&"ui_up")
-		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Begin Respec Up should reach the active Skills tab")
+		_expect(instance.get_viewport().gui_get_focus_owner() == skills_tab, "Reset Skills Up should reach the active Skills tab")
 		await _press_ui_action(&"ui_down")
 		_expect(instance.get_viewport().gui_get_focus_owner() == tree.node_for_skill("ghost_stride"), "Returning from the Skills tab should preserve the last focused tree node")
 		tree.focus_skill("discerning_eye")
@@ -141,31 +141,32 @@ func _test_level_up_commit_feedback_and_persistence(instance: Node) -> void:
 	await process_frame
 	await process_frame
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
-	var available_ids: Array[String] = ProgressionStore.available_skill_ids(level_profile)
-	_expect(tree != null and not available_ids.is_empty(), "Campfire level-up should open the shared tree with at least one legal skill")
+	var committed_profile: Dictionary = ProgressionStore.load_data()
+	var committed_run: Dictionary = ProgressionStore.load_saved_run()
+	_expect(tree != null, "Campfire leveling should open the persistent Skills tree after granting the point")
+	_expect(int(committed_profile.get("level", 0)) == int(profile_before.get("level", 1)) + 1, "Choosing Draw Strength should immediately advance the saved profile level")
+	_expect(ProgressionStore.selected_skill_ids(committed_profile) == ProgressionStore.selected_skill_ids(profile_before), "Leveling should not force or silently choose a skill")
+	_expect(ProgressionStore.unspent_skill_points(committed_profile) == ProgressionStore.unspent_skill_points(profile_before) + 1, "Leveling should bank exactly one skill point")
+	_expect(int(committed_profile.get("embers", -1)) == 0, "Leveling should spend exactly the displayed ember cost")
+	_expect(str((instance.get("_run_state") as Dictionary).get("mode", "")) == "room", "Immediate leveling should preserve the existing leave-campfire flow")
+	_expect(str(committed_run.get("mode", "")) == "room", "The post-level room state should be committed for resume")
+	_expect(_analytics_event_count("progression_level_up") == level_events_before + 1, "Immediate leveling should emit one progression event")
+	var available_ids: Array[String] = ProgressionStore.available_skill_ids(committed_profile)
 	if tree != null and not available_ids.is_empty():
+		var learned_events_before: int = _analytics_event_count("progression_skill_learned")
 		var chosen_skill_id: String = available_ids[0]
 		tree.focus_skill(chosen_skill_id)
 		tree.activate_focused_skill()
-		_expect(tree.confirm_is_enabled(), "Choosing a legal skill should enable level-up confirmation")
-		tree.request_confirm()
 		await process_frame
 		await process_frame
-		var committed_profile: Dictionary = ProgressionStore.load_data()
-		var committed_run: Dictionary = ProgressionStore.load_saved_run()
-		_expect(int(committed_profile.get("level", 0)) == int(profile_before.get("level", 1)) + 1, "Confirming the campfire tree should atomically advance the saved profile level")
-		_expect(ProgressionStore.selected_skill_ids(committed_profile).has(chosen_skill_id), "Confirming the campfire tree should save the chosen skill")
-		_expect(int(committed_profile.get("embers", -1)) == 0, "Confirming the campfire tree should spend exactly the displayed ember cost")
-		_expect(str((instance.get("_run_state") as Dictionary).get("mode", "")) == "room", "A confirmed level-up should preserve the existing leave-campfire flow")
-		_expect(str(committed_run.get("mode", "")) == "room", "The post-level room state should be committed for resume")
-		_expect(ProgressionStore.selected_skill_ids(committed_run.get("progression", {}) as Dictionary).has(chosen_skill_id), "The resumable run should contain the newly learned skill")
+		var learned_profile: Dictionary = ProgressionStore.load_data()
+		_expect(ProgressionStore.selected_skill_ids(learned_profile).has(chosen_skill_id), "Learn should immediately save the chosen skill without a build confirmation")
+		_expect(ProgressionStore.unspent_skill_points(learned_profile) == ProgressionStore.unspent_skill_points(committed_profile) - 1, "Immediate learning should spend exactly one point")
+		_expect(_analytics_event_count("progression_skill_learned") == learned_events_before + 1, "Immediate learning should emit one skill event")
 		var learned_banner := instance.find_child("SkillLearnedBanner", true, false) as Label
-		_expect(learned_banner != null and learned_banner.text.contains(SkillTreeLibrary.display_name(chosen_skill_id).to_upper()), "A confirmed level-up should celebrate the named skill outside the closed menu")
-		_expect(learned_banner != null and str(learned_banner.get_meta("skill_id", "")) == chosen_skill_id, "The acquisition feedback should identify the exact learned skill")
-		_expect(_analytics_event_count("progression_level_up") == level_events_before + 1, "A confirmed level-up should emit one progression event")
+		_expect(learned_banner != null and str(learned_banner.get_meta("skill_id", "")) == chosen_skill_id, "Immediate learning should identify the exact learned skill")
 		await create_timer(1.05).timeout
 		await process_frame
-		_expect(instance.find_child("SkillLearnedBanner", true, false) == null and instance.find_child("SkillLearnedBurst", true, false) == null, "Normal skill acquisition feedback should clean up after its presentation")
 	var settings_before: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
 	var reduced_settings: Dictionary = settings_before.duplicate(true)
 	reduced_settings["reduced_motion"] = true
@@ -184,75 +185,59 @@ func _test_level_up_commit_feedback_and_persistence(instance: Node) -> void:
 	await process_frame
 	await process_frame
 
-func _test_from_scratch_respec_draft_is_transactional(instance: Node) -> void:
+func _test_reset_confirmation_is_immediate(instance: Node) -> void:
 	var profile_before: Dictionary = ProgressionStore.load_data()
 	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
-	var respec_events_before: int = _analytics_event_count("progression_respec")
+	var reset_events_before: int = _analytics_event_count("progression_skill_reset")
 	instance.call("_open_character_overlay", "skills")
 	await process_frame
-	instance.call("_begin_skill_respec")
+	var scrim := instance.get("_upgrade_scrim") as Control
+	var reset_button := scrim.find_child("ResetSkills", true, false) as Button
+	_expect(reset_button != null and not reset_button.disabled, "A learned profile with a Moltshard should expose Reset Skills")
+	if reset_button != null:
+		reset_button.pressed.emit()
 	await process_frame
+	var confirmation := scrim.find_child("SkillResetConfirmationScrim", true, false) as Control
+	var message := scrim.find_child("SkillResetConfirmationMessage", true, false) as Label
+	_expect(confirmation != null and message != null and message.text.contains("Are you sure you want to clear all 2 learned skills?"), "Reset should open one explicit whole-tree confirmation")
+	_expect(ProgressionStore.load_data() == profile_before, "Opening reset confirmation should not mutate the saved profile")
+	var cancel_button := scrim.find_child("CancelSkillReset", true, false) as Button
+	if cancel_button != null:
+		cancel_button.pressed.emit()
+	await process_frame
+	_expect(scrim.find_child("SkillResetConfirmationScrim", true, false) == null, "Cancel should close reset confirmation")
+	_expect(ProgressionStore.load_data() == profile_before, "Canceling reset should preserve the saved profile")
+	_expect(_analytics_event_count("progression_skill_reset") == reset_events_before, "Canceling reset should emit no reset analytics")
+	reset_button = scrim.find_child("ResetSkills", true, false) as Button
+	if reset_button != null:
+		reset_button.pressed.emit()
+	await process_frame
+	var confirm_button := scrim.find_child("ConfirmSkillReset", true, false) as Button
+	_expect(confirm_button != null, "Reset prompt should expose a named destructive confirmation")
+	if confirm_button != null:
+		confirm_button.pressed.emit()
+	await process_frame
+	await process_frame
+	var reset_profile: Dictionary = ProgressionStore.load_data()
+	_expect(ProgressionStore.selected_skill_ids(reset_profile).is_empty(), "Confirming reset should immediately clear the whole tree")
+	_expect(ProgressionStore.unspent_skill_points(reset_profile) == 2, "Confirming reset should refund every earned point")
+	_expect(ProgressionStore.moltshard_count(reset_profile) == ProgressionStore.moltshard_count(profile_before) - 1, "Confirming reset should spend exactly one Moltshard")
+	_expect(_analytics_event_count("progression_skill_reset") == reset_events_before + 1, "Confirming reset should emit one reset event")
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
-	_expect(tree != null and tree.pending_skill_ids().is_empty(), "Beginning respec should reset the visible replacement build to zero skills")
-	_expect(tree != null and tree.points_remaining() == 2, "Beginning respec should refund every earned skill point into the draft")
-	if tree != null:
-		tree.focus_skill("measured_breath")
-		tree.activate_focused_skill()
-	_expect(ProgressionStore.load_data() == profile_before, "Editing a replacement draft should not mutate the saved profile")
-	_expect(ProgressionStore.selected_skill_ids(instance.get("_progression") as Dictionary) == ProgressionStore.selected_skill_ids(profile_before), "Editing a replacement draft should leave the active profile build unchanged")
-	var active_run_progression: Dictionary = (instance.get("_run_state") as Dictionary).get("progression", {}) as Dictionary
-	var prior_run_progression: Dictionary = run_before.get("progression", {}) as Dictionary
-	_expect(ProgressionStore.selected_skill_ids(active_run_progression) == ProgressionStore.selected_skill_ids(prior_run_progression), "Editing a replacement draft should leave the active run build unchanged")
-	instance.call("_on_skill_tree_cancel_requested")
-	await process_frame
-	_expect(ProgressionStore.load_data() == profile_before, "Canceling a replacement draft should preserve the saved profile byte-for-byte at the data level")
-	_expect(_analytics_event_count("progression_respec") == respec_events_before, "Beginning, editing, and canceling a respec should emit no respec analytics")
-
-	instance.call("_begin_skill_respec")
-	await process_frame
-	tree = instance.get("_skill_tree_view") as SkillTreeView
-	if tree != null:
-		tree.focus_skill("ghost_stride")
-		tree.activate_focused_skill()
+	_expect(tree != null and tree.owned_skill_ids().is_empty() and tree.points_remaining() == 2, "The existing Skills surface should immediately show the cleared tree and refunded points")
 	var close_button := (instance.get("_upgrade_dialog") as Control).find_child("CloseCharacterOverlay", true, false) as Button
-	_expect(close_button != null, "The rebuilt Character surface should retain its named close control")
 	if close_button != null:
 		close_button.pressed.emit()
 	await process_frame
-	var overlay_scrim := instance.get("_upgrade_scrim") as Control
-	_expect(overlay_scrim != null and overlay_scrim.visible and str(instance.get("_progression_overlay_mode")) == "skills", "The Character X should leave a dirty respec draft for read-only Skills before closing the menu")
-	_expect((instance.get("_progression_respec_draft") as Array).is_empty(), "Leaving respec through the Character X should discard the draft for free")
-	_expect(ProgressionStore.load_data() == profile_before, "Leaving Character respec should preserve the saved profile")
-	_expect(_analytics_event_count("progression_respec") == respec_events_before, "Closing an incomplete replacement draft should emit no respec analytics")
-	close_button = (instance.get("_upgrade_dialog") as Control).find_child("CloseCharacterOverlay", true, false) as Button
-	if close_button != null:
-		close_button.pressed.emit()
-	await process_frame
-	_expect(overlay_scrim != null and not overlay_scrim.visible, "A second Character X from read-only Skills should close the menu")
-
-	instance.call("_open_character_overlay", "skills")
-	await process_frame
-	instance.call("_begin_skill_respec")
-	await process_frame
-	var externally_changed: Dictionary = ProgressionStore.add_moltshards(profile_before, 1)
-	_expect(ProgressionStore.save_data(externally_changed), "Stale-respec fixture should save its newer profile revision")
-	var stale_proposal: Array[String]
-	stale_proposal.append_array(["measured_breath", "ghost_stride"])
-	instance.call("_confirm_skill_respec", stale_proposal)
-	await process_frame
-	_expect(ProgressionStore.load_data() == externally_changed, "A respec draft must not overwrite a profile revision that changed after drafting began")
-	_expect(ProgressionStore.moltshard_count(ProgressionStore.load_data()) == 3, "Rejecting a stale respec should not consume the newer profile's resource")
-	var stale_notice := (instance.get("_upgrade_scrim") as Control).find_child("ProgressionOverlayNotice", true, false) as Label
-	_expect(stale_notice != null and stale_notice.text.contains("draft was discarded") and stale_notice.text.contains("No Moltshard was spent"), "Rejecting a stale respec should explain the reload and resource safety")
-	_expect(str(instance.get("_progression_overlay_mode")) == "skills", "Rejecting a stale respec should return to the current read-only build")
-	_expect(ProgressionStore.save_data(profile_before), "Stale-respec fixture should restore the original profile")
+	_expect(scrim != null and not scrim.visible, "Character X should close the single-state Skills menu in one press")
+	_expect(ProgressionStore.save_data(profile_before), "Reset fixture should restore the original profile")
 	instance.set("_progression", profile_before)
-	instance.set("_run_state", run_before)
+	instance.call("_load_run_state", run_before)
 	await process_frame
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
-func _test_newer_embedded_progression_repairs_profile_and_respec(instance: Node) -> void:
+func _test_newer_embedded_progression_repairs_profile_and_reset(instance: Node) -> void:
 	var profile_before: Dictionary = ProgressionStore.load_data()
 	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	var embedded_progression: Dictionary = ProgressionStore.add_moltshards(profile_before, 1)
@@ -266,19 +251,17 @@ func _test_newer_embedded_progression_repairs_profile_and_respec(instance: Node)
 	await process_frame
 	var repaired_profile: Dictionary = ProgressionStore.load_data()
 	_expect(int(repaired_profile.get("progression_revision", 0)) == int(embedded_progression.get("progression_revision", -1)), "Resume should backfill a newer embedded progression revision after a profile write failed")
-	_expect(ProgressionStore.moltshard_count(repaired_profile) == ProgressionStore.moltshard_count(embedded_progression), "Resume should make an embedded Moltshard available to profile-owned respec")
+	_expect(ProgressionStore.moltshard_count(repaired_profile) == ProgressionStore.moltshard_count(embedded_progression), "Resume should make an embedded Moltshard available to profile-owned reset")
 	_expect(int(repaired_profile.get("embers", -1)) == int(profile_before.get("embers", 0)), "Repairing profile progression must not bank the active run's held embers")
 	instance.call("_open_character_overlay", "skills")
 	await process_frame
-	instance.call("_begin_skill_respec")
+	instance.call("_open_skill_reset_confirmation")
 	await process_frame
-	var proposed_ids: Array[String]
-	proposed_ids.append_array(["measured_breath", "ghost_stride"])
-	instance.call("_confirm_skill_respec", proposed_ids)
+	instance.call("_confirm_skill_reset")
 	await process_frame
 	var reshaped_profile: Dictionary = ProgressionStore.load_data()
-	_expect(ProgressionStore.selected_skill_ids(reshaped_profile) == proposed_ids, "A respec should remain usable after profile recovery from a newer run snapshot")
-	_expect(ProgressionStore.moltshard_count(reshaped_profile) == ProgressionStore.moltshard_count(embedded_progression) - 1, "Recovered respec should consume exactly one Moltshard")
+	_expect(ProgressionStore.selected_skill_ids(reshaped_profile).is_empty(), "Reset should remain usable after profile recovery from a newer run snapshot")
+	_expect(ProgressionStore.moltshard_count(reshaped_profile) == ProgressionStore.moltshard_count(embedded_progression) - 1, "Recovered reset should consume exactly one Moltshard")
 	instance.call("_close_card_upgrade_overlay")
 	_expect(ProgressionStore.save_data(profile_before), "Embedded-progression recovery fixture should restore the original profile")
 	instance.set("_progression", profile_before)
@@ -847,7 +830,7 @@ func _test_terminal_skill_event_analytics(instance: Node) -> void:
 	instance.call("_refresh_ui")
 	await process_frame
 
-func _test_respec_clears_stale_combat_preview(instance: Node) -> void:
+func _test_reset_clears_stale_combat_preview(instance: Node) -> void:
 	var stale_preview: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	stale_preview["stale_preview_marker"] = true
 	instance.set("_selected_card_index", 0)
@@ -855,16 +838,17 @@ func _test_respec_clears_stale_combat_preview(instance: Node) -> void:
 	instance.set("_preview_combat_state", stale_preview)
 	instance.call("_open_character_overlay", "skills")
 	await process_frame
-	_expect(int(instance.get("_selected_card_index")) == -1, "Opening Character should cancel a selected card before respec")
-	_expect(int(instance.get("_card_action_choice_index")) == -1, "Opening Character should clear pending card action choices before respec")
-	_expect((instance.get("_preview_combat_state") as Dictionary).is_empty(), "Opening Character should discard any resolved combat preview before respec")
-	instance.call("_begin_skill_respec")
+	_expect(int(instance.get("_selected_card_index")) == -1, "Opening Character should cancel a selected card before reset")
+	_expect(int(instance.get("_card_action_choice_index")) == -1, "Opening Character should clear pending card action choices before reset")
+	_expect((instance.get("_preview_combat_state") as Dictionary).is_empty(), "Opening Character should discard any resolved combat preview before reset")
+	instance.call("_open_skill_reset_confirmation")
 	_expect(str(instance.get("_progression_overlay_mode")) == "skills", "Combat should allow viewing the tree but not changing the active build")
-	_expect(ProgressionStore.moltshard_count(instance.get("_progression") as Dictionary) == 2, "A blocked combat respec should not consume a Moltshard")
+	_expect(instance.get("_skill_reset_confirmation_scrim") == null, "Combat should not open the reset confirmation")
+	_expect(ProgressionStore.moltshard_count(instance.get("_progression") as Dictionary) == 2, "A blocked combat reset should not consume a Moltshard")
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
-func _test_out_of_combat_respec_preserves_unbanked_embers(instance: Node) -> void:
+func _test_out_of_combat_reset_preserves_unbanked_embers(instance: Node) -> void:
 	var run_engine := RunEngine.new()
 	var reward_state: Dictionary = run_engine.set_held_embers(instance.get("_run_state") as Dictionary, 73)
 	var pending_skill_state: Dictionary = (reward_state.get("skill_state", {}) as Dictionary).duplicate(true)
@@ -879,33 +863,33 @@ func _test_out_of_combat_respec_preserves_unbanked_embers(instance: Node) -> voi
 	instance.set("_run_state", reward_state)
 	instance.call("_open_character_overlay", "skills")
 	await process_frame
-	instance.call("_begin_skill_respec")
-	var proposed_ids: Array[String]
-	proposed_ids.append("measured_breath")
-	proposed_ids.append("discerning_eye")
-	instance.call("_confirm_skill_respec", proposed_ids)
+	instance.call("_open_skill_reset_confirmation")
+	instance.call("_confirm_skill_reset")
 	await process_frame
 	var active_run: Dictionary = instance.get("_run_state") as Dictionary
 	var saved_profile: Dictionary = ProgressionStore.load_data()
-	_expect(ProgressionStore.selected_skill_ids(saved_profile) == proposed_ids, "A non-combat respec should save the complete replacement build")
-	_expect(ProgressionStore.moltshard_count(saved_profile) == 1, "A confirmed respec should consume exactly one Moltshard")
-	_expect(int(saved_profile.get("embers", -1)) == 0, "Respec must not bank the run's unbanked embers into the persistent profile")
-	_expect(run_engine.held_embers(active_run) == 73, "Respec should preserve the run's unbanked embers")
+	_expect(ProgressionStore.selected_skill_ids(saved_profile).is_empty(), "A non-combat reset should clear the complete build")
+	_expect(ProgressionStore.unspent_skill_points(saved_profile) == 2, "A non-combat reset should refund all earned points")
+	_expect(ProgressionStore.moltshard_count(saved_profile) == 1, "A confirmed reset should consume exactly one Moltshard")
+	_expect(int(saved_profile.get("embers", -1)) == 0, "Reset must not bank the run's unbanked embers into the persistent profile")
+	_expect(run_engine.held_embers(active_run) == 73, "Reset should preserve the run's unbanked embers")
 	var active_skill_state: Dictionary = active_run.get("skill_state", {}) as Dictionary
-	_expect(str(active_skill_state.get("pending_card", "")) == "rime_shard", "Respec should preserve an already-earned deferred card in the active run")
-	_expect(str(active_skill_state.get("pending_relic", "")) == "flint_edge", "Respec should preserve an already-earned deferred relic in the active run")
-	_expect(str((active_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "Respec should preserve already-held merchant stock in the active run")
+	_expect(str(active_skill_state.get("pending_card", "")) == "rime_shard", "Reset should preserve an already-earned deferred card in the active run")
+	_expect(str(active_skill_state.get("pending_relic", "")) == "flint_edge", "Reset should preserve an already-earned deferred relic in the active run")
+	_expect(str((active_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "Reset should preserve already-held merchant stock in the active run")
 	var saved_run: Dictionary = ProgressionStore.load_saved_run()
 	var saved_skill_state: Dictionary = saved_run.get("skill_state", {}) as Dictionary
-	_expect(str(saved_skill_state.get("pending_card", "")) == "rime_shard" and str(saved_skill_state.get("pending_relic", "")) == "flint_edge", "The respec checkpoint should persist earned deferred rewards")
-	_expect(str((saved_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "The respec checkpoint should persist earned Layaway stock")
+	_expect(str(saved_skill_state.get("pending_card", "")) == "rime_shard" and str(saved_skill_state.get("pending_relic", "")) == "flint_edge", "The reset checkpoint should persist earned deferred rewards")
+	_expect(str((saved_skill_state.get("reserved_merchant", {}) as Dictionary).get("item_id", "")) == "stitcher_apron", "The reset checkpoint should persist earned Layaway stock")
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
 func _test_run_skill_event_cursor_resets_for_new_run(instance: Node) -> void:
 	var run_engine := RunEngine.new()
 	instance.set("_run_skill_event_revision_seen", 9)
-	var second_run: Dictionary = run_engine.create_new_run(73032, instance.get("_progression") as Dictionary)
+	var trigger_profile: Dictionary = _skill_progression()
+	instance.set("_progression", trigger_profile)
+	var second_run: Dictionary = run_engine.create_new_run(73032, trigger_profile)
 	second_run["mode"] = "reward"
 	second_run["pending_reward"] = {
 		"cards": ["spark_dart", "frostbolt", "guiding_flare"],
@@ -921,7 +905,7 @@ func _test_run_skill_event_cursor_resets_for_new_run(instance: Node) -> void:
 	_expect(int(instance.get("_run_skill_event_revision_seen")) == 1, "The first run-side trigger in a second run should still pulse at revision one")
 	var progression_before_level_one_check: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
 	instance.set("_progression", ProgressionStore.default_data())
-	_expect(not bool(instance.call("_skill_respec_can_edit")), "A level-one profile with no learned skills should not offer an impossible respec")
+	_expect(not bool(instance.call("_skill_reset_can_apply")), "A level-one profile with no learned skills should not offer an impossible reset")
 	instance.set("_progression", progression_before_level_one_check)
 
 func _test_debug_boss_progression_is_sandboxed(instance: Node) -> void:

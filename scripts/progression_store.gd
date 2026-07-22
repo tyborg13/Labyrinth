@@ -6,7 +6,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
-const PROGRESSION_SCHEMA: int = 4
+const PROGRESSION_SCHEMA: int = 5
 const GRIMOIRE_UNLOCKED_KEY: String = "grimoire_unlocked"
 const GRIMOIRE_UNREAD_KEY: String = "grimoire_unread"
 const RUN_BESTS_KEY: String = "run_bests"
@@ -104,20 +104,24 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data = _migrated_legacy_card_upgrades(data)
 	if source_schema < 3:
 		data = _migrated_legacy_stats(data)
-	data["progression_schema"] = PROGRESSION_SCHEMA
 	data["level"] = clampi(int(data.get("level", 1)), 1, GameData.max_progression_level())
-	var required_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
+	var earned_skill_count: int = skill_points_for_level(int(data.get("level", 1)))
 	var source_skill_ids: Array[String] = SkillTreeLibrary.normalized_ids(data.get("skill_ids", []))
-	var repaired_skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(source_skill_ids, required_skill_count, source_skill_ids)
+	# Schema 4 required a complete allocation at every level. Preserve those
+	# profiles exactly during migration, then allow schema 5 profiles to bank any
+	# number of earned points without normalization silently spending them.
+	var repair_target: int = earned_skill_count if source_schema < 5 else mini(source_skill_ids.size(), earned_skill_count)
+	var repaired_skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(source_skill_ids, repair_target, source_skill_ids)
 	if (
 		source_schema < 4
-		and required_skill_count == SkillTreeLibrary.COMPLETE_BUILD_SIZE
-		and source_skill_ids.size() == required_skill_count
+		and earned_skill_count == SkillTreeLibrary.COMPLETE_BUILD_SIZE
+		and source_skill_ids.size() == earned_skill_count
 		and not _skill_selection_has_keystone(source_skill_ids)
 		and repaired_skill_ids != source_skill_ids
 	):
 		data["progression_revision"] = int(data.get("progression_revision", 0)) + 1
 	data["skill_ids"] = repaired_skill_ids
+	data["progression_schema"] = PROGRESSION_SCHEMA
 	data["moltshards"] = maxi(0, int(data.get("moltshards", 0)))
 	var award_ids: Array = _normalized_string_array(data.get(MOLTSHARD_AWARD_IDS_KEY, []))
 	if award_ids.size() > MOLTSHARD_AWARD_LEDGER_LIMIT:
@@ -564,29 +568,48 @@ static func has_skill(data: Dictionary, skill_id: String) -> bool:
 static func available_skill_ids(data: Dictionary) -> Array[String]:
 	return SkillTreeLibrary.available_ids(selected_skill_ids(data))
 
-static func can_purchase_level_with_skill(data: Dictionary, skill_id: String) -> bool:
+static func unspent_skill_points(data: Dictionary) -> int:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_level_up(normalized):
-		return false
-	return SkillTreeLibrary.is_available(skill_id, normalized.get("skill_ids", []))
+	return maxi(
+		0,
+		skill_points_for_level(int(normalized.get("level", 1)))
+			- SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", [])).size()
+	)
 
-static func purchase_level(data: Dictionary) -> Dictionary:
-	# Leveling is intentionally atomic with learning one skill. A caller that has
-	# not supplied a legal choice must not spend embers or advance the profile.
-	return _normalized_data(data.duplicate(true))
-
-static func purchase_level_with_skill(data: Dictionary, skill_id: String) -> Dictionary:
+static func can_learn_skill(data: Dictionary, skill_id: String) -> bool:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_purchase_level_with_skill(normalized, skill_id):
+	return (
+		unspent_skill_points(normalized) > 0
+		and SkillTreeLibrary.is_available(skill_id, normalized.get("skill_ids", []))
+	)
+
+static func learn_skill(data: Dictionary, skill_id: String) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_learn_skill(normalized, skill_id):
 		return normalized
-	var cost: int = next_level_cost(normalized)
 	var skills: Array[String] = SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", []))
 	skills.append(skill_id)
-	normalized["embers"] = maxi(0, int(normalized.get("embers", 0)) - cost)
-	normalized["level"] = mini(GameData.max_progression_level(), int(normalized.get("level", 1)) + 1)
 	normalized["skill_ids"] = skills
 	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
 	return _normalized_data(normalized)
+
+static func can_purchase_level_with_skill(_data: Dictionary, _skill_id: String) -> bool:
+	# Kept as a safe compatibility adapter. Level purchase and skill learning are
+	# deliberately separate operations in schema 5.
+	return false
+
+static func purchase_level(data: Dictionary) -> Dictionary:
+	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	if not can_level_up(normalized):
+		return normalized
+	var cost: int = next_level_cost(normalized)
+	normalized["embers"] = maxi(0, int(normalized.get("embers", 0)) - cost)
+	normalized["level"] = mini(GameData.max_progression_level(), int(normalized.get("level", 1)) + 1)
+	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
+	return _normalized_data(normalized)
+
+static func purchase_level_with_skill(data: Dictionary, _skill_id: String) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
 
 # These adapters intentionally refuse the retired allocation flow. They keep
 # older callers safe while saved profiles migrate to one skill per level.
@@ -683,27 +706,29 @@ static func merge_progression_analytics_outbox(data: Dictionary, source: Diction
 		)
 	return merged
 
-static func can_respec_skills(data: Dictionary, proposed_skill_ids: Array) -> bool:
+static func can_reset_skills(data: Dictionary) -> bool:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if int(normalized.get("moltshards", 0)) <= 0:
-		return false
-	var required_count: int = skill_points_for_level(int(normalized.get("level", 1)))
-	if not SkillTreeLibrary.selection_is_valid(proposed_skill_ids, required_count):
-		return false
-	var current: Array[String] = SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", []))
-	var proposed: Array[String] = SkillTreeLibrary.normalized_ids(proposed_skill_ids)
-	current.sort()
-	proposed.sort()
-	return current != proposed
+	return (
+		int(normalized.get("moltshards", 0)) > 0
+		and not SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", [])).is_empty()
+	)
 
-static func respec_skills(data: Dictionary, proposed_skill_ids: Array) -> Dictionary:
+static func reset_skills(data: Dictionary) -> Dictionary:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))
-	if not can_respec_skills(normalized, proposed_skill_ids):
+	if not can_reset_skills(normalized):
 		return normalized
-	normalized["skill_ids"] = SkillTreeLibrary.normalized_ids(proposed_skill_ids)
+	normalized["skill_ids"] = []
 	normalized["moltshards"] = maxi(0, int(normalized.get("moltshards", 0)) - 1)
 	normalized["progression_revision"] = int(normalized.get("progression_revision", 0)) + 1
 	return _normalized_data(normalized)
+
+# Compatibility adapters intentionally refuse the retired replacement-build
+# transaction so older callers cannot recreate a hidden draft.
+static func can_respec_skills(_data: Dictionary, _proposed_skill_ids: Array) -> bool:
+	return false
+
+static func respec_skills(data: Dictionary, _proposed_skill_ids: Array) -> Dictionary:
+	return _normalized_data(data.duplicate(true))
 
 static func mark_rested_at_fire(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
