@@ -23,14 +23,24 @@ const STATE_PENDING: String = "pending"
 const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
-const NODE_SIZE: Vector2 = Vector2(164.0, 48.0)
-const COLUMN_PITCH: float = 184.0
-const ROW_PITCH: float = 52.0
-const GRAPH_LEFT: float = 4.0
-const GRAPH_TOP: float = 38.0
-const GRAPH_SIZE: Vector2 = Vector2(728.0, 350.0)
+const NODE_SIZE: Vector2 = Vector2(154.0, 44.0)
+const COLUMN_PITCH: float = 168.0
+const ROW_PITCH: float = 55.0
+const GRAPH_LEFT: float = 64.0
+const GRAPH_TOP: float = 25.0
+const GRAPH_SIZE: Vector2 = Vector2(730.0, 344.0)
 const DETAIL_WIDTH: float = 300.0
-const LINK_SAMPLES: int = 18
+const LINK_ARROW_LENGTH: float = 8.0
+const LINK_ARROW_HALF_WIDTH: float = 4.5
+
+const TIER_LABELS = [
+	"ROOT",
+	"PATH I",
+	"PATH II",
+	"JOIN I",
+	"JOIN II",
+	"KEY",
+]
 
 const BRANCH_COLORS: Dictionary = {
 	"tactics": Color("d7a85d"),
@@ -53,24 +63,24 @@ class SkillLinkLayer:
 
 	func _draw() -> void:
 		for link: Dictionary in links:
-			var from_point: Vector2 = link.get("from", Vector2.ZERO)
-			var to_point: Vector2 = link.get("to", Vector2.ZERO)
+			var points: PackedVector2Array = link.get("points", PackedVector2Array())
+			if points.size() < 2:
+				continue
 			var color: Color = link.get("color", Color("4a434d"))
 			var width: float = float(link.get("width", 2.0))
-			var midpoint_y: float = lerpf(from_point.y, to_point.y, 0.5)
-			var first_control := Vector2(from_point.x, midpoint_y)
-			var second_control := Vector2(to_point.x, midpoint_y)
-			var points := PackedVector2Array()
-			for sample_index: int in range(LINK_SAMPLES + 1):
-				var t: float = float(sample_index) / float(LINK_SAMPLES)
-				var inverse: float = 1.0 - t
-				points.append(
-					from_point * inverse * inverse * inverse
-					+ first_control * 3.0 * inverse * inverse * t
-					+ second_control * 3.0 * inverse * t * t
-					+ to_point * t * t * t
-				)
 			draw_polyline(points, color, width, true)
+			var tip: Vector2 = points[points.size() - 1]
+			var previous: Vector2 = points[points.size() - 2]
+			var direction: Vector2 = (tip - previous).normalized()
+			if direction.is_zero_approx():
+				continue
+			var perpendicular := Vector2(-direction.y, direction.x)
+			var arrow := PackedVector2Array([
+				tip,
+				tip - direction * LINK_ARROW_LENGTH + perpendicular * LINK_ARROW_HALF_WIDTH,
+				tip - direction * LINK_ARROW_LENGTH - perpendicular * LINK_ARROW_HALF_WIDTH,
+			])
+			draw_colored_polygon(arrow, color)
 
 var _ui_skin := UiSkin.new()
 var _mode: String = MODE_VIEW
@@ -88,11 +98,15 @@ var _summary_label: Label
 var _node_buttons: Dictionary = {}
 var _node_name_labels: Dictionary = {}
 var _node_state_labels: Dictionary = {}
+var _node_branch_strips: Dictionary = {}
+var _node_focus_rings: Dictionary = {}
+var _legend: HBoxContainer
 var _detail_status: Label
 var _detail_title: Label
 var _detail_description: Label
 var _detail_activation: Label
 var _detail_requirements: Label
+var _detail_unlocks: Label
 var _detail_reason: Label
 var _detail_action: Button
 var _footer: HBoxContainer
@@ -182,8 +196,6 @@ func status_for_skill(skill_id: String) -> String:
 		return STATE_LOCKED
 	if _mode == MODE_RESPEC:
 		if _pending_ids.has(skill_id):
-			return STATE_OWNED if _owned_ids.has(skill_id) else STATE_PENDING
-		if _owned_ids.has(skill_id):
 			return STATE_PENDING
 		if _is_excluded(skill_id, _pending_ids):
 			return STATE_EXCLUDED
@@ -207,6 +219,21 @@ func node_count() -> int:
 
 func connection_count() -> int:
 	return _link_layer.links.size() if _link_layer != null else 0
+
+func highlighted_connection_count() -> int:
+	if _link_layer == null:
+		return 0
+	var result: int = 0
+	for link: Dictionary in _link_layer.links:
+		if bool(link.get("highlighted", false)):
+			result += 1
+	return result
+
+func legend_state_count() -> int:
+	return _legend.get_child_count() / 2 if _legend != null else 0
+
+func points_remaining() -> int:
+	return maxi(0, _required_count - _pending_ids.size()) if _mode == MODE_RESPEC else 0
 
 func confirm_is_enabled() -> bool:
 	return _confirm_button != null and not _confirm_button.disabled
@@ -260,6 +287,12 @@ func _build_graph_panel() -> Control:
 	_summary_label.add_theme_color_override("font_color", Color("d6bc87"))
 	header.add_child(_summary_label)
 
+	_legend = HBoxContainer.new()
+	_legend.name = "SkillStateLegend"
+	_legend.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	column.add_child(_legend)
+	_build_state_legend()
+
 	var scroll := ScrollContainer.new()
 	scroll.name = "SkillTreeScroll"
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -282,8 +315,27 @@ func _build_graph_panel() -> Control:
 	_graph_canvas.add_child(_link_layer)
 
 	_build_branch_labels()
+	_build_tier_labels()
 	_build_skill_nodes()
 	return panel
+
+func _build_state_legend() -> void:
+	if _legend == null:
+		return
+	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
+		var swatch := ColorRect.new()
+		swatch.name = "SkillLegendSwatch_%s" % state
+		swatch.custom_minimum_size = Vector2(9.0, 9.0)
+		swatch.color = _state_color(state)
+		swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_legend.add_child(swatch)
+		var label := Label.new()
+		label.name = "SkillLegendLabel_%s" % state
+		label.text = _legend_state_text(state)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(label, 8)
+		label.add_theme_color_override("font_color", Color("cfc4b2") if state != STATE_LOCKED else Color("8f8991"))
+		_legend.add_child(label)
 
 func _build_branch_labels() -> void:
 	for column_index: int in range(4):
@@ -304,6 +356,19 @@ func _build_branch_labels() -> void:
 		label.add_theme_color_override("font_color", _branch_color(branch_id).lightened(0.18))
 		_graph_canvas.add_child(label)
 
+func _build_tier_labels() -> void:
+	for tier_index: int in range(TIER_LABELS.size()):
+		var label := Label.new()
+		label.name = "SkillTier_%d" % tier_index
+		label.text = str(TIER_LABELS[tier_index])
+		label.position = Vector2(0.0, GRAPH_TOP + float(tier_index) * ROW_PITCH + 13.0)
+		label.size = Vector2(GRAPH_LEFT - 7.0, 18.0)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.set_label_size(label, 8)
+		label.add_theme_color_override("font_color", Color("7f7780") if tier_index < 5 else Color("b89f72"))
+		_graph_canvas.add_child(label)
+
 func _build_skill_nodes() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var button := Button.new()
@@ -313,15 +378,38 @@ func _build_skill_nodes() -> void:
 		button.custom_minimum_size = NODE_SIZE
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		button.clip_contents = true
+		button.clip_contents = false
 		button.pressed.connect(_on_node_pressed.bind(skill_id))
 		_graph_canvas.add_child(button)
 		_node_buttons[skill_id] = button
 
+		var branch_strip := ColorRect.new()
+		branch_strip.name = "BranchAccent"
+		branch_strip.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+		branch_strip.offset_bottom = 4.0
+		branch_strip.color = _branch_color(str(SkillTreeLibrary.definition(skill_id).get("branch", "")))
+		branch_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(branch_strip)
+		_node_branch_strips[skill_id] = branch_strip
+
+		var focus_ring := Panel.new()
+		focus_ring.name = "FocusRing"
+		focus_ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		focus_ring.offset_left = -3.0
+		focus_ring.offset_top = -3.0
+		focus_ring.offset_right = 3.0
+		focus_ring.offset_bottom = 3.0
+		focus_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		focus_ring.add_theme_stylebox_override("panel", _focus_ring_style())
+		focus_ring.visible = false
+		focus_ring.z_index = 4
+		button.add_child(focus_ring)
+		_node_focus_rings[skill_id] = focus_ring
+
 		var content := VBoxContainer.new()
 		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		content.offset_left = 7.0
-		content.offset_top = 4.0
+		content.offset_top = 5.0
 		content.offset_right = -7.0
 		content.offset_bottom = -3.0
 		content.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -332,10 +420,10 @@ func _build_skill_nodes() -> void:
 		var name_label := Label.new()
 		name_label.text = SkillTreeLibrary.display_name(skill_id)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.apply_label_role(name_label, UiTypography.ROLE_CAPTION)
+		UiTypography.set_label_size(name_label, 10)
 		content.add_child(name_label)
 		_node_name_labels[skill_id] = name_label
 
@@ -398,6 +486,12 @@ func _build_detail_panel() -> Control:
 	_detail_requirements.add_theme_color_override("font_color", Color("c9b998"))
 	column.add_child(_detail_requirements)
 
+	_detail_unlocks = Label.new()
+	_detail_unlocks.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.apply_label_role(_detail_unlocks, UiTypography.ROLE_CAPTION)
+	_detail_unlocks.add_theme_color_override("font_color", Color("a8c9c1"))
+	column.add_child(_detail_unlocks)
+
 	_detail_reason = Label.new()
 	_detail_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_reason, UiTypography.ROLE_BODY)
@@ -434,11 +528,20 @@ func _build_detail_panel() -> Control:
 func _refresh_view() -> void:
 	if _graph_canvas == null:
 		return
+	_refresh_legend()
 	_refresh_summary()
 	_refresh_nodes()
 	_refresh_links()
 	_refresh_detail()
 	_refresh_footer()
+
+func _refresh_legend() -> void:
+	if _legend == null:
+		return
+	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_PENDING, STATE_EXCLUDED]:
+		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
+		if label != null:
+			label.text = _legend_state_text(state)
 
 func _refresh_summary() -> void:
 	if _summary_label == null:
@@ -447,7 +550,12 @@ func _refresh_summary() -> void:
 		MODE_LEVEL_UP:
 			_summary_label.text = "CHOOSE 1  ·  LEARNED %d" % _owned_ids.size()
 		MODE_RESPEC:
-			_summary_label.text = "DRAFT %d/%d  ·  MOLTSHARDS %d" % [_pending_ids.size(), _required_count, _resource_count]
+			_summary_label.text = "ALLOCATED %d/%d  ·  %d LEFT  ·  MOLTSHARDS %d" % [
+				_pending_ids.size(),
+				_required_count,
+				points_remaining(),
+				_resource_count,
+			]
 		_:
 			_summary_label.text = "LEARNED %d" % _owned_ids.size()
 
@@ -458,15 +566,21 @@ func _refresh_nodes() -> void:
 			continue
 		var base_state: String = status_for_skill(skill_id)
 		var selected: bool = skill_id == _focused_id
+		var relationship: String = _relationship_to_focus(skill_id)
 		button.set_meta("skill_id", skill_id)
 		button.set_meta("skill_state", base_state)
 		button.set_meta("skill_visual_state", STATE_SELECTED if selected else base_state)
 		button.set_meta("selected", selected)
+		button.set_meta("focus_relationship", relationship)
 		button.add_theme_stylebox_override("normal", _node_style(skill_id, base_state, selected, false))
 		button.add_theme_stylebox_override("hover", _node_style(skill_id, base_state, true, false))
 		button.add_theme_stylebox_override("pressed", _node_style(skill_id, base_state, true, true))
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		button.tooltip_text = _node_tooltip(skill_id, base_state)
+		var focus_ring: Panel = _node_focus_rings.get(skill_id, null) as Panel
+		if focus_ring != null:
+			focus_ring.visible = selected or relationship in ["prerequisite", "dependent"]
+			focus_ring.add_theme_stylebox_override("panel", _focus_ring_style(relationship if not selected else "focused"))
 		var name_label: Label = _node_name_labels.get(skill_id, null) as Label
 		var state_label: Label = _node_state_labels.get(skill_id, null) as Label
 		if name_label != null:
@@ -479,17 +593,29 @@ func _refresh_links() -> void:
 	if _link_layer == null:
 		return
 	var links: Array[Dictionary]
+	var ancestor_ids: Array[String] = _ancestor_ids(_focused_id)
+	var route_index: int = 0
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
-		var target_rect := Rect2(_node_position(skill_id), NODE_SIZE)
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
-			var source_rect := Rect2(_node_position(prerequisite_id), NODE_SIZE)
 			var target_state: String = status_for_skill(skill_id)
+			var relationship: String = "unrelated"
+			if skill_id == _focused_id:
+				relationship = "prerequisite"
+			elif prerequisite_id == _focused_id:
+				relationship = "dependent"
+			elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
+				relationship = "ancestor"
+			var visual: Dictionary = _link_visual(target_state, relationship)
 			links.append({
-				"from": Vector2(source_rect.get_center().x, source_rect.end.y),
-				"to": Vector2(target_rect.get_center().x, target_rect.position.y),
-				"color": _state_color(target_state).darkened(0.18),
-				"width": 3.0 if target_state in [STATE_OWNED, STATE_PENDING] else 2.0,
+				"from_id": prerequisite_id,
+				"to_id": skill_id,
+				"relationship": relationship,
+				"highlighted": relationship in ["prerequisite", "dependent"],
+				"points": _link_points(prerequisite_id, skill_id, route_index),
+				"color": visual.get("color", Color("413b43")),
+				"width": float(visual.get("width", 1.4)),
 			})
+			route_index += 1
 	_link_layer.set_links(links)
 
 func _refresh_detail() -> void:
@@ -501,6 +627,7 @@ func _refresh_detail() -> void:
 		_detail_description.text = "Choose a node to inspect its effect and requirements."
 		_detail_activation.text = ""
 		_detail_requirements.text = ""
+		_detail_unlocks.text = ""
 		_detail_reason.text = ""
 		_detail_action.visible = false
 		return
@@ -511,6 +638,7 @@ func _refresh_detail() -> void:
 	_detail_description.text = SkillTreeLibrary.description(_focused_id)
 	_detail_activation.text = "ACTIVATION  ·  %s" % SkillTreeLibrary.activation_kind(_focused_id).to_upper()
 	_detail_requirements.text = _requirements_text(_focused_id)
+	_detail_unlocks.text = _unlocks_text(_focused_id)
 	_detail_reason.text = _detail_reason_text(_focused_id, state)
 	_detail_reason.add_theme_color_override("font_color", _state_color(state).lightened(0.16))
 	_refresh_detail_action(state)
@@ -530,11 +658,15 @@ func _refresh_detail_action(state: String) -> void:
 	elif _mode == MODE_RESPEC:
 		if _pending_ids.has(_focused_id):
 			var dependents: Array[String] = SkillTreeLibrary.dependent_ids(_focused_id, _pending_ids)
-			_detail_action.text = "Remove" if dependents.is_empty() else "Remove dependents first"
+			_detail_action.text = "Refund Point" if dependents.is_empty() else "Remove dependents first"
 			_detail_action.disabled = not _editing_enabled or not dependents.is_empty()
-		elif state in [STATE_AVAILABLE, STATE_PENDING]:
-			_detail_action.text = "Add" if not _owned_ids.has(_focused_id) else "Restore"
-			_detail_action.disabled = not _editing_enabled or not SkillTreeLibrary.is_available(_focused_id, _pending_ids)
+		elif state == STATE_AVAILABLE:
+			_detail_action.text = "Spend Point" if points_remaining() > 0 else "No Points Left"
+			_detail_action.disabled = (
+				not _editing_enabled
+				or points_remaining() <= 0
+				or not SkillTreeLibrary.is_available(_focused_id, _pending_ids)
+			)
 		else:
 			_detail_action.text = "Unavailable"
 	var action_variant: String = UiSkin.VARIANT_SELECTED if not _detail_action.disabled else UiSkin.VARIANT_STANDARD
@@ -555,7 +687,7 @@ func _refresh_footer() -> void:
 	_confirm_button.tooltip_text = ""
 	if _mode == MODE_RESPEC:
 		_confirm_button.text = "Spend 1"
-		_confirm_button.tooltip_text = "Consume 1 Moltshard and apply this skill tree."
+		_confirm_button.tooltip_text = "Consume 1 Moltshard and replace the active build."
 	_confirm_button.disabled = not _can_confirm()
 	_ui_skin.apply_button_stylebox_overrides(
 		_confirm_button,
@@ -584,7 +716,7 @@ func _on_detail_action_pressed() -> void:
 			if not SkillTreeLibrary.dependent_ids(_focused_id, _pending_ids).is_empty():
 				return
 			_pending_ids.erase(_focused_id)
-		elif SkillTreeLibrary.is_available(_focused_id, _pending_ids):
+		elif points_remaining() > 0 and SkillTreeLibrary.is_available(_focused_id, _pending_ids):
 			_pending_ids.append(_focused_id)
 		else:
 			return
@@ -620,7 +752,7 @@ func _normalized_pending_ids(context: Dictionary) -> Array[String]:
 	if _mode == MODE_RESPEC:
 		if context.has("pending_ids"):
 			return SkillTreeLibrary.normalized_ids(context.get("pending_ids", []))
-		return _string_array(_owned_ids)
+		return _string_array([])
 	if _mode == MODE_LEVEL_UP:
 		var candidates: Array[String] = SkillTreeLibrary.normalized_ids(context.get("pending_ids", []))
 		var result: Array[String]
@@ -634,6 +766,9 @@ func _normalized_pending_ids(context: Dictionary) -> Array[String]:
 func _default_focus_id() -> String:
 	if not _pending_ids.is_empty():
 		return _pending_ids[0]
+	if _mode == MODE_RESPEC:
+		var draft_available: Array[String] = SkillTreeLibrary.available_ids(_pending_ids)
+		return draft_available[0] if not draft_available.is_empty() else ""
 	if not _owned_ids.is_empty():
 		return _owned_ids[0]
 	var available: Array[String] = SkillTreeLibrary.available_ids([])
@@ -666,15 +801,26 @@ func _node_tooltip(skill_id: String, state: String) -> String:
 	]
 
 func _node_state_text(skill_id: String, state: String) -> String:
-	if state == STATE_PENDING and _mode == MODE_RESPEC:
-		return "REMOVE" if _owned_ids.has(skill_id) and not _pending_ids.has(skill_id) else "ADD"
+	match state:
+		STATE_OWNED:
+			return "[ LEARNED ]"
+		STATE_AVAILABLE:
+			return "+  AVAILABLE"
+		STATE_PENDING:
+			return "[ DRAFTED ]" if _mode == MODE_RESPEC else "[ CHOSEN ]"
+		STATE_EXCLUDED:
+			return "X  EXCLUSIVE"
+		_:
+			return "-  LOCKED"
+
+func _legend_state_text(state: String) -> String:
 	match state:
 		STATE_OWNED:
 			return "LEARNED"
 		STATE_AVAILABLE:
 			return "AVAILABLE"
 		STATE_PENDING:
-			return "CHOSEN"
+			return "DRAFTED" if _mode == MODE_RESPEC else "CHOSEN"
 		STATE_EXCLUDED:
 			return "EXCLUSIVE"
 		_:
@@ -686,30 +832,43 @@ func _detail_status_text(skill_id: String, state: String) -> String:
 
 func _detail_reason_text(skill_id: String, state: String) -> String:
 	if state == STATE_PENDING:
-		if _mode == MODE_RESPEC and _owned_ids.has(skill_id) and not _pending_ids.has(skill_id):
-			return "This skill will be removed when the draft is confirmed."
-		return "This skill is part of the pending choice."
+		return "Allocated in the replacement build.\nYour current build stays active until you spend a Moltshard." if _mode == MODE_RESPEC else "This skill is the pending choice."
 	if state == STATE_OWNED:
 		return "Learned and active."
 	if state == STATE_AVAILABLE:
+		if _mode == MODE_RESPEC and points_remaining() <= 0:
+			return "All points are allocated. Refund a leaf skill to choose this."
+		if _mode == MODE_RESPEC:
+			return "All requirements are met.\nYour current build stays active until you spend a Moltshard."
 		return "All requirements are met."
 	return SkillTreeLibrary.locked_reason(skill_id, _selection_for_availability())
 
 func _requirements_text(skill_id: String) -> String:
 	var parts: Array[String]
-	var names: Array[String]
+	parts.append("REQUIRES")
+	var selection: Array[String] = _selection_for_availability()
 	for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
-		names.append(SkillTreeLibrary.display_name(prerequisite_id))
-	if names.is_empty():
-		parts.append("No prerequisite")
-	else:
-		parts.append("Requires %s" % ", ".join(names))
+		parts.append("%s  %s" % [
+			"READY" if selection.has(prerequisite_id) else "NEED",
+			SkillTreeLibrary.display_name(prerequisite_id),
+		])
+	if SkillTreeLibrary.prerequisites(skill_id).is_empty():
+		parts.append("ROOT SKILL")
 	var minimum_owned: int = SkillTreeLibrary.minimum_owned(skill_id)
 	if minimum_owned > 0:
-		parts.append("%d learned skills" % minimum_owned)
+		parts.append("%s  %d total skills" % ["READY" if selection.size() >= minimum_owned else "NEED", minimum_owned])
 	if not SkillTreeLibrary.exclusive_group(skill_id).is_empty():
-		parts.append("One keystone only")
-	return "  ·  ".join(parts)
+		parts.append("LIMIT  One keystone per build")
+	return "\n".join(parts)
+
+func _unlocks_text(skill_id: String) -> String:
+	var dependents: Array[String] = _direct_dependent_ids(skill_id)
+	if dependents.is_empty():
+		return "UNLOCKS\nNo direct unlocks"
+	var names: Array[String]
+	for dependent_id: String in dependents:
+		names.append(SkillTreeLibrary.display_name(dependent_id))
+	return "UNLOCKS\n%s" % "  ·  ".join(names)
 
 func _selection_for_availability() -> Array[String]:
 	return _string_array(_pending_ids if _mode == MODE_RESPEC else _owned_ids)
@@ -720,47 +879,144 @@ func _branch_color(branch_id: String) -> Color:
 func _state_color(state: String) -> Color:
 	match state:
 		STATE_OWNED:
-			return Color("d7a85d")
+			return Color("e6b85f")
 		STATE_AVAILABLE:
-			return Color("b994d0")
+			return Color("7dd7ca")
 		STATE_PENDING:
-			return Color("8ec5ff")
+			return Color("70b9f2")
 		STATE_EXCLUDED:
-			return Color("b76878")
+			return Color("dc7186")
 		_:
-			return Color("615968")
+			return Color("57535b")
 
 func _node_text_color(state: String) -> Color:
-	return Color("f7ead0") if state != STATE_LOCKED else Color("9c939f")
+	return Color("fff3d8") if state != STATE_LOCKED else Color("8e8990")
 
 func _node_style(skill_id: String, state: String, selected: bool, pressed: bool) -> StyleBoxFlat:
 	var accent: Color = _state_color(state)
-	var branch_id: String = str(SkillTreeLibrary.definition(skill_id).get("branch", ""))
-	if state == STATE_LOCKED:
-		accent = _branch_color(branch_id).darkened(0.48)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("17131a")
+	style.bg_color = Color("161419")
 	match state:
 		STATE_OWNED:
-			style.bg_color = Color("302518")
+			style.bg_color = Color("62441f")
 		STATE_AVAILABLE:
-			style.bg_color = Color("24182d")
+			style.bg_color = Color("15302d")
 		STATE_PENDING:
-			style.bg_color = Color("172939")
+			style.bg_color = Color("17405c")
 		STATE_EXCLUDED:
-			style.bg_color = Color("28171d")
+			style.bg_color = Color("3a1c25")
+		STATE_LOCKED:
+			style.bg_color = Color("121115")
 	if pressed:
 		style.bg_color = style.bg_color.lightened(0.10)
-	style.border_color = Color("f2e8d7") if selected else accent
-	style.set_border_width_all(3 if selected or SkillTreeLibrary.is_keystone(skill_id) else 2)
+	style.border_color = accent
+	style.set_border_width_all(3 if state in [STATE_OWNED, STATE_AVAILABLE, STATE_PENDING, STATE_EXCLUDED] else 1)
 	style.set_corner_radius_all(10 if SkillTreeLibrary.is_keystone(skill_id) else 6)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.46)
-	style.shadow_size = 7 if selected else 4
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
+	style.shadow_size = 7 if selected else 3
 	style.content_margin_left = 5.0
 	style.content_margin_top = 3.0
 	style.content_margin_right = 5.0
 	style.content_margin_bottom = 3.0
 	return style
+
+func _focus_ring_style(relationship: String = "focused") -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	match relationship:
+		"prerequisite":
+			style.border_color = Color("ffd47a")
+		"dependent":
+			style.border_color = Color("8ce1d5")
+		_:
+			style.border_color = Color("fff8e8")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(9)
+	return style
+
+func _relationship_to_focus(skill_id: String) -> String:
+	if _focused_id.is_empty() or skill_id == _focused_id:
+		return "none"
+	if SkillTreeLibrary.prerequisites(_focused_id).has(skill_id):
+		return "prerequisite"
+	if _direct_dependent_ids(_focused_id).has(skill_id):
+		return "dependent"
+	return "none"
+
+func _direct_dependent_ids(skill_id: String) -> Array[String]:
+	var result: Array[String]
+	if skill_id.is_empty():
+		return result
+	for candidate_id: String in SkillTreeLibrary.ordered_ids():
+		if SkillTreeLibrary.prerequisites(candidate_id).has(skill_id):
+			result.append(candidate_id)
+	return result
+
+func _ancestor_ids(skill_id: String) -> Array[String]:
+	var result: Array[String]
+	if skill_id.is_empty():
+		return result
+	var pending: Array[String] = SkillTreeLibrary.prerequisites(skill_id)
+	while not pending.is_empty():
+		var candidate_id: String = pending.pop_front()
+		if result.has(candidate_id):
+			continue
+		result.append(candidate_id)
+		for prerequisite_id: String in SkillTreeLibrary.prerequisites(candidate_id):
+			if not result.has(prerequisite_id):
+				pending.append(prerequisite_id)
+	return result
+
+func _link_visual(target_state: String, relationship: String) -> Dictionary:
+	match relationship:
+		"prerequisite":
+			return {"color": Color("ffd47a"), "width": 4.5}
+		"dependent":
+			return {"color": Color("8ce1d5"), "width": 4.0}
+		"ancestor":
+			return {"color": Color("bfa36d"), "width": 2.8}
+	var base: Color = _state_color(target_state)
+	base.a = 0.24 if not _focused_id.is_empty() else 0.14
+	return {"color": base, "width": 1.4}
+
+func _link_points(source_id: String, target_id: String, route_index: int) -> PackedVector2Array:
+	var source_rect := Rect2(_node_position(source_id), NODE_SIZE)
+	var target_rect := Rect2(_node_position(target_id), NODE_SIZE)
+	var source_position: Vector2i = SkillTreeLibrary.position(source_id)
+	var target_position: Vector2i = SkillTreeLibrary.position(target_id)
+	var row_distance: int = absi(target_position.y - source_position.y)
+	if source_position.x == target_position.x and row_distance == 1:
+		return PackedVector2Array([
+			Vector2(source_rect.get_center().x, source_rect.end.y),
+			Vector2(target_rect.get_center().x, target_rect.position.y),
+		])
+	if source_position.x == target_position.x:
+		var route_right: bool = source_position.x < 3
+		var source_edge_x: float = source_rect.end.x if route_right else source_rect.position.x
+		var target_edge_x: float = target_rect.end.x if route_right else target_rect.position.x
+		var lane_x: float = source_edge_x + (7.0 if route_right else -7.0)
+		return PackedVector2Array([
+			Vector2(source_edge_x, source_rect.get_center().y),
+			Vector2(lane_x, source_rect.get_center().y),
+			Vector2(lane_x, target_rect.get_center().y),
+			Vector2(target_edge_x, target_rect.get_center().y),
+		])
+	var target_is_right: bool = target_rect.get_center().x > source_rect.get_center().x
+	var direction: float = 1.0 if target_is_right else -1.0
+	var source_edge := Vector2(
+		source_rect.end.x if target_is_right else source_rect.position.x,
+		source_rect.get_center().y
+	)
+	var lane_x: float = source_edge.x + direction * 7.0
+	var route_slot: int = route_index % 3
+	var track_y: float = target_rect.position.y - 5.0 - float(route_slot) * 2.0
+	return PackedVector2Array([
+		source_edge,
+		Vector2(lane_x, source_edge.y),
+		Vector2(lane_x, track_y),
+		Vector2(target_rect.get_center().x, track_y),
+		Vector2(target_rect.get_center().x, target_rect.position.y),
+	])
 
 func _panel_style(border_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

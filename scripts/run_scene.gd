@@ -1312,7 +1312,12 @@ var _upgrade_selected_element_key: String = ""
 var _progression_overlay_mode: String = ""
 var _progression_pending_skill_id: String = ""
 var _progression_respec_draft: Array[String]
+var _progression_respec_base_skill_ids: Array[String]
+var _progression_respec_base_revision: int = -1
+var _progression_respec_base_level: int = 0
+var _progression_respec_base_moltshards: int = 0
 var _progression_focused_skill_id: String = ""
+var _progression_overlay_summary_label: Label
 var _skill_tree_view: SkillTreeView
 var _equipment_slot_panels: Dictionary = {}
 var _equipment_inventory_tiles: Dictionary = {}
@@ -15837,7 +15842,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_progression_overlay_mode = mode if mode in ["equipment", "magic", "skills"] else "equipment"
 	_clear_open_loadout_tab_unread(_progression_overlay_mode)
 	_progression_pending_skill_id = ""
-	_progression_respec_draft.clear()
+	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
@@ -15850,7 +15855,7 @@ func _open_level_up_overlay() -> void:
 	_close_menu_overlay()
 	_progression_overlay_mode = "level_up"
 	_progression_pending_skill_id = ""
-	_progression_respec_draft.clear()
+	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
@@ -15860,7 +15865,8 @@ func _close_card_upgrade_overlay() -> void:
 		_upgrade_scrim.visible = false
 	_progression_overlay_mode = ""
 	_progression_pending_skill_id = ""
-	_progression_respec_draft.clear()
+	_clear_skill_respec_draft()
+	_progression_overlay_summary_label = null
 	_skill_tree_view = null
 	_clear_equipment_drag_state(true)
 	_clear_magic_drag_state(true)
@@ -15900,12 +15906,14 @@ func _rebuild_progression_overlay() -> void:
 	top_row.add_child(title)
 
 	var summary := Label.new()
+	summary.name = "ProgressionOverlaySummary"
 	summary.text = _progression_overlay_summary_text()
 	UiTypography.apply_label_role(summary, UiTypography.ROLE_CAPTION)
 	summary.add_theme_color_override("font_color", Color("f0c978"))
 	summary.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	summary.add_theme_constant_override("outline_size", 1)
 	top_row.add_child(summary)
+	_progression_overlay_summary_label = summary
 
 	var close_button := Button.new()
 	close_button.text = "X"
@@ -15942,7 +15950,13 @@ func _progression_overlay_summary_text() -> String:
 	if _progression_overlay_mode == "level_up":
 		return "LV %d -> %d   COST %d   EMBERS %d" % [level, mini(level + 1, GameData.max_progression_level()), ProgressionStore.next_level_cost(_progression), embers]
 	if _progression_overlay_mode == "respec":
-		return "DRAFT %d/%d   MOLTSHARDS %d" % [_progression_respec_draft.size(), ProgressionStore.skill_points_for_level(level), ProgressionStore.moltshard_count(_progression)]
+		var point_total: int = ProgressionStore.skill_points_for_level(level)
+		return "BUILD %d/%d   LEFT %d   MOLTSHARDS %d" % [
+			_progression_respec_draft.size(),
+			point_total,
+			maxi(0, point_total - _progression_respec_draft.size()),
+			ProgressionStore.moltshard_count(_progression),
+		]
 	if _progression_overlay_mode == "equipment":
 		var deck_size: int = int((_run_state.get("deck_cards", []) as Array).size())
 		var inventory_size: int = int((_run_state.get("equipment_inventory", []) as Array).size())
@@ -16016,8 +16030,15 @@ func _switch_character_overlay_mode(mode: String) -> void:
 	_progression_overlay_mode = mode
 	_clear_open_loadout_tab_unread(mode)
 	_progression_pending_skill_id = ""
-	_progression_respec_draft.clear()
+	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
+
+func _clear_skill_respec_draft() -> void:
+	_progression_respec_draft.clear()
+	_progression_respec_base_skill_ids.clear()
+	_progression_respec_base_revision = -1
+	_progression_respec_base_level = 0
+	_progression_respec_base_moltshards = 0
 
 func _clear_open_loadout_tab_unread(mode: String) -> void:
 	if mode not in ["equipment", "magic"]:
@@ -16131,16 +16152,18 @@ func _build_skill_tree_overlay_body() -> Control:
 	column.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 
 	var owned_ids: Array[String] = ProgressionStore.selected_skill_ids(_progression)
+	var required_count: int = ProgressionStore.skill_points_for_level(int(_progression.get("level", 1)))
 	var tree_mode: String = SkillTreeView.MODE_VIEW
 	var pending_ids: Array[String]
 	if _progression_overlay_mode == "level_up":
 		tree_mode = SkillTreeView.MODE_LEVEL_UP
+		required_count = owned_ids.size() + 1
 		if not _progression_pending_skill_id.is_empty():
 			pending_ids.append(_progression_pending_skill_id)
 	elif _progression_overlay_mode == "respec":
 		tree_mode = SkillTreeView.MODE_RESPEC
-		if _progression_respec_draft.is_empty():
-			_progression_respec_draft = owned_ids.duplicate()
+		if not _progression_respec_base_skill_ids.is_empty():
+			owned_ids = _progression_respec_base_skill_ids.duplicate()
 		pending_ids = _progression_respec_draft.duplicate()
 
 	_skill_tree_view = SkillTreeView.new()
@@ -16151,7 +16174,7 @@ func _build_skill_tree_overlay_body() -> Control:
 		"mode": tree_mode,
 		"owned_ids": owned_ids,
 		"pending_ids": pending_ids,
-		"required_count": owned_ids.size() + 1 if tree_mode == SkillTreeView.MODE_LEVEL_UP else owned_ids.size(),
+		"required_count": required_count,
 		"resource_count": ProgressionStore.moltshard_count(_progression),
 		"editing_enabled": tree_mode != SkillTreeView.MODE_RESPEC or _skill_respec_can_edit(),
 		"focused_id": _progression_focused_skill_id,
@@ -16195,6 +16218,8 @@ func _on_level_up_skill_choice_changed(skill_id: String) -> void:
 
 func _on_respec_skill_draft_changed(skill_ids: Array) -> void:
 	_progression_respec_draft = SkillTreeLibrary.normalized_ids(skill_ids)
+	if _progression_overlay_summary_label != null:
+		_progression_overlay_summary_label.text = _progression_overlay_summary_text()
 
 func _on_skill_tree_confirm_requested(skill_ids: Array) -> void:
 	if _progression_overlay_mode == "level_up":
@@ -16206,7 +16231,7 @@ func _on_skill_tree_confirm_requested(skill_ids: Array) -> void:
 func _on_skill_tree_cancel_requested() -> void:
 	if _progression_overlay_mode == "respec":
 		_progression_overlay_mode = "skills"
-		_progression_respec_draft.clear()
+		_clear_skill_respec_draft()
 		_rebuild_progression_overlay()
 	else:
 		_close_card_upgrade_overlay()
@@ -16215,20 +16240,26 @@ func _begin_skill_respec() -> void:
 	if not _skill_respec_can_edit() or ProgressionStore.moltshard_count(_progression) <= 0:
 		return
 	_reset_card_resolution()
+	_progression_respec_base_skill_ids = ProgressionStore.selected_skill_ids(_progression)
+	_progression_respec_base_revision = int(_progression.get("progression_revision", 0))
+	_progression_respec_base_level = int(_progression.get("level", 1))
+	_progression_respec_base_moltshards = ProgressionStore.moltshard_count(_progression)
 	_progression_overlay_mode = "respec"
-	_progression_respec_draft = ProgressionStore.selected_skill_ids(_progression)
+	_progression_respec_draft.clear()
+	_progression_focused_skill_id = ""
 	_rebuild_progression_overlay()
 
 func _confirm_skill_respec(proposed_ids: Array[String]) -> void:
 	if _progression_overlay_mode != "respec" or not _skill_respec_can_edit():
 		return
-	if not ProgressionStore.can_respec_skills(_progression, proposed_ids):
+	var persisted_profile: Dictionary = ProgressionStore.load_data()
+	if not _skill_respec_base_matches(persisted_profile):
+		return
+	if not ProgressionStore.can_respec_skills(persisted_profile, proposed_ids):
 		return
 	_reset_card_resolution()
-	var previous_progression: Dictionary = _progression.duplicate(true)
-	var candidate: Dictionary = ProgressionStore.respec_skills(_progression, proposed_ids)
-	var persisted_profile: Dictionary = ProgressionStore.load_data()
-	candidate = ProgressionStore.set_embers(candidate, int(persisted_profile.get("embers", 0)))
+	var previous_progression: Dictionary = persisted_profile.duplicate(true)
+	var candidate: Dictionary = ProgressionStore.respec_skills(persisted_profile, proposed_ids)
 	if candidate == previous_progression or not ProgressionStore.save_data(candidate):
 		return
 	_progression = candidate
@@ -16237,9 +16268,24 @@ func _confirm_skill_respec(proposed_ids: Array[String]) -> void:
 	_persist_committed_boundary("skill_respec")
 	_analytics_log_skill_respec(previous_progression, _progression)
 	_progression_overlay_mode = "skills"
-	_progression_respec_draft.clear()
+	_clear_skill_respec_draft()
 	_rebuild_progression_overlay()
 	_refresh_ui()
+
+func _skill_respec_base_matches(profile: Dictionary) -> bool:
+	if _progression_respec_base_revision < 0:
+		return false
+	if int(profile.get("progression_revision", 0)) != _progression_respec_base_revision:
+		return false
+	if int(profile.get("level", 1)) != _progression_respec_base_level:
+		return false
+	if ProgressionStore.moltshard_count(profile) != _progression_respec_base_moltshards:
+		return false
+	var expected_ids: Array[String] = _progression_respec_base_skill_ids.duplicate()
+	var actual_ids: Array[String] = ProgressionStore.selected_skill_ids(profile)
+	expected_ids.sort()
+	actual_ids.sort()
+	return expected_ids == actual_ids
 
 func _skill_respec_can_edit() -> bool:
 	if _run_state.is_empty() or _animation_lock or _pending_umbra_commit_locked or _loadout_acquisition_in_progress or _relic_claim_in_progress:
@@ -18645,9 +18691,14 @@ func _analytics_log_level_up(before_progression: Dictionary, after_progression: 
 	})
 
 func _analytics_log_skill_respec(before_progression: Dictionary, after_progression: Dictionary) -> void:
+	var skill_ids_before: Array[String] = ProgressionStore.selected_skill_ids(before_progression)
+	var skill_ids_after: Array[String] = ProgressionStore.selected_skill_ids(after_progression)
 	_analytics_store.write_event("progression_respec", _analytics_context_from_states(_run_state, _combat_state), {
-		"skill_ids_before": ProgressionStore.selected_skill_ids(before_progression),
-		"skill_ids_after": ProgressionStore.selected_skill_ids(after_progression),
+		"skill_ids_before": skill_ids_before,
+		"skill_ids_after": skill_ids_after,
+		"skill_points_refunded": skill_ids_before.size(),
+		"skill_points_reallocated": skill_ids_after.size(),
+		"replacement_flow": "from_scratch",
 		"moltshards_before": ProgressionStore.moltshard_count(before_progression),
 		"moltshards_after": ProgressionStore.moltshard_count(after_progression),
 		"room": _run_state.get("current_room", Vector2i.ZERO)

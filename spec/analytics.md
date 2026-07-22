@@ -226,8 +226,11 @@ skill.
 
 `progression_respec` fires only after a valid whole-tree respec is confirmed.
 Its payload records `skill_ids_before`, `skill_ids_after`,
-`moltshards_before`, `moltshards_after`, and `room`. Opening, editing, or
-canceling the tree emits no respec event and spends no resource.
+`skill_points_refunded`, `skill_points_reallocated`,
+`replacement_flow: "from_scratch"`, `moltshards_before`,
+`moltshards_after`, and `room`. Opening the empty replacement draft, allocating
+or refunding draft points, canceling, or rejecting a stale draft emits no respec
+event and spends no resource.
 
 `progression_moltshard_gained` records an earned respec resource. Its payload
 contains `amount`, `source`, `moltshards_before`, and

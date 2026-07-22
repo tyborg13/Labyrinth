@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-21T17:59:59Z",
+  "updated_at": "2026-07-22T00:04:37Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6171,6 +6171,28 @@
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "af28967"
+      }
+    },
+    {
+      "id": "mnt_20260722T000437Z_965e4117",
+      "layer": "shared",
+      "kind": "user_preference",
+      "scope": {
+        "level": "project",
+        "path": ".",
+        "symbol": null
+      },
+      "scope_key": "project:.",
+      "summary": "Skill trees must separate topology, state, and focus",
+      "details": "Render branch identity only as a small accent; learned, available, locked, drafted, and exclusive states need independent fills, borders, labels, and a legend. Route dependency lines around nodes with arrowheads, highlight a focused node's prerequisites and direct unlocks, show full node names, and list REQUIRES/UNLOCKS explicitly. Respec opens an empty UI-local replacement draft with all earned points refunded; the committed build remains active until a complete changed draft is confirmed with one Moltshard, while cancel or close is free.",
+      "status": "active",
+      "created_at": "2026-07-22T00:04:37Z",
+      "updated_at": "2026-07-22T00:04:37Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "b3b423c"
       }
     }
   ]

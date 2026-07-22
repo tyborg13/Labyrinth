@@ -177,15 +177,22 @@ Respec behavior:
 2. `Begin Respec` is enabled only when at least one skill and one Moltshard are
    available, the run is outside combat, and no uninterruptible presentation is
    active. The tree remains available read-only during combat.
-3. The draft begins as the current selection. Removing a prerequisite first
-   requires removing its dependents; additions must meet live prerequisites.
-4. The draft must contain exactly `level - 1` skills and pass the complete graph
-   validator.
-5. Cancel discards the draft for free.
-6. Confirming a changed legal draft consumes exactly one Moltshard, increments
+3. The replacement draft begins empty. All `level - 1` earned skill points are
+   immediately available in the menu, while the committed build remains active
+   in the profile and current run.
+4. Skills are rebuilt from the roots. Adding a legal node spends one draft
+   point, removing a leaf refunds one, prerequisites must be allocated first,
+   and the UI prevents spending beyond the earned point total.
+5. The draft must spend every refunded point and pass the complete graph
+   validator. Rebuilding the exact committed set remains non-confirmable so a
+   Moltshard cannot be wasted without changing the build.
+6. Cancel, Escape, or closing the menu discards the draft for free and leaves
+   the active build untouched.
+7. Confirming a changed legal draft consumes exactly one Moltshard, increments
    the progression revision, saves the profile, and updates the active run.
-7. Confirming the unchanged selection is disabled and never consumes a
-   Moltshard.
+8. The confirm path compares the draft's starting revision, level, skill set,
+   and Moltshard count against the latest persisted profile. A stale draft can
+   never overwrite newer progression.
 
 Already-earned run choices survive a respec: a card saved by Deferred Choice,
 a relic saved by Curator's Patience, or stock held through Layaway still enters
@@ -208,9 +215,14 @@ The Character menu has three tabs:
 
 Skills fully replaces the retired numeric allocation tab. The same tree view is
 used for read-only inspection, campfire level-up, and transactional respec.
-Each node displays learned, available, locked, chosen, removal, or exclusivity
-state. The detail pane shows the full effect, activation kind, prerequisites,
-minimum learned count, and lock reason.
+Branch color appears only as a thin node accent. Learned, available, locked,
+chosen or drafted, and exclusive states use independent fills, borders, labels,
+and a persistent legend. Connectors route around intervening nodes and end in
+arrowheads; focusing a skill strongly highlights its direct prerequisites and
+unlocks while fading unrelated links. The detail pane shows the full effect,
+activation kind, individually satisfied or missing prerequisites, direct
+unlocks, minimum learned count, and lock reason. Full node names never rely on
+ellipsis.
 
 During combat, learned skills appear through a violet SkillSigil beside—but
 visually distinct from—the relic row. Its popover lists every learned skill as:
@@ -294,14 +306,17 @@ The implementation is covered by focused suites for:
 - One-skill-per-level purchases and exact maximum-level counts.
 - Legacy save migration and removal of retired growth fields.
 - Moltshard acquisition, idempotence, transaction cost, cancel behavior, and
-  anti-refresh semantics.
+  anti-refresh semantics, including empty replacement drafts, refunded point
+  accounting, hard allocation caps, and stale-revision rejection.
 - Profile-first torn saves for both boss awards and level-up ember spending.
 - Every combat and run-level skill effect.
 - Skills tab replacement and absence of numeric allocation controls.
 - SkillSigil status, manual ability dialogs, reward rerolls, and respec resource
   isolation.
 - Analytics schema and card-heuristic progression context.
-- 1280x720 and 1920x1080 visual probes for tree, respec, and combat states.
+- 1280x720 and 1920x1080 visual probes for learned/available/locked trees,
+  empty refunded respec drafts, complete replacement builds with focused
+  cross-branch prerequisites, and combat states.
 
 Any future skill must add or update its data definition, relevant engine hook,
 HUD status semantics, analytics trigger, focused test, and this specification in

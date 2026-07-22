@@ -33,6 +33,9 @@ func _initialize() -> void:
 	_expect(store.write_event("progression_respec", context, {
 		"skill_ids_before": ["quick_wits", "measured_breath", "borrowed_time"],
 		"skill_ids_after": ["quick_wits", "ghost_stride", "afterimage"],
+		"skill_points_refunded": 3,
+		"skill_points_reallocated": 3,
+		"replacement_flow": "from_scratch",
 		"moltshards_before": 2,
 		"moltshards_after": 1,
 		"room": Vector2i(2, 3),
@@ -68,6 +71,8 @@ func _initialize() -> void:
 
 	var respec_payload: Dictionary = (_event_by_type(events, "progression_respec").get("payload", {}) as Dictionary)
 	_expect(int(respec_payload.get("moltshards_before", -1)) == 2 and int(respec_payload.get("moltshards_after", -1)) == 1, "Respec payloads should expose the exact resource spend")
+	_expect(int(respec_payload.get("skill_points_refunded", -1)) == 3 and int(respec_payload.get("skill_points_reallocated", -1)) == 3, "Respec payloads should expose the full refunded and reallocated point totals")
+	_expect(str(respec_payload.get("replacement_flow", "")) == "from_scratch", "Respec payloads should identify the reset-and-rebuild flow")
 
 	var gained_payload: Dictionary = (_event_by_type(events, "progression_moltshard_gained").get("payload", {}) as Dictionary)
 	_expect(str(gained_payload.get("source", "")) == "first_boss_victory" and int(gained_payload.get("amount", 0)) == 1, "Currency-gain payloads should retain their idempotent award source")

@@ -4,6 +4,7 @@ const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 
 const TEST_PROGRESSION_PATH: String = "user://skill_ui_progression.json"
 const TEST_RUN_PATH: String = "user://skill_ui_run.save"
@@ -44,6 +45,7 @@ func _run() -> void:
 	await process_frame
 
 	await _test_character_skill_tree(instance)
+	await _test_from_scratch_respec_draft_is_transactional(instance)
 	_test_contextual_run_skill_event_scope(instance)
 	run_state = (instance.get("_run_state") as Dictionary).duplicate(true)
 	await _test_combat_skill_surfaces(instance, run_state, progression)
@@ -85,6 +87,61 @@ func _test_character_skill_tree(instance: Node) -> void:
 	var body: Control = dialog.find_child("CharacterBodyFrame", true, false) as Control if dialog != null else null
 	_expect(body != null and _label_with_text(body, "Crimson Draught") != null, "Gear inventory fixture should render a normal run item")
 	_expect(body != null and _label_containing(body, "MOLTSHARD") == null, "Run inventory surface should not display the respec resource")
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+
+func _test_from_scratch_respec_draft_is_transactional(instance: Node) -> void:
+	var profile_before: Dictionary = ProgressionStore.load_data()
+	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	var respec_events_before: int = _analytics_event_count("progression_respec")
+	instance.call("_open_character_overlay", "skills")
+	await process_frame
+	instance.call("_begin_skill_respec")
+	await process_frame
+	var tree := instance.get("_skill_tree_view") as SkillTreeView
+	_expect(tree != null and tree.pending_skill_ids().is_empty(), "Beginning respec should reset the visible replacement build to zero skills")
+	_expect(tree != null and tree.points_remaining() == 2, "Beginning respec should refund every earned skill point into the draft")
+	if tree != null:
+		tree.focus_skill("measured_breath")
+		tree.activate_focused_skill()
+	_expect(ProgressionStore.load_data() == profile_before, "Editing a replacement draft should not mutate the saved profile")
+	_expect(ProgressionStore.selected_skill_ids(instance.get("_progression") as Dictionary) == ProgressionStore.selected_skill_ids(profile_before), "Editing a replacement draft should leave the active profile build unchanged")
+	var active_run_progression: Dictionary = (instance.get("_run_state") as Dictionary).get("progression", {}) as Dictionary
+	var prior_run_progression: Dictionary = run_before.get("progression", {}) as Dictionary
+	_expect(ProgressionStore.selected_skill_ids(active_run_progression) == ProgressionStore.selected_skill_ids(prior_run_progression), "Editing a replacement draft should leave the active run build unchanged")
+	instance.call("_on_skill_tree_cancel_requested")
+	await process_frame
+	_expect(ProgressionStore.load_data() == profile_before, "Canceling a replacement draft should preserve the saved profile byte-for-byte at the data level")
+	_expect(_analytics_event_count("progression_respec") == respec_events_before, "Beginning, editing, and canceling a respec should emit no respec analytics")
+
+	instance.call("_begin_skill_respec")
+	await process_frame
+	tree = instance.get("_skill_tree_view") as SkillTreeView
+	if tree != null:
+		tree.focus_skill("ghost_stride")
+		tree.activate_focused_skill()
+	instance.call("_close_card_upgrade_overlay")
+	await process_frame
+	_expect(ProgressionStore.load_data() == profile_before, "Closing Character during a replacement draft should discard it for free")
+	_expect(_analytics_event_count("progression_respec") == respec_events_before, "Closing an incomplete replacement draft should emit no respec analytics")
+
+	instance.call("_open_character_overlay", "skills")
+	await process_frame
+	instance.call("_begin_skill_respec")
+	await process_frame
+	var externally_changed: Dictionary = ProgressionStore.add_moltshards(profile_before, 1)
+	_expect(ProgressionStore.save_data(externally_changed), "Stale-respec fixture should save its newer profile revision")
+	var stale_proposal: Array[String]
+	stale_proposal.append_array(["measured_breath", "ghost_stride"])
+	instance.call("_confirm_skill_respec", stale_proposal)
+	await process_frame
+	_expect(ProgressionStore.load_data() == externally_changed, "A respec draft must not overwrite a profile revision that changed after drafting began")
+	_expect(ProgressionStore.moltshard_count(ProgressionStore.load_data()) == 3, "Rejecting a stale respec should not consume the newer profile's resource")
+	_expect(ProgressionStore.save_data(profile_before), "Stale-respec fixture should restore the original profile")
+	instance.call("_on_skill_tree_cancel_requested")
+	instance.set("_progression", profile_before)
+	instance.set("_run_state", run_before)
+	await process_frame
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 
@@ -474,6 +531,13 @@ func _skill_trigger_event_count(skill_id: String) -> int:
 			continue
 		var payload: Dictionary = event.get("payload", {}) as Dictionary
 		if str(payload.get("skill_id", "")) == skill_id:
+			count += 1
+	return count
+
+func _analytics_event_count(event_type: String) -> int:
+	var count: int = 0
+	for event: Dictionary in AnalyticsStore.load_all_events():
+		if str(event.get("event_type", "")) == event_type:
 			count += 1
 	return count
 

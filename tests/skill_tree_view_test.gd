@@ -51,9 +51,11 @@ func _test_skill_tree_view() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		expected_links += SkillTreeLibrary.prerequisites(skill_id).size()
 	_expect(view.connection_count() == expected_links, "The reusable tree should render one connector for every prerequisite")
-	_expect(view.graph_canvas_size() == Vector2(728.0, 350.0), "The graph should expose a stable compact canvas size")
+	_expect(view.graph_canvas_size() == Vector2(730.0, 344.0), "The graph should expose a stable readable canvas size")
 	_expect(view.find_child("SkillTreeScroll", true, false) is ScrollContainer, "The graph should remain scrollable in a smaller host")
 	_expect(view.find_child("SkillDetailPanel", true, false) is PanelContainer, "The tree should provide its own detail panel")
+	_expect(view.legend_state_count() == 5, "The tree should provide an explicit legend for every persistent node state")
+	_expect(_label_with_text(view, "Prismatic Instinct") != null, "Long skill names should render in full instead of being ellipsized")
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_OWNED, "Committed skills should render as learned")
 	_expect(view.status_for_skill("measured_breath") == SkillTreeView.STATE_AVAILABLE, "Legal roots should render as available")
 	_expect(view.status_for_skill("borrowed_time") == SkillTreeView.STATE_LOCKED, "Missing prerequisites should render as locked")
@@ -74,6 +76,12 @@ func _test_skill_tree_view() -> void:
 	_expect(view.confirm_is_enabled(), "A legal pending level-up choice should enable confirmation")
 	view.request_confirm()
 	_expect(_confirmed_ids == ["quick_wits", "measured_breath"], "Level-up confirmation should emit the complete proposed selection")
+	view.focus_skill("prismatic_instinct")
+	_expect(view.highlighted_connection_count() >= 2, "Focusing a cross-branch junction should highlight its directional prerequisite links")
+	var quick_relation_node: Button = view.node_for_skill("quick_wits")
+	var discerning_relation_node: Button = view.node_for_skill("discerning_eye")
+	_expect(str(quick_relation_node.get_meta("focus_relationship", "")) == "prerequisite", "A focused junction should mark Quick Wits as a prerequisite")
+	_expect(str(discerning_relation_node.get_meta("focus_relationship", "")) == "prerequisite", "A focused junction should mark Discerning Eye as a prerequisite")
 
 	var original: Array[String]
 	original.append_array([
@@ -93,21 +101,37 @@ func _test_skill_tree_view() -> void:
 		"focused_id": "quick_wits",
 	})
 	await process_frame
-	_expect(not view.confirm_is_enabled(), "An unchanged respec draft should not be confirmable")
-	_expect(not view.detail_action_is_enabled(), "A prerequisite with selected dependents should not be removable")
-	view.focus_skill("makeshift_tool")
-	_expect(view.detail_action_is_enabled(), "A selected leaf should be removable from a respec draft")
-	view.activate_focused_skill()
-	_expect(view.pending_skill_ids().size() == 4, "Removing a leaf should update the complete respec draft")
-	_expect(view.status_for_skill("makeshift_tool") == SkillTreeView.STATE_PENDING, "A removed committed skill should retain a pending-change state")
+	_expect(view.pending_skill_ids().is_empty(), "A respec should open as an empty replacement build")
+	_expect(view.points_remaining() == 5, "Every earned skill point should be refunded into the replacement draft")
+	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_AVAILABLE, "Formerly learned roots should begin available rather than appearing selected or removed")
+	_expect(not view.confirm_is_enabled(), "An empty replacement build should not be confirmable")
+	for skill_id: String in ["quick_wits", "rehearsed_escape", "makeshift_tool", "measured_breath", "carry_the_guard"]:
+		view.focus_skill(skill_id)
+		_expect(view.detail_action_is_enabled(), "%s should be addable in prerequisite order" % skill_id)
+		view.activate_focused_skill()
+	_expect(view.pending_skill_ids().size() == 5, "A complete rebuild should allocate every refunded point")
+	_expect(view.points_remaining() == 0, "A complete rebuild should leave no unallocated points")
+	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_PENDING, "Draft selections should use a distinct drafted state")
+	_expect(not view.confirm_is_enabled(), "Rebuilding the exact original set should not waste a Moltshard")
 	view.focus_skill("ghost_stride")
-	_expect(view.detail_action_is_enabled(), "An available replacement root should be addable")
+	_expect(view.status_for_skill("ghost_stride") == SkillTreeView.STATE_AVAILABLE, "An otherwise legal root should remain visibly available at the point cap")
+	_expect(not view.detail_action_is_enabled(), "The view should hard-cap additions when no skill points remain")
+	view.focus_skill("quick_wits")
+	_expect(not view.detail_action_is_enabled(), "A prerequisite with drafted dependents should require removing its dependents first")
+	view.focus_skill("carry_the_guard")
+	_expect(view.detail_action_is_enabled(), "A drafted leaf should refund its point")
 	view.activate_focused_skill()
-	_expect(view.pending_skill_ids().size() == 5, "Adding a replacement should restore the required draft size")
-	_expect(view.status_for_skill("ghost_stride") == SkillTreeView.STATE_PENDING, "A newly added skill should render as pending")
+	_expect(view.pending_skill_ids().size() == 4 and view.points_remaining() == 1, "Removing a drafted leaf should refund exactly one point")
+	view.focus_skill("ghost_stride")
+	_expect(view.detail_action_is_enabled(), "A refunded point should make an available replacement root addable")
+	view.activate_focused_skill()
+	_expect(view.pending_skill_ids().size() == 5, "Spending the refunded point should restore the required draft size")
+	_expect(view.status_for_skill("ghost_stride") == SkillTreeView.STATE_PENDING, "A newly allocated skill should render as drafted")
 	_expect(SkillTreeLibrary.selection_is_valid(view.pending_skill_ids(), 5), "The edited respec draft should remain topologically legal")
 	_expect(view.confirm_is_enabled(), "A changed legal respec draft with a resource should be confirmable")
-	_expect(_respec_event_count == 2, "Each respec edit should emit the complete draft")
+	_expect(_respec_event_count == 7, "Each from-scratch allocation and refund should emit the complete draft")
+	view.request_confirm()
+	_expect(_confirmed_ids == view.pending_skill_ids(), "Respec confirmation should emit the complete replacement build")
 
 	var keystone_build: Array[String] = SkillTreeLibrary.repaired_selection([], 9, [
 		"quick_wits",
@@ -128,7 +152,7 @@ func _test_skill_tree_view() -> void:
 	})
 	await process_frame
 	_expect(view.status_for_skill("open_arsenal") == SkillTreeView.STATE_EXCLUDED, "Other keystones should expose an excluded state after one is learned")
-	_expect(_pending_event_count >= 3, "Both level-up and respec edits should emit the shared pending signal")
+	_expect(_pending_event_count >= 8, "Both level-up and from-scratch respec edits should emit the shared pending signal")
 
 	view.queue_free()
 	await process_frame
@@ -149,6 +173,15 @@ func _on_confirm_requested(skill_ids: Array) -> void:
 	_confirmed_ids.clear()
 	for skill_id_var: Variant in skill_ids:
 		_confirmed_ids.append(str(skill_id_var))
+
+func _label_with_text(node: Node, expected: String) -> Label:
+	if node is Label and (node as Label).text == expected:
+		return node as Label
+	for child: Node in node.get_children():
+		var found: Label = _label_with_text(child, expected)
+		if found != null:
+			return found
+	return null
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

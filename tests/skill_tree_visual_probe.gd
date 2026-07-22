@@ -87,7 +87,10 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 	_expect(dialog != null and dialog.visible, "%s Skills dialog should be visible" % viewport_size)
 	_expect(tree != null and tree.node_count() == 24, "%s Skills dialog should render all 24 nodes" % viewport_size)
 	_expect(tree != null and tree.owned_skill_ids().size() == 10, "%s Skills dialog should render ten learned skills" % viewport_size)
-	_assert_tree_fits_without_scrollbars(tree, viewport_size, "Skills")
+	if tree != null:
+		tree.focus_skill("prismatic_instinct")
+		_expect(tree.highlighted_connection_count() >= 2, "%s Skills tree should emphasize both parents of a focused cross-branch junction" % viewport_size)
+	_assert_tree_scroll_contract(tree, viewport_size, "Skills")
 	_expect(_label_containing(dialog, "MOLTSHARDS 2") != null, "%s Skills dialog should show two Moltshards" % viewport_size)
 	_expect(_button_with_text(dialog, "Begin Respec") != null, "%s Skills dialog should expose the respec command" % viewport_size)
 	_assert_inside(dialog, viewport_size, "%s Skills dialog" % viewport_size, 8.0)
@@ -99,22 +102,41 @@ func _capture_respec_draft(instance: Node, viewport: SubViewport, viewport_size:
 	var tree := instance.get("_skill_tree_view") as SkillTreeView
 	_expect(tree != null and tree.mode() == SkillTreeView.MODE_RESPEC, "%s Respec should open the shared tree in draft mode" % viewport_size)
 	if tree != null:
-		tree.focus_skill("carry_the_guard")
-		_expect(tree.detail_action_is_enabled(), "%s Respec fixture should allow removing its selected leaf" % viewport_size)
-		tree.activate_focused_skill()
-		tree.focus_skill("sure_footed")
-		_expect(tree.detail_action_is_enabled(), "%s Respec fixture should allow adding its replacement" % viewport_size)
-		tree.activate_focused_skill()
-		tree.focus_skill("sure_footed")
-		await _settle()
-		_expect(tree.pending_skill_ids().size() == 10, "%s Respec draft should preserve the required skill count" % viewport_size)
-		_expect(tree.status_for_skill("carry_the_guard") == SkillTreeView.STATE_PENDING, "%s Removed skill should show a pending change" % viewport_size)
-		_expect(tree.status_for_skill("sure_footed") == SkillTreeView.STATE_PENDING, "%s Replacement skill should show a pending change" % viewport_size)
-		_expect(tree.confirm_is_enabled(), "%s Changed legal respec draft should be confirmable" % viewport_size)
-		_assert_tree_fits_without_scrollbars(tree, viewport_size, "Respec")
+		_expect(tree.pending_skill_ids().is_empty(), "%s Respec should begin with an empty replacement build" % viewport_size)
+		_expect(tree.points_remaining() == 10, "%s Respec should refund all ten earned points" % viewport_size)
+		_expect(tree.status_for_skill("quick_wits") == SkillTreeView.STATE_AVAILABLE, "%s Former skills should return to the available pool" % viewport_size)
+		tree.focus_skill("quick_wits")
+		_assert_tree_scroll_contract(tree, viewport_size, "Respec")
 	var dialog := instance.get("_upgrade_dialog") as Control
 	_assert_inside(dialog, viewport_size, "%s Respec dialog" % viewport_size, 8.0)
-	await _save_screenshot(viewport, "%s/02_respec_draft.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/02_respec_empty.png" % output_dir, viewport_size)
+
+	var alternate_preference: Array = [
+		"measured_breath",
+		"ghost_stride",
+		"discerning_eye",
+		"carry_the_guard",
+		"pain_remembers",
+		"sure_footed",
+		"afterimage",
+		"deferred_choice",
+		"plunderers_step",
+		"living_shadow",
+	]
+	var alternate: Array[String] = SkillTreeLibrary.repaired_selection([], 10, alternate_preference)
+	_expect(alternate != PROGRESSION_SKILLS, "%s Respec visual fixture should rebuild a genuinely different tree" % viewport_size)
+	if tree != null:
+		for skill_id: String in alternate:
+			tree.focus_skill(skill_id)
+			_expect(tree.detail_action_is_enabled(), "%s Respec should allocate %s in prerequisite order" % [viewport_size, skill_id])
+			tree.activate_focused_skill()
+		tree.focus_skill("plunderers_step")
+		await _settle()
+		_expect(tree.pending_skill_ids() == alternate, "%s Respec should hold the complete rebuilt draft" % viewport_size)
+		_expect(tree.points_remaining() == 0, "%s Complete rebuilt draft should spend every refunded point" % viewport_size)
+		_expect(tree.confirm_is_enabled(), "%s Different complete rebuilt draft should be confirmable" % viewport_size)
+		_expect(tree.highlighted_connection_count() >= 2, "%s Rebuilt draft should make its cross-branch parent links explicit" % viewport_size)
+	await _save_screenshot(viewport, "%s/03_respec_complete.png" % output_dir, viewport_size)
 	instance.call("_on_skill_tree_cancel_requested")
 	await _settle()
 	instance.call("_close_card_upgrade_overlay")
@@ -182,7 +204,7 @@ func _capture_combat_surfaces(
 		if button == null:
 			button = _visible_button_with_text(choice_bar, skill_name)
 		_expect(button != null, "%s Combat HUD should expose ready %s control" % [viewport_size, skill_name])
-	await _save_screenshot(viewport, "%s/03_combat_skill_controls.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/04_combat_skill_controls.png" % output_dir, viewport_size)
 
 	instance.call("_toggle_skill_status_popover")
 	await _settle()
@@ -192,7 +214,7 @@ func _capture_combat_surfaces(
 	_expect(_label_with_text(popover, "Quick Wits") != null, "%s Skill popover should list Quick Wits" % viewport_size)
 	_expect(_label_with_text(popover, "Discerning Eye") != null, "%s Skill popover should list Discerning Eye" % viewport_size)
 	_assert_inside(popover, viewport_size, "%s Skill status popover" % viewport_size, 8.0)
-	await _save_screenshot(viewport, "%s/04_combat_skill_popover.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/05_combat_skill_popover.png" % output_dir, viewport_size)
 
 	instance.call("_close_skill_status_popover")
 	instance.call("_on_combat_skill_pressed", "quick_wits")
@@ -203,7 +225,7 @@ func _capture_combat_surfaces(
 	_expect(_label_with_text(choice_scrim, "Quick Wits") != null, "%s Manual skill dialog should identify Quick Wits" % viewport_size)
 	_expect(_button_beginning_with(choice_scrim, "Discard ") != null, "%s Manual skill dialog should offer card choices" % viewport_size)
 	_assert_inside(choice_dialog, viewport_size, "%s Manual skill dialog" % viewport_size, 8.0)
-	await _save_screenshot(viewport, "%s/05_quick_wits_choice.png" % output_dir, viewport_size)
+	await _save_screenshot(viewport, "%s/06_quick_wits_choice.png" % output_dir, viewport_size)
 	instance.call("_close_skill_choice_dialog")
 
 func _populated_progression() -> Dictionary:
@@ -266,15 +288,15 @@ func _assert_inside(control: Control, viewport_size: Vector2i, label: String, ma
 	_expect(rect.end.x <= safe_rect.end.x + 1.0, "%s should not clip right: %s" % [label, rect])
 	_expect(rect.end.y <= safe_rect.end.y + 1.0, "%s should not clip bottom: %s" % [label, rect])
 
-func _assert_tree_fits_without_scrollbars(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
+func _assert_tree_scroll_contract(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
 	if tree == null:
 		return
 	var scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
 	_expect(scroll != null, "%s %s tree should retain its bounded scroll host" % [viewport_size, label])
 	if scroll == null:
 		return
-	_expect(not scroll.get_h_scroll_bar().visible, "%s %s tree should fit without horizontal scrolling" % [viewport_size, label])
-	_expect(not scroll.get_v_scroll_bar().visible, "%s %s tree should fit without vertical scrolling" % [viewport_size, label])
+	_expect(not scroll.get_h_scroll_bar().visible, "%s %s tree should keep all four branches visible without horizontal scrolling" % [viewport_size, label])
+	_expect(tree.graph_canvas_size().x <= scroll.size.x + 2.0, "%s %s graph canvas should remain horizontally bounded" % [viewport_size, label])
 
 func _settle() -> void:
 	await process_frame

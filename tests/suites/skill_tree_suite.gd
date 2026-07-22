@@ -109,6 +109,20 @@ static func _test_respec_is_transactional(expect: Callable) -> void:
 	var rejected: Dictionary = ProgressionStore.respec_skills(profile, invalid)
 	expect.call(ProgressionStore.moltshard_count(rejected) == 1, "An invalid respec should not consume its Moltshard")
 	expect.call(ProgressionStore.selected_skill_ids(rejected) == original_skills, "An invalid respec should not partially change the build")
+	expect.call(not ProgressionStore.can_respec_skills(profile, original_skills), "Rebuilding the identical set should not waste a Moltshard")
+	var unchanged: Dictionary = ProgressionStore.respec_skills(profile, original_skills)
+	expect.call(ProgressionStore.moltshard_count(unchanged) == 1 and int(unchanged.get("progression_revision", 0)) == int(profile.get("progression_revision", 0)), "An identical rebuild should preserve its resource and revision")
+	var duplicate: Array = original_skills.duplicate()
+	duplicate[duplicate.size() - 1] = duplicate[0]
+	expect.call(not ProgressionStore.can_respec_skills(profile, duplicate), "A duplicate-id replacement build should be rejected")
+	var unknown: Array = original_skills.duplicate()
+	unknown[unknown.size() - 1] = "unknown_skill"
+	expect.call(not ProgressionStore.can_respec_skills(profile, unknown), "An unknown-id replacement build should be rejected")
+	var oversized: Array = original_skills.duplicate()
+	for available_id: String in SkillTreeLibrary.available_ids(original_skills):
+		oversized.append(available_id)
+		break
+	expect.call(not ProgressionStore.can_respec_skills(profile, oversized), "An oversized replacement build should be rejected")
 	var alternate_order: Array[String]
 	alternate_order.append_array(["discerning_eye", "ghost_stride", "sure_footed", "deferred_choice", "salvager"])
 	var alternate: Array[String] = SkillTreeLibrary.repaired_selection([], 5, alternate_order)
