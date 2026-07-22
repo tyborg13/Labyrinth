@@ -81,9 +81,10 @@ Region checks are intentionally generic pixel contracts. Probe scripts remain re
 `tools/inspection_fixture.py` now generates the save, reloads it in a second Godot process, hashes the complete persisted run and progression state, verifies that contract, and writes a structured JSON manifest. The reported launch command calls the fixture wrapper with `--launch`, so every inspection regenerates and verifies the original pre-choice/pre-action state before opening the game.
 
 Progression fixtures pair `--level N` with `--skills id_a,id_b`. The builder
-requires exactly `N - 1` skill ids and validates prerequisites and exclusivity
-through the live skill graph. Add `--moltshards N` when the inspection needs
-respec currency on the character menu.
+accepts any legal selection up to the `N - 1` earned-point cap, leaves omitted
+points unspent, and validates prerequisites and exclusivity through the live
+skill graph. Add `--moltshards N` when the inspection needs reset currency on
+the character menu.
 
 After peer signoff, package review and inspection metadata once:
 

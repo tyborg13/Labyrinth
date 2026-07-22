@@ -100,6 +100,42 @@ class InspectionFixtureTests(unittest.TestCase):
         self.assertIn(expected_options, result.stdout)
         self.assertIn("--launch " + expected_options, result.stdout)
 
+    def test_banked_skill_points_survive_the_self_healing_command(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project",
+                str(ROOT),
+                "--task-id",
+                "banked-skill-fixture-test",
+                "--run-id",
+                "banked-skill-fixture-test-run",
+                "--dry-run",
+                "--scenario",
+                "character",
+                "--level",
+                "5",
+                "--skills",
+                "quick_wits,rehearsed_escape",
+                "--moltshards",
+                "1",
+                "--summary",
+                "Inspect two learned and two unspent skill points.",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected_options = (
+            "--scenario character --level 5 "
+            "--skills quick_wits,rehearsed_escape --moltshards 1"
+        )
+        self.assertIn(expected_options, result.stdout)
+        self.assertIn("--launch " + expected_options, result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

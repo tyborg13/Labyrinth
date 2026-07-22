@@ -246,7 +246,7 @@ func _print_help() -> void:
 	print("  --seed N")
 	print("  --umbra-warning (start with the one-time Emaciated Man Umbra warning due)")
 	print("  --embers N --held-embers N --level N --skills id_a,id_b --moltshards N")
-	print("    --skills must contain exactly level - 1 ids that form a legal tree selection.")
+	print("    --skills may contain any legal selection up to the level's earned point cap; omitted points remain unspent.")
 	print("  --player-hp N --player-max-hp N (fixed-point: 360 = 36 HP) --player-position 2:4 --relics ember_lens,pilgrim_boots")
 	print("  --attuned-magic card_a,card_b --magic-inventory card_c,card_d")
 	print("  --equip weapon=training_sword,offhand=splintered_shield")
@@ -274,11 +274,11 @@ func _build_progression() -> Dictionary:
 		if not SkillTreeLibrary.has_definition(skill_id):
 			_fail("Unknown skill id %s in --skills." % skill_id)
 			return progression
-	var required_skill_count: int = ProgressionStore.skill_points_for_level(int(progression.get("level", 1)))
-	if requested_skills.size() != required_skill_count:
-		_fail("--skills must contain exactly %d ids for level %d." % [required_skill_count, int(progression.get("level", 1))])
+	var earned_skill_count: int = ProgressionStore.skill_points_for_level(int(progression.get("level", 1)))
+	if requested_skills.size() > earned_skill_count:
+		_fail("--skills may contain at most %d ids for level %d." % [earned_skill_count, int(progression.get("level", 1))])
 		return progression
-	if not SkillTreeLibrary.selection_is_valid(requested_skills, required_skill_count):
+	if not SkillTreeLibrary.selection_is_valid(requested_skills):
 		_fail("--skills must form one legal tree selection with all prerequisites and exclusivity rules satisfied.")
 		return progression
 	var requested_moltshards: int = int(_options.get("moltshards", 0))
