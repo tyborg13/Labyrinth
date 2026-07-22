@@ -248,6 +248,11 @@ realization do not create a second activation event. Realized card, damage,
 defense, movement, and resource outcomes remain in their existing events rather
 than being converted into a guessed skill score.
 
+For Rehearsed Escape and Makeshift Tool, pre-arming is intent rather than a
+realized activation. Their single `skill_triggered` event is recorded when the
+qualifying card is actually redirected to discard, which is also when the
+once-per-combat charge is spent.
+
 ## AWS-Friendly Expectations
 
 If this gets uploaded later, keep the event contract compatible with object storage and batch processing:

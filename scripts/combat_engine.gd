@@ -306,9 +306,17 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 				and not prismatic_target_hand_indices(state).is_empty()
 			)
 		"preserve_burn":
-			return is_player_turn(state) and not bool((state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
+			return (
+				is_player_turn(state)
+				and not bool((state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
+				and _hand_has_non_item_burn(state)
+			)
 		"preserve_fallback_item":
-			return is_player_turn(state) and not bool((state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
+			return (
+				is_player_turn(state)
+				and not bool((state.get("skill_flags", {}) as Dictionary).get("item_preserve_armed", false))
+				and _hand_has_item(state)
+			)
 		"fallback_blink":
 			return is_player_turn(state)
 	return true
@@ -381,6 +389,21 @@ func prismatic_target_hand_indices(state: Dictionary) -> Array[int]:
 		result.append(index)
 	return result
 
+func _hand_has_non_item_burn(state: Dictionary) -> bool:
+	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for card_id_var: Variant in hand:
+		var card_id: String = str(card_id_var)
+		if bool(card_def(card_id, state).get("burn", false)) and not GameData.card_is_item(card_id):
+			return true
+	return false
+
+func _hand_has_item(state: Dictionary) -> bool:
+	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	for card_id_var: Variant in hand:
+		if GameData.card_is_item(str(card_id_var)):
+			return true
+	return false
+
 func arm_prismatic_instinct(state: Dictionary, hand_index: int) -> Dictionary:
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("arm_intensity")
 	if not skill_is_ready(state, skill_id):
@@ -402,7 +425,7 @@ func arm_rehearsed_escape(state: Dictionary) -> Dictionary:
 		return state.duplicate(true)
 	var next_state: Dictionary = state.duplicate(true)
 	_set_skill_flag(next_state, "burn_preserve_armed", true)
-	_mark_skill_used(next_state, skill_id, "%s is armed for the next non-item Burn card." % SkillTreeLibrary.display_name(skill_id))
+	_log(next_state, "%s is armed for the next non-item Burn card." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func arm_makeshift_tool(state: Dictionary) -> Dictionary:
@@ -411,7 +434,7 @@ func arm_makeshift_tool(state: Dictionary) -> Dictionary:
 		return state.duplicate(true)
 	var next_state: Dictionary = state.duplicate(true)
 	_set_skill_flag(next_state, "item_preserve_armed", true)
-	_mark_skill_used(next_state, skill_id, "%s is armed for the next item's basic Attack or Move." % SkillTreeLibrary.display_name(skill_id))
+	_log(next_state, "%s is armed for the next item's basic Attack or Move." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String = "play") -> Dictionary:
@@ -1083,7 +1106,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 			deck["discard"] = makeshift_discard
 			destination = "discard"
 			_erase_skill_flag(next_state, "item_preserve_armed")
-			_log(next_state, "%s preserves the item after its basic use." % SkillTreeLibrary.display_name(makeshift_id))
+			_mark_skill_used(next_state, makeshift_id, "%s preserves the item after its basic use." % SkillTreeLibrary.display_name(makeshift_id))
 		else:
 			var consumed: Array = deck.get("consumed", []).duplicate()
 			consumed.append(card_id)
@@ -1098,7 +1121,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 			deck["discard"] = saved_discard
 			destination = "discard"
 			_erase_skill_flag(next_state, "burn_preserve_armed")
-			_log(next_state, "%s keeps %s in the deck." % [SkillTreeLibrary.display_name(escape_id), str(card.get("name", card_id))])
+			_mark_skill_used(next_state, escape_id, "%s keeps %s in the deck." % [SkillTreeLibrary.display_name(escape_id), str(card.get("name", card_id))])
 		else:
 			var burned: Array = deck.get("burned", []).duplicate()
 			burned.append(card_id)
@@ -5576,9 +5599,10 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 			var fatigue_player: Dictionary = _normalized_player(next_state.get("player", {}))
 			if int(fatigue_player.get("hp", 0)) <= 0 and has_skill(next_state, reserve_id) and not skill_was_used(next_state, reserve_id):
 				var reserve_effect: Dictionary = SkillTreeLibrary.effect(reserve_id)
-				fatigue_player["hp"] = GameData.fixed_point_amount(maxi(1, int(reserve_effect.get("minimum_health_visible", 1))))
+				var reserve_health: int = GameData.fixed_point_amount(maxi(1, int(reserve_effect.get("minimum_health_visible", 1))))
+				fatigue_player["hp"] = reserve_health
 				next_state["player"] = fatigue_player
-				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at 1 health." % SkillTreeLibrary.display_name(reserve_id))
+				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at %d health." % [SkillTreeLibrary.display_name(reserve_id), reserve_health])
 			deck = next_state.get("deck", {}).duplicate(true)
 			var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 			rng.state = int(next_state.get("rng_state", 0))

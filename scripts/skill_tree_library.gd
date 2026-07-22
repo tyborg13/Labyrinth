@@ -57,10 +57,22 @@ static func display_name(skill_id: String) -> String:
 static func description(skill_id: String) -> String:
 	return str((definitions().get(skill_id, {}) as Dictionary).get("description", ""))
 
+static func icon_key(skill_id: String) -> String:
+	return str((definitions().get(skill_id, {}) as Dictionary).get("icon", ""))
+
+static func tier(skill_id: String) -> String:
+	return str((definitions().get(skill_id, {}) as Dictionary).get("tier", "branch"))
+
 static func position(skill_id: String) -> Vector2i:
 	var raw: Variant = (definitions().get(skill_id, {}) as Dictionary).get("position", [])
 	if typeof(raw) != TYPE_ARRAY or (raw as Array).size() < 2:
 		return Vector2i.ZERO
+	return Vector2i(int((raw as Array)[0]), int((raw as Array)[1]))
+
+static func layout_position(skill_id: String) -> Vector2i:
+	var raw: Variant = (definitions().get(skill_id, {}) as Dictionary).get("layout_position", [])
+	if typeof(raw) != TYPE_ARRAY or (raw as Array).size() < 2:
+		return position(skill_id)
 	return Vector2i(int((raw as Array)[0]), int((raw as Array)[1]))
 
 static func prerequisites(skill_id: String) -> Array[String]:
@@ -73,7 +85,7 @@ static func exclusive_group(skill_id: String) -> String:
 	return str((definitions().get(skill_id, {}) as Dictionary).get("exclusive_group", ""))
 
 static func is_keystone(skill_id: String) -> bool:
-	return str((definitions().get(skill_id, {}) as Dictionary).get("tier", "")) == "keystone"
+	return tier(skill_id) == "keystone"
 
 static func activation_kind(skill_id: String) -> String:
 	return str((definitions().get(skill_id, {}) as Dictionary).get("activation", "automatic"))
@@ -227,18 +239,25 @@ static func repaired_selection(value: Variant, target_count: int, preferred_orde
 static func validation_errors() -> Array[String]:
 	var errors: Array[String]
 	var seen_positions: Dictionary = {}
+	var seen_layout_positions: Dictionary = {}
 	for skill_id: String in ordered_ids():
 		var skill_def: Dictionary = definitions().get(skill_id, {}) as Dictionary
 		if str(skill_def.get("name", "")).strip_edges().is_empty():
 			errors.append("%s has no name." % skill_id)
 		if str(skill_def.get("description", "")).strip_edges().is_empty():
 			errors.append("%s has no description." % skill_id)
+		if str(skill_def.get("icon", "")).strip_edges().is_empty():
+			errors.append("%s has no icon." % skill_id)
 		if effect_type(skill_id).is_empty():
 			errors.append("%s has no effect type." % skill_id)
 		var position_key: String = str(position(skill_id))
 		if seen_positions.has(position_key):
 			errors.append("%s shares a position with %s." % [skill_id, str(seen_positions[position_key])])
 		seen_positions[position_key] = skill_id
+		var layout_key: String = str(layout_position(skill_id))
+		if seen_layout_positions.has(layout_key):
+			errors.append("%s shares a layout position with %s." % [skill_id, str(seen_layout_positions[layout_key])])
+		seen_layout_positions[layout_key] = skill_id
 		var raw_prerequisites: Variant = skill_def.get("prerequisites", [])
 		if typeof(raw_prerequisites) != TYPE_ARRAY:
 			errors.append("%s prerequisites must be an array." % skill_id)
@@ -249,6 +268,18 @@ static func validation_errors() -> Array[String]:
 				errors.append("%s requires itself." % skill_id)
 			elif not has_definition(prerequisite_id):
 				errors.append("%s requires unknown skill %s." % [skill_id, prerequisite_id])
+			elif layout_position(prerequisite_id).y >= layout_position(skill_id).y:
+				errors.append("%s must render below prerequisite %s." % [skill_id, prerequisite_id])
+		var known_prerequisites: Array[String] = prerequisites(skill_id)
+		if known_prerequisites.size() > 1:
+			var minimum_parent_x: int = layout_position(known_prerequisites[0]).x
+			var maximum_parent_x: int = minimum_parent_x
+			for prerequisite_id: String in known_prerequisites:
+				minimum_parent_x = mini(minimum_parent_x, layout_position(prerequisite_id).x)
+				maximum_parent_x = maxi(maximum_parent_x, layout_position(prerequisite_id).x)
+			var child_x: int = layout_position(skill_id).x
+			if child_x < minimum_parent_x or child_x > maximum_parent_x:
+				errors.append("%s should render between its prerequisites." % skill_id)
 	var cycle_errors: Array[String] = _prerequisite_cycle_errors()
 	errors.append_array(cycle_errors)
 	if cycle_errors.is_empty():

@@ -1,6 +1,7 @@
 extends RefCounted
 
 const GameData = preload("res://scripts/game_data.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
@@ -21,6 +22,8 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	var keystones: Array[String]
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var skill_def: Dictionary = SkillTreeLibrary.definition(skill_id)
+		expect.call(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)) != null, "%s should have a loadable tree icon" % skill_id)
+		expect.call(not SkillTreeLibrary.description(skill_id).to_lower().contains("sequence"), "%s should describe its refresh cadence in player language" % skill_id)
 		if str(skill_def.get("tier", "")) == "root":
 			roots.append(skill_id)
 		if SkillTreeLibrary.is_keystone(skill_id):
@@ -28,6 +31,12 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(roots.size() == 4, "The tree should begin with four distinct roots")
 	expect.call(keystones.size() == 4, "The tree should end with four exclusive keystones")
 	expect.call(SkillTreeLibrary.available_ids([]).size() == 4, "A new character should be able to learn any root")
+	var afterimage_health: int = GameData.fixed_point_amount(int(SkillTreeLibrary.effect("afterimage").get("health_visible", 0)))
+	var reserve_health: int = GameData.fixed_point_amount(int(SkillTreeLibrary.effect("last_reserve").get("minimum_health_visible", 0)))
+	var last_door_health: int = GameData.fixed_point_amount(int(SkillTreeLibrary.effect("last_door").get("minimum_health_visible", 0)))
+	expect.call(SkillTreeLibrary.description("afterimage").contains(str(afterimage_health)), "Afterimage copy should match the health shown on its illusion")
+	expect.call(SkillTreeLibrary.description("last_reserve").contains(str(reserve_health)), "Last Reserve copy should match the surviving health shown in combat")
+	expect.call(SkillTreeLibrary.description("last_door").contains(str(last_door_health)), "Last Door copy should match the returning health shown in the run UI")
 
 static func _test_topology_validation_rejects_unknown_prerequisites(expect: Callable) -> void:
 	var altered_definitions: Dictionary = SkillTreeLibrary.definitions().duplicate(true)

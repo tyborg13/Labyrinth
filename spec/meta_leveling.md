@@ -110,6 +110,14 @@ Keystones require at least eight already learned skills. All keystones share
 one exclusivity group, so choosing one permanently closes the other three until
 a respec.
 
+The authored `position` field preserves deterministic progression ordering.
+The separate `layout_position` field arranges the visible graph by dependency
+depth: Measured Breath, Quick Wits, Discerning Eye, and Ghost Stride are ordered
+to shorten their shared junctions; root-only junctions share the first child
+rank; deeper junctions are staggered; and every keystone occupies the final
+rank. Visual layout changes must not silently change migration, default-focus,
+or build-repair order.
+
 `SkillTreeLibrary` validates that the graph is acyclic, every prerequisite is
 known, every node is reachable, exclusivity is respected, and a requested
 selection has the exact number of skills required by the profile's level.
@@ -122,43 +130,43 @@ selection has the exact number of skills required by the profile's level.
 | --- | --- | --- |
 | Quick Wits | Manual, once per combat | Discard a card to draw a card without spending a play or Time. |
 | Measured Breath | Automatic | End an activation with an unused play to bank one play for the next activation. |
-| Ghost Stride | Contextual, once per combat | A card used for basic Move may Blink `2` instead. |
-| Discerning Eye | Contextual, once per sequence | Replace every card in a combat reward. |
+| Ghost Stride | Contextual, once per combat | Use a card's basic Move as Blink `2`. |
+| Discerning Eye | Contextual, once between bosses | Replace every card in a combat reward. |
 
 ### Branch skills
 
 | Skill | Requires | Effect |
 | --- | --- | --- |
-| Rehearsed Escape | Quick Wits | Once per combat, manually arm before playing a non-item Burn card; that card goes to discard instead. |
-| Makeshift Tool | Quick Wits | Once per combat, manually arm before using an item as a basic Attack or Move; it goes to discard instead of being consumed. |
-| Carry the Guard | Measured Breath | Once per combat, block remaining at the end of an activation becomes stoneskin. |
-| Pain Remembers | Measured Breath | After first losing health in a combat, the next non-item discard returns to hand. |
-| Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would hit the player still affects enemies and terrain but leaves the player unharmed. Safe blasts do not spend it. |
-| Afterimage | Ghost Stride | The first Blink each combat leaves a `2`-health illusion on the departed tile. The player may move through friendly illusions; ending movement on one dispels it. |
+| Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Burn card instead of burning it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
+| Makeshift Tool | Quick Wits | Once per combat, arm to discard the next item used as a basic Attack or Move instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
+| Carry the Guard | Measured Breath | Once per combat, convert remaining block to stoneskin when an activation ends. |
+| Pain Remembers | Measured Breath | After the first health loss each combat, return the next non-item discard to hand. |
+| Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |
+| Afterimage | Ghost Stride | The first Blink each combat leaves a `20`-health illusion behind. The player may move through friendly illusions; ending on one dispels it. |
 | Deferred Choice | Discerning Eye | Skip a card reward to save one offered card; it replaces a card in the next reward. |
-| Salvager | Discerning Eye | Once per sequence, recover the first equipment reward left behind. |
+| Salvager | Discerning Eye | Once between bosses, recover the first equipment drop left uncollected after victory. |
 
 ### Junction skills
 
 | Skill | Requires | Effect |
 | --- | --- | --- |
-| Borrowed Time | Quick Wits + Measured Breath | The first card played with a banked play each combat adds no Time. |
-| Last Reserve | Carry the Guard + Pain Remembers | The first lethal Fatigue draw each combat leaves the player at `1` health. |
-| Plunderer's Step | Ghost Stride + Discerning Eye | The first Move or Blink that collects loot each combat refunds its play. |
-| Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, name one conditional card currently in hand. The next printed play of any copy satisfies its elemental intensity conditions; other cards and basic uses do not consume the arm. Duplicate names appear as one choice. |
+| Borrowed Time | Quick Wits + Measured Breath | The first card paid for with a banked play each combat adds no Time. |
+| Last Reserve | Carry the Guard + Pain Remembers | Once per combat, lethal Fatigue leaves the player at `10` health. |
+| Plunderer's Step | Ghost Stride + Discerning Eye | The first Move or Blink to collect loot each combat refunds its play. |
+| Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, choose a conditional card in hand. Its next printed play, from any copy, satisfies every intensity condition; basic uses do not consume it. Duplicate names appear as one choice. |
 | Curator's Patience | Quick Wits + Deferred Choice | After taking a relic, carry one unchosen relic into the next offer. |
-| Living Shadow | Pain Remembers + Afterimage | Once per turn, an illusion's fall returns the latest non-item discard to hand. At the hand limit, it instead puts that card atop the draw pile. |
-| True Bearing | Sure-Footed + Discerning Eye | Before combat, choose a safe starting tile within `2` spaces of the entrance. |
-| Layaway | Measured Breath + Deferred Choice | Once per sequence, hold one merchant offer for that merchant's next visit. Only one reservation may remain pending, even across a sequence boundary. |
+| Living Shadow | Pain Remembers + Afterimage | Once per turn, an illusion's fall returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
+| True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
+| Layaway | Measured Breath + Deferred Choice | Once between bosses, hold one offer for the next merchant of that type. Only one reservation may remain pending, even across an internal sequence boundary. |
 
 ### Keystones
 
 | Skill | Requires | Effect |
 | --- | --- | --- |
 | Encore | Borrowed Time | Once per combat, manually return a non-item discard to hand without spending a play or Time. |
-| Open Arsenal | Living Shadow | The trinket slot may hold equipment from any slot. |
+| Open Arsenal | Living Shadow | Equip any equipment in the trinket slot. |
 | Confluence | Prismatic Instinct | Elemental conditions use the player's highest intensity regardless of element. A conditional draw enabled only this way stops before Fatigue. |
-| Last Door | True Bearing | Once per sequence, defeat outside a boss room returns the player to the previous room at `1` health; spent items remain spent. |
+| Last Door | True Bearing | Once between bosses, a non-boss defeat returns the player to the previous room at `10` health; spent items remain spent. |
 
 The small numbers inside a few effects define new objects, distances, or
 survival states. They are not scalable permanent bonuses and cannot be ranked
@@ -215,14 +223,22 @@ The Character menu has three tabs:
 
 Skills fully replaces the retired numeric allocation tab. The same tree view is
 used for read-only inspection, campfire level-up, and transactional respec.
-Branch color appears only as a thin node accent. Learned, available, locked,
-chosen or drafted, and exclusive states use independent fills, borders, labels,
-and a persistent legend. Connectors route around intervening nodes and end in
-arrowheads; focusing a skill strongly highlights its direct prerequisites and
-unlocks while fading unrelated links. The detail pane shows the full effect,
-activation kind, individually satisfied or missing prerequisites, direct
-unlocks, minimum learned count, and lock reason. Full node names never rely on
-ellipsis.
+The graph uses compact semantic-icon medallions rather than persistent name
+cards. Root, branch, junction, and keystone roles have distinct shapes and
+scales. Learned, available, locked, chosen or drafted, and exclusive states use
+independent fills, borders, state glyphs, and a persistent legend; branch color
+is only a small secondary accent.
+
+Names and rules text live in the persistent detail pane and tooltips, so no
+label can cover a dependency. Every connection runs between an explicit output
+and input port, uses an opaque core at least `3` pixels wide over a dark
+under-stroke, avoids every unrelated node, and has no arrowhead. Direction is
+communicated by the top-to-bottom dependency ranks. Focusing a skill strengthens
+its prerequisites and direct unlocks without fading the rest of the graph. The
+full root-to-keystone topology fits at `1280x720` and `1920x1080` without either
+scrollbar. The detail pane shows the full effect, activation kind, individually
+satisfied or missing prerequisites, direct unlocks, minimum learned count, and
+lock reason.
 
 During combat, learned skills appear through a violet SkillSigil beside—but
 visually distinct from—the relic row. Its popover lists every learned skill as:
@@ -316,7 +332,10 @@ The implementation is covered by focused suites for:
 - Analytics schema and card-heuristic progression context.
 - 1280x720 and 1920x1080 visual probes for learned/available/locked trees,
   empty refunded respec drafts, complete replacement builds with focused
-  cross-branch prerequisites, and combat states.
+  cross-branch prerequisites, and combat states. Geometry tests additionally
+  require distinct multi-parent ports, zero connector-node intersections,
+  opaque `3`-pixel minimum links with separating under-strokes, loaded semantic
+  icons, explicit controller neighbors, and no tree scrollbars.
 
 Any future skill must add or update its data definition, relevant engine hook,
 HUD status semantics, analytics trigger, focused test, and this specification in

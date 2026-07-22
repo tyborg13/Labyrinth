@@ -72,8 +72,12 @@ func _test_character_skill_tree(instance: Node) -> void:
 	_expect(_button_with_text(scrim, "Skills") != null, "Character menu should expose a Skills tab")
 	_expect(_button_with_text(scrim, "Stats") == null, "Character menu should not expose a Stats tab")
 	_expect(scrim != null and scrim.find_child("CharacterSkillTree", true, false) != null, "Skills tab should render the shared skill tree")
-	_expect(_label_with_text(scrim, "Quick Wits") != null, "Skill tree should show a learned combat ability")
-	_expect(_label_with_text(scrim, "Discerning Eye") != null, "Skill tree should show a learned reward ability")
+	var tree := instance.get("_skill_tree_view") as SkillTreeView
+	_expect(tree != null and tree.status_for_skill("quick_wits") == SkillTreeView.STATE_OWNED, "Skill tree should mark a learned combat ability")
+	_expect(tree != null and tree.status_for_skill("discerning_eye") == SkillTreeView.STATE_OWNED, "Skill tree should mark a learned reward ability")
+	if tree != null:
+		tree.focus_skill("discerning_eye")
+	_expect(tree != null and tree.detail_title_text() == "Discerning Eye", "Compact medallions should reveal full skill names in the persistent detail pane")
 	_expect(_label_containing(scrim, "MOLTSHARDS 2") != null, "Skills surface should show the saved respec resource")
 
 	var visible_run_state: Dictionary = instance.get("_run_state") as Dictionary
@@ -249,6 +253,11 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	escape_skills.append("rehearsed_escape")
 	escape_skills.append("makeshift_tool")
 	escape_combat["skill_ids"] = escape_skills
+	var escape_deck: Dictionary = (escape_combat.get("deck", {}) as Dictionary).duplicate(true)
+	escape_deck["hand"] = ["patch_up", "crimson_draught"]
+	escape_combat["deck"] = escape_deck
+	var escape_trigger_count: int = _skill_trigger_event_count("rehearsed_escape")
+	var makeshift_trigger_count: int = _skill_trigger_event_count("makeshift_tool")
 	instance.set("_combat_state", escape_combat)
 	instance.set("_run_state", run_engine.set_combat_state(original_run_state, escape_combat))
 	instance.call("_refresh_ui")
@@ -263,6 +272,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var escape_flags: Dictionary = ((instance.get("_combat_state") as Dictionary).get("skill_flags", {}) as Dictionary)
 	_expect(bool(escape_flags.get("burn_preserve_armed", false)), "Rehearsed Escape should visibly arm before it changes a Burn destination")
 	_expect(str(instance.call("_skill_hud_status", "rehearsed_escape")) == "ARMED", "Rehearsed Escape should report ARMED after the player opts in")
+	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count, "Arming Rehearsed Escape should not log a realized skill trigger")
 	var makeshift_button: Button = _visible_button_with_text(instance.get("_choice_button_overlay") as Control, "Makeshift Tool")
 	if makeshift_button == null:
 		makeshift_button = _visible_button_with_text(instance.get("choice_bar") as Control, "Makeshift Tool")
@@ -273,6 +283,15 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	escape_flags = ((instance.get("_combat_state") as Dictionary).get("skill_flags", {}) as Dictionary)
 	_expect(bool(escape_flags.get("item_preserve_armed", false)), "Makeshift Tool should visibly arm before it changes a consumable destination")
 	_expect(str(instance.call("_skill_hud_status", "makeshift_tool")) == "ARMED", "Makeshift Tool should report ARMED after the player opts in")
+	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count, "Arming Makeshift Tool should not log a realized skill trigger")
+	var resolved_escape: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0)
+	instance.call("_commit_combat_skill_state", resolved_escape, "rehearsed_escape")
+	await process_frame
+	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count + 1, "Preserving a Burn card should emit exactly one realized skill trigger")
+	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "attack"})
+	instance.call("_commit_combat_skill_state", resolved_item, "makeshift_tool")
+	await process_frame
+	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count + 1, "Preserving an item should emit exactly one realized skill trigger")
 	instance.set("_combat_state", original_combat_state)
 	instance.set("_run_state", original_run_state)
 	instance.call("_refresh_ui")

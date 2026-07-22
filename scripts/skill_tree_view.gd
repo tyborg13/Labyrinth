@@ -2,6 +2,7 @@ extends HBoxContainer
 class_name SkillTreeView
 
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
@@ -23,24 +24,13 @@ const STATE_PENDING: String = "pending"
 const STATE_EXCLUDED: String = "excluded"
 const STATE_SELECTED: String = "selected"
 
-const NODE_SIZE: Vector2 = Vector2(154.0, 44.0)
-const COLUMN_PITCH: float = 168.0
-const ROW_PITCH: float = 55.0
-const GRAPH_LEFT: float = 64.0
-const GRAPH_TOP: float = 25.0
-const GRAPH_SIZE: Vector2 = Vector2(730.0, 344.0)
+const GRAPH_SIZE: Vector2 = Vector2(730.0, 350.0)
 const DETAIL_WIDTH: float = 300.0
-const LINK_ARROW_LENGTH: float = 8.0
-const LINK_ARROW_HALF_WIDTH: float = 4.5
-
-const TIER_LABELS = [
-	"ROOT",
-	"PATH I",
-	"PATH II",
-	"JOIN I",
-	"JOIN II",
-	"KEY",
-]
+const ROOT_SIZE: Vector2 = Vector2(56.0, 56.0)
+const BRANCH_SIZE: Vector2 = Vector2(52.0, 52.0)
+const JUNCTION_SIZE: Vector2 = Vector2(56.0, 56.0)
+const KEYSTONE_SIZE: Vector2 = Vector2(64.0, 64.0)
+const LINK_NODE_CLEARANCE: float = 3.0
 
 const BRANCH_COLORS: Dictionary = {
 	"tactics": Color("d7a85d"),
@@ -62,25 +52,168 @@ class SkillLinkLayer:
 		queue_redraw()
 
 	func _draw() -> void:
+		var ordered_links: Array[Dictionary]
 		for link: Dictionary in links:
+			if not bool(link.get("highlighted", false)):
+				ordered_links.append(link)
+		for link: Dictionary in links:
+			if bool(link.get("highlighted", false)):
+				ordered_links.append(link)
+		for link: Dictionary in ordered_links:
 			var points: PackedVector2Array = link.get("points", PackedVector2Array())
 			if points.size() < 2:
 				continue
 			var color: Color = link.get("color", Color("4a434d"))
-			var width: float = float(link.get("width", 2.0))
+			var width: float = float(link.get("width", 3.0))
+			var under_color := Color(0.025, 0.02, 0.027, 0.95)
+			if bool(link.get("highlighted", false)):
+				var glow := color
+				glow.a = 0.20
+				draw_polyline(points, glow, width + 8.0, true)
+			draw_polyline(points, under_color, width + 3.0, true)
 			draw_polyline(points, color, width, true)
-			var tip: Vector2 = points[points.size() - 1]
-			var previous: Vector2 = points[points.size() - 2]
-			var direction: Vector2 = (tip - previous).normalized()
-			if direction.is_zero_approx():
-				continue
-			var perpendicular := Vector2(-direction.y, direction.x)
-			var arrow := PackedVector2Array([
-				tip,
-				tip - direction * LINK_ARROW_LENGTH + perpendicular * LINK_ARROW_HALF_WIDTH,
-				tip - direction * LINK_ARROW_LENGTH - perpendicular * LINK_ARROW_HALF_WIDTH,
-			])
-			draw_colored_polygon(arrow, color)
+			for point_index: int in range(1, points.size() - 1):
+				draw_circle(points[point_index], width * 0.5, color, true, -1.0, true)
+			draw_circle(points[0], width * 0.9 + 1.0, under_color, true, -1.0, true)
+			draw_circle(points[0], width * 0.65, color, true, -1.0, true)
+			draw_circle(points[points.size() - 1], width * 0.9 + 1.0, under_color, true, -1.0, true)
+			draw_circle(points[points.size() - 1], width * 0.65, color, true, -1.0, true)
+
+class SkillNodeFace:
+	extends Control
+
+	var tier: String = "branch"
+	var state: String = "locked"
+	var relationship: String = "none"
+	var selected: bool = false
+	var branch_color: Color = Color("b99a6b")
+	var icon_texture: Texture2D
+
+	func configure(
+		next_tier: String,
+		next_state: String,
+		next_relationship: String,
+		next_selected: bool,
+		next_branch_color: Color,
+		next_icon: Texture2D
+	) -> void:
+		tier = next_tier
+		state = next_state
+		relationship = next_relationship
+		selected = next_selected
+		branch_color = next_branch_color
+		icon_texture = next_icon
+		queue_redraw()
+
+	func _draw() -> void:
+		var center := size * 0.5
+		var radius: float = minf(size.x, size.y) * 0.5 - 4.0
+		var state_color: Color = _face_state_color(state)
+		var fill: Color = _face_fill_color(state)
+		var outline_width: float = 3.0 if state != "locked" else 2.0
+		if selected or relationship != "none":
+			var halo_color := Color("fff4d8")
+			if relationship == "prerequisite":
+				halo_color = Color("ffd47a")
+			elif relationship == "dependent":
+				halo_color = Color("8ce1d5")
+			draw_arc(center, radius + 4.5, 0.0, TAU, 40, Color(0.02, 0.015, 0.02, 0.94), 6.0, true)
+			draw_arc(center, radius + 4.5, 0.0, TAU, 40, halo_color, 2.5, true)
+		_draw_node_shadow(center, radius)
+		match tier:
+			"root":
+				draw_circle(center, radius, fill, true, -1.0, true)
+				draw_arc(center, radius, 0.0, TAU, 40, state_color, outline_width, true)
+			"junction":
+				var diamond := _diamond_points(center, radius)
+				draw_colored_polygon(diamond, fill)
+				draw_polyline(_closed_points(diamond), state_color, outline_width, true)
+			"keystone":
+				var hexagon := _hexagon_points(center, radius)
+				draw_colored_polygon(hexagon, fill)
+				draw_polyline(_closed_points(hexagon), state_color, outline_width + 1.0, true)
+				draw_polyline(_closed_points(_hexagon_points(center, radius - 5.5)), branch_color.darkened(0.08), 1.5, true)
+			_:
+				var style := StyleBoxFlat.new()
+				style.bg_color = fill
+				style.border_color = state_color
+				style.set_border_width_all(int(outline_width))
+				style.set_corner_radius_all(10)
+				draw_style_box(style, Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0)))
+		var icon_size: float = 25.0 if tier != "keystone" else 29.0
+		if icon_texture != null:
+			var icon_tint := Color.WHITE if state != "locked" else Color("77737b")
+			draw_texture_rect(icon_texture, Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size), false, icon_tint)
+		draw_circle(center + Vector2(-radius * 0.62, radius * 0.70), 3.5, Color(0.02, 0.015, 0.02, 0.98), true, -1.0, true)
+		draw_circle(center + Vector2(-radius * 0.62, radius * 0.70), 2.4, branch_color, true, -1.0, true)
+		_draw_state_marker(center + Vector2(radius * 0.68, radius * 0.70), state_color)
+
+	func _draw_node_shadow(center: Vector2, radius: float) -> void:
+		draw_circle(center + Vector2(0.0, 3.0), radius + 1.5, Color(0.0, 0.0, 0.0, 0.55), true, -1.0, true)
+
+	func _draw_state_marker(center: Vector2, marker_color: Color) -> void:
+		draw_circle(center, 7.2, Color(0.025, 0.02, 0.03, 0.98), true, -1.0, true)
+		draw_arc(center, 7.0, 0.0, TAU, 20, marker_color, 1.8, true)
+		match state:
+			"owned":
+				draw_polyline(PackedVector2Array([center + Vector2(-3.4, 0.0), center + Vector2(-0.7, 2.8), center + Vector2(4.0, -3.0)]), marker_color, 2.0, true)
+			"available":
+				draw_line(center + Vector2(-3.5, 0.0), center + Vector2(3.5, 0.0), marker_color, 1.8, true)
+				draw_line(center + Vector2(0.0, -3.5), center + Vector2(0.0, 3.5), marker_color, 1.8, true)
+			"pending":
+				draw_circle(center, 3.2, marker_color, true, -1.0, true)
+			"excluded":
+				draw_line(center + Vector2(-3.7, 3.7), center + Vector2(3.7, -3.7), marker_color, 2.0, true)
+			_:
+				draw_rect(Rect2(center + Vector2(-3.0, -0.5), Vector2(6.0, 4.5)), marker_color, false, 1.5, true)
+				draw_arc(center + Vector2(0.0, -0.5), 3.0, PI, TAU, 12, marker_color, 1.5, true)
+
+	func _diamond_points(center: Vector2, radius: float) -> PackedVector2Array:
+		return PackedVector2Array([
+			center + Vector2(0.0, -radius),
+			center + Vector2(radius, 0.0),
+			center + Vector2(0.0, radius),
+			center + Vector2(-radius, 0.0),
+		])
+
+	func _hexagon_points(center: Vector2, radius: float) -> PackedVector2Array:
+		var points := PackedVector2Array()
+		for point_index: int in range(6):
+			var angle: float = -PI * 0.5 + float(point_index) * TAU / 6.0
+			points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+		return points
+
+	func _closed_points(points: PackedVector2Array) -> PackedVector2Array:
+		var closed := PackedVector2Array(points)
+		if not points.is_empty():
+			closed.append(points[0])
+		return closed
+
+	func _face_state_color(value: String) -> Color:
+		match value:
+			"owned":
+				return Color("e6b85f")
+			"available":
+				return Color("7dd7ca")
+			"pending":
+				return Color("70b9f2")
+			"excluded":
+				return Color("dc7186")
+			_:
+				return Color("68636d")
+
+	func _face_fill_color(value: String) -> Color:
+		match value:
+			"owned":
+				return Color("65461f")
+			"available":
+				return Color("173a35")
+			"pending":
+				return Color("174665")
+			"excluded":
+				return Color("3c1b25")
+			_:
+				return Color("17151a")
 
 var _ui_skin := UiSkin.new()
 var _mode: String = MODE_VIEW
@@ -93,13 +226,12 @@ var _show_footer: bool = true
 var _focused_id: String = ""
 
 var _graph_canvas: Control
+var _graph_scroll: ScrollContainer
 var _link_layer: SkillLinkLayer
 var _summary_label: Label
 var _node_buttons: Dictionary = {}
-var _node_name_labels: Dictionary = {}
-var _node_state_labels: Dictionary = {}
-var _node_branch_strips: Dictionary = {}
-var _node_focus_rings: Dictionary = {}
+var _node_faces: Dictionary = {}
+var _node_centers: Dictionary = {}
 var _legend: HBoxContainer
 var _detail_status: Label
 var _detail_title: Label
@@ -179,6 +311,7 @@ func focus_skill(skill_id: String) -> void:
 	_refresh_links()
 	_refresh_detail()
 	skill_focused.emit(skill_id)
+	call_deferred("_ensure_focused_visible")
 
 func focused_skill_id() -> String:
 	return _focused_id
@@ -258,6 +391,69 @@ func detail_title_text() -> String:
 func graph_canvas_size() -> Vector2:
 	return _graph_canvas.custom_minimum_size if _graph_canvas != null else Vector2.ZERO
 
+func node_center_for_skill(skill_id: String) -> Vector2:
+	return _node_center(skill_id)
+
+func node_visual_rect(skill_id: String) -> Rect2:
+	return _node_visual_rect(skill_id)
+
+func node_role_for_skill(skill_id: String) -> String:
+	return SkillTreeLibrary.tier(skill_id)
+
+func connection_points(source_id: String, target_id: String) -> PackedVector2Array:
+	if _link_layer == null:
+		return PackedVector2Array()
+	for link: Dictionary in _link_layer.links:
+		if str(link.get("from_id", "")) == source_id and str(link.get("to_id", "")) == target_id:
+			return link.get("points", PackedVector2Array()) as PackedVector2Array
+	return PackedVector2Array()
+
+func connection_intersection_count(clearance: float = 2.0) -> int:
+	return connection_intersection_pairs(clearance).size()
+
+func connection_intersection_pairs(clearance: float = 2.0) -> Array[String]:
+	var result: Array[String]
+	if _link_layer == null:
+		return result
+	for link: Dictionary in _link_layer.links:
+		var source_id: String = str(link.get("from_id", ""))
+		var target_id: String = str(link.get("to_id", ""))
+		var points: PackedVector2Array = link.get("points", PackedVector2Array()) as PackedVector2Array
+		for skill_id: String in SkillTreeLibrary.ordered_ids():
+			if skill_id in [source_id, target_id]:
+				continue
+			var obstacle: Rect2 = _node_visual_rect(skill_id).grow(clearance)
+			for point_index: int in range(points.size() - 1):
+				if _axis_segment_intersects_rect(points[point_index], points[point_index + 1], obstacle):
+					result.append("%s>%s@%s" % [source_id, target_id, skill_id])
+					break
+	return result
+
+func minimum_connection_width() -> float:
+	if _link_layer == null or _link_layer.links.is_empty():
+		return 0.0
+	var result: float = INF
+	for link: Dictionary in _link_layer.links:
+		result = minf(result, float(link.get("width", 0.0)))
+	return result
+
+func minimum_connection_alpha() -> float:
+	if _link_layer == null or _link_layer.links.is_empty():
+		return 0.0
+	var result: float = 1.0
+	for link: Dictionary in _link_layer.links:
+		var color: Color = link.get("color", Color.TRANSPARENT)
+		result = minf(result, color.a)
+	return result
+
+func minimum_understroke_margin() -> float:
+	if _link_layer == null or _link_layer.links.is_empty():
+		return 0.0
+	var result: float = INF
+	for link: Dictionary in _link_layer.links:
+		result = minf(result, float(link.get("under_width", 0.0)) - float(link.get("width", 0.0)))
+	return result
+
 func _build_view() -> void:
 	if not _node_buttons.is_empty():
 		return
@@ -304,20 +500,20 @@ func _build_graph_panel() -> Control:
 	column.add_child(_legend)
 	_build_state_legend()
 
-	var scroll := ScrollContainer.new()
-	scroll.name = "SkillTreeScroll"
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	column.add_child(scroll)
+	_graph_scroll = ScrollContainer.new()
+	_graph_scroll.name = "SkillTreeScroll"
+	_graph_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_graph_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_graph_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_graph_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	column.add_child(_graph_scroll)
 
 	_graph_canvas = Control.new()
 	_graph_canvas.name = "SkillTreeCanvas"
 	_graph_canvas.custom_minimum_size = GRAPH_SIZE
 	_graph_canvas.size = GRAPH_SIZE
 	_graph_canvas.mouse_filter = Control.MOUSE_FILTER_PASS
-	scroll.add_child(_graph_canvas)
+	_graph_scroll.add_child(_graph_canvas)
 
 	_link_layer = SkillLinkLayer.new()
 	_link_layer.name = "SkillTreeLinkLayer"
@@ -325,8 +521,6 @@ func _build_graph_panel() -> Control:
 	_link_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_graph_canvas.add_child(_link_layer)
 
-	_build_branch_labels()
-	_build_tier_labels()
 	_build_skill_nodes()
 	return panel
 
@@ -348,103 +542,34 @@ func _build_state_legend() -> void:
 		label.add_theme_color_override("font_color", Color("cfc4b2") if state != STATE_LOCKED else Color("8f8991"))
 		_legend.add_child(label)
 
-func _build_branch_labels() -> void:
-	for column_index: int in range(4):
-		var root_id: String = ""
-		for skill_id: String in SkillTreeLibrary.ordered_ids():
-			if SkillTreeLibrary.position(skill_id) == Vector2i(column_index, 0):
-				root_id = skill_id
-				break
-		var branch_id: String = str(SkillTreeLibrary.definition(root_id).get("branch", ""))
-		var label := Label.new()
-		label.name = "SkillBranch_%s" % branch_id
-		label.text = branch_id.to_upper()
-		label.position = Vector2(GRAPH_LEFT + float(column_index) * COLUMN_PITCH, 8.0)
-		label.size = Vector2(NODE_SIZE.x, 24.0)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
-		label.add_theme_color_override("font_color", _branch_color(branch_id).lightened(0.18))
-		_graph_canvas.add_child(label)
-
-func _build_tier_labels() -> void:
-	for tier_index: int in range(TIER_LABELS.size()):
-		var label := Label.new()
-		label.name = "SkillTier_%d" % tier_index
-		label.text = str(TIER_LABELS[tier_index])
-		label.position = Vector2(0.0, GRAPH_TOP + float(tier_index) * ROW_PITCH + 13.0)
-		label.size = Vector2(GRAPH_LEFT - 7.0, 18.0)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.set_label_size(label, 8)
-		label.add_theme_color_override("font_color", Color("7f7780") if tier_index < 5 else Color("b89f72"))
-		_graph_canvas.add_child(label)
-
 func _build_skill_nodes() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		var node_size: Vector2 = _node_size(skill_id)
+		var node_center: Vector2 = _node_center(skill_id)
+		_node_centers[skill_id] = node_center
 		var button := Button.new()
 		button.name = "SkillNode_%s" % skill_id
-		button.position = _node_position(skill_id)
-		button.size = NODE_SIZE
-		button.custom_minimum_size = NODE_SIZE
+		button.position = node_center - node_size * 0.5
+		button.size = node_size
+		button.custom_minimum_size = node_size
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		button.clip_contents = false
 		button.pressed.connect(_on_node_pressed.bind(skill_id))
+		button.focus_entered.connect(_on_node_focus_entered.bind(skill_id))
+		button.mouse_entered.connect(_on_node_hovered.bind(skill_id))
+		for style_name: String in ["normal", "hover", "pressed", "focus", "disabled"]:
+			button.add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
 		_graph_canvas.add_child(button)
 		_node_buttons[skill_id] = button
-
-		var branch_strip := ColorRect.new()
-		branch_strip.name = "BranchAccent"
-		branch_strip.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-		branch_strip.offset_bottom = 4.0
-		branch_strip.color = _branch_color(str(SkillTreeLibrary.definition(skill_id).get("branch", "")))
-		branch_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(branch_strip)
-		_node_branch_strips[skill_id] = branch_strip
-
-		var focus_ring := Panel.new()
-		focus_ring.name = "FocusRing"
-		focus_ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		focus_ring.offset_left = -3.0
-		focus_ring.offset_top = -3.0
-		focus_ring.offset_right = 3.0
-		focus_ring.offset_bottom = 3.0
-		focus_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		focus_ring.add_theme_stylebox_override("panel", _focus_ring_style())
-		focus_ring.visible = false
-		focus_ring.z_index = 4
-		button.add_child(focus_ring)
-		_node_focus_rings[skill_id] = focus_ring
-
-		var content := VBoxContainer.new()
-		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		content.offset_left = 7.0
-		content.offset_top = 5.0
-		content.offset_right = -7.0
-		content.offset_bottom = -3.0
-		content.alignment = BoxContainer.ALIGNMENT_CENTER
-		content.add_theme_constant_override("separation", 0)
-		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(content)
-
-		var name_label := Label.new()
-		name_label.text = SkillTreeLibrary.display_name(skill_id)
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
-		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.set_label_size(name_label, 10)
-		content.add_child(name_label)
-		_node_name_labels[skill_id] = name_label
-
-		var state_label := Label.new()
-		state_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		state_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		state_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.set_label_size(state_label, 9)
-		content.add_child(state_label)
-		_node_state_labels[skill_id] = state_label
+		var face := SkillNodeFace.new()
+		face.name = "SkillNodeFace"
+		face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		face.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		button.add_child(face)
+		_node_faces[skill_id] = face
+	_configure_focus_neighbors()
 
 func _build_detail_panel() -> Control:
 	var panel := PanelContainer.new()
@@ -583,32 +708,27 @@ func _refresh_nodes() -> void:
 		button.set_meta("skill_visual_state", STATE_SELECTED if selected else base_state)
 		button.set_meta("selected", selected)
 		button.set_meta("focus_relationship", relationship)
-		button.add_theme_stylebox_override("normal", _node_style(skill_id, base_state, selected, false))
-		button.add_theme_stylebox_override("hover", _node_style(skill_id, base_state, true, false))
-		button.add_theme_stylebox_override("pressed", _node_style(skill_id, base_state, true, true))
-		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+		button.set_meta("node_role", SkillTreeLibrary.tier(skill_id))
+		button.set_meta("icon_key", SkillTreeLibrary.icon_key(skill_id))
 		button.tooltip_text = _node_tooltip(skill_id, base_state)
-		var focus_ring: Panel = _node_focus_rings.get(skill_id, null) as Panel
-		if focus_ring != null:
-			focus_ring.visible = selected or relationship in ["prerequisite", "dependent"]
-			focus_ring.add_theme_stylebox_override("panel", _focus_ring_style(relationship if not selected else "focused"))
-		var name_label: Label = _node_name_labels.get(skill_id, null) as Label
-		var state_label: Label = _node_state_labels.get(skill_id, null) as Label
-		if name_label != null:
-			name_label.add_theme_color_override("font_color", _node_text_color(base_state))
-		if state_label != null:
-			state_label.text = _node_state_text(skill_id, base_state)
-			state_label.add_theme_color_override("font_color", _state_color(base_state).lightened(0.12))
+		var face: SkillNodeFace = _node_faces.get(skill_id, null) as SkillNodeFace
+		if face != null:
+			face.configure(
+				SkillTreeLibrary.tier(skill_id),
+				base_state,
+				relationship,
+				selected,
+				_branch_color(str(SkillTreeLibrary.definition(skill_id).get("branch", ""))),
+				ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
+			)
 
 func _refresh_links() -> void:
 	if _link_layer == null:
 		return
 	var links: Array[Dictionary]
 	var ancestor_ids: Array[String] = _ancestor_ids(_focused_id)
-	var route_index: int = 0
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
-			var target_state: String = status_for_skill(skill_id)
 			var relationship: String = "unrelated"
 			if skill_id == _focused_id:
 				relationship = "prerequisite"
@@ -616,17 +736,17 @@ func _refresh_links() -> void:
 				relationship = "dependent"
 			elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
 				relationship = "ancestor"
-			var visual: Dictionary = _link_visual(target_state, relationship)
+			var visual: Dictionary = _link_visual(_link_state(prerequisite_id, skill_id), relationship)
 			links.append({
 				"from_id": prerequisite_id,
 				"to_id": skill_id,
 				"relationship": relationship,
 				"highlighted": relationship in ["prerequisite", "dependent"],
-				"points": _link_points(prerequisite_id, skill_id, route_index),
+				"points": _link_points(prerequisite_id, skill_id),
 				"color": visual.get("color", Color("413b43")),
-				"width": float(visual.get("width", 1.4)),
+				"width": float(visual.get("width", 3.0)),
+				"under_width": float(visual.get("width", 3.0)) + 3.0,
 			})
-			route_index += 1
 	_link_layer.set_links(links)
 
 func _refresh_detail() -> void:
@@ -709,6 +829,80 @@ func _refresh_footer() -> void:
 
 func _on_node_pressed(skill_id: String) -> void:
 	focus_skill(skill_id)
+
+func _on_node_focus_entered(skill_id: String) -> void:
+	if skill_id != _focused_id:
+		focus_skill(skill_id)
+
+func _on_node_hovered(skill_id: String) -> void:
+	if skill_id != _focused_id:
+		focus_skill(skill_id)
+
+func _ensure_focused_visible() -> void:
+	if _graph_scroll == null:
+		return
+	var button: Button = node_for_skill(_focused_id)
+	if button != null:
+		_graph_scroll.ensure_control_visible(button)
+
+func _configure_focus_neighbors() -> void:
+	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		var button: Button = node_for_skill(skill_id)
+		if button == null:
+			continue
+		for direction: String in ["left", "right", "up", "down"]:
+			var neighbor_id: String = _nearest_node_in_direction(skill_id, direction)
+			var neighbor: Button = node_for_skill(neighbor_id)
+			if neighbor == null:
+				continue
+			var neighbor_path: NodePath = button.get_path_to(neighbor)
+			button.set_meta("nav_%s" % direction, neighbor_id)
+			match direction:
+				"left":
+					button.focus_neighbor_left = neighbor_path
+				"right":
+					button.focus_neighbor_right = neighbor_path
+				"up":
+					button.focus_neighbor_top = neighbor_path
+				"down":
+					button.focus_neighbor_bottom = neighbor_path
+
+func _nearest_node_in_direction(skill_id: String, direction: String) -> String:
+	var origin: Vector2 = _node_center(skill_id)
+	var best_id: String = ""
+	var best_score: float = INF
+	for candidate_id: String in SkillTreeLibrary.ordered_ids():
+		if candidate_id == skill_id:
+			continue
+		var delta: Vector2 = _node_center(candidate_id) - origin
+		var primary: float = 0.0
+		var secondary: float = 0.0
+		match direction:
+			"left":
+				if delta.x >= -0.5:
+					continue
+				primary = -delta.x
+				secondary = absf(delta.y)
+			"right":
+				if delta.x <= 0.5:
+					continue
+				primary = delta.x
+				secondary = absf(delta.y)
+			"up":
+				if delta.y >= -0.5:
+					continue
+				primary = -delta.y
+				secondary = absf(delta.x)
+			_:
+				if delta.y <= 0.5:
+					continue
+				primary = delta.y
+				secondary = absf(delta.x)
+		var score: float = primary + secondary * (2.0 if direction in ["left", "right"] else 1.4)
+		if score < best_score:
+			best_score = score
+			best_id = candidate_id
+	return best_id
 
 func _on_detail_action_pressed() -> void:
 	if not _editing_enabled or not SkillTreeLibrary.has_definition(_focused_id):
@@ -797,12 +991,25 @@ func _is_excluded(skill_id: String, selection: Array[String]) -> bool:
 			return true
 	return false
 
-func _node_position(skill_id: String) -> Vector2:
-	var data_position: Vector2i = SkillTreeLibrary.position(skill_id)
-	return Vector2(
-		GRAPH_LEFT + float(data_position.x) * COLUMN_PITCH,
-		GRAPH_TOP + float(data_position.y) * ROW_PITCH
-	)
+func _node_center(skill_id: String) -> Vector2:
+	if _node_centers.has(skill_id):
+		return _node_centers.get(skill_id, Vector2.ZERO) as Vector2
+	return Vector2(SkillTreeLibrary.layout_position(skill_id))
+
+func _node_size(skill_id: String) -> Vector2:
+	match SkillTreeLibrary.tier(skill_id):
+		"root":
+			return ROOT_SIZE
+		"junction":
+			return JUNCTION_SIZE
+		"keystone":
+			return KEYSTONE_SIZE
+		_:
+			return BRANCH_SIZE
+
+func _node_visual_rect(skill_id: String) -> Rect2:
+	var visual_size: Vector2 = _node_size(skill_id) - Vector2(8.0, 8.0)
+	return Rect2(_node_center(skill_id) - visual_size * 0.5, visual_size)
 
 func _node_tooltip(skill_id: String, state: String) -> String:
 	return "%s\n%s\n%s" % [
@@ -900,51 +1107,6 @@ func _state_color(state: String) -> Color:
 		_:
 			return Color("57535b")
 
-func _node_text_color(state: String) -> Color:
-	return Color("fff3d8") if state != STATE_LOCKED else Color("8e8990")
-
-func _node_style(skill_id: String, state: String, selected: bool, pressed: bool) -> StyleBoxFlat:
-	var accent: Color = _state_color(state)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("161419")
-	match state:
-		STATE_OWNED:
-			style.bg_color = Color("62441f")
-		STATE_AVAILABLE:
-			style.bg_color = Color("15302d")
-		STATE_PENDING:
-			style.bg_color = Color("17405c")
-		STATE_EXCLUDED:
-			style.bg_color = Color("3a1c25")
-		STATE_LOCKED:
-			style.bg_color = Color("121115")
-	if pressed:
-		style.bg_color = style.bg_color.lightened(0.10)
-	style.border_color = accent
-	style.set_border_width_all(3 if state in [STATE_OWNED, STATE_AVAILABLE, STATE_PENDING, STATE_EXCLUDED] else 1)
-	style.set_corner_radius_all(10 if SkillTreeLibrary.is_keystone(skill_id) else 6)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
-	style.shadow_size = 7 if selected else 3
-	style.content_margin_left = 5.0
-	style.content_margin_top = 3.0
-	style.content_margin_right = 5.0
-	style.content_margin_bottom = 3.0
-	return style
-
-func _focus_ring_style(relationship: String = "focused") -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
-	match relationship:
-		"prerequisite":
-			style.border_color = Color("ffd47a")
-		"dependent":
-			style.border_color = Color("8ce1d5")
-		_:
-			style.border_color = Color("fff8e8")
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(9)
-	return style
-
 func _relationship_to_focus(skill_id: String) -> String:
 	if _focused_id.is_empty() or skill_id == _focused_id:
 		return "none"
@@ -978,56 +1140,178 @@ func _ancestor_ids(skill_id: String) -> Array[String]:
 				pending.append(prerequisite_id)
 	return result
 
-func _link_visual(target_state: String, relationship: String) -> Dictionary:
+func _link_state(source_id: String, target_id: String) -> String:
+	var source_state: String = status_for_skill(source_id)
+	var target_state: String = status_for_skill(target_id)
+	if STATE_PENDING in [source_state, target_state]:
+		return STATE_PENDING
+	if source_state == STATE_OWNED and target_state == STATE_OWNED:
+		return STATE_OWNED
+	if target_state == STATE_AVAILABLE:
+		return STATE_AVAILABLE
+	if STATE_EXCLUDED in [source_state, target_state]:
+		return STATE_EXCLUDED
+	return STATE_LOCKED
+
+func _link_visual(link_state: String, relationship: String) -> Dictionary:
 	match relationship:
 		"prerequisite":
-			return {"color": Color("ffd47a"), "width": 4.5}
+			return {"color": Color("ffd47a"), "width": 5.0}
 		"dependent":
-			return {"color": Color("8ce1d5"), "width": 4.0}
+			return {"color": Color("8ce1d5"), "width": 5.0}
 		"ancestor":
-			return {"color": Color("bfa36d"), "width": 2.8}
-	var base: Color = _state_color(target_state)
-	base.a = 0.24 if not _focused_id.is_empty() else 0.14
-	return {"color": base, "width": 1.4}
+			var ancestor_color := Color("bfa36d")
+			ancestor_color.a = 0.90
+			return {"color": ancestor_color, "width": 3.8}
+	match link_state:
+		STATE_OWNED:
+			return {"color": Color("d6a84f"), "width": 4.0}
+		STATE_AVAILABLE:
+			return {"color": Color("69c5b8"), "width": 3.6}
+		STATE_PENDING:
+			return {"color": Color("66afe7"), "width": 4.2}
+		STATE_EXCLUDED:
+			return {"color": Color("b96073"), "width": 3.2}
+		_:
+			return {"color": Color("746d79"), "width": 3.0}
 
-func _link_points(source_id: String, target_id: String, route_index: int) -> PackedVector2Array:
-	var source_rect := Rect2(_node_position(source_id), NODE_SIZE)
-	var target_rect := Rect2(_node_position(target_id), NODE_SIZE)
-	var source_position: Vector2i = SkillTreeLibrary.position(source_id)
-	var target_position: Vector2i = SkillTreeLibrary.position(target_id)
-	var row_distance: int = absi(target_position.y - source_position.y)
-	if source_position.x == target_position.x and row_distance == 1:
-		return PackedVector2Array([
-			Vector2(source_rect.get_center().x, source_rect.end.y),
-			Vector2(target_rect.get_center().x, target_rect.position.y),
-		])
-	if source_position.x == target_position.x:
-		var route_right: bool = source_position.x < 3
-		var source_edge_x: float = source_rect.end.x if route_right else source_rect.position.x
-		var target_edge_x: float = target_rect.end.x if route_right else target_rect.position.x
-		var lane_x: float = source_edge_x + (7.0 if route_right else -7.0)
-		return PackedVector2Array([
-			Vector2(source_edge_x, source_rect.get_center().y),
-			Vector2(lane_x, source_rect.get_center().y),
-			Vector2(lane_x, target_rect.get_center().y),
-			Vector2(target_edge_x, target_rect.get_center().y),
-		])
-	var target_is_right: bool = target_rect.get_center().x > source_rect.get_center().x
-	var direction: float = 1.0 if target_is_right else -1.0
-	var source_edge := Vector2(
-		source_rect.end.x if target_is_right else source_rect.position.x,
-		source_rect.get_center().y
+func _link_points(source_id: String, target_id: String) -> PackedVector2Array:
+	var source_port: Vector2 = _output_port(source_id, target_id)
+	var target_port: Vector2 = _input_port(target_id, source_id)
+	var source_stub := Vector2(
+		source_port.x,
+		_row_visual_edge(source_id, true) + LINK_NODE_CLEARANCE + 1.0
 	)
-	var lane_x: float = source_edge.x + direction * 7.0
-	var route_slot: int = route_index % 3
-	var track_y: float = target_rect.position.y - 5.0 - float(route_slot) * 2.0
-	return PackedVector2Array([
-		source_edge,
-		Vector2(lane_x, source_edge.y),
-		Vector2(lane_x, track_y),
-		Vector2(target_rect.get_center().x, track_y),
-		Vector2(target_rect.get_center().x, target_rect.position.y),
-	])
+	var target_stub := Vector2(
+		target_port.x,
+		_row_visual_edge(target_id, false) - LINK_NODE_CLEARANCE - 1.0
+	)
+	if source_stub.y > target_stub.y:
+		var midpoint_y: float = (source_port.y + target_port.y) * 0.5
+		source_stub.y = midpoint_y
+		target_stub.y = midpoint_y
+	var channel_x: float = _best_route_channel_x(source_id, target_id, source_stub, target_stub)
+	return _simplified_points(PackedVector2Array([
+		source_port,
+		source_stub,
+		Vector2(channel_x, source_stub.y),
+		Vector2(channel_x, target_stub.y),
+		target_stub,
+		target_port,
+	]))
+
+func _row_visual_edge(skill_id: String, bottom: bool) -> float:
+	var row_y: float = _node_center(skill_id).y
+	var edge: float = _node_visual_rect(skill_id).end.y if bottom else _node_visual_rect(skill_id).position.y
+	for candidate_id: String in SkillTreeLibrary.ordered_ids():
+		if not is_equal_approx(_node_center(candidate_id).y, row_y):
+			continue
+		var candidate_rect: Rect2 = _node_visual_rect(candidate_id)
+		edge = maxf(edge, candidate_rect.end.y) if bottom else minf(edge, candidate_rect.position.y)
+	return edge
+
+func _input_port(target_id: String, source_id: String) -> Vector2:
+	var prerequisites: Array[String] = SkillTreeLibrary.prerequisites(target_id)
+	prerequisites.sort_custom(func(left: String, right: String) -> bool:
+		return _node_center(left).x < _node_center(right).x
+	)
+	var index: int = prerequisites.find(source_id)
+	var offset_x: float = _distributed_port_offset(index, prerequisites.size(), 8.0)
+	return _node_boundary_port(target_id, offset_x, false)
+
+func _output_port(source_id: String, target_id: String) -> Vector2:
+	var dependents: Array[String] = _direct_dependent_ids(source_id)
+	dependents.sort_custom(func(left: String, right: String) -> bool:
+		var left_center: Vector2 = _node_center(left)
+		var right_center: Vector2 = _node_center(right)
+		return left_center.x < right_center.x if not is_equal_approx(left_center.x, right_center.x) else left_center.y < right_center.y
+	)
+	var index: int = dependents.find(target_id)
+	var offset_x: float = _distributed_port_offset(index, dependents.size(), 14.0)
+	return _node_boundary_port(source_id, offset_x, true)
+
+func _distributed_port_offset(index: int, count: int, maximum_offset: float) -> float:
+	if count <= 1 or index < 0:
+		return 0.0
+	return lerpf(-maximum_offset, maximum_offset, float(index) / float(count - 1))
+
+func _node_boundary_port(skill_id: String, offset_x: float, bottom: bool) -> Vector2:
+	var center: Vector2 = _node_center(skill_id)
+	var radius: float = minf(_node_size(skill_id).x, _node_size(skill_id).y) * 0.5 - 4.0
+	var vertical_extent: float = radius
+	match SkillTreeLibrary.tier(skill_id):
+		"root":
+			vertical_extent = sqrt(maxf(0.0, radius * radius - offset_x * offset_x))
+		"junction":
+			vertical_extent = maxf(0.0, radius - absf(offset_x))
+		_:
+			vertical_extent = radius
+	return center + Vector2(offset_x, vertical_extent if bottom else -vertical_extent)
+
+func _best_route_channel_x(
+	source_id: String,
+	target_id: String,
+	source_stub: Vector2,
+	target_stub: Vector2
+) -> float:
+	var preferred_x: float = (source_stub.x + target_stub.x) * 0.5
+	var best_x: float = preferred_x
+	var best_score: float = INF
+	var candidate_x: float = 12.0
+	while candidate_x <= GRAPH_SIZE.x - 12.0:
+		if _vertical_route_is_clear(candidate_x, source_stub.y, target_stub.y, source_id, target_id):
+			var score: float = absf(candidate_x - preferred_x) + 0.18 * (
+				absf(candidate_x - source_stub.x) + absf(candidate_x - target_stub.x)
+			)
+			if score < best_score:
+				best_score = score
+				best_x = candidate_x
+		candidate_x += 4.0
+	return best_x
+
+func _vertical_route_is_clear(
+	x: float,
+	start_y: float,
+	end_y: float,
+	source_id: String,
+	target_id: String
+) -> bool:
+	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		if skill_id in [source_id, target_id]:
+			continue
+		var obstacle: Rect2 = _node_visual_rect(skill_id).grow(LINK_NODE_CLEARANCE)
+		if _axis_segment_intersects_rect(Vector2(x, start_y), Vector2(x, end_y), obstacle):
+			return false
+	return true
+
+func _simplified_points(points: PackedVector2Array) -> PackedVector2Array:
+	var result := PackedVector2Array()
+	for point: Vector2 in points:
+		if not result.is_empty() and result[result.size() - 1].is_equal_approx(point):
+			continue
+		if result.size() >= 2:
+			var previous_direction: Vector2 = result[result.size() - 1] - result[result.size() - 2]
+			var next_direction: Vector2 = point - result[result.size() - 1]
+			if is_zero_approx(previous_direction.cross(next_direction)):
+				result[result.size() - 1] = point
+				continue
+		result.append(point)
+	return result
+
+func _axis_segment_intersects_rect(start: Vector2, finish: Vector2, rect: Rect2) -> bool:
+	if is_equal_approx(start.x, finish.x):
+		return (
+			start.x >= rect.position.x
+			and start.x <= rect.end.x
+			and maxf(minf(start.y, finish.y), rect.position.y) <= minf(maxf(start.y, finish.y), rect.end.y)
+		)
+	if is_equal_approx(start.y, finish.y):
+		return (
+			start.y >= rect.position.y
+			and start.y <= rect.end.y
+			and maxf(minf(start.x, finish.x), rect.position.x) <= minf(maxf(start.x, finish.x), rect.end.x)
+		)
+	return rect.intersects(Rect2(start, finish - start).abs())
 
 func _panel_style(border_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

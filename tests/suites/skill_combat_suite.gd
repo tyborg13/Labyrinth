@@ -45,6 +45,7 @@ static func _test_rehearsed_escape_and_pain_remembers(expect: Callable) -> void:
 	expect.call(_skill_event_count(combat, state, "pain_remembers") == 0, "Priming Pain Remembers should not emit an activation event")
 	state = combat.arm_rehearsed_escape(state)
 	expect.call(bool((state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false)), "Rehearsed Escape should preserve nothing until the player explicitly arms it")
+	expect.call(not combat.skill_was_used(state, "rehearsed_escape"), "Rehearsed Escape should spend its charge only when it preserves a card")
 	state = combat.finish_player_card(state, 0)
 	var deck: Dictionary = state.get("deck", {}) as Dictionary
 	expect.call(not (deck.get("burned", []) as Array).has("patch_up"), "Rehearsed Escape should prevent the first non-item burn")
@@ -56,6 +57,9 @@ static func _test_rehearsed_escape_and_pain_remembers(expect: Callable) -> void:
 	declined_state = combat.finish_player_card(declined_state, 0)
 	expect.call((((declined_state.get("deck", {}) as Dictionary).get("burned", []) as Array).has("patch_up")), "Declining to arm Rehearsed Escape should preserve intentional combat-deck thinning")
 	expect.call(not combat.skill_was_used(declined_state, "rehearsed_escape"), "Declining Rehearsed Escape should preserve its charge")
+	var no_burn_state: Dictionary = _state(combat, ["rehearsed_escape"], ["quick_stab"])
+	no_burn_state["deck"] = _deck(["quick_stab"], [], [])
+	expect.call(not combat.skill_is_ready(no_burn_state, "rehearsed_escape"), "Rehearsed Escape should wait until a non-item Burn card is in hand")
 
 static func _test_measured_breath_borrowed_time_and_guard(expect: Callable) -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -120,6 +124,7 @@ static func _test_makeshift_tool(expect: Callable) -> void:
 	var state: Dictionary = _state(combat, ["makeshift_tool"], ["crimson_draught"])
 	state["deck"] = _deck(["crimson_draught"], [], [])
 	state = combat.arm_makeshift_tool(state)
+	expect.call(not combat.skill_was_used(state, "makeshift_tool"), "Makeshift Tool should spend its charge only when it preserves an item")
 	state = combat.finish_player_card(state, 0, 1, {"play_mode": "attack"})
 	var deck: Dictionary = state.get("deck", {}) as Dictionary
 	expect.call((deck.get("discard", []) as Array).has("crimson_draught") and not (deck.get("consumed", []) as Array).has("crimson_draught"), "Makeshift Tool should preserve the first item used as a basic action")
@@ -130,6 +135,9 @@ static func _test_makeshift_tool(expect: Callable) -> void:
 	var declined_deck: Dictionary = declined_state.get("deck", {}) as Dictionary
 	expect.call((declined_deck.get("consumed", []) as Array).has("crimson_draught"), "Declining to arm Makeshift Tool should preserve intentional consumable thinning")
 	expect.call(not combat.skill_was_used(declined_state, "makeshift_tool"), "Declining Makeshift Tool should preserve its charge")
+	var no_item_state: Dictionary = _state(combat, ["makeshift_tool"], ["quick_stab"])
+	no_item_state["deck"] = _deck(["quick_stab"], [], [])
+	expect.call(not combat.skill_is_ready(no_item_state, "makeshift_tool"), "Makeshift Tool should wait until an item is in hand")
 
 	var blink_state: Dictionary = _state(combat, ["ghost_stride", "makeshift_tool"], ["smoke_bomb"])
 	blink_state["deck"] = _deck(["smoke_bomb"], [], [])
@@ -221,7 +229,7 @@ static func _test_last_reserve(expect: Callable) -> void:
 	state["draw_per_turn"] = 1
 	state["deck"] = _deck([], [], ["quick_stab"])
 	state = combat.prepare_next_player_turn(state)
-	expect.call(int((state.get("player", {}) as Dictionary).get("hp", 0)) == GameData.fixed_point_amount(1), "Last Reserve should leave a lethal Fatigue draw at 1 health")
+	expect.call(int((state.get("player", {}) as Dictionary).get("hp", 0)) == GameData.fixed_point_amount(1), "Last Reserve should leave a lethal Fatigue draw at 10 health")
 	expect.call(combat.skill_was_used(state, "last_reserve"), "Last Reserve should spend only after preventing lethal Fatigue")
 
 static func _test_living_shadow(expect: Callable) -> void:

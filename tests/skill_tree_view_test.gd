@@ -3,6 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
 var _failures: Array[String]
 var _observed_level_choice: String = ""
@@ -51,19 +52,39 @@ func _test_skill_tree_view() -> void:
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		expected_links += SkillTreeLibrary.prerequisites(skill_id).size()
 	_expect(view.connection_count() == expected_links, "The reusable tree should render one connector for every prerequisite")
-	_expect(view.graph_canvas_size() == Vector2(730.0, 344.0), "The graph should expose a stable readable canvas size")
+	_expect(view.graph_canvas_size() == Vector2(730.0, 350.0), "The graph should expose a stable topology-first canvas size")
 	_expect(view.find_child("SkillTreeScroll", true, false) is ScrollContainer, "The graph should remain scrollable in a smaller host")
 	_expect(view.find_child("SkillDetailPanel", true, false) is PanelContainer, "The tree should provide its own detail panel")
 	_expect(view.legend_state_count() == 5, "The tree should provide an explicit legend for every persistent node state")
-	_expect(_label_with_text(view, "Prismatic Instinct") != null, "Long skill names should render in full instead of being ellipsized")
+	_expect(_label_with_text(view, "Prismatic Instinct") == null, "Skill names should live in the detail pane instead of covering graph connections")
+	_expect(view.connection_intersection_count() == 0, "No connector should pass through an unrelated medallion: %s" % ", ".join(view.connection_intersection_pairs()))
+	_expect(view.minimum_connection_width() >= 3.0, "Every connection should remain visibly legible even when unfocused")
+	_expect(view.minimum_connection_alpha() >= 0.9, "Focusing a node should never fade the remaining topology into invisibility")
+	_expect(view.minimum_understroke_margin() >= 3.0, "Every connection should have a dark separating under-stroke")
 	_expect(view.status_for_skill("quick_wits") == SkillTreeView.STATE_OWNED, "Committed skills should render as learned")
 	_expect(view.status_for_skill("measured_breath") == SkillTreeView.STATE_AVAILABLE, "Legal roots should render as available")
 	_expect(view.status_for_skill("borrowed_time") == SkillTreeView.STATE_LOCKED, "Missing prerequisites should render as locked")
 	var quick_node: Button = view.node_for_skill("quick_wits")
 	var measured_node: Button = view.node_for_skill("measured_breath")
-	_expect(quick_node != null and measured_node != null and measured_node.position.x > quick_node.position.x, "Data positions should map roots into four distinct columns")
+	_expect(quick_node != null and measured_node != null and measured_node.position.x < quick_node.position.x, "Topology layout should place Measured Breath beside Quick Wits to shorten their shared link")
 	var encore_node: Button = view.node_for_skill("encore")
 	_expect(encore_node != null and quick_node != null and encore_node.position.y > quick_node.position.y, "Keystones should render below their earlier tiers")
+	_expect(view.node_for_skill("rehearsed_escape").position.y == view.node_for_skill("makeshift_tool").position.y, "Sibling skills should share a dependency depth instead of implying a false chain")
+	for skill_id: String in SkillTreeLibrary.ordered_ids():
+		var node: Button = view.node_for_skill(skill_id)
+		_expect(node.size.x >= 48.0 and node.size.x <= 66.0, "%s should use a compact but accessible medallion hit target" % skill_id)
+		_expect(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)) != null, "%s should render a valid semantic icon" % skill_id)
+		_expect(not str(node.get_meta("nav_down", "")).is_empty() or SkillTreeLibrary.is_keystone(skill_id), "%s should expose explicit controller navigation" % skill_id)
+		for prerequisite_id: String in SkillTreeLibrary.prerequisites(skill_id):
+			_expect(view.node_center_for_skill(prerequisite_id).y < view.node_center_for_skill(skill_id).y, "%s should render below prerequisite %s" % [skill_id, prerequisite_id])
+		var prerequisites: Array[String] = SkillTreeLibrary.prerequisites(skill_id)
+		if prerequisites.size() > 1:
+			var minimum_x: float = minf(view.node_center_for_skill(prerequisites[0]).x, view.node_center_for_skill(prerequisites[1]).x)
+			var maximum_x: float = maxf(view.node_center_for_skill(prerequisites[0]).x, view.node_center_for_skill(prerequisites[1]).x)
+			_expect(view.node_center_for_skill(skill_id).x >= minimum_x and view.node_center_for_skill(skill_id).x <= maximum_x, "%s should sit between its two prerequisites" % skill_id)
+			var first_route: PackedVector2Array = view.connection_points(prerequisites[0], skill_id)
+			var second_route: PackedVector2Array = view.connection_points(prerequisites[1], skill_id)
+			_expect(first_route[first_route.size() - 1] != second_route[second_route.size() - 1], "%s should expose a separate input port for each prerequisite" % skill_id)
 
 	view.focus_skill("measured_breath")
 	_expect(view.visual_state_for_skill("measured_breath") == SkillTreeView.STATE_SELECTED, "Focused nodes should expose the selected visual state")

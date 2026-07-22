@@ -303,7 +303,9 @@ func _assert_tree_scroll_contract(tree: SkillTreeView, viewport_size: Vector2i, 
 	_expect(scroll != null, "%s %s tree should retain its bounded scroll host" % [viewport_size, label])
 	if scroll == null:
 		return
+	_expect(scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "%s %s tree should disable horizontal scrolling" % [viewport_size, label])
 	_expect(not scroll.get_h_scroll_bar().visible, "%s %s tree should keep all four branches visible without horizontal scrolling" % [viewport_size, label])
+	_expect(not scroll.get_v_scroll_bar().visible, "%s %s tree should show roots through keystones without vertical scrolling" % [viewport_size, label])
 	_expect(tree.graph_canvas_size().x <= scroll.size.x + 2.0, "%s %s graph canvas should remain horizontally bounded" % [viewport_size, label])
 
 func _settle() -> void:

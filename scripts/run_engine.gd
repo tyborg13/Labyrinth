@@ -851,7 +851,10 @@ func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
 	var return_connection: Dictionary = _connection_to_room(current_room, previous_coord)
 	if return_connection.is_empty():
 		return next_state
-	_mark_run_skill_used(next_state, "last_door", "Last Door returns you to the previous chamber at 1 health.")
+	var last_door_effect: Dictionary = SkillTreeLibrary.effect("last_door")
+	var return_health: int = GameData.fixed_point_amount(maxi(1, int(last_door_effect.get("minimum_health_visible", 1))))
+	var return_notice: String = "Last Door returns you to the previous chamber at %d health." % return_health
+	_mark_run_skill_used(next_state, "last_door", return_notice)
 	var rooms: Dictionary = next_state.get("rooms", {}).duplicate(true)
 	current_room["cleared"] = false
 	current_room["sealed"] = false
@@ -872,13 +875,13 @@ func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
 		previous_room,
 		return_connection.get("door_dir", Vector2i.ZERO)
 	)
-	next_state["player_hp"] = GameData.fixed_point_amount(1)
+	next_state["player_hp"] = return_health
 	next_state["combat_state"] = {}
 	next_state["pending_reward"] = {}
 	next_state["mode"] = "room"
 	next_state["game_over"] = false
 	next_state["victory"] = false
-	next_state["notice"] = "Last Door returns you to the previous chamber at 1 health."
+	next_state["notice"] = return_notice
 	_reveal_neighbors(next_state, previous_coord)
 	_sync_current_layout_doors(next_state, previous_coord)
 	return next_state
