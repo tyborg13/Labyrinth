@@ -11,7 +11,7 @@ The rubric is not a mandate to replace clear text with obscure icons. Escape the
 - The board, actors, cards, turn clock, and current decision are the visual center. Framing should clarify them, not cover or outshout them.
 - Reuse the established dark wood/parchment, inset metal, brass, ember, and distressed-fantasy vocabulary. Start with `UiSkin`, `UiTypography`, `UiTooltipPanel`, `CardWidget`, existing icon libraries, and `spec/ui_button_system.md` before creating a new component or visual language.
 - The authored canvas is `1920x1080`. Current proof surfaces also exercise `1280x720` and handheld-shaped `1280x800`; the window system can reach `960x540`. Player UI scale supports `90%`, `100%`, `115%`, and `125%`, and motion can be reduced.
-- Mouse and keyboard are the current interaction baseline. Do not imply complete controller support or add fixed controller glyphs without an end-to-end active-device and navigation path.
+- Input support is a capability of the current branch/build, not a permanent assumption. Preserve every input path the changed surface already supports. When controller or Steam Deck support is present, navigation, focus recovery, activation, back/cancel, and active-input cues are first-class requirements. Do not fabricate device glyphs or claim a path the complete surface does not support.
 
 ## Required design statement
 
@@ -21,7 +21,7 @@ Before implementation, write a compact design statement in the task notes or com
 2. **Player question:** the one question the UI must answer now.
 3. **Primary action:** the action that advances the current decision.
 4. **Hierarchy:** what is persistent, contextual, available on focus/selection, and optional detail.
-5. **Interaction paths:** pointer, keyboard, and any genuinely supported controller behavior.
+5. **Interaction paths:** every path the current surface supports, including pointer, keyboard, controller, and Steam Deck behavior as applicable.
 6. **Proof matrix:** changed states, target sizes, UI scales, and the focused probe that will render them.
 
 If these cannot be stated clearly, the screen is not ready to implement.
@@ -37,7 +37,7 @@ Rate every row **Pass**, **Exception**, or **Fail**. A change is ready only when
 | Gameplay visibility | The board, cards, targets, and consequences needed for the decision remain visible and legible. | A modal or persistent panel covers the evidence needed to choose. |
 | Compact, precise copy | Copy follows the budgets below; exact rules text is progressively disclosed where needed. | Instructional paragraphs, redundant labels, or flavor text precede mechanics. |
 | State and consequence | Available, selected, focused, disabled, dangerous, unaffordable, and resolved states are distinguishable; disabled choices expose the reason when useful. | Color-only state, ambiguous selection, or an action with no visible result. |
-| Interaction completeness | All required information and actions are reachable without hover; focus is visible wherever keyboard navigation is supported. | Hover-only mechanics, invisible focus, tiny targets, or mouse-only dismissal. |
+| Interaction completeness | All required information and actions are reachable without hover; every supported input path remains complete, with visible focus wherever navigation uses it. | Hover-only mechanics, invisible focus, tiny targets, mouse-only dismissal, or a stranded keyboard/controller path. |
 | Visual cohesion | Existing typography, spacing, panels, buttons, icons, cards, and tooltips are reused or deliberately extended. | A one-off skin, generic dashboard pattern, or duplicate component vocabulary. |
 | Accessibility | Meaning is not carried by color, motion, or audio alone; type remains readable; UI scale and reduced motion are respected. | Clipping at larger scale, low contrast over gameplay, or essential animation with no static end state. |
 | Layout resilience | The changed surface remains operable without clipping, overlap, or unreachable controls at its required sizes and scales. | The default view works, but a smaller window, long copy, or `125%` UI scale breaks it. |
@@ -49,7 +49,7 @@ These are defaults and review tripwires, not reasons to prefer ambiguity.
 
 - **HUD and board state:** use icons, meters, counters, short state labels, target previews, and spatial cues. Do not place instructional paragraphs in the persistent combat view.
 - **Actions:** prefer a clear verb or destination, usually one to three words. A longer label is acceptable when it prevents ambiguity; a sentence explaining how to press the button is not.
-- **Context prompts:** show the established shortcut or input cue plus the action when the input is known. Never fabricate an active-device glyph.
+- **Context prompts:** show the established shortcut or active-input cue plus the action when the input is known. Use the current device/glyph system when one exists; never fabricate a device glyph or hard-code a cue that becomes false after input handoff.
 - **Hover tooltips:** show a title and compact facts, usually followed by no more than one short mechanic explanation. Put tactical teaching in a contextual tutorial, Grimoire, or pinned detail view.
 - **Cards, relics, and equipment:** preserve exact mechanic text. Lead with the effect and costs, use the shared icon vocabulary for recurring actions/statuses, keep flavor subordinate, and reserve expanded detail for selection, pinning, or inspection.
 - **Modals:** prefer a title, the consequence, one primary action, and back/cancel. Keep gameplay instruction to two short sentences or fewer unless the surface is an explicit detail, narrative, settings, or accessibility view.
@@ -105,11 +105,11 @@ Revise copy that repeats a visible label, narrates navigation, starts with flavo
 
 Use the repository's task-safe probe workflow. A visually changed surface needs a focused probe; extend an existing one when it already owns the surface.
 
-1. Render at the screen's normal `1920x1080` presentation and at least one constrained presentation, normally `1280x720`. Add `1280x800` for handheld-sensitive layouts. If the surface is reachable at the `960x540` minimum window size, verify operability there or document the known pre-existing constraint.
+1. Render at the screen's normal `1920x1080` presentation and at least one constrained presentation, normally `1280x720`. Use `1280x800` for every Steam Deck/controller surface and any handheld-sensitive layout. If the surface is reachable at the `960x540` minimum window size, verify operability there or document the known pre-existing constraint.
 2. Exercise `100%` and `125%` UI scale for scalable/dense surfaces. Include the constrained size at the largest relevant scale when practical.
 3. Capture every changed state that can materially alter comprehension or geometry: normal, hover/focus, selected, disabled/unaffordable, warning/error, expanded detail, and before/after result as applicable.
 4. Use fresh versioned screenshot filenames. Inspect every delivered image at the exact review resolution and check clipping, overlap, legibility, hierarchy, background contrast, and gameplay occlusion.
-5. Verify keyboard focus/order for navigable controls, pointer behavior for clickable controls, and reduced-motion behavior for new motion. Test controller behavior only when the task genuinely supports it end to end.
+5. Exercise every input path the changed surface currently supports. Verify pointer behavior, keyboard focus/order, and controller/Steam Deck focus traversal, activation, back/cancel, and focus recovery as applicable. Verify input-device handoff and displayed cues when an active-input system exists. Also verify reduced-motion behavior for new motion.
 6. Run focused logic/tests in addition to visual proof when actions, persistence, or state transitions change. A screenshot cannot prove behavior; a test cannot prove presentation.
 
 Relevant starting points include `tests/ui_probe.gd`, `tests/button_system_probe.gd`, `tests/settings_probe.gd`, `tests/tooltip_consistency_probe.gd`, and screen-specific probes under `tests/`. Run them through `tools/visual_probe_runner.py` in isolated tasks.
@@ -124,7 +124,8 @@ Revise before handoff when any of these is true without a documented Exception:
 - A panel hides the board, card, target, price, comparison, or consequence needed to decide.
 - Text is shrunk below shared typography roles, controls clip, or required actions become unreachable at a required proof configuration.
 - A new component or visual vocabulary duplicates an existing shared pattern without a concrete need.
-- Controller glyphs imply support that the complete screen and active-device system do not provide.
+- A changed surface drops or strands a previously supported pointer, keyboard, controller, or Steam Deck path.
+- Input glyphs imply support that the complete screen and active-device system do not provide.
 - Visual work is handed off without fresh, inspected, real-renderer proof.
 
 ## Handoff record

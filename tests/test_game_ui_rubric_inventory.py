@@ -32,9 +32,12 @@ class GameUiRubricInventoryTests(unittest.TestCase):
             "UiTooltipPanel",
             "CardWidget",
             "1280x720",
+            "1280x800",
             "1920x1080",
             "125%",
             "reduced motion",
+            "Preserve every input path",
+            "controller or Steam Deck",
             "Automatic rejection tripwires",
         ):
             self.assertIn(required_anchor, rubric)
