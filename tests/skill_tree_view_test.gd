@@ -117,6 +117,8 @@ func _test_skill_tree_view() -> void:
 	reserve_node.grab_focus()
 	await process_frame
 	_expect(reserve_node.find_valid_focus_neighbor(SIDE_BOTTOM) == cancel_button, "A leaf should expose a controller path from the graph to its footer")
+	await _press_ui_action(&"ui_down")
+	_expect(root.gui_get_focus_owner() == cancel_button, "Live controller navigation should leave a graph leaf for the footer")
 
 	view.focus_skill("measured_breath")
 	measured_node.grab_focus()
