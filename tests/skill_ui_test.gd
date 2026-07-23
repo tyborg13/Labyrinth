@@ -401,7 +401,13 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 
 	var sigil := instance.get("_skill_sigil") as Button
 	_expect(sigil != null and sigil.is_visible_in_tree(), "Combat HUD should show the distinct skill sigil")
-	_expect(sigil != null and sigil.text.contains("2"), "Skill sigil should summarize learned ability count")
+	_expect(
+		sigil != null
+		and _label_with_text(sigil, "ABILITIES") != null
+		and int(sigil.get_meta("owned_count", -1)) == 2
+		and sigil.find_child("SkillSigilSummary", true, false) is Label,
+		"The Abilities launcher should label its purpose and summarize owned/readied abilities"
+	)
 	if sigil != null:
 		sigil.grab_focus()
 		await process_frame
@@ -448,12 +454,13 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var status_root_height: float = (instance.get("ui_root") as Control).get_global_rect().size.y
 	_expect(
 		popover != null
-		and popover.size.y >= minf(370.0, status_root_height - 16.0)
+		and is_equal_approx(popover.size.x, minf(800.0, (instance.get("ui_root") as Control).get_global_rect().size.x - 16.0))
+		and is_equal_approx(popover.size.y, minf(492.0, status_root_height - 16.0))
 		and popover.size.y <= status_root_height - 16.0 + 1.0,
-		"Skill popover should stay bounded by the available viewport"
+		"Skill popover should use one fixed viewport-bounded geometry"
 	)
 	_expect(popover.find_child("SkillStatusScroll", true, false) == null, "Abilities should not retain the old scrolling paragraph list")
-	_expect(status_tiles.size() == SkillTreeLibrary.ordered_ids().size(), "The icon palette should render every learned ability without hiding identities in a dropdown")
+	_expect(status_tiles.size() == 10, "The fixed icon palette should show ten learned identities per page")
 	for tile_var: Variant in status_tiles:
 		_expect(tile_var is Button and (tile_var as Button).focus_mode == Control.FOCUS_ALL, "Every ability icon should be keyboard/controller inspectable")
 		_expect(tile_var is Button and not str((tile_var as Button).get_meta("icon_key", "")).is_empty(), "Every ability tile should carry a semantic icon")
@@ -474,6 +481,36 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		_expect(str(instance.get("_skill_status_selected_id")) == clicked_skill_id, "Hovering an ability icon must not change the selected detail")
 		second_tile.pressed.emit()
 		_expect(str(instance.get("_skill_status_selected_id")) == str(second_tile.get_meta("skill_id", "")), "Clicking an ability icon should change the selected detail")
+	var paged_skill_ids: Array[String]
+	for page_index: int in range(3):
+		if page_index > 0:
+			instance.call("_on_skill_status_page_pressed", 1)
+			await process_frame
+		status_tiles = status_grid.get_children()
+		_expect(status_tiles.size() == (4 if page_index == 2 else 10), "Ability page %d should retain a stable ten-slot palette" % [page_index + 1])
+		for tile_var: Variant in status_tiles:
+			var page_tile := tile_var as Button
+			var page_skill_id: String = str(page_tile.get_meta("skill_id", ""))
+			paged_skill_ids.append(page_skill_id)
+			var name_label := page_tile.find_child("SkillStatusName_%s" % page_skill_id, true, false) as Label
+			_expect(name_label != null and name_label.text == SkillTreeLibrary.display_name(page_skill_id), "%s should show its complete name beneath the icon" % page_skill_id)
+	paged_skill_ids.sort()
+	var all_skill_ids: Array[String] = SkillTreeLibrary.ordered_ids()
+	all_skill_ids.sort()
+	_expect(paged_skill_ids == all_skill_ids, "Paging should expose every learned ability identity without a dropdown or scrollbar")
+	var stable_popover_size: Vector2 = popover.size
+	instance.call("_show_skill_status_page_for_skill", "prismatic_instinct")
+	await process_frame
+	var long_description := popover.find_child("SkillStatusSelectedDescription", true, false) as RichTextLabel
+	_expect(popover.size == stable_popover_size, "Selecting the longest ability description must not resize the Abilities panel")
+	_expect(long_description != null and long_description.get_content_height() <= long_description.size.y + 1.0, "The longest ability description should fit fully inside the fixed detail well")
+	instance.call("_show_skill_status_page_for_skill", "measured_breath")
+	await process_frame
+	var status_action := popover.find_child("ActivateSelectedSkill", true, false) as Button
+	_expect(status_action != null and not status_action.visible, "Automatic abilities should not render a permanently disabled activation button")
+	instance.call("_show_skill_status_page_for_skill", "open_arsenal")
+	await process_frame
+	_expect(status_action != null and not status_action.visible, "Passive abilities should not render a permanently disabled activation button")
 	instance.call("_refresh_skill_status_popover", loaded_skill_ids)
 	await process_frame
 	var contextual_skill_ids: Array[String]
@@ -583,6 +620,10 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	await process_frame
 	_expect(selection_prompt != null and not selection_prompt.visible, "Choosing the live hand card should leave discard mode")
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "Choosing Quick Wits through real input should commit its combat use")
+	_expect(bool(instance.get("_animation_lock")), "Quick Wits should keep combat input locked while the chosen card discards and its replacement draws")
+	var quick_wits_fx_layer := instance.get("_card_fx_layer") as Control
+	_expect(quick_wits_fx_layer != null and quick_wits_fx_layer.get_child_count() > 0, "Quick Wits should reuse the visible card-proxy motion layer")
+	await _wait_for_animation_unlock(instance)
 	instance.set("_combat_state", quick_wits_combat_before)
 	instance.set("_run_state", quick_wits_run_before)
 	instance.set("_analytics_skill_event_revision", quick_wits_analytics_revision_before)
@@ -736,11 +777,44 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		await _press_ui_action(&"ui_down")
 		_expect(instance.get_viewport().gui_get_focus_owner() == recall_card, "Encore close Down should restore focus to the selectable full card")
 	if recall_card != null:
+		var normal_encore_motion_started_msec: int = Time.get_ticks_msec()
 		await _click_control(recall_card)
-	await process_frame
-	var encore_result: Dictionary = instance.get("_combat_state") as Dictionary
-	_expect(not pile_scrim.visible and ((encore_result.get("deck", {}) as Dictionary).get("hand", []) as Array).has("quick_stab"), "Selecting the full discard card should return it to hand and close the pile")
-	_expect(combat_engine.skill_was_used(encore_result, "encore"), "Encore should spend after the discard-pile card is selected")
+		await process_frame
+		var encore_result: Dictionary = instance.get("_combat_state") as Dictionary
+		_expect(not pile_scrim.visible and ((encore_result.get("deck", {}) as Dictionary).get("hand", []) as Array).has("quick_stab"), "Selecting the full discard card should return it to hand and close the pile")
+		_expect(combat_engine.skill_was_used(encore_result, "encore"), "Encore should spend after the discard-pile card is selected")
+		_expect(bool(instance.get("_animation_lock")), "Encore should keep combat input locked while the recalled full card flies into hand")
+		var encore_fx_layer := instance.get("_card_fx_layer") as Control
+		_expect(encore_fx_layer != null and encore_fx_layer.get_child_count() > 0, "Encore should reuse the visible card-proxy motion layer")
+		await _wait_for_animation_unlock(instance)
+		var normal_encore_motion_msec: int = Time.get_ticks_msec() - normal_encore_motion_started_msec
+
+		var original_settings: Dictionary = (instance.get("_settings") as Dictionary).duplicate(true)
+		var reduced_settings: Dictionary = original_settings.duplicate(true)
+		reduced_settings["reduced_motion"] = true
+		instance.set("_settings", reduced_settings)
+		instance.set("_combat_state", encore_combat.duplicate(true))
+		instance.set("_run_state", run_engine.set_combat_state(original_run_state, encore_combat))
+		instance.call("_refresh_ui")
+		await process_frame
+		var reduced_encore_button: Button = await _ready_skill_button(instance, "Encore")
+		if reduced_encore_button != null:
+			reduced_encore_button.pressed.emit()
+		await process_frame
+		var reduced_recall_card := instance.get("_pile_dialog_cards").find_child("DiscardSelectionCard_1", true, false) as Button
+		var reduced_encore_motion_started_msec: int = Time.get_ticks_msec()
+		if reduced_recall_card != null:
+			await _click_control(reduced_recall_card)
+		await _wait_for_animation_unlock(instance)
+		var reduced_encore_motion_msec: int = Time.get_ticks_msec() - reduced_encore_motion_started_msec
+		_expect(
+			reduced_recall_card != null and reduced_encore_motion_msec < normal_encore_motion_msec,
+			"Reduced motion should keep Encore's visible state transition while shortening its card flight (%dms vs %dms)" % [
+				reduced_encore_motion_msec,
+				normal_encore_motion_msec,
+			]
+		)
+		instance.set("_settings", original_settings)
 	instance.set("_combat_state", original_combat_state)
 	instance.set("_run_state", original_run_state)
 	instance.call("_refresh_ui")
@@ -1144,6 +1218,8 @@ func _ready_skill_button(instance: Node, skill_name: String) -> Button:
 		await process_frame
 		await process_frame
 	popover = instance.get("_skill_status_popover") as Control
+	instance.call("_show_skill_status_page_for_skill", skill_id)
+	await process_frame
 	var tile := popover.find_child("SkillStatusTile_%s" % skill_id, true, false) as Button if popover != null else null
 	if tile == null:
 		return null
@@ -1235,6 +1311,12 @@ func _click_control(control: Control) -> void:
 		viewport.push_input(event, true)
 		await process_frame
 	await process_frame
+
+func _wait_for_animation_unlock(instance: Node, timeout_seconds: float = 2.0) -> void:
+	var deadline_msec: int = Time.get_ticks_msec() + int(timeout_seconds * 1000.0)
+	while bool(instance.get("_animation_lock")) and Time.get_ticks_msec() < deadline_msec:
+		await process_frame
+	_expect(not bool(instance.get("_animation_lock")), "Ability card motion should finish within %.1f seconds" % timeout_seconds)
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

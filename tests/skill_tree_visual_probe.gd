@@ -240,6 +240,7 @@ func _capture_combat_surfaces(
 ) -> void:
 	var layout: Dictionary = _combat_layout()
 	var combat_engine := CombatEngine.new()
+	var run_engine := RunEngine.new()
 	var deck_cards: Array[String]
 	deck_cards.append_array([
 		"quick_stab",
@@ -289,8 +290,29 @@ func _capture_combat_surfaces(
 
 	var sigil := instance.get("_skill_sigil") as Button
 	_expect(sigil != null and sigil.is_visible_in_tree(), "%s Combat HUD should show the skill sigil" % viewport_size)
-	_expect(sigil != null and sigil.text.contains("10"), "%s Skill sigil should summarize ten learned skills" % viewport_size)
+	_expect(
+		sigil != null
+		and _label_with_text(sigil, "ABILITIES") != null
+		and int(sigil.get_meta("owned_count", -1)) == 10
+		and int(sigil.get_meta("ready_count", -1)) >= 1,
+		"%s Abilities launcher should label its purpose and expose ready/owned counts" % viewport_size
+	)
+	var launcher_previews := sigil.find_child("SkillSigilOwnedPreviews", true, false) as Control if sigil != null else null
+	var expected_launcher_previews: int = 1 if viewport_size.x < 1100 else 2
+	_expect(
+		launcher_previews != null and launcher_previews.get_child_count() == expected_launcher_previews,
+		"%s Abilities launcher should preview real owned identities without colliding with the Turn Clock" % viewport_size
+	)
 	_assert_inside(sigil, viewport_size, "%s Combat skill sigil" % viewport_size, 8.0)
+	var turn_order_panel := instance.get("_turn_order_panel") as Control
+	if sigil != null and turn_order_panel != null and turn_order_panel.visible:
+		_expect(not sigil.get_global_rect().intersects(turn_order_panel.get_global_rect()), "%s Abilities launcher should not sit under the Turn Clock" % viewport_size)
+		var relic_bar := instance.get("relic_bar") as Control
+		if relic_bar != null:
+			for child: Node in relic_bar.get_children():
+				var relic_child := child as Control
+				if relic_child != null and relic_child.visible:
+					_expect(not relic_child.get_global_rect().intersects(turn_order_panel.get_global_rect()), "%s Header abilities/relic identities should remain clear of the Turn Clock" % viewport_size)
 	var title_box := instance.get("title_box") as Control
 	if sigil != null and title_box != null:
 		print("Skill HUD %s title=%s sigil=%s" % [viewport_size, title_box.get_global_rect(), sigil.get_global_rect()])
@@ -347,8 +369,42 @@ func _capture_combat_surfaces(
 	_expect(popover.find_child("SkillStatusSelectedDetail", true, false) is Control, "%s Ability icons should share one selected detail region" % viewport_size)
 	_expect(popover.find_child("SkillStatusScroll", true, false) == null, "%s Ability palette should not be a scrolling text list" % viewport_size)
 	_assert_inside(popover, viewport_size, "%s Skill status popover" % viewport_size, 8.0)
+	var fixed_popover_rect: Rect2 = popover.get_global_rect()
+	for skill_id: String in PROGRESSION_SKILLS:
+		var name_label := popover.find_child("SkillStatusName_%s" % skill_id, true, false) as Label
+		_expect(name_label != null and name_label.text == SkillTreeLibrary.display_name(skill_id), "%s %s should show its complete two-line-capable name" % [viewport_size, skill_id])
 	await _save_screenshot(viewport, "%s/04b_abilities_entry.png" % output_dir)
 	await _save_screenshot(viewport, "%s/05_combat_skill_popover.png" % output_dir)
+	instance.call("_show_skill_status_page_for_skill", "prismatic_instinct")
+	await _settle()
+	var description := popover.find_child("SkillStatusSelectedDescription", true, false) as RichTextLabel
+	_expect(popover.get_global_rect() == fixed_popover_rect, "%s The longest description must not resize the Abilities panel" % viewport_size)
+	_expect(description != null and description.get_content_height() <= description.size.y + 1.0, "%s The longest description should fit without clipping" % viewport_size)
+	await _save_screenshot(viewport, "%s/05b_long_description_fixed_panel.png" % output_dir)
+	instance.call("_show_skill_status_page_for_skill", "measured_breath")
+	await _settle()
+	var selected_action := popover.find_child("ActivateSelectedSkill", true, false) as Button
+	_expect(selected_action != null and not selected_action.visible, "%s Automatic details should omit the disabled activation action" % viewport_size)
+	_expect(popover.get_global_rect() == fixed_popover_rect, "%s Automatic details must retain the same panel geometry" % viewport_size)
+	await _save_screenshot(viewport, "%s/05c_automatic_detail_no_action.png" % output_dir)
+	var passive_combat: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var passive_ids: Array = (passive_combat.get("skill_ids", []) as Array).duplicate()
+	passive_ids.append("open_arsenal")
+	passive_combat["skill_ids"] = passive_ids
+	var passive_run: Dictionary = run_engine.set_combat_state(instance.get("_run_state") as Dictionary, passive_combat)
+	instance.set("_combat_state", passive_combat)
+	instance.set("_run_state", passive_run)
+	instance.call("_refresh_ui")
+	await _settle()
+	instance.call("_show_skill_status_page_for_skill", "open_arsenal")
+	await _settle()
+	_expect(selected_action != null and not selected_action.visible, "%s Passive details should omit the disabled activation action" % viewport_size)
+	_expect(popover.get_global_rect() == fixed_popover_rect, "%s Passive details must retain the same panel geometry" % viewport_size)
+	await _save_screenshot(viewport, "%s/05d_passive_detail_no_action.png" % output_dir)
+	instance.set("_combat_state", combat_state)
+	instance.set("_run_state", combat_run)
+	instance.call("_refresh_ui")
+	await _settle()
 
 	instance.call("_close_skill_status_popover")
 	instance.call("_on_combat_skill_pressed", "quick_wits")
@@ -369,6 +425,12 @@ func _capture_combat_surfaces(
 	await _click_control(viewport, focused_hand_choice, "%s Quick Wits full-card choice" % viewport_size)
 	_expect(selection_prompt != null and not selection_prompt.visible, "%s Clicking the full hand card should close Quick Wits selection" % viewport_size)
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "quick_wits"), "%s Clicking the full hand card should spend Quick Wits" % viewport_size)
+	_expect(bool(instance.get("_animation_lock")), "%s Quick Wits should lock input during card motion" % viewport_size)
+	await _save_screenshot(viewport, "%s/06a_quick_wits_discard_motion.png" % output_dir)
+	await create_timer(0.30).timeout
+	_expect(bool(instance.get("_animation_lock")), "%s Quick Wits draw should continue after the discard flight" % viewport_size)
+	await _save_screenshot(viewport, "%s/06aa_quick_wits_draw_motion.png" % output_dir)
+	await _wait_for_animation_unlock(instance)
 	instance.call("_on_combat_skill_pressed", "encore")
 	await _settle()
 	var pile_scrim := instance.get("_pile_scrim") as Control
@@ -382,6 +444,9 @@ func _capture_combat_surfaces(
 	await _click_control(viewport, discard_choice, "%s Encore full-card choice" % viewport_size)
 	_expect(pile_scrim != null and not pile_scrim.visible, "%s Clicking the full discard card should close Encore selection" % viewport_size)
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "encore"), "%s Clicking the full discard card should spend Encore" % viewport_size)
+	_expect(bool(instance.get("_animation_lock")), "%s Encore should lock input while the recalled card flies into hand" % viewport_size)
+	await _save_screenshot(viewport, "%s/06c_encore_return_motion.png" % output_dir)
+	await _wait_for_animation_unlock(instance)
 
 func _populated_progression() -> Dictionary:
 	var skill_ids: Array[String] = SkillTreeLibrary.repaired_selection(PROGRESSION_SKILLS, PROGRESSION_SKILLS.size(), PROGRESSION_SKILLS)
@@ -451,7 +516,13 @@ func _click_control(viewport: SubViewport, control: Control, label: String) -> v
 		event.pressed = pressed
 		viewport.push_input(event, true)
 		await process_frame
-	await _settle()
+	await process_frame
+
+func _wait_for_animation_unlock(instance: Node, timeout_seconds: float = 2.0) -> void:
+	var deadline_msec: int = Time.get_ticks_msec() + int(timeout_seconds * 1000.0)
+	while bool(instance.get("_animation_lock")) and Time.get_ticks_msec() < deadline_msec:
+		await process_frame
+	_expect(not bool(instance.get("_animation_lock")), "Ability card motion should finish within %.1f seconds" % timeout_seconds)
 
 func _assert_inside(control: Control, viewport_size: Vector2i, label: String, margin: float = 0.0) -> void:
 	if control == null:

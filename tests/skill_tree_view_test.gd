@@ -74,8 +74,21 @@ func _test_skill_tree_view() -> void:
 	_expect(view.find_child("SkillDetailContent", true, false) is VBoxContainer, "The complete focused-skill rules should remain visible beside the tree")
 	_expect(view.legend_state_count() == 4, "The persistent tree should show learned, available, locked, and exclusive states without a draft state")
 	_expect(_label_with_text(view, "Prismatic Instinct") == null, "Skill names should remain in the unobstructed detail pane")
-	_expect(view.connection_intersection_count() == 0, "No connector should cross an unrelated medallion: %s" % ", ".join(view.connection_intersection_pairs()))
-	_expect(view.collinear_connection_overlap_pairs().is_empty(), "Unrelated routes should never merge into an ambiguous rail")
+	_expect(
+		view.connection_intersection_count() == 0,
+		"No connector should cross an unrelated medallion: %s; discerning→bearing=%s" % [
+			", ".join(view.connection_intersection_pairs()),
+			view.connection_points("discerning_eye", "true_bearing"),
+		]
+	)
+	_expect(
+		view.collinear_connection_overlap_pairs().is_empty(),
+		"Unrelated routes should never merge into an ambiguous rail: %s; deferred→layaway=%s; quick→curator=%s" % [
+			", ".join(view.collinear_connection_overlap_pairs()),
+			view.connection_points("deferred_choice", "layaway"),
+			view.connection_points("quick_wits", "curators_patience"),
+		]
+	)
 	_expect(view.bridged_connection_pairs().size() == 11, "Every unavoidable route crossing should retain an explicit bridge")
 	_expect(view.unbridged_connection_pairs().is_empty(), "No route crossing should resemble an unexplained junction")
 	_expect(view.minimum_bridge_half_gap() >= 10.0, "Bridge gaps should visibly clear the upper route")
@@ -100,7 +113,7 @@ func _test_skill_tree_view() -> void:
 	var graph_bounds := Rect2(Vector2.ZERO, view.graph_canvas_size())
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var node: Button = view.node_for_skill(skill_id)
-		_expect(node != null and node.size.x >= 48.0 and node.size.x <= 66.0, "%s should use an accessible compact medallion" % skill_id)
+		_expect(node != null and node.size.x >= 76.0 and node.size.x <= 80.0, "%s should use a large scan-readable medallion" % skill_id)
 		_expect(node != null and node.tooltip_text.is_empty(), "%s should rely on the fixed detail pane instead of a tooltip" % skill_id)
 		_expect(graph_bounds.encloses(Rect2(node.position, node.size)), "%s should remain inside the graph canvas" % skill_id)
 		_expect(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)) != null, "%s should render a semantic icon" % skill_id)

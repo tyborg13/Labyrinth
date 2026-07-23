@@ -7,10 +7,10 @@ const COMPLETE_BUILD_SIZE: int = 19
 const BRANCH_ORDER = ["tactics", "resolve", "traverse", "foresight", "keystone"]
 const LAYOUT_CANVAS_SIZE: Vector2i = Vector2i(1000, 540)
 const LAYOUT_NODE_SIZES: Dictionary = {
-	"root": Vector2i(56, 56),
-	"branch": Vector2i(52, 52),
-	"junction": Vector2i(56, 56),
-	"keystone": Vector2i(64, 64),
+	"root": Vector2i(80, 80),
+	"branch": Vector2i(76, 76),
+	"junction": Vector2i(80, 80),
+	"keystone": Vector2i(80, 80),
 }
 
 static var _cache: Dictionary = {}

@@ -923,10 +923,16 @@ const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
 const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
-const SKILL_SIGIL_SIZE: Vector2 = Vector2(58.0, 52.0)
-const SKILL_STATUS_POPOVER_MIN_SIZE: Vector2 = Vector2(580.0, 370.0)
-const SKILL_STATUS_POPOVER_MAX_SIZE: Vector2 = Vector2(700.0, 560.0)
-const SKILL_STATUS_TILE_SIZE: Vector2 = Vector2(98.0, 66.0)
+const SKILL_SIGIL_SIZE: Vector2 = Vector2(200.0, 56.0)
+const SKILL_SIGIL_COMPACT_SIZE: Vector2 = Vector2(132.0, 56.0)
+const SKILL_SIGIL_PREVIEW_ICON_SIZE: Vector2 = Vector2(28.0, 28.0)
+const SKILL_SIGIL_PREVIEW_COUNT: int = 2
+const SKILL_SIGIL_COMPACT_PREVIEW_COUNT: int = 1
+const SKILL_SIGIL_COMPACT_VIEWPORT_WIDTH: float = 1100.0
+const SKILL_STATUS_POPOVER_SIZE: Vector2 = Vector2(800.0, 492.0)
+const SKILL_STATUS_TILE_SIZE: Vector2 = Vector2(132.0, 92.0)
+const SKILL_STATUS_DETAIL_HEIGHT: float = 136.0
+const SKILL_STATUS_PAGE_SIZE: int = 10
 const SKILL_STATUS_GRID_COLUMNS: int = 5
 const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
 const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
@@ -1196,14 +1202,20 @@ var _skill_status_grid: GridContainer
 var _skill_status_detail_icon: TextureRect
 var _skill_status_detail_title: Label
 var _skill_status_detail_status: Label
-var _skill_status_detail_description: Label
+var _skill_status_detail_description: RichTextLabel
 var _skill_status_action_button: Button
 var _skill_status_title: Label
+var _skill_status_summary: Label
 var _skill_status_close_button: Button
+var _skill_status_page_host: Control
+var _skill_status_page_label: Label
+var _skill_status_previous_page: Button
+var _skill_status_next_page: Button
 var _skill_status_return_focus: Control
 var _skill_status_selected_id: String = ""
 var _skill_status_skill_ids: Array[String]
 var _skill_status_tiles: Dictionary = {}
+var _skill_status_page: int = 0
 var _skill_choice_scrim: ColorRect
 var _skill_choice_dialog: PanelContainer
 var _skill_choice_title: Label
@@ -1924,7 +1936,7 @@ func _build_skill_status_popover() -> void:
 	_skill_status_popover = PanelContainer.new()
 	_skill_status_popover.name = "SkillStatusPopover"
 	_skill_status_popover.visible = false
-	_skill_status_popover.custom_minimum_size = SKILL_STATUS_POPOVER_MIN_SIZE
+	_skill_status_popover.custom_minimum_size = SKILL_STATUS_POPOVER_SIZE
 	_skill_status_popover.mouse_filter = Control.MOUSE_FILTER_STOP
 	_skill_status_popover.z_index = 410
 	_skill_status_popover.z_as_relative = false
@@ -1950,6 +1962,12 @@ func _build_skill_status_popover() -> void:
 	UiTypography.apply_label_role(_skill_status_title, UiTypography.ROLE_SECTION)
 	_skill_status_title.add_theme_color_override("font_color", Color("eadcff"))
 	header.add_child(_skill_status_title)
+	_skill_status_summary = Label.new()
+	_skill_status_summary.name = "SkillStatusSummary"
+	_skill_status_summary.text = "0 READY  ·  0 OWNED"
+	UiTypography.apply_label_role(_skill_status_summary, UiTypography.ROLE_CAPTION)
+	_skill_status_summary.add_theme_color_override("font_color", Color("bfa7d7"))
+	header.add_child(_skill_status_summary)
 	_skill_status_close_button = Button.new()
 	_skill_status_close_button.name = "CloseSkillStatus"
 	_skill_status_close_button.text = "Close"
@@ -1975,11 +1993,52 @@ func _build_skill_status_popover() -> void:
 	_skill_status_grid.columns = SKILL_STATUS_GRID_COLUMNS
 	_skill_status_grid.add_theme_constant_override("h_separation", 7)
 	_skill_status_grid.add_theme_constant_override("v_separation", 7)
+	_skill_status_grid.custom_minimum_size = Vector2(
+		SKILL_STATUS_TILE_SIZE.x * float(SKILL_STATUS_GRID_COLUMNS) + 7.0 * float(SKILL_STATUS_GRID_COLUMNS - 1),
+		SKILL_STATUS_TILE_SIZE.y * 2.0 + 7.0
+	)
 	palette_center.add_child(_skill_status_grid)
+
+	_skill_status_page_host = CenterContainer.new()
+	_skill_status_page_host.name = "SkillStatusPageHost"
+	_skill_status_page_host.custom_minimum_size = Vector2(0.0, 30.0)
+	column.add_child(_skill_status_page_host)
+	var page_row := HBoxContainer.new()
+	page_row.name = "SkillStatusPageControls"
+	page_row.add_theme_constant_override("separation", 10)
+	_skill_status_page_host.add_child(page_row)
+	_skill_status_previous_page = Button.new()
+	_skill_status_previous_page.name = "PreviousSkillStatusPage"
+	_skill_status_previous_page.text = "←  PREV"
+	_skill_status_previous_page.custom_minimum_size = Vector2(86.0, 28.0)
+	_ui_skin.apply_button_stylebox_overrides(_skill_status_previous_page, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(_skill_status_previous_page)
+	UiTypography.apply_button_role(_skill_status_previous_page, UiTypography.ROLE_CAPTION)
+	_skill_status_previous_page.pressed.connect(_on_skill_status_page_pressed.bind(-1))
+	page_row.add_child(_skill_status_previous_page)
+	_skill_status_page_label = Label.new()
+	_skill_status_page_label.name = "SkillStatusPageLabel"
+	_skill_status_page_label.custom_minimum_size = Vector2(64.0, 0.0)
+	_skill_status_page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_skill_status_page_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UiTypography.apply_label_role(_skill_status_page_label, UiTypography.ROLE_CAPTION)
+	_skill_status_page_label.add_theme_color_override("font_color", Color("cdb8df"))
+	page_row.add_child(_skill_status_page_label)
+	_skill_status_next_page = Button.new()
+	_skill_status_next_page.name = "NextSkillStatusPage"
+	_skill_status_next_page.text = "NEXT  →"
+	_skill_status_next_page.custom_minimum_size = Vector2(86.0, 28.0)
+	_ui_skin.apply_button_stylebox_overrides(_skill_status_next_page, UiSkin.VARIANT_COMPACT)
+	_ui_skin.apply_button_text_overrides(_skill_status_next_page)
+	UiTypography.apply_button_role(_skill_status_next_page, UiTypography.ROLE_CAPTION)
+	_skill_status_next_page.pressed.connect(_on_skill_status_page_pressed.bind(1))
+	page_row.add_child(_skill_status_next_page)
 
 	var detail_panel := PanelContainer.new()
 	detail_panel.name = "SkillStatusSelectedDetail"
-	detail_panel.custom_minimum_size = Vector2(0.0, 112.0)
+	detail_panel.custom_minimum_size = Vector2(0.0, SKILL_STATUS_DETAIL_HEIGHT)
+	detail_panel.size_flags_vertical = Control.SIZE_SHRINK_END
+	detail_panel.clip_contents = true
 	detail_panel.add_theme_stylebox_override("panel", _skill_status_row_style(Color("a783d6")))
 	column.add_child(detail_panel)
 	var detail_margin := MarginContainer.new()
@@ -2015,12 +2074,15 @@ func _build_skill_status_popover() -> void:
 	_skill_status_detail_status.name = "SkillStatusSelectedState"
 	UiTypography.apply_label_role(_skill_status_detail_status, UiTypography.ROLE_CAPTION)
 	detail_heading.add_child(_skill_status_detail_status)
-	_skill_status_detail_description = Label.new()
+	_skill_status_detail_description = RichTextLabel.new()
 	_skill_status_detail_description.name = "SkillStatusSelectedDescription"
 	_skill_status_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_skill_status_detail_description.fit_content = false
+	_skill_status_detail_description.scroll_active = false
+	_skill_status_detail_description.bbcode_enabled = false
 	_skill_status_detail_description.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_label_role(_skill_status_detail_description, UiTypography.ROLE_CAPTION)
-	_skill_status_detail_description.add_theme_color_override("font_color", Color("cbbbd5"))
+	UiTypography.apply_rich_text_role(_skill_status_detail_description, UiTypography.ROLE_CAPTION)
+	_skill_status_detail_description.add_theme_color_override("default_color", Color("cbbbd5"))
 	detail_copy.add_child(_skill_status_detail_description)
 	_skill_status_action_button = Button.new()
 	_skill_status_action_button.name = "ActivateSelectedSkill"
@@ -6924,16 +6986,20 @@ func _baseline_run_skill_event_cursors() -> void:
 func _build_skill_sigil(skill_ids: Array[String]) -> Button:
 	var button := Button.new()
 	button.name = "SkillSigil"
-	button.custom_minimum_size = SKILL_SIGIL_SIZE
-	button.text = "◆\n%d" % skill_ids.size()
-	button.tooltip_text = "Open Abilities (%d learned)." % skill_ids.size()
+	var compact: bool = ui_root != null and ui_root.get_global_rect().size.x < SKILL_SIGIL_COMPACT_VIEWPORT_WIDTH
+	button.custom_minimum_size = SKILL_SIGIL_COMPACT_SIZE if compact else SKILL_SIGIL_SIZE
+	button.text = ""
+	button.tooltip_text = ""
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.set_meta("header_utility", true)
-	UiTypography.apply_button_role(button, UiTypography.ROLE_CAPTION)
-	button.add_theme_color_override("font_color", Color("eadcff"))
-	button.add_theme_color_override("font_hover_color", Color("ffffff"))
-	button.add_theme_color_override("font_pressed_color", Color("d0b4f4"))
-	button.add_theme_constant_override("outline_size", 1)
+	var ready_count: int = _skill_status_ready_count(skill_ids)
+	var preview_ids: Array[String] = _skill_sigil_preview_ids(
+		skill_ids,
+		SKILL_SIGIL_COMPACT_PREVIEW_COUNT if compact else SKILL_SIGIL_PREVIEW_COUNT
+	)
+	button.set_meta("ready_count", ready_count)
+	button.set_meta("owned_count", skill_ids.size())
+	button.set_meta("preview_skill_ids", preview_ids)
 	for state_name: String in ["normal", "hover", "pressed", "focus"]:
 		var accent := Color("9b72cb")
 		if state_name == "hover":
@@ -6941,8 +7007,110 @@ func _build_skill_sigil(skill_ids: Array[String]) -> Button:
 		elif state_name == "pressed":
 			accent = accent.darkened(0.12)
 		button.add_theme_stylebox_override(state_name, _skill_sigil_style(accent, state_name == "hover"))
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override("margin_left", 4 if compact else 8)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_right", 4 if compact else 7)
+	margin.add_theme_constant_override("margin_bottom", 5)
+	button.add_child(margin)
+	var content := HBoxContainer.new()
+	content.add_theme_constant_override("separation", 3 if compact else 7)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(content)
+	var copy := VBoxContainer.new()
+	copy.custom_minimum_size = Vector2(80.0 if compact else 95.0, 0.0)
+	copy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	copy.add_theme_constant_override("separation", -2)
+	copy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(copy)
+	var title := Label.new()
+	title.name = "SkillSigilTitle"
+	title.text = "ABILITIES"
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(title, UiTypography.ROLE_BODY)
+	title.add_theme_color_override("font_color", Color("f0e2ff"))
+	copy.add_child(title)
+	var summary := Label.new()
+	summary.name = "SkillSigilSummary"
+	summary.text = (
+		"%d READY / %d" % [ready_count, skill_ids.size()]
+		if compact
+		else "%d READY  ·  %d OWNED" % [ready_count, skill_ids.size()]
+	)
+	summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(summary, 10)
+	summary.add_theme_color_override("font_color", Color("bfa7d7"))
+	copy.add_child(summary)
+	var previews := HBoxContainer.new()
+	previews.name = "SkillSigilOwnedPreviews"
+	previews.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	previews.alignment = BoxContainer.ALIGNMENT_END
+	previews.add_theme_constant_override("separation", 3)
+	previews.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(previews)
+	for skill_id: String in preview_ids:
+		var accent: Color = _skill_status_accent(_skill_hud_status(skill_id))
+		var frame := PanelContainer.new()
+		frame.name = "SkillSigilPreview_%s" % skill_id
+		frame.custom_minimum_size = SKILL_SIGIL_PREVIEW_ICON_SIZE
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_theme_stylebox_override("panel", _skill_sigil_preview_style(accent))
+		var icon := TextureRect.new()
+		icon.texture = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_child(icon)
+		previews.add_child(frame)
+	var expansion := Label.new()
+	expansion.name = "SkillSigilExpansionIndicator"
+	expansion.text = "›"
+	expansion.visible = not compact
+	expansion.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	expansion.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.apply_label_role(expansion, UiTypography.ROLE_SECTION)
+	expansion.add_theme_color_override("font_color", Color("d8c0ed"))
+	content.add_child(expansion)
 	button.pressed.connect(_toggle_skill_status_popover)
 	return button
+
+func _skill_status_ready_count(skill_ids: Array[String]) -> int:
+	var result: int = 0
+	for skill_id: String in skill_ids:
+		if _skill_hud_status(skill_id) == "READY":
+			result += 1
+	return result
+
+func _skill_sigil_preview_ids(skill_ids: Array[String], preview_count: int = SKILL_SIGIL_PREVIEW_COUNT) -> Array[String]:
+	var result: Array[String]
+	for skill_id: String in skill_ids:
+		if _skill_hud_status(skill_id) == "READY":
+			result.append(skill_id)
+			if result.size() >= preview_count:
+				return result
+	for skill_id: String in skill_ids:
+		if result.has(skill_id):
+			continue
+		result.append(skill_id)
+		if result.size() >= preview_count:
+			break
+	return result
+
+func _skill_sigil_preview_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("150d1c")
+	style.border_color = accent
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	style.content_margin_left = 2.0
+	style.content_margin_top = 2.0
+	style.content_margin_right = 2.0
+	style.content_margin_bottom = 2.0
+	return style
 
 func _skill_sigil_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -6974,23 +7142,56 @@ func _layout_skill_status_popover() -> void:
 	if _skill_status_popover == null or not _skill_status_popover.visible or _skill_sigil == null or not is_instance_valid(_skill_sigil):
 		return
 	var root_rect: Rect2 = ui_root.get_global_rect()
-	var palette_rows: int = maxi(1, ceili(float(_skill_status_skill_ids.size()) / float(SKILL_STATUS_GRID_COLUMNS)))
-	var content_height: float = 220.0 + float(palette_rows) * (SKILL_STATUS_TILE_SIZE.y + 7.0)
 	var popover_size := Vector2(
-		clampf(root_rect.size.x * 0.55, SKILL_STATUS_POPOVER_MIN_SIZE.x, 650.0),
-		clampf(content_height, 370.0, SKILL_STATUS_POPOVER_MAX_SIZE.y)
+		minf(SKILL_STATUS_POPOVER_SIZE.x, maxf(1.0, root_rect.size.x - 16.0)),
+		minf(SKILL_STATUS_POPOVER_SIZE.y, maxf(1.0, root_rect.size.y - 16.0))
 	)
-	popover_size.x = minf(popover_size.x, maxf(1.0, root_rect.size.x - 16.0))
-	popover_size.y = minf(popover_size.y, maxf(1.0, root_rect.size.y - 16.0))
 	_skill_status_popover.custom_minimum_size = popover_size
 	_skill_status_popover.size = popover_size
 	var desired: Vector2 = root_rect.position + (root_rect.size - popover_size) * 0.5
 	_skill_status_popover.global_position = desired
 
+func _skill_status_page_count() -> int:
+	return maxi(1, ceili(float(_skill_status_skill_ids.size()) / float(SKILL_STATUS_PAGE_SIZE)))
+
+func _skill_status_visible_ids() -> Array[String]:
+	var result: Array[String]
+	var start_index: int = _skill_status_page * SKILL_STATUS_PAGE_SIZE
+	var end_index: int = mini(start_index + SKILL_STATUS_PAGE_SIZE, _skill_status_skill_ids.size())
+	for index: int in range(start_index, end_index):
+		result.append(_skill_status_skill_ids[index])
+	return result
+
+func _on_skill_status_page_pressed(direction: int) -> void:
+	var next_page: int = clampi(_skill_status_page + direction, 0, _skill_status_page_count() - 1)
+	if next_page == _skill_status_page:
+		return
+	_skill_status_page = next_page
+	var visible_ids: Array[String] = _skill_status_visible_ids()
+	_skill_status_selected_id = visible_ids[0] if not visible_ids.is_empty() else ""
+	_refresh_skill_status_popover(_skill_status_skill_ids)
+	call_deferred("_grab_skill_status_palette_focus")
+
+func _show_skill_status_page_for_skill(skill_id: String) -> void:
+	var index: int = _skill_status_skill_ids.find(skill_id)
+	if index < 0:
+		return
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if focus_owner != null and focus_owner.has_meta("skill_id"):
+		focus_owner.release_focus()
+	_skill_status_page = floori(float(index) / float(SKILL_STATUS_PAGE_SIZE))
+	_skill_status_selected_id = skill_id
+	_refresh_skill_status_popover(_skill_status_skill_ids)
+
 func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
 	_skill_status_skill_ids = SkillTreeLibrary.normalized_ids(skill_ids)
 	if _skill_status_title != null:
-		_skill_status_title.text = "ABILITIES  %d" % _skill_status_skill_ids.size()
+		_skill_status_title.text = "ABILITIES"
+	if _skill_status_summary != null:
+		_skill_status_summary.text = "%d READY  ·  %d OWNED" % [
+			_skill_status_ready_count(_skill_status_skill_ids),
+			_skill_status_skill_ids.size()
+		]
 	if _skill_status_grid == null or _skill_status_popover == null or not _skill_status_popover.visible:
 		return
 	var focus_owner: Control = get_viewport().gui_get_focus_owner()
@@ -6999,10 +7200,27 @@ func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
 		restore_skill_id = str(focus_owner.get_meta("skill_id", restore_skill_id))
 	if not _skill_status_skill_ids.has(restore_skill_id):
 		restore_skill_id = _skill_status_skill_ids[0] if not _skill_status_skill_ids.is_empty() else ""
+		_skill_status_page = 0
+	_skill_status_page = clampi(_skill_status_page, 0, _skill_status_page_count() - 1)
+	var visible_ids: Array[String] = _skill_status_visible_ids()
+	if not restore_skill_id.is_empty() and not visible_ids.has(restore_skill_id):
+		restore_skill_id = visible_ids[0] if not visible_ids.is_empty() else ""
 	_skill_status_selected_id = restore_skill_id
+	var multiple_pages: bool = _skill_status_page_count() > 1
+	if _skill_status_page_label != null:
+		_skill_status_page_label.text = "%d / %d" % [_skill_status_page + 1, _skill_status_page_count()]
+		_skill_status_page_label.visible = multiple_pages
+	if _skill_status_previous_page != null:
+		_skill_status_previous_page.visible = multiple_pages
+		_skill_status_previous_page.disabled = _skill_status_page <= 0
+		_skill_status_previous_page.focus_mode = Control.FOCUS_ALL if multiple_pages and not _skill_status_previous_page.disabled else Control.FOCUS_NONE
+	if _skill_status_next_page != null:
+		_skill_status_next_page.visible = multiple_pages
+		_skill_status_next_page.disabled = _skill_status_page >= _skill_status_page_count() - 1
+		_skill_status_next_page.focus_mode = Control.FOCUS_ALL if multiple_pages and not _skill_status_next_page.disabled else Control.FOCUS_NONE
 	_clear_children_now(_skill_status_grid)
 	_skill_status_tiles.clear()
-	for skill_id: String in _skill_status_skill_ids:
+	for skill_id: String in visible_ids:
 		var tile := Button.new()
 		tile.name = "SkillStatusTile_%s" % skill_id
 		tile.custom_minimum_size = SKILL_STATUS_TILE_SIZE
@@ -7024,35 +7242,41 @@ func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
 		var margin := MarginContainer.new()
 		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		margin.add_theme_constant_override("margin_left", 4)
-		margin.add_theme_constant_override("margin_top", 3)
-		margin.add_theme_constant_override("margin_right", 4)
-		margin.add_theme_constant_override("margin_bottom", 3)
+		margin.add_theme_constant_override("margin_left", 6)
+		margin.add_theme_constant_override("margin_top", 4)
+		margin.add_theme_constant_override("margin_right", 6)
+		margin.add_theme_constant_override("margin_bottom", 4)
 		tile.add_child(margin)
 		var column := VBoxContainer.new()
-		column.add_theme_constant_override("separation", 0)
+		column.add_theme_constant_override("separation", 2)
 		margin.add_child(column)
 		var icon_center := CenterContainer.new()
 		icon_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		column.add_child(icon_center)
 		var icon := TextureRect.new()
-		icon.custom_minimum_size = Vector2(28.0, 28.0)
+		icon.custom_minimum_size = Vector2(48.0, 48.0)
 		icon.texture = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon_center.add_child(icon)
 		var name_label := Label.new()
+		name_label.name = "SkillStatusName_%s" % skill_id
 		name_label.text = SkillTreeLibrary.display_name(skill_id)
+		name_label.custom_minimum_size = Vector2(0.0, 30.0)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_label.max_lines_visible = 2
+		name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		UiTypography.apply_label_role(name_label, UiTypography.ROLE_CAPTION)
 		name_label.add_theme_color_override("font_color", Color("e8def0"))
 		column.add_child(name_label)
 		var state_glyph := Label.new()
 		state_glyph.text = _skill_status_glyph(status)
-		state_glyph.position = Vector2(SKILL_STATUS_TILE_SIZE.x - 20.0, 3.0)
-		state_glyph.size = Vector2(16.0, 16.0)
+		state_glyph.position = Vector2(SKILL_STATUS_TILE_SIZE.x - 24.0, 4.0)
+		state_glyph.size = Vector2(18.0, 18.0)
 		state_glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		state_glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		UiTypography.apply_label_role(state_glyph, UiTypography.ROLE_CAPTION)
@@ -7068,7 +7292,7 @@ func _configure_skill_status_focus_neighbors() -> void:
 	if _skill_status_close_button == null or _skill_status_grid == null:
 		return
 	var tiles: Array[Control]
-	for skill_id: String in _skill_status_skill_ids:
+	for skill_id: String in _skill_status_visible_ids():
 		var tile: Control = _skill_status_tiles.get(skill_id, null) as Control
 		if tile != null:
 			tiles.append(tile)
@@ -7076,9 +7300,15 @@ func _configure_skill_status_focus_neighbors() -> void:
 		_skill_status_close_button.focus_neighbor_top = NodePath()
 		_skill_status_close_button.focus_neighbor_bottom = NodePath()
 		return
-	var bottom_target: Control = _skill_status_action_button if _can_restore_gui_focus(_skill_status_action_button) else tiles[tiles.size() - 1]
+	var page_focus: Control = null
+	if _can_restore_gui_focus(_skill_status_next_page):
+		page_focus = _skill_status_next_page
+	elif _can_restore_gui_focus(_skill_status_previous_page):
+		page_focus = _skill_status_previous_page
+	var action_focus: Control = _skill_status_action_button if _can_restore_gui_focus(_skill_status_action_button) else null
+	var bottom_target: Control = page_focus if page_focus != null else (action_focus if action_focus != null else tiles[tiles.size() - 1])
 	_set_skill_status_focus_neighbor(_skill_status_close_button, "down", tiles[0])
-	_set_skill_status_focus_neighbor(_skill_status_close_button, "up", bottom_target)
+	_set_skill_status_focus_neighbor(_skill_status_close_button, "up", action_focus if action_focus != null else bottom_target)
 	for index: int in range(tiles.size()):
 		var tile: Control = tiles[index]
 		var column_index: int = index % SKILL_STATUS_GRID_COLUMNS
@@ -7091,12 +7321,32 @@ func _configure_skill_status_focus_neighbors() -> void:
 		_set_skill_status_focus_neighbor(tile, "down", down_target)
 		_set_skill_status_focus_neighbor(tile, "left", left_target)
 		_set_skill_status_focus_neighbor(tile, "right", right_target)
-	if _skill_status_action_button != null and _can_restore_gui_focus(_skill_status_action_button):
+	if page_focus != null:
+		var page_down_target: Control = action_focus if action_focus != null else _skill_status_close_button
+		var page_buttons: Array[Button]
+		page_buttons.append(_skill_status_previous_page)
+		page_buttons.append(_skill_status_next_page)
+		for page_button: Button in page_buttons:
+			if not _can_restore_gui_focus(page_button):
+				continue
+			_set_skill_status_focus_neighbor(page_button, "up", tiles[tiles.size() - 1])
+			_set_skill_status_focus_neighbor(page_button, "down", page_down_target)
+			_set_skill_status_focus_neighbor(
+				page_button,
+				"left",
+				_skill_status_previous_page if _can_restore_gui_focus(_skill_status_previous_page) else page_button
+			)
+			_set_skill_status_focus_neighbor(
+				page_button,
+				"right",
+				_skill_status_next_page if _can_restore_gui_focus(_skill_status_next_page) else page_button
+			)
+	if action_focus != null:
 		var selected_tile: Control = _skill_status_tiles.get(_skill_status_selected_id, tiles[0]) as Control
-		_set_skill_status_focus_neighbor(_skill_status_action_button, "up", selected_tile)
-		_set_skill_status_focus_neighbor(_skill_status_action_button, "down", _skill_status_close_button)
-		_set_skill_status_focus_neighbor(_skill_status_action_button, "left", _skill_status_action_button)
-		_set_skill_status_focus_neighbor(_skill_status_action_button, "right", _skill_status_close_button)
+		_set_skill_status_focus_neighbor(action_focus, "up", page_focus if page_focus != null else selected_tile)
+		_set_skill_status_focus_neighbor(action_focus, "down", _skill_status_close_button)
+		_set_skill_status_focus_neighbor(action_focus, "left", action_focus)
+		_set_skill_status_focus_neighbor(action_focus, "right", _skill_status_close_button)
 
 func _set_skill_status_focus_neighbor(source: Control, direction: String, target: Control) -> void:
 	if source == null or target == null or not source.is_inside_tree() or not target.is_inside_tree():
@@ -7147,8 +7397,8 @@ func _refresh_skill_status_detail() -> void:
 		if _skill_status_detail_description != null:
 			_skill_status_detail_description.text = "Learn abilities at campfires to add them here."
 		if _skill_status_action_button != null:
-			_skill_status_action_button.text = "Unavailable"
-			_skill_status_action_button.disabled = true
+			_skill_status_action_button.visible = false
+			_skill_status_action_button.focus_mode = Control.FOCUS_NONE
 		return
 	var status: String = _skill_hud_status(_skill_status_selected_id)
 	var accent: Color = _skill_status_accent(status)
@@ -7170,17 +7420,11 @@ func _refresh_skill_status_detail() -> void:
 	if _skill_status_action_button != null:
 		var activatable: bool = _combat_skill_is_activatable(_skill_status_selected_id)
 		var activation: String = SkillTreeLibrary.activation_kind(_skill_status_selected_id)
+		var manual: bool = activation == "manual"
+		_skill_status_action_button.visible = manual
+		_skill_status_action_button.focus_mode = Control.FOCUS_ALL if manual and activatable else Control.FOCUS_NONE
 		_skill_status_action_button.disabled = not activatable
-		if activatable:
-			_skill_status_action_button.text = "Activate"
-		elif activation == "automatic":
-			_skill_status_action_button.text = "Automatic"
-		elif activation == "passive":
-			_skill_status_action_button.text = "Passive"
-		elif activation == "contextual":
-			_skill_status_action_button.text = "Contextual"
-		else:
-			_skill_status_action_button.text = status.capitalize()
+		_skill_status_action_button.text = "Activate" if activatable else status.capitalize()
 		var variant: String = UiSkin.VARIANT_SELECTED if activatable else UiSkin.VARIANT_STANDARD
 		_ui_skin.apply_button_stylebox_overrides(_skill_status_action_button, variant)
 		_ui_skin.apply_button_text_overrides(_skill_status_action_button)
@@ -9447,8 +9691,32 @@ func _begin_quick_wits_card_selection(skill_id: String) -> void:
 	_begin_hand_skill_card_selection(skill_id, valid_indices, "QUICK WITS  ·  CHOOSE A CARD TO DISCARD")
 
 func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
+	var before_state: Dictionary = _combat_state.duplicate(true)
+	var before_hand: Array = ((before_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	if hand_index < 0 or hand_index >= before_hand.size():
+		return
+	var card_id: String = str(before_hand[hand_index])
+	var source_rect: Rect2 = _hand_card_global_rect(hand_index)
+	var card_size: Vector2 = source_rect.size if source_rect.size.length() > 0.0 else _hand_card_size(before_hand.size(), false)
+	var next_state: Dictionary = _combat_engine.use_quick_wits(before_state, hand_index)
+	if next_state == before_state:
+		return
 	_clear_combat_skill_card_selection()
-	_commit_combat_skill_state(_combat_engine.use_quick_wits(_combat_state, hand_index), skill_id)
+	_animating_hand_card_index = hand_index
+	_animation_lock = true
+	_hand_panel_signature = "<unset>"
+	_refresh_animation_lock_ui()
+	var discard_proxy: Control = null
+	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
+		discard_proxy = _spawn_card_proxy(card_id, source_rect)
+		_mount_card_proxy(discard_proxy, _card_fx_layer, source_rect)
+	if not _stage_combat_skill_state(next_state, skill_id):
+		_release_card_proxy(discard_proxy)
+		_finish_combat_skill_card_motion()
+		return
+	await _animate_card_to_pile_fx(card_id, "discard", card_size, discard_proxy)
+	await _animate_draw_cards_fx(_draw_entries_between_states(before_state, next_state))
+	_finish_combat_skill_card_motion()
 
 func _begin_encore_card_selection(skill_id: String) -> void:
 	_combat_skill_card_selection_indices.clear()
@@ -9465,9 +9733,34 @@ func _begin_encore_card_selection(skill_id: String) -> void:
 	_open_pile_view("discard")
 
 func _commit_encore(skill_id: String, discard_index: int) -> void:
+	var before_state: Dictionary = _combat_state.duplicate(true)
+	var discard: Array = ((before_state.get("deck", {}) as Dictionary).get("discard", []) as Array)
+	if discard_index < 0 or discard_index >= discard.size():
+		return
+	var source_rect: Rect2 = _combat_skill_discard_selection_rect(discard_index)
+	var next_state: Dictionary = _combat_engine.use_encore(before_state, discard_index)
+	if next_state == before_state:
+		return
 	_clear_combat_skill_card_selection()
-	_close_pile_view()
-	_commit_combat_skill_state(_combat_engine.use_encore(_combat_state, discard_index), skill_id)
+	if _pile_scrim != null:
+		_pile_scrim.visible = false
+	_active_pile_kind = ""
+	_animation_lock = true
+	_refresh_animation_lock_ui()
+	if not _stage_combat_skill_state(next_state, skill_id):
+		_finish_combat_skill_card_motion()
+		return
+	await _animate_draw_cards_fx(_draw_entries_between_states(before_state, next_state), source_rect)
+	_finish_combat_skill_card_motion()
+
+func _combat_skill_discard_selection_rect(discard_index: int) -> Rect2:
+	if _pile_dialog_cards == null:
+		return Rect2()
+	for child: Node in _pile_dialog_cards.get_children():
+		var button: Button = child as Button
+		if button != null and int(button.get_meta("source_card_index", -1)) == discard_index:
+			return button.get_global_rect()
+	return Rect2()
 
 func _begin_prismatic_card_selection(skill_id: String) -> void:
 	_begin_hand_skill_card_selection(
@@ -9530,12 +9823,24 @@ func _clear_combat_skill_card_selection() -> void:
 		_combat_skill_card_selection_prompt.visible = false
 
 func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> void:
-	if next_combat_state == _combat_state:
+	if not _stage_combat_skill_state(next_combat_state, skill_id):
 		return
+	_refresh_ui()
+	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
+
+func _stage_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> bool:
+	if next_combat_state == _combat_state:
+		return false
 	_combat_state = next_combat_state.duplicate(true)
 	_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
 	_mark_combat_preview_state_changed()
 	_persist_committed_boundary("combat_skill_%s" % skill_id)
+	return true
+
+func _finish_combat_skill_card_motion() -> void:
+	_animation_lock = false
+	_animating_hand_card_index = -1
+	_hand_panel_signature = "<unset>"
 	_refresh_ui()
 	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
 
@@ -13446,7 +13751,7 @@ func _animate_card_consumed_fx(card_id: String, size_hint: Vector2, staged_proxy
 	await tween.finished
 	_release_card_proxy(proxy)
 
-func _animate_draw_cards_fx(draw_entries: Array) -> void:
+func _animate_draw_cards_fx(draw_entries: Array, source_rect_override: Rect2 = Rect2()) -> void:
 	if _card_fx_layer == null or draw_entries.is_empty():
 		return
 	var final_total: int = draw_entries.size()
@@ -13454,7 +13759,9 @@ func _animate_draw_cards_fx(draw_entries: Array) -> void:
 		if entry_var is Dictionary:
 			final_total = maxi(final_total, int((entry_var as Dictionary).get("total", final_total)))
 	var size_hint: Vector2 = _hand_card_size(maxi(5, final_total), false)
-	var source_rect: Rect2 = _rect_from_center(_pile_global_rect("draw").get_center(), size_hint * 0.54)
+	var source_rect: Rect2 = source_rect_override
+	if source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:
+		source_rect = _rect_from_center(_pile_global_rect("draw").get_center(), size_hint * 0.54)
 	var draw_proxies: Array[Control] = []
 	var draw_tweens: Array[Tween] = []
 	for draw_index: int in range(draw_entries.size()):

@@ -28,6 +28,15 @@ const LINK_BRIDGE_HALF_GAP: float = 10.0
 const LINK_TARGET_STUB_OFFSETS: Dictionary = {
 	"quick_wits>curators_patience": -12.0,
 }
+const LINK_SOURCE_STUB_OFFSETS: Dictionary = {
+	# Leave the root row before the enlarged Salvager face begins.
+	"discerning_eye>true_bearing": -12.0,
+}
+const LINK_CHANNEL_NUDGES: Dictionary = {
+	# The larger medallions move both routes onto x=440 unless this long link
+	# claims the adjacent clear channel. Keeping separate rails preserves topology.
+	"quick_wits>curators_patience": 4.0,
+}
 
 const BRANCH_COLORS: Dictionary = {
 	"tactics": Color("d7a85d"),
@@ -281,7 +290,10 @@ class SkillNodeFace:
 				style.set_border_width_all(int(outline_width))
 				style.set_corner_radius_all(10)
 				draw_style_box(style, Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0)))
-		var icon_size: float = 25.0 if tier != "keystone" else 29.0
+		# The icon is the medallion's identity, not a small badge inside it. Keep a
+		# narrow state-marker gutter, then let the purpose-built silhouette occupy
+		# most of the remaining face so it survives fit-to-view scaling.
+		var icon_size: float = radius * (1.70 if tier != "keystone" else 1.74)
 		if icon_texture != null:
 			var icon_tint := Color.WHITE if state != "locked" else Color("77737b")
 			draw_texture_rect(icon_texture, Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size), false, icon_tint)
@@ -1565,12 +1577,14 @@ func _link_points(source_id: String, target_id: String) -> PackedVector2Array:
 		_row_visual_edge(target_id, false) - LINK_ENDPOINT_EXPOSURE - float(maxi(0, input_lane)) * LINK_CHANNEL_SPACING
 	)
 	var link_key: String = "%s>%s" % [source_id, target_id]
+	source_stub.y += float(LINK_SOURCE_STUB_OFFSETS.get(link_key, 0.0))
 	target_stub.y += float(LINK_TARGET_STUB_OFFSETS.get(link_key, 0.0))
 	if source_stub.y > target_stub.y:
 		var midpoint_y: float = (source_port.y + target_port.y) * 0.5
 		source_stub.y = midpoint_y
 		target_stub.y = midpoint_y
 	var channel_x: float = _best_route_channel_x(source_id, target_id, source_stub, target_stub)
+	channel_x += float(LINK_CHANNEL_NUDGES.get(link_key, 0.0))
 	return _simplified_points(PackedVector2Array([
 		source_port,
 		source_stub,
