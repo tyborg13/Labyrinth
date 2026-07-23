@@ -7,7 +7,7 @@ description: Create, modify, refactor, or review player-facing UI for Escape the
 
 ## Required workflow
 
-1. Read `spec/game_ui_rubric.md` completely. Treat every acceptance row and automatic rejection tripwire as required unless the task records a specific Exception.
+1. Read `spec/game_ui_rubric.md` and `spec/icon_identity_policy.md` completely. Treat every acceptance row and automatic rejection tripwire as required unless the task records a specific Exception.
 2. Rebuild the relevant context before designing:
    ```bash
    memento brief AGENTS.md spec/game_ui_rubric.md spec/ui_button_system.md scripts/ui_skin.gd scripts/ui_typography.gd scripts/ui_tooltip_panel.gd <changed-ui-paths> <relevant-probe-paths>
@@ -22,6 +22,7 @@ description: Create, modify, refactor, or review player-facing UI for Escape the
 ## Decision rules
 
 - Keep exact card, relic, equipment, settings, accessibility, and detailed-inspection text when it is clearer than an unfamiliar symbol. Improve hierarchy before deleting necessary rules.
+- Give every distinct player-facing ability, relic, equipment item, keyword, status, and resource its own purpose-built icon asset. Reusing a generic icon, copying/recoloring another asset, or pointing distinct identities at the same path is a rejection, not a shortcut.
 - Prefer an existing icon plus short label, meter, counter, state treatment, target preview, or contextual callout over instructional prose.
 - Preserve every input path the current surface supports. When controller or Steam Deck support is present, include focus traversal, activation, back/cancel, focus recovery, input handoff where applicable, and `1280x800` proof.
 - Do not claim an unsupported input path or add fixed device glyphs unless the task implements and proves the complete active-device and navigation path. Reuse the current device/glyph system when one exists.

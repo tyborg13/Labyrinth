@@ -6,6 +6,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
+const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
 	"melee": {
@@ -181,7 +182,7 @@ const KEYWORDS: Dictionary = {
 	"health_cost": {
 		"label": "Health Cost",
 		"description": "Health paid to play this card.",
-		"path": "%s/health.png" % ICON_ROOT
+		"path": "%s/health_cost.png" % ICON_ROOT
 	},
 	"element_fire": {
 		"label": "Fire Intensity",
@@ -210,20 +211,54 @@ const KEYWORDS: Dictionary = {
 	}
 }
 
+const SKILL_ICONS: Dictionary = {
+	"skill_quick_wits": {"label": "Quick Wits", "path": "%s/quick_wits.png" % SKILL_ICON_ROOT},
+	"skill_measured_breath": {"label": "Measured Breath", "path": "%s/measured_breath.png" % SKILL_ICON_ROOT},
+	"skill_ghost_stride": {"label": "Ghost Stride", "path": "%s/ghost_stride.png" % SKILL_ICON_ROOT},
+	"skill_discerning_eye": {"label": "Discerning Eye", "path": "%s/discerning_eye.png" % SKILL_ICON_ROOT},
+	"skill_rehearsed_escape": {"label": "Rehearsed Escape", "path": "%s/rehearsed_escape.png" % SKILL_ICON_ROOT},
+	"skill_makeshift_tool": {"label": "Makeshift Tool", "path": "%s/makeshift_tool.png" % SKILL_ICON_ROOT},
+	"skill_carry_the_guard": {"label": "Carry the Guard", "path": "%s/carry_the_guard.png" % SKILL_ICON_ROOT},
+	"skill_pain_remembers": {"label": "Pain Remembers", "path": "%s/pain_remembers.png" % SKILL_ICON_ROOT},
+	"skill_sure_footed": {"label": "Sure-Footed", "path": "%s/sure_footed.png" % SKILL_ICON_ROOT},
+	"skill_afterimage": {"label": "Afterimage", "path": "%s/afterimage.png" % SKILL_ICON_ROOT},
+	"skill_deferred_choice": {"label": "Deferred Choice", "path": "%s/deferred_choice.png" % SKILL_ICON_ROOT},
+	"skill_salvager": {"label": "Salvager", "path": "%s/salvager.png" % SKILL_ICON_ROOT},
+	"skill_borrowed_time": {"label": "Borrowed Time", "path": "%s/borrowed_time.png" % SKILL_ICON_ROOT},
+	"skill_last_reserve": {"label": "Last Reserve", "path": "%s/last_reserve.png" % SKILL_ICON_ROOT},
+	"skill_plunderers_step": {"label": "Plunderer's Step", "path": "%s/plunderers_step.png" % SKILL_ICON_ROOT},
+	"skill_prismatic_instinct": {"label": "Prismatic Instinct", "path": "%s/prismatic_instinct.png" % SKILL_ICON_ROOT},
+	"skill_curators_patience": {"label": "Curator's Patience", "path": "%s/curators_patience.png" % SKILL_ICON_ROOT},
+	"skill_living_shadow": {"label": "Living Shadow", "path": "%s/living_shadow.png" % SKILL_ICON_ROOT},
+	"skill_true_bearing": {"label": "True Bearing", "path": "%s/true_bearing.png" % SKILL_ICON_ROOT},
+	"skill_layaway": {"label": "Layaway", "path": "%s/layaway.png" % SKILL_ICON_ROOT},
+	"skill_encore": {"label": "Encore", "path": "%s/encore.png" % SKILL_ICON_ROOT},
+	"skill_open_arsenal": {"label": "Open Arsenal", "path": "%s/open_arsenal.png" % SKILL_ICON_ROOT},
+	"skill_confluence": {"label": "Confluence", "path": "%s/confluence.png" % SKILL_ICON_ROOT},
+	"skill_last_door": {"label": "Last Door", "path": "%s/last_door.png" % SKILL_ICON_ROOT},
+}
+
 static func all_icon_keys() -> Array:
-	return KEYWORDS.keys()
+	var result: Array = KEYWORDS.keys()
+	result.append_array(SKILL_ICONS.keys())
+	return result
 
 static func icon_path(icon_key: String) -> String:
-	return str((KEYWORDS.get(icon_key, {}) as Dictionary).get("path", ""))
+	return str(_icon_definition(icon_key).get("path", ""))
 
 static func icon_texture(icon_key: String) -> Texture2D:
 	return AssetLoader.load_texture(icon_path(icon_key))
 
 static func label(icon_key: String) -> String:
-	return str((KEYWORDS.get(icon_key, {}) as Dictionary).get("label", icon_key.capitalize()))
+	return str(_icon_definition(icon_key).get("label", icon_key.capitalize()))
 
 static func description(icon_key: String) -> String:
-	return str((KEYWORDS.get(icon_key, {}) as Dictionary).get("description", ""))
+	return str(_icon_definition(icon_key).get("description", ""))
+
+static func _icon_definition(icon_key: String) -> Dictionary:
+	if KEYWORDS.has(icon_key):
+		return KEYWORDS.get(icon_key, {}) as Dictionary
+	return SKILL_ICONS.get(icon_key, {}) as Dictionary
 
 static func tooltip(icon_key: String) -> String:
 	var text: String = label(icon_key)

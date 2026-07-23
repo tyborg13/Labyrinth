@@ -265,14 +265,22 @@ static func validation_errors() -> Array[String]:
 	var errors: Array[String]
 	var seen_positions: Dictionary = {}
 	var seen_layout_positions: Dictionary = {}
+	var seen_icons: Dictionary = {}
 	for skill_id: String in ordered_ids():
 		var skill_def: Dictionary = definitions().get(skill_id, {}) as Dictionary
 		if str(skill_def.get("name", "")).strip_edges().is_empty():
 			errors.append("%s has no name." % skill_id)
 		if str(skill_def.get("description", "")).strip_edges().is_empty():
 			errors.append("%s has no description." % skill_id)
-		if str(skill_def.get("icon", "")).strip_edges().is_empty():
+		var skill_icon: String = str(skill_def.get("icon", "")).strip_edges()
+		if skill_icon.is_empty():
 			errors.append("%s has no icon." % skill_id)
+		elif skill_icon != "skill_%s" % skill_id:
+			errors.append("%s must use its purpose-built skill_%s icon key." % [skill_id, skill_id])
+		elif seen_icons.has(skill_icon):
+			errors.append("%s shares icon %s with %s." % [skill_id, skill_icon, str(seen_icons[skill_icon])])
+		else:
+			seen_icons[skill_icon] = skill_id
 		if effect_type(skill_id).is_empty():
 			errors.append("%s has no effect type." % skill_id)
 		var position_key: String = str(position(skill_id))

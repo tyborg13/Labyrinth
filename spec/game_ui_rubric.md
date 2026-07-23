@@ -78,6 +78,8 @@ Revise copy that repeats a visible label, narrates navigation, starts with flavo
 - Make the offered object, cost, affordability, ownership/equipped state, and stat or deck consequence visible before confirmation.
 - Keep mechanics above flavor. Show unavailable or unaffordable state with more than a color shift and expose the missing requirement.
 - Prefer selection objects and focused detail over a default wall of rows or prose. Keep one clear commit action and one back/cancel path.
+- Show recurring learned abilities as semantic icon-led selection objects with one focused detail region. Do not turn a compact ability set into a dropdown or a stacked list of repeated rules paragraphs.
+- A skill tree or dependency graph must preserve its complete topology and focused-node rules in one frame through fit-to-view or responsive reflow. Do not put horizontal or vertical scrollbars anywhere on the skill-tree surface.
 
 ### Map, room choice, and dialogue
 
@@ -97,9 +99,11 @@ Revise copy that repeats a visible label, narrates navigation, starts with flavo
 - Use `UiTypography` roles, floors, spacing, and responsive helpers instead of ad hoc font sizes or squeezing text until it fits.
 - Use `UiTooltipPanel` and established pin/focus behavior for normal player tooltips. Do not put required mechanics behind hover alone.
 - Icons must remain distinguishable by silhouette and not by hue alone. Use icon plus short label when the symbol is new, uncommon, or ambiguous.
+- Follow `spec/icon_identity_policy.md`: every distinct ability, relic, equipment item, keyword, status, resource, or other icon-bearing identity owns a purpose-built icon. Shared paths, byte-identical copies, recolors, and generic category stand-ins do not count as unique icons.
 - Preserve distinct normal, hover, pressed, selected, focused, and disabled states where those states exist. Interaction feedback must be visible against the actual game background.
 - Avoid generic web/app defaults: dashboard grids, repeated flat cards for unrelated settings, pill-badge overload, form labels that narrate obvious controls, and ornamental whitespace that pushes the decision off-screen.
 - Never solve density by hiding the current decision, reducing type below the shared readability floor, or relying on scrolling for a small set of primary actions.
+- Horizontal scrollbars are prohibited in player-facing gameplay and progression UI. A content-native timeline or carousel requires a documented Exception and must use deliberate paging or direct manipulation rather than a desktop scrollbar.
 
 ## Resolution, scale, and state proof
 
@@ -119,6 +123,9 @@ Relevant starting points include `tests/ui_probe.gd`, `tests/button_system_probe
 Revise before handoff when any of these is true without a documented Exception:
 
 - A gameplay surface adds a paragraph of instruction instead of revealing state and action contextually.
+- A compact set of recurring abilities is presented as a dropdown or repeated paragraph rows when semantic icons plus one selected/focused detail region can expose the same information.
+- Two distinct player-facing concepts reuse an icon path, copied asset, recolor, or generic category symbol instead of owning distinguishable purpose-built icon identities.
+- A player-facing gameplay or progression surface exposes a horizontal scrollbar, or any part of a skill tree/dependency graph exposes horizontal or vertical scrolling.
 - Essential state or instruction exists only as text, color, hover, animation, or sound when a second practical cue is available.
 - The primary action, selection, disabled state, or dangerous action is visually ambiguous.
 - A panel hides the board, card, target, price, comparison, or consequence needed to decide.

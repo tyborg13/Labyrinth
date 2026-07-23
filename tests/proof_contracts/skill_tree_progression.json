@@ -3,26 +3,36 @@
   "expected_sizes": ["960x540", "1280x720", "1280x800", "1920x1080"],
   "required_images": [
     {"pattern": "*/1920x1080_ui100/01_skills_tree.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/01c_last_door_fit.png", "width": 1920, "height": 1080},
+    {"pattern": "*/1920x1080_ui100/05_combat_skill_popover.png", "width": 1920, "height": 1080},
     {"pattern": "*/1920x1080_ui100/02_reset_confirmation.png", "width": 1920, "height": 1080},
     {"pattern": "*/1920x1080_ui100/06_quick_wits_hand_selection.png", "width": 1920, "height": 1080},
     {"pattern": "*/1920x1080_ui100/06b_encore_discard_selection.png", "width": 1920, "height": 1080},
 
     {"pattern": "*/1280x720_ui100/01_skills_tree.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui100/01c_last_door_fit.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui100/05_combat_skill_popover.png", "width": 1280, "height": 720},
     {"pattern": "*/1280x720_ui100/02_reset_confirmation.png", "width": 1280, "height": 720},
     {"pattern": "*/1280x720_ui100/06_quick_wits_hand_selection.png", "width": 1280, "height": 720},
     {"pattern": "*/1280x720_ui100/06b_encore_discard_selection.png", "width": 1280, "height": 720},
 
     {"pattern": "*/1280x800_ui100/01_skills_tree.png", "width": 1280, "height": 800},
+    {"pattern": "*/1280x800_ui100/01c_last_door_fit.png", "width": 1280, "height": 800},
+    {"pattern": "*/1280x800_ui100/05_combat_skill_popover.png", "width": 1280, "height": 800},
     {"pattern": "*/1280x800_ui100/02_reset_confirmation.png", "width": 1280, "height": 800},
     {"pattern": "*/1280x800_ui100/06_quick_wits_hand_selection.png", "width": 1280, "height": 800},
     {"pattern": "*/1280x800_ui100/06b_encore_discard_selection.png", "width": 1280, "height": 800},
 
     {"pattern": "*/960x540_ui100/01_skills_tree.png", "width": 960, "height": 540},
+    {"pattern": "*/960x540_ui100/01c_last_door_fit.png", "width": 960, "height": 540},
+    {"pattern": "*/960x540_ui100/05_combat_skill_popover.png", "width": 960, "height": 540},
     {"pattern": "*/960x540_ui100/02_reset_confirmation.png", "width": 960, "height": 540},
     {"pattern": "*/960x540_ui100/06_quick_wits_hand_selection.png", "width": 960, "height": 540},
     {"pattern": "*/960x540_ui100/06b_encore_discard_selection.png", "width": 960, "height": 540},
 
     {"pattern": "*/1280x720_ui125/01_skills_tree.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui125/01c_last_door_fit.png", "width": 1280, "height": 720},
+    {"pattern": "*/1280x720_ui125/05_combat_skill_popover.png", "width": 1280, "height": 720},
     {"pattern": "*/1280x720_ui125/02_reset_confirmation.png", "width": 1280, "height": 720},
     {"pattern": "*/1280x720_ui125/06_quick_wits_hand_selection.png", "width": 1280, "height": 720},
     {"pattern": "*/1280x720_ui125/06b_encore_discard_selection.png", "width": 1280, "height": 720}

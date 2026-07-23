@@ -109,24 +109,22 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		_expect(prismatic_links.has("quick_wits>prismatic_instinct"), "%s Skills tree should emphasize Prismatic Instinct's Quick Wits parent" % viewport_size)
 		_expect(prismatic_links.has("discerning_eye>prismatic_instinct"), "%s Skills tree should emphasize Prismatic Instinct's Discerning Eye parent" % viewport_size)
 		_expect(prismatic_links.has("prismatic_instinct>confluence"), "%s Skills tree should emphasize Prismatic Instinct's Confluence unlock" % viewport_size)
-	_assert_tree_scroll_contract(tree, viewport_size, "Skills")
+	_assert_tree_fit_contract(tree, viewport_size, "Skills")
 	var moltshard_label := dialog.find_child("ProgressionMoltshardsLabel", true, false) as Label
 	_expect(moltshard_label != null and moltshard_label.text.contains("2"), "%s Skills dialog should prominently show two Moltshards" % viewport_size)
 	_expect(dialog.find_child("SkillResetHint", true, false) == null, "%s Skills dialog should omit permanent reset-explanation copy" % viewport_size)
-	_expect(_button_with_text(dialog, "Reset Skills  ·  1 Moltshard") != null, "%s Skills dialog should expose the whole-tree reset command" % viewport_size)
+	var reset_button: Button = _button_with_text(dialog, "Reset Skills  ·  1 Moltshard")
+	_expect(reset_button != null, "%s Skills dialog should expose the whole-tree reset command" % viewport_size)
+	if reset_button != null:
+		_assert_inside(reset_button, viewport_size, "%s whole-tree reset command" % viewport_size, 8.0)
 	if tree != null:
-		var graph_scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
-		graph_scroll.scroll_horizontal = 61
-		graph_scroll.scroll_vertical = 37
-		await process_frame
-		var scroll_before: Vector2i = tree.graph_scroll_offset()
 		var geometry_before: int = tree.link_geometry_rebuild_count()
 		var focused_before: String = tree.focused_skill_id()
 		for skill_id: String in SkillTreeLibrary.ordered_ids():
 			tree.node_for_skill(skill_id).mouse_entered.emit()
 		await process_frame
 		_expect(tree.focused_skill_id() == focused_before, "%s Hovering should not change skill selection" % viewport_size)
-		_expect(tree.graph_scroll_offset() == scroll_before, "%s Hovering the complete tree should not move either scroll axis" % viewport_size)
+		_expect(tree.graph_scroll_offset() == Vector2i.ZERO, "%s The complete tree should have no scroll axes to move" % viewport_size)
 		_expect(tree.link_geometry_rebuild_count() == geometry_before, "%s Hovering should reuse cached connector geometry" % viewport_size)
 		tree.focus_skill("prismatic_instinct")
 		await _settle()
@@ -144,15 +142,15 @@ func _capture_skills_tree(instance: Node, viewport: SubViewport, viewport_size: 
 		tree.focus_skill("last_door")
 		tree.grab_tree_focus()
 		await _settle()
-		var graph_scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
+		var graph_viewport := tree.find_child("SkillTreeGraphViewport", true, false) as Control
 		var last_door_node: Button = tree.node_for_skill("last_door")
 		_expect(
-			graph_scroll != null
+			graph_viewport != null
 			and last_door_node != null
-			and graph_scroll.get_global_rect().encloses(last_door_node.get_global_rect()),
-			"%s Focusing the far keystone should automatically reveal it inside the graph viewport" % viewport_size
+			and graph_viewport.get_global_rect().grow(1.0).encloses(last_door_node.get_global_rect()),
+			"%s The far keystone should remain visible without scrolling" % viewport_size
 		)
-		await _save_screenshot(viewport, "%s/01c_last_door_scroll.png" % output_dir)
+		await _save_screenshot(viewport, "%s/01c_last_door_fit.png" % output_dir)
 
 func _capture_reset_flow(instance: Node, viewport: SubViewport, viewport_size: Vector2i, output_dir: String) -> void:
 	instance.call("_open_skill_reset_confirmation")
@@ -218,7 +216,7 @@ func _capture_level_up_tree(
 			tree.focus_skill(chosen_skill_id)
 			await _settle()
 			_expect(tree.detail_action_is_enabled(), "%s Focused level-up skill should be actionable" % viewport_size)
-		_assert_tree_scroll_contract(tree, viewport_size, "Level-up")
+		_assert_tree_fit_contract(tree, viewport_size, "Level-up")
 	_assert_skill_modal_contained(dialog, tree, viewport_size, "%s Level-up dialog" % viewport_size, "Character")
 	await _save_screenshot(viewport, "%s/07_level_up.png" % output_dir)
 	if tree != null and not chosen_skill_id.is_empty():
@@ -338,12 +336,16 @@ func _capture_combat_surfaces(
 	var popover := instance.get("_skill_status_popover") as Control
 	_expect(popover != null and popover.visible, "%s Skill sigil should open its status popover" % viewport_size)
 	for skill_id: String in maximum_manual_skill_ids:
-		var ability_button := popover.find_child("SkillStatusRow_%s" % skill_id, true, false) as Button if popover != null else null
+		var ability_button := popover.find_child("SkillStatusTile_%s" % skill_id, true, false) as Button if popover != null else null
 		_expect(ability_button != null, "%s Abilities should expose %s through the common entry point" % [viewport_size, SkillTreeLibrary.display_name(skill_id)])
-	_expect(_label_with_text(popover, "READY") != null, "%s Skill popover should show at least one ready ability" % viewport_size)
-	_expect(_label_with_text(popover, "BANKED") != null and _label_with_text(popover, "PRIMED") != null, "%s Skill popover should expose the stored-play state and its pending no-Time benefit" % viewport_size)
+	var quick_wits_tile := popover.find_child("SkillStatusTile_quick_wits", true, false) as Button if popover != null else null
+	var measured_breath_tile := popover.find_child("SkillStatusTile_measured_breath", true, false) as Button if popover != null else null
+	var borrowed_time_tile := popover.find_child("SkillStatusTile_borrowed_time", true, false) as Button if popover != null else null
+	_expect(quick_wits_tile != null and str(quick_wits_tile.get_meta("skill_status", "")) == "READY", "%s Ability icons should expose readiness as a tile state" % viewport_size)
+	_expect(measured_breath_tile != null and str(measured_breath_tile.get_meta("skill_status", "")) == "BANKED" and borrowed_time_tile != null and str(borrowed_time_tile.get_meta("skill_status", "")) == "PRIMED", "%s Ability icons should expose stored-play and pending no-Time states" % viewport_size)
 	_expect(_label_with_text(popover, "Quick Wits") != null, "%s Skill popover should list Quick Wits" % viewport_size)
-	_expect(_label_with_text(popover, "Discerning Eye") != null, "%s Skill popover should list Discerning Eye" % viewport_size)
+	_expect(popover.find_child("SkillStatusSelectedDetail", true, false) is Control, "%s Ability icons should share one selected detail region" % viewport_size)
+	_expect(popover.find_child("SkillStatusScroll", true, false) == null, "%s Ability palette should not be a scrolling text list" % viewport_size)
 	_assert_inside(popover, viewport_size, "%s Skill status popover" % viewport_size, 8.0)
 	await _save_screenshot(viewport, "%s/04b_abilities_entry.png" % output_dir)
 	await _save_screenshot(viewport, "%s/05_combat_skill_popover.png" % output_dir)
@@ -487,14 +489,19 @@ func _assert_skill_modal_contained(
 	for control_name: String in [
 		"SkillTreeGraphPanel",
 		"SkillDetailPanel",
-		"SkillDetailScroll",
 		"SkillDetailAction",
 	]:
 		var control := tree.find_child(control_name, true, false) as Control
 		_expect(control != null, "%s should retain %s" % [label, control_name])
 		if control != null and control.is_visible_in_tree():
 			_assert_inside(control, viewport_size, "%s %s" % [label, control_name], 8.0)
-	var detail_scroll := tree.find_child("SkillDetailScroll", true, false) as ScrollContainer
+	_expect(tree.find_child("SkillDetailScroll", true, false) == null, "%s skill tree detail must not expose a scrollbar" % label)
+	var detail_content := tree.find_child("SkillDetailContent", true, false) as Control
+	_expect(detail_content != null, "%s should retain complete focused-skill rules" % label)
+	if detail_content != null:
+		_assert_inside(detail_content, viewport_size, "%s SkillDetailContent" % label, 8.0)
+		var detail_panel := tree.find_child("SkillDetailPanel", true, false) as Control
+		_expect(detail_panel != null and detail_content.get_global_rect().end.y <= detail_panel.get_global_rect().end.y + 1.0, "%s focused-skill rules should fit without clipping or scrolling" % label)
 	for control_name: String in [
 		"SkillDetailStatus",
 		"SkillDetailTitle",
@@ -504,31 +511,24 @@ func _assert_skill_modal_contained(
 		"SkillDetailUnlocks",
 		"SkillDetailReason",
 	]:
-		_expect(tree.find_child(control_name, true, false) != null, "%s should retain scrollable %s" % [label, control_name])
-	if detail_scroll != null:
-		var detail_content := tree.find_child("SkillDetailContent", true, false) as Control
-		if detail_content != null and detail_content.get_combined_minimum_size().y > detail_scroll.size.y + 1.0:
-			_expect(detail_scroll.get_v_scroll_bar().visible and detail_scroll.get_v_scroll_bar().max_value > 0.0, "%s should expose scrolling when exact skill rules exceed the bounded detail pane" % label)
+		_expect(tree.find_child(control_name, true, false) != null, "%s should retain %s" % [label, control_name])
 
-func _assert_tree_scroll_contract(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
+func _assert_tree_fit_contract(tree: SkillTreeView, viewport_size: Vector2i, label: String) -> void:
 	if tree == null:
 		return
-	var scroll := tree.find_child("SkillTreeScroll", true, false) as ScrollContainer
-	_expect(scroll != null, "%s %s tree should retain its bounded scroll host" % [viewport_size, label])
-	if scroll == null:
+	var graph_viewport := tree.find_child("SkillTreeGraphViewport", true, false) as Control
+	_expect(tree.find_child("SkillTreeScroll", true, false) == null and tree.find_child("SkillDetailScroll", true, false) == null, "%s %s tree must not expose a horizontal or vertical scrollbar anywhere" % [viewport_size, label])
+	_expect(graph_viewport != null, "%s %s tree should retain its zoom-to-fit viewport" % [viewport_size, label])
+	if graph_viewport == null:
 		return
-	_expect(scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "%s %s tree should allow horizontal inspection when the viewport cannot preserve readable lanes" % [viewport_size, label])
-	_expect(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "%s %s tree should allow vertical inspection when the viewport cannot preserve readable tiers" % [viewport_size, label])
+	_expect(tree.graph_fit_scale() > 0.0 and tree.graph_fit_scale() <= 1.0, "%s %s tree should fit the authored topology at a stable positive scale" % [viewport_size, label])
 	_expect(tree.connection_arrowhead_count() == tree.connection_count(), "%s %s tree should draw one visible target arrowhead per prerequisite" % [viewport_size, label])
 	_expect(tree.minimum_target_segment_length() >= 10.0, "%s %s tree should expose every incoming arrow outside its target shadow" % [viewport_size, label])
-	if tree.graph_canvas_size().x > scroll.size.x + 2.0:
-		_expect(scroll.get_h_scroll_bar().visible, "%s %s tree should reveal horizontal scrolling when the authored graph is wider than its host" % [viewport_size, label])
-	if tree.graph_canvas_size().y > scroll.size.y + 2.0:
-		_expect(scroll.get_v_scroll_bar().visible, "%s %s tree should reveal vertical scrolling when the authored graph is taller than its host" % [viewport_size, label])
 	var graph_bounds := Rect2(Vector2.ZERO, tree.graph_canvas_size())
 	for skill_id: String in SkillTreeLibrary.ordered_ids():
 		var node: Button = tree.node_for_skill(skill_id)
 		_expect(node != null and graph_bounds.encloses(Rect2(node.position, node.size)), "%s %s %s should remain inside the authored graph canvas" % [viewport_size, label, skill_id])
+		_expect(node != null and graph_viewport.get_global_rect().grow(1.0).encloses(node.get_global_rect()), "%s %s %s should remain visible in the fitted frame" % [viewport_size, label, skill_id])
 
 func _settle() -> void:
 	await process_frame
@@ -544,11 +544,13 @@ func _requested_configs() -> Array[Dictionary]:
 		{"size": Vector2i(960, 540), "scale": 1.0},
 		{"size": Vector2i(1280, 720), "scale": 1.25},
 	]
+	var specification: String = OS.get_environment("LABYRINTH_SKILL_TREE_PROBE_CONFIG").strip_edges().to_lower()
 	var arguments: PackedStringArray = OS.get_cmdline_user_args()
 	var config_index: int = arguments.find("--config")
-	if config_index < 0 or config_index + 1 >= arguments.size():
+	if specification.is_empty() and (config_index < 0 or config_index + 1 >= arguments.size()):
 		return defaults
-	var specification: String = arguments[config_index + 1].strip_edges().to_lower()
+	if specification.is_empty():
+		specification = arguments[config_index + 1].strip_edges().to_lower()
 	var scale_parts: PackedStringArray = specification.split("@", false, 1)
 	var size_parts: PackedStringArray = scale_parts[0].split("x", false, 1)
 	if size_parts.size() != 2:

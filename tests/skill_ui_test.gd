@@ -410,7 +410,8 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var popover := instance.get("_skill_status_popover") as Control
 	_expect(popover != null and popover.visible, "Skill sigil should open its status popover")
 	var status_close := popover.find_child("CloseSkillStatus", true, false) as Button if popover != null else null
-	_expect(status_close != null and instance.get_viewport().gui_get_focus_owner() == status_close, "Opening the skill status popover should transfer controller focus to its Close action")
+	var opening_focus := instance.get_viewport().gui_get_focus_owner() as Control
+	_expect(opening_focus != null and opening_focus.name.begins_with("SkillStatusTile_"), "Opening Abilities should enter the icon palette at the selected ability")
 	await _press_ui_action(&"ui_cancel")
 	_expect(popover != null and not popover.visible, "Controller Cancel should close the skill status popover")
 	_expect(sigil != null and instance.get_viewport().gui_get_focus_owner() == sigil, "Closing the skill status popover should restore focus to its sigil")
@@ -442,30 +443,37 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	instance.call("_layout_skill_status_popover")
 	await process_frame
 	await process_frame
-	var status_scroll := instance.get("_skill_status_scroll") as ScrollContainer
-	var status_list := instance.get("_skill_status_list") as VBoxContainer
-	var status_rows: Array = status_list.get_children() if status_list != null else []
-	var focusable_status_rows: Array[Control]
-	for row_var: Variant in status_rows:
-		if row_var is Control and (row_var as Control).focus_mode != Control.FOCUS_NONE:
-			focusable_status_rows.append(row_var as Control)
-	var expected_popover_height: float = minf(
-		clampf((instance.get("ui_root") as Control).get_global_rect().size.y * 0.72, 500.0, 760.0),
-		(instance.get("ui_root") as Control).get_global_rect().size.y - 16.0
+	var status_grid := instance.get("_skill_status_grid") as GridContainer
+	var status_tiles: Array = status_grid.get_children() if status_grid != null else []
+	var status_root_height: float = (instance.get("ui_root") as Control).get_global_rect().size.y
+	_expect(
+		popover != null
+		and popover.size.y >= minf(370.0, status_root_height - 16.0)
+		and popover.size.y <= status_root_height - 16.0 + 1.0,
+		"Skill popover should stay bounded by the available viewport"
 	)
-	_expect(popover != null and is_equal_approx(popover.size.y, expected_popover_height), "Skill popover height should respond to the available viewport instead of remaining fixed")
-	_expect(status_scroll != null and status_scroll.follow_focus, "Skill status scrolling should follow controller focus")
-	_expect(status_rows.size() == SkillTreeLibrary.ordered_ids().size(), "Overflow status proof should render every learned-skill row")
-	_expect(not focusable_status_rows.is_empty() and focusable_status_rows.size() < status_rows.size(), "Abilities should focus actionable rows while leaving automatic and waiting status copy out of the controller path")
-	if status_close != null and not focusable_status_rows.is_empty():
+	_expect(popover.find_child("SkillStatusScroll", true, false) == null, "Abilities should not retain the old scrolling paragraph list")
+	_expect(status_tiles.size() == SkillTreeLibrary.ordered_ids().size(), "The icon palette should render every learned ability without hiding identities in a dropdown")
+	for tile_var: Variant in status_tiles:
+		_expect(tile_var is Button and (tile_var as Button).focus_mode == Control.FOCUS_ALL, "Every ability icon should be keyboard/controller inspectable")
+		_expect(tile_var is Button and not str((tile_var as Button).get_meta("icon_key", "")).is_empty(), "Every ability tile should carry a semantic icon")
+	if status_close != null and not status_tiles.is_empty():
 		status_close.grab_focus()
 		await _press_ui_action(&"ui_down")
-		_expect(instance.get_viewport().gui_get_focus_owner() == focusable_status_rows[0], "Skill-status Close Down should enter the first actionable ability")
+		_expect(instance.get_viewport().gui_get_focus_owner() == status_tiles[0], "Abilities Close Down should enter the first icon")
 		await _press_ui_action(&"ui_up")
-		_expect(instance.get_viewport().gui_get_focus_owner() == status_close, "The first skill-status row Up should return to Close")
-		for _index: int in range(focusable_status_rows.size()):
-			await _press_ui_action(&"ui_down")
-		_expect(instance.get_viewport().gui_get_focus_owner() == focusable_status_rows[focusable_status_rows.size() - 1], "Controller Down should reach the final actionable ability")
+		_expect(instance.get_viewport().gui_get_focus_owner() == status_close, "The first ability icon Up should return to Close")
+		await _press_ui_action(&"ui_down")
+		await _press_ui_action(&"ui_right")
+		_expect(instance.get_viewport().gui_get_focus_owner() == status_tiles[1], "Controller Right should traverse the icon grid")
+		var first_tile := status_tiles[0] as Button
+		var second_tile := status_tiles[1] as Button
+		first_tile.pressed.emit()
+		var clicked_skill_id: String = str(instance.get("_skill_status_selected_id"))
+		second_tile.mouse_entered.emit()
+		_expect(str(instance.get("_skill_status_selected_id")) == clicked_skill_id, "Hovering an ability icon must not change the selected detail")
+		second_tile.pressed.emit()
+		_expect(str(instance.get("_skill_status_selected_id")) == str(second_tile.get_meta("skill_id", "")), "Clicking an ability icon should change the selected detail")
 	instance.call("_refresh_skill_status_popover", loaded_skill_ids)
 	await process_frame
 	var contextual_skill_ids: Array[String]
@@ -1136,7 +1144,12 @@ func _ready_skill_button(instance: Node, skill_name: String) -> Button:
 		await process_frame
 		await process_frame
 	popover = instance.get("_skill_status_popover") as Control
-	return popover.find_child("SkillStatusRow_%s" % skill_id, true, false) as Button if popover != null else null
+	var tile := popover.find_child("SkillStatusTile_%s" % skill_id, true, false) as Button if popover != null else null
+	if tile == null:
+		return null
+	tile.pressed.emit()
+	await process_frame
+	return popover.find_child("ActivateSelectedSkill", true, false) as Button
 
 func _hand_card_widget(instance: Node, hand_index: int) -> CardWidget:
 	var hand_box := instance.get("hand_box") as Control

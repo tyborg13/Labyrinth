@@ -924,8 +924,10 @@ const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
 const RELIC_BAR_MIN_VISIBLE_RELICS: int = 8
 const SKILL_SIGIL_SIZE: Vector2 = Vector2(58.0, 52.0)
-const SKILL_STATUS_POPOVER_MIN_SIZE: Vector2 = Vector2(430.0, 500.0)
-const SKILL_STATUS_POPOVER_MAX_SIZE: Vector2 = Vector2(500.0, 760.0)
+const SKILL_STATUS_POPOVER_MIN_SIZE: Vector2 = Vector2(580.0, 370.0)
+const SKILL_STATUS_POPOVER_MAX_SIZE: Vector2 = Vector2(700.0, 560.0)
+const SKILL_STATUS_TILE_SIZE: Vector2 = Vector2(98.0, 66.0)
+const SKILL_STATUS_GRID_COLUMNS: int = 5
 const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
 const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
 const SKILL_CHOICE_DIALOG_MIN_SIZE: Vector2 = Vector2(360.0, 320.0)
@@ -1190,12 +1192,18 @@ var _relic_bar_signature: String = "<unset>"
 var _skill_sigil: Button
 var _skill_status_scrim: ColorRect
 var _skill_status_popover: PanelContainer
-var _skill_status_scroll: ScrollContainer
-var _skill_status_list: VBoxContainer
+var _skill_status_grid: GridContainer
+var _skill_status_detail_icon: TextureRect
+var _skill_status_detail_title: Label
+var _skill_status_detail_status: Label
+var _skill_status_detail_description: Label
+var _skill_status_action_button: Button
 var _skill_status_title: Label
 var _skill_status_close_button: Button
 var _skill_status_return_focus: Control
-var _skill_status_scroll_position: int = 0
+var _skill_status_selected_id: String = ""
+var _skill_status_skill_ids: Array[String]
+var _skill_status_tiles: Dictionary = {}
 var _skill_choice_scrim: ColorRect
 var _skill_choice_dialog: PanelContainer
 var _skill_choice_title: Label
@@ -1956,18 +1964,73 @@ func _build_skill_status_popover() -> void:
 	rule.custom_minimum_size = Vector2(0.0, 2.0)
 	rule.color = Color("765e96")
 	column.add_child(rule)
-	_skill_status_scroll = ScrollContainer.new()
-	_skill_status_scroll.name = "SkillStatusScroll"
-	_skill_status_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_skill_status_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_skill_status_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_skill_status_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	_skill_status_scroll.follow_focus = true
-	column.add_child(_skill_status_scroll)
-	_skill_status_list = VBoxContainer.new()
-	_skill_status_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_skill_status_list.add_theme_constant_override("separation", 7)
-	_skill_status_scroll.add_child(_skill_status_list)
+
+	var palette_center := CenterContainer.new()
+	palette_center.name = "SkillStatusPaletteCenter"
+	palette_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	palette_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(palette_center)
+	_skill_status_grid = GridContainer.new()
+	_skill_status_grid.name = "SkillStatusIconGrid"
+	_skill_status_grid.columns = SKILL_STATUS_GRID_COLUMNS
+	_skill_status_grid.add_theme_constant_override("h_separation", 7)
+	_skill_status_grid.add_theme_constant_override("v_separation", 7)
+	palette_center.add_child(_skill_status_grid)
+
+	var detail_panel := PanelContainer.new()
+	detail_panel.name = "SkillStatusSelectedDetail"
+	detail_panel.custom_minimum_size = Vector2(0.0, 112.0)
+	detail_panel.add_theme_stylebox_override("panel", _skill_status_row_style(Color("a783d6")))
+	column.add_child(detail_panel)
+	var detail_margin := MarginContainer.new()
+	detail_margin.add_theme_constant_override("margin_left", 12)
+	detail_margin.add_theme_constant_override("margin_top", 8)
+	detail_margin.add_theme_constant_override("margin_right", 10)
+	detail_margin.add_theme_constant_override("margin_bottom", 8)
+	detail_panel.add_child(detail_margin)
+	var detail_row := HBoxContainer.new()
+	detail_row.add_theme_constant_override("separation", 12)
+	detail_margin.add_child(detail_row)
+	_skill_status_detail_icon = TextureRect.new()
+	_skill_status_detail_icon.name = "SkillStatusSelectedIcon"
+	_skill_status_detail_icon.custom_minimum_size = Vector2(58.0, 58.0)
+	_skill_status_detail_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_skill_status_detail_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_skill_status_detail_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_row.add_child(_skill_status_detail_icon)
+	var detail_copy := VBoxContainer.new()
+	detail_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_copy.add_theme_constant_override("separation", 2)
+	detail_row.add_child(detail_copy)
+	var detail_heading := HBoxContainer.new()
+	detail_heading.add_theme_constant_override("separation", 8)
+	detail_copy.add_child(detail_heading)
+	_skill_status_detail_title = Label.new()
+	_skill_status_detail_title.name = "SkillStatusSelectedTitle"
+	_skill_status_detail_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiTypography.apply_label_role(_skill_status_detail_title, UiTypography.ROLE_BODY_LARGE)
+	_skill_status_detail_title.add_theme_color_override("font_color", Color("f1e7ff"))
+	detail_heading.add_child(_skill_status_detail_title)
+	_skill_status_detail_status = Label.new()
+	_skill_status_detail_status.name = "SkillStatusSelectedState"
+	UiTypography.apply_label_role(_skill_status_detail_status, UiTypography.ROLE_CAPTION)
+	detail_heading.add_child(_skill_status_detail_status)
+	_skill_status_detail_description = Label.new()
+	_skill_status_detail_description.name = "SkillStatusSelectedDescription"
+	_skill_status_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_skill_status_detail_description.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	UiTypography.apply_label_role(_skill_status_detail_description, UiTypography.ROLE_CAPTION)
+	_skill_status_detail_description.add_theme_color_override("font_color", Color("cbbbd5"))
+	detail_copy.add_child(_skill_status_detail_description)
+	_skill_status_action_button = Button.new()
+	_skill_status_action_button.name = "ActivateSelectedSkill"
+	_skill_status_action_button.custom_minimum_size = Vector2(108.0, 44.0)
+	_skill_status_action_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_ui_skin.apply_button_stylebox_overrides(_skill_status_action_button, UiSkin.VARIANT_SELECTED)
+	_ui_skin.apply_button_text_overrides(_skill_status_action_button)
+	UiTypography.apply_button_role(_skill_status_action_button, UiTypography.ROLE_BODY)
+	_skill_status_action_button.pressed.connect(_on_skill_status_action_pressed)
+	detail_row.add_child(_skill_status_action_button)
 
 func _on_skill_status_scrim_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -2198,8 +2261,6 @@ func _close_skill_choice_dialog() -> void:
 
 func _close_skill_status_popover(restore_focus: bool = true) -> void:
 	var was_visible: bool = _skill_status_scrim != null and _skill_status_scrim.visible
-	if was_visible and _skill_status_scroll != null:
-		_skill_status_scroll_position = _skill_status_scroll.scroll_vertical
 	if _skill_status_scrim != null:
 		_skill_status_scrim.visible = false
 	if _skill_status_popover != null:
@@ -6956,111 +7017,135 @@ func _toggle_skill_status_popover() -> void:
 	_refresh_skill_status_popover(_selected_skill_ids_for_hud())
 	_layout_skill_status_popover()
 	call_deferred("_layout_skill_status_popover")
-	call_deferred("_grab_preferred_gui_focus", _skill_status_close_button, _skill_sigil)
+	call_deferred("_grab_skill_status_palette_focus")
 
 func _layout_skill_status_popover() -> void:
 	if _skill_status_popover == null or not _skill_status_popover.visible or _skill_sigil == null or not is_instance_valid(_skill_sigil):
 		return
 	var root_rect: Rect2 = ui_root.get_global_rect()
-	var sigil_rect: Rect2 = _skill_sigil.get_global_rect()
+	var palette_rows: int = maxi(1, ceili(float(_skill_status_skill_ids.size()) / float(SKILL_STATUS_GRID_COLUMNS)))
+	var content_height: float = 220.0 + float(palette_rows) * (SKILL_STATUS_TILE_SIZE.y + 7.0)
 	var popover_size := Vector2(
-		clampf(root_rect.size.x * 0.28, SKILL_STATUS_POPOVER_MIN_SIZE.x, SKILL_STATUS_POPOVER_MAX_SIZE.x),
-		clampf(root_rect.size.y * 0.72, SKILL_STATUS_POPOVER_MIN_SIZE.y, SKILL_STATUS_POPOVER_MAX_SIZE.y)
+		clampf(root_rect.size.x * 0.55, SKILL_STATUS_POPOVER_MIN_SIZE.x, 650.0),
+		clampf(content_height, 370.0, SKILL_STATUS_POPOVER_MAX_SIZE.y)
 	)
 	popover_size.x = minf(popover_size.x, maxf(1.0, root_rect.size.x - 16.0))
 	popover_size.y = minf(popover_size.y, maxf(1.0, root_rect.size.y - 16.0))
 	_skill_status_popover.custom_minimum_size = popover_size
 	_skill_status_popover.size = popover_size
-	var desired := Vector2(sigil_rect.position.x, sigil_rect.end.y + 8.0)
-	desired.x = clampf(desired.x, root_rect.position.x + 8.0, root_rect.end.x - popover_size.x - 8.0)
-	desired.y = clampf(desired.y, root_rect.position.y + 8.0, root_rect.end.y - popover_size.y - 8.0)
+	var desired: Vector2 = root_rect.position + (root_rect.size - popover_size) * 0.5
 	_skill_status_popover.global_position = desired
 
 func _refresh_skill_status_popover(skill_ids: Array[String]) -> void:
-	if _skill_status_list == null:
-		return
-	var focused_skill_id: String = ""
-	var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	if focus_owner != null and _skill_status_list.is_ancestor_of(focus_owner):
-		focused_skill_id = str(focus_owner.get_meta("skill_id", ""))
-	var preserved_scroll: int = _skill_status_scroll_position
-	if _skill_status_popover != null and _skill_status_popover.visible and _skill_status_scroll != null:
-		preserved_scroll = _skill_status_scroll.scroll_vertical
-	_clear_children_now(_skill_status_list)
+	_skill_status_skill_ids = SkillTreeLibrary.normalized_ids(skill_ids)
 	if _skill_status_title != null:
-		_skill_status_title.text = "ABILITIES  %d" % skill_ids.size()
-	for skill_id: String in skill_ids:
-		var row := Button.new()
-		row.name = "SkillStatusRow_%s" % skill_id
-		var activatable: bool = _combat_skill_is_activatable(skill_id)
-		row.focus_mode = Control.FOCUS_ALL if activatable else Control.FOCUS_NONE
-		row.disabled = not activatable
-		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.custom_minimum_size.y = 78.0
-		row.text = ""
-		row.set_meta("skill_id", skill_id)
+		_skill_status_title.text = "ABILITIES  %d" % _skill_status_skill_ids.size()
+	if _skill_status_grid == null or _skill_status_popover == null or not _skill_status_popover.visible:
+		return
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	var restore_skill_id: String = _skill_status_selected_id
+	if focus_owner != null and focus_owner.has_meta("skill_id"):
+		restore_skill_id = str(focus_owner.get_meta("skill_id", restore_skill_id))
+	if not _skill_status_skill_ids.has(restore_skill_id):
+		restore_skill_id = _skill_status_skill_ids[0] if not _skill_status_skill_ids.is_empty() else ""
+	_skill_status_selected_id = restore_skill_id
+	_clear_children_now(_skill_status_grid)
+	_skill_status_tiles.clear()
+	for skill_id: String in _skill_status_skill_ids:
+		var tile := Button.new()
+		tile.name = "SkillStatusTile_%s" % skill_id
+		tile.custom_minimum_size = SKILL_STATUS_TILE_SIZE
+		tile.focus_mode = Control.FOCUS_ALL
+		tile.text = ""
+		tile.tooltip_text = ""
+		tile.set_meta("skill_id", skill_id)
 		var status: String = _skill_hud_status(skill_id)
 		var accent: Color = _skill_status_accent(status)
-		row.add_theme_stylebox_override("normal", _skill_status_row_style(accent))
-		row.add_theme_stylebox_override("disabled", _skill_status_row_style(accent))
+		tile.set_meta("skill_status", status)
+		tile.set_meta("icon_key", SkillTreeLibrary.icon_key(skill_id))
+		for style_name: String in ["normal", "disabled"]:
+			tile.add_theme_stylebox_override(style_name, _skill_status_tile_style(accent, skill_id == _skill_status_selected_id))
 		for style_name: String in ["hover", "pressed", "focus"]:
-			row.add_theme_stylebox_override(style_name, _skill_status_row_style(accent, true))
-		row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if activatable else Control.CURSOR_ARROW
-		row.pressed.connect(_on_skill_status_row_pressed.bind(skill_id))
+			tile.add_theme_stylebox_override(style_name, _skill_status_tile_style(accent, true, style_name == "focus"))
+		tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		tile.pressed.connect(_on_skill_status_tile_pressed.bind(skill_id))
+		tile.focus_entered.connect(_on_skill_status_tile_focused.bind(skill_id))
 		var margin := MarginContainer.new()
 		margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		margin.add_theme_constant_override("margin_left", 12)
-		margin.add_theme_constant_override("margin_top", 8)
-		margin.add_theme_constant_override("margin_right", 12)
-		margin.add_theme_constant_override("margin_bottom", 8)
-		row.add_child(margin)
+		margin.add_theme_constant_override("margin_left", 4)
+		margin.add_theme_constant_override("margin_top", 3)
+		margin.add_theme_constant_override("margin_right", 4)
+		margin.add_theme_constant_override("margin_bottom", 3)
+		tile.add_child(margin)
 		var column := VBoxContainer.new()
-		column.add_theme_constant_override("separation", 2)
+		column.add_theme_constant_override("separation", 0)
 		margin.add_child(column)
-		var header := HBoxContainer.new()
-		column.add_child(header)
+		var icon_center := CenterContainer.new()
+		icon_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		column.add_child(icon_center)
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(28.0, 28.0)
+		icon.texture = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_center.add_child(icon)
 		var name_label := Label.new()
 		name_label.text = SkillTreeLibrary.display_name(skill_id)
-		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.apply_label_role(name_label, UiTypography.ROLE_BODY)
-		name_label.add_theme_color_override("font_color", Color("f1e7ff"))
-		header.add_child(name_label)
-		var status_label := Label.new()
-		status_label.text = status
-		UiTypography.apply_label_role(status_label, UiTypography.ROLE_CAPTION)
-		status_label.add_theme_color_override("font_color", accent)
-		header.add_child(status_label)
-		var detail := Label.new()
-		detail.text = SkillTreeLibrary.description(skill_id)
-		detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		UiTypography.apply_label_role(detail, UiTypography.ROLE_CAPTION)
-		detail.add_theme_color_override("font_color", Color("bcaacb"))
-		column.add_child(detail)
-		_skill_status_list.add_child(row)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		UiTypography.apply_label_role(name_label, UiTypography.ROLE_CAPTION)
+		name_label.add_theme_color_override("font_color", Color("e8def0"))
+		column.add_child(name_label)
+		var state_glyph := Label.new()
+		state_glyph.text = _skill_status_glyph(status)
+		state_glyph.position = Vector2(SKILL_STATUS_TILE_SIZE.x - 20.0, 3.0)
+		state_glyph.size = Vector2(16.0, 16.0)
+		state_glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		state_glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UiTypography.apply_label_role(state_glyph, UiTypography.ROLE_CAPTION)
+		state_glyph.add_theme_color_override("font_color", accent)
+		tile.add_child(state_glyph)
+		_skill_status_grid.add_child(tile)
+		_skill_status_tiles[skill_id] = tile
+	_refresh_skill_status_detail()
 	_configure_skill_status_focus_neighbors()
-	_skill_status_scroll_position = preserved_scroll
-	call_deferred("_restore_skill_status_popover_state", focused_skill_id, preserved_scroll)
+	call_deferred("_restore_skill_status_popover_state", restore_skill_id)
 
 func _configure_skill_status_focus_neighbors() -> void:
-	if _skill_status_close_button == null or _skill_status_list == null:
+	if _skill_status_close_button == null or _skill_status_grid == null:
 		return
-	var rows: Array[Control]
-	for child: Node in _skill_status_list.get_children():
-		if child is Control and _can_restore_gui_focus(child):
-			rows.append(child as Control)
-	if rows.is_empty():
+	var tiles: Array[Control]
+	for skill_id: String in _skill_status_skill_ids:
+		var tile: Control = _skill_status_tiles.get(skill_id, null) as Control
+		if tile != null:
+			tiles.append(tile)
+	if tiles.is_empty():
 		_skill_status_close_button.focus_neighbor_top = NodePath()
 		_skill_status_close_button.focus_neighbor_bottom = NodePath()
 		return
-	_set_skill_status_focus_neighbor(_skill_status_close_button, "down", rows[0])
-	_set_skill_status_focus_neighbor(_skill_status_close_button, "up", rows[rows.size() - 1])
-	for index: int in range(rows.size()):
-		var row: Control = rows[index]
-		_set_skill_status_focus_neighbor(row, "up", _skill_status_close_button if index == 0 else rows[index - 1])
-		_set_skill_status_focus_neighbor(row, "down", _skill_status_close_button if index == rows.size() - 1 else rows[index + 1])
-		_set_skill_status_focus_neighbor(row, "left", row)
-		_set_skill_status_focus_neighbor(row, "right", row)
+	var bottom_target: Control = _skill_status_action_button if _can_restore_gui_focus(_skill_status_action_button) else tiles[tiles.size() - 1]
+	_set_skill_status_focus_neighbor(_skill_status_close_button, "down", tiles[0])
+	_set_skill_status_focus_neighbor(_skill_status_close_button, "up", bottom_target)
+	for index: int in range(tiles.size()):
+		var tile: Control = tiles[index]
+		var column_index: int = index % SKILL_STATUS_GRID_COLUMNS
+		var up_target: Control = _skill_status_close_button if index < SKILL_STATUS_GRID_COLUMNS else tiles[index - SKILL_STATUS_GRID_COLUMNS]
+		var down_index: int = index + SKILL_STATUS_GRID_COLUMNS
+		var down_target: Control = tiles[down_index] if down_index < tiles.size() else bottom_target
+		var left_target: Control = tiles[index - 1] if column_index > 0 else tile
+		var right_target: Control = tiles[index + 1] if column_index < SKILL_STATUS_GRID_COLUMNS - 1 and index + 1 < tiles.size() else tile
+		_set_skill_status_focus_neighbor(tile, "up", up_target)
+		_set_skill_status_focus_neighbor(tile, "down", down_target)
+		_set_skill_status_focus_neighbor(tile, "left", left_target)
+		_set_skill_status_focus_neighbor(tile, "right", right_target)
+	if _skill_status_action_button != null and _can_restore_gui_focus(_skill_status_action_button):
+		var selected_tile: Control = _skill_status_tiles.get(_skill_status_selected_id, tiles[0]) as Control
+		_set_skill_status_focus_neighbor(_skill_status_action_button, "up", selected_tile)
+		_set_skill_status_focus_neighbor(_skill_status_action_button, "down", _skill_status_close_button)
+		_set_skill_status_focus_neighbor(_skill_status_action_button, "left", _skill_status_action_button)
+		_set_skill_status_focus_neighbor(_skill_status_action_button, "right", _skill_status_close_button)
 
 func _set_skill_status_focus_neighbor(source: Control, direction: String, target: Control) -> void:
 	if source == null or target == null or not source.is_inside_tree() or not target.is_inside_tree():
@@ -7076,17 +7161,82 @@ func _set_skill_status_focus_neighbor(source: Control, direction: String, target
 		"down":
 			source.focus_neighbor_bottom = target_path
 
-func _restore_skill_status_popover_state(skill_id: String, scroll_position: int) -> void:
+func _restore_skill_status_popover_state(skill_id: String) -> void:
 	if _skill_status_popover == null or not _skill_status_popover.visible:
 		return
-	if _skill_status_scroll != null:
-		_skill_status_scroll.scroll_vertical = maxi(0, scroll_position)
-	if skill_id.is_empty() or _skill_status_list == null:
+	if skill_id.is_empty():
 		return
-	for child: Node in _skill_status_list.get_children():
-		if child is Control and str(child.get_meta("skill_id", "")) == skill_id:
-			(child as Control).grab_focus()
-			return
+	var tile: Control = _skill_status_tiles.get(skill_id, null) as Control
+	if tile != null:
+		tile.grab_focus()
+
+func _grab_skill_status_palette_focus() -> void:
+	var tile: Control = _skill_status_tiles.get(_skill_status_selected_id, null) as Control
+	_grab_preferred_gui_focus(tile, _skill_status_close_button)
+
+func _on_skill_status_tile_pressed(skill_id: String) -> void:
+	_select_skill_status_skill(skill_id)
+
+func _on_skill_status_tile_focused(skill_id: String) -> void:
+	_select_skill_status_skill(skill_id)
+
+func _select_skill_status_skill(skill_id: String) -> void:
+	if not _skill_status_skill_ids.has(skill_id):
+		return
+	_skill_status_selected_id = skill_id
+	_refresh_skill_status_detail()
+	_configure_skill_status_focus_neighbors()
+
+func _refresh_skill_status_detail() -> void:
+	if _skill_status_selected_id.is_empty() or not _skill_status_skill_ids.has(_skill_status_selected_id):
+		if _skill_status_detail_title != null:
+			_skill_status_detail_title.text = "No abilities learned"
+		if _skill_status_detail_status != null:
+			_skill_status_detail_status.text = ""
+		if _skill_status_detail_description != null:
+			_skill_status_detail_description.text = "Learn abilities at campfires to add them here."
+		if _skill_status_action_button != null:
+			_skill_status_action_button.text = "Unavailable"
+			_skill_status_action_button.disabled = true
+		return
+	var status: String = _skill_hud_status(_skill_status_selected_id)
+	var accent: Color = _skill_status_accent(status)
+	if _skill_status_detail_icon != null:
+		_skill_status_detail_icon.texture = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(_skill_status_selected_id))
+	if _skill_status_detail_title != null:
+		_skill_status_detail_title.text = SkillTreeLibrary.display_name(_skill_status_selected_id)
+	if _skill_status_detail_status != null:
+		_skill_status_detail_status.text = status
+		_skill_status_detail_status.add_theme_color_override("font_color", accent)
+	if _skill_status_detail_description != null:
+		_skill_status_detail_description.text = SkillTreeLibrary.description(_skill_status_selected_id)
+	for skill_id: String in _skill_status_skill_ids:
+		var tile: Button = _skill_status_tiles.get(skill_id, null) as Button
+		if tile == null:
+			continue
+		var tile_accent: Color = _skill_status_accent(_skill_hud_status(skill_id))
+		tile.add_theme_stylebox_override("normal", _skill_status_tile_style(tile_accent, skill_id == _skill_status_selected_id))
+	if _skill_status_action_button != null:
+		var activatable: bool = _combat_skill_is_activatable(_skill_status_selected_id)
+		var activation: String = SkillTreeLibrary.activation_kind(_skill_status_selected_id)
+		_skill_status_action_button.disabled = not activatable
+		if activatable:
+			_skill_status_action_button.text = "Activate"
+		elif activation == "automatic":
+			_skill_status_action_button.text = "Automatic"
+		elif activation == "passive":
+			_skill_status_action_button.text = "Passive"
+		elif activation == "contextual":
+			_skill_status_action_button.text = "Contextual"
+		else:
+			_skill_status_action_button.text = status.capitalize()
+		var variant: String = UiSkin.VARIANT_SELECTED if activatable else UiSkin.VARIANT_STANDARD
+		_ui_skin.apply_button_stylebox_overrides(_skill_status_action_button, variant)
+		_ui_skin.apply_button_text_overrides(_skill_status_action_button)
+
+func _on_skill_status_action_pressed() -> void:
+	if _combat_skill_is_activatable(_skill_status_selected_id):
+		_on_combat_skill_pressed(_skill_status_selected_id)
 
 func _combat_skill_is_activatable(skill_id: String) -> bool:
 	return (
@@ -7107,11 +7257,6 @@ func _combat_skill_activation_surface_available() -> bool:
 		and not _pending_umbra_commit_locked
 		and _combat_skill_card_selection_zone.is_empty()
 	)
-
-func _on_skill_status_row_pressed(skill_id: String) -> void:
-	if not _combat_skill_is_activatable(skill_id):
-		return
-	_on_combat_skill_pressed(skill_id)
 
 func _skill_hud_status(skill_id: String) -> String:
 	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
@@ -7195,6 +7340,33 @@ func _skill_status_accent(status: String) -> Color:
 		"AUTOMATIC":
 			return Color("9fc9f4")
 	return Color("c8a6ed")
+
+func _skill_status_glyph(status: String) -> String:
+	match status:
+		"READY":
+			return "!"
+		"SPENT":
+			return "×"
+		"ARMED", "PRIMED":
+			return "◆"
+		"BANKED":
+			return "+"
+		"AUTOMATIC":
+			return "↻"
+		"PASSIVE":
+			return "∞"
+	return "·"
+
+func _skill_status_tile_style(accent: Color, selected: bool = false, focused: bool = false) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("2c1c36") if selected else Color("1c1422")
+	style.border_color = accent.lightened(0.16) if focused else accent
+	style.set_border_width_all(3 if selected or focused else 1)
+	style.set_corner_radius_all(7)
+	if focused:
+		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.34)
+		style.shadow_size = 6
+	return style
 
 func _skill_status_row_style(accent: Color, focused: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

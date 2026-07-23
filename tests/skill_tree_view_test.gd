@@ -67,8 +67,11 @@ func _test_skill_tree_view() -> void:
 	_expect(view.link_geometry_rebuild_count() == 1, "Static connector geometry should be built exactly once")
 	_expect(view.navigation_rebuild_count() >= 1, "Initial configuration should build directional navigation")
 	_expect(view.graph_canvas_size() == Vector2(1000.0, 540.0), "The graph should retain its topology-first canvas")
-	_expect(view.find_child("SkillTreeScroll", true, false) is ScrollContainer, "The graph should scroll inside compact hosts")
-	_expect(view.find_child("SkillDetailScroll", true, false) is ScrollContainer, "Long rules should remain bounded inside the detail pane")
+	_expect(view.find_child("SkillTreeScroll", true, false) == null, "The primary graph must never expose a scrollbar")
+	_expect(view.find_child("SkillTreeGraphViewport", true, false) is Control, "The graph should use a clipped zoom-to-fit viewport")
+	_expect(view.graph_fit_scale() > 0.0 and view.graph_fit_scale() <= 1.0, "The complete authored graph should fit its viewport without panning")
+	_expect(view.find_child("SkillDetailScroll", true, false) == null, "The skill tree detail pane should not expose a scrollbar")
+	_expect(view.find_child("SkillDetailContent", true, false) is VBoxContainer, "The complete focused-skill rules should remain visible beside the tree")
 	_expect(view.legend_state_count() == 4, "The persistent tree should show learned, available, locked, and exclusive states without a draft state")
 	_expect(_label_with_text(view, "Prismatic Instinct") == null, "Skill names should remain in the unobstructed detail pane")
 	_expect(view.connection_intersection_count() == 0, "No connector should cross an unrelated medallion: %s" % ", ".join(view.connection_intersection_pairs()))
@@ -151,10 +154,6 @@ func _test_skill_tree_view() -> void:
 
 	# Pointer hover is decoration only. Selection belongs to click/controller
 	# focus, and hover must not do any graph or navigation work.
-	var graph_scroll := view.find_child("SkillTreeScroll", true, false) as ScrollContainer
-	graph_scroll.scroll_horizontal = 73
-	graph_scroll.scroll_vertical = 41
-	await process_frame
 	var scroll_before: Vector2i = view.graph_scroll_offset()
 	var geometry_before: int = view.link_geometry_rebuild_count()
 	var navigation_before: int = view.navigation_rebuild_count()
@@ -165,8 +164,8 @@ func _test_skill_tree_view() -> void:
 	var hover_elapsed_usec: int = Time.get_ticks_usec() - hover_started
 	await process_frame
 	_expect(view.focused_skill_id() == "measured_breath", "Hover should not change the clicked or controller-focused skill")
-	_expect(root.gui_get_focus_owner() == focus_before, "Hover should not transfer keyboard focus and trigger implicit ScrollContainer movement")
-	_expect(view.graph_scroll_offset() == scroll_before, "Hovering every node should leave both scroll axes unchanged")
+	_expect(root.gui_get_focus_owner() == focus_before, "Hover should not transfer keyboard focus")
+	_expect(view.graph_scroll_offset() == Vector2i.ZERO and scroll_before == Vector2i.ZERO, "The zoom-to-fit graph should have no scroll offset")
 	_expect(view.link_geometry_rebuild_count() == geometry_before, "Hover should never reroute connectors or recompute bridges")
 	_expect(view.navigation_rebuild_count() == navigation_before, "Hover should never rebuild directional navigation")
 	_expect(hover_elapsed_usec < 1000000, "A full 24-node hover sweep should complete comfortably under one second")

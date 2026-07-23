@@ -19,6 +19,8 @@ const STATE_SELECTED: String = "selected"
 
 const GRAPH_SIZE: Vector2 = Vector2(SkillTreeLibrary.LAYOUT_CANVAS_SIZE)
 const DETAIL_WIDTH: float = 280.0
+const COMPACT_DETAIL_WIDTH: float = 350.0
+const COMPACT_LAYOUT_WIDTH: float = 1300.0
 const LINK_NODE_CLEARANCE: float = 8.0
 const LINK_ENDPOINT_EXPOSURE: float = 10.0
 const LINK_CHANNEL_SPACING: float = 10.0
@@ -362,7 +364,8 @@ var _editing_enabled: bool = true
 var _focused_id: String = ""
 
 var _graph_canvas: Control
-var _graph_scroll: ScrollContainer
+var _graph_viewport: Control
+var _graph_fit_scale: float = 1.0
 var _link_layer: SkillLinkLayer
 var _link_overlay_layer: SkillLinkOverlayLayer
 var _summary_label: Label
@@ -381,6 +384,10 @@ var _last_refresh_view_usec: int = 0
 var _last_link_geometry_usec: int = 0
 var _last_navigation_usec: int = 0
 var _legend: HBoxContainer
+var _graph_header: HBoxContainer
+var _detail_panel: PanelContainer
+var _detail_content: VBoxContainer
+var _detail_divider: HSeparator
 var _detail_status: Label
 var _detail_title: Label
 var _detail_description: Label
@@ -391,6 +398,7 @@ var _detail_reason: Label
 var _detail_action: Button
 var _external_command_target: Control
 var _external_tab_target: Control
+var _compact_layout: bool = false
 
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -402,6 +410,8 @@ func _ready() -> void:
 	var refresh_started_usec: int = Time.get_ticks_usec()
 	_refresh_view()
 	_last_refresh_view_usec = Time.get_ticks_usec() - refresh_started_usec
+	resized.connect(_refresh_responsive_layout)
+	call_deferred("_refresh_responsive_layout")
 	# External tab/command controls may only become visible after this subtree's
 	# ready pass. Rebind once the completed modal is live so controller exits do
 	# not retain empty NodePaths.
@@ -532,9 +542,10 @@ func performance_metrics() -> Dictionary:
 	}
 
 func graph_scroll_offset() -> Vector2i:
-	if _graph_scroll == null:
-		return Vector2i.ZERO
-	return Vector2i(_graph_scroll.scroll_horizontal, _graph_scroll.scroll_vertical)
+	return Vector2i.ZERO
+
+func graph_fit_scale() -> float:
+	return _graph_fit_scale
 
 func detail_action_is_enabled() -> bool:
 	return _detail_action != null and _detail_action.visible and not _detail_action.disabled
@@ -700,20 +711,21 @@ func _build_graph_panel() -> Control:
 	column.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT)
 	margin.add_child(column)
 
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	column.add_child(header)
+	_graph_header = HBoxContainer.new()
+	_graph_header.name = "SkillTreeGraphHeader"
+	_graph_header.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
+	column.add_child(_graph_header)
 	var title := Label.new()
 	title.text = "SKILL TREE"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiTypography.apply_label_role(title, UiTypography.ROLE_SECTION)
 	title.add_theme_color_override("font_color", Color("f2e6d1"))
-	header.add_child(title)
+	_graph_header.add_child(title)
 	_summary_label = Label.new()
 	_summary_label.name = "SkillTreeSummary"
 	UiTypography.apply_label_role(_summary_label, UiTypography.ROLE_CAPTION)
 	_summary_label.add_theme_color_override("font_color", Color("d6bc87"))
-	header.add_child(_summary_label)
+	_graph_header.add_child(_summary_label)
 
 	_legend = HBoxContainer.new()
 	_legend.name = "SkillStateLegend"
@@ -721,20 +733,21 @@ func _build_graph_panel() -> Control:
 	column.add_child(_legend)
 	_build_state_legend()
 
-	_graph_scroll = ScrollContainer.new()
-	_graph_scroll.name = "SkillTreeScroll"
-	_graph_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_graph_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_graph_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	_graph_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	column.add_child(_graph_scroll)
+	_graph_viewport = Control.new()
+	_graph_viewport.name = "SkillTreeGraphViewport"
+	_graph_viewport.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_graph_viewport.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_graph_viewport.clip_contents = true
+	_graph_viewport.mouse_filter = Control.MOUSE_FILTER_PASS
+	_graph_viewport.resized.connect(_layout_graph_canvas)
+	column.add_child(_graph_viewport)
 
 	_graph_canvas = Control.new()
 	_graph_canvas.name = "SkillTreeCanvas"
 	_graph_canvas.custom_minimum_size = GRAPH_SIZE
 	_graph_canvas.size = GRAPH_SIZE
 	_graph_canvas.mouse_filter = Control.MOUSE_FILTER_PASS
-	_graph_scroll.add_child(_graph_canvas)
+	_graph_viewport.add_child(_graph_canvas)
 
 	_link_layer = SkillLinkLayer.new()
 	_link_layer.name = "SkillTreeLinkLayer"
@@ -749,7 +762,37 @@ func _build_graph_panel() -> Control:
 	_link_overlay_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_link_overlay_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_graph_canvas.add_child(_link_overlay_layer)
+	call_deferred("_layout_graph_canvas")
 	return panel
+
+func _layout_graph_canvas() -> void:
+	if _graph_viewport == null or _graph_canvas == null:
+		return
+	var available_size: Vector2 = _graph_viewport.size
+	if available_size.x <= 1.0 or available_size.y <= 1.0:
+		return
+	_graph_fit_scale = minf(1.0, minf(available_size.x / GRAPH_SIZE.x, available_size.y / GRAPH_SIZE.y))
+	var scaled_size: Vector2 = GRAPH_SIZE * _graph_fit_scale
+	_graph_canvas.scale = Vector2(_graph_fit_scale, _graph_fit_scale)
+	_graph_canvas.position = (available_size - scaled_size) * 0.5
+
+func _refresh_responsive_layout() -> void:
+	var compact: bool = size.x < COMPACT_LAYOUT_WIDTH
+	_compact_layout = compact
+	if _graph_header != null:
+		_graph_header.visible = not compact
+	if _legend != null:
+		_legend.visible = not compact
+	if _detail_panel != null:
+		_detail_panel.custom_minimum_size.x = COMPACT_DETAIL_WIDTH if compact else DETAIL_WIDTH
+	if _detail_content != null:
+		_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT if compact else UiTypography.SPACE_SMALL)
+	if _detail_title != null:
+		UiTypography.apply_label_role(_detail_title, UiTypography.ROLE_BODY_LARGE if compact else UiTypography.ROLE_SECTION)
+	if _detail_description != null:
+		UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_CAPTION if compact else UiTypography.ROLE_BODY)
+	_refresh_detail_visibility()
+	call_deferred("_layout_graph_canvas")
 
 func _build_branch_headers() -> void:
 	for root_id: String in ["measured_breath", "quick_wits", "discerning_eye", "ghost_stride"]:
@@ -830,19 +873,19 @@ func _build_skill_nodes() -> void:
 		_node_faces[skill_id] = face
 
 func _build_detail_panel() -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "SkillDetailPanel"
-	panel.custom_minimum_size = Vector2(DETAIL_WIDTH, 0.0)
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.clip_contents = true
-	panel.add_theme_stylebox_override("panel", _panel_style(Color("8c6f49")))
+	_detail_panel = PanelContainer.new()
+	_detail_panel.name = "SkillDetailPanel"
+	_detail_panel.custom_minimum_size = Vector2(DETAIL_WIDTH, 0.0)
+	_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_detail_panel.clip_contents = true
+	_detail_panel.add_theme_stylebox_override("panel", _panel_style(Color("8c6f49")))
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_COMPACT))
 	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
 	margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING_COMPACT))
 	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING_COMPACT))
-	panel.add_child(margin)
+	_detail_panel.add_child(margin)
 
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -850,68 +893,62 @@ func _build_detail_panel() -> Control:
 	column.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	margin.add_child(column)
 
-	var detail_scroll := ScrollContainer.new()
-	detail_scroll.name = "SkillDetailScroll"
-	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	detail_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	column.add_child(detail_scroll)
-
-	var detail_content := VBoxContainer.new()
-	detail_content.name = "SkillDetailContent"
-	detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_content.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	detail_scroll.add_child(detail_content)
+	_detail_content = VBoxContainer.new()
+	_detail_content.name = "SkillDetailContent"
+	_detail_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_detail_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	column.add_child(_detail_content)
 
 	_detail_status = Label.new()
 	_detail_status.name = "SkillDetailStatus"
 	UiTypography.apply_label_role(_detail_status, UiTypography.ROLE_CAPTION)
-	detail_content.add_child(_detail_status)
+	_detail_content.add_child(_detail_status)
 
 	_detail_title = Label.new()
 	_detail_title.name = "SkillDetailTitle"
 	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_title, UiTypography.ROLE_SECTION)
 	_detail_title.add_theme_color_override("font_color", Color("f5ead4"))
-	detail_content.add_child(_detail_title)
+	_detail_content.add_child(_detail_title)
 
 	_detail_description = Label.new()
 	_detail_description.name = "SkillDetailDescription"
 	_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_description, UiTypography.ROLE_BODY)
 	_detail_description.add_theme_color_override("font_color", Color("ddcfb7"))
-	detail_content.add_child(_detail_description)
+	_detail_content.add_child(_detail_description)
 
-	var divider := HSeparator.new()
-	divider.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	detail_content.add_child(divider)
+	_detail_divider = HSeparator.new()
+	_detail_divider.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	_detail_content.add_child(_detail_divider)
 
 	_detail_activation = Label.new()
 	_detail_activation.name = "SkillDetailActivation"
 	UiTypography.apply_label_role(_detail_activation, UiTypography.ROLE_CAPTION)
 	_detail_activation.add_theme_color_override("font_color", Color("c9b998"))
-	detail_content.add_child(_detail_activation)
+	_detail_activation.visible = false
+	_detail_content.add_child(_detail_activation)
 
 	_detail_requirements = Label.new()
 	_detail_requirements.name = "SkillDetailRequirements"
 	_detail_requirements.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_requirements, UiTypography.ROLE_CAPTION)
 	_detail_requirements.add_theme_color_override("font_color", Color("c9b998"))
-	detail_content.add_child(_detail_requirements)
+	_detail_content.add_child(_detail_requirements)
 
 	_detail_unlocks = Label.new()
 	_detail_unlocks.name = "SkillDetailUnlocks"
 	_detail_unlocks.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_unlocks, UiTypography.ROLE_CAPTION)
 	_detail_unlocks.add_theme_color_override("font_color", Color("a8c9c1"))
-	detail_content.add_child(_detail_unlocks)
+	_detail_content.add_child(_detail_unlocks)
 
 	_detail_reason = Label.new()
 	_detail_reason.name = "SkillDetailReason"
 	_detail_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.apply_label_role(_detail_reason, UiTypography.ROLE_BODY)
-	detail_content.add_child(_detail_reason)
+	_detail_content.add_child(_detail_reason)
 
 	_detail_action = Button.new()
 	_detail_action.name = "SkillDetailAction"
@@ -919,7 +956,7 @@ func _build_detail_panel() -> Control:
 	_detail_action.pressed.connect(_on_detail_action_pressed)
 	column.add_child(_detail_action)
 
-	return panel
+	return _detail_panel
 
 func _refresh_view() -> void:
 	if _graph_canvas == null:
@@ -1048,8 +1085,19 @@ func _refresh_detail() -> void:
 	_detail_requirements.text = _requirements_text(_focused_id)
 	_detail_unlocks.text = _unlocks_text(_focused_id)
 	_detail_reason.text = _detail_reason_text(_focused_id, state)
+	_refresh_detail_visibility()
 	_detail_reason.add_theme_color_override("font_color", _state_color(state).lightened(0.16))
 	_refresh_detail_action(state)
+
+func _refresh_detail_visibility() -> void:
+	if _detail_divider != null:
+		_detail_divider.visible = not _compact_layout
+	if _detail_requirements != null:
+		_detail_requirements.visible = not _compact_layout
+	if _detail_unlocks != null:
+		_detail_unlocks.visible = not _compact_layout
+	if _detail_reason != null:
+		_detail_reason.visible = not _detail_reason.text.is_empty()
 
 func _refresh_detail_action(state: String) -> void:
 	_detail_action.visible = true
@@ -1076,28 +1124,9 @@ func _on_node_focus_entered(skill_id: String) -> void:
 		focus_skill(skill_id)
 
 func _ensure_focused_visible() -> void:
-	if _graph_scroll == null:
-		return
-	var button: Button = node_for_skill(_focused_id)
-	if button != null:
-		var route_ids: Array[String] = _ancestor_ids(_focused_id)
-		if not route_ids.has(_focused_id):
-			route_ids.append(_focused_id)
-		for dependent_id: String in _direct_dependent_ids(_focused_id):
-			if not route_ids.has(dependent_id):
-				route_ids.append(dependent_id)
-		var route_min_x: float = INF
-		var route_max_x: float = -INF
-		for route_id: String in route_ids:
-			var route_node: Button = node_for_skill(route_id)
-			if route_node == null:
-				continue
-			route_min_x = minf(route_min_x, route_node.position.x)
-			route_max_x = maxf(route_max_x, route_node.position.x + route_node.size.x)
-		if route_min_x < INF and route_max_x > -INF and GRAPH_SIZE.x > _graph_scroll.size.x:
-			var route_center_x: float = (route_min_x + route_max_x) * 0.5
-			_graph_scroll.scroll_horizontal = maxi(0, int(round(route_center_x - _graph_scroll.size.x * 0.5)))
-		_graph_scroll.ensure_control_visible(button)
+	# The complete topology is always zoomed to fit. Focus never pans or scrolls
+	# the authored graph away from the surrounding prerequisites and dependents.
+	_layout_graph_canvas()
 
 func _configure_focus_neighbors() -> void:
 	var started_usec: int = Time.get_ticks_usec()
@@ -1264,15 +1293,16 @@ func _legend_state_text(state: String) -> String:
 
 func _detail_status_text(skill_id: String, state: String) -> String:
 	var tier: String = str(SkillTreeLibrary.definition(skill_id).get("tier", "skill")).to_upper()
-	return "%s  ·  %s" % [tier, _node_state_text(skill_id, state)]
+	var activation: String = SkillTreeLibrary.activation_kind(skill_id).to_upper()
+	return "%s  ·  %s  ·  %s" % [tier, _node_state_text(skill_id, state), activation]
 
 func _detail_reason_text(skill_id: String, state: String) -> String:
 	if state == STATE_OWNED:
-		return "Learned and active."
+		return ""
 	if state == STATE_AVAILABLE:
 		if _unspent_points <= 0:
 			return "Requirements met. Earn another skill point to learn this."
-		return "All requirements are met."
+		return ""
 	return SkillTreeLibrary.locked_reason(skill_id, _selection_for_availability())
 
 func _requirements_text(skill_id: String) -> String:

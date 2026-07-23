@@ -1,7 +1,7 @@
 {
   "quick_wits": {
     "name": "Quick Wits",
-    "icon": "draw",
+    "icon": "skill_quick_wits",
     "description": "Once per combat, discard a card to draw a card. Costs no play or Time.",
     "branch": "tactics",
     "tier": "root",
@@ -13,7 +13,7 @@
   },
   "measured_breath": {
     "name": "Measured Breath",
-    "icon": "card_play",
+    "icon": "skill_measured_breath",
     "description": "End an activation with an unused play to bank it for your next activation. One banked play maximum.",
     "branch": "resolve",
     "tier": "root",
@@ -25,7 +25,7 @@
   },
   "ghost_stride": {
     "name": "Ghost Stride",
-    "icon": "blink",
+    "icon": "skill_ghost_stride",
     "description": "Once per combat, you may use a card's basic Move as Blink 2.",
     "branch": "traverse",
     "tier": "root",
@@ -37,7 +37,7 @@
   },
   "discerning_eye": {
     "name": "Discerning Eye",
-    "icon": "vision",
+    "icon": "skill_discerning_eye",
     "description": "Once between bosses, replace every card in a combat reward.",
     "branch": "foresight",
     "tier": "root",
@@ -49,7 +49,7 @@
   },
   "rehearsed_escape": {
     "name": "Rehearsed Escape",
-    "icon": "burn",
+    "icon": "skill_rehearsed_escape",
     "description": "Once per combat, arm to discard your next non-item Burn card instead of burning it.",
     "branch": "tactics",
     "tier": "branch",
@@ -61,7 +61,7 @@
   },
   "makeshift_tool": {
     "name": "Makeshift Tool",
-    "icon": "consume",
+    "icon": "skill_makeshift_tool",
     "description": "Once per combat, arm to discard your next item used as a basic Attack or Move instead of consuming it.",
     "branch": "tactics",
     "tier": "branch",
@@ -73,7 +73,7 @@
   },
   "carry_the_guard": {
     "name": "Carry the Guard",
-    "icon": "stoneskin",
+    "icon": "skill_carry_the_guard",
     "description": "Once per combat, while you have block, arm during your activation to convert all block remaining at its end into stoneskin.",
     "branch": "resolve",
     "tier": "branch",
@@ -85,7 +85,7 @@
   },
   "pain_remembers": {
     "name": "Pain Remembers",
-    "icon": "health",
+    "icon": "skill_pain_remembers",
     "description": "After you first lose health each combat, the next non-item card discarded while your hand has room returns to it.",
     "branch": "resolve",
     "tier": "branch",
@@ -97,7 +97,7 @@
   },
   "sure_footed": {
     "name": "Sure-Footed",
-    "icon": "retreat",
+    "icon": "skill_sure_footed",
     "description": "Once per combat, the first trap blast that would affect you leaves you untouched and resolves normally against everything else.",
     "branch": "traverse",
     "tier": "branch",
@@ -109,7 +109,7 @@
   },
   "afterimage": {
     "name": "Afterimage",
-    "icon": "illusion",
+    "icon": "skill_afterimage",
     "description": "Your first Blink each combat leaves a 20-health illusion behind. You may move through your illusions; ending on one dispels it.",
     "branch": "traverse",
     "tier": "branch",
@@ -121,7 +121,7 @@
   },
   "deferred_choice": {
     "name": "Deferred Choice",
-    "icon": "draw",
+    "icon": "skill_deferred_choice",
     "description": "Skip a card reward to save one offered card. It replaces one card in your next reward.",
     "branch": "foresight",
     "tier": "branch",
@@ -133,7 +133,7 @@
   },
   "salvager": {
     "name": "Salvager",
-    "icon": "consume",
+    "icon": "skill_salvager",
     "description": "Once between bosses, recover the first equipment drop left uncollected after victory.",
     "branch": "foresight",
     "tier": "branch",
@@ -145,7 +145,7 @@
   },
   "borrowed_time": {
     "name": "Borrowed Time",
-    "icon": "time",
+    "icon": "skill_borrowed_time",
     "description": "The first card paid for with a banked play each combat adds no Time.",
     "branch": "tactics",
     "tier": "junction",
@@ -157,7 +157,7 @@
   },
   "last_reserve": {
     "name": "Last Reserve",
-    "icon": "health",
+    "icon": "skill_last_reserve",
     "description": "Once per combat, lethal Fatigue leaves you at 10 health.",
     "branch": "resolve",
     "tier": "junction",
@@ -169,7 +169,7 @@
   },
   "plunderers_step": {
     "name": "Plunderer's Step",
-    "icon": "move",
+    "icon": "skill_plunderers_step",
     "description": "The first Move or Blink to collect loot each combat refunds its play.",
     "branch": "traverse",
     "tier": "junction",
@@ -181,7 +181,7 @@
   },
   "prismatic_instinct": {
     "name": "Prismatic Instinct",
-    "icon": "truesight",
+    "icon": "skill_prismatic_instinct",
     "description": "Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions. Basic Attack, Move, and Blink uses do not consume the effect.",
     "branch": "foresight",
     "tier": "junction",
@@ -193,7 +193,7 @@
   },
   "curators_patience": {
     "name": "Curator's Patience",
-    "icon": "vision",
+    "icon": "skill_curators_patience",
     "description": "After choosing a relic, save one unchosen relic for your next relic offer.",
     "branch": "tactics",
     "tier": "junction",
@@ -205,7 +205,7 @@
   },
   "living_shadow": {
     "name": "Living Shadow",
-    "icon": "illusion",
+    "icon": "skill_living_shadow",
     "description": "Once between your activations, when an illusion is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
     "branch": "resolve",
     "tier": "junction",
@@ -217,7 +217,7 @@
   },
   "true_bearing": {
     "name": "True Bearing",
-    "icon": "range",
+    "icon": "skill_true_bearing",
     "description": "Before combat, choose an open starting tile within 2 tiles of the entrance.",
     "branch": "traverse",
     "tier": "junction",
@@ -229,7 +229,7 @@
   },
   "layaway": {
     "name": "Layaway",
-    "icon": "time",
+    "icon": "skill_layaway",
     "description": "Once between bosses, hold one offer for the next merchant of that type. A pending hold blocks future uses until it returns.",
     "branch": "foresight",
     "tier": "junction",
@@ -241,7 +241,7 @@
   },
   "encore": {
     "name": "Encore",
-    "icon": "draw",
+    "icon": "skill_encore",
     "description": "Once per combat, return a non-item card from discard to your hand. Costs no play or Time.",
     "branch": "keystone",
     "tier": "keystone",
@@ -255,7 +255,7 @@
   },
   "open_arsenal": {
     "name": "Open Arsenal",
-    "icon": "melee",
+    "icon": "skill_open_arsenal",
     "description": "Equip any equipment in your trinket slot, ignoring its normal slot.",
     "branch": "keystone",
     "tier": "keystone",
@@ -269,7 +269,7 @@
   },
   "confluence": {
     "name": "Confluence",
-    "icon": "eclipse",
+    "icon": "skill_confluence",
     "description": "Intensity conditions use your highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue.",
     "branch": "keystone",
     "tier": "keystone",
@@ -283,7 +283,7 @@
   },
   "last_door": {
     "name": "Last Door",
-    "icon": "retreat",
+    "icon": "skill_last_door",
     "description": "Once between bosses, a non-boss defeat returns you to the previous room at 10 health. Spent items stay spent.",
     "branch": "keystone",
     "tier": "keystone",
