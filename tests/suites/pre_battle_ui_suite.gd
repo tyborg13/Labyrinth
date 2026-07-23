@@ -86,8 +86,17 @@ static func _test_known_move_icon_precedence(host: Node, expect: Callable) -> vo
 		[{"actions": [{"type": "move_toward", "range": 3}, {"type": "melee", "damage": 3}]}, "melee"],
 		[{"actions": [{"type": "move_toward", "range": 2}, {"type": "ranged", "damage": 3}]}, "ranged"],
 		[{"actions": [{"type": "move_away", "range": 2}, {"type": "block", "amount": 4}]}, "block"],
-		[{"actions": [{"type": "move_toward", "range": 2}, {"type": "heal_ally", "amount": 4}]}, "heal"],
-		[{"actions": [{"type": "move_toward", "range": 2}]}, "move"]
+		[{"actions": [{"type": "move_toward", "range": 2}, {"type": "heal_ally", "amount": 4}]}, "heal_ally"],
+		[{"actions": [{"type": "move_toward", "range": 2}]}, "move"],
+		[{"actions": [{"type": "lightning_strikes", "damage": 4, "count": 3}]}, "lightning_strikes"],
+		[{"actions": [{"type": "summon_minions", "count": 2}]}, "summon_minions"],
+		[{"actions": [{"type": "raise_terrain", "count": 4}]}, "raise_terrain"],
+		[{"actions": [{"type": "terrain_burst", "damage": 8}]}, "terrain_burst"],
+		[{"actions": [{"type": "cinder_marks", "count": 5}]}, "cinder_marks"],
+		[{"actions": [{"type": "detonate_cinders"}]}, "detonate_cinders"],
+		[{"actions": [{"type": "gale_force", "damage": 6}]}, "gale_force"],
+		[{"actions": [{"type": "frost_armor", "amount": 2}]}, "frost_armor"],
+		[{"actions": [{"type": "umbra_eclipse", "duration": 2}]}, "umbra_eclipse"]
 	]
 	for expectation_var: Variant in intent_expectations:
 		var expectation: Array = expectation_var as Array

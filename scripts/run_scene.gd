@@ -3599,60 +3599,43 @@ func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
-		var candidate: String = ""
+		var candidate: String = ActionIcons.action_icon_key(action)
 		var priority: int = 100
 		match action_type:
-			"melee":
-				candidate = "melee"
+			"melee", "aoe":
 				priority = 0
 			"ranged", "lightning_strikes":
-				candidate = "ranged"
 				priority = 1
-			"aoe":
-				candidate = "ranged" if int(action.get("range", 0)) > 0 else "melee"
-				priority = 0 if candidate == "melee" else 1
 			"push", "pull":
-				candidate = action_type
 				priority = 2
 			"block", "guard_ally":
-				candidate = "block"
 				priority = 3
 			"stoneskin":
-				candidate = "stoneskin"
 				priority = 3
 			"heal", "heal_self", "heal_ally":
-				candidate = "heal"
 				priority = 4
 			"summon_minions":
-				candidate = "shock"
 				priority = 5
 			"raise_terrain", "terrain_burst":
-				candidate = "stoneskin"
 				priority = 2
 			"cinder_marks", "detonate_cinders":
-				candidate = "burn"
 				priority = 2
 			"gale_force":
-				candidate = "push"
 				priority = 1
 			"frost_armor":
-				candidate = "freeze"
 				priority = 2
 			"umbra_eclipse":
-				candidate = "eclipse"
 				priority = 1
 			"move", "move_toward":
-				candidate = "move"
 				priority = 20
 			"move_away":
-				candidate = "retreat"
 				priority = 20
 			"blink":
-				candidate = "blink"
 				priority = 20
 			_:
-				candidate = _action_step_icon_key(action)
 				priority = 10
+		if candidate.is_empty():
+			candidate = _action_step_icon_key(action)
 		if not candidate.is_empty() and priority < best_priority:
 			best_key = candidate
 			best_priority = priority
@@ -4649,42 +4632,10 @@ func _grimoire_entry_icon(entry: Dictionary) -> Texture2D:
 			return enemy_texture
 	var icon_key: String = str(entry.get("icon", ""))
 	if not icon_key.is_empty():
-		if icon_key == "aoe":
-			return _grimoire_aoe_icon_texture()
 		var action_icon: Texture2D = ActionIcons.icon_texture(icon_key)
 		if action_icon != null:
 			return action_icon
-		var direct_icon: Texture2D = AssetLoader.load_texture("res://assets/art/icons/%s.png" % icon_key)
-		if direct_icon != null:
-			return direct_icon
 	return _header_icon_texture("book")
-
-func _grimoire_aoe_icon_texture() -> Texture2D:
-	var cache_key: String = "grimoire_aoe"
-	if _header_icon_textures.has(cache_key):
-		return _header_icon_textures[cache_key]
-	var image := Image.create(48, 48, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var target_color := Color("f4ddb0")
-	var center_color := Color("f0b65d")
-	for cell: Vector2i in [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(1, 2)]:
-		var color: Color = center_color if cell == Vector2i(1, 1) else target_color
-		_draw_grimoire_icon_square(image, Rect2i(Vector2i(10 + cell.x * 9, 10 + cell.y * 9), Vector2i(8, 8)), color)
-	for grid_line: int in [9, 18, 27, 36]:
-		_draw_image_line(image, Vector2i(9, grid_line), Vector2i(36, grid_line), Color(0.18, 0.10, 0.05, 0.70), 1)
-		_draw_image_line(image, Vector2i(grid_line, 9), Vector2i(grid_line, 36), Color(0.18, 0.10, 0.05, 0.70), 1)
-	var texture := ImageTexture.create_from_image(image)
-	_header_icon_textures[cache_key] = texture
-	return texture
-
-func _draw_grimoire_icon_square(image: Image, rect: Rect2i, color: Color) -> void:
-	for y: int in range(rect.position.y, rect.position.y + rect.size.y):
-		if y < 0 or y >= image.get_height():
-			continue
-		for x: int in range(rect.position.x, rect.position.x + rect.size.x):
-			if x < 0 or x >= image.get_width():
-				continue
-			image.set_pixel(x, y, color)
 
 func _refresh_grimoire_badge() -> void:
 	if _grimoire_badge == null:
@@ -9094,50 +9045,9 @@ func _action_step_action_name(action: Dictionary) -> String:
 	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
 
 func _action_step_icon_key(action: Dictionary) -> String:
-	var action_type: String = str(action.get("type", ""))
-	match action_type:
-		"move", "move_toward":
-			return "move"
-		"move_away":
-			return "retreat"
-		"blink":
-			return "blink"
-		"melee":
-			return "melee"
-		"ranged", "aoe", "lightning_strikes":
-			return "ranged"
-		"push":
-			return "push"
-		"pull":
-			return "pull"
-		"block":
-			return "block"
-		"stoneskin":
-			return "stoneskin"
-		"heal", "heal_self":
-			return "heal"
-		"draw":
-			return "draw"
-		"card_play":
-			return "card_play"
-		"intensity":
-			return ActionIcons.element_icon_key(str(action.get("element", ElementData.NONE)))
-		"illusion":
-			return "illusion"
-		"health_cost":
-			return "health_cost"
-		"summon_minions":
-			return "shock"
-		"raise_terrain", "terrain_burst":
-			return "stoneskin"
-		"cinder_marks", "detonate_cinders":
-			return "burn"
-		"gale_force":
-			return "push"
-		"frost_armor":
-			return "freeze"
-		"umbra_eclipse":
-			return "eclipse"
+	var mapped_key: String = ActionIcons.action_icon_key(action)
+	if not mapped_key.is_empty():
+		return mapped_key
 	for token_var: Variant in ActionIcons.tokens_for_action(action):
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
@@ -11097,7 +11007,7 @@ func _refresh_hand_panel() -> void:
 		var selecting_skill_card: bool = _combat_skill_card_selection_zone == "hand"
 		var skill_selection_buttons: Array[Button]
 		var active_hand_index: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
-		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if hand.size() <= 6 else ScrollContainer.SCROLL_MODE_AUTO
+		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		var card_size: Vector2 = _hand_card_size(hand.size(), false)
 		for index: int in range(hand.size()):
@@ -11155,7 +11065,7 @@ func _refresh_hand_panel() -> void:
 		var reward_cards: Array = reward_state.get("cards", [])
 		var heal_amount: int = int(reward_state.get("heal_amount", 0))
 		var reward_choice_count: int = reward_cards.size() + (1 if heal_amount > 0 else 0)
-		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED if reward_choice_count <= 4 else ScrollContainer.SCROLL_MODE_AUTO
+		hand_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		var reward_card_size: Vector2 = _hand_card_size(reward_choice_count, true)
 		for card_id_var: Variant in reward_cards:

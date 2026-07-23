@@ -48,7 +48,7 @@ class GameUiRubricInventoryTests(unittest.TestCase):
 
     def test_player_ui_does_not_enable_visible_horizontal_scrollbars(self) -> None:
         auto_assignment = re.compile(
-            r"horizontal_scroll_mode\s*=\s*ScrollContainer\.SCROLL_MODE_(?:AUTO|ALWAYS)"
+            r"horizontal_scroll_mode\s*=[^\n]*SCROLL_MODE_(?:AUTO|ALWAYS)"
         )
         for script_path in (REPO_ROOT / "scripts").rglob("*.gd"):
             self.assertIsNone(auto_assignment.search(script_path.read_text(encoding="utf-8")), script_path)

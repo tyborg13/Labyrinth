@@ -47,7 +47,7 @@
 			"section": "basics",
 			"title": "The Run",
 			"default": true,
-			"icon": "ember",
+			"icon": "run",
 			"body": [
 				"Explore rooms, survive fights, claim rewards, and push deeper toward the next boss.",
 				"Held embers travel with the run until banked, spent, recovered, or lost."
@@ -58,7 +58,7 @@
 			"section": "basics",
 			"title": "Map and Rooms",
 			"default": true,
-			"icon": "move",
+			"icon": "map_rooms",
 			"body": [
 				"Revealed exits show where you can travel next. Cleared rooms stay available as routes.",
 				"Combat, campfire, merchant, treasure, relic, and boss rooms each change the next choice."
@@ -69,7 +69,7 @@
 			"section": "basics",
 			"title": "Character and Loadout",
 			"default": true,
-			"icon": "stat_focus",
+			"icon": "loadout",
 			"body": [
 				"Equipment, attuned magic, item slots, relics, and learned skills shape your deck and tactics.",
 				"Most loadout changes happen outside combat, including pre-battle and campfire moments."
@@ -80,7 +80,7 @@
 			"section": "basics",
 			"title": "Rewards",
 			"default": true,
-			"icon": "draw",
+			"icon": "rewards",
 			"body": [
 				"After combat, choose a card, take healing, or claim other room rewards when offered.",
 				"New magic cards enter reserve first; attune them from the character sheet to add them to the active deck."
@@ -91,7 +91,7 @@
 			"section": "basics",
 			"title": "Relics",
 			"default": true,
-			"icon": "element_fire",
+			"icon": "relics",
 			"body": [
 				"Relics are passive run modifiers. Some trigger in combat, some change card values, and some alter rewards.",
 				"Hover relic badges in the top HUD for their current text."
@@ -102,7 +102,7 @@
 			"section": "combat",
 			"title": "Combat Board",
 			"default": true,
-			"icon": "range",
+			"icon": "combat_board",
 			"body": [
 				"Cards resolve against board coordinates. A target is legal only when the card's targeting rule, range, line of sight, occupancy, and terrain checks all pass.",
 				"Card previews show legal targets, affected tiles, and projected result values before resolution."
@@ -113,7 +113,7 @@
 			"section": "combat",
 			"title": "Turn Clock",
 			"default": true,
-			"icon": "time",
+			"icon": "turn_clock",
 			"body": [
 				"Each played card adds its printed time to the acting unit's turn delay.",
 				"The turn clock orders actors by current delay and previews the next activations."
@@ -135,7 +135,7 @@
 			"section": "combat",
 			"title": "Health and Defenses",
 			"default": true,
-			"icon": "health",
+			"icon": "health_defense",
 			"body": [
 				"Non-piercing damage is applied to block first, then stoneskin, then health.",
 				"Block resets on that unit's turn boundary. Stoneskin persists until damage or sunder removes it."
@@ -146,7 +146,7 @@
 			"section": "combat",
 			"title": "Targeting",
 			"default": true,
-			"icon": "ranged",
+			"icon": "targeting",
 			"body": [
 				"Melee actions target adjacent or pattern-defined nearby tiles. Ranged actions require a legal range and line-of-sight path.",
 				"Area actions resolve over a tile pattern. Push and pull resolve forced movement along a legal direction until distance, blockers, or terrain stop the target."
@@ -157,7 +157,7 @@
 			"section": "combat",
 			"title": "Fatigue",
 			"default": true,
-			"icon": "exhaust",
+			"icon": "fatigue",
 			"body": [
 				"When a draw request empties the draw pile, the discard pile reshuffles into a new draw pile.",
 				"Each reshuffle increments fatigue. Fatigue deals direct health loss that bypasses block."
@@ -168,7 +168,7 @@
 			"section": "combat",
 			"title": "Traps",
 			"default": true,
-			"icon": "burn",
+			"icon": "traps",
 			"body": [
 				"Traps resolve when entered or struck and blast adjacent tiles.",
 				"A trap's damage scales with its matching elemental intensity. Calm rooms start slightly below base damage, but Volatile and Cataclysmic traps are much deadlier; the live tooltip shows the current damage.",
@@ -180,7 +180,7 @@
 			"section": "combat",
 			"title": "Elemental Intensity",
 			"default": true,
-			"icon": "element_fire",
+			"icon": "elemental_intensity",
 			"body": [
 				"Elemental intensity is a shared, room-scoped resource keyed by element. The room's own element starts at 1.",
 				"Cards and elemental enemies can build intensity. Threshold effects keep their outward glow, while cards that consume intensity show an inward siphon frame and a negative elemental cost.",
@@ -191,7 +191,7 @@
 			"id": "combat:lightning_strikes",
 			"section": "combat",
 			"title": "Lightning Strikes",
-			"icon": "shock",
+			"icon": "lightning_strikes",
 			"body": [
 				"Lightning strikes select a set of target tiles from the action definition and resolve shock damage on those tiles.",
 				"Strike tiles are previewed before the enemy activation resolves."
@@ -201,7 +201,7 @@
 			"id": "combat:summons",
 			"section": "combat",
 			"title": "Summons",
-			"icon": "illusion",
+			"icon": "summon_minions",
 			"body": [
 				"Summon actions create additional enemy units of the configured minion type.",
 				"Summoned units enter the normal turn clock, occupy board tiles, and use their own intent definitions."
@@ -211,7 +211,7 @@
 			"id": "combat:umbra",
 			"section": "combat",
 			"title": "The Umbra",
-			"icon": "dispel_umbra",
+			"icon": "umbra",
 			"body": [
 				"The Umbra hides board tiles beyond your current vision. Enemies concealed within it cannot be directly targeted, and their identities, intents, and threat previews remain hidden.",
 				"Umbra stages grow more severe deeper in the labyrinth. Radiance effects create light, extend your vision, reveal hidden enemies, or reduce the room's Umbra stage."
@@ -371,7 +371,7 @@
 			"section": "keywords",
 			"title": "Health Cost",
 			"default": true,
-			"icon": "health",
+			"icon": "health_cost",
 			"body": [
 				"Health cost is paid when the card is committed.",
 				"Health-cost loss bypasses block and stoneskin."
@@ -500,7 +500,7 @@
 			"id": "keyword:radiance",
 			"section": "keywords",
 			"title": "Radiance",
-			"icon": "illuminate",
+			"icon": "radiance",
 			"body": [
 				"Radiance cards carry light into the Umbra. Their effects include Illuminate, Vision, Truesight, and Dispel Umbra.",
 				"Radiance cards still follow their printed element, targeting, time, and card-play rules."
@@ -670,7 +670,7 @@
 			"id": "combat:worldspines",
 			"section": "combat",
 			"title": "Worldspines",
-			"icon": "stoneskin",
+			"icon": "worldspines",
 			"body": [
 				"Tharokh raises attackable stone spires at fixed arena positions.",
 				"Faultline ruptures every tile near a surviving Worldspine, then breaks the spires. Destroy them early to carve safe ground."
@@ -680,7 +680,7 @@
 			"id": "combat:cinder_marks",
 			"section": "combat",
 			"title": "Cinder Marks",
-			"icon": "burn",
+			"icon": "cinder_marks",
 			"body": [
 				"Vyraketh brands open tiles with cinder marks that can be attacked and triggered like traps.",
 				"On its next activation, Crownfire detonates every mark that remains. Each blast can overlap adjacent marks."
@@ -690,7 +690,7 @@
 			"id": "combat:hollow_gale",
 			"section": "combat",
 			"title": "The Hollow Gale",
-			"icon": "push",
+			"icon": "gale_force",
 			"body": [
 				"Vaeloryx's Hollow Gale reaches across the entire arena.",
 				"It damages the player, then pushes them away from the dragon one tile at a time; hazards encountered along the route still trigger."
@@ -700,7 +700,7 @@
 			"id": "combat:crystal_armor",
 			"section": "combat",
 			"title": "Crystal Armor",
-			"icon": "freeze",
+			"icon": "frost_armor",
 			"body": [
 				"Iskaldra forms multiple layers of crystal armor.",
 				"Each damaging hit breaks exactly one layer instead of dealing damage, rewarding flurries and inexpensive multi-hit attacks before a heavy strike."
@@ -710,7 +710,7 @@
 			"id": "combat:boss_eclipse",
 			"section": "combat",
 			"title": "The Last Eclipse",
-			"icon": "eclipse",
+			"icon": "umbra_eclipse",
 			"body": [
 				"Noctyrax temporarily forces the arena to Eclipse and immediately harms actors standing without Radiance.",
 				"Its Veilbound Acolytes vanish in the dark. Placed light, personal vision, truesight, and Umbra dispelling expose the battlefield and protect the player."

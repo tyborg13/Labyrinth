@@ -1,7 +1,7 @@
 {
   "version": 1,
   "layer": "shared",
-  "updated_at": "2026-07-23T07:09:37Z",
+  "updated_at": "2026-07-23T08:21:48Z",
   "notes": [
     {
       "id": "mnt_20260403T204405Z_bc012f2f",
@@ -6485,6 +6485,28 @@
       "source": {
         "branch": "codex/implement-qualitative-skill-tree-progression",
         "commit": "7caf8fe"
+      }
+    },
+    {
+      "id": "mnt_20260723T082148Z_711ea8a6",
+      "layer": "shared",
+      "kind": "pitfall",
+      "scope": {
+        "level": "file",
+        "path": "tests/test_icon_identity_policy.py",
+        "symbol": null
+      },
+      "scope_key": "file:tests/test_icon_identity_policy.py",
+      "summary": "Icon identity tests must audit consumers, not only asset inventories",
+      "details": "A unique registry can still be bypassed when RunScene or another consumer locally maps multiple named actions to one generic key, uses a procedural substitute, or falls back to a direct asset path. Keep card/enemy action types and grimoire topic keys centrally inventoried, allow only explicit exact-concept aliases, and assert the real consumers resolve through ActionIconLibrary.",
+      "status": "active",
+      "created_at": "2026-07-23T08:21:48Z",
+      "updated_at": "2026-07-23T08:21:48Z",
+      "expires_at": null,
+      "supersedes": [],
+      "source": {
+        "branch": "codex/implement-qualitative-skill-tree-progression",
+        "commit": "237c189"
       }
     }
   ]

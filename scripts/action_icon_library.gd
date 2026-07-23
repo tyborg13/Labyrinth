@@ -184,6 +184,146 @@ const KEYWORDS: Dictionary = {
 		"description": "Health paid to play this card.",
 		"path": "%s/health_cost.png" % ICON_ROOT
 	},
+	"aoe": {
+		"label": "Area Attack",
+		"description": "Affects a pattern of board tiles.",
+		"path": "%s/aoe.png" % ICON_ROOT
+	},
+	"lightning_strikes": {
+		"label": "Lightning Strikes",
+		"description": "Calls down lightning across several marked tiles.",
+		"path": "%s/lightning_strikes.png" % ICON_ROOT
+	},
+	"summon_minions": {
+		"label": "Summon Minions",
+		"description": "Adds new enemy units to the battle.",
+		"path": "%s/summon_minions.png" % ICON_ROOT
+	},
+	"raise_terrain": {
+		"label": "Raise Terrain",
+		"description": "Creates attackable terrain on the board.",
+		"path": "%s/raise_terrain.png" % ICON_ROOT
+	},
+	"terrain_burst": {
+		"label": "Terrain Burst",
+		"description": "Ruptures the arena around surviving terrain.",
+		"path": "%s/terrain_burst.png" % ICON_ROOT
+	},
+	"cinder_marks": {
+		"label": "Cinder Marks",
+		"description": "Places marks that threaten a later detonation.",
+		"path": "%s/cinder_marks.png" % ICON_ROOT
+	},
+	"detonate_cinders": {
+		"label": "Detonate Cinders",
+		"description": "Detonates every surviving cinder mark.",
+		"path": "%s/detonate_cinders.png" % ICON_ROOT
+	},
+	"gale_force": {
+		"label": "Hollow Gale",
+		"description": "Sweeps the target through the arena.",
+		"path": "%s/gale_force.png" % ICON_ROOT
+	},
+	"frost_armor": {
+		"label": "Crystal Armor",
+		"description": "Forms armor whose layers break one hit at a time.",
+		"path": "%s/frost_armor.png" % ICON_ROOT
+	},
+	"guard_ally": {
+		"label": "Guard Ally",
+		"description": "Grants block to another enemy.",
+		"path": "%s/guard_ally.png" % ICON_ROOT
+	},
+	"heal_ally": {
+		"label": "Heal Ally",
+		"description": "Restores another enemy's health.",
+		"path": "%s/heal_ally.png" % ICON_ROOT
+	},
+	"umbra_eclipse": {
+		"label": "The Last Eclipse",
+		"description": "Forces the arena into absolute Umbra.",
+		"path": "%s/umbra_eclipse.png" % ICON_ROOT
+	},
+	"radiance": {
+		"label": "Radiance",
+		"description": "Carries protective light into the Umbra.",
+		"path": "%s/radiance.png" % ICON_ROOT
+	},
+	"ember": {
+		"label": "Embers",
+		"description": "Run currency used to gain permanent levels.",
+		"path": "%s/ember.png" % ICON_ROOT
+	},
+	"run": {
+		"label": "The Run",
+		"description": "The full journey from entry to victory or defeat.",
+		"path": "%s/run.png" % ICON_ROOT
+	},
+	"map_rooms": {
+		"label": "Map and Rooms",
+		"description": "Routes and room types across the labyrinth.",
+		"path": "%s/map_rooms.png" % ICON_ROOT
+	},
+	"loadout": {
+		"label": "Character and Loadout",
+		"description": "Equipment, attuned magic, items, relics, and skills.",
+		"path": "%s/loadout.png" % ICON_ROOT
+	},
+	"rewards": {
+		"label": "Rewards",
+		"description": "Cards, healing, and other prizes claimed during a run.",
+		"path": "%s/rewards.png" % ICON_ROOT
+	},
+	"relics": {
+		"label": "Relics",
+		"description": "Passive run modifiers collected during exploration.",
+		"path": "%s/relics.png" % ICON_ROOT
+	},
+	"combat_board": {
+		"label": "Combat Board",
+		"description": "The tactical tile grid where actions resolve.",
+		"path": "%s/combat_board.png" % ICON_ROOT
+	},
+	"turn_clock": {
+		"label": "Turn Clock",
+		"description": "Orders the next actor by current initiative delay.",
+		"path": "%s/turn_clock.png" % ICON_ROOT
+	},
+	"health_defense": {
+		"label": "Health and Defenses",
+		"description": "Health protected by block and stoneskin.",
+		"path": "%s/health_defense.png" % ICON_ROOT
+	},
+	"targeting": {
+		"label": "Targeting",
+		"description": "Range, line of sight, patterns, and legal targets.",
+		"path": "%s/targeting.png" % ICON_ROOT
+	},
+	"fatigue": {
+		"label": "Fatigue",
+		"description": "Direct health loss caused by reshuffling an empty deck.",
+		"path": "%s/fatigue.png" % ICON_ROOT
+	},
+	"traps": {
+		"label": "Traps",
+		"description": "Board hazards triggered by movement or attacks.",
+		"path": "%s/traps.png" % ICON_ROOT
+	},
+	"elemental_intensity": {
+		"label": "Elemental Intensity",
+		"description": "The shared room power of all five elements.",
+		"path": "%s/elemental_intensity.png" % ICON_ROOT
+	},
+	"umbra": {
+		"label": "The Umbra",
+		"description": "Darkness that conceals tiles, enemies, and threats.",
+		"path": "%s/umbra.png" % ICON_ROOT
+	},
+	"worldspines": {
+		"label": "Worldspines",
+		"description": "Tharokh's attackable stone spires.",
+		"path": "%s/worldspines.png" % ICON_ROOT
+	},
 	"element_fire": {
 		"label": "Fire Intensity",
 		"description": "Room-wide Fire power. Some Fire card effects need this value.",
@@ -238,10 +378,55 @@ const SKILL_ICONS: Dictionary = {
 	"skill_last_door": {"label": "Last Door", "path": "%s/last_door.png" % SKILL_ICON_ROOT},
 }
 
+## Action names may share an icon only when players experience them as the exact
+## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
+const ACTION_ICON_ALIASES: Dictionary = {
+	"aoe": "aoe",
+	"blink": "blink",
+	"block": "block",
+	"card_play": "card_play",
+	"cinder_marks": "cinder_marks",
+	"consume": "consume",
+	"detonate_cinders": "detonate_cinders",
+	"dispel_umbra": "dispel_umbra",
+	"draw": "draw",
+	"exhaust": "exhaust",
+	"frost_armor": "frost_armor",
+	"gale_force": "gale_force",
+	"guard_ally": "guard_ally",
+	"heal": "heal",
+	"heal_ally": "heal_ally",
+	"heal_self": "heal",
+	"health_cost": "health_cost",
+	"illuminate": "illuminate",
+	"illusion": "illusion",
+	"lightning_strikes": "lightning_strikes",
+	"melee": "melee",
+	"move": "move",
+	"move_away": "retreat",
+	"move_toward": "move",
+	"pull": "pull",
+	"push": "push",
+	"raise_terrain": "raise_terrain",
+	"ranged": "ranged",
+	"stoneskin": "stoneskin",
+	"summon_minions": "summon_minions",
+	"terrain_burst": "terrain_burst",
+	"truesight": "truesight",
+	"umbra_eclipse": "umbra_eclipse",
+	"vision": "vision",
+}
+
 static func all_icon_keys() -> Array:
 	var result: Array = KEYWORDS.keys()
 	result.append_array(SKILL_ICONS.keys())
 	return result
+
+static func action_icon_key(action: Dictionary) -> String:
+	var action_type: String = str(action.get("type", ""))
+	if action_type in ["intensity", "intensity_spend"]:
+		return element_icon_key(str(action.get("element", action.get("_card_element", ElementData.NONE))))
+	return str(ACTION_ICON_ALIASES.get(action_type, ""))
 
 static func icon_path(icon_key: String) -> String:
 	return str(_icon_definition(icon_key).get("path", ""))

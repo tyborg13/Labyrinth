@@ -14,6 +14,37 @@ ROOTS = {
     "SKILL_ICON_ROOT": "assets/art/skills",
 }
 
+EXPECTED_GRIMOIRE_TOPIC_ICONS = {
+    "basic:run": "run",
+    "basic:map": "map_rooms",
+    "basic:loadout": "loadout",
+    "basic:rewards": "rewards",
+    "basic:relics": "relics",
+    "combat:board": "combat_board",
+    "combat:turn_clock": "turn_clock",
+    "combat:card_plays": "card_play",
+    "combat:health_defense": "health_defense",
+    "combat:targeting": "targeting",
+    "combat:fatigue": "fatigue",
+    "combat:traps": "traps",
+    "combat:intensity": "elemental_intensity",
+    "combat:lightning_strikes": "lightning_strikes",
+    "combat:summons": "summon_minions",
+    "combat:umbra": "umbra",
+    "combat:worldspines": "worldspines",
+    "combat:cinder_marks": "cinder_marks",
+    "combat:hollow_gale": "gale_force",
+    "combat:crystal_armor": "frost_armor",
+    "combat:boss_eclipse": "umbra_eclipse",
+}
+
+# These are one player-facing concept despite differing engine direction/target
+# names. Every other shared action icon is rejected.
+ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
+    frozenset({"heal", "heal_self"}),
+    frozenset({"move", "move_toward"}),
+}
+
 
 def _action_icon_paths() -> dict[str, str]:
     result: dict[str, str] = {}
@@ -30,6 +61,52 @@ def _action_icon_paths() -> dict[str, str]:
             if root_name in ROOTS:
                 result[current_key] = f"res://{ROOTS[root_name]}/{path_match.group(1)}"
     return result
+
+
+def _action_icon_aliases() -> dict[str, str]:
+    source = ACTION_ICON_LIBRARY.read_text(encoding="utf-8")
+    block = re.search(
+        r"const ACTION_ICON_ALIASES:\s*Dictionary\s*=\s*\{(?P<body>.*?)^\}",
+        source,
+        re.MULTILINE | re.DOTALL,
+    )
+    if block is None:
+        raise AssertionError("ActionIconLibrary must declare ACTION_ICON_ALIASES")
+    return dict(re.findall(r'^\s*"([^"]+)":\s*"([^"]+)"', block.group("body"), re.MULTILINE))
+
+
+def _declared_action_types(filename: str) -> set[str]:
+    payload = json.loads((REPO_ROOT / "data" / filename).read_text(encoding="utf-8"))
+    result: set[str] = set()
+
+    def visit(value: object) -> None:
+        if isinstance(value, dict):
+            actions = value.get("actions")
+            if isinstance(actions, list):
+                for action in actions:
+                    if isinstance(action, dict) and isinstance(action.get("type"), str):
+                        result.add(action["type"])
+                    visit(action)
+            for key, child in value.items():
+                if key != "actions":
+                    visit(child)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child)
+
+    visit(payload)
+    return result
+
+
+def _gd_function(source: str, function_name: str) -> str:
+    match = re.search(
+        rf"^func {re.escape(function_name)}\(.*?(?=^func |\Z)",
+        source,
+        re.MULTILINE | re.DOTALL,
+    )
+    if match is None:
+        raise AssertionError(f"Missing GDScript function: {function_name}")
+    return match.group(0)
 
 
 class IconIdentityPolicyTests(unittest.TestCase):
@@ -69,6 +146,75 @@ class IconIdentityPolicyTests(unittest.TestCase):
             digest = hashlib.sha256(asset_path.read_bytes()).hexdigest()
             self.assertNotIn(digest, hashes, f"{concept} is a byte-identical icon copy of {hashes.get(digest)}")
             hashes[digest] = concept
+
+    def test_every_data_action_resolves_through_the_central_icon_inventory(self) -> None:
+        registry = _action_icon_paths()
+        aliases = _action_icon_aliases()
+        declared_actions = _declared_action_types("cards.json") | _declared_action_types("enemies.json")
+        dynamic_action_types = {"intensity", "intensity_spend"}
+        self.assertFalse(
+            declared_actions - aliases.keys() - dynamic_action_types,
+            f"Action types lack a reviewed icon identity: {sorted(declared_actions - aliases.keys() - dynamic_action_types)}",
+        )
+        for action_type, icon_key in aliases.items():
+            self.assertIn(icon_key, registry, f"{action_type} maps to an unregistered icon key: {icon_key}")
+
+        action_types_by_icon: dict[str, set[str]] = {}
+        for action_type, icon_key in aliases.items():
+            action_types_by_icon.setdefault(icon_key, set()).add(action_type)
+        actual_shared_groups = {
+            frozenset(action_types)
+            for action_types in action_types_by_icon.values()
+            if len(action_types) > 1
+        }
+        self.assertEqual(
+            actual_shared_groups,
+            ALLOWED_EXACT_ACTION_ALIAS_GROUPS,
+            "Shared action icons require a narrow exact-concept exception",
+        )
+
+        run_scene = (REPO_ROOT / "scripts/run_scene.gd").read_text(encoding="utf-8")
+        for function_name in ("_action_step_icon_key", "_pre_battle_known_move_icon_key"):
+            function = _gd_function(run_scene, function_name)
+            self.assertIn(
+                "ActionIcons.action_icon_key(action)",
+                function,
+                f"{function_name} must consume the central action icon inventory",
+            )
+
+    def test_grimoire_icons_are_registered_and_semantically_exact(self) -> None:
+        registry = _action_icon_paths()
+        grimoire = json.loads((REPO_ROOT / "data/grimoire.json").read_text(encoding="utf-8"))
+        entries_with_icons = {
+            entry["id"]: entry["icon"]
+            for entry in grimoire["entries"]
+            if entry.get("icon")
+        }
+        for entry_id, icon_key in entries_with_icons.items():
+            self.assertIn(icon_key, registry, f"{entry_id} uses an unregistered icon key: {icon_key}")
+            if entry_id.startswith("keyword:"):
+                self.assertEqual(
+                    icon_key,
+                    entry_id.removeprefix("keyword:"),
+                    f"{entry_id} must use its own exact keyword icon",
+                )
+
+        actual_topic_icons = {
+            entry_id: icon_key
+            for entry_id, icon_key in entries_with_icons.items()
+            if not entry_id.startswith("keyword:")
+        }
+        self.assertEqual(
+            actual_topic_icons,
+            EXPECTED_GRIMOIRE_TOPIC_ICONS,
+            "Every icon-bearing grimoire topic must join the reviewed semantic inventory",
+        )
+
+        run_scene = (REPO_ROOT / "scripts/run_scene.gd").read_text(encoding="utf-8")
+        grimoire_consumer = _gd_function(run_scene, "_grimoire_entry_icon")
+        self.assertIn("ActionIcons.icon_texture(icon_key)", grimoire_consumer)
+        self.assertNotIn("res://assets/art/icons/%s", grimoire_consumer)
+        self.assertNotIn("_grimoire_aoe_icon_texture", run_scene)
 
     def test_policy_is_mandatory_for_ui_work(self) -> None:
         agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
